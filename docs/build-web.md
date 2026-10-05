@@ -84,6 +84,7 @@ and forest-floor plants, the prop view must report visible fallen logs, the drif
 report visible beach wood, the bird/fish views must report nonzero visible populations from the
 24-agent flock and 48-agent school population, the shark view must report the active offshore
 patrol, and the monkey view must report a visible member of the seven-agent GPU-skinned troop. The
+monkey startup diagnostics must also prove that the local-pose crossfade path is active. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.

@@ -65,6 +65,14 @@ namespace island
             TailTip
         };
 
+        enum class AnimationKind : std::uint8_t
+        {
+            Idle,
+            Observe,
+            Walk,
+            Run
+        };
+
         struct RigDefinition
         {
             std::array<Vector3, BoneCount> heads;
@@ -440,20 +448,92 @@ namespace island
             return mesh;
         }
 
-        [[nodiscard]] const char* ClipName(const MonkeyBehavior behavior)
+        [[nodiscard]] AnimationKind ClipForBehavior(const MonkeyBehavior behavior)
         {
             switch (behavior) {
             case MonkeyBehavior::Observe:
-                return "observe";
+                return AnimationKind::Observe;
             case MonkeyBehavior::Walk:
             case MonkeyBehavior::Wander:
-                return "walk";
+                return AnimationKind::Walk;
             case MonkeyBehavior::RunAway:
-                return "run";
+                return AnimationKind::Run;
             case MonkeyBehavior::Idle:
+                return AnimationKind::Idle;
+            }
+            return AnimationKind::Idle;
+        }
+
+        [[nodiscard]] const char* ClipName(const AnimationKind kind)
+        {
+            switch (kind) {
+            case AnimationKind::Observe:
+                return "observe";
+            case AnimationKind::Walk:
+                return "walk";
+            case AnimationKind::Run:
+                return "run";
+            case AnimationKind::Idle:
                 return "idle";
             }
             return "idle";
+        }
+
+        [[nodiscard]] float CrossfadeDuration(const AnimationKind from,
+                                              const AnimationKind to) noexcept
+        {
+            if (from == AnimationKind::Run || to == AnimationKind::Run) {
+                return 0.14f;
+            }
+            if (from == AnimationKind::Walk || to == AnimationKind::Walk) {
+                return 0.20f;
+            }
+            return 0.26f;
+        }
+
+        [[nodiscard]] Matrix BlendLocalTransform(const Matrix& from, const Matrix& to,
+                                                 const float amount)
+        {
+            Vector3 fromScale;
+            Vector3 fromTranslation;
+            Quaternion fromRotation;
+            Vector3 toScale;
+            Vector3 toTranslation;
+            Quaternion toRotation;
+            if (!from.Decompose(fromScale, fromRotation, fromTranslation)
+                || !to.Decompose(toScale, toRotation, toTranslation)) {
+                return Matrix::Lerp(from, to, amount);
+            }
+            return Matrix::CreateScale(Vector3::Lerp(fromScale, toScale, amount))
+                * Matrix::CreateFromQuaternion(
+                    Quaternion::Slerp(fromRotation, toRotation, amount))
+                * Matrix::CreateTranslation(
+                    Vector3::Lerp(fromTranslation, toTranslation, amount));
+        }
+
+        void BuildBlendedPalette(const SkinningData& data,
+                                 const std::span<const Matrix> source,
+                                 const std::span<const Matrix> target,
+                                 const float amount,
+                                 std::vector<Matrix>& local,
+                                 std::vector<Matrix>& world,
+                                 std::vector<Matrix>& skin)
+        {
+            const std::size_t boneCount = static_cast<std::size_t>(data.BoneCount);
+            local.resize(boneCount);
+            world.resize(boneCount);
+            skin.resize(boneCount);
+            const float eased = amount * amount * (3.0f - 2.0f * amount);
+            const bool hasPrefix = data.SkeletonRootPrefix.size() == boneCount;
+            for (std::size_t index = 0; index < boneCount; ++index) {
+                local[index] = BlendLocalTransform(source[index], target[index], eased);
+                const int parent = data.SkeletonHierarchy[index];
+                world[index] = parent < 0
+                    ? (hasPrefix ? local[index] * data.SkeletonRootPrefix[index]
+                                 : local[index])
+                    : local[index] * world[static_cast<std::size_t>(parent)];
+                skin[index] = data.InverseBindPose[index] * world[index];
+            }
         }
 
         const std::array<Vector3, 4> MonkeyColors = {
@@ -462,6 +542,20 @@ namespace island
             Vector3(0.24f, 0.18f, 0.14f),
             Vector3(0.46f, 0.32f, 0.20f)};
     }
+
+    struct MonkeyRenderer::PlaybackState
+    {
+        std::unique_ptr<AnimationPlayer> player;
+        AnimationKind activeClip = AnimationKind::Idle;
+        float lastAnimationSeconds = 0.0f;
+        float crossfadeStartSeconds = 0.0f;
+        float crossfadeDuration = 0.0f;
+        bool crossfading = false;
+        std::vector<Matrix> sourceLocalTransforms;
+        std::vector<Matrix> presentedLocalTransforms;
+        std::vector<Matrix> blendedWorldTransforms;
+        std::vector<Matrix> blendedSkinTransforms;
+    };
 
     MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device)
         : device_(device),
@@ -540,13 +634,14 @@ namespace island
         effect_->getDirectionalLight1Property().setEnabledProperty(false);
         effect_->getDirectionalLight2Property().setEnabledProperty(false);
 
-        players_.reserve(MonkeyTroop::MonkeyCount);
-        activeBehaviors_.assign(MonkeyTroop::MonkeyCount, MonkeyBehavior::Idle);
+        playbackStates_.reserve(MonkeyTroop::MonkeyCount);
         const AnimationClip& idle = skinningData_->AnimationClips.at("idle");
         for (std::size_t index = 0; index < MonkeyTroop::MonkeyCount; ++index) {
-            auto player = std::make_unique<AnimationPlayer>(*skinningData_);
-            player->StartClip(idle);
-            players_.push_back(std::move(player));
+            auto playback = std::make_unique<PlaybackState>();
+            playback->player = std::make_unique<AnimationPlayer>(*skinningData_);
+            playback->player->StartClip(idle);
+            playback->presentedLocalTransforms = playback->player->GetBoneTransforms();
+            playbackStates_.push_back(std::move(playback));
         }
     }
 
@@ -560,6 +655,7 @@ namespace island
         visibleNearMonkeyCount_ = 0;
         visibleFarMonkeyCount_ = 0;
         drawCallCount_ = 0;
+        activeCrossfadeCount_ = 0;
         const BoundingFrustum frustum(view * projection);
         effect_->setViewProperty(view);
         effect_->setProjectionProperty(projection);
@@ -567,9 +663,53 @@ namespace island
         device_.setBlendStateProperty(BlendState::Opaque);
         device_.setDepthStencilStateProperty(DepthStencilState::Default);
 
-        const std::size_t count = std::min(monkeys.size(), players_.size());
+        const std::size_t count = std::min(monkeys.size(), playbackStates_.size());
         for (std::size_t index = 0; index < count; ++index) {
             const MonkeyState& monkey = monkeys[index];
+            PlaybackState& playback = *playbackStates_[index];
+            const AnimationKind requestedClip = ClipForBehavior(monkey.behavior);
+            if (playback.activeClip != requestedClip) {
+                playback.sourceLocalTransforms = playback.presentedLocalTransforms;
+                playback.crossfadeStartSeconds = monkey.animationSeconds;
+                playback.crossfadeDuration = CrossfadeDuration(
+                    playback.activeClip, requestedClip);
+                playback.crossfading = true;
+                playback.activeClip = requestedClip;
+                playback.player->StartClip(
+                    skinningData_->AnimationClips.at(ClipName(requestedClip)));
+                playback.lastAnimationSeconds = monkey.animationSeconds;
+            } else {
+                const float elapsed = std::max(
+                    0.0f, monkey.animationSeconds - playback.lastAnimationSeconds);
+                if (elapsed > 0.0f) {
+                    playback.player->Update(System::TimeSpan::FromSeconds(elapsed), true, true);
+                }
+                playback.lastAnimationSeconds = monkey.animationSeconds;
+            }
+
+            const std::vector<Matrix>* skinTransforms = &playback.player->GetSkinTransforms();
+            if (playback.crossfading) {
+                const float amount = std::clamp(
+                    (monkey.animationSeconds - playback.crossfadeStartSeconds)
+                        / playback.crossfadeDuration,
+                    0.0f, 1.0f);
+                if (amount < 1.0f) {
+                    BuildBlendedPalette(*skinningData_, playback.sourceLocalTransforms,
+                                        playback.player->GetBoneTransforms(), amount,
+                                        playback.presentedLocalTransforms,
+                                        playback.blendedWorldTransforms,
+                                        playback.blendedSkinTransforms);
+                    skinTransforms = &playback.blendedSkinTransforms;
+                    ++activeCrossfadeCount_;
+                } else {
+                    playback.crossfading = false;
+                    playback.presentedLocalTransforms = playback.player->GetBoneTransforms();
+                    ++completedCrossfadeCount_;
+                }
+            } else {
+                playback.presentedLocalTransforms = playback.player->GetBoneTransforms();
+            }
+
             const Vector3 centre(monkey.x, monkey.y + 0.72f * monkey.scale, monkey.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
             if (distanceSquared > MaximumDistance * MaximumDistance
@@ -577,14 +717,7 @@ namespace island
                 continue;
             }
 
-            const char* clipName = ClipName(monkey.behavior);
-            if (activeBehaviors_[index] != monkey.behavior) {
-                players_[index]->StartClip(skinningData_->AnimationClips.at(clipName));
-                activeBehaviors_[index] = monkey.behavior;
-            }
-            players_[index]->Update(System::TimeSpan::FromSeconds(monkey.animationSeconds),
-                                    false, true);
-            effect_->SetBoneTransforms(players_[index]->GetSkinTransforms());
+            effect_->SetBoneTransforms(*skinTransforms);
             effect_->setDiffuseColorProperty(
                 MonkeyColors[monkey.colorVariant % MonkeyColors.size()]);
             const float yaw = std::numbers::pi_v<float> * 0.5f - monkey.headingRadians;

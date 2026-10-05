@@ -515,6 +515,7 @@ try {
   const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")
+    && /blends [1-9][0-9]*\/0 active\/completed/.test(monkeyResult.output ?? "")
     && !monkeyResult.error;
 
   await call("Emulation.setDeviceMetricsOverride", {

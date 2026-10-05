@@ -11,7 +11,6 @@
 
 namespace Microsoft::Xna::Framework::Graphics
 {
-    class AnimationPlayer;
     class GraphicsDevice;
     class IndexBuffer;
     class SkinnedEffect;
@@ -47,8 +46,16 @@ namespace island
             return visibleFarMonkeyCount_;
         }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] int ActiveCrossfadeCount() const noexcept {
+            return activeCrossfadeCount_;
+        }
+        [[nodiscard]] std::uint64_t CompletedCrossfadeCount() const noexcept {
+            return completedCrossfadeCount_;
+        }
 
     private:
+        struct PlaybackState;
+
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> whiteTexture_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinnedEffect> effect_;
@@ -61,8 +68,7 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> faceIndices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> eyeVertices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> eyeIndices_;
-        std::vector<std::unique_ptr<Microsoft::Xna::Framework::Graphics::AnimationPlayer>> players_;
-        std::vector<MonkeyBehavior> activeBehaviors_;
+        std::vector<std::unique_ptr<PlaybackState>> playbackStates_;
         int nearVertexCount_ = 0;
         int nearPrimitiveCount_ = 0;
         int farVertexCount_ = 0;
@@ -75,5 +81,7 @@ namespace island
         int visibleNearMonkeyCount_ = 0;
         int visibleFarMonkeyCount_ = 0;
         int drawCallCount_ = 0;
+        int activeCrossfadeCount_ = 0;
+        std::uint64_t completedCrossfadeCount_ = 0U;
     };
 }

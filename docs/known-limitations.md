@@ -44,10 +44,10 @@ been confirmed so far.
   underwater integration still need subjective tuning. Seven first-pass procedural monkeys use a
   real fourteen-bone CNA GPU-skinning path and idle/observe/walk/run animation driven by a compact
   autonomous state machine. They share the player's trunk, solid-rock, and fallen-log proxies and
-  use short lateral deflections before abandoning blocked targets. They remain intentionally
-  simple: clip changes do not crossfade, tightly cluttered pockets can cause an early target
-  reselection, and geometry/material variation plus long subjective behaviour tuning remain
-  limited.
+  use short lateral deflections before abandoning blocked targets. Idle/observe/walk/run changes
+  now use short local-pose crossfades and preserve a continuous walk phase. They remain
+  intentionally simple: tightly cluttered pockets can cause an early target reselection, and
+  geometry/material variation plus long subjective behaviour tuning remain limited.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
   through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional

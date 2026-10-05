@@ -47,6 +47,7 @@ namespace island
         constexpr float MouseSensitivity = 0.0021f;
         constexpr float TouchLookSensitivity = 0.0032f;
         constexpr std::uint32_t SmokeTestFrames = 4U;
+        constexpr std::uint32_t MonkeyCaptureFrames = 24U;
 
         [[nodiscard]] Color BlendColor(const Color& from, const Color& to, const float amount)
         {
@@ -788,6 +789,8 @@ namespace island
             }
             overlayState.monkeyDraws = monkeyRenderer_->DrawCallCount();
             overlayState.monkeyObstacleDeflections = monkeyTroop_.ObstacleDeflectionCount();
+            overlayState.activeMonkeyCrossfades = monkeyRenderer_->ActiveCrossfadeCount();
+            overlayState.completedMonkeyCrossfades = monkeyRenderer_->CompletedCrossfadeCount();
             overlayState.audioAvailable = soundscape_ && soundscape_->IsAvailable();
             overlayState.audioMuted = soundscape_ && soundscape_->IsMuted();
             if (soundscape_) {
@@ -846,13 +849,24 @@ namespace island
                       << sharkRenderer_->DrawCallCount() << " draw; monkeys "
                       << monkeyRenderer_->VisibleMonkeyCount() << '/'
                       << monkeyTroop_.Monkeys().size() << " visible, "
-                      << monkeyRenderer_->DrawCallCount() << " draws\n";
+                      << monkeyRenderer_->DrawCallCount() << " draws, blends "
+                      << monkeyRenderer_->ActiveCrossfadeCount() << '/'
+                      << monkeyRenderer_->CompletedCrossfadeCount() << " active/completed\n";
         }
         ++drawnFrames_;
-        if (!capturePath_.empty() && drawnFrames_ == SmokeTestFrames) {
+        const std::uint32_t targetFrames = !capturePath_.empty()
+                && viewpoint_ == FixedViewpoint::MonkeyDetail
+            ? MonkeyCaptureFrames : SmokeTestFrames;
+        if (!capturePath_.empty() && drawnFrames_ == targetFrames) {
             CaptureFrame(capturePath_);
+            if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
+                std::cout << "island-simulator: monkey crossfades "
+                          << monkeyRenderer_->ActiveCrossfadeCount() << '/'
+                          << monkeyRenderer_->CompletedCrossfadeCount()
+                          << " active/completed\n";
+            }
         }
-        if (smokeTest_ && drawnFrames_ >= SmokeTestFrames) {
+        if (smokeTest_ && drawnFrames_ >= targetFrames) {
             std::cout << "island-simulator: smoke test rendered " << drawnFrames_ << " frames\n";
             Exit();
         }

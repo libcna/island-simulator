@@ -276,7 +276,9 @@ namespace island
                 << " ST " << state.idleMonkeys << '/' << state.observeMonkeys << '/'
                 << state.walkingMonkeys << '/' << state.runningMonkeys
                 << " DRAWS " << state.monkeyDraws
-                << " AVOID " << state.monkeyObstacleDeflections;
+                << " AVOID " << state.monkeyObstacleDeflections
+                << " XFADE " << state.activeMonkeyCrossfades << '/'
+                << state.completedMonkeyCrossfades;
         lines.push_back(monkeys.str());
 
         auto audio = DiagnosticLine();

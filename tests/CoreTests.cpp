@@ -696,6 +696,7 @@ int main()
     bool observedMonkeyFullTier = false;
     bool observedMonkeyReducedTier = false;
     bool observedMonkeyDormantTier = false;
+    bool observedMonkeyContinuousClipClock = false;
     float monkeyTravelDistance = 0.0f;
     std::vector<island::MonkeyState> previousMonkeys(
         monkeys.Monkeys().begin(), monkeys.Monkeys().end());
@@ -735,6 +736,11 @@ int main()
                       && std::isfinite(state.z) && std::isfinite(state.headingRadians)
                       && std::isfinite(state.animationSeconds),
                   "monkey pose remains finite over a long session");
+            Check(state.animationSeconds >= previousMonkeys[index].animationSeconds,
+                  "monkey animation clock remains monotonic across behaviour changes");
+            observedMonkeyContinuousClipClock = observedMonkeyContinuousClipClock
+                || (state.behavior != previousMonkeys[index].behavior
+                    && state.animationSeconds > previousMonkeys[index].animationSeconds);
             Check(sample.signedShoreDistance >= 47.8f && sample.height >= 2.75f
                       && sample.slopeRadians <= 0.465f
                       && std::fabs(state.y - sample.height) < 0.001f,
@@ -773,6 +779,8 @@ int main()
               && monkeys.ObstacleDeflectionCount()
                   == repeatedMonkeys.ObstacleDeflectionCount(),
           "monkey obstacle steering is exercised and remains deterministic");
+    Check(observedMonkeyContinuousClipClock,
+          "monkey behaviour changes preserve a continuous renderer animation clock");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");

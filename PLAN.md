@@ -458,9 +458,10 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Implement compact `Idle`, `Observe`, `Wander`, `Walk`, and `RunAway` states. Seven agents use
   deterministic timers/targets, and the close-review scene exercises idle, observe, walk, and mild
   avoidance in the same frame.
-- [~] Blend or transition clips without visible snapping; synchronize movement with animation
-  speed. Walk/run cycles are speed-matched first passes, but state changes currently restart clips
-  without crossfading.
+- [x] Blend or transition clips without visible snapping; synchronize movement with animation
+  speed. Walk/run cycles are speed-matched, `Wander` to `Walk` preserves its locomotion phase, and
+  idle/observe/walk/run changes use 0.14--0.26 second eased local-transform crossfades before
+  recomposing the world and skinning palettes.
 - [x] Constrain monkeys to valid land/terrain regions and avoid water, steep slopes, and props.
   Terrain, shore, slope, and bounded-home constraints are enforced continuously. The troop also
   consumes the same palm, broadleaf, solid-rock, and fallen-log circular proxies as player
@@ -835,9 +836,9 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Polish the first GPU-skinned monkey troop: add short clip crossfades, more silhouette/material
-   variation, and long subjective behaviour observation before adding sparse monkey calls. Shared
-   trunk/rock/log avoidance is complete. Keep bird, fish, and shark layers under subjective
+2. Polish the first GPU-skinned monkey troop with more silhouette/material variation and long
+   subjective behaviour observation before adding sparse monkey calls. Short clip crossfades and
+   shared trunk/rock/log avoidance are complete. Keep bird, fish, and shark layers under subjective
    observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
@@ -1460,13 +1461,23 @@ Work next, in order:
   before selecting a new state. The debug overlay exposes cumulative avoidance deflections.
 - Re-ran the twenty-minute core simulation against the complete deterministic world proxy set. It
   verifies continuous sampled clearance, deterministic deflection counts, valid terrain, all
-  states and activation tiers, and meaningful travel. Remaining monkey work is explicit: clip
-  crossfades, greater silhouette/material variation, sparse positional calls, long subjective
-  behaviour tuning, and stable Android runtime validation.
+  states and activation tiers, and meaningful travel. Remaining monkey work is explicit: greater
+  silhouette/material variation, sparse positional calls, long subjective behaviour tuning, and
+  stable Android runtime validation.
 - Re-ran all eleven native OpenGL 3.3 smoke/capture scenes and visually reviewed the relocated
   obstacle-aware monkey composition. Rebuilt WebGL 2 and passed the complete actual-Chromium
   scene/input/audio-init harness with the same placement. Rebuilt and linted the arm64-v8a GLES 3
   APK; device runtime remains explicitly unqualified.
+- Added game-side 0.14--0.26 second skeletal crossfades. The renderer snapshots the actually
+  presented local pose, samples CNA's new clip pose, blends scale/translation and slerps rotation,
+  then recomposes the hierarchy and inverse-bind palette. A continuous per-agent animation clock
+  prevents the `Wander` to `Walk` alias from restarting the same locomotion clip. The dedicated
+  native monkey capture now waits 24 frames so visual review sees the settled pose; the overlay
+  reports active/completed crossfades and WebGL validation requires the startup blend path.
+- The crossfade pass retains the complete twenty-minute core regression, passes all eleven native
+  OpenGL 3.3 scenes with the monkey test requiring a completed startup blend, and passes the full
+  actual-Chromium WebGL 2 harness with an active startup-blend assertion. The arm64-v8a GLES 3 APK
+  also rebuilds and passes app lint; only Android runtime remains unqualified.
 
 ## Session-end checklist
 

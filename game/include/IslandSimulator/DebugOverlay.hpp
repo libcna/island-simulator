@@ -93,6 +93,8 @@ namespace island
         int runningMonkeys = 0;
         int monkeyDraws = 0;
         std::uint64_t monkeyObstacleDeflections = 0U;
+        int activeMonkeyCrossfades = 0;
+        std::uint64_t completedMonkeyCrossfades = 0U;
         bool audioAvailable = false;
         bool audioMuted = false;
         float surfVolume = 0.0f;

@@ -68,7 +68,7 @@ Xwayland runner:
 `IslandGameSharkCapture` writes a close offshore patrol view to
 `build/island-shark-capture.ppm`.
 `IslandGameMonkeyCapture` writes a close GPU-skinned jungle wildlife view to
-`build/island-monkey-capture.ppm`.
+`build/island-monkey-capture.ppm`; it waits 24 frames so startup crossfades settle before capture.
 They are reproducible QA outputs and are ignored by Git. Convert or inspect them only during a
 visual review.
 

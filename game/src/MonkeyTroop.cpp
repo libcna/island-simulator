@@ -140,7 +140,6 @@ namespace island
     void MonkeyTroop::EnterState(Agent& agent, const MonkeyBehavior behavior) noexcept
     {
         agent.state.behavior = behavior;
-        agent.state.animationSeconds = 0.0f;
         ++agent.decisionCounter;
         const float variation = UnitSequence(agent.decisionCounter) * 2.4f;
         switch (behavior) {
