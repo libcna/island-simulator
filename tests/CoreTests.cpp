@@ -3,6 +3,7 @@
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
@@ -666,6 +667,84 @@ int main()
           "shark animation visits both tail-stroke extremes");
     Check(sharkTravelDistance > 700.0f,
           "shark patrol covers a meaningful offshore route over time");
+
+    island::MonkeyTroop monkeys(terrain);
+    island::MonkeyTroop repeatedMonkeys(terrain);
+    Check(monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount,
+          "monkey troop has the intended bounded population");
+    Check(monkeys.Monkeys().size() == repeatedMonkeys.Monkeys().size(),
+          "repeated monkey troop has the same population");
+    bool observedMonkeyIdle = false;
+    bool observedMonkeyObserve = false;
+    bool observedMonkeyWalk = false;
+    bool observedMonkeyRunAway = false;
+    bool observedMonkeyFullTier = false;
+    bool observedMonkeyReducedTier = false;
+    bool observedMonkeyDormantTier = false;
+    float monkeyTravelDistance = 0.0f;
+    std::vector<island::MonkeyState> previousMonkeys(
+        monkeys.Monkeys().begin(), monkeys.Monkeys().end());
+    constexpr int monkeySimulationFrames = 36000;
+    for (int frame = 0; frame < monkeySimulationFrames; ++frame) {
+        const island::MonkeyState followed = monkeys.Monkeys().front();
+        const float observerX = frame < 240 ? followed.x
+            : (frame < 12000 ? 0.0f : (frame < 18000 ? 1000.0f : -40.0f));
+        const float observerY = frame < 240 ? followed.y + 1.0f : 4.0f;
+        const float observerZ = frame < 240 ? followed.z
+            : (frame < 12000 ? 0.0f : (frame < 18000 ? 1000.0f : 35.0f));
+        monkeys.Update(1.0f / 30.0f, observerX, observerY, observerZ);
+        repeatedMonkeys.Update(1.0f / 30.0f, observerX, observerY, observerZ);
+        Check(monkeys.FullSimulationCount() + monkeys.ReducedSimulationCount()
+                  + monkeys.DormantSimulationCount()
+                  == static_cast<int>(island::MonkeyTroop::MonkeyCount),
+              "monkey simulation tiers account for the whole troop");
+        observedMonkeyFullTier = observedMonkeyFullTier
+            || monkeys.FullSimulationCount() > 0;
+        observedMonkeyReducedTier = observedMonkeyReducedTier
+            || monkeys.ReducedSimulationCount() > 0;
+        observedMonkeyDormantTier = observedMonkeyDormantTier
+            || monkeys.DormantSimulationCount() > 0;
+        for (std::size_t index = 0; index < monkeys.Monkeys().size(); ++index) {
+            const island::MonkeyState& state = monkeys.Monkeys()[index];
+            const island::MonkeyState& repeated = repeatedMonkeys.Monkeys()[index];
+            const island::TerrainSample sample = terrain.Sample(state.x, state.z);
+            Check(state.x == repeated.x && state.y == repeated.y
+                      && state.z == repeated.z
+                      && state.headingRadians == repeated.headingRadians
+                      && state.speed == repeated.speed
+                      && state.animationSeconds == repeated.animationSeconds
+                      && state.behavior == repeated.behavior
+                      && state.simulationTier == repeated.simulationTier,
+                  "monkey troop remains deterministic over a long session");
+            Check(std::isfinite(state.x) && std::isfinite(state.y)
+                      && std::isfinite(state.z) && std::isfinite(state.headingRadians)
+                      && std::isfinite(state.animationSeconds),
+                  "monkey pose remains finite over a long session");
+            Check(sample.signedShoreDistance >= 47.8f && sample.height >= 2.75f
+                      && sample.slopeRadians <= 0.465f
+                      && std::fabs(state.y - sample.height) < 0.001f,
+                  "monkeys remain on supported traversable interior terrain");
+            monkeyTravelDistance += std::hypot(
+                state.x - previousMonkeys[index].x,
+                state.z - previousMonkeys[index].z);
+            previousMonkeys[index] = state;
+            observedMonkeyIdle = observedMonkeyIdle
+                || state.behavior == island::MonkeyBehavior::Idle;
+            observedMonkeyObserve = observedMonkeyObserve
+                || state.behavior == island::MonkeyBehavior::Observe;
+            observedMonkeyWalk = observedMonkeyWalk
+                || state.behavior == island::MonkeyBehavior::Walk;
+            observedMonkeyRunAway = observedMonkeyRunAway
+                || state.behavior == island::MonkeyBehavior::RunAway;
+        }
+    }
+    Check(observedMonkeyIdle && observedMonkeyObserve && observedMonkeyWalk
+              && observedMonkeyRunAway,
+          "monkey troop visits idle, observe, walk, and mild avoidance states");
+    Check(observedMonkeyFullTier && observedMonkeyReducedTier && observedMonkeyDormantTier,
+          "monkey troop exercises every simulation quality tier");
+    Check(monkeyTravelDistance > 900.0f,
+          "monkey troop covers meaningful valid ground during a long session");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");

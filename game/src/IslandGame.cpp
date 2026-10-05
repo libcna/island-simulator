@@ -104,6 +104,7 @@ namespace island
           birdFlock_(terrain_),
           fishSchools_(terrain_),
           sharkPatrol_(terrain_),
+          monkeyTroop_(terrain_),
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
@@ -205,6 +206,17 @@ namespace island
             const Vector3 toShark = Vector3(shark.x, shark.y, shark.z) - cameraPosition_;
             yaw_ = std::atan2(toShark.X, toShark.Z);
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
+        } else if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
+            const MonkeyState& monkey = monkeyTroop_.Monkeys().front();
+            const Vector3 forward(std::cos(monkey.headingRadians), 0.0f,
+                                  std::sin(monkey.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
+            cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
+                + forward * 4.2f + side * 1.0f + Vector3::Up * 1.40f;
+            const Vector3 toMonkey = Vector3(monkey.x, monkey.y + 0.72f, monkey.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(toMonkey.X, toMonkey.Z);
+            pitch_ = std::atan2(toMonkey.Y, std::hypot(toMonkey.X, toMonkey.Z));
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -236,6 +248,7 @@ namespace island
         birdRenderer_ = std::make_unique<BirdRenderer>(device);
         fishRenderer_ = std::make_unique<FishRenderer>(device);
         sharkRenderer_ = std::make_unique<SharkRenderer>(device);
+        monkeyRenderer_ = std::make_unique<MonkeyRenderer>(device);
         grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
         jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
@@ -263,7 +276,9 @@ namespace island
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
-                  << "island-simulator: one occasional non-hostile offshore shark patrol\n";
+                  << "island-simulator: one occasional non-hostile offshore shark patrol\n"
+                  << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
+                  << " agents with portable GPU skeletal animation\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -358,6 +373,7 @@ namespace island
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        monkeyTroop_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         if (inputDiagnostics_) {
             inputDiagnosticsTimer_ += deltaSeconds;
             if (inputDiagnosticsTimer_ >= 0.25f) {
@@ -449,11 +465,11 @@ namespace island
         }
         debugOverlayToggleWasDown_ = debugOverlayToggleDown;
 
-        constexpr std::array<Keys, 6> teleportKeys = {
-            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10};
-        constexpr std::array<const char*, 6> teleportNames = {
+        constexpr std::array<Keys, 7> teleportKeys = {
+            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::F11};
+        constexpr std::array<const char*, 7> teleportNames = {
             "south beach", "jungle trail", "east clearing", "west clearing",
-            "fish shallows", "offshore shark"};
+            "fish shallows", "offshore shark", "monkey troop"};
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
@@ -490,6 +506,12 @@ namespace island
                     z = std::sin(angle) * radius;
                     yaw_ = std::atan2(shark.x - x, shark.z - z);
                     pitch_ = -0.095f;
+                } else if (index == 6U) {
+                    const MonkeyState& monkey = monkeyTroop_.Monkeys().front();
+                    x = monkey.x + std::cos(monkey.headingRadians) * 5.0f;
+                    z = monkey.z + std::sin(monkey.headingRadians) * 5.0f;
+                    yaw_ = std::atan2(monkey.x - x, monkey.z - z);
+                    pitch_ = -0.08f;
                 }
                 playerMotion_.SetPosition(terrain_, x, z);
                 const PlayerPosition& teleported = playerMotion_.Position();
@@ -659,6 +681,10 @@ namespace island
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              sharkPatrol_.State());
 
+        monkeyRenderer_->Draw(terrainEffect_->getViewProperty(),
+                              terrainEffect_->getProjectionProperty(), cameraPosition_,
+                              monkeyTroop_.Monkeys());
+
         oceanRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
@@ -735,6 +761,31 @@ namespace island
             overlayState.sharkDraws = sharkRenderer_->DrawCallCount();
             overlayState.sharkPresenceCycles = static_cast<int>(
                 sharkPatrol_.PresenceCycleCount());
+            overlayState.visibleMonkeys = monkeyRenderer_->VisibleMonkeyCount();
+            overlayState.totalMonkeys = static_cast<int>(monkeyTroop_.Monkeys().size());
+            overlayState.nearMonkeys = monkeyRenderer_->VisibleNearMonkeyCount();
+            overlayState.farMonkeys = monkeyRenderer_->VisibleFarMonkeyCount();
+            overlayState.fullSimulationMonkeys = monkeyTroop_.FullSimulationCount();
+            overlayState.reducedSimulationMonkeys = monkeyTroop_.ReducedSimulationCount();
+            overlayState.dormantSimulationMonkeys = monkeyTroop_.DormantSimulationCount();
+            for (const MonkeyState& monkey : monkeyTroop_.Monkeys()) {
+                switch (monkey.behavior) {
+                case MonkeyBehavior::Idle:
+                    ++overlayState.idleMonkeys;
+                    break;
+                case MonkeyBehavior::Observe:
+                    ++overlayState.observeMonkeys;
+                    break;
+                case MonkeyBehavior::Wander:
+                case MonkeyBehavior::Walk:
+                    ++overlayState.walkingMonkeys;
+                    break;
+                case MonkeyBehavior::RunAway:
+                    ++overlayState.runningMonkeys;
+                    break;
+                }
+            }
+            overlayState.monkeyDraws = monkeyRenderer_->DrawCallCount();
             overlayState.audioAvailable = soundscape_ && soundscape_->IsAvailable();
             overlayState.audioMuted = soundscape_ && soundscape_->IsMuted();
             if (soundscape_) {
@@ -790,7 +841,10 @@ namespace island
                       << fishRenderer_->DrawCallCount() << " draw; shark "
                       << (sharkRenderer_->IsVisible() ? "visible" : "culled")
                       << " activity " << sharkPatrol_.State().activity << ", "
-                      << sharkRenderer_->DrawCallCount() << " draw\n";
+                      << sharkRenderer_->DrawCallCount() << " draw; monkeys "
+                      << monkeyRenderer_->VisibleMonkeyCount() << '/'
+                      << monkeyTroop_.Monkeys().size() << " visible, "
+                      << monkeyRenderer_->DrawCallCount() << " draws\n";
         }
         ++drawnFrames_;
         if (!capturePath_.empty() && drawnFrames_ == SmokeTestFrames) {

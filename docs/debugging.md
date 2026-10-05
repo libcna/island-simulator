@@ -14,10 +14,10 @@ The overlay is deliberately implemented with CNA's public `SpriteBatch`, `Sprite
 `Texture2D` APIs. Its original 5 by 7 uppercase font atlas is generated at runtime, so debugging
 does not depend on a platform font, a content compiler, or an undeclared asset.
 
-While the overlay is visible, F5 through F10 teleport to the south beach, jungle trail, east
-clearing, west clearing, south fish shallows, and offshore shark view. These fixed locations
-shorten traversal and wildlife/vegetation QA without exposing teleports during the ordinary
-presentation.
+While the overlay is visible, F5 through F11 teleport to the south beach, jungle trail, east
+clearing, west clearing, south fish shallows, offshore shark view, and monkey troop. These fixed
+locations shorten traversal and wildlife/vegetation QA without exposing teleports during the
+ordinary presentation.
 
 Current fields are:
 
@@ -35,6 +35,8 @@ Current fields are:
 - visible/total fish, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
 - shark presence, visibility, activity, near/far render LOD, simulation tier, patrol cycles, and
   draw count;
+- visible/total monkeys, near/far render LOD, full/reduced/dormant simulation tiers, compact
+  idle/observe/walk/run state counts, and draw count;
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, and played
   stronger-wave and water-transition counts.
 
@@ -56,11 +58,12 @@ build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
 build/island-simulator --capture /tmp/island-birds.ppm --viewpoint birds
 build/island-simulator --capture /tmp/island-fish.ppm --viewpoint fish
 build/island-simulator --capture /tmp/island-shark.ppm --viewpoint shark
+build/island-simulator --capture /tmp/island-monkeys.ppm --viewpoint monkeys
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 ```
 
 These runs render four frames and exit. The WebGL 2 harness writes corresponding overview, beach,
-jungle, prop, driftwood, bird, fish, and shark PNG captures plus a JSON report under
+jungle, prop, driftwood, bird, fish, shark, and monkey PNG captures plus a JSON report under
 `build-probe/`. Captures prove
 initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input

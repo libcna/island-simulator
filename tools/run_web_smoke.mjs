@@ -137,6 +137,7 @@ try {
     && result.output?.includes("island-simulator: birds 24 agents")
     && result.output?.includes("island-simulator: fish 48 agents")
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
+    && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
@@ -487,6 +488,35 @@ try {
     && /shark visible activity/.test(sharkResult.output ?? "")
     && !sharkResult.error;
 
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=monkeys`,
+  }, visualSessionId);
+  let monkeyResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    monkeyResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (monkeyResult.output?.includes("island-simulator: terrain") || monkeyResult.error) break;
+  }
+  await delay(1000);
+  const completedMonkeyEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  monkeyResult = JSON.parse(completedMonkeyEvaluation.result.value ?? "{}");
+
+  const monkeyScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const monkeyScreenshotPath = path.join(buildDirectory, "island-browser-monkeys.png");
+  await writeFile(monkeyScreenshotPath, Buffer.from(monkeyScreenshot.data, "base64"));
+  const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
+    && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
+    && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")
+    && !monkeyResult.error;
+
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
   }, visualSessionId);
@@ -670,7 +700,7 @@ try {
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
     && junglePassed && propPassed && driftwoodPassed && birdPassed && fishPassed
-    && sharkPassed && inputPassed;
+    && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -725,6 +755,11 @@ try {
       output: sharkResult.output ?? "",
       error: sharkResult.error ?? "",
     },
+    monkeys: {
+      passed: monkeyPassed,
+      output: monkeyResult.output ?? "",
+      error: monkeyResult.error ?? "",
+    },
     input: {
       passed: inputPassed,
       pointerLocked: lockedState.pointerLocked ?? false,
@@ -752,6 +787,7 @@ try {
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),
     sharkScreenshot: path.basename(sharkScreenshotPath),
+    monkeyScreenshot: path.basename(monkeyScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

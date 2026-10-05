@@ -34,6 +34,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── SharkPatrol ─────── occasional offshore patrol, dive cycle, and simulation tier
       │       │
       │       └── SharkRenderer ─ CPU body pose, near/far meshes, culling, one dynamic batch
+      ├── MonkeyTroop ─────── interior state machine, terrain constraints, and simulation tiers
+      │       │
+      │       └── MonkeyRenderer ─ generated rig/mesh/clips and portable CNA GPU skinning
       ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
@@ -46,8 +49,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 ```
 
 `IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`,
-`NaturalPropLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `WildlifeActivationPolicy`,
-`TouchControls`, and
+`NaturalPropLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
+`WildlifeActivationPolicy`, `TouchControls`, and
 `SoundscapeModel` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
@@ -97,14 +100,14 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 6. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents.
-7. `BirdFlock`, `FishSchools`, and `SharkPatrol` update steering, terrain/depth constraints,
-   animation pose, and observer-relative full/reduced/dormant cadence independently of their
-   renderers.
+7. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
+   constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
+   independently of their renderers.
 8. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, the
-   one-batch procedural birds, shallow-water fish, the occasional offshore shark, and transparent
-   ocean using one view/projection pair. Aquatic wildlife is submitted before water so ocean
-   transparency colours and reveals it.
+   one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
+   monkeys, and transparent ocean using one view/projection pair. Aquatic wildlife is submitted
+   before water so ocean transparency colours and reveals it.
 9. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
 10. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
@@ -220,6 +223,18 @@ near/far geometry, individual frustum/distance rejection, and one portable `Basi
 batch before the ocean. Native OpenGL 3.3 and actual Chromium/WebGL 2 dedicated captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.
 
+Seven original procedural monkeys exercise CNA's actual skeletal-animation path without an
+external asset or license dependency. `MonkeyTroop` owns deterministic interior homes and a compact
+`Idle`, `Observe`, `Wander`, `Walk`, and `RunAway` state machine. Authoritative terrain queries keep
+every proposed move at least 48 m inland on supported low-slope ground, while nearby-player
+awareness produces a brief non-hostile retreat. The shared wildlife activation policy throttles
+distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, near/far meshes, and idle,
+observe, walk, and run clips; one CNA `AnimationPlayer` per agent supplies palettes to the portable
+`SkinnedEffect`. Near monkeys add light muzzle/ear and eye passes for facial readability, while far
+monkeys remain one draw each. Native OpenGL 3.3 and actual Chromium/WebGL 2 captures match, and the
+monkey-inclusive arm64 GLES 3 APK builds and passes app lint. Clip crossfades, prop avoidance,
+additional mesh/material variation, calls, and stable Android runtime validation remain open.
+
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
@@ -312,7 +327,7 @@ testing remain open.
   API 35 GLES3 frame is visually validated, but the host has no KVM and the software-emulated
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
-- The first flying-bird, shallow-water fish, and occasional offshore-shark layers exist, but
-  monkeys, wildlife calls, positional wildlife audio, world-space debug visualization, and
-  configuration UI do not. Six direct QA teleports and deterministic bird/fish/shark close-review
-  cameras are available.
+- First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
+  exist, but wildlife calls, positional wildlife audio, world-space debug visualization, and
+  configuration UI do not. Seven direct QA teleports and deterministic bird/fish/shark/monkey
+  close-review cameras are available.

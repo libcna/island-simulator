@@ -393,13 +393,15 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [~] Implement spawn regions, deterministic variation, simple steering, state timers, activation
   range, simulation LOD, animation state, and optional audio emitter. The first shared
   `WildlifeActivationPolicy` supplies full/quarter-rate/one-thirtieth-rate tiers, while `BirdFlock`
-  `FishSchools`, and `SharkPatrol` provide deterministic steering, state timing, and animation
-  pose; terrestrial state timers and audio emitters remain.
+  `FishSchools`, `SharkPatrol`, and `MonkeyTroop` provide deterministic steering, state timing,
+  and animation pose; audio emitters remain.
 - [~] Validate positions against land/water/depth/slope constraints before and during movement.
   Birds continuously enforce family-specific terrain clearance and bounded island-relative
   airspace. Fish continuously enforce a 3--48 m offshore belt, submerged terrain, seabed clearance,
   and surface clearance. The shark continuously enforces a 34--88 m offshore belt, minimum water
-  depth, seabed clearance, and surface clearance; monkey constraints remain.
+  depth, seabed clearance, and surface clearance. Monkeys validate every proposed move against a
+  48 m interior margin, dry support, and a 26-degree slope limit; avoidance of individual props
+  and trunks remains.
 - [ ] Add debug visualization for regions, paths, state, and activation tiers.
 - [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
   population, path-family mix, deterministic initialization/long-run motion, animation extremes,
@@ -407,8 +409,10 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   flight. Fish population/school distribution, water validity, deterministic motion, tail extremes,
   meaningful route travel, and tier accounting are covered through a simulated ten-minute swim.
   Shark deterministic motion, water/depth validity, presence/absence cycles, body animation,
-  meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol;
-  monkeys still need equivalent state/avoidance coverage.
+  meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol.
+  Monkey population, deterministic long-run state/motion, finite pose, terrain/slope validity,
+  idle/observe/walk/run-away reachability, meaningful travel, and tier accounting are covered
+  through a simulated 20-minute session; prop avoidance still needs coverage after implementation.
 
 ### Birds
 
@@ -441,14 +445,29 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 
 ### Monkeys and skeletal animation
 
-- [ ] Select or create a legally redistributable monkey/substitute model and record provenance.
-- [ ] Validate glTF skeleton, clips, scale, axes, material fallback, and all three renderers.
-- [ ] Integrate CNA skeletal animation without framework modification.
-- [ ] Implement compact `Idle`, `Observe`, `Wander`, `Walk`, and `RunAway` states.
-- [ ] Blend or transition clips without visible snapping; synchronize movement with animation speed.
-- [ ] Constrain monkeys to valid land/terrain regions and avoid water, steep slopes, and props.
-- [ ] Add mild player awareness without enemies, attacks, quests, or interaction systems.
-- [ ] Distance-throttle animation and decisions while preserving nearby quality.
+- [x] Select or create a legally redistributable monkey/substitute model and record provenance.
+  The first troop uses an original runtime-generated low-poly model and fourteen-bone rig recorded
+  in `ASSET_LICENSES.md`, so it has no external asset or disappearing-source dependency.
+- [~] Validate skeleton, clips, scale, axes, material fallback, and all three renderers. Native
+  OpenGL 3.3 and actual Chromium/WebGL 2 captures agree; the arm64 GLES 3 APK builds and lints, but
+  stable Android runtime remains unqualified.
+- [x] Integrate CNA skeletal animation without framework modification. Project-generated bind and
+  inverse-bind poses plus four clips drive one CNA `AnimationPlayer` per agent and the portable
+  `SkinnedEffect`; no dependency source changed.
+- [x] Implement compact `Idle`, `Observe`, `Wander`, `Walk`, and `RunAway` states. Seven agents use
+  deterministic timers/targets, and the close-review scene exercises idle, observe, walk, and mild
+  avoidance in the same frame.
+- [~] Blend or transition clips without visible snapping; synchronize movement with animation
+  speed. Walk/run cycles are speed-matched first passes, but state changes currently restart clips
+  without crossfading.
+- [~] Constrain monkeys to valid land/terrain regions and avoid water, steep slopes, and props.
+  Terrain, shore, slope, and bounded-home constraints are enforced continuously; individual
+  trunk/rock/log avoidance remains.
+- [x] Add mild player awareness without enemies, attacks, quests, or interaction systems. A player
+  within 7.5 m causes a brief bounded retreat followed by observation.
+- [x] Distance-throttle animation and decisions while preserving nearby quality. The shared
+  full/reduced/dormant policy throttles decisions, while render distance/frustum culling and a
+  one-draw far mesh replace the three-pass facial-detail near LOD.
 
 Exit validation:
 
@@ -589,11 +608,11 @@ Dependencies: representative complete scene on all targets.
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
   fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
-  counts, and bird/fish/shark render/simulation statistics on OpenGL 3.3 and WebGL 2;
+  counts, and bird/fish/shark/monkey render/simulation statistics on OpenGL 3.3 and WebGL 2;
   positional-emitter diagnostics remain dependent on future audio systems.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
-- [~] Add debug teleport locations and a debug-only free camera. Six direct F5--F10 locations are
+- [~] Add debug teleport locations and a debug-only free camera. Seven direct F5--F11 locations are
   active only while the diagnostics overlay is visible; a menu, water-limit locations, and free
   camera remain open.
 - [ ] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
@@ -761,12 +780,12 @@ after the same experience remains available.
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
-  draws, bird/fish/shark render LOD and simulation tiers, shark presence/activity, plus audio
-  mix/event counters; world-space views and warning budgets remain open.
+  draws, bird/fish/shark/monkey render LOD and simulation tiers, shark presence/activity, monkey
+  state counts, plus audio mix/event counters; world-space views and warning budgets remain open.
 - [ ] Deterministic seed display/copy.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
-  South beach, jungle trail, two clearings, fish shallows, and offshore shark are implemented;
-  later content-dependent locations remain.
+  South beach, jungle trail, two clearings, fish shallows, offshore shark, and monkey troop are
+  implemented; remaining water-limit/landmark locations remain.
 - [ ] Terrain/capsule/contact visualization.
 - [ ] Shore distance/current vector visualization.
 - [ ] Vegetation cell, culling, LOD, and density visualization.
@@ -774,8 +793,8 @@ after the same experience remains available.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, jungle-trail, natural-prop, driftwood, airborne bird-detail, and shallow-water fish
-  views plus the offshore-shark view are implemented and used by native/browser captures; free
-  camera and more landmark views remain open.
+  views plus offshore-shark and GPU-skinned-monkey views are implemented and used by native/browser
+  captures; free camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [ ] Frame-time capture and representative scene benchmark route.
 
@@ -813,15 +832,14 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Inspect CNA's current skeletal-animation APIs and the sibling glTF examples in depth, then
-   establish a legally redistributable monkey/substitute asset path and a minimal portable rigged
-   animation spike before implementing behaviour. Keep bird, fish, and shark layers under
-   subjective observation during play.
+2. Polish the first GPU-skinned monkey troop: add short clip crossfades, trunk/rock/log avoidance,
+   more silhouette/material variation, and long subjective behaviour observation before adding
+   sparse monkey calls. Keep bird, fish, and shark layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
 4. Add shoreline/current, collision, vegetation-cell, and wildlife-route world-space visualization;
-   six direct F5--F10 QA teleports, including fish and shark views, are complete.
+   seven direct F5--F11 QA teleports, including fish, shark, and monkey views, are complete.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -1405,6 +1423,36 @@ Work next, in order:
 - Rebuilt and linted the arm64-v8a GLES 3 APK successfully. Android shark runtime/performance
   remain unqualified because the host exposes no KVM and no physical device is connected. No
   qualifying CNA or Sharp Runtime defect was found; both dependencies remain unmodified.
+
+### 2026-10-06 — First GPU-skinned procedural monkey troop
+
+- Audited CNA `next`'s current `SkinningData`, `AnimationPlayer`, `SkinnedEffect`, skinned vertex
+  layout, runtime glTF path, and sibling viewer/street usage before choosing the implementation.
+  The game uses only public CNA APIs and leaves CNA and Sharp Runtime unmodified.
+- Added seven deterministic interior agents with compact `Idle`, `Observe`, `Wander`, `Walk`, and
+  `RunAway` behaviour. Each agent has a bounded home region; terrain queries continuously enforce
+  dry ground, a 48 m shore margin, and a 26-degree slope ceiling. A player inside 7.5 m causes a
+  brief non-hostile retreat rather than an attack or objective.
+- Generated an original low-poly monkey, fourteen-bone topologically ordered rig, bind/inverse-bind
+  poses, and idle/observe/walk/run clips entirely at runtime. Near LOD adds light muzzle/inner-ear
+  and eye passes for facial readability; far LOD remains one draw. CNA `AnimationPlayer` produces
+  each palette and portable `SkinnedEffect` performs real GPU skinning.
+- Added full/reduced/dormant decision tiers, render distance/frustum culling, an F11 troop teleport,
+  overlay visibility/LOD/simulation/state/draw counters, and deterministic native/browser monkey
+  cameras. Core coverage simulates twenty minutes and checks deterministic motion, all behavioural
+  categories, all activation tiers, continuous terrain validity, finite poses, and meaningful
+  travel.
+- A first native capture exposed an application-side material mistake: a null texture made the
+  otherwise correct skinned silhouette black. A project-owned neutral 1 by 1 texture fixed it;
+  repeated native and browser captures show the intended lit brown material and face detail. This
+  was incorrect game setup, not a qualifying framework defect, so `BUGS.md` remains unchanged.
+- Passed the complete core and native OpenGL 3.3 suites. Rebuilt WebGL 2 and passed the full actual
+  Chrome 152/SwiftShader harness, including a dedicated monkey capture with all four rendered
+  animation states represented in the live troop. Rebuilt and linted the arm64-v8a GLES 3 APK.
+  Android monkey runtime remains unqualified without KVM or a physical device.
+- Remaining monkey work is explicit: clip crossfades, obstacle avoidance, greater silhouette and
+  material variation, sparse positional calls, long subjective behaviour tuning, and stable
+  Android runtime validation.
 
 ## Session-end checklist
 

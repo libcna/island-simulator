@@ -52,7 +52,7 @@ Xwayland runner:
 
 ```bash
 ../cna/tools/platform/run_gpu_tests_private.sh \
-  build -R '^IslandGame(Smoke|Capture|BeachCapture|JungleCapture|PropCapture|DriftwoodCapture|BirdCapture|FishCapture|SharkCapture|DebugOverlayCapture)$' --output-on-failure -j2
+  build -R '^IslandGame(Smoke|Capture|BeachCapture|JungleCapture|PropCapture|DriftwoodCapture|BirdCapture|FishCapture|SharkCapture|MonkeyCapture|DebugOverlayCapture)$' --output-on-failure -j2
 ```
 
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
@@ -67,6 +67,8 @@ Xwayland runner:
 `build/island-fish-capture.ppm`.
 `IslandGameSharkCapture` writes a close offshore patrol view to
 `build/island-shark-capture.ppm`.
+`IslandGameMonkeyCapture` writes a close GPU-skinned jungle wildlife view to
+`build/island-monkey-capture.ppm`.
 They are reproducible QA outputs and are ignored by Git. Convert or inspect them only during a
 visual review.
 
