@@ -44,6 +44,18 @@ namespace island
     /** @brief Generates a second short water-boundary texture. */
     [[nodiscard]] AmbientLoop GenerateWaterTransitionAccentAlternate();
 
+    /** @brief Generates one short, non-looping tropical bird contact call. */
+    [[nodiscard]] AmbientLoop GenerateBirdCall();
+
+    /** @brief Generates a second bird phrase with different rhythm and pitch movement. */
+    [[nodiscard]] AmbientLoop GenerateBirdCallAlternate();
+
+    /** @brief Generates one restrained monkey contact call for the interior jungle. */
+    [[nodiscard]] AmbientLoop GenerateMonkeyCall();
+
+    /** @brief Generates a second monkey contact phrase for repetition control. */
+    [[nodiscard]] AmbientLoop GenerateMonkeyCallAlternate();
+
     /** @brief One optional, bounded stronger-wave playback request. */
     struct WaveAccentRequest
     {
@@ -124,6 +136,58 @@ namespace island
         std::uint32_t randomState_ = 0xc0145a7eU;
         float cooldownSeconds_ = 0.0f;
         bool inWater_ = false;
+    };
+
+    /** @brief Species associated with one optional positional wildlife call. */
+    enum class WildlifeCallType : std::uint8_t
+    {
+        None,
+        Bird,
+        Monkey
+    };
+
+    /** @brief Nearest currently eligible world-space source for one wildlife species. */
+    struct WildlifeAudioSource
+    {
+        bool available = false;
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+    };
+
+    /** @brief One bounded, mono positional call request selected from visible wildlife. */
+    struct WildlifeCallRequest
+    {
+        WildlifeCallType type = WildlifeCallType::None;
+        std::uint8_t variant = 0;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        WildlifeAudioSource source;
+    };
+
+    /**
+     * @brief Sparse deterministic scheduler shared by bird and monkey contact calls.
+     *
+     * A single scheduler prevents both species from chattering at once. Playback may be held while
+     * the two transient audio slots are occupied, preserving the six-source application budget.
+     */
+    class WildlifeCallScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] WildlifeCallRequest Update(float deltaSeconds, bool swimming,
+                                                 float signedShoreDistance,
+                                                 float listenerX, float listenerY,
+                                                 float listenerZ,
+                                                 const WildlifeAudioSource& bird,
+                                                 const WildlifeAudioSource& monkey,
+                                                 bool playbackSlotAvailable) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+
+        std::uint32_t randomState_ = 0x6c8e9cf5U;
+        float secondsUntilCall_ = 0.0f;
     };
 
     /** @brief Smoothly blends ambient layers from authoritative shoreline/player state. */

@@ -213,6 +213,8 @@ try {
     "island-simulator: subtle daytime-jungle layer enabled");
   deploymentState.waveVariantsEnabled = deploymentState.output?.includes(
     "island-simulator: two stronger-wave variants enabled");
+  deploymentState.positionalWildlifeCallsEnabled = deploymentState.output?.includes(
+    "island-simulator: positional bird and monkey calls enabled (one pooled wildlife voice)");
   const deploymentPassed = deploymentState.status === "Ready"
     && deploymentState.width === 1280
     && deploymentState.height === 720
@@ -227,6 +229,7 @@ try {
     && deploymentState.waterTransitionVariantsEnabled === true
     && deploymentState.jungleAmbienceEnabled === true
     && deploymentState.waveVariantsEnabled === true
+    && deploymentState.positionalWildlifeCallsEnabled === true
     && deploymentState.pointerLocked === true;
   await call("Target.closeTarget", { targetId: deploymentTargetId });
 

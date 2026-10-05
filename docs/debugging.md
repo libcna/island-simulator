@@ -40,7 +40,8 @@ Current fields are:
   idle/observe/walk/run state counts, draw count, cumulative obstacle-avoidance deflections, and
   active/completed skeletal crossfades;
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, and played
-  stronger-wave and water-transition counts.
+  stronger-wave/water-transition counts;
+- played positional bird/monkey call counts and pooled wildlife-voice active/idle state.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative

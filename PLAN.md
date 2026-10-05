@@ -53,17 +53,17 @@ environment.
 - Keep simulation and placement deterministic when this improves tests, debugging, and captures.
 - Preserve a playable build at meaningful milestones; do not accumulate large untested batches.
 
-## Verified workspace baseline (2026-10-05)
+## Verified workspace baseline (refreshed 2026-10-06)
 
 - [x] Confirmed `island-simulator` is a new repository on unborn branch `develop`, with no source
   files or commits at campaign start.
 - [x] Read the workspace build policy in `../AGENTS.md`.
 - [x] Located CNA at `../cna` and inspected its repository instructions and current APIs.
-- [x] Identified CNA `next` at commit `b0e97bb1bb87` (`docs: point release links at libcna`,
-  2026-10-04).
-- [x] Confirmed the main `../cna` worktree is on `samples` at `504bf0a06fad`, not `next`.
-  `samples` contains `next` as an ancestor, but it is not accepted as the dependency identity.
-- [x] Confirmed there is no existing CNA `next` worktree in `git worktree list`.
+- [x] Identified current CNA `next` at commit `f243c63a1dc5` (`fix(MSR-040): preserve Wayland
+  mouse recentering`, 2026-10-06). The earlier qualified export was `b0e97bb1bb87`.
+- [x] Confirmed the main `../cna` worktree is now clean, on local `next`, and aligned with
+  `origin/next`; island-simulator continues to consume a read-only project-owned archive export.
+- [x] Confirmed no separate stale CNA worktree is being mistaken for the current `next` identity.
 - [x] Located Sharp Runtime at `../sharp-runtime`, read its repository instructions, and confirmed
   it is on local `next` at `21c06910f7cf` (`fix(MSR-030): repair Windows consumer portability`,
   2026-10-05). The local branch is one commit ahead of `origin/next`; the local `next` commit is
@@ -390,18 +390,19 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 
 ### Reusable wildlife framework
 
-- [~] Implement spawn regions, deterministic variation, simple steering, state timers, activation
+- [x] Implement spawn regions, deterministic variation, simple steering, state timers, activation
   range, simulation LOD, animation state, and optional audio emitter. The first shared
   `WildlifeActivationPolicy` supplies full/quarter-rate/one-thirtieth-rate tiers, while `BirdFlock`
   `FishSchools`, `SharkPatrol`, and `MonkeyTroop` provide deterministic steering, state timing,
-  and animation pose; audio emitters remain.
-- [~] Validate positions against land/water/depth/slope constraints before and during movement.
+  and animation pose. A bounded shared audio scheduler now selects actual nearby bird/monkey
+  positions without allocating a voice per agent.
+- [x] Validate positions against land/water/depth/slope constraints before and during movement.
   Birds continuously enforce family-specific terrain clearance and bounded island-relative
   airspace. Fish continuously enforce a 3--48 m offshore belt, submerged terrain, seabed clearance,
   and surface clearance. The shark continuously enforces a 34--88 m offshore belt, minimum water
   depth, seabed clearance, and surface clearance. Monkeys validate every proposed move against a
-  48 m interior margin, dry support, and a 26-degree slope limit; avoidance of individual props
-  and trunks remains.
+  48 m interior margin, dry support, a 26-degree slope limit, and the player collision set of
+  trunks, solid rocks, and sampled fallen logs.
 - [ ] Add debug visualization for regions, paths, state, and activation tiers.
 - [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
   population, path-family mix, deterministic initialization/long-run motion, animation extremes,
@@ -426,7 +427,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Add occasional near and distant appearances with bounded active counts. The fixed 24-agent
   budget uses individual frustum/distance culling, near/far procedural meshes, distance-throttled
   updates, and one dynamic-buffer draw submission.
-- [ ] Add sparse positional calls without attaching a sound to every visible bird.
+- [x] Add sparse positional calls without attaching a sound to every visible bird. Two original
+  short phrases share one voice with monkey calls, select the nearest non-dormant bird within
+  110 m, and use CNA listener/emitter placement with 13--30 second scheduling.
 
 ### Fish and shark
 
@@ -486,8 +489,9 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
 
 - [~] Confirm CNA audio format, streaming, lifetime, listener/emitter, and platform constraints.
   Raw PCM16 mono loading, explicit loop regions, instance lifetime, mute/volume, graceful device
-  failure, Linux playback startup, and first-gesture Chromium startup are verified. Positional
-  emitters, focus restoration, Android playback, and streaming remain phase-specific work.
+  failure, Linux playback startup, first-gesture Chromium startup, and real native CNA positional
+  playback are verified. Focus restoration, Android playback, and streaming remain phase-specific
+  work.
 - [~] Build a layered mixer/soundscape controller with beach, ocean, jungle, clearing, and water
   zones and smooth hysteretic crossfades. The first renderer-independent shoreline/swimming model
   smoothly blends surf and canopy breeze, while player water audio uses depth/speed smoothing and
@@ -499,20 +503,23 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   balance and long-session fatigue tuning remain.
 - [~] Add wind-through-vegetation, jungle beds, birds, insects where tasteful, monkey calls, distant
   wildlife, and sparse water splashes. A light-canopy-breeze loop and subtle twelve-second daytime
-  jungle bed increase inland, and two cooldown-protected water entry/exit textures are active;
-  wildlife, additional insect/accent variation, and richer biome layers remain.
-- [ ] Add positional one-shots/emitters where direction and distance improve presence.
+  jungle bed increase inland, two cooldown-protected water entry/exit textures are active, and two
+  bird plus two monkey phrases now play sparsely from real nearby agents; additional insect/accent
+  variation and richer biome layers remain.
+- [x] Add positional one-shots/emitters where direction and distance improve presence. One pooled
+  mono wildlife voice uses CNA `AudioListener`/`AudioEmitter`/`Apply3D`, camera orientation, agent
+  positions, 24 m reference falloff, distance gates, and species habitat gates.
 - [x] Add player wading/swimming movement audio without repetitive rapid triggering. One continuous
   six-second procedural loop follows authoritative support depth, locomotion mode, and horizontal
   speed with asymmetric fade smoothing and wading/swimming pitch variation.
-- [~] Bound simultaneously active sources and virtualize/throttle inaudible emitters. The current
-  system has exactly four persistent loops, at most one wave accent, and at most one nonoverlapping
-  water-transition accent; inland wave accents remain virtual. Wildlife and positional-source
-  budgets remain.
+- [x] Bound simultaneously active sources and virtualize/throttle inaudible emitters. The current
+  system has exactly four persistent loops and at most two transient voices. Wildlife owns one
+  pooled voice, starts only with both transient slots idle, and is pre-empted when a water crossing
+  would otherwise exceed the ceiling. Inland waves and distant/dormant wildlife are virtualized.
 - [~] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
   Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta,
-  distinct accent PCM, and the mono-to-CNA output path; headphone listening and future positional
-  stereo remain.
+  distinct source PCM, silent wildlife endpoints, and the mono-to-CNA positional output path;
+  headphone listening remains.
 - [x] Add an accelerated long-session numerical regression. A deterministic 72,000-frame/
   twenty-minute route cycles beach, jungle, swimming, and wading/dry transitions while checking
   finite bounded mixes, bounded wave activity, exact crossing events, and both accent variants.
@@ -613,8 +620,8 @@ Dependencies: representative complete scene on all targets.
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
   fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
-  counts, and bird/fish/shark/monkey render/simulation statistics on OpenGL 3.3 and WebGL 2;
-  positional-emitter diagnostics remain dependent on future audio systems.
+  counts, positional bird/monkey call counts and voice state, and bird/fish/shark/monkey
+  render/simulation statistics on OpenGL 3.3 and WebGL 2; a total backend voice counter remains.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
 - [~] Add debug teleport locations and a debug-only free camera. Seven direct F5--F11 locations are
@@ -637,7 +644,9 @@ Dependencies: representative complete scene on all targets.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
   reduced trunk/frond geometry by cell distance and grass selects 28-blade/five-blade clusters;
   measured budgets and pop-free transitions remain open.
-- [ ] Throttle distant wildlife and audio updates without visible popping.
+- [x] Throttle distant wildlife and audio updates without visible popping. Shared
+  full/reduced/dormant simulation tiers bound agent work; positional calls select only nearby
+  non-dormant sources, use one voice, and are held while transient slots are occupied.
 - [ ] Reduce transparency/overdraw hotspots, especially grass and layered shoreline effects.
 - [ ] Audit texture formats/sizes/mipmaps and create smaller variants only when justified.
 - [ ] Measure loading and remove redundant runtime generation/conversion.
@@ -835,12 +844,13 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
-   adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Continue long subjective observation of the first GPU-skinned monkey troop before adding sparse
-   monkey calls. Three silhouettes, four palettes, short clip crossfades, and shared trunk/rock/log
-   avoidance are complete first passes. Keep bird, fish, and shark layers under subjective
-   observation during play.
+1. Tune the complete four-layer soundscape, both accent pairs, and the new pooled positional
+   bird/monkey voice through a 20-minute headphone/speaker route. Numerical headroom, actual Linux
+   playback, and the six-source ceiling are verified; subjective masking and fatigue are not.
+2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
+   27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
+   shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
+   fish, and shark layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
@@ -1488,6 +1498,42 @@ Work next, in order:
   All eleven native OpenGL 3.3 scenes, the complete actual-Chromium WebGL 2 harness with explicit
   silhouette/palette initialization checks, and the arm64-v8a GLES 3 build plus app lint pass.
   Android runtime remains unqualified.
+
+### 2026-10-06 — Bounded positional wildlife sound
+
+- Audited CNA `next`'s current `AudioListener`, `AudioEmitter`, `SoundEffectInstance::Apply3D`,
+  distance-scale, lifetime, pan, attenuation, and Doppler behaviour without editing CNA or Sharp
+  Runtime. World units remain meters and the game configures a 24 m full-gain reference radius.
+- Added four original deterministic PCM16 mono phrases: two 1.2--1.35 second bird patterns and two
+  1.8--2.1 second restrained monkey contact patterns. Oscillator sweeps, harmonic shaping,
+  envelopes, tremolo, and filtered breath texture are generated at runtime; no external audio
+  asset or license dependency was introduced.
+- Added one deterministic cross-species scheduler. It selects the nearest non-dormant real agent,
+  gates birds beyond 110 m and monkeys beyond 78 m, suppresses monkeys while swimming or near the
+  shore, varies source/pitch/gain conservatively, and spaces bird calls 13--30 seconds and monkey
+  calls 27--50 seconds apart.
+- Kept the hard audio ceiling at four loops plus two transients. The one explicitly owned wildlife
+  voice starts only when both transient slots are idle; wave playback can occupy the second slot,
+  and an urgent shoreline transition pre-empts wildlife if required. Muting stops the voice and a
+  wildlife-only failure degrades without taking down the ambient beds. Wave and shoreline accents
+  are now owned instances too, so M stops all active transients immediately rather than merely
+  suppressing later fire-and-forget requests.
+- Added F1 bird/monkey call counters and pooled-voice state. Core tests cover format, duration,
+  headroom, meaningful energy, silent endpoints, source distinction, busy-slot holding, swimming
+  habitat gating, bounded parameters, both variants, and sparse twenty-minute event counts.
+- Passed the complete core suite and all eleven OpenGL 3.3 smoke/capture scenes. A real Linux audio
+  device started all four loops and successfully played the first positional bird call; the latest
+  debug-overlay build remains open for operator play and listening.
+- Rebuilt WebGL 2 and passed the complete Chrome 152/SwiftShader renderer/input/audio harness, now
+  requiring wildlife-resource preparation on the first user gesture. Rebuilt and linted the
+  arm64-v8a GLES 3 APK. Audible Web hardware-browser quality and Android runtime/audio focus remain
+  explicitly unqualified; no dependency defect was found.
+- Refreshed the locked read-only CNA `next` export from `b0e97bb1bb87` to the workspace's current
+  `f243c63a1dc5` after reviewing the intervening platform/graphics changes. Reconfigured and rebuilt
+  native, Web, and Android from that export; 12/12 native tests, the full actual-Chrome WebGL 2
+  harness, arm64 APK assembly, app lint, and real Linux audio startup/positional playback all pass.
+  Sharp Runtime remains current at `21c06910f7cf`. The superseded 327 MiB generated export was
+  removed after qualification; both dependency worktrees remain clean and unmodified.
 
 ## Session-end checklist
 

@@ -93,6 +93,63 @@ namespace island
             const float t = std::clamp((value - lower) / (upper - lower), 0.0f, 1.0f);
             return t * t * (3.0f - 2.0f * t);
         }
+
+        void AddBirdChirp(std::vector<float>& samples, const float startSeconds,
+                          const float durationSeconds, const float startFrequency,
+                          const float endFrequency, const float amplitude,
+                          const float tremoloHz)
+        {
+            const std::size_t begin = static_cast<std::size_t>(
+                startSeconds * static_cast<float>(AmbientSampleRate));
+            const std::size_t length = static_cast<std::size_t>(
+                durationSeconds * static_cast<float>(AmbientSampleRate));
+            for (std::size_t offset = 0; offset < length && begin + offset < samples.size();
+                 ++offset) {
+                const float seconds = static_cast<float>(offset)
+                    / static_cast<float>(AmbientSampleRate);
+                const float unit = static_cast<float>(offset)
+                    / static_cast<float>(std::max<std::size_t>(1U, length - 1U));
+                const float envelope = std::sin(std::numbers::pi_v<float> * unit);
+                const float sweep = endFrequency - startFrequency;
+                const float phase = 2.0f * std::numbers::pi_v<float>
+                    * (startFrequency * seconds
+                       + 0.5f * sweep * seconds * seconds / durationSeconds);
+                const float tremolo = 0.72f + 0.28f * std::sin(
+                    2.0f * std::numbers::pi_v<float> * tremoloHz * seconds);
+                samples[begin + offset] += amplitude * envelope * envelope * tremolo
+                    * (std::sin(phase) + 0.22f * std::sin(phase * 2.01f));
+            }
+        }
+
+        void AddMonkeyHoot(std::vector<float>& samples, const std::vector<float>& breath,
+                           const float startSeconds, const float durationSeconds,
+                           const float startFrequency, const float endFrequency,
+                           const float amplitude)
+        {
+            const std::size_t begin = static_cast<std::size_t>(
+                startSeconds * static_cast<float>(AmbientSampleRate));
+            const std::size_t length = static_cast<std::size_t>(
+                durationSeconds * static_cast<float>(AmbientSampleRate));
+            for (std::size_t offset = 0; offset < length && begin + offset < samples.size();
+                 ++offset) {
+                const float seconds = static_cast<float>(offset)
+                    / static_cast<float>(AmbientSampleRate);
+                const float unit = static_cast<float>(offset)
+                    / static_cast<float>(std::max<std::size_t>(1U, length - 1U));
+                const float attack = SmoothStep(0.0f, 0.12f, unit);
+                const float release = 1.0f - SmoothStep(0.46f, 1.0f, unit);
+                const float envelope = attack * release;
+                const float sweep = endFrequency - startFrequency;
+                const float phase = 2.0f * std::numbers::pi_v<float>
+                    * (startFrequency * seconds
+                       + 0.5f * sweep * seconds * seconds / durationSeconds);
+                const float voiced = std::sin(phase)
+                    + 0.34f * std::sin(phase * 2.0f + 0.28f)
+                    + 0.14f * std::sin(phase * 3.0f + 0.61f);
+                const float texture = breath[(begin + offset) % breath.size()] * 0.24f;
+                samples[begin + offset] += amplitude * envelope * (voiced + texture);
+            }
+        }
     }
 
     AmbientLoop GenerateSurfLoop()
@@ -313,6 +370,62 @@ namespace island
         return Quantize(samples, 0.76f);
     }
 
+    AmbientLoop GenerateBirdCall()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 6 / 5);
+        std::vector<float> samples(frameCount, 0.0f);
+        AddBirdChirp(samples, 0.08f, 0.20f, 2380.0f, 3580.0f, 0.72f, 17.0f);
+        AddBirdChirp(samples, 0.34f, 0.18f, 2960.0f, 4080.0f, 0.62f, 19.0f);
+        AddBirdChirp(samples, 0.61f, 0.29f, 3490.0f, 2460.0f, 0.68f, 15.0f);
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.68f);
+    }
+
+    AmbientLoop GenerateBirdCallAlternate()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 27 / 20);
+        std::vector<float> samples(frameCount, 0.0f);
+        AddBirdChirp(samples, 0.10f, 0.31f, 4320.0f, 3230.0f, 0.56f, 22.0f);
+        AddBirdChirp(samples, 0.49f, 0.16f, 2780.0f, 3860.0f, 0.67f, 24.0f);
+        AddBirdChirp(samples, 0.72f, 0.15f, 3150.0f, 4210.0f, 0.58f, 25.0f);
+        AddBirdChirp(samples, 0.96f, 0.22f, 3860.0f, 2910.0f, 0.61f, 18.0f);
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.66f);
+    }
+
+    AmbientLoop GenerateMonkeyCall()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 9 / 5);
+        const std::vector<float> breath = CircularSmooth(
+            Noise(0x91de4a73U, frameCount), 7U);
+        std::vector<float> samples(frameCount, 0.0f);
+        AddMonkeyHoot(samples, breath, 0.08f, 0.58f, 510.0f, 372.0f, 0.72f);
+        AddMonkeyHoot(samples, breath, 0.84f, 0.66f, 474.0f, 326.0f, 0.64f);
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.72f);
+    }
+
+    AmbientLoop GenerateMonkeyCallAlternate()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * 21 / 10);
+        const std::vector<float> breath = CircularSmooth(
+            Noise(0x3f2a68c1U, frameCount), 11U);
+        std::vector<float> samples(frameCount, 0.0f);
+        AddMonkeyHoot(samples, breath, 0.10f, 0.42f, 414.0f, 522.0f, 0.55f);
+        AddMonkeyHoot(samples, breath, 0.68f, 0.52f, 536.0f, 398.0f, 0.67f);
+        AddMonkeyHoot(samples, breath, 1.34f, 0.49f, 452.0f, 336.0f, 0.57f);
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.70f);
+    }
+
     void WaveAccentScheduler::Reset() noexcept
     {
         randomState_ = 0x78d2f9a5U;
@@ -435,6 +548,65 @@ namespace island
         request.pitch = (entering ? -0.055f : 0.025f) + NextUnit() * 0.05f;
         request.pan = -0.18f + NextUnit() * 0.36f;
         cooldownSeconds_ = 1.6f;
+        return request;
+    }
+
+    void WildlifeCallScheduler::Reset() noexcept
+    {
+        randomState_ = 0x6c8e9cf5U;
+        secondsUntilCall_ = 9.0f + NextUnit() * 7.0f;
+    }
+
+    float WildlifeCallScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    WildlifeCallRequest WildlifeCallScheduler::Update(
+        const float deltaSeconds, const bool swimming, const float signedShoreDistance,
+        const float listenerX, const float listenerY, const float listenerZ,
+        const WildlifeAudioSource& bird, const WildlifeAudioSource& monkey,
+        const bool playbackSlotAvailable) noexcept
+    {
+        secondsUntilCall_ -= std::clamp(deltaSeconds, 0.0f, 0.25f);
+        if (secondsUntilCall_ > 0.0f || !playbackSlotAvailable) {
+            return {};
+        }
+
+        const auto distanceSquared = [listenerX, listenerY, listenerZ](
+                                         const WildlifeAudioSource& source) noexcept {
+            const float dx = source.x - listenerX;
+            const float dy = source.y - listenerY;
+            const float dz = source.z - listenerZ;
+            return dx * dx + dy * dy + dz * dz;
+        };
+        const bool birdEligible = bird.available && distanceSquared(bird) <= 110.0f * 110.0f;
+        const bool monkeyEligible = !swimming && signedShoreDistance >= 24.0f
+            && monkey.available && distanceSquared(monkey) <= 78.0f * 78.0f;
+        if (!birdEligible && !monkeyEligible) {
+            secondsUntilCall_ = 2.0f + NextUnit() * 3.0f;
+            return {};
+        }
+
+        const bool chooseMonkey = monkeyEligible
+            && (!birdEligible || NextUnit() < 0.34f);
+        WildlifeCallRequest request;
+        request.type = chooseMonkey ? WildlifeCallType::Monkey : WildlifeCallType::Bird;
+        request.variant = NextUnit() < 0.5f ? 0U : 1U;
+        request.volume = chooseMonkey
+            ? 0.48f + NextUnit() * 0.12f
+            : (swimming ? 0.28f : 0.36f) + NextUnit() * 0.10f;
+        request.pitch = chooseMonkey
+            ? -0.08f + NextUnit() * 0.12f
+            : -0.04f + NextUnit() * 0.13f;
+        request.source = chooseMonkey ? monkey : bird;
+        secondsUntilCall_ = chooseMonkey
+            ? 27.0f + NextUnit() * 23.0f
+            : 13.0f + NextUnit() * 17.0f;
         return request;
     }
 

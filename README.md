@@ -19,7 +19,8 @@ three silhouette meshes, four material palettes, portable CNA GPU skeletal anima
 state-transition crossfades. The current audio pass adds original procedural shoreline surf, two
 varied occasional stronger waves, light canopy breeze, a subtle daytime-jungle texture,
 speed/depth-responsive movement through shallow or swimming water, and two restrained
-water-entry/exit textures without external sound files. The
+water-entry/exit textures. Two bird phrases and two monkey contact phrases share one positional
+voice attached to actual nearby agents. All audio is generated without external sound files. The
 complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
 terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop/sky-inclusive APK builds, but
@@ -67,7 +68,8 @@ press Escape to release the mouse; press Escape again to exit. The controller fo
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and enters swimming
 water with hysteresis. Rock/complex prop collision and geometric step-up are not implemented yet.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
-culling counts, vegetation draw statistics, ambient mix levels, player-water gain, and wave count.
+culling counts, vegetation draw statistics, ambient mix levels, player-water gain, wave/splash
+counts, and positional bird/monkey call activity.
 Press M to mute or unmute the soundscape. While the overlay is visible, F5 through F11 teleport
 among seven fixed QA locations, including views toward the south fish shallows, offshore shark,
 and monkey troop.
@@ -79,7 +81,8 @@ and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanc
 frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird/fish/shark/monkey
 screenshots, and portable
 overlay text rendering.
-The Chromium harness also drives first-click pointer lock and audio start, WASD, relative mouse
+The Chromium harness also drives first-click pointer lock and initialization of all ambient and
+positional-wildlife audio resources, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F1,
 pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-
 accelerated browser listening pass, genuine tab background/foreground behaviour, and another

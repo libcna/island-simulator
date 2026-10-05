@@ -291,6 +291,12 @@ namespace island
               << " SPLASHES " << state.playedWaterTransitions;
         lines.push_back(audio.str());
 
+        auto wildlifeAudio = DiagnosticLine();
+        wildlifeAudio << "POSITIONAL CALLS  BIRD " << state.playedBirdCalls
+                      << " MONKEY " << state.playedMonkeyCalls
+                      << "  VOICE " << (state.wildlifeCallActive ? "ACTIVE" : "IDLE");
+        lines.push_back(wildlifeAudio.str());
+
         constexpr float scale = 1.45f;
         constexpr float lineHeight = 13.0f;
         constexpr int panelX = 10;

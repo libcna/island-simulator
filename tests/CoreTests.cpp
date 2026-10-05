@@ -57,6 +57,14 @@ int main()
     const island::AmbientLoop waterTransitionAccent = island::GenerateWaterTransitionAccent();
     const island::AmbientLoop waterTransitionAccentAlternate =
         island::GenerateWaterTransitionAccentAlternate();
+    const island::AmbientLoop birdCall = island::GenerateBirdCall();
+    const island::AmbientLoop birdCallAlternate = island::GenerateBirdCallAlternate();
+    const island::AmbientLoop monkeyCall = island::GenerateMonkeyCall();
+    const island::AmbientLoop monkeyCallAlternate = island::GenerateMonkeyCallAlternate();
+    const island::AmbientLoop repeatedBirdCall = island::GenerateBirdCall();
+    const island::AmbientLoop repeatedBirdCallAlternate = island::GenerateBirdCallAlternate();
+    const island::AmbientLoop repeatedMonkeyCall = island::GenerateMonkeyCall();
+    const island::AmbientLoop repeatedMonkeyCallAlternate = island::GenerateMonkeyCallAlternate();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
@@ -75,6 +83,14 @@ int main()
               && waterTransitionAccentAlternate.sampleRate == 22050
               && waterTransitionAccentAlternate.samples.size() == 33075U,
           "both water transitions have the intended one-and-a-half-second portable format");
+    Check(birdCall.sampleRate == 22050 && birdCall.samples.size() == 26460U
+              && birdCallAlternate.sampleRate == 22050
+              && birdCallAlternate.samples.size() == 29767U,
+          "both bird phrases have their intended short portable formats");
+    Check(monkeyCall.sampleRate == 22050 && monkeyCall.samples.size() == 39690U
+              && monkeyCallAlternate.sampleRate == 22050
+              && monkeyCallAlternate.samples.size() == 46305U,
+          "both monkey phrases have their intended short portable formats");
     Check(surfLoop.samples == repeatedSurfLoop.samples,
           "procedural surf generation is deterministic");
     Check(waterMovementLoop.samples == repeatedWaterMovementLoop.samples,
@@ -85,6 +101,14 @@ int main()
           "stronger-wave variants contain genuinely different source PCM");
     Check(waterTransitionAccent.samples != waterTransitionAccentAlternate.samples,
           "water-transition variants contain genuinely different source PCM");
+    Check(birdCall.samples != birdCallAlternate.samples
+              && monkeyCall.samples != monkeyCallAlternate.samples,
+          "wildlife variants contain genuinely different source PCM");
+    Check(birdCall.samples == repeatedBirdCall.samples
+              && birdCallAlternate.samples == repeatedBirdCallAlternate.samples
+              && monkeyCall.samples == repeatedMonkeyCall.samples
+              && monkeyCallAlternate.samples == repeatedMonkeyCallAlternate.samples,
+          "all procedural wildlife phrases regenerate deterministically");
     const auto peakMagnitude = [](const island::AmbientLoop& loop) {
         int peak = 0;
         for (const std::int16_t sample : loop.samples) {
@@ -129,6 +153,21 @@ int main()
               && waterTransitionAccentAlternate.samples.front() == 0
               && waterTransitionAccentAlternate.samples.back() == 0,
           "both water transition accents start and end at silence");
+    Check(peakMagnitude(birdCall) < 32767 && rootMeanSquare(birdCall) > 1500.0
+              && peakMagnitude(birdCallAlternate) < 32767
+              && rootMeanSquare(birdCallAlternate) > 1500.0,
+          "bird phrases carry audible energy while retaining headroom");
+    Check(peakMagnitude(monkeyCall) < 32767 && rootMeanSquare(monkeyCall) > 1500.0
+              && peakMagnitude(monkeyCallAlternate) < 32767
+              && rootMeanSquare(monkeyCallAlternate) > 1500.0,
+          "monkey phrases carry audible energy while retaining headroom");
+    Check(birdCall.samples.front() == 0 && birdCall.samples.back() == 0
+              && birdCallAlternate.samples.front() == 0
+              && birdCallAlternate.samples.back() == 0
+              && monkeyCall.samples.front() == 0 && monkeyCall.samples.back() == 0
+              && monkeyCallAlternate.samples.front() == 0
+              && monkeyCallAlternate.samples.back() == 0,
+          "all wildlife phrases begin and end at silence");
     Check(std::abs(static_cast<int>(surfLoop.samples.front())
                    - static_cast<int>(surfLoop.samples.back())) < 8000,
           "surf loop boundary does not contain a large discontinuity");
@@ -308,6 +347,88 @@ int main()
     }
     Check(!waveVariantOutOfRange && observedWaveVariants[0] && observedWaveVariants[1],
           "deterministic stronger-wave scheduling reaches both source variants");
+
+    const island::WildlifeAudioSource nearbyBird{true, 28.0f, 16.0f, -8.0f};
+    const island::WildlifeAudioSource nearbyMonkey{true, -18.0f, 2.0f, 21.0f};
+    island::WildlifeCallScheduler heldWildlifeScheduler;
+    heldWildlifeScheduler.Reset();
+    bool callEscapedBusySlots = false;
+    for (int step = 0; step < 80; ++step) {
+        callEscapedBusySlots = callEscapedBusySlots
+            || heldWildlifeScheduler.Update(0.25f, false, 90.0f, 0.0f, 2.0f, 0.0f,
+                                            nearbyBird, nearbyMonkey, false).type
+                != island::WildlifeCallType::None;
+    }
+    Check(!callEscapedBusySlots,
+          "wildlife scheduling never exceeds the transient playback-slot budget");
+    const island::WildlifeCallRequest releasedCall = heldWildlifeScheduler.Update(
+        0.01f, false, 90.0f, 0.0f, 2.0f, 0.0f, nearbyBird, nearbyMonkey, true);
+    Check(releasedCall.type != island::WildlifeCallType::None,
+          "a due wildlife call resumes when a transient slot becomes available");
+
+    island::WildlifeCallScheduler swimmingMonkeyScheduler;
+    swimmingMonkeyScheduler.Reset();
+    bool monkeyCalledWhileSwimming = false;
+    const island::WildlifeAudioSource noBird;
+    for (int step = 0; step < 160; ++step) {
+        monkeyCalledWhileSwimming = monkeyCalledWhileSwimming
+            || swimmingMonkeyScheduler.Update(
+                   0.25f, true, -4.0f, 0.0f, 2.0f, 0.0f, noBird, nearbyMonkey, true).type
+                == island::WildlifeCallType::Monkey;
+    }
+    Check(!monkeyCalledWhileSwimming,
+          "interior monkey calls are suppressed while the player is swimming");
+
+    island::WildlifeCallScheduler distantWildlifeScheduler;
+    distantWildlifeScheduler.Reset();
+    const island::WildlifeAudioSource distantBird{true, 440.0f, 80.0f, -310.0f};
+    bool distantCallTriggered = false;
+    for (int step = 0; step < 240; ++step) {
+        distantCallTriggered = distantCallTriggered
+            || distantWildlifeScheduler.Update(
+                   0.25f, false, 90.0f, 0.0f, 2.0f, 0.0f,
+                   distantBird, noBird, true).type != island::WildlifeCallType::None;
+    }
+    Check(!distantCallTriggered,
+          "distant wildlife is virtualized instead of consuming an inaudible voice");
+
+    island::WildlifeCallScheduler longWildlifeScheduler;
+    longWildlifeScheduler.Reset();
+    int longBirdCallCount = 0;
+    int longMonkeyCallCount = 0;
+    std::array<bool, 2> longBirdCallVariants = {false, false};
+    std::array<bool, 2> longMonkeyCallVariants = {false, false};
+    bool wildlifeRequestBoundsValid = true;
+    for (int step = 0; step < 20 * 60 * 4; ++step) {
+        const island::WildlifeCallRequest call = longWildlifeScheduler.Update(
+            0.25f, false, 90.0f, 0.0f, 2.0f, 0.0f,
+            nearbyBird, nearbyMonkey, true);
+        if (call.type == island::WildlifeCallType::None) {
+            continue;
+        }
+        wildlifeRequestBoundsValid = wildlifeRequestBoundsValid
+            && call.variant <= 1U && call.source.available
+            && call.volume >= 0.36f && call.volume <= 0.60f
+            && call.pitch >= -0.08f && call.pitch <= 0.09f;
+        if (call.type == island::WildlifeCallType::Bird) {
+            ++longBirdCallCount;
+            if (call.variant < longBirdCallVariants.size()) {
+                longBirdCallVariants[call.variant] = true;
+            }
+        } else if (call.type == island::WildlifeCallType::Monkey) {
+            ++longMonkeyCallCount;
+            if (call.variant < longMonkeyCallVariants.size()) {
+                longMonkeyCallVariants[call.variant] = true;
+            }
+        }
+    }
+    Check(wildlifeRequestBoundsValid
+              && longBirdCallVariants[0] && longBirdCallVariants[1]
+              && longMonkeyCallVariants[0] && longMonkeyCallVariants[1],
+          "twenty-minute wildlife scheduling keeps playback values bounded and varies sources");
+    Check(longBirdCallCount >= 20 && longBirdCallCount <= 70
+              && longMonkeyCallCount >= 5 && longMonkeyCallCount <= 30,
+          "wildlife calls remain sparse over a twenty-minute session");
 
     island::SoundscapeModel longSoundscapeModel;
     island::WaterMovementModel longWaterMovementModel;

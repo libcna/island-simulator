@@ -571,11 +571,22 @@ namespace island
         const PlayerPosition& position = playerMotion_.Position();
         cameraPosition_ = Vector3(position.x, position.y, position.z);
         if (soundscape_) {
+            const SoundscapeListenerState listener{
+                cameraPosition_.X,
+                cameraPosition_.Y,
+                cameraPosition_.Z,
+                forward.X * std::cos(pitch_),
+                std::sin(pitch_),
+                forward.Z * std::cos(pitch_),
+                playerMotion_.VelocityX(),
+                playerMotion_.VelocityZ(),
+            };
             soundscape_->Update(terrain_.SignedShoreDistance(position.x, position.z),
                                 playerMotion_.Mode() == LocomotionMode::Swimming,
                                 std::max(0.0f, -playerMotion_.GroundHeight()),
                                 std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
-                                deltaSeconds);
+                                deltaSeconds, listener,
+                                birdFlock_.Birds(), monkeyTroop_.Monkeys());
         }
     }
 
@@ -804,6 +815,9 @@ namespace island
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
                 overlayState.playedWaterTransitions =
                     soundscape_->PlayedWaterTransitionCount();
+                overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
+                overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
+                overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
             }
             debugOverlay_->Draw(overlayState);
         }

@@ -103,6 +103,9 @@ namespace island
         float waterMovementVolume = 0.0f;
         int playedWaveAccents = 0;
         int playedWaterTransitions = 0;
+        int playedBirdCalls = 0;
+        int playedMonkeyCalls = 0;
+        bool wildlifeCallActive = false;
     };
 
     /** @brief Small asset-free bitmap-font overlay for renderer and gameplay diagnostics. */

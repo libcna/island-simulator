@@ -99,7 +99,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    circular obstacles, retaining axis sliding when one component is valid.
 6. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
-   to four persistent CNA loop instances and schedules bounded wave/water accents.
+   to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
+   positional bird/monkey call voice from nearby wildlife state.
 7. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
@@ -281,7 +282,8 @@ and horizontal velocity. Dry movement and stationary water produce zero gain; sh
 active swimming fade in with different conservative pitch ranges. One persistent loop avoids the
 rapid repeated one-shot cadence common to footstep-style water effects, while 140 ms attack and
 340 ms release smoothing prevent hard edges and state-transition chatter. All current procedural
-PCM payloads total 2,160,900 bytes (about 2.06 MiB) before backend bookkeeping.
+PCM payloads total 2,445,344 bytes (about 2.33 MiB) before backend bookkeeping, including the
+wildlife phrases described below.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water
 states. The detector uses 7.5 cm entry and 2.5 cm exit thresholds, ignores stationary state
@@ -296,18 +298,37 @@ repeat interval select a source and vary conservative pitch/stereo pan without a
 The scheduler virtualizes the accent while inland surf is inaudible, so it contributes at most one
 short one-shot to the broader bounded source budget.
 
-`Soundscape` owns CNA `SoundEffect` and looping `SoundEffectInstance` objects and never calls SDL
-or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
+Two short bird phrases and two restrained monkey contact phrases are synthesized from deterministic
+oscillators, envelopes, harmonics, and filtered breath texture. A shared scheduler selects the
+nearest non-dormant real agent, requires the bird to be within 110 m or the land-based monkey to be
+within 78 m, and uses CNA `AudioListener`, `AudioEmitter`, and `SoundEffectInstance::Apply3D` for
+view-relative stereo placement and inverse-distance falloff. Bird intervals are 13--30 seconds;
+the less frequent monkey phrases use 27--50 seconds. Swimming suppresses monkey calls and softens
+bird gain.
+
+Wildlife uses one explicitly owned voice rather than one source per animal. It only starts while
+the wave and water-transition slots are idle. A later wave may share the second transient slot; a
+water crossing pre-empts wildlife if both slots would otherwise be occupied. Four persistent loops
+plus at most two transients therefore remain the hard simultaneous-source ceiling. Muting stops the
+pooled voice, and a positional-call failure disables that optional layer without silencing the
+ambient beds.
+
+`Soundscape` owns CNA `SoundEffect` plus every looping and transient `SoundEffectInstance`; M mute
+therefore silences the loops and immediately stops any active wave, splash, or wildlife call. It
+never calls SDL or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
 device creation until the first mouse, touch, or movement-key gesture so browser activation and
 pointer-lock requests share one user action. Missing or disconnected audio degrades to a logged,
 visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
 length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade,
-daytime-jungle gating, water depth/speed gating and smoothing, transition hysteresis/cooldown, and
-wave-accent interval/virtualization bounds. Tests also require each accent pair to contain different
-PCM. A 72,000-frame accelerated model regression cycles representative zones for a simulated
-twenty minutes while checking finite bounds, event budgets, crossings, and variant reachability.
-Native playback started all four loops, prepared both pairs, and accepted a scheduled
-stronger-wave one-shot. Actual Chromium proves first-gesture mixer/track/effect initialization, and a
+daytime-jungle gating, water depth/speed gating and smoothing, transition hysteresis/cooldown,
+wave-accent interval/virtualization bounds, wildlife PCM headroom/silent endpoints, habitat gates,
+voice-slot holding, sparse frequency, parameter bounds, and variant reachability. Tests also
+require each source pair to contain different PCM. A 72,000-frame accelerated model regression
+cycles representative zones for a simulated twenty minutes while checking finite bounds, event
+budgets, crossings, and variant reachability.
+Native playback started all four loops, prepared all effects, accepted a scheduled stronger-wave
+one-shot, and played a positional bird call through the real Linux device. Actual Chromium proves
+first-gesture mixer/track/effect initialization including the wildlife resources, and a
 deterministic shoreline traversal from `(0, -225)` to `(0, -251.332)` successfully played the
 transition effect; a visible hardware-browser listening pass and Android audio focus/lifecycle
 testing remain open.
@@ -336,6 +357,6 @@ testing remain open.
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
-  exist, but wildlife calls, positional wildlife audio, world-space debug visualization, and
-  configuration UI do not. Seven direct QA teleports and deterministic bird/fish/shark/monkey
-  close-review cameras are available.
+  exist, and birds/monkeys share a bounded positional call voice. World-space debug visualization
+  and configuration UI do not yet exist. Seven direct QA teleports and deterministic
+  bird/fish/shark/monkey close-review cameras are available.
