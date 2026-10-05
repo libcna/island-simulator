@@ -324,18 +324,20 @@ Dependencies: stable terrain/shore queries and representative performance instru
   variants, 330 varied instances, near/far meshes, root contact wedges, and portable shader wind
   now run on native OpenGL 3.3 and WebGL 2; richer close-up materials, pop-free LOD blending, and
   instrumented Android wind/LOD qualification remain open despite the first visible GLES3 scene.
-- [ ] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
-  sparse natural beach props.
-- [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm
-  placement is deterministic, shore-distance/slope/height constrained, cluster-noise weighted,
-  and reserves a winding primary path, two clearings, and spawn; final biome masks and prop
-  separation remain open.
-- [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds and grass use
-  bounded two-frequency motion with deterministic phase variation on OpenGL 3.3 and WebGL 2;
-  broadleaf vegetation and Android GLES 3 validation remain open.
+- [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
+  sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
+  four-variant fern/large-leaf plants; bushes, smaller ground layers, rocks, wood, and beach props
+  remain.
+- [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
+  canopy, and understory placement is deterministic, shore-distance/slope/height constrained,
+  multi-scale cluster-noise weighted, and reserves a winding primary path, two clearings, and
+  spawn; final biome masks and prop separation remain open.
+- [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds, grass, canopy
+  crowns, and understory leaves use bounded weighted motion on OpenGL 3.3 and WebGL 2; Android
+  GLES 3 runtime validation of the new jungle shader remains open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
-  One radius-matched circular proxy is active per palm trunk while fronds remain non-colliding;
-  broader play-tuning is still required.
+  One radius-matched circular proxy is active per palm and canopy trunk while fronds, crowns, and
+  understory remain non-colliding; broader play-tuning and a spatial broad phase remain open.
 
 ### Grass quality campaign
 
@@ -451,10 +453,10 @@ Dependencies: portable baseline features and bounded initial asset size.
 - [x] Add a `WEBGL2` preset and browser packaging with explicit WebGL 2 requirements.
 - [x] Preserve CNA's Emscripten game-loop lifetime model; an actual Chromium smoke run rendered
   four frames, returned from `Game::Run()`, and exited with code zero.
-- [~] Verify stock `BasicEffect` terrain fallback and explicit GLSL ES 300 ocean/palm/grass shaders
-  through actual WebGL 2 browser compilation and execution. The current 330-palm and 18,556-patch
-  grass hardware-instancing paths, including both wind shaders and palm/grass LOD selection, are
-  verified; later broadleaf, wildlife, and material variants remain open.
+- [~] Verify stock `BasicEffect` terrain fallback and explicit GLSL ES 300 ocean/palm/grass/jungle
+  shaders through actual WebGL 2 browser compilation and execution. The current 330-palm,
+  18,556-patch grass, 281-canopy, and 1,822-understory hardware-instancing paths, wind shaders, and
+  LOD selection are verified; later wildlife and material variants remain open.
 - [~] Implement pointer-lock acquisition/release and clear click-to-focus/fullscreen instructions.
   The production shell provides click-to-play controls, first-gesture lock, Escape release, and
   clean click reacquisition; fullscreen presentation remains open.
@@ -467,8 +469,9 @@ Dependencies: portable baseline features and bounded initial asset size.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
   a stable 1280 by 720 render surface with aspect-preserving CSS scaling; measured density and
   memory tiers remain open.
-- [~] Run the current terrain/ocean/palm scene in Chromium/SwiftShader with an active-render capture; a
-  visible hardware-accelerated interactive pass and another browser engine remain open.
+- [~] Run the current terrain/ocean/palm/jungle scene in Chromium/SwiftShader with overview, beach,
+  and jungle active-render captures; a visible hardware-accelerated interactive pass and another
+  browser engine remain open.
 - [~] Capture browser console output, `WEBGL2` renderer identity, clean lifecycle, and an
   active-render screenshot. Startup time, memory, and representative frame-time evidence remain.
 - [~] Document browser requirements and verified versions without claiming untested browsers.
@@ -528,7 +531,9 @@ Dependencies: representative complete scene on all targets.
   systems.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
-- [ ] Add debug teleport locations and a debug-only free camera.
+- [~] Add debug teleport locations and a debug-only free camera. Four direct F5--F8 locations are
+  active only while the diagnostics overlay is visible; a menu, water-limit locations, and free
+  camera remain open.
 - [ ] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
   per target rather than one desktop-only target.
 
@@ -696,15 +701,16 @@ after the same experience remains available.
   frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
   and draws; later wildlife/audio counters and warning budgets remain open.
 - [ ] Deterministic seed display/copy.
-- [ ] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, and monkeys.
+- [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, and monkeys. South
+  beach, jungle trail, and two clearings are implemented; later content-dependent locations remain.
 - [ ] Terrain/capsule/contact visualization.
 - [ ] Shore distance/current vector visualization.
 - [ ] Vegetation cell, culling, LOD, and density visualization.
 - [ ] Wildlife spawn region, state, steering, and simulation-tier visualization.
 - [ ] Audio zone/emitter/source-count visualization.
-- [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview and
-  first-person beach-path views are implemented and used by native/browser captures; free camera
-  and more landmark views remain open.
+- [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
+  beach-path, and jungle-trail views are implemented and used by native/browser captures; free
+  camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [ ] Frame-time capture and representative scene benchmark route.
 
@@ -729,8 +735,9 @@ after the same experience remains available.
 - [ ] `docs/asset-pipeline.md`: source formats, generation/conversion, manifests, validation.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
   documented; matched Android captures and representative cross-target measurements remain open.
-- [~] `docs/debugging.md`: overlay fields and deterministic capture workflows are documented;
-  teleports, world-space visualizers, performance capture, and common-failure guidance remain open.
+- [~] `docs/debugging.md`: overlay fields, direct QA teleports, and deterministic capture workflows
+  are documented; world-space visualizers, performance capture, and common-failure guidance remain
+  open.
 - [ ] `docs/performance.md`: budgets, representative scenes, measurements, decisions.
 - [x] `docs/known-limitations.md`: current environment, traversal, content, platform, and tooling
   limitations are recorded without claiming planned systems.
@@ -739,10 +746,10 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add the first broadleaf canopy and medium-plant layer while preserving the authored path,
-   clearings, deterministic placement, renderer portability, and current mobile draw-call bounds.
-2. Add debug teleports and shoreline/current plus vegetation-cell visualization before traversal
-   and density tuning expands.
+1. Add rocks, fallen wood, low bushes, and sparse beach props; revisit broadleaf crown silhouettes,
+   grounding, and plant separation during that composition pass.
+2. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
+   F5--F8 QA teleports are complete.
 3. Qualify touch traversal, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 4. Perform a visible hardware-accelerated Web play pass and genuine tab background/foreground test;
@@ -949,6 +956,38 @@ Work next, in order:
 - After touch/HUD integration, core tests pass, all four isolated Linux OpenGL smoke/capture tests
   pass, the Emscripten package rebuilds, the actual Chromium WebGL 2 render/input harness passes,
   and both Android ABIs rebuild. No qualifying CNA or Sharp Runtime defect was found.
+
+### 2026-10-05 — First layered broadleaf jungle pass
+
+- Added renderer-independent deterministic placement for 281 canopy trees and 1,822 medium plants.
+  Height, slope, shoreline distance, two-scale cluster fields, and authored route/clearing masks
+  shape the interior; all four tree and four understory variants have tested bounds and stable seed
+  output.
+- Added four procedural broadleaf canopy meshes with tapered trunks and clustered opaque crowns,
+  plus four curved-strip fern/large-leaf meshes. Separate near/far geometry and canopy/understory
+  distance limits retain close silhouettes while bounding distant and mobile work.
+- Added cell frustum/distance culling and variant-level hardware instancing. The fixed jungle camera
+  sees 109 of 281 canopy trees and 429 of 1,822 understory plants in 15 submissions on WebGL 2;
+  the overview draws 225 distant canopy trees in four submissions and rejects all understory.
+- Added a portable GLSL 330 / GLSL ES 300 weighted-wind shader and actionable stock-effect fallback.
+  Native OpenGL 3.3 and actual Chromium/SwiftShader WebGL 2 select the full shader; the Web harness
+  now requires nonzero canopy and understory rendering and records a dedicated jungle screenshot.
+- Combined canopy trunk proxies with palm proxies for player collision while leaving leaves and
+  understory non-solid. Added jungle population, placement, scale, slope, route reservation, and
+  obstacle correspondence regression tests.
+- Added a deterministic jungle capture to the isolated native suite and direct F5--F8 debug
+  teleports for the south beach, jungle trail, and two clearings. The debug overlay now reports
+  jungle visibility, cell, and draw counts.
+- Core tests pass, all five isolated OpenGL lifecycle/capture tests pass, and the strengthened
+  Chromium WebGL 2 lifecycle/render/input harness passes. The current arm64 GLES 3 APK and Android
+  lint also build successfully; Android runtime validation of the new jungle layer remains open
+  because the available unaccelerated emulator is not a stable qualification target.
+- Visual review confirms the intended first dense interior layer and native/Web parity. Crown
+  silhouettes and materials are deliberately still first-pass; low bushes, rocks, fallen wood,
+  grounding cues, prop separation, pop-free LOD transitions, and measured mobile budgets remain.
+- Removed the superseded 1.1 GiB standalone Android build tree and 945 MiB x86_64 NDK intermediate
+  tree after recording their evidence. The reusable native/Web trees, current arm64 intermediate,
+  signed APK, and shared compiler cache remain; the removed outputs are reproducible from presets.
 
 ## Session-end checklist
 

@@ -98,6 +98,7 @@ namespace island
         : graphics_(this),
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
+          jungleLayout_(terrain_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
@@ -105,6 +106,12 @@ namespace island
           debugOverlayVisible_(showDebugOverlay),
           inputDiagnostics_(inputDiagnostics)
     {
+        worldObstacles_.reserve(vegetationLayout_.Obstacles().size()
+                                + jungleLayout_.Obstacles().size());
+        worldObstacles_.insert(worldObstacles_.end(), vegetationLayout_.Obstacles().begin(),
+                               vegetationLayout_.Obstacles().end());
+        worldObstacles_.insert(worldObstacles_.end(), jungleLayout_.Obstacles().begin(),
+                               jungleLayout_.Obstacles().end());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -118,6 +125,14 @@ namespace island
                                                  + PlayerMotion::EyeHeight,
                                       pathZ);
             pitch_ = -0.035f;
+        } else if (viewpoint_ == FixedViewpoint::JungleTrail) {
+            constexpr float pathZ = 45.0f;
+            const float pathX = VegetationLayout::PrimaryPathCenterX(pathZ);
+            cameraPosition_ = Vector3(pathX, terrain_.Height(pathX, pathZ)
+                                                 + PlayerMotion::EyeHeight,
+                                      pathZ);
+            yaw_ = std::numbers::pi_v<float> * 0.5f;
+            pitch_ = -0.065f;
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -144,6 +159,7 @@ namespace island
 
         CreateTerrainMesh();
         grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
+        jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
@@ -311,6 +327,40 @@ namespace island
         }
         debugOverlayToggleWasDown_ = debugOverlayToggleDown;
 
+        constexpr std::array<Keys, 4> teleportKeys = {
+            Keys::F5, Keys::F6, Keys::F7, Keys::F8};
+        constexpr std::array<const char*, 4> teleportNames = {
+            "south beach", "jungle trail", "east clearing", "west clearing"};
+        for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
+            const bool down = keyboard.IsKeyDown(teleportKeys[index]);
+            if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
+                float x = 0.0f;
+                float z = -225.0f;
+                yaw_ = 0.0f;
+                pitch_ = -0.03f;
+                if (index == 1U) {
+                    z = 45.0f;
+                    x = VegetationLayout::PrimaryPathCenterX(z);
+                    yaw_ = std::numbers::pi_v<float> * 0.5f;
+                    pitch_ = -0.065f;
+                } else if (index == 2U) {
+                    x = 43.0f;
+                    z = -18.0f;
+                    yaw_ = -std::numbers::pi_v<float> * 0.5f;
+                } else if (index == 3U) {
+                    x = -82.0f;
+                    z = 62.0f;
+                    yaw_ = std::numbers::pi_v<float> * 0.25f;
+                }
+                playerMotion_.SetPosition(terrain_, x, z);
+                const PlayerPosition& teleported = playerMotion_.Position();
+                cameraPosition_ = Vector3(teleported.x, teleported.y, teleported.z);
+                std::cout << "island-simulator: debug teleport "
+                          << teleportNames[index] << " x " << x << " z " << z << '\n';
+            }
+            debugTeleportWasDown_[index] = down;
+        }
+
         if (keyboard.IsKeyDown(Keys::Escape)) {
             if (mouseCaptured_) {
                 mouseCaptured_ = false;
@@ -351,8 +401,7 @@ namespace island
         wish = wish + forward * touchControlState_.moveForward
             + right * touchControlState_.moveRight;
 
-        playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds,
-                             vegetationLayout_.Obstacles());
+        playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldObstacles_);
         const PlayerPosition& position = playerMotion_.Position();
         cameraPosition_ = Vector3(position.x, position.y, position.z);
     }
@@ -435,6 +484,10 @@ namespace island
 
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
+        jungleRenderer_->Draw(terrainEffect_->getViewProperty(),
+                              terrainEffect_->getProjectionProperty(), cameraPosition_,
+                              timeSeconds);
+
         grassRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
@@ -472,6 +525,12 @@ namespace island
             overlayState.farPalms = palmRenderer_->VisibleFarPalmCount();
             overlayState.palmCells = palmRenderer_->VisibleCellCount();
             overlayState.palmDraws = palmRenderer_->DrawCallCount();
+            overlayState.visibleCanopy = jungleRenderer_->VisibleCanopyCount();
+            overlayState.totalCanopy = jungleRenderer_->TotalCanopyCount();
+            overlayState.visibleUnderstory = jungleRenderer_->VisibleUnderstoryCount();
+            overlayState.totalUnderstory = jungleRenderer_->TotalUnderstoryCount();
+            overlayState.jungleCells = jungleRenderer_->VisibleCellCount();
+            overlayState.jungleDraws = jungleRenderer_->DrawCallCount();
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
@@ -487,7 +546,12 @@ namespace island
                       << palmRenderer_->VisibleNearPalmCount() << ", far "
                       << palmRenderer_->VisibleFarPalmCount() << ") in "
                       << palmRenderer_->VisibleCellCount() << " cells, "
-                      << palmRenderer_->DrawCallCount() << " draws; grass "
+                      << palmRenderer_->DrawCallCount() << " draws; jungle "
+                      << jungleRenderer_->VisibleCanopyCount() << '/'
+                      << jungleRenderer_->TotalCanopyCount() << " canopy, "
+                      << jungleRenderer_->VisibleUnderstoryCount() << '/'
+                      << jungleRenderer_->TotalUnderstoryCount() << " understory, "
+                      << jungleRenderer_->DrawCallCount() << " draws; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "

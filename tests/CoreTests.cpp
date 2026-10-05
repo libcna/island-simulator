@@ -1,5 +1,6 @@
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
@@ -246,6 +247,67 @@ int main()
                       && patch.scale <= island::GrassLayout::MaximumScale,
                   "ordinary grass scale remains in the authored range");
         }
+    }
+
+    const island::JungleLayout jungle(terrain);
+    const island::JungleLayout repeatedJungle(terrain);
+    Check(jungle.Canopy().size() >= 100U && jungle.Canopy().size() <= 600U,
+          "broadleaf canopy population stays inside its first performance budget");
+    Check(jungle.Understory().size() >= 800U && jungle.Understory().size() <= 4000U,
+          "understory population stays inside its first performance budget");
+    Check(jungle.Canopy().size() == repeatedJungle.Canopy().size()
+              && jungle.Understory().size() == repeatedJungle.Understory().size(),
+          "jungle populations are deterministic");
+    Check(jungle.Obstacles().size() == jungle.Canopy().size(),
+          "every broadleaf canopy trunk has one collision proxy");
+    for (std::size_t index = 0; index < jungle.Canopy().size(); ++index) {
+        const island::CanopyPlacement& tree = jungle.Canopy()[index];
+        const island::CanopyPlacement& repeated = repeatedJungle.Canopy()[index];
+        const island::TerrainSample sample = terrain.Sample(tree.x, tree.z);
+        Check(tree.x == repeated.x && tree.y == repeated.y && tree.z == repeated.z
+                  && tree.yawRadians == repeated.yawRadians && tree.scale == repeated.scale
+                  && tree.variant == repeated.variant,
+              "broadleaf canopy placement is bitwise deterministic for one seed");
+        Check(sample.signedShoreDistance >= 43.0f
+                  && sample.signedShoreDistance <= 238.0f,
+              "broadleaf trees remain in the interior jungle belt");
+        Check(sample.height >= 3.8f && sample.slopeRadians <= 0.4712389f,
+              "broadleaf trees remain on suitable interior ground");
+        Check(!island::VegetationLayout::IsReservedRoute(tree.x, tree.z),
+              "broadleaf trees keep paths, clearings, and player spawn open");
+        Check(tree.variant < island::JungleLayout::CanopyVariantCount,
+              "broadleaf canopy variant index remains in range");
+        Check(tree.scale >= island::JungleLayout::CanopyMinimumScale
+                  && tree.scale <= island::JungleLayout::CanopyMaximumScale,
+              "broadleaf canopy scale remains in the authored range");
+        const island::CircularObstacle& obstacle = jungle.Obstacles()[index];
+        CheckNear(obstacle.x, tree.x, 0.0001f,
+                  "broadleaf obstacle shares its visual x coordinate");
+        CheckNear(obstacle.z, tree.z, 0.0001f,
+                  "broadleaf obstacle shares its visual z coordinate");
+        Check(obstacle.radius > 0.30f && obstacle.radius < 0.56f,
+              "broadleaf collision radius stays close to the visible trunk");
+    }
+    for (std::size_t index = 0; index < jungle.Understory().size(); ++index) {
+        const island::UnderstoryPlacement& plant = jungle.Understory()[index];
+        const island::UnderstoryPlacement& repeated = repeatedJungle.Understory()[index];
+        const island::TerrainSample sample = terrain.Sample(plant.x, plant.z);
+        Check(plant.x == repeated.x && plant.y == repeated.y && plant.z == repeated.z
+                  && plant.yawRadians == repeated.yawRadians && plant.scale == repeated.scale
+                  && plant.variant == repeated.variant,
+              "understory placement is bitwise deterministic for one seed");
+        Check(sample.signedShoreDistance >= 31.0f
+                  && sample.signedShoreDistance <= 242.0f,
+              "understory remains inside its interior placement belt");
+        Check(sample.height >= 2.8f && sample.slopeRadians <= 0.5410521f,
+              "understory remains on suitable interior ground");
+        Check(!island::VegetationLayout::IsReservedRoute(plant.x, plant.z),
+              "understory keeps paths, clearings, and player spawn open");
+        Check(plant.variant < island::JungleLayout::UnderstoryVariantCount,
+              "understory variant index remains in range");
+        Check(plant.scale >= island::JungleLayout::UnderstoryMinimumScale
+                  && plant.scale <= island::JungleLayout::UnderstoryMaximumScale,
+              "understory scale remains in the authored range");
     }
 
     for (int z = -360; z <= 360; z += 12) {

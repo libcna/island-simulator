@@ -34,6 +34,12 @@ namespace island
         int farPalms = 0;
         int palmCells = 0;
         int palmDraws = 0;
+        int visibleCanopy = 0;
+        int totalCanopy = 0;
+        int visibleUnderstory = 0;
+        int totalUnderstory = 0;
+        int jungleCells = 0;
+        int jungleDraws = 0;
         int visibleGrassPatches = 0;
         int totalGrassPatches = 0;
         int grassCells = 0;

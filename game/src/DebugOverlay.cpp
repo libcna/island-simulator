@@ -184,8 +184,8 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(9U);
-        lines.emplace_back("F1 DEBUG OVERLAY");
+        lines.reserve(10U);
+        lines.emplace_back("F1 DEBUG  F5-F8 TELEPORT");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
@@ -219,6 +219,12 @@ namespace island
               << "  NEAR " << state.nearPalms << " FAR " << state.farPalms
               << "  CELLS " << state.palmCells << " DRAWS " << state.palmDraws;
         lines.push_back(palms.str());
+
+        auto jungle = DiagnosticLine();
+        jungle << "JUNGLE C " << state.visibleCanopy << '/' << state.totalCanopy
+               << " U " << state.visibleUnderstory << '/' << state.totalUnderstory
+               << "  CELLS " << state.jungleCells << " DRAWS " << state.jungleDraws;
+        lines.push_back(jungle.str());
 
         auto grass = DiagnosticLine();
         grass << "GRASS " << state.visibleGrassPatches << '/' << state.totalGrassPatches

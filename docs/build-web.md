@@ -2,9 +2,9 @@
 
 ## Current status
 
-The terrain/traversal scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
+The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach rendering, first-click pointer lock, canvas focus, WASD traversal, relative mouse
+overview/beach/jungle rendering, first-click pointer lock, canvas focus, WASD traversal, relative mouse
 look, F1 input, pointer release/reacquisition, and responsive 16:9 presentation. Audio unlock,
 genuine tab background/foreground recovery, hardware-GPU performance, extended play, and a second
 browser engine are not yet validated.
@@ -69,13 +69,13 @@ With the Emscripten environment active, run:
 
 The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
-ocean shader, the hardware-instanced 330-palm wind/LOD shader, and the portable instanced
-grass-wind shader rather than their fallbacks. It then opens live fixed overview and first-person
-beach instances at
-a 1280 x 720 viewport. The overview is saved as `build-probe/island-browser-smoke.png`; the beach
-view is saved as `build-probe/island-browser-beach.png` and must report a nonzero visible grass
-population, proving that the custom instanced draw path executed. The beach run explicitly enables
-the runtime-generated debug font and overlay, covering the WebGL 2 `SpriteBatch` composition path.
+ocean shader and the hardware-instanced palm, grass, and jungle wind/LOD shaders rather than their
+fallbacks. It then opens live fixed overview, first-person beach, and first-person jungle instances
+at a 1280 x 720 viewport. The captures are saved as `build-probe/island-browser-smoke.png`,
+`build-probe/island-browser-beach.png`, and `build-probe/island-browser-jungle.png`. The beach view
+must report nonzero grass, while the jungle view must report nonzero canopy and understory
+populations. Both first-person runs enable the runtime-generated debug font and overlay, covering
+the WebGL 2 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click

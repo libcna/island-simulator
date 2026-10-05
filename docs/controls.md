@@ -8,6 +8,7 @@
 | Mouse | Look around while captured |
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
+| F5 / F6 / F7 / F8 | With the overlay visible, teleport to four fixed QA locations |
 | Escape | Release captured mouse; press again to exit |
 
 Movement follows terrain, refuses uphill motion steeper than 38 degrees, and switches to swimming

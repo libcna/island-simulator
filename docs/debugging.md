@@ -14,6 +14,10 @@ The overlay is deliberately implemented with CNA's public `SpriteBatch`, `Sprite
 `Texture2D` APIs. Its original 5 by 7 uppercase font atlas is generated at runtime, so debugging
 does not depend on a platform font, a content compiler, or an undeclared asset.
 
+While the overlay is visible, F5 through F8 teleport to the south beach, jungle trail, east
+clearing, and west clearing. These fixed locations shorten traversal and vegetation QA without
+exposing teleports during the ordinary presentation.
+
 Current fields are:
 
 - smoothed wall-clock frame duration and a half-second FPS sample;
@@ -22,6 +26,7 @@ Current fields are:
 - active renderer identity;
 - visible/total terrain cells;
 - visible/total palms, near/far LOD population, cells, and draw submissions;
+- visible/total broadleaf canopy and understory populations, cells, and draw submissions;
 - visible/total grass clusters, cells, and draw submissions.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
@@ -36,11 +41,13 @@ The executable provides fixed views used by CTest and the browser harness:
 ```bash
 build/island-simulator --capture /tmp/island-overview.ppm
 build/island-simulator --capture /tmp/island-beach.ppm --viewpoint beach
+build/island-simulator --capture /tmp/island-jungle.ppm --viewpoint jungle
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 ```
 
-These runs render four frames and exit. The WebGL 2 harness writes corresponding PNG captures and
-a JSON report under `build-probe/`. Captures prove initialization, shader selection, draw-path
+These runs render four frames and exit. The WebGL 2 harness writes corresponding overview, beach,
+and jungle PNG captures plus a JSON report under `build-probe/`. Captures prove initialization,
+shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input
 and pointer-lock evidence. Neither proves hardware-GPU frame pacing, audio, genuine tab lifecycle,
 or long-session stability.
@@ -48,6 +55,6 @@ or long-session stability.
 ## Planned diagnostics
 
 World-space collision, shoreline/current, vegetation-cell, LOD, wildlife-state, and audio-emitter
-visualizations are not implemented yet. Neither are debug teleports, a free camera, recorded frame
+visualizations are not implemented yet. Neither are a teleport menu, free camera, recorded frame
 histograms, or target-specific budget warnings. Keep these tools opt-in and absent from the normal
 release presentation as they are added.

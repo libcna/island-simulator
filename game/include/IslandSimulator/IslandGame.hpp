@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -7,6 +8,8 @@
 
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/JungleRenderer.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassRenderer.hpp"
 #include "IslandSimulator/OceanRenderer.hpp"
@@ -31,7 +34,8 @@ namespace island
     {
         None,
         Overview,
-        BeachPath
+        BeachPath,
+        JungleTrail
     };
 
     /** @brief Main application and first portable island rendering slice. */
@@ -84,12 +88,15 @@ namespace island
         IslandTerrain terrain_;
         GrassLayout grassLayout_;
         VegetationLayout vegetationLayout_;
+        JungleLayout jungleLayout_;
+        std::vector<CircularObstacle> worldObstacles_;
         PlayerMotion playerMotion_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> terrainEffect_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
+        std::unique_ptr<JungleRenderer> jungleRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
@@ -105,6 +112,7 @@ namespace island
         bool mouseCaptured_ = false;
         bool debugOverlayVisible_ = false;
         bool debugOverlayToggleWasDown_ = false;
+        std::array<bool, 4> debugTeleportWasDown_{};
         bool inputDiagnostics_ = false;
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;

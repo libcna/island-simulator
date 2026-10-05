@@ -131,6 +131,8 @@ try {
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
+    && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, hardware instancing")
+    && result.output?.includes("jungle portable wind shader with canopy/understory LOD")
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -224,6 +226,9 @@ try {
     && visualResult.output?.includes("island-simulator: ocean portable custom shader")
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
+    && visualResult.output?.includes(
+      "island-simulator: jungle 281 canopy trees, 1822 understory plants, hardware instancing")
+    && visualResult.output?.includes("jungle portable wind shader with canopy/understory LOD")
     && visualResult.output?.includes("portable instanced wind shader")
     && visualResult.output?.includes("island-simulator: terrain")
     && !visualResult.error;
@@ -254,10 +259,40 @@ try {
   const beachPassed = beachResult.output?.includes("island-simulator: renderer WEBGL2")
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
+    && beachResult.output?.includes("jungle portable wind shader with canopy/understory LOD")
     && beachResult.output?.includes("portable instanced wind shader")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=jungle`,
+  }, visualSessionId);
+  let jungleResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    jungleResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (jungleResult.output?.includes("island-simulator: terrain") || jungleResult.error) break;
+  }
+  await delay(1000);
+  const completedJungleEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  jungleResult = JSON.parse(completedJungleEvaluation.result.value ?? "{}");
+
+  const jungleScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const jungleScreenshotPath = path.join(buildDirectory, "island-browser-jungle.png");
+  await writeFile(jungleScreenshotPath, Buffer.from(jungleScreenshot.data, "base64"));
+  const junglePassed = jungleResult.output?.includes("island-simulator: renderer WEBGL2")
+    && jungleResult.output?.includes("jungle portable wind shader with canopy/understory LOD")
+    && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory/.test(
+      jungleResult.output ?? "")
+    && !jungleResult.error;
 
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
@@ -416,7 +451,8 @@ try {
     && pointerRelocked
     && !inputResult.error;
 
-  const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && inputPassed;
+  const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
+    && junglePassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -441,6 +477,11 @@ try {
       output: beachResult.output ?? "",
       error: beachResult.error ?? "",
     },
+    jungle: {
+      passed: junglePassed,
+      output: jungleResult.output ?? "",
+      error: jungleResult.error ?? "",
+    },
     input: {
       passed: inputPassed,
       pointerLocked: lockedState.pointerLocked ?? false,
@@ -461,6 +502,7 @@ try {
     console: consoleMessages,
     screenshot: path.basename(screenshotPath),
     beachScreenshot: path.basename(beachScreenshotPath),
+    jungleScreenshot: path.basename(jungleScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

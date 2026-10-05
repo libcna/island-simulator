@@ -19,6 +19,7 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 | Terrain | CNA `BasicEffect`, 64 frustum-culled cells | Same scene and cell path | Visibly rendered in the captured GLES3 frame |
 | Ocean | Full portable custom shader selected | Full GLSL ES 300 shader required by the harness | Compiled into the APK; the captured camera did not prove every water effect |
 | Palms | Hardware instancing, wind, near/far LOD | Same shader/instancing path required by the harness | Palms visibly rendered; draw/LOD counters not captured |
+| Jungle | 281 canopy trees and 1,822 understory plants, instanced wind/LOD | Same GLSL ES 300 path; jungle camera proves nonzero canopy/understory draws | Jungle-inclusive arm64 APK builds; runtime remains unqualified |
 | Grass | Hardware instancing, wind, near/far clusters | Same shader/instancing path and nonzero beach population required | Dense mesh grass visibly rendered; sustained cost is unmeasured |
 | Debug UI | Runtime-generated font and SpriteBatch panel | Same panel captured in Chromium | Compiles; not enabled during the first emulator frame |
 | Touch UI | Hidden until a touch is observed | Hidden until a touch is observed | Generated movement/look rings are enabled by default; post-HUD runtime capture remains open |
