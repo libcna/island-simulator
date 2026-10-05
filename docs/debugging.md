@@ -30,7 +30,7 @@ Current fields are:
   cells/draw submissions;
 - visible/total rocks, fallen logs, and beach driftwood plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, and draw submissions;
-- audio availability/mute state and current surf/breeze mix levels.
+- audio availability/mute state, current surf/breeze mix levels, and played stronger-wave count.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative

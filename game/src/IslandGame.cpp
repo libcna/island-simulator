@@ -635,6 +635,7 @@ namespace island
             if (soundscape_) {
                 overlayState.surfVolume = soundscape_->Mix().surfVolume;
                 overlayState.breezeVolume = soundscape_->Mix().breezeVolume;
+                overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
             }
             debugOverlay_->Draw(overlayState);
         }

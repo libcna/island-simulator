@@ -39,19 +39,28 @@ namespace island
         [[nodiscard]] bool WasStartAttempted() const noexcept { return startAttempted_; }
         [[nodiscard]] const SoundscapeMix& Mix() const noexcept { return model_.Mix(); }
         [[nodiscard]] const std::string& Error() const noexcept { return error_; }
+        [[nodiscard]] int PlayedWaveAccentCount() const noexcept
+        {
+            return playedWaveAccentCount_;
+        }
 
     private:
         void ApplyVolumes() noexcept;
         void DisableAfterRuntimeFailure(const std::string& message) noexcept;
 
         SoundscapeModel model_;
+        WaveAccentScheduler waveScheduler_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> breezeInstance_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
         std::string error_;
         bool available_ = false;
         bool muted_ = false;
         bool startAttempted_ = false;
+        bool waveAccentsEnabled_ = false;
+        bool waveFailureReported_ = false;
+        int playedWaveAccentCount_ = 0;
     };
 }

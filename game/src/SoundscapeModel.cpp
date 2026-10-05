@@ -32,10 +32,11 @@ namespace island
             std::uint32_t state_;
         };
 
-        [[nodiscard]] std::vector<float> Noise(const std::uint32_t seed)
+        [[nodiscard]] std::vector<float> Noise(const std::uint32_t seed,
+                                               const std::size_t sampleCount = AmbientFrameCount)
         {
             DeterministicNoise generator(seed);
-            std::vector<float> result(AmbientFrameCount);
+            std::vector<float> result(sampleCount);
             for (float& sample : result) {
                 sample = generator.Next();
             }
@@ -125,6 +126,63 @@ namespace island
                 + gust[index] * 0.58f;
         }
         return Quantize(samples, 0.64f);
+    }
+
+    AmbientLoop GenerateWaveAccent()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 4);
+        const std::vector<float> noise = Noise(0xa11ce57aU, frameCount);
+        const std::vector<float> foam = CircularSmooth(noise, 5U);
+        const std::vector<float> wash = CircularSmooth(noise, 170U);
+        const std::vector<float> body = CircularSmooth(noise, 920U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index)
+                / static_cast<float>(samples.size() - 1U);
+            const float attack = SmoothStep(0.0f, 0.12f, phase);
+            const float release = 1.0f - SmoothStep(0.58f, 1.0f, phase);
+            const float crest = 0.74f
+                + 0.17f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (2.0f * phase + 0.16f));
+            samples[index] = attack * release
+                * ((foam[index] - wash[index] * 0.26f) * crest
+                   + wash[index] * 0.58f + body[index] * 0.42f);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.86f);
+    }
+
+    void WaveAccentScheduler::Reset() noexcept
+    {
+        randomState_ = 0x78d2f9a5U;
+        secondsUntilAccent_ = 7.0f + NextUnit() * 6.0f;
+    }
+
+    float WaveAccentScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    WaveAccentRequest WaveAccentScheduler::Update(const float deltaSeconds,
+                                                  const float surfVolume) noexcept
+    {
+        secondsUntilAccent_ -= std::clamp(deltaSeconds, 0.0f, 0.25f);
+        if (secondsUntilAccent_ > 0.0f || surfVolume < 0.16f) {
+            return {};
+        }
+
+        WaveAccentRequest request;
+        request.trigger = true;
+        request.volume = std::clamp((surfVolume - 0.05f) * 0.54f, 0.06f, 0.22f);
+        request.pitch = -0.06f + NextUnit() * 0.12f;
+        request.pan = -0.32f + NextUnit() * 0.64f;
+        secondsUntilAccent_ = 14.0f + NextUnit() * 18.0f;
+        return request;
     }
 
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,

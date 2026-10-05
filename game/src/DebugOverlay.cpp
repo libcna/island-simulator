@@ -244,6 +244,7 @@ namespace island
         audio << "AUDIO " << (state.audioAvailable ? (state.audioMuted ? "MUTED" : "ACTIVE")
                                                        : "UNAVAILABLE")
               << "  SURF " << state.surfVolume << " BREEZE " << state.breezeVolume;
+        audio << " WAVES " << state.playedWaveAccents;
         lines.push_back(audio.str());
 
         constexpr float scale = 1.45f;

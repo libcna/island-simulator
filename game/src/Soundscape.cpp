@@ -44,8 +44,10 @@ namespace island
         try {
             const AmbientLoop surf = GenerateSurfLoop();
             const AmbientLoop breeze = GenerateBreezeLoop();
+            const AmbientLoop wave = GenerateWaveAccent();
             const std::vector<SharpRuntime::bytecs> surfBytes = ToPcmBytes(surf);
             const std::vector<SharpRuntime::bytecs> breezeBytes = ToPcmBytes(breeze);
+            const std::vector<SharpRuntime::bytecs> waveBytes = ToPcmBytes(wave);
 
             surfEffect_ = std::make_unique<SoundEffect>(
                 surfBytes, 0, static_cast<SharpRuntime::intcs>(surfBytes.size()), surf.sampleRate,
@@ -63,6 +65,10 @@ namespace island
                 breezeEffect_->CreateInstance());
             breezeInstance_->setIsLoopedProperty(true);
 
+            waveEffect_ = std::make_unique<SoundEffect>(
+                waveBytes, wave.sampleRate, AudioChannels::Mono);
+            waveEffect_->setNameProperty("Procedural stronger wave");
+
             available_ = true;
             ApplyVolumes();
             if (!available_) {
@@ -75,12 +81,16 @@ namespace island
                 || breezeInstance_->getStateProperty() != SoundState::Playing) {
                 throw std::runtime_error("CNA did not transition both ambient tracks to Playing");
             }
+            waveScheduler_.Reset();
+            waveAccentsEnabled_ = true;
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
+            std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
             return true;
         } catch (const std::exception& exception) {
             error_ = exception.what();
             available_ = false;
             breezeInstance_.reset();
+            waveEffect_.reset();
             breezeEffect_.reset();
             surfInstance_.reset();
             surfEffect_.reset();
@@ -95,6 +105,31 @@ namespace island
     {
         (void)model_.Update(signedShoreDistance, swimming, deltaSeconds);
         ApplyVolumes();
+        const WaveAccentRequest accent = waveScheduler_.Update(
+            deltaSeconds, model_.Mix().surfVolume);
+        if (!available_ || muted_ || !waveAccentsEnabled_ || !accent.trigger || !waveEffect_) {
+            return;
+        }
+        try {
+            if (waveEffect_->Play(accent.volume, accent.pitch, accent.pan)) {
+                ++playedWaveAccentCount_;
+                if (playedWaveAccentCount_ == 1) {
+                    std::cout << "island-simulator: first stronger-wave accent played\n"
+                              << std::flush;
+                }
+            } else if (!waveFailureReported_) {
+                waveFailureReported_ = true;
+                std::cerr << "island-simulator: stronger-wave accent could not acquire "
+                             "a playback instance; ambient beds continue\n";
+            }
+        } catch (const std::exception& exception) {
+            waveAccentsEnabled_ = false;
+            if (!waveFailureReported_) {
+                waveFailureReported_ = true;
+                std::cerr << "island-simulator: stronger-wave accents disabled; ambient beds "
+                             "continue: " << exception.what() << '\n';
+            }
+        }
     }
 
     void Soundscape::ToggleMuted() noexcept
@@ -123,6 +158,7 @@ namespace island
         error_ = message;
         available_ = false;
         breezeInstance_.reset();
+        waveEffect_.reset();
         breezeEffect_.reset();
         surfInstance_.reset();
         surfEffect_.reset();

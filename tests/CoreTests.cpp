@@ -42,10 +42,13 @@ int main()
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();
+    const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
           "procedural ambient loops are ten seconds long");
+    Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U,
+          "stronger-wave accent has its intended four-second portable format");
     Check(surfLoop.samples == repeatedSurfLoop.samples,
           "procedural surf generation is deterministic");
     const auto peakMagnitude = [](const island::AmbientLoop& loop) {
@@ -67,6 +70,10 @@ int main()
           "procedural ambience retains headroom before runtime mixing");
     Check(rootMeanSquare(surfLoop) > 1200.0 && rootMeanSquare(breezeLoop) > 900.0,
           "procedural ambience contains meaningful audible energy");
+    Check(peakMagnitude(waveAccent) < 32767 && rootMeanSquare(waveAccent) > 900.0,
+          "stronger-wave accent is audible while retaining mixing headroom");
+    Check(waveAccent.samples.front() == 0 && waveAccent.samples.back() == 0,
+          "stronger-wave accent starts and ends at silence without a boundary click");
     Check(std::abs(static_cast<int>(surfLoop.samples.front())
                    - static_cast<int>(surfLoop.samples.back())) < 8000,
           "surf loop boundary does not contain a large discontinuity");
@@ -94,6 +101,33 @@ int main()
           "soundscape transitions smoothly toward the new zone instead of snapping");
     CheckNear(soundscapeModel.Mix().surfVolume, jungleMix.surfVolume, 0.025f,
               "soundscape approaches the inland surf target over several seconds");
+
+    island::WaveAccentScheduler waveScheduler;
+    waveScheduler.Reset();
+    island::WaveAccentRequest firstWave;
+    for (int step = 0; step < 60 && !firstWave.trigger; ++step) {
+        firstWave = waveScheduler.Update(0.25f, beachMix.surfVolume);
+    }
+    Check(firstWave.trigger, "shoreline scheduler emits its first wave within the authored window");
+    Check(firstWave.volume >= 0.06f && firstWave.volume <= 0.22f
+              && firstWave.pitch >= -0.06f && firstWave.pitch <= 0.06f
+              && firstWave.pan >= -0.32f && firstWave.pan <= 0.32f,
+          "wave request variation remains inside conservative playback bounds");
+    bool overlappedWave = false;
+    for (int step = 0; step < 52; ++step) {
+        overlappedWave = overlappedWave
+            || waveScheduler.Update(0.25f, beachMix.surfVolume).trigger;
+    }
+    Check(!overlappedWave,
+          "wave scheduler cannot overlap a four-second accent or repeat it too quickly");
+    waveScheduler.Reset();
+    bool inlandWave = false;
+    for (int step = 0; step < 80; ++step) {
+        inlandWave = inlandWave || waveScheduler.Update(0.25f, jungleMix.surfVolume).trigger;
+    }
+    Check(!inlandWave, "quiet inland ambience virtualizes stronger-wave accents");
+    Check(waveScheduler.Update(0.25f, beachMix.surfVolume).trigger,
+          "returning to audible surf permits a waiting wave accent");
 
     island::TouchControls touchControls;
     std::array<island::TouchContact, 2> touchContacts = {{

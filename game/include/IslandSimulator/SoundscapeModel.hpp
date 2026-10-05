@@ -25,6 +25,33 @@ namespace island
     /** @brief Generates a seamless ten-second light-canopy-breeze bed. */
     [[nodiscard]] AmbientLoop GenerateBreezeLoop();
 
+    /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
+    [[nodiscard]] AmbientLoop GenerateWaveAccent();
+
+    /** @brief One optional, bounded stronger-wave playback request. */
+    struct WaveAccentRequest
+    {
+        bool trigger = false;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        float pan = 0.0f;
+    };
+
+    /** @brief Deterministic sparse scheduler that never overlaps its four-second wave accents. */
+    class WaveAccentScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] WaveAccentRequest Update(float deltaSeconds,
+                                               float surfVolume) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+
+        std::uint32_t randomState_ = 0x78d2f9a5U;
+        float secondsUntilAccent_ = 0.0f;
+    };
+
     /** @brief Smoothly blends ambient layers from authoritative shoreline/player state. */
     class SoundscapeModel final
     {

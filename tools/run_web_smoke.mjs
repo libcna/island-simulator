@@ -195,6 +195,8 @@ try {
   deploymentState.output = postGestureState.output ?? deploymentState.output;
   deploymentState.audioStarted = deploymentState.output?.includes(
     "island-simulator: soundscape started (procedural surf and breeze)");
+  deploymentState.waveAccentsEnabled = deploymentState.output?.includes(
+    "island-simulator: sparse stronger-wave accents enabled");
   const deploymentPassed = deploymentState.status === "Ready"
     && deploymentState.width === 1280
     && deploymentState.height === 720
@@ -203,6 +205,7 @@ try {
     && deploymentState.output?.includes("island-simulator: fixed sunny sky portable shader")
     && deploymentState.output?.includes("island-simulator: terrain")
     && deploymentState.audioStarted === true
+    && deploymentState.waveAccentsEnabled === true
     && deploymentState.pointerLocked === true;
   await call("Target.closeTarget", { targetId: deploymentTargetId });
 

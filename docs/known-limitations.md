@@ -36,10 +36,10 @@ been confirmed so far.
 
 - Birds, fish, the occasional shark, monkeys, skeletal animation, wildlife behaviour, and wildlife
   spatial activation are not implemented yet.
-- A first original procedural layer supplies shoreline-distance-blended surf and light canopy
-  breeze. It is intentionally incomplete: stronger-wave variation, richer jungle ambience,
-  insects, birds, monkeys, positional emitters, and player wading/swimming sounds are absent, and
-  a long fatigue/listening pass is still required.
+- A first original procedural layer supplies shoreline-distance-blended surf, sparse stronger-wave
+  accents, and light canopy breeze. It is intentionally incomplete: richer jungle ambience,
+  insects, birds, monkeys, positional emitters, and player wading/swimming sounds are absent, and a
+  long fatigue/listening pass is still required.
 
 ## Platform qualification
 

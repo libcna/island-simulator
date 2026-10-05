@@ -197,13 +197,19 @@ falls to a quiet distant bed inland. Light canopy breeze increases toward the in
 second exponential crossfade prevents zone snaps, and M applies a reversible zero-gain mute without
 restarting the tracks.
 
+A separate original four-second PCM wash supplies occasional stronger waves. A deterministic
+7--13 second initial delay and 14--32 second repeat interval vary conservative pitch and stereo pan
+without allowing overlaps. The scheduler virtualizes the accent while inland surf is inaudible,
+so the current soundscape is bounded to two persistent beds plus at most one short one-shot.
+
 `Soundscape` owns CNA `SoundEffect` and looping `SoundEffectInstance` objects and never calls SDL
 or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
 device creation until the first mouse, touch, or movement-key gesture so browser activation and
 pointer-lock requests share one user action. Missing or disconnected audio degrades to a logged,
 visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
-length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, and crossfade.
-Actual Chromium proves first-gesture mixer/track initialization; a visible hardware-browser
+length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade, and
+accent interval/virtualization bounds. Native playback accepted the scheduled one-shot. Actual
+Chromium proves first-gesture mixer/track initialization and accent-effect creation; a visible hardware-browser
 listening pass and Android audio focus/lifecycle testing remain open.
 
 ## Current limitations

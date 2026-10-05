@@ -60,6 +60,7 @@ namespace island
         bool audioMuted = false;
         float surfVolume = 0.0f;
         float breezeVolume = 0.0f;
+        int playedWaveAccents = 0;
     };
 
     /** @brief Small asset-free bitmap-font overlay for renderer and gameplay diagnostics. */
