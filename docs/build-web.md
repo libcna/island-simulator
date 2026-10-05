@@ -69,13 +69,14 @@ With the Emscripten environment active, run:
 
 The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
-ocean shader and the hardware-instanced palm, grass, and jungle wind/LOD shaders rather than their
-fallbacks. It then opens live fixed overview, first-person beach, and first-person jungle instances
+ocean shader and the hardware-instanced palm, grass, jungle, and natural-prop shaders rather than
+their fallbacks. It then opens live fixed overview, first-person beach, jungle, and prop instances
 at a 1280 x 720 viewport. The captures are saved as `build-probe/island-browser-smoke.png`,
-`build-probe/island-browser-beach.png`, and `build-probe/island-browser-jungle.png`. The beach view
-must report nonzero grass, while the jungle view must report nonzero canopy and understory
-populations. Both first-person runs enable the runtime-generated debug font and overlay, covering
-the WebGL 2 `SpriteBatch` composition path.
+`build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`, and
+`build-probe/island-browser-props.png`. The beach view must report nonzero grass, the jungle view
+must report nonzero canopy and understory, and the prop view must report visible fallen logs. The
+first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
+`SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click

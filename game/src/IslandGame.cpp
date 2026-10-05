@@ -99,6 +99,7 @@ namespace island
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
+          naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
@@ -107,11 +108,14 @@ namespace island
           inputDiagnostics_(inputDiagnostics)
     {
         worldObstacles_.reserve(vegetationLayout_.Obstacles().size()
-                                + jungleLayout_.Obstacles().size());
+                                + jungleLayout_.Obstacles().size()
+                                + naturalPropLayout_.Obstacles().size());
         worldObstacles_.insert(worldObstacles_.end(), vegetationLayout_.Obstacles().begin(),
                                vegetationLayout_.Obstacles().end());
         worldObstacles_.insert(worldObstacles_.end(), jungleLayout_.Obstacles().begin(),
                                jungleLayout_.Obstacles().end());
+        worldObstacles_.insert(worldObstacles_.end(), naturalPropLayout_.Obstacles().begin(),
+                               naturalPropLayout_.Obstacles().end());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -133,6 +137,18 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::PropDetail
+                   && !naturalPropLayout_.FallenLogs().empty()) {
+            const FallenLogPlacement& log = naturalPropLayout_.FallenLogs().front();
+            const float offsetX = -std::sin(log.yawRadians) * 4.8f;
+            const float offsetZ = std::cos(log.yawRadians) * 4.8f;
+            const float cameraX = log.x + offsetX;
+            const float cameraZ = log.z + offsetZ;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            yaw_ = std::atan2(log.x - cameraX, log.z - cameraZ);
+            pitch_ = -0.14f;
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -160,6 +176,7 @@ namespace island
         CreateTerrainMesh();
         grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
         jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
+        naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
@@ -484,6 +501,9 @@ namespace island
 
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
+        naturalPropRenderer_->Draw(terrainEffect_->getViewProperty(),
+                                   terrainEffect_->getProjectionProperty(), cameraPosition_);
+
         jungleRenderer_->Draw(terrainEffect_->getViewProperty(),
                               terrainEffect_->getProjectionProperty(), cameraPosition_,
                               timeSeconds);
@@ -531,6 +551,12 @@ namespace island
             overlayState.totalUnderstory = jungleRenderer_->TotalUnderstoryCount();
             overlayState.jungleCells = jungleRenderer_->VisibleCellCount();
             overlayState.jungleDraws = jungleRenderer_->DrawCallCount();
+            overlayState.visibleRocks = naturalPropRenderer_->VisibleRockCount();
+            overlayState.totalRocks = naturalPropRenderer_->TotalRockCount();
+            overlayState.visibleLogs = naturalPropRenderer_->VisibleLogCount();
+            overlayState.totalLogs = naturalPropRenderer_->TotalLogCount();
+            overlayState.propCells = naturalPropRenderer_->VisibleCellCount();
+            overlayState.propDraws = naturalPropRenderer_->DrawCallCount();
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
@@ -551,7 +577,12 @@ namespace island
                       << jungleRenderer_->TotalCanopyCount() << " canopy, "
                       << jungleRenderer_->VisibleUnderstoryCount() << '/'
                       << jungleRenderer_->TotalUnderstoryCount() << " understory, "
-                      << jungleRenderer_->DrawCallCount() << " draws; grass "
+                      << jungleRenderer_->DrawCallCount() << " draws; props "
+                      << naturalPropRenderer_->VisibleRockCount() << '/'
+                      << naturalPropRenderer_->TotalRockCount() << " rocks, "
+                      << naturalPropRenderer_->VisibleLogCount() << '/'
+                      << naturalPropRenderer_->TotalLogCount() << " logs, "
+                      << naturalPropRenderer_->DrawCallCount() << " draws; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "

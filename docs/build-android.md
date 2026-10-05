@@ -13,9 +13,9 @@ with generated on-screen affordances. The available emulator has no KVM accelera
 GLES3 render is valid renderer evidence but not touch, lifecycle, or performance qualification.
 Those claims still require a stable accelerated emulator or physical device.
 
-The current arm64 package includes the first broadleaf canopy and understory layer. That package
-builds and passes application lint, but the existing emulator capture predates this layer; do not
-treat compilation as GLES3 runtime qualification for the new jungle shader.
+The current arm64 package includes the first broadleaf jungle, rocks, and fallen logs. That package
+builds and passes application lint, but the existing emulator capture predates these layers; do
+not treat compilation as GLES3 runtime qualification for the new jungle/prop shaders.
 
 ## Requirements
 

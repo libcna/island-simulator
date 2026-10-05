@@ -10,6 +10,8 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleRenderer.hpp"
+#include "IslandSimulator/NaturalPropLayout.hpp"
+#include "IslandSimulator/NaturalPropRenderer.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassRenderer.hpp"
 #include "IslandSimulator/OceanRenderer.hpp"
@@ -35,7 +37,8 @@ namespace island
         None,
         Overview,
         BeachPath,
-        JungleTrail
+        JungleTrail,
+        PropDetail
     };
 
     /** @brief Main application and first portable island rendering slice. */
@@ -89,6 +92,7 @@ namespace island
         GrassLayout grassLayout_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
+        NaturalPropLayout naturalPropLayout_;
         std::vector<CircularObstacle> worldObstacles_;
         PlayerMotion playerMotion_;
         TouchControls touchControls_;
@@ -97,6 +101,7 @@ namespace island
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
         std::unique_ptr<JungleRenderer> jungleRenderer_;
+        std::unique_ptr<NaturalPropRenderer> naturalPropRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<TouchOverlay> touchOverlay_;

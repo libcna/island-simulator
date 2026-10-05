@@ -22,6 +22,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── JungleLayout ─────── broadleaf/understory placement and canopy trunk proxies
       │       │
       │       └── JungleRenderer ─ canopy/understory meshes, LOD, culling, instancing, and wind
+      ├── NaturalPropLayout ── rock/log placement, tree separation, and collision proxies
+      │       │
+      │       └── NaturalPropRenderer ─ rock/log meshes, LOD, culling, and instancing
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
@@ -29,14 +32,13 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       └── IslandGame ───────── CNA lifecycle, input, camera, terrain cells, and pass ordering
 ```
 
-`IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`, and
-`TouchControls` form
-`IslandSimulator::Core` and
+`IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`,
+`NaturalPropLayout`, and `TouchControls` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
 and converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
-consume the same palm and broadleaf placements; rendering never becomes a separate source of
-world truth.
+consume the same palm, broadleaf, rock, and fallen-log placements; rendering never becomes a
+separate source of world truth.
 
 ## Coordinates and scale
 
@@ -77,8 +79,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    island-relative current field, and the remote safety boundary.
 5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
    circular obstacles, retaining axis sliding when one component is valid.
-6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, broadleaf
-   jungle, mesh grass, palms, then the transparent ocean.
+6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, natural props,
+   broadleaf jungle, mesh grass, palms, then the transparent ocean.
 7. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
 8. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
@@ -136,6 +138,14 @@ GLSL 330 / GLSL ES 300 shader applies weighted calm wind, and `BasicEffect` rema
 fallback. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute the full shader; the current
 arm64 GLES 3 package compiles but has not been rerun on stable Android hardware.
 
+Natural props add 152 irregular rocks across beach/interior bands and 11 mossy fallen logs in the
+low-slope interior. Four rock and three log variants use independent near/far meshes, cell culling,
+variant batching, and a portable static GLSL 330 / GLSL ES 300 shader. Opaque contact geometry
+grounds both classes without transparency overdraw. Placement keeps complete log footprints away
+from routes and tree trunks, rejects uneven support, and exposes collision only for substantial
+rocks plus a sampled chain along each log. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full
+instanced path; the jungle and prop captures provide deterministic close review.
+
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
@@ -161,11 +171,11 @@ SpriteBatch route.
 - Palms have four geometry variants, placement clustering, cell culling, near/far meshes, subtle
   shader wind, trunk collision, and small root contact wedges. Pop-free LOD blending, richer
   close-up geometry/materials, and grounding shadow remain open.
-- The first grass and layered-jungle tiers substantially improve first-person grounding, but
-  transition popping, close-up leaf/material shape, bush diversity, biome variation, and measured
-  mobile density still need repeated polish. Rocks and natural props remain to be built.
-- Collision checks every palm and canopy-trunk proxy and has no spatial broad phase yet; rocks and
-  geometric step-up remain absent.
+- The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
+  grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
+  and measured mobile density still need repeated polish. Driftwood/beach prop variety remains.
+- Collision checks every palm, canopy-trunk, solid-rock, and sampled log proxy and has no spatial
+  broad phase yet; geometric step-up remains absent.
 - Swimming camera height is functional but has no bob, underwater transition, or audio.
 - WebGL 2 has run in Chromium/SwiftShader with the full ocean, palm-wind, and grass-wind shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,

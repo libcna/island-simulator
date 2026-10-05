@@ -4,11 +4,12 @@
 experience built in C++23 with CNA. The project is at the beginning of a long development campaign.
 The current slice renders a deterministic approximately 500 m island, animated tropical ocean,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, and 18,556
-mesh-grass clusters. Every vegetation layer has wind, spatial culling, and distance LOD. It supports
+mesh-grass clusters. It also composes 152 irregular rocks and 11 mossy fallen logs. Every visual
+layer has spatial culling and distance LOD, while vegetation uses a calm breeze. It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 and dual-zone touch input. The complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
-terrain/palm/grass scene through OpenGL ES 3; the current jungle-inclusive APK builds, but its
+terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop-inclusive APK builds, but its
 runtime and real-device touch feel are not yet qualified.
 
 There are deliberately no quests, combat, inventory, crafting, survival systems, score,
@@ -50,7 +51,7 @@ running the full CTest set on the owner's live desktop.
 
 Run `build/island-simulator`. Click inside the window to capture the mouse, use WASD to move, and
 press Escape to release the mouse; press Escape again to exit. The controller follows the terrain,
-rejects overly steep uphill motion, slides along palm and broadleaf trunk proxies, and enters swimming
+rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and enters swimming
 water with hysteresis. Rock/complex prop collision and geometric step-up are not implemented yet.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, and vegetation draw statistics. While it is visible, F5 through F8 teleport among
@@ -58,8 +59,8 @@ four fixed QA locations. The overlay starts hidden in a normal run and can be en
 with `--debug-overlay` for automated QA.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
-shader, hardware-instanced palm and jungle wind/LOD, portable instanced grass wind, four frames,
-clean shutdown, active overview/beach/jungle screenshots, and portable overlay text rendering.
+shader, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four frames, clean
+shutdown, active overview/beach/jungle/prop screenshots, and portable overlay text rendering.
 The Chromium harness also drives first-click pointer lock, WASD, relative mouse look, F1, pointer
 release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-accelerated
 browser pass, genuine tab background/foreground behaviour, audio unlock, and another browser

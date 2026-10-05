@@ -1,6 +1,7 @@
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
@@ -309,6 +310,70 @@ int main()
                   && plant.scale <= island::JungleLayout::UnderstoryMaximumScale,
               "understory scale remains in the authored range");
     }
+
+    const island::NaturalPropLayout props(terrain, vegetation, jungle);
+    const island::NaturalPropLayout repeatedProps(terrain, vegetation, jungle);
+    Check(props.Rocks().size() >= 30U && props.Rocks().size() <= 500U,
+          "rock population stays inside its first performance budget");
+    Check(props.FallenLogs().size() >= 6U && props.FallenLogs().size() <= 80U,
+          "fallen-log population stays inside its first composition budget");
+    Check(props.Rocks().size() == repeatedProps.Rocks().size()
+              && props.FallenLogs().size() == repeatedProps.FallenLogs().size(),
+          "natural-prop populations are deterministic");
+    std::size_t solidRockCount = 0U;
+    for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
+        const island::RockPlacement& rock = props.Rocks()[index];
+        const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
+        const island::TerrainSample sample = terrain.Sample(rock.x, rock.z);
+        Check(rock.x == repeated.x && rock.y == repeated.y && rock.z == repeated.z
+                  && rock.yawRadians == repeated.yawRadians
+                  && rock.scaleX == repeated.scaleX && rock.scaleY == repeated.scaleY
+                  && rock.scaleZ == repeated.scaleZ && rock.variant == repeated.variant
+                  && rock.solid == repeated.solid,
+              "rock placement is bitwise deterministic for one seed");
+        Check(sample.signedShoreDistance >= 1.5f
+                  && sample.signedShoreDistance <= 202.0f,
+              "rocks stay inside their coastal/interior placement belt");
+        Check(sample.height >= 0.15f && sample.slopeRadians <= 0.5759587f,
+              "rocks remain on suitable unsubmerged ground");
+        Check(!island::VegetationLayout::IsReservedRoute(rock.x, rock.z),
+              "rocks keep authored routes and clearings open");
+        Check(rock.variant < island::NaturalPropLayout::RockVariantCount,
+              "rock variant index remains in range");
+        Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
+                  && rock.scaleY > 0.24f && rock.scaleY < 1.70f
+                  && rock.scaleZ > 0.35f && rock.scaleZ < 2.35f,
+              "rock axis scales remain inside conservative visual bounds");
+        if (rock.solid) ++solidRockCount;
+    }
+    for (std::size_t index = 0; index < props.FallenLogs().size(); ++index) {
+        const island::FallenLogPlacement& log = props.FallenLogs()[index];
+        const island::FallenLogPlacement& repeated = repeatedProps.FallenLogs()[index];
+        Check(log.x == repeated.x && log.y == repeated.y && log.z == repeated.z
+                  && log.yawRadians == repeated.yawRadians && log.length == repeated.length
+                  && log.radius == repeated.radius && log.variant == repeated.variant,
+              "fallen-log placement is bitwise deterministic for one seed");
+        Check(log.length >= island::NaturalPropLayout::LogMinimumLength
+                  && log.length <= island::NaturalPropLayout::LogMaximumLength,
+              "fallen-log length remains in the authored range");
+        Check(log.radius >= 0.24f && log.radius <= 0.43f,
+              "fallen-log radius remains in the authored range");
+        Check(log.variant < island::NaturalPropLayout::LogVariantCount,
+              "fallen-log variant index remains in range");
+        const float directionX = std::cos(log.yawRadians);
+        const float directionZ = std::sin(log.yawRadians);
+        for (int sampleIndex = 0; sampleIndex < 7; ++sampleIndex) {
+            const float t = static_cast<float>(sampleIndex) / 6.0f - 0.5f;
+            const float sampleX = log.x + directionX * log.length * t;
+            const float sampleZ = log.z + directionZ * log.length * t;
+            Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
+                  "the complete fallen-log footprint stays outside authored routes");
+            Check(terrain.Sample(sampleX, sampleZ).signedShoreDistance >= 30.0f,
+                  "the complete fallen-log footprint stays in the island interior");
+        }
+    }
+    Check(props.Obstacles().size() == solidRockCount + props.FallenLogs().size() * 7U,
+          "natural-prop collision proxies correspond to solid rocks and sampled log spans");
 
     for (int z = -360; z <= 360; z += 12) {
         for (int x = -360; x <= 360; x += 12) {

@@ -326,8 +326,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   instrumented Android wind/LOD qualification remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
-  four-variant fern/large-leaf plants; bushes, smaller ground layers, rocks, wood, and beach props
-  remain.
+  four-variant fern/large-leaf plants plus 152 rocks and 11 fallen logs; bushes, smaller ground
+  layers, driftwood, and other beach props remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, and understory placement is deterministic, shore-distance/slope/height constrained,
   multi-scale cluster-noise weighted, and reserves a winding primary path, two clearings, and
@@ -746,8 +746,8 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add rocks, fallen wood, low bushes, and sparse beach props; revisit broadleaf crown silhouettes,
-   grounding, and plant separation during that composition pass.
+1. Add low bushes, sparse driftwood/beach props, and improved ground/contact variation; revisit
+   broadleaf crown silhouettes and plant separation during that composition pass.
 2. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
    F5--F8 QA teleports are complete.
 3. Qualify touch traversal, pause/resume, and performance on a physical Android device or a stable
@@ -988,6 +988,31 @@ Work next, in order:
 - Removed the superseded 1.1 GiB standalone Android build tree and 945 MiB x86_64 NDK intermediate
   tree after recording their evidence. The reusable native/Web trees, current arm64 intermediate,
   signed APK, and shared compiler cache remain; the removed outputs are reproducible from presets.
+
+### 2026-10-05 — First natural-prop composition pass
+
+- Added deterministic placement for 152 irregular rocks across coastal/interior ground and 11
+  fallen logs on low-slope jungle floor. Placement is height/shore/slope/cluster aware, separates
+  props from palm and canopy trunks, preserves routes/clearings, and validates the complete log
+  footprint rather than only its centre.
+- Added four faceted rock variants and three bark/cut-end/moss log variants with independent
+  near/far meshes, opaque contact geometry, cell frustum/distance culling, variant-level hardware
+  instancing, and a stock-effect fallback. The overview sees 39 rocks in four draws; the prop-detail
+  WebGL view sees three logs plus 33 rocks in 11 draws.
+- Added a portable GLSL 330 / GLSL ES 300 prop shader and extended the real Chromium harness to
+  require its non-fallback instanced path. A dedicated native/Web prop camera records the log close
+  view and proves nonzero log rendering; inspected native and Web captures agree.
+- Added conservative collision for substantial rocks and seven sampled proxies along each fallen
+  log. Smaller dressing rocks remain non-solid. Core tests cover deterministic populations,
+  placement bounds, complete route clearance, variant/scale limits, and exact proxy correspondence.
+- Added prop visibility/cell/draw counters to the debug overlay. The complete core suite and six
+  isolated OpenGL lifecycle/capture tests pass, and the expanded Chromium lifecycle/render/input
+  harness passes. The arm64 GLES 3 package compiles and lint passes; runtime of these new props on
+  stable Android hardware remains open.
+- Visual review found the first log deliberately simple but correctly grounded and readable, with
+  cut end and subtle moss. Later passes should add branch stubs, finer material variation, smaller
+  beach driftwood, rock grouping/shore wetness, and measured mobile budgets rather than multiplying
+  geometry blindly.
 
 ## Session-end checklist
 

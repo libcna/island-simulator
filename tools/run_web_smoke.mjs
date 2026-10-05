@@ -133,6 +133,8 @@ try {
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, hardware instancing")
     && result.output?.includes("jungle portable wind shader with canopy/understory LOD")
+    && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, hardware instancing")
+    && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -229,6 +231,7 @@ try {
     && visualResult.output?.includes(
       "island-simulator: jungle 281 canopy trees, 1822 understory plants, hardware instancing")
     && visualResult.output?.includes("jungle portable wind shader with canopy/understory LOD")
+    && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
     && visualResult.output?.includes("portable instanced wind shader")
     && visualResult.output?.includes("island-simulator: terrain")
     && !visualResult.error;
@@ -293,6 +296,34 @@ try {
     && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=props`,
+  }, visualSessionId);
+  let propResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    propResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (propResult.output?.includes("island-simulator: terrain") || propResult.error) break;
+  }
+  await delay(1000);
+  const completedPropEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  propResult = JSON.parse(completedPropEvaluation.result.value ?? "{}");
+
+  const propScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const propScreenshotPath = path.join(buildDirectory, "island-browser-props.png");
+  await writeFile(propScreenshotPath, Buffer.from(propScreenshot.data, "base64"));
+  const propPassed = propResult.output?.includes("island-simulator: renderer WEBGL2")
+    && propResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && /props [0-9]+\/152 rocks, [1-9][0-9]*\/11 logs/.test(propResult.output ?? "")
+    && !propResult.error;
 
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
@@ -452,7 +483,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && inputPassed;
+    && junglePassed && propPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -482,6 +513,11 @@ try {
       output: jungleResult.output ?? "",
       error: jungleResult.error ?? "",
     },
+    props: {
+      passed: propPassed,
+      output: propResult.output ?? "",
+      error: propResult.error ?? "",
+    },
     input: {
       passed: inputPassed,
       pointerLocked: lockedState.pointerLocked ?? false,
@@ -503,6 +539,7 @@ try {
     screenshot: path.basename(screenshotPath),
     beachScreenshot: path.basename(beachScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
+    propScreenshot: path.basename(propScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

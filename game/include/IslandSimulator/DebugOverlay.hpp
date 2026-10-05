@@ -40,6 +40,12 @@ namespace island
         int totalUnderstory = 0;
         int jungleCells = 0;
         int jungleDraws = 0;
+        int visibleRocks = 0;
+        int totalRocks = 0;
+        int visibleLogs = 0;
+        int totalLogs = 0;
+        int propCells = 0;
+        int propDraws = 0;
         int visibleGrassPatches = 0;
         int totalGrassPatches = 0;
         int grassCells = 0;
