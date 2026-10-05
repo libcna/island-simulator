@@ -21,6 +21,8 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/SharkRenderer.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/TouchControls.hpp"
@@ -47,7 +49,8 @@ namespace island
         PropDetail,
         DriftwoodDetail,
         BirdDetail,
-        FishDetail
+        FishDetail,
+        SharkDetail
     };
 
     /** @brief Main application and first portable island rendering slice. */
@@ -101,6 +104,7 @@ namespace island
         IslandTerrain terrain_;
         BirdFlock birdFlock_;
         FishSchools fishSchools_;
+        SharkPatrol sharkPatrol_;
         GrassLayout grassLayout_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
@@ -118,6 +122,7 @@ namespace island
         std::unique_ptr<NaturalPropRenderer> naturalPropRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
+        std::unique_ptr<SharkRenderer> sharkRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
@@ -135,7 +140,7 @@ namespace island
         bool debugOverlayToggleWasDown_ = false;
         bool muteToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
-        std::array<bool, 5> debugTeleportWasDown_{};
+        std::array<bool, 6> debugTeleportWasDown_{};
         bool inputDiagnostics_ = false;
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;

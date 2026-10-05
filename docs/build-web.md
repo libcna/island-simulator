@@ -72,16 +72,18 @@ The test uses headless Chrome with SwiftShader to create a real WebGL 2 context.
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
 sky/ocean shaders and the hardware-instanced palm, grass, jungle, and natural-prop shaders rather
 than their fallbacks. It then opens live fixed overview, first-person beach, jungle, prop,
-driftwood, bird, and fish instances at a 1280 x 720 viewport. Every scene asserts the fixed-sky shader
-diagnostic. The
+driftwood, bird, fish, and shark instances at a 1280 x 720 viewport. Every scene asserts the
+fixed-sky shader diagnostic. The
 captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`,
 `build-probe/island-browser-props.png`, `build-probe/island-browser-driftwood.png`,
-`build-probe/island-browser-birds.png`, and `build-probe/island-browser-fish.png`. The beach
+`build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`, and
+`build-probe/island-browser-shark.png`. The beach
 view must report nonzero grass, the jungle view must report nonzero canopy, understory, low bushes,
 and forest-floor plants, the prop view must report visible fallen logs, the driftwood view must
-report visible beach wood, and the bird/fish views must report nonzero visible populations from the
-24-agent flock and 48-agent school population. The
+report visible beach wood, the bird/fish views must report nonzero visible populations from the
+24-agent flock and 48-agent school population, and the shark view must report the active offshore
+patrol. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.

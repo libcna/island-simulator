@@ -6,6 +6,7 @@
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
@@ -603,6 +604,68 @@ int main()
               + fishSchools.DormantSimulationCount()
               == static_cast<int>(island::FishSchools::FishCount),
           "fish simulation tiers account for every school member");
+
+    island::SharkPatrol shark(terrain);
+    island::SharkPatrol repeatedShark(terrain);
+    Check(shark.State().present && shark.State().visible
+              && shark.State().activity == 1.0f,
+          "shark begins with a bounded visible observation window");
+    Check(shark.State().x == repeatedShark.State().x
+              && shark.State().y == repeatedShark.State().y
+              && shark.State().z == repeatedShark.State().z
+              && shark.State().headingRadians == repeatedShark.State().headingRadians,
+          "shark patrol initialization is deterministic");
+    bool observedPresentShark = false;
+    bool observedHiddenShark = false;
+    bool observedSharkTailLeft = false;
+    bool observedSharkTailRight = false;
+    float sharkTravelDistance = 0.0f;
+    island::SharkState previousShark = shark.State();
+    constexpr int sharkSimulationFrames = 36000;
+    for (int frame = 0; frame < sharkSimulationFrames; ++frame) {
+        const island::SharkState observerShark = shark.State();
+        shark.Update(1.0f / 30.0f, observerShark.x, observerShark.y, observerShark.z);
+        repeatedShark.Update(1.0f / 30.0f, observerShark.x,
+                             observerShark.y, observerShark.z);
+        const island::SharkState& state = shark.State();
+        const island::SharkState& repeated = repeatedShark.State();
+        const island::TerrainSample sample = terrain.Sample(state.x, state.z);
+        Check(state.x == repeated.x && state.y == repeated.y && state.z == repeated.z
+                  && state.headingRadians == repeated.headingRadians
+                  && state.bodyWave == repeated.bodyWave
+                  && state.activity == repeated.activity
+                  && state.present == repeated.present && state.visible == repeated.visible
+                  && state.simulationTier == repeated.simulationTier,
+              "shark patrol remains deterministic over a long session");
+        Check(std::isfinite(state.x) && std::isfinite(state.y)
+                  && std::isfinite(state.z) && std::isfinite(state.headingRadians),
+              "shark pose remains finite over a long session");
+        Check(sample.signedShoreDistance <= -33.8f
+                  && sample.signedShoreDistance >= -88.2f,
+              "shark remains in the authored offshore patrol belt");
+        Check(sample.height <= -2.95f && state.y >= sample.height + 0.70f
+                  && state.y <= -1.0f,
+              "shark remains below the surface and above the offshore seabed");
+        Check(state.activity >= 0.0f && state.activity <= 1.0f,
+              "shark activity blend remains normalized");
+        sharkTravelDistance += std::hypot(state.x - previousShark.x,
+                                          state.z - previousShark.z);
+        previousShark = state;
+        observedPresentShark = observedPresentShark
+            || (state.present && state.activity > 0.95f && state.visible);
+        observedHiddenShark = observedHiddenShark
+            || (!state.present && state.activity < 0.035f && !state.visible);
+        observedSharkTailLeft = observedSharkTailLeft || state.bodyWave > 0.65f;
+        observedSharkTailRight = observedSharkTailRight || state.bodyWave < -0.65f;
+    }
+    Check(shark.PresenceCycleCount() >= 8U,
+          "shark alternates through several bounded presence cycles in twenty minutes");
+    Check(observedPresentShark && observedHiddenShark,
+          "shark reaches both fully present and fully hidden states");
+    Check(observedSharkTailLeft && observedSharkTailRight,
+          "shark animation visits both tail-stroke extremes");
+    Check(sharkTravelDistance > 700.0f,
+          "shark patrol covers a meaningful offshore route over time");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");

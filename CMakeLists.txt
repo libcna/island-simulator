@@ -31,6 +31,7 @@ add_library(island_core STATIC
     game/src/JungleLayout.cpp
     game/src/NaturalPropLayout.cpp
     game/src/PlayerMotion.cpp
+    game/src/SharkPatrol.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
     game/src/VegetationLayout.cpp
@@ -154,6 +155,7 @@ if(ISLAND_BUILD_GAME)
         game/src/NaturalPropRenderer.cpp
         game/src/OceanRenderer.cpp
         game/src/PalmRenderer.cpp
+        game/src/SharkRenderer.cpp
         game/src/SkyRenderer.cpp
         game/src/Soundscape.cpp
         game/src/TouchOverlay.cpp)
@@ -229,6 +231,10 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-fish-capture.ppm"
                     --viewpoint fish)
         set_tests_properties(IslandGameFishCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameSharkCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-shark-capture.ppm"
+                    --viewpoint shark)
+        set_tests_properties(IslandGameSharkCapture PROPERTIES TIMEOUT 30 LABELS display)
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

@@ -72,6 +72,13 @@ namespace island
         int reducedSimulationFish = 0;
         int dormantSimulationFish = 0;
         int fishDraws = 0;
+        bool sharkVisible = false;
+        bool sharkPresent = false;
+        bool sharkNear = false;
+        float sharkActivity = 0.0f;
+        int sharkSimulationTier = 0;
+        int sharkDraws = 0;
+        int sharkPresenceCycles = 0;
         bool audioAvailable = false;
         bool audioMuted = false;
         float surfVolume = 0.0f;

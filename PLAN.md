@@ -393,19 +393,22 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [~] Implement spawn regions, deterministic variation, simple steering, state timers, activation
   range, simulation LOD, animation state, and optional audio emitter. The first shared
   `WildlifeActivationPolicy` supplies full/quarter-rate/one-thirtieth-rate tiers, while `BirdFlock`
-  and `FishSchools` provide deterministic steering and animation pose; terrestrial state timers
-  and audio emitters remain.
+  `FishSchools`, and `SharkPatrol` provide deterministic steering, state timing, and animation
+  pose; terrestrial state timers and audio emitters remain.
 - [~] Validate positions against land/water/depth/slope constraints before and during movement.
   Birds continuously enforce family-specific terrain clearance and bounded island-relative
   airspace. Fish continuously enforce a 3--48 m offshore belt, submerged terrain, seabed clearance,
-  and surface clearance; shark/monkey constraints remain.
+  and surface clearance. The shark continuously enforces a 34--88 m offshore belt, minimum water
+  depth, seabed clearance, and surface clearance; monkey constraints remain.
 - [ ] Add debug visualization for regions, paths, state, and activation tiers.
 - [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
   population, path-family mix, deterministic initialization/long-run motion, animation extremes,
   terrain clearance, route radius, and tier accounting are covered through a simulated 20-minute
   flight. Fish population/school distribution, water validity, deterministic motion, tail extremes,
-  meaningful route travel, and tier accounting are covered through a simulated ten-minute swim;
-  later species still need equivalent state/avoidance coverage.
+  meaningful route travel, and tier accounting are covered through a simulated ten-minute swim.
+  Shark deterministic motion, water/depth validity, presence/absence cycles, body animation,
+  meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol;
+  monkeys still need equivalent state/avoidance coverage.
 
 ### Birds
 
@@ -429,9 +432,12 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Activate/cull schools spatially; never simulate large invisible populations. The fixed
   48-agent budget uses school-level full/reduced/dormant simulation tiers, per-fish frustum/distance
   culling, near/far meshes, and one dynamic-buffer draw submission.
-- [ ] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
-  animation, and no hostile behaviour.
-- [ ] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
+- [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
+  animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
+  CPU body/tail motion, frustum/distance culling, and one portable dynamic-buffer draw.
+- [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
+  It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
+  layer for roughly 92--160 seconds before the next appearance.
 
 ### Monkeys and skeletal animation
 
@@ -582,12 +588,12 @@ Dependencies: representative complete scene on all targets.
 - [~] Add debug overlay: FPS, frame time, player coordinates/state, renderer/backend, visible
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
-  fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, and played wave/splash
-  counts on OpenGL 3.3 and WebGL 2; future wildlife counts and positional-emitter diagnostics
-  remain dependent on those systems.
+  fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
+  counts, and bird/fish/shark render/simulation statistics on OpenGL 3.3 and WebGL 2;
+  positional-emitter diagnostics remain dependent on future audio systems.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
-- [~] Add debug teleport locations and a debug-only free camera. Four direct F5--F8 locations are
+- [~] Add debug teleport locations and a debug-only free camera. Six direct F5--F10 locations are
   active only while the diagnostics overlay is visible; a menu, water-limit locations, and free
   camera remain open.
 - [ ] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
@@ -755,11 +761,12 @@ after the same experience remains available.
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
-  draws, bird/fish render LOD and simulation tiers, plus audio mix/event counters; world-space views and
-  warning budgets remain open.
+  draws, bird/fish/shark render LOD and simulation tiers, shark presence/activity, plus audio
+  mix/event counters; world-space views and warning budgets remain open.
 - [ ] Deterministic seed display/copy.
-- [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, and monkeys. South
-  beach, jungle trail, and two clearings are implemented; later content-dependent locations remain.
+- [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
+  South beach, jungle trail, two clearings, fish shallows, and offshore shark are implemented;
+  later content-dependent locations remain.
 - [ ] Terrain/capsule/contact visualization.
 - [ ] Shore distance/current vector visualization.
 - [ ] Vegetation cell, culling, LOD, and density visualization.
@@ -767,8 +774,8 @@ after the same experience remains available.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, jungle-trail, natural-prop, driftwood, airborne bird-detail, and shallow-water fish
-  views are implemented and used by native/browser captures; free camera and more landmark views
-  remain open.
+  views plus the offshore-shark view are implemented and used by native/browser captures; free
+  camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [ ] Frame-time capture and representative scene benchmark route.
 
@@ -806,14 +813,15 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Extend the tested wildlife foundation to the occasional offshore shark: a rare non-hostile
-   patrol with deep-water constraints, credible body/tail motion, sparse activation, and portable
-   rendering. Keep the completed bird and fish layers under subjective observation during play.
+2. Inspect CNA's current skeletal-animation APIs and the sibling glTF examples in depth, then
+   establish a legally redistributable monkey/substitute asset path and a minimal portable rigged
+   animation spike before implementing behaviour. Keep bird, fish, and shark layers under
+   subjective observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
 4. Add shoreline/current, collision, vegetation-cell, and wildlife-route world-space visualization;
-   five direct F5--F9 QA teleports, including the south fish shallows, are complete.
+   six direct F5--F10 QA teleports, including fish and shark views, are complete.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -1373,6 +1381,30 @@ Work next, in order:
   native and browser captures agree. Rebuilt and linted the arm64-v8a GLES 3 APK successfully.
   Android fish runtime/performance remain unqualified without KVM or a physical device. No
   qualifying CNA or Sharp Runtime defect was found.
+
+### 2026-10-06 — Occasional non-hostile offshore shark
+
+- Added one deterministic offshore shark patrol that exists purely as ambient wildlife. Visible
+  42--66 second patrol windows alternate with longer 92--160 second deep-diving absences, making
+  sightings occasional without adding attacks, danger, objectives, or player interaction.
+- Authoritative shoreline and seabed queries constrain movement to a 34--88 m offshore belt with
+  at least 3.5 m of water, seabed clearance, and surface clearance. Soft radial steering, varied
+  angular speed, a slow depth cycle, and an independent body wave avoid a rigid circular loop.
+- Added original near/far low-poly body, dorsal/pectoral fins, and animated tail geometry.
+  Frustum/distance culling and the shared full/reduced/dormant observer policy bound render and
+  simulation cost; visible geometry is streamed through one portable CNA `BasicEffect` draw before
+  the transparent ocean.
+- Added F1 presence/activity/LOD/simulation/cycle/draw diagnostics, an F10 offshore observation
+  teleport, and deterministic native/browser shark-detail cameras. Core coverage simulates twenty
+  minutes and checks repeatability, continuous water/depth validity, meaningful travel, body-wave
+  extremes, appearance and absence windows, cycle count, and simulation-tier accounting.
+- Passed the complete core suite and all ten native OpenGL 3.3 smoke/capture tests, with the shark
+  silhouette and underwater composition visually inspected. Rebuilt WebGL 2 and passed the
+  complete actual Chrome 152/SwiftShader harness with a dedicated shark screenshot and active
+  patrol assertion; native and browser captures agree.
+- Rebuilt and linted the arm64-v8a GLES 3 APK successfully. Android shark runtime/performance
+  remain unqualified because the host exposes no KVM and no physical device is connected. No
+  qualifying CNA or Sharp Runtime defect was found; both dependencies remain unmodified.
 
 ## Session-end checklist
 

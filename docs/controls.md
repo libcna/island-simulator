@@ -8,7 +8,7 @@
 | Mouse | Look around while captured |
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
-| F5 / F6 / F7 / F8 / F9 | With the overlay visible, teleport to five fixed QA locations; F9 faces the south fish shallows |
+| F5 / F6 / F7 / F8 / F9 / F10 | With the overlay visible, teleport to six fixed QA locations; F9 faces the south fish shallows and F10 faces the offshore shark patrol |
 | M | Mute or unmute the ambient soundscape |
 | Escape | Release captured mouse; press again to exit |
 

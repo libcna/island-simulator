@@ -136,6 +136,7 @@ try {
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
     && result.output?.includes("island-simulator: birds 24 agents")
     && result.output?.includes("island-simulator: fish 48 agents")
+    && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
@@ -457,6 +458,35 @@ try {
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=shark`,
+  }, visualSessionId);
+  let sharkResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    sharkResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (sharkResult.output?.includes("island-simulator: terrain") || sharkResult.error) break;
+  }
+  await delay(1000);
+  const completedSharkEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  sharkResult = JSON.parse(completedSharkEvaluation.result.value ?? "{}");
+
+  const sharkScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const sharkScreenshotPath = path.join(buildDirectory, "island-browser-shark.png");
+  await writeFile(sharkScreenshotPath, Buffer.from(sharkScreenshot.data, "base64"));
+  const sharkPassed = sharkResult.output?.includes("island-simulator: renderer WEBGL2")
+    && sharkResult.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
+    && /shark visible activity/.test(sharkResult.output ?? "")
+    && !sharkResult.error;
+
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
   }, visualSessionId);
@@ -639,7 +669,8 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && driftwoodPassed && birdPassed && fishPassed && inputPassed;
+    && junglePassed && propPassed && driftwoodPassed && birdPassed && fishPassed
+    && sharkPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -689,6 +720,11 @@ try {
       output: fishResult.output ?? "",
       error: fishResult.error ?? "",
     },
+    shark: {
+      passed: sharkPassed,
+      output: sharkResult.output ?? "",
+      error: sharkResult.error ?? "",
+    },
     input: {
       passed: inputPassed,
       pointerLocked: lockedState.pointerLocked ?? false,
@@ -715,6 +751,7 @@ try {
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),
+    sharkScreenshot: path.basename(sharkScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

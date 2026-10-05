@@ -38,8 +38,11 @@ been confirmed so far.
   culling, terrain clearance, and distance-scaled simulation. It still lacks calls, perching,
   landing, and long subjective behaviour tuning. Eight shallow-water schools add 48 fish with
   depth/shore constraints, animated tails, culling, and distance-scaled simulation; their geometry,
-  schooling variation, water integration, and long subjective tuning remain first-pass quality.
-  The occasional shark, monkeys, and skeletal animation are not implemented yet.
+  schooling variation, water integration, and long subjective tuning remain first-pass quality. A
+  first non-hostile shark alternates occasional offshore patrols with longer absences, stays out of
+  the shallows, and has body/tail animation plus distance-scaled simulation; appearance timing and
+  underwater integration still need subjective tuning. Monkeys and skeletal animation are not
+  implemented yet.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
   through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional
@@ -60,9 +63,9 @@ been confirmed so far.
 ## Development tooling
 
 - The overlay reports frame timing, player/water state, renderer identity, terrain/vegetation
-  visibility, LOD populations, draw counts, bird/fish render and simulation tiers, current
+  visibility, LOD populations, draw counts, bird/fish/shark render and simulation tiers, current
   surf/breeze/jungle/player-water levels, played
   wave/splash counts, and mute/availability state. It does not yet provide world-space collision,
   shoreline/current, cell, wildlife, or audio-emitter visualization.
-- Four direct debug teleports exist, but there is no teleport menu, benchmark route, asset
+- Six direct debug teleports exist, but there is no teleport menu, benchmark route, asset
   validation command, or automated renderer-image comparison yet.
