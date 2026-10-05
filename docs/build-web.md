@@ -60,8 +60,8 @@ With the Emscripten environment active, run:
 
 The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
-ocean shader, the hardware-instanced 330-palm path, and the portable instanced grass-wind shader
-rather than their fallbacks. It then opens live fixed overview and first-person beach instances at
+ocean shader, the hardware-instanced 330-palm wind/LOD shader, and the portable instanced
+grass-wind shader rather than their fallbacks. It then opens live fixed overview and first-person beach instances at
 a 1280 x 720 viewport. The overview is saved as `build-probe/island-browser-smoke.png`; the beach
 view is saved as `build-probe/island-browser-beach.png` and must report a nonzero visible grass
 population, proving that the custom instanced draw path executed. The machine-readable result is

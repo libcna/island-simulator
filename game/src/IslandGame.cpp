@@ -343,7 +343,8 @@ namespace island
                              timeSeconds);
 
         palmRenderer_->Draw(terrainEffect_->getViewProperty(),
-                            terrainEffect_->getProjectionProperty(), cameraPosition_);
+                            terrainEffect_->getProjectionProperty(), cameraPosition_,
+                            timeSeconds);
 
         oceanRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
@@ -353,7 +354,9 @@ namespace island
             std::cout << "island-simulator: visible terrain cells " << visibleTerrainCellCount_
                       << '/' << terrainCells_.size() << ", palms "
                       << palmRenderer_->VisiblePalmCount() << '/'
-                      << palmRenderer_->TotalPalmCount() << " in "
+                      << palmRenderer_->TotalPalmCount() << " (near "
+                      << palmRenderer_->VisibleNearPalmCount() << ", far "
+                      << palmRenderer_->VisibleFarPalmCount() << ") in "
                       << palmRenderer_->VisibleCellCount() << " cells, "
                       << palmRenderer_->DrawCallCount() << " draws; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'

@@ -319,16 +319,19 @@ Dependencies: stable terrain/shore queries and representative performance instru
 ### Vegetation and props
 
 - [~] Build multiple procedural palm variants with different height, lean, curvature, crown
-  rotation, frond arrangement, scale, and clustering. The first pass supplies four curved tapered
-  trunk/ribbon-frond meshes and 330 varied instances; wind, LOD, contact cues, and another close-up
-  quality pass remain open.
+  rotation, frond arrangement, scale, and clustering. Four curved tapered trunk/ribbon-frond
+  variants, 330 varied instances, near/far meshes, root contact wedges, and portable shader wind
+  now run on native OpenGL 3.3 and WebGL 2; richer close-up materials, pop-free LOD blending, and
+  Android GLES 3 qualification remain open.
 - [ ] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm
   placement is deterministic, shore-distance/slope/height constrained, cluster-noise weighted,
   and reserves a winding primary path, two clearings, and spawn; final biome masks and prop
   separation remain open.
-- [ ] Add subtle coherent breeze phases without storm-scale motion.
+- [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds and grass use
+  bounded two-frequency motion with deterministic phase variation on OpenGL 3.3 and WebGL 2;
+  broadleaf vegetation and Android GLES 3 validation remain open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
   One radius-matched circular proxy is active per palm trunk while fronds remain non-colliding;
   broader play-tuning is still required.
@@ -358,7 +361,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [ ] Build a portable sky gradient/dome with sun disc and high, calm tropical cloud suggestion.
 - [ ] Add distance haze/fog that enlarges perceived scale without washing out nearby jungle.
 - [ ] Evaluate one bounded directional shadow solution or baked/vertex alternatives on all targets.
-- [ ] Provide contact/grounding cues for palms, rocks, props, and animals even when shadows degrade.
+- [~] Provide contact/grounding cues for palms, rocks, props, and animals even when shadows degrade.
+  Near-tier palms have procedural root wedges; shadow/ambient-occlusion alternatives and all other
+  object classes remain open.
 - [ ] Add distant low-cost scenery and vegetation cards/meshes without exposing the world edge.
 
 Exit validation:
@@ -445,10 +450,10 @@ Dependencies: portable baseline features and bounded initial asset size.
 - [x] Add a `WEBGL2` preset and browser packaging with explicit WebGL 2 requirements.
 - [x] Preserve CNA's Emscripten game-loop lifetime model; an actual Chromium smoke run rendered
   four frames, returned from `Game::Run()`, and exited with code zero.
-- [~] Verify stock `BasicEffect` terrain/palms and explicit GLSL ES 300 ocean/grass shaders through
-  actual WebGL 2 browser compilation and execution. The current 330-palm and 18,556-patch grass
-  hardware-instancing paths are verified; later broadleaf, wildlife, and material variants remain
-  open.
+- [~] Verify stock `BasicEffect` terrain fallback and explicit GLSL ES 300 ocean/palm/grass shaders
+  through actual WebGL 2 browser compilation and execution. The current 330-palm and 18,556-patch
+  grass hardware-instancing paths, including both wind shaders and palm/grass LOD selection, are
+  verified; later broadleaf, wildlife, and material variants remain open.
 - [ ] Implement pointer-lock acquisition/release and clear click-to-focus/fullscreen instructions.
 - [ ] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
@@ -511,9 +516,11 @@ Dependencies: representative complete scene on all targets.
   cutoffs, and grass selects near/far geometry by cell distance. Per-instance wildlife policy and
   pop-free vegetation transitions remain open.
 - [~] Tune static batching/instancing and verify it does not increase memory or Web/mobile stalls.
-  CNA hardware instancing reduces the 330-palm overview to four variant draws on native OpenGL 3.3
-  and actual WebGL 2; GLES 3 and dense grass still require validation.
-- [ ] Add mesh/material/animation LOD only where profiles show a worthwhile return.
+  CNA hardware instancing reduces the 330-palm overview to eight near/far variant draws on native
+  OpenGL 3.3 and actual WebGL 2; GLES 3 and dense grass still require validation.
+- [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
+  reduced trunk/frond geometry by cell distance and grass selects 28-blade/five-blade clusters;
+  measured budgets and pop-free transitions remain open.
 - [ ] Throttle distant wildlife and audio updates without visible popping.
 - [ ] Reduce transparency/overdraw hotspots, especially grass and layered shoreline effects.
 - [ ] Audit texture formats/sizes/mipmaps and create smaller variants only when justified.
@@ -701,15 +708,15 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add palm breeze, distance LOD/contact cues, and tune near-camera silhouettes now that grass
-   provides representative first-person scenes.
-2. Add a small debug overlay for position, movement state, renderer, frame time, visible terrain and
+1. Add a small debug overlay for position, movement state, renderer, frame time, visible terrain and
    vegetation cells, terrain contacts, shore distance, and ocean-current strength.
-3. Validate Web pointer lock, keyboard focus, resizing, pause/resume, and active hardware rendering
+2. Validate Web pointer lock, keyboard focus, resizing, pause/resume, and active hardware rendering
    before declaring the browser traversal experience usable.
-4. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
+3. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
    designing touch input around assumptions.
-5. Begin the broadleaf canopy/medium-plant layer and preserve the authored route/clearing structure.
+4. Begin the broadleaf canopy/medium-plant layer and preserve the authored route/clearing structure.
+5. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
+   instrumentation exists; do not raise geometry cost blindly.
 
 ## Validation ledger
 
@@ -814,6 +821,27 @@ Work next, in order:
   and first-person browser captures were visually inspected.
 - Remaining grass work includes pop-free LOD transitions, closer blade/material variation, measured
   frame-time/overdraw budgets, biome authoring, and Android GLES 3 qualification.
+
+### 2026-10-05 — First palm wind, contact, and mesh-LOD pass
+
+- Replaced the static palm effect with explicit portable GLSL 330 / GLSL ES 300 shaders. Wind
+  weights and deterministic per-frond phases produce a bounded two-frequency breeze while trunks
+  and roots remain stable; an actionable stock-effect fallback remains available.
+- Added near and far meshes for all four palm variants. Near palms retain the curved eight-sided
+  trunk and 10--12 seven-segment fronds and gain five small root wedges; far palms use a six-sided
+  trunk and seven three-segment fronds. Cell-distance selection keeps batching bounded.
+- The deterministic overview reports 299 visible palms split into 35 near and 264 far instances
+  across 25 cells and eight draws. The first-person beach view reports 301 visible palms split into
+  106 near and 195 far instances, also across 25 cells and eight draws.
+- Rebuilt with first-party warnings as errors and passed isolated native overview and first-person
+  captures. Both captures were visually inspected for transform, culling, contact, and shader
+  regressions.
+- Rebuilt the Emscripten package and passed actual Chromium/SwiftShader WebGL 2 lifecycle,
+  overview, and beach runs. The harness now requires the custom palm shader in every run as well as
+  the ocean and grass shaders; the beach capture was visually inspected for native/Web parity.
+- This is a technical first pass, not final art. Rich bark/frond materials, self/contact shadowing,
+  pop-free LOD transitions, silhouette polish, measured performance, and Android GLES 3 remain
+  open.
 
 ## Session-end checklist
 

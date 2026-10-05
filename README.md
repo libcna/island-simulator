@@ -3,8 +3,9 @@
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming
 experience built in C++23 with CNA. The project is at the beginning of a long development campaign.
 The current Linux/OpenGL 3.3 slice renders a deterministic approximately 500 m island, animated
-tropical ocean, 330 varied procedural palms, and 18,556 deterministic mesh-grass clusters with
-wind and distance LOD. It supports first-person terrain walking, near-shore swimming, palm-trunk
+tropical ocean, 330 varied procedural palms with a light breeze and near/far mesh LOD, and 18,556
+deterministic mesh-grass clusters with wind and distance LOD. It supports first-person terrain
+walking, near-shore swimming, palm-trunk
 collision, and a soft ocean-current boundary. The same current rendering slice has also run in an
 actual Chromium WebGL 2 context.
 
@@ -49,8 +50,8 @@ water with hysteresis. Rock/complex prop collision, geometric step-up, and touch
 implemented yet.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
-shader, hardware-instanced palms, portable instanced grass wind, four frames, clean shutdown, and
-an active-render screenshot.
+shader, hardware-instanced palm wind and near/far LOD, portable instanced grass wind, four frames,
+clean shutdown, and active overview/beach screenshots.
 Browser pointer-lock/input and audio behaviour still need interactive QA. Android OpenGL ES 3 is
 required but is not yet built or runtime-validated. See `PLAN.md` for the evidence required before
 broader platform claims.

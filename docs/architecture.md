@@ -15,7 +15,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │                        and ocean limit
       ├── VegetationLayout ─── deterministic palm placement and trunk collision proxies
       │       │
-      │       └── PalmRenderer ─ procedural meshes, cell culling, and instanced drawing
+      │       └── PalmRenderer ─ near/far meshes, cell culling, instancing, and shader wind
       ├── GrassLayout ──────── deterministic density, scale, phase, and colour anchors
       │       │
       │       └── GrassRenderer ─ near/far blade clusters, cell culling, instancing, and wind
@@ -69,7 +69,7 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
    circular obstacles, retaining axis sliding when one component is valid.
 6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, opaque palms,
-   then the transparent ocean.
+   opaque mesh grass, then the transparent ocean.
 7. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
@@ -96,11 +96,14 @@ has portable 16-bit indices and an independent bounding box for frustum rejectio
 sample coordinates prevent cracks. Fixed daylight is currently baked into procedural terrain and
 palm vertex colours.
 
-Four palm variants use curved tapered trunk meshes and 10--12 ribbon fronds. A deterministic
-330-instance layout is grouped into the same 8 by 8 spatial grid as terrain. CNA hardware
-instancing reduces a typical overview from hundreds of palm submissions to four variant draws;
-capability-checked per-palm drawing remains the functional fallback. Cells are rejected by frustum
-and a conservative distance bound before instances are gathered.
+Four palm variants use curved tapered trunk meshes and 10--12 ribbon fronds in the near tier, with
+root wedges around the trunk base as a low-cost contact cue. A lower-segment trunk and seven-frond
+far tier reduces distant vertex work. A deterministic 330-instance layout is grouped into the same
+8 by 8 spatial grid as terrain. CNA hardware instancing reduces a typical overview from hundreds
+of palm submissions to eight near/far variant draws; capability-checked per-palm drawing remains
+the functional fallback. Cells are rejected by frustum and a conservative distance bound before
+instances are gathered. The portable GLSL 330 / GLSL ES 300 shader bends only frond-weighted
+vertices with per-frond phase variation, leaving roots and trunks stable in a calm breeze.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
 visible anchor instances one shared 28-blade near cluster or five-blade far cluster. The vertex
@@ -124,15 +127,17 @@ requirement, not a CNA workaround.
 ## Current limitations
 
 - Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
-- Palms have four geometry variants, placement clustering, cell culling, and trunk collision, but
-  no wind, mesh LOD, or grounding shadow yet.
+- Palms have four geometry variants, placement clustering, cell culling, near/far meshes, subtle
+  shader wind, trunk collision, and small root contact wedges. Pop-free LOD blending, richer
+  close-up geometry/materials, and grounding shadow remain open.
 - The first grass tier substantially improves first-person grounding, but transition popping,
   close-up blade shape, distant blending, biome variation, and measured mobile density still need
   repeated polish. Broadleaf canopy, undergrowth, rocks, and natural props remain to be built.
 - Collision checks every palm proxy and has no spatial broad phase yet; rocks and geometric step-up
   remain absent.
 - Swimming camera height is functional but has no bob, underwater transition, or audio.
-- WebGL 2 has run in Chromium/SwiftShader with the full ocean shader and palm instancing, but
-  pointer lock, interactive input, audio unlock, and hardware-GPU performance remain unverified.
+- WebGL 2 has run in Chromium/SwiftShader with the full ocean, palm-wind, and grass-wind shaders,
+  but pointer lock, interactive input, audio unlock, and hardware-GPU performance remain
+  unverified.
 - Android has not been compiled or run by this project yet.
 - No wildlife, layered soundscape, debug overlay, or configuration UI exists yet.

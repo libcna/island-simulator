@@ -130,6 +130,7 @@ try {
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
+    && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -171,6 +172,7 @@ try {
   const visualPassed = visualResult.output?.includes("island-simulator: renderer WEBGL2")
     && visualResult.output?.includes("island-simulator: ocean portable custom shader")
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
+    && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes("portable instanced wind shader")
     && visualResult.output?.includes("island-simulator: terrain")
     && !visualResult.error;
@@ -200,6 +202,7 @@ try {
   await writeFile(beachScreenshotPath, Buffer.from(beachScreenshot.data, "base64"));
   const beachPassed = beachResult.output?.includes("island-simulator: renderer WEBGL2")
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
+    && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && beachResult.output?.includes("portable instanced wind shader")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
