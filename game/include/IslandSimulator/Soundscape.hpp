@@ -66,6 +66,8 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> breezeInstance_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> jungleEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> jungleInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waterMovementEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>

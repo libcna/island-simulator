@@ -36,10 +36,10 @@ been confirmed so far.
 
 - Birds, fish, the occasional shark, monkeys, skeletal animation, wildlife behaviour, and wildlife
   spatial activation are not implemented yet.
-- A first original procedural layer supplies shoreline-distance-blended surf, sparse stronger-wave
-  accents, light canopy breeze, and speed/depth-responsive player movement through water. It is
-  intentionally incomplete: richer jungle ambience, insects, birds, monkeys, positional emitters,
-  more than one entry/exit accent texture, and a long fatigue/listening pass remain absent.
+- Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
+  light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
+  through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional
+  emitters, more than one entry/exit texture, and a long fatigue/listening pass remain absent.
 
 ## Platform qualification
 
@@ -55,8 +55,8 @@ been confirmed so far.
 ## Development tooling
 
 - The overlay reports frame timing, player/water state, renderer identity, terrain/vegetation
-  visibility, LOD populations, draw counts, current surf/breeze/player-water levels, played-wave
-  count, and mute/availability state. It does not yet provide world-space collision,
+  visibility, LOD populations, draw counts, current surf/breeze/jungle/player-water levels, played
+  wave/splash counts, and mute/availability state. It does not yet provide world-space collision,
   shoreline/current, cell, wildlife, or audio-emitter visualization.
 - Four direct debug teleports exist, but there is no teleport menu, benchmark route, asset
   validation command, or automated renderer-image comparison yet.

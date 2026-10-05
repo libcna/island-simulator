@@ -201,6 +201,8 @@ try {
     "island-simulator: player water-movement layer enabled");
   deploymentState.waterTransitionsEnabled = deploymentState.output?.includes(
     "island-simulator: water-transition accents enabled");
+  deploymentState.jungleAmbienceEnabled = deploymentState.output?.includes(
+    "island-simulator: subtle daytime-jungle layer enabled");
   const deploymentPassed = deploymentState.status === "Ready"
     && deploymentState.width === 1280
     && deploymentState.height === 720
@@ -212,6 +214,7 @@ try {
     && deploymentState.waveAccentsEnabled === true
     && deploymentState.waterMovementEnabled === true
     && deploymentState.waterTransitionsEnabled === true
+    && deploymentState.jungleAmbienceEnabled === true
     && deploymentState.pointerLocked === true;
   await call("Target.closeTarget", { targetId: deploymentTargetId });
 

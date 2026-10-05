@@ -85,7 +85,7 @@ first-person runs enable the runtime-generated debug font and overlay, covering 
 The machine-readable result is `build-probe/island-browser-smoke.json`.
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
-the canvas, assert pointer lock/focus and initialization of all three looping audio layers, hold W
+the canvas, assert pointer lock/focus and initialization of all four looping audio layers, hold W
 long enough to measure world movement, reset to the deterministic south-beach QA location, and
 walk backward into the ocean. The shoreline crossing must produce a successful water-transition
 one-shot diagnostic. The harness then moves the relative pointer, toggles F1, resizes to a

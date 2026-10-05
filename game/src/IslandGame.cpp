@@ -641,6 +641,7 @@ namespace island
             if (soundscape_) {
                 overlayState.surfVolume = soundscape_->Mix().surfVolume;
                 overlayState.breezeVolume = soundscape_->Mix().breezeVolume;
+                overlayState.jungleVolume = soundscape_->Mix().jungleVolume;
                 overlayState.waterMovementVolume = soundscape_->WaterMix().volume;
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
                 overlayState.playedWaterTransitions =

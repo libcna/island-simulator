@@ -82,9 +82,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    island-relative current field, and the remote safety boundary.
 5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
    circular obstacles, retaining axis sliding when one component is valid.
-6. `SoundscapeModel` derives surf/breeze targets and player-water gain/pitch from authoritative
+6. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
-   to three persistent CNA loop instances and schedules bounded wave accents.
+   to four persistent CNA loop instances and schedules bounded wave/water accents.
 7. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, and the
    transparent ocean using one view/projection pair.
@@ -198,18 +198,23 @@ falls to a quiet distant bed inland. Light canopy breeze increases toward the in
 second exponential crossfade prevents zone snaps, and M applies a reversible zero-gain mute without
 restarting the tracks.
 
+A twelve-second daytime-jungle loop adds broad filtered forest texture and eight short, low-level
+insect phrases placed away from the loop boundary. It is silent through the beach belt, reaches a
+conservative 0.078 gain deep inland, falls to eight percent of that target while swimming, and uses
+a slower 2.6-second fade so the biome does not sound like an audio trigger volume.
+
 A six-second water-motion loop follows the player's authoritative support depth, locomotion mode,
 and horizontal velocity. Dry movement and stationary water produce zero gain; shallow wading and
 active swimming fade in with different conservative pitch ranges. One persistent loop avoids the
 rapid repeated one-shot cadence common to footstep-style water effects, while 140 ms attack and
 340 ms release smoothing prevent hard edges and state-transition chatter. All current procedural
-PCM payloads total 1,389,150 bytes (about 1.33 MiB) before backend bookkeeping.
+PCM payloads total 1,918,350 bytes (about 1.83 MiB) before backend bookkeeping.
 
 A separate 1.5-second splash texture handles crossings between dry and shallow-water states. The
 detector uses 7.5 cm entry and 2.5 cm exit thresholds, ignores stationary state changes, and applies
 a 1.6-second cooldown longer than the sample, so shoreline jitter cannot overlap or machine-gun the
 effect. Entry and exit share the source with different bounded pitch/pan/gain variation. It may
-overlap a stronger-wave accent, bounding the present mix to three persistent loops and at most two
+overlap a stronger-wave accent, bounding the present mix to four persistent loops and at most two
 short one-shots.
 
 A separate original four-second PCM wash supplies occasional stronger waves. A deterministic
@@ -223,8 +228,8 @@ device creation until the first mouse, touch, or movement-key gesture so browser
 pointer-lock requests share one user action. Missing or disconnected audio degrades to a logged,
 visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
 length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade,
-water depth/speed gating and smoothing, transition hysteresis/cooldown, and wave-accent interval/
-virtualization bounds. Native playback started all three loops and accepted the scheduled
+daytime-jungle gating, water depth/speed gating and smoothing, transition hysteresis/cooldown, and
+wave-accent interval/virtualization bounds. Native playback started all four loops and accepted the scheduled
 stronger-wave one-shot. Actual Chromium proves first-gesture mixer/track initialization, and a
 deterministic shoreline traversal from `(0, -225)` to `(0, -251.332)` successfully played the
 transition effect; a visible hardware-browser listening pass and Android audio focus/lifecycle

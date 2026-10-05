@@ -46,11 +46,13 @@ namespace island
         try {
             const AmbientLoop surf = GenerateSurfLoop();
             const AmbientLoop breeze = GenerateBreezeLoop();
+            const AmbientLoop jungle = GenerateJungleLoop();
             const AmbientLoop wave = GenerateWaveAccent();
             const AmbientLoop waterMovement = GenerateWaterMovementLoop();
             const AmbientLoop waterTransition = GenerateWaterTransitionAccent();
             const std::vector<SharpRuntime::bytecs> surfBytes = ToPcmBytes(surf);
             const std::vector<SharpRuntime::bytecs> breezeBytes = ToPcmBytes(breeze);
+            const std::vector<SharpRuntime::bytecs> jungleBytes = ToPcmBytes(jungle);
             const std::vector<SharpRuntime::bytecs> waveBytes = ToPcmBytes(wave);
             const std::vector<SharpRuntime::bytecs> waterMovementBytes = ToPcmBytes(waterMovement);
             const std::vector<SharpRuntime::bytecs> waterTransitionBytes =
@@ -71,6 +73,15 @@ namespace island
             breezeInstance_ = std::make_unique<SoundEffectInstance>(
                 breezeEffect_->CreateInstance());
             breezeInstance_->setIsLoopedProperty(true);
+
+            jungleEffect_ = std::make_unique<SoundEffect>(
+                jungleBytes, 0, static_cast<SharpRuntime::intcs>(jungleBytes.size()),
+                jungle.sampleRate, AudioChannels::Mono, 0,
+                static_cast<SharpRuntime::intcs>(jungle.samples.size()));
+            jungleEffect_->setNameProperty("Procedural daytime jungle");
+            jungleInstance_ = std::make_unique<SoundEffectInstance>(
+                jungleEffect_->CreateInstance());
+            jungleInstance_->setIsLoopedProperty(true);
 
             waveEffect_ = std::make_unique<SoundEffect>(
                 waveBytes, wave.sampleRate, AudioChannels::Mono);
@@ -98,9 +109,11 @@ namespace island
             }
             surfInstance_->Play();
             breezeInstance_->Play();
+            jungleInstance_->Play();
             waterMovementInstance_->Play();
             if (surfInstance_->getStateProperty() != SoundState::Playing
                 || breezeInstance_->getStateProperty() != SoundState::Playing
+                || jungleInstance_->getStateProperty() != SoundState::Playing
                 || waterMovementInstance_->getStateProperty() != SoundState::Playing) {
                 throw std::runtime_error("CNA did not transition all looping tracks to Playing");
             }
@@ -109,6 +122,7 @@ namespace island
             waveAccentsEnabled_ = true;
             waterTransitionsEnabled_ = true;
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
+            std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
             std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
@@ -117,6 +131,8 @@ namespace island
             error_ = exception.what();
             available_ = false;
             breezeInstance_.reset();
+            jungleInstance_.reset();
+            jungleEffect_.reset();
             waterMovementInstance_.reset();
             waterTransitionEffect_.reset();
             waterMovementEffect_.reset();
@@ -200,13 +216,15 @@ namespace island
 
     void Soundscape::ApplyVolumes() noexcept
     {
-        if (!available_ || !surfInstance_ || !breezeInstance_ || !waterMovementInstance_) {
+        if (!available_ || !surfInstance_ || !breezeInstance_ || !jungleInstance_
+            || !waterMovementInstance_) {
             return;
         }
         try {
             const float gain = muted_ ? 0.0f : 1.0f;
             surfInstance_->setVolumeProperty(model_.Mix().surfVolume * gain);
             breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume * gain);
+            jungleInstance_->setVolumeProperty(model_.Mix().jungleVolume * gain);
             waterMovementInstance_->setVolumeProperty(
                 waterMovementModel_.Mix().volume * gain);
             waterMovementInstance_->setPitchProperty(waterMovementModel_.Mix().pitch);
@@ -220,6 +238,8 @@ namespace island
         error_ = message;
         available_ = false;
         breezeInstance_.reset();
+        jungleInstance_.reset();
+        jungleEffect_.reset();
         waterMovementInstance_.reset();
         waterTransitionEffect_.reset();
         waterMovementEffect_.reset();

@@ -3,6 +3,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <numbers>
@@ -128,6 +129,71 @@ namespace island
                 + gust[index] * 0.58f;
         }
         return Quantize(samples, 0.64f);
+    }
+
+    AmbientLoop GenerateJungleLoop()
+    {
+        constexpr int loopSeconds = 12;
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * loopSeconds);
+        const std::vector<float> noise = Noise(0x1a65ec7dU, frameCount);
+        const std::vector<float> leafWhisper = CircularSmooth(noise, 8U);
+        const std::vector<float> forestFloor = CircularSmooth(noise, 74U);
+        const std::vector<float> distantAir = CircularSmooth(noise, 1320U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index) / static_cast<float>(samples.size());
+            const float breathing = 0.58f
+                + 0.13f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (2.0f * phase + 0.17f))
+                + 0.07f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (7.0f * phase + 0.63f));
+            samples[index] = (leafWhisper[index] * 0.46f
+                              + forestFloor[index] * 0.54f) * breathing
+                + distantAir[index] * 0.48f;
+        }
+
+        struct Chirp
+        {
+            float startSeconds;
+            float durationSeconds;
+            float frequencyHz;
+            float sweepHzPerSecond;
+            float amplitude;
+            float pulseHz;
+        };
+        constexpr std::array chirps = {
+            Chirp{0.72f, 0.32f, 3740.0f, 410.0f, 0.070f, 23.0f},
+            Chirp{1.18f, 0.24f, 4210.0f, -260.0f, 0.052f, 27.0f},
+            Chirp{2.86f, 0.46f, 3380.0f, 520.0f, 0.061f, 19.0f},
+            Chirp{4.43f, 0.28f, 4870.0f, -330.0f, 0.049f, 31.0f},
+            Chirp{6.08f, 0.38f, 3920.0f, 290.0f, 0.057f, 21.0f},
+            Chirp{7.62f, 0.22f, 4520.0f, 180.0f, 0.046f, 29.0f},
+            Chirp{9.14f, 0.51f, 3260.0f, 470.0f, 0.064f, 18.0f},
+            Chirp{10.71f, 0.30f, 4160.0f, -210.0f, 0.051f, 25.0f},
+        };
+        for (const Chirp& chirp : chirps) {
+            const std::size_t begin = static_cast<std::size_t>(
+                chirp.startSeconds * static_cast<float>(AmbientSampleRate));
+            const std::size_t length = static_cast<std::size_t>(
+                chirp.durationSeconds * static_cast<float>(AmbientSampleRate));
+            for (std::size_t offset = 0; offset < length && begin + offset < samples.size();
+                 ++offset) {
+                const float seconds = static_cast<float>(offset)
+                    / static_cast<float>(AmbientSampleRate);
+                const float unit = static_cast<float>(offset)
+                    / static_cast<float>(std::max<std::size_t>(1U, length - 1U));
+                const float envelope = std::sin(std::numbers::pi_v<float> * unit);
+                const float pulse = 0.62f + 0.38f * std::sin(
+                    2.0f * std::numbers::pi_v<float> * chirp.pulseHz * seconds);
+                const float phase = 2.0f * std::numbers::pi_v<float>
+                    * (chirp.frequencyHz * seconds
+                       + 0.5f * chirp.sweepHzPerSecond * seconds * seconds);
+                samples[begin + offset] += chirp.amplitude * envelope * envelope
+                    * pulse * std::sin(phase);
+            }
+        }
+        return Quantize(samples, 0.56f);
     }
 
     AmbientLoop GenerateWaveAccent()
@@ -331,9 +397,11 @@ namespace island
         SoundscapeMix result;
         result.surfVolume = 0.055f + surfPresence * 0.34f;
         result.breezeVolume = 0.075f + canopyPresence * 0.12f;
+        result.jungleVolume = SmoothStep(30.0f, 112.0f, inlandDistance) * 0.078f;
         if (swimming) {
             result.surfVolume = std::max(result.surfVolume, 0.35f);
             result.breezeVolume *= 0.72f;
+            result.jungleVolume *= 0.08f;
         }
         return result;
     }
@@ -349,8 +417,10 @@ namespace island
         const SoundscapeMix target = TargetMix(signedShoreDistance, swimming);
         const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.25f);
         const float blend = 1.0f - std::exp(-safeDelta / 1.8f);
+        const float jungleBlend = 1.0f - std::exp(-safeDelta / 2.6f);
         mix_.surfVolume += (target.surfVolume - mix_.surfVolume) * blend;
         mix_.breezeVolume += (target.breezeVolume - mix_.breezeVolume) * blend;
+        mix_.jungleVolume += (target.jungleVolume - mix_.jungleVolume) * jungleBlend;
         return mix_;
     }
 }

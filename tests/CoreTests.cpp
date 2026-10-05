@@ -42,6 +42,8 @@ int main()
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();
+    const island::AmbientLoop jungleLoop = island::GenerateJungleLoop();
+    const island::AmbientLoop repeatedJungleLoop = island::GenerateJungleLoop();
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
     const island::AmbientLoop waterMovementLoop = island::GenerateWaterMovementLoop();
     const island::AmbientLoop repeatedWaterMovementLoop = island::GenerateWaterMovementLoop();
@@ -50,6 +52,8 @@ int main()
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
           "procedural ambient loops are ten seconds long");
+    Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 264600U,
+          "daytime-jungle ambience has its intended twelve-second portable format");
     Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U,
           "stronger-wave accent has its intended four-second portable format");
     Check(waterMovementLoop.sampleRate == 22050
@@ -62,6 +66,8 @@ int main()
           "procedural surf generation is deterministic");
     Check(waterMovementLoop.samples == repeatedWaterMovementLoop.samples,
           "procedural player water movement generation is deterministic");
+    Check(jungleLoop.samples == repeatedJungleLoop.samples,
+          "procedural daytime-jungle generation is deterministic");
     const auto peakMagnitude = [](const island::AmbientLoop& loop) {
         int peak = 0;
         for (const std::int16_t sample : loop.samples) {
@@ -81,6 +87,8 @@ int main()
           "procedural ambience retains headroom before runtime mixing");
     Check(rootMeanSquare(surfLoop) > 1200.0 && rootMeanSquare(breezeLoop) > 900.0,
           "procedural ambience contains meaningful audible energy");
+    Check(peakMagnitude(jungleLoop) < 32767 && rootMeanSquare(jungleLoop) > 700.0,
+          "daytime-jungle ambience is audible while retaining mixing headroom");
     Check(peakMagnitude(waveAccent) < 32767 && rootMeanSquare(waveAccent) > 900.0,
           "stronger-wave accent is audible while retaining mixing headroom");
     Check(waveAccent.samples.front() == 0 && waveAccent.samples.back() == 0,
@@ -100,6 +108,9 @@ int main()
     Check(std::abs(static_cast<int>(breezeLoop.samples.front())
                    - static_cast<int>(breezeLoop.samples.back())) < 8000,
           "breeze loop boundary does not contain a large discontinuity");
+    Check(std::abs(static_cast<int>(jungleLoop.samples.front())
+                   - static_cast<int>(jungleLoop.samples.back())) < 8000,
+          "daytime-jungle loop boundary does not contain a large discontinuity");
     Check(std::abs(static_cast<int>(waterMovementLoop.samples.front())
                    - static_cast<int>(waterMovementLoop.samples.back())) < 8000,
           "player water movement loop has no large boundary discontinuity");
@@ -107,10 +118,17 @@ int main()
     const island::SoundscapeMix beachMix = island::SoundscapeModel::TargetMix(2.0f, false);
     const island::SoundscapeMix jungleMix = island::SoundscapeModel::TargetMix(140.0f, false);
     const island::SoundscapeMix swimmingMix = island::SoundscapeModel::TargetMix(-8.0f, true);
+    const island::SoundscapeMix forcedInlandSwimmingMix =
+        island::SoundscapeModel::TargetMix(140.0f, true);
     Check(beachMix.surfVolume > jungleMix.surfVolume,
           "surf is louder at the beach than deep inland");
     Check(jungleMix.breezeVolume > beachMix.breezeVolume,
           "canopy breeze grows toward the island interior");
+    CheckNear(beachMix.jungleVolume, 0.0f, 0.0001f,
+              "daytime-jungle texture stays out of the beach mix");
+    Check(jungleMix.jungleVolume >= 0.075f
+              && forcedInlandSwimmingMix.jungleVolume < jungleMix.jungleVolume * 0.1f,
+          "jungle texture is audible inland and explicitly attenuated while swimming");
     Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
           "swimming emphasizes nearby water while softening canopy breeze");
     island::SoundscapeModel soundscapeModel;
@@ -124,6 +142,9 @@ int main()
           "soundscape transitions smoothly toward the new zone instead of snapping");
     CheckNear(soundscapeModel.Mix().surfVolume, jungleMix.surfVolume, 0.025f,
               "soundscape approaches the inland surf target over several seconds");
+    Check(soundscapeModel.Mix().jungleVolume > 0.045f
+              && soundscapeModel.Mix().jungleVolume < jungleMix.jungleVolume,
+          "the slower jungle layer fades in without a hard biome boundary");
 
     const island::WaterMovementMix dryMovement =
         island::WaterMovementModel::TargetMix(0.0f, false, 4.3f);

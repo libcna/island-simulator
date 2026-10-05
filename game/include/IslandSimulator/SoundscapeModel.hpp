@@ -10,6 +10,7 @@ namespace island
     {
         float surfVolume = 0.0f;
         float breezeVolume = 0.0f;
+        float jungleVolume = 0.0f;
     };
 
     /** @brief Original deterministic mono PCM used by one procedural ambient loop. */
@@ -24,6 +25,9 @@ namespace island
 
     /** @brief Generates a seamless ten-second light-canopy-breeze bed. */
     [[nodiscard]] AmbientLoop GenerateBreezeLoop();
+
+    /** @brief Generates a seamless twelve-second subtle daytime-jungle bed. */
+    [[nodiscard]] AmbientLoop GenerateJungleLoop();
 
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
     [[nodiscard]] AmbientLoop GenerateWaveAccent();

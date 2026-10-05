@@ -243,7 +243,8 @@ namespace island
         auto audio = DiagnosticLine();
         audio << "AUDIO " << (state.audioAvailable ? (state.audioMuted ? "MUTED" : "ACTIVE")
                                                        : "UNAVAILABLE")
-              << "  SURF " << state.surfVolume << " BREEZE " << state.breezeVolume;
+              << "  SURF " << state.surfVolume << " BREEZE " << state.breezeVolume
+              << " JUNGLE " << state.jungleVolume;
         audio << " WATER " << state.waterMovementVolume
               << " WAVES " << state.playedWaveAccents
               << " SPLASHES " << state.playedWaterTransitions;

@@ -60,6 +60,7 @@ namespace island
         bool audioMuted = false;
         float surfVolume = 0.0f;
         float breezeVolume = 0.0f;
+        float jungleVolume = 0.0f;
         float waterMovementVolume = 0.0f;
         int playedWaveAccents = 0;
         int playedWaterTransitions = 0;
