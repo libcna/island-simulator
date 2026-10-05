@@ -1,5 +1,7 @@
 #include "IslandSimulator/SoundscapeModel.hpp"
 
+#include "IslandSimulator/PlayerMotion.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -153,6 +155,27 @@ namespace island
         return Quantize(samples, 0.86f);
     }
 
+    AmbientLoop GenerateWaterMovementLoop()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 6);
+        const std::vector<float> noise = Noise(0x5a17e24bU, frameCount);
+        const std::vector<float> droplets = CircularSmooth(noise, 3U);
+        const std::vector<float> wash = CircularSmooth(noise, 48U);
+        const std::vector<float> body = CircularSmooth(noise, 510U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index) / static_cast<float>(samples.size());
+            const float stroke = 0.52f
+                + 0.16f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (4.0f * phase + 0.19f))
+                + 0.09f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (9.0f * phase + 0.61f));
+            samples[index] = (droplets[index] * 0.54f + wash[index] * 0.62f) * stroke
+                + body[index] * 0.38f;
+        }
+        return Quantize(samples, 0.68f);
+    }
+
     void WaveAccentScheduler::Reset() noexcept
     {
         randomState_ = 0x78d2f9a5U;
@@ -183,6 +206,47 @@ namespace island
         request.pan = -0.32f + NextUnit() * 0.64f;
         secondsUntilAccent_ = 14.0f + NextUnit() * 18.0f;
         return request;
+    }
+
+    WaterMovementMix WaterMovementModel::TargetMix(const float waterDepth,
+                                                    const bool swimming,
+                                                    const float horizontalSpeed) noexcept
+    {
+        const float referenceSpeed = swimming ? PlayerMotion::SwimSpeed
+                                              : PlayerMotion::WalkSpeed;
+        const float normalizedSpeed = std::clamp(
+            std::max(0.0f, horizontalSpeed) / referenceSpeed, 0.0f, 1.0f);
+        const float movement = SmoothStep(0.035f, 0.34f, normalizedSpeed);
+        const float depthPresence = swimming
+            ? 1.0f
+            : SmoothStep(0.035f, 0.38f, std::max(0.0f, waterDepth));
+
+        WaterMovementMix result;
+        result.volume = movement * depthPresence * (swimming ? 0.17f : 0.115f);
+        result.pitch = swimming
+            ? -0.14f + normalizedSpeed * 0.08f
+            : 0.025f + normalizedSpeed * 0.12f;
+        return result;
+    }
+
+    void WaterMovementModel::Reset(const float waterDepth, const bool swimming,
+                                   const float horizontalSpeed) noexcept
+    {
+        mix_ = TargetMix(waterDepth, swimming, horizontalSpeed);
+    }
+
+    WaterMovementMix WaterMovementModel::Update(const float waterDepth, const bool swimming,
+                                                const float horizontalSpeed,
+                                                const float deltaSeconds) noexcept
+    {
+        const WaterMovementMix target = TargetMix(waterDepth, swimming, horizontalSpeed);
+        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.25f);
+        const float volumeTimeConstant = target.volume > mix_.volume ? 0.14f : 0.34f;
+        const float volumeBlend = 1.0f - std::exp(-safeDelta / volumeTimeConstant);
+        const float pitchBlend = 1.0f - std::exp(-safeDelta / 0.42f);
+        mix_.volume += (target.volume - mix_.volume) * volumeBlend;
+        mix_.pitch += (target.pitch - mix_.pitch) * pitchBlend;
+        return mix_;
     }
 
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,

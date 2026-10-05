@@ -34,20 +34,24 @@ namespace island
 
     Soundscape::~Soundscape() = default;
 
-    bool Soundscape::Start(const float signedShoreDistance, const bool swimming) noexcept
+    bool Soundscape::Start(const float signedShoreDistance, const bool swimming,
+                           const float waterDepth, const float horizontalSpeed) noexcept
     {
         if (startAttempted_) {
             return available_;
         }
         startAttempted_ = true;
         model_.Reset(signedShoreDistance, swimming);
+        waterMovementModel_.Reset(waterDepth, swimming, horizontalSpeed);
         try {
             const AmbientLoop surf = GenerateSurfLoop();
             const AmbientLoop breeze = GenerateBreezeLoop();
             const AmbientLoop wave = GenerateWaveAccent();
+            const AmbientLoop waterMovement = GenerateWaterMovementLoop();
             const std::vector<SharpRuntime::bytecs> surfBytes = ToPcmBytes(surf);
             const std::vector<SharpRuntime::bytecs> breezeBytes = ToPcmBytes(breeze);
             const std::vector<SharpRuntime::bytecs> waveBytes = ToPcmBytes(wave);
+            const std::vector<SharpRuntime::bytecs> waterMovementBytes = ToPcmBytes(waterMovement);
 
             surfEffect_ = std::make_unique<SoundEffect>(
                 surfBytes, 0, static_cast<SharpRuntime::intcs>(surfBytes.size()), surf.sampleRate,
@@ -69,6 +73,16 @@ namespace island
                 waveBytes, wave.sampleRate, AudioChannels::Mono);
             waveEffect_->setNameProperty("Procedural stronger wave");
 
+            waterMovementEffect_ = std::make_unique<SoundEffect>(
+                waterMovementBytes, 0,
+                static_cast<SharpRuntime::intcs>(waterMovementBytes.size()),
+                waterMovement.sampleRate, AudioChannels::Mono, 0,
+                static_cast<SharpRuntime::intcs>(waterMovement.samples.size()));
+            waterMovementEffect_->setNameProperty("Procedural player water movement");
+            waterMovementInstance_ = std::make_unique<SoundEffectInstance>(
+                waterMovementEffect_->CreateInstance());
+            waterMovementInstance_->setIsLoopedProperty(true);
+
             available_ = true;
             ApplyVolumes();
             if (!available_) {
@@ -77,19 +91,24 @@ namespace island
             }
             surfInstance_->Play();
             breezeInstance_->Play();
+            waterMovementInstance_->Play();
             if (surfInstance_->getStateProperty() != SoundState::Playing
-                || breezeInstance_->getStateProperty() != SoundState::Playing) {
-                throw std::runtime_error("CNA did not transition both ambient tracks to Playing");
+                || breezeInstance_->getStateProperty() != SoundState::Playing
+                || waterMovementInstance_->getStateProperty() != SoundState::Playing) {
+                throw std::runtime_error("CNA did not transition all looping tracks to Playing");
             }
             waveScheduler_.Reset();
             waveAccentsEnabled_ = true;
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
+            std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
             return true;
         } catch (const std::exception& exception) {
             error_ = exception.what();
             available_ = false;
             breezeInstance_.reset();
+            waterMovementInstance_.reset();
+            waterMovementEffect_.reset();
             waveEffect_.reset();
             breezeEffect_.reset();
             surfInstance_.reset();
@@ -101,9 +120,11 @@ namespace island
     }
 
     void Soundscape::Update(const float signedShoreDistance, const bool swimming,
+                            const float waterDepth, const float horizontalSpeed,
                             const float deltaSeconds) noexcept
     {
         (void)model_.Update(signedShoreDistance, swimming, deltaSeconds);
+        (void)waterMovementModel_.Update(waterDepth, swimming, horizontalSpeed, deltaSeconds);
         ApplyVolumes();
         const WaveAccentRequest accent = waveScheduler_.Update(
             deltaSeconds, model_.Mix().surfVolume);
@@ -141,13 +162,16 @@ namespace island
 
     void Soundscape::ApplyVolumes() noexcept
     {
-        if (!available_ || !surfInstance_ || !breezeInstance_) {
+        if (!available_ || !surfInstance_ || !breezeInstance_ || !waterMovementInstance_) {
             return;
         }
         try {
             const float gain = muted_ ? 0.0f : 1.0f;
             surfInstance_->setVolumeProperty(model_.Mix().surfVolume * gain);
             breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume * gain);
+            waterMovementInstance_->setVolumeProperty(
+                waterMovementModel_.Mix().volume * gain);
+            waterMovementInstance_->setPitchProperty(waterMovementModel_.Mix().pitch);
         } catch (const std::exception& exception) {
             DisableAfterRuntimeFailure(exception.what());
         }
@@ -158,6 +182,8 @@ namespace island
         error_ = message;
         available_ = false;
         breezeInstance_.reset();
+        waterMovementInstance_.reset();
+        waterMovementEffect_.reset();
         waveEffect_.reset();
         breezeEffect_.reset();
         surfInstance_.reset();

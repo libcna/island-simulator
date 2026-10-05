@@ -298,7 +298,10 @@ namespace island
         const PlayerPosition& position = playerMotion_.Position();
         const float shoreDistance = terrain_.SignedShoreDistance(position.x, position.z);
         const bool swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
-        (void)soundscape_->Start(shoreDistance, swimming);
+        const float waterDepth = std::max(0.0f, -playerMotion_.GroundHeight());
+        const float horizontalSpeed = std::hypot(playerMotion_.VelocityX(),
+                                                 playerMotion_.VelocityZ());
+        (void)soundscape_->Start(shoreDistance, swimming, waterDepth, horizontalSpeed);
         soundscapeNeedsGesture_ = false;
     }
 
@@ -480,7 +483,10 @@ namespace island
         cameraPosition_ = Vector3(position.x, position.y, position.z);
         if (soundscape_) {
             soundscape_->Update(terrain_.SignedShoreDistance(position.x, position.z),
-                                playerMotion_.Mode() == LocomotionMode::Swimming, deltaSeconds);
+                                playerMotion_.Mode() == LocomotionMode::Swimming,
+                                std::max(0.0f, -playerMotion_.GroundHeight()),
+                                std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
+                                deltaSeconds);
         }
     }
 
@@ -635,6 +641,7 @@ namespace island
             if (soundscape_) {
                 overlayState.surfVolume = soundscape_->Mix().surfVolume;
                 overlayState.breezeVolume = soundscape_->Mix().breezeVolume;
+                overlayState.waterMovementVolume = soundscape_->WaterMix().volume;
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
             }
             debugOverlay_->Draw(overlayState);

@@ -43,14 +43,21 @@ int main()
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
+    const island::AmbientLoop waterMovementLoop = island::GenerateWaterMovementLoop();
+    const island::AmbientLoop repeatedWaterMovementLoop = island::GenerateWaterMovementLoop();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
           "procedural ambient loops are ten seconds long");
     Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U,
           "stronger-wave accent has its intended four-second portable format");
+    Check(waterMovementLoop.sampleRate == 22050
+              && waterMovementLoop.samples.size() == 132300U,
+          "player water movement has its intended six-second portable format");
     Check(surfLoop.samples == repeatedSurfLoop.samples,
           "procedural surf generation is deterministic");
+    Check(waterMovementLoop.samples == repeatedWaterMovementLoop.samples,
+          "procedural player water movement generation is deterministic");
     const auto peakMagnitude = [](const island::AmbientLoop& loop) {
         int peak = 0;
         for (const std::int16_t sample : loop.samples) {
@@ -74,12 +81,18 @@ int main()
           "stronger-wave accent is audible while retaining mixing headroom");
     Check(waveAccent.samples.front() == 0 && waveAccent.samples.back() == 0,
           "stronger-wave accent starts and ends at silence without a boundary click");
+    Check(peakMagnitude(waterMovementLoop) < 32767
+              && rootMeanSquare(waterMovementLoop) > 900.0,
+          "player water movement is audible while retaining mixing headroom");
     Check(std::abs(static_cast<int>(surfLoop.samples.front())
                    - static_cast<int>(surfLoop.samples.back())) < 8000,
           "surf loop boundary does not contain a large discontinuity");
     Check(std::abs(static_cast<int>(breezeLoop.samples.front())
                    - static_cast<int>(breezeLoop.samples.back())) < 8000,
           "breeze loop boundary does not contain a large discontinuity");
+    Check(std::abs(static_cast<int>(waterMovementLoop.samples.front())
+                   - static_cast<int>(waterMovementLoop.samples.back())) < 8000,
+          "player water movement loop has no large boundary discontinuity");
 
     const island::SoundscapeMix beachMix = island::SoundscapeModel::TargetMix(2.0f, false);
     const island::SoundscapeMix jungleMix = island::SoundscapeModel::TargetMix(140.0f, false);
@@ -101,6 +114,40 @@ int main()
           "soundscape transitions smoothly toward the new zone instead of snapping");
     CheckNear(soundscapeModel.Mix().surfVolume, jungleMix.surfVolume, 0.025f,
               "soundscape approaches the inland surf target over several seconds");
+
+    const island::WaterMovementMix dryMovement =
+        island::WaterMovementModel::TargetMix(0.0f, false, 4.3f);
+    const island::WaterMovementMix idleWater =
+        island::WaterMovementModel::TargetMix(0.5f, true, 0.0f);
+    const island::WaterMovementMix wadingMovement =
+        island::WaterMovementModel::TargetMix(0.24f, false, 3.0f);
+    const island::WaterMovementMix swimmingMovement =
+        island::WaterMovementModel::TargetMix(0.7f, true, 2.0f);
+    CheckNear(dryMovement.volume, 0.0f, 0.0001f,
+              "dry walking never activates the player water layer");
+    CheckNear(idleWater.volume, 0.0f, 0.0001f,
+              "standing still in water does not emit continuous movement noise");
+    Check(wadingMovement.volume > 0.0f && swimmingMovement.volume > wadingMovement.volume,
+          "wading is audible and active swimming carries the stronger water mix");
+    Check(swimmingMovement.pitch < wadingMovement.pitch,
+          "swimming shifts the shared water texture below the wading pitch");
+    island::WaterMovementModel waterMovementModel;
+    waterMovementModel.Reset(0.0f, false, 0.0f);
+    const island::WaterMovementMix firstWadingFrame =
+        waterMovementModel.Update(0.24f, false, 3.0f, 1.0f / 60.0f);
+    Check(firstWadingFrame.volume > 0.0f
+              && firstWadingFrame.volume < wadingMovement.volume,
+          "water movement fades in instead of starting with a hard gain edge");
+    for (int step = 0; step < 180; ++step) {
+        (void)waterMovementModel.Update(0.24f, false, 3.0f, 1.0f / 60.0f);
+    }
+    CheckNear(waterMovementModel.Mix().volume, wadingMovement.volume, 0.002f,
+              "water movement converges to its speed and depth target");
+    const float movingWaterVolume = waterMovementModel.Mix().volume;
+    const island::WaterMovementMix firstDryFrame =
+        waterMovementModel.Update(0.0f, false, 0.0f, 1.0f / 60.0f);
+    Check(firstDryFrame.volume > 0.0f && firstDryFrame.volume < movingWaterVolume,
+          "water movement fades out without rapid stop/start chatter");
 
     island::WaveAccentScheduler waveScheduler;
     waveScheduler.Reset();

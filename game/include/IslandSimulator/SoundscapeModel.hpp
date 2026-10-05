@@ -28,6 +28,9 @@ namespace island
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
     [[nodiscard]] AmbientLoop GenerateWaveAccent();
 
+    /** @brief Generates a seamless six-second water-motion bed for wading and swimming. */
+    [[nodiscard]] AmbientLoop GenerateWaterMovementLoop();
+
     /** @brief One optional, bounded stronger-wave playback request. */
     struct WaveAccentRequest
     {
@@ -50,6 +53,29 @@ namespace island
 
         std::uint32_t randomState_ = 0x78d2f9a5U;
         float secondsUntilAccent_ = 0.0f;
+    };
+
+    /** @brief Smoothed gain and pitch for the player's continuous movement through water. */
+    struct WaterMovementMix
+    {
+        float volume = 0.0f;
+        float pitch = 0.0f;
+    };
+
+    /** @brief Maps authoritative water depth and player speed to a non-chattering loop mix. */
+    class WaterMovementModel final
+    {
+    public:
+        [[nodiscard]] static WaterMovementMix TargetMix(float waterDepth, bool swimming,
+                                                        float horizontalSpeed) noexcept;
+        void Reset(float waterDepth, bool swimming, float horizontalSpeed) noexcept;
+        [[nodiscard]] WaterMovementMix Update(float waterDepth, bool swimming,
+                                              float horizontalSpeed,
+                                              float deltaSeconds) noexcept;
+        [[nodiscard]] const WaterMovementMix& Mix() const noexcept { return mix_; }
+
+    private:
+        WaterMovementMix mix_;
     };
 
     /** @brief Smoothly blends ambient layers from authoritative shoreline/player state. */

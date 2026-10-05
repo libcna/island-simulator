@@ -10,9 +10,9 @@ and 28 pieces of sun-bleached beach driftwood. Every visual layer has spatial cu
 LOD, while vegetation uses a calm breeze. It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. The
-current audio pass adds original procedural shoreline surf, occasional stronger waves, and a light
-canopy breeze, blended by the player's authoritative shoreline distance without external sound
-files. The
+current audio pass adds original procedural shoreline surf, occasional stronger waves, a light
+canopy breeze, and speed/depth-responsive movement through shallow or swimming water without
+external sound files. The
 complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
 terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop/sky-inclusive APK builds, but
@@ -60,8 +60,8 @@ press Escape to release the mouse; press Escape again to exit. The controller fo
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and enters swimming
 water with hysteresis. Rock/complex prop collision and geometric step-up are not implemented yet.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
-culling counts, vegetation draw statistics, and ambient mix levels. Press M to mute or unmute the
-soundscape. While the overlay is visible, F5 through F8 teleport among
+culling counts, vegetation draw statistics, ambient mix levels, player-water gain, and wave count.
+Press M to mute or unmute the soundscape. While the overlay is visible, F5 through F8 teleport among
 four fixed QA locations. The overlay starts hidden in a normal run and can be enabled at launch
 with `--debug-overlay` for automated QA.
 

@@ -82,8 +82,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    island-relative current field, and the remote safety boundary.
 5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
    circular obstacles, retaining axis sliding when one component is valid.
-6. `SoundscapeModel` derives surf and breeze targets from authoritative shoreline distance and
-   swimming state; `Soundscape` applies a slow crossfade to two persistent CNA loop instances.
+6. `SoundscapeModel` derives surf/breeze targets and player-water gain/pitch from authoritative
+   shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
+   to three persistent CNA loop instances and schedules bounded wave accents.
 7. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, and the
    transparent ocean using one view/projection pair.
@@ -190,27 +191,35 @@ SpriteBatch route.
 
 ## Audio baseline
 
-`SoundscapeModel` creates two original deterministic ten-second, 22.05 kHz mono PCM16 loops at
-startup. Circular filtering keeps the procedural noise continuous at the wrap boundary; peak
+`SoundscapeModel` supplies original deterministic 22.05 kHz mono PCM16 source material at startup.
+Circular filtering keeps the procedural noise continuous at loop boundaries; peak
 normalization retains mixing headroom. Surf is strongest along the beach and while swimming, then
 falls to a quiet distant bed inland. Light canopy breeze increases toward the interior. A 1.8
 second exponential crossfade prevents zone snaps, and M applies a reversible zero-gain mute without
 restarting the tracks.
 
+A six-second water-motion loop follows the player's authoritative support depth, locomotion mode,
+and horizontal velocity. Dry movement and stationary water produce zero gain; shallow wading and
+active swimming fade in with different conservative pitch ranges. One persistent loop avoids the
+rapid repeated one-shot cadence common to footstep-style water effects, while 140 ms attack and
+340 ms release smoothing prevent hard edges and state-transition chatter. All current procedural
+PCM payloads total 1,323,000 bytes (about 1.26 MiB) before backend bookkeeping.
+
 A separate original four-second PCM wash supplies occasional stronger waves. A deterministic
 7--13 second initial delay and 14--32 second repeat interval vary conservative pitch and stereo pan
 without allowing overlaps. The scheduler virtualizes the accent while inland surf is inaudible,
-so the current soundscape is bounded to two persistent beds plus at most one short one-shot.
+so the current soundscape is bounded to three persistent loops plus at most one short one-shot.
 
 `Soundscape` owns CNA `SoundEffect` and looping `SoundEffectInstance` objects and never calls SDL
 or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
 device creation until the first mouse, touch, or movement-key gesture so browser activation and
 pointer-lock requests share one user action. Missing or disconnected audio degrades to a logged,
 visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
-length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade, and
-accent interval/virtualization bounds. Native playback accepted the scheduled one-shot. Actual
-Chromium proves first-gesture mixer/track initialization and accent-effect creation; a visible hardware-browser
-listening pass and Android audio focus/lifecycle testing remain open.
+length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade,
+water depth/speed gating and smoothing, and accent interval/virtualization bounds. Native playback
+started all three loops and accepted the scheduled one-shot. Actual Chromium proves first-gesture
+mixer/track initialization and accent-effect creation; a visible hardware-browser listening pass
+and Android audio focus/lifecycle testing remain open.
 
 ## Current limitations
 
@@ -223,8 +232,8 @@ listening pass and Android audio focus/lifecycle testing remain open.
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
 - Collision checks every palm, canopy-trunk, solid-rock, and sampled log proxy and has no spatial
   broad phase yet; geometric step-up remains absent.
-- Swimming camera height is functional but has no bob, underwater transition, or player-motion
-  water audio; only the broader surf bed currently reacts to swimming.
+- Swimming camera height and movement-responsive water audio are functional, but camera bob,
+  underwater presentation, and distinct water entry/exit details remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,

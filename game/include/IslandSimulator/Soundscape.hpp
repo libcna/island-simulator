@@ -25,11 +25,13 @@ namespace island
         Soundscape(Soundscape&&) = delete;
         Soundscape& operator=(Soundscape&&) = delete;
 
-        /** @brief Builds PCM and begins both loops, or records a graceful device failure. */
-        bool Start(float signedShoreDistance, bool swimming) noexcept;
+        /** @brief Builds PCM and begins the looping layers, or records a graceful device failure. */
+        bool Start(float signedShoreDistance, bool swimming, float waterDepth,
+                   float horizontalSpeed) noexcept;
 
         /** @brief Advances location-driven crossfades for active playback. */
-        void Update(float signedShoreDistance, bool swimming, float deltaSeconds) noexcept;
+        void Update(float signedShoreDistance, bool swimming, float waterDepth,
+                    float horizontalSpeed, float deltaSeconds) noexcept;
 
         /** @brief Toggles user-requested silence without destroying the active loops. */
         void ToggleMuted() noexcept;
@@ -38,6 +40,10 @@ namespace island
         [[nodiscard]] bool IsMuted() const noexcept { return muted_; }
         [[nodiscard]] bool WasStartAttempted() const noexcept { return startAttempted_; }
         [[nodiscard]] const SoundscapeMix& Mix() const noexcept { return model_.Mix(); }
+        [[nodiscard]] const WaterMovementMix& WaterMix() const noexcept
+        {
+            return waterMovementModel_.Mix();
+        }
         [[nodiscard]] const std::string& Error() const noexcept { return error_; }
         [[nodiscard]] int PlayedWaveAccentCount() const noexcept
         {
@@ -49,12 +55,16 @@ namespace island
         void DisableAfterRuntimeFailure(const std::string& message) noexcept;
 
         SoundscapeModel model_;
+        WaterMovementModel waterMovementModel_;
         WaveAccentScheduler waveScheduler_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> breezeInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waterMovementEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
+            waterMovementInstance_;
         std::string error_;
         bool available_ = false;
         bool muted_ = false;

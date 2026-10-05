@@ -448,9 +448,11 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   wildlife, and sparse water splashes. A first light-canopy-breeze loop increases inland; the
   wildlife, insect, water, and richer jungle layers remain.
 - [ ] Add positional one-shots/emitters where direction and distance improve presence.
-- [ ] Add player wading/swimming movement audio without repetitive rapid triggering.
+- [x] Add player wading/swimming movement audio without repetitive rapid triggering. One continuous
+  six-second procedural loop follows authoritative support depth, locomotion mode, and horizontal
+  speed with asymmetric fade smoothing and wading/swimming pitch variation.
 - [~] Bound simultaneously active sources and virtualize/throttle inaudible emitters. The current
-  system has exactly two persistent beds and at most one non-overlapping wave one-shot; inland
+  system has exactly three persistent loops and at most one non-overlapping wave one-shot; inland
   accents remain virtual. Wildlife and positional-source budgets remain.
 - [~] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
   Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta, and
@@ -551,9 +553,9 @@ Dependencies: representative complete scene on all targets.
 - [~] Add debug overlay: FPS, frame time, player coordinates/state, renderer/backend, visible
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
-  fields plus ambient availability/mute, surf/breeze levels, and played-wave count on OpenGL 3.3
-  and WebGL 2; future wildlife counts and positional-emitter diagnostics remain dependent on those
-  systems.
+  fields plus ambient availability/mute, surf/breeze/player-water levels, and played-wave count on
+  OpenGL 3.3 and WebGL 2; future wildlife counts and positional-emitter diagnostics remain
+  dependent on those systems.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
 - [~] Add debug teleport locations and a debug-only free camera. Four direct F5--F8 locations are
@@ -771,8 +773,8 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Continue the soundscape with richer jungle texture, wading/swimming feedback, additional wave
-   variation, and a 20-minute listening pass before adding wildlife emitters.
+1. Continue the soundscape with richer jungle texture, distinct sparse water entry/exit details,
+   additional wave variation, and a 20-minute listening pass before adding wildlife emitters.
 2. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
@@ -1123,7 +1125,7 @@ Work next, in order:
 - Added a renderer-independent mix model driven by the authoritative signed shoreline distance and
   swimming state. Surf dominates the beach and near-shore water, canopy breeze grows inland, and a
   1.8-second exponential transition prevents abrupt zone changes. M toggles reversible mute.
-- Added a CNA-only playback owner with two persistent looping instances, explicit startup state
+- Added a CNA-only playback owner with the initial two persistent looping instances, explicit startup state
   verification, actionable startup/runtime failure diagnostics, resource cleanup, and silent visual
   fallback. Web defers creation until the first click/touch/movement key; Linux and Android start
   after content initialization.
@@ -1141,8 +1143,8 @@ Work next, in order:
   playback/focus remains explicitly unqualified because the host has no KVM and no physical device
   is connected. No qualifying CNA or Sharp Runtime defect was found.
 - Remaining audio work includes subjective balance and a 20-minute fatigue pass, additional wave
-  variation, richer jungle texture, player water sounds, positional wildlife, focus/lifecycle
-  recovery, and measured source/memory budgets.
+  variation, richer jungle texture, distinct entry/exit water details, positional wildlife,
+  focus/lifecycle recovery, and measured source/memory budgets.
 
 ### 2026-10-05 — First forest-floor plant layer
 
@@ -1173,9 +1175,9 @@ Work next, in order:
 - Added a deterministic sparse scheduler: the first accent waits 7--13 seconds, subsequent accents
   wait 14--32 seconds, and conservative volume/pitch/pan variation prevents a mechanical identical
   repeat. Four-second accents cannot overlap by construction.
-- Virtualized expired accents while inland surf is below the audible threshold. The complete audio
-  source budget is now two persistent beds plus at most one one-shot; returning to shore permits a
-  waiting accent without continuously creating silent tracks.
+- Virtualized expired accents while inland surf is below the audible threshold. At this milestone,
+  the complete audio source budget was two persistent beds plus at most one one-shot; returning to
+  shore permits a waiting accent without continuously creating silent tracks.
 - Added graceful one-shot acquisition/exception diagnostics while leaving both ambient beds alive.
   F1 reports the played-wave count, and the real Linux CNA device accepted the first scheduled
   one-shot after both loops reached `Playing`.
@@ -1185,6 +1187,29 @@ Work next, in order:
 - Rebuilt and linted the arm64-v8a Android APK successfully. Android audible playback and focus
   behaviour remain explicitly unqualified because this host has no KVM device and no physical
   Android device is connected. No qualifying CNA or Sharp Runtime defect was found.
+
+### 2026-10-05 — Player wading and swimming audio
+
+- Added an original deterministic six-second mono PCM16 water-motion loop with circular filtering,
+  portable 22.05 kHz format, conservative headroom, and no external asset. Core tests cover exact
+  format/duration, deterministic regeneration, audible energy, and loop-boundary continuity.
+- Added a renderer-independent water mix driven by authoritative player support depth, walking or
+  swimming mode, and actual horizontal velocity. Dry walking and stationary water remain silent;
+  shallow wading and swimming use distinct gain/pitch ranges.
+- Used one persistent loop with 140 ms attack, 340 ms release, and 420 ms pitch smoothing instead
+  of retriggered short splashes. This avoids rapid repetition and hard edges as input, depth, and
+  locomotion state change; sparse entry/exit detail remains a later polish item. All current source
+  PCM payloads total 1,323,000 bytes (about 1.26 MiB) before backend bookkeeping.
+- Integrated the third loop through CNA `SoundEffectInstance`, the global M mute, graceful audio
+  fallback, and F1 `WATER` gain diagnostics. The real Linux device transitioned all three loops to
+  `Playing`; the newly rebuilt interactive OpenGL 3.3 game is open for operator listening.
+- Passed the core suite and all seven isolated OpenGL 3.3 GPU tests. The complete Chromium/WebGL 2
+  harness passed and now requires first-gesture creation/startup of the water loop in addition to
+  both ambient beds and the wave effect. Visual review confirms the added `WATER` diagnostic fits
+  the 1280 by 720 browser overlay without clipping.
+- Rebuilt and linted the arm64-v8a APK successfully with the new audio layer. Audible mobile
+  balance, focus, and lifecycle behaviour remain unqualified without KVM or a physical Android
+  device. No qualifying CNA or Sharp Runtime defect was found.
 
 ## Session-end checklist
 
