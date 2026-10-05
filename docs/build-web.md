@@ -6,7 +6,8 @@ The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium u
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
 overview/beach/jungle/prop/driftwood rendering, first-click pointer lock, canvas focus, WASD
 traversal, relative mouse look, F1 input, pointer release/reacquisition, and responsive 16:9
-presentation. The first click also opens CNA's 44.1 kHz mixer, starts all four procedural loops,
+presentation. F2 world-line rendering is also toggled through browser input. The first click opens
+CNA's 44.1 kHz mixer, starts all four procedural loops,
 and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. Audible
 output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.
@@ -96,7 +97,8 @@ of both wave and both shoreline-transition variants, and preparation of position
 calls, then hold W
 long enough to measure world movement, reset to the deterministic south-beach QA location, and
 walk backward into the ocean. The shoreline crossing must produce a successful water-transition
-one-shot diagnostic. The harness then moves the relative pointer, toggles F1, resizes to a
+one-shot diagnostic. The harness then moves the relative pointer, enables the portable F2 world
+line view, toggles F1, resizes to a
 non-16:9 browser window, explicitly unlocks, and clicks to reacquire. It records the initial/final
 player and viewport samples in the JSON report. Chromium's
 synthetic page-freeze command did not yield reliable resume evidence in this environment, so real

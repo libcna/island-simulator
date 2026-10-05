@@ -31,6 +31,7 @@
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WorldDebugRenderer.hpp"
 #include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include "Microsoft/Xna/Framework/Game.hpp"
 #include "Microsoft/Xna/Framework/GameTime.hpp"
@@ -70,7 +71,8 @@ namespace island
         explicit IslandGame(bool smokeTest = false, std::string capturePath = {},
                             FixedViewpoint viewpoint = FixedViewpoint::None,
                             bool showDebugOverlay = false,
-                            bool inputDiagnostics = false);
+                            bool inputDiagnostics = false,
+                            bool showWorldDebug = false);
 
         GetTypeNameHPP()
 
@@ -132,6 +134,7 @@ namespace island
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
+        std::unique_ptr<WorldDebugRenderer> worldDebugRenderer_;
         std::vector<TerrainRenderCell> terrainCells_;
         Microsoft::Xna::Framework::Vector3 cameraPosition_;
         float yaw_ = 0.0f;
@@ -144,6 +147,8 @@ namespace island
         bool mouseCaptured_ = false;
         bool debugOverlayVisible_ = false;
         bool debugOverlayToggleWasDown_ = false;
+        bool worldDebugVisible_ = false;
+        bool worldDebugToggleWasDown_ = false;
         bool muteToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
         std::array<bool, 7> debugTeleportWasDown_{};

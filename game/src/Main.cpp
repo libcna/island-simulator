@@ -12,6 +12,7 @@ int main(const int argc, char* argv[])
 {
     bool smokeTest = false;
     bool showDebugOverlay = false;
+    bool showWorldDebug = false;
     bool inputDiagnostics = false;
     island::FixedViewpoint viewpoint = island::FixedViewpoint::None;
     std::string capturePath;
@@ -21,6 +22,9 @@ int main(const int argc, char* argv[])
             smokeTest = true;
         } else if (argument == "--debug-overlay") {
             showDebugOverlay = true;
+        } else if (argument == "--world-debug") {
+            showDebugOverlay = true;
+            showWorldDebug = true;
         } else if (argument == "--input-diagnostics") {
             inputDiagnostics = true;
         } else if (argument == "--overview") {
@@ -67,7 +71,7 @@ int main(const int argc, char* argv[])
     }
     try {
         island::IslandGame game(smokeTest, std::move(capturePath), viewpoint, showDebugOverlay,
-                                inputDiagnostics);
+                                inputDiagnostics, showWorldDebug);
         game.Run();
         return 0;
     } catch (const std::exception& error) {

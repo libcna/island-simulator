@@ -73,7 +73,8 @@ been confirmed so far.
   visibility, LOD populations, draw counts, bird/fish/shark/monkey render and simulation tiers,
   monkey behaviour counts, current
   surf/breeze/jungle/player-water levels, played
-  wave/splash counts, and mute/availability state. It does not yet provide world-space collision,
-  shoreline/current, cell, wildlife, or audio-emitter visualization.
+  wave/splash counts, and mute/availability state. F2 adds the first world-space shoreline/current,
+  collision, shared-cell, and wildlife view; audio-emitter visualization and deeper per-system
+  overlays remain open.
 - Seven direct debug teleports exist, but there is no teleport menu, benchmark route, asset
   validation command, or automated renderer-image comparison yet.

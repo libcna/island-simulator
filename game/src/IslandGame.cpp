@@ -100,7 +100,7 @@ namespace island
 
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
-                           const bool inputDiagnostics)
+                           const bool inputDiagnostics, const bool showWorldDebug)
         : graphics_(this),
           birdFlock_(terrain_),
           fishSchools_(terrain_),
@@ -115,6 +115,7 @@ namespace island
           viewpoint_(viewpoint),
           capturePath_(std::move(capturePath)),
           debugOverlayVisible_(showDebugOverlay),
+          worldDebugVisible_(showWorldDebug),
           inputDiagnostics_(inputDiagnostics)
     {
         worldObstacles_.reserve(vegetationLayout_.Obstacles().size()
@@ -259,6 +260,7 @@ namespace island
         skyRenderer_ = std::make_unique<SkyRenderer>(device);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
         touchOverlay_ = std::make_unique<TouchOverlay>(device);
+        worldDebugRenderer_ = std::make_unique<WorldDebugRenderer>(device, terrain_);
         playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
@@ -284,6 +286,9 @@ namespace island
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
+        }
+        if (worldDebugVisible_) {
+            std::cout << "island-simulator: world debug visualization active\n";
         }
         std::cout.flush();
     }
@@ -467,6 +472,14 @@ namespace island
                       << (debugOverlayVisible_ ? "enabled" : "disabled") << '\n';
         }
         debugOverlayToggleWasDown_ = debugOverlayToggleDown;
+
+        const bool worldDebugToggleDown = keyboard.IsKeyDown(Keys::F2);
+        if (worldDebugToggleDown && !worldDebugToggleWasDown_) {
+            worldDebugVisible_ = !worldDebugVisible_;
+            std::cout << "island-simulator: world debug visualization "
+                      << (worldDebugVisible_ ? "enabled" : "disabled") << '\n';
+        }
+        worldDebugToggleWasDown_ = worldDebugToggleDown;
 
         constexpr std::array<Keys, 7> teleportKeys = {
             Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::F11};
@@ -705,6 +718,15 @@ namespace island
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
 
+        if (debugOverlayVisible_ && worldDebugVisible_) {
+            worldDebugRenderer_->Draw(terrainEffect_->getViewProperty(),
+                                      terrainEffect_->getProjectionProperty(), cameraPosition_,
+                                      playerMotion_.Position(), playerMotion_.GroundHeight(),
+                                      playerMotion_.Mode() == LocomotionMode::Swimming,
+                                      worldObstacles_, birdFlock_.Birds(), fishSchools_.Fish(),
+                                      sharkPatrol_.State(), monkeyTroop_.Monkeys());
+        }
+
         if (touchOverlayVisible_) {
             const auto& viewport = device.getViewportProperty();
             touchOverlay_->Draw(touchControlState_, touchDisplayWidth_, touchDisplayHeight_,
@@ -818,6 +840,14 @@ namespace island
                 overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
                 overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
+            }
+            overlayState.worldDebugVisible = worldDebugVisible_;
+            if (worldDebugVisible_) {
+                overlayState.worldDebugObstacles = worldDebugRenderer_->VisibleObstacleCount();
+                overlayState.worldDebugCells = worldDebugRenderer_->VisibleCellCount();
+                overlayState.worldDebugWildlife = worldDebugRenderer_->WildlifeMarkerCount();
+                overlayState.worldDebugLines = worldDebugRenderer_->LineCount();
+                overlayState.worldDebugDraws = worldDebugRenderer_->DrawCallCount();
             }
             debugOverlay_->Draw(overlayState);
         }

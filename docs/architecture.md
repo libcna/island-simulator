@@ -41,6 +41,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
+      ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
       ├── SoundscapeModel ──── deterministic PCM generation and shoreline-driven crossfades
@@ -263,6 +264,12 @@ reporting the fixed simulation timestep. F1 toggles it during interactive play; 
 is the explicit automation path. Native OpenGL 3.3 and actual WebGL 2 captures validate the same
 SpriteBatch route.
 
+`WorldDebugRenderer` is the F2-only 3D companion to the panel. It uses `BasicEffect` vertex-colour
+line lists rather than custom shaders: shoreline/current contours are depth-aware, while local
+collision, cell, player, current-vector, and wildlife markers use an x-ray pass so vegetation does
+not conceal diagnostic state. Distance gates limit local marker generation, and the complete view
+costs two draw submissions. `--world-debug` provides a deterministic capture path.
+
 ## Audio baseline
 
 `SoundscapeModel` supplies original deterministic 22.05 kHz mono PCM16 source material at startup.
@@ -357,6 +364,7 @@ testing remain open.
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
-  exist, and birds/monkeys share a bounded positional call voice. World-space debug visualization
-  and configuration UI do not yet exist. Seven direct QA teleports and deterministic
+  exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view
+  exists; deeper target/spawn/culling/audio layers and configuration UI remain absent. Seven
+  direct QA teleports and deterministic
   bird/fish/shark/monkey close-review cameras are available.

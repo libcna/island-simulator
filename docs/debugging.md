@@ -10,6 +10,25 @@ captures:
 build/island-simulator --debug-overlay
 ```
 
+Press F2 to toggle the world-space diagnostic while the F1 panel is visible, or launch directly
+with `--world-debug`. The view uses the same portable `BasicEffect` line-list path on OpenGL 3.3,
+WebGL 2, and OpenGL ES 3. It draws:
+
+- the authoritative irregular shoreline in cyan;
+- the 42 m soft-current threshold in yellow, 72 m full-current threshold in orange, and 92 m
+  safety threshold in magenta-red;
+- a yellow inward arrow at the player once the current is active;
+- the player footprint in white and nearby palm, canopy, rock, and log collision proxies in
+  orange;
+- nearby shared terrain/vegetation cell edges in green;
+- wildlife heading arrows, with full-simulation agents in species/state colours, reduced agents
+  in yellow, and dormant agents in grey. Monkey full-tier colours distinguish idle, observe,
+  ordinary locomotion, and run-away states.
+
+The local proxies, cells, and wildlife markers are intentionally x-ray lines so dense grass or
+foliage cannot hide them. Shore/current contours remain depth-aware. F2 is a developer aid only;
+F1 hides all world lines without changing the stored F2 toggle.
+
 The overlay is deliberately implemented with CNA's public `SpriteBatch`, `SpriteFont`, and
 `Texture2D` APIs. Its original 5 by 7 uppercase font atlas is generated at runtime, so debugging
 does not depend on a platform font, a content compiler, or an undeclared asset.
@@ -42,6 +61,7 @@ Current fields are:
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, and played
   stronger-wave/water-transition counts;
 - played positional bird/monkey call counts and pooled wildlife-voice active/idle state.
+- F2 visibility plus nearby obstacle, shared-cell, wildlife-marker, line, and draw counts.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative
@@ -63,6 +83,7 @@ build/island-simulator --capture /tmp/island-fish.ppm --viewpoint fish
 build/island-simulator --capture /tmp/island-shark.ppm --viewpoint shark
 build/island-simulator --capture /tmp/island-monkeys.ppm --viewpoint monkeys
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
+build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overview --world-debug
 ```
 
 These runs render four frames and exit, except the monkey capture waits 24 frames for the startup
@@ -78,7 +99,8 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 
 ## Planned diagnostics
 
-World-space collision, shoreline/current, vegetation-cell, LOD, wildlife-state, and audio-emitter
-visualizations are not implemented yet. Neither are a teleport menu, free camera, recorded frame
-histograms, or target-specific budget warnings. Keep these tools opt-in and absent from the normal
-release presentation as they are added.
+The first F2 pass covers the world geometry listed above. Exact wildlife targets/spawn regions,
+individual renderer culling volumes and LOD radii, grass-density fields, terrain contact normals,
+audio zones/emitters, and source-count visualization remain open. So do a teleport menu, free
+camera, recorded frame histograms, and target-specific budget warnings. All additions must remain
+opt-in and absent from the normal release presentation.

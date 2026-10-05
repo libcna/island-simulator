@@ -70,11 +70,15 @@ water with hysteresis. Rock/complex prop collision and geometric step-up are not
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, vegetation draw statistics, ambient mix levels, player-water gain, wave/splash
 counts, and positional bird/monkey call activity.
+While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
+ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
+cells, wildlife headings, simulation-tier colours, and the active inward-current vector.
 Press M to mute or unmute the soundscape. While the overlay is visible, F5 through F11 teleport
 among seven fixed QA locations, including views toward the south fish shallows, offshore shark,
 and monkey troop.
 The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
+Use `--world-debug` to enable both the panel and world visualization at launch.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
 and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four
@@ -83,7 +87,8 @@ screenshots, and portable
 overlay text rendering.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse
-look, a deterministic beach-to-water crossing with successful transition-audio playback, F1,
+look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world
+lines, F1,
 pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-
 accelerated browser listening pass, genuine tab background/foreground behaviour, and another
 browser engine remain open.

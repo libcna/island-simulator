@@ -597,6 +597,17 @@ try {
   await delay(700);
 
   await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "F2", code: "F2", windowsVirtualKeyCode: 113,
+    nativeVirtualKeyCode: 113,
+  }, visualSessionId);
+  await delay(100);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "F2", code: "F2", windowsVirtualKeyCode: 113,
+    nativeVirtualKeyCode: 113,
+  }, visualSessionId);
+  await delay(300);
+
+  await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
     nativeVirtualKeyCode: 112,
   }, visualSessionId);
@@ -692,6 +703,7 @@ try {
     && Math.abs(clientAspect - 16 / 9) < 0.01;
   const inputPassed = inputResult.output?.includes("island-simulator: renderer WEBGL2")
     && inputResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && inputResult.output?.includes("island-simulator: world debug visualization enabled")
     && inputResult.output?.includes("island-simulator: debug overlay disabled")
     && lockedState.pointerLocked === true
     && lockedState.focused === true

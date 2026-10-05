@@ -184,8 +184,8 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(16U);
-        lines.emplace_back("F1 DEBUG  F5-F11 TELEPORT  M MUTE");
+        lines.reserve(18U);
+        lines.emplace_back("F1 DEBUG  F2 WORLD  F5-F11 TELEPORT  M MUTE");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
@@ -206,6 +206,15 @@ namespace island
         water << "OFFSHORE " << state.offshoreDistance
               << " M  CURRENT " << state.oceanCurrentStrength;
         lines.push_back(water.str());
+
+        auto worldDebug = DiagnosticLine();
+        worldDebug << "WORLD DEBUG " << (state.worldDebugVisible ? "ON" : "OFF")
+                   << "  OBSTACLES " << state.worldDebugObstacles
+                   << " CELLS " << state.worldDebugCells
+                   << " WILDLIFE " << state.worldDebugWildlife
+                   << " LINES " << state.worldDebugLines
+                   << " DRAWS " << state.worldDebugDraws;
+        lines.push_back(worldDebug.str());
 
         lines.push_back("RENDERER " + state.renderer);
 

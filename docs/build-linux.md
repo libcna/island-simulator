@@ -52,7 +52,7 @@ Xwayland runner:
 
 ```bash
 ../cna/tools/platform/run_gpu_tests_private.sh \
-  build -R '^IslandGame(Smoke|Capture|BeachCapture|JungleCapture|PropCapture|DriftwoodCapture|BirdCapture|FishCapture|SharkCapture|MonkeyCapture|DebugOverlayCapture)$' --output-on-failure -j2
+  build -R '^IslandGame(Smoke|Capture|BeachCapture|JungleCapture|PropCapture|DriftwoodCapture|BirdCapture|FishCapture|SharkCapture|MonkeyCapture|DebugOverlayCapture|WorldDebugCapture)$' --output-on-failure -j2
 ```
 
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;

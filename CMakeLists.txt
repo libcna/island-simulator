@@ -160,7 +160,8 @@ if(ISLAND_BUILD_GAME)
         game/src/SharkRenderer.cpp
         game/src/SkyRenderer.cpp
         game/src/Soundscape.cpp
-        game/src/TouchOverlay.cpp)
+        game/src/TouchOverlay.cpp
+        game/src/WorldDebugRenderer.cpp)
 
     # SDLActivity loads an Android game as libmain.so. Keep the public CMake target name stable so
     # presets and developer tooling build `island-simulator` on every platform.
@@ -248,5 +249,12 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)
         set_tests_properties(IslandGameDebugOverlayCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameWorldDebugCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-world-debug.ppm"
+                    --viewpoint overview --world-debug)
+        set_tests_properties(IslandGameWorldDebugCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION "world debug visualization active")
     endif()
 endif()

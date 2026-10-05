@@ -621,9 +621,13 @@ Dependencies: representative complete scene on all targets.
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
   fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
   counts, positional bird/monkey call counts and voice state, and bird/fish/shark/monkey
-  render/simulation statistics on OpenGL 3.3 and WebGL 2; a total backend voice counter remains.
-- [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
-  states, LOD, and culling; keep them disabled in normal release presentation.
+  render/simulation statistics on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
+  obstacle, shared-cell, and wildlife-marker counts; a total backend voice counter remains.
+- [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
+  states, LOD, and culling; keep them disabled in normal release presentation. One F2 toggle now
+  covers shoreline/current thresholds and vector, nearby collision/player footprints, shared
+  cells, and tier/state-coloured wildlife headings. Per-layer toggles, spawn/target regions,
+  detailed culling/LOD/density, terrain normals, and audio emitters remain.
 - [~] Add debug teleport locations and a debug-only free camera. Seven direct F5--F11 locations are
   active only while the diagnostics overlay is visible; a menu, water-limit locations, and free
   camera remain open.
@@ -795,15 +799,21 @@ after the same experience remains available.
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
   draws, bird/fish/shark/monkey render LOD and simulation tiers, shark presence/activity, monkey
-  state counts, plus audio mix/event counters; world-space views and warning budgets remain open.
+  state counts, plus audio mix/event counters. The F2 world view and deterministic capture now add
+  boundary/collision/cell/wildlife markers; warning budgets and deeper views remain open.
 - [ ] Deterministic seed display/copy.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
   South beach, jungle trail, two clearings, fish shallows, offshore shark, and monkey troop are
   implemented; remaining water-limit/landmark locations remain.
-- [ ] Terrain/capsule/contact visualization.
-- [ ] Shore distance/current vector visualization.
-- [ ] Vegetation cell, culling, LOD, and density visualization.
-- [ ] Wildlife spawn region, state, steering, and simulation-tier visualization.
+- [~] Terrain/capsule/contact visualization. Player footprint and nearby solid horizontal proxies
+  are visible; swept motion, step/slope samples, support contact, and normals remain.
+- [~] Shore distance/current vector visualization. F2 draws the irregular shoreline, all three
+  current thresholds, and the player's active inward-current arrow; a scalar field view remains.
+- [~] Vegetation cell, culling, LOD, and density visualization. F2 draws nearby shared 8 by 8
+  terrain/palm/jungle/prop cells; grass cells, actual frusta, LOD radii, and density fields remain.
+- [~] Wildlife spawn region, state, steering, and simulation-tier visualization. F2 heading arrows
+  use full/reduced/dormant colours and monkey full-tier behaviour colours; targets, homes, route
+  bounds, avoidance proposals, and spawn regions remain.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, jungle-trail, natural-prop, driftwood, airborne bird-detail, and shallow-water fish
@@ -854,8 +864,9 @@ Work next, in order:
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
-4. Add shoreline/current, collision, vegetation-cell, and wildlife-route world-space visualization;
-   seven direct F5--F11 QA teleports, including fish, shark, and monkey views, are complete.
+4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
+   heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
+   LOD/density fields, and audio emitters only where they materially improve debugging.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -1534,6 +1545,31 @@ Work next, in order:
   harness, arm64 APK assembly, app lint, and real Linux audio startup/positional playback all pass.
   Sharp Runtime remains current at `21c06910f7cf`. The superseded 327 MiB generated export was
   removed after qualification; both dependency worktrees remain clean and unmodified.
+
+### 2026-10-06 — Portable world-space diagnostics
+
+- Added an opt-in F2 world view, visible only with the existing F1 developer presentation, plus a
+  `--world-debug` deterministic capture path. Cyan, yellow, orange, and magenta-red contours show
+  the authoritative irregular shoreline and the exact 42/72/92 m ocean-current thresholds; an
+  active yellow arrow shows the player's actual inward-current direction.
+- Added a white player footprint, orange circles/crosses/posts for nearby palm, broadleaf, rock,
+  and fallen-log collision proxies, and green edges for nearby shared 8 by 8 terrain/vegetation
+  cells. These local diagnostics use an intentionally x-ray line pass so grass, terrain, and dense
+  foliage cannot hide collision state, while the long-distance shoreline contours remain
+  depth-aware.
+- Added heading arrows for nearby birds, fish, the shark, and monkeys. Full-tier markers retain
+  species/state colours, reduced simulation uses yellow, and dormant simulation uses grey; monkey
+  full-tier colours distinguish idle, observe, ordinary locomotion, and run-away behaviour. The
+  F1 panel reports visible obstacles, cells, wildlife markers, total line count, and the two debug
+  draw submissions.
+- Kept the feature entirely inside island-simulator and on CNA public `BasicEffect` plus
+  `DrawUserPrimitives` APIs. The ordinary scene creates no debug vertices or draw submissions when
+  F1/F2 is inactive. No CNA or Sharp Runtime file was modified and no dependency defect was found.
+- Added `IslandGameWorldDebugCapture`, visually reviewed both overview and first-person beach
+  captures, and passed all 13 native tests including 12 real OpenGL 3.3 scenes. Rebuilt WebGL 2;
+  Chrome 152/SwiftShader passed the full renderer/input/audio harness with a synthesized F2 toggle
+  and successful world-line rendering. Rebuilt the arm64-v8a GLES 3 APK and passed app lint; F2
+  Android runtime remains unqualified without KVM or a physical device.
 
 ## Session-end checklist
 

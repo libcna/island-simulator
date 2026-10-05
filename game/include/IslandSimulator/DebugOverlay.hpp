@@ -106,6 +106,12 @@ namespace island
         int playedBirdCalls = 0;
         int playedMonkeyCalls = 0;
         bool wildlifeCallActive = false;
+        bool worldDebugVisible = false;
+        int worldDebugObstacles = 0;
+        int worldDebugCells = 0;
+        int worldDebugWildlife = 0;
+        int worldDebugLines = 0;
+        int worldDebugDraws = 0;
     };
 
     /** @brief Small asset-free bitmap-font overlay for renderer and gameplay diagnostics. */
