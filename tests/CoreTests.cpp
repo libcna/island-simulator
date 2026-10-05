@@ -316,9 +316,12 @@ int main()
           "understory population stays inside its first performance budget");
     Check(jungle.Bushes().size() >= 150U && jungle.Bushes().size() <= 1400U,
           "low-bush population stays inside its first performance budget");
+    Check(jungle.GroundPlants().size() >= 600U && jungle.GroundPlants().size() <= 5000U,
+          "forest-floor plant population stays inside its first performance budget");
     Check(jungle.Canopy().size() == repeatedJungle.Canopy().size()
               && jungle.Understory().size() == repeatedJungle.Understory().size()
-              && jungle.Bushes().size() == repeatedJungle.Bushes().size(),
+              && jungle.Bushes().size() == repeatedJungle.Bushes().size()
+              && jungle.GroundPlants().size() == repeatedJungle.GroundPlants().size(),
           "jungle populations are deterministic");
     Check(jungle.Obstacles().size() == jungle.Canopy().size(),
           "every broadleaf canopy trunk has one collision proxy");
@@ -391,6 +394,27 @@ int main()
         Check(bush.scale >= island::JungleLayout::BushMinimumScale
                   && bush.scale <= island::JungleLayout::BushMaximumScale,
               "low-bush scale remains in the authored range");
+    }
+    for (std::size_t index = 0; index < jungle.GroundPlants().size(); ++index) {
+        const island::GroundPlantPlacement& plant = jungle.GroundPlants()[index];
+        const island::GroundPlantPlacement& repeated = repeatedJungle.GroundPlants()[index];
+        const island::TerrainSample sample = terrain.Sample(plant.x, plant.z);
+        Check(plant.x == repeated.x && plant.y == repeated.y && plant.z == repeated.z
+                  && plant.yawRadians == repeated.yawRadians && plant.scale == repeated.scale
+                  && plant.variant == repeated.variant,
+              "forest-floor plant placement is bitwise deterministic for one seed");
+        Check(sample.signedShoreDistance >= 27.0f
+                  && sample.signedShoreDistance <= 238.0f,
+              "forest-floor plants remain inside their coastal-to-interior belt");
+        Check(sample.height >= 2.5f && sample.slopeRadians <= 0.5585054f,
+              "forest-floor plants remain on suitable ground");
+        Check(!island::VegetationLayout::IsReservedRoute(plant.x, plant.z),
+              "forest-floor plants keep paths, clearings, and player spawn open");
+        Check(plant.variant < island::JungleLayout::GroundPlantVariantCount,
+              "forest-floor plant variant index remains in range");
+        Check(plant.scale >= island::JungleLayout::GroundPlantMinimumScale
+                  && plant.scale <= island::JungleLayout::GroundPlantMaximumScale,
+              "forest-floor plant scale remains in the authored range");
     }
 
     const island::NaturalPropLayout props(terrain, vegetation, jungle);

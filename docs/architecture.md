@@ -19,9 +19,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── GrassLayout ──────── deterministic density, scale, phase, and colour anchors
       │       │
       │       └── GrassRenderer ─ near/far blade clusters, cell culling, instancing, and wind
-      ├── JungleLayout ─────── canopy/understory/bush placement and canopy trunk proxies
+      ├── JungleLayout ─────── canopy/understory/bush/ground placement and trunk proxies
       │       │
-      │       └── JungleRenderer ─ canopy/understory/bush LOD, culling, instancing, and wind
+      │       └── JungleRenderer ─ four-layer LOD, culling, instancing, and wind
       ├── NaturalPropLayout ── rock/log/driftwood placement and solid-prop collision proxies
       │       │
       │       └── NaturalPropRenderer ─ rock/log meshes, LOD, culling, and instancing
@@ -143,14 +143,17 @@ path keeps denser but shorter turf rather than an artificial bare stripe. Distan
 the far tier into the ground before culling. Native OpenGL 3.3 and WebGL 2 use the portable
 instanced shader; a slower static `BasicEffect` path is retained for unsupported renderers.
 
-The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, and 565 low bushes. Four
+The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
+2,225 small forest-floor plants. Four
 canopy variants combine tapered trunks with clustered low-poly crowns; four understory variants
 build fern and broad-leaf silhouettes from curved opaque strips. Three bush variants combine
-offset low ellipsoid lobes to bridge the visual gap between grass and medium plants. Placement uses
+offset low ellipsoid lobes to bridge the visual gap between grass and medium plants. Three small
+rosette variants use short curved opaque leaves to break up grass-heavy ground at first-person
+range. Placement uses
 independent broad/fine cluster fields plus terrain height, slope, and shoreline constraints while
 preserving the winding route, two clearings, and beach spawn. Each layer has independent near/far
 distances but remains gathered into variant batches; the deterministic jungle camera renders 102
-bushes while raising jungle submissions from 15 to 21. A portable GLSL 330 / GLSL ES 300 shader
+bushes and 129 ground plants in 24 submissions. A portable GLSL 330 / GLSL ES 300 shader
 applies weighted calm wind, and `BasicEffect` remains the explicit fallback. Native OpenGL 3.3 and
 actual Chromium/WebGL 2 execute the full shader; the current arm64 GLES 3 package compiles but has
 not been rerun on stable Android hardware.

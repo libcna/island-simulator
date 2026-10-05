@@ -18,6 +18,8 @@ namespace island
         constexpr int UnderstoryRadius = 50;
         constexpr float BushSpacing = 8.4f;
         constexpr int BushRadius = 35;
+        constexpr float GroundPlantSpacing = 4.7f;
+        constexpr int GroundPlantRadius = 58;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -194,6 +196,54 @@ namespace island
                 bush.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0x5be0cd19U) % BushVariantCount);
                 bushes_.push_back(bush);
+            }
+        }
+
+        groundPlants_.reserve(3400U);
+        for (int gridZ = -GroundPlantRadius; gridZ <= GroundPlantRadius; ++gridZ) {
+            for (int gridX = -GroundPlantRadius; gridX <= GroundPlantRadius; ++gridX) {
+                const std::uint32_t siteHash = Hash(gridX, gridZ, seed ^ 0x243f6a88U);
+                const float jitterX = (UnitRandom(siteHash) - 0.5f)
+                    * GroundPlantSpacing * 0.82f;
+                const float jitterZ = (UnitRandom(Hash(
+                    gridX, gridZ, seed ^ 0x85a308d3U)) - 0.5f)
+                    * GroundPlantSpacing * 0.82f;
+                const float x = static_cast<float>(gridX) * GroundPlantSpacing + jitterX;
+                const float z = static_cast<float>(gridZ) * GroundPlantSpacing + jitterZ;
+                const TerrainSample sample = terrain.Sample(x, z);
+                if (sample.signedShoreDistance < 27.0f
+                    || sample.signedShoreDistance > 238.0f
+                    || sample.height < 2.5f || sample.slopeRadians > 0.5585054f
+                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    continue;
+                }
+
+                const float interior = SmoothStep(
+                    (sample.signedShoreDistance - 27.0f) / 74.0f);
+                const float broadCluster = ClusterNoise(
+                    x, z, seed ^ 0x13198a2eU, 35.0f);
+                const float fineCluster = ClusterNoise(
+                    x, z, seed ^ 0x03707344U, 13.0f);
+                const float density = std::clamp(
+                    (0.20f + 0.34f * interior)
+                        * (0.50f + 0.58f * broadCluster + 0.23f * fineCluster),
+                    0.0f, 0.71f);
+                if (UnitRandom(Hash(gridX, gridZ, seed ^ 0xa4093822U)) >= density) {
+                    continue;
+                }
+
+                GroundPlantPlacement plant;
+                plant.x = x;
+                plant.y = sample.height + 0.009f;
+                plant.z = z;
+                plant.yawRadians = UnitRandom(Hash(gridX, gridZ, seed ^ 0x299f31d0U))
+                    * 2.0f * std::numbers::pi_v<float>;
+                plant.scale = GroundPlantMinimumScale
+                    + (GroundPlantMaximumScale - GroundPlantMinimumScale)
+                        * UnitRandom(Hash(gridX, gridZ, seed ^ 0x082efa98U));
+                plant.variant = static_cast<std::uint8_t>(
+                    Hash(gridX, gridZ, seed ^ 0xec4e6c89U) % GroundPlantVariantCount);
+                groundPlants_.push_back(plant);
             }
         }
     }

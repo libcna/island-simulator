@@ -26,7 +26,8 @@ Current fields are:
 - active renderer identity;
 - visible/total terrain cells;
 - visible/total palms, near/far LOD population, cells, and draw submissions;
-- visible/total broadleaf canopy, understory, and low-bush populations plus cells/draw submissions;
+- visible/total broadleaf canopy, understory, low-bush, and forest-floor populations plus
+  cells/draw submissions;
 - visible/total rocks, fallen logs, and beach driftwood plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, and draw submissions;
 - audio availability/mute state and current surf/breeze mix levels.

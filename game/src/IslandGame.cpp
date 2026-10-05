@@ -614,6 +614,8 @@ namespace island
             overlayState.totalUnderstory = jungleRenderer_->TotalUnderstoryCount();
             overlayState.visibleBushes = jungleRenderer_->VisibleBushCount();
             overlayState.totalBushes = jungleRenderer_->TotalBushCount();
+            overlayState.visibleGroundPlants = jungleRenderer_->VisibleGroundPlantCount();
+            overlayState.totalGroundPlants = jungleRenderer_->TotalGroundPlantCount();
             overlayState.jungleCells = jungleRenderer_->VisibleCellCount();
             overlayState.jungleDraws = jungleRenderer_->DrawCallCount();
             overlayState.visibleRocks = naturalPropRenderer_->VisibleRockCount();
@@ -652,6 +654,8 @@ namespace island
                       << jungleRenderer_->TotalUnderstoryCount() << " understory, "
                       << jungleRenderer_->VisibleBushCount() << '/'
                       << jungleRenderer_->TotalBushCount() << " bushes, "
+                      << jungleRenderer_->VisibleGroundPlantCount() << '/'
+                      << jungleRenderer_->TotalGroundPlantCount() << " ground plants, "
                       << jungleRenderer_->DrawCallCount() << " draws; props "
                       << naturalPropRenderer_->VisibleRockCount() << '/'
                       << naturalPropRenderer_->TotalRockCount() << " rocks, "

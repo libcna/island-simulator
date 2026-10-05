@@ -42,6 +42,17 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One small non-solid rosette or forest-floor plant. */
+    struct GroundPlantPlacement
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yawRadians = 0.0f;
+        float scale = 1.0f;
+        std::uint8_t variant = 0U;
+    };
+
     /** @brief Renderer-independent layout for the island's layered interior jungle. */
     class JungleLayout final
     {
@@ -50,12 +61,15 @@ namespace island
         static constexpr int CanopyVariantCount = 4;
         static constexpr int UnderstoryVariantCount = 4;
         static constexpr int BushVariantCount = 3;
+        static constexpr int GroundPlantVariantCount = 3;
         static constexpr float CanopyMinimumScale = 0.78f;
         static constexpr float CanopyMaximumScale = 1.28f;
         static constexpr float UnderstoryMinimumScale = 0.72f;
         static constexpr float UnderstoryMaximumScale = 1.34f;
         static constexpr float BushMinimumScale = 0.68f;
         static constexpr float BushMaximumScale = 1.26f;
+        static constexpr float GroundPlantMinimumScale = 0.58f;
+        static constexpr float GroundPlantMaximumScale = 1.22f;
 
         explicit JungleLayout(const IslandTerrain& terrain,
                               std::uint32_t seed = DefaultSeed);
@@ -75,6 +89,11 @@ namespace island
             return bushes_;
         }
 
+        [[nodiscard]] const std::vector<GroundPlantPlacement>& GroundPlants() const noexcept
+        {
+            return groundPlants_;
+        }
+
         [[nodiscard]] const std::vector<CircularObstacle>& Obstacles() const noexcept
         {
             return obstacles_;
@@ -91,6 +110,7 @@ namespace island
         std::vector<CanopyPlacement> canopy_;
         std::vector<UnderstoryPlacement> understory_;
         std::vector<BushPlacement> bushes_;
+        std::vector<GroundPlantPlacement> groundPlants_;
         std::vector<CircularObstacle> obstacles_;
     };
 }

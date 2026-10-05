@@ -25,7 +25,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
-    /** @brief Instanced canopy, medium understory, and low bushes with portable LOD. */
+    /** @brief Instanced canopy, understory, bushes, and forest-floor plants with portable LOD. */
     class JungleRenderer final
     {
     public:
@@ -48,9 +48,14 @@ namespace island
         [[nodiscard]] int TotalCanopyCount() const noexcept { return totalCanopyCount_; }
         [[nodiscard]] int TotalUnderstoryCount() const noexcept { return totalUnderstoryCount_; }
         [[nodiscard]] int TotalBushCount() const noexcept { return totalBushCount_; }
+        [[nodiscard]] int TotalGroundPlantCount() const noexcept { return totalGroundPlantCount_; }
         [[nodiscard]] int VisibleCanopyCount() const noexcept { return visibleCanopyCount_; }
         [[nodiscard]] int VisibleUnderstoryCount() const noexcept { return visibleUnderstoryCount_; }
         [[nodiscard]] int VisibleBushCount() const noexcept { return visibleBushCount_; }
+        [[nodiscard]] int VisibleGroundPlantCount() const noexcept
+        {
+            return visibleGroundPlantCount_;
+        }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
 
@@ -77,6 +82,7 @@ namespace island
             std::vector<DrawInstance> canopy;
             std::vector<DrawInstance> understory;
             std::vector<DrawInstance> bushes;
+            std::vector<DrawInstance> groundPlants;
             bool occupied = false;
         };
 
@@ -96,6 +102,8 @@ namespace island
         std::array<PlantMesh, JungleLayout::UnderstoryVariantCount> understoryFarMeshes_;
         std::array<PlantMesh, JungleLayout::BushVariantCount> bushNearMeshes_;
         std::array<PlantMesh, JungleLayout::BushVariantCount> bushFarMeshes_;
+        std::array<PlantMesh, JungleLayout::GroundPlantVariantCount> groundPlantNearMeshes_;
+        std::array<PlantMesh, JungleLayout::GroundPlantVariantCount> groundPlantFarMeshes_;
         std::array<JungleCell, TerrainMeshLayout::CellCount> cells_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    JungleLayout::CanopyVariantCount> visibleCanopyNear_;
@@ -109,15 +117,21 @@ namespace island
                    JungleLayout::BushVariantCount> visibleBushNear_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    JungleLayout::BushVariantCount> visibleBushFar_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   JungleLayout::GroundPlantVariantCount> visibleGroundPlantNear_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   JungleLayout::GroundPlantVariantCount> visibleGroundPlantFar_;
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
         int totalCanopyCount_ = 0;
         int totalUnderstoryCount_ = 0;
         int totalBushCount_ = 0;
+        int totalGroundPlantCount_ = 0;
         int visibleCanopyCount_ = 0;
         int visibleUnderstoryCount_ = 0;
         int visibleBushCount_ = 0;
+        int visibleGroundPlantCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
     };

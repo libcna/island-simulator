@@ -133,7 +133,8 @@ try {
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
-    && result.output?.includes("jungle portable wind shader with canopy/understory/bush LOD")
+    && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
+    && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("portable instanced wind shader")
@@ -245,7 +246,7 @@ try {
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
       "island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
-    && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush LOD")
+    && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
     && visualResult.output?.includes("portable instanced wind shader")
     && visualResult.output?.includes("island-simulator: terrain")
@@ -278,7 +279,7 @@ try {
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
     && beachResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
-    && beachResult.output?.includes("jungle portable wind shader with canopy/understory/bush LOD")
+    && beachResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && beachResult.output?.includes("portable instanced wind shader")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
@@ -309,8 +310,8 @@ try {
   await writeFile(jungleScreenshotPath, Buffer.from(jungleScreenshot.data, "base64"));
   const junglePassed = jungleResult.output?.includes("island-simulator: renderer WEBGL2")
     && jungleResult.output?.includes("island-simulator: fixed sunny sky portable shader")
-    && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush LOD")
-    && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes/.test(
+    && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
+    && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 
@@ -340,6 +341,7 @@ try {
   const propPassed = propResult.output?.includes("island-simulator: renderer WEBGL2")
     && propResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && propResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && /props [0-9]+\/152 rocks, [1-9][0-9]*\/11 logs/.test(propResult.output ?? "")
     && !propResult.error;
 

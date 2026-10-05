@@ -224,6 +224,7 @@ namespace island
         jungle << "JUNGLE C " << state.visibleCanopy << '/' << state.totalCanopy
                << " U " << state.visibleUnderstory << '/' << state.totalUnderstory
                << " B " << state.visibleBushes << '/' << state.totalBushes
+               << " G " << state.visibleGroundPlants << '/' << state.totalGroundPlants
                << "  CELLS " << state.jungleCells << " DRAWS " << state.jungleDraws;
         lines.push_back(jungle.str());
 
