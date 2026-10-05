@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -528,6 +529,80 @@ int main()
     Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
               + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
           "bird simulation tiers account for the complete flock");
+
+    island::FishSchools fishSchools(terrain);
+    island::FishSchools repeatedFishSchools(terrain);
+    Check(fishSchools.Fish().size() == island::FishSchools::FishCount,
+          "fish schools have the intended bounded population");
+    std::array<int, island::FishSchools::SchoolCount> fishPerSchool{};
+    for (std::size_t index = 0; index < fishSchools.Fish().size(); ++index) {
+        const island::FishState& fish = fishSchools.Fish()[index];
+        const island::FishState& repeated = repeatedFishSchools.Fish()[index];
+        const island::TerrainSample sample = terrain.Sample(fish.x, fish.z);
+        Check(fish.x == repeated.x && fish.y == repeated.y && fish.z == repeated.z
+                  && fish.headingRadians == repeated.headingRadians
+                  && fish.bodyWave == repeated.bodyWave && fish.speed == repeated.speed
+                  && fish.scale == repeated.scale && fish.schoolIndex == repeated.schoolIndex
+                  && fish.colorVariant == repeated.colorVariant,
+              "fish initialization is deterministic");
+        Check(fish.schoolIndex < island::FishSchools::SchoolCount,
+              "fish school indices stay in range");
+        ++fishPerSchool[fish.schoolIndex];
+        Check(sample.signedShoreDistance <= -2.8f
+                  && sample.signedShoreDistance >= -48.2f,
+              "fish initialize inside the authored near-shore water belt");
+        Check(sample.height <= -0.5f && fish.y >= sample.height + 0.20f
+                  && fish.y <= -0.20f,
+              "fish initialize between the seabed and water surface");
+    }
+    for (const int population : fishPerSchool) {
+        Check(population == static_cast<int>(island::FishSchools::FishPerSchool),
+              "each deterministic fish school has the intended population");
+    }
+
+    const island::FishState initialLeadFish = fishSchools.Fish().front();
+    bool observedFishTailLeft = false;
+    bool observedFishTailRight = false;
+    constexpr int fishSimulationFrames = 18000;
+    for (int frame = 0; frame < fishSimulationFrames; ++frame) {
+        const island::FishState observerFish = fishSchools.Fish().front();
+        fishSchools.Update(1.0f / 30.0f, observerFish.x, observerFish.y, observerFish.z);
+        repeatedFishSchools.Update(1.0f / 30.0f, observerFish.x,
+                                   observerFish.y, observerFish.z);
+        const auto fishStates = fishSchools.Fish();
+        const auto repeatedStates = repeatedFishSchools.Fish();
+        for (std::size_t index = 0; index < fishStates.size(); ++index) {
+            const island::FishState& fish = fishStates[index];
+            const island::FishState& repeated = repeatedStates[index];
+            const island::TerrainSample sample = terrain.Sample(fish.x, fish.z);
+            Check(fish.x == repeated.x && fish.y == repeated.y && fish.z == repeated.z
+                      && fish.headingRadians == repeated.headingRadians
+                      && fish.bodyWave == repeated.bodyWave
+                      && fish.simulationTier == repeated.simulationTier,
+                  "fish simulation remains deterministic over a long session");
+            Check(std::isfinite(fish.x) && std::isfinite(fish.y)
+                      && std::isfinite(fish.z) && std::isfinite(fish.headingRadians),
+                  "fish pose remains finite over a long session");
+            Check(sample.signedShoreDistance <= -2.8f
+                      && sample.signedShoreDistance >= -48.2f,
+                  "fish remain inside the authored near-shore water belt");
+            Check(sample.height <= -0.5f && fish.y >= sample.height + 0.18f
+                      && fish.y <= -0.18f,
+                  "fish remain below the surface and above the seabed");
+            observedFishTailLeft = observedFishTailLeft || fish.bodyWave > 0.65f;
+            observedFishTailRight = observedFishTailRight || fish.bodyWave < -0.65f;
+        }
+    }
+    const island::FishState finalLeadFish = fishSchools.Fish().front();
+    Check(std::hypot(finalLeadFish.x - initialLeadFish.x,
+                     finalLeadFish.z - initialLeadFish.z) > 20.0f,
+          "fish schools traverse a meaningful section of shoreline over time");
+    Check(observedFishTailLeft && observedFishTailRight,
+          "fish animation visits both tail-stroke extremes");
+    Check(fishSchools.FullSimulationCount() + fishSchools.ReducedSimulationCount()
+              + fishSchools.DormantSimulationCount()
+              == static_cast<int>(island::FishSchools::FishCount),
+          "fish simulation tiers account for every school member");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");

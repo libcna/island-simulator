@@ -64,6 +64,14 @@ namespace island
         int reducedSimulationBirds = 0;
         int dormantSimulationBirds = 0;
         int birdDraws = 0;
+        int visibleFish = 0;
+        int totalFish = 0;
+        int nearFish = 0;
+        int farFish = 0;
+        int fullSimulationFish = 0;
+        int reducedSimulationFish = 0;
+        int dormantSimulationFish = 0;
+        int fishDraws = 0;
         bool audioAvailable = false;
         bool audioMuted = false;
         float surfVolume = 0.0f;

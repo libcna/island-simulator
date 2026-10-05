@@ -11,7 +11,8 @@ LOD, while vegetation uses a calm breeze. It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
-wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. The
+wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. Eight
+near-shore schools add 48 animated fish constrained between the seabed and water surface. The
 current audio pass adds original procedural shoreline surf, two varied occasional stronger waves, light
 canopy breeze, a subtle daytime-jungle texture, speed/depth-responsive movement through shallow or
 swimming water, and two restrained water-entry/exit textures without external sound files. The
@@ -63,13 +64,13 @@ rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-l
 water with hysteresis. Rock/complex prop collision and geometric step-up are not implemented yet.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, vegetation draw statistics, ambient mix levels, player-water gain, and wave count.
-Press M to mute or unmute the soundscape. While the overlay is visible, F5 through F8 teleport among
-four fixed QA locations. The overlay starts hidden in a normal run and can be enabled at launch
-with `--debug-overlay` for automated QA.
+Press M to mute or unmute the soundscape. While the overlay is visible, F5 through F9 teleport
+among five fixed QA locations, including a view toward the south fish shallows. The overlay starts
+hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
 and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four
-frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird screenshots, and portable
+frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird/fish screenshots, and portable
 overlay text rendering.
 The Chromium harness also drives first-click pointer lock and audio start, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F1,

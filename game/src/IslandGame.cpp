@@ -102,6 +102,7 @@ namespace island
                            const bool inputDiagnostics)
         : graphics_(this),
           birdFlock_(terrain_),
+          fishSchools_(terrain_),
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
@@ -184,6 +185,16 @@ namespace island
             const Vector3 toBird = Vector3(bird.x, bird.y, bird.z) - cameraPosition_;
             yaw_ = std::atan2(toBird.X, toBird.Z);
             pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));
+        } else if (viewpoint_ == FixedViewpoint::FishDetail
+                   && !fishSchools_.Fish().empty()) {
+            const FishState& fish = fishSchools_.Fish().front();
+            const Vector3 radial = Vector3::Normalize(Vector3(fish.x, 0.0f, fish.z));
+            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            cameraPosition_ = Vector3(fish.x, fish.y, fish.z)
+                + radial * 8.5f + tangent * 1.5f + Vector3::Up * 3.4f;
+            const Vector3 toFish = Vector3(fish.x, fish.y, fish.z) - cameraPosition_;
+            yaw_ = std::atan2(toFish.X, toFish.Z);
+            pitch_ = std::atan2(toFish.Y, std::hypot(toFish.X, toFish.Z));
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -213,6 +224,7 @@ namespace island
 
         CreateTerrainMesh();
         birdRenderer_ = std::make_unique<BirdRenderer>(device);
+        fishRenderer_ = std::make_unique<FishRenderer>(device);
         grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
         jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
@@ -236,7 +248,10 @@ namespace island
                   << terrainPrimitiveCount_ << " triangles in " << terrainCells_.size()
                   << " cells\n"
                   << "island-simulator: birds " << birdFlock_.Birds().size()
-                  << " agents in a distance-throttled one-batch simulation\n";
+                  << " agents in a distance-throttled one-batch simulation\n"
+                  << "island-simulator: fish " << fishSchools_.Fish().size()
+                  << " agents in " << FishSchools::SchoolCount
+                  << " distance-throttled shallow-water schools\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -329,6 +344,7 @@ namespace island
             UpdateCamera(deltaSeconds);
         }
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         if (inputDiagnostics_) {
             inputDiagnosticsTimer_ += deltaSeconds;
             if (inputDiagnosticsTimer_ >= 0.25f) {
@@ -420,10 +436,10 @@ namespace island
         }
         debugOverlayToggleWasDown_ = debugOverlayToggleDown;
 
-        constexpr std::array<Keys, 4> teleportKeys = {
-            Keys::F5, Keys::F6, Keys::F7, Keys::F8};
-        constexpr std::array<const char*, 4> teleportNames = {
-            "south beach", "jungle trail", "east clearing", "west clearing"};
+        constexpr std::array<Keys, 5> teleportKeys = {
+            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9};
+        constexpr std::array<const char*, 5> teleportNames = {
+            "south beach", "jungle trail", "east clearing", "west clearing", "fish shallows"};
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
@@ -444,6 +460,14 @@ namespace island
                     x = -82.0f;
                     z = 62.0f;
                     yaw_ = std::numbers::pi_v<float> * 0.25f;
+                } else if (index == 4U && !fishSchools_.Fish().empty()) {
+                    const FishState& fish = fishSchools_.Fish().front();
+                    const float angle = std::atan2(fish.z, fish.x);
+                    const float radius = terrain_.ShoreRadius(angle) - 2.5f;
+                    x = std::cos(angle) * radius;
+                    z = std::sin(angle) * radius;
+                    yaw_ = std::atan2(fish.x - x, fish.z - z);
+                    pitch_ = -0.16f;
                 }
                 playerMotion_.SetPosition(terrain_, x, z);
                 const PlayerPosition& teleported = playerMotion_.Position();
@@ -605,6 +629,10 @@ namespace island
                             terrainEffect_->getProjectionProperty(), cameraPosition_,
                             birdFlock_.Birds());
 
+        fishRenderer_->Draw(terrainEffect_->getViewProperty(),
+                            terrainEffect_->getProjectionProperty(), cameraPosition_,
+                            fishSchools_.Fish());
+
         oceanRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
@@ -664,6 +692,14 @@ namespace island
             overlayState.reducedSimulationBirds = birdFlock_.ReducedSimulationCount();
             overlayState.dormantSimulationBirds = birdFlock_.DormantSimulationCount();
             overlayState.birdDraws = birdRenderer_->DrawCallCount();
+            overlayState.visibleFish = fishRenderer_->VisibleFishCount();
+            overlayState.totalFish = static_cast<int>(fishSchools_.Fish().size());
+            overlayState.nearFish = fishRenderer_->VisibleNearFishCount();
+            overlayState.farFish = fishRenderer_->VisibleFarFishCount();
+            overlayState.fullSimulationFish = fishSchools_.FullSimulationCount();
+            overlayState.reducedSimulationFish = fishSchools_.ReducedSimulationCount();
+            overlayState.dormantSimulationFish = fishSchools_.DormantSimulationCount();
+            overlayState.fishDraws = fishRenderer_->DrawCallCount();
             overlayState.audioAvailable = soundscape_ && soundscape_->IsAvailable();
             overlayState.audioMuted = soundscape_ && soundscape_->IsMuted();
             if (soundscape_) {
@@ -711,7 +747,12 @@ namespace island
                       << birdFlock_.Birds().size() << " visible (near "
                       << birdRenderer_->VisibleNearBirdCount() << ", far "
                       << birdRenderer_->VisibleFarBirdCount() << "), "
-                      << birdRenderer_->DrawCallCount() << " draw\n";
+                      << birdRenderer_->DrawCallCount() << " draw; fish "
+                      << fishRenderer_->VisibleFishCount() << '/'
+                      << fishSchools_.Fish().size() << " visible (near "
+                      << fishRenderer_->VisibleNearFishCount() << ", far "
+                      << fishRenderer_->VisibleFarFishCount() << "), "
+                      << fishRenderer_->DrawCallCount() << " draw\n";
         }
         ++drawnFrames_;
         if (!capturePath_.empty() && drawnFrames_ == SmokeTestFrames) {

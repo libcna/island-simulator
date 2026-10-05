@@ -184,8 +184,8 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(13U);
-        lines.emplace_back("F1 DEBUG  F5-F8 TELEPORT  M MUTE");
+        lines.reserve(14U);
+        lines.emplace_back("F1 DEBUG  F5-F9 TELEPORT  M MUTE");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
@@ -247,6 +247,14 @@ namespace island
               << state.reducedSimulationBirds << '/' << state.dormantSimulationBirds
               << "  DRAWS " << state.birdDraws;
         lines.push_back(birds.str());
+
+        auto fish = DiagnosticLine();
+        fish << "FISH " << state.visibleFish << '/' << state.totalFish
+             << "  NEAR " << state.nearFish << " FAR " << state.farFish
+             << "  SIM " << state.fullSimulationFish << '/'
+             << state.reducedSimulationFish << '/' << state.dormantSimulationFish
+             << "  DRAWS " << state.fishDraws;
+        lines.push_back(fish.str());
 
         auto audio = DiagnosticLine();
         audio << "AUDIO " << (state.audioAvailable ? (state.audioMuted ? "MUTED" : "ACTIVE")

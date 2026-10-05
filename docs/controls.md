@@ -8,7 +8,7 @@
 | Mouse | Look around while captured |
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
-| F5 / F6 / F7 / F8 | With the overlay visible, teleport to four fixed QA locations |
+| F5 / F6 / F7 / F8 / F9 | With the overlay visible, teleport to five fixed QA locations; F9 faces the south fish shallows |
 | M | Mute or unmute the ambient soundscape |
 | Escape | Release captured mouse; press again to exit |
 

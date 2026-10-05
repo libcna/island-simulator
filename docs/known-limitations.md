@@ -36,8 +36,10 @@ been confirmed so far.
 
 - A first 24-bird procedural flock has varied shore/canopy/high paths, animated wing strokes,
   culling, terrain clearance, and distance-scaled simulation. It still lacks calls, perching,
-  landing, and long subjective behaviour tuning. Fish, the occasional shark, monkeys, and skeletal
-  animation are not implemented yet.
+  landing, and long subjective behaviour tuning. Eight shallow-water schools add 48 fish with
+  depth/shore constraints, animated tails, culling, and distance-scaled simulation; their geometry,
+  schooling variation, water integration, and long subjective tuning remain first-pass quality.
+  The occasional shark, monkeys, and skeletal animation are not implemented yet.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
   through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional
@@ -58,7 +60,7 @@ been confirmed so far.
 ## Development tooling
 
 - The overlay reports frame timing, player/water state, renderer identity, terrain/vegetation
-  visibility, LOD populations, draw counts, bird render/simulation tiers, current
+  visibility, LOD populations, draw counts, bird/fish render and simulation tiers, current
   surf/breeze/jungle/player-water levels, played
   wave/splash counts, and mute/availability state. It does not yet provide world-space collision,
   shoreline/current, cell, wildlife, or audio-emitter visualization.

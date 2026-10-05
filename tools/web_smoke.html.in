@@ -37,7 +37,8 @@
               : (mode === "props" ? ["--viewpoint", "props", "--debug-overlay"]
                 : (mode === "driftwood" ? ["--viewpoint", "driftwood", "--debug-overlay"]
                   : (mode === "birds" ? ["--viewpoint", "birds", "--debug-overlay"]
-                    : ["--smoke-test"]))))))),
+                    : (mode === "fish" ? ["--viewpoint", "fish", "--debug-overlay"]
+                      : ["--smoke-test"])))))))),
       canvas: document.getElementById("canvas"),
       print: (...values) => record("", values),
       printErr: (...values) => record("ERR: ", values),

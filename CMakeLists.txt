@@ -25,6 +25,7 @@ island_verify_dependencies()
 
 add_library(island_core STATIC
     game/src/BirdFlock.cpp
+    game/src/FishSchools.cpp
     game/src/GrassLayout.cpp
     game/src/IslandTerrain.cpp
     game/src/JungleLayout.cpp
@@ -145,6 +146,7 @@ if(ISLAND_BUILD_GAME)
     set(_island_game_sources
         game/src/BirdRenderer.cpp
         game/src/DebugOverlay.cpp
+        game/src/FishRenderer.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
         game/src/JungleRenderer.cpp
@@ -223,6 +225,10 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bird-capture.ppm"
                     --viewpoint birds)
         set_tests_properties(IslandGameBirdCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameFishCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-fish-capture.ppm"
+                    --viewpoint fish)
+        set_tests_properties(IslandGameFishCapture PROPERTIES TIMEOUT 30 LABELS display)
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

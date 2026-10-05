@@ -28,6 +28,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── BirdFlock ───────── deterministic shore/canopy/high flight and simulation tiers
       │       │
       │       └── BirdRenderer ─ CPU wing pose, near/far meshes, culling, one dynamic batch
+      ├── FishSchools ─────── deterministic depth-bounded schools and simulation tiers
+      │       │
+      │       └── FishRenderer ─ CPU tail pose, near/far meshes, culling, one dynamic batch
       ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
@@ -40,7 +43,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 ```
 
 `IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`,
-`NaturalPropLayout`, `BirdFlock`, `WildlifeActivationPolicy`, `TouchControls`, and
+`NaturalPropLayout`, `BirdFlock`, `FishSchools`, `WildlifeActivationPolicy`, `TouchControls`, and
 `SoundscapeModel` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
@@ -90,11 +93,12 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 6. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents.
-7. `BirdFlock` updates flight steering, terrain clearance, wing pose, and observer-relative
-   full/reduced/dormant cadence independently of the renderer.
+7. `BirdFlock` and `FishSchools` update steering, terrain/depth constraints, animation pose, and
+   observer-relative full/reduced/dormant cadence independently of their renderers.
 8. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, the
-   one-batch procedural birds, and transparent ocean using one view/projection pair.
+   one-batch procedural birds, shallow-water fish, and transparent ocean using one view/projection
+   pair. Fish are submitted before water so ocean transparency colours and reveals them.
 9. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
 10. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
@@ -188,6 +192,18 @@ shader or modern-only feature. Native OpenGL 3.3 and actual Chromium/WebGL 2 exe
 match the dedicated bird capture; the bird-inclusive arm64 GLES 3 APK builds, with runtime still
 awaiting a stable Android target.
 
+Eight deterministic shallow-water schools contain six fish each. Their route centres follow the
+authoritative irregular shoreline instead of a circular approximation; each route searches outward
+for sufficient seabed depth. Stable local formation offsets supply separation/cohesion while
+individual steering, speed, depth phase, and tail phase prevent rigid synchronized motion. Every
+proposed move must remain 3--48 m offshore on submerged terrain, and each vertical pose is clamped
+between a seabed clearance and the surface. School-level activation uses the same shared wildlife
+tiers, so only nearby water receives full-rate updates. `FishRenderer` selects near articulated
+body/fin geometry or a far silhouette, frustum/distance-culls agents, and streams all visible fish
+in one `DynamicVertexBuffer` draw before the transparent ocean. Native OpenGL 3.3 and actual
+Chromium/WebGL 2 dedicated captures match; the fish-inclusive arm64 GLES 3 APK builds but has not
+run on a stable Android target.
+
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
@@ -280,6 +296,6 @@ testing remain open.
   API 35 GLES3 frame is visually validated, but the host has no KVM and the software-emulated
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
-- The first flying-bird layer exists, but fish, shark, monkeys, wildlife calls, positional wildlife
-  audio, world-space debug visualization, and configuration UI do not. Four direct QA teleports
-  and a deterministic bird close-review camera are available.
+- The first flying-bird and shallow-water fish layers exist, but shark, monkeys, wildlife calls,
+  positional wildlife audio, world-space debug visualization, and configuration UI do not. Four
+  direct QA teleports and deterministic bird/fish close-review cameras are available.

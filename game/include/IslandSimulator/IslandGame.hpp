@@ -9,6 +9,8 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
 #include "IslandSimulator/DebugOverlay.hpp"
+#include "IslandSimulator/FishRenderer.hpp"
+#include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleRenderer.hpp"
@@ -44,7 +46,8 @@ namespace island
         JungleTrail,
         PropDetail,
         DriftwoodDetail,
-        BirdDetail
+        BirdDetail,
+        FishDetail
     };
 
     /** @brief Main application and first portable island rendering slice. */
@@ -97,6 +100,7 @@ namespace island
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
         BirdFlock birdFlock_;
+        FishSchools fishSchools_;
         GrassLayout grassLayout_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
@@ -108,6 +112,7 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> terrainEffect_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
+        std::unique_ptr<FishRenderer> fishRenderer_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
         std::unique_ptr<JungleRenderer> jungleRenderer_;
         std::unique_ptr<NaturalPropRenderer> naturalPropRenderer_;
@@ -130,7 +135,7 @@ namespace island
         bool debugOverlayToggleWasDown_ = false;
         bool muteToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
-        std::array<bool, 4> debugTeleportWasDown_{};
+        std::array<bool, 5> debugTeleportWasDown_{};
         bool inputDiagnostics_ = false;
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;

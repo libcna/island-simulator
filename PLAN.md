@@ -393,16 +393,19 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [~] Implement spawn regions, deterministic variation, simple steering, state timers, activation
   range, simulation LOD, animation state, and optional audio emitter. The first shared
   `WildlifeActivationPolicy` supplies full/quarter-rate/one-thirtieth-rate tiers, while `BirdFlock`
-  provides deterministic steering and animation pose; terrestrial/aquatic state timers and audio
-  emitters remain.
+  and `FishSchools` provide deterministic steering and animation pose; terrestrial state timers
+  and audio emitters remain.
 - [~] Validate positions against land/water/depth/slope constraints before and during movement.
-  Birds continuously enforce family-specific terrain clearance and bounded island-relative airspace;
-  fish/shark/monkey constraints remain.
+  Birds continuously enforce family-specific terrain clearance and bounded island-relative
+  airspace. Fish continuously enforce a 3--48 m offshore belt, submerged terrain, seabed clearance,
+  and surface clearance; shark/monkey constraints remain.
 - [ ] Add debug visualization for regions, paths, state, and activation tiers.
 - [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
   population, path-family mix, deterministic initialization/long-run motion, animation extremes,
   terrain clearance, route radius, and tier accounting are covered through a simulated 20-minute
-  flight; later species still need equivalent state/avoidance coverage.
+  flight. Fish population/school distribution, water validity, deterministic motion, tail extremes,
+  meaningful route travel, and tier accounting are covered through a simulated ten-minute swim;
+  later species still need equivalent state/avoidance coverage.
 
 ### Birds
 
@@ -419,9 +422,13 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 
 ### Fish and shark
 
-- [ ] Add shallow-water fish schools with depth bands, body motion, separation/cohesion, and land
-  avoidance based on authoritative water queries.
-- [ ] Activate/cull schools spatially; never simulate large invisible populations.
+- [x] Add shallow-water fish schools with depth bands, body motion, separation/cohesion, and land
+  avoidance based on authoritative water queries. Eight six-member schools follow the irregular
+  shore, search outward for sufficient depth, retain stable varied formation offsets, animate
+  individual body/tail phases, and reject invalid land/deep-ocean moves.
+- [x] Activate/cull schools spatially; never simulate large invisible populations. The fixed
+  48-agent budget uses school-level full/reduced/dormant simulation tiers, per-fish frustum/distance
+  culling, near/far meshes, and one dynamic-buffer draw submission.
 - [ ] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour.
 - [ ] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
@@ -748,7 +755,7 @@ after the same experience remains available.
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
-  draws, bird render LOD and simulation tiers, plus audio mix/event counters; world-space views and
+  draws, bird/fish render LOD and simulation tiers, plus audio mix/event counters; world-space views and
   warning budgets remain open.
 - [ ] Deterministic seed display/copy.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, and monkeys. South
@@ -759,8 +766,9 @@ after the same experience remains available.
 - [ ] Wildlife spawn region, state, steering, and simulation-tier visualization.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, jungle-trail, natural-prop, driftwood, and airborne bird-detail views are implemented
-  and used by native/browser captures; free camera and more landmark views remain open.
+  beach-path, jungle-trail, natural-prop, driftwood, airborne bird-detail, and shallow-water fish
+  views are implemented and used by native/browser captures; free camera and more landmark views
+  remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [ ] Frame-time capture and representative scene benchmark route.
 
@@ -798,14 +806,14 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Extend the tested wildlife foundation to shallow-water fish schools, including depth bands,
-   land avoidance, spatial activation, varied trajectories, body motion, and a one-batch portable
-   renderer; keep the completed bird layer under subjective observation during ordinary play.
+2. Extend the tested wildlife foundation to the occasional offshore shark: a rare non-hostile
+   patrol with deep-water constraints, credible body/tail motion, sparse activation, and portable
+   rendering. Keep the completed bird and fish layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
-4. Add shoreline/current, collision, vegetation-cell, and wildlife-route world-space visualization; four direct
-   F5--F8 QA teleports are complete.
+4. Add shoreline/current, collision, vegetation-cell, and wildlife-route world-space visualization;
+   five direct F5--F9 QA teleports, including the south fish shallows, are complete.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -1341,6 +1349,30 @@ Work next, in order:
   Android bird runtime and performance remain unqualified because the host has no KVM and no
   physical device is connected. The latest Linux build is open on the real desktop for play and
   behaviour review. No qualifying CNA or Sharp Runtime defect was found.
+
+### 2026-10-06 — First shallow-water fish schools
+
+- Added eight deterministic six-member schools around the irregular shoreline. Route centres use
+  `IslandTerrain::ShoreRadius`, search outward for sufficient depth, and move slowly in alternating
+  directions; stable formation offsets, individual steering, speed, depth, and tail phases create
+  cohesion without a rigid synchronized block.
+- Every proposed movement is validated against authoritative terrain and signed shore distance.
+  Fish remain on submerged terrain within the 3--48 m near-shore belt, at least 18 cm above the
+  sampled seabed, and below the water surface. Full/reduced/dormant activation occurs per school
+  through the shared wildlife policy rather than simulating all invisible fish at full rate.
+- Added original near/far low-poly body, tail, dorsal, and side-fin geometry with CPU body/tail
+  animation and four restrained tropical palettes. Individual frustum/distance culling gathers all
+  visible agents into one CNA dynamic-buffer draw before the transparent ocean, letting the water
+  shader tint and reveal them without a modern-only rendering feature.
+- Added F1 fish visibility, render-LOD, simulation-tier, and draw counters plus a deterministic
+  above-water shoreline composition camera. Core coverage simulates ten minutes and checks exact
+  population/school distribution, deterministic movement, finite pose, continuous water/depth
+  validity, meaningful shoreline travel, both tail extremes, and complete tier accounting.
+- Passed native OpenGL 3.3 smoke and dedicated fish capture review. Rebuilt WebGL 2 and passed the
+  complete actual-Chromium harness with a dedicated fish screenshot and nonzero 48-agent assertion;
+  native and browser captures agree. Rebuilt and linted the arm64-v8a GLES 3 APK successfully.
+  Android fish runtime/performance remain unqualified without KVM or a physical device. No
+  qualifying CNA or Sharp Runtime defect was found.
 
 ## Session-end checklist
 
