@@ -125,6 +125,7 @@ namespace island
                                jungleLayout_.Obstacles().end());
         worldObstacles_.insert(worldObstacles_.end(), naturalPropLayout_.Obstacles().begin(),
                                naturalPropLayout_.Obstacles().end());
+        monkeyTroop_.SetObstacles(worldObstacles_);
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -786,6 +787,7 @@ namespace island
                 }
             }
             overlayState.monkeyDraws = monkeyRenderer_->DrawCallCount();
+            overlayState.monkeyObstacleDeflections = monkeyTroop_.ObstacleDeflectionCount();
             overlayState.audioAvailable = soundscape_ && soundscape_->IsAvailable();
             overlayState.audioMuted = soundscape_ && soundscape_->IsMuted();
             if (soundscape_) {

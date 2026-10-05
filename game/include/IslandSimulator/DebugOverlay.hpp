@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -91,6 +92,7 @@ namespace island
         int walkingMonkeys = 0;
         int runningMonkeys = 0;
         int monkeyDraws = 0;
+        std::uint64_t monkeyObstacleDeflections = 0U;
         bool audioAvailable = false;
         bool audioMuted = false;
         float surfVolume = 0.0f;

@@ -36,7 +36,7 @@ Current fields are:
 - shark presence, visibility, activity, near/far render LOD, simulation tier, patrol cycles, and
   draw count;
 - visible/total monkeys, near/far render LOD, full/reduced/dormant simulation tiers, compact
-  idle/observe/walk/run state counts, and draw count;
+  idle/observe/walk/run state counts, draw count, and cumulative obstacle-avoidance deflections;
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, and played
   stronger-wave and water-transition counts.
 

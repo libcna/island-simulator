@@ -412,7 +412,8 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol.
   Monkey population, deterministic long-run state/motion, finite pose, terrain/slope validity,
   idle/observe/walk/run-away reachability, meaningful travel, and tier accounting are covered
-  through a simulated 20-minute session; prop avoidance still needs coverage after implementation.
+  through a simulated 20-minute session. The same run samples clearance against the complete
+  world obstacle set and requires deterministic steering deflections.
 
 ### Birds
 
@@ -460,9 +461,11 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [~] Blend or transition clips without visible snapping; synchronize movement with animation
   speed. Walk/run cycles are speed-matched first passes, but state changes currently restart clips
   without crossfading.
-- [~] Constrain monkeys to valid land/terrain regions and avoid water, steep slopes, and props.
-  Terrain, shore, slope, and bounded-home constraints are enforced continuously; individual
-  trunk/rock/log avoidance remains.
+- [x] Constrain monkeys to valid land/terrain regions and avoid water, steep slopes, and props.
+  Terrain, shore, slope, and bounded-home constraints are enforced continuously. The troop also
+  consumes the same palm, broadleaf, solid-rock, and fallen-log circular proxies as player
+  collision, validates spawn/target/movement clearance, and tries deterministic lateral steering
+  before abandoning an obstructed target.
 - [x] Add mild player awareness without enemies, attacks, quests, or interaction systems. A player
   within 7.5 m causes a brief bounded retreat followed by observation.
 - [x] Distance-throttle animation and decisions while preserving nearby quality. The shared
@@ -832,9 +835,10 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Polish the first GPU-skinned monkey troop: add short clip crossfades, trunk/rock/log avoidance,
-   more silhouette/material variation, and long subjective behaviour observation before adding
-   sparse monkey calls. Keep bird, fish, and shark layers under subjective observation during play.
+2. Polish the first GPU-skinned monkey troop: add short clip crossfades, more silhouette/material
+   variation, and long subjective behaviour observation before adding sparse monkey calls. Shared
+   trunk/rock/log avoidance is complete. Keep bird, fish, and shark layers under subjective
+   observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
@@ -1450,9 +1454,19 @@ Work next, in order:
   Chrome 152/SwiftShader harness, including a dedicated monkey capture with all four rendered
   animation states represented in the live troop. Rebuilt and linted the arm64-v8a GLES 3 APK.
   Android monkey runtime remains unqualified without KVM or a physical device.
-- Remaining monkey work is explicit: clip crossfades, obstacle avoidance, greater silhouette and
-  material variation, sparse positional calls, long subjective behaviour tuning, and stable
-  Android runtime validation.
+- Added a second navigation pass that installs the same palm, broadleaf, solid-rock, and
+  fallen-log collision proxies used by the player. Spawn, target, and every movement proposal now
+  preserve a 0.32 m body clearance; blocked agents try deterministic alternating lateral headings
+  before selecting a new state. The debug overlay exposes cumulative avoidance deflections.
+- Re-ran the twenty-minute core simulation against the complete deterministic world proxy set. It
+  verifies continuous sampled clearance, deterministic deflection counts, valid terrain, all
+  states and activation tiers, and meaningful travel. Remaining monkey work is explicit: clip
+  crossfades, greater silhouette/material variation, sparse positional calls, long subjective
+  behaviour tuning, and stable Android runtime validation.
+- Re-ran all eleven native OpenGL 3.3 smoke/capture scenes and visually reviewed the relocated
+  obstacle-aware monkey composition. Rebuilt WebGL 2 and passed the complete actual-Chromium
+  scene/input/audio-init harness with the same placement. Rebuilt and linted the arm64-v8a GLES 3
+  APK; device runtime remains explicitly unqualified.
 
 ## Session-end checklist
 

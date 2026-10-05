@@ -22,6 +22,7 @@
 #include <numeric>
 #include <numbers>
 #include <string_view>
+#include <vector>
 
 namespace
 {
@@ -668,8 +669,22 @@ int main()
     Check(sharkTravelDistance > 700.0f,
           "shark patrol covers a meaningful offshore route over time");
 
+    const island::VegetationLayout vegetation(terrain);
+    const island::JungleLayout jungle(terrain);
+    const island::NaturalPropLayout props(terrain, vegetation, jungle);
+    std::vector<island::CircularObstacle> worldObstacles;
+    worldObstacles.reserve(vegetation.Obstacles().size() + jungle.Obstacles().size()
+                           + props.Obstacles().size());
+    worldObstacles.insert(worldObstacles.end(), vegetation.Obstacles().begin(),
+                          vegetation.Obstacles().end());
+    worldObstacles.insert(worldObstacles.end(), jungle.Obstacles().begin(),
+                          jungle.Obstacles().end());
+    worldObstacles.insert(worldObstacles.end(), props.Obstacles().begin(),
+                          props.Obstacles().end());
     island::MonkeyTroop monkeys(terrain);
     island::MonkeyTroop repeatedMonkeys(terrain);
+    monkeys.SetObstacles(worldObstacles);
+    repeatedMonkeys.SetObstacles(worldObstacles);
     Check(monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount,
           "monkey troop has the intended bounded population");
     Check(monkeys.Monkeys().size() == repeatedMonkeys.Monkeys().size(),
@@ -724,6 +739,15 @@ int main()
                       && sample.slopeRadians <= 0.465f
                       && std::fabs(state.y - sample.height) < 0.001f,
                   "monkeys remain on supported traversable interior terrain");
+            if (frame % 30 == 0) {
+                for (const island::CircularObstacle& obstacle : worldObstacles) {
+                    const float minimumDistance = island::MonkeyTroop::CollisionRadius
+                        + std::max(0.0f, obstacle.radius);
+                    Check(std::hypot(state.x - obstacle.x, state.z - obstacle.z)
+                              >= minimumDistance - 0.001f,
+                          "monkeys remain outside trunk, rock, and log collision proxies");
+                }
+            }
             monkeyTravelDistance += std::hypot(
                 state.x - previousMonkeys[index].x,
                 state.z - previousMonkeys[index].z);
@@ -745,6 +769,10 @@ int main()
           "monkey troop exercises every simulation quality tier");
     Check(monkeyTravelDistance > 900.0f,
           "monkey troop covers meaningful valid ground during a long session");
+    Check(monkeys.ObstacleDeflectionCount() > 0U
+              && monkeys.ObstacleDeflectionCount()
+                  == repeatedMonkeys.ObstacleDeflectionCount(),
+          "monkey obstacle steering is exercised and remains deterministic");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");
@@ -820,7 +848,6 @@ int main()
     Check(maximumRadius < 275.0f, "shoreline remains near the 500 metre target");
     Check(maximumRadius - minimumRadius > 20.0f, "shoreline silhouette has variation");
 
-    const island::VegetationLayout vegetation(terrain);
     const island::VegetationLayout repeatedVegetation(terrain);
     Check(vegetation.Palms().size() >= 180U && vegetation.Palms().size() <= 520U,
           "palm population stays within the intended first performance budget");
@@ -898,7 +925,6 @@ int main()
         }
     }
 
-    const island::JungleLayout jungle(terrain);
     const island::JungleLayout repeatedJungle(terrain);
     Check(jungle.Canopy().size() >= 100U && jungle.Canopy().size() <= 600U,
           "broadleaf canopy population stays inside its first performance budget");
@@ -1007,7 +1033,6 @@ int main()
               "forest-floor plant scale remains in the authored range");
     }
 
-    const island::NaturalPropLayout props(terrain, vegetation, jungle);
     const island::NaturalPropLayout repeatedProps(terrain, vegetation, jungle);
     Check(props.Rocks().size() >= 30U && props.Rocks().size() <= 500U,
           "rock population stays inside its first performance budget");

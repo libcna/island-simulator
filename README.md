@@ -14,8 +14,8 @@ flock of 24 procedural birds follows varied shore, canopy, and high-altitude rou
 wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface. One
 non-hostile shark occasionally patrols deeper offshore water with a varied dive and tail cycle.
-Seven original procedural monkeys roam the interior using a compact autonomous state machine and
-portable CNA GPU skeletal animation. The
+Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine
+and portable CNA GPU skeletal animation. The
 current audio pass adds original procedural shoreline surf, two varied occasional stronger waves, light
 canopy breeze, a subtle daytime-jungle texture, speed/depth-responsive movement through shallow or
 swimming water, and two restrained water-entry/exit textures without external sound files. The

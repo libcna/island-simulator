@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "IslandSimulator/WildlifeSimulation.hpp"
+#include "IslandSimulator/WorldCollision.hpp"
 
 namespace island
 {
@@ -43,9 +44,12 @@ namespace island
         static constexpr std::size_t MonkeyCount = 7U;
         static constexpr float FullSimulationDistance = 95.0f;
         static constexpr float ReducedSimulationDistance = 245.0f;
+        static constexpr float CollisionRadius = 0.32f;
 
         explicit MonkeyTroop(const IslandTerrain& terrain);
 
+        /** @brief Installs solid world proxies and relocates any newly obstructed agents. */
+        void SetObstacles(std::span<const CircularObstacle> obstacles);
         void Update(float deltaSeconds, float observerX, float observerY,
                     float observerZ) noexcept;
 
@@ -56,6 +60,9 @@ namespace island
         }
         [[nodiscard]] int DormantSimulationCount() const noexcept {
             return dormantSimulationCount_;
+        }
+        [[nodiscard]] std::uint64_t ObstacleDeflectionCount() const noexcept {
+            return obstacleDeflectionCount_;
         }
 
     private:
@@ -77,12 +84,17 @@ namespace island
         void EnterState(Agent& agent, MonkeyBehavior behavior) noexcept;
         void ChooseWanderTarget(Agent& agent) noexcept;
         void ChooseEscapeTarget(Agent& agent, float observerX, float observerZ) noexcept;
+        [[nodiscard]] bool TryMove(Agent& agent, float headingRadians,
+                                   float distance) noexcept;
+        [[nodiscard]] bool IsClearOfObstacles(float x, float z) const noexcept;
         [[nodiscard]] bool IsValidGround(float x, float z) const noexcept;
 
         const IslandTerrain& terrain_;
+        std::vector<CircularObstacle> obstacles_;
         std::vector<Agent> agents_;
         std::vector<MonkeyState> states_;
         std::uint64_t frameIndex_ = 0U;
+        std::uint64_t obstacleDeflectionCount_ = 0U;
         int fullSimulationCount_ = 0;
         int reducedSimulationCount_ = 0;
         int dormantSimulationCount_ = 0;

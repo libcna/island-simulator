@@ -58,12 +58,39 @@ namespace island
         }
     }
 
+    void MonkeyTroop::SetObstacles(const std::span<const CircularObstacle> obstacles)
+    {
+        obstacles_.assign(obstacles.begin(), obstacles.end());
+        for (std::size_t index = 0; index < agents_.size(); ++index) {
+            if (!IsValidGround(agents_[index].state.x, agents_[index].state.z)) {
+                agents_[index] = Agent{};
+                InitializeAgent(index);
+            }
+            states_[index] = agents_[index].state;
+        }
+    }
+
+    bool MonkeyTroop::IsClearOfObstacles(const float x, const float z) const noexcept
+    {
+        for (const CircularObstacle& obstacle : obstacles_) {
+            const float clearance = CollisionRadius + std::max(0.0f, obstacle.radius);
+            const float separationX = x - obstacle.x;
+            const float separationZ = z - obstacle.z;
+            if (separationX * separationX + separationZ * separationZ
+                < clearance * clearance) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     bool MonkeyTroop::IsValidGround(const float x, const float z) const noexcept
     {
         const TerrainSample sample = terrain_.Sample(x, z);
         return sample.signedShoreDistance >= MinimumLandFromShore
             && sample.height >= 2.8f && sample.slopeRadians <= MaximumSlope
-            && !VegetationLayout::IsReservedRoute(x, z);
+            && !VegetationLayout::IsReservedRoute(x, z)
+            && IsClearOfObstacles(x, z);
     }
 
     void MonkeyTroop::InitializeAgent(const std::size_t index) noexcept
@@ -191,6 +218,22 @@ namespace island
         agent.targetZ = agent.homeZ;
     }
 
+    bool MonkeyTroop::TryMove(Agent& agent, const float headingRadians,
+                              const float distance) noexcept
+    {
+        const float proposedX = agent.state.x + std::cos(headingRadians) * distance;
+        const float proposedZ = agent.state.z + std::sin(headingRadians) * distance;
+        if (std::hypot(proposedX - agent.homeX, proposedZ - agent.homeZ)
+                > MaximumHomeDistance
+            || !IsValidGround(proposedX, proposedZ)) {
+            return false;
+        }
+        agent.state.x = proposedX;
+        agent.state.z = proposedZ;
+        agent.state.headingRadians = WrapAngle(headingRadians);
+        return true;
+    }
+
     void MonkeyTroop::Update(const float deltaSeconds, const float observerX,
                              const float observerY, const float observerZ) noexcept
     {
@@ -260,17 +303,32 @@ namespace island
                     ? 3.0f : 1.9f;
                 agent.state.headingRadians = TurnToward(
                     agent.state.headingRadians, desiredHeading, turnRate * deltaSeconds);
-                const float proposedX = agent.state.x
-                    + std::cos(agent.state.headingRadians) * agent.state.speed * deltaSeconds;
-                const float proposedZ = agent.state.z
-                    + std::sin(agent.state.headingRadians) * agent.state.speed * deltaSeconds;
-                const float homeDistance = std::hypot(
-                    proposedX - agent.homeX, proposedZ - agent.homeZ);
-                if (homeDistance <= MaximumHomeDistance && IsValidGround(proposedX, proposedZ)) {
-                    agent.state.x = proposedX;
-                    agent.state.z = proposedZ;
-                } else {
-                    agent.stateSecondsRemaining = 0.0f;
+                const float stepDistance = agent.state.speed * deltaSeconds;
+                const float directX = agent.state.x
+                    + std::cos(agent.state.headingRadians) * stepDistance;
+                const float directZ = agent.state.z
+                    + std::sin(agent.state.headingRadians) * stepDistance;
+                const bool directObstacleBlocked = !IsClearOfObstacles(directX, directZ);
+                if (!TryMove(agent, agent.state.headingRadians, stepDistance)) {
+                    const float preferredSide = (agent.decisionCounter & 1U) == 0U ? 1.0f : -1.0f;
+                    constexpr std::array<float, 4> DeflectionAngles = {
+                        0.48f, -0.48f, 0.92f, -0.92f};
+                    bool moved = false;
+                    for (const float deflection : DeflectionAngles) {
+                        const float candidateHeading = agent.state.headingRadians
+                            + deflection * preferredSide;
+                        if (TryMove(agent, candidateHeading, stepDistance)) {
+                            if (directObstacleBlocked) {
+                                ++obstacleDeflectionCount_;
+                            }
+                            moved = true;
+                            break;
+                        }
+                    }
+                    if (!moved) {
+                        ++agent.decisionCounter;
+                        agent.stateSecondsRemaining = 0.0f;
+                    }
                 }
             }
             if (targetDistance < 0.85f || agent.stateSecondsRemaining <= 0.0f) {

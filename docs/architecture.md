@@ -231,9 +231,13 @@ awareness produces a brief non-hostile retreat. The shared wildlife activation p
 distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, near/far meshes, and idle,
 observe, walk, and run clips; one CNA `AnimationPlayer` per agent supplies palettes to the portable
 `SkinnedEffect`. Near monkeys add light muzzle/ear and eye passes for facial readability, while far
-monkeys remain one draw each. Native OpenGL 3.3 and actual Chromium/WebGL 2 captures match, and the
-monkey-inclusive arm64 GLES 3 APK builds and passes app lint. Clip crossfades, prop avoidance,
-additional mesh/material variation, calls, and stable Android runtime validation remain open.
+monkeys remain one draw each. The troop copies the player's palm, broadleaf, solid-rock, and
+fallen-log circular proxies once at world construction. Spawn, target, and movement queries retain
+a 0.32 m body clearance; blocked agents try bounded alternating lateral headings and then choose a
+new state rather than walking through geometry. Native OpenGL 3.3 and actual Chromium/WebGL 2
+captures match, and the monkey-inclusive arm64 GLES 3 APK builds and passes app lint. Clip
+crossfades, additional mesh/material variation, calls, and stable Android runtime validation
+remain open.
 
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
