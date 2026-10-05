@@ -23,6 +23,7 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 | Jungle | 281 canopy trees, 1,822 understory plants, and 565 low bushes with instanced wind/LOD | Same GLSL ES 300 path; jungle camera proves nonzero rendering for all three layers | Bush-inclusive arm64 APK builds; runtime remains unqualified |
 | Natural props | 152 rocks, 11 fallen logs, and 28 driftwood pieces with instanced near/far meshes | Same GLSL ES 300 path; dedicated cameras prove nonzero log and driftwood draws | Prop-inclusive arm64 APK builds; runtime remains unqualified |
 | Grass | Hardware instancing, wind, near/far clusters | Same shader/instancing path and nonzero beach population required | Dense mesh grass visibly rendered; sustained cost is unmeasured |
+| Audio | CNA opened a 44.1 kHz stereo device and plays both procedural mono loops | First click opened the CNA mixer and started both loops in Chromium | Audio-inclusive arm64 APK builds; device playback/focus remains unqualified |
 | Debug UI | Runtime-generated font and SpriteBatch panel | Same panel captured in Chromium | Compiles; not enabled during the first emulator frame |
 | Touch UI | Hidden until a touch is observed | Hidden until a touch is observed | Generated movement/look rings are enabled by default; post-HUD runtime capture remains open |
 | Presentation | 1280 by 720 preferred window | 1280 by 720 canvas with aspect-preserving CSS fit | Fixed landscape/fullscreen request; emulator surface was 2400 by 1080 |
@@ -39,9 +40,9 @@ after representative physical-device profiling.
 - Android uses a stable left movement pointer and right relative-look pointer. Display-size changes
   and missing/released contacts cancel safely. Fixed landscape avoids an unsupported live rotation
   transition during play.
-- Browser audio unlock, genuine tab suspension/resume, Android audio focus, and Android graphics
-  resource restoration are not yet qualified because the soundscape and stable target hardware are
-  not yet available.
+- Browser first-gesture mixer/track startup is automated in Chromium; audible hardware-browser
+  quality and genuine tab suspension/resume remain open. Android audio focus and graphics resource
+  restoration require a stable accelerated emulator or physical device.
 
 ## Performance interpretation
 

@@ -30,11 +30,13 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
+      ├── SoundscapeModel ──── deterministic PCM generation and shoreline-driven crossfades
+      ├── Soundscape ───────── CNA loop ownership, volume application, mute, and failure fallback
       └── IslandGame ───────── CNA lifecycle, input, camera, terrain cells, and pass ordering
 ```
 
 `IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`,
-`NaturalPropLayout`, and `TouchControls` form `IslandSimulator::Core` and
+`NaturalPropLayout`, `TouchControls`, and `SoundscapeModel` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
 and converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
@@ -80,14 +82,16 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    island-relative current field, and the remote safety boundary.
 5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
    circular obstacles, retaining axis sliding when one component is valid.
-6. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
+6. `SoundscapeModel` derives surf and breeze targets from authoritative shoreline distance and
+   swimming state; `Soundscape` applies a slow crossfade to two persistent CNA loop instances.
+7. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, and the
    transparent ocean using one view/projection pair.
-7. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
+8. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
-8. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
+9. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
    CNA `SpriteBatch` after all 3D passes.
-9. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+10. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
 step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.
@@ -181,6 +185,24 @@ reporting the fixed simulation timestep. F1 toggles it during interactive play; 
 is the explicit automation path. Native OpenGL 3.3 and actual WebGL 2 captures validate the same
 SpriteBatch route.
 
+## Audio baseline
+
+`SoundscapeModel` creates two original deterministic ten-second, 22.05 kHz mono PCM16 loops at
+startup. Circular filtering keeps the procedural noise continuous at the wrap boundary; peak
+normalization retains mixing headroom. Surf is strongest along the beach and while swimming, then
+falls to a quiet distant bed inland. Light canopy breeze increases toward the interior. A 1.8
+second exponential crossfade prevents zone snaps, and M applies a reversible zero-gain mute without
+restarting the tracks.
+
+`Soundscape` owns CNA `SoundEffect` and looping `SoundEffectInstance` objects and never calls SDL
+or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
+device creation until the first mouse, touch, or movement-key gesture so browser activation and
+pointer-lock requests share one user action. Missing or disconnected audio degrades to a logged,
+visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
+length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, and crossfade.
+Actual Chromium proves first-gesture mixer/track initialization; a visible hardware-browser
+listening pass and Android audio focus/lifecycle testing remain open.
+
 ## Current limitations
 
 - Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
@@ -192,15 +214,17 @@ SpriteBatch route.
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
 - Collision checks every palm, canopy-trunk, solid-rock, and sampled log proxy and has no spatial
   broad phase yet; geometric step-up remains absent.
-- Swimming camera height is functional but has no bob, underwater transition, or audio.
+- Swimming camera height is functional but has no bob, underwater transition, or player-motion
+  water audio; only the broader surf bed currently reacts to swimming.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
-  release/reacquisition, and responsive 16:9 presentation. Audio unlock, genuine tab lifecycle,
-  another browser engine, and visible hardware-GPU performance remain unverified.
+  release/reacquisition, responsive 16:9 presentation, and first-gesture CNA audio startup. Audible
+  hardware-browser quality, genuine tab lifecycle, another browser engine, and visible
+  hardware-GPU performance remain unverified.
 - Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. One x86_64
   API 35 GLES3 frame is visually validated, but the host has no KVM and the software-emulated
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
-- No wildlife, layered soundscape, world-space debug visualization, or configuration UI exists yet.
-  Four direct QA teleports are available while the debug overlay is visible.
+- No wildlife, positional/biome-rich soundscape, world-space debug visualization, or configuration
+  UI exists yet. The first two ambient beds and four direct QA teleports are available.

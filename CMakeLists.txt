@@ -29,6 +29,7 @@ add_library(island_core STATIC
     game/src/JungleLayout.cpp
     game/src/NaturalPropLayout.cpp
     game/src/PlayerMotion.cpp
+    game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
     game/src/VegetationLayout.cpp)
 add_library(IslandSimulator::Core ALIAS island_core)
@@ -149,6 +150,7 @@ if(ISLAND_BUILD_GAME)
         game/src/OceanRenderer.cpp
         game/src/PalmRenderer.cpp
         game/src/SkyRenderer.cpp
+        game/src/Soundscape.cpp
         game/src/TouchOverlay.cpp)
 
     # SDLActivity loads an Android game as libmain.so. Keep the public CMake target name stable so

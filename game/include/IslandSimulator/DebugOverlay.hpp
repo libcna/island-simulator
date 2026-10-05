@@ -54,6 +54,10 @@ namespace island
         int totalGrassPatches = 0;
         int grassCells = 0;
         int grassDraws = 0;
+        bool audioAvailable = false;
+        bool audioMuted = false;
+        float surfVolume = 0.0f;
+        float breezeVolume = 0.0f;
     };
 
     /** @brief Small asset-free bitmap-font overlay for renderer and gameplay diagnostics. */

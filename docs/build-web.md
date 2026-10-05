@@ -6,9 +6,9 @@ The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium u
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
 overview/beach/jungle/prop/driftwood rendering, first-click pointer lock, canvas focus, WASD
 traversal, relative mouse look, F1 input, pointer release/reacquisition, and responsive 16:9
-presentation. Audio unlock,
-genuine tab background/foreground recovery, hardware-GPU performance, extended play, and a second
-browser engine are not yet validated.
+presentation. The first click also opens CNA's 44.1 kHz mixer and starts both procedural ambient
+tracks. Audible output on a visible hardware browser, genuine tab background/foreground recovery,
+hardware-GPU performance, extended play, and a second browser engine are not yet validated.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader. This records the evidence
 environment; it is not a minimum-version claim.
@@ -85,12 +85,14 @@ first-person runs enable the runtime-generated debug font and overlay, covering 
 The machine-readable result is `build-probe/island-browser-smoke.json`.
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
-the canvas, assert pointer lock/focus, hold W long enough to measure world movement, move the
+the canvas, assert pointer lock/focus and the audio-start diagnostic, hold W long enough to measure
+world movement, move the
 relative pointer, toggle F1, resize to a non-16:9 browser window, explicitly unlock, and click to
 reacquire. It records the initial/final player and viewport samples in the JSON report. Chromium's
 synthetic page-freeze command did not yield reliable resume evidence in this environment, so real
 tab background/foreground behaviour remains unqualified rather than being inferred.
 
-This smoke test proves browser/WebAssembly/WebGL execution, but it is not a substitute for a
-visible interactive pass using hardware acceleration. Do not infer audio unlock, real tab
-lifecycle, frame pacing, thermal behaviour, or non-Chromium compatibility from it.
+This smoke test proves browser/WebAssembly/WebGL execution and first-gesture CNA mixer/track
+initialization, but it is not a substitute for a visible interactive listening pass using hardware
+acceleration. Do not infer audible quality, real tab lifecycle, frame pacing, thermal behaviour, or
+non-Chromium compatibility from it.

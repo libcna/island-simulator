@@ -18,6 +18,7 @@
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
+#include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -83,6 +84,7 @@ namespace island
         void CreateTerrainMesh();
         void CaptureFrame(const std::string& path);
         void UpdateCamera(float deltaSeconds);
+        void TryStartSoundscape() noexcept;
         void ApplyCamera(Microsoft::Xna::Framework::Graphics::BasicEffect& effect);
         void DrawMesh(Microsoft::Xna::Framework::Graphics::BasicEffect& effect,
                       Microsoft::Xna::Framework::Graphics::VertexBuffer& vertices,
@@ -107,6 +109,7 @@ namespace island
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
+        std::unique_ptr<Soundscape> soundscape_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
         std::vector<TerrainRenderCell> terrainCells_;
         Microsoft::Xna::Framework::Vector3 cameraPosition_;
@@ -120,6 +123,8 @@ namespace island
         bool mouseCaptured_ = false;
         bool debugOverlayVisible_ = false;
         bool debugOverlayToggleWasDown_ = false;
+        bool muteToggleWasDown_ = false;
+        bool soundscapeNeedsGesture_ = false;
         std::array<bool, 4> debugTeleportWasDown_{};
         bool inputDiagnostics_ = false;
         bool touchOverlayVisible_ = false;

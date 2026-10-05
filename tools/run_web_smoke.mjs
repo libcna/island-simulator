@@ -177,12 +177,23 @@ try {
   await call("Input.dispatchMouseEvent", {
     type: "mouseReleased", x: 640, y: 360, button: "left", buttons: 0, clickCount: 1,
   }, deploymentSessionId);
-  await delay(450);
-  const deploymentLockEvaluation = await call("Runtime.evaluate", {
-    expression: "document.pointerLockElement === Module.canvas",
-    returnByValue: true,
-  }, deploymentSessionId);
-  deploymentState.pointerLocked = deploymentLockEvaluation.result.value === true;
+  let postGestureState = {};
+  for (let attempt = 0; attempt < 80; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: `JSON.stringify({
+        pointerLocked: document.pointerLockElement === Module.canvas,
+        output: globalThis.islandDeploymentOutput ?? ""
+      })`,
+      returnByValue: true,
+    }, deploymentSessionId);
+    postGestureState = JSON.parse(evaluation.result.value ?? "{}");
+    if (postGestureState.output?.includes("island-simulator: soundscape started")) break;
+  }
+  deploymentState.pointerLocked = postGestureState.pointerLocked === true;
+  deploymentState.output = postGestureState.output ?? deploymentState.output;
+  deploymentState.audioStarted = deploymentState.output?.includes(
+    "island-simulator: soundscape started (procedural surf and breeze)");
   const deploymentPassed = deploymentState.status === "Ready"
     && deploymentState.width === 1280
     && deploymentState.height === 720
@@ -190,6 +201,7 @@ try {
     && deploymentState.output?.includes("island-simulator: renderer WEBGL2")
     && deploymentState.output?.includes("island-simulator: fixed sunny sky portable shader")
     && deploymentState.output?.includes("island-simulator: terrain")
+    && deploymentState.audioStarted === true
     && deploymentState.pointerLocked === true;
   await call("Target.closeTarget", { targetId: deploymentTargetId });
 

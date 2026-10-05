@@ -28,7 +28,8 @@ Current fields are:
 - visible/total palms, near/far LOD population, cells, and draw submissions;
 - visible/total broadleaf canopy, understory, and low-bush populations plus cells/draw submissions;
 - visible/total rocks, fallen logs, and beach driftwood plus shared prop cells/draw submissions;
-- visible/total grass clusters, cells, and draw submissions.
+- visible/total grass clusters, cells, and draw submissions;
+- audio availability/mute state and current surf/breeze mix levels.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative
@@ -52,8 +53,9 @@ These runs render four frames and exit. The WebGL 2 harness writes corresponding
 jungle, prop, and driftwood PNG captures plus a JSON report under `build-probe/`. Captures prove
 initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input
-and pointer-lock evidence. Neither proves hardware-GPU frame pacing, audio, genuine tab lifecycle,
-or long-session stability.
+and pointer-lock evidence. The deployable-page pass also proves first-gesture CNA mixer/track
+startup. It does not prove audible hardware-browser quality, hardware-GPU frame pacing, genuine tab
+lifecycle, or long-session stability.
 
 ## Planned diagnostics
 

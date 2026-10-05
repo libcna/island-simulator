@@ -35,16 +35,18 @@ been confirmed so far.
 
 - Birds, fish, the occasional shark, monkeys, skeletal animation, wildlife behaviour, and wildlife
   spatial activation are not implemented yet.
-- Ocean surf, jungle ambience, wind, insects, birds, monkeys, positional emitters, and player water
-  sounds are not implemented. The current build is acoustically incomplete.
+- A first original procedural layer supplies shoreline-distance-blended surf and light canopy
+  breeze. It is intentionally incomplete: stronger-wave variation, richer jungle ambience,
+  insects, birds, monkeys, positional emitters, and player wading/swimming sounds are absent, and
+  a long fatigue/listening pass is still required.
 
 ## Platform qualification
 
 - Linux/OpenGL 3.3 is the primary playable path and has repeated real-GPU and isolated capture
   coverage. Release packaging and extended whole-island sessions remain open.
-- WebGL 2 runs in Chromium with automated rendering, pointer-lock, keyboard/mouse, overlay, and
-  resize coverage. Visible hardware-GPU play, audio unlock, genuine tab suspend/resume, fullscreen,
-  and a second browser engine remain unverified.
+- WebGL 2 runs in Chromium with automated rendering, pointer-lock, keyboard/mouse, overlay, resize,
+  and first-gesture audio-mixer/track initialization coverage. Audible hardware-browser quality,
+  genuine tab suspend/resume, fullscreen, and a second browser engine remain unverified.
 - Android arm64-v8a and x86_64 APKs build, and an API 35 x86_64 AVD rendered one GLES3 scene. The
   host lacks KVM and the software-emulated System UI is unstable, so touch feel, lifecycle, audio,
   performance, thermal behaviour, and physical-device compatibility remain unverified.
@@ -52,7 +54,8 @@ been confirmed so far.
 ## Development tooling
 
 - The overlay reports frame timing, player/water state, renderer identity, terrain/vegetation
-  visibility, LOD populations, and draw counts. It does not yet provide world-space collision,
-  shoreline/current, cell, wildlife, or audio visualization.
+  visibility, LOD populations, draw counts, and current surf/breeze levels and mute/availability
+  state. It does not yet provide world-space collision, shoreline/current, cell, wildlife, or
+  audio-emitter visualization.
 - Four direct debug teleports exist, but there is no teleport menu, benchmark route, asset
   validation command, or automated renderer-image comparison yet.

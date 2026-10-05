@@ -433,17 +433,28 @@ Exit validation:
 
 Dependencies: stable zones, wildlife emitters, and representative locations.
 
-- [ ] Confirm CNA audio format, streaming, lifetime, listener/emitter, and platform constraints.
-- [ ] Build a layered mixer/soundscape controller with beach, ocean, jungle, clearing, and water
-  zones and smooth hysteretic crossfades.
-- [ ] Add non-repetitive surf beds and occasional stronger waves tied to shoreline proximity.
-- [ ] Add wind-through-vegetation, jungle beds, birds, insects where tasteful, monkey calls, distant
-  wildlife, and sparse water splashes.
+- [~] Confirm CNA audio format, streaming, lifetime, listener/emitter, and platform constraints.
+  Raw PCM16 mono loading, explicit loop regions, instance lifetime, mute/volume, graceful device
+  failure, Linux playback startup, and first-gesture Chromium startup are verified. Positional
+  emitters, focus restoration, Android playback, and streaming remain phase-specific work.
+- [~] Build a layered mixer/soundscape controller with beach, ocean, jungle, clearing, and water
+  zones and smooth hysteretic crossfades. The first renderer-independent shoreline/swimming model
+  smoothly blends surf and canopy breeze; authored clearing and richer biome zones remain.
+- [~] Add non-repetitive surf beds and occasional stronger waves tied to shoreline proximity. A
+  deterministic ten-second filtered-noise bed now follows shoreline distance; independent wave
+  accents and long-session fatigue tuning remain.
+- [~] Add wind-through-vegetation, jungle beds, birds, insects where tasteful, monkey calls, distant
+  wildlife, and sparse water splashes. A first light-canopy-breeze loop increases inland; the
+  wildlife, insect, water, and richer jungle layers remain.
 - [ ] Add positional one-shots/emitters where direction and distance improve presence.
 - [ ] Add player wading/swimming movement audio without repetitive rapid triggering.
 - [ ] Bound simultaneously active sources and virtualize/throttle inaudible emitters.
-- [ ] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
-- [ ] Provide graceful no-audio diagnostics/fallback without crashing the visual experience.
+- [~] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
+  Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta, and
+  the mono-to-CNA output path; headphone listening and future positional stereo remain.
+- [x] Provide graceful no-audio diagnostics/fallback without crashing the visual experience. Start
+  and runtime volume failures log an actionable reason, disable audio resources, and leave graphics
+  and traversal active; the F1 overlay exposes `UNAVAILABLE` rather than hiding the failure.
 - [ ] Walk every major region specifically listening for silence, abrupt transitions, masking, and
   short-loop fatigue.
 
@@ -470,8 +481,9 @@ Dependencies: portable baseline features and bounded initial asset size.
   clean click reacquisition; fullscreen presentation remains open.
 - [~] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
   Controlled Chromium input now proves focus, WASD movement, relative look, F1, pointer
-  release/reacquisition, and aspect-preserving resize. Audio unlock and genuine tab
-  background/foreground recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
+  release/reacquisition, aspect-preserving resize, and first-click CNA mixer plus dual-track
+  startup. Audible hardware-browser output and genuine tab background/foreground recovery remain
+  unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [ ] Reduce download/startup size through mesh/texture/audio choices and measured compression.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
@@ -535,8 +547,8 @@ Dependencies: representative complete scene on all targets.
 - [~] Add debug overlay: FPS, frame time, player coordinates/state, renderer/backend, visible
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
-  fields on OpenGL 3.3 and WebGL 2; future wildlife and audio fields remain dependent on those
-  systems.
+  fields plus ambient availability/mute and surf/breeze levels on OpenGL 3.3 and WebGL 2; future
+  wildlife counts and positional-emitter diagnostics remain dependent on those systems.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
 - [~] Add debug teleport locations and a debug-only free camera. Four direct F5--F8 locations are
@@ -754,15 +766,17 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add smaller ground plants and improved ground/contact variation; enrich the first low-bush
+1. Continue the soundscape with stronger-wave accents, richer jungle texture, wading/swimming
+   feedback, and a 20-minute listening pass before adding wildlife emitters.
+2. Add smaller ground plants and improved ground/contact variation; enrich the first low-bush
    silhouettes/materials and sparse driftwood layer only where composition review needs it.
-2. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
+3. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
    F5--F8 QA teleports are complete.
-3. Qualify touch traversal, pause/resume, and performance on a physical Android device or a stable
+4. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
-4. Perform a visible hardware-accelerated Web play pass and genuine tab background/foreground test;
-   audio unlock remains dependent on the first soundscape implementation.
-5. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
+5. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
+   background/foreground test; automated first-gesture audio initialization is complete.
+6. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
    instrumentation exists; do not raise geometry cost blindly.
 
 ## Validation ledger
@@ -1091,6 +1105,38 @@ Work next, in order:
   matches native composition and counts.
 - Rebuilt the arm64-v8a Android APK and passed application lint. Runtime qualification of bush
   density, shader motion, and performance remains open until stable Android hardware is available.
+
+### 2026-10-05 — First procedural ambient soundscape
+
+- Audited CNA `next` raw PCM, authored-loop, `SoundEffectInstance`, dynamic-stream, mixer-device,
+  and example usage without changing CNA or Sharp Runtime. Selected small resident loops rather
+  than dynamic streaming for the first continuous beds to reduce underrun and lifecycle risk.
+- Added original deterministic ten-second, 22.05 kHz mono PCM16 surf and light-canopy-breeze loops.
+  Circular filtered noise and periodic swell/gust envelopes avoid short synthetic tones; peak
+  normalization retains headroom and no external asset or runtime file is required.
+- Added a renderer-independent mix model driven by the authoritative signed shoreline distance and
+  swimming state. Surf dominates the beach and near-shore water, canopy breeze grows inland, and a
+  1.8-second exponential transition prevents abrupt zone changes. M toggles reversible mute.
+- Added a CNA-only playback owner with two persistent looping instances, explicit startup state
+  verification, actionable startup/runtime failure diagnostics, resource cleanup, and silent visual
+  fallback. Web defers creation until the first click/touch/movement key; Linux and Android start
+  after content initialization.
+- Added core regression coverage for deterministic samples, exact rate/duration, peak headroom, RMS
+  energy, loop-boundary delta, zone ordering, swimming emphasis, and smooth convergence. Core tests
+  pass, and all seven isolated OpenGL lifecycle/capture tests pass with audio intentionally disabled
+  in four-frame automation.
+- Opened the Linux game on the real display and CNA opened a 44.1 kHz stereo device; both ambient
+  tracks reached `Playing`. The live build remains open for operator play/listening with F1 mix
+  diagnostics.
+- Rebuilt the Emscripten package and extended the actual deployable-page harness to require first-
+  gesture audio startup. Chrome 152/SwiftShader opened CNA's 44.1 kHz mixer, started both tracks,
+  retained pointer lock, and passed the complete render/input/five-image suite.
+- Rebuilt the arm64-v8a APK with both procedural beds and passed application lint. Android audio
+  playback/focus remains explicitly unqualified because the host has no KVM and no physical device
+  is connected. No qualifying CNA or Sharp Runtime defect was found.
+- Remaining audio work includes subjective balance and a 20-minute fatigue pass, wave accents,
+  richer jungle texture, player water sounds, positional wildlife, focus/lifecycle recovery, and
+  measured source/memory budgets.
 
 ## Session-end checklist
 

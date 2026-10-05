@@ -183,6 +183,9 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         setIsFixedTimeStepProperty(true);
+#if defined(__EMSCRIPTEN__)
+        soundscapeNeedsGesture_ = true;
+#endif
     }
 
     void IslandGame::LoadContent()
@@ -209,6 +212,10 @@ namespace island
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
+        }
+        soundscape_ = std::make_unique<Soundscape>();
+        if (!smokeTest_ && !soundscapeNeedsGesture_) {
+            TryStartSoundscape();
         }
 
         std::cout << "island-simulator: renderer " << device.GetGraphicsRendererName() << '\n'
@@ -283,6 +290,18 @@ namespace island
         }
     }
 
+    void IslandGame::TryStartSoundscape() noexcept
+    {
+        if (!soundscape_ || soundscape_->WasStartAttempted() || smokeTest_) {
+            return;
+        }
+        const PlayerPosition& position = playerMotion_.Position();
+        const float shoreDistance = terrain_.SignedShoreDistance(position.x, position.z);
+        const bool swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
+        (void)soundscape_->Start(shoreDistance, swimming);
+        soundscapeNeedsGesture_ = false;
+    }
+
     void IslandGame::Update(GameTime& gameTime)
     {
         const float deltaSeconds = std::min(
@@ -348,6 +367,20 @@ namespace island
         }
         const bool touchInteracting = touchControlState_.movementActive
             || touchControlState_.lookActive;
+
+        const bool movementKeyDown = keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::A)
+            || keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::D);
+        if (soundscapeNeedsGesture_
+            && (mouse.getLeftButtonProperty() == ButtonState::Pressed
+                || !touchContacts.empty() || movementKeyDown)) {
+            TryStartSoundscape();
+        }
+
+        const bool muteToggleDown = keyboard.IsKeyDown(Keys::M);
+        if (muteToggleDown && !muteToggleWasDown_ && soundscape_) {
+            soundscape_->ToggleMuted();
+        }
+        muteToggleWasDown_ = muteToggleDown;
 
         if (touchInteracting && mouseCaptured_) {
             mouseCaptured_ = false;
@@ -445,6 +478,10 @@ namespace island
         playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldObstacles_);
         const PlayerPosition& position = playerMotion_.Position();
         cameraPosition_ = Vector3(position.x, position.y, position.z);
+        if (soundscape_) {
+            soundscape_->Update(terrain_.SignedShoreDistance(position.x, position.z),
+                                playerMotion_.Mode() == LocomotionMode::Swimming, deltaSeconds);
+        }
     }
 
     void IslandGame::ApplyCamera(BasicEffect& effect)
@@ -591,6 +628,12 @@ namespace island
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
             overlayState.grassDraws = grassRenderer_->DrawCallCount();
+            overlayState.audioAvailable = soundscape_ && soundscape_->IsAvailable();
+            overlayState.audioMuted = soundscape_ && soundscape_->IsMuted();
+            if (soundscape_) {
+                overlayState.surfVolume = soundscape_->Mix().surfVolume;
+                overlayState.breezeVolume = soundscape_->Mix().breezeVolume;
+            }
             debugOverlay_->Draw(overlayState);
         }
 

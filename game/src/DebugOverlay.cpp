@@ -184,8 +184,8 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(11U);
-        lines.emplace_back("F1 DEBUG  F5-F8 TELEPORT");
+        lines.reserve(12U);
+        lines.emplace_back("F1 DEBUG  F5-F8 TELEPORT  M MUTE");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
@@ -238,6 +238,12 @@ namespace island
         grass << "GRASS " << state.visibleGrassPatches << '/' << state.totalGrassPatches
               << "  CELLS " << state.grassCells << " DRAWS " << state.grassDraws;
         lines.push_back(grass.str());
+
+        auto audio = DiagnosticLine();
+        audio << "AUDIO " << (state.audioAvailable ? (state.audioMuted ? "MUTED" : "ACTIVE")
+                                                       : "UNAVAILABLE")
+              << "  SURF " << state.surfVolume << " BREEZE " << state.breezeVolume;
+        lines.push_back(audio.str());
 
         constexpr float scale = 1.45f;
         constexpr float lineHeight = 13.0f;

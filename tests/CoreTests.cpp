@@ -4,6 +4,7 @@
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -13,6 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <numeric>
 #include <numbers>
 #include <string_view>
 
@@ -37,6 +39,62 @@ namespace
 
 int main()
 {
+    const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
+    const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();
+    const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();
+    Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
+          "procedural ambience uses the intended portable sample rate");
+    Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
+          "procedural ambient loops are ten seconds long");
+    Check(surfLoop.samples == repeatedSurfLoop.samples,
+          "procedural surf generation is deterministic");
+    const auto peakMagnitude = [](const island::AmbientLoop& loop) {
+        int peak = 0;
+        for (const std::int16_t sample : loop.samples) {
+            peak = std::max(peak, std::abs(static_cast<int>(sample)));
+        }
+        return peak;
+    };
+    const auto rootMeanSquare = [](const island::AmbientLoop& loop) {
+        double squaredSum = 0.0;
+        for (const std::int16_t sample : loop.samples) {
+            const double value = static_cast<double>(sample);
+            squaredSum += value * value;
+        }
+        return std::sqrt(squaredSum / static_cast<double>(loop.samples.size()));
+    };
+    Check(peakMagnitude(surfLoop) < 32767 && peakMagnitude(breezeLoop) < 32767,
+          "procedural ambience retains headroom before runtime mixing");
+    Check(rootMeanSquare(surfLoop) > 1200.0 && rootMeanSquare(breezeLoop) > 900.0,
+          "procedural ambience contains meaningful audible energy");
+    Check(std::abs(static_cast<int>(surfLoop.samples.front())
+                   - static_cast<int>(surfLoop.samples.back())) < 8000,
+          "surf loop boundary does not contain a large discontinuity");
+    Check(std::abs(static_cast<int>(breezeLoop.samples.front())
+                   - static_cast<int>(breezeLoop.samples.back())) < 8000,
+          "breeze loop boundary does not contain a large discontinuity");
+
+    const island::SoundscapeMix beachMix = island::SoundscapeModel::TargetMix(2.0f, false);
+    const island::SoundscapeMix jungleMix = island::SoundscapeModel::TargetMix(140.0f, false);
+    const island::SoundscapeMix swimmingMix = island::SoundscapeModel::TargetMix(-8.0f, true);
+    Check(beachMix.surfVolume > jungleMix.surfVolume,
+          "surf is louder at the beach than deep inland");
+    Check(jungleMix.breezeVolume > beachMix.breezeVolume,
+          "canopy breeze grows toward the island interior");
+    Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
+          "swimming emphasizes nearby water while softening canopy breeze");
+    island::SoundscapeModel soundscapeModel;
+    soundscapeModel.Reset(2.0f, false);
+    const float initialSurfVolume = soundscapeModel.Mix().surfVolume;
+    for (int step = 0; step < 300; ++step) {
+        (void)soundscapeModel.Update(140.0f, false, 1.0f / 60.0f);
+    }
+    Check(soundscapeModel.Mix().surfVolume < initialSurfVolume
+              && soundscapeModel.Mix().surfVolume > jungleMix.surfVolume,
+          "soundscape transitions smoothly toward the new zone instead of snapping");
+    CheckNear(soundscapeModel.Mix().surfVolume, jungleMix.surfVolume, 0.025f,
+              "soundscape approaches the inland surf target over several seconds");
+
     island::TouchControls touchControls;
     std::array<island::TouchContact, 2> touchContacts = {{
         {11, 180.0f, 520.0f, island::TouchPhase::Pressed},

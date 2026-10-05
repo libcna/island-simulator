@@ -14,9 +14,10 @@ GLES3 render is valid renderer evidence but not touch, lifecycle, or performance
 Those claims still require a stable accelerated emulator or physical device.
 
 The current arm64 package includes the broadleaf jungle with low bushes, rocks, fallen logs,
-sparse beach driftwood, and fixed sunny sky. That package builds and passes application lint, but
+sparse beach driftwood, fixed sunny sky, and procedural ambient surf/breeze. That package builds
+and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
-qualification for the new jungle, prop, or sky shaders.
+qualification for the new jungle, prop, sky, or audio systems.
 
 ## Requirements
 

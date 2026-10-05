@@ -9,6 +9,7 @@
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
 | F5 / F6 / F7 / F8 | With the overlay visible, teleport to four fixed QA locations |
+| M | Mute or unmute the ambient soundscape |
 | Escape | Release captured mouse; press again to exit |
 
 Movement follows terrain, refuses uphill motion steeper than 38 degrees, and switches to swimming
@@ -24,12 +25,13 @@ and ocean-current state, visible terrain/vegetation cells, LOD populations, and 
 
 ## Web (current)
 
-The Web build uses the same WASD, mouse-look, F1, and Escape controls. Its production page displays
-click-to-play instructions and requests pointer lock directly from the first left-button gesture,
-as required by browser security policy. Escape releases pointer lock; clicking the canvas acquires
-it again. Automated Chromium/SwiftShader coverage verifies those transitions, keyboard movement,
-relative mouse look, focus, and responsive 16:9 sizing. Visible hardware-accelerated play and a
-second browser engine remain to be checked manually.
+The Web build uses the same WASD, mouse-look, F1, M, and Escape controls. Its production page
+displays click-to-play instructions and requests pointer lock directly from the first left-button
+gesture, as required by browser security policy. The same gesture starts audio after browser
+activation. Escape releases pointer lock; clicking the canvas acquires it again. Automated
+Chromium/SwiftShader coverage verifies those transitions, audio-mixer/track initialization,
+keyboard movement, relative mouse look, focus, and responsive 16:9 sizing. Audible quality on a
+visible hardware-accelerated browser and a second browser engine remain to be checked manually.
 
 ## Android
 
