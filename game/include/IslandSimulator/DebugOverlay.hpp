@@ -38,6 +38,8 @@ namespace island
         int totalCanopy = 0;
         int visibleUnderstory = 0;
         int totalUnderstory = 0;
+        int visibleBushes = 0;
+        int totalBushes = 0;
         int jungleCells = 0;
         int jungleDraws = 0;
         int visibleRocks = 0;

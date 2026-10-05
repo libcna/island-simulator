@@ -77,8 +77,9 @@ The
 captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`, and
 `build-probe/island-browser-props.png`, and `build-probe/island-browser-driftwood.png`. The beach
-view must report nonzero grass, the jungle view must report nonzero canopy and understory, the prop
-view must report visible fallen logs, and the driftwood view must report visible beach wood. The
+view must report nonzero grass, the jungle view must report nonzero canopy, understory, and low
+bushes, the prop view must report visible fallen logs, and the driftwood view must report visible
+beach wood. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.

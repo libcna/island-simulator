@@ -256,8 +256,11 @@ int main()
           "broadleaf canopy population stays inside its first performance budget");
     Check(jungle.Understory().size() >= 800U && jungle.Understory().size() <= 4000U,
           "understory population stays inside its first performance budget");
+    Check(jungle.Bushes().size() >= 150U && jungle.Bushes().size() <= 1400U,
+          "low-bush population stays inside its first performance budget");
     Check(jungle.Canopy().size() == repeatedJungle.Canopy().size()
-              && jungle.Understory().size() == repeatedJungle.Understory().size(),
+              && jungle.Understory().size() == repeatedJungle.Understory().size()
+              && jungle.Bushes().size() == repeatedJungle.Bushes().size(),
           "jungle populations are deterministic");
     Check(jungle.Obstacles().size() == jungle.Canopy().size(),
           "every broadleaf canopy trunk has one collision proxy");
@@ -309,6 +312,27 @@ int main()
         Check(plant.scale >= island::JungleLayout::UnderstoryMinimumScale
                   && plant.scale <= island::JungleLayout::UnderstoryMaximumScale,
               "understory scale remains in the authored range");
+    }
+    for (std::size_t index = 0; index < jungle.Bushes().size(); ++index) {
+        const island::BushPlacement& bush = jungle.Bushes()[index];
+        const island::BushPlacement& repeated = repeatedJungle.Bushes()[index];
+        const island::TerrainSample sample = terrain.Sample(bush.x, bush.z);
+        Check(bush.x == repeated.x && bush.y == repeated.y && bush.z == repeated.z
+                  && bush.yawRadians == repeated.yawRadians && bush.scale == repeated.scale
+                  && bush.variant == repeated.variant,
+              "low-bush placement is bitwise deterministic for one seed");
+        Check(sample.signedShoreDistance >= 38.0f
+                  && sample.signedShoreDistance <= 232.0f,
+              "low bushes remain inside their interior placement belt");
+        Check(sample.height >= 3.0f && sample.slopeRadians <= 0.5235988f,
+              "low bushes remain on suitable interior ground");
+        Check(!island::VegetationLayout::IsReservedRoute(bush.x, bush.z),
+              "low bushes keep paths, clearings, and player spawn open");
+        Check(bush.variant < island::JungleLayout::BushVariantCount,
+              "low-bush variant index remains in range");
+        Check(bush.scale >= island::JungleLayout::BushMinimumScale
+                  && bush.scale <= island::JungleLayout::BushMaximumScale,
+              "low-bush scale remains in the authored range");
     }
 
     const island::NaturalPropLayout props(terrain, vegetation, jungle);

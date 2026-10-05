@@ -7,14 +7,14 @@ been confirmed so far.
 ## Environment and art
 
 - The island has a strong terrain/ocean/palm/grass foundation and a first layered broadleaf jungle,
-  but the jungle is not final. The first rocks, fallen logs, and sparse driftwood exist; bush
-  diversity, smaller ground plants, broader shell/branch/beach-prop variety, distant scenery, wet
-  shoreline detail, and final material variation remain absent.
+  but the jungle is not final. A first low-bush layer plus rocks, fallen logs, and sparse driftwood
+  exist; bush silhouette/material diversity, smaller ground plants, broader shell/branch/beach-prop
+  variety, distant scenery, wet shoreline detail, and final material variation remain absent.
 - Terrain colour is procedural vertex colour. It has no authored texture blend, fine sand/soil
   detail, or baked ambient/contact lighting.
-- Palms, grass, canopy trees, and understory have deterministic variation, wind, culling, and LOD,
-  but visible transition popping, close-up material simplicity, and weak grounding/contact cues
-  remain.
+- Palms, grass, canopy trees, understory, and low bushes have deterministic variation, wind,
+  culling, and LOD, but visible transition popping, close-up material simplicity, and weak
+  grounding/contact cues remain.
 - A first portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and
   fixed high cloud suggestion. Terrain, ocean, and sky share one sun direction. Final fill light,
   shadows, exposure, richer cloud shaping, and distant atmospheric composition are not complete.

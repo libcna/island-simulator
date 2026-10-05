@@ -31,6 +31,17 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One low non-solid bush that bridges grass and medium understory height. */
+    struct BushPlacement
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yawRadians = 0.0f;
+        float scale = 1.0f;
+        std::uint8_t variant = 0U;
+    };
+
     /** @brief Renderer-independent layout for the island's layered interior jungle. */
     class JungleLayout final
     {
@@ -38,10 +49,13 @@ namespace island
         static constexpr std::uint32_t DefaultSeed = 0x43b0a7d1U;
         static constexpr int CanopyVariantCount = 4;
         static constexpr int UnderstoryVariantCount = 4;
+        static constexpr int BushVariantCount = 3;
         static constexpr float CanopyMinimumScale = 0.78f;
         static constexpr float CanopyMaximumScale = 1.28f;
         static constexpr float UnderstoryMinimumScale = 0.72f;
         static constexpr float UnderstoryMaximumScale = 1.34f;
+        static constexpr float BushMinimumScale = 0.68f;
+        static constexpr float BushMaximumScale = 1.26f;
 
         explicit JungleLayout(const IslandTerrain& terrain,
                               std::uint32_t seed = DefaultSeed);
@@ -54,6 +68,11 @@ namespace island
         [[nodiscard]] const std::vector<UnderstoryPlacement>& Understory() const noexcept
         {
             return understory_;
+        }
+
+        [[nodiscard]] const std::vector<BushPlacement>& Bushes() const noexcept
+        {
+            return bushes_;
         }
 
         [[nodiscard]] const std::vector<CircularObstacle>& Obstacles() const noexcept
@@ -71,6 +90,7 @@ namespace island
 
         std::vector<CanopyPlacement> canopy_;
         std::vector<UnderstoryPlacement> understory_;
+        std::vector<BushPlacement> bushes_;
         std::vector<CircularObstacle> obstacles_;
     };
 }

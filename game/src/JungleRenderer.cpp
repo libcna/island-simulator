@@ -46,6 +46,8 @@ namespace island
         constexpr float CanopyMaximumDistance = 475.0f;
         constexpr float UnderstoryNearDistance = 58.0f;
         constexpr float UnderstoryMaximumDistance = 128.0f;
+        constexpr float BushNearDistance = 44.0f;
+        constexpr float BushMaximumDistance = 102.0f;
 
         struct PlantGeometry
         {
@@ -322,6 +324,35 @@ void main()
             return geometry;
         }
 
+        [[nodiscard]] PlantGeometry CreateBushGeometry(const int variant, const bool farMesh)
+        {
+            PlantGeometry geometry;
+            const int clusterCount = farMesh ? 2 : 4 + variant;
+            const Color baseColor = variant == 0 ? Color(38, 112, 48, 255)
+                : (variant == 1 ? Color(48, 126, 55, 255)
+                                : Color(31, 101, 48, 255));
+            for (int cluster = 0; cluster < clusterCount; ++cluster) {
+                const float angle = static_cast<float>(variant) * 0.61f
+                    + static_cast<float>(cluster) * 2.39996323f;
+                const float radial = cluster == 0 ? 0.0f
+                    : 0.38f + 0.10f * static_cast<float>((cluster + variant) % 3);
+                const float height = 0.39f
+                    + 0.08f * static_cast<float>((cluster * 2 + variant) % 3);
+                const float width = 0.68f
+                    + 0.09f * static_cast<float>((cluster + variant) % 3);
+                const float phase = std::fmod(static_cast<float>(cluster) * 0.173f
+                                              + static_cast<float>(variant) * 0.21f, 1.0f);
+                AppendLeafCluster(
+                    geometry,
+                    Vector3(std::cos(angle) * radial, height, std::sin(angle) * radial),
+                    Vector3(width, 0.42f + 0.05f * static_cast<float>(variant),
+                            width * 0.88f),
+                    cluster % 3 == 0 ? ShadeColor(baseColor, 1.08f) : baseColor,
+                    phase, farMesh);
+            }
+            return geometry;
+        }
+
         [[nodiscard]] std::size_t CellIndex(const float x, const float z) noexcept
         {
             constexpr float cellWidth = 2.0f * TerrainMeshLayout::Extent
@@ -386,11 +417,12 @@ void main()
         CreateMeshes();
         CreateCells(layout);
         std::cout << "island-simulator: jungle " << totalCanopyCount_ << " canopy trees, "
-                  << totalUnderstoryCount_ << " understory plants, "
+                  << totalUnderstoryCount_ << " understory plants, " << totalBushCount_
+                  << " low bushes, "
                   << (instancingSupported_ ? "hardware instancing" : "per-plant fallback")
                   << '\n';
         if (customShaderReady_) {
-            std::cout << "island-simulator: jungle portable wind shader with canopy/understory LOD\n";
+            std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush LOD\n";
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
                       << fallbackReason_ << '\n';
@@ -424,6 +456,12 @@ void main()
                    understoryNearMeshes_[variant]);
             upload(CreateUnderstoryGeometry(static_cast<int>(variant), true),
                    understoryFarMeshes_[variant]);
+        }
+        for (std::size_t variant = 0; variant < bushNearMeshes_.size(); ++variant) {
+            upload(CreateBushGeometry(static_cast<int>(variant), false),
+                   bushNearMeshes_[variant]);
+            upload(CreateBushGeometry(static_cast<int>(variant), true),
+                   bushFarMeshes_[variant]);
         }
     }
 
@@ -461,10 +499,24 @@ void main()
                          Vector3(plant.x + radius, plant.y + 2.2f * plant.scale, plant.z + radius));
             ++totalUnderstoryCount_;
         }
+        for (const BushPlacement& bush : layout.Bushes()) {
+            JungleCell& cell = cells_[CellIndex(bush.x, bush.z)];
+            cell.bushes.push_back({Matrix::CreateScale(bush.scale)
+                                       * Matrix::CreateRotationY(bush.yawRadians)
+                                       * Matrix::CreateTranslation(bush.x, bush.y, bush.z),
+                                   bush.variant});
+            const float radius = 1.35f * bush.scale;
+            extendBounds(cell, Vector3(bush.x - radius, bush.y - 0.03f, bush.z - radius),
+                         Vector3(bush.x + radius, bush.y + 1.2f * bush.scale,
+                                 bush.z + radius));
+            ++totalBushCount_;
+        }
         for (auto& transforms : visibleCanopyNear_) transforms.reserve(layout.Canopy().size());
         for (auto& transforms : visibleCanopyFar_) transforms.reserve(layout.Canopy().size());
         for (auto& transforms : visibleUnderstoryNear_) transforms.reserve(layout.Understory().size());
         for (auto& transforms : visibleUnderstoryFar_) transforms.reserve(layout.Understory().size());
+        for (auto& transforms : visibleBushNear_) transforms.reserve(layout.Bushes().size());
+        for (auto& transforms : visibleBushFar_) transforms.reserve(layout.Bushes().size());
     }
 
     void JungleRenderer::DrawInstances(PlantMesh& mesh, const std::vector<Matrix>& transforms)
@@ -509,8 +561,11 @@ void main()
         for (auto& transforms : visibleCanopyFar_) transforms.clear();
         for (auto& transforms : visibleUnderstoryNear_) transforms.clear();
         for (auto& transforms : visibleUnderstoryFar_) transforms.clear();
+        for (auto& transforms : visibleBushNear_) transforms.clear();
+        for (auto& transforms : visibleBushFar_) transforms.clear();
         visibleCanopyCount_ = 0;
         visibleUnderstoryCount_ = 0;
+        visibleBushCount_ = 0;
         visibleCellCount_ = 0;
         drawCallCount_ = 0;
 
@@ -542,6 +597,15 @@ void main()
                     cellVisible = true;
                 }
             }
+            if (distanceSquared <= BushMaximumDistance * BushMaximumDistance) {
+                const bool nearLod = distanceSquared <= BushNearDistance * BushNearDistance;
+                for (const DrawInstance& instance : cell.bushes) {
+                    (nearLod ? visibleBushNear_ : visibleBushFar_)[instance.variant]
+                        .push_back(instance.transform);
+                    ++visibleBushCount_;
+                    cellVisible = true;
+                }
+            }
             if (cellVisible) ++visibleCellCount_;
         }
 
@@ -568,6 +632,10 @@ void main()
         for (std::size_t variant = 0; variant < understoryNearMeshes_.size(); ++variant) {
             DrawInstances(understoryNearMeshes_[variant], visibleUnderstoryNear_[variant]);
             DrawInstances(understoryFarMeshes_[variant], visibleUnderstoryFar_[variant]);
+        }
+        for (std::size_t variant = 0; variant < bushNearMeshes_.size(); ++variant) {
+            DrawInstances(bushNearMeshes_[variant], visibleBushNear_[variant]);
+            DrawInstances(bushFarMeshes_[variant], visibleBushFar_[variant]);
         }
         device_.SetVertexBuffers({});
         device_.setIndicesProperty(nullptr);

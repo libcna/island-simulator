@@ -223,6 +223,7 @@ namespace island
         auto jungle = DiagnosticLine();
         jungle << "JUNGLE C " << state.visibleCanopy << '/' << state.totalCanopy
                << " U " << state.visibleUnderstory << '/' << state.totalUnderstory
+               << " B " << state.visibleBushes << '/' << state.totalBushes
                << "  CELLS " << state.jungleCells << " DRAWS " << state.jungleDraws;
         lines.push_back(jungle.str());
 

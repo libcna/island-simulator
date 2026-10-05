@@ -16,6 +16,8 @@ namespace island
         constexpr int CanopyRadius = 20;
         constexpr float UnderstorySpacing = 5.8f;
         constexpr int UnderstoryRadius = 50;
+        constexpr float BushSpacing = 8.4f;
+        constexpr int BushRadius = 35;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -147,6 +149,51 @@ namespace island
                 plant.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xb7e15162U) % UnderstoryVariantCount);
                 understory_.push_back(plant);
+            }
+        }
+
+        bushes_.reserve(900U);
+        for (int gridZ = -BushRadius; gridZ <= BushRadius; ++gridZ) {
+            for (int gridX = -BushRadius; gridX <= BushRadius; ++gridX) {
+                const std::uint32_t siteHash = Hash(gridX, gridZ, seed ^ 0x6a09e667U);
+                const float jitterX = (UnitRandom(siteHash) - 0.5f) * BushSpacing * 0.74f;
+                const float jitterZ = (UnitRandom(Hash(
+                    gridX, gridZ, seed ^ 0xbb67ae85U)) - 0.5f) * BushSpacing * 0.74f;
+                const float x = static_cast<float>(gridX) * BushSpacing + jitterX;
+                const float z = static_cast<float>(gridZ) * BushSpacing + jitterZ;
+                const TerrainSample sample = terrain.Sample(x, z);
+                if (sample.signedShoreDistance < 38.0f
+                    || sample.signedShoreDistance > 232.0f
+                    || sample.height < 3.0f || sample.slopeRadians > 0.5235988f
+                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    continue;
+                }
+
+                const float interior = SmoothStep(
+                    (sample.signedShoreDistance - 38.0f) / 70.0f);
+                const float broadCluster = ClusterNoise(
+                    x, z, seed ^ 0x3c6ef372U, 47.0f);
+                const float fineCluster = ClusterNoise(
+                    x, z, seed ^ 0xa54ff53aU, 21.0f);
+                const float density = std::clamp(
+                    (0.20f + 0.31f * interior)
+                        * (0.52f + 0.62f * broadCluster + 0.18f * fineCluster),
+                    0.0f, 0.68f);
+                if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x510e527fU)) >= density) {
+                    continue;
+                }
+
+                BushPlacement bush;
+                bush.x = x;
+                bush.y = sample.height + 0.012f;
+                bush.z = z;
+                bush.yawRadians = UnitRandom(Hash(gridX, gridZ, seed ^ 0x9b05688cU))
+                    * 2.0f * std::numbers::pi_v<float>;
+                bush.scale = BushMinimumScale + (BushMaximumScale - BushMinimumScale)
+                    * UnitRandom(Hash(gridX, gridZ, seed ^ 0x1f83d9abU));
+                bush.variant = static_cast<std::uint8_t>(
+                    Hash(gridX, gridZ, seed ^ 0x5be0cd19U) % BushVariantCount);
+                bushes_.push_back(bush);
             }
         }
     }

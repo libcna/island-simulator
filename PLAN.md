@@ -326,16 +326,17 @@ Dependencies: stable terrain/shore queries and representative performance instru
   instrumented Android wind/LOD qualification remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
-  four-variant fern/large-leaf plants plus 152 rocks, 11 fallen logs, and 28 three-variant
-  driftwood pieces; bushes, smaller ground layers, and broader natural beach-prop variety remain.
+  four-variant fern/large-leaf plants, 565 three-variant low bushes, 152 rocks, 11 fallen logs, and
+  28 three-variant driftwood pieces; smaller ground layers, richer bush silhouettes/materials, and
+  broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
-  canopy, understory, rock, log, and driftwood placement is deterministic,
+  canopy, understory, bush, rock, log, and driftwood placement is deterministic,
   shore-distance/slope/height constrained, multi-scale cluster-noise weighted, and reserves a
   winding primary path, two clearings, and spawn; final biome masks and prop separation remain
   open.
 - [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds, grass, canopy
-  crowns, and understory leaves use bounded weighted motion on OpenGL 3.3 and WebGL 2; Android
-  GLES 3 runtime validation of the new jungle shader remains open.
+  crowns, understory leaves, and low bushes use bounded weighted motion on OpenGL 3.3 and WebGL 2;
+  Android GLES 3 runtime validation of the expanded jungle shader remains open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
   One radius-matched circular proxy is active per palm and canopy trunk; substantial rocks and
   fallen logs are solid, while fronds, crowns, understory, small rocks, and driftwood remain
@@ -462,8 +463,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   four frames, returned from `Game::Run()`, and exited with code zero.
 - [~] Verify stock `BasicEffect` terrain fallback and explicit GLSL ES 300 ocean/palm/grass/jungle
   shaders through actual WebGL 2 browser compilation and execution. The current 330-palm,
-  18,556-patch grass, 281-canopy, and 1,822-understory hardware-instancing paths, wind shaders, and
-  LOD selection are verified; later wildlife and material variants remain open.
+  18,556-patch grass, 281-canopy, 1,822-understory, and 565-bush hardware-instancing paths, wind
+  shaders, and LOD selection are verified; later wildlife and material variants remain open.
 - [~] Implement pointer-lock acquisition/release and clear click-to-focus/fullscreen instructions.
   The production shell provides click-to-play controls, first-gesture lock, Escape release, and
   clean click reacquisition; fullscreen presentation remains open.
@@ -753,8 +754,8 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add low bushes, smaller ground plants, and improved ground/contact variation; broaden the first
-   sparse driftwood layer with restrained shell/branch beach detail only where composition needs it.
+1. Add smaller ground plants and improved ground/contact variation; enrich the first low-bush
+   silhouettes/materials and sparse driftwood layer only where composition review needs it.
 2. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
    F5--F8 QA teleports are complete.
 3. Qualify touch traversal, pause/resume, and performance on a physical Android device or a stable
@@ -1067,6 +1068,29 @@ Work next, in order:
   view and must report nonzero driftwood through the full custom prop shader.
 - Rebuilt the arm64-v8a Android APK and passed application lint. Runtime qualification of the new
   geometry remains open until a stable KVM-backed emulator or physical device is available.
+
+### 2026-10-05 — First low-bush jungle layer
+
+- Added 565 deterministic low bushes as a distinct third jungle layer between mesh grass and the
+  existing medium understory. Height, slope, shoreline distance, broad/fine cluster fields, and
+  route/clearing reservations shape their distribution; they remain intentionally non-solid.
+- Added three original bush variants assembled from offset opaque low-poly leaf lobes. Independent
+  near/far geometry, bounded shader wind, cell culling, variant instancing, and distance LOD reuse
+  the portable jungle path rather than adding transparency overdraw or per-bush submissions.
+- Core regressions cover deterministic population/data, biome belt, ground suitability, route
+  clearance, variant range, authored scale range, and the existing canopy-only collision invariant.
+- Extended startup and overlay diagnostics with visible/total bush counts. The deterministic jungle
+  camera sees 102 of 565 bushes; adding three near/far variants raises the same visible scene from
+  15 to 21 jungle draw submissions, a bounded six-draw increase.
+- Core tests pass and all seven isolated OpenGL lifecycle/capture tests pass. Native visual review
+  confirms the intended lower volumetric layer while retaining open walking routes; richer bush
+  silhouettes, materials, and contact cues remain a later polish task.
+- Rebuilt the WebAssembly package and passed the complete Chromium/SwiftShader WebGL 2 lifecycle,
+  deployment, input, and five-image suite. The jungle pass now requires nonzero canopy,
+  understory, and bushes through the expanded custom wind/LOD shader; the inspected browser view
+  matches native composition and counts.
+- Rebuilt the arm64-v8a Android APK and passed application lint. Runtime qualification of bush
+  density, shader motion, and performance remains open until stable Android hardware is available.
 
 ## Session-end checklist
 
