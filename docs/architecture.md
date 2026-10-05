@@ -1,0 +1,138 @@
+# Architecture
+
+## Boundaries
+
+`island-simulator` is a game built on CNA, not an engine fork. CNA `next` and Sharp Runtime `next`
+are read-only. Gameplay and rendering code may use their public APIs, but fixes and compatibility
+adapters remain in this repository. Confirmed dependency defects are recorded in `BUGS.md`.
+
+The current source layers are:
+
+```text
+IslandTerrain ───────── authoritative terrain and shoreline queries
+      │
+      ├── PlayerMotion ─────── renderer-independent walking, swimming, obstacle collision,
+      │                        and ocean limit
+      ├── VegetationLayout ─── deterministic palm placement and trunk collision proxies
+      │       │
+      │       └── PalmRenderer ─ procedural meshes, cell culling, and instanced drawing
+      ├── GrassLayout ──────── deterministic density, scale, phase, and colour anchors
+      │       │
+      │       └── GrassRenderer ─ near/far blade clusters, cell culling, instancing, and wind
+      ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
+      └── IslandGame ───────── CNA lifecycle, input, camera, terrain cells, and pass ordering
+```
+
+`IslandTerrain`, `PlayerMotion`, `VegetationLayout`, and `GrassLayout` form
+`IslandSimulator::Core` and
+deliberately do not depend on CNA. They compile and test quickly without a graphics device.
+`IslandGame` converts CNA input to a world-space movement direction and converts the core player
+position back to CNA `Vector3` for the camera. Collision and rendering consume the same palm
+placements; rendering never becomes a separate source of world truth.
+
+## Coordinates and scale
+
+- One world unit is one metre.
+- `Y` is up and mean water level is `Y = 0`.
+- The nominal island diameter is 500 m.
+- The initial south-beach spawn faces roughly toward the island centre along positive `Z`.
+- Camera yaw zero looks along positive `Z`; pitch is clamped before it can flip.
+
+The island is an authored-procedural hybrid. The current analytic terrain is the deterministic base
+layer: an irregular radial shoreline, a shallow shelf, beaches, rolling interior relief, and a low
+viewpoint hill. Later biome masks, routes, coves, and landmarks must preserve the single-query rule:
+rendering, collision, vegetation, wildlife, water, and tests all consult the same authoritative
+field or a documented derived cache.
+
+## Dependency resolution
+
+`dependencies.lock` records the qualified commits. CMake verifies:
+
+- CNA on `next`, or a pristine generated export carrying the exact CNA revision marker;
+- Sharp Runtime on `next`;
+- EasyGL and MetaGL on their CNA-required `develop` branches;
+- exact revisions by default.
+
+The main shared CNA checkout is currently on another branch and must not be switched by this
+project. `tools/materialize_cna_next.sh` uses `git archive` to produce an unmodified, ignored source
+tree under `build/dependencies/cna-next`. It refuses a stale destination and never edits the source
+repository. Developers may instead provide a separate read-only CNA `next` checkout through
+`CNA_ROOT_DIR`.
+
+## Frame flow
+
+1. CNA polls platform events and publishes keyboard/mouse snapshots.
+2. `IslandGame::Update` reads each input device once.
+3. Input is transformed by camera yaw into a normalized horizontal wish direction.
+4. `PlayerMotion` applies frame-time clamping, acceleration, slope checks, swimming speed, the
+   island-relative current field, and the remote safety boundary.
+5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
+   circular obstacles, retaining axis sliding when one component is valid.
+6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, opaque palms,
+   then the transparent ocean.
+7. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+
+The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
+step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.
+
+## Ocean boundary model
+
+The current boundary is deliberately layered:
+
+1. Shoreline water remains traversable and transitions to swimming by terrain depth with
+   hysteresis.
+2. At 42 m offshore, an inward current begins gently and outward input progressively loses effect.
+3. By 72 m offshore, the current is fully developed.
+4. At 92 m offshore, a last-resort positional safety cap removes residual outward velocity.
+
+All distances derive from `IslandTerrain::SignedShoreDistance`; there is no beach collision wall or
+hard-coded rectangular boundary. Later audio, wave, and camera feedback can communicate the same
+current without changing its physical invariant.
+
+## Rendering baseline
+
+The terrain's authoritative 241 by 241 source grid is partitioned into 64 render cells. Each cell
+has portable 16-bit indices and an independent bounding box for frustum rejection; exact shared
+sample coordinates prevent cracks. Fixed daylight is currently baked into procedural terrain and
+palm vertex colours.
+
+Four palm variants use curved tapered trunk meshes and 10--12 ribbon fronds. A deterministic
+330-instance layout is grouped into the same 8 by 8 spatial grid as terrain. CNA hardware
+instancing reduces a typical overview from hundreds of palm submissions to four variant draws;
+capability-checked per-palm drawing remains the functional fallback. Cells are rejected by frustum
+and a conservative distance bound before instances are gathered.
+
+Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
+visible anchor instances one shared 28-blade near cluster or five-blade far cluster. The vertex
+shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
+independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
+path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
+the far tier into the ground before culling. Native OpenGL 3.3 and WebGL 2 use the portable
+instanced shader; a slower static `BasicEffect` path is retained for unsupported renderers.
+
+The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
+GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
+shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
+depth-driven tropical colour/transparency, moving foam, and haze. A stock `BasicEffect` fallback
+keeps the scene operable with a clear diagnostic if the custom effect cannot be created. Native
+OpenGL 3.3 and actual WebGL 2 execution select the full path; Android GLES 3 is not yet qualified.
+
+The game requests the XNA `HiDef` profile because its deterministic QA capture uses back-buffer
+readback and the intended 3D feature set exceeds a `Reach`-only design. This is an application
+requirement, not a CNA workaround.
+
+## Current limitations
+
+- Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
+- Palms have four geometry variants, placement clustering, cell culling, and trunk collision, but
+  no wind, mesh LOD, or grounding shadow yet.
+- The first grass tier substantially improves first-person grounding, but transition popping,
+  close-up blade shape, distant blending, biome variation, and measured mobile density still need
+  repeated polish. Broadleaf canopy, undergrowth, rocks, and natural props remain to be built.
+- Collision checks every palm proxy and has no spatial broad phase yet; rocks and geometric step-up
+  remain absent.
+- Swimming camera height is functional but has no bob, underwater transition, or audio.
+- WebGL 2 has run in Chromium/SwiftShader with the full ocean shader and palm instancing, but
+  pointer lock, interactive input, audio unlock, and hardware-GPU performance remain unverified.
+- Android has not been compiled or run by this project yet.
+- No wildlife, layered soundscape, debug overlay, or configuration UI exists yet.

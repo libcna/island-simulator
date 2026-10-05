@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>island-simulator WebGL 2 smoke test</title>
+  <style>
+    html, body { margin: 0; overflow: hidden; background: #152a32; color: white; font-family: sans-serif; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+    pre { display: none; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="1280" height="720" tabindex="-1"></canvas>
+  <pre id="output"></pre>
+  <script>
+    const output = document.getElementById("output");
+    globalThis.islandSmokeResult = { exited: false, exitCode: null, output: "", error: "" };
+    const record = (prefix, values) => {
+      const line = prefix + values.join(" ");
+      globalThis.islandSmokeResult.output += line + "\n";
+      output.textContent = globalThis.islandSmokeResult.output;
+      console.log(line);
+    };
+    const mode = new URLSearchParams(location.search).get("mode") ?? "smoke";
+    var Module = {
+      arguments: mode === "interactive" ? []
+        : (mode === "overview" ? ["--overview"]
+          : (mode === "beach" ? ["--viewpoint", "beach"] : ["--smoke-test"])),
+      canvas: document.getElementById("canvas"),
+      print: (...values) => record("", values),
+      printErr: (...values) => record("ERR: ", values),
+      onAbort: (reason) => {
+        globalThis.islandSmokeResult.error = String(reason);
+      },
+      onExit: (code) => {
+        globalThis.islandSmokeResult.exited = true;
+        globalThis.islandSmokeResult.exitCode = code;
+      }
+    };
+    window.addEventListener("error", event => {
+      globalThis.islandSmokeResult.error = event.error?.stack ?? event.message;
+    });
+    window.addEventListener("unhandledrejection", event => {
+      globalThis.islandSmokeResult.error = event.reason?.stack ?? String(event.reason);
+    });
+  </script>
+  <script async src="island-simulator.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "web-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-probe",
+      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "ISLAND_BUILD_GAME": "ON",
+        "ISLAND_BUILD_TESTS": "OFF"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux OpenGL 3.3 Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CNA_GRAPHICS_RENDERER": "OPENGL33",
+        "ISLAND_BUILD_GAME": "ON",
+        "ISLAND_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "web-webgl2",
+      "displayName": "Web WebGL 2 Release",
+      "inherits": "web-base",
+      "cacheVariables": {
+        "CNA_GRAPHICS_RENDERER": "WEBGL2"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug",
+      "jobs": 2,
+      "targets": [
+        "island-simulator",
+        "island_core_tests"
+      ]
+    },
+    {
+      "name": "web-webgl2",
+      "configurePreset": "web-webgl2",
+      "jobs": 2,
+      "targets": [
+        "island-simulator"
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-core",
+      "configurePreset": "linux-debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 2
+      },
+      "filter": {
+        "include": {
+          "name": "^IslandCoreTests$"
+        }
+      }
+    }
+  ]
+}

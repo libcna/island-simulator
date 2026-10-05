@@ -1,0 +1,72 @@
+# WebGL 2 Build and Browser Validation
+
+## Current status
+
+The bootstrap terrain/traversal scene builds with Emscripten and runs in Chromium using CNA's
+`WEBGL2` renderer. Automated evidence currently covers renderer initialization, four rendered
+frames, normal `Game::Run()` return, and a separate active-render screenshot. Pointer lock,
+keyboard/mouse focus behaviour, resizing, audio unlock, pause/resume, performance, and a second
+browser engine are not yet validated.
+
+## Prerequisites
+
+- the Emscripten SDK at `/home/robertvokac/emsdk`, or another installation exposed through `EMSDK`;
+- Google Chrome or Chromium for the automated browser smoke test;
+- the same exact read-only dependency revisions listed in `dependencies.lock`;
+- the CNA SDL submodule snapshots already populated in the source CNA worktree;
+- the shared compiler cache at `/rv/cnaccache` in this workspace.
+
+`tools/materialize_cna_next.sh` copies the three pinned SDL snapshots into the ignored CNA source
+export after verifying that the containing checkout and CNA `next` use identical SDL gitlinks. It
+does not initialize, switch, or edit the CNA repository. Configure-time SDL build products go to
+the writable project cache `build/cna-sdl-prebuilt-emscripten`, never into the CNA export.
+
+## Configure and build
+
+```bash
+source /home/robertvokac/emsdk/emsdk_env.sh
+export CCACHE_DIR=/rv/cnaccache
+export CCACHE_BASEDIR=/rv
+tools/materialize_cna_next.sh
+cmake --preset web-webgl2
+cmake --build --preset web-webgl2
+```
+
+The first configure builds CNA's pinned SDL, SDL_image, and SDL_mixer for Emscripten with a hard
+two-job ceiling. Later configures reuse their content-fingerprinted cache. The game build also uses
+two jobs because it compiles Sharp Runtime.
+
+The deployable files are written to `build-probe/`:
+
+- `island-simulator.html`
+- `island-simulator.js`
+- `island-simulator.wasm`
+
+Serve the directory over HTTP; browsers do not support this package through `file://`:
+
+```bash
+python3 -m http.server 8765 --bind 127.0.0.1 --directory build-probe
+```
+
+Then open `http://127.0.0.1:8765/island-simulator.html`.
+
+## Automated browser smoke
+
+With the Emscripten environment active, run:
+
+```bash
+"${EMSDK_NODE}" tools/run_web_smoke.mjs build-probe
+```
+
+The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
+game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
+ocean shader, the hardware-instanced 330-palm path, and the portable instanced grass-wind shader
+rather than their fallbacks. It then opens live fixed overview and first-person beach instances at
+a 1280 x 720 viewport. The overview is saved as `build-probe/island-browser-smoke.png`; the beach
+view is saved as `build-probe/island-browser-beach.png` and must report a nonzero visible grass
+population, proving that the custom instanced draw path executed. The machine-readable result is
+`build-probe/island-browser-smoke.json`.
+
+This smoke test proves browser/WebAssembly/WebGL execution, but it is not a substitute for a
+visible interactive pass using hardware acceleration. Do not mark pointer lock, audio unlock,
+focus recovery, frame pacing, or browser-specific controls complete from this test alone.
