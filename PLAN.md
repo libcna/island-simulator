@@ -462,6 +462,9 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta,
   distinct accent PCM, and the mono-to-CNA output path; headphone listening and future positional
   stereo remain.
+- [x] Add an accelerated long-session numerical regression. A deterministic 72,000-frame/
+  twenty-minute route cycles beach, jungle, swimming, and wading/dry transitions while checking
+  finite bounded mixes, bounded wave activity, exact crossing events, and both accent variants.
 - [x] Provide graceful no-audio diagnostics/fallback without crashing the visual experience. Start
   and runtime volume failures log an actionable reason, disable audio resources, and leave graphics
   and traversal active; the F1 overlay exposes `UNAVAILABLE` rather than hiding the failure.
@@ -1281,6 +1284,18 @@ Work next, in order:
 - Rebuilt and linted the arm64-v8a APK successfully. Audible variant balance still requires the
   planned listening pass, and Android playback remains unqualified without KVM or a physical
   device. No qualifying CNA or Sharp Runtime defect was found.
+
+### 2026-10-05 — Twenty-minute soundscape model regression
+
+- Added a deterministic 72,000-frame simulation representing twenty minutes at 60 Hz. It cycles
+  20-second beach, inland jungle, swimming, and wading-to-dry blocks without sleeping, opening a
+  device, or depending on wall-clock timing.
+- The regression continuously checks surf, breeze, jungle, water gain, and water pitch for finite
+  values and authored limits. It also verifies bounded wave frequency, exactly one transition per
+  entry/exit crossing, valid variant indices, and long-run reachability of both source choices.
+- The complete core suite still finishes in about 1.2 seconds and passes. This is numerical
+  stability/coverage evidence only; it deliberately does not close the separate subjective
+  20-minute listening/fatigue task.
 
 ## Session-end checklist
 

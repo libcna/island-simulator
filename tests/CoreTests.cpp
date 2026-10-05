@@ -303,6 +303,78 @@ int main()
     Check(!waveVariantOutOfRange && observedWaveVariants[0] && observedWaveVariants[1],
           "deterministic stronger-wave scheduling reaches both source variants");
 
+    island::SoundscapeModel longSoundscapeModel;
+    island::WaterMovementModel longWaterMovementModel;
+    island::WaveAccentScheduler longWaveScheduler;
+    island::WaterTransitionScheduler longTransitionScheduler;
+    longSoundscapeModel.Reset(2.0f, false);
+    longWaterMovementModel.Reset(0.0f, false, 0.0f);
+    longWaveScheduler.Reset();
+    longTransitionScheduler.Reset(0.0f, false);
+    constexpr float longStepSeconds = 1.0f / 60.0f;
+    constexpr int longSessionSteps = 20 * 60 * 60;
+    constexpr int biomeBlockSteps = 20 * 60;
+    bool longSessionStable = true;
+    int longWaveCount = 0;
+    int longTransitionCount = 0;
+    std::array<bool, 2> longWaveVariants = {false, false};
+    std::array<bool, 2> longTransitionVariants = {false, false};
+    for (int step = 0; step < longSessionSteps; ++step) {
+        const int block = (step / biomeBlockSteps) % 4;
+        const int blockStep = step % biomeBlockSteps;
+        const float signedShoreDistance = block == 0 ? 2.0f
+            : block == 1 ? 140.0f
+            : block == 2 ? -8.0f : 8.0f;
+        const bool swimming = block == 2;
+        const float waterDepth = block == 2 ? 0.7f
+            : block == 3 && blockStep < biomeBlockSteps / 2 ? 0.12f : 0.0f;
+        const float speed = block == 1 ? 2.8f : swimming ? 1.8f : 3.2f;
+        const island::SoundscapeMix longMix = longSoundscapeModel.Update(
+            signedShoreDistance, swimming, longStepSeconds);
+        const island::WaterMovementMix longWaterMix = longWaterMovementModel.Update(
+            waterDepth, swimming, speed, longStepSeconds);
+        const island::WaveAccentRequest longWave = longWaveScheduler.Update(
+            longStepSeconds, longMix.surfVolume);
+        const island::WaterTransitionRequest longTransition = longTransitionScheduler.Update(
+            waterDepth, swimming, speed, longStepSeconds);
+
+        longSessionStable = longSessionStable
+            && std::isfinite(longMix.surfVolume) && longMix.surfVolume >= 0.0f
+            && longMix.surfVolume <= 0.40f
+            && std::isfinite(longMix.breezeVolume) && longMix.breezeVolume >= 0.0f
+            && longMix.breezeVolume <= 0.20f
+            && std::isfinite(longMix.jungleVolume) && longMix.jungleVolume >= 0.0f
+            && longMix.jungleVolume <= 0.08f
+            && std::isfinite(longWaterMix.volume) && longWaterMix.volume >= 0.0f
+            && longWaterMix.volume <= 0.18f
+            && std::isfinite(longWaterMix.pitch) && longWaterMix.pitch >= -0.15f
+            && longWaterMix.pitch <= 0.15f;
+        if (longWave.trigger) {
+            ++longWaveCount;
+            if (longWave.variant < longWaveVariants.size()) {
+                longWaveVariants[longWave.variant] = true;
+            } else {
+                longSessionStable = false;
+            }
+        }
+        if (longTransition.type != island::WaterTransitionType::None) {
+            ++longTransitionCount;
+            if (longTransition.variant < longTransitionVariants.size()) {
+                longTransitionVariants[longTransition.variant] = true;
+            } else {
+                longSessionStable = false;
+            }
+        }
+    }
+    Check(longSessionStable,
+          "twenty-minute soundscape simulation remains finite and inside mix bounds");
+    Check(longWaveCount >= 20 && longWaveCount <= 80
+              && longWaveVariants[0] && longWaveVariants[1],
+          "long soundscape simulation keeps wave activity bounded and varied");
+    Check(longTransitionCount == 30
+              && longTransitionVariants[0] && longTransitionVariants[1],
+          "long soundscape simulation emits exactly one varied accent per water crossing");
+
     island::TouchControls touchControls;
     std::array<island::TouchContact, 2> touchContacts = {{
         {11, 180.0f, 520.0f, island::TouchPhase::Pressed},

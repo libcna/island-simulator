@@ -231,7 +231,9 @@ visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover 
 length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade,
 daytime-jungle gating, water depth/speed gating and smoothing, transition hysteresis/cooldown, and
 wave-accent interval/virtualization bounds. Tests also require each accent pair to contain different
-PCM. Native playback started all four loops, prepared both pairs, and accepted a scheduled
+PCM. A 72,000-frame accelerated model regression cycles representative zones for a simulated
+twenty minutes while checking finite bounds, event budgets, crossings, and variant reachability.
+Native playback started all four loops, prepared both pairs, and accepted a scheduled
 stronger-wave one-shot. Actual Chromium proves first-gesture mixer/track/effect initialization, and a
 deterministic shoreline traversal from `(0, -225)` to `(0, -251.332)` successfully played the
 transition effect; a visible hardware-browser listening pass and Android audio focus/lifecycle
