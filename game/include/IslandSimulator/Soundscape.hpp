@@ -69,11 +69,14 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> jungleEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> jungleInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waterMovementEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
             waterMovementInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
             waterTransitionEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
+            waterTransitionAlternateEffect_;
         std::string error_;
         bool available_ = false;
         bool muted_ = false;

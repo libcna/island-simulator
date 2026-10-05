@@ -221,6 +221,31 @@ namespace island
         return Quantize(samples, 0.86f);
     }
 
+    AmbientLoop GenerateWaveAccentAlternate()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 4);
+        const std::vector<float> noise = Noise(0x7e4af291U, frameCount);
+        const std::vector<float> foam = CircularSmooth(noise, 8U);
+        const std::vector<float> wash = CircularSmooth(noise, 260U);
+        const std::vector<float> body = CircularSmooth(noise, 1460U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index)
+                / static_cast<float>(samples.size() - 1U);
+            const float attack = SmoothStep(0.0f, 0.19f, phase);
+            const float release = 1.0f - SmoothStep(0.49f, 1.0f, phase);
+            const float crest = 0.63f
+                + 0.22f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (1.5f * phase + 0.34f));
+            samples[index] = attack * release
+                * ((foam[index] - wash[index] * 0.18f) * crest
+                   + wash[index] * 0.72f + body[index] * 0.51f);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.84f);
+    }
+
     AmbientLoop GenerateWaterMovementLoop()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 6);
@@ -265,6 +290,29 @@ namespace island
         return Quantize(samples, 0.78f);
     }
 
+    AmbientLoop GenerateWaterTransitionAccentAlternate()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 3 / 2);
+        const std::vector<float> noise = Noise(0x2f0a7c5dU, frameCount);
+        const std::vector<float> droplets = CircularSmooth(noise, 4U);
+        const std::vector<float> splash = CircularSmooth(noise, 37U);
+        const std::vector<float> body = CircularSmooth(noise, 330U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index)
+                / static_cast<float>(samples.size() - 1U);
+            const float attack = SmoothStep(0.0f, 0.055f, phase);
+            const float release = 1.0f - SmoothStep(0.11f, 1.0f, phase);
+            const float initialSplash = std::exp(-phase * 4.2f);
+            samples[index] = attack * release
+                * (droplets[index] * (0.28f + initialSplash * 0.34f)
+                   + splash[index] * 0.82f + body[index] * 0.48f);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.76f);
+    }
+
     void WaveAccentScheduler::Reset() noexcept
     {
         randomState_ = 0x78d2f9a5U;
@@ -290,6 +338,7 @@ namespace island
 
         WaveAccentRequest request;
         request.trigger = true;
+        request.variant = NextUnit() < 0.5f ? 0U : 1U;
         request.volume = std::clamp((surfVolume - 0.05f) * 0.54f, 0.06f, 0.22f);
         request.pitch = -0.06f + NextUnit() * 0.12f;
         request.pan = -0.32f + NextUnit() * 0.64f;
@@ -381,6 +430,7 @@ namespace island
             horizontalSpeed / PlayerMotion::WalkSpeed, 0.0f, 1.0f);
         WaterTransitionRequest request;
         request.type = entering ? WaterTransitionType::Enter : WaterTransitionType::Exit;
+        request.variant = NextUnit() < 0.5f ? 0U : 1U;
         request.volume = 0.055f + normalizedSpeed * 0.085f;
         request.pitch = (entering ? -0.055f : 0.025f) + NextUnit() * 0.05f;
         request.pan = -0.18f + NextUnit() * 0.36f;

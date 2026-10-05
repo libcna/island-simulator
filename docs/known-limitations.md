@@ -39,7 +39,8 @@ been confirmed so far.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
   through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional
-  emitters, more than one entry/exit texture, and a long fatigue/listening pass remain absent.
+  emitters, additional wave/water variety beyond the first two variants, and a long fatigue/
+  listening pass remain absent.
 
 ## Platform qualification
 

@@ -45,29 +45,40 @@ int main()
     const island::AmbientLoop jungleLoop = island::GenerateJungleLoop();
     const island::AmbientLoop repeatedJungleLoop = island::GenerateJungleLoop();
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
+    const island::AmbientLoop waveAccentAlternate = island::GenerateWaveAccentAlternate();
     const island::AmbientLoop waterMovementLoop = island::GenerateWaterMovementLoop();
     const island::AmbientLoop repeatedWaterMovementLoop = island::GenerateWaterMovementLoop();
     const island::AmbientLoop waterTransitionAccent = island::GenerateWaterTransitionAccent();
+    const island::AmbientLoop waterTransitionAccentAlternate =
+        island::GenerateWaterTransitionAccentAlternate();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
           "procedural ambient loops are ten seconds long");
     Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 264600U,
           "daytime-jungle ambience has its intended twelve-second portable format");
-    Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U,
-          "stronger-wave accent has its intended four-second portable format");
+    Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U
+              && waveAccentAlternate.sampleRate == 22050
+              && waveAccentAlternate.samples.size() == 88200U,
+          "both stronger-wave accents have the intended four-second portable format");
     Check(waterMovementLoop.sampleRate == 22050
               && waterMovementLoop.samples.size() == 132300U,
           "player water movement has its intended six-second portable format");
     Check(waterTransitionAccent.sampleRate == 22050
-              && waterTransitionAccent.samples.size() == 33075U,
-          "water transition has its intended one-and-a-half-second portable format");
+              && waterTransitionAccent.samples.size() == 33075U
+              && waterTransitionAccentAlternate.sampleRate == 22050
+              && waterTransitionAccentAlternate.samples.size() == 33075U,
+          "both water transitions have the intended one-and-a-half-second portable format");
     Check(surfLoop.samples == repeatedSurfLoop.samples,
           "procedural surf generation is deterministic");
     Check(waterMovementLoop.samples == repeatedWaterMovementLoop.samples,
           "procedural player water movement generation is deterministic");
     Check(jungleLoop.samples == repeatedJungleLoop.samples,
           "procedural daytime-jungle generation is deterministic");
+    Check(waveAccent.samples != waveAccentAlternate.samples,
+          "stronger-wave variants contain genuinely different source PCM");
+    Check(waterTransitionAccent.samples != waterTransitionAccentAlternate.samples,
+          "water-transition variants contain genuinely different source PCM");
     const auto peakMagnitude = [](const island::AmbientLoop& loop) {
         int peak = 0;
         for (const std::int16_t sample : loop.samples) {
@@ -91,17 +102,27 @@ int main()
           "daytime-jungle ambience is audible while retaining mixing headroom");
     Check(peakMagnitude(waveAccent) < 32767 && rootMeanSquare(waveAccent) > 900.0,
           "stronger-wave accent is audible while retaining mixing headroom");
-    Check(waveAccent.samples.front() == 0 && waveAccent.samples.back() == 0,
-          "stronger-wave accent starts and ends at silence without a boundary click");
+    Check(peakMagnitude(waveAccentAlternate) < 32767
+              && rootMeanSquare(waveAccentAlternate) > 900.0,
+          "alternate stronger wave is audible while retaining mixing headroom");
+    Check(waveAccent.samples.front() == 0 && waveAccent.samples.back() == 0
+              && waveAccentAlternate.samples.front() == 0
+              && waveAccentAlternate.samples.back() == 0,
+          "both stronger waves start and end at silence without a boundary click");
     Check(peakMagnitude(waterMovementLoop) < 32767
               && rootMeanSquare(waterMovementLoop) > 900.0,
           "player water movement is audible while retaining mixing headroom");
     Check(peakMagnitude(waterTransitionAccent) < 32767
               && rootMeanSquare(waterTransitionAccent) > 700.0,
           "water transition accent is audible while retaining mixing headroom");
+    Check(peakMagnitude(waterTransitionAccentAlternate) < 32767
+              && rootMeanSquare(waterTransitionAccentAlternate) > 700.0,
+          "alternate water transition is audible while retaining mixing headroom");
     Check(waterTransitionAccent.samples.front() == 0
-              && waterTransitionAccent.samples.back() == 0,
-          "water transition accent starts and ends at silence");
+              && waterTransitionAccent.samples.back() == 0
+              && waterTransitionAccentAlternate.samples.front() == 0
+              && waterTransitionAccentAlternate.samples.back() == 0,
+          "both water transition accents start and end at silence");
     Check(std::abs(static_cast<int>(surfLoop.samples.front())
                    - static_cast<int>(surfLoop.samples.back())) < 8000,
           "surf loop boundary does not contain a large discontinuity");
@@ -186,7 +207,8 @@ int main()
         waterTransitionScheduler.Update(0.12f, false, 3.0f, 1.0f / 60.0f);
     Check(waterEntry.type == island::WaterTransitionType::Enter,
           "crossing the wet threshold emits one water-entry accent");
-    Check(waterEntry.volume >= 0.055f && waterEntry.volume <= 0.14f
+    Check(waterEntry.variant <= 1U
+              && waterEntry.volume >= 0.055f && waterEntry.volume <= 0.14f
               && waterEntry.pitch >= -0.055f && waterEntry.pitch <= -0.005f
               && waterEntry.pan >= -0.18f && waterEntry.pan <= 0.18f,
           "water-entry variation remains inside conservative playback bounds");
@@ -212,6 +234,29 @@ int main()
         waterTransitionScheduler.Update(0.12f, false, 0.0f, 0.01f);
     Check(stationaryEntry.type == island::WaterTransitionType::None,
           "stationary water-state changes do not emit a teleport-like splash");
+    island::WaterTransitionScheduler transitionVariantScheduler;
+    transitionVariantScheduler.Reset(0.0f, false);
+    std::array<bool, 2> observedTransitionVariants = {false, false};
+    bool transitionVariantOutOfRange = false;
+    for (int crossing = 0; crossing < 10; ++crossing) {
+        const bool entering = crossing % 2 == 0;
+        const island::WaterTransitionRequest transition = transitionVariantScheduler.Update(
+            entering ? 0.12f : 0.0f, false, 2.5f, 0.01f);
+        if (transition.type != island::WaterTransitionType::None) {
+            if (transition.variant < observedTransitionVariants.size()) {
+                observedTransitionVariants[transition.variant] = true;
+            } else {
+                transitionVariantOutOfRange = true;
+            }
+        }
+        for (int cooldownStep = 0; cooldownStep < 7; ++cooldownStep) {
+            (void)transitionVariantScheduler.Update(
+                entering ? 0.12f : 0.0f, false, 0.0f, 0.25f);
+        }
+    }
+    Check(!transitionVariantOutOfRange
+              && observedTransitionVariants[0] && observedTransitionVariants[1],
+          "deterministic shoreline scheduling reaches both source variants");
 
     island::WaveAccentScheduler waveScheduler;
     waveScheduler.Reset();
@@ -220,7 +265,8 @@ int main()
         firstWave = waveScheduler.Update(0.25f, beachMix.surfVolume);
     }
     Check(firstWave.trigger, "shoreline scheduler emits its first wave within the authored window");
-    Check(firstWave.volume >= 0.06f && firstWave.volume <= 0.22f
+    Check(firstWave.variant <= 1U
+              && firstWave.volume >= 0.06f && firstWave.volume <= 0.22f
               && firstWave.pitch >= -0.06f && firstWave.pitch <= 0.06f
               && firstWave.pan >= -0.32f && firstWave.pan <= 0.32f,
           "wave request variation remains inside conservative playback bounds");
@@ -239,6 +285,23 @@ int main()
     Check(!inlandWave, "quiet inland ambience virtualizes stronger-wave accents");
     Check(waveScheduler.Update(0.25f, beachMix.surfVolume).trigger,
           "returning to audible surf permits a waiting wave accent");
+    island::WaveAccentScheduler waveVariantScheduler;
+    waveVariantScheduler.Reset();
+    std::array<bool, 2> observedWaveVariants = {false, false};
+    bool waveVariantOutOfRange = false;
+    for (int step = 0; step < 1600; ++step) {
+        const island::WaveAccentRequest wave =
+            waveVariantScheduler.Update(0.25f, beachMix.surfVolume);
+        if (wave.trigger) {
+            if (wave.variant < observedWaveVariants.size()) {
+                observedWaveVariants[wave.variant] = true;
+            } else {
+                waveVariantOutOfRange = true;
+            }
+        }
+    }
+    Check(!waveVariantOutOfRange && observedWaveVariants[0] && observedWaveVariants[1],
+          "deterministic stronger-wave scheduling reaches both source variants");
 
     island::TouchControls touchControls;
     std::array<island::TouchContact, 2> touchContacts = {{

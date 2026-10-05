@@ -48,15 +48,22 @@ namespace island
             const AmbientLoop breeze = GenerateBreezeLoop();
             const AmbientLoop jungle = GenerateJungleLoop();
             const AmbientLoop wave = GenerateWaveAccent();
+            const AmbientLoop waveAlternate = GenerateWaveAccentAlternate();
             const AmbientLoop waterMovement = GenerateWaterMovementLoop();
             const AmbientLoop waterTransition = GenerateWaterTransitionAccent();
+            const AmbientLoop waterTransitionAlternate =
+                GenerateWaterTransitionAccentAlternate();
             const std::vector<SharpRuntime::bytecs> surfBytes = ToPcmBytes(surf);
             const std::vector<SharpRuntime::bytecs> breezeBytes = ToPcmBytes(breeze);
             const std::vector<SharpRuntime::bytecs> jungleBytes = ToPcmBytes(jungle);
             const std::vector<SharpRuntime::bytecs> waveBytes = ToPcmBytes(wave);
+            const std::vector<SharpRuntime::bytecs> waveAlternateBytes =
+                ToPcmBytes(waveAlternate);
             const std::vector<SharpRuntime::bytecs> waterMovementBytes = ToPcmBytes(waterMovement);
             const std::vector<SharpRuntime::bytecs> waterTransitionBytes =
                 ToPcmBytes(waterTransition);
+            const std::vector<SharpRuntime::bytecs> waterTransitionAlternateBytes =
+                ToPcmBytes(waterTransitionAlternate);
 
             surfEffect_ = std::make_unique<SoundEffect>(
                 surfBytes, 0, static_cast<SharpRuntime::intcs>(surfBytes.size()), surf.sampleRate,
@@ -86,6 +93,9 @@ namespace island
             waveEffect_ = std::make_unique<SoundEffect>(
                 waveBytes, wave.sampleRate, AudioChannels::Mono);
             waveEffect_->setNameProperty("Procedural stronger wave");
+            waveAlternateEffect_ = std::make_unique<SoundEffect>(
+                waveAlternateBytes, waveAlternate.sampleRate, AudioChannels::Mono);
+            waveAlternateEffect_->setNameProperty("Procedural stronger wave alternate");
 
             waterMovementEffect_ = std::make_unique<SoundEffect>(
                 waterMovementBytes, 0,
@@ -100,6 +110,11 @@ namespace island
             waterTransitionEffect_ = std::make_unique<SoundEffect>(
                 waterTransitionBytes, waterTransition.sampleRate, AudioChannels::Mono);
             waterTransitionEffect_->setNameProperty("Procedural player water transition");
+            waterTransitionAlternateEffect_ = std::make_unique<SoundEffect>(
+                waterTransitionAlternateBytes, waterTransitionAlternate.sampleRate,
+                AudioChannels::Mono);
+            waterTransitionAlternateEffect_->setNameProperty(
+                "Procedural player water transition alternate");
 
             available_ = true;
             ApplyVolumes();
@@ -125,7 +140,9 @@ namespace island
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
+            std::cout << "island-simulator: two water-transition variants enabled\n";
             std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
+            std::cout << "island-simulator: two stronger-wave variants enabled\n";
             return true;
         } catch (const std::exception& exception) {
             error_ = exception.what();
@@ -134,8 +151,10 @@ namespace island
             jungleInstance_.reset();
             jungleEffect_.reset();
             waterMovementInstance_.reset();
+            waterTransitionAlternateEffect_.reset();
             waterTransitionEffect_.reset();
             waterMovementEffect_.reset();
+            waveAlternateEffect_.reset();
             waveEffect_.reset();
             breezeEffect_.reset();
             surfInstance_.reset();
@@ -155,12 +174,14 @@ namespace island
         ApplyVolumes();
         const WaterTransitionRequest waterTransition = waterTransitionScheduler_.Update(
             waterDepth, swimming, horizontalSpeed, deltaSeconds);
+        SoundEffect* waterTransitionEffect = waterTransition.variant == 1U
+            ? waterTransitionAlternateEffect_.get() : waterTransitionEffect_.get();
         if (available_ && !muted_ && waterTransitionsEnabled_
-            && waterTransition.type != WaterTransitionType::None && waterTransitionEffect_) {
+            && waterTransition.type != WaterTransitionType::None && waterTransitionEffect) {
             try {
-                if (waterTransitionEffect_->Play(waterTransition.volume,
-                                                 waterTransition.pitch,
-                                                 waterTransition.pan)) {
+                if (waterTransitionEffect->Play(waterTransition.volume,
+                                                waterTransition.pitch,
+                                                waterTransition.pan)) {
                     ++playedWaterTransitionCount_;
                     if (playedWaterTransitionCount_ == 1) {
                         std::cout << "island-simulator: first water-transition accent played\n"
@@ -182,11 +203,13 @@ namespace island
         }
         const WaveAccentRequest accent = waveScheduler_.Update(
             deltaSeconds, model_.Mix().surfVolume);
-        if (!available_ || muted_ || !waveAccentsEnabled_ || !accent.trigger || !waveEffect_) {
+        SoundEffect* waveEffect = accent.variant == 1U
+            ? waveAlternateEffect_.get() : waveEffect_.get();
+        if (!available_ || muted_ || !waveAccentsEnabled_ || !accent.trigger || !waveEffect) {
             return;
         }
         try {
-            if (waveEffect_->Play(accent.volume, accent.pitch, accent.pan)) {
+            if (waveEffect->Play(accent.volume, accent.pitch, accent.pan)) {
                 ++playedWaveAccentCount_;
                 if (playedWaveAccentCount_ == 1) {
                     std::cout << "island-simulator: first stronger-wave accent played\n"
@@ -241,8 +264,10 @@ namespace island
         jungleInstance_.reset();
         jungleEffect_.reset();
         waterMovementInstance_.reset();
+        waterTransitionAlternateEffect_.reset();
         waterTransitionEffect_.reset();
         waterMovementEffect_.reset();
+        waveAlternateEffect_.reset();
         waveEffect_.reset();
         breezeEffect_.reset();
         surfInstance_.reset();

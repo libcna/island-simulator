@@ -32,16 +32,23 @@ namespace island
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
     [[nodiscard]] AmbientLoop GenerateWaveAccent();
 
+    /** @brief Generates a second four-second wave shape for repetition control. */
+    [[nodiscard]] AmbientLoop GenerateWaveAccentAlternate();
+
     /** @brief Generates a seamless six-second water-motion bed for wading and swimming. */
     [[nodiscard]] AmbientLoop GenerateWaterMovementLoop();
 
     /** @brief Generates one short non-looping water entry/exit accent. */
     [[nodiscard]] AmbientLoop GenerateWaterTransitionAccent();
 
+    /** @brief Generates a second short water-boundary texture. */
+    [[nodiscard]] AmbientLoop GenerateWaterTransitionAccentAlternate();
+
     /** @brief One optional, bounded stronger-wave playback request. */
     struct WaveAccentRequest
     {
         bool trigger = false;
+        std::uint8_t variant = 0;
         float volume = 0.0f;
         float pitch = 0.0f;
         float pan = 0.0f;
@@ -96,6 +103,7 @@ namespace island
     struct WaterTransitionRequest
     {
         WaterTransitionType type = WaterTransitionType::None;
+        std::uint8_t variant = 0;
         float volume = 0.0f;
         float pitch = 0.0f;
         float pan = 0.0f;

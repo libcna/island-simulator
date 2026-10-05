@@ -208,19 +208,20 @@ and horizontal velocity. Dry movement and stationary water produce zero gain; sh
 active swimming fade in with different conservative pitch ranges. One persistent loop avoids the
 rapid repeated one-shot cadence common to footstep-style water effects, while 140 ms attack and
 340 ms release smoothing prevent hard edges and state-transition chatter. All current procedural
-PCM payloads total 1,918,350 bytes (about 1.83 MiB) before backend bookkeeping.
+PCM payloads total 2,160,900 bytes (about 2.06 MiB) before backend bookkeeping.
 
-A separate 1.5-second splash texture handles crossings between dry and shallow-water states. The
-detector uses 7.5 cm entry and 2.5 cm exit thresholds, ignores stationary state changes, and applies
-a 1.6-second cooldown longer than the sample, so shoreline jitter cannot overlap or machine-gun the
-effect. Entry and exit share the source with different bounded pitch/pan/gain variation. It may
-overlap a stronger-wave accent, bounding the present mix to four persistent loops and at most two
-short one-shots.
+Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water
+states. The detector uses 7.5 cm entry and 2.5 cm exit thresholds, ignores stationary state
+changes, and applies a 1.6-second cooldown longer than either sample, so shoreline jitter cannot
+overlap or machine-gun the effect. Entry and exit select a source and apply different bounded
+pitch/pan/gain variation. A transition may overlap a stronger-wave accent, bounding the present mix
+to four persistent loops and at most two short one-shots.
 
-A separate original four-second PCM wash supplies occasional stronger waves. A deterministic
-7--13 second initial delay and 14--32 second repeat interval vary conservative pitch and stereo pan
-without allowing overlaps. The scheduler virtualizes the accent while inland surf is inaudible,
-so it contributes at most one short one-shot to the broader bounded source budget.
+Two original four-second PCM washes with different noise, filtering, envelope, and crest shapes
+supply occasional stronger waves. A deterministic 7--13 second initial delay and 14--32 second
+repeat interval select a source and vary conservative pitch/stereo pan without allowing overlaps.
+The scheduler virtualizes the accent while inland surf is inaudible, so it contributes at most one
+short one-shot to the broader bounded source budget.
 
 `Soundscape` owns CNA `SoundEffect` and looping `SoundEffectInstance` objects and never calls SDL
 or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
@@ -229,8 +230,9 @@ pointer-lock requests share one user action. Missing or disconnected audio degra
 visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
 length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade,
 daytime-jungle gating, water depth/speed gating and smoothing, transition hysteresis/cooldown, and
-wave-accent interval/virtualization bounds. Native playback started all four loops and accepted the scheduled
-stronger-wave one-shot. Actual Chromium proves first-gesture mixer/track initialization, and a
+wave-accent interval/virtualization bounds. Tests also require each accent pair to contain different
+PCM. Native playback started all four loops, prepared both pairs, and accepted a scheduled
+stronger-wave one-shot. Actual Chromium proves first-gesture mixer/track/effect initialization, and a
 deterministic shoreline traversal from `(0, -225)` to `(0, -251.332)` successfully played the
 transition effect; a visible hardware-browser listening pass and Android audio focus/lifecycle
 testing remain open.

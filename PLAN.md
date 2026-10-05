@@ -443,13 +443,13 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   a hysteretic transition detector and a slower interior texture fade; authored clearing-specific
   mixing and richer biome zones remain.
 - [~] Add non-repetitive surf beds and occasional stronger waves tied to shoreline proximity. A
-  deterministic ten-second filtered-noise bed now follows shoreline distance, and a four-second
-  wash plays at varied 14--32 second intervals near audible surf. Additional accent variants and
-  long-session fatigue tuning remain.
+  deterministic ten-second filtered-noise bed now follows shoreline distance, and two distinct
+  four-second washes are selected at varied 14--32 second intervals near audible surf. Subjective
+  balance and long-session fatigue tuning remain.
 - [~] Add wind-through-vegetation, jungle beds, birds, insects where tasteful, monkey calls, distant
   wildlife, and sparse water splashes. A light-canopy-breeze loop and subtle twelve-second daytime
-  jungle bed increase inland, and the first cooldown-protected water entry/exit accent is active;
-  wildlife, additional insect texture, accent variation, and richer biome layers remain.
+  jungle bed increase inland, and two cooldown-protected water entry/exit textures are active;
+  wildlife, additional insect/accent variation, and richer biome layers remain.
 - [ ] Add positional one-shots/emitters where direction and distance improve presence.
 - [x] Add player wading/swimming movement audio without repetitive rapid triggering. One continuous
   six-second procedural loop follows authoritative support depth, locomotion mode, and horizontal
@@ -459,8 +459,9 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   water-transition accent; inland wave accents remain virtual. Wildlife and positional-source
   budgets remain.
 - [~] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
-  Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta, and
-  the mono-to-CNA output path; headphone listening and future positional stereo remain.
+  Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta,
+  distinct accent PCM, and the mono-to-CNA output path; headphone listening and future positional
+  stereo remain.
 - [x] Provide graceful no-audio diagnostics/fallback without crashing the visual experience. Start
   and runtime volume failures log an actionable reason, disable audio resources, and leave graphics
   and traversal active; the F1 overlay exposes `UNAVAILABLE` rather than hiding the failure.
@@ -777,8 +778,8 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Tune and vary the first daytime-jungle texture, add wave/water-accent variation, and complete a
-   20-minute listening pass before adding wildlife emitters.
+1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
+   adding wildlife emitters; retain measured headroom and the six-source ceiling.
 2. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
@@ -1259,6 +1260,27 @@ Work next, in order:
 - Rebuilt and linted the arm64-v8a APK successfully. Android audible quality, focus, and lifecycle
   behaviour remain unqualified without KVM or a physical device. No qualifying CNA or Sharp
   Runtime defect was found.
+
+### 2026-10-05 — Wave and shoreline accent variation
+
+- Added a second original four-second stronger-wave wash with a different deterministic noise seed,
+  filter widths, swell envelope, and crest shape. Added a second original 1.5-second shoreline
+  texture with a softer attack, broader wash, and longer body. No external assets are used.
+- Extended both schedulers with a deterministic two-way source selection before existing bounded
+  pitch/pan/gain variation. Both cooldowns and the source ceiling are unchanged: variants never
+  create overlapping copies of their own accent category.
+- Prepared both effect pairs through CNA and kept failure isolation, global mute, diagnostic counts,
+  and the existing browser-gesture boundary unchanged. Current source PCM totals 2,160,900 bytes
+  (about 2.06 MiB); the hard simultaneous ceiling remains four loops plus two one-shots.
+- Added core coverage for both variants' exact format/duration, RMS/headroom, silent endpoints,
+  genuinely different PCM, scheduler bounds, and deterministic long-run reachability of both
+  choices. The core suite and all seven isolated OpenGL 3.3 tests pass.
+- The real Linux device initialized every effect and transitioned all four loops to `Playing`; a
+  scheduled selected wave was accepted. The full Chrome/WebGL 2 harness passes, requires both pairs
+  to be prepared after the first gesture, and successfully plays the selected shoreline variant.
+- Rebuilt and linted the arm64-v8a APK successfully. Audible variant balance still requires the
+  planned listening pass, and Android playback remains unqualified without KVM or a physical
+  device. No qualifying CNA or Sharp Runtime defect was found.
 
 ## Session-end checklist
 
