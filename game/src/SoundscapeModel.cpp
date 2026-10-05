@@ -176,6 +176,29 @@ namespace island
         return Quantize(samples, 0.68f);
     }
 
+    AmbientLoop GenerateWaterTransitionAccent()
+    {
+        constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 3 / 2);
+        const std::vector<float> noise = Noise(0xe17a5a11U, frameCount);
+        const std::vector<float> droplets = CircularSmooth(noise, 2U);
+        const std::vector<float> splash = CircularSmooth(noise, 24U);
+        const std::vector<float> body = CircularSmooth(noise, 210U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index)
+                / static_cast<float>(samples.size() - 1U);
+            const float attack = SmoothStep(0.0f, 0.035f, phase);
+            const float release = 1.0f - SmoothStep(0.18f, 1.0f, phase);
+            const float initialSplash = std::exp(-phase * 5.5f);
+            samples[index] = attack * release
+                * (droplets[index] * (0.40f + initialSplash * 0.42f)
+                   + splash[index] * 0.72f + body[index] * 0.34f);
+        }
+        samples.front() = 0.0f;
+        samples.back() = 0.0f;
+        return Quantize(samples, 0.78f);
+    }
+
     void WaveAccentScheduler::Reset() noexcept
     {
         randomState_ = 0x78d2f9a5U;
@@ -247,6 +270,56 @@ namespace island
         mix_.volume += (target.volume - mix_.volume) * volumeBlend;
         mix_.pitch += (target.pitch - mix_.pitch) * pitchBlend;
         return mix_;
+    }
+
+    void WaterTransitionScheduler::Reset(const float waterDepth, const bool swimming) noexcept
+    {
+        randomState_ = 0xc0145a7eU;
+        cooldownSeconds_ = 0.0f;
+        inWater_ = swimming || waterDepth >= 0.075f;
+    }
+
+    float WaterTransitionScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    WaterTransitionRequest WaterTransitionScheduler::Update(const float waterDepth,
+                                                            const bool swimming,
+                                                            const float horizontalSpeed,
+                                                            const float deltaSeconds) noexcept
+    {
+        cooldownSeconds_ = std::max(
+            0.0f, cooldownSeconds_ - std::clamp(deltaSeconds, 0.0f, 0.25f));
+        bool nextInWater = inWater_;
+        if (swimming || waterDepth >= 0.075f) {
+            nextInWater = true;
+        } else if (waterDepth <= 0.025f) {
+            nextInWater = false;
+        }
+        if (nextInWater == inWater_) {
+            return {};
+        }
+
+        const bool entering = nextInWater;
+        inWater_ = nextInWater;
+        if (cooldownSeconds_ > 0.0f || horizontalSpeed < 0.12f) {
+            return {};
+        }
+
+        const float normalizedSpeed = std::clamp(
+            horizontalSpeed / PlayerMotion::WalkSpeed, 0.0f, 1.0f);
+        WaterTransitionRequest request;
+        request.type = entering ? WaterTransitionType::Enter : WaterTransitionType::Exit;
+        request.volume = 0.055f + normalizedSpeed * 0.085f;
+        request.pitch = (entering ? -0.055f : 0.025f) + NextUnit() * 0.05f;
+        request.pan = -0.18f + NextUnit() * 0.36f;
+        cooldownSeconds_ = 1.6f;
+        return request;
     }
 
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,

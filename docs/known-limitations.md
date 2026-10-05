@@ -39,7 +39,7 @@ been confirmed so far.
 - A first original procedural layer supplies shoreline-distance-blended surf, sparse stronger-wave
   accents, light canopy breeze, and speed/depth-responsive player movement through water. It is
   intentionally incomplete: richer jungle ambience, insects, birds, monkeys, positional emitters,
-  distinct entry/exit splashes, and a long fatigue/listening pass remain absent.
+  more than one entry/exit accent texture, and a long fatigue/listening pass remain absent.
 
 ## Platform qualification
 

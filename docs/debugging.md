@@ -31,7 +31,7 @@ Current fields are:
 - visible/total rocks, fallen logs, and beach driftwood plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, and draw submissions;
 - audio availability/mute state, current surf/breeze/player-water mix levels, and played
-  stronger-wave count.
+  stronger-wave and water-transition counts.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative
@@ -56,7 +56,8 @@ jungle, prop, and driftwood PNG captures plus a JSON report under `build-probe/`
 initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input
 and pointer-lock evidence. The deployable-page pass also proves first-gesture CNA mixer/track
-startup for all three looping layers. It does not prove audible hardware-browser quality,
+startup for all three looping layers, and the deterministic live-input pass proves acceptance of
+one shoreline transition effect. These checks do not prove audible hardware-browser quality,
 hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 
 ## Planned diagnostics

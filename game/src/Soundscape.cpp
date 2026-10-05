@@ -48,10 +48,13 @@ namespace island
             const AmbientLoop breeze = GenerateBreezeLoop();
             const AmbientLoop wave = GenerateWaveAccent();
             const AmbientLoop waterMovement = GenerateWaterMovementLoop();
+            const AmbientLoop waterTransition = GenerateWaterTransitionAccent();
             const std::vector<SharpRuntime::bytecs> surfBytes = ToPcmBytes(surf);
             const std::vector<SharpRuntime::bytecs> breezeBytes = ToPcmBytes(breeze);
             const std::vector<SharpRuntime::bytecs> waveBytes = ToPcmBytes(wave);
             const std::vector<SharpRuntime::bytecs> waterMovementBytes = ToPcmBytes(waterMovement);
+            const std::vector<SharpRuntime::bytecs> waterTransitionBytes =
+                ToPcmBytes(waterTransition);
 
             surfEffect_ = std::make_unique<SoundEffect>(
                 surfBytes, 0, static_cast<SharpRuntime::intcs>(surfBytes.size()), surf.sampleRate,
@@ -83,6 +86,10 @@ namespace island
                 waterMovementEffect_->CreateInstance());
             waterMovementInstance_->setIsLoopedProperty(true);
 
+            waterTransitionEffect_ = std::make_unique<SoundEffect>(
+                waterTransitionBytes, waterTransition.sampleRate, AudioChannels::Mono);
+            waterTransitionEffect_->setNameProperty("Procedural player water transition");
+
             available_ = true;
             ApplyVolumes();
             if (!available_) {
@@ -98,9 +105,12 @@ namespace island
                 throw std::runtime_error("CNA did not transition all looping tracks to Playing");
             }
             waveScheduler_.Reset();
+            waterTransitionScheduler_.Reset(waterDepth, swimming);
             waveAccentsEnabled_ = true;
+            waterTransitionsEnabled_ = true;
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
+            std::cout << "island-simulator: water-transition accents enabled\n";
             std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
             return true;
         } catch (const std::exception& exception) {
@@ -108,6 +118,7 @@ namespace island
             available_ = false;
             breezeInstance_.reset();
             waterMovementInstance_.reset();
+            waterTransitionEffect_.reset();
             waterMovementEffect_.reset();
             waveEffect_.reset();
             breezeEffect_.reset();
@@ -126,6 +137,33 @@ namespace island
         (void)model_.Update(signedShoreDistance, swimming, deltaSeconds);
         (void)waterMovementModel_.Update(waterDepth, swimming, horizontalSpeed, deltaSeconds);
         ApplyVolumes();
+        const WaterTransitionRequest waterTransition = waterTransitionScheduler_.Update(
+            waterDepth, swimming, horizontalSpeed, deltaSeconds);
+        if (available_ && !muted_ && waterTransitionsEnabled_
+            && waterTransition.type != WaterTransitionType::None && waterTransitionEffect_) {
+            try {
+                if (waterTransitionEffect_->Play(waterTransition.volume,
+                                                 waterTransition.pitch,
+                                                 waterTransition.pan)) {
+                    ++playedWaterTransitionCount_;
+                    if (playedWaterTransitionCount_ == 1) {
+                        std::cout << "island-simulator: first water-transition accent played\n"
+                                  << std::flush;
+                    }
+                } else if (!waterTransitionFailureReported_) {
+                    waterTransitionFailureReported_ = true;
+                    std::cerr << "island-simulator: water-transition accent could not acquire "
+                                 "a playback instance; continuous layers continue\n";
+                }
+            } catch (const std::exception& exception) {
+                waterTransitionsEnabled_ = false;
+                if (!waterTransitionFailureReported_) {
+                    waterTransitionFailureReported_ = true;
+                    std::cerr << "island-simulator: water-transition accents disabled; "
+                                 "continuous layers continue: " << exception.what() << '\n';
+                }
+            }
+        }
         const WaveAccentRequest accent = waveScheduler_.Update(
             deltaSeconds, model_.Mix().surfVolume);
         if (!available_ || muted_ || !waveAccentsEnabled_ || !accent.trigger || !waveEffect_) {
@@ -183,6 +221,7 @@ namespace island
         available_ = false;
         breezeInstance_.reset();
         waterMovementInstance_.reset();
+        waterTransitionEffect_.reset();
         waterMovementEffect_.reset();
         waveEffect_.reset();
         breezeEffect_.reset();

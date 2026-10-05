@@ -31,6 +31,9 @@ namespace island
     /** @brief Generates a seamless six-second water-motion bed for wading and swimming. */
     [[nodiscard]] AmbientLoop GenerateWaterMovementLoop();
 
+    /** @brief Generates one short non-looping water entry/exit accent. */
+    [[nodiscard]] AmbientLoop GenerateWaterTransitionAccent();
+
     /** @brief One optional, bounded stronger-wave playback request. */
     struct WaveAccentRequest
     {
@@ -76,6 +79,39 @@ namespace island
 
     private:
         WaterMovementMix mix_;
+    };
+
+    enum class WaterTransitionType : std::uint8_t
+    {
+        None,
+        Enter,
+        Exit
+    };
+
+    /** @brief One optional water-boundary accent with bounded playback variation. */
+    struct WaterTransitionRequest
+    {
+        WaterTransitionType type = WaterTransitionType::None;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        float pan = 0.0f;
+    };
+
+    /** @brief Hysteretic, cooldown-protected detector for player water entry and exit. */
+    class WaterTransitionScheduler final
+    {
+    public:
+        void Reset(float waterDepth, bool swimming) noexcept;
+        [[nodiscard]] WaterTransitionRequest Update(float waterDepth, bool swimming,
+                                                    float horizontalSpeed,
+                                                    float deltaSeconds) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+
+        std::uint32_t randomState_ = 0xc0145a7eU;
+        float cooldownSeconds_ = 0.0f;
+        bool inWater_ = false;
     };
 
     /** @brief Smoothly blends ambient layers from authoritative shoreline/player state. */

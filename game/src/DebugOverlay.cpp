@@ -245,7 +245,8 @@ namespace island
                                                        : "UNAVAILABLE")
               << "  SURF " << state.surfVolume << " BREEZE " << state.breezeVolume;
         audio << " WATER " << state.waterMovementVolume
-              << " WAVES " << state.playedWaveAccents;
+              << " WAVES " << state.playedWaveAccents
+              << " SPLASHES " << state.playedWaterTransitions;
         lines.push_back(audio.str());
 
         constexpr float scale = 1.45f;

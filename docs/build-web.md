@@ -86,13 +86,15 @@ The machine-readable result is `build-probe/island-browser-smoke.json`.
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
 the canvas, assert pointer lock/focus and initialization of all three looping audio layers, hold W
-long enough to measure world movement, move the
-relative pointer, toggle F1, resize to a non-16:9 browser window, explicitly unlock, and click to
-reacquire. It records the initial/final player and viewport samples in the JSON report. Chromium's
+long enough to measure world movement, reset to the deterministic south-beach QA location, and
+walk backward into the ocean. The shoreline crossing must produce a successful water-transition
+one-shot diagnostic. The harness then moves the relative pointer, toggles F1, resizes to a
+non-16:9 browser window, explicitly unlocks, and clicks to reacquire. It records the initial/final
+player and viewport samples in the JSON report. Chromium's
 synthetic page-freeze command did not yield reliable resume evidence in this environment, so real
 tab background/foreground behaviour remains unqualified rather than being inferred.
 
-This smoke test proves browser/WebAssembly/WebGL execution and first-gesture CNA mixer/track
-initialization, but it is not a substitute for a visible interactive listening pass using hardware
-acceleration. Do not infer audible quality, real tab lifecycle, frame pacing, thermal behaviour, or
-non-Chromium compatibility from it.
+This smoke test proves browser/WebAssembly/WebGL execution, first-gesture CNA mixer/track
+initialization, and acceptance of the shoreline transition one-shot, but it is not a substitute for
+a visible interactive listening pass using hardware acceleration. Do not infer audible quality,
+real tab lifecycle, frame pacing, thermal behaviour, or non-Chromium compatibility from it.

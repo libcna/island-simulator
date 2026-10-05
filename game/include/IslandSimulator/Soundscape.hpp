@@ -49,6 +49,10 @@ namespace island
         {
             return playedWaveAccentCount_;
         }
+        [[nodiscard]] int PlayedWaterTransitionCount() const noexcept
+        {
+            return playedWaterTransitionCount_;
+        }
 
     private:
         void ApplyVolumes() noexcept;
@@ -57,6 +61,7 @@ namespace island
         SoundscapeModel model_;
         WaterMovementModel waterMovementModel_;
         WaveAccentScheduler waveScheduler_;
+        WaterTransitionScheduler waterTransitionScheduler_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
@@ -65,12 +70,17 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waterMovementEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
             waterMovementInstance_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
+            waterTransitionEffect_;
         std::string error_;
         bool available_ = false;
         bool muted_ = false;
         bool startAttempted_ = false;
         bool waveAccentsEnabled_ = false;
         bool waveFailureReported_ = false;
+        bool waterTransitionsEnabled_ = false;
+        bool waterTransitionFailureReported_ = false;
         int playedWaveAccentCount_ = 0;
+        int playedWaterTransitionCount_ = 0;
     };
 }

@@ -199,6 +199,8 @@ try {
     "island-simulator: sparse stronger-wave accents enabled");
   deploymentState.waterMovementEnabled = deploymentState.output?.includes(
     "island-simulator: player water-movement layer enabled");
+  deploymentState.waterTransitionsEnabled = deploymentState.output?.includes(
+    "island-simulator: water-transition accents enabled");
   const deploymentPassed = deploymentState.status === "Ready"
     && deploymentState.width === 1280
     && deploymentState.height === 720
@@ -209,6 +211,7 @@ try {
     && deploymentState.audioStarted === true
     && deploymentState.waveAccentsEnabled === true
     && deploymentState.waterMovementEnabled === true
+    && deploymentState.waterTransitionsEnabled === true
     && deploymentState.pointerLocked === true;
   await call("Target.closeTarget", { targetId: deploymentTargetId });
 
@@ -429,6 +432,26 @@ try {
     type: "keyUp", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
     nativeVirtualKeyCode: 87,
   }, visualSessionId);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "F5", code: "F5", windowsVirtualKeyCode: 116,
+    nativeVirtualKeyCode: 116,
+  }, visualSessionId);
+  await delay(100);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "F5", code: "F5", windowsVirtualKeyCode: 116,
+    nativeVirtualKeyCode: 116,
+  }, visualSessionId);
+  await delay(150);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
+    nativeVirtualKeyCode: 83,
+  }, visualSessionId);
+  await delay(6000);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
+    nativeVirtualKeyCode: 83,
+  }, visualSessionId);
+  await delay(300);
   await call("Input.dispatchMouseEvent", {
     type: "mouseMoved", x: 700, y: 360, button: "none", buttons: 0,
   }, visualSessionId);
@@ -520,6 +543,8 @@ try {
   const mouseLookChanged = initialSample && finalSample
     && (Math.abs(finalSample.yaw - initialSample.yaw) > 0.005
       || Math.abs(finalSample.pitch - initialSample.pitch) > 0.005);
+  const waterTransitionPlayed = inputResult.output?.includes(
+    "island-simulator: first water-transition accent played");
   const backingAspect = resizedState.width / resizedState.height;
   const clientAspect = resizedState.clientWidth / resizedState.clientHeight;
   const viewportResized = finalSample?.viewportWidth === 1280
@@ -536,6 +561,7 @@ try {
     && lockedState.focused === true
     && samples.some(sample => sample.captured === 1 && sample.relative === 1)
     && keyboardMoved
+    && waterTransitionPlayed
     && mouseLookChanged
     && viewportResized
     && pointerUnlocked
@@ -588,6 +614,7 @@ try {
       pointerLocked: lockedState.pointerLocked ?? false,
       focused: lockedState.focused ?? false,
       keyboardMoved: Boolean(keyboardMoved),
+      waterTransitionPlayed: Boolean(waterTransitionPlayed),
       mouseLookChanged: Boolean(mouseLookChanged),
       viewportResized: Boolean(viewportResized),
       pointerUnlocked,

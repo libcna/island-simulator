@@ -45,6 +45,7 @@ int main()
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
     const island::AmbientLoop waterMovementLoop = island::GenerateWaterMovementLoop();
     const island::AmbientLoop repeatedWaterMovementLoop = island::GenerateWaterMovementLoop();
+    const island::AmbientLoop waterTransitionAccent = island::GenerateWaterTransitionAccent();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
@@ -54,6 +55,9 @@ int main()
     Check(waterMovementLoop.sampleRate == 22050
               && waterMovementLoop.samples.size() == 132300U,
           "player water movement has its intended six-second portable format");
+    Check(waterTransitionAccent.sampleRate == 22050
+              && waterTransitionAccent.samples.size() == 33075U,
+          "water transition has its intended one-and-a-half-second portable format");
     Check(surfLoop.samples == repeatedSurfLoop.samples,
           "procedural surf generation is deterministic");
     Check(waterMovementLoop.samples == repeatedWaterMovementLoop.samples,
@@ -84,6 +88,12 @@ int main()
     Check(peakMagnitude(waterMovementLoop) < 32767
               && rootMeanSquare(waterMovementLoop) > 900.0,
           "player water movement is audible while retaining mixing headroom");
+    Check(peakMagnitude(waterTransitionAccent) < 32767
+              && rootMeanSquare(waterTransitionAccent) > 700.0,
+          "water transition accent is audible while retaining mixing headroom");
+    Check(waterTransitionAccent.samples.front() == 0
+              && waterTransitionAccent.samples.back() == 0,
+          "water transition accent starts and ends at silence");
     Check(std::abs(static_cast<int>(surfLoop.samples.front())
                    - static_cast<int>(surfLoop.samples.back())) < 8000,
           "surf loop boundary does not contain a large discontinuity");
@@ -148,6 +158,39 @@ int main()
         waterMovementModel.Update(0.0f, false, 0.0f, 1.0f / 60.0f);
     Check(firstDryFrame.volume > 0.0f && firstDryFrame.volume < movingWaterVolume,
           "water movement fades out without rapid stop/start chatter");
+
+    island::WaterTransitionScheduler waterTransitionScheduler;
+    waterTransitionScheduler.Reset(0.0f, false);
+    const island::WaterTransitionRequest waterEntry =
+        waterTransitionScheduler.Update(0.12f, false, 3.0f, 1.0f / 60.0f);
+    Check(waterEntry.type == island::WaterTransitionType::Enter,
+          "crossing the wet threshold emits one water-entry accent");
+    Check(waterEntry.volume >= 0.055f && waterEntry.volume <= 0.14f
+              && waterEntry.pitch >= -0.055f && waterEntry.pitch <= -0.005f
+              && waterEntry.pan >= -0.18f && waterEntry.pan <= 0.18f,
+          "water-entry variation remains inside conservative playback bounds");
+    const island::WaterTransitionRequest rapidExit =
+        waterTransitionScheduler.Update(0.0f, false, 3.0f, 0.1f);
+    Check(rapidExit.type == island::WaterTransitionType::None,
+          "water transition cooldown prevents overlapping shoreline chatter");
+    for (int step = 0; step < 7; ++step) {
+        (void)waterTransitionScheduler.Update(0.0f, false, 0.0f, 0.25f);
+    }
+    const island::WaterTransitionRequest secondEntry =
+        waterTransitionScheduler.Update(0.12f, false, 2.0f, 0.01f);
+    Check(secondEntry.type == island::WaterTransitionType::Enter,
+          "water entry becomes eligible again after the authored cooldown");
+    waterTransitionScheduler.Reset(0.2f, false);
+    const island::WaterTransitionRequest waterExit =
+        waterTransitionScheduler.Update(0.0f, false, 2.0f, 0.01f);
+    Check(waterExit.type == island::WaterTransitionType::Exit
+              && waterExit.pitch >= 0.025f && waterExit.pitch <= 0.075f,
+          "leaving shallow water emits the distinct higher-pitched exit accent");
+    waterTransitionScheduler.Reset(0.0f, false);
+    const island::WaterTransitionRequest stationaryEntry =
+        waterTransitionScheduler.Update(0.12f, false, 0.0f, 0.01f);
+    Check(stationaryEntry.type == island::WaterTransitionType::None,
+          "stationary water-state changes do not emit a teleport-like splash");
 
     island::WaveAccentScheduler waveScheduler;
     waveScheduler.Reset();

@@ -62,6 +62,7 @@ namespace island
         float breezeVolume = 0.0f;
         float waterMovementVolume = 0.0f;
         int playedWaveAccents = 0;
+        int playedWaterTransitions = 0;
     };
 
     /** @brief Small asset-free bitmap-font overlay for renderer and gameplay diagnostics. */

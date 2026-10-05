@@ -643,6 +643,8 @@ namespace island
                 overlayState.breezeVolume = soundscape_->Mix().breezeVolume;
                 overlayState.waterMovementVolume = soundscape_->WaterMix().volume;
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
+                overlayState.playedWaterTransitions =
+                    soundscape_->PlayedWaterTransitionCount();
             }
             debugOverlay_->Draw(overlayState);
         }

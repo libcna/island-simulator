@@ -11,8 +11,8 @@ LOD, while vegetation uses a calm breeze. It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. The
 current audio pass adds original procedural shoreline surf, occasional stronger waves, a light
-canopy breeze, and speed/depth-responsive movement through shallow or swimming water without
-external sound files. The
+canopy breeze, speed/depth-responsive movement through shallow or swimming water, and restrained
+water-entry/exit accents without external sound files. The
 complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
 terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop/sky-inclusive APK builds, but
@@ -70,9 +70,10 @@ and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanc
 frames, clean shutdown, active overview/beach/jungle/prop/driftwood screenshots, and portable
 overlay text rendering.
 The Chromium harness also drives first-click pointer lock and audio start, WASD, relative mouse
-look, F1, pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible
-hardware-accelerated browser listening pass, genuine tab background/foreground behaviour, and
-another browser engine remain open.
+look, a deterministic beach-to-water crossing with successful transition-audio playback, F1,
+pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-
+accelerated browser listening pass, genuine tab background/foreground behaviour, and another
+browser engine remain open.
 
 The Android project produces arm64-v8a device and x86_64 emulator APKs with an explicit GLES 3
 renderer. The left half of the screen supplies a floating movement stick and the right half uses
