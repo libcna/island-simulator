@@ -44,7 +44,8 @@ namespace island
          */
         explicit IslandGame(bool smokeTest = false, std::string capturePath = {},
                             FixedViewpoint viewpoint = FixedViewpoint::None,
-                            bool showDebugOverlay = false);
+                            bool showDebugOverlay = false,
+                            bool inputDiagnostics = false);
 
         GetTypeNameHPP()
 
@@ -97,6 +98,8 @@ namespace island
         bool mouseCaptured_ = false;
         bool debugOverlayVisible_ = false;
         bool debugOverlayToggleWasDown_ = false;
+        bool inputDiagnostics_ = false;
+        float inputDiagnosticsTimer_ = 0.0f;
         std::uint32_t drawnFrames_ = 0;
         int visibleTerrainCellCount_ = 0;
         int terrainVertexCount_ = 0;

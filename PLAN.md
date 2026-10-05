@@ -454,16 +454,25 @@ Dependencies: portable baseline features and bounded initial asset size.
   through actual WebGL 2 browser compilation and execution. The current 330-palm and 18,556-patch
   grass hardware-instancing paths, including both wind shaders and palm/grass LOD selection, are
   verified; later broadleaf, wildlife, and material variants remain open.
-- [ ] Implement pointer-lock acquisition/release and clear click-to-focus/fullscreen instructions.
-- [ ] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
+- [~] Implement pointer-lock acquisition/release and clear click-to-focus/fullscreen instructions.
+  The production shell provides click-to-play controls, first-gesture lock, Escape release, and
+  clean click reacquisition; fullscreen presentation remains open.
+- [~] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
+  Controlled Chromium input now proves focus, WASD movement, relative look, F1, pointer
+  release/reacquisition, and aspect-preserving resize. Audio unlock and genuine tab
+  background/foreground recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [ ] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-- [ ] Add quality defaults appropriate to browser GPU/memory limits.
+- [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
+  a stable 1280 by 720 render surface with aspect-preserving CSS scaling; measured density and
+  memory tiers remain open.
 - [~] Run the current terrain/ocean/palm scene in Chromium/SwiftShader with an active-render capture; a
   visible hardware-accelerated interactive pass and another browser engine remain open.
 - [~] Capture browser console output, `WEBGL2` renderer identity, clean lifecycle, and an
   active-render screenshot. Startup time, memory, and representative frame-time evidence remain.
-- [ ] Document browser requirements and verified versions without claiming untested browsers.
+- [~] Document browser requirements and verified versions without claiming untested browsers.
+  Chromium/SwiftShader evidence and explicit gaps are documented; record a visible hardware run
+  and a second browser engine before completing this item.
 
 Exit validation:
 
@@ -713,10 +722,10 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Validate Web pointer lock, keyboard focus, resizing, pause/resume, and active hardware rendering
-   before declaring the browser traversal experience usable.
-2. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
+1. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
    designing touch input around assumptions.
+2. Perform a visible hardware-accelerated Web play pass and genuine tab background/foreground test;
+   audio unlock remains dependent on the first soundscape implementation.
 3. Begin the broadleaf canopy/medium-plant layer and preserve the authored route/clearing structure.
 4. Add debug teleports and shoreline/current plus vegetation-cell visualization before traversal
    and density tuning expands.
@@ -867,6 +876,30 @@ Work next, in order:
 - Startup smoke captures are too short for representative FPS evidence. Hardware-GPU profiling,
   frame histograms/budgets, world-space visualizers, teleports, wildlife/audio counters, and Android
   GLES 3 remain open.
+
+### 2026-10-05 — First controlled Web input and presentation pass
+
+- Added a production Emscripten shell with English controls, an explicit loading state, a 1280 by
+  720 render surface, and aspect-preserving fit for arbitrary browser windows.
+- Requests pointer lock directly from the first canvas mouse gesture to satisfy browser activation
+  policy. The game synchronizes its capture state with CNA's relative-mouse state so browser Escape
+  or focus loss does not prevent a later click from reacquiring control.
+- Extended the Chromium/SwiftShader harness beyond rendering: it proves canvas focus and pointer
+  lock, drives W far enough to measure player displacement, changes yaw/pitch through relative
+  mouse input, toggles F1, verifies explicit unlock and reacquisition, and resizes the browser to
+  1000 by 600 while the canvas preserves 16:9 at 1000 by 563. The latest run used Chrome
+  152.0.7977.82.
+- Opened the actual generated `island-simulator.html`, not only the instrumented test shell, and
+  required its Ready state, 1280 by 720 canvas, live WebGL 2 context, game renderer/terrain output,
+  and first-click pointer lock. The deployable shell itself now has automated coverage.
+- Raised the native and Web presentation baseline from the framework default 800 by 480 to 1280 by
+  720. All four isolated OpenGL lifecycle/capture tests still pass, the 1280 by 720 native overlay
+  capture was visually inspected, and the full WebGL 2 lifecycle/render/input harness passes.
+- Chromium DevTools synthetic `frozen` to `active` did not resume requestAnimationFrame in this
+  headless setup even when the page was brought forward. This is insufficient evidence of a CNA
+  defect and does not qualify genuine tab lifecycle; it remains an explicit manual-browser task.
+- Audio unlock, visible hardware acceleration, extended play, fullscreen, and a second browser
+  engine remain open. Android/GLES 3 is still uncompiled and unverified.
 
 ## Session-end checklist
 

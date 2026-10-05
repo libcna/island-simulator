@@ -136,6 +136,57 @@ try {
     && !result.error;
   await call("Target.closeTarget", { targetId: smokeTargetId });
 
+  const { targetId: deploymentTargetId } = await call(
+    "Target.createTarget", { url: "about:blank" });
+  const { sessionId: deploymentSessionId } = await call(
+    "Target.attachToTarget", { targetId: deploymentTargetId, flatten: true });
+  await call("Runtime.enable", {}, deploymentSessionId);
+  await call("Page.enable", {}, deploymentSessionId);
+  await call("Emulation.setDeviceMetricsOverride", {
+    width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
+  }, deploymentSessionId);
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-simulator.html`,
+  }, deploymentSessionId);
+  let deploymentState = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: `JSON.stringify({
+        status: document.getElementById("status")?.textContent ?? "",
+        width: Module.canvas?.width ?? 0,
+        height: Module.canvas?.height ?? 0,
+        hasWebGl2: Module.canvas?.getContext("webgl2") != null,
+        output: globalThis.islandDeploymentOutput ?? ""
+      })`,
+      returnByValue: true,
+    }, deploymentSessionId);
+    deploymentState = JSON.parse(evaluation.result.value ?? "{}");
+    if (deploymentState.status === "Ready"
+        && deploymentState.output?.includes("island-simulator: renderer WEBGL2")) break;
+  }
+  await call("Input.dispatchMouseEvent", {
+    type: "mousePressed", x: 640, y: 360, button: "left", buttons: 1, clickCount: 1,
+  }, deploymentSessionId);
+  await delay(150);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseReleased", x: 640, y: 360, button: "left", buttons: 0, clickCount: 1,
+  }, deploymentSessionId);
+  await delay(450);
+  const deploymentLockEvaluation = await call("Runtime.evaluate", {
+    expression: "document.pointerLockElement === Module.canvas",
+    returnByValue: true,
+  }, deploymentSessionId);
+  deploymentState.pointerLocked = deploymentLockEvaluation.result.value === true;
+  const deploymentPassed = deploymentState.status === "Ready"
+    && deploymentState.width === 1280
+    && deploymentState.height === 720
+    && deploymentState.hasWebGl2 === true
+    && deploymentState.output?.includes("island-simulator: renderer WEBGL2")
+    && deploymentState.output?.includes("island-simulator: terrain")
+    && deploymentState.pointerLocked === true;
+  await call("Target.closeTarget", { targetId: deploymentTargetId });
+
   const { targetId: visualTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: visualSessionId } = await call(
     "Target.attachToTarget", { targetId: visualTargetId, flatten: true });
@@ -207,15 +258,178 @@ try {
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
-  const passed = smokePassed && visualPassed && beachPassed;
+
+  await call("Emulation.setDeviceMetricsOverride", {
+    width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
+  }, visualSessionId);
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=input`,
+  }, visualSessionId);
+  let inputResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    inputResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (inputResult.output?.includes("island-simulator: input sample") || inputResult.error) break;
+  }
+
+  await call("Input.dispatchMouseEvent", {
+    type: "mousePressed", x: 640, y: 360, button: "left", buttons: 1, clickCount: 1,
+  }, visualSessionId);
+  await delay(150);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseReleased", x: 640, y: 360, button: "left", buttons: 0, clickCount: 1,
+  }, visualSessionId);
+  await delay(500);
+  const lockedEvaluation = await call("Runtime.evaluate", {
+    expression: `JSON.stringify({
+      pointerLocked: document.pointerLockElement === Module.canvas,
+      focused: document.activeElement === Module.canvas,
+      width: Module.canvas.width,
+      height: Module.canvas.height
+    })`,
+    returnByValue: true,
+  }, visualSessionId);
+  const lockedState = JSON.parse(lockedEvaluation.result.value ?? "{}");
+
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
+    nativeVirtualKeyCode: 87,
+  }, visualSessionId);
+  await delay(1000);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
+    nativeVirtualKeyCode: 87,
+  }, visualSessionId);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: 700, y: 360, button: "none", buttons: 0,
+  }, visualSessionId);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: 620, y: 340, button: "none", buttons: 0,
+  }, visualSessionId);
+  await delay(700);
+
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
+    nativeVirtualKeyCode: 112,
+  }, visualSessionId);
+  await delay(100);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
+    nativeVirtualKeyCode: 112,
+  }, visualSessionId);
+  await delay(300);
+
+  await call("Emulation.setDeviceMetricsOverride", {
+    width: 1000, height: 600, deviceScaleFactor: 1, mobile: false,
+  }, visualSessionId);
+  await delay(800);
+  const resizedEvaluation = await call("Runtime.evaluate", {
+    expression: `JSON.stringify({
+      width: Module.canvas.width,
+      height: Module.canvas.height,
+      clientWidth: Module.canvas.clientWidth,
+      clientHeight: Module.canvas.clientHeight
+    })`,
+    returnByValue: true,
+  }, visualSessionId);
+  const resizedState = JSON.parse(resizedEvaluation.result.value ?? "{}");
+
+  await call("Runtime.evaluate", { expression: "document.exitPointerLock()" }, visualSessionId);
+  await delay(250);
+  const unlockedEvaluation = await call("Runtime.evaluate", {
+    expression: "document.pointerLockElement === null",
+    returnByValue: true,
+  }, visualSessionId);
+  const pointerUnlocked = unlockedEvaluation.result.value === true;
+  await call("Input.dispatchMouseEvent", {
+    type: "mousePressed", x: 480, y: 270, button: "left", buttons: 1, clickCount: 1,
+  }, visualSessionId);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseReleased", x: 480, y: 270, button: "left", buttons: 0, clickCount: 1,
+  }, visualSessionId);
+  await delay(450);
+  const relockedEvaluation = await call("Runtime.evaluate", {
+    expression: "document.pointerLockElement === Module.canvas",
+    returnByValue: true,
+  }, visualSessionId);
+  const pointerRelocked = relockedEvaluation.result.value === true;
+
+  const beforeLifecycleEvaluation = await call("Runtime.evaluate", {
+    expression: "globalThis.islandSmokeResult?.output ?? ''",
+    returnByValue: true,
+  }, visualSessionId);
+  const samplesBeforeLifecycle = (beforeLifecycleEvaluation.result.value ?? "")
+    .match(/island-simulator: input sample/g)?.length ?? 0;
+  await call("Page.setWebLifecycleState", { state: "frozen" }, visualSessionId);
+  await delay(500);
+  await call("Page.setWebLifecycleState", { state: "active" }, visualSessionId);
+  await call("Page.bringToFront", {}, visualSessionId);
+  await delay(1500);
+
+  const completedInputEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  inputResult = JSON.parse(completedInputEvaluation.result.value ?? "{}");
+  const samples = [...(inputResult.output ?? "").matchAll(
+    /input sample captured (\d) relative (\d) x ([-+0-9.eE]+) z ([-+0-9.eE]+) yaw ([-+0-9.eE]+) pitch ([-+0-9.eE]+) viewport (\d+) (\d+)/g)]
+    .map(match => ({
+      captured: Number(match[1]),
+      relative: Number(match[2]),
+      x: Number(match[3]),
+      z: Number(match[4]),
+      yaw: Number(match[5]),
+      pitch: Number(match[6]),
+      viewportWidth: Number(match[7]),
+      viewportHeight: Number(match[8]),
+    }));
+  const initialSample = samples[0];
+  const finalSample = samples.at(-1);
+  const lifecycleResumed = samples.length > samplesBeforeLifecycle;
+  const keyboardMoved = initialSample && finalSample
+    && Math.hypot(finalSample.x - initialSample.x, finalSample.z - initialSample.z) > 0.5;
+  const mouseLookChanged = initialSample && finalSample
+    && (Math.abs(finalSample.yaw - initialSample.yaw) > 0.005
+      || Math.abs(finalSample.pitch - initialSample.pitch) > 0.005);
+  const backingAspect = resizedState.width / resizedState.height;
+  const clientAspect = resizedState.clientWidth / resizedState.clientHeight;
+  const viewportResized = finalSample?.viewportWidth === 1280
+    && finalSample?.viewportHeight === 720
+    && resizedState.clientWidth <= 1000
+    && resizedState.clientHeight <= 600
+    && (resizedState.clientWidth === 1000 || resizedState.clientHeight === 600)
+    && Math.abs(backingAspect - 16 / 9) < 0.001
+    && Math.abs(clientAspect - 16 / 9) < 0.01;
+  const inputPassed = inputResult.output?.includes("island-simulator: renderer WEBGL2")
+    && inputResult.output?.includes("island-simulator: debug overlay disabled")
+    && lockedState.pointerLocked === true
+    && lockedState.focused === true
+    && samples.some(sample => sample.captured === 1 && sample.relative === 1)
+    && keyboardMoved
+    && mouseLookChanged
+    && viewportResized
+    && pointerUnlocked
+    && pointerRelocked
+    && !inputResult.error;
+
+  const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && inputPassed;
   const report = {
     passed,
+    browser: version.Browser ?? "unknown",
     renderer: "WEBGL2",
     lifecycle: {
       passed: smokePassed,
       exitCode: result.exitCode ?? null,
       output: result.output ?? "",
       error: result.error ?? "",
+    },
+    deployment: {
+      passed: deploymentPassed,
+      ...deploymentState,
     },
     visual: {
       passed: visualPassed,
@@ -226,6 +440,23 @@ try {
       passed: beachPassed,
       output: beachResult.output ?? "",
       error: beachResult.error ?? "",
+    },
+    input: {
+      passed: inputPassed,
+      pointerLocked: lockedState.pointerLocked ?? false,
+      focused: lockedState.focused ?? false,
+      keyboardMoved: Boolean(keyboardMoved),
+      mouseLookChanged: Boolean(mouseLookChanged),
+      viewportResized: Boolean(viewportResized),
+      pointerUnlocked,
+      pointerRelocked,
+      lifecycleResumed,
+      lockedState,
+      resizedState,
+      initialSample: initialSample ?? null,
+      finalSample: finalSample ?? null,
+      output: inputResult.output ?? "",
+      error: inputResult.error ?? "",
     },
     console: consoleMessages,
     screenshot: path.basename(screenshotPath),

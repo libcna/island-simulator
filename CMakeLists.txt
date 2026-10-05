@@ -158,8 +158,11 @@ if(ISLAND_BUILD_GAME)
         if(TARGET CNA::EmscriptenAsyncify)
             target_link_libraries(island-simulator PRIVATE CNA::EmscriptenAsyncify)
         endif()
+        set_property(TARGET island-simulator APPEND PROPERTY LINK_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html")
         set_target_properties(island-simulator PROPERTIES SUFFIX ".html")
         target_link_options(island-simulator PRIVATE
+            --shell-file "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html"
             -sALLOW_MEMORY_GROWTH=1
             -sSTACK_SIZE=1048576
             -sINITIAL_MEMORY=134217728

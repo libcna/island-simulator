@@ -10,6 +10,7 @@ int main(const int argc, char* argv[])
 {
     bool smokeTest = false;
     bool showDebugOverlay = false;
+    bool inputDiagnostics = false;
     island::FixedViewpoint viewpoint = island::FixedViewpoint::None;
     std::string capturePath;
     for (int index = 1; index < argc; ++index) {
@@ -18,6 +19,8 @@ int main(const int argc, char* argv[])
             smokeTest = true;
         } else if (argument == "--debug-overlay") {
             showDebugOverlay = true;
+        } else if (argument == "--input-diagnostics") {
+            inputDiagnostics = true;
         } else if (argument == "--overview") {
             viewpoint = island::FixedViewpoint::Overview;
         } else if (argument == "--viewpoint") {
@@ -47,7 +50,8 @@ int main(const int argc, char* argv[])
         }
     }
     try {
-        island::IslandGame game(smokeTest, std::move(capturePath), viewpoint, showDebugOverlay);
+        island::IslandGame game(smokeTest, std::move(capturePath), viewpoint, showDebugOverlay,
+                                inputDiagnostics);
         game.Run();
         return 0;
     } catch (const std::exception& error) {

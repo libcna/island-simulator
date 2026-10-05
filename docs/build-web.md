@@ -2,11 +2,15 @@
 
 ## Current status
 
-The bootstrap terrain/traversal scene builds with Emscripten and runs in Chromium using CNA's
-`WEBGL2` renderer. Automated evidence currently covers renderer initialization, four rendered
-frames, normal `Game::Run()` return, and a separate active-render screenshot. Pointer lock,
-keyboard/mouse focus behaviour, resizing, audio unlock, pause/resume, performance, and a second
+The terrain/traversal scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
+renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
+overview/beach rendering, first-click pointer lock, canvas focus, WASD traversal, relative mouse
+look, F1 input, pointer release/reacquisition, and responsive 16:9 presentation. Audio unlock,
+genuine tab background/foreground recovery, hardware-GPU performance, extended play, and a second
 browser engine are not yet validated.
+
+The latest automated run used Chrome 152.0.7977.82 with SwiftShader. This records the evidence
+environment; it is not a minimum-version claim.
 
 ## Prerequisites
 
@@ -50,6 +54,11 @@ python3 -m http.server 8765 --bind 127.0.0.1 --directory build-probe
 
 Then open `http://127.0.0.1:8765/island-simulator.html`.
 
+The deployable HTML is produced from `tools/web_shell.html`. It supplies a 1280 by 720 render
+surface, preserves 16:9 while fitting different browser windows, displays the current controls,
+and requests pointer lock within the first mouse gesture instead of requiring a confusing second
+click. The C++ controller detects pointer-lock loss and permits clean reacquisition.
+
 ## Automated browser smoke
 
 With the Emscripten environment active, run:
@@ -69,6 +78,13 @@ population, proving that the custom instanced draw path executed. The beach run 
 the runtime-generated debug font and overlay, covering the WebGL 2 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.
 
+The harness then opens a live controllable instance and uses Chromium's input protocol to click
+the canvas, assert pointer lock/focus, hold W long enough to measure world movement, move the
+relative pointer, toggle F1, resize to a non-16:9 browser window, explicitly unlock, and click to
+reacquire. It records the initial/final player and viewport samples in the JSON report. Chromium's
+synthetic page-freeze command did not yield reliable resume evidence in this environment, so real
+tab background/foreground behaviour remains unqualified rather than being inferred.
+
 This smoke test proves browser/WebAssembly/WebGL execution, but it is not a substitute for a
-visible interactive pass using hardware acceleration. Do not mark pointer lock, audio unlock,
-focus recovery, frame pacing, or browser-specific controls complete from this test alone.
+visible interactive pass using hardware acceleration. Do not infer audio unlock, real tab
+lifecycle, frame pacing, thermal behaviour, or non-Chromium compatibility from it.

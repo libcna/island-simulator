@@ -145,9 +145,10 @@ SpriteBatch route.
 - Collision checks every palm proxy and has no spatial broad phase yet; rocks and geometric step-up
   remain absent.
 - Swimming camera height is functional but has no bob, underwater transition, or audio.
-- WebGL 2 has run in Chromium/SwiftShader with the full ocean, palm-wind, and grass-wind shaders,
-  but pointer lock, interactive input, audio unlock, and hardware-GPU performance remain
-  unverified.
+- WebGL 2 has run in Chromium/SwiftShader with the full ocean, palm-wind, and grass-wind shaders.
+  Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
+  release/reacquisition, and responsive 16:9 presentation. Audio unlock, genuine tab lifecycle,
+  another browser engine, and visible hardware-GPU performance remain unverified.
 - Android has not been compiled or run by this project yet.
 - No wildlife, layered soundscape, world-space debug visualization, teleport menu, or configuration
   UI exists yet.

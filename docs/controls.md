@@ -21,7 +21,15 @@ it immediately for captures and QA. It reports wall-clock frame timing, renderer
 and ocean-current state, visible terrain/vegetation cells, LOD populations, and draw counts. See
 `docs/debugging.md` for interpretation and limitations.
 
-## Web and Android
+## Web (current)
 
-Web pointer-lock behaviour and Android touch controls are planned but not implemented or validated.
-This section will be updated only when those paths work in their real environments.
+The Web build uses the same WASD, mouse-look, F1, and Escape controls. Its production page displays
+click-to-play instructions and requests pointer lock directly from the first left-button gesture,
+as required by browser security policy. Escape releases pointer lock; clicking the canvas acquires
+it again. Automated Chromium/SwiftShader coverage verifies those transitions, keyboard movement,
+relative mouse look, focus, and responsive 16:9 sizing. Visible hardware-accelerated play and a
+second browser engine remain to be checked manually.
+
+## Android
+
+Android touch controls are planned but not implemented or validated.

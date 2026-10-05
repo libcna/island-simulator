@@ -41,8 +41,9 @@ build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug
 
 These runs render four frames and exit. The WebGL 2 harness writes corresponding PNG captures and
 a JSON report under `build-probe/`. Captures prove initialization, shader selection, draw-path
-execution, and deterministic composition; they do not prove interactive input, hardware-GPU frame
-pacing, audio, or long-session stability.
+execution, and deterministic composition. A separate live harness section records browser input
+and pointer-lock evidence. Neither proves hardware-GPU frame pacing, audio, genuine tab lifecycle,
+or long-session stability.
 
 ## Planned diagnostics
 

@@ -90,7 +90,8 @@ namespace island
     }
 
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
-                           FixedViewpoint viewpoint, const bool showDebugOverlay)
+                           FixedViewpoint viewpoint, const bool showDebugOverlay,
+                           const bool inputDiagnostics)
         : graphics_(this),
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
@@ -98,7 +99,8 @@ namespace island
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
           capturePath_(std::move(capturePath)),
-          debugOverlayVisible_(showDebugOverlay)
+          debugOverlayVisible_(showDebugOverlay),
+          inputDiagnostics_(inputDiagnostics)
     {
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
@@ -115,6 +117,8 @@ namespace island
             pitch_ = -0.035f;
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
+        graphics_.setPreferredBackBufferWidthProperty(1280);
+        graphics_.setPreferredBackBufferHeightProperty(720);
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         setIsFixedTimeStepProperty(true);
@@ -222,12 +226,32 @@ namespace island
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             UpdateCamera(deltaSeconds);
         }
+        if (inputDiagnostics_) {
+            inputDiagnosticsTimer_ += deltaSeconds;
+            if (inputDiagnosticsTimer_ >= 0.25f) {
+                inputDiagnosticsTimer_ = 0.0f;
+                const PlayerPosition& position = playerMotion_.Position();
+                const auto& viewport = getGraphicsDeviceProperty().getViewportProperty();
+                std::cout << "island-simulator: input sample captured "
+                          << (mouseCaptured_ ? 1 : 0) << " relative "
+                          << (Mouse::getIsRelativeMouseModeEXTProperty() ? 1 : 0)
+                          << " x " << position.x << " z " << position.z
+                          << " yaw " << yaw_ << " pitch " << pitch_
+                          << " viewport " << viewport.getWidthProperty() << ' '
+                          << viewport.getHeightProperty() << '\n';
+            }
+        }
     }
 
     void IslandGame::UpdateCamera(const float deltaSeconds)
     {
         const KeyboardState keyboard = Keyboard::GetState();
         const MouseState mouse = Mouse::GetState();
+
+        if (mouseCaptured_ && !Mouse::getIsRelativeMouseModeEXTProperty()) {
+            mouseCaptured_ = false;
+            setIsMouseVisibleProperty(true);
+        }
 
         const bool debugOverlayToggleDown = keyboard.IsKeyDown(Keys::F1);
         if (debugOverlayToggleDown && !debugOverlayToggleWasDown_) {
