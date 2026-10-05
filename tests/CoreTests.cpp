@@ -317,8 +317,11 @@ int main()
           "rock population stays inside its first performance budget");
     Check(props.FallenLogs().size() >= 6U && props.FallenLogs().size() <= 80U,
           "fallen-log population stays inside its first composition budget");
+    Check(props.Driftwood().size() >= 12U && props.Driftwood().size() <= 100U,
+          "driftwood population stays inside its sparse beach-composition budget");
     Check(props.Rocks().size() == repeatedProps.Rocks().size()
-              && props.FallenLogs().size() == repeatedProps.FallenLogs().size(),
+              && props.FallenLogs().size() == repeatedProps.FallenLogs().size()
+              && props.Driftwood().size() == repeatedProps.Driftwood().size(),
           "natural-prop populations are deterministic");
     std::size_t solidRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
@@ -372,8 +375,36 @@ int main()
                   "the complete fallen-log footprint stays in the island interior");
         }
     }
+    for (std::size_t index = 0; index < props.Driftwood().size(); ++index) {
+        const island::DriftwoodPlacement& wood = props.Driftwood()[index];
+        const island::DriftwoodPlacement& repeated = repeatedProps.Driftwood()[index];
+        Check(wood.x == repeated.x && wood.y == repeated.y && wood.z == repeated.z
+                  && wood.yawRadians == repeated.yawRadians && wood.length == repeated.length
+                  && wood.radius == repeated.radius && wood.variant == repeated.variant,
+              "driftwood placement is bitwise deterministic for one seed");
+        Check(wood.length >= island::NaturalPropLayout::DriftwoodMinimumLength
+                  && wood.length <= island::NaturalPropLayout::DriftwoodMaximumLength,
+              "driftwood length remains in the authored range");
+        Check(wood.radius >= 0.09f && wood.radius <= 0.18f,
+              "driftwood radius remains in the authored range");
+        Check(wood.variant < island::NaturalPropLayout::DriftwoodVariantCount,
+              "driftwood variant index remains in range");
+        const float directionX = std::cos(wood.yawRadians);
+        const float directionZ = std::sin(wood.yawRadians);
+        for (int sampleIndex = 0; sampleIndex < 5; ++sampleIndex) {
+            const float t = static_cast<float>(sampleIndex) / 4.0f - 0.5f;
+            const float sampleX = wood.x + directionX * wood.length * t;
+            const float sampleZ = wood.z + directionZ * wood.length * t;
+            const island::TerrainSample support = terrain.Sample(sampleX, sampleZ);
+            Check(support.signedShoreDistance >= 1.5f
+                      && support.signedShoreDistance <= 27.0f,
+                  "the complete driftwood footprint stays in the dry beach belt");
+            Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
+                  "the complete driftwood footprint stays outside authored routes");
+        }
+    }
     Check(props.Obstacles().size() == solidRockCount + props.FallenLogs().size() * 7U,
-          "natural-prop collision proxies correspond to solid rocks and sampled log spans");
+          "natural-prop collision excludes small driftwood and matches solid prop spans");
 
     for (int z = -360; z <= 360; z += 12) {
         for (int x = -360; x <= 360; x += 12) {

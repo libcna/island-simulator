@@ -18,6 +18,9 @@ namespace island
         constexpr float LogSpacing = 30.0f;
         constexpr int LogRadius = 10;
         constexpr int LogCollisionSamples = 7;
+        constexpr float DriftwoodSpacing = 17.5f;
+        constexpr int DriftwoodRadius = 18;
+        constexpr int DriftwoodSupportSamples = 5;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -213,6 +216,83 @@ namespace island
                         log.z + directionZ * log.length * t,
                         log.radius * 0.92f});
                 }
+            }
+        }
+
+        driftwood_.reserve(72U);
+        for (int gridZ = -DriftwoodRadius; gridZ <= DriftwoodRadius; ++gridZ) {
+            for (int gridX = -DriftwoodRadius; gridX <= DriftwoodRadius; ++gridX) {
+                const std::uint32_t siteHash = Hash(gridX, gridZ, seed ^ 0x1b873593U);
+                const float jitterX = (UnitRandom(siteHash) - 0.5f)
+                    * DriftwoodSpacing * 0.74f;
+                const float jitterZ = (UnitRandom(
+                    Hash(gridX, gridZ, seed ^ 0x85ebca77U)) - 0.5f)
+                    * DriftwoodSpacing * 0.74f;
+                const float x = static_cast<float>(gridX) * DriftwoodSpacing + jitterX;
+                const float z = static_cast<float>(gridZ) * DriftwoodSpacing + jitterZ;
+                const TerrainSample sample = terrain.Sample(x, z);
+                if (sample.signedShoreDistance < 2.0f
+                    || sample.signedShoreDistance > 25.0f
+                    || sample.height < 0.12f || sample.slopeRadians > 0.34906585f
+                    || VegetationLayout::IsReservedRoute(x, z)
+                    || NearTree(x, z, 1.8f, palms, jungle)) {
+                    continue;
+                }
+
+                const float cluster = ClusterNoise(x, z, seed ^ 0xc2b2ae3dU);
+                const float density = 0.20f + 0.22f * cluster;
+                if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x27d4eb29U)) >= density) {
+                    continue;
+                }
+
+                DriftwoodPlacement wood;
+                wood.x = x;
+                wood.z = z;
+                wood.length = DriftwoodMinimumLength
+                    + (DriftwoodMaximumLength - DriftwoodMinimumLength)
+                        * UnitRandom(Hash(gridX, gridZ, seed ^ 0x165667b9U));
+                wood.radius = 0.09f + 0.09f
+                    * UnitRandom(Hash(gridX, gridZ, seed ^ 0xd3a26464U));
+                wood.variant = static_cast<std::uint8_t>(
+                    Hash(gridX, gridZ, seed ^ 0xfd7046c5U) % DriftwoodVariantCount);
+
+                const float gradientX = terrain.Sample(x + 1.5f, z).signedShoreDistance
+                    - terrain.Sample(x - 1.5f, z).signedShoreDistance;
+                const float gradientZ = terrain.Sample(x, z + 1.5f).signedShoreDistance
+                    - terrain.Sample(x, z - 1.5f).signedShoreDistance;
+                const float tangentX = -gradientZ;
+                const float tangentZ = gradientX;
+                const float tangentYaw = std::atan2(tangentZ, tangentX);
+                wood.yawRadians = tangentYaw
+                    + (UnitRandom(Hash(gridX, gridZ, seed ^ 0xb55a4f09U)) - 0.5f) * 0.92f;
+
+                const float directionX = std::cos(wood.yawRadians);
+                const float directionZ = std::sin(wood.yawRadians);
+                float maximumSupportHeight = sample.height;
+                float minimumSupportHeight = sample.height;
+                bool validFootprint = true;
+                for (int sampleIndex = 0; sampleIndex < DriftwoodSupportSamples; ++sampleIndex) {
+                    const float t = static_cast<float>(sampleIndex)
+                        / static_cast<float>(DriftwoodSupportSamples - 1) - 0.5f;
+                    const float sampleX = wood.x + directionX * wood.length * t;
+                    const float sampleZ = wood.z + directionZ * wood.length * t;
+                    const TerrainSample support = terrain.Sample(sampleX, sampleZ);
+                    maximumSupportHeight = std::max(maximumSupportHeight, support.height);
+                    minimumSupportHeight = std::min(minimumSupportHeight, support.height);
+                    if (support.signedShoreDistance < 1.5f
+                        || support.signedShoreDistance > 27.0f
+                        || support.slopeRadians > 0.40142573f
+                        || VegetationLayout::IsReservedRoute(sampleX, sampleZ)
+                        || NearTree(sampleX, sampleZ, 1.05f, palms, jungle)) {
+                        validFootprint = false;
+                        break;
+                    }
+                }
+                if (!validFootprint || maximumSupportHeight - minimumSupportHeight > 0.22f) {
+                    continue;
+                }
+                wood.y = maximumSupportHeight + wood.radius * 0.58f;
+                driftwood_.push_back(wood);
             }
         }
     }

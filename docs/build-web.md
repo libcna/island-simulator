@@ -4,8 +4,9 @@
 
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach/jungle rendering, first-click pointer lock, canvas focus, WASD traversal, relative mouse
-look, F1 input, pointer release/reacquisition, and responsive 16:9 presentation. Audio unlock,
+overview/beach/jungle/prop/driftwood rendering, first-click pointer lock, canvas focus, WASD
+traversal, relative mouse look, F1 input, pointer release/reacquisition, and responsive 16:9
+presentation. Audio unlock,
 genuine tab background/foreground recovery, hardware-GPU performance, extended play, and a second
 browser engine are not yet validated.
 
@@ -70,12 +71,14 @@ With the Emscripten environment active, run:
 The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
 sky/ocean shaders and the hardware-instanced palm, grass, jungle, and natural-prop shaders rather
-than their fallbacks. It then opens live fixed overview, first-person beach, jungle, and prop
-instances at a 1280 x 720 viewport. Every scene asserts the fixed-sky shader diagnostic. The
+than their fallbacks. It then opens live fixed overview, first-person beach, jungle, prop, and
+driftwood instances at a 1280 x 720 viewport. Every scene asserts the fixed-sky shader diagnostic.
+The
 captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`, and
-`build-probe/island-browser-props.png`. The beach view must report nonzero grass, the jungle view
-must report nonzero canopy and understory, and the prop view must report visible fallen logs. The
+`build-probe/island-browser-props.png`, and `build-probe/island-browser-driftwood.png`. The beach
+view must report nonzero grass, the jungle view must report nonzero canopy and understory, the prop
+view must report visible fallen logs, and the driftwood view must report visible beach wood. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.

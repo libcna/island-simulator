@@ -37,6 +37,18 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One small non-solid piece of sun-bleached driftwood on the beach. */
+    struct DriftwoodPlacement
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yawRadians = 0.0f;
+        float length = 1.0f;
+        float radius = 0.1f;
+        std::uint8_t variant = 0U;
+    };
+
     /** @brief Deterministic beach/interior rocks and fallen-wood composition. */
     class NaturalPropLayout final
     {
@@ -44,10 +56,13 @@ namespace island
         static constexpr std::uint32_t DefaultSeed = 0xa7816c39U;
         static constexpr int RockVariantCount = 4;
         static constexpr int LogVariantCount = 3;
+        static constexpr int DriftwoodVariantCount = 3;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
         static constexpr float LogMinimumLength = 3.8f;
         static constexpr float LogMaximumLength = 7.2f;
+        static constexpr float DriftwoodMinimumLength = 1.8f;
+        static constexpr float DriftwoodMaximumLength = 4.6f;
 
         NaturalPropLayout(const IslandTerrain& terrain,
                           const VegetationLayout& palms,
@@ -58,6 +73,10 @@ namespace island
         [[nodiscard]] const std::vector<FallenLogPlacement>& FallenLogs() const noexcept
         {
             return fallenLogs_;
+        }
+        [[nodiscard]] const std::vector<DriftwoodPlacement>& Driftwood() const noexcept
+        {
+            return driftwood_;
         }
         [[nodiscard]] const std::vector<CircularObstacle>& Obstacles() const noexcept
         {
@@ -73,6 +92,7 @@ namespace island
 
         std::vector<RockPlacement> rocks_;
         std::vector<FallenLogPlacement> fallenLogs_;
+        std::vector<DriftwoodPlacement> driftwood_;
         std::vector<CircularObstacle> obstacles_;
     };
 }

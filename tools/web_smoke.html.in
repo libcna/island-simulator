@@ -35,7 +35,8 @@
           : (mode === "beach" ? ["--viewpoint", "beach", "--debug-overlay"]
             : (mode === "jungle" ? ["--viewpoint", "jungle", "--debug-overlay"]
               : (mode === "props" ? ["--viewpoint", "props", "--debug-overlay"]
-                : ["--smoke-test"]))))),
+                : (mode === "driftwood" ? ["--viewpoint", "driftwood", "--debug-overlay"]
+                  : ["--smoke-test"])))))),
       canvas: document.getElementById("canvas"),
       print: (...values) => record("", values),
       printErr: (...values) => record("ERR: ", values),

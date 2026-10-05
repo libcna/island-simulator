@@ -154,6 +154,24 @@ namespace island
                                       cameraZ);
             yaw_ = std::atan2(log.x - cameraX, log.z - cameraZ);
             pitch_ = -0.14f;
+        } else if (viewpoint_ == FixedViewpoint::DriftwoodDetail
+                   && !naturalPropLayout_.Driftwood().empty()) {
+            const DriftwoodPlacement& wood = naturalPropLayout_.Driftwood().front();
+            const float perpendicularX = -std::sin(wood.yawRadians);
+            const float perpendicularZ = std::cos(wood.yawRadians);
+            const float firstX = wood.x + perpendicularX * 3.6f;
+            const float firstZ = wood.z + perpendicularZ * 3.6f;
+            const float secondX = wood.x - perpendicularX * 3.6f;
+            const float secondZ = wood.z - perpendicularZ * 3.6f;
+            const bool firstIsLandward = terrain_.SignedShoreDistance(firstX, firstZ)
+                >= terrain_.SignedShoreDistance(secondX, secondZ);
+            const float cameraX = firstIsLandward ? firstX : secondX;
+            const float cameraZ = firstIsLandward ? firstZ : secondZ;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            yaw_ = std::atan2(wood.x - cameraX, wood.z - cameraZ);
+            pitch_ = -0.16f;
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -563,6 +581,8 @@ namespace island
             overlayState.totalRocks = naturalPropRenderer_->TotalRockCount();
             overlayState.visibleLogs = naturalPropRenderer_->VisibleLogCount();
             overlayState.totalLogs = naturalPropRenderer_->TotalLogCount();
+            overlayState.visibleDriftwood = naturalPropRenderer_->VisibleDriftwoodCount();
+            overlayState.totalDriftwood = naturalPropRenderer_->TotalDriftwoodCount();
             overlayState.propCells = naturalPropRenderer_->VisibleCellCount();
             overlayState.propDraws = naturalPropRenderer_->DrawCallCount();
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
@@ -590,6 +610,8 @@ namespace island
                       << naturalPropRenderer_->TotalRockCount() << " rocks, "
                       << naturalPropRenderer_->VisibleLogCount() << '/'
                       << naturalPropRenderer_->TotalLogCount() << " logs, "
+                      << naturalPropRenderer_->VisibleDriftwoodCount() << '/'
+                      << naturalPropRenderer_->TotalDriftwoodCount() << " driftwood, "
                       << naturalPropRenderer_->DrawCallCount() << " draws; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "

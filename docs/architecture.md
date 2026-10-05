@@ -22,7 +22,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── JungleLayout ─────── broadleaf/understory placement and canopy trunk proxies
       │       │
       │       └── JungleRenderer ─ canopy/understory meshes, LOD, culling, instancing, and wind
-      ├── NaturalPropLayout ── rock/log placement, tree separation, and collision proxies
+      ├── NaturalPropLayout ── rock/log/driftwood placement and solid-prop collision proxies
       │       │
       │       └── NaturalPropRenderer ─ rock/log meshes, LOD, culling, and instancing
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
@@ -149,13 +149,16 @@ GLSL 330 / GLSL ES 300 shader applies weighted calm wind, and `BasicEffect` rema
 fallback. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute the full shader; the current
 arm64 GLES 3 package compiles but has not been rerun on stable Android hardware.
 
-Natural props add 152 irregular rocks across beach/interior bands and 11 mossy fallen logs in the
-low-slope interior. Four rock and three log variants use independent near/far meshes, cell culling,
-variant batching, and a portable static GLSL 330 / GLSL ES 300 shader. Opaque contact geometry
-grounds both classes without transparency overdraw. Placement keeps complete log footprints away
-from routes and tree trunks, rejects uneven support, and exposes collision only for substantial
-rocks plus a sampled chain along each log. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full
-instanced path; the jungle and prop captures provide deterministic close review.
+Natural props add 152 irregular rocks across beach/interior bands, 11 mossy fallen logs in the
+low-slope interior, and 28 small sun-bleached driftwood pieces in the dry beach belt. Four rock,
+three log, and three driftwood variants use independent near/far meshes, cell culling, variant
+batching, and a portable static GLSL 330 / GLSL ES 300 shader. Opaque contact geometry grounds the
+larger classes without transparency overdraw; driftwood uses an irregular bent tube plus one or two
+branch stubs. Placement validates each complete log/driftwood footprint against shore distance,
+route reservations, nearby trees, slope, and support-height variation. Collision is limited to
+substantial rocks and sampled fallen-log spans, leaving small driftwood non-solid. Native OpenGL
+3.3 and Chromium/WebGL 2 execute the full instanced path; dedicated prop and driftwood cameras
+provide deterministic close review.
 
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
@@ -184,7 +187,7 @@ SpriteBatch route.
   close-up geometry/materials, and grounding shadow remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
-  and measured mobile density still need repeated polish. Driftwood/beach prop variety remains.
+  and measured mobile density still need repeated polish. Broader beach-prop variety remains.
 - Collision checks every palm, canopy-trunk, solid-rock, and sampled log proxy and has no spatial
   broad phase yet; geometric step-up remains absent.
 - Swimming camera height is functional but has no bob, underwater transition, or audio.

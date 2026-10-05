@@ -210,6 +210,10 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-prop-capture.ppm"
                     --viewpoint props)
         set_tests_properties(IslandGamePropCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameDriftwoodCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-driftwood-capture.ppm"
+                    --viewpoint driftwood)
+        set_tests_properties(IslandGameDriftwoodCapture PROPERTIES TIMEOUT 30 LABELS display)
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

@@ -44,6 +44,8 @@ namespace island
         int totalRocks = 0;
         int visibleLogs = 0;
         int totalLogs = 0;
+        int visibleDriftwood = 0;
+        int totalDriftwood = 0;
         int propCells = 0;
         int propDraws = 0;
         int visibleGrassPatches = 0;

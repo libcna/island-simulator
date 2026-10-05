@@ -326,18 +326,20 @@ Dependencies: stable terrain/shore queries and representative performance instru
   instrumented Android wind/LOD qualification remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
-  four-variant fern/large-leaf plants plus 152 rocks and 11 fallen logs; bushes, smaller ground
-  layers, driftwood, and other beach props remain.
+  four-variant fern/large-leaf plants plus 152 rocks, 11 fallen logs, and 28 three-variant
+  driftwood pieces; bushes, smaller ground layers, and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
-  canopy, and understory placement is deterministic, shore-distance/slope/height constrained,
-  multi-scale cluster-noise weighted, and reserves a winding primary path, two clearings, and
-  spawn; final biome masks and prop separation remain open.
+  canopy, understory, rock, log, and driftwood placement is deterministic,
+  shore-distance/slope/height constrained, multi-scale cluster-noise weighted, and reserves a
+  winding primary path, two clearings, and spawn; final biome masks and prop separation remain
+  open.
 - [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds, grass, canopy
   crowns, and understory leaves use bounded weighted motion on OpenGL 3.3 and WebGL 2; Android
   GLES 3 runtime validation of the new jungle shader remains open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
-  One radius-matched circular proxy is active per palm and canopy trunk while fronds, crowns, and
-  understory remain non-colliding; broader play-tuning and a spatial broad phase remain open.
+  One radius-matched circular proxy is active per palm and canopy trunk; substantial rocks and
+  fallen logs are solid, while fronds, crowns, understory, small rocks, and driftwood remain
+  non-colliding. Broader play-tuning and a spatial broad phase remain open.
 
 ### Grass quality campaign
 
@@ -751,8 +753,8 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add low bushes, sparse driftwood/beach props, and improved ground/contact variation; revisit
-   broadleaf crown silhouettes and plant separation during that composition pass.
+1. Add low bushes, smaller ground plants, and improved ground/contact variation; broaden the first
+   sparse driftwood layer with restrained shell/branch beach detail only where composition needs it.
 2. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
    F5--F8 QA teleports are complete.
 3. Qualify touch traversal, pause/resume, and performance on a physical Android device or a stable
@@ -1041,6 +1043,30 @@ Work next, in order:
 - Rebuilt the arm64-v8a Android APK and passed application lint with the GLSL ES sky path included.
   Runtime evidence for the new sky remains open until a stable KVM-backed emulator or physical
   device is available; compilation is not reported as runtime qualification.
+
+### 2026-10-05 — First sparse beach-driftwood pass
+
+- Added 28 deterministic sun-bleached driftwood pieces in the narrow dry-beach belt. Placement
+  follows a low-density cluster field, derives a shoreline-tangent orientation, preserves authored
+  routes and tree clearance, and validates five samples along every complete footprint against
+  shore distance, slope, and support-height variation.
+- Added three original bent-tube mesh variants with one or two branch stubs and independent near/far
+  geometry. They share the existing portable prop shader, cell culling, variant instancing, and
+  distance LOD instead of introducing another rendering subsystem.
+- Kept the small wood non-solid so decorative beach detail cannot become a first-person snag
+  hazard. Core regressions cover deterministic population/data, authored size and variant bounds,
+  complete-footprint placement, route clearance, and the invariant that driftwood creates no
+  collision proxy.
+- Extended startup and overlay diagnostics with visible/total driftwood counts. Added a dedicated
+  `--viewpoint driftwood` camera and native capture because the interior-facing beach camera could
+  count the new props without showing them clearly.
+- Core tests pass and all seven isolated OpenGL lifecycle/capture tests pass. The dedicated native
+  view was visually inspected and shows a grounded branch silhouette against sand and ocean.
+- Rebuilt the WebAssembly package and passed the expanded Chromium/SwiftShader WebGL 2 lifecycle,
+  deployment, input, and five-scene image suite. The dedicated browser capture matches the native
+  view and must report nonzero driftwood through the full custom prop shader.
+- Rebuilt the arm64-v8a Android APK and passed application lint. Runtime qualification of the new
+  geometry remains open until a stable KVM-backed emulator or physical device is available.
 
 ## Session-end checklist
 

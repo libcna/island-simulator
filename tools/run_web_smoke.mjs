@@ -134,7 +134,7 @@ try {
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, hardware instancing")
     && result.output?.includes("jungle portable wind shader with canopy/understory LOD")
-    && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
@@ -331,6 +331,39 @@ try {
     && /props [0-9]+\/152 rocks, [1-9][0-9]*\/11 logs/.test(propResult.output ?? "")
     && !propResult.error;
 
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=driftwood`,
+  }, visualSessionId);
+  let driftwoodResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    driftwoodResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (driftwoodResult.output?.includes("island-simulator: terrain")
+        || driftwoodResult.error) break;
+  }
+  await delay(1000);
+  const completedDriftwoodEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  driftwoodResult = JSON.parse(completedDriftwoodEvaluation.result.value ?? "{}");
+
+  const driftwoodScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const driftwoodScreenshotPath = path.join(
+    buildDirectory, "island-browser-driftwood.png");
+  await writeFile(driftwoodScreenshotPath, Buffer.from(driftwoodScreenshot.data, "base64"));
+  const driftwoodPassed = driftwoodResult.output?.includes("island-simulator: renderer WEBGL2")
+    && driftwoodResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && /props [0-9]+\/152 rocks, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood/.test(
+      driftwoodResult.output ?? "")
+    && !driftwoodResult.error;
+
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
   }, visualSessionId);
@@ -490,7 +523,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && inputPassed;
+    && junglePassed && propPassed && driftwoodPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -525,6 +558,11 @@ try {
       output: propResult.output ?? "",
       error: propResult.error ?? "",
     },
+    driftwood: {
+      passed: driftwoodPassed,
+      output: driftwoodResult.output ?? "",
+      error: driftwoodResult.error ?? "",
+    },
     input: {
       passed: inputPassed,
       pointerLocked: lockedState.pointerLocked ?? false,
@@ -547,6 +585,7 @@ try {
     beachScreenshot: path.basename(beachScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
+    driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

@@ -45,6 +45,8 @@ namespace island
         constexpr float RockMaximumDistance = 285.0f;
         constexpr float LogNearDistance = 72.0f;
         constexpr float LogMaximumDistance = 175.0f;
+        constexpr float DriftwoodNearDistance = 58.0f;
+        constexpr float DriftwoodMaximumDistance = 145.0f;
 
         struct PropGeometry
         {
@@ -291,6 +293,115 @@ void main()
             return geometry;
         }
 
+        [[nodiscard]] PropGeometry CreateDriftwoodGeometry(const int variant,
+                                                           const bool farMesh)
+        {
+            PropGeometry geometry;
+            const int sections = farMesh ? 2 : 4;
+            const int sides = farMesh ? 5 : 7;
+            const Color wood = variant == 0 ? Color(157, 137, 103, 255)
+                : (variant == 1 ? Color(171, 148, 109, 255)
+                                : Color(142, 126, 98, 255));
+            const auto sideBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int section = 0; section <= sections; ++section) {
+                const float t = static_cast<float>(section) / static_cast<float>(sections);
+                const float x = t - 0.5f;
+                const float bendY = std::sin(t * std::numbers::pi_v<float>)
+                    * (0.08f + 0.025f * static_cast<float>(variant));
+                const float bendZ = std::sin(t * 2.0f * std::numbers::pi_v<float>
+                                             + static_cast<float>(variant)) * 0.055f;
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const float ring = 0.82f + 0.12f
+                        * std::sin(angle * (2.0f + static_cast<float>(variant))
+                                   + static_cast<float>(section) * 1.9f);
+                    const float light = 0.72f + 0.27f
+                        * std::max(0.0f, std::sin(angle) * 0.86f
+                                            - std::cos(angle) * 0.18f);
+                    geometry.vertices.emplace_back(
+                        Vector3(x, std::sin(angle) * ring + bendY,
+                                std::cos(angle) * ring + bendZ),
+                        ShadeColor(wood, light));
+                }
+            }
+            for (int section = 0; section < sections; ++section) {
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto lower = static_cast<std::uint16_t>(
+                        sideBase + section * sides + side);
+                    const auto lowerNext = static_cast<std::uint16_t>(
+                        sideBase + section * sides + next);
+                    const auto upper = static_cast<std::uint16_t>(
+                        sideBase + (section + 1) * sides + side);
+                    const auto upperNext = static_cast<std::uint16_t>(
+                        sideBase + (section + 1) * sides + next);
+                    geometry.indices.insert(geometry.indices.end(),
+                                            {lower, upper, lowerNext,
+                                             lowerNext, upper, upperNext});
+                }
+            }
+
+            const Color endColor = ShadeColor(wood, 1.08f);
+            for (int end = 0; end < 2; ++end) {
+                const float x = end == 0 ? -0.505f : 0.505f;
+                const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
+                geometry.vertices.emplace_back(Vector3(x, 0.0f, 0.0f), endColor);
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    geometry.vertices.emplace_back(
+                        Vector3(x, std::sin(angle) * 0.76f,
+                                std::cos(angle) * 0.76f), endColor);
+                }
+                for (int side = 0; side < sides; ++side) {
+                    const auto first = static_cast<std::uint16_t>(centre + 1U + side);
+                    const auto next = static_cast<std::uint16_t>(
+                        centre + 1U + (side + 1) % sides);
+                    if (end == 0) {
+                        geometry.indices.insert(geometry.indices.end(), {centre, next, first});
+                    } else {
+                        geometry.indices.insert(geometry.indices.end(), {centre, first, next});
+                    }
+                }
+            }
+
+            if (!farMesh) {
+                const int branchCount = 1 + variant % 2;
+                for (int branch = 0; branch < branchCount; ++branch) {
+                    const float branchX = branch == 0
+                        ? -0.18f + 0.04f * static_cast<float>(variant)
+                        : 0.21f;
+                    const float branchSide = branch == 0 ? 1.0f : -1.0f;
+                    const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                    const Color branchColor = ShadeColor(wood, 0.88f);
+                    geometry.vertices.emplace_back(
+                        Vector3(branchX - 0.035f, 0.42f, branchSide * 0.38f), branchColor);
+                    geometry.vertices.emplace_back(
+                        Vector3(branchX + 0.035f, 0.42f, branchSide * 0.38f), branchColor);
+                    geometry.vertices.emplace_back(
+                        Vector3(branchX + 0.035f, 0.72f, branchSide * 0.58f), branchColor);
+                    geometry.vertices.emplace_back(
+                        Vector3(branchX - 0.035f, 0.72f, branchSide * 0.58f), branchColor);
+                    geometry.vertices.emplace_back(
+                        Vector3(branchX + (branch == 0 ? 0.10f : -0.11f),
+                                1.85f + 0.18f * static_cast<float>(variant),
+                                branchSide * 1.45f),
+                        ShadeColor(wood, 1.02f));
+                    const auto tip = static_cast<std::uint16_t>(base + 4U);
+                    geometry.indices.insert(
+                        geometry.indices.end(),
+                        {base, static_cast<std::uint16_t>(base + 1U), tip,
+                         static_cast<std::uint16_t>(base + 1U),
+                         static_cast<std::uint16_t>(base + 2U), tip,
+                         static_cast<std::uint16_t>(base + 2U),
+                         static_cast<std::uint16_t>(base + 3U), tip,
+                         static_cast<std::uint16_t>(base + 3U), base, tip});
+                }
+            }
+            return geometry;
+        }
+
         [[nodiscard]] std::size_t CellIndex(const float x, const float z) noexcept
         {
             constexpr float cellWidth = 2.0f * TerrainMeshLayout::Extent
@@ -356,7 +467,8 @@ void main()
         CreateMeshes();
         CreateCells(layout);
         std::cout << "island-simulator: natural props " << totalRockCount_ << " rocks, "
-                  << totalLogCount_ << " fallen logs, "
+                  << totalLogCount_ << " fallen logs, " << totalDriftwoodCount_
+                  << " driftwood pieces, "
                   << (instancingSupported_ ? "hardware instancing" : "per-prop fallback") << '\n';
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
@@ -389,6 +501,12 @@ void main()
         for (std::size_t variant = 0; variant < logNearMeshes_.size(); ++variant) {
             upload(CreateLogGeometry(static_cast<int>(variant), false), logNearMeshes_[variant]);
             upload(CreateLogGeometry(static_cast<int>(variant), true), logFarMeshes_[variant]);
+        }
+        for (std::size_t variant = 0; variant < driftwoodNearMeshes_.size(); ++variant) {
+            upload(CreateDriftwoodGeometry(static_cast<int>(variant), false),
+                   driftwoodNearMeshes_[variant]);
+            upload(CreateDriftwoodGeometry(static_cast<int>(variant), true),
+                   driftwoodFarMeshes_[variant]);
         }
     }
 
@@ -426,10 +544,30 @@ void main()
                          Vector3(log.x + boundRadius, log.y + log.radius, log.z + boundRadius));
             ++totalLogCount_;
         }
+        for (const DriftwoodPlacement& wood : layout.Driftwood()) {
+            PropCell& cell = cells_[CellIndex(wood.x, wood.z)];
+            cell.driftwood.push_back({Matrix::CreateScale(wood.length, wood.radius, wood.radius)
+                                          * Matrix::CreateRotationY(wood.yawRadians)
+                                          * Matrix::CreateTranslation(wood.x, wood.y, wood.z),
+                                      wood.variant});
+            const float boundRadius = wood.length * 0.56f;
+            extendBounds(cell,
+                         Vector3(wood.x - boundRadius, wood.y - wood.radius,
+                                 wood.z - boundRadius),
+                         Vector3(wood.x + boundRadius, wood.y + wood.radius * 2.2f,
+                                 wood.z + boundRadius));
+            ++totalDriftwoodCount_;
+        }
         for (auto& transforms : visibleRockNear_) transforms.reserve(layout.Rocks().size());
         for (auto& transforms : visibleRockFar_) transforms.reserve(layout.Rocks().size());
         for (auto& transforms : visibleLogNear_) transforms.reserve(layout.FallenLogs().size());
         for (auto& transforms : visibleLogFar_) transforms.reserve(layout.FallenLogs().size());
+        for (auto& transforms : visibleDriftwoodNear_) {
+            transforms.reserve(layout.Driftwood().size());
+        }
+        for (auto& transforms : visibleDriftwoodFar_) {
+            transforms.reserve(layout.Driftwood().size());
+        }
     }
 
     void NaturalPropRenderer::DrawInstances(PropMesh& mesh,
@@ -475,8 +613,11 @@ void main()
         for (auto& transforms : visibleRockFar_) transforms.clear();
         for (auto& transforms : visibleLogNear_) transforms.clear();
         for (auto& transforms : visibleLogFar_) transforms.clear();
+        for (auto& transforms : visibleDriftwoodNear_) transforms.clear();
+        for (auto& transforms : visibleDriftwoodFar_) transforms.clear();
         visibleRockCount_ = 0;
         visibleLogCount_ = 0;
+        visibleDriftwoodCount_ = 0;
         visibleCellCount_ = 0;
         drawCallCount_ = 0;
 
@@ -508,6 +649,16 @@ void main()
                     cellVisible = true;
                 }
             }
+            if (distanceSquared <= DriftwoodMaximumDistance * DriftwoodMaximumDistance) {
+                const bool nearLod = distanceSquared
+                    <= DriftwoodNearDistance * DriftwoodNearDistance;
+                for (const DrawInstance& instance : cell.driftwood) {
+                    (nearLod ? visibleDriftwoodNear_ : visibleDriftwoodFar_)[instance.variant]
+                        .push_back(instance.transform);
+                    ++visibleDriftwoodCount_;
+                    cellVisible = true;
+                }
+            }
             if (cellVisible) ++visibleCellCount_;
         }
 
@@ -533,6 +684,10 @@ void main()
         for (std::size_t variant = 0; variant < logNearMeshes_.size(); ++variant) {
             DrawInstances(logNearMeshes_[variant], visibleLogNear_[variant]);
             DrawInstances(logFarMeshes_[variant], visibleLogFar_[variant]);
+        }
+        for (std::size_t variant = 0; variant < driftwoodNearMeshes_.size(); ++variant) {
+            DrawInstances(driftwoodNearMeshes_[variant], visibleDriftwoodNear_[variant]);
+            DrawInstances(driftwoodFarMeshes_[variant], visibleDriftwoodFar_[variant]);
         }
         device_.SetVertexBuffers({});
         device_.setIndicesProperty(nullptr);

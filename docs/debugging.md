@@ -27,7 +27,7 @@ Current fields are:
 - visible/total terrain cells;
 - visible/total palms, near/far LOD population, cells, and draw submissions;
 - visible/total broadleaf canopy and understory populations, cells, and draw submissions;
-- visible/total rocks and fallen logs, cells, and draw submissions;
+- visible/total rocks, fallen logs, and beach driftwood plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, and draw submissions.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
@@ -44,12 +44,13 @@ build/island-simulator --capture /tmp/island-overview.ppm
 build/island-simulator --capture /tmp/island-beach.ppm --viewpoint beach
 build/island-simulator --capture /tmp/island-jungle.ppm --viewpoint jungle
 build/island-simulator --capture /tmp/island-props.ppm --viewpoint props
+build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 ```
 
 These runs render four frames and exit. The WebGL 2 harness writes corresponding overview, beach,
-and jungle/prop PNG captures plus a JSON report under `build-probe/`. Captures prove initialization,
-shader selection, draw-path
+jungle, prop, and driftwood PNG captures plus a JSON report under `build-probe/`. Captures prove
+initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input
 and pointer-lock evidence. Neither proves hardware-GPU frame pacing, audio, genuine tab lifecycle,
 or long-session stability.

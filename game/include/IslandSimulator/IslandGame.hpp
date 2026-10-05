@@ -39,7 +39,8 @@ namespace island
         Overview,
         BeachPath,
         JungleTrail,
-        PropDetail
+        PropDetail,
+        DriftwoodDetail
     };
 
     /** @brief Main application and first portable island rendering slice. */
