@@ -1,3 +1,4 @@
+#include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -8,6 +9,7 @@
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WildlifeSimulation.hpp"
 
 #include <algorithm>
 #include <array>
@@ -435,6 +437,97 @@ int main()
           "display resize safely re-anchors an active movement contact");
 
     const island::IslandTerrain terrain;
+
+    Check(island::WildlifeActivationPolicy::Classify(25.0f, 100.0f, 250.0f)
+              == island::WildlifeSimulationTier::Full,
+          "near wildlife receives full-rate simulation");
+    Check(island::WildlifeActivationPolicy::Classify(175.0f, 100.0f, 250.0f)
+              == island::WildlifeSimulationTier::Reduced,
+          "mid-distance wildlife receives reduced-rate simulation");
+    Check(island::WildlifeActivationPolicy::Classify(275.0f, 100.0f, 250.0f)
+              == island::WildlifeSimulationTier::Dormant,
+          "far wildlife receives dormant-rate simulation");
+    Check(island::WildlifeActivationPolicy::UpdateDivisor(
+              island::WildlifeSimulationTier::Full) == 1U
+              && island::WildlifeActivationPolicy::UpdateDivisor(
+                  island::WildlifeSimulationTier::Reduced) == 4U
+              && island::WildlifeActivationPolicy::UpdateDivisor(
+                  island::WildlifeSimulationTier::Dormant) == 30U,
+          "wildlife tiers use the documented bounded update divisors");
+
+    island::BirdFlock birds(terrain);
+    island::BirdFlock repeatedBirds(terrain);
+    Check(birds.Birds().size() == island::BirdFlock::BirdCount,
+          "bird flock has the intended bounded population");
+    int shoreBirds = 0;
+    int canopyBirds = 0;
+    int highBirds = 0;
+    for (std::size_t index = 0; index < birds.Birds().size(); ++index) {
+        const island::BirdState& bird = birds.Birds()[index];
+        const island::BirdState& repeated = repeatedBirds.Birds()[index];
+        Check(bird.x == repeated.x && bird.y == repeated.y && bird.z == repeated.z
+                  && bird.headingRadians == repeated.headingRadians
+                  && bird.speed == repeated.speed && bird.scale == repeated.scale
+                  && bird.family == repeated.family
+                  && bird.colorVariant == repeated.colorVariant,
+              "bird initialization is deterministic");
+        Check(std::isfinite(bird.x) && std::isfinite(bird.y) && std::isfinite(bird.z),
+              "bird initial positions are finite");
+        Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.9f,
+              "bird initial positions clear the terrain and canopy");
+        Check(bird.scale >= 0.7f && bird.scale <= 1.2f,
+              "bird scale variation stays within the authored range");
+        switch (bird.family) {
+        case island::BirdPathFamily::Shore:
+            ++shoreBirds;
+            break;
+        case island::BirdPathFamily::Canopy:
+            ++canopyBirds;
+            break;
+        case island::BirdPathFamily::High:
+            ++highBirds;
+            break;
+        }
+    }
+    Check(shoreBirds == 10 && canopyBirds == 8 && highBirds == 6,
+          "bird flock combines shore, canopy, and high route families");
+
+    float maximumObservedBirdRadius = 0.0f;
+    float minimumObservedBirdRadius = 1000.0f;
+    bool observedWingUp = false;
+    bool observedWingDown = false;
+    constexpr int birdSimulationFrames = 36000;
+    for (int frame = 0; frame < birdSimulationFrames; ++frame) {
+        birds.Update(1.0f / 30.0f, 0.0f, 15.0f, 0.0f);
+        repeatedBirds.Update(1.0f / 30.0f, 0.0f, 15.0f, 0.0f);
+        const auto birdStates = birds.Birds();
+        const auto repeatedStates = repeatedBirds.Birds();
+        for (std::size_t index = 0; index < birdStates.size(); ++index) {
+            const island::BirdState& bird = birdStates[index];
+            const island::BirdState& repeated = repeatedStates[index];
+            Check(bird.x == repeated.x && bird.y == repeated.y && bird.z == repeated.z
+                      && bird.headingRadians == repeated.headingRadians
+                      && bird.wingPose == repeated.wingPose
+                      && bird.simulationTier == repeated.simulationTier,
+                  "bird simulation remains deterministic over a long session");
+            const float radius = std::hypot(bird.x, bird.z);
+            maximumObservedBirdRadius = std::max(maximumObservedBirdRadius, radius);
+            minimumObservedBirdRadius = std::min(minimumObservedBirdRadius, radius);
+            Check(std::isfinite(bird.headingRadians) && std::isfinite(bird.wingPose),
+                  "bird flight pose remains finite over a long session");
+            Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.8f,
+                  "bird flight maintains its minimum terrain clearance");
+            observedWingUp = observedWingUp || bird.wingPose > 0.55f;
+            observedWingDown = observedWingDown || bird.wingPose < -0.55f;
+        }
+    }
+    Check(minimumObservedBirdRadius > 35.0f && maximumObservedBirdRadius < 315.0f,
+          "all bird route families remain in the authored island airspace");
+    Check(observedWingUp && observedWingDown,
+          "bird animation visits both wing stroke extremes");
+    Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
+              + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
+          "bird simulation tiers account for the complete flock");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");

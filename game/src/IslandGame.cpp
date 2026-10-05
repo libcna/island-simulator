@@ -101,6 +101,7 @@ namespace island
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
                            const bool inputDiagnostics)
         : graphics_(this),
+          birdFlock_(terrain_),
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
@@ -172,6 +173,17 @@ namespace island
                                       cameraZ);
             yaw_ = std::atan2(wood.x - cameraX, wood.z - cameraZ);
             pitch_ = -0.16f;
+        } else if (viewpoint_ == FixedViewpoint::BirdDetail
+                   && birdFlock_.Birds().size() > 10U) {
+            const BirdState& bird = birdFlock_.Birds()[10U];
+            const Vector3 flightForward(std::cos(bird.headingRadians), 0.0f,
+                                        std::sin(bird.headingRadians));
+            const Vector3 flightRight(-flightForward.Z, 0.0f, flightForward.X);
+            cameraPosition_ = Vector3(bird.x, bird.y, bird.z)
+                - flightForward * 17.0f + flightRight * 4.5f - Vector3::Up * 3.5f;
+            const Vector3 toBird = Vector3(bird.x, bird.y, bird.z) - cameraPosition_;
+            yaw_ = std::atan2(toBird.X, toBird.Z);
+            pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -200,6 +212,7 @@ namespace island
         terrainEffect_->setFogEndProperty(720.0f);
 
         CreateTerrainMesh();
+        birdRenderer_ = std::make_unique<BirdRenderer>(device);
         grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
         jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
@@ -221,7 +234,9 @@ namespace island
         std::cout << "island-simulator: renderer " << device.GetGraphicsRendererName() << '\n'
                   << "island-simulator: terrain " << terrainVertexCount_ << " vertices, "
                   << terrainPrimitiveCount_ << " triangles in " << terrainCells_.size()
-                  << " cells\n";
+                  << " cells\n"
+                  << "island-simulator: birds " << birdFlock_.Birds().size()
+                  << " agents in a distance-throttled one-batch simulation\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -313,6 +328,7 @@ namespace island
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             UpdateCamera(deltaSeconds);
         }
+        birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         if (inputDiagnostics_) {
             inputDiagnosticsTimer_ += deltaSeconds;
             if (inputDiagnosticsTimer_ >= 0.25f) {
@@ -585,6 +601,10 @@ namespace island
                             terrainEffect_->getProjectionProperty(), cameraPosition_,
                             timeSeconds);
 
+        birdRenderer_->Draw(terrainEffect_->getViewProperty(),
+                            terrainEffect_->getProjectionProperty(), cameraPosition_,
+                            birdFlock_.Birds());
+
         oceanRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
@@ -636,6 +656,14 @@ namespace island
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
             overlayState.grassDraws = grassRenderer_->DrawCallCount();
+            overlayState.visibleBirds = birdRenderer_->VisibleBirdCount();
+            overlayState.totalBirds = static_cast<int>(birdFlock_.Birds().size());
+            overlayState.nearBirds = birdRenderer_->VisibleNearBirdCount();
+            overlayState.farBirds = birdRenderer_->VisibleFarBirdCount();
+            overlayState.fullSimulationBirds = birdFlock_.FullSimulationCount();
+            overlayState.reducedSimulationBirds = birdFlock_.ReducedSimulationCount();
+            overlayState.dormantSimulationBirds = birdFlock_.DormantSimulationCount();
+            overlayState.birdDraws = birdRenderer_->DrawCallCount();
             overlayState.audioAvailable = soundscape_ && soundscape_->IsAvailable();
             overlayState.audioMuted = soundscape_ && soundscape_->IsMuted();
             if (soundscape_) {
@@ -678,7 +706,12 @@ namespace island
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "
-                      << grassRenderer_->DrawCallCount() << " draws\n";
+                      << grassRenderer_->DrawCallCount() << " draws; birds "
+                      << birdRenderer_->VisibleBirdCount() << '/'
+                      << birdFlock_.Birds().size() << " visible (near "
+                      << birdRenderer_->VisibleNearBirdCount() << ", far "
+                      << birdRenderer_->VisibleFarBirdCount() << "), "
+                      << birdRenderer_->DrawCallCount() << " draw\n";
         }
         ++drawnFrames_;
         if (!capturePath_.empty() && drawnFrames_ == SmokeTestFrames) {

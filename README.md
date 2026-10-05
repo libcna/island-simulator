@@ -9,7 +9,9 @@ irregular rocks, 11 mossy fallen logs,
 and 28 pieces of sun-bleached beach driftwood. Every visual layer has spatial culling and distance
 LOD, while vegetation uses a calm breeze. It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
-dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. The
+dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. A first
+flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
+wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. The
 current audio pass adds original procedural shoreline surf, two varied occasional stronger waves, light
 canopy breeze, a subtle daytime-jungle texture, speed/depth-responsive movement through shallow or
 swimming water, and two restrained water-entry/exit textures without external sound files. The
@@ -67,7 +69,7 @@ with `--debug-overlay` for automated QA.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
 and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four
-frames, clean shutdown, active overview/beach/jungle/prop/driftwood screenshots, and portable
+frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird screenshots, and portable
 overlay text rendering.
 The Chromium harness also drives first-click pointer lock and audio start, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F1,

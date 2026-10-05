@@ -390,17 +390,31 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 
 ### Reusable wildlife framework
 
-- [ ] Implement spawn regions, deterministic variation, simple steering, state timers, activation
-  range, simulation LOD, animation state, and optional audio emitter.
-- [ ] Validate positions against land/water/depth/slope constraints before and during movement.
+- [~] Implement spawn regions, deterministic variation, simple steering, state timers, activation
+  range, simulation LOD, animation state, and optional audio emitter. The first shared
+  `WildlifeActivationPolicy` supplies full/quarter-rate/one-thirtieth-rate tiers, while `BirdFlock`
+  provides deterministic steering and animation pose; terrestrial/aquatic state timers and audio
+  emitters remain.
+- [~] Validate positions against land/water/depth/slope constraints before and during movement.
+  Birds continuously enforce family-specific terrain clearance and bounded island-relative airspace;
+  fish/shark/monkey constraints remain.
 - [ ] Add debug visualization for regions, paths, state, and activation tiers.
-- [ ] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds.
+- [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
+  population, path-family mix, deterministic initialization/long-run motion, animation extremes,
+  terrain clearance, route radius, and tier accounting are covered through a simulated 20-minute
+  flight; later species still need equivalent state/avoidance coverage.
 
 ### Birds
 
-- [ ] Add multiple path families above shore/interior with altitude, speed, turn, and group variation.
-- [ ] Avoid short obvious loops and synchronized animation.
-- [ ] Add occasional near and distant appearances with bounded active counts.
+- [x] Add multiple path families above shore/interior with altitude, speed, turn, and group variation.
+  Ten shore, eight canopy, and six high agents use distinct radii, altitudes, speeds, directions,
+  vertical phases, and two-frequency steering variation.
+- [x] Avoid short obvious loops and synchronized animation. Per-agent incommensurate steering,
+  altitude, and flap phases remove shared cycles; a long deterministic regression guards bounded
+  nondegenerate motion, while subjective whole-island observation remains a polish task.
+- [x] Add occasional near and distant appearances with bounded active counts. The fixed 24-agent
+  budget uses individual frustum/distance culling, near/far procedural meshes, distance-throttled
+  updates, and one dynamic-buffer draw submission.
 - [ ] Add sparse positional calls without attaching a sound to every visible bird.
 
 ### Fish and shark
@@ -734,7 +748,8 @@ after the same experience remains available.
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
-  and draws; later wildlife/audio counters and warning budgets remain open.
+  draws, bird render LOD and simulation tiers, plus audio mix/event counters; world-space views and
+  warning budgets remain open.
 - [ ] Deterministic seed display/copy.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, and monkeys. South
   beach, jungle trail, and two clearings are implemented; later content-dependent locations remain.
@@ -744,8 +759,8 @@ after the same experience remains available.
 - [ ] Wildlife spawn region, state, steering, and simulation-tier visualization.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, and jungle-trail views are implemented and used by native/browser captures; free
-  camera and more landmark views remain open.
+  beach-path, jungle-trail, natural-prop, driftwood, and airborne bird-detail views are implemented
+  and used by native/browser captures; free camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [ ] Frame-time capture and representative scene benchmark route.
 
@@ -783,16 +798,19 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
+2. Extend the tested wildlife foundation to shallow-water fish schools, including depth bands,
+   land avoidance, spatial activation, varied trajectories, body motion, and a one-batch portable
+   renderer; keep the completed bird layer under subjective observation during ordinary play.
+3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
    complete.
-3. Add shoreline/current, collision, and vegetation-cell world-space visualization; four direct
+4. Add shoreline/current, collision, vegetation-cell, and wildlife-route world-space visualization; four direct
    F5--F8 QA teleports are complete.
-4. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
+5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
-5. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
+6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete.
-6. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
+7. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
    instrumentation exists; do not raise geometry cost blindly.
 
 ## Validation ledger
@@ -1296,6 +1314,33 @@ Work next, in order:
 - The complete core suite still finishes in about 1.2 seconds and passes. This is numerical
   stability/coverage evidence only; it deliberately does not close the separate subjective
   20-minute listening/fatigue task.
+
+### 2026-10-05 — First procedural flying-bird layer
+
+- Added a renderer-independent 24-agent flock split across ten shoreline, eight canopy, and six
+  high-altitude route families. Deterministic spawn variation, soft radial steering, two
+  incommensurate wander terms, speed/height variation, independent flap phases, and authoritative
+  terrain clearance prevent synchronized short-loop traffic while keeping birds inside the island
+  airspace.
+- Added the first reusable wildlife primitive: an observer-distance activation policy with full,
+  quarter-rate, and one-thirtieth-rate update tiers. Agents accumulate skipped time with a bounded
+  catch-up step, so distant work drops without changing the renderer-facing state contract.
+- Added original near/far low-poly bird geometry with CPU wing pose, individual colour/scale
+  variation, per-agent frustum/distance rejection, and a single streamed CNA dynamic-vertex-buffer
+  draw. The path uses portable `BasicEffect`, 16-bit-independent non-indexed triangles, and no
+  geometry/compute shader or desktop-only feature.
+- Added F1 bird visibility, render-LOD, simulation-tier, and draw counters plus a deterministic
+  bird-detail camera. Core coverage simulates twenty minutes of flight and checks deterministic
+  motion, population/path diversity, finite poses, terrain clearance, bounded radii, both wing
+  extremes, and complete tier accounting.
+- Passed the core suite and native OpenGL 3.3 lifecycle/capture tests, including a visually
+  inspected dedicated close bird capture. Rebuilt WebGL 2 and passed the complete actual-Chromium
+  harness with a new dedicated bird screenshot and nonzero 24-agent assertion; native and browser
+  captures are compositionally consistent.
+- Rebuilt and linted the arm64-v8a GLES 3 APK successfully with the bird simulation and renderer.
+  Android bird runtime and performance remain unqualified because the host has no KVM and no
+  physical device is connected. The latest Linux build is open on the real desktop for play and
+  behaviour review. No qualifying CNA or Sharp Runtime defect was found.
 
 ## Session-end checklist
 

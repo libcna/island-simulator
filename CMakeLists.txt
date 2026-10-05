@@ -24,6 +24,7 @@ include(cmake/VerifyDependencies.cmake)
 island_verify_dependencies()
 
 add_library(island_core STATIC
+    game/src/BirdFlock.cpp
     game/src/GrassLayout.cpp
     game/src/IslandTerrain.cpp
     game/src/JungleLayout.cpp
@@ -31,7 +32,8 @@ add_library(island_core STATIC
     game/src/PlayerMotion.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
-    game/src/VegetationLayout.cpp)
+    game/src/VegetationLayout.cpp
+    game/src/WildlifeSimulation.cpp)
 add_library(IslandSimulator::Core ALIAS island_core)
 
 target_include_directories(island_core PUBLIC game/include)
@@ -141,6 +143,7 @@ if(ISLAND_BUILD_GAME)
     add_subdirectory("${CNA_ROOT_DIR}" CNA EXCLUDE_FROM_ALL)
 
     set(_island_game_sources
+        game/src/BirdRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
@@ -216,6 +219,10 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-driftwood-capture.ppm"
                     --viewpoint driftwood)
         set_tests_properties(IslandGameDriftwoodCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameBirdCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bird-capture.ppm"
+                    --viewpoint birds)
+        set_tests_properties(IslandGameBirdCapture PROPERTIES TIMEOUT 30 LABELS display)
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

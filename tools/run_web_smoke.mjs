@@ -134,10 +134,12 @@ try {
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
+    && result.output?.includes("island-simulator: birds 24 agents")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("portable instanced wind shader")
+    && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
   await call("Target.closeTarget", { targetId: smokeTargetId });
@@ -396,6 +398,35 @@ try {
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
 
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=birds`,
+  }, visualSessionId);
+  let birdResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    birdResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (birdResult.output?.includes("island-simulator: terrain") || birdResult.error) break;
+  }
+  await delay(1000);
+  const completedBirdEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  birdResult = JSON.parse(completedBirdEvaluation.result.value ?? "{}");
+
+  const birdScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const birdScreenshotPath = path.join(buildDirectory, "island-browser-birds.png");
+  await writeFile(birdScreenshotPath, Buffer.from(birdScreenshot.data, "base64"));
+  const birdPassed = birdResult.output?.includes("island-simulator: renderer WEBGL2")
+    && birdResult.output?.includes("island-simulator: birds 24 agents")
+    && /birds [1-9][0-9]*\/24 visible/.test(birdResult.output ?? "")
+    && !birdResult.error;
+
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
   }, visualSessionId);
@@ -578,7 +609,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && driftwoodPassed && inputPassed;
+    && junglePassed && propPassed && driftwoodPassed && birdPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -618,6 +649,11 @@ try {
       output: driftwoodResult.output ?? "",
       error: driftwoodResult.error ?? "",
     },
+    birds: {
+      passed: birdPassed,
+      output: birdResult.output ?? "",
+      error: birdResult.error ?? "",
+    },
     input: {
       passed: inputPassed,
       pointerLocked: lockedState.pointerLocked ?? false,
@@ -642,6 +678,7 @@ try {
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
+    birdScreenshot: path.basename(birdScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

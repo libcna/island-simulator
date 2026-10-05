@@ -25,6 +25,10 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── NaturalPropLayout ── rock/log/driftwood placement and solid-prop collision proxies
       │       │
       │       └── NaturalPropRenderer ─ rock/log meshes, LOD, culling, and instancing
+      ├── BirdFlock ───────── deterministic shore/canopy/high flight and simulation tiers
+      │       │
+      │       └── BirdRenderer ─ CPU wing pose, near/far meshes, culling, one dynamic batch
+      ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
@@ -36,7 +40,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 ```
 
 `IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`,
-`NaturalPropLayout`, `TouchControls`, and `SoundscapeModel` form `IslandSimulator::Core` and
+`NaturalPropLayout`, `BirdFlock`, `WildlifeActivationPolicy`, `TouchControls`, and
+`SoundscapeModel` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
 and converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
@@ -85,14 +90,16 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 6. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents.
-7. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
-   state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, and the
-   transparent ocean using one view/projection pair.
-8. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
+7. `BirdFlock` updates flight steering, terrain clearance, wing pose, and observer-relative
+   full/reduced/dormant cadence independently of the renderer.
+8. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
+   state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, the
+   one-batch procedural birds, and transparent ocean using one view/projection pair.
+9. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
-9. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
+10. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
    CNA `SpriteBatch` after all 3D passes.
-10. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+11. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
 step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.
@@ -169,6 +176,17 @@ route reservations, nearby trees, slope, and support-height variation. Collision
 substantial rocks and sampled fallen-log spans, leaving small driftwood non-solid. Native OpenGL
 3.3 and Chromium/WebGL 2 execute the full instanced path; dedicated prop and driftwood cameras
 provide deterministic close review.
+
+The first wildlife renderer draws 24 procedural birds distributed across shore, canopy, and high
+route families. `BirdFlock` combines soft radial steering with two incommensurate wander terms,
+individual speeds, vertical oscillation, flap phases, and terrain-derived minimum clearance.
+Observer distance selects full, quarter-rate, or one-thirtieth-rate simulation while accumulated
+time preserves average motion. `BirdRenderer` frustum/distance-culls individual agents, selects a
+closed near mesh or double-sided far silhouette, applies CPU wing pose, and streams all visible
+triangles through one CNA `DynamicVertexBuffer` draw. The portable `BasicEffect` path has no custom
+shader or modern-only feature. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute and visually
+match the dedicated bird capture; the bird-inclusive arm64 GLES 3 APK builds, with runtime still
+awaiting a stable Android target.
 
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
@@ -262,5 +280,6 @@ testing remain open.
   API 35 GLES3 frame is visually validated, but the host has no KVM and the software-emulated
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
-- No wildlife, positional/biome-rich soundscape, world-space debug visualization, or configuration
-  UI exists yet. The first two ambient beds and four direct QA teleports are available.
+- The first flying-bird layer exists, but fish, shark, monkeys, wildlife calls, positional wildlife
+  audio, world-space debug visualization, and configuration UI do not. Four direct QA teleports
+  and a deterministic bird close-review camera are available.

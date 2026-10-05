@@ -30,6 +30,7 @@ Current fields are:
   cells/draw submissions;
 - visible/total rocks, fallen logs, and beach driftwood plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, and draw submissions;
+- visible/total birds, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, and played
   stronger-wave and water-transition counts.
 
@@ -48,11 +49,12 @@ build/island-simulator --capture /tmp/island-beach.ppm --viewpoint beach
 build/island-simulator --capture /tmp/island-jungle.ppm --viewpoint jungle
 build/island-simulator --capture /tmp/island-props.ppm --viewpoint props
 build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
+build/island-simulator --capture /tmp/island-birds.ppm --viewpoint birds
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 ```
 
 These runs render four frames and exit. The WebGL 2 harness writes corresponding overview, beach,
-jungle, prop, and driftwood PNG captures plus a JSON report under `build-probe/`. Captures prove
+jungle, prop, driftwood, and bird PNG captures plus a JSON report under `build-probe/`. Captures prove
 initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input
 and pointer-lock evidence. The deployable-page pass also proves first-gesture CNA mixer/track

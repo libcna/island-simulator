@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/BirdRenderer.hpp"
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -41,7 +43,8 @@ namespace island
         BeachPath,
         JungleTrail,
         PropDetail,
-        DriftwoodDetail
+        DriftwoodDetail,
+        BirdDetail
     };
 
     /** @brief Main application and first portable island rendering slice. */
@@ -93,6 +96,7 @@ namespace island
 
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
+        BirdFlock birdFlock_;
         GrassLayout grassLayout_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
@@ -102,6 +106,7 @@ namespace island
         TouchControls touchControls_;
         TouchControlState touchControlState_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> terrainEffect_;
+        std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
         std::unique_ptr<JungleRenderer> jungleRenderer_;

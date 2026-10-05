@@ -26,7 +26,7 @@ been confirmed so far.
   functional. Collision has no spatial broad phase yet and checks every trunk proxy.
 - Substantial rocks and fallen logs have conservative collision; smaller rock dressing remains
   non-solid. There is no geometric step-up, jump, camera bob, underwater presentation, or
-  water-entry feedback.
+  visual water-entry feedback; restrained audio entry/exit accents are implemented.
 - Desktop mouse sensitivity and mobile touch sensitivity are compile-time values. There is no
   settings UI, remapping, gamepad control scheme, or handed touch layout yet.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,
@@ -34,8 +34,10 @@ been confirmed so far.
 
 ## Wildlife and audio
 
-- Birds, fish, the occasional shark, monkeys, skeletal animation, wildlife behaviour, and wildlife
-  spatial activation are not implemented yet.
+- A first 24-bird procedural flock has varied shore/canopy/high paths, animated wing strokes,
+  culling, terrain clearance, and distance-scaled simulation. It still lacks calls, perching,
+  landing, and long subjective behaviour tuning. Fish, the occasional shark, monkeys, and skeletal
+  animation are not implemented yet.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
   through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional
@@ -56,7 +58,8 @@ been confirmed so far.
 ## Development tooling
 
 - The overlay reports frame timing, player/water state, renderer identity, terrain/vegetation
-  visibility, LOD populations, draw counts, current surf/breeze/jungle/player-water levels, played
+  visibility, LOD populations, draw counts, bird render/simulation tiers, current
+  surf/breeze/jungle/player-water levels, played
   wave/splash counts, and mute/availability state. It does not yet provide world-space collision,
   shoreline/current, cell, wildlife, or audio-emitter visualization.
 - Four direct debug teleports exist, but there is no teleport menu, benchmark route, asset

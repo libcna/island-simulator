@@ -184,7 +184,7 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(12U);
+        lines.reserve(13U);
         lines.emplace_back("F1 DEBUG  F5-F8 TELEPORT  M MUTE");
 
         auto timing = DiagnosticLine();
@@ -239,6 +239,14 @@ namespace island
         grass << "GRASS " << state.visibleGrassPatches << '/' << state.totalGrassPatches
               << "  CELLS " << state.grassCells << " DRAWS " << state.grassDraws;
         lines.push_back(grass.str());
+
+        auto birds = DiagnosticLine();
+        birds << "BIRDS " << state.visibleBirds << '/' << state.totalBirds
+              << "  NEAR " << state.nearBirds << " FAR " << state.farBirds
+              << "  SIM " << state.fullSimulationBirds << '/'
+              << state.reducedSimulationBirds << '/' << state.dormantSimulationBirds
+              << "  DRAWS " << state.birdDraws;
+        lines.push_back(birds.str());
 
         auto audio = DiagnosticLine();
         audio << "AUDIO " << (state.audioAvailable ? (state.audioMuted ? "MUTED" : "ACTIVE")
