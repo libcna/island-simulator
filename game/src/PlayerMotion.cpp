@@ -113,6 +113,15 @@ namespace island
         return std::max(0.0f, -terrain.SignedShoreDistance(position_.x, position_.z));
     }
 
+    float PlayerMotion::OceanCurrentStrength(const IslandTerrain& terrain) const noexcept
+    {
+        if (mode_ != LocomotionMode::Swimming) {
+            return 0.0f;
+        }
+        return SmoothStep((OffshoreDistance(terrain) - SoftCurrentStart)
+                          / (FullCurrentDistance - SoftCurrentStart));
+    }
+
     void PlayerMotion::ResolveModeAndHeight(const IslandTerrain& terrain,
                                             const float maximumVerticalDelta) noexcept
     {
@@ -164,8 +173,7 @@ namespace island
         const float outwardZ = radius > 0.001f ? position_.z / radius : 0.0f;
         const float offshore = OffshoreDistance(terrain);
         if (mode_ == LocomotionMode::Swimming && offshore > SoftCurrentStart) {
-            const float strength = SmoothStep((offshore - SoftCurrentStart)
-                                              / (FullCurrentDistance - SoftCurrentStart));
+            const float strength = OceanCurrentStrength(terrain);
             const float outwardSpeed = targetVelocityX * outwardX + targetVelocityZ * outwardZ;
             if (outwardSpeed > 0.0f) {
                 targetVelocityX -= outwardX * outwardSpeed * strength;

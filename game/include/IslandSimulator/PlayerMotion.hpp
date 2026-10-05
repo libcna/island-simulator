@@ -82,6 +82,9 @@ namespace island
         /** @brief Returns positive distance offshore, or zero on land. */
         [[nodiscard]] float OffshoreDistance(const IslandTerrain& terrain) const noexcept;
 
+        /** @brief Returns the normalized strength of the active outer-ocean current. */
+        [[nodiscard]] float OceanCurrentStrength(const IslandTerrain& terrain) const noexcept;
+
     private:
         struct GroundContact
         {

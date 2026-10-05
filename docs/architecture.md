@@ -20,6 +20,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │       │
       │       └── GrassRenderer ─ near/far blade clusters, cell culling, instancing, and wind
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
+      ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       └── IslandGame ───────── CNA lifecycle, input, camera, terrain cells, and pass ordering
 ```
 
@@ -70,7 +71,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    circular obstacles, retaining axis sliding when one component is valid.
 6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, opaque palms,
    opaque mesh grass, then the transparent ocean.
-7. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+7. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
+   CNA `SpriteBatch` after all 3D passes.
+8. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
 step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.
@@ -124,6 +127,12 @@ The game requests the XNA `HiDef` profile because its deterministic QA capture u
 readback and the intended 3D feature set exceeds a `Reach`-only design. This is an application
 requirement, not a CNA workaround.
 
+The developer overlay creates its 5 by 7 uppercase glyph atlas at runtime, so it has no font-file
+or content-pipeline dependency. It measures wall-clock spacing between `Draw` calls instead of
+reporting the fixed simulation timestep. F1 toggles it during interactive play; `--debug-overlay`
+is the explicit automation path. Native OpenGL 3.3 and actual WebGL 2 captures validate the same
+SpriteBatch route.
+
 ## Current limitations
 
 - Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
@@ -140,4 +149,5 @@ requirement, not a CNA workaround.
   but pointer lock, interactive input, audio unlock, and hardware-GPU performance remain
   unverified.
 - Android has not been compiled or run by this project yet.
-- No wildlife, layered soundscape, debug overlay, or configuration UI exists yet.
+- No wildlife, layered soundscape, world-space debug visualization, teleport menu, or configuration
+  UI exists yet.

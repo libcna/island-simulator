@@ -499,9 +499,11 @@ Dependencies: representative complete scene on all targets.
 
 ### Instrumentation and budgets
 
-- [ ] Add debug overlay: FPS, frame time, player coordinates/state, renderer/backend, visible
+- [~] Add debug overlay: FPS, frame time, player coordinates/state, renderer/backend, visible
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
-  source counts.
+  source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
+  fields on OpenGL 3.3 and WebGL 2; future wildlife and audio fields remain dependent on those
+  systems.
 - [ ] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation.
 - [ ] Add debug teleport locations and a debug-only free camera.
@@ -667,7 +669,9 @@ after the same experience remains available.
 
 ## Debug and developer tooling backlog
 
-- [ ] Runtime debug overlay and renderer identity.
+- [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
+  frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
+  and draws; later wildlife/audio counters and warning budgets remain open.
 - [ ] Deterministic seed display/copy.
 - [ ] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, and monkeys.
 - [ ] Terrain/capsule/contact visualization.
@@ -700,7 +704,8 @@ after the same experience remains available.
   remain dependent on their implementations.
 - [ ] `docs/asset-pipeline.md`: source formats, generation/conversion, manifests, validation.
 - [ ] `docs/renderer-differences.md`: measured visual/performance differences and fallbacks.
-- [ ] `docs/debugging.md`: diagnostics, overlays, teleports, captures, common failures.
+- [~] `docs/debugging.md`: overlay fields and deterministic capture workflows are documented;
+  teleports, world-space visualizers, performance capture, and common-failure guidance remain open.
 - [ ] `docs/performance.md`: budgets, representative scenes, measurements, decisions.
 - [ ] `docs/known-limitations.md`: only current, verified limitations.
 
@@ -708,13 +713,13 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Add a small debug overlay for position, movement state, renderer, frame time, visible terrain and
-   vegetation cells, terrain contacts, shore distance, and ocean-current strength.
-2. Validate Web pointer lock, keyboard focus, resizing, pause/resume, and active hardware rendering
+1. Validate Web pointer lock, keyboard focus, resizing, pause/resume, and active hardware rendering
    before declaring the browser traversal experience usable.
-3. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
+2. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
    designing touch input around assumptions.
-4. Begin the broadleaf canopy/medium-plant layer and preserve the authored route/clearing structure.
+3. Begin the broadleaf canopy/medium-plant layer and preserve the authored route/clearing structure.
+4. Add debug teleports and shoreline/current plus vegetation-cell visualization before traversal
+   and density tuning expands.
 5. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
    instrumentation exists; do not raise geometry cost blindly.
 
@@ -842,6 +847,26 @@ Work next, in order:
 - This is a technical first pass, not final art. Rich bark/frond materials, self/contact shadowing,
   pop-free LOD transitions, silhouette polish, measured performance, and Android GLES 3 remain
   open.
+
+### 2026-10-05 — First portable runtime diagnostics pass
+
+- Added an opt-in F1 developer overlay using only CNA public APIs and an original runtime-generated
+  5 by 7 bitmap atlas. Normal presentation starts with it hidden; `--debug-overlay` enables
+  deterministic QA without adding an external font asset or content-pipeline dependency.
+- Added smoothed wall-clock frame duration/FPS, player position and locomotion, support height and
+  slope, offshore distance, normalized current strength, renderer identity, terrain cell counts,
+  and palm/grass visibility, LOD, cell, and draw statistics.
+- Promoted normalized ocean-current strength to a renderer-independent `PlayerMotion` query and
+  added core regression coverage for inactive walking/near-shore states and full outer strength.
+- Added an isolated native overlay capture test. Core tests passed 1/1 and all four native OpenGL
+  lifecycle/capture tests passed 4/4; the overlay capture was visually inspected for legibility and
+  correct beach-scene values.
+- Rebuilt the Emscripten package and passed the real Chromium/SwiftShader WebGL 2 harness. Its beach
+  pass now requires the overlay activation diagnostic and the inspected screenshot confirms the
+  same font, panel, and values render through WebGL 2 SpriteBatch composition.
+- Startup smoke captures are too short for representative FPS evidence. Hardware-GPU profiling,
+  frame histograms/budgets, world-space visualizers, teleports, wildlife/audio counters, and Android
+  GLES 3 remain open.
 
 ## Session-end checklist
 

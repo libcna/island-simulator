@@ -204,6 +204,7 @@ try {
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && beachResult.output?.includes("portable instanced wind shader")
+    && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
   const passed = smokePassed && visualPassed && beachPassed;

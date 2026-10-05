@@ -218,12 +218,20 @@ int main()
           "walking acceleration does not jump to full speed");
     Check(player.Mode() == island::LocomotionMode::Walking,
           "interior movement stays in walking mode");
+    CheckNear(player.OceanCurrentStrength(terrain), 0.0f, 0.0001f,
+              "ocean current remains inactive while walking");
 
     const float eastShore = terrain.ShoreRadius(0.0f);
     player.SetPosition(terrain, eastShore + 24.0f, 0.0f);
     Check(player.Mode() == island::LocomotionMode::Swimming,
           "sufficiently deep near-shore water enters swimming mode");
     CheckNear(player.Position().y, 0.58f, 0.001f, "swimming eye rests near the water surface");
+    CheckNear(player.OceanCurrentStrength(terrain), 0.0f, 0.0001f,
+              "ocean current remains inactive inside the near-shore swimming area");
+
+    player.SetPosition(terrain, eastShore + island::PlayerMotion::FullCurrentDistance, 0.0f);
+    CheckNear(player.OceanCurrentStrength(terrain), 1.0f, 0.0001f,
+              "ocean current reaches full normalized strength at its documented distance");
 
     player.SetPosition(terrain, eastShore + 80.0f, 0.0f);
     const float offshoreBeforeCurrent = player.OffshoreDistance(terrain);

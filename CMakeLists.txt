@@ -76,8 +76,8 @@ if(ISLAND_BUILD_GAME)
     set(CNA_ENABLE_DRACO OFF CACHE BOOL "Build Draco mesh decoding" FORCE)
     set(CNA_ENABLE_FONT_PIPELINE OFF CACHE STRING "Build the font pipeline" FORCE)
     set(CNA_CNB_ZSTD OFF CACHE STRING "Build Zstandard CNB support" FORCE)
-    # Portable multi-language ShaderEffect packages are an opt-in CNA extension. Ocean and grass
-    # keep explicit GLSL Desktop and GLSL ES variants for Linux, WebGL 2, and GLES 3 parity.
+    # Portable multi-language ShaderEffect packages are an opt-in CNA extension. Ocean, palms, and
+    # grass keep explicit GLSL Desktop and GLSL ES variants for Linux, WebGL 2, and GLES 3 parity.
     set(CNA_CNAEXT ON CACHE BOOL "Enable CNA's portable shader infrastructure" FORCE)
     set(SHARP_RUNTIME_BUILD_TESTS OFF CACHE BOOL "Build Sharp Runtime tests" FORCE)
     set(EASYGL_BUILD_TESTS OFF CACHE BOOL "Build EasyGL tests" FORCE)
@@ -137,6 +137,7 @@ if(ISLAND_BUILD_GAME)
     add_subdirectory("${CNA_ROOT_DIR}" CNA EXCLUDE_FROM_ALL)
 
     add_executable(island-simulator
+        game/src/DebugOverlay.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
         game/src/Main.cpp
@@ -178,5 +179,9 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-beach-capture.ppm"
                     --viewpoint beach)
         set_tests_properties(IslandGameBeachCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameDebugOverlayCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
+                    --viewpoint beach --debug-overlay)
+        set_tests_properties(IslandGameDebugOverlayCapture PROPERTIES TIMEOUT 30 LABELS display)
     endif()
 endif()

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassRenderer.hpp"
@@ -42,7 +43,8 @@ namespace island
          * @param viewpoint Optional fixed QA camera without player movement.
          */
         explicit IslandGame(bool smokeTest = false, std::string capturePath = {},
-                            FixedViewpoint viewpoint = FixedViewpoint::None);
+                            FixedViewpoint viewpoint = FixedViewpoint::None,
+                            bool showDebugOverlay = false);
 
         GetTypeNameHPP()
 
@@ -81,6 +83,7 @@ namespace island
         VegetationLayout vegetationLayout_;
         PlayerMotion playerMotion_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> terrainEffect_;
+        std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
@@ -92,6 +95,8 @@ namespace island
         FixedViewpoint viewpoint_ = FixedViewpoint::None;
         std::string capturePath_;
         bool mouseCaptured_ = false;
+        bool debugOverlayVisible_ = false;
+        bool debugOverlayToggleWasDown_ = false;
         std::uint32_t drawnFrames_ = 0;
         int visibleTerrainCellCount_ = 0;
         int terrainVertexCount_ = 0;

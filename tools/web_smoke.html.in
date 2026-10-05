@@ -25,7 +25,8 @@
     var Module = {
       arguments: mode === "interactive" ? []
         : (mode === "overview" ? ["--overview"]
-          : (mode === "beach" ? ["--viewpoint", "beach"] : ["--smoke-test"])),
+          : (mode === "beach" ? ["--viewpoint", "beach", "--debug-overlay"]
+            : ["--smoke-test"])),
       canvas: document.getElementById("canvas"),
       print: (...values) => record("", values),
       printErr: (...values) => record("ERR: ", values),

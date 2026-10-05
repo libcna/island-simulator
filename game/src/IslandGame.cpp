@@ -90,14 +90,15 @@ namespace island
     }
 
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
-                           FixedViewpoint viewpoint)
+                           FixedViewpoint viewpoint, const bool showDebugOverlay)
         : graphics_(this),
           grassLayout_(terrain_),
           vegetationLayout_(terrain_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
-          capturePath_(std::move(capturePath))
+          capturePath_(std::move(capturePath)),
+          debugOverlayVisible_(showDebugOverlay)
     {
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
@@ -134,8 +135,9 @@ namespace island
         grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
+        debugOverlay_ = std::make_unique<DebugOverlay>(device);
+        playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
-            playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
         }
@@ -144,6 +146,9 @@ namespace island
                   << "island-simulator: terrain " << terrainVertexCount_ << " vertices, "
                   << terrainPrimitiveCount_ << " triangles in " << terrainCells_.size()
                   << " cells\n";
+        if (debugOverlayVisible_) {
+            std::cout << "island-simulator: debug overlay active\n";
+        }
         std::cout.flush();
     }
 
@@ -223,6 +228,14 @@ namespace island
     {
         const KeyboardState keyboard = Keyboard::GetState();
         const MouseState mouse = Mouse::GetState();
+
+        const bool debugOverlayToggleDown = keyboard.IsKeyDown(Keys::F1);
+        if (debugOverlayToggleDown && !debugOverlayToggleWasDown_) {
+            debugOverlayVisible_ = !debugOverlayVisible_;
+            std::cout << "island-simulator: debug overlay "
+                      << (debugOverlayVisible_ ? "enabled" : "disabled") << '\n';
+        }
+        debugOverlayToggleWasDown_ = debugOverlayToggleDown;
 
         if (keyboard.IsKeyDown(Keys::Escape)) {
             if (mouseCaptured_) {
@@ -319,6 +332,7 @@ namespace island
     void IslandGame::Draw(const GameTime& gameTime)
     {
         auto& device = getGraphicsDeviceProperty();
+        debugOverlay_->UpdateFrameTiming();
         device.Clear(Color(136, 202, 224, 255), 1.0f);
         device.setRasterizerStateProperty(RasterizerState::CullNone);
         device.setBlendStateProperty(BlendState::Opaque);
@@ -349,6 +363,32 @@ namespace island
         oceanRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
+
+        if (debugOverlayVisible_) {
+            const PlayerPosition& player = playerMotion_.Position();
+            DebugOverlayState overlayState;
+            overlayState.playerPosition = Vector3(player.x, player.y, player.z);
+            overlayState.renderer = device.GetGraphicsRendererName();
+            overlayState.swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
+            overlayState.groundHeight = playerMotion_.GroundHeight();
+            overlayState.groundSlopeDegrees = playerMotion_.GroundSlopeRadians()
+                * 180.0f / std::numbers::pi_v<float>;
+            overlayState.offshoreDistance = playerMotion_.OffshoreDistance(terrain_);
+            overlayState.oceanCurrentStrength = playerMotion_.OceanCurrentStrength(terrain_);
+            overlayState.visibleTerrainCells = visibleTerrainCellCount_;
+            overlayState.totalTerrainCells = static_cast<int>(terrainCells_.size());
+            overlayState.visiblePalms = palmRenderer_->VisiblePalmCount();
+            overlayState.totalPalms = palmRenderer_->TotalPalmCount();
+            overlayState.nearPalms = palmRenderer_->VisibleNearPalmCount();
+            overlayState.farPalms = palmRenderer_->VisibleFarPalmCount();
+            overlayState.palmCells = palmRenderer_->VisibleCellCount();
+            overlayState.palmDraws = palmRenderer_->DrawCallCount();
+            overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
+            overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
+            overlayState.grassCells = grassRenderer_->VisibleCellCount();
+            overlayState.grassDraws = grassRenderer_->DrawCallCount();
+            debugOverlay_->Draw(overlayState);
+        }
 
         if (drawnFrames_ == 0U) {
             std::cout << "island-simulator: visible terrain cells " << visibleTerrainCellCount_

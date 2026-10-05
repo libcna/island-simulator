@@ -47,11 +47,13 @@ Run `build/island-simulator`. Click inside the window to capture the mouse, use 
 press Escape to release the mouse; press Escape again to exit. The controller follows the terrain,
 rejects overly steep uphill motion, slides along palm-trunk collision proxies, and enters swimming
 water with hysteresis. Rock/complex prop collision, geometric step-up, and touch controls are not
-implemented yet.
+implemented yet. Press F1 to toggle the developer overlay with frame timing, player/water state,
+renderer identity, culling counts, and vegetation draw statistics. The overlay starts hidden in a
+normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
 shader, hardware-instanced palm wind and near/far LOD, portable instanced grass wind, four frames,
-clean shutdown, and active overview/beach screenshots.
+clean shutdown, active overview/beach screenshots, and portable overlay text rendering.
 Browser pointer-lock/input and audio behaviour still need interactive QA. Android OpenGL ES 3 is
 required but is not yet built or runtime-validated. See `PLAN.md` for the evidence required before
 broader platform claims.
