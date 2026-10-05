@@ -17,6 +17,7 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 | Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 | API 35 x86_64 AVD with SwiftShader GLES, no KVM |
 | Runtime state | Repeated interactive play plus isolated GPU smoke/captures | Automated real-browser render and controlled input | One installed first-launch render; unstable host System UI prevents full lifecycle qualification |
 | Terrain | CNA `BasicEffect`, 64 frustum-culled cells | Same scene and cell path | Visibly rendered in the captured GLES3 frame |
+| Sky | Full fixed gradient/sun/cloud shader selected | Same GLSL ES 300 shader required by every harness scene | Sky-inclusive arm64 APK builds; current shader runtime remains unqualified |
 | Ocean | Full portable custom shader selected | Full GLSL ES 300 shader required by the harness | Compiled into the APK; the captured camera did not prove every water effect |
 | Palms | Hardware instancing, wind, near/far LOD | Same shader/instancing path required by the harness | Palms visibly rendered; draw/LOD counters not captured |
 | Jungle | 281 canopy trees and 1,822 understory plants, instanced wind/LOD | Same GLSL ES 300 path; jungle camera proves nonzero canopy/understory draws | Jungle-inclusive arm64 APK builds; runtime remains unqualified |

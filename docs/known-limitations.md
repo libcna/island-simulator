@@ -15,8 +15,9 @@ been confirmed so far.
 - Palms, grass, canopy trees, and understory have deterministic variation, wind, culling, and LOD,
   but visible transition popping, close-up material simplicity, and weak grounding/contact cues
   remain.
-- Permanent daylight, haze, and sky colour are present; final lighting, shadows, exposure, and
-  distant atmospheric composition are not.
+- A first portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and
+  fixed high cloud suggestion. Terrain, ocean, and sky share one sun direction. Final fill light,
+  shadows, exposure, richer cloud shaping, and distant atmospheric composition are not complete.
 
 ## Traversal and interaction
 

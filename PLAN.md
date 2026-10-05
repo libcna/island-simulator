@@ -360,8 +360,13 @@ Dependencies: stable terrain/shore queries and representative performance instru
 
 ### Lighting, sky, distance, and shadows
 
-- [ ] Establish one fixed attractive sun direction, colour temperature, fill light, and exposure.
-- [ ] Build a portable sky gradient/dome with sun disc and high, calm tropical cloud suggestion.
+- [~] Establish one fixed attractive sun direction, colour temperature, fill light, and exposure.
+  Terrain, ocean glint, and sky now consume one shared direction and warm daylight palette; a
+  measured exposure/fill-light pass and Android runtime comparison remain open.
+- [~] Build a portable sky gradient/dome with sun disc and high, calm tropical cloud suggestion.
+  A camera-centred sphere with explicit GLSL 330 / GLSL ES 300 shaders, static high wisps, and a
+  stock-effect gradient fallback is visually verified on OpenGL 3.3 and actual WebGL 2. The
+  sky-inclusive GLES 3 package compiles, but stable Android runtime qualification remains open.
 - [ ] Add distance haze/fog that enlarges perceived scale without washing out nearby jungle.
 - [ ] Evaluate one bounded directional shadow solution or baked/vertex alternatives on all targets.
 - [~] Provide contact/grounding cues for palms, rocks, props, and animals even when shadows degrade.
@@ -1013,6 +1018,29 @@ Work next, in order:
   cut end and subtle moss. Later passes should add branch stubs, finer material variation, smaller
   beach driftwood, rock grouping/shore wetness, and measured mobile budgets rather than multiplying
   geometry blindly.
+
+### 2026-10-05 — First fixed sunny sky pass
+
+- Added a camera-centred procedural sky sphere with a portable GLSL 330 / GLSL ES 300 shader. The
+  fixed presentation combines a tropical horizon-to-zenith gradient, warm sun disc and halo, and
+  subtle static high cloud wisps without introducing a clock, weather, or day/night state.
+- Added a vertex-coloured stock-effect gradient fallback with an actionable startup diagnostic.
+  The sky pass temporarily disables depth, renders before the world, restores normal depth state,
+  and stays centred on the camera so the finite sphere cannot expose a travel boundary.
+- Centralized the fixed sun direction in island-simulator and applied it to terrain lighting,
+  ocean glint, and the sky disc. Visual review exposed and corrected the ocean's previously
+  mirrored horizontal sun direction.
+- Fixed a game-owned `class`/`struct` forward-declaration mismatch that native GCC tolerated but
+  Emscripten Clang rejected under warnings-as-errors. No framework defect was involved and CNA and
+  Sharp Runtime remained unchanged.
+- Core tests pass and all six isolated OpenGL lifecycle/capture tests pass. Overview, beach,
+  jungle, and prop captures were visually inspected after the change.
+- Rebuilt the WebAssembly package and passed the full Chromium/SwiftShader WebGL 2 lifecycle,
+  render, deployment, input, and screenshot harness. Every browser scene now requires the fixed
+  sky shader diagnostic, preventing a silent custom-effect fallback.
+- Rebuilt the arm64-v8a Android APK and passed application lint with the GLSL ES sky path included.
+  Runtime evidence for the new sky remains open until a stable KVM-backed emulator or physical
+  device is available; compilation is not reported as runtime qualification.
 
 ## Session-end checklist
 

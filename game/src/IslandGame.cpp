@@ -1,4 +1,6 @@
 #include "IslandSimulator/IslandGame.hpp"
+
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 
 #include <algorithm>
@@ -83,7 +85,10 @@ namespace island
             }
 
             const Vector3 normal(sample.normal.x, sample.normal.y, sample.normal.z);
-            const Vector3 sun = Vector3::Normalize(Vector3(-0.45f, 0.82f, -0.34f));
+            const Vector3 sun = Vector3::Normalize(Vector3(
+                environment::SunDirectionX,
+                environment::SunDirectionY,
+                environment::SunDirectionZ));
             const float light = std::clamp(0.52f + 0.48f * Vector3::Dot(normal, sun), 0.34f, 1.0f);
             return Color(static_cast<std::uint8_t>(static_cast<float>(base.getRProperty()) * light),
                          static_cast<std::uint8_t>(static_cast<float>(base.getGProperty()) * light),
@@ -179,6 +184,7 @@ namespace island
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
+        skyRenderer_ = std::make_unique<SkyRenderer>(device);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
         touchOverlay_ = std::make_unique<TouchOverlay>(device);
         playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
@@ -483,10 +489,12 @@ namespace island
         auto& device = getGraphicsDeviceProperty();
         debugOverlay_->UpdateFrameTiming();
         device.Clear(Color(136, 202, 224, 255), 1.0f);
+        ApplyCamera(*terrainEffect_);
+        skyRenderer_->Draw(terrainEffect_->getViewProperty(),
+                           terrainEffect_->getProjectionProperty(), cameraPosition_);
         device.setRasterizerStateProperty(RasterizerState::CullNone);
         device.setBlendStateProperty(BlendState::Opaque);
         device.setDepthStencilStateProperty(DepthStencilState::Default);
-        ApplyCamera(*terrainEffect_);
         const BoundingFrustum terrainFrustum(terrainEffect_->getViewProperty()
                                              * terrainEffect_->getProjectionProperty());
         visibleTerrainCellCount_ = 0;

@@ -1,5 +1,7 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 
+#include "IslandSimulator/EnvironmentLighting.hpp"
+
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 
@@ -304,7 +306,9 @@ void main()
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
-            customEffect_->SetUniformVec3("uToSun", 0.45f, 0.82f, 0.34f);
+            customEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
             DrawGeometry();
         } else {

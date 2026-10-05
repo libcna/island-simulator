@@ -148,6 +148,7 @@ if(ISLAND_BUILD_GAME)
         game/src/NaturalPropRenderer.cpp
         game/src/OceanRenderer.cpp
         game/src/PalmRenderer.cpp
+        game/src/SkyRenderer.cpp
         game/src/TouchOverlay.cpp)
 
     # SDLActivity loads an Android game as libmain.so. Keep the public CMake target name stable so

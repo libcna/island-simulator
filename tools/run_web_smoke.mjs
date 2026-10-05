@@ -129,6 +129,7 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes("island-simulator: ocean portable custom shader")
+    && result.output?.includes("island-simulator: fixed sunny sky portable shader")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, hardware instancing")
@@ -187,6 +188,7 @@ try {
     && deploymentState.height === 720
     && deploymentState.hasWebGl2 === true
     && deploymentState.output?.includes("island-simulator: renderer WEBGL2")
+    && deploymentState.output?.includes("island-simulator: fixed sunny sky portable shader")
     && deploymentState.output?.includes("island-simulator: terrain")
     && deploymentState.pointerLocked === true;
   await call("Target.closeTarget", { targetId: deploymentTargetId });
@@ -226,6 +228,7 @@ try {
 
   const visualPassed = visualResult.output?.includes("island-simulator: renderer WEBGL2")
     && visualResult.output?.includes("island-simulator: ocean portable custom shader")
+    && visualResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
@@ -261,6 +264,7 @@ try {
   await writeFile(beachScreenshotPath, Buffer.from(beachScreenshot.data, "base64"));
   const beachPassed = beachResult.output?.includes("island-simulator: renderer WEBGL2")
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
+    && beachResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && beachResult.output?.includes("jungle portable wind shader with canopy/understory LOD")
     && beachResult.output?.includes("portable instanced wind shader")
@@ -292,6 +296,7 @@ try {
   const jungleScreenshotPath = path.join(buildDirectory, "island-browser-jungle.png");
   await writeFile(jungleScreenshotPath, Buffer.from(jungleScreenshot.data, "base64"));
   const junglePassed = jungleResult.output?.includes("island-simulator: renderer WEBGL2")
+    && jungleResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory LOD")
     && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory/.test(
       jungleResult.output ?? "")
@@ -321,6 +326,7 @@ try {
   const propScreenshotPath = path.join(buildDirectory, "island-browser-props.png");
   await writeFile(propScreenshotPath, Buffer.from(propScreenshot.data, "base64"));
   const propPassed = propResult.output?.includes("island-simulator: renderer WEBGL2")
+    && propResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && propResult.output?.includes("natural-prop portable shader with near/far LOD")
     && /props [0-9]+\/152 rocks, [1-9][0-9]*\/11 logs/.test(propResult.output ?? "")
     && !propResult.error;
@@ -471,6 +477,7 @@ try {
     && Math.abs(backingAspect - 16 / 9) < 0.001
     && Math.abs(clientAspect - 16 / 9) < 0.01;
   const inputPassed = inputResult.output?.includes("island-simulator: renderer WEBGL2")
+    && inputResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && inputResult.output?.includes("island-simulator: debug overlay disabled")
     && lockedState.pointerLocked === true
     && lockedState.focused === true

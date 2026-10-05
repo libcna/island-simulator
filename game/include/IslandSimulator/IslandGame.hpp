@@ -17,6 +17,7 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -104,6 +105,7 @@ namespace island
         std::unique_ptr<NaturalPropRenderer> naturalPropRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
+        std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
         std::vector<TerrainRenderCell> terrainCells_;
         Microsoft::Xna::Framework::Vector3 cameraPosition_;

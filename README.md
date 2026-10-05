@@ -7,10 +7,11 @@ The current slice renders a deterministic approximately 500 m island, animated t
 mesh-grass clusters. It also composes 152 irregular rocks and 11 mossy fallen logs. Every visual
 layer has spatial culling and distance LOD, while vegetation uses a calm breeze. It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
-and dual-zone touch input. The complete scene runs on Linux/OpenGL 3.3 and in an actual
+dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. The
+complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
-terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop-inclusive APK builds, but its
-runtime and real-device touch feel are not yet qualified.
+terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop/sky-inclusive APK builds, but
+its runtime and real-device touch feel are not yet qualified.
 
 There are deliberately no quests, combat, inventory, crafting, survival systems, score,
 progression, dynamic weather, or day/night cycle.
@@ -59,8 +60,9 @@ four fixed QA locations. The overlay starts hidden in a normal run and can be en
 with `--debug-overlay` for automated QA.
 
 The automated browser smoke test verifies renderer initialization, the portable animated-ocean
-shader, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four frames, clean
-shutdown, active overview/beach/jungle/prop screenshots, and portable overlay text rendering.
+and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four
+frames, clean shutdown, active overview/beach/jungle/prop screenshots, and portable overlay text
+rendering.
 The Chromium harness also drives first-click pointer lock, WASD, relative mouse look, F1, pointer
 release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-accelerated
 browser pass, genuine tab background/foreground behaviour, audio unlock, and another browser

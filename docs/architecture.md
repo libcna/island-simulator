@@ -25,6 +25,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── NaturalPropLayout ── rock/log placement, tree separation, and collision proxies
       │       │
       │       └── NaturalPropRenderer ─ rock/log meshes, LOD, culling, and instancing
+      ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
@@ -79,8 +80,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    island-relative current field, and the remote safety boundary.
 5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
    circular obstacles, retaining axis sliding when one component is valid.
-6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, natural props,
-   broadleaf jungle, mesh grass, palms, then the transparent ocean.
+6. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
+   state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, and the
+   transparent ocean using one view/projection pair.
 7. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
 8. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
@@ -109,7 +111,16 @@ current without changing its physical invariant.
 The terrain's authoritative 241 by 241 source grid is partitioned into 64 render cells. Each cell
 has portable 16-bit indices and an independent bounding box for frustum rejection; exact shared
 sample coordinates prevent cracks. Fixed daylight is currently baked into procedural terrain and
-palm vertex colours.
+palm vertex colours. Terrain, ocean, and sky share one project-owned fixed sun direction so the
+surface lighting, water glint, and visible sun cannot silently diverge.
+
+`SkyRenderer` draws a camera-centred 900 m sphere before world geometry. Its GLSL 330 / GLSL ES
+300 fragment shader combines a horizon-to-zenith tropical gradient, warm sun disc and halo, and
+subtle static high cloud wisps. The sky has no clock or weather input by design. Depth writes and
+testing are disabled only for this pass and restored immediately afterward. A vertex-coloured
+`BasicEffect` gradient remains available with an explicit diagnostic if custom effects are not
+supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the current arm64 GLES
+3 package compiles its GLSL ES path, but stable Android runtime validation remains open.
 
 Four palm variants use curved tapered trunk meshes and 10--12 ribbon fronds in the near tier, with
 root wedges around the trunk base as a low-cost contact cue. A lower-segment trunk and seven-frond
@@ -177,7 +188,8 @@ SpriteBatch route.
 - Collision checks every palm, canopy-trunk, solid-rock, and sampled log proxy and has no spatial
   broad phase yet; geometric step-up remains absent.
 - Swimming camera height is functional but has no bob, underwater transition, or audio.
-- WebGL 2 has run in Chromium/SwiftShader with the full ocean, palm-wind, and grass-wind shaders.
+- WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
+  shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
   release/reacquisition, and responsive 16:9 presentation. Audio unlock, genuine tab lifecycle,
   another browser engine, and visible hardware-GPU performance remain unverified.
