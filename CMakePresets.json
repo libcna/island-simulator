@@ -21,6 +21,23 @@
       }
     },
     {
+      "name": "android-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-consumer",
+      "toolchainFile": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake",
+      "cacheVariables": {
+        "ANDROID_ABI": "arm64-v8a",
+        "ANDROID_PLATFORM": "android-24",
+        "ANDROID_STL": "c++_static",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "ISLAND_BUILD_GAME": "ON",
+        "ISLAND_BUILD_TESTS": "OFF"
+      }
+    },
+    {
       "name": "linux-debug",
       "displayName": "Linux OpenGL 3.3 Debug",
       "generator": "Ninja",
@@ -41,6 +58,14 @@
       "cacheVariables": {
         "CNA_GRAPHICS_RENDERER": "WEBGL2"
       }
+    },
+    {
+      "name": "android-arm64-gles3",
+      "displayName": "Android arm64 OpenGL ES 3 Debug",
+      "inherits": "android-base",
+      "cacheVariables": {
+        "CNA_GRAPHICS_RENDERER": "OPENGLES3"
+      }
     }
   ],
   "buildPresets": [
@@ -56,6 +81,14 @@
     {
       "name": "web-webgl2",
       "configurePreset": "web-webgl2",
+      "jobs": 2,
+      "targets": [
+        "island-simulator"
+      ]
+    },
+    {
+      "name": "android-arm64-gles3",
+      "configurePreset": "android-arm64-gles3",
       "jobs": 2,
       "targets": [
         "island-simulator"

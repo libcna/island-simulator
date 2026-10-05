@@ -31,6 +31,8 @@
 #include "Microsoft/Xna/Framework/Input/Keyboard.hpp"
 #include "Microsoft/Xna/Framework/Input/Keys.hpp"
 #include "Microsoft/Xna/Framework/Input/Mouse.hpp"
+#include "Microsoft/Xna/Framework/Input/Touch/TouchLocationState.hpp"
+#include "Microsoft/Xna/Framework/Input/Touch/TouchPanel.hpp"
 
 using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
@@ -41,6 +43,7 @@ namespace island
     namespace
     {
         constexpr float MouseSensitivity = 0.0021f;
+        constexpr float TouchLookSensitivity = 0.0032f;
         constexpr std::uint32_t SmokeTestFrames = 4U;
 
         [[nodiscard]] Color BlendColor(const Color& from, const Color& to, const float amount)
@@ -119,6 +122,10 @@ namespace island
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
         graphics_.setPreferredBackBufferHeightProperty(720);
+#if defined(__ANDROID__)
+        graphics_.setIsFullScreenProperty(true);
+        touchOverlayVisible_ = true;
+#endif
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         setIsFixedTimeStepProperty(true);
@@ -140,6 +147,7 @@ namespace island
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
+        touchOverlay_ = std::make_unique<TouchOverlay>(device);
         playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
@@ -247,6 +255,48 @@ namespace island
     {
         const KeyboardState keyboard = Keyboard::GetState();
         const MouseState mouse = Mouse::GetState();
+        const auto touches = Touch::TouchPanel::GetState();
+        std::vector<TouchContact> touchContacts;
+        touchContacts.reserve(static_cast<std::size_t>(touches.getCountProperty()));
+        for (const Touch::TouchLocation& touch : touches) {
+            TouchPhase phase = TouchPhase::Moved;
+            switch (touch.getStateProperty()) {
+            case Touch::TouchLocationState::Pressed:
+                phase = TouchPhase::Pressed;
+                break;
+            case Touch::TouchLocationState::Released:
+            case Touch::TouchLocationState::Invalid:
+                phase = TouchPhase::Released;
+                break;
+            case Touch::TouchLocationState::Moved:
+                phase = TouchPhase::Moved;
+                break;
+            }
+            const Vector2& position = touch.getPositionProperty();
+            touchContacts.push_back({touch.getIdProperty(), position.X, position.Y, phase});
+        }
+
+        const auto& viewport = getGraphicsDeviceProperty().getViewportProperty();
+        const float touchWidth = Touch::TouchPanel::getDisplayWidthProperty() > 0
+            ? static_cast<float>(Touch::TouchPanel::getDisplayWidthProperty())
+            : static_cast<float>(viewport.getWidthProperty());
+        const float touchHeight = Touch::TouchPanel::getDisplayHeightProperty() > 0
+            ? static_cast<float>(Touch::TouchPanel::getDisplayHeightProperty())
+            : static_cast<float>(viewport.getHeightProperty());
+        touchDisplayWidth_ = touchWidth;
+        touchDisplayHeight_ = touchHeight;
+        touchControlState_ = touchControls_.Update(touchContacts, touchWidth, touchHeight);
+        if (!touchContacts.empty()) {
+            touchOverlayVisible_ = true;
+        }
+        const bool touchInteracting = touchControlState_.movementActive
+            || touchControlState_.lookActive;
+
+        if (touchInteracting && mouseCaptured_) {
+            mouseCaptured_ = false;
+            Mouse::setIsRelativeMouseModeEXTProperty(false);
+            setIsMouseVisibleProperty(true);
+        }
 
         if (mouseCaptured_ && !Mouse::getIsRelativeMouseModeEXTProperty()) {
             mouseCaptured_ = false;
@@ -272,7 +322,7 @@ namespace island
             return;
         }
 
-        if (!smokeTest_ && !mouseCaptured_
+        if (!touchInteracting && !smokeTest_ && !mouseCaptured_
             && mouse.getLeftButtonProperty() == ButtonState::Pressed) {
             mouseCaptured_ = true;
             Mouse::setIsRelativeMouseModeEXTProperty(true);
@@ -283,6 +333,13 @@ namespace island
             pitch_ = std::clamp(pitch_ - static_cast<float>(mouse.getYProperty()) * MouseSensitivity,
                                 -1.48f, 1.48f);
         }
+        if (touchControlState_.lookActive) {
+            const float resolutionScale = 720.0f / std::max(1.0f, touchHeight);
+            yaw_ -= touchControlState_.lookDeltaX * TouchLookSensitivity * resolutionScale;
+            pitch_ = std::clamp(
+                pitch_ - touchControlState_.lookDeltaY * TouchLookSensitivity * resolutionScale,
+                -1.48f, 1.48f);
+        }
 
         const Vector3 forward(std::sin(yaw_), 0.0f, std::cos(yaw_));
         const Vector3 right(forward.Z, 0.0f, -forward.X);
@@ -291,6 +348,8 @@ namespace island
         if (keyboard.IsKeyDown(Keys::S)) wish = wish - forward;
         if (keyboard.IsKeyDown(Keys::D)) wish = wish + right;
         if (keyboard.IsKeyDown(Keys::A)) wish = wish - right;
+        wish = wish + forward * touchControlState_.moveForward
+            + right * touchControlState_.moveRight;
 
         playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds,
                              vegetationLayout_.Obstacles());
@@ -387,6 +446,12 @@ namespace island
         oceanRenderer_->Draw(terrainEffect_->getViewProperty(),
                              terrainEffect_->getProjectionProperty(), cameraPosition_,
                              timeSeconds);
+
+        if (touchOverlayVisible_) {
+            const auto& viewport = device.getViewportProperty();
+            touchOverlay_->Draw(touchControlState_, touchDisplayWidth_, touchDisplayHeight_,
+                                viewport.getWidthProperty(), viewport.getHeightProperty(), true);
+        }
 
         if (debugOverlayVisible_) {
             const PlayerPosition& player = playerMotion_.Position();

@@ -27,6 +27,7 @@ add_library(island_core STATIC
     game/src/GrassLayout.cpp
     game/src/IslandTerrain.cpp
     game/src/PlayerMotion.cpp
+    game/src/TouchControls.cpp
     game/src/VegetationLayout.cpp)
 add_library(IslandSimulator::Core ALIAS island_core)
 
@@ -136,13 +137,23 @@ if(ISLAND_BUILD_GAME)
     # `cmake --build` iterations.
     add_subdirectory("${CNA_ROOT_DIR}" CNA EXCLUDE_FROM_ALL)
 
-    add_executable(island-simulator
+    set(_island_game_sources
         game/src/DebugOverlay.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
         game/src/Main.cpp
         game/src/OceanRenderer.cpp
-        game/src/PalmRenderer.cpp)
+        game/src/PalmRenderer.cpp
+        game/src/TouchOverlay.cpp)
+
+    # SDLActivity loads an Android game as libmain.so. Keep the public CMake target name stable so
+    # presets and developer tooling build `island-simulator` on every platform.
+    if(ANDROID)
+        add_library(island-simulator SHARED ${_island_game_sources})
+        set_target_properties(island-simulator PROPERTIES OUTPUT_NAME main)
+    else()
+        add_executable(island-simulator ${_island_game_sources})
+    endif()
     target_include_directories(island-simulator PRIVATE game/include)
     target_link_libraries(island-simulator PRIVATE IslandSimulator::Core CNA)
     island_enable_cna_consumer_warnings(island-simulator)
@@ -152,6 +163,10 @@ if(ISLAND_BUILD_GAME)
     endif()
     if(TARGET SDL3::SDL3main)
         target_link_libraries(island-simulator PRIVATE SDL3::SDL3main)
+    endif()
+
+    if(ANDROID AND TARGET SDL3::SDL3)
+        target_link_libraries(island-simulator PRIVATE SDL3::SDL3)
     endif()
 
     if(EMSCRIPTEN)

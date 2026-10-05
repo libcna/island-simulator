@@ -1,3 +1,5 @@
+#include "CNA/Platform/Entrypoint.hpp"
+
 #include "IslandSimulator/IslandGame.hpp"
 
 #include <exception>

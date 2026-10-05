@@ -1,0 +1,111 @@
+plugins {
+    id "com.android.application"
+}
+
+def repositoryDir = rootProject.file("..").canonicalFile
+def cnaRootDir = file(providers.gradleProperty("cnaRootDir")
+        .getOrElse(new File(repositoryDir, "build/dependencies/cna-next").path)).canonicalFile
+def sharpRuntimeRoot = file(providers.gradleProperty("sharpRuntimeRoot")
+        .getOrElse(new File(repositoryDir, "../sharp-runtime").path)).canonicalFile
+def easyGlRoot = file(providers.gradleProperty("easyGlRoot")
+        .getOrElse(new File(repositoryDir, "../easy-gl").path)).canonicalFile
+def metaGlRoot = file(providers.gradleProperty("metaGlRoot")
+        .getOrElse(new File(repositoryDir, "../meta-gl").path)).canonicalFile
+def islandAbi = providers.gradleProperty("islandAbi").getOrElse("arm64-v8a")
+def supportedAbis = ["arm64-v8a", "x86_64"]
+
+if (!supportedAbis.contains(islandAbi)) {
+    throw new GradleException("Unsupported islandAbi '${islandAbi}'. Choose arm64-v8a or x86_64.")
+}
+
+[
+        "CNA": cnaRootDir,
+        "Sharp Runtime": sharpRuntimeRoot,
+        "EasyGL": easyGlRoot,
+        "MetaGL": metaGlRoot
+].each { name, directory ->
+    if (!new File(directory, "CMakeLists.txt").isFile()) {
+        throw new GradleException("${name} checkout was not found at ${directory}.")
+    }
+}
+
+android {
+    namespace = "com.libcna.islandsimulator"
+    compileSdk = 35
+    buildToolsVersion = "36.1.0"
+    ndkVersion = "29.0.14206865"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        applicationId = "com.libcna.islandsimulator"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1.0"
+
+        ndk {
+            abiFilters islandAbi
+        }
+
+        externalNativeBuild {
+            cmake {
+                // AGP otherwise asks Ninja for every executable-like target visible through CNA,
+                // including host-only content tools that must never be cross-compiled into an APK.
+                targets "island-simulator"
+                arguments "-DANDROID_PLATFORM=android-24",
+                        "-DANDROID_STL=c++_static",
+                        "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
+                        "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+                        "-DCNA_ROOT_DIR=${cnaRootDir}",
+                        "-DISLAND_SHARP_RUNTIME_ROOT=${sharpRuntimeRoot}",
+                        "-DISLAND_EASY_GL_ROOT=${easyGlRoot}",
+                        "-DISLAND_META_GL_ROOT=${metaGlRoot}",
+                        "-DCNA_GRAPHICS_RENDERER=OPENGLES3",
+                        "-DISLAND_BUILD_GAME=ON",
+                        "-DISLAND_BUILD_TESTS=OFF"
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable = true
+            jniDebuggable = true
+        }
+        release {
+            minifyEnabled = false
+            debuggable = false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("../../CMakeLists.txt")
+            version = "4.1.2"
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ["src/main/java"]
+            res.srcDirs = ["src/main/res"]
+            manifest.srcFile "src/main/AndroidManifest.xml"
+        }
+    }
+
+    lint {
+        abortOnError = true
+    }
+}
+
+dependencies {
+    // Keep CNA's pinned SDL Java glue in an isolated read-only-source library module. This lets
+    // application lint remain strict without treating third-party compatibility code as game code.
+    implementation project(":sdlbridge")
+}

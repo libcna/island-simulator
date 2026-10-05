@@ -21,15 +21,17 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │       └── GrassRenderer ─ near/far blade clusters, cell culling, instancing, and wind
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
+      ├── TouchControls ────── renderer-independent two-zone contact ownership and output
+      ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
       └── IslandGame ───────── CNA lifecycle, input, camera, terrain cells, and pass ordering
 ```
 
-`IslandTerrain`, `PlayerMotion`, `VegetationLayout`, and `GrassLayout` form
+`IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, and `TouchControls` form
 `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
-`IslandGame` converts CNA input to a world-space movement direction and converts the core player
-position back to CNA `Vector3` for the camera. Collision and rendering consume the same palm
-placements; rendering never becomes a separate source of world truth.
+`IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
+and converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
+consume the same palm placements; rendering never becomes a separate source of world truth.
 
 ## Coordinates and scale
 
@@ -62,8 +64,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 
 ## Frame flow
 
-1. CNA polls platform events and publishes keyboard/mouse snapshots.
-2. `IslandGame::Update` reads each input device once.
+1. CNA polls platform events and publishes keyboard, mouse, and touch snapshots.
+2. `IslandGame::Update` reads each input device once. `TouchControls` retains stable movement/look
+   pointer roles, emits one-frame relative look deltas, and cancels invalid contacts explicitly.
 3. Input is transformed by camera yaw into a normalized horizontal wish direction.
 4. `PlayerMotion` applies frame-time clamping, acceleration, slope checks, swimming speed, the
    island-relative current field, and the remote safety boundary.
@@ -71,9 +74,11 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    circular obstacles, retaining axis sliding when one component is valid.
 6. `IslandGame::Draw` applies one view/projection pair and submits opaque terrain, opaque palms,
    opaque mesh grass, then the transparent ocean.
-7. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
+7. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
+   translucent control rings through CNA `SpriteBatch` with conservative edge margins.
+8. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
    CNA `SpriteBatch` after all 3D passes.
-8. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+9. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
 step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.
@@ -121,7 +126,9 @@ GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package e
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
 depth-driven tropical colour/transparency, moving foam, and haze. A stock `BasicEffect` fallback
 keeps the scene operable with a clear diagnostic if the custom effect cannot be created. Native
-OpenGL 3.3 and actual WebGL 2 execution select the full path; Android GLES 3 is not yet qualified.
+OpenGL 3.3 and actual WebGL 2 execution select the full path. The API 35 Android emulator has
+created a real GLES3 surface and visibly rendered the current terrain/palm/grass scene; the captured
+camera did not establish every ocean effect variant, and mobile-GPU profiling remains open.
 
 The game requests the XNA `HiDef` profile because its deterministic QA capture uses back-buffer
 readback and the intended 3D feature set exceeds a `Reach`-only design. This is an application
@@ -149,6 +156,9 @@ SpriteBatch route.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
   release/reacquisition, and responsive 16:9 presentation. Audio unlock, genuine tab lifecycle,
   another browser engine, and visible hardware-GPU performance remain unverified.
-- Android has not been compiled or run by this project yet.
+- Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. One x86_64
+  API 35 GLES3 frame is visually validated, but the host has no KVM and the software-emulated
+  Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
+  audio focus, sustained performance, and physical-device behaviour remain unverified.
 - No wildlife, layered soundscape, world-space debug visualization, teleport menu, or configuration
   UI exists yet.

@@ -3,9 +3,11 @@
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
+#include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -33,6 +35,65 @@ namespace
 
 int main()
 {
+    island::TouchControls touchControls;
+    std::array<island::TouchContact, 2> touchContacts = {{
+        {11, 180.0f, 520.0f, island::TouchPhase::Pressed},
+        {23, 1000.0f, 360.0f, island::TouchPhase::Pressed},
+    }};
+    island::TouchControlState touchState = touchControls.Update(touchContacts, 1280.0f, 720.0f);
+    Check(touchState.movementActive && touchState.lookActive,
+          "touch controls assign simultaneous left movement and right look contacts");
+    CheckNear(touchState.moveForward, 0.0f, 0.0001f,
+              "movement touch begins at a neutral floating-stick anchor");
+    CheckNear(touchState.lookDeltaX, 0.0f, 0.0001f,
+              "look touch begins without a camera jump");
+    CheckNear(touchState.lookTouchX, 1000.0f, 0.0001f,
+              "look presentation tracks its initial contact position");
+
+    touchContacts[0] = {11, 230.0f, 440.0f, island::TouchPhase::Moved};
+    touchContacts[1] = {23, 1032.0f, 344.0f, island::TouchPhase::Moved};
+    touchState = touchControls.Update(touchContacts, 1280.0f, 720.0f);
+    Check(touchState.moveForward > 0.4f && touchState.moveRight > 0.2f,
+          "left touch produces proportional forward and strafe movement");
+    CheckNear(touchState.lookDeltaX, 32.0f, 0.0001f,
+              "right touch produces relative horizontal look delta");
+    CheckNear(touchState.lookDeltaY, -16.0f, 0.0001f,
+              "right touch produces relative vertical look delta");
+    CheckNear(touchState.lookTouchX, 1032.0f, 0.0001f,
+              "look presentation follows the owned contact");
+    CheckNear(touchState.lookTouchY, 344.0f, 0.0001f,
+              "look presentation preserves vertical contact position");
+
+    touchContacts[0] = {11, 900.0f, -200.0f, island::TouchPhase::Moved};
+    touchState = touchControls.Update(touchContacts, 1280.0f, 720.0f);
+    Check(std::hypot(touchState.moveRight, touchState.moveForward) <= 1.0001f,
+          "movement stick clamps extreme drags to unit magnitude");
+    Check(touchState.movementActive && touchState.lookActive,
+          "touch roles remain owned after contacts cross the screen centre");
+
+    const std::array<island::TouchContact, 1> releasedMovement = {{
+        {11, 900.0f, -200.0f, island::TouchPhase::Released},
+    }};
+    touchState = touchControls.Update(releasedMovement, 1280.0f, 720.0f);
+    Check(!touchState.movementActive && !touchState.lookActive,
+          "released and missing contacts cancel both touch roles");
+    CheckNear(touchState.moveForward, 0.0f, 0.0001f,
+              "cancelled movement returns neutral output");
+
+    const std::array<island::TouchContact, 1> tinyMovement = {{
+        {31, 160.0f, 500.0f, island::TouchPhase::Pressed},
+    }};
+    (void)touchControls.Update(tinyMovement, 1280.0f, 720.0f);
+    const std::array<island::TouchContact, 1> tinyMovementMoved = {{
+        {31, 164.0f, 496.0f, island::TouchPhase::Moved},
+    }};
+    touchState = touchControls.Update(tinyMovementMoved, 1280.0f, 720.0f);
+    CheckNear(touchState.moveForward, 0.0f, 0.0001f,
+              "movement dead zone rejects small finger jitter");
+    touchState = touchControls.Update(tinyMovementMoved, 1000.0f, 600.0f);
+    Check(touchState.movementActive && touchState.moveForward == 0.0f,
+          "display resize safely re-anchors an active movement contact");
+
     const island::IslandTerrain terrain;
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,

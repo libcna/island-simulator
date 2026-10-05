@@ -1,0 +1,41 @@
+plugins {
+    id "com.android.library"
+}
+
+def repositoryDir = rootProject.file("..").canonicalFile
+def cnaRootDir = file(providers.gradleProperty("cnaRootDir")
+        .getOrElse(new File(repositoryDir, "build/dependencies/cna-next").path)).canonicalFile
+def cnaSdlJavaDir = new File(cnaRootDir,
+        "third_party/SDL/android-project/app/src/main/java")
+
+if (!cnaSdlJavaDir.isDirectory()) {
+    throw new GradleException("SDL Android Java sources were not found at ${cnaSdlJavaDir}.")
+}
+
+android {
+    namespace = "org.libsdl.app"
+    compileSdk = 35
+    buildToolsVersion = "36.1.0"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        minSdk = 24
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = [cnaSdlJavaDir]
+            manifest.srcFile "src/main/AndroidManifest.xml"
+        }
+    }
+
+    // These are upstream SDL compatibility sources consumed read-only from pinned CNA. The app
+    // module retains strict lint for all island-simulator-owned Android code and resources.
+    lint {
+        abortOnError = false
+    }
+}

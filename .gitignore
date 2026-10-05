@@ -5,3 +5,11 @@
 *.user
 *.swp
 compile_commands.json
+/android/.gradle/
+/android/build/
+/android/*/.cxx/
+/android/*/build/
+/android/local.properties
+/android/key.properties
+*.jks
+*.keystore

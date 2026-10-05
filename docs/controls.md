@@ -32,4 +32,20 @@ second browser engine remain to be checked manually.
 
 ## Android
 
-Android touch controls are planned but not implemented or validated.
+The current Android build uses two simultaneous touch zones:
+
+| Input | Action |
+|---|---|
+| Touch and drag in the left half | Move with a floating analog stick anchored at the first contact |
+| Touch and drag in the right half | Look relative to the preceding touch position |
+| Release a contact | Stop the role owned by that pointer without disturbing the other role |
+
+Subtle generated circles show the movement origin/thumb and the current look contact. The control
+interpreter preserves pointer ownership if a finger crosses the screen centre, clamps movement to
+a unit vector, applies a dead zone, and cancels missing contacts or contacts invalidated by a
+display-size change. The HUD remains inside conservative display-edge margins.
+
+The implementation and deterministic multi-touch tests are complete, and the same HUD rendering
+code compiles for OpenGL 3.3, WebGL 2, and OpenGL ES 3. The available API 35 emulator rendered the
+game through GLES3 but is too unstable without KVM to establish touch feel or pause/resume quality.
+Sensitivity, optional handedness, and real-device ergonomic tuning remain open.

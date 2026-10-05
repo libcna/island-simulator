@@ -88,8 +88,8 @@ environment.
   - `../cna-gltf-viewer`: current CNA glTF and animation consumer patterns.
   - `../cna-samples`: renderer and platform qualification evidence.
 - [x] Confirmed host tools: CMake 3.31.6, Ninja 1.12.1, GCC 14.2.0, ccache 4.11.2, and `adb`.
-- [x] Confirmed Emscripten is not currently on `PATH`; CNA documentation says the SDK may exist at
-  `~/emsdk` and must be checked before declaring Web work blocked.
+- [x] Confirmed and qualified the existing Emscripten SDK under `~/emsdk`; Web builds use its
+  pinned compiler and Node runtime without creating a duplicate installation.
 - [x] Recorded initial disk state: approximately 217 GiB free; `island-simulator` used about
   124 KiB before artifacts. Existing large CNA/sibling build trees are outside this project's
   ownership and will not be removed.
@@ -177,12 +177,13 @@ Dependencies: none.
 - [x] Inspect CNA renderer, input, model/animation, audio, Web, and Android documentation.
 - [x] Inventory sibling CNA projects and select proven patterns worth deeper review.
 - [~] Read exact public headers and minimal examples for the vertical slice.
-- [ ] Inspect CNA `next` Android activity/entry-point requirements and the template's generated
-  package boundary in detail.
+- [x] Inspect CNA `next` Android activity/entry-point requirements, SDL3 Java bridge, shared
+  `libmain.so` entry point, renderer selection, and the template's package boundary in detail.
 - [x] Confirm an existing Emscripten SDK at `~/emsdk`; browser inventory and test tooling still
   need inspection before the Web build.
-- [~] Confirm an Android SDK at `~/Android/Sdk` and `adb`; sandbox socket policy prevented the
-  initial device query, so NDK/Gradle/API/device inventory remains open.
+- [x] Inventory Android SDK platform 35, Build Tools 36.1.0, NDK 29.0.14206865, SDK CMake 4.1.2,
+  JDK 21, Gradle 8.12, arm64-v8a/x86_64 package paths, and three API 35 x86_64 AVDs. No physical
+  device or `/dev/kvm` acceleration is available in the current environment.
 - [x] Capture the initial subsystem and dependency decisions in `docs/architecture.md`.
 - [x] Create this plan before implementation.
 
@@ -313,8 +314,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   visible z-fighting. Wet-sand material and close first-person tuning remain open.
 - [ ] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and stable.
 - [~] Provide an actionable stock `BasicEffect` fallback when portable custom effects are
-  unavailable or fail compilation. WebGL 2 uses the full shader successfully; GLES 3 remains
-  untested and therefore unqualified.
+  unavailable or fail compilation. WebGL 2 uses the full shader successfully; Android GLES 3
+  compiles and runs the scene, but the captured inland camera does not yet qualify the water path.
 
 ### Vegetation and props
 
@@ -322,7 +323,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
   rotation, frond arrangement, scale, and clustering. Four curved tapered trunk/ribbon-frond
   variants, 330 varied instances, near/far meshes, root contact wedges, and portable shader wind
   now run on native OpenGL 3.3 and WebGL 2; richer close-up materials, pop-free LOD blending, and
-  Android GLES 3 qualification remain open.
+  instrumented Android wind/LOD qualification remain open despite the first visible GLES3 scene.
 - [ ] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm
@@ -339,8 +340,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
 ### Grass quality campaign
 
 - [~] Prototype clustered mesh blades and evaluate first-person silhouette/overdraw on all backends.
-  A 28-blade near mesh and five-blade far mesh now run on OpenGL 3.3 and actual WebGL 2; GLES 3,
-  measured overdraw, and further close-up shaping remain open.
+  A 28-blade near mesh and five-blade far mesh now run on OpenGL 3.3 and actual WebGL 2 and are
+  visible in the first GLES3 frame; measured mobile overdraw and further close-up shaping remain.
 - [~] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The first
   18,556-patch layout varies all five deterministically from terrain constraints and smooth cluster
   noise; final biome masks remain open.
@@ -352,7 +353,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
   still need visual/performance evidence.
 - [~] Cull cells by frustum/distance and batch or instance where CNA's verified path permits. A
   256-cell grid and one hardware-instanced draw per visible cell are verified on native and WebGL 2;
-  Android remains open.
+  Android counters and sustained performance remain open.
 - [ ] Test worst-case first-person grass views for aliasing, transparency, overdraw, and frame time.
 
 ### Lighting, sky, distance, and shadows
@@ -484,18 +485,30 @@ Exit validation:
 
 Dependencies: stable input abstraction, scalable UI/debug display, mobile quality tiers.
 
-- [ ] Inventory Android SDK, NDK, Gradle, Java, device/emulator, and supported ABI state.
-- [ ] Adapt the CNA template Android shell with island-specific package/application identities.
-- [ ] Add an `OPENGLES3` Android configuration and reproducible packaging instructions.
-- [ ] Implement dual-zone touch controls: movement stick, look region, and minimal unobtrusive UI.
-- [ ] Handle pointer IDs, safe areas, orientation, resize, pause/resume, and touch cancellation.
+- [x] Inventory Android SDK, NDK, Gradle, Java, device/emulator, and supported ABI state. The
+  available API 35 emulator has no KVM acceleration; no physical device is connected.
+- [x] Adapt the CNA template Android shell with island-specific package/application identities,
+  API 24 minimum/API 35 target, a launcher icon, no-backup policy, landscape presentation, and an
+  isolated read-only-source SDL Java bridge module.
+- [x] Add explicit `OPENGLES3` CMake and Gradle configurations plus reproducible arm64-v8a and
+  x86_64 packaging instructions. Both ABI APKs build; the default output is arm64-v8a.
+- [~] Implement dual-zone touch controls: a floating movement stick, relative look region, stable
+  contact ownership, and a minimal asset-free HUD. Deterministic interpreter tests pass and the
+  HUD compiles on all three renderers; real-device ergonomic validation remains open.
+- [~] Handle pointer IDs, safe display margins, fixed-landscape orientation, resize, and missing or
+  released contact cancellation. Core tests cover ownership/cancellation/resize. Pause/resume
+  resource restoration still needs a stable emulator or physical device.
 - [ ] Add configurable sensitivity and left/right layout considerations where practical.
 - [ ] Verify audio focus/lifecycle and resource restoration after backgrounding.
 - [ ] Add mobile quality defaults for grass, shadows, wildlife distance, water, textures, and audio.
 - [ ] Profile CPU/GPU frame time, memory, thermal behaviour, and loading on a real device when
   available; use emulator evidence only for claims it can support.
-- [ ] Test install, first launch, relaunch, background/foreground, rotation policy, and clean exit.
-- [ ] Document device/API/ABI evidence and all unverified hardware classes.
+- [~] Test install, first launch, relaunch, background/foreground, rotation policy, and clean exit.
+  The x86_64 debug APK installed and first-launched on the API 35 `Medium_Phone` AVD, produced a
+  2400 by 1080 GLES3 frame, and survived while rendering. The unaccelerated emulator's own System
+  UI repeatedly entered ANR/restart states, so touch and lifecycle claims remain open.
+- [~] Document device/API/ABI evidence and all unverified hardware classes. Build/install/runtime
+  commands and the current emulator limitations are recorded; real-device evidence is absent.
 
 Exit validation:
 
@@ -528,7 +541,8 @@ Dependencies: representative complete scene on all targets.
   pop-free vegetation transitions remain open.
 - [~] Tune static batching/instancing and verify it does not increase memory or Web/mobile stalls.
   CNA hardware instancing reduces the 330-palm overview to eight near/far variant draws on native
-  OpenGL 3.3 and actual WebGL 2; GLES 3 and dense grass still require validation.
+  OpenGL 3.3 and actual WebGL 2. Android GLES 3 rendered the current palm/grass scene once in the
+  software-emulated AVD; representative mobile cost still requires real-hardware profiling.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
   reduced trunk/frond geometry by cell distance and grass selects 28-blade/five-blade clusters;
   measured budgets and pop-free transitions remain open.
@@ -706,29 +720,33 @@ after the same experience remains available.
 - [x] `docs/build-linux.md`: prerequisites, exact dependencies, configure/build/run/test.
 - [x] `docs/build-web.md`: SDK, package, serve, browser requirements, validation, and explicit
   unverified interaction/performance scope.
-- [ ] `docs/build-android.md`: SDK/NDK/Gradle, ABI, install/run/logging, validation.
+- [x] `docs/build-android.md`: SDK/NDK/Gradle, ABI, install/run/logging, lint, evidence, and explicit
+  emulator/real-device validation limits.
 - [~] `docs/architecture.md`: current subsystem boundaries, ownership, update/render flow, and
   coordinates exist; extend as systems are added.
-- [~] `docs/controls.md`: current desktop controls are accurate; touch and configuration notes
-  remain dependent on their implementations.
+- [~] `docs/controls.md`: desktop/Web and implemented Android dual-zone touch controls are
+  documented; configurable sensitivity/layout and real-device ergonomic notes remain open.
 - [ ] `docs/asset-pipeline.md`: source formats, generation/conversion, manifests, validation.
-- [ ] `docs/renderer-differences.md`: measured visual/performance differences and fallbacks.
+- [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
+  documented; matched Android captures and representative cross-target measurements remain open.
 - [~] `docs/debugging.md`: overlay fields and deterministic capture workflows are documented;
   teleports, world-space visualizers, performance capture, and common-failure guidance remain open.
 - [ ] `docs/performance.md`: budgets, representative scenes, measurements, decisions.
-- [ ] `docs/known-limitations.md`: only current, verified limitations.
+- [x] `docs/known-limitations.md`: current environment, traversal, content, platform, and tooling
+  limitations are recorded without claiming planned systems.
 
 ## Current execution queue
 
 Work next, in order:
 
-1. Audit Android NDK/Gradle/device availability and establish the first GLES 3 package shell before
-   designing touch input around assumptions.
-2. Perform a visible hardware-accelerated Web play pass and genuine tab background/foreground test;
-   audio unlock remains dependent on the first soundscape implementation.
-3. Begin the broadleaf canopy/medium-plant layer and preserve the authored route/clearing structure.
-4. Add debug teleports and shoreline/current plus vegetation-cell visualization before traversal
+1. Add the first broadleaf canopy and medium-plant layer while preserving the authored path,
+   clearings, deterministic placement, renderer portability, and current mobile draw-call bounds.
+2. Add debug teleports and shoreline/current plus vegetation-cell visualization before traversal
    and density tuning expands.
+3. Qualify touch traversal, pause/resume, and performance on a physical Android device or a stable
+   KVM-accelerated emulator; the current software AVD is evidence for rendering only.
+4. Perform a visible hardware-accelerated Web play pass and genuine tab background/foreground test;
+   audio unlock remains dependent on the first soundscape implementation.
 5. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
    instrumentation exists; do not raise geometry cost blindly.
 
@@ -900,6 +918,37 @@ Work next, in order:
   defect and does not qualify genuine tab lifecycle; it remains an explicit manual-browser task.
 - Audio unlock, visible hardware acceleration, extended play, fullscreen, and a second browser
   engine remain open. Android/GLES 3 is still uncompiled and unverified.
+
+### 2026-10-05 — First Android GLES 3 package and runtime pass
+
+- Audited CNA `next` Android entry-point, SDLActivity, renderer, template, and Gradle patterns while
+  keeping CNA and Sharp Runtime strictly read-only. Added a C++23 `OPENGLES3` preset and an
+  island-owned Gradle application targeting API 35 with minimum API 24.
+- Android builds the shared game entry point as `libmain.so`. The application uses an isolated
+  `sdlbridge` library module whose Java source points at pinned CNA's read-only SDL snapshot, so
+  application-owned Java/resources keep a strict lint boundary without copying or patching SDL.
+- Built the complete debug APK for both arm64-v8a and x86_64 with NDK 29.0.14206865, SDK CMake
+  4.1.2, Gradle 8.12, JDK 21, and no more than two workers. The current arm64 package is about
+  17 MiB, requires GLES 3.0, contains only the selected ABI, and verifies with the Android debug
+  v2 signature. Application lint passes.
+- Added renderer-independent two-zone touch interpretation with stable pointer ownership, floating
+  movement origin, dead zone, clamping, relative look, resize/reset, and missing/released-contact
+  handling. Added a portable asset-free SpriteBatch HUD with display-edge margins; core regression
+  tests cover simultaneous contacts, proportional movement, look deltas, ownership, cancellation,
+  dead zone, clamping, presentation coordinates, and resize.
+- Installed and launched the x86_64 APK on the API 35 `Medium_Phone` AVD. SDL loaded `libSDL3.so`
+  and `libmain.so`, created a 2400 by 1080 EGL/GLES surface, and the captured frame visibly contains
+  the island terrain, palm population, and mesh grass. No application crash or shader exception
+  was observed during the render run.
+- The host exposes no `/dev/kvm`; QEMU TCG plus SwiftShader rendered at roughly 0.6--1.7 seconds per
+  frame and the Google Play system image repeatedly produced System/System UI ANRs independent of
+  the game. A clean first frame is valid GLES3 evidence, but touch ergonomics, background/foreground
+  restoration, audio focus, thermal behaviour, and performance remain unqualified until a stable
+  KVM emulator or physical device is available. Root inside the guest would not address this host
+  virtualization constraint.
+- After touch/HUD integration, core tests pass, all four isolated Linux OpenGL smoke/capture tests
+  pass, the Emscripten package rebuilds, the actual Chromium WebGL 2 render/input harness passes,
+  and both Android ABIs rebuild. No qualifying CNA or Sharp Runtime defect was found.
 
 ## Session-end checklist
 
