@@ -28,18 +28,16 @@
 #include "IslandSimulator/SharkRenderer.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/Soundscape.hpp"
+#include "IslandSimulator/TerrainRenderer.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WorldDebugRenderer.hpp"
-#include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include "Microsoft/Xna/Framework/Game.hpp"
 #include "Microsoft/Xna/Framework/GameTime.hpp"
 #include "Microsoft/Xna/Framework/GraphicsDeviceManager.hpp"
+#include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
-#include "Microsoft/Xna/Framework/Graphics/BasicEffect.hpp"
-#include "Microsoft/Xna/Framework/Graphics/IndexBuffer.hpp"
-#include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
 
 namespace island
 {
@@ -87,24 +85,10 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::GameTime& gameTime) override;
 
     private:
-        struct TerrainRenderCell
-        {
-            std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices;
-            std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> indices;
-            Microsoft::Xna::Framework::BoundingBox bounds;
-            int vertexCount = 0;
-            int primitiveCount = 0;
-        };
-
-        void CreateTerrainMesh();
         void CaptureFrame(const std::string& path);
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
-        void ApplyCamera(Microsoft::Xna::Framework::Graphics::BasicEffect& effect);
-        void DrawMesh(Microsoft::Xna::Framework::Graphics::BasicEffect& effect,
-                      Microsoft::Xna::Framework::Graphics::VertexBuffer& vertices,
-                      Microsoft::Xna::Framework::Graphics::IndexBuffer& indices,
-                      int vertexCount, int primitiveCount);
+        void UpdateCameraMatrices();
 
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
@@ -120,7 +104,6 @@ namespace island
         PlayerMotion playerMotion_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
-        std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> terrainEffect_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<FishRenderer> fishRenderer_;
@@ -133,9 +116,11 @@ namespace island
         std::unique_ptr<SharkRenderer> sharkRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;
+        std::unique_ptr<TerrainRenderer> terrainRenderer_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
         std::unique_ptr<WorldDebugRenderer> worldDebugRenderer_;
-        std::vector<TerrainRenderCell> terrainCells_;
+        Microsoft::Xna::Framework::Matrix cameraView_;
+        Microsoft::Xna::Framework::Matrix cameraProjection_;
         Microsoft::Xna::Framework::Vector3 cameraPosition_;
         float yaw_ = 0.0f;
         float pitch_ = -0.03f;
@@ -157,8 +142,5 @@ namespace island
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;
         std::uint32_t drawnFrames_ = 0;
-        int visibleTerrainCellCount_ = 0;
-        int terrainVertexCount_ = 0;
-        int terrainPrimitiveCount_ = 0;
     };
 }

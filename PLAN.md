@@ -298,7 +298,11 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [ ] Shape multiple coves, beach widths, low ridges, viewpoints, jungle pockets, clearings, and
   readable paths without an implausible mountain.
 - [ ] Create biome/density masks with authored overrides and deterministic placement seeds.
-- [ ] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions.
+- [~] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions. Terrain vertices
+  now carry authoritative shore distance and slope into a portable texture-free material shader;
+  two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
+  and steeper interior ground exposes a muted soil tint. Authored biome masks, decals, rock strata,
+  leaf litter, and final colour/scale tuning remain.
 - [ ] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
 - [ ] Keep routes traversable and provide alternating enclosed/revealing views.
 
@@ -311,7 +315,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Derive shallow/deep tropical colour and transparency from authoritative terrain depth and
   shore information baked into the ocean vertices.
 - [~] Blend shoreline foam/readable moving wave edge and translucent water over the beach without
-  visible z-fighting. Wet-sand material and close first-person tuning remain open.
+  visible z-fighting. A first shore-distance-driven wet-sand darkening pass is active; close
+  first-person wet-edge/foam alignment and richer wash detail remain open.
 - [ ] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and stable.
 - [~] Provide an actionable stock `BasicEffect` fallback when portable custom effects are
   unavailable or fail compilation. WebGL 2 uses the full shader successfully; Android GLES 3
@@ -862,8 +867,9 @@ Work next, in order:
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
    fish, and shark layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
-   sparse driftwood layer only where composition review needs it; the initial small-plant layer is
-   complete.
+   sparse driftwood layer only where composition review needs it. The first portable sand/soil,
+   wet-edge, and slope-material pass plus the initial small-plant layer are complete; authored
+   substrate props, contact cues, and material tuning remain.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
    LOD/density fields, and audio emitters only where they materially improve debugging.
@@ -1570,6 +1576,25 @@ Work next, in order:
   Chrome 152/SwiftShader passed the full renderer/input/audio harness with a synthesized F2 toggle
   and successful world-line rendering. Rebuilt the arm64-v8a GLES 3 APK and passed app lint; F2
   Android runtime remains unqualified without KVM or a physical device.
+
+### 2026-10-06 — Portable terrain material variation
+
+- Extended every terrain vertex with the authoritative signed shoreline distance and slope while
+  retaining the existing prelit biome colour. Added explicit GLSL 330 and GLSL ES 300 terrain
+  stages through CNA's public `ShaderEffect` package API; `BasicEffect` remains the logged graceful
+  fallback if custom effects are unavailable or shader compilation fails.
+- Added texture-free near-field sand, wet-edge, interior-soil, and steep-ground variation. Two
+  scales of smooth value noise avoid conspicuous repeated stripes, a restrained fine component
+  breaks up close surfaces, and distance fading removes high-frequency work and aliasing beyond
+  the useful first-person range. No texture memory, remote asset, or new licensed content was
+  introduced.
+- Visually reviewed native first-person beach and driftwood captures, including the wet shoreline,
+  broad bare sand, grass transition, and OpenGL fallback diagnostics. The native smoke test now
+  requires the full material path; all 13 native tests pass.
+- The complete Chrome 152/SwiftShader WebGL 2 harness passes with an explicit terrain-shader gate,
+  and its driftwood capture matches the OpenGL 3.3 material composition. The arm64-v8a GLES 3 APK
+  rebuilds with the shader; physical-device visual/performance qualification remains open. No CNA
+  or Sharp Runtime source was modified and no dependency defect was found.
 
 ## Session-end checklist
 

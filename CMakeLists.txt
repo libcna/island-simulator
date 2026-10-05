@@ -85,8 +85,9 @@ if(ISLAND_BUILD_GAME)
     set(CNA_ENABLE_DRACO OFF CACHE BOOL "Build Draco mesh decoding" FORCE)
     set(CNA_ENABLE_FONT_PIPELINE OFF CACHE STRING "Build the font pipeline" FORCE)
     set(CNA_CNB_ZSTD OFF CACHE STRING "Build Zstandard CNB support" FORCE)
-    # Portable multi-language ShaderEffect packages are an opt-in CNA extension. Ocean, palms, and
-    # grass keep explicit GLSL Desktop and GLSL ES variants for Linux, WebGL 2, and GLES 3 parity.
+    # Portable multi-language ShaderEffect packages are an opt-in CNA extension. Terrain, ocean,
+    # palms, and grass keep explicit GLSL Desktop and GLSL ES variants for Linux, WebGL 2, and
+    # GLES 3 parity.
     set(CNA_CNAEXT ON CACHE BOOL "Enable CNA's portable shader infrastructure" FORCE)
     set(SHARP_RUNTIME_BUILD_TESTS OFF CACHE BOOL "Build Sharp Runtime tests" FORCE)
     set(EASYGL_BUILD_TESTS OFF CACHE BOOL "Build EasyGL tests" FORCE)
@@ -160,6 +161,7 @@ if(ISLAND_BUILD_GAME)
         game/src/SharkRenderer.cpp
         game/src/SkyRenderer.cpp
         game/src/Soundscape.cpp
+        game/src/TerrainRenderer.cpp
         game/src/TouchOverlay.cpp
         game/src/WorldDebugRenderer.cpp)
 
@@ -206,7 +208,10 @@ if(ISLAND_BUILD_GAME)
 
     if(ISLAND_BUILD_TESTS AND NOT ANDROID AND NOT EMSCRIPTEN AND NOT CMAKE_CROSSCOMPILING)
         add_test(NAME IslandGameSmoke COMMAND island-simulator --smoke-test)
-        set_tests_properties(IslandGameSmoke PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameSmoke PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION "terrain portable sand/soil material shader")
         add_test(NAME IslandGameCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-capture.ppm")
         set_tests_properties(IslandGameCapture PROPERTIES TIMEOUT 30 LABELS display)

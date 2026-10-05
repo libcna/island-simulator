@@ -128,6 +128,7 @@ try {
   const smokePassed = result.exited === true
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
+    && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes("island-simulator: fixed sunny sky portable shader")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")

@@ -2,7 +2,8 @@
 
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming
 experience built in C++23 with CNA. The project is at the beginning of a long development campaign.
-The current slice renders a deterministic approximately 500 m island, animated tropical ocean,
+The current slice renders a deterministic approximately 500 m island with portable procedural
+sand, wet-edge, soil, and slope material variation, an animated tropical ocean,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152
 irregular rocks, 11 mossy fallen logs,
@@ -80,11 +81,10 @@ The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 Use `--world-debug` to enable both the panel and world visualization at launch.
 
-The automated browser smoke test verifies renderer initialization, the portable animated-ocean
-and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced grass wind, four
-frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird/fish/shark/monkey
-screenshots, and portable
-overlay text rendering.
+The automated browser smoke test verifies renderer initialization, the portable terrain-material,
+animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
+grass wind, four frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird/fish/
+shark/monkey screenshots, and portable overlay text rendering.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world

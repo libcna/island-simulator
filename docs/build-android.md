@@ -13,7 +13,8 @@ with generated on-screen affordances. The available emulator has no KVM accelera
 GLES3 render is valid renderer evidence but not touch, lifecycle, or performance qualification.
 Those claims still require a stable accelerated emulator or physical device.
 
-The current arm64 package includes the broadleaf jungle with low bushes and forest-floor plants,
+The current arm64 package includes the portable procedural sand/soil terrain material, the
+broadleaf jungle with low bushes and forest-floor plants,
 rocks, fallen logs, sparse beach driftwood, 24 simulated procedural birds, eight fish schools,
 one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys, fixed sunny sky,
 and procedural surf/breeze/jungle,

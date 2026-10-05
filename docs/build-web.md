@@ -72,8 +72,9 @@ With the Emscripten environment active, run:
 
 The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
-sky/ocean shaders and the hardware-instanced palm, grass, jungle, and natural-prop shaders rather
-than their fallbacks. It then opens live fixed overview, first-person beach, jungle, prop,
+terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
+natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
+beach, jungle, prop,
 driftwood, bird, fish, shark, and monkey instances at a 1280 x 720 viewport. Every scene asserts the
 fixed-sky shader diagnostic. The
 captures are saved as `build-probe/island-browser-smoke.png`,

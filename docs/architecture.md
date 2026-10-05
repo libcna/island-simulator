@@ -40,13 +40,14 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
+      ├── TerrainRenderer ──── terrain cells, culling, portable material, and stock fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
       ├── SoundscapeModel ──── deterministic PCM generation and shoreline-driven crossfades
       ├── Soundscape ───────── CNA loop ownership, volume application, mute, and failure fallback
-      └── IslandGame ───────── CNA lifecycle, input, camera, terrain cells, and pass ordering
+      └── IslandGame ───────── CNA lifecycle, input, camera, and pass ordering
 ```
 
 `IslandTerrain`, `PlayerMotion`, `VegetationLayout`, `GrassLayout`, `JungleLayout`,
@@ -72,6 +73,12 @@ layer: an irregular radial shoreline, a shallow shelf, beaches, rolling interior
 viewpoint hill. Later biome masks, routes, coves, and landmarks must preserve the single-query rule:
 rendering, collision, vegetation, wildlife, water, and tests all consult the same authoritative
 field or a documented derived cache.
+
+Terrain vertices carry the authoritative signed shoreline distance and slope beside their
+prelit base colour. A portable GLSL 330 / GLSL ES 300 material pass uses those values for sand,
+wet-edge, interior-soil, and exposed-slope transitions, then adds two scales of smooth value noise
+and fine breakup near the camera. Detail fades with distance to control aliasing and fill cost.
+`BasicEffect` remains an actionable fallback if custom effects are unavailable or fail to compile.
 
 ## Dependency resolution
 
