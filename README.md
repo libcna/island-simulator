@@ -15,10 +15,11 @@ wing strokes, terrain clearance, visibility culling, and distance-throttled simu
 near-shore schools add 48 animated fish constrained between the seabed and water surface. One
 non-hostile shark occasionally patrols deeper offshore water with a varied dive and tail cycle.
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,
-portable CNA GPU skeletal animation, and short state-transition crossfades. The
-current audio pass adds original procedural shoreline surf, two varied occasional stronger waves, light
-canopy breeze, a subtle daytime-jungle texture, speed/depth-responsive movement through shallow or
-swimming water, and two restrained water-entry/exit textures without external sound files. The
+three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
+state-transition crossfades. The current audio pass adds original procedural shoreline surf, two
+varied occasional stronger waves, light canopy breeze, a subtle daytime-jungle texture,
+speed/depth-responsive movement through shallow or swimming water, and two restrained
+water-entry/exit textures without external sound files. The
 complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
 terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop/sky-inclusive APK builds, but

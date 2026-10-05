@@ -17,7 +17,8 @@ does not depend on a platform font, a content compiler, or an undeclared asset.
 While the overlay is visible, F5 through F11 teleport to the south beach, jungle trail, east
 clearing, west clearing, south fish shallows, offshore shark view, and monkey troop. These fixed
 locations shorten traversal and wildlife/vegetation QA without exposing teleports during the
-ordinary presentation.
+ordinary presentation. Repeated F11 presses cycle through all seven monkeys for silhouette,
+animation, and obstacle-clearance inspection.
 
 Current fields are:
 

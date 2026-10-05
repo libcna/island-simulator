@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <span>
@@ -25,6 +27,8 @@ namespace island
     class MonkeyRenderer final
     {
     public:
+        static constexpr std::size_t SilhouetteCount = 3U;
+
         explicit MonkeyRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device);
         ~MonkeyRenderer();
 
@@ -60,19 +64,23 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> whiteTexture_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinnedEffect> effect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinningData> skinningData_;
-        std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> nearVertices_;
-        std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> nearIndices_;
-        std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> farVertices_;
-        std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> farIndices_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer>,
+                   SilhouetteCount> nearVertices_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer>,
+                   SilhouetteCount> nearIndices_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer>,
+                   SilhouetteCount> farVertices_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer>,
+                   SilhouetteCount> farIndices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> faceVertices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> faceIndices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> eyeVertices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> eyeIndices_;
         std::vector<std::unique_ptr<PlaybackState>> playbackStates_;
-        int nearVertexCount_ = 0;
-        int nearPrimitiveCount_ = 0;
-        int farVertexCount_ = 0;
-        int farPrimitiveCount_ = 0;
+        std::array<int, SilhouetteCount> nearVertexCounts_{};
+        std::array<int, SilhouetteCount> nearPrimitiveCounts_{};
+        std::array<int, SilhouetteCount> farVertexCounts_{};
+        std::array<int, SilhouetteCount> farPrimitiveCounts_{};
         int faceVertexCount_ = 0;
         int facePrimitiveCount_ = 0;
         int eyeVertexCount_ = 0;

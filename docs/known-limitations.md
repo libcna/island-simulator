@@ -47,7 +47,8 @@ been confirmed so far.
   use short lateral deflections before abandoning blocked targets. Idle/observe/walk/run changes
   now use short local-pose crossfades and preserve a continuous walk phase. They remain
   intentionally simple: tightly cluttered pockets can cause an early target reselection, and
-  geometry/material variation plus long subjective behaviour tuning remain limited.
+  three silhouettes/four palettes cannot hide all procedural repetition; detailed surface
+  treatment and long subjective behaviour tuning remain limited.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
   through water. The soundscape remains incomplete: jungle variation, wildlife calls, positional

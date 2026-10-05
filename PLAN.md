@@ -447,8 +447,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 ### Monkeys and skeletal animation
 
 - [x] Select or create a legally redistributable monkey/substitute model and record provenance.
-  The first troop uses an original runtime-generated low-poly model and fourteen-bone rig recorded
-  in `ASSET_LICENSES.md`, so it has no external asset or disappearing-source dependency.
+  The first troop uses three original runtime-generated low-poly silhouettes, four palettes, and a
+  fourteen-bone rig recorded in `ASSET_LICENSES.md`, so it has no external asset or
+  disappearing-source dependency.
 - [~] Validate skeleton, clips, scale, axes, material fallback, and all three renderers. Native
   OpenGL 3.3 and actual Chromium/WebGL 2 captures agree; the arm64 GLES 3 APK builds and lints, but
   stable Android runtime remains unqualified.
@@ -836,9 +837,9 @@ Work next, in order:
 
 1. Tune the four-layer soundscape and both accent pairs through a 20-minute listening pass before
    adding wildlife emitters; retain measured headroom and the six-source ceiling.
-2. Polish the first GPU-skinned monkey troop with more silhouette/material variation and long
-   subjective behaviour observation before adding sparse monkey calls. Short clip crossfades and
-   shared trunk/rock/log avoidance are complete. Keep bird, fish, and shark layers under subjective
+2. Continue long subjective observation of the first GPU-skinned monkey troop before adding sparse
+   monkey calls. Three silhouettes, four palettes, short clip crossfades, and shared trunk/rock/log
+   avoidance are complete first passes. Keep bird, fish, and shark layers under subjective
    observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it; the initial small-plant layer is
@@ -1478,6 +1479,15 @@ Work next, in order:
   OpenGL 3.3 scenes with the monkey test requiring a completed startup blend, and passes the full
   actual-Chromium WebGL 2 harness with an active startup-blend assertion. The arm64-v8a GLES 3 APK
   also rebuilds and passes app lint; only Android runtime remains unqualified.
+- Replaced the single cloned body mesh with three prebuilt procedural silhouettes: balanced,
+  long-limbed/slender, and compact/stocky. Each has matched near/far topology and shares the same
+  fourteen-bone palette, so choosing a variant adds no draw call or per-frame mesh generation.
+  Four coordinated body/face palettes and existing individual scale variation further break up
+  repetition. Repeated F11 teleports cycle through all seven agents for direct comparison.
+- Extended the core regression to require all four material variants and meaningful scale spread.
+  All eleven native OpenGL 3.3 scenes, the complete actual-Chromium WebGL 2 harness with explicit
+  silhouette/palette initialization checks, and the arm64-v8a GLES 3 build plus app lint pass.
+  Android runtime remains unqualified.
 
 ## Session-end checklist
 

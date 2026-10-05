@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -146,6 +147,7 @@ namespace island
         bool muteToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
         std::array<bool, 7> debugTeleportWasDown_{};
+        std::size_t monkeyTeleportIndex_ = 0U;
         bool inputDiagnostics_ = false;
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;

@@ -228,18 +228,20 @@ external asset or license dependency. `MonkeyTroop` owns deterministic interior 
 `Idle`, `Observe`, `Wander`, `Walk`, and `RunAway` state machine. Authoritative terrain queries keep
 every proposed move at least 48 m inland on supported low-slope ground, while nearby-player
 awareness produces a brief non-hostile retreat. The shared wildlife activation policy throttles
-distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, near/far meshes, and idle,
-observe, walk, and run clips; one CNA `AnimationPlayer` per agent supplies palettes to the portable
-`SkinnedEffect`. Near monkeys add light muzzle/ear and eye passes for facial readability, while far
-monkeys remain one draw each. The troop copies the player's palm, broadleaf, solid-rock, and
+distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, three pairs of near/far
+silhouette meshes, four coordinated body/face palettes, and idle, observe, walk, and run clips; one
+CNA `AnimationPlayer` per agent supplies palettes to the portable `SkinnedEffect`. Near monkeys add
+light muzzle/ear and eye passes for facial readability, while far monkeys remain one draw each.
+Mesh selection does not change the per-agent draw count. The troop copies the player's palm,
+broadleaf, solid-rock, and
 fallen-log circular proxies once at world construction. Spawn, target, and movement queries retain
 a 0.32 m body clearance; blocked agents try bounded alternating lateral headings and then choose a
 new state rather than walking through geometry. Native OpenGL 3.3 and actual Chromium/WebGL 2
 captures match, and the monkey-inclusive arm64 GLES 3 APK builds and passes app lint. State changes
 snapshot the last presented local pose and use a 0.14--0.26 second eased blend: translation and
 scale interpolate linearly, rotation uses quaternion slerp, and the game recomposes world and
-inverse-bind skin palettes. `Wander` and `Walk` share one continuous locomotion phase. Additional
-mesh/material variation, calls, and stable Android runtime validation remain open.
+inverse-bind skin palettes. `Wander` and `Walk` share one continuous locomotion phase. More detailed
+surface treatment, calls, and stable Android runtime validation remain open.
 
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The

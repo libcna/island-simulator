@@ -280,7 +280,8 @@ namespace island
                   << " distance-throttled shallow-water schools\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
-                  << " agents with portable GPU skeletal animation\n";
+                  << " agents with portable GPU skeletal animation, "
+                  << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -509,7 +510,9 @@ namespace island
                     yaw_ = std::atan2(shark.x - x, shark.z - z);
                     pitch_ = -0.095f;
                 } else if (index == 6U) {
-                    const MonkeyState& monkey = monkeyTroop_.Monkeys().front();
+                    const std::span<const MonkeyState> monkeys = monkeyTroop_.Monkeys();
+                    const MonkeyState& monkey = monkeys[monkeyTeleportIndex_ % monkeys.size()];
+                    monkeyTeleportIndex_ = (monkeyTeleportIndex_ + 1U) % monkeys.size();
                     x = monkey.x + std::cos(monkey.headingRadians) * 5.0f;
                     z = monkey.z + std::sin(monkey.headingRadians) * 5.0f;
                     yaw_ = std::atan2(monkey.x - x, monkey.z - z);

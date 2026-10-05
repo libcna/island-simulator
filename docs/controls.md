@@ -8,7 +8,7 @@
 | Mouse | Look around while captured |
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
-| F5 / F6 / F7 / F8 / F9 / F10 / F11 | With the overlay visible, teleport to seven fixed QA locations; F9 faces the fish shallows, F10 the offshore shark, and F11 the monkey troop |
+| F5 / F6 / F7 / F8 / F9 / F10 / F11 | With the overlay visible, teleport to seven QA locations; F9 faces the fish shallows, F10 the offshore shark, and repeated F11 presses cycle through all seven monkeys |
 | M | Mute or unmute the ambient soundscape |
 | Escape | Release captured mouse; press again to exit |
 

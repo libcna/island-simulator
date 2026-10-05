@@ -85,6 +85,29 @@ namespace island
             std::vector<std::uint16_t> indices;
         };
 
+        struct SilhouetteParameters
+        {
+            Vector3 torsoRadii;
+            Vector3 headRadii;
+            float armReach = 0.47f;
+            float armEndHeight = 0.34f;
+            float armThickness = 1.0f;
+            float legWidth = 0.20f;
+            float legThickness = 1.0f;
+            float tailEndZ = -1.20f;
+            float tailThickness = 1.0f;
+        };
+
+        const std::array<SilhouetteParameters, MonkeyRenderer::SilhouetteCount>
+            SilhouetteParametersByVariant = {{
+                {Vector3(0.30f, 0.40f, 0.22f), Vector3(0.235f, 0.225f, 0.21f),
+                 0.47f, 0.34f, 1.00f, 0.20f, 1.00f, -1.20f, 1.00f},
+                {Vector3(0.265f, 0.43f, 0.20f), Vector3(0.22f, 0.235f, 0.20f),
+                 0.53f, 0.29f, 0.88f, 0.21f, 0.88f, -1.33f, 0.88f},
+                {Vector3(0.35f, 0.36f, 0.25f), Vector3(0.25f, 0.215f, 0.225f),
+                 0.43f, 0.38f, 1.14f, 0.18f, 1.14f, -1.06f, 1.12f}
+            }};
+
         [[nodiscard]] RigDefinition CreateRig()
         {
             return RigDefinition{
@@ -370,16 +393,19 @@ namespace island
             }
         }
 
-        [[nodiscard]] MeshData CreateMonkeyMesh(const RigDefinition& rig, const bool near)
+        [[nodiscard]] MeshData CreateMonkeyMesh(const RigDefinition& rig, const bool near,
+                                                const std::size_t silhouetteIndex)
         {
             MeshData mesh;
+            const SilhouetteParameters& silhouette =
+                SilhouetteParametersByVariant[silhouetteIndex];
             const int rings = near ? 6 : 3;
             const int segments = near ? 9 : 5;
             const int limbSegments = near ? 7 : 4;
             AddEllipsoid(mesh, Vector3(0.0f, 0.87f, 0.0f),
-                         Vector3(0.30f, 0.40f, 0.22f), Spine, rings, segments);
+                         silhouette.torsoRadii, Spine, rings, segments);
             AddEllipsoid(mesh, Vector3(0.0f, 1.30f, 0.035f),
-                         Vector3(0.235f, 0.225f, 0.21f), Head, rings, segments);
+                         silhouette.headRadii, Head, rings, segments);
             AddEllipsoid(mesh, Vector3(0.0f, 1.22f, 0.205f),
                          Vector3(0.17f, 0.115f, 0.145f), Head,
                          std::max(3, rings - 1), segments);
@@ -389,37 +415,45 @@ namespace island
                          Vector3(0.085f, 0.105f, 0.055f), Head, 3, segments);
 
             AddTube(mesh, rig.heads[UpperArmLeft], rig.heads[ForearmLeft],
-                    0.078f, UpperArmLeft, limbSegments);
-            AddTube(mesh, rig.heads[ForearmLeft], Vector3(-0.47f, 0.34f, 0.10f),
-                    0.063f, ForearmLeft, limbSegments);
+                    0.078f * silhouette.armThickness, UpperArmLeft, limbSegments);
+            AddTube(mesh, rig.heads[ForearmLeft],
+                    Vector3(-silhouette.armReach, silhouette.armEndHeight, 0.10f),
+                    0.063f * silhouette.armThickness, ForearmLeft, limbSegments);
             AddTube(mesh, rig.heads[UpperArmRight], rig.heads[ForearmRight],
-                    0.078f, UpperArmRight, limbSegments);
-            AddTube(mesh, rig.heads[ForearmRight], Vector3(0.47f, 0.34f, 0.10f),
-                    0.063f, ForearmRight, limbSegments);
-            AddEllipsoid(mesh, Vector3(-0.47f, 0.30f, 0.12f),
-                         Vector3(0.075f, 0.10f, 0.065f), ForearmLeft, 3, segments);
-            AddEllipsoid(mesh, Vector3(0.47f, 0.30f, 0.12f),
-                         Vector3(0.075f, 0.10f, 0.065f), ForearmRight, 3, segments);
+                    0.078f * silhouette.armThickness, UpperArmRight, limbSegments);
+            AddTube(mesh, rig.heads[ForearmRight],
+                    Vector3(silhouette.armReach, silhouette.armEndHeight, 0.10f),
+                    0.063f * silhouette.armThickness, ForearmRight, limbSegments);
+            AddEllipsoid(mesh,
+                         Vector3(-silhouette.armReach, silhouette.armEndHeight - 0.04f, 0.12f),
+                         Vector3(0.075f, 0.10f, 0.065f) * silhouette.armThickness,
+                         ForearmLeft, 3, segments);
+            AddEllipsoid(mesh,
+                         Vector3(silhouette.armReach, silhouette.armEndHeight - 0.04f, 0.12f),
+                         Vector3(0.075f, 0.10f, 0.065f) * silhouette.armThickness,
+                         ForearmRight, 3, segments);
 
             AddTube(mesh, rig.heads[ThighLeft], rig.heads[ShinLeft],
-                    0.105f, ThighLeft, limbSegments);
-            AddTube(mesh, rig.heads[ShinLeft], Vector3(-0.20f, 0.06f, 0.08f),
-                    0.075f, ShinLeft, limbSegments);
+                    0.105f * silhouette.legThickness, ThighLeft, limbSegments);
+            AddTube(mesh, rig.heads[ShinLeft], Vector3(-silhouette.legWidth, 0.06f, 0.08f),
+                    0.075f * silhouette.legThickness, ShinLeft, limbSegments);
             AddTube(mesh, rig.heads[ThighRight], rig.heads[ShinRight],
-                    0.105f, ThighRight, limbSegments);
-            AddTube(mesh, rig.heads[ShinRight], Vector3(0.20f, 0.06f, 0.08f),
-                    0.075f, ShinRight, limbSegments);
-            AddEllipsoid(mesh, Vector3(-0.20f, 0.055f, 0.135f),
-                         Vector3(0.10f, 0.055f, 0.16f), ShinLeft, 3, segments);
-            AddEllipsoid(mesh, Vector3(0.20f, 0.055f, 0.135f),
-                         Vector3(0.10f, 0.055f, 0.16f), ShinRight, 3, segments);
+                    0.105f * silhouette.legThickness, ThighRight, limbSegments);
+            AddTube(mesh, rig.heads[ShinRight], Vector3(silhouette.legWidth, 0.06f, 0.08f),
+                    0.075f * silhouette.legThickness, ShinRight, limbSegments);
+            AddEllipsoid(mesh, Vector3(-silhouette.legWidth, 0.055f, 0.135f),
+                         Vector3(0.10f, 0.055f, 0.16f) * silhouette.legThickness,
+                         ShinLeft, 3, segments);
+            AddEllipsoid(mesh, Vector3(silhouette.legWidth, 0.055f, 0.135f),
+                         Vector3(0.10f, 0.055f, 0.16f) * silhouette.legThickness,
+                         ShinRight, 3, segments);
 
             AddTube(mesh, rig.heads[TailBase], rig.heads[TailMiddle],
-                    0.062f, TailBase, limbSegments);
+                    0.062f * silhouette.tailThickness, TailBase, limbSegments);
             AddTube(mesh, rig.heads[TailMiddle], rig.heads[TailTip],
-                    0.053f, TailMiddle, limbSegments);
-            AddTube(mesh, rig.heads[TailTip], Vector3(0.03f, 0.91f, -1.20f),
-                    0.043f, TailTip, limbSegments);
+                    0.053f * silhouette.tailThickness, TailMiddle, limbSegments);
+            AddTube(mesh, rig.heads[TailTip], Vector3(0.03f, 0.91f, silhouette.tailEndZ),
+                    0.043f * silhouette.tailThickness, TailTip, limbSegments);
             if (mesh.vertices.size() > 65535U) {
                 throw std::runtime_error("procedural monkey mesh exceeds portable 16-bit indices");
             }
@@ -541,6 +575,11 @@ namespace island
             Vector3(0.39f, 0.27f, 0.17f),
             Vector3(0.24f, 0.18f, 0.14f),
             Vector3(0.46f, 0.32f, 0.20f)};
+        const std::array<Vector3, 4> FaceColors = {
+            Vector3(0.62f, 0.46f, 0.30f),
+            Vector3(0.70f, 0.53f, 0.34f),
+            Vector3(0.53f, 0.39f, 0.28f),
+            Vector3(0.74f, 0.56f, 0.36f)};
     }
 
     struct MonkeyRenderer::PlaybackState
@@ -566,36 +605,43 @@ namespace island
         whiteTexture_->SetData(&whitePixel, 1);
         const RigDefinition rig = CreateRig();
         skinningData_ = CreateSkinningData(rig);
-        MeshData nearMesh = CreateMonkeyMesh(rig, true);
-        MeshData farMesh = CreateMonkeyMesh(rig, false);
         MeshData faceMesh = CreateFaceMesh();
         MeshData eyeMesh = CreateEyeMesh();
-        nearVertexCount_ = static_cast<int>(nearMesh.vertices.size());
-        nearPrimitiveCount_ = static_cast<int>(nearMesh.indices.size() / 3U);
-        farVertexCount_ = static_cast<int>(farMesh.vertices.size());
-        farPrimitiveCount_ = static_cast<int>(farMesh.indices.size() / 3U);
         faceVertexCount_ = static_cast<int>(faceMesh.vertices.size());
         facePrimitiveCount_ = static_cast<int>(faceMesh.indices.size() / 3U);
         eyeVertexCount_ = static_cast<int>(eyeMesh.vertices.size());
         eyePrimitiveCount_ = static_cast<int>(eyeMesh.indices.size() / 3U);
 
-        nearVertices_ = std::make_unique<VertexBuffer>(
-            device_, SkinnedVertex::getVertexDeclarationStatic(), nearVertexCount_,
-            BufferUsage::WriteOnly);
-        nearVertices_->SetData(nearMesh.vertices.data(), nearVertexCount_);
-        nearIndices_ = std::make_unique<IndexBuffer>(
-            device_, IndexElementSize::SixteenBits, static_cast<int>(nearMesh.indices.size()),
-            BufferUsage::WriteOnly);
-        nearIndices_->SetData(nearMesh.indices.data(), static_cast<int>(nearMesh.indices.size()));
+        for (std::size_t variant = 0; variant < SilhouetteCount; ++variant) {
+            MeshData nearMesh = CreateMonkeyMesh(rig, true, variant);
+            MeshData farMesh = CreateMonkeyMesh(rig, false, variant);
+            nearVertexCounts_[variant] = static_cast<int>(nearMesh.vertices.size());
+            nearPrimitiveCounts_[variant] = static_cast<int>(nearMesh.indices.size() / 3U);
+            farVertexCounts_[variant] = static_cast<int>(farMesh.vertices.size());
+            farPrimitiveCounts_[variant] = static_cast<int>(farMesh.indices.size() / 3U);
 
-        farVertices_ = std::make_unique<VertexBuffer>(
-            device_, SkinnedVertex::getVertexDeclarationStatic(), farVertexCount_,
-            BufferUsage::WriteOnly);
-        farVertices_->SetData(farMesh.vertices.data(), farVertexCount_);
-        farIndices_ = std::make_unique<IndexBuffer>(
-            device_, IndexElementSize::SixteenBits, static_cast<int>(farMesh.indices.size()),
-            BufferUsage::WriteOnly);
-        farIndices_->SetData(farMesh.indices.data(), static_cast<int>(farMesh.indices.size()));
+            nearVertices_[variant] = std::make_unique<VertexBuffer>(
+                device_, SkinnedVertex::getVertexDeclarationStatic(), nearVertexCounts_[variant],
+                BufferUsage::WriteOnly);
+            nearVertices_[variant]->SetData(
+                nearMesh.vertices.data(), nearVertexCounts_[variant]);
+            nearIndices_[variant] = std::make_unique<IndexBuffer>(
+                device_, IndexElementSize::SixteenBits,
+                static_cast<int>(nearMesh.indices.size()), BufferUsage::WriteOnly);
+            nearIndices_[variant]->SetData(
+                nearMesh.indices.data(), static_cast<int>(nearMesh.indices.size()));
+
+            farVertices_[variant] = std::make_unique<VertexBuffer>(
+                device_, SkinnedVertex::getVertexDeclarationStatic(), farVertexCounts_[variant],
+                BufferUsage::WriteOnly);
+            farVertices_[variant]->SetData(
+                farMesh.vertices.data(), farVertexCounts_[variant]);
+            farIndices_[variant] = std::make_unique<IndexBuffer>(
+                device_, IndexElementSize::SixteenBits,
+                static_cast<int>(farMesh.indices.size()), BufferUsage::WriteOnly);
+            farIndices_[variant]->SetData(
+                farMesh.indices.data(), static_cast<int>(farMesh.indices.size()));
+        }
 
         faceVertices_ = std::make_unique<VertexBuffer>(
             device_, SkinnedVertex::getVertexDeclarationStatic(), faceVertexCount_,
@@ -726,17 +772,23 @@ namespace island
                 * Matrix::CreateTranslation(monkey.x, monkey.y, monkey.z));
 
             const bool near = distanceSquared <= NearLodDistance * NearLodDistance;
-            VertexBuffer* vertices = near ? nearVertices_.get() : farVertices_.get();
-            IndexBuffer* indices = near ? nearIndices_.get() : farIndices_.get();
-            const int vertexCount = near ? nearVertexCount_ : farVertexCount_;
-            const int primitiveCount = near ? nearPrimitiveCount_ : farPrimitiveCount_;
+            const std::size_t silhouette = monkey.colorVariant % SilhouetteCount;
+            VertexBuffer* vertices = near ? nearVertices_[silhouette].get()
+                                          : farVertices_[silhouette].get();
+            IndexBuffer* indices = near ? nearIndices_[silhouette].get()
+                                        : farIndices_[silhouette].get();
+            const int vertexCount = near ? nearVertexCounts_[silhouette]
+                                         : farVertexCounts_[silhouette];
+            const int primitiveCount = near ? nearPrimitiveCounts_[silhouette]
+                                            : farPrimitiveCounts_[silhouette];
             device_.SetVertexBuffer(vertices);
             device_.setIndicesProperty(indices);
             effect_->Apply();
             device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                           vertexCount, 0, primitiveCount);
             if (near) {
-                effect_->setDiffuseColorProperty(Vector3(0.62f, 0.46f, 0.30f));
+                effect_->setDiffuseColorProperty(
+                    FaceColors[monkey.colorVariant % FaceColors.size()]);
                 device_.SetVertexBuffer(faceVertices_.get());
                 device_.setIndicesProperty(faceIndices_.get());
                 effect_->Apply();

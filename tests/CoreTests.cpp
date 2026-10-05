@@ -689,6 +689,22 @@ int main()
           "monkey troop has the intended bounded population");
     Check(monkeys.Monkeys().size() == repeatedMonkeys.Monkeys().size(),
           "repeated monkey troop has the same population");
+    std::array<bool, 4> observedMonkeyVariants{};
+    float minimumMonkeyScale = 10.0f;
+    float maximumMonkeyScale = 0.0f;
+    for (const island::MonkeyState& monkey : monkeys.Monkeys()) {
+        Check(monkey.colorVariant < observedMonkeyVariants.size(),
+              "monkey material variant remains inside the renderer palette");
+        if (monkey.colorVariant < observedMonkeyVariants.size()) {
+            observedMonkeyVariants[monkey.colorVariant] = true;
+        }
+        minimumMonkeyScale = std::min(minimumMonkeyScale, monkey.scale);
+        maximumMonkeyScale = std::max(maximumMonkeyScale, monkey.scale);
+    }
+    Check(std::ranges::all_of(observedMonkeyVariants, [](const bool value) { return value; }),
+          "monkey troop exercises all four material palettes");
+    Check(maximumMonkeyScale - minimumMonkeyScale >= 0.20f,
+          "monkey troop has meaningful individual scale variation");
     bool observedMonkeyIdle = false;
     bool observedMonkeyObserve = false;
     bool observedMonkeyWalk = false;

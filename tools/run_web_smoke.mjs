@@ -138,6 +138,7 @@ try {
     && result.output?.includes("island-simulator: fish 48 agents")
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
+    && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
@@ -514,6 +515,7 @@ try {
   await writeFile(monkeyScreenshotPath, Buffer.from(monkeyScreenshot.data, "base64"));
   const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
+    && monkeyResult.output?.includes("3 silhouettes, 4 palettes")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")
     && /blends [1-9][0-9]*\/0 active\/completed/.test(monkeyResult.output ?? "")
     && !monkeyResult.error;
