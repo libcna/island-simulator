@@ -31,6 +31,9 @@ Nearby low bushes replace their largest smooth lobes with smaller overlapping vo
 folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
 One near forest-floor variant now forms six upright broad leaves on visible petioles instead of
 another low strap-leaf rosette; its compact far representation and batching remain unchanged.
+Near land and reef rocks gain subtle texture-free strata and restrained lichen flecks from their
+portable material shader. The effect is deliberately limited to the near LOD so distant rock
+silhouettes remain calm and avoid unnecessary fragment work.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling

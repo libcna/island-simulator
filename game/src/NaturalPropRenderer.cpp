@@ -69,6 +69,7 @@ uniform mat4 uViewProjection;
 
 out vec3 vColor;
 out vec3 vWorld;
+out float vMaterialDetail;
 
 void main()
 {
@@ -76,6 +77,7 @@ void main()
     vec4 world = instanceTransform * vec4(aPosition, 1.0);
     vColor = aColor.rgb;
     vWorld = world.xyz;
+    vMaterialDetail = aColor.a;
     gl_Position = uViewProjection * world;
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -84,6 +86,7 @@ void main()
         constexpr const char* FragmentBody = R"(
 in vec3 vColor;
 in vec3 vWorld;
+in float vMaterialDetail;
 
 uniform vec3 uCameraPosition;
 
@@ -93,7 +96,19 @@ void main()
 {
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(235.0, 610.0, distanceToCamera);
-    vec3 color = mix(vColor, vec3(0.53, 0.78, 0.88), fog);
+    vec3 materialColor = vColor;
+    if (vMaterialDetail < 0.5) {
+        float strata = 0.5 + 0.5 * sin(vWorld.y * 10.5
+            + vWorld.x * 1.7 - vWorld.z * 1.2);
+        float grain = sin(dot(vWorld, vec3(3.1, 4.7, -2.3)))
+            * sin(dot(vWorld, vec3(-5.3, 2.1, 4.1)) + 1.8);
+        materialColor *= 0.945 + 0.065 * strata;
+        float lichen = smoothstep(0.72, 0.96, grain);
+        materialColor = mix(materialColor,
+                            materialColor * vec3(0.84, 1.04, 0.82),
+                            lichen * 0.16);
+    }
+    vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -169,10 +184,11 @@ void main()
                 static_cast<std::size_t>(rings * slices * 6 + slices * 6));
             AppendContactDisk(geometry, slices);
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-            const Color rockBase = variant == 0 ? Color(112, 113, 98, 255)
-                : (variant == 1 ? Color(126, 115, 92, 255)
-                   : (variant == 2 ? Color(98, 116, 104, 255)
-                                   : Color(124, 128, 116, 255)));
+            const int materialDetail = farMesh ? 255 : 64;
+            const Color rockBase = variant == 0 ? Color(112, 113, 98, materialDetail)
+                : (variant == 1 ? Color(126, 115, 92, materialDetail)
+                   : (variant == 2 ? Color(98, 116, 104, materialDetail)
+                                   : Color(124, 128, 116, materialDetail)));
             for (int ring = 0; ring <= rings; ++ring) {
                 const float t = static_cast<float>(ring) / static_cast<float>(rings);
                 const float radialBase = (0.72f
@@ -660,6 +676,7 @@ void main()
                   << " shell/pebble clusters, near-field culled\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
+            std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';

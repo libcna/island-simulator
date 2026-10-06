@@ -947,6 +947,8 @@ Work next, in order:
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
    paired folded leaves over smaller near lobes without touching its far tier; one near
    ground-plant variant now adds an upright six-leaf form and a dedicated cross-renderer QA camera.
+   Near land and reef rocks now add restrained, texture-free strata and lichen only in their near
+   LOD, without new geometry, textures, instances, or submissions.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
@@ -2179,6 +2181,28 @@ Work next, in order:
   renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
   application lint pass; WebAssembly is 8,336,760 bytes, stripped `libmain.so` is 15,729,232 bytes,
   and the APK is 33,461,608 bytes. Android runtime appearance and cost remain unqualified without
+  KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
+  dependency defect was found.
+
+### 2026-10-06 — Near-rock strata and lichen material
+
+- Added subtle world-space strata and sparse lichen colour modulation to only the near land/reef
+  rock path in the existing portable natural-prop shader. The otherwise-unused vertex alpha is a
+  private material selector; far rocks and contact disks retain the plain path. The pass adds no
+  texture, geometry, instance data, CPU update, draw submission, collision change, or asset.
+- Compared deterministic before/after reef captures and inspected the enlarged near rock plus the
+  jungle composition. The retained contrast is readable close to first-person range without
+  becoming a painted high-frequency pattern. Native OpenGL 3.3 and actual Chrome/SwiftShader
+  WebGL 2 compile and execute the same path; browser lifecycle, overview, and reef gates require
+  its explicit diagnostic.
+- Two isolated five-view repeats retained 77/124/95/26/97 tracked submissions and exact scene
+  populations. Mean frame time measured 1.1003--1.1116 ms overview, 1.6633--1.7042 ms beach,
+  1.4197--1.4318 ms jungle, 0.7637--0.8007 ms driftwood, and 1.5232--1.5473 ms monkeys. These
+  ranges overlap or improve on the preceding baseline, so no isolated speed change is claimed.
+- All 22 native tests pass, including 21 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,337,616 bytes, stripped `libmain.so` is 15,730,000 bytes,
+  and the APK is 33,462,376 bytes. Android runtime appearance and cost remain unqualified without
   KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
   dependency defect was found.
 

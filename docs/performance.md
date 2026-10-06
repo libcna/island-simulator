@@ -384,6 +384,26 @@ the small geometry reduction is not claimed as a measured speedup.
 The arm64 GLES 3 package builds and lints with this geometry; physical-device appearance and cost
 remain unqualified.
 
+### Near-rock material follow-up
+
+Near rock vertices now select a restrained texture-free fragment treatment with world-space strata
+and sparse lichen modulation. Far rocks and contact disks skip the branch, and the change adds no
+texture, geometry, instance data, CPU update, or tracked submission. Native reef and jungle
+captures were inspected, and the actual Chrome/SwiftShader WebGL 2 reef stage requires the same
+material diagnostic. The arm64 GLES 3 package builds and lints, but device appearance and fragment
+cost remain unqualified.
+
+Two isolated five-view repeats produced the ranges below. Scene populations and submissions match
+the preceding ground-plant baseline exactly, and the timing ranges show no integrated regression.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible rocks / reef |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1003--1.1116 | 1.2059--1.2179 | 1.3042--1.4784 | 77 | 43 / 4 |
+| Beach | 1.6633--1.7042 | 1.7704--1.8475 | 2.1972--2.4931 | 124 | 74 / 5 |
+| Jungle | 1.4197--1.4318 | 1.5744--1.6127 | 1.9769--2.1264 | 95 | 50 / 2 |
+| Driftwood/shore detail | 0.7637--0.8007 | 0.8520--0.9912 | 1.0729--1.3465 | 26 | 7 / 1 |
+| Monkeys | 1.5232--1.5473 | 1.9624--1.9899 | 2.1455--2.1841 | 97 | 41 / 2 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

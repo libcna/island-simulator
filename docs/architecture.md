@@ -279,6 +279,9 @@ tiny beach details disappear beyond 52 m and fronds beyond 76 m. Opaque geometry
 layers without transparency overdraw; driftwood uses an irregular bent tube plus branch stubs, and
 fronds use a curved rachis with 28 tapered leaflets. Placement validates complete footprints
 against shore distance, route reservations, nearby trees, slope, and support-height variation.
+The otherwise-unused rock vertex alpha marks only near-rock fragments for subtle world-space
+strata and sparse lichen modulation. Contact geometry and every far rock retain the plain path;
+this keeps the material cue texture-free, instance-varying, and free of extra geometry or draws.
 Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
 fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
 while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced
@@ -463,7 +466,8 @@ testing remain open.
   bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, and near bushes now replace their largest smooth lobes with folded pointed leaves,
-  but transition popping, close-up material shape, bush diversity, biome variation,
+  while near rocks have restrained procedural strata and lichen. Transition popping, richer
+  close-up wood/material shape, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
 - The first distant-scenery layer provides five fogged low islets and 11 simplified palms in one
   portable batch. Its silhouette variety is deliberately restrained; unified world haze, richer

@@ -162,6 +162,8 @@ try {
     && result.output?.includes(
       "island-simulator: movement-driven player ripples integrated into the portable ocean shader")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
+    && result.output?.includes(
+      "island-simulator: near rocks use procedural strata and restrained lichen flecks")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
@@ -298,6 +300,8 @@ try {
       "island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
     && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && visualResult.output?.includes(
+      "island-simulator: near rocks use procedural strata and restrained lichen flecks")
     && visualResult.output?.includes("portable instanced wind shader")
     && visualResult.output?.includes("island-simulator: terrain")
     && !visualResult.error;
@@ -578,6 +582,8 @@ try {
     && reefResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && reefResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && reefResult.output?.includes(
+      "island-simulator: near rocks use procedural strata and restrained lichen flecks")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
     && !reefResult.error;
 
