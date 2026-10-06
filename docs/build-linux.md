@@ -55,6 +55,9 @@ Xwayland runner:
   build --output-on-failure -j2
 ```
 
+`IslandGameSmoke` requires the portable terrain shader's near-field microvariation and procedural
+interior leaf-litter path in addition to renderer startup and a clean four-frame exit.
+
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
 `IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm`.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm`.

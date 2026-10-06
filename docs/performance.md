@@ -197,6 +197,32 @@ submissions at 1.7429--1.7595 ms mean, 1.8919--1.9007 ms p95, and 2.2903--2.3129
 and actual Chrome/SwiftShader captures visually agree. Physical-device fragment cost and aliasing
 remain open.
 
+### Near-field substrate and leaf-litter follow-up
+
+The terrain fragment shader now evaluates one additional microvariation octave and two sparse
+one-hash leaf-litter cells only inside the low-slope interior and within a 24--68 m camera fade.
+The first visually reviewed pass was rejected for large, frequent oval marks. The retained version
+uses fewer, smaller, pointed and slightly curved leaves with bounded contrast. It adds no texture,
+geometry, CPU placement data, or draw submission.
+
+Two complete five-view repeats produced the ranges below. The overview remains effectively
+unchanged because the near-field branch is inactive. Grass-heavy close views show roughly
+0.04--0.11 ms mean movement relative to the preceding two-run sample, while p95/p99 values retain
+substantial run variation. These integrated results do not isolate fragment cost.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.2074--1.2233 | 1.3667--1.4878 | 1.5471--1.7286 | 81 | 0 |
+| Beach | 1.7705--1.7916 | 2.0252--2.2926 | 2.4122--2.5943 | 124 | 2,954 |
+| Jungle | 1.4494--1.4675 | 1.7056--1.8704 | 2.1117--2.1703 | 91 | 2,932 |
+| Driftwood/shore detail | 0.8202--0.8285 | 1.1343--1.1769 | 1.4441--1.4461 | 26 | 155 |
+| Monkeys | 1.5414--1.6410 | 1.7863--2.1944 | 2.1887--2.5199 | 97 | 2,946 |
+
+Two dedicated close-grass repeats rendered 2,827 clusters in 126 tracked submissions at
+1.8411--1.8561 ms mean, 2.0394--2.2592 ms p95, and 2.4347--2.5395 ms p99. Sustained moving-route,
+Web hardware, and physical-mobile measurements remain open. Native and actual
+Chrome/SwiftShader close-grass and jungle captures visually agree on the retained detail.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

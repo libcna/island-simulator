@@ -311,8 +311,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions. Terrain vertices
   now carry authoritative shore distance and slope into a portable texture-free material shader;
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
-  and steeper interior ground exposes a muted soil tint. Authored biome masks, decals, rock strata,
-  leaf litter, and final colour/scale tuning remain.
+  steeper interior ground exposes a muted soil tint, and a distance-bounded microvariation octave
+  plus two sparse deterministic grids add curved pointed leaf litter to the interior. Authored
+  biome masks, decals, rock strata, broader litter diversity, and final colour/scale tuning remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
   Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
   unreachable haze-softened low islets with 11 simplified palm silhouettes now break up the
@@ -933,8 +934,9 @@ Work next, in order:
    sparse driftwood layer only where composition review needs it. The first portable sand/soil,
    wet-edge, and slope-material pass, the initial small-plant layer, and a first near-field
    shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
-   shallow-reef outcrops are complete; broader prop diversity, contact cues, and material tuning
-   remain.
+   shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
+   curved interior leaf litter now break up exposed jungle-floor gaps; broader prop diversity,
+   contact cues, authored biome variation, and material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
@@ -1985,6 +1987,30 @@ Work next, in order:
   `libmain.so` is 15,698,448 bytes, and the APK is 33,430,824 bytes. Android runtime appearance and
   mobile fragment cost remain unqualified without KVM or a physical device. CNA and Sharp Runtime
   remain clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Near-field jungle substrate and leaf litter
+
+- Extended the existing texture-free terrain material with one close microvariation octave and two
+  deterministic leaf-litter grids, bounded to low-slope interior ground and a 24--68 m camera fade.
+  One hash per litter cell derives placement, scale, bend, orientation, and presence; the feature
+  adds no asset, texture, geometry, CPU placement state, terrain-query change, or draw submission.
+- Visual review rejected the first large, frequent oval marks. The retained pass uses smaller,
+  sparser, pointed and slightly curved leaves with reduced contrast and clustered density. Native
+  close-grass, jungle, and fallen-log captures were inspected; the beach remains intentionally
+  unaffected and detail disappears before mid-distance aliasing becomes prominent.
+- Added an explicit native smoke and WebGL 2 lifecycle/grass/jungle gate for the new material path.
+  Native and actual Chrome/SwiftShader captures visually agree.
+- Two complete five-view native repeats preserved 81/124/91/26/97 submissions. Mean frame time was
+  1.2074--1.2233 ms overview, 1.7705--1.7916 ms beach, 1.4494--1.4675 ms jungle,
+  0.8202--0.8285 ms driftwood, and 1.5414--1.6410 ms monkeys. Two dedicated close-grass repeats
+  measured 1.8411--1.8561 ms mean and 2.0394--2.2592 ms p95. The retained close detail costs about
+  0.04--0.11 ms mean in affected integrated views on this debug baseline.
+- All 20 native tests pass, including 19 real OpenGL 3.3 scenes. The complete Chrome
+  152/WebGL 2 renderer/lifecycle/input/audio-init harness passes with the new terrain-detail gate.
+  The arm64-v8a GLES 3 APK rebuild and app lint pass; WebAssembly is 8,301,584 bytes, stripped
+  `libmain.so` is 15,700,608 bytes, and the APK is 33,432,984 bytes. Android runtime appearance and
+  fragment cost remain unqualified without KVM or a physical device. CNA and Sharp Runtime remain
+  clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

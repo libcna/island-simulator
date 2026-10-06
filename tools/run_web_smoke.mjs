@@ -129,6 +129,8 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
+    && result.output?.includes(
+      "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes("island-simulator: fixed sunny sky portable shader")
     && result.output?.includes(
@@ -351,6 +353,8 @@ try {
   await writeFile(grassScreenshotPath, Buffer.from(grassScreenshot.data, "base64"));
   const grassPassed = grassResult.output?.includes("island-simulator: renderer WEBGL2")
     && grassResult.output?.includes(
+      "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
+    && grassResult.output?.includes(
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && grassResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
@@ -383,6 +387,8 @@ try {
   await writeFile(jungleScreenshotPath, Buffer.from(jungleScreenshot.data, "base64"));
   const junglePassed = jungleResult.output?.includes("island-simulator: renderer WEBGL2")
     && jungleResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && jungleResult.output?.includes(
+      "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
       jungleResult.output ?? "")

@@ -175,6 +175,14 @@ sample coordinates prevent cracks. Fixed daylight is currently baked into proced
 palm vertex colours. Terrain, ocean, and sky share one project-owned fixed sun direction so the
 surface lighting, water glint, and visible sun cannot silently diverge.
 
+The portable terrain material reconstructs broad, medium, and fine world-space variation from
+the same interpolated shore-distance and slope fields on GLSL 330 and GLSL ES 300. Inside the
+jungle belt, a 24--68 m camera fade bounds an additional microvariation octave and two sparse
+deterministic leaf-litter grids. Each litter cell derives position, scale, bend, orientation, and
+presence from one hash; pointed curved silhouettes replace the rejected first oval pass. This
+detail uses no texture, geometry, asset, or draw submission, does not alter authoritative terrain
+queries, and disappears before it can alias into mid-distance scenery.
+
 `DistantSceneryLayout` places five low islets at least 570 m from the island centre, outside every
 player-accessible ocean boundary but within the 850 m ocean surface. `DistantSceneryRenderer`
 combines their irregular rock ridges and 11 simplified trunk/frond/crown silhouettes into one

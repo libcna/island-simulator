@@ -15,7 +15,8 @@ no KVM acceleration, so its first
 GLES3 render is valid renderer evidence but not touch, lifecycle, or performance qualification.
 Those claims still require a stable accelerated emulator or physical device.
 
-The current arm64 package includes the portable procedural sand/soil terrain material, the
+The current arm64 package includes the portable procedural sand/soil terrain material with
+near-field interior microvariation and sparse curved leaf litter, the
 broadleaf jungle with low bushes and forest-floor plants,
 speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
 152 land rocks, 14 emergent reef outcrops, fallen logs, sparse beach driftwood, 63 fallen palm
@@ -35,8 +36,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,430,824-byte APK with a
-15,698,448-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,432,984-byte APK with a
+15,700,608-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

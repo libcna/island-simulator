@@ -85,6 +85,29 @@ float valueNoise(vec2 p)
     return mix(lower, upper, fraction.y) - 0.5;
 }
 
+float leafLitter(vec2 worldPosition, float scale, vec2 offset, float threshold)
+{
+    vec2 grid = worldPosition * scale + offset;
+    vec2 cell = floor(grid);
+    vec2 local = fract(grid) - 0.5;
+    float seed = hash12(cell + offset * 0.37);
+    vec2 jitter = fract(vec2(seed * 17.17, seed * 41.73)) - 0.5;
+    local -= jitter * 0.42;
+    float angle = fract(seed * 7.31) * 6.28318530718;
+    vec2 axis = vec2(cos(angle), sin(angle));
+    vec2 rotated = vec2(dot(local, axis), dot(local, vec2(-axis.y, axis.x)));
+    float sizeVariation = mix(0.72, 1.12, fract(seed * 11.91));
+    rotated /= sizeVariation;
+    rotated.y -= sin(rotated.x * 13.0 + seed * 5.0) * 0.012;
+    float along = abs(rotated.x) / 0.155;
+    float halfWidth = 0.043 * pow(max(0.0, 1.0 - along), 0.58);
+    float pointedEnds = 1.0 - smoothstep(0.94, 1.04, along);
+    float curvedSides = 1.0 - smoothstep(-0.006, 0.010,
+                                          abs(rotated.y) - halfWidth);
+    float shape = pointedEnds * curvedSides;
+    return shape * step(threshold, fract(seed * 23.47));
+}
+
 void main()
 {
     vec2 p = vWorld.xz;
@@ -125,6 +148,25 @@ void main()
         * interior * detailFade;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
+
+    float closeDetail = (1.0 - smoothstep(24.0, 68.0, distanceToCamera))
+        * smoothstep(22.0, 38.0, signedShoreDistance)
+        * (1.0 - smoothstep(0.34, 0.66, slopeRadians));
+    if (closeDetail > 0.0) {
+        float micro = valueNoise(p * 1.26 + vec2(-21.4, 8.3));
+        color *= vec3(1.0 + micro * 0.030,
+                      1.0 + micro * 0.052,
+                      1.0 + micro * 0.027) * closeDetail
+            + vec3(1.0 - closeDetail);
+        float litterPatch = clamp(0.52 + broad * 0.82 + medium * 0.30, 0.18, 1.0);
+        float warmLeaf = leafLitter(p, 2.05, vec2(13.7, -4.3), 0.89);
+        float darkLeaf = leafLitter(p, 3.10, vec2(-7.1, 19.6), 0.95);
+        float litterAmount = closeDetail * litterPatch;
+        color = mix(color, vec3(0.255, 0.165, 0.055),
+                    warmLeaf * litterAmount * 0.46);
+        color = mix(color, vec3(0.145, 0.105, 0.046),
+                    darkLeaf * litterAmount * 0.40);
+    }
 
     float wetEdge = (1.0 - smoothstep(0.0, 2.3, abs(signedShoreDistance)))
         * smoothstep(-1.3, 0.2, signedShoreDistance);
@@ -236,7 +278,9 @@ void main()
                 materialEffect_ = std::make_unique<ShaderEffect>(device_, package);
                 if (materialEffect_->IsEffectValid()) {
                     materialReady_ = true;
-                    std::cout << "island-simulator: terrain portable sand/soil material shader\n";
+                    std::cout << "island-simulator: terrain portable sand/soil material shader\n"
+                              << "island-simulator: terrain near-field microvariation and "
+                                 "procedural interior leaf litter\n";
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';
