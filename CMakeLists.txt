@@ -349,7 +349,17 @@ if(ISLAND_BUILD_GAME)
         set_tests_properties(IslandGameWorldDebugCapture PROPERTIES
             TIMEOUT 30
             LABELS display
-            PASS_REGULAR_EXPRESSION "world debug frame audio zones 6, candidates [1-2]")
+            PASS_REGULAR_EXPRESSION
+                "world debug frame ground samples 9, supports [1-9].*audio zones 6, candidates [1-2]")
+        add_test(NAME IslandGameGroundContactCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-ground-contact.ppm"
+                    --viewpoint contact --world-debug)
+        set_tests_properties(IslandGameGroundContactCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "world debug frame ground samples 9, supports [1-9]")
         add_test(NAME IslandGameBenchmark
             COMMAND island-simulator
                     --benchmark "${CMAKE_BINARY_DIR}/island-benchmark-jungle.json"

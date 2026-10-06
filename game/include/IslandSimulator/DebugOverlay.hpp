@@ -140,6 +140,9 @@ namespace island
         int worldDebugAudioZones = 0;
         int worldDebugAudioCandidates = 0;
         int worldDebugActiveAudioEmitters = 0;
+        int worldDebugGroundSamples = 0;
+        int worldDebugGroundSupports = 0;
+        int worldDebugSteepSamples = 0;
         int worldDebugLines = 0;
         int worldDebugDraws = 0;
     };

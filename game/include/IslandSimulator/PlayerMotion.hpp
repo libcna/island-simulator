@@ -3,6 +3,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/WorldCollision.hpp"
 
+#include <array>
 #include <span>
 
 namespace island
@@ -24,6 +25,13 @@ namespace island
         float z = 0.0f;
     };
 
+    /** @brief Unit footprint offset used by the authoritative capsule ground query. */
+    struct PlayerGroundOffset
+    {
+        float x = 0.0f;
+        float z = 0.0f;
+    };
+
     /**
      * @brief First traversal slice: accelerated ground movement, swimming, and a soft ocean limit.
      *
@@ -42,6 +50,18 @@ namespace island
         static constexpr float SoftCurrentStart = 42.0f;
         static constexpr float FullCurrentDistance = 72.0f;
         static constexpr float SafetyDistance = 92.0f;
+        static constexpr float GroundSampleDiagonal = 0.70710678f;
+        static constexpr std::array<PlayerGroundOffset, 9> GroundContactOffsets = {{
+            {0.0f, 0.0f},
+            {1.0f, 0.0f},
+            {-1.0f, 0.0f},
+            {0.0f, 1.0f},
+            {0.0f, -1.0f},
+            {GroundSampleDiagonal, GroundSampleDiagonal},
+            {-GroundSampleDiagonal, GroundSampleDiagonal},
+            {GroundSampleDiagonal, -GroundSampleDiagonal},
+            {-GroundSampleDiagonal, -GroundSampleDiagonal},
+        }};
 
         /**
          * @brief Places the player and resolves height and locomotion state immediately.

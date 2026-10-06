@@ -287,6 +287,43 @@ namespace island
         AddLine(overlayVertices, Vector3(playerPosition.x, playerY, playerPosition.z - 0.65f),
                 Vector3(playerPosition.x, playerY, playerPosition.z + 0.65f), playerColor);
 
+        groundContactSampleCount_ = 0;
+        groundSupportSampleCount_ = 0;
+        steepGroundSampleCount_ = 0;
+        for (const PlayerGroundOffset& offset : PlayerMotion::GroundContactOffsets) {
+            const float sampleX = playerPosition.x + offset.x * PlayerMotion::CapsuleRadius;
+            const float sampleZ = playerPosition.z + offset.z * PlayerMotion::CapsuleRadius;
+            const TerrainSample sample = terrain_.Sample(sampleX, sampleZ);
+            const float markerY = sample.height + 0.06f;
+            const bool supportsPlayer = std::fabs(sample.height - playerGroundHeight) < 0.0001f;
+            const bool exceedsSlopeLimit = sample.slopeRadians
+                > PlayerMotion::MaximumWalkSlopeRadians;
+            const Color normalColor = exceedsSlopeLimit
+                ? Color(255, 75, 65, 255) : Color(115, 255, 155, 255);
+            const Vector3 contact(sampleX, markerY, sampleZ);
+            AddLine(overlayVertices,
+                    contact - Vector3::Right * 0.11f,
+                    contact + Vector3::Right * 0.11f, normalColor);
+            AddLine(overlayVertices,
+                    contact - Vector3::Forward * 0.11f,
+                    contact + Vector3::Forward * 0.11f, normalColor);
+            AddLine(overlayVertices, contact,
+                    contact + Vector3(sample.normal.x, sample.normal.y, sample.normal.z) * 1.5f,
+                    normalColor);
+            if (supportsPlayer) {
+                AddCircle(overlayVertices, sampleX, markerY, sampleZ, 0.14f, 8,
+                          Color(245, 255, 245, 255));
+                ++groundSupportSampleCount_;
+            }
+            if (exceedsSlopeLimit) {
+                ++steepGroundSampleCount_;
+            }
+            ++groundContactSampleCount_;
+        }
+        AddLine(overlayVertices,
+                Vector3(playerPosition.x, playerGroundHeight + 0.06f, playerPosition.z),
+                Vector3(playerPosition.x, playerPosition.y, playerPosition.z), playerColor);
+
         const float offshoreDistance = std::max(
             0.0f, -terrain_.SignedShoreDistance(playerPosition.x, playerPosition.z));
         if (offshoreDistance > PlayerMotion::SoftCurrentStart) {

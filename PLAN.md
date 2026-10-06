@@ -880,8 +880,9 @@ after the same experience remains available.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
   South beach, jungle trail, two clearings, fish shallows, offshore shark, monkey troop, and the
   active current field are implemented; remaining landmark locations remain.
-- [~] Terrain/capsule/contact visualization. Player footprint and nearby solid horizontal proxies
-  are visible; swept motion, step/slope samples, support contact, and normals remain.
+- [~] Terrain/capsule/contact visualization. Player footprint, nearby solid horizontal proxies,
+  the exact nine terrain samples, 1.5 m normals, resolved support rings, player support line, and
+  red over-limit slope markers are visible; swept/attempted motion remains.
 - [~] Shore distance/current vector visualization. F2 draws the irregular shoreline, all three
   current thresholds, and the player's active inward-current arrow; a scalar field view remains.
 - [~] Vegetation cell, culling, LOD, and density visualization. F2 draws nearby shared 8 by 8
@@ -894,7 +895,8 @@ after the same experience remains available.
   and the exact active pooled emitter; F1 reports the active-source count against the six-source
   ceiling.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, grass-interaction detail, close-palm, jungle-trail, natural-prop, driftwood, emergent-reef,
+  beach-path, grass-interaction detail, ground-contact, close-palm, jungle-trail, natural-prop,
+  driftwood, emergent-reef,
   near-surface-water, active-current, fallen-frond, distant-horizon, airborne bird-detail, and
   shallow-water fish views plus offshore-shark and GPU-skinned-monkey views are implemented and
   used by native/browser captures; free camera and more landmark views remain open.
@@ -964,11 +966,11 @@ Work next, in order:
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
-4. Extend the completed F2 shoreline/current, nearby collision, shared-cell, wildlife-heading,
-   and audio-zone/emitter visualization with terrain contacts, exact targets/spawn regions, and
+4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
+   wildlife-heading, and audio-zone/emitter visualization with exact targets/spawn regions and
    individual culling/LOD/density fields only where they materially improve debugging. F1 now
-   reports both local static-collision candidates and live audio sources against their complete
-   populations/budgets.
+   reports local static-collision candidates, nine terrain support samples, and live audio sources
+   against their complete populations/budgets.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -2280,6 +2282,29 @@ Work next, in order:
   bytes, stripped `libmain.so` is 15,738,144 bytes, and the APK is 33,470,520 bytes. Android
   runtime appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime
   remain clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Authoritative player ground-contact diagnostics
+
+- Made `PlayerMotion`'s centre/cardinal/diagonal unit footprint offsets a single public
+  authoritative array and retained that same array in the hot support-height/slope query. F2 now
+  resamples exactly those nine points: 1.5 m green terrain-normal lines show permitted ground,
+  red lines identify samples beyond the 38-degree walk limit, white rings identify every point at
+  the resolved maximum support height, and a white vertical joins support to the player eye.
+- Added `CONTACT sample/support/over-limit` counts without adding another draw submission. The
+  renderer's extra terrain queries and lines exist only while F2 is enabled. Core regression
+  coverage proves all offsets stay inside the capsule footprint, every query remains finite, and
+  their maximum exactly reproduces `PlayerMotion::GroundHeight`.
+- Added `--viewpoint contact`, which keeps the player on the clear jungle path while placing an
+  independent elevated camera 6.5 m away. The new deterministic capture visibly resolves all nine
+  markers instead of accepting counters for geometry hidden beneath a first-person camera. Both
+  overview and detail capture gates require nine samples and at least one support point. The Web
+  live-input gate requires the exact combined contact/audio F2 diagnostic.
+- All 23 native tests pass, including 22 real OpenGL 3.3 scenes. The Chrome 152/SwiftShader WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,352,169 bytes, stripped `libmain.so` is 15,741,472 bytes,
+  and the APK is 33,473,848 bytes. Android runtime appearance remains unqualified without KVM or
+  a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency
+  defect was found.
 
 ## Session-end checklist
 

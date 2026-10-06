@@ -71,6 +71,18 @@ namespace island
         {
             return activeAudioEmitterCount_;
         }
+        [[nodiscard]] int GroundContactSampleCount() const noexcept
+        {
+            return groundContactSampleCount_;
+        }
+        [[nodiscard]] int GroundSupportSampleCount() const noexcept
+        {
+            return groundSupportSampleCount_;
+        }
+        [[nodiscard]] int SteepGroundSampleCount() const noexcept
+        {
+            return steepGroundSampleCount_;
+        }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
@@ -82,6 +94,9 @@ namespace island
         int audioZoneCount_ = 0;
         int audioCandidateCount_ = 0;
         int activeAudioEmitterCount_ = 0;
+        int groundContactSampleCount_ = 0;
+        int groundSupportSampleCount_ = 0;
+        int steepGroundSampleCount_ = 0;
         int lineCount_ = 0;
         int drawCallCount_ = 0;
     };

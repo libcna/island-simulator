@@ -1740,6 +1740,26 @@ int main()
     island::PlayerMotion player;
     player.SetPosition(terrain, 0.0f, 0.0f);
     const island::PlayerPosition start = player.Position();
+    Check(island::PlayerMotion::GroundContactOffsets.size() == 9U,
+          "capsule ground query exposes all nine diagnostic samples");
+    CheckNear(island::PlayerMotion::GroundContactOffsets.front().x, 0.0f, 0.0001f,
+              "capsule ground query begins at the footprint centre x");
+    CheckNear(island::PlayerMotion::GroundContactOffsets.front().z, 0.0f, 0.0001f,
+              "capsule ground query begins at the footprint centre z");
+    float maximumGroundSampleHeight = -std::numeric_limits<float>::infinity();
+    for (const island::PlayerGroundOffset& offset
+         : island::PlayerMotion::GroundContactOffsets) {
+        Check(std::hypot(offset.x, offset.z) <= 1.0001f,
+              "capsule ground sample stays inside the unit footprint");
+        const island::TerrainSample sample = terrain.Sample(
+            start.x + offset.x * island::PlayerMotion::CapsuleRadius,
+            start.z + offset.z * island::PlayerMotion::CapsuleRadius);
+        Check(std::isfinite(sample.height) && std::isfinite(sample.slopeRadians),
+              "capsule diagnostic sample is finite");
+        maximumGroundSampleHeight = std::max(maximumGroundSampleHeight, sample.height);
+    }
+    CheckNear(maximumGroundSampleHeight, player.GroundHeight(), 0.0001f,
+              "capsule diagnostics reproduce the authoritative support height");
     Check(player.GroundHeight() >= terrain.Height(0.0f, 0.0f),
           "capsule footprint resolves at or above its centre terrain height");
     Check(player.Position().y >= player.GroundHeight() + island::PlayerMotion::EyeHeight - 0.0001f,

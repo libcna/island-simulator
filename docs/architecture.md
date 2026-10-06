@@ -380,8 +380,11 @@ collision, cell, player, current-vector, and wildlife markers use an x-ray pass 
 not conceal diagnostic state. Six additional depth-aware contours use the authoritative soundscape
 crossfade distances and terrain height. X-ray markers show the nearest non-dormant bird/monkey
 audio candidates and the exact pooled positional emitter while a call is active. Distance gates
-limit local marker generation, and the complete view still costs two draw submissions.
-`--world-debug` provides a deterministic capture path.
+limit local marker generation. The renderer also consumes the same public nine-point unit offsets
+used by `PlayerMotion`, resamples their authoritative terrain height/slope/normal, rings the points
+that resolve the player's support height, and colours over-limit slopes red. The complete view
+still costs two draw submissions. `--viewpoint contact --world-debug` provides an offset
+deterministic review camera in addition to the overview capture.
 
 The opt-in benchmark path remains game-owned and does not add renderer hooks. `IslandGame` records
 wall-clock intervals between consecutive `Draw` entries after a fixed warm-up, while the
@@ -497,7 +500,8 @@ testing remain open.
   audio focus, sustained performance, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
   exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view
-  now includes ambient zones, wildlife audio candidates, active-emitter marking, and source-budget
-  counts; deeper target/spawn/culling layers and configuration UI remain absent. Eight
+  now includes the exact terrain footprint/normals, ambient zones, wildlife audio candidates,
+  active-emitter marking, and source-budget counts; deeper target/spawn/culling layers and
+  configuration UI remain absent. Eight
   direct QA teleports and deterministic
   bird/fish/shark/monkey close-review cameras are available.

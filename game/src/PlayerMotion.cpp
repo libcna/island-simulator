@@ -3,7 +3,6 @@
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <limits>
 
@@ -36,24 +35,11 @@ namespace island
     PlayerMotion::GroundContact PlayerMotion::SampleGroundContact(
         const IslandTerrain& terrain, const float x, const float z) noexcept
     {
-        constexpr float diagonal = 0.70710678f;
-        constexpr std::array<std::array<float, 2>, 9> offsets = {{
-            {0.0f, 0.0f},
-            {1.0f, 0.0f},
-            {-1.0f, 0.0f},
-            {0.0f, 1.0f},
-            {0.0f, -1.0f},
-            {diagonal, diagonal},
-            {-diagonal, diagonal},
-            {diagonal, -diagonal},
-            {-diagonal, -diagonal},
-        }};
-
         GroundContact contact;
         contact.height = -std::numeric_limits<float>::infinity();
-        for (const auto& offset : offsets) {
-            const TerrainSample sample = terrain.Sample(x + offset[0] * CapsuleRadius,
-                                                        z + offset[1] * CapsuleRadius);
+        for (const PlayerGroundOffset& offset : GroundContactOffsets) {
+            const TerrainSample sample = terrain.Sample(x + offset.x * CapsuleRadius,
+                                                        z + offset.z * CapsuleRadius);
             contact.height = std::max(contact.height, sample.height);
             contact.maximumSlopeRadians = std::max(contact.maximumSlopeRadians,
                                                     sample.slopeRadians);

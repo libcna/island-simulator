@@ -221,6 +221,9 @@ namespace island
                    << " AUDIO " << state.worldDebugAudioZones << '/'
                    << state.worldDebugAudioCandidates << '/'
                    << state.worldDebugActiveAudioEmitters
+                   << " CONTACT " << state.worldDebugGroundSamples << '/'
+                   << state.worldDebugGroundSupports << '/'
+                   << state.worldDebugSteepSamples
                    << " LINES " << state.worldDebugLines
                    << " DRAWS " << state.worldDebugDraws;
         lines.push_back(worldDebug.str());

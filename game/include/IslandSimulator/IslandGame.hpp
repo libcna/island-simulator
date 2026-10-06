@@ -61,6 +61,7 @@ namespace island
         JungleTrail,
         GrassDetail,
         GroundPlantDetail,
+        GroundContactDetail,
         PalmDetail,
         WaterlineDetail,
         CurrentBoundaryDetail,

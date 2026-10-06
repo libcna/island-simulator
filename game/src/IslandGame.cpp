@@ -56,6 +56,7 @@ namespace island
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
+            case FixedViewpoint::GroundContactDetail: return "contact";
             case FixedViewpoint::PalmDetail: return "palms";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
@@ -133,6 +134,18 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::GroundContactDetail) {
+            constexpr float contactZ = 45.0f;
+            const float contactX = VegetationLayout::PrimaryPathCenterX(contactZ);
+            const Vector3 target(contactX, terrain_.Height(contactX, contactZ) + 0.42f,
+                                 contactZ);
+            const float cameraX = contactX - 4.2f;
+            const float cameraZ = contactZ - 5.0f;
+            cameraPosition_ = Vector3(
+                cameraX, terrain_.Height(cameraX, cameraZ) + 3.2f, cameraZ);
+            const Vector3 toContact = target - cameraPosition_;
+            yaw_ = std::atan2(toContact.X, toContact.Z);
+            pitch_ = std::atan2(toContact.Y, std::hypot(toContact.X, toContact.Z));
         } else if (viewpoint_ == FixedViewpoint::GroundPlantDetail
                    && !jungleLayout_.GroundPlants().empty()) {
             const GroundPlantPlacement* selected = nullptr;
@@ -460,7 +473,13 @@ namespace island
         touchOverlay_ = std::make_unique<TouchOverlay>(device);
         waterViewOverlay_ = std::make_unique<WaterViewOverlay>(device);
         worldDebugRenderer_ = std::make_unique<WorldDebugRenderer>(device, terrain_);
-        playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::GroundContactDetail) {
+            constexpr float contactZ = 45.0f;
+            playerMotion_.SetPosition(
+                terrain_, VegetationLayout::PrimaryPathCenterX(contactZ), contactZ);
+        } else {
+            playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
+        }
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
             || viewpoint_ == FixedViewpoint::WaterlineDetail
             || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail;
@@ -513,8 +532,8 @@ namespace island
             std::cout << "island-simulator: debug overlay active\n";
         }
         if (worldDebugVisible_) {
-            std::cout << "island-simulator: world debug visualization active with 6 audio-zone "
-                         "contours and positional-emitter markers\n";
+            std::cout << "island-simulator: world debug visualization active with 9 ground-contact "
+                         "samples, 6 audio-zone contours, and positional-emitter markers\n";
         }
         if (!benchmarkPath_.empty()) {
             std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
@@ -679,7 +698,8 @@ namespace island
             worldDebugVisible_ = !worldDebugVisible_;
             std::cout << "island-simulator: world debug visualization "
                       << (worldDebugVisible_
-                              ? "enabled with 6 audio-zone contours and positional-emitter markers"
+                              ? "enabled with 9 ground-contact samples, 6 audio-zone contours, "
+                                "and positional-emitter markers"
                               : "disabled")
                       << '\n';
         }
@@ -1225,6 +1245,12 @@ namespace island
                     worldDebugRenderer_->AudioCandidateCount();
                 overlayState.worldDebugActiveAudioEmitters =
                     worldDebugRenderer_->ActiveAudioEmitterCount();
+                overlayState.worldDebugGroundSamples =
+                    worldDebugRenderer_->GroundContactSampleCount();
+                overlayState.worldDebugGroundSupports =
+                    worldDebugRenderer_->GroundSupportSampleCount();
+                overlayState.worldDebugSteepSamples =
+                    worldDebugRenderer_->SteepGroundSampleCount();
                 overlayState.worldDebugLines = worldDebugRenderer_->LineCount();
                 overlayState.worldDebugDraws = worldDebugRenderer_->DrawCallCount();
             }
@@ -1314,8 +1340,12 @@ namespace island
                       << ", phase " << waterRippleModel_.Phase() << ", current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
             if (worldDebugVisible_) {
-                std::cout << "island-simulator: world debug frame audio zones "
-                          << worldDebugRenderer_->AudioZoneCount() << ", candidates "
+                std::cout << "island-simulator: world debug frame ground samples "
+                          << worldDebugRenderer_->GroundContactSampleCount() << ", supports "
+                          << worldDebugRenderer_->GroundSupportSampleCount()
+                          << ", steep " << worldDebugRenderer_->SteepGroundSampleCount()
+                          << "; audio zones " << worldDebugRenderer_->AudioZoneCount()
+                          << ", candidates "
                           << worldDebugRenderer_->AudioCandidateCount()
                           << ", active emitters "
                           << worldDebugRenderer_->ActiveAudioEmitterCount() << '\n';
