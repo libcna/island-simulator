@@ -2,6 +2,7 @@
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
+#include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -147,6 +148,42 @@ int main()
     cameraMotion.Reset();
     CheckNear(cameraMotion.MotionStrength(), 0.0f, 0.000001f,
               "camera motion reset clears residual movement strength");
+
+    CheckNear(island::GrassInteractionModel::TargetStrength(0.0f), 0.0f, 0.000001f,
+              "stationary grass interaction retains only the shader's body-radius bend");
+    CheckNear(island::GrassInteractionModel::TargetStrength(-4.0f), 0.0f, 0.000001f,
+              "negative grass interaction speed fails closed");
+    CheckNear(island::GrassInteractionModel::TargetStrength(
+                  std::numeric_limits<float>::quiet_NaN()),
+              0.0f, 0.000001f,
+              "non-finite grass interaction speed fails closed");
+    const float walkingGrassInteraction =
+        island::GrassInteractionModel::TargetStrength(island::PlayerMotion::WalkSpeed);
+    CheckNear(walkingGrassInteraction, 1.0f, 0.000001f,
+              "full walking speed reaches the bounded grass interaction envelope");
+    island::GrassInteractionModel grassInteraction;
+    const float firstGrassInteractionStep = grassInteraction.Update(
+        island::PlayerMotion::WalkSpeed, 1.0f / 60.0f);
+    Check(firstGrassInteractionStep > 0.0f && firstGrassInteractionStep < 1.0f,
+          "grass interaction eases in instead of appearing in one frame");
+    const float beforeLongGrassFrame = grassInteraction.Strength();
+    (void)grassInteraction.Update(island::PlayerMotion::WalkSpeed, 5.0f);
+    Check(grassInteraction.Strength() - beforeLongGrassFrame
+              <= island::GrassInteractionModel::EntryRatePerSecond
+                    * island::GrassInteractionModel::MaximumStepSeconds + 0.000001f,
+          "grass interaction clamps a long frame");
+    grassInteraction.Reset(island::PlayerMotion::WalkSpeed);
+    CheckNear(grassInteraction.Strength(), 1.0f, 0.000001f,
+              "grass interaction reset supports deterministic QA placement");
+    const float beforeInvalidGrassDelta = grassInteraction.Strength();
+    (void)grassInteraction.Update(0.0f, std::numeric_limits<float>::quiet_NaN());
+    CheckNear(grassInteraction.Strength(), beforeInvalidGrassDelta, 0.000001f,
+              "grass interaction rejects a non-finite frame duration safely");
+    for (int frame = 0; frame < 180; ++frame) {
+        (void)grassInteraction.Update(0.0f, 1.0f / 60.0f);
+    }
+    CheckNear(grassInteraction.Strength(), 0.0f, 0.000001f,
+              "grass interaction releases fully after movement stops");
 
     CheckNear(island::WaterViewModel::TargetIntensity(false, -2.0f, 1.0f), 0.0f, 0.000001f,
               "water view remains absent outside swimming mode");

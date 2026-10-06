@@ -58,7 +58,7 @@ Current fields are:
   cells/draw submissions;
 - visible/total rocks, the emergent-reef subset, fallen logs, beach driftwood, fallen palm fronds,
   and shell/pebble clusters plus shared prop cells/draw submissions;
-- visible/total grass clusters, cells, and draw submissions;
+- visible/total grass clusters, cells, draw submissions, and smoothed player-interaction strength;
 - visible/total birds, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
 - visible/total fish, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
 - shark presence, visibility, activity, near/far render LOD, simulation tier, patrol cycles, and

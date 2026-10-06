@@ -87,6 +87,8 @@ layout(location = 5) in vec2 aSlope;
 
 uniform mat4 uViewProjection;
 uniform float uTime;
+uniform vec2 uPlayerPosition;
+uniform float uPlayerInteractionStrength;
 
 out vec3 vColor;
 out vec3 vWorld;
@@ -107,6 +109,22 @@ void main()
         + tangentZ * (localZ * aVariation.y);
 
     float heightWeight = pow(clamp(aWindData.x, 0.0, 1.0), 1.55);
+    vec2 playerOffset = world.xz - uPlayerPosition;
+    float playerDistanceSquared = dot(playerOffset, playerOffset);
+    float interactionStrength = clamp(uPlayerInteractionStrength, 0.0, 1.0);
+    float interactionRadiusSquared = mix(0.3025, 1.8225, interactionStrength);
+    if (playerDistanceSquared < interactionRadiusSquared) {
+        float interaction = (1.0 - smoothstep(0.09, interactionRadiusSquared,
+                                               playerDistanceSquared))
+            * heightWeight;
+        vec2 awayFromPlayer = playerOffset
+            * inversesqrt(max(playerDistanceSquared, 0.01));
+        float pushDistance = mix(0.12, 0.42, interactionStrength);
+        float lowering = mix(0.08, 0.28, interactionStrength);
+        world.xz += awayFromPlayer * interaction * pushDistance * aVariation.x;
+        world.y -= interaction * lowering * aVariation.x;
+    }
+
     float phase = (aWindData.y + aVariation.z) * 6.28318530718;
     float broad = sin(uTime * 0.86 + phase + world.x * 0.031 + world.z * 0.024);
     float detail = sin(uTime * 1.37 + phase * 1.73 - world.x * 0.071 + world.z * 0.063);
@@ -309,7 +327,9 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: grass " << totalPatchCount_
                       << " patches in " << CellCount
-                      << " cells, portable instanced wind shader\n";
+                      << " cells, portable instanced wind shader\n"
+                      << "island-simulator: grass player interaction integrated into the "
+                         "instanced vertex shader\n";
         } else {
             std::cerr << "island-simulator: grass " << totalPatchCount_
                       << " patches, stock-effect fallback: " << fallbackReason_ << '\n';
@@ -402,7 +422,8 @@ void main()
     }
 
     void GrassRenderer::Draw(const Matrix& view, const Matrix& projection,
-                             const Vector3& cameraPosition, const float timeSeconds)
+                             const Vector3& cameraPosition, const Vector3& playerPosition,
+                             const float playerInteractionStrength, const float timeSeconds)
     {
         visiblePatchCount_ = 0;
         visibleCellCount_ = 0;
@@ -419,6 +440,14 @@ void main()
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
+            customEffect_->SetUniformVec2(
+                "uPlayerPosition",
+                std::isfinite(playerPosition.X) ? playerPosition.X : cameraPosition.X,
+                std::isfinite(playerPosition.Z) ? playerPosition.Z : cameraPosition.Z);
+            customEffect_->SetUniformFloat(
+                "uPlayerInteractionStrength",
+                std::isfinite(playerInteractionStrength)
+                    ? std::clamp(playerInteractionStrength, 0.0f, 1.0f) : 0.0f);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
         } else {
             fallbackEffect_->setViewProperty(view);

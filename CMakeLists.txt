@@ -28,6 +28,7 @@ add_library(island_core STATIC
     game/src/DistantSceneryLayout.cpp
     game/src/FirstPersonCameraMotion.cpp
     game/src/FishSchools.cpp
+    game/src/GrassInteractionModel.cpp
     game/src/GrassLayout.cpp
     game/src/IslandTerrain.cpp
     game/src/JungleLayout.cpp
@@ -228,11 +229,23 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGameBeachCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-beach-capture.ppm"
                     --viewpoint beach)
-        set_tests_properties(IslandGameBeachCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameBeachCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "grass player interaction integrated into the instanced vertex shader")
         add_test(NAME IslandGameJungleCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-jungle-capture.ppm"
                     --viewpoint jungle)
         set_tests_properties(IslandGameJungleCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameGrassCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-grass-capture.ppm"
+                    --viewpoint grass)
+        set_tests_properties(IslandGameGrassCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "grass [1-9][0-9]*/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1")
         add_test(NAME IslandGameWaterViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
                     --viewpoint water)

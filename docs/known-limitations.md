@@ -22,9 +22,11 @@ been confirmed so far.
   full underwater fog, a geometric waterline, refraction-like cues, splash particles, and final
   wash/material tuning remain absent.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic
-  variation, wind, culling, and LOD. Contact shadows improve the main trunk/prop/animal classes,
-  but small foliage is intentionally unshadowed; visible transition popping and close-up material
-  simplicity remain.
+  calm wind, and nearby mesh grass now bends around the player's stationary body radius and expands
+  with movement speed. Grass collision/displacement does not persist after the player passes, and
+  close blade shading, LOD blending, biome variation, and physical-device density tuning remain.
+  Contact shadows improve the main trunk/prop/animal classes, but small foliage is intentionally
+  unshadowed; visible transition popping and close-up material simplicity remain.
 - A first portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and
   fixed high cloud suggestion. Terrain, ocean, sky, and contact-shadow projection share one sun
   direction. Five unreachable

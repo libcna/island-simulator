@@ -76,6 +76,7 @@ namespace island
         int totalGrassPatches = 0;
         int grassCells = 0;
         int grassDraws = 0;
+        float grassInteractionStrength = 0.0f;
         int visibleBirds = 0;
         int totalBirds = 0;
         int nearBirds = 0;

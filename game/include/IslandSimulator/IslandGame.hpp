@@ -17,6 +17,7 @@
 #include "IslandSimulator/FishRenderer.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
+#include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleRenderer.hpp"
@@ -58,6 +59,7 @@ namespace island
         Overview,
         BeachPath,
         JungleTrail,
+        GrassDetail,
         WaterlineDetail,
         CurrentBoundaryDetail,
         DistantSceneryDetail,
@@ -123,6 +125,7 @@ namespace island
         WorldCollisionGrid worldCollisionGrid_;
         PlayerMotion playerMotion_;
         FirstPersonCameraMotion cameraMotion_;
+        GrassInteractionModel grassInteractionModel_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
         WaterRippleModel waterRippleModel_;

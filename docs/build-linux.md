@@ -58,6 +58,8 @@ Xwayland runner:
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
 `IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm`.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm`.
+`IslandGameGrassCapture` writes a close first-person grass-interaction view to
+`build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm` and
 requires a nonzero one-draw terrain-contact-shadow batch.
 `IslandGameDriftwoodCapture` writes a close beach-composition view to

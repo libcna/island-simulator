@@ -380,13 +380,19 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Align clusters to authoritative terrain normals without flattening individual blade growth.
 - [~] Add vertex wind with bounded amplitude and coherent gust-free sunny-day motion. The portable
   two-frequency wind path is verified on OpenGL 3.3 and WebGL 2; GLES 3 remains unqualified.
+- [x] Add bounded player interaction without a CPU per-patch update. Nearby blade tips now bend
+  away from a 0.55 m stationary body radius, smoothly expand to 1.35 m at walking speed, and ease
+  back after movement inside the existing portable instanced vertex shader.
 - [~] Implement near/middle/far density and mesh LOD with dither/fade or masked transitions. Near
   and far meshes plus ground-colour distance merging exist; a middle tier and pop-free transition
   still need visual/performance evidence.
 - [~] Cull cells by frustum/distance and batch or instance where CNA's verified path permits. A
   256-cell grid and one hardware-instanced draw per visible cell are verified on native and WebGL 2;
   Android counters and sustained performance remain open.
-- [ ] Test worst-case first-person grass views for aliasing, transparency, overdraw, and frame time.
+- [~] Test worst-case first-person grass views for aliasing, transparency, overdraw, and frame time.
+  A deterministic close grass camera now runs in native and browser suites, verifies the full
+  interaction path, and has a two-repeat native debug-build timing envelope. Transparent-overdraw,
+  sustained movement, release, and physical-mobile measurements remain open.
 
 ### Lighting, sky, distance, and shadows
 
@@ -599,7 +605,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   a stable 1280 by 720 render surface with aspect-preserving CSS scaling; measured density and
   memory tiers remain open.
 - [~] Run the current terrain/ocean/palm/jungle scene in Chromium/SwiftShader with overview, beach,
-  and jungle active-render captures; a visible hardware-accelerated interactive pass and another
+  grass-detail, and jungle active-render captures; the grass view requires the full player-bend
+  strength on the custom shader. A visible hardware-accelerated interactive pass and another
   browser engine remain open.
 - [~] Capture browser console output, `WEBGL2` renderer identity, clean lifecycle, and an
   active-render screenshot. Startup time, memory, and representative frame-time evidence remain.
@@ -659,7 +666,7 @@ Dependencies: representative complete scene on all targets.
   fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, undertow strength,
   played wave/splash counts, positional bird/monkey call counts and voice state, and
   bird/fish/shark/monkey render/simulation statistics plus the five-islet/one-draw distant-scenery
-  status on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
+  status and grass-interaction envelope on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
   obstacle, shared-cell, and wildlife-marker counts. A separate uncapped native benchmark records
   warm mean/median/p95/p99 frame intervals and scene counts; a total backend voice counter remains.
 - [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
@@ -865,10 +872,10 @@ after the same experience remains available.
   bounds, avoidance proposals, and spawn regions remain.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, jungle-trail, natural-prop, driftwood, emergent-reef, near-surface-water,
-  active-current, fallen-frond, distant-horizon, airborne bird-detail, and shallow-water fish views
-  plus offshore-shark and GPU-skinned-monkey views are implemented and used by native/browser
-  captures; free camera and more landmark views remain open.
+  beach-path, grass-interaction detail, jungle-trail, natural-prop, driftwood, emergent-reef,
+  near-surface-water, active-current, fallen-frond, distant-horizon, airborne bird-detail, and
+  shallow-water fish views plus offshore-shark and GPU-skinned-monkey views are implemented and
+  used by native/browser captures; free camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
   warm-up and 600 sampled uncapped intervals with JSON mean/median/p95/p99 output, while
@@ -1922,6 +1929,31 @@ Work next, in order:
   stripped `libmain.so` is 15,687,656 bytes, and the APK is 33,420,032 bytes. Android runtime
   appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime remain
   clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Speed-responsive player grass interaction
+
+- Added a renderer-independent `GrassInteractionModel` that maps authoritative horizontal player
+  speed into a finite, clamped, smoothly entering and releasing 0--1 envelope. Core coverage checks
+  stationary, negative, non-finite, normal-walk, long-frame, deterministic-reset, and release
+  behaviour.
+- Integrated local displacement into the existing instanced grass vertex shader. Blade tips bend
+  radially away and lower slightly within a radius that grows from 0.55 m while stationary to
+  1.35 m at walking speed. It adds no texture, geometry, draw call, CPU patch search, or persistent
+  trail; the stock-effect fallback deliberately omits the cosmetic bend.
+- Visual review rejected a broad static clearing and retained the small speed-responsive body
+  envelope. A deterministic obstacle- and foliage-cleared `--viewpoint grass` camera now exercises
+  full strength in native and browser captures. F1 and benchmark JSON expose the envelope, and the
+  automated gates require both the custom shader and full QA interaction.
+- Two five-view native repeats retained 81/124/91/26/97 submissions and measured
+  1.2165--1.2169 / 1.7383--1.7462 / 1.3831--1.4192 / 0.8063--0.8162 /
+  1.5090--1.5768 ms mean. Two full-interaction grass-view repeats rendered 2,827 clusters in 126
+  submissions at 1.8014--1.8117 ms mean and 2.2166--2.3616 ms p95.
+- All 20 native tests pass, including 19 real OpenGL 3.3 scenes. The complete Chrome
+  152/WebGL 2 renderer/lifecycle/input/audio-init harness passes and visually matches the native
+  grass composition. The arm64-v8a GLES 3 APK rebuild and app lint pass; WebAssembly is 8,297,201
+  bytes, stripped `libmain.so` is 15,694,160 bytes, and the APK is 33,426,536 bytes. Android
+  runtime appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime
+  remain clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

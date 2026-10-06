@@ -44,7 +44,8 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  float timeSeconds);
+                  const Microsoft::Xna::Framework::Vector3& playerPosition,
+                  float playerInteractionStrength, float timeSeconds);
 
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] int TotalPatchCount() const noexcept { return totalPatchCount_; }

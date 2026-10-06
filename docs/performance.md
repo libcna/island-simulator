@@ -141,13 +141,35 @@ cache more gently than a moving traversal, so a sustained moving-route benchmark
 ### Movement-driven player-ripple follow-up
 
 The player ripple is integrated into the existing ocean fragment shader and therefore adds no
-geometry, texture, or draw submission. A uniform branch skips the distance, spatial-variation,
-and band work
-when its smoothed intensity is zero. Two accelerated repeats of the dedicated water view kept the
-ripple active at 0.984 intensity, tracked the same 112 scene submissions, and measured
+geometry, texture, or draw submission. A uniform branch skips the distance, spatial-variation, and
+band work when its smoothed intensity is zero. Two accelerated repeats of the dedicated water view
+kept the ripple active at 0.984 intensity, tracked the same 112 scene submissions, and measured
 1.6218--1.7052 ms mean, 2.0327--2.4040 ms p95, and 2.3293--2.7735 ms p99. This characterizes the
 complete active-water composition rather than isolating fragment cost; moving-route profiling and
 mobile hardware qualification remain open.
+
+### Speed-responsive player-grass follow-up
+
+The player bend is integrated into the existing instanced grass vertex shader and adds no mesh,
+texture, draw submission, CPU spatial search, or per-patch update. A uniform controls a compact
+distance branch around the authoritative player position; the affected radius grows from 0.55 m
+while stationary to 1.35 m at full walking speed. Two complete five-view repeats produced the
+ranges below. Tracked submissions are unchanged from the preceding contact-shadow baseline, and
+all values remain within its observed debug-build variation.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.2165--1.2169 | 1.3981--1.5291 | 1.7187--2.0135 | 81 | 0 |
+| Beach | 1.7383--1.7462 | 1.9396--2.1243 | 2.3705--2.4842 | 124 | 2,954 |
+| Jungle | 1.3831--1.4192 | 1.6045--1.8176 | 2.0118--2.0770 | 91 | 2,932 |
+| Driftwood/shore detail | 0.8063--0.8162 | 1.1357--1.1382 | 1.3767--1.4487 | 26 | 155 |
+| Monkeys | 1.5090--1.5768 | 1.7521--2.1100 | 2.1391--2.3391 | 97 | 2,946 |
+
+Two repeats of the dedicated full-interaction grass view held strength at 1.0, rendered 2,827
+clusters in 126 tracked submissions, and measured 1.8014--1.8117 ms mean, 2.2166--2.3616 ms p95,
+and 2.5548--2.8423 ms p99. These measurements establish the fixed-camera cost envelope; sustained
+movement, transparent-overdraw inspection, release builds, and physical mobile hardware remain
+open.
 
 ## Measurement rules
 

@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <iostream>
 #include <locale>
+#include <limits>
 #include <numbers>
 #include <stdexcept>
 #include <string>
@@ -53,6 +54,7 @@ namespace island
             case FixedViewpoint::Overview: return "overview";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
+            case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
             case FixedViewpoint::DistantSceneryDetail: return "distant";
@@ -129,6 +131,53 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::GrassDetail
+                   && !grassLayout_.Patches().empty()) {
+            constexpr float targetX = 35.0f;
+            constexpr float targetZ = -170.0f;
+            const GrassPlacement* selected = &grassLayout_.Patches().front();
+            float bestScore = std::numeric_limits<float>::max();
+            for (const GrassPlacement& patch : grassLayout_.Patches()) {
+                if (patch.pathScale) continue;
+                bool clear = true;
+                for (const CircularObstacle& obstacle : worldCollisionGrid_.Obstacles()) {
+                    const float deltaX = patch.x - obstacle.x;
+                    const float deltaZ = patch.z - obstacle.z;
+                    const float clearance = obstacle.radius + 5.0f;
+                    if (deltaX * deltaX + deltaZ * deltaZ < clearance * clearance) {
+                        clear = false;
+                        break;
+                    }
+                }
+                if (!clear) continue;
+                const auto foliageIsClear = [&patch](const auto& placements,
+                                                     const float radius) {
+                    for (const auto& placement : placements) {
+                        const float deltaX = patch.x - placement.x;
+                        const float deltaZ = patch.z - placement.z;
+                        if (deltaX * deltaX + deltaZ * deltaZ < radius * radius) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                if (!foliageIsClear(jungleLayout_.Understory(), 4.0f)
+                    || !foliageIsClear(jungleLayout_.Bushes(), 4.0f)
+                    || !foliageIsClear(jungleLayout_.GroundPlants(), 3.5f)) {
+                    continue;
+                }
+                const float deltaX = patch.x - targetX;
+                const float deltaZ = patch.z - targetZ;
+                const float score = deltaX * deltaX + deltaZ * deltaZ;
+                if (score < bestScore) {
+                    bestScore = score;
+                    selected = &patch;
+                }
+            }
+            cameraPosition_ = Vector3(selected->x, selected->y + PlayerMotion::EyeHeight,
+                                      selected->z);
+            yaw_ = std::atan2(-selected->x, -selected->z);
+            pitch_ = -0.38f;
         } else if (viewpoint_ == FixedViewpoint::WaterlineDetail) {
             constexpr float angle = -std::numbers::pi_v<float> * 0.5f;
             const float radius = terrain_.ShoreRadius(angle) + 18.0f;
@@ -320,6 +369,10 @@ namespace island
         waterRippleModel_.Reset(
             playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), initialRippleSpeed);
+        const float initialGrassSpeed = viewpoint_ == FixedViewpoint::GrassDetail
+            ? 3.2f
+            : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
+        grassInteractionModel_.Reset(initialGrassSpeed);
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
@@ -403,6 +456,10 @@ namespace island
         (void)waterRippleModel_.Update(
             playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), rippleSpeed, deltaSeconds);
+        const float grassInteractionSpeed = viewpoint_ == FixedViewpoint::GrassDetail
+            ? 3.2f
+            : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
+        (void)grassInteractionModel_.Update(grassInteractionSpeed, deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -782,6 +839,8 @@ namespace island
                << "    \"ground_plants\": " << jungleRenderer_->VisibleGroundPlantCount()
                << ",\n"
                << "    \"grass_clusters\": " << grassRenderer_->VisiblePatchCount() << ",\n"
+               << "    \"grass_interaction\": "
+               << grassInteractionModel_.Strength() << ",\n"
                << "    \"rocks\": " << naturalPropRenderer_->VisibleRockCount() << ",\n"
                << "    \"reef_outcrops\": "
                << naturalPropRenderer_->VisibleReefRockCount() << ",\n"
@@ -837,8 +896,11 @@ namespace island
         jungleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                               timeSeconds);
 
-        grassRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                             timeSeconds);
+        const PlayerPosition& grassPlayer = playerMotion_.Position();
+        grassRenderer_->Draw(
+            cameraView_, cameraProjection_, renderCameraPosition_,
+            Vector3(grassPlayer.x, grassPlayer.y, grassPlayer.z),
+            grassInteractionModel_.Strength(), timeSeconds);
 
         palmRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             timeSeconds);
@@ -951,6 +1013,7 @@ namespace island
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
             overlayState.grassDraws = grassRenderer_->DrawCallCount();
+            overlayState.grassInteractionStrength = grassInteractionModel_.Strength();
             overlayState.visibleBirds = birdRenderer_->VisibleBirdCount();
             overlayState.totalBirds = static_cast<int>(birdFlock_.Birds().size());
             overlayState.nearBirds = birdRenderer_->VisibleNearBirdCount();
@@ -1082,7 +1145,9 @@ namespace island
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "
-                      << grassRenderer_->DrawCallCount() << " draws; birds "
+                      << grassRenderer_->DrawCallCount() << " draws, interaction "
+                      << grassInteractionModel_.Strength() << ", custom shader "
+                      << (grassRenderer_->UsesCustomShader() ? 1 : 0) << "; birds "
                       << birdRenderer_->VisibleBirdCount() << '/'
                       << birdFlock_.Birds().size() << " visible (near "
                       << birdRenderer_->VisibleNearBirdCount() << ", far "

@@ -318,9 +318,41 @@ try {
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && beachResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && beachResult.output?.includes("portable instanced wind shader")
+    && beachResult.output?.includes(
+      "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=grass`,
+  }, visualSessionId);
+  let grassResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    grassResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (grassResult.output?.includes("island-simulator: terrain") || grassResult.error) break;
+  }
+  await delay(1000);
+  const completedGrassEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  grassResult = JSON.parse(completedGrassEvaluation.result.value ?? "{}");
+
+  const grassScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const grassScreenshotPath = path.join(buildDirectory, "island-browser-grass.png");
+  await writeFile(grassScreenshotPath, Buffer.from(grassScreenshot.data, "base64"));
+  const grassPassed = grassResult.output?.includes("island-simulator: renderer WEBGL2")
+    && grassResult.output?.includes(
+      "island-simulator: grass player interaction integrated into the instanced vertex shader")
+    && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1/.test(
+      grassResult.output ?? "")
+    && !grassResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=jungle`,
@@ -906,7 +938,7 @@ try {
     && pointerRelocked
     && !inputResult.error;
 
-  const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
+  const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && grassPassed
     && junglePassed && propPassed && driftwoodPassed && reefPassed && waterPassed && currentPassed
     && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
@@ -933,6 +965,11 @@ try {
       passed: beachPassed,
       output: beachResult.output ?? "",
       error: beachResult.error ?? "",
+    },
+    grass: {
+      passed: grassPassed,
+      output: grassResult.output ?? "",
+      error: grassResult.error ?? "",
     },
     jungle: {
       passed: junglePassed,
@@ -1016,6 +1053,7 @@ try {
     console: consoleMessages,
     screenshot: path.basename(screenshotPath),
     beachScreenshot: path.basename(beachScreenshotPath),
+    grassScreenshot: path.basename(grassScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),

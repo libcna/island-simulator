@@ -17,6 +17,7 @@ Those claims still require a stable accelerated emulator or physical device.
 
 The current arm64 package includes the portable procedural sand/soil terrain material, the
 broadleaf jungle with low bushes and forest-floor plants,
+speed-responsive player bending in the instanced mesh grass,
 152 land rocks, 14 emergent reef outcrops, fallen logs, sparse beach driftwood, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, 24 simulated
 procedural birds, eight fish schools,
@@ -33,9 +34,9 @@ positional voice with two bird and two monkey phrases. That package
 builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
-contact-shadow, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,420,032-byte APK with a
-15,687,656-byte stripped `libmain.so` and passed `:app:lintDebug`.
+contact-shadow, grass-interaction, water-ripple, water-view, or audio systems.
+The latest arm64 debug qualification build produced a 33,426,536-byte APK with a
+15,694,160-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

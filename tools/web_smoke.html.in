@@ -33,6 +33,7 @@
       ["input", ["--debug-overlay", "--input-diagnostics"]],
       ["overview", ["--overview"]],
       ["beach", ["--viewpoint", "beach", "--debug-overlay"]],
+      ["grass", ["--viewpoint", "grass", "--debug-overlay"]],
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
       ["props", ["--viewpoint", "props", "--debug-overlay"]],
       ["driftwood", ["--viewpoint", "driftwood", "--debug-overlay"]],

@@ -13,6 +13,8 @@ clusters. Every dense near-island visual layer has spatial culling and appropria
 reduction, while vegetation uses a calm breeze. Five unreachable, haze-softened low islets and 11
 simplified palm silhouettes break up the open-ocean horizon in one intentionally always-present
 portable static batch.
+Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
+walking speed and releases after movement stops, entirely inside the existing instanced shader.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling
@@ -89,8 +91,8 @@ Walking and swimming apply restrained, speed-responsive positional camera motion
 smoothly disable or restore it.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, contact-shadow class/draw statistics, vegetation draw statistics, ambient mix
-levels, player-ripple intensity/phase, player-water gain, wave/splash counts, undertow cue
-strength, and positional bird/monkey call activity.
+levels, grass-interaction strength, player-ripple intensity/phase, player-water gain, wave/splash
+counts, undertow cue strength, and positional bird/monkey call activity.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, wildlife headings, simulation-tier colours, and the active inward-current vector.
@@ -107,7 +109,7 @@ frame-time reports across five fixed scenes; methodology and the initial Linux b
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, four frames, clean shutdown, active overview/beach/jungle/prop/driftwood/reef/water/
-current/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
+current/grass/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse

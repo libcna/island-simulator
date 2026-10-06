@@ -19,7 +19,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │       └── PalmRenderer ─ near/far meshes, cell culling, instancing, and shader wind
       ├── GrassLayout ──────── deterministic density, scale, phase, and colour anchors
       │       │
-      │       └── GrassRenderer ─ near/far blade clusters, cell culling, instancing, and wind
+      │       ├── GrassInteractionModel ─ smoothed player-motion bending strength
+      │       └── GrassRenderer ─ near/far clusters, culling, instancing, wind, and local bending
       ├── JungleLayout ─────── canopy/understory/bush/ground placement and trunk proxies
       │       │
       │       └── JungleRenderer ─ four-layer LOD, culling, instancing, and wind
@@ -214,8 +215,11 @@ visible anchor instances one shared 28-blade near cluster or five-blade far clus
 shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
 independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
 path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
-the far tier into the ground before culling. Native OpenGL 3.3 and WebGL 2 use the portable
-instanced shader; a slower static `BasicEffect` path is retained for unsupported renderers.
+the far tier into the ground before culling. `GrassInteractionModel` eases a normalized envelope
+from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
+expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
+interaction shares every existing instance and draw. Native OpenGL 3.3 and WebGL 2 use the portable
+instanced shader; a slower static `BasicEffect` path remains functional but omits bending.
 
 The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
 2,225 small forest-floor plants. Four

@@ -4,7 +4,7 @@
 
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer lock,
+overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer lock,
 canvas focus, WASD traversal, relative mouse look, the B camera-motion opt-out, F1 input, pointer
 release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering is also toggled
 through browser input. The first click opens
@@ -79,19 +79,21 @@ The test uses headless Chrome with SwiftShader to create a real WebGL 2 context.
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
-beach, jungle, prop, driftwood, reef, near-surface water, offshore-current, fallen-frond,
+beach, grass interaction, jungle, prop, driftwood, reef, near-surface water, offshore-current, fallen-frond,
 distant-horizon, bird, fish, shark, and monkey instances at a
 1280 x 720 viewport. Every scene asserts the
 fixed-sky shader diagnostic. The
 captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`,
+`build-probe/island-browser-grass.png`,
 `build-probe/island-browser-props.png`, `build-probe/island-browser-driftwood.png`,
 `build-probe/island-browser-reef.png`, `build-probe/island-browser-water.png`,
 `build-probe/island-browser-current.png`, `build-probe/island-browser-fronds.png`,
 `build-probe/island-browser-distant.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
-view must report nonzero grass, the jungle view must report nonzero canopy, understory, low bushes,
+view must report nonzero grass; the dedicated grass view must report full smoothed player
+interaction on the custom shader. The jungle view must report nonzero canopy, understory, low bushes,
 and forest-floor plants, the prop view must report visible fallen logs plus a nonzero one-draw
 contact-shadow batch, the driftwood view must
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent
