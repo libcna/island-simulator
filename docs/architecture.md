@@ -378,8 +378,10 @@ awareness produces a brief non-hostile retreat. The shared wildlife activation p
 distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, three pairs of near/far
 silhouette meshes, four coordinated body/face palettes, and idle, observe, walk, and run clips; one
 CNA `AnimationPlayer` per agent supplies palettes to the portable `SkinnedEffect`. Near monkeys add
-light muzzle/ear and eye passes for facial readability, while far monkeys remain one draw each.
-Mesh selection does not change the per-agent draw count. The troop copies the player's palm,
+a light upper-face mask plus muzzle/ear detail in one pass and surface-visible eye/nose geometry in
+a second. Dark eyes use a restrained glossy response. The shared buffers add 86 vertices and 122
+triangles per visible near monkey, without another draw; far monkeys remain one draw each. Mesh
+selection does not otherwise change the per-agent draw count. The troop copies the player's palm,
 broadleaf, solid-rock, and
 fallen-log circular proxies once at world construction. Spawn, target, and movement queries retain
 a 0.32 m body clearance; blocked agents try bounded alternating lateral headings and then choose a

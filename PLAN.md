@@ -1012,8 +1012,9 @@ Work next, in order:
    subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
-   shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
-   fish, and shark layers under subjective observation during play.
+   shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
+   are complete first passes. Keep bird, fish, and shark layers under subjective observation during
+   play.
 3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
    paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
@@ -2956,6 +2957,27 @@ Work next, in order:
   Physical Android playback and the subjective 20-minute headphone/speaker route remain open.
 - The world fingerprint remains `d83ecd714e10fc9f`. CNA and Sharp Runtime were not modified, and no
   dependency defect was found.
+
+### 2026-10-06 — Surface-visible monkey face and shade readability
+
+- Inspected a fresh deterministic native monkey capture and found that the nominal eye geometry
+  sat behind the front surface of the head. The eye draw call existed, but the eyes were effectively
+  inside the procedural skull. This was game-side mesh placement, not a CNA skinning defect.
+- Added a shallow light upper-face mask to the existing face buffer, moved both eyes forward while
+  keeping their backs embedded, and added a restrained dark nose to the existing eye-detail buffer.
+  The dark eye material receives a modest glossy response, and all four body/face palettes are
+  slightly brighter so shaded animals remain distinct from brown trunks. The accepted native
+  close-up shows the mask, one profile eye, muzzle, and nose without intersection or z-fighting.
+- The shared near-detail buffers add 86 vertices and 122 triangles per visible near monkey. There
+  are no new textures, instances, animation bones, effects, active agents, or draw calls; all far
+  meshes and the 92 m near/far threshold are unchanged.
+- The native suite passes 37/37 in 82.73 seconds under shared game/browser load, including 29 real
+  OpenGL scenes and real X11 input. The complete Chrome 152/SwiftShader WebGL 2 harness passes all
+  22 stages and renders two near / one far monkey through the seven-draw existing path. The arm64
+  GLES 3 target builds, application lint passes, the 33,582,736-byte APK assembles, and its stripped
+  library is 15,850,360 bytes; WebAssembly is 8,435,697 bytes. Android appearance remains
+  unqualified without stable hardware/KVM execution.
+- CNA and Sharp Runtime were not modified, and no dependency defect was found.
 
 ## Session-end checklist
 

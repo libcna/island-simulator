@@ -463,6 +463,8 @@ namespace island
         [[nodiscard]] MeshData CreateFaceMesh()
         {
             MeshData mesh;
+            AddEllipsoid(mesh, Vector3(0.0f, 1.332f, 0.225f),
+                         Vector3(0.16f, 0.105f, 0.045f), Head, 5, 8);
             AddEllipsoid(mesh, Vector3(0.0f, 1.215f, 0.218f),
                          Vector3(0.176f, 0.116f, 0.151f), Head, 5, 8);
             AddEllipsoid(mesh, Vector3(-0.216f, 1.32f, 0.047f),
@@ -475,10 +477,12 @@ namespace island
         [[nodiscard]] MeshData CreateEyeMesh()
         {
             MeshData mesh;
-            AddEllipsoid(mesh, Vector3(-0.073f, 1.342f, 0.207f),
-                         Vector3(0.026f, 0.032f, 0.026f), Head, 3, 6);
-            AddEllipsoid(mesh, Vector3(0.073f, 1.342f, 0.207f),
-                         Vector3(0.026f, 0.032f, 0.026f), Head, 3, 6);
+            AddEllipsoid(mesh, Vector3(-0.073f, 1.342f, 0.265f),
+                         Vector3(0.027f, 0.033f, 0.025f), Head, 3, 6);
+            AddEllipsoid(mesh, Vector3(0.073f, 1.342f, 0.265f),
+                         Vector3(0.027f, 0.033f, 0.025f), Head, 3, 6);
+            AddEllipsoid(mesh, Vector3(0.0f, 1.205f, 0.370f),
+                         Vector3(0.055f, 0.036f, 0.025f), Head, 3, 7);
             return mesh;
         }
 
@@ -571,15 +575,19 @@ namespace island
         }
 
         const std::array<Vector3, 4> MonkeyColors = {
-            Vector3(0.30f, 0.20f, 0.13f),
-            Vector3(0.39f, 0.27f, 0.17f),
-            Vector3(0.24f, 0.18f, 0.14f),
-            Vector3(0.46f, 0.32f, 0.20f)};
+            Vector3(0.34f, 0.23f, 0.15f),
+            Vector3(0.43f, 0.30f, 0.19f),
+            Vector3(0.29f, 0.21f, 0.16f),
+            Vector3(0.50f, 0.35f, 0.22f)};
         const std::array<Vector3, 4> FaceColors = {
-            Vector3(0.62f, 0.46f, 0.30f),
-            Vector3(0.70f, 0.53f, 0.34f),
-            Vector3(0.53f, 0.39f, 0.28f),
-            Vector3(0.74f, 0.56f, 0.36f)};
+            Vector3(0.68f, 0.51f, 0.34f),
+            Vector3(0.76f, 0.59f, 0.39f),
+            Vector3(0.60f, 0.46f, 0.33f),
+            Vector3(0.80f, 0.63f, 0.42f)};
+        const Vector3 FurSpecularColor(0.04f, 0.04f, 0.035f);
+        const Vector3 EyeSpecularColor(0.42f, 0.37f, 0.28f);
+        constexpr float FurSpecularPower = 8.0f;
+        constexpr float EyeSpecularPower = 28.0f;
     }
 
     struct MonkeyRenderer::PlaybackState
@@ -664,8 +672,8 @@ namespace island
         effect_->setWeightsPerVertexProperty(1);
         effect_->setTextureProperty(whiteTexture_.get());
         effect_->setAmbientLightColorProperty(Vector3(0.47f, 0.50f, 0.42f));
-        effect_->setSpecularColorProperty(Vector3(0.04f, 0.04f, 0.035f));
-        effect_->setSpecularPowerProperty(8.0f);
+        effect_->setSpecularColorProperty(FurSpecularColor);
+        effect_->setSpecularPowerProperty(FurSpecularPower);
         effect_->setFogEnabledProperty(true);
         effect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
         effect_->setFogStartProperty(210.0f);
@@ -795,11 +803,15 @@ namespace island
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               faceVertexCount_, 0, facePrimitiveCount_);
                 effect_->setDiffuseColorProperty(Vector3(0.025f, 0.022f, 0.018f));
+                effect_->setSpecularColorProperty(EyeSpecularColor);
+                effect_->setSpecularPowerProperty(EyeSpecularPower);
                 device_.SetVertexBuffer(eyeVertices_.get());
                 device_.setIndicesProperty(eyeIndices_.get());
                 effect_->Apply();
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               eyeVertexCount_, 0, eyePrimitiveCount_);
+                effect_->setSpecularColorProperty(FurSpecularColor);
+                effect_->setSpecularPowerProperty(FurSpecularPower);
                 drawCallCount_ += 2;
             }
             ++visibleMonkeyCount_;
