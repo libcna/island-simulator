@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
@@ -702,6 +703,44 @@ int main()
           "display resize safely re-anchors an active movement contact");
 
     const island::IslandTerrain terrain;
+
+    const island::DistantSceneryLayout distantScenery;
+    const island::DistantSceneryLayout repeatedDistantScenery;
+    Check(distantScenery.Islets().size() == island::DistantSceneryLayout::IsletCount,
+          "distant scenery keeps its intentionally small bounded population");
+    for (std::size_t index = 0; index < distantScenery.Islets().size(); ++index) {
+        const island::DistantIsletPlacement& islet = distantScenery.Islets()[index];
+        const island::DistantIsletPlacement& repeated = repeatedDistantScenery.Islets()[index];
+        Check(islet.x == repeated.x && islet.z == repeated.z
+                  && islet.radiusX == repeated.radiusX
+                  && islet.radiusZ == repeated.radiusZ
+                  && islet.height == repeated.height
+                  && islet.yawRadians == repeated.yawRadians
+                  && islet.variant == repeated.variant,
+              "distant scenery placement is exactly deterministic");
+        Check(std::hypot(islet.x, islet.z) >= 570.0f,
+              "distant islets remain far beyond the playable island");
+        Check(terrain.SignedShoreDistance(islet.x, islet.z)
+                  < -(island::PlayerMotion::SafetyDistance + 150.0f),
+              "distant islets remain well beyond the swimming safety boundary");
+        Check(std::abs(islet.x) + islet.radiusX
+                      < island::OceanMeshLayout::Extent - 20.0f
+                  && std::abs(islet.z) + islet.radiusZ
+                      < island::OceanMeshLayout::Extent - 20.0f,
+              "distant islets remain inside the finite ocean surface");
+        Check(islet.radiusX >= 24.0f && islet.radiusX <= 42.0f
+                  && islet.radiusZ >= 17.0f && islet.radiusZ <= 29.0f
+                  && islet.height >= 5.9f && islet.height <= 10.5f
+                  && islet.variant < island::DistantSceneryLayout::VariantCount,
+              "distant islet dimensions and variants stay within the authored low silhouette");
+        for (std::size_t other = index + 1U;
+             other < distantScenery.Islets().size(); ++other) {
+            const island::DistantIsletPlacement& neighbour = distantScenery.Islets()[other];
+            Check(std::hypot(islet.x - neighbour.x, islet.z - neighbour.z)
+                      > islet.radiusX + neighbour.radiusX + 20.0f,
+                  "distant islet silhouettes remain clearly separated on the horizon");
+        }
+    }
 
     Check(island::WildlifeActivationPolicy::Classify(25.0f, 100.0f, 250.0f)
               == island::WildlifeSimulationTier::Full,

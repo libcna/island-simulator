@@ -31,6 +31,8 @@ namespace island
         int waterViewDraws = 0;
         int visibleTerrainCells = 0;
         int totalTerrainCells = 0;
+        int distantIslets = 0;
+        int distantSceneryDraws = 0;
         int visiblePalms = 0;
         int totalPalms = 0;
         int nearPalms = 0;

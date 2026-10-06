@@ -26,6 +26,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── NaturalPropLayout ── land/reef rock and fallen-dressing placement plus solid proxies
       │       │
       │       └── NaturalPropRenderer ─ rock/log/frond meshes, LOD, culling, and instancing
+      ├── DistantSceneryLayout ─ deterministic unreachable horizon-islet composition
+      │       │
+      │       └── DistantSceneryRenderer ─ fogged low-poly rocks/palms in one static batch
       ├── BirdFlock ───────── deterministic shore/canopy/high flight and simulation tiers
       │       │
       │       └── BirdRenderer ─ CPU wing pose, near/far meshes, culling, one dynamic batch
@@ -57,7 +60,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 
 `IslandTerrain`, `PlayerMotion`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
-`NaturalPropLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
+`NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `TouchControls`, and
 `SoundscapeModel` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
@@ -127,7 +130,7 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
-   state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, the
+   state, then submits opaque terrain, distant scenery, natural props, broadleaf jungle, mesh grass, palms, the
    one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
    monkeys, and transparent ocean using one view/projection pair. Aquatic wildlife is submitted
    before water so ocean transparency colours and reveals it. The near-surface veil follows the
@@ -164,6 +167,14 @@ has portable 16-bit indices and an independent bounding box for frustum rejectio
 sample coordinates prevent cracks. Fixed daylight is currently baked into procedural terrain and
 palm vertex colours. Terrain, ocean, and sky share one project-owned fixed sun direction so the
 surface lighting, water glint, and visible sun cannot silently diverge.
+
+`DistantSceneryLayout` places five low islets at least 570 m from the island centre, outside every
+player-accessible ocean boundary but within the 850 m ocean surface. `DistantSceneryRenderer`
+combines their irregular rock ridges and 11 simplified trunk/frond/crown silhouettes into one
+2,361-vertex, 787-triangle opaque `BasicEffect` batch. Fog from 260 to 790 m merges the muted
+palette into the horizon; the later transparent ocean pass visually covers the low bases. The
+layout is deterministic and renderer-independent, while the rendering path uses no texture,
+custom shader, instancing requirement, or modern-only feature.
 
 `SkyRenderer` draws a camera-centred 900 m sphere before world geometry. Its GLSL 330 / GLSL ES
 300 fragment shader combines a horizon-to-zenith tropical gradient, warm sun disc and halo, and
@@ -392,6 +403,9 @@ testing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
+- The first distant-scenery layer provides five fogged low islets and 11 simplified palms in one
+  portable batch. Its silhouette variety is deliberately restrained; unified world haze, richer
+  mid-distance composition, and final horizon balance remain open.
 - Collision uses a static 16 m spatial grid over every palm, canopy-trunk, solid-rock, and sampled
   log proxy. Exact narrow-phase circle checks preserve the original result; dynamic obstacles,
   geometric step-up, and depenetration remain absent.

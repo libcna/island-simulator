@@ -48,6 +48,7 @@ Current fields are:
 - local collision broad-phase candidates versus the complete static obstacle population;
 - active renderer identity;
 - visible/total terrain cells;
+- fixed distant-scenery islet count and its single draw submission;
 - visible/total palms, near/far LOD population, cells, and draw submissions;
 - visible/total broadleaf canopy, understory, low-bush, and forest-floor populations plus
   cells/draw submissions;
@@ -98,6 +99,7 @@ build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
 build/island-simulator --capture /tmp/island-reef.ppm --viewpoint reef
 build/island-simulator --capture /tmp/island-water.ppm --viewpoint water
 build/island-simulator --capture /tmp/island-current.ppm --viewpoint current
+build/island-simulator --capture /tmp/island-distant.ppm --viewpoint distant
 build/island-simulator --capture /tmp/island-birds.ppm --viewpoint birds
 build/island-simulator --capture /tmp/island-fish.ppm --viewpoint fish
 build/island-simulator --capture /tmp/island-shark.ppm --viewpoint shark
@@ -108,7 +110,7 @@ build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overvie
 
 These runs render four frames and exit, except the monkey capture waits 24 frames for the startup
 crossfades to settle. The WebGL 2 harness writes corresponding overview, beach,
-jungle, prop, driftwood, reef, water, current, frond, bird, fish, shark, and monkey PNG captures plus a JSON report under
+jungle, prop, driftwood, reef, water, current, frond, distant, bird, fish, shark, and monkey PNG captures plus a JSON report under
 `build-probe/`. Captures prove
 initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input

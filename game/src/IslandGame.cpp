@@ -55,6 +55,7 @@ namespace island
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
+            case FixedViewpoint::DistantSceneryDetail: return "distant";
             case FixedViewpoint::PropDetail: return "props";
             case FixedViewpoint::DriftwoodDetail: return "driftwood";
             case FixedViewpoint::ReefDetail: return "reef";
@@ -142,6 +143,13 @@ namespace island
                                       std::sin(angle) * radius);
             yaw_ = std::atan2(-cameraPosition_.X, -cameraPosition_.Z);
             pitch_ = -0.015f;
+        } else if (viewpoint_ == FixedViewpoint::DistantSceneryDetail) {
+            constexpr float cameraZ = -214.0f;
+            cameraPosition_ = Vector3(0.0f, terrain_.Height(0.0f, cameraZ)
+                                                + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            yaw_ = std::numbers::pi_v<float>;
+            pitch_ = -0.005f;
         } else if (viewpoint_ == FixedViewpoint::PropDetail
                    && !naturalPropLayout_.FallenLogs().empty()) {
             const FallenLogPlacement& log = naturalPropLayout_.FallenLogs().front();
@@ -279,6 +287,8 @@ namespace island
     {
         auto& device = getGraphicsDeviceProperty();
         terrainRenderer_ = std::make_unique<TerrainRenderer>(device, terrain_);
+        distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
+            device, distantSceneryLayout_);
         birdRenderer_ = std::make_unique<BirdRenderer>(device);
         fishRenderer_ = std::make_unique<FishRenderer>(device);
         sharkRenderer_ = std::make_unique<SharkRenderer>(device);
@@ -694,6 +704,7 @@ namespace island
         const int trackedSceneDraws = 2 + terrainRenderer_->VisibleCellCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
+            + distantSceneryRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
             + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
@@ -728,6 +739,8 @@ namespace island
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
                << "    \"terrain_cells\": " << terrainRenderer_->VisibleCellCount() << ",\n"
+               << "    \"distant_islets\": "
+               << distantSceneryRenderer_->IsletCount() << ",\n"
                << "    \"palms\": " << palmRenderer_->VisiblePalmCount() << ",\n"
                << "    \"canopy\": " << jungleRenderer_->VisibleCanopyCount() << ",\n"
                << "    \"understory\": " << jungleRenderer_->VisibleUnderstoryCount() << ",\n"
@@ -775,6 +788,7 @@ namespace island
         device.setBlendStateProperty(BlendState::Opaque);
         device.setDepthStencilStateProperty(DepthStencilState::Default);
         terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        distantSceneryRenderer_->Draw(cameraView_, cameraProjection_);
 
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
@@ -841,6 +855,8 @@ namespace island
             overlayState.waterViewDraws = waterViewOverlay_->DrawCallCount();
             overlayState.visibleTerrainCells = terrainRenderer_->VisibleCellCount();
             overlayState.totalTerrainCells = terrainRenderer_->TotalCellCount();
+            overlayState.distantIslets = distantSceneryRenderer_->IsletCount();
+            overlayState.distantSceneryDraws = distantSceneryRenderer_->DrawCallCount();
             overlayState.visiblePalms = palmRenderer_->VisiblePalmCount();
             overlayState.totalPalms = palmRenderer_->TotalPalmCount();
             overlayState.nearPalms = palmRenderer_->VisibleNearPalmCount();
@@ -1021,7 +1037,10 @@ namespace island
                       << monkeyRenderer_->DrawCallCount() << " draws, blends "
                       << monkeyRenderer_->ActiveCrossfadeCount() << '/'
                       << monkeyRenderer_->CompletedCrossfadeCount()
-                      << " active/completed; water view " << waterViewModel_.Intensity()
+                      << " active/completed; distant "
+                      << distantSceneryRenderer_->IsletCount() << " islets, "
+                      << distantSceneryRenderer_->DrawCallCount()
+                      << " draw; water view " << waterViewModel_.Intensity()
                       << ", " << waterViewOverlay_->DrawCallCount() << " draw, current "
                       << playerMotion_.OceanCurrentStrength(terrain_) << '\n';
         }

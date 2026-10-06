@@ -4,8 +4,8 @@
 
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach/jungle/prop/driftwood/reef/water/current rendering, first-click pointer lock, canvas focus, WASD
-traversal, relative mouse look, the B camera-motion opt-out, F1 input, pointer
+overview/beach/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer lock,
+canvas focus, WASD traversal, relative mouse look, the B camera-motion opt-out, F1 input, pointer
 release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering is also toggled
 through browser input. The first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
@@ -78,8 +78,8 @@ The test uses headless Chrome with SwiftShader to create a real WebGL 2 context.
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
-beach, jungle, prop, driftwood, reef, near-surface water, offshore-current, fallen-frond, bird,
-fish, shark, and monkey instances at a
+beach, jungle, prop, driftwood, reef, near-surface water, offshore-current, fallen-frond,
+distant-horizon, bird, fish, shark, and monkey instances at a
 1280 x 720 viewport. Every scene asserts the
 fixed-sky shader diagnostic. The
 captures are saved as `build-probe/island-browser-smoke.png`,
@@ -87,6 +87,7 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-props.png`, `build-probe/island-browser-driftwood.png`,
 `build-probe/island-browser-reef.png`, `build-probe/island-browser-water.png`,
 `build-probe/island-browser-current.png`, `build-probe/island-browser-fronds.png`,
+`build-probe/island-browser-distant.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
 view must report nonzero grass, the jungle view must report nonzero canopy, understory, low bushes,
@@ -94,8 +95,8 @@ and forest-floor plants, the prop view must report visible fallen logs, the drif
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent
 outcrop, the water view must report a nonzero procedural veil and exactly one overlay draw, the
 current view must additionally report nonzero normalized current strength, the frond view must
-report visible grove-associated fallen fronds, and the bird/fish views
-must report nonzero
+report visible grove-associated fallen fronds, the distant view must report all five unreachable
+islets in exactly one portable batch, and the bird/fish views must report nonzero
 visible populations from the 24-agent flock and 48-agent school population, the shark view must
 report the active offshore patrol, and the monkey view must report a visible member of the
 seven-agent GPU-skinned troop. The

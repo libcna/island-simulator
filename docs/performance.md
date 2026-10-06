@@ -101,6 +101,22 @@ normalized current 0.741. They measured 1.4501--1.4756 ms mean, 1.6750--1.8775 m
 1.8992--2.2975 ms p99. As above, these numbers characterize that fixed composition rather than an
 isolated tint cost.
 
+### Distant-scenery follow-up
+
+Two complete five-view repeats after adding the five-islet horizon batch produced the ranges
+below. The static 787-triangle batch is always submitted once and therefore adds exactly one
+tracked submission to each earlier composition. The batch also contains 11 simplified palm
+silhouettes and uses stock `BasicEffect` fog; these integrated measurements do not isolate its
+GPU cost. The heaviest beach view remains below 1.9 ms p95 in both repeats.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Tracked submissions |
+| --- | ---: | ---: | ---: | ---: |
+| Overview | 1.2134--1.2276 | 1.3573--1.4903 | 1.5140--1.7895 | 81 |
+| Beach | 1.6756--1.6996 | 1.8311--1.8803 | 2.0788--2.1324 | 123 |
+| Jungle | 1.3706--1.3816 | 1.5448--1.6426 | 2.1831--2.1944 | 90 |
+| Driftwood/shore detail | 0.8084--0.8159 | 1.0957--1.1484 | 1.2494--1.3649 | 25 |
+| Monkeys | 1.4467--1.5199 | 1.5762--1.8300 | 1.6290--2.2619 | 96 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

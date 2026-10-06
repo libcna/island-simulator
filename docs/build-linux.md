@@ -68,6 +68,8 @@ Xwayland runner:
 single conditional draw.
 `IslandGameCurrentViewCapture` writes a 62 m offshore view to
 `build/island-current-capture.ppm` and requires nonzero current-modulated veil feedback.
+`IslandGameDistantSceneryCapture` writes the south-horizon composition to
+`build/island-distant-capture.ppm` and requires five islets in one scenery draw.
 `IslandGameFallenFrondCapture` writes a close dry-beach/palm-grove transition view to
 `build/island-frond-capture.ppm`.
 `IslandGameBirdCapture` writes a close airborne wildlife view to

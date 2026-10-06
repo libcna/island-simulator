@@ -313,8 +313,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   and steeper interior ground exposes a muted soil tint. Authored biome masks, decals, rock strata,
   leaf litter, and final colour/scale tuning remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
-  Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter; grouped
-  banks and distant low-cost features remain.
+  Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
+  unreachable haze-softened low islets with 11 simplified palm silhouettes now break up the
+  open-ocean horizon in one static batch; grouped shallow banks remain.
 - [ ] Keep routes traversable and provide alternating enclosed/revealing views.
 
 ### Ocean and shoreline
@@ -394,12 +395,17 @@ Dependencies: stable terrain/shore queries and representative performance instru
   A camera-centred sphere with explicit GLSL 330 / GLSL ES 300 shaders, static high wisps, and a
   stock-effect gradient fallback is visually verified on OpenGL 3.3 and actual WebGL 2. The
   sky-inclusive GLES 3 package compiles, but stable Android runtime qualification remains open.
-- [ ] Add distance haze/fog that enlarges perceived scale without washing out nearby jungle.
+- [~] Add distance haze/fog that enlarges perceived scale without washing out nearby jungle. The
+  distant-scenery batch now uses restrained 260--790 m `BasicEffect` fog; unified world haze and
+  near/middle-distance atmospheric tuning remain.
 - [ ] Evaluate one bounded directional shadow solution or baked/vertex alternatives on all targets.
 - [~] Provide contact/grounding cues for palms, rocks, props, and animals even when shadows degrade.
   Near-tier palms have procedural root wedges; shadow/ambient-occlusion alternatives and all other
   object classes remain open.
-- [ ] Add distant low-cost scenery and vegetation cards/meshes without exposing the world edge.
+- [x] Add distant low-cost scenery and vegetation cards/meshes without exposing the world edge.
+  Five deterministic islets stay beyond the player's 92 m offshore safety region, remain inside
+  the 850 m ocean surface, and combine 787 opaque triangles plus 11 palm silhouettes in one
+  portable fogged draw.
 
 Exit validation:
 
@@ -645,7 +651,8 @@ Dependencies: representative complete scene on all targets.
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
   fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
   counts, positional bird/monkey call counts and voice state, and bird/fish/shark/monkey
-  render/simulation statistics on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
+  render/simulation statistics plus the five-islet/one-draw distant-scenery status on OpenGL 3.3
+  and WebGL 2. F2 also reports world-line, nearby
   obstacle, shared-cell, and wildlife-marker counts. A separate uncapped native benchmark records
   warm mean/median/p95/p99 frame intervals and scene counts; a total backend voice counter remains.
 - [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
@@ -827,10 +834,11 @@ after the same experience remains available.
 ## Debug and developer tooling backlog
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
-  frame spacing, player/shore/current/water-view state, renderer, terrain/vegetation visibility, LOD counts,
-  draws, bird/fish/shark/monkey render LOD and simulation tiers, shark presence/activity, monkey
-  state counts, plus audio mix/event counters. The F2 world view and deterministic capture now add
-  boundary/collision/cell/wildlife markers; warning budgets and deeper views remain open.
+  frame spacing, player/shore/current/water-view state, renderer, terrain/vegetation visibility,
+  distant scenery, LOD counts, draws, bird/fish/shark/monkey render LOD and simulation tiers,
+  shark presence/activity, monkey state counts, plus audio mix/event counters. The F2 world view
+  and deterministic capture now add boundary/collision/cell/wildlife markers; warning budgets and
+  deeper views remain open.
 - [ ] Deterministic seed display/copy.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
   South beach, jungle trail, two clearings, fish shallows, offshore shark, and monkey troop are
@@ -847,9 +855,8 @@ after the same experience remains available.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, jungle-trail, natural-prop, driftwood, emergent-reef, near-surface-water,
-  active-current,
-  fallen-frond, airborne bird-detail, and shallow-water fish views plus offshore-shark and
-  GPU-skinned-monkey views are implemented and used by native/browser
+  active-current, fallen-frond, distant-horizon, airborne bird-detail, and shallow-water fish views
+  plus offshore-shark and GPU-skinned-monkey views are implemented and used by native/browser
   captures; free camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
@@ -1806,6 +1813,30 @@ Work next, in order:
   device. Two accelerated current-view benchmark repeats tracked 91 submissions and measured
   1.4501--1.4756 ms mean, 1.6750--1.8775 ms p95, and 1.8992--2.2975 ms p99. CNA and Sharp Runtime
   remain clean and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Portable distant tropical horizon scenery
+
+- Added five deterministic low islets between 570 m and 665 m from the island centre, safely
+  beyond the player's 92 m offshore boundary and inside the 850 m ocean extent. Core coverage
+  locks exact repeatability, shore-safety margin, ocean containment, dimensions, variants, and
+  inter-islet separation.
+- Added one static 2,361-vertex/787-triangle `BasicEffect` batch combining asymmetric low rock
+  ridges with 11 simplified palm silhouettes. Restrained 260--790 m fog merges the muted palette
+  into the horizon, while the later transparent ocean pass covers the low bases. The layer uses
+  no texture, external asset, custom shader, instancing dependency, or modern-only GPU feature.
+- Rejected the first overly smooth, undersized silhouette and iterated ridge asymmetry, scale,
+  frond width, and filled crown hubs until the two-islet south-beach composition remained readable
+  without competing with the explorable island. Native OpenGL 3.3 and actual Chrome 152/WebGL 2
+  captures visually match. A dedicated `--viewpoint distant` camera and native/browser gates
+  require all five islets and exactly one draw.
+- All 19 native tests pass, including 18 real OpenGL 3.3 scenes. The full browser renderer,
+  lifecycle, input, and audio-initialization harness passes. The arm64-v8a GLES 3 APK rebuilds and
+  app lint passes; stripped `libmain.so` is 15,650,040 bytes and the APK is 33,382,416 bytes.
+  Android appearance remains unqualified without KVM or a physical device.
+- Two five-view accelerated benchmark repeats show the scenery adds exactly one tracked submission
+  to every scene: 81/123/90/25/96. The heaviest beach view measures 1.6756--1.6996 ms mean and
+  1.8311--1.8803 ms p95. CNA and Sharp Runtime remain clean and unmodified; no dependency defect
+  was found.
 
 ## Session-end checklist
 

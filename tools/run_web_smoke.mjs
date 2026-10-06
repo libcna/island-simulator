@@ -131,6 +131,8 @@ try {
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && result.output?.includes(
+      "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
@@ -507,6 +509,38 @@ try {
     && !currentResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=distant`,
+  }, visualSessionId);
+  let distantResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    distantResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (distantResult.output?.includes("island-simulator: terrain")
+        || distantResult.error) break;
+  }
+  await delay(1000);
+  const completedDistantEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  distantResult = JSON.parse(completedDistantEvaluation.result.value ?? "{}");
+
+  const distantScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const distantScreenshotPath = path.join(buildDirectory, "island-browser-distant.png");
+  await writeFile(distantScreenshotPath, Buffer.from(distantScreenshot.data, "base64"));
+  const distantPassed = distantResult.output?.includes("island-simulator: renderer WEBGL2")
+    && distantResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && distantResult.output?.includes(
+      "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
+    && /distant 5 islets, 1 draw/.test(distantResult.output ?? "")
+    && !distantResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=fronds`,
   }, visualSessionId);
   let frondResult = {};
@@ -866,7 +900,7 @@ try {
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
     && junglePassed && propPassed && driftwoodPassed && reefPassed && waterPassed && currentPassed
-    && frondPassed
+    && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
@@ -922,6 +956,11 @@ try {
       output: currentResult.output ?? "",
       error: currentResult.error ?? "",
     },
+    distant: {
+      passed: distantPassed,
+      output: distantResult.output ?? "",
+      error: distantResult.error ?? "",
+    },
     fronds: {
       passed: frondPassed,
       output: frondResult.output ?? "",
@@ -975,6 +1014,7 @@ try {
     reefScreenshot: path.basename(reefScreenshotPath),
     waterScreenshot: path.basename(waterScreenshotPath),
     currentScreenshot: path.basename(currentScreenshotPath),
+    distantScreenshot: path.basename(distantScreenshotPath),
     frondScreenshot: path.basename(frondScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),

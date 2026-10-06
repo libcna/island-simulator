@@ -11,6 +11,8 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
 #include "IslandSimulator/DebugOverlay.hpp"
+#include "IslandSimulator/DistantSceneryLayout.hpp"
+#include "IslandSimulator/DistantSceneryRenderer.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
@@ -56,6 +58,7 @@ namespace island
         JungleTrail,
         WaterlineDetail,
         CurrentBoundaryDetail,
+        DistantSceneryDetail,
         PropDetail,
         DriftwoodDetail,
         ReefDetail,
@@ -106,6 +109,7 @@ namespace island
 
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
+        DistantSceneryLayout distantSceneryLayout_;
         BirdFlock birdFlock_;
         FishSchools fishSchools_;
         SharkPatrol sharkPatrol_;
@@ -122,6 +126,7 @@ namespace island
         WaterViewModel waterViewModel_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
+        std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
         std::unique_ptr<FishRenderer> fishRenderer_;
         std::unique_ptr<GrassRenderer> grassRenderer_;
         std::unique_ptr<JungleRenderer> jungleRenderer_;

@@ -39,6 +39,7 @@
       ["reef", ["--viewpoint", "reef", "--debug-overlay"]],
       ["water", ["--viewpoint", "water", "--debug-overlay"]],
       ["current", ["--viewpoint", "current", "--debug-overlay"]],
+      ["distant", ["--viewpoint", "distant", "--debug-overlay"]],
       ["fronds", ["--viewpoint", "fronds", "--debug-overlay"]],
       ["birds", ["--viewpoint", "birds", "--debug-overlay"]],
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],

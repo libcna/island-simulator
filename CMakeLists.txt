@@ -25,6 +25,7 @@ island_verify_dependencies()
 
 add_library(island_core STATIC
     game/src/BirdFlock.cpp
+    game/src/DistantSceneryLayout.cpp
     game/src/FirstPersonCameraMotion.cpp
     game/src/FishSchools.cpp
     game/src/GrassLayout.cpp
@@ -153,6 +154,7 @@ if(ISLAND_BUILD_GAME)
     set(_island_game_sources
         game/src/BirdRenderer.cpp
         game/src/DebugOverlay.cpp
+        game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
@@ -244,6 +246,13 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*")
+        add_test(NAME IslandGameDistantSceneryCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-distant-capture.ppm"
+                    --viewpoint distant)
+        set_tests_properties(IslandGameDistantSceneryCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION "distant 5 islets, 1 draw")
         add_test(NAME IslandGamePropCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-prop-capture.ppm"
                     --viewpoint props)

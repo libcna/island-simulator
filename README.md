@@ -9,8 +9,10 @@ shore-following foam/wash ribbon,
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152
 irregular land rocks, 14 emergent near-shore reef outcrops, 11 mossy fallen logs,
 28 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field shell/pebble
-clusters. Every visual layer has spatial culling and appropriate distance reduction, while
-vegetation uses a calm breeze.
+clusters. Every dense near-island visual layer has spatial culling and appropriate distance
+reduction, while vegetation uses a calm breeze. Five unreachable, haze-softened low islets and 11
+simplified palm silhouettes break up the open-ocean horizon in one intentionally always-present
+portable static batch.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, a subtle depth-responsive near-surface water veil that cools and strengthens
@@ -29,7 +31,7 @@ water-entry/exit textures. Two bird phrases and two monkey contact phrases share
 voice attached to actual nearby agents. All audio is generated without external sound files. The
 complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
-terrain/palm/grass scene through OpenGL ES 3; the current jungle/prop/sky-inclusive APK builds, but
+terrain/palm/grass scene through OpenGL ES 3; the current complete arm64 APK builds and lints, but
 its runtime and real-device touch feel are not yet qualified.
 
 There are deliberately no quests, combat, inventory, crafting, survival systems, score,
@@ -97,7 +99,7 @@ frame-time reports across five fixed scenes; methodology and the initial Linux b
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, four frames, clean shutdown, active overview/beach/jungle/prop/driftwood/reef/water/
-frond/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
+current/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world

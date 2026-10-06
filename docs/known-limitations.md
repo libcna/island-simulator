@@ -10,7 +10,7 @@ been confirmed so far.
   but the jungle is not final. A first low-bush layer plus rocks, fallen logs, and sparse driftwood
   exist, while small rosette/forest-floor plants, grove-associated fallen palm fronds, and
   near-field shell/pebble clusters improve close ground contact. Bush and ground-plant
-  silhouette/material diversity, broader shell/branch/beach-prop variety, distant scenery, wet
+  silhouette/material diversity, broader shell/branch/beach-prop variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a first texture-free sand/soil, wet-edge, and
   exposed-slope material shader. It still has no authored biome texture blend, decals, broad
@@ -24,8 +24,10 @@ been confirmed so far.
   culling, and LOD, but visible transition popping, close-up material simplicity, and weak
   grounding/contact cues remain.
 - A first portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and
-  fixed high cloud suggestion. Terrain, ocean, and sky share one sun direction. Final fill light,
-  shadows, exposure, richer cloud shaping, and distant atmospheric composition are not complete.
+  fixed high cloud suggestion. Terrain, ocean, and sky share one sun direction. Five unreachable
+  low islets with 11 simplified palm silhouettes now break up the horizon through one fogged
+  portable batch. Final fill light, shadows, exposure, richer cloud shaping, unified world haze,
+  and more varied distant atmospheric composition are not complete.
 
 ## Traversal and interaction
 

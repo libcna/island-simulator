@@ -21,13 +21,15 @@ broadleaf jungle with low bushes and forest-floor plants,
 fronds, 265 near-field shell/pebble clusters, 24 simulated
 procedural birds, eight fish schools,
 one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys, fixed sunny sky,
+five fogged distant islets with 11 simplified palm silhouettes,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player
 water-movement audio, two water entry/exit accents, a procedural near-surface swimming veil with
 offshore-current modulation, and a pooled
 positional voice with two bird and two monkey phrases. That package
 builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
-qualification for the new jungle, prop, bird, fish, shark, monkey, sky, water-view, or audio systems.
+qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
+water-view, or audio systems.
 
 ## Requirements
 
