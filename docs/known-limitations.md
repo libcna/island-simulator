@@ -30,12 +30,13 @@ been confirmed so far.
   tuning remain.
   Contact shadows improve the main trunk/prop/animal classes, but small foliage is intentionally
   unshadowed; visible transition popping and close-up material simplicity remain.
-- A first portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and
-  fixed high cloud suggestion. Terrain, ocean, sky, and contact-shadow projection share one sun
+- A portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and sparse
+  layered high wisps shaped horizontally instead of the earlier conspicuous vertical streaks.
+  Terrain, ocean, sky, and contact-shadow projection share one sun
   direction. Five unreachable
   low islets with 11 simplified palm silhouettes now break up the horizon through one fogged
-  portable batch. Final fill light, shadows, exposure, richer cloud shaping, unified world haze,
-  and more varied distant atmospheric composition are not complete.
+  portable batch. Final fill light, shadows, exposure, unified world haze, and more varied distant
+  atmospheric composition are not complete.
 
 ## Traversal and interaction
 

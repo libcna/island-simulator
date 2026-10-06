@@ -84,14 +84,19 @@ void main()
     color += vec3(1.0, 0.91, 0.67) * innerHalo * 0.31;
     color = mix(color, vec3(1.0, 0.95, 0.76), disc * 0.96);
 
-    float cloudAltitude = smoothstep(0.20, 0.36, elevation)
-        * (1.0 - smoothstep(0.76, 0.93, elevation));
-    float broad = sin(direction.x * 19.0 + direction.z * 13.0)
-        + sin(direction.x * 31.0 - direction.z * 23.0 + direction.y * 7.0) * 0.56;
-    float detail = sin(direction.x * 71.0 + direction.z * 47.0) * 0.24;
-    float wisps = smoothstep(1.18, 1.62, broad + detail) * cloudAltitude;
+    float cloudAltitude = smoothstep(0.20, 0.38, elevation)
+        * (1.0 - smoothstep(0.78, 0.94, elevation));
+    float warp = sin(dot(direction, vec3(7.0, 2.0, -5.0)) * 1.7) * 0.54;
+    float longBand = sin(direction.y * 33.0 + direction.x * 4.2
+                         - direction.z * 3.1 + warp);
+    float fineBand = sin(direction.y * 59.0 - direction.x * 7.0
+                         + direction.z * 5.0 + warp * 1.7);
+    float breakup = sin(dot(direction.xz, vec2(13.0, 9.0)) + 0.35);
+    float wisps = smoothstep(0.72, 1.38,
+                             longBand * 0.86 + fineBand * 0.28 + breakup * 0.36)
+        * cloudAltitude;
     float awayFromSun = 1.0 - smoothstep(0.72, 0.96, sunDot);
-    color = mix(color, vec3(0.88, 0.95, 0.96), wisps * awayFromSun * 0.20);
+    color = mix(color, vec3(0.90, 0.95, 0.96), wisps * awayFromSun * 0.14);
 
     fragColor = vec4(color, 1.0);
 }
@@ -214,7 +219,8 @@ void main()
         indices_->SetData(indices.data(), static_cast<int>(indices.size()));
 
         if (customShaderReady_) {
-            std::cout << "island-simulator: fixed sunny sky portable shader\n";
+            std::cout << "island-simulator: fixed sunny sky with layered horizontal high wisps, "
+                         "portable shader\n";
         } else {
             std::cerr << "island-simulator: gradient sky stock-effect fallback: "
                       << fallbackReason_ << '\n';

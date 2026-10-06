@@ -203,7 +203,10 @@ shader, or renderer-specific feature.
 
 `SkyRenderer` draws a camera-centred 900 m sphere before world geometry. Its GLSL 330 / GLSL ES
 300 fragment shader combines a horizon-to-zenith tropical gradient, warm sun disc and halo, and
-subtle static high cloud wisps. The sky has no clock or weather input by design. Depth writes and
+subtle static high cloud wisps. Four trigonometric samples form elevation-dominant bands, a small
+directional warp, and azimuth breakup; this keeps the sparse forms horizontally legible without a
+noise texture, seam, animation state, or high-end shader feature. The sky has no clock or weather
+input by design. Depth writes and
 testing are disabled only for this pass and restored immediately afterward. A vertex-coloured
 `BasicEffect` gradient remains available with an explicit diagnostic if custom effects are not
 supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the current arm64 GLES

@@ -84,8 +84,8 @@ terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass,
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
 beach, grass interaction, jungle, prop, driftwood, reef, near-surface water, offshore-current, fallen-frond,
 distant-horizon, bird, fish, shark, and monkey instances at a
-1280 x 720 viewport. Every scene asserts the
-fixed-sky shader diagnostic. The
+1280 x 720 viewport. Every scene asserts the layered-horizontal-wisp fixed-sky shader diagnostic.
+The
 captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`,
 `build-probe/island-browser-grass.png`,

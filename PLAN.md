@@ -403,9 +403,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   Terrain, ocean glint, and sky now consume one shared direction and warm daylight palette; a
   measured exposure/fill-light pass and Android runtime comparison remain open.
 - [~] Build a portable sky gradient/dome with sun disc and high, calm tropical cloud suggestion.
-  A camera-centred sphere with explicit GLSL 330 / GLSL ES 300 shaders, static high wisps, and a
-  stock-effect gradient fallback is visually verified on OpenGL 3.3 and actual WebGL 2. The
-  sky-inclusive GLES 3 package compiles, but stable Android runtime qualification remains open.
+  A camera-centred sphere with explicit GLSL 330 / GLSL ES 300 shaders, a stock-effect gradient
+  fallback, and sparse layered horizontal high wisps is visually verified on OpenGL 3.3 and actual
+  WebGL 2. The earlier conspicuous vertical cloud streaks have been removed. The sky-inclusive
+  GLES 3 package compiles, but stable Android runtime qualification remains open.
 - [~] Add distance haze/fog that enlarges perceived scale without washing out nearby jungle. The
   distant-scenery batch now uses restrained 260--790 m `BasicEffect` fog; unified world haze and
   near/middle-distance atmospheric tuning remain.
@@ -2011,6 +2012,30 @@ Work next, in order:
   `libmain.so` is 15,700,608 bytes, and the APK is 33,432,984 bytes. Android runtime appearance and
   fragment cost remain unqualified without KVM or a physical device. CNA and Sharp Runtime remain
   clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Layered high-wisp sky polish
+
+- Replaced the sky's direction-linear cloud waves, which projected as conspicuous vertical streaks
+  in first-person captures, with elevation-dominant long and fine bands, one directional warp, and
+  one azimuth breakup sample. The retained four-sample field produces sparse horizontal high wisps,
+  stays static for the permanent sunny-day art direction, and adds no texture, state, or draw.
+- Visual review rejected an initial version that was too sparse and a six-sample follow-up that was
+  unnecessarily expensive for a full-screen mobile fragment path. Overview, beach, jungle, and
+  distant-horizon native captures were inspected after the retained density/cost tuning; the former
+  vertical streaks are absent. An actual Chrome/WebGL 2 distant capture was also inspected.
+- Changed the native smoke and every relevant browser scene gate to require the new explicit sky
+  diagnostic. All 20 native tests pass, including 19 real OpenGL 3.3 scenes. After one transient
+  aggregate harness failure, a clean rerun reported all 19 Chrome 152/WebGL 2 lifecycle, deployment,
+  scene, input, and audio-init stages passing.
+- Two complete native five-view repeats preserved 81/124/91/26/97 submissions. Mean frame time was
+  1.2251--1.2462 ms overview, 1.8222--1.8359 ms beach, 1.4726--1.6432 ms jungle,
+  0.8299--0.8814 ms driftwood, and 1.6486--1.8296 ms monkeys. The broad upper-end variation across
+  the second run prevents attributing an isolated cost; the low ends remain within roughly
+  0.01--0.08 ms of the preceding integrated baseline.
+- The arm64-v8a GLES 3 APK rebuild and application lint pass. WebAssembly is 8,301,850 bytes,
+  stripped `libmain.so` is 15,700,864 bytes, and the APK is 33,433,240 bytes. Android appearance
+  and fragment cost remain unqualified without KVM or a physical device. CNA and Sharp Runtime
+  remain clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

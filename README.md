@@ -29,7 +29,7 @@ first-person terrain walking, near-shore swimming, trunk collision, a soft ocean
 dual-zone touch input, a subtle depth-responsive near-surface water veil that cools and strengthens
 as the offshore current develops, and speed/depth-responsive player ripples that expand across the
 same animated ocean surface without another draw call. A fixed sunny gradient sky adds a sun disc
-and calm high clouds. A first
+and sparse, layered horizontal high-cloud wisps without a weather simulation. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
 wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface. One

@@ -223,7 +223,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "terrain near-field microvariation and procedural interior leaf litter")
+                "fixed sunny sky with layered horizontal high wisps, portable shader")
         add_test(NAME IslandGameCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-capture.ppm")
         set_tests_properties(IslandGameCapture PROPERTIES TIMEOUT 30 LABELS display)

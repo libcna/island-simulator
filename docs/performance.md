@@ -223,6 +223,31 @@ Two dedicated close-grass repeats rendered 2,827 clusters in 126 tracked submiss
 Web hardware, and physical-mobile measurements remain open. Native and actual
 Chrome/SwiftShader close-grass and jungle captures visually agree on the retained detail.
 
+### Layered high-wisp sky follow-up
+
+The first sky-cloud field used three direction-linear sine waves that appeared as conspicuous
+vertical streaks in first-person views. The retained replacement uses four trigonometric samples:
+one directional warp, elevation-dominant long and fine bands, and one azimuth breakup value. It
+adds no texture, vertex data, state transition, draw submission, clock, or weather update. A
+visually acceptable six-sample candidate was rejected before qualification because its extra
+full-screen fragment work was not justified for WebGL 2 and GLES 3.
+
+Two complete five-view repeats produced the ranges below. Submission and visible-grass counts are
+unchanged. The second run showed broad scheduling/driver variation in the jungle and monkey views,
+so these integrated totals do not isolate the sky cost. The low ends lie about 0.01--0.08 ms from
+the preceding sample; physical-mobile and hardware-browser fragment measurements remain required.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.2251--1.2462 | 1.3926--1.5614 | 1.7392--2.0134 | 81 | 0 |
+| Beach | 1.8222--1.8359 | 2.2977--2.4338 | 2.6320--2.7505 | 124 | 2,954 |
+| Jungle | 1.4726--1.6432 | 1.6870--2.3335 | 2.2558--2.7410 | 91 | 2,932 |
+| Driftwood/shore detail | 0.8299--0.8814 | 1.2027--1.3149 | 1.4214--1.5850 | 26 | 155 |
+| Monkeys | 1.6486--1.8296 | 2.1349--2.5882 | 2.3754--3.0800 | 97 | 2,946 |
+
+Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 compile and render the retained shader.
+The arm64 GLES 3 package builds, but its runtime appearance and fragment cost remain unqualified.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

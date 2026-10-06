@@ -132,7 +132,8 @@ try {
     && result.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && result.output?.includes("island-simulator: ocean portable custom shader")
-    && result.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && result.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
@@ -232,7 +233,8 @@ try {
     && deploymentState.height === 720
     && deploymentState.hasWebGl2 === true
     && deploymentState.output?.includes("island-simulator: renderer WEBGL2")
-    && deploymentState.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && deploymentState.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && deploymentState.output?.includes("island-simulator: terrain")
     && deploymentState.audioStarted === true
     && deploymentState.waveAccentsEnabled === true
@@ -280,7 +282,8 @@ try {
 
   const visualPassed = visualResult.output?.includes("island-simulator: renderer WEBGL2")
     && visualResult.output?.includes("island-simulator: ocean portable custom shader")
-    && visualResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && visualResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
@@ -316,7 +319,8 @@ try {
   await writeFile(beachScreenshotPath, Buffer.from(beachScreenshot.data, "base64"));
   const beachPassed = beachResult.output?.includes("island-simulator: renderer WEBGL2")
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
-    && beachResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && beachResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && beachResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && beachResult.output?.includes("portable instanced wind shader")
@@ -353,6 +357,8 @@ try {
   await writeFile(grassScreenshotPath, Buffer.from(grassScreenshot.data, "base64"));
   const grassPassed = grassResult.output?.includes("island-simulator: renderer WEBGL2")
     && grassResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
+    && grassResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && grassResult.output?.includes(
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
@@ -386,7 +392,8 @@ try {
   const jungleScreenshotPath = path.join(buildDirectory, "island-browser-jungle.png");
   await writeFile(jungleScreenshotPath, Buffer.from(jungleScreenshot.data, "base64"));
   const junglePassed = jungleResult.output?.includes("island-simulator: renderer WEBGL2")
-    && jungleResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && jungleResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && jungleResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
@@ -418,7 +425,8 @@ try {
   const propScreenshotPath = path.join(buildDirectory, "island-browser-props.png");
   await writeFile(propScreenshotPath, Buffer.from(propScreenshot.data, "base64"));
   const propPassed = propResult.output?.includes("island-simulator: renderer WEBGL2")
-    && propResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && propResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && propResult.output?.includes("natural-prop portable shader with near/far LOD")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/11 logs/.test(
@@ -454,7 +462,8 @@ try {
     buildDirectory, "island-browser-driftwood.png");
   await writeFile(driftwoodScreenshotPath, Buffer.from(driftwoodScreenshot.data, "base64"));
   const driftwoodPassed = driftwoodResult.output?.includes("island-simulator: renderer WEBGL2")
-    && driftwoodResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && driftwoodResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
     && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
@@ -486,7 +495,8 @@ try {
   const reefScreenshotPath = path.join(buildDirectory, "island-browser-reef.png");
   await writeFile(reefScreenshotPath, Buffer.from(reefScreenshot.data, "base64"));
   const reefPassed = reefResult.output?.includes("island-simulator: renderer WEBGL2")
-    && reefResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && reefResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && reefResult.output?.includes("natural-prop portable shader with near/far LOD")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
     && !reefResult.error;
@@ -517,7 +527,8 @@ try {
   const waterScreenshotPath = path.join(buildDirectory, "island-browser-water.png");
   await writeFile(waterScreenshotPath, Buffer.from(waterScreenshot.data, "base64"));
   const waterPassed = waterResult.output?.includes("island-simulator: renderer WEBGL2")
-    && waterResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && waterResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && waterResult.output?.includes(
       "island-simulator: near-surface swimming view procedural edge veil")
     && /water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01](?:[.][0-9]+)?/.test(
@@ -550,7 +561,8 @@ try {
   const currentScreenshotPath = path.join(buildDirectory, "island-browser-current.png");
   await writeFile(currentScreenshotPath, Buffer.from(currentScreenshot.data, "base64"));
   const currentPassed = currentResult.output?.includes("island-simulator: renderer WEBGL2")
-    && currentResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && currentResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && currentResult.output?.includes(
       "island-simulator: near-surface swimming view procedural edge veil")
     && /water view 0[.][1-9][0-9]*, 1 draw, player ripple [01](?:[.][0-9]+)?, phase [01](?:[.][0-9]+)?, current 0[.][1-9][0-9]*/.test(
@@ -584,7 +596,8 @@ try {
   const distantScreenshotPath = path.join(buildDirectory, "island-browser-distant.png");
   await writeFile(distantScreenshotPath, Buffer.from(distantScreenshot.data, "base64"));
   const distantPassed = distantResult.output?.includes("island-simulator: renderer WEBGL2")
-    && distantResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && distantResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && distantResult.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
     && /distant 5 islets, 1 draw/.test(distantResult.output ?? "")
@@ -616,7 +629,8 @@ try {
   const frondScreenshotPath = path.join(buildDirectory, "island-browser-fronds.png");
   await writeFile(frondScreenshotPath, Buffer.from(frondScreenshot.data, "base64"));
   const frondPassed = frondResult.output?.includes("island-simulator: renderer WEBGL2")
-    && frondResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && frondResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && frondResult.output?.includes("natural-prop portable shader with near/far LOD")
     && /[1-9][0-9]*\/63 fallen fronds/.test(frondResult.output ?? "")
     && !frondResult.error;
@@ -646,6 +660,8 @@ try {
   const birdScreenshotPath = path.join(buildDirectory, "island-browser-birds.png");
   await writeFile(birdScreenshotPath, Buffer.from(birdScreenshot.data, "base64"));
   const birdPassed = birdResult.output?.includes("island-simulator: renderer WEBGL2")
+    && birdResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && birdResult.output?.includes("island-simulator: birds 24 agents")
     && /birds [1-9][0-9]*\/24 visible/.test(birdResult.output ?? "")
     && !birdResult.error;
@@ -675,6 +691,8 @@ try {
   const fishScreenshotPath = path.join(buildDirectory, "island-browser-fish.png");
   await writeFile(fishScreenshotPath, Buffer.from(fishScreenshot.data, "base64"));
   const fishPassed = fishResult.output?.includes("island-simulator: renderer WEBGL2")
+    && fishResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && fishResult.output?.includes("island-simulator: fish 48 agents")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
@@ -704,6 +722,8 @@ try {
   const sharkScreenshotPath = path.join(buildDirectory, "island-browser-shark.png");
   await writeFile(sharkScreenshotPath, Buffer.from(sharkScreenshot.data, "base64"));
   const sharkPassed = sharkResult.output?.includes("island-simulator: renderer WEBGL2")
+    && sharkResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && sharkResult.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && /shark visible activity/.test(sharkResult.output ?? "")
     && !sharkResult.error;
@@ -733,6 +753,8 @@ try {
   const monkeyScreenshotPath = path.join(buildDirectory, "island-browser-monkeys.png");
   await writeFile(monkeyScreenshotPath, Buffer.from(monkeyScreenshot.data, "base64"));
   const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
+    && monkeyResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && monkeyResult.output?.includes("3 silhouettes, 4 palettes")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")
@@ -933,7 +955,8 @@ try {
     && Math.abs(backingAspect - 16 / 9) < 0.001
     && Math.abs(clientAspect - 16 / 9) < 0.01;
   const inputPassed = inputResult.output?.includes("island-simulator: renderer WEBGL2")
-    && inputResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && inputResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && inputResult.output?.includes("island-simulator: world debug visualization enabled")
     && inputResult.output?.includes("island-simulator: debug overlay disabled")
     && lockedState.pointerLocked === true
