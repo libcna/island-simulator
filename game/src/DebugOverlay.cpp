@@ -229,22 +229,31 @@ namespace island
                    << "  COLLISION " << state.collisionCandidates << '/'
                    << state.collisionObstacles
                    << " CELLS " << state.worldDebugCells
-                   << " WILDLIFE " << state.worldDebugWildlife << '/'
-                   << state.worldDebugWildlifeTargets << '/'
-                   << state.worldDebugMonkeyHomes
-                   << " AUDIO " << state.worldDebugAudioZones << '/'
-                   << state.worldDebugAudioCandidates << '/'
-                   << state.worldDebugActiveAudioEmitters
-                   << " CONTACT " << state.worldDebugGroundSamples << '/'
-                   << state.worldDebugGroundSupports << '/'
-                   << state.worldDebugSteepSamples
-                   << " MOVE " << state.movementObstacleRejections << '/'
-                   << state.movementTerrainRejections << '/'
-                   << state.movementSlideSubsteps << '/'
-                   << (state.movementSafetyClamped ? 1 : 0)
                    << " LINES " << state.worldDebugLines
                    << " DRAWS " << state.worldDebugDraws;
         lines.push_back(worldDebug.str());
+
+        auto worldNavigation = DiagnosticLine();
+        worldNavigation << "WORLD NAV  WILDLIFE M/T/H " << state.worldDebugWildlife << '/'
+                   << state.worldDebugWildlifeTargets << '/'
+                   << state.worldDebugMonkeyHomes
+                   << " BIRD R/S/T " << state.worldDebugBirdRouteRegions << '/'
+                   << state.worldDebugBirdSpawns << '/'
+                   << state.worldDebugBirdRouteTargets
+                   << " AUDIO Z/C/E " << state.worldDebugAudioZones << '/'
+                   << state.worldDebugAudioCandidates << '/'
+                   << state.worldDebugActiveAudioEmitters;
+        lines.push_back(worldNavigation.str());
+
+        auto worldContact = DiagnosticLine();
+        worldContact << "WORLD CONTACT S/S/O " << state.worldDebugGroundSamples << '/'
+                     << state.worldDebugGroundSupports << '/'
+                     << state.worldDebugSteepSamples
+                     << "  MOVE O/T/S/C " << state.movementObstacleRejections << '/'
+                     << state.movementTerrainRejections << '/'
+                     << state.movementSlideSubsteps << '/'
+                     << (state.movementSafetyClamped ? 1 : 0);
+        lines.push_back(worldContact.str());
 
         lines.push_back("RENDERER " + state.renderer);
 

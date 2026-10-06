@@ -46,6 +46,8 @@ namespace island
                   const PlayerMovementTrace& movementTrace,
                   std::span<const CircularObstacle> obstacles,
                   std::span<const BirdState> birds,
+                  std::span<const BirdRouteState> birdRoutes,
+                  std::span<const BirdRouteRegion> birdRouteRegions,
                   std::span<const FishState> fish,
                   std::span<const FishSchoolState> fishSchools,
                   const SharkState& shark,
@@ -71,6 +73,18 @@ namespace island
         [[nodiscard]] int MonkeyHomeRangeCount() const noexcept
         {
             return monkeyHomeRangeCount_;
+        }
+        [[nodiscard]] int BirdRouteRegionCount() const noexcept
+        {
+            return birdRouteRegionCount_;
+        }
+        [[nodiscard]] int BirdSpawnMarkerCount() const noexcept
+        {
+            return birdSpawnMarkerCount_;
+        }
+        [[nodiscard]] int BirdRouteTargetCount() const noexcept
+        {
+            return birdRouteTargetCount_;
         }
         [[nodiscard]] int AudioZoneCount() const noexcept { return audioZoneCount_; }
         [[nodiscard]] int AudioCandidateCount() const noexcept
@@ -103,6 +117,9 @@ namespace island
         int wildlifeMarkerCount_ = 0;
         int wildlifeTargetCount_ = 0;
         int monkeyHomeRangeCount_ = 0;
+        int birdRouteRegionCount_ = 0;
+        int birdSpawnMarkerCount_ = 0;
+        int birdRouteTargetCount_ = 0;
         int audioZoneCount_ = 0;
         int audioCandidateCount_ = 0;
         int activeAudioEmitterCount_ = 0;

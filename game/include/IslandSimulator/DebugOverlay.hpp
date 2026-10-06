@@ -141,6 +141,9 @@ namespace island
         int worldDebugWildlife = 0;
         int worldDebugWildlifeTargets = 0;
         int worldDebugMonkeyHomes = 0;
+        int worldDebugBirdRouteRegions = 0;
+        int worldDebugBirdSpawns = 0;
+        int worldDebugBirdRouteTargets = 0;
         int worldDebugAudioZones = 0;
         int worldDebugAudioCandidates = 0;
         int worldDebugActiveAudioEmitters = 0;

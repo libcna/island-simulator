@@ -685,8 +685,8 @@ Dependencies: representative complete scene on all targets.
 - [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation. One F2 toggle now
   covers shoreline/current thresholds and vector, nearby collision/player footprints, shared
-  cells, and tier/state-coloured wildlife headings. Per-layer toggles, spawn/target regions,
-  detailed culling/LOD/density, terrain normals, and audio emitters remain.
+  cells, terrain normals, tier/state-coloured wildlife headings, bird route/spawn/target regions,
+  and audio zones/emitters. Per-layer toggles and detailed culling/LOD/density fields remain.
 - [x] Add debug teleport locations and a debug-only free camera. Eight direct F5--F12 locations are
   active only while the diagnostics overlay is visible, including the 62 m current field. Debug
   builds add bounded F3 inspection flight with real private-Xwayland input coverage; a richer
@@ -901,7 +901,8 @@ after the same experience remains available.
 - [~] Wildlife spawn region, state, steering, and simulation-tier visualization. F2 heading arrows
   use full/reduced/dormant colours and monkey full-tier behaviour colours. It also draws exact
   fish-school centres, the shark route target, terrain-following monkey home ranges, and active
-  monkey movement targets; bird route bounds, avoidance proposals, and spawn regions remain.
+  monkey movement targets. Three bird-family route envelopes, all 24 exact bird spawn headings,
+  and nearby live radial targets are complete; avoidance proposals and non-bird spawn regions remain.
 - [x] Audio zone/emitter/source-count visualization. F2 draws the six authoritative terrain-
   following surf/breeze/jungle crossfade boundaries, nearest non-dormant bird/monkey candidates,
   and the exact active pooled emitter; F1 reports the active-source count against the six-source
@@ -986,11 +987,11 @@ Work next, in order:
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
 4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
-   wildlife-heading/navigation, and audio-zone/emitter visualization with bird route/spawn regions
-   and individual culling/LOD/density fields only where they materially improve debugging. F1 now
+   wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
+   with individual culling/LOD/density fields only where they materially improve debugging. F1 now
    reports local static-collision candidates, nine terrain support samples, wildlife
-   marker/target/home-range counts, and live audio sources against their complete
-   populations/budgets.
+   marker/target/home-range counts, bird route-family/spawn/target counts, and live audio sources
+   against their complete populations/budgets.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -2491,6 +2492,33 @@ Work next, in order:
   for WebAssembly, 15,774,728 bytes for the stripped Android library, and 33,507,104 bytes for the
   APK. Android runtime appearance and route timing remain unqualified without KVM or a physical
   device.
+
+### 2026-10-06 — Authoritative bird route diagnostics
+
+- Consolidated each bird's authored orbit, altitude/clearance, direction, and exact initial pose
+  into one immutable public route snapshot. `BirdFlock` also derives three family envelopes from
+  those same 24 records: shore birds at 218--248 m radius, canopy birds at 70--150 m, and high
+  birds at 125--233 m. The simulation and diagnostic layer no longer maintain parallel route
+  constants.
+- Extended the existing two-draw F2 x-ray batch with all three minimum/maximum radius and altitude
+  volumes, all 24 spawn headings, and a live radial steering target for each nearby bird. Cyan,
+  green, and violet distinguish shore, canopy, and high families. `BIRD R/S/T` reports exact
+  family-region, spawn, and active-target counts without affecting ordinary presentation work.
+- Added deterministic core coverage for route/spawn identity, bounded steering inputs, family
+  populations, and exact orbit limits. The dedicated wildlife capture gate now requires three
+  route regions, 24 spawn markers, and a nonzero live-target population. Visual review of both the
+  overview and monkey-navigation captures confirmed that the route volumes remain readable and
+  led to splitting the formerly overlong F1 world line into compact world, navigation, and contact
+  rows.
+- The complete isolated native suite passes 29/29 in 65.46 seconds, including 26 actual OpenGL 3.3
+  scenes and real X11 free-camera input. Chrome 152/SwiftShader passes the complete WebGL 2
+  renderer, scene, lifecycle, input, and audio-initialization harness with the stronger F2 output
+  assertion. The arm64-v8a GLES 3 build, Gradle APK assembly, and lint pass; artifacts are 8,387,290
+  bytes for WebAssembly, 15,792,120 bytes for the stripped Android library, and 33,524,496 bytes for
+  the APK. The visible Linux game remained running during validation, so these native timings are
+  regression evidence rather than a performance baseline. Android runtime remains unqualified
+  without KVM or a physical device. No CNA or Sharp Runtime file was changed and no dependency
+  defect was found.
 
 ## Session-end checklist
 

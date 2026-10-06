@@ -28,6 +28,8 @@ namespace island
         constexpr int AudioMarkerSegments = 16;
         constexpr int WildlifeTargetSegments = 16;
         constexpr int MonkeyHomeRangeSegments = 32;
+        constexpr int BirdRouteRegionSegments = 48;
+        constexpr int BirdRouteVerticalSegments = 8;
         constexpr int CellEdgeSegments = 6;
         constexpr float ObstacleVisibleDistance = 52.0f;
         constexpr float CellVisibleDistance = 135.0f;
@@ -160,6 +162,51 @@ namespace island
             return Color(132, 140, 146, 255);
         }
 
+        [[nodiscard]] Color BirdFamilyColor(const BirdPathFamily family)
+        {
+            switch (family) {
+            case BirdPathFamily::Shore: return Color(95, 225, 255, 255);
+            case BirdPathFamily::Canopy: return Color(105, 245, 145, 255);
+            case BirdPathFamily::High: return Color(210, 135, 255, 255);
+            }
+            return Color(220, 220, 220, 255);
+        }
+
+        void AddBirdRouteRegion(std::vector<VertexPositionColor>& vertices,
+                                const BirdRouteRegion& region)
+        {
+            const Color color = BirdFamilyColor(region.family);
+            AddCircle(vertices, 0.0f, region.minimumAltitude, 0.0f,
+                      region.minimumRadius, BirdRouteRegionSegments, color);
+            AddCircle(vertices, 0.0f, region.minimumAltitude, 0.0f,
+                      region.maximumRadius, BirdRouteRegionSegments, color);
+            AddCircle(vertices, 0.0f, region.maximumAltitude, 0.0f,
+                      region.minimumRadius, BirdRouteRegionSegments, color);
+            AddCircle(vertices, 0.0f, region.maximumAltitude, 0.0f,
+                      region.maximumRadius, BirdRouteRegionSegments, color);
+            for (int index = 0; index < BirdRouteVerticalSegments; ++index) {
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(index)
+                    / static_cast<float>(BirdRouteVerticalSegments);
+                const float directionX = std::cos(angle);
+                const float directionZ = std::sin(angle);
+                AddLine(vertices,
+                        Vector3(directionX * region.minimumRadius,
+                                region.minimumAltitude,
+                                directionZ * region.minimumRadius),
+                        Vector3(directionX * region.minimumRadius,
+                                region.maximumAltitude,
+                                directionZ * region.minimumRadius), color);
+                AddLine(vertices,
+                        Vector3(directionX * region.maximumRadius,
+                                region.minimumAltitude,
+                                directionZ * region.maximumRadius),
+                        Vector3(directionX * region.maximumRadius,
+                                region.maximumAltitude,
+                                directionZ * region.maximumRadius), color);
+            }
+        }
+
         void AddHeadingMarker(std::vector<VertexPositionColor>& vertices,
                               const Vector3& position, const float headingRadians,
                               const float length, const Color& color)
@@ -207,6 +254,8 @@ namespace island
                                   const PlayerMovementTrace& movementTrace,
                                   const std::span<const CircularObstacle> obstacles,
                                   const std::span<const BirdState> birds,
+                                  const std::span<const BirdRouteState> birdRoutes,
+                                  const std::span<const BirdRouteRegion> birdRouteRegions,
                                   const std::span<const FishState> fish,
                                   const std::span<const FishSchoolState> fishSchools,
                                   const SharkState& shark,
@@ -217,7 +266,7 @@ namespace island
         std::vector<VertexPositionColor> overlayVertices;
         surfaceVertices.reserve(static_cast<std::size_t>(BoundarySegments * 10 * 2));
         overlayVertices.reserve(static_cast<std::size_t>(ObstacleSegments * 40 * 2
-                                + PlayerSegments * 2 + 2048));
+                                + PlayerSegments * 2 + 6144));
 
         AddBoundary(surfaceVertices, terrain_, 0.0f, OceanLineHeight,
                     Color(65, 239, 245, 255));
@@ -433,10 +482,40 @@ namespace island
         wildlifeMarkerCount_ = 0;
         wildlifeTargetCount_ = 0;
         monkeyHomeRangeCount_ = 0;
-        for (const BirdState& bird : birds) {
+        birdRouteRegionCount_ = 0;
+        for (const BirdRouteRegion& region : birdRouteRegions) {
+            AddBirdRouteRegion(overlayVertices, region);
+            ++birdRouteRegionCount_;
+        }
+        birdSpawnMarkerCount_ = 0;
+        for (const BirdRouteState& route : birdRoutes) {
+            AddHeadingMarker(overlayVertices,
+                             Vector3(route.spawnX, route.spawnY, route.spawnZ),
+                             route.spawnHeadingRadians, 1.8f,
+                             BirdFamilyColor(route.family));
+            ++birdSpawnMarkerCount_;
+        }
+        birdRouteTargetCount_ = 0;
+        const std::size_t birdRouteCount = std::min(birds.size(), birdRoutes.size());
+        for (std::size_t index = 0; index < birdRouteCount; ++index) {
+            const BirdState& bird = birds[index];
             if (!IsNear(cameraPosition, bird.x, bird.y, bird.z, BirdMarkerDistance)) {
                 continue;
             }
+            const BirdRouteState& route = birdRoutes[index];
+            const float birdRadius = std::max(0.001f, std::hypot(bird.x, bird.z));
+            const float targetX = bird.x / birdRadius * route.preferredRadius;
+            const float targetZ = bird.z / birdRadius * route.preferredRadius;
+            const float targetY = std::max(
+                route.baseAltitude,
+                terrain_.Height(targetX, targetZ) + route.minimumClearance);
+            const Color routeColor = TierColor(
+                bird.simulationTier, BirdFamilyColor(route.family));
+            const Vector3 target(targetX, targetY, targetZ);
+            AddTargetMarker(overlayVertices, target, 1.2f, routeColor);
+            AddLine(overlayVertices, Vector3(bird.x, bird.y, bird.z), target, routeColor);
+            ++birdRouteTargetCount_;
+            ++wildlifeTargetCount_;
             AddHeadingMarker(overlayVertices, Vector3(bird.x, bird.y, bird.z),
                              bird.headingRadians,
                              4.0f * bird.scale,

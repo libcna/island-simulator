@@ -8,7 +8,7 @@
 | Mouse | Look around while captured |
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
-| F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, and audio-zone/emitter diagnostics; visible only with F1 |
+| F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, bird route/spawn, and audio-zone/emitter diagnostics; visible only with F1 |
 | F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |
 | F5 / F6 / F7 / F8 / F9 / F10 / F11 / F12 | With the overlay visible, teleport to eight QA locations; F9 faces the fish shallows, F10 the offshore shark, repeated F11 presses cycle through all seven monkeys, and F12 enters the active offshore current for feedback QA |
 | B | Smoothly disable or restore restrained walking/swimming camera motion |
@@ -28,7 +28,9 @@ The developer overlay starts hidden during ordinary play. Launching with `--debu
 it immediately for captures and QA; `--world-debug` also enables its F2 world view. It reports
 wall-clock frame timing, renderer identity, player and ocean-current state, visible
 terrain/vegetation cells, LOD populations, draw counts, and active audio sources against the
-six-source ceiling. See `docs/debugging.md` for interpretation and limitations.
+six-source ceiling. Its world-navigation line separately reports wildlife markers/targets/home
+ranges and bird route-family/spawn/live-target counts. See `docs/debugging.md` for interpretation
+and limitations.
 
 The F3 camera is compiled into debug builds only. It starts at the rendered player-eye position,
 keeps mouse look, moves at 12 m/s or 36 m/s with Shift, and is bounded to the island inspection

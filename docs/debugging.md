@@ -35,6 +35,9 @@ WebGL 2, and OpenGL ES 3. It draws:
 - exact nearby fish-school centres, the current shark route target, and each nearby monkey's
   terrain-following 34 m home range. Walking/running monkeys add their exact active target and a
   line from the current pose;
+- the three authored bird-family route volumes, every bird's exact initial pose and heading, and
+  each nearby bird's live radial steering target. Cyan identifies shore birds, green canopy birds,
+  and violet high birds;
 - the nearest non-dormant bird audio candidate in cyan and monkey candidate in violet. A playing
   positional call adds a larger pale marker and an x-ray line from the listener to the exact
   emitter position captured when that call began.
@@ -98,7 +101,8 @@ Current fields are:
 - played positional bird/monkey call counts, pooled wildlife-voice active/idle state, and currently
   playing sources against the hard six-source ceiling;
 - F2 visibility plus nearby obstacle, shared-cell, wildlife marker/target/monkey-home-range
-  (`WILDLIFE M/T/H`), audio zone/candidate/active-emitter (`AUDIO Z/C/E`), terrain
+  (`WILDLIFE M/T/H`), bird route-family/spawn/live-target (`BIRD R/S/T`), audio
+  zone/candidate/active-emitter (`AUDIO Z/C/E`), terrain
   sample/support/over-limit (`CONTACT S/S/O`), line, and draw
   counts. `MOVE O/T/S/C` reports obstacle rejections, terrain rejections, slide substeps, and
   ocean-safety clamping for the retained movement trace.
@@ -180,9 +184,10 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 
 ## Planned diagnostics
 
-The F2 pass covers the world geometry and audio diagnostics listed above. Bird route families,
-wildlife spawn regions, steering avoidance proposals, individual renderer culling volumes and LOD
-radii, and grass-density fields remain open. The movement trace retains the latest resolved frame;
+The F2 pass covers the world geometry and audio diagnostics listed above, including the complete
+bird route/spawn layer. Steering avoidance proposals, spawn regions for other wildlife, individual
+renderer culling volumes and LOD radii, and grass-density fields remain open. The movement trace
+retains the latest resolved frame;
 a longer history and geometric step-up/depenetration views are not implemented. So do a teleport
 menu, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
 additions must remain opt-in and absent from the normal release presentation.

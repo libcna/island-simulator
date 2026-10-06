@@ -11,7 +11,8 @@ through browser input. The first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
 and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. The F2
 path includes the same nine terrain-contact samples/normals, attempted/resolved movement trace,
-fish-school/shark/monkey navigation guides, six terrain-following ambient-zone contours, and
+fish-school/shark/monkey navigation guides, three bird route-family volumes, all 24 bird spawn
+headings, nearby live bird radial targets, six terrain-following ambient-zone contours, and
 positional-source markers.
 Audible output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.

@@ -121,6 +121,7 @@ While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative sho
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, all nine terrain-contact samples and normals, wildlife headings, simulation-tier colours,
 nearby fish-school centres, the shark route target, monkey home ranges and active movement targets,
+three bird-family route volumes, all 24 authored bird spawn headings, and nearby live radial targets,
 the last exact attempted/resolved player step with rejection classification,
 the active inward-current vector, all six ambient crossfade boundaries, the nearest bird/monkey
 audio candidates, and any active positional wildlife emitter. The panel also reports active audio

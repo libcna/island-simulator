@@ -109,8 +109,8 @@ been confirmed so far.
   wave/splash counts, mute/availability state, and live source use against the six-source budget.
   F2 adds world-space shoreline/current, collision, exact attempted/resolved player motion,
   shared-cell, wildlife heading/target/home-range, ambient-zone, nearest audio-candidate, active
-  positional-emitter, and exact nine-sample terrain-contact views; movement history and deeper
-  per-system overlays remain open.
+  positional-emitter, exact nine-sample terrain-contact, and complete bird route-family/spawn views;
+  movement history, steering proposals, and deeper per-system culling/LOD overlays remain open.
 - Eight direct debug teleports, a bounded debug-only inspection camera, a five-view native
   fixed-frame suite plus a 676 m moving benchmark, an asset-manifest validator, and a deterministic
   world-statistics report exist. There is no teleport menu or automated renderer-image comparison

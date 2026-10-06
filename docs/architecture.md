@@ -396,9 +396,11 @@ that resolve the player's support height, and colours over-limit slopes red. `Pl
 retains its latest nonzero attempted step, resolved endpoint, obstacle/terrain rejection counts,
 axis-slide count, and safety-clamp flag; F2 draws both endpoints at exact world scale.
 `FishSchools` exposes one compact centre/tier snapshot per school, while monkey state carries its
-authoritative home and active target and shark state carries its current route target. F2 uses
-those simulation-owned values for route markers and terrain-following monkey home ranges rather
-than reconstructing them from rendered poses. The complete view still costs two draw submissions.
+authoritative home and active target and shark state carries its current route target. `BirdFlock`
+exposes one immutable authored route/spawn record per agent plus three derived family envelopes.
+F2 uses those simulation-owned values for route markers, live radial targets, spawn headings, and
+terrain-following monkey home ranges rather than reconstructing them from rendered poses. The
+complete view still costs two draw submissions.
 The `--viewpoint contact --world-debug` combination provides an offset deterministic review
 camera, the movement viewpoint reproduces obstacle rejection, and the monkey viewpoint provides a
 repeatable navigation-guide capture in addition to the overview.
@@ -529,7 +531,8 @@ testing remain open.
   exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view
   now includes the exact terrain footprint/normals, ambient zones, wildlife audio candidates,
   active-emitter marking, fish-school centres, shark and monkey targets, monkey home ranges, and
-  source-budget counts; bird route families, spawn/culling layers, and configuration UI remain
-  absent. Eight
+  source-budget counts. Its bird layer also shows all three route-family volumes, the exact 24
+  authored spawn headings, and nearby live radial targets; avoidance proposals, individual
+  renderer culling/LOD layers, and configuration UI remain absent. Eight
   direct QA teleports and deterministic
   bird/fish/shark/monkey close-review cameras are available.

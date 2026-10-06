@@ -563,8 +563,9 @@ namespace island
         }
         if (worldDebugVisible_) {
             std::cout << "island-simulator: world debug visualization active with 9 ground-contact "
-                         "samples, resolved movement trace, wildlife navigation guides, 6 "
-                         "audio-zone contours, and positional-emitter markers\n";
+                         "samples, resolved movement trace, wildlife navigation guides, 3 bird "
+                         "route regions, 24 bird spawns, 6 audio-zone contours, and positional-"
+                         "emitter markers\n";
         }
         if (!benchmarkPath_.empty()) {
             std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
@@ -775,8 +776,8 @@ namespace island
             std::cout << "island-simulator: world debug visualization "
                       << (worldDebugVisible_
                               ? "enabled with 9 ground-contact samples, resolved movement trace, "
-                                "wildlife navigation guides, 6 audio-zone contours, and "
-                                "positional-emitter markers"
+                                "wildlife navigation guides, 3 bird route regions, 24 bird "
+                                "spawns, 6 audio-zone contours, and positional-emitter markers"
                               : "disabled")
                       << '\n';
         }
@@ -1324,6 +1325,7 @@ namespace island
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
                                       playerMotion_.MovementTrace(),
                                       worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),
+                                      birdFlock_.Routes(), birdFlock_.RouteRegions(),
                                       fishSchools_.Fish(), fishSchools_.Schools(),
                                       sharkPatrol_.State(), monkeyTroop_.Monkeys(),
                                       soundscapeDebug);
@@ -1495,6 +1497,12 @@ namespace island
                     worldDebugRenderer_->WildlifeTargetCount();
                 overlayState.worldDebugMonkeyHomes =
                     worldDebugRenderer_->MonkeyHomeRangeCount();
+                overlayState.worldDebugBirdRouteRegions =
+                    worldDebugRenderer_->BirdRouteRegionCount();
+                overlayState.worldDebugBirdSpawns =
+                    worldDebugRenderer_->BirdSpawnMarkerCount();
+                overlayState.worldDebugBirdRouteTargets =
+                    worldDebugRenderer_->BirdRouteTargetCount();
                 overlayState.worldDebugAudioZones = worldDebugRenderer_->AudioZoneCount();
                 overlayState.worldDebugAudioCandidates =
                     worldDebugRenderer_->AudioCandidateCount();
@@ -1608,6 +1616,10 @@ namespace island
                           << worldDebugRenderer_->WildlifeMarkerCount()
                           << ", targets " << worldDebugRenderer_->WildlifeTargetCount()
                           << ", homes " << worldDebugRenderer_->MonkeyHomeRangeCount()
+                          << "; bird routes " << worldDebugRenderer_->BirdRouteRegionCount()
+                          << ", spawns " << worldDebugRenderer_->BirdSpawnMarkerCount()
+                          << ", radial targets "
+                          << worldDebugRenderer_->BirdRouteTargetCount()
                           << "; movement obstacle/terrain/slide/clamp "
                           << movementTrace.obstacleRejections << '/'
                           << movementTrace.terrainRejections << '/'

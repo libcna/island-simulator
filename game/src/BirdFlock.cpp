@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace island
@@ -12,6 +13,17 @@ namespace island
     {
         constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
         constexpr float GoldenAngle = 2.39996322972865332f;
+
+        [[nodiscard]] constexpr std::size_t FamilyIndex(
+            const BirdPathFamily family) noexcept
+        {
+            switch (family) {
+            case BirdPathFamily::Shore: return 0U;
+            case BirdPathFamily::Canopy: return 1U;
+            case BirdPathFamily::High: return 2U;
+            }
+            return 0U;
+        }
 
         [[nodiscard]] float WrapAngle(float value) noexcept
         {
@@ -37,47 +49,54 @@ namespace island
     {
         agents_.resize(BirdCount);
         states_.resize(BirdCount);
+        routes_.resize(BirdCount);
         for (std::size_t index = 0; index < agents_.size(); ++index) {
             InitializeAgent(index);
             states_[index] = agents_[index].state;
+            routes_[index] = agents_[index].route;
         }
+        BuildRouteRegions();
     }
 
     void BirdFlock::InitializeAgent(const std::size_t index)
     {
         Agent& agent = agents_[index];
+        BirdRouteState& route = agent.route;
         const float sequence = static_cast<float>(index);
         const float angle = std::fmod(0.47f + sequence * GoldenAngle, TwoPi);
-        agent.direction = index % 3U == 0U ? -1 : 1;
+        route.direction = index % 3U == 0U ? -1 : 1;
 
         if (index < 10U) {
             agent.state.family = BirdPathFamily::Shore;
-            agent.preferredRadius = 218.0f + static_cast<float>(index % 5U) * 7.5f;
-            agent.baseAltitude = 28.0f + static_cast<float>(index % 4U) * 5.0f;
-            agent.minimumClearance = 17.0f;
+            route.preferredRadius = 218.0f + static_cast<float>(index % 5U) * 7.5f;
+            route.baseAltitude = 28.0f + static_cast<float>(index % 4U) * 5.0f;
+            route.minimumClearance = 17.0f;
             agent.state.speed = 10.0f + static_cast<float>(index % 4U) * 0.9f;
         } else if (index < 18U) {
             agent.state.family = BirdPathFamily::Canopy;
-            agent.preferredRadius = 70.0f + static_cast<float>(index % 6U) * 16.0f;
-            agent.baseAltitude = 31.0f + static_cast<float>(index % 4U) * 4.0f;
-            agent.minimumClearance = 15.0f;
+            route.preferredRadius = 70.0f + static_cast<float>(index % 6U) * 16.0f;
+            route.baseAltitude = 31.0f + static_cast<float>(index % 4U) * 4.0f;
+            route.minimumClearance = 15.0f;
             agent.state.speed = 7.6f + static_cast<float>(index % 3U) * 1.0f;
         } else {
             agent.state.family = BirdPathFamily::High;
-            agent.preferredRadius = 125.0f + static_cast<float>(index % 5U) * 27.0f;
-            agent.baseAltitude = 71.0f + static_cast<float>(index % 4U) * 8.0f;
-            agent.minimumClearance = 46.0f;
+            route.preferredRadius = 125.0f + static_cast<float>(index % 5U) * 27.0f;
+            route.baseAltitude = 71.0f + static_cast<float>(index % 4U) * 8.0f;
+            route.minimumClearance = 46.0f;
             agent.state.speed = 12.4f + static_cast<float>(index % 4U) * 1.1f;
         }
+        route.family = agent.state.family;
 
         const float groupOffset = static_cast<float>(index % 3U) * 0.055f;
-        const float radius = agent.preferredRadius + (static_cast<float>(index % 4U) - 1.5f) * 3.2f;
+        const float radius = route.preferredRadius
+            + (static_cast<float>(index % 4U) - 1.5f) * 3.2f;
         const float spawnAngle = angle + groupOffset;
         agent.state.x = std::cos(spawnAngle) * radius;
         agent.state.z = std::sin(spawnAngle) * radius;
         agent.state.headingRadians = WrapAngle(
-            spawnAngle + static_cast<float>(agent.direction) * std::numbers::pi_v<float> * 0.5f);
-        agent.verticalAmplitude = 2.1f + static_cast<float>(index % 5U) * 0.55f;
+            spawnAngle + static_cast<float>(route.direction)
+                * std::numbers::pi_v<float> * 0.5f);
+        route.verticalAmplitude = 2.1f + static_cast<float>(index % 5U) * 0.55f;
         agent.verticalPhase = std::fmod(sequence * 1.713f, TwoPi);
         agent.verticalFrequency = 0.13f + static_cast<float>(index % 4U) * 0.019f;
         agent.wanderPhaseA = std::fmod(sequence * 0.873f + 0.3f, TwoPi);
@@ -90,8 +109,35 @@ namespace island
         agent.state.scale = 0.72f + static_cast<float>(index % 6U) * 0.085f;
         agent.state.colorVariant = static_cast<std::uint8_t>(index % 3U);
         const float terrainHeight = terrain_.Height(agent.state.x, agent.state.z);
-        agent.state.y = std::max(agent.baseAltitude, terrainHeight + agent.minimumClearance)
-            + std::sin(agent.verticalPhase) * agent.verticalAmplitude;
+        agent.state.y = std::max(route.baseAltitude, terrainHeight + route.minimumClearance)
+            + std::sin(agent.verticalPhase) * route.verticalAmplitude;
+        route.spawnX = agent.state.x;
+        route.spawnY = agent.state.y;
+        route.spawnZ = agent.state.z;
+        route.spawnHeadingRadians = agent.state.headingRadians;
+    }
+
+    void BirdFlock::BuildRouteRegions() noexcept
+    {
+        routeRegions_[0].family = BirdPathFamily::Shore;
+        routeRegions_[1].family = BirdPathFamily::Canopy;
+        routeRegions_[2].family = BirdPathFamily::High;
+        for (BirdRouteRegion& region : routeRegions_) {
+            region.minimumRadius = std::numeric_limits<float>::max();
+            region.maximumRadius = std::numeric_limits<float>::lowest();
+            region.minimumAltitude = std::numeric_limits<float>::max();
+            region.maximumAltitude = std::numeric_limits<float>::lowest();
+        }
+        for (const BirdRouteState& route : routes_) {
+            BirdRouteRegion& region = routeRegions_[FamilyIndex(route.family)];
+            region.minimumRadius = std::min(region.minimumRadius, route.preferredRadius);
+            region.maximumRadius = std::max(region.maximumRadius, route.preferredRadius);
+            region.minimumAltitude = std::min(
+                region.minimumAltitude, route.baseAltitude - route.verticalAmplitude);
+            region.maximumAltitude = std::max(
+                region.maximumAltitude, route.baseAltitude + route.verticalAmplitude);
+            ++region.population;
+        }
     }
 
     void BirdFlock::Update(const float deltaSeconds, const float observerX,
@@ -143,10 +189,10 @@ namespace island
         const float radius = std::max(1.0f, std::hypot(agent.state.x, agent.state.z));
         const float radialX = agent.state.x / radius;
         const float radialZ = agent.state.z / radius;
-        const float tangentX = -radialZ * static_cast<float>(agent.direction);
-        const float tangentZ = radialX * static_cast<float>(agent.direction);
+        const float tangentX = -radialZ * static_cast<float>(agent.route.direction);
+        const float tangentZ = radialX * static_cast<float>(agent.route.direction);
         const float radialCorrection = std::clamp(
-            (agent.preferredRadius - radius) * 0.018f, -0.52f, 0.52f);
+            (agent.route.preferredRadius - radius) * 0.018f, -0.52f, 0.52f);
         const float desiredX = tangentX + radialX * radialCorrection;
         const float desiredZ = tangentZ + radialZ * radialCorrection;
         const float wander = std::sin(elapsedSeconds_ * agent.wanderFrequencyA
@@ -168,8 +214,8 @@ namespace island
         const float verticalWave = std::sin(elapsedSeconds_ * agent.verticalFrequency * TwoPi
                                             + agent.verticalPhase);
         const float desiredAltitude = std::max(
-            agent.baseAltitude + verticalWave * agent.verticalAmplitude,
-            terrainHeight + agent.minimumClearance);
+            agent.route.baseAltitude + verticalWave * agent.route.verticalAmplitude,
+            terrainHeight + agent.route.minimumClearance);
         const float maximumVerticalStep = deltaSeconds * 4.5f;
         agent.state.y += std::clamp(desiredAltitude - agent.state.y,
                                     -maximumVerticalStep, maximumVerticalStep);
@@ -183,5 +229,15 @@ namespace island
     std::span<const BirdState> BirdFlock::Birds() const noexcept
     {
         return states_;
+    }
+
+    std::span<const BirdRouteState> BirdFlock::Routes() const noexcept
+    {
+        return routes_;
+    }
+
+    std::span<const BirdRouteRegion> BirdFlock::RouteRegions() const noexcept
+    {
+        return routeRegions_;
     }
 }

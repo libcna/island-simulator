@@ -981,18 +981,45 @@ int main()
     island::BirdFlock repeatedBirds(terrain);
     Check(birds.Birds().size() == island::BirdFlock::BirdCount,
           "bird flock has the intended bounded population");
+    Check(birds.Routes().size() == island::BirdFlock::BirdCount,
+          "bird flock exposes one authoritative route per agent");
+    Check(birds.RouteRegions().size() == 3U,
+          "bird flock exposes the three authored route-family regions");
     int shoreBirds = 0;
     int canopyBirds = 0;
     int highBirds = 0;
     for (std::size_t index = 0; index < birds.Birds().size(); ++index) {
         const island::BirdState& bird = birds.Birds()[index];
         const island::BirdState& repeated = repeatedBirds.Birds()[index];
+        const island::BirdRouteState& route = birds.Routes()[index];
+        const island::BirdRouteState& repeatedRoute = repeatedBirds.Routes()[index];
         Check(bird.x == repeated.x && bird.y == repeated.y && bird.z == repeated.z
                   && bird.headingRadians == repeated.headingRadians
                   && bird.speed == repeated.speed && bird.scale == repeated.scale
                   && bird.family == repeated.family
                   && bird.colorVariant == repeated.colorVariant,
               "bird initialization is deterministic");
+        Check(route.spawnX == repeatedRoute.spawnX
+                  && route.spawnY == repeatedRoute.spawnY
+                  && route.spawnZ == repeatedRoute.spawnZ
+                  && route.spawnHeadingRadians == repeatedRoute.spawnHeadingRadians
+                  && route.preferredRadius == repeatedRoute.preferredRadius
+                  && route.baseAltitude == repeatedRoute.baseAltitude
+                  && route.minimumClearance == repeatedRoute.minimumClearance
+                  && route.verticalAmplitude == repeatedRoute.verticalAmplitude
+                  && route.direction == repeatedRoute.direction
+                  && route.family == repeatedRoute.family,
+              "bird route diagnostics initialize deterministically");
+        Check(route.spawnX == bird.x && route.spawnY == bird.y && route.spawnZ == bird.z
+                  && route.spawnHeadingRadians == bird.headingRadians,
+              "bird route diagnostics retain the exact authored spawn pose");
+        Check(route.family == bird.family
+                  && route.preferredRadius >= 70.0f && route.preferredRadius <= 248.0f
+                  && route.baseAltitude >= 28.0f && route.baseAltitude <= 95.0f
+                  && route.minimumClearance >= 15.0f
+                  && route.verticalAmplitude >= 2.0f
+                  && (route.direction == -1 || route.direction == 1),
+              "bird route diagnostics retain bounded steering inputs");
         Check(std::isfinite(bird.x) && std::isfinite(bird.y) && std::isfinite(bird.z),
               "bird initial positions are finite");
         Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.9f,
@@ -1013,6 +1040,34 @@ int main()
     }
     Check(shoreBirds == 10 && canopyBirds == 8 && highBirds == 6,
           "bird flock combines shore, canopy, and high route families");
+    const std::array<std::size_t, 3> expectedBirdRegionPopulations = {10U, 8U, 6U};
+    for (std::size_t index = 0; index < birds.RouteRegions().size(); ++index) {
+        const island::BirdRouteRegion& region = birds.RouteRegions()[index];
+        const island::BirdRouteRegion& repeated = repeatedBirds.RouteRegions()[index];
+        Check(region.minimumRadius == repeated.minimumRadius
+                  && region.maximumRadius == repeated.maximumRadius
+                  && region.minimumAltitude == repeated.minimumAltitude
+                  && region.maximumAltitude == repeated.maximumAltitude
+                  && region.population == repeated.population
+                  && region.family == repeated.family,
+              "bird route-family regions initialize deterministically");
+        Check(region.population == expectedBirdRegionPopulations[index]
+                  && region.minimumRadius <= region.maximumRadius
+                  && region.minimumAltitude < region.maximumAltitude,
+              "bird route-family regions account for bounded authored volumes");
+    }
+    CheckNear(birds.RouteRegions()[0].minimumRadius, 218.0f, 0.0001f,
+              "shore-bird route region begins at the authored inner orbit");
+    CheckNear(birds.RouteRegions()[0].maximumRadius, 248.0f, 0.0001f,
+              "shore-bird route region ends at the authored outer orbit");
+    CheckNear(birds.RouteRegions()[1].minimumRadius, 70.0f, 0.0001f,
+              "canopy-bird route region begins at the authored inner orbit");
+    CheckNear(birds.RouteRegions()[1].maximumRadius, 150.0f, 0.0001f,
+              "canopy-bird route region ends at the authored outer orbit");
+    CheckNear(birds.RouteRegions()[2].minimumRadius, 125.0f, 0.0001f,
+              "high-bird route region begins at the authored inner orbit");
+    CheckNear(birds.RouteRegions()[2].maximumRadius, 233.0f, 0.0001f,
+              "high-bird route region ends at the authored outer orbit");
 
     float maximumObservedBirdRadius = 0.0f;
     float minimumObservedBirdRadius = 1000.0f;

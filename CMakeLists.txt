@@ -404,7 +404,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "wildlife markers [1-9][0-9]*, targets [1-9][0-9]*, homes [1-7]")
+                "wildlife markers [1-9][0-9]*, targets [1-9][0-9]*, homes [1-7]; bird routes 3, spawns 24, radial targets [1-9][0-9]*")
         add_test(NAME IslandGameBenchmark
             COMMAND island-simulator
                     --benchmark "${CMAKE_BINARY_DIR}/island-benchmark-jungle.json"
