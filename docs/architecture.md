@@ -641,6 +641,11 @@ voice-slot holding, sparse frequency, parameter bounds, and variant reachability
 require each source pair to contain different PCM. A 72,000-frame accelerated model regression
 cycles representative zones for a simulated twenty minutes while checking finite bounds, event
 budgets, crossings, and variant reachability.
+The renderer-independent control path also fails closed on non-finite runtime input: invalid time
+does not advance fades or schedulers, invalid depth/speed/current produces a finite calm mix,
+invalid shoreline state cannot fabricate a crossing, and invalid listener/source coordinates
+cannot request a positional call. The next valid update resumes from uncorrupted state; this guard
+does not alter the generated PCM or ordinary finite-input mix.
 Native playback started all four loops, prepared all effects, accepted a scheduled stronger-wave
 one-shot, and played a positional bird call through the real Linux device. Actual Chromium proves
 first-gesture mixer/track/effect initialization including the wildlife resources, and a

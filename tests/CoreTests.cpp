@@ -671,8 +671,24 @@ int main()
           "jungle texture is audible inland and explicitly attenuated while swimming");
     Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
           "swimming emphasizes nearby water while softening canopy breeze");
+    const island::SoundscapeMix invalidPositionMix = island::SoundscapeModel::TargetMix(
+        std::numeric_limits<float>::quiet_NaN(), false);
+    Check(std::isfinite(invalidPositionMix.surfVolume)
+              && std::isfinite(invalidPositionMix.breezeVolume)
+              && std::isfinite(invalidPositionMix.jungleVolume)
+              && invalidPositionMix.surfVolume == 0.0f
+              && invalidPositionMix.breezeVolume == 0.0f
+              && invalidPositionMix.jungleVolume == 0.0f,
+          "non-finite soundscape positions fail closed to a finite silent target");
     island::SoundscapeModel soundscapeModel;
     soundscapeModel.Reset(2.0f, false);
+    const island::SoundscapeMix beforeInvalidDelta = soundscapeModel.Mix();
+    const island::SoundscapeMix afterInvalidDelta = soundscapeModel.Update(
+        140.0f, false, std::numeric_limits<float>::infinity());
+    Check(afterInvalidDelta.surfVolume == beforeInvalidDelta.surfVolume
+              && afterInvalidDelta.breezeVolume == beforeInvalidDelta.breezeVolume
+              && afterInvalidDelta.jungleVolume == beforeInvalidDelta.jungleVolume,
+          "non-finite soundscape time cannot poison or advance the current mix");
     const float initialSurfVolume = soundscapeModel.Mix().surfVolume;
     for (int step = 0; step < 300; ++step) {
         (void)soundscapeModel.Update(140.0f, false, 1.0f / 60.0f);
@@ -701,6 +717,11 @@ int main()
     const island::WaterMovementMix invalidCurrent =
         island::WaterMovementModel::TargetMix(
             2.5f, true, 0.0f, std::numeric_limits<float>::quiet_NaN());
+    const island::WaterMovementMix invalidWaterInputs =
+        island::WaterMovementModel::TargetMix(
+            std::numeric_limits<float>::quiet_NaN(), false,
+            std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::quiet_NaN());
     CheckNear(dryMovement.volume, 0.0f, 0.0001f,
               "dry walking never activates the player water layer");
     CheckNear(idleWater.volume, 0.0f, 0.0001f,
@@ -717,8 +738,24 @@ int main()
               "ocean-current audio remains disabled outside swimming");
     CheckNear(invalidCurrent.currentCue, 0.0f, 0.0001f,
               "non-finite ocean-current audio input degrades to the calm mix");
+    Check(std::isfinite(invalidWaterInputs.volume)
+              && std::isfinite(invalidWaterInputs.pitch)
+              && std::isfinite(invalidWaterInputs.currentCue)
+              && invalidWaterInputs.volume == 0.0f
+              && invalidWaterInputs.currentCue == 0.0f,
+          "non-finite water depth and speed fail closed to a finite dry mix");
     island::WaterMovementModel waterMovementModel;
     waterMovementModel.Reset(0.0f, false, 0.0f);
+    const island::WaterMovementMix beforeInvalidWaterMixDelta = waterMovementModel.Mix();
+    const island::WaterMovementMix afterInvalidWaterDelta = waterMovementModel.Update(
+        std::numeric_limits<float>::quiet_NaN(), false,
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::quiet_NaN(),
+        std::numeric_limits<float>::quiet_NaN());
+    Check(afterInvalidWaterDelta.volume == beforeInvalidWaterMixDelta.volume
+              && afterInvalidWaterDelta.pitch == beforeInvalidWaterMixDelta.pitch
+              && afterInvalidWaterDelta.currentCue == beforeInvalidWaterMixDelta.currentCue,
+          "non-finite water-mix time cannot poison or advance the current mix");
     const island::WaterMovementMix firstWadingFrame =
         waterMovementModel.Update(0.24f, false, 3.0f, 1.0f / 60.0f);
     Check(firstWadingFrame.volume > 0.0f
@@ -790,6 +827,20 @@ int main()
         waterTransitionScheduler.Update(0.12f, false, 0.0f, 0.01f);
     Check(stationaryEntry.type == island::WaterTransitionType::None,
           "stationary water-state changes do not emit a teleport-like splash");
+    island::WaterTransitionScheduler invalidTransitionScheduler;
+    invalidTransitionScheduler.Reset(0.0f, false);
+    const island::WaterTransitionRequest invalidDepthTransition =
+        invalidTransitionScheduler.Update(
+            std::numeric_limits<float>::quiet_NaN(), false, 3.0f, 0.01f);
+    const island::WaterTransitionRequest invalidSpeedTransition =
+        invalidTransitionScheduler.Update(
+            0.12f, false, std::numeric_limits<float>::infinity(), 0.01f);
+    const island::WaterTransitionRequest recoveredTransition =
+        invalidTransitionScheduler.Update(0.12f, false, 3.0f, 0.01f);
+    Check(invalidDepthTransition.type == island::WaterTransitionType::None
+              && invalidSpeedTransition.type == island::WaterTransitionType::None
+              && recoveredTransition.type == island::WaterTransitionType::Enter,
+          "invalid shoreline audio inputs do not mutate state or block the next valid crossing");
     island::WaterTransitionScheduler transitionVariantScheduler;
     transitionVariantScheduler.Reset(0.0f, false);
     std::array<bool, 2> observedTransitionVariants = {false, false};
@@ -816,6 +867,13 @@ int main()
 
     island::WaveAccentScheduler waveScheduler;
     waveScheduler.Reset();
+    bool invalidDeltaWave = false;
+    for (int step = 0; step < 100; ++step) {
+        invalidDeltaWave = invalidDeltaWave || waveScheduler.Update(
+            std::numeric_limits<float>::quiet_NaN(), beachMix.surfVolume).trigger;
+    }
+    Check(!invalidDeltaWave,
+          "non-finite time cannot advance the stronger-wave scheduler");
     island::WaveAccentRequest firstWave;
     for (int step = 0; step < 60 && !firstWave.trigger; ++step) {
         firstWave = waveScheduler.Update(0.25f, beachMix.surfVolume);
@@ -902,6 +960,30 @@ int main()
     }
     Check(!distantCallTriggered,
           "distant wildlife is virtualized instead of consuming an inaudible voice");
+
+    island::WildlifeCallScheduler invalidWildlifeScheduler;
+    invalidWildlifeScheduler.Reset();
+    bool invalidWildlifeCallTriggered = false;
+    for (int step = 0; step < 100; ++step) {
+        invalidWildlifeCallTriggered = invalidWildlifeCallTriggered
+            || invalidWildlifeScheduler.Update(
+                   std::numeric_limits<float>::quiet_NaN(), false, 90.0f,
+                   0.0f, 2.0f, 0.0f, nearbyBird, nearbyMonkey, true).type
+                != island::WildlifeCallType::None;
+    }
+    Check(!invalidWildlifeCallTriggered,
+          "non-finite time cannot advance the positional wildlife-call scheduler");
+    bool invalidListenerCallTriggered = false;
+    for (int step = 0; step < 80; ++step) {
+        invalidListenerCallTriggered = invalidListenerCallTriggered
+            || invalidWildlifeScheduler.Update(
+                   0.25f, false, 90.0f,
+                   std::numeric_limits<float>::quiet_NaN(), 2.0f, 0.0f,
+                   nearbyBird, nearbyMonkey, true).type
+                != island::WildlifeCallType::None;
+    }
+    Check(!invalidListenerCallTriggered,
+          "non-finite listener positions cannot emit a positional wildlife call");
 
     island::WildlifeCallScheduler longWildlifeScheduler;
     longWildlifeScheduler.Reset();

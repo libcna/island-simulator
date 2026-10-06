@@ -6,6 +6,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <numbers>
 #include <vector>
 
@@ -17,6 +18,17 @@ namespace island
         constexpr int AmbientLoopSeconds = 10;
         constexpr std::size_t AmbientFrameCount = static_cast<std::size_t>(
             AmbientSampleRate * AmbientLoopSeconds);
+
+        [[nodiscard]] float SafeDeltaSeconds(const float deltaSeconds) noexcept
+        {
+            return std::isfinite(deltaSeconds)
+                ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
+        }
+
+        [[nodiscard]] float NonNegativeFinite(const float value) noexcept
+        {
+            return std::isfinite(value) ? std::max(0.0f, value) : 0.0f;
+        }
 
         class DeterministicNoise final
         {
@@ -449,8 +461,9 @@ namespace island
     WaveAccentRequest WaveAccentScheduler::Update(const float deltaSeconds,
                                                   const float surfVolume) noexcept
     {
-        secondsUntilAccent_ -= std::clamp(deltaSeconds, 0.0f, 0.25f);
-        if (secondsUntilAccent_ > 0.0f || surfVolume < 0.16f) {
+        secondsUntilAccent_ -= SafeDeltaSeconds(deltaSeconds);
+        if (secondsUntilAccent_ > 0.0f || !std::isfinite(surfVolume)
+            || surfVolume < 0.16f) {
             return {};
         }
 
@@ -472,11 +485,11 @@ namespace island
         const float referenceSpeed = swimming ? PlayerMotion::SwimSpeed
                                               : PlayerMotion::WalkSpeed;
         const float normalizedSpeed = std::clamp(
-            std::max(0.0f, horizontalSpeed) / referenceSpeed, 0.0f, 1.0f);
+            NonNegativeFinite(horizontalSpeed) / referenceSpeed, 0.0f, 1.0f);
         const float movement = SmoothStep(0.035f, 0.34f, normalizedSpeed);
         const float depthPresence = swimming
             ? 1.0f
-            : SmoothStep(0.035f, 0.38f, std::max(0.0f, waterDepth));
+            : SmoothStep(0.035f, 0.38f, NonNegativeFinite(waterDepth));
         const float safeCurrent = swimming && std::isfinite(oceanCurrentStrength)
             ? std::clamp(oceanCurrentStrength, 0.0f, 1.0f) : 0.0f;
         const float currentCue = SmoothStep(0.06f, 0.96f, safeCurrent);
@@ -506,7 +519,7 @@ namespace island
     {
         const WaterMovementMix target = TargetMix(
             waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
-        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.25f);
+        const float safeDelta = SafeDeltaSeconds(deltaSeconds);
         const float currentBlend = 1.0f - std::exp(-safeDelta / 0.65f);
         mix_.currentCue += (target.currentCue - mix_.currentCue) * currentBlend;
 
@@ -528,7 +541,7 @@ namespace island
     {
         randomState_ = 0xc0145a7eU;
         cooldownSeconds_ = 0.0f;
-        inWater_ = swimming || waterDepth >= 0.075f;
+        inWater_ = swimming || (std::isfinite(waterDepth) && waterDepth >= 0.075f);
     }
 
     float WaterTransitionScheduler::NextUnit() noexcept
@@ -546,7 +559,11 @@ namespace island
                                                             const float deltaSeconds) noexcept
     {
         cooldownSeconds_ = std::max(
-            0.0f, cooldownSeconds_ - std::clamp(deltaSeconds, 0.0f, 0.25f));
+            0.0f, cooldownSeconds_ - SafeDeltaSeconds(deltaSeconds));
+        if (!std::isfinite(waterDepth) || !std::isfinite(horizontalSpeed)) {
+            return {};
+        }
+        const float safeSpeed = std::max(0.0f, horizontalSpeed);
         bool nextInWater = inWater_;
         if (swimming || waterDepth >= 0.075f) {
             nextInWater = true;
@@ -559,12 +576,12 @@ namespace island
 
         const bool entering = nextInWater;
         inWater_ = nextInWater;
-        if (cooldownSeconds_ > 0.0f || horizontalSpeed < 0.12f) {
+        if (cooldownSeconds_ > 0.0f || safeSpeed < 0.12f) {
             return {};
         }
 
         const float normalizedSpeed = std::clamp(
-            horizontalSpeed / PlayerMotion::WalkSpeed, 0.0f, 1.0f);
+            safeSpeed / PlayerMotion::WalkSpeed, 0.0f, 1.0f);
         WaterTransitionRequest request;
         request.type = entering ? WaterTransitionType::Enter : WaterTransitionType::Exit;
         request.variant = NextUnit() < 0.5f ? 0U : 1U;
@@ -596,20 +613,26 @@ namespace island
         const WildlifeAudioSource& bird, const WildlifeAudioSource& monkey,
         const bool playbackSlotAvailable) noexcept
     {
-        secondsUntilCall_ -= std::clamp(deltaSeconds, 0.0f, 0.25f);
+        secondsUntilCall_ -= SafeDeltaSeconds(deltaSeconds);
         if (secondsUntilCall_ > 0.0f || !playbackSlotAvailable) {
             return {};
         }
 
         const auto distanceSquared = [listenerX, listenerY, listenerZ](
                                          const WildlifeAudioSource& source) noexcept {
+            if (!std::isfinite(listenerX) || !std::isfinite(listenerY)
+                || !std::isfinite(listenerZ) || !std::isfinite(source.x)
+                || !std::isfinite(source.y) || !std::isfinite(source.z)) {
+                return std::numeric_limits<float>::infinity();
+            }
             const float dx = source.x - listenerX;
             const float dy = source.y - listenerY;
             const float dz = source.z - listenerZ;
             return dx * dx + dy * dy + dz * dz;
         };
         const bool birdEligible = bird.available && distanceSquared(bird) <= 110.0f * 110.0f;
-        const bool monkeyEligible = !swimming && signedShoreDistance >= 24.0f
+        const bool monkeyEligible = !swimming && std::isfinite(signedShoreDistance)
+            && signedShoreDistance >= 24.0f
             && monkey.available && distanceSquared(monkey) <= 78.0f * 78.0f;
         if (!birdEligible && !monkeyEligible) {
             secondsUntilCall_ = 2.0f + NextUnit() * 3.0f;
@@ -637,6 +660,9 @@ namespace island
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,
                                              const bool swimming) noexcept
     {
+        if (!std::isfinite(signedShoreDistance)) {
+            return {};
+        }
         const float inlandDistance = std::max(0.0f, signedShoreDistance);
         const float surfPresence = 1.0f - SmoothStep(
             SurfFadeStartDistance, SurfFadeEndDistance, inlandDistance);
@@ -664,7 +690,7 @@ namespace island
                                           const float deltaSeconds) noexcept
     {
         const SoundscapeMix target = TargetMix(signedShoreDistance, swimming);
-        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.25f);
+        const float safeDelta = SafeDeltaSeconds(deltaSeconds);
         const float blend = 1.0f - std::exp(-safeDelta / 1.8f);
         const float jungleBlend = 1.0f - std::exp(-safeDelta / 2.6f);
         mix_.surfVolume += (target.surfVolume - mix_.surfVolume) * blend;

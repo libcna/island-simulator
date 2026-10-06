@@ -1083,8 +1083,8 @@ Work next, in order:
 1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
-   Linux playback, the six-source ceiling, and a 77-minute aggregate loop phase period are verified;
-   subjective masking and fatigue are not.
+   Linux playback, finite-input fail-closed control state, the six-source ceiling, and a 77-minute
+   aggregate loop phase period are verified; subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
@@ -3653,6 +3653,26 @@ Work next, in order:
   controls. The restored arm64-only APK remains 18,740,172 bytes with a 15,929,888-byte stripped
   `libmain.so` and verifies with signature scheme v2. All compilation used `/rv/cnaccache` and no
   more than two workers per build. No game workaround or qualifying dependency defect was found.
+
+### 2026-10-06 — Finite-safe soundscape control state
+
+- Hardened every renderer-independent soundscape model and scheduler against non-finite control
+  input. Invalid time is a zero-length update; invalid shoreline position produces a finite silent
+  target; invalid water depth, speed, or current produces the finite dry/calm mix; invalid crossing
+  state emits no accent; and invalid listener/source coordinates cannot request a positional call.
+  The next valid update resumes without a poisoned mix or corrupted water-transition state.
+- Added focused core regressions for ambient and water fades, entry/exit hysteresis, wave timing,
+  wildlife timing, and positional eligibility. The core suite passes in 16.50 seconds. The audio
+  report still validates the same 12 distinct procedural clips and 2,533,544 PCM payload bytes;
+  generation and normal finite-input mix behaviour are unchanged.
+- The actual Chrome 152/SwiftShader WebGL 2 harness passes all 22 renderer, lifecycle, scene,
+  input, and first-gesture audio stages after the change; WebAssembly is 8,495,122 bytes. The
+  arm64-v8a GLES 3 APK rebuilds through `/rv/cnaccache`, passes application lint, contains only the
+  requested ABI, and verifies with signature scheme v2. It is 18,740,844 bytes with a
+  15,930,560-byte stripped `libmain.so`. Android runtime was not needlessly repeated for this
+  renderer-independent control change; the immediately preceding current-CNA-pin KVM/GLES 3
+  complete-scene run remains the runtime evidence. CNA and Sharp Runtime remained read-only and
+  unchanged; no qualifying dependency defect or game-side framework workaround was involved.
 
 ## Session-end checklist
 

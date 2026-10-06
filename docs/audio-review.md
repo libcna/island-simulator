@@ -78,3 +78,9 @@ range from approximately 0.56 to 0.86. Absolute DC offset remains below 0.0069. 
 range from approximately 0.0036 to 0.0271 and remain below their own largest ordinary internal
 step. The persistent 10/11/12/7-second lengths align as a complete pattern only every 77 minutes;
 these figures establish regression bounds, not a claim of perceptual quality.
+
+Renderer-independent regressions additionally inject non-finite time, shoreline distance, water
+depth, movement speed, current strength, and positional-audio coordinates. Those values must not
+enter a mix, advance an event scheduler, fabricate a shoreline crossing, or request a wildlife
+call; the next valid update must recover from finite state. This validates control-state safety,
+not audible quality. The generated PCM and source-count baseline above are unchanged.

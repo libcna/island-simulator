@@ -285,7 +285,8 @@ namespace island
         const std::span<const BirdState> birds,
         const std::span<const MonkeyState> monkeys) noexcept
     {
-        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.25f);
+        const float safeDelta = std::isfinite(deltaSeconds)
+            ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
         waveSecondsRemaining_ = std::max(0.0f, waveSecondsRemaining_ - safeDelta);
         waterTransitionSecondsRemaining_ = std::max(
             0.0f, waterTransitionSecondsRemaining_ - safeDelta);
