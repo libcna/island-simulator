@@ -1,5 +1,7 @@
 #include "IslandSimulator/NaturalPropRenderer.hpp"
 
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -820,7 +822,10 @@ void main()
 
     void NaturalPropRenderer::CreateMeshes()
     {
-        const auto upload = [this](const PropGeometry& geometry, PropMesh& mesh) {
+        const auto upload = [this](const PropGeometry& geometry, PropMesh& mesh,
+                                   const char* label) {
+            ValidateProceduralTriangleMeshOrThrow(
+                geometry.vertices.size(), geometry.indices, label);
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
             mesh.vertices = std::make_unique<VertexBuffer>(
@@ -833,26 +838,30 @@ void main()
             mesh.indices->SetData(geometry.indices.data(), static_cast<int>(geometry.indices.size()));
         };
         for (std::size_t variant = 0; variant < rockNearMeshes_.size(); ++variant) {
-            upload(CreateRockGeometry(static_cast<int>(variant), false), rockNearMeshes_[variant]);
-            upload(CreateRockGeometry(static_cast<int>(variant), true), rockFarMeshes_[variant]);
+            upload(CreateRockGeometry(static_cast<int>(variant), false), rockNearMeshes_[variant],
+                   "rock near LOD");
+            upload(CreateRockGeometry(static_cast<int>(variant), true), rockFarMeshes_[variant],
+                   "rock far LOD");
         }
         for (std::size_t variant = 0; variant < logNearMeshes_.size(); ++variant) {
-            upload(CreateLogGeometry(static_cast<int>(variant), false), logNearMeshes_[variant]);
-            upload(CreateLogGeometry(static_cast<int>(variant), true), logFarMeshes_[variant]);
+            upload(CreateLogGeometry(static_cast<int>(variant), false), logNearMeshes_[variant],
+                   "log near LOD");
+            upload(CreateLogGeometry(static_cast<int>(variant), true), logFarMeshes_[variant],
+                   "log far LOD");
         }
         for (std::size_t variant = 0; variant < driftwoodNearMeshes_.size(); ++variant) {
             upload(CreateDriftwoodGeometry(static_cast<int>(variant), false),
-                   driftwoodNearMeshes_[variant]);
+                   driftwoodNearMeshes_[variant], "driftwood near LOD");
             upload(CreateDriftwoodGeometry(static_cast<int>(variant), true),
-                   driftwoodFarMeshes_[variant]);
+                   driftwoodFarMeshes_[variant], "driftwood far LOD");
         }
         for (std::size_t variant = 0; variant < beachDetailMeshes_.size(); ++variant) {
             upload(CreateBeachDetailGeometry(static_cast<int>(variant)),
-                   beachDetailMeshes_[variant]);
+                   beachDetailMeshes_[variant], "beach-detail");
         }
         for (std::size_t variant = 0; variant < fallenFrondMeshes_.size(); ++variant) {
             upload(CreateFallenFrondGeometry(static_cast<int>(variant)),
-                   fallenFrondMeshes_[variant]);
+                   fallenFrondMeshes_[variant], "fallen-frond");
         }
     }
 

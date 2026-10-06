@@ -1,5 +1,7 @@
 #include "IslandSimulator/PalmRenderer.hpp"
 
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -551,7 +553,10 @@ void main()
 
     void PalmRenderer::CreateMeshes()
     {
-        const auto upload = [this](const PalmGeometry& geometry, PalmMesh& mesh) {
+        const auto upload = [this](const PalmGeometry& geometry, PalmMesh& mesh,
+                                   const char* label) {
+            ValidateProceduralTriangleMeshOrThrow(
+                geometry.vertices.size(), geometry.indices, label);
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
             mesh.vertices = std::make_unique<VertexBuffer>(
@@ -565,8 +570,10 @@ void main()
         };
 
         for (std::size_t variant = 0; variant < nearMeshes_.size(); ++variant) {
-            upload(CreatePalmGeometry(static_cast<int>(variant), false), nearMeshes_[variant]);
-            upload(CreatePalmGeometry(static_cast<int>(variant), true), farMeshes_[variant]);
+            upload(CreatePalmGeometry(static_cast<int>(variant), false), nearMeshes_[variant],
+                   "palm near LOD");
+            upload(CreatePalmGeometry(static_cast<int>(variant), true), farMeshes_[variant],
+                   "palm far LOD");
         }
     }
 

@@ -1,6 +1,7 @@
 #include "IslandSimulator/ShorelineRenderer.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 
 #include <algorithm>
@@ -233,6 +234,7 @@ void main()
             }
         }
 
+        ValidateProceduralTriangleMeshOrThrow(vertices.size(), indices, "shoreline");
         vertexCount_ = static_cast<int>(vertices.size());
         primitiveCount_ = static_cast<int>(indices.size() / 3U);
         vertices_ = std::make_unique<VertexBuffer>(

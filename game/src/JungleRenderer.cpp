@@ -1,6 +1,7 @@
 #include "IslandSimulator/JungleRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -809,7 +810,10 @@ void main()
 
     void JungleRenderer::CreateMeshes()
     {
-        const auto upload = [this](const PlantGeometry& geometry, PlantMesh& mesh) {
+        const auto upload = [this](const PlantGeometry& geometry, PlantMesh& mesh,
+                                   const char* label) {
+            ValidateProceduralTriangleMeshOrThrow(
+                geometry.vertices.size(), geometry.indices, label);
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
             mesh.vertices = std::make_unique<VertexBuffer>(
@@ -823,27 +827,27 @@ void main()
         };
         for (std::size_t variant = 0; variant < canopyNearMeshes_.size(); ++variant) {
             upload(CreateCanopyGeometry(static_cast<int>(variant), false),
-                   canopyNearMeshes_[variant]);
+                   canopyNearMeshes_[variant], "canopy near LOD");
             upload(CreateCanopyGeometry(static_cast<int>(variant), true),
-                   canopyFarMeshes_[variant]);
+                   canopyFarMeshes_[variant], "canopy far LOD");
         }
         for (std::size_t variant = 0; variant < understoryNearMeshes_.size(); ++variant) {
             upload(CreateUnderstoryGeometry(static_cast<int>(variant), false),
-                   understoryNearMeshes_[variant]);
+                   understoryNearMeshes_[variant], "understory near LOD");
             upload(CreateUnderstoryGeometry(static_cast<int>(variant), true),
-                   understoryFarMeshes_[variant]);
+                   understoryFarMeshes_[variant], "understory far LOD");
         }
         for (std::size_t variant = 0; variant < bushNearMeshes_.size(); ++variant) {
             upload(CreateBushGeometry(static_cast<int>(variant), false),
-                   bushNearMeshes_[variant]);
+                   bushNearMeshes_[variant], "bush near LOD");
             upload(CreateBushGeometry(static_cast<int>(variant), true),
-                   bushFarMeshes_[variant]);
+                   bushFarMeshes_[variant], "bush far LOD");
         }
         for (std::size_t variant = 0; variant < groundPlantNearMeshes_.size(); ++variant) {
             upload(CreateGroundPlantGeometry(static_cast<int>(variant), false),
-                   groundPlantNearMeshes_[variant]);
+                   groundPlantNearMeshes_[variant], "ground-plant near LOD");
             upload(CreateGroundPlantGeometry(static_cast<int>(variant), true),
-                   groundPlantFarMeshes_[variant]);
+                   groundPlantFarMeshes_[variant], "ground-plant far LOD");
         }
     }
 

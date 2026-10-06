@@ -44,6 +44,7 @@ add_library(island_core STATIC
     game/src/NaturalPropLayout.cpp
     game/src/PerformanceStatistics.cpp
     game/src/PlayerMotion.cpp
+    game/src/ProceduralMeshValidation.cpp
     game/src/SharkPatrol.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp

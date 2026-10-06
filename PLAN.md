@@ -805,7 +805,7 @@ Dependencies: representative complete scene on all targets.
   inputs for actionable failure diagnostics. `IslandCommandLineValidation` now launches the real
   executable for eight invalid option/value/conflict cases and requires exit code 2, specific
   stderr guidance, and no stdout before graphics initialization. Malformed content cases remain.
-- [~] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
+- [x] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
   sizes, and impossible player/wildlife states in development builds. Player and all four wildlife
   simulations now reject non-finite frame/input values before they can poison persistent state and
   assert finite poses, bounded animation values, valid populations, and home/range invariants in
@@ -813,7 +813,9 @@ Dependencies: representative complete scene on all targets.
   fourteen-bone hierarchy/palette, four required clips, track palette indices, ordered key times,
   and finite key transforms before GPU upload. Public terrain queries now define a one-million-
   metre numeric domain and fail closed to a finite upward-facing deep-seabed sample outside it,
-  preventing unsafe float-to-noise-cell conversion. Remaining renderer-mesh assertions are open.
+  preventing unsafe float-to-noise-cell conversion. One tested core validator now rejects empty,
+  incomplete, oversized, or out-of-range 16-bit triangle meshes before every indexed procedural
+  renderer upload.
 - [x] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
   A host-only two-worker preset instruments the game-owned core, tests, and world-report tool while
   omitting CNA and the graphical application. The first complete pass is clean. LeakSanitizer
@@ -3553,6 +3555,25 @@ Work next, in order:
   APK is 18,732,292 bytes with a 15,922,008-byte stripped `libmain.so`, and application lint passes.
   Runtime behaviour for valid world coordinates is unchanged. CNA and Sharp Runtime remain clean,
   read-only, and unmodified.
+
+### 2026-10-06 — Complete procedural index validation
+
+- Added renderer-independent `ValidateProceduralTriangleMeshOrThrow` to reject zero vertices,
+  empty/incomplete triangle lists, more than 65,536 addressable vertices, graphics-API-sized index
+  overflow, and every out-of-range 16-bit vertex index with a subsystem-labelled diagnostic.
+  Unit coverage proves both the maximum legal index and all practical malformed boundaries.
+- Applied it immediately before GPU buffer creation for the terrain, ocean, shoreline ribbon, sky
+  dome, three grass LODs, both palm LODs, all canopy/understory/bush/ground-plant LODs, every
+  rock/log/driftwood/beach-detail/frond mesh, and monkey body/face/eye meshes. Non-indexed dynamic
+  wildlife/contact batches are outside this index contract. The validation runs only during
+  content creation and adds no frame-loop work.
+- The core suite passes in 16.92 seconds and actual isolated OpenGL 3.3 startup constructs every
+  current mesh successfully. The complete Chrome 152/SwiftShader WebGL 2 harness again passes all
+  22 stages; WebAssembly is 8,491,201 bytes. The arm64 GLES 3 target and app lint pass, and the
+  v2-signed arm64-only APK is 18,736,332 bytes with a 15,926,048-byte stripped `libmain.so`.
+  The immediately preceding KVM/GLES 3 complete-scene run remains the Android runtime evidence;
+  the emulator was not needlessly restarted for this platform-independent startup check. CNA and
+  Sharp Runtime remain clean, read-only, and unmodified.
 
 ## Session-end checklist
 

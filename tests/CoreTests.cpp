@@ -16,6 +16,7 @@
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
@@ -97,6 +98,41 @@ int main()
                  "jungle=0x43b0a7d1\n"
                  "natural-props=0xa7816c39\n",
           "world seed clipboard text is stable and report-friendly");
+
+    constexpr std::array<std::uint16_t, 3> validTriangle = {0U, 1U, 2U};
+    bool validProceduralMeshAccepted = true;
+    try {
+        island::ValidateProceduralTriangleMeshOrThrow(
+            3U, validTriangle, "test-valid");
+        island::ValidateProceduralTriangleMeshOrThrow(
+            65'536U, std::array<std::uint16_t, 3>{65'535U, 1U, 0U},
+            "test-maximum");
+    } catch (const std::runtime_error&) {
+        validProceduralMeshAccepted = false;
+    }
+    Check(validProceduralMeshAccepted,
+          "procedural mesh validation accepts complete in-range 16-bit triangle lists");
+
+    const auto rejectsProceduralMesh = [](const std::size_t vertexCount,
+                                           const std::span<const std::uint16_t> indices,
+                                           const std::string_view expectedDiagnostic) {
+        try {
+            island::ValidateProceduralTriangleMeshOrThrow(
+                vertexCount, indices, "test-invalid");
+        } catch (const std::runtime_error& exception) {
+            return std::string_view(exception.what()).find(expectedDiagnostic)
+                != std::string_view::npos;
+        }
+        return false;
+    };
+    Check(rejectsProceduralMesh(0U, validTriangle, "no vertices")
+              && rejectsProceduralMesh(3U, {}, "no triangle indices")
+              && rejectsProceduralMesh(
+                  3U, std::array<std::uint16_t, 2>{0U, 1U}, "complete triangle list")
+              && rejectsProceduralMesh(
+                  3U, std::array<std::uint16_t, 3>{0U, 1U, 3U}, "out-of-range")
+              && rejectsProceduralMesh(65'537U, validTriangle, "16-bit vertex limit"),
+          "procedural mesh validation rejects every malformed portable index boundary");
 
     const island::BenchmarkTraversalRoute benchmarkRoute;
     const island::BenchmarkRouteSample routeStart = benchmarkRoute.Sample(0.0f);

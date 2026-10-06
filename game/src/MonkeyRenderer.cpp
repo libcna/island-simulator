@@ -1,6 +1,7 @@
 #include "IslandSimulator/MonkeyRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 
 #include <algorithm>
 #include <array>
@@ -8,7 +9,6 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
-#include <limits>
 #include <numbers>
 #include <stdexcept>
 #include <string>
@@ -398,23 +398,6 @@ namespace island
             }
         }
 
-        void ValidateMeshOrThrow(const MeshData& mesh, const std::string_view name)
-        {
-            if (mesh.vertices.empty() || mesh.indices.empty()
-                || mesh.indices.size() % 3U != 0U
-                || mesh.vertices.size() > std::numeric_limits<std::uint16_t>::max()) {
-                throw std::runtime_error(
-                    "procedural monkey " + std::string(name) + " mesh metadata is invalid");
-            }
-            for (const std::uint16_t index : mesh.indices) {
-                if (static_cast<std::size_t>(index) >= mesh.vertices.size()) {
-                    throw std::runtime_error(
-                        "procedural monkey " + std::string(name)
-                        + " mesh contains an out-of-range index");
-                }
-            }
-        }
-
         void AddVertex(MeshData& mesh, const Vector3& position, const Vector3& normal,
                        const int bone)
         {
@@ -725,8 +708,10 @@ namespace island
         ValidateSkinningDataOrThrow(*skinningData_);
         MeshData faceMesh = CreateFaceMesh();
         MeshData eyeMesh = CreateEyeMesh();
-        ValidateMeshOrThrow(faceMesh, "face");
-        ValidateMeshOrThrow(eyeMesh, "eye");
+        ValidateProceduralTriangleMeshOrThrow(
+            faceMesh.vertices.size(), faceMesh.indices, "monkey face");
+        ValidateProceduralTriangleMeshOrThrow(
+            eyeMesh.vertices.size(), eyeMesh.indices, "monkey eye");
         faceVertexCount_ = static_cast<int>(faceMesh.vertices.size());
         facePrimitiveCount_ = static_cast<int>(faceMesh.indices.size() / 3U);
         eyeVertexCount_ = static_cast<int>(eyeMesh.vertices.size());
@@ -735,8 +720,10 @@ namespace island
         for (std::size_t variant = 0; variant < SilhouetteCount; ++variant) {
             MeshData nearMesh = CreateMonkeyMesh(rig, true, variant);
             MeshData farMesh = CreateMonkeyMesh(rig, false, variant);
-            ValidateMeshOrThrow(nearMesh, "near LOD");
-            ValidateMeshOrThrow(farMesh, "far LOD");
+            ValidateProceduralTriangleMeshOrThrow(
+                nearMesh.vertices.size(), nearMesh.indices, "monkey near LOD");
+            ValidateProceduralTriangleMeshOrThrow(
+                farMesh.vertices.size(), farMesh.indices, "monkey far LOD");
             nearVertexCounts_[variant] = static_cast<int>(nearMesh.vertices.size());
             nearPrimitiveCounts_[variant] = static_cast<int>(nearMesh.indices.size() / 3U);
             farVertexCounts_[variant] = static_cast<int>(farMesh.vertices.size());

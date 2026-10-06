@@ -1,6 +1,7 @@
 #include "IslandSimulator/TerrainRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
@@ -466,6 +467,7 @@ void main()
             cells_.push_back(std::move(cell));
         }
 
+        ValidateProceduralTriangleMeshOrThrow(vertices.size(), indices, "terrain");
         vertexCount_ = static_cast<int>(vertices.size());
         primitiveCount_ = static_cast<int>(indices.size() / 3U);
         vertices_ = std::make_unique<VertexBuffer>(

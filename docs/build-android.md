@@ -69,13 +69,13 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,732,292-byte APK with a
-15,922,008-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,736,332-byte APK with a
+15,926,048-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
-terrain cell batching. It also validates the procedural monkey mesh indices, fourteen-bone
-hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build of the
+terrain cell batching. It also validates every indexed procedural mesh plus the monkey fourteen-
+bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build of the
 same sources passed the KVM/host-GPU GLES 3 first-frame gate at 1465.892 ms total startup, after
 which the default arm64 package was restored. Public terrain queries additionally fail closed
 before non-finite or out-of-domain values can reach procedural noise-cell conversion. The APK verifies

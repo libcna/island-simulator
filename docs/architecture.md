@@ -44,6 +44,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │       │
       │       └── MonkeyRenderer ─ generated rig/mesh/clips and portable CNA GPU skinning
       ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
+      ├── ProceduralMeshValidation ─ renderer-independent 16-bit triangle upload gate
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── ShorelineRenderer ── exact-coast foam/wash ribbon and stock-effect fallback
@@ -67,7 +68,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 `IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonInput`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
 `NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
-`WildlifeActivationPolicy`, `TouchControls`, and
+`WildlifeActivationPolicy`, `ProceduralMeshValidation`, `TouchControls`, and
 `SoundscapeModel`, `AudioAnalysis`, and `WorldIdentity` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` maps CNA keyboard snapshots into `FirstPersonDigitalInput`; the renderer-independent
@@ -458,6 +459,13 @@ ordered, in-range tracks; and every generated triangle index must address an exi
 vertex. Development builds additionally assert every crossfade input and output palette size.
 Renderer-independent player and wildlife inputs fail closed on non-finite values, with development
 assertions guarding persistent finite pose, range, population, and animation invariants.
+
+All game-generated indexed rendering uses the same renderer-independent triangle-mesh gate before
+allocating a GPU buffer. It accepts the complete 0--65,535 portable index range and rejects empty
+geometry, partial triangles, excessive vertex/index counts, and references outside the supplied
+vertex array with a subsystem-labelled exception. This covers terrain, water, sky, grass, palms,
+jungle plants, natural props, and every monkey mesh. It runs once during content construction, not
+in the frame loop, and its valid and malformed boundaries are host-tested without a graphics device.
 
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The

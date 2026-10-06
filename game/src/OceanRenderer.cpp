@@ -4,6 +4,7 @@
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -307,6 +308,7 @@ void main()
             }
         }
 
+        ValidateProceduralTriangleMeshOrThrow(vertices.size(), indices, "ocean");
         vertexCount_ = static_cast<int>(vertices.size());
         primitiveCount_ = static_cast<int>(indices.size() / 3U);
         vertices_ = std::make_unique<VertexBuffer>(

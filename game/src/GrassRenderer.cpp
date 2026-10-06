@@ -4,6 +4,7 @@
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
@@ -447,7 +448,10 @@ void main()
 
     void GrassRenderer::CreateMeshes()
     {
-        const auto upload = [this](const ClusterGeometry& geometry, GrassMesh& mesh) {
+        const auto upload = [this](const ClusterGeometry& geometry, GrassMesh& mesh,
+                                   const char* label) {
+            ValidateProceduralTriangleMeshOrThrow(
+                geometry.vertices.size(), geometry.indices, label);
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
             mesh.vertices = std::make_unique<VertexBuffer>(
@@ -460,11 +464,12 @@ void main()
             mesh.indices->SetData(geometry.indices.data(), static_cast<int>(geometry.indices.size()));
         };
         upload(CreateClusterGeometry(
-            NearBladeCount, GrassMeshTier::Near, NearBladeLevels), nearMesh_);
+            NearBladeCount, GrassMeshTier::Near, NearBladeLevels), nearMesh_, "grass near LOD");
         upload(CreateClusterGeometry(
-            MiddleBladeCount, GrassMeshTier::Middle, MiddleBladeLevels), middleMesh_);
+            MiddleBladeCount, GrassMeshTier::Middle, MiddleBladeLevels), middleMesh_,
+            "grass middle LOD");
         upload(CreateClusterGeometry(
-            FarBladeCount, GrassMeshTier::Far, FarBladeLevels), farMesh_);
+            FarBladeCount, GrassMeshTier::Far, FarBladeLevels), farMesh_, "grass far LOD");
     }
 
     void GrassRenderer::CreateCells(const IslandTerrain& terrain, const GrassLayout& layout)
