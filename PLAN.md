@@ -59,8 +59,8 @@ environment.
   files or commits at campaign start.
 - [x] Read the workspace build policy in `../AGENTS.md`.
 - [x] Located CNA at `../cna` and inspected its repository instructions and current APIs.
-- [x] Qualified and locked CNA `next` at commit `39e84add7777` (`refactor(PLAT-142): retire the
-  direct Win32, X11 and Wayland platforms`, 2026-10-06). The preceding qualified export was
+- [x] Qualified and locked CNA `next` at commit `fe20e3e9c23b` (`docs(PLAT-142): count the follow-up
+  commits correctly`, 2026-10-06). The preceding qualified exports were `39e84add7777` and
   `f243c63a1dc5`; the campaign started from `b0e97bb1bb87`.
 - [x] Confirmed no separate stale CNA worktree is being mistaken for the current `next` identity.
 - [x] Located Sharp Runtime at `../sharp-runtime`, read its repository instructions, and confirmed
@@ -3630,6 +3630,29 @@ Work next, in order:
   complete-scene startup but not the cove's close appearance or cost on physical Android hardware.
   The pinned CNA and Sharp Runtime exports used by the game remained read-only and unchanged; no
   qualifying dependency defect was found.
+
+### 2026-10-06 — CNA `next` baseline refresh
+
+- Advanced the reproducible CNA pin from `39e84add777730969f58074fa1ffa010dc5c7d2c` to the then-current
+  `next` commit `fe20e3e9c23b5353a5b63bbda36f236d799d6612`. The 11-commit delta is confined to
+  Windows CI, Direct3D 11 validation, platform documentation, and test-only access; it does not
+  change an island-simulator renderer implementation or public API. Sharp Runtime remains pinned
+  to its current `next` commit `21c06910f7cf887cceebb45200e07b43dd45fef4`.
+- Materialized CNA from the exact committed tree rather than its shared checkout. That checkout
+  acquired concurrent uncommitted renderer-retirement work during qualification; island-simulator
+  neither consumed nor modified those files. The game-owned export and every build stayed on the
+  reviewed commit, preserving the dependency boundary and reproducibility.
+- The complete isolated Weston/Xwayland Linux/OpenGL 3.3 suite passes 39/39 tests in 59.67 seconds,
+  including every render capture, both benchmarks, core/asset/report validation, free-camera input,
+  and real SDL/XTest player input. The actual Chrome 152/SwiftShader WebGL 2 harness passes all 22
+  lifecycle, scene, visual, audio-initialization, and interaction stages. WebAssembly remains
+  8,494,145 bytes.
+- The arm64 GLES 3 APK rebuilds and application lint passes. A fresh x86_64 package then installed
+  on the API 35 KVM/host-GPU emulator and completed a current `OPENGLES3` first frame in
+  2003.189 ms total; its 2400 by 1080 screenshot was inspected and retained clean translucent touch
+  controls. The restored arm64-only APK remains 18,740,172 bytes with a 15,929,888-byte stripped
+  `libmain.so` and verifies with signature scheme v2. All compilation used `/rv/cnaccache` and no
+  more than two workers per build. No game workaround or qualifying dependency defect was found.
 
 ## Session-end checklist
 
