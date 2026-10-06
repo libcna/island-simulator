@@ -112,7 +112,7 @@ been confirmed so far.
   positional-emitter, and exact nine-sample terrain-contact views; movement history and deeper
   per-system overlays remain open.
 - Eight direct debug teleports, a bounded debug-only inspection camera, a five-view native
-  frame-time suite, an asset-manifest validator, and a deterministic world-statistics report
-  exist. There is no teleport menu, sustained moving benchmark route, or automated renderer-image
-  comparison yet. The world fingerprint is a same-toolchain change detector, not a cross-libm
-  canonical world hash.
+  fixed-frame suite plus a 676 m moving benchmark, an asset-manifest validator, and a deterministic
+  world-statistics report exist. There is no teleport menu or automated renderer-image comparison
+  yet. The moving benchmark has no Web/Android timing baseline, and the world fingerprint is a
+  same-toolchain change detector rather than a cross-libm canonical world hash.

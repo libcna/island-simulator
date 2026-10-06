@@ -117,8 +117,9 @@ They are reproducible QA outputs and are ignored by Git. Convert or inspect them
 visual review.
 
 `IslandGameBenchmark` validates the uncapped 600-sample JSON reporting path at the dense-jungle
-view. It is a functional test, not a stable performance threshold. Run the five-view measurement
-suite and interpret its limitations as documented in `docs/performance.md`.
+view. `IslandGameTraversalBenchmark` validates the 676 m moving rail and its 600 scene-range
+samples. They are functional tests, not stable performance thresholds. Run the six-report
+measurement suite and interpret its limitations as documented in `docs/performance.md`.
 
 When `xdotool` is available, Debug configurations also register `IslandGameFreeCameraInput`. It
 must run through the private display command above: it activates F3, supplies horizontal and

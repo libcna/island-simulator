@@ -58,6 +58,7 @@ namespace island
     {
     public:
         static constexpr float EyeHeight = 1.72f;
+        static constexpr float SwimmingEyeHeight = 0.58f;
         static constexpr float WalkSpeed = 4.3f;
         static constexpr float SwimSpeed = 2.15f;
         static constexpr float CapsuleRadius = 0.34f;

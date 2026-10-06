@@ -5,9 +5,9 @@
 Performance decisions must use repeatable scene evidence rather than the short-lived F1 FPS
 display. The native benchmark mode renders the normal scene without debug overlays, disables
 VSync and the fixed simulation timestep, discards 120 warm-up frame intervals, records 600
-end-to-end frame intervals, and exits. Timing is measured between consecutive `Draw` entries, so
-it includes the preceding update, draw submission, presentation, and game-loop work. It does not
-separate CPU and GPU cost.
+end-to-end frame intervals and matching scene-population samples, and exits. Timing is measured
+between consecutive `Draw` entries, so it includes the preceding update, draw submission,
+presentation, and game-loop work. It does not separate CPU and GPU cost.
 
 One fixed view can be measured with:
 
@@ -15,22 +15,39 @@ One fixed view can be measured with:
 build/island-simulator --benchmark /tmp/island-jungle.json --viewpoint jungle
 ```
 
-Run the five-view suite without placing a window on the owner's desktop:
+Run the six-report suite without placing a window on the owner's desktop:
 
 ```bash
 ../cna/tools/platform/run_gpu_tests_private.sh \
   --exec ./tools/run_native_benchmarks.sh /tmp/island-benchmarks
 ```
 
-The suite covers overview, beach, dense jungle, shoreline detail, and close monkey views. The
-generated JSON files contain resolution, renderer identity, sampling settings, mean/median/p95/p99
-frame duration, minimum/maximum duration, mean FPS, tracked scene submissions, and representative
-visible populations. These generated reports belong under `build/` or `/tmp`; they are evidence,
-not source artifacts.
+The suite covers overview, beach, dense jungle, shoreline detail, and close monkey fixed views,
+then a 676 m moving camera rail. The generated schema-2 JSON files contain resolution, renderer
+identity, sampling settings, mean/median/p95/p99 frame duration, minimum/maximum duration, mean
+FPS, the final scene snapshot, and min/max/mean ranges for tracked submissions, terrain cells,
+contact shadows, palms, canopy, and grass. These generated reports belong under `build/` or
+`/tmp`; they are evidence, not source artifacts.
 
 The benchmark intentionally rejects smoke, capture, overlay, world-debug, and input-diagnostic
 modes. Ordinary play retains VSync and the fixed 60 Hz simulation. Benchmarking must not change
 release presentation or movement semantics.
+
+## Moving traversal
+
+`--viewpoint traversal` is accepted only with `--benchmark`. It advances the authoritative player
+and camera through 11 points on a smooth 675.9635 m rail. The route begins in the southern
+shallows, follows the beach and primary trail, crosses the east and west clearings and interior
+jungle, and finishes in the northern shallows. One rail position is rendered for each of the 600
+samples, deliberately exercising culling, vegetation LOD, dynamic wildlife tiers, and the
+quarter-metre contact-shadow refresh threshold instead of repeatedly hitting fixed-view caches.
+
+The first functional OpenGL 3.3 run covered signed shore distances from -18.5544 m offshore to
+208.6531 m inland. Across the route it observed 12--118 tracked submissions, 6--47 terrain cells,
+0--43 contact shadows, 0--325 palms, 0--281 canopy trees, and 0--3,466 grass clusters. Its timing
+was intentionally not adopted as a baseline because the visible interactive game was using the
+same GPU concurrently. Record two isolated repeats before using traversal timing for regression
+decisions. WebGL 2 and physical GLES 3 traversal timing remain unqualified.
 
 ## Initial Linux development baseline
 
@@ -127,8 +144,9 @@ motion, a small view/projection change, or 0.08 m of monkey motion. It preserves
 soft distance fade without paying the terrain generator cost every frame.
 
 Two final five-view repeats produced the ranges below. A nearby shadow population adds exactly one
-tracked submission; the far overview correctly submits none. These fixed cameras exercise the
-cache more gently than a moving traversal, so a sustained moving-route benchmark remains required.
+tracked submission; the far overview correctly submits none. These historical fixed cameras
+exercised the cache more gently than movement; the moving traversal described above now covers
+continuous refresh behaviour.
 
 | View | Mean ms range | p95 ms range | p99 ms range | Submissions | Shadows / triangles |
 | --- | ---: | ---: | ---: | ---: | ---: |

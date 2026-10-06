@@ -61,8 +61,9 @@ took roughly 0.6--1.7 seconds and the operating system itself repeatedly entered
 only establishes that the package loads and produces GLES3 output. Mobile density, memory, thermal,
 and frame-time decisions require a real device or KVM-accelerated emulator.
 
-Linux now has a repeatable five-view uncapped frame-time suite and an initial accelerated Radeon
-780M baseline documented in `docs/performance.md`. The same C++ benchmark path compiles into Web
+Linux now has a repeatable five-view uncapped frame-time suite, a 676 m moving traversal, and an
+initial accelerated Radeon 780M baseline documented in `docs/performance.md`. The same C++
+benchmark path compiles into Web
 and Android, but no browser or device number is considered qualified until it runs on explicitly
 identified hardware without SwiftShader or unaccelerated QEMU.
 

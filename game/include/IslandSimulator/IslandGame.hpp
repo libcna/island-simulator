@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
@@ -77,7 +78,8 @@ namespace island
         BirdDetail,
         FishDetail,
         SharkDetail,
-        MonkeyDetail
+        MonkeyDetail,
+        BenchmarkTraversal
     };
 
     /** @brief Main application and first portable island rendering slice. */
@@ -113,11 +115,41 @@ namespace island
     private:
         void CaptureFrame(const std::string& path);
         void RecordBenchmarkFrame();
+        void RecordBenchmarkSceneSample();
         void WriteBenchmarkReport();
+        void UpdateBenchmarkTraversal();
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
         void UpdateCameraMatrices();
+        [[nodiscard]] int TrackedSceneDrawCount() const noexcept;
         [[nodiscard]] bool IsDebugFreeCameraActive() const noexcept;
+
+        struct BenchmarkSceneRanges
+        {
+            std::size_t sampleCount = 0U;
+            int minimumTrackedDraws = 0;
+            int maximumTrackedDraws = 0;
+            std::uint64_t totalTrackedDraws = 0U;
+            int minimumTerrainCells = 0;
+            int maximumTerrainCells = 0;
+            std::uint64_t totalTerrainCells = 0U;
+            int minimumContactShadows = 0;
+            int maximumContactShadows = 0;
+            std::uint64_t totalContactShadows = 0U;
+            int minimumPalms = 0;
+            int maximumPalms = 0;
+            std::uint64_t totalPalms = 0U;
+            int minimumCanopy = 0;
+            int maximumCanopy = 0;
+            std::uint64_t totalCanopy = 0U;
+            int minimumGrass = 0;
+            int maximumGrass = 0;
+            std::uint64_t totalGrass = 0U;
+            float minimumShoreDistance = 0.0f;
+            float maximumShoreDistance = 0.0f;
+            Microsoft::Xna::Framework::Vector3 firstCameraPosition{0.0f, 0.0f, 0.0f};
+            Microsoft::Xna::Framework::Vector3 lastCameraPosition{0.0f, 0.0f, 0.0f};
+        };
 
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
@@ -131,6 +163,7 @@ namespace island
         JungleLayout jungleLayout_;
         NaturalPropLayout naturalPropLayout_;
         WorldCollisionGrid worldCollisionGrid_;
+        BenchmarkTraversalRoute benchmarkTraversalRoute_;
         PlayerMotion playerMotion_;
         FirstPersonCameraMotion cameraMotion_;
 #ifndef NDEBUG
@@ -193,6 +226,9 @@ namespace island
         std::vector<double> benchmarkFrameMilliseconds_;
         std::size_t benchmarkWarmupIntervals_ = 0U;
         bool benchmarkHasPreviousFrame_ = false;
+        bool benchmarkSceneSamplePending_ = false;
         bool benchmarkReportPending_ = false;
+        float benchmarkTraversalPresentationSpeed_ = 0.0f;
+        BenchmarkSceneRanges benchmarkSceneRanges_;
     };
 }

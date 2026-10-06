@@ -406,9 +406,12 @@ repeatable navigation-guide capture in addition to the overview.
 The opt-in benchmark path remains game-owned and does not add renderer hooks. `IslandGame` records
 wall-clock intervals between consecutive `Draw` entries after a fixed warm-up, while the
 renderer-independent `PerformanceStatistics` component validates samples and calculates stable
-interpolated percentiles. Benchmark runs select an existing fixed camera, disable VSync and the
-fixed timestep, omit debug presentation, serialize a small JSON report, and exit. Ordinary play
-retains its fixed-timestep/VSync configuration.
+interpolated percentiles. Fixed benchmarks select an existing QA camera. The traversal benchmark
+samples a renderer-independent, open Catmull-Rom rail at one deterministic position per measured
+frame, resolves camera height through `PlayerMotion`, and crosses shallow water, beach, the main
+trail, both clearings, dense jungle, and the opposite coast. All benchmarks disable VSync and the
+fixed timestep, omit debug presentation, aggregate scene-count ranges, serialize JSON, and exit.
+Ordinary play retains its fixed-timestep/VSync configuration.
 
 The native-only `island-world-report` target links only `IslandSimulator::Core`. It reconstructs
 terrain, deterministic layouts, the combined collision grid, and initial wildlife twice, validates

@@ -34,7 +34,8 @@ int main(const int argc, char* argv[])
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, beach, jungle, "
                              "grass, ground, contact, movement, palms, water, current, distant, "
-                             "props, driftwood, reef, fronds, birds, fish, shark, or monkeys\n";
+                             "props, driftwood, reef, fronds, birds, fish, shark, monkeys, or "
+                             "traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -76,6 +77,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::SharkDetail;
             } else if (name == "monkeys") {
                 viewpoint = island::FixedViewpoint::MonkeyDetail;
+            } else if (name == "traversal") {
+                viewpoint = island::FixedViewpoint::BenchmarkTraversal;
             } else {
                 std::cerr << "island-simulator: unknown viewpoint '" << name << "'\n";
                 return 2;
@@ -102,6 +105,10 @@ int main(const int argc, char* argv[])
         && (smokeTest || showDebugOverlay || showWorldDebug || inputDiagnostics)) {
         std::cerr << "island-simulator: --benchmark cannot be combined with smoke, capture, "
                      "or debug modes\n";
+        return 2;
+    }
+    if (viewpoint == island::FixedViewpoint::BenchmarkTraversal && benchmarkPath.empty()) {
+        std::cerr << "island-simulator: the traversal viewpoint requires --benchmark\n";
         return 2;
     }
     try {

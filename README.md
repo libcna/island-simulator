@@ -135,8 +135,9 @@ The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 Use `--world-debug` to enable both the panel and world visualization at launch.
 Use `tools/run_native_benchmarks.sh` through the private GPU runner for warm, uncapped JSON
-frame-time reports across five fixed scenes; methodology and the initial Linux baseline are in
-`docs/performance.md`.
+frame-time reports across five fixed scenes plus a 676 m moving traversal. Reports include
+min/max/mean scene-population ranges as well as timing distributions; methodology and the initial
+Linux baseline are in `docs/performance.md`.
 Use `python3 tools/validate_assets.py` to enforce the asset provenance gate and
 `build/island-world-report --output <path>` for deterministic terrain, placement, collision,
 wildlife, seed, and fingerprint statistics. See `docs/asset-pipeline.md`.

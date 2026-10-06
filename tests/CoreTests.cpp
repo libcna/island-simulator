@@ -1,3 +1,4 @@
+#include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -56,6 +57,49 @@ namespace
 
 int main()
 {
+    const island::BenchmarkTraversalRoute benchmarkRoute;
+    const island::BenchmarkRouteSample routeStart = benchmarkRoute.Sample(0.0f);
+    const island::BenchmarkRouteSample routeEnd = benchmarkRoute.Sample(1.0f);
+    CheckNear(routeStart.x, benchmarkRoute.Waypoints().front().x, 0.0001f,
+              "benchmark route starts at its first authored waypoint");
+    CheckNear(routeStart.z, benchmarkRoute.Waypoints().front().z, 0.0001f,
+              "benchmark route start retains its authored depth");
+    CheckNear(routeEnd.x, benchmarkRoute.Waypoints().back().x, 0.0001f,
+              "benchmark route ends at its last authored waypoint");
+    CheckNear(routeEnd.z, benchmarkRoute.Waypoints().back().z, 0.0001f,
+              "benchmark route end retains its authored depth");
+    CheckNear(benchmarkRoute.Sample(-1.0f).z, routeStart.z, 0.0001f,
+              "benchmark route clamps negative progress");
+    CheckNear(benchmarkRoute.Sample(2.0f).z, routeEnd.z, 0.0001f,
+              "benchmark route clamps progress beyond its end");
+    CheckNear(benchmarkRoute.Sample(std::numeric_limits<float>::quiet_NaN()).z,
+              routeStart.z, 0.0001f,
+              "benchmark route fails closed on non-finite progress");
+    const float benchmarkRouteLength = benchmarkRoute.ApproximateLength();
+    Check(benchmarkRouteLength > 600.0f && benchmarkRouteLength < 850.0f,
+          "benchmark route has a sustained but island-scale horizontal length");
+    float minimumRouteShoreDistance = std::numeric_limits<float>::max();
+    float maximumRouteShoreDistance = std::numeric_limits<float>::lowest();
+    const island::IslandTerrain routeTerrain;
+    for (int index = 0; index <= 600; ++index) {
+        const island::BenchmarkRouteSample sample = benchmarkRoute.Sample(
+            static_cast<float>(index) / 600.0f);
+        Check(std::isfinite(sample.x) && std::isfinite(sample.z)
+                  && std::isfinite(sample.forwardX) && std::isfinite(sample.forwardZ),
+              "benchmark route samples remain finite");
+        CheckNear(std::hypot(sample.forwardX, sample.forwardZ), 1.0f, 0.0001f,
+                  "benchmark route look direction remains normalized");
+        Check(std::hypot(sample.x, sample.z) < 270.0f,
+              "benchmark route stays within the island and near-shore profiling envelope");
+        const float shoreDistance = routeTerrain.SignedShoreDistance(sample.x, sample.z);
+        minimumRouteShoreDistance = std::min(minimumRouteShoreDistance, shoreDistance);
+        maximumRouteShoreDistance = std::max(maximumRouteShoreDistance, shoreDistance);
+    }
+    Check(minimumRouteShoreDistance < -3.0f,
+          "benchmark route includes shallow-water renderer coverage");
+    Check(maximumRouteShoreDistance > 120.0f,
+          "benchmark route includes deep-interior renderer coverage");
+
     const std::array<double, 5> frameTimes = {50.0, 10.0, 30.0, 20.0, 40.0};
     const island::FrameTimeSummary frameSummary =
         island::CalculateFrameTimeSummary(frameTimes);

@@ -25,6 +25,7 @@ include(cmake/VerifyDependencies.cmake)
 island_verify_dependencies()
 
 add_library(island_core STATIC
+    game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
@@ -412,6 +413,14 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 45
             LABELS display
             PASS_REGULAR_EXPRESSION "benchmark completed 600 samples")
+        add_test(NAME IslandGameTraversalBenchmark
+            COMMAND island-simulator
+                    --benchmark "${CMAKE_BINARY_DIR}/island-benchmark-traversal.json"
+                    --viewpoint traversal)
+        set_tests_properties(IslandGameTraversalBenchmark PROPERTIES
+            TIMEOUT 45
+            LABELS display
+            PASS_REGULAR_EXPRESSION "benchmark traversal rail .* benchmark completed 600 samples")
 
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             find_program(ISLAND_XDOTOOL_EXECUTABLE xdotool)

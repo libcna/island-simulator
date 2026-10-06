@@ -12,7 +12,6 @@ namespace island
     {
         constexpr float WaterEntryTerrainHeight = -0.45f;
         constexpr float WaterExitTerrainHeight = -0.16f;
-        constexpr float SwimEyeHeight = 0.58f;
         constexpr float MaximumStepSeconds = 0.1f;
         constexpr float MaximumHorizontalSubstep = 0.14f;
 
@@ -142,7 +141,7 @@ namespace island
 
         const float target = mode_ == LocomotionMode::Walking
             ? groundHeight_ + EyeHeight
-            : SwimEyeHeight;
+            : SwimmingEyeHeight;
         if (target > position_.y) {
             // Never smooth the camera through rising terrain. Downhill motion is eased to avoid
             // a saw-tooth camera path over dense height samples.

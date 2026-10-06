@@ -110,18 +110,27 @@ performance conclusions.
 
 ## Recorded performance reports
 
-`--benchmark <report.json>` selects an uncapped, variable-timestep fixed-view run, discards 120
-warm-up intervals, records 600 intervals, writes interpolated median/p95/p99 statistics and scene
-counts, including contact-shadow population and triangle count, then exits. It cannot be combined
-with capture or debug modes. For example:
+`--benchmark <report.json>` selects an uncapped, variable-timestep run, discards 120 warm-up
+intervals, records 600 intervals, writes interpolated median/p95/p99 statistics plus
+min/max/mean scene-population ranges, and exits. It cannot be combined with capture or debug
+modes. A fixed-view example is:
 
 ```bash
 build/island-simulator --benchmark /tmp/island-jungle.json --viewpoint jungle
 ```
 
+The `traversal` viewpoint is valid only with benchmark mode. It moves the authoritative player and
+camera over a deterministic 676 m rail through shallow water, beach, trail, clearings, dense
+jungle, and the opposite shore so culling, LOD, and contact-shadow refreshes occur throughout the
+sample window:
+
+```bash
+build/island-simulator --benchmark /tmp/island-traversal.json --viewpoint traversal
+```
+
 `tools/run_native_benchmarks.sh` repeats the measurement for overview, beach, jungle, driftwood,
-and monkey views. See `docs/performance.md` for the isolated-GPU command, interpretation rules,
-initial baseline, and explicit limitations.
+and monkey fixed views, then the moving traversal. See `docs/performance.md` for the isolated-GPU
+command, interpretation rules, initial baseline, and explicit limitations.
 
 ## Deterministic captures
 

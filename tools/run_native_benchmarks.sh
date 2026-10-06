@@ -15,5 +15,6 @@ mkdir -p "$output_directory"
 for viewpoint in overview beach jungle driftwood monkeys; do
     "$executable" --benchmark "$output_directory/$viewpoint.json" --viewpoint "$viewpoint"
 done
+"$executable" --benchmark "$output_directory/traversal.json" --viewpoint traversal
 
 echo "island-simulator: benchmark suite wrote reports to $output_directory"

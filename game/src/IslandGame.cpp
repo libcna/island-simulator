@@ -70,6 +70,7 @@ namespace island
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
+            case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
             }
             return "unknown";
@@ -117,7 +118,14 @@ namespace island
         if (!benchmarkPath_.empty() && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
-        if (viewpoint_ == FixedViewpoint::Overview) {
+        if (viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
+            const BenchmarkRouteSample start = benchmarkTraversalRoute_.Sample(0.0f);
+            cameraPosition_ = Vector3(start.x, terrain_.Height(start.x, start.z)
+                                                  + PlayerMotion::EyeHeight,
+                                      start.z);
+            yaw_ = std::atan2(start.forwardX, start.forwardZ);
+            pitch_ = -0.025f;
+        } else if (viewpoint_ == FixedViewpoint::Overview) {
             cameraPosition_ = Vector3(0.0f, 68.0f, -365.0f);
             pitch_ = -0.16f;
         } else if (viewpoint_ == FixedViewpoint::BeachPath) {
@@ -503,7 +511,8 @@ namespace island
         }
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
             || viewpoint_ == FixedViewpoint::WaterlineDetail
-            || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail;
+            || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail
+            || viewpoint_ == FixedViewpoint::BenchmarkTraversal;
         waterViewModel_.Reset(waterViewAllowed
                                   && playerMotion_.Mode() == LocomotionMode::Swimming,
                               playerMotion_.GroundHeight(),
@@ -561,6 +570,12 @@ namespace island
             std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
                       << " warming " << BenchmarkWarmupIntervals << " intervals, sampling "
                       << BenchmarkSampleIntervals << " intervals with VSync disabled\n";
+            if (viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
+                std::cout << "island-simulator: benchmark traversal rail "
+                          << benchmarkTraversalRoute_.ApproximateLength() << " m across "
+                          << benchmarkTraversalRoute_.Waypoints().size()
+                          << " authored waypoints\n";
+            }
         }
         std::cout.flush();
     }
@@ -587,25 +602,34 @@ namespace island
         const float deltaSeconds = std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
+        if (!benchmarkPath_.empty()
+            && viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
+            UpdateBenchmarkTraversal();
+        }
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             UpdateCamera(deltaSeconds);
         }
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
             || viewpoint_ == FixedViewpoint::WaterlineDetail
-            || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail;
+            || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail
+            || viewpoint_ == FixedViewpoint::BenchmarkTraversal;
         (void)waterViewModel_.Update(
             waterViewAllowed && playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), playerMotion_.OceanCurrentStrength(terrain_),
             deltaSeconds);
         const float rippleSpeed = viewpoint_ == FixedViewpoint::WaterlineDetail
             ? 1.35f
-            : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
+            : (viewpoint_ == FixedViewpoint::BenchmarkTraversal
+                   ? benchmarkTraversalPresentationSpeed_
+                   : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()));
         (void)waterRippleModel_.Update(
             playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), rippleSpeed, deltaSeconds);
         const float grassInteractionSpeed = viewpoint_ == FixedViewpoint::GrassDetail
             ? 3.2f
-            : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
+            : (viewpoint_ == FixedViewpoint::BenchmarkTraversal
+                   ? benchmarkTraversalPresentationSpeed_
+                   : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()));
         (void)grassInteractionModel_.Update(grassInteractionSpeed, deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -634,6 +658,33 @@ namespace island
                           << viewport.getHeightProperty() << '\n' << std::flush;
             }
         }
+    }
+
+    void IslandGame::UpdateBenchmarkTraversal()
+    {
+        float progress = 0.0f;
+        if (benchmarkWarmupIntervals_ >= BenchmarkWarmupIntervals) {
+            progress = static_cast<float>(benchmarkFrameMilliseconds_.size())
+                / static_cast<float>(BenchmarkSampleIntervals - 1U);
+        }
+        const BenchmarkRouteSample sample = benchmarkTraversalRoute_.Sample(progress);
+        playerMotion_.SetPosition(terrain_, sample.x, sample.z);
+        const PlayerPosition& player = playerMotion_.Position();
+        cameraPosition_ = Vector3(player.x, player.y, player.z);
+        yaw_ = std::atan2(sample.forwardX, sample.forwardZ);
+
+        constexpr float lookAheadDistance = 5.0f;
+        const float targetX = sample.x + sample.forwardX * lookAheadDistance;
+        const float targetZ = sample.z + sample.forwardZ * lookAheadDistance;
+        const bool targetIsWater = terrain_.Height(targetX, targetZ) < -0.16f;
+        const float targetY = targetIsWater
+            ? PlayerMotion::SwimmingEyeHeight
+            : terrain_.Height(targetX, targetZ) + PlayerMotion::EyeHeight;
+        pitch_ = std::clamp(
+            std::atan2(targetY - cameraPosition_.Y, lookAheadDistance) - 0.025f,
+            -0.18f, 0.14f);
+        benchmarkTraversalPresentationSpeed_ = playerMotion_.Mode()
+            == LocomotionMode::Swimming ? PlayerMotion::SwimSpeed : PlayerMotion::WalkSpeed;
     }
 
     void IslandGame::UpdateCamera(const float deltaSeconds)
@@ -981,6 +1032,68 @@ namespace island
         std::cout << "island-simulator: captured frame to " << path << '\n';
     }
 
+    int IslandGame::TrackedSceneDrawCount() const noexcept
+    {
+        return 2 + terrainRenderer_->VisibleCellCount()
+            + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
+            + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
+            + distantSceneryRenderer_->DrawCallCount()
+            + contactShadowRenderer_->DrawCallCount()
+            + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
+            + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
+            + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
+    }
+
+    void IslandGame::RecordBenchmarkSceneSample()
+    {
+        const int trackedDraws = TrackedSceneDrawCount();
+        const int terrainCells = terrainRenderer_->VisibleCellCount();
+        const int contactShadows = contactShadowRenderer_->VisibleShadowCount();
+        const int palms = palmRenderer_->VisiblePalmCount();
+        const int canopy = jungleRenderer_->VisibleCanopyCount();
+        const int grass = grassRenderer_->VisiblePatchCount();
+        const float shoreDistance = terrain_.SignedShoreDistance(
+            cameraPosition_.X, cameraPosition_.Z);
+        BenchmarkSceneRanges& ranges = benchmarkSceneRanges_;
+        if (ranges.sampleCount == 0U) {
+            ranges.minimumTrackedDraws = ranges.maximumTrackedDraws = trackedDraws;
+            ranges.minimumTerrainCells = ranges.maximumTerrainCells = terrainCells;
+            ranges.minimumContactShadows = ranges.maximumContactShadows = contactShadows;
+            ranges.minimumPalms = ranges.maximumPalms = palms;
+            ranges.minimumCanopy = ranges.maximumCanopy = canopy;
+            ranges.minimumGrass = ranges.maximumGrass = grass;
+            ranges.minimumShoreDistance = ranges.maximumShoreDistance = shoreDistance;
+            ranges.firstCameraPosition = cameraPosition_;
+        } else {
+            ranges.minimumTrackedDraws = std::min(ranges.minimumTrackedDraws, trackedDraws);
+            ranges.maximumTrackedDraws = std::max(ranges.maximumTrackedDraws, trackedDraws);
+            ranges.minimumTerrainCells = std::min(ranges.minimumTerrainCells, terrainCells);
+            ranges.maximumTerrainCells = std::max(ranges.maximumTerrainCells, terrainCells);
+            ranges.minimumContactShadows = std::min(
+                ranges.minimumContactShadows, contactShadows);
+            ranges.maximumContactShadows = std::max(
+                ranges.maximumContactShadows, contactShadows);
+            ranges.minimumPalms = std::min(ranges.minimumPalms, palms);
+            ranges.maximumPalms = std::max(ranges.maximumPalms, palms);
+            ranges.minimumCanopy = std::min(ranges.minimumCanopy, canopy);
+            ranges.maximumCanopy = std::max(ranges.maximumCanopy, canopy);
+            ranges.minimumGrass = std::min(ranges.minimumGrass, grass);
+            ranges.maximumGrass = std::max(ranges.maximumGrass, grass);
+            ranges.minimumShoreDistance = std::min(
+                ranges.minimumShoreDistance, shoreDistance);
+            ranges.maximumShoreDistance = std::max(
+                ranges.maximumShoreDistance, shoreDistance);
+        }
+        ranges.totalTrackedDraws += static_cast<std::uint64_t>(trackedDraws);
+        ranges.totalTerrainCells += static_cast<std::uint64_t>(terrainCells);
+        ranges.totalContactShadows += static_cast<std::uint64_t>(contactShadows);
+        ranges.totalPalms += static_cast<std::uint64_t>(palms);
+        ranges.totalCanopy += static_cast<std::uint64_t>(canopy);
+        ranges.totalGrass += static_cast<std::uint64_t>(grass);
+        ranges.lastCameraPosition = cameraPosition_;
+        ++ranges.sampleCount;
+    }
+
     void IslandGame::RecordBenchmarkFrame()
     {
         const auto now = std::chrono::steady_clock::now();
@@ -998,6 +1111,7 @@ namespace island
             return;
         }
         benchmarkFrameMilliseconds_.push_back(frameMilliseconds);
+        benchmarkSceneSamplePending_ = true;
         if (benchmarkFrameMilliseconds_.size() >= BenchmarkSampleIntervals) {
             benchmarkReportPending_ = true;
         }
@@ -1008,14 +1122,12 @@ namespace island
         const FrameTimeSummary summary =
             CalculateFrameTimeSummary(benchmarkFrameMilliseconds_);
         const auto& viewport = getGraphicsDeviceProperty().getViewportProperty();
-        const int trackedSceneDraws = 2 + terrainRenderer_->VisibleCellCount()
-            + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
-            + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
-            + distantSceneryRenderer_->DrawCallCount()
-            + contactShadowRenderer_->DrawCallCount()
-            + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
-            + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
-            + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
+        const int trackedSceneDraws = TrackedSceneDrawCount();
+        const BenchmarkSceneRanges& ranges = benchmarkSceneRanges_;
+        const auto meanCount = [&ranges](const std::uint64_t total) {
+            return ranges.sampleCount == 0U ? 0.0
+                : static_cast<double>(total) / static_cast<double>(ranges.sampleCount);
+        };
 
         std::ofstream output(benchmarkPath_);
         if (!output) {
@@ -1025,7 +1137,7 @@ namespace island
         output.imbue(std::locale::classic());
         output << std::fixed << std::setprecision(4)
                << "{\n"
-               << "  \"schema_version\": 1,\n"
+               << "  \"schema_version\": 2,\n"
                << "  \"renderer\": \""
                << getGraphicsDeviceProperty().GetGraphicsRendererName() << "\",\n"
                << "  \"viewpoint\": \"" << ViewpointName(viewpoint_) << "\",\n"
@@ -1043,6 +1155,54 @@ namespace island
                << "    \"min_ms\": " << summary.minimumMilliseconds << ",\n"
                << "    \"max_ms\": " << summary.maximumMilliseconds << ",\n"
                << "    \"mean_fps\": " << summary.meanFramesPerSecond << "\n"
+               << "  },\n"
+               << "  \"route\": ";
+        if (viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
+            output << "{\n"
+                   << "    \"name\": \"island_traversal\",\n"
+                   << "    \"waypoint_count\": "
+                   << benchmarkTraversalRoute_.Waypoints().size() << ",\n"
+                   << "    \"approximate_horizontal_distance_m\": "
+                   << benchmarkTraversalRoute_.ApproximateLength() << ",\n"
+                   << "    \"sampled_shore_distance_m\": {\"min\": "
+                   << ranges.minimumShoreDistance << ", \"max\": "
+                   << ranges.maximumShoreDistance << "},\n"
+                   << "    \"first_camera_m\": {\"x\": "
+                   << ranges.firstCameraPosition.X << ", \"y\": "
+                   << ranges.firstCameraPosition.Y << ", \"z\": "
+                   << ranges.firstCameraPosition.Z << "},\n"
+                   << "    \"last_camera_m\": {\"x\": "
+                   << ranges.lastCameraPosition.X << ", \"y\": "
+                   << ranges.lastCameraPosition.Y << ", \"z\": "
+                   << ranges.lastCameraPosition.Z << "}\n"
+                   << "  },\n";
+        } else {
+            output << "null,\n";
+        }
+        output << "  \"scene_range\": {\n"
+               << "    \"sample_count\": " << ranges.sampleCount << ",\n"
+               << "    \"tracked_draw_submissions\": {\"min\": "
+               << ranges.minimumTrackedDraws << ", \"max\": "
+               << ranges.maximumTrackedDraws << ", \"mean\": "
+               << meanCount(ranges.totalTrackedDraws) << "},\n"
+               << "    \"terrain_cells\": {\"min\": "
+               << ranges.minimumTerrainCells << ", \"max\": "
+               << ranges.maximumTerrainCells << ", \"mean\": "
+               << meanCount(ranges.totalTerrainCells) << "},\n"
+               << "    \"contact_shadows\": {\"min\": "
+               << ranges.minimumContactShadows << ", \"max\": "
+               << ranges.maximumContactShadows << ", \"mean\": "
+               << meanCount(ranges.totalContactShadows) << "},\n"
+               << "    \"palms\": {\"min\": " << ranges.minimumPalms
+               << ", \"max\": " << ranges.maximumPalms << ", \"mean\": "
+               << meanCount(ranges.totalPalms) << "},\n"
+               << "    \"canopy\": {\"min\": " << ranges.minimumCanopy
+               << ", \"max\": " << ranges.maximumCanopy << ", \"mean\": "
+               << meanCount(ranges.totalCanopy) << "},\n"
+               << "    \"grass_clusters\": {\"min\": "
+               << ranges.minimumGrass << ", \"max\": "
+               << ranges.maximumGrass << ", \"mean\": "
+               << meanCount(ranges.totalGrass) << "}\n"
                << "  },\n"
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
@@ -1476,6 +1636,10 @@ namespace island
         if (smokeTest_ && drawnFrames_ >= targetFrames) {
             std::cout << "island-simulator: smoke test rendered " << drawnFrames_ << " frames\n";
             Exit();
+        }
+        if (benchmarkSceneSamplePending_) {
+            RecordBenchmarkSceneSample();
+            benchmarkSceneSamplePending_ = false;
         }
         if (benchmarkReportPending_) {
             WriteBenchmarkReport();

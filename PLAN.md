@@ -693,14 +693,17 @@ Dependencies: representative complete scene on all targets.
   teleport menu remains an optional separate improvement.
 - [~] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
   per target rather than one desktop-only target. A first five-view 1280 by 720 debug-build Linux
-  baseline records frame distributions and tracked scene submissions; release, browser, Android,
+  baseline records frame distributions and tracked scene submissions. A schema-2 moving-route
+  report adds population ranges, but clean repeated route timing, release, browser, Android,
   memory, audio, loading, and thermal budgets remain open.
 
 ### Optimization
 
 - [~] Profile representative beach, dense jungle, hill vista, waterline, and wildlife scenes. The
   first fixed-view native suite covers overview, beach, dense jungle, shore detail, and monkeys;
-  moving traversal, release configuration, WebGL 2, and physical Android profiles remain open.
+  a deterministic 676 m native route now forces culling/LOD/contact-shadow refreshes across
+  shallows, both coasts, trail, clearings, and dense jungle. Clean repeated traversal timing,
+  release configuration, WebGL 2, and physical Android profiles remain open.
 - [~] Implement terrain/vegetation cell frustum and distance culling. Terrain and palms share a
   64-cell partition; grass uses 256 finer cells. All are frustum culled, palms/grass have distance
   cutoffs, palms choose staggered 125--145 m LOD per instance after cell rejection, broadleaf
@@ -916,8 +919,9 @@ after the same experience remains available.
   terrain, placement, collision, wildlife, seed, and platform-local fingerprint JSON.
 - [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
   warm-up and 600 sampled uncapped intervals with JSON mean/median/p95/p99 output, while
-  `tools/run_native_benchmarks.sh` covers five fixed representative scenes. A sustained moving
-  traversal and Web/Android equivalents remain open.
+  `tools/run_native_benchmarks.sh` covers five fixed representative scenes plus a deterministic
+  676 m moving rail. Schema-2 reports aggregate per-frame scene-population ranges. Clean repeated
+  route timing and Web/Android equivalents remain open.
 
 ## Documentation deliverables
 
@@ -2457,6 +2461,36 @@ Work next, in order:
   the 8,367,853-byte WASM unchanged. Android reconfiguration, arm64 APK assembly, and lint pass
   with the same 15,765,176-byte stripped library and 33,497,552-byte APK. The tools are excluded
   when cross-compiling, so runtime products and their qualification claims are unchanged.
+
+### 2026-10-06 — Sustained moving performance route
+
+- Added renderer-independent `BenchmarkTraversalRoute`, an 11-waypoint open Catmull-Rom camera
+  rail measuring 675.9635 m. Core regression coverage checks clamped/non-finite inputs, exact
+  endpoints, finite normalized tangents, island-scale bounds, shallow-water inclusion, deep-
+  interior coverage, and a route length above 600 m.
+- Added the benchmark-only `--viewpoint traversal`. It moves the authoritative player and camera
+  once per measured frame through southern shallows, beach, the primary trail, east and west
+  clearings, interior jungle, the north coast, and northern shallows. Terrain-resolved camera
+  height and walking/swimming presentation speed keep water, ripple, grass-interaction, wildlife,
+  culling, LOD, and quarter-metre contact-shadow refresh paths active without changing ordinary
+  fixed-timestep play.
+- Bumped the benchmark report to schema 2 and added min/max/mean ranges for tracked submissions,
+  terrain cells, contact shadows, palms, canopy, and grass, plus route length, camera endpoints,
+  and sampled shore-distance coverage. The native runner now writes five fixed reports and the
+  moving traversal report; `IslandGameTraversalBenchmark` protects the complete 600-sample path.
+- The first actual OpenGL 3.3 run completed all 600 samples and produced valid JSON. It covered
+  -18.5544--208.6531 m signed shore distance, 12--118 tracked submissions, 6--47 terrain cells,
+  0--43 contact shadows, 0--325 palms, 0--281 canopy trees, and 0--3,466 grass clusters. Its timing
+  is not a baseline because the operator's visible interactive game was using the same GPU. Clean
+  repeated native timing and Web/physical-Android equivalents remain open. No CNA or Sharp Runtime
+  file was changed and no dependency defect was found.
+- The expanded isolated native suite passes 29/29 in 45.82 seconds, including 26 actual OpenGL 3.3
+  scenes and the real-input free-camera check. Chrome 152/SwiftShader passes the complete WebGL 2
+  renderer, scene, lifecycle, input, and audio-initialization harness. A clean arm64-v8a GLES 3
+  rebuild, Gradle APK assembly, and application lint pass; current artifacts are 8,377,460 bytes
+  for WebAssembly, 15,774,728 bytes for the stripped Android library, and 33,507,104 bytes for the
+  APK. Android runtime appearance and route timing remain unqualified without KVM or a physical
+  device.
 
 ## Session-end checklist
 
