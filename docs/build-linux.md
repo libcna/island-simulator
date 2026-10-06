@@ -201,8 +201,9 @@ samples. They are functional tests, not stable performance thresholds. Run the s
 measurement suite and interpret its limitations as documented in `docs/performance.md`.
 
 When `xdotool` is available, Debug configurations also register `IslandGameFreeCameraInput`. It
-activates F3, supplies horizontal and vertical flight input, observes the active camera diagnostic,
-restores player control, and exits. On a native X11 session it uses the selected private display.
+activates F3, supplies horizontal/vertical/Shift-fast flight input, observes the active camera
+diagnostic, rejects any accidental player run-mode toggle from that debug-only Shift use, restores
+player control, and exits. On a native X11 session it uses the selected private display.
 On Wayland it automatically nests itself in Xvfb because Xwayland correctly prevents an unattended
 process from stealing the real user's keyboard focus; this remains a real SDL X11/XTest input path,
 not a Wayland-native qualification.

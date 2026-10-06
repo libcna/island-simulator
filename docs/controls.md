@@ -7,7 +7,7 @@
 | Left click or first movement-key press | Capture the mouse for first-person look |
 | Mouse | Look around while captured |
 | W / A / S / D or arrow keys | Move with acceleration and deceleration |
-| Press either Shift | Toggle the 4.3 m/s walk and 8.0 m/s run modes; swimming remains unchanged |
+| Press either Shift | Toggle the 4.3 m/s walk and 8.0 m/s run modes; a 1.4-second notice confirms the persistent selection, and swimming remains unchanged |
 | F1 | Show or hide the developer diagnostics overlay |
 | F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, bird route/spawn, and audio-zone/emitter diagnostics; visible only with F1 |
 | F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |
@@ -28,6 +28,8 @@ corrections from retriggering it. On land, nearby mesh-grass tips
 bend smoothly farther aside as walking speed rises and relax after the player stops.
 Horizontal acceleration and braking have the same response in cardinal and diagonal directions,
 so changing direction does not create a faster diagonal surge.
+The keyboard mode notice is the only normal-play HUD text. It fades away completely, incurs no
+normal steady-state draw, and does not appear for the Android stick's hold-style outer travel.
 
 Jumping is intentionally absent. The game is not a platformer.
 
@@ -46,7 +48,7 @@ panel says `UNAVAILABLE` and the seed rows remain available for manual transcrip
 
 The F3 camera is compiled into debug builds only. It starts at the rendered player-eye position,
 keeps mouse look, moves at 12 m/s or 36 m/s with Shift, and is bounded to the island inspection
-volume. It freezes player movement and locomotion bob while wildlife visibility continues to use
+volume. Debug-camera Shift never changes the retained player walk/run selection. It freezes player movement and locomotion bob while wildlife visibility continues to use
 the inspection camera. Press F3 again, or hide F1, to return exactly to the stationary player.
 
 ## Web (current)

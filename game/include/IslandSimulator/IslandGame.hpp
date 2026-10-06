@@ -230,6 +230,7 @@ namespace island
         bool cameraMotionToggleWasDown_ = false;
         bool runToggleWasDown_ = false;
         bool runModeEnabled_ = false;
+        float locomotionModeNoticeSeconds_ = 0.0f;
         bool movementKeyWasDown_ = false;
         bool escapeWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;

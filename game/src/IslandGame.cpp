@@ -52,6 +52,7 @@ namespace island
         constexpr std::uint32_t MonkeyCaptureFrames = 24U;
         constexpr std::size_t BenchmarkWarmupIntervals = 120U;
         constexpr std::size_t BenchmarkSampleIntervals = 600U;
+        constexpr float LocomotionModeNoticeDuration = 1.4f;
 
         [[nodiscard]] const char* ViewpointName(const FixedViewpoint viewpoint) noexcept
         {
@@ -633,7 +634,9 @@ namespace island
                   << "island-simulator: movement ripples and shoreline-transition bursts "
                      "integrated into the portable ocean shader\n"
                   << "island-simulator: outer-ocean current uses progressive inward return "
-                     "with mild coherent circulation\n";
+                     "with mild coherent circulation\n"
+                  << "island-simulator: keyboard run/walk toggle uses a transient mode "
+                     "confirmation\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -682,6 +685,8 @@ namespace island
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
             0.0f, worldSeedCopyFeedbackSeconds_ - deltaSeconds);
+        locomotionModeNoticeSeconds_ = std::max(
+            0.0f, locomotionModeNoticeSeconds_ - deltaSeconds);
         if (!benchmarkPath_.empty()
             && viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
             UpdateBenchmarkTraversal();
@@ -824,8 +829,9 @@ namespace island
 
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
-        if (runToggleDown && !runToggleWasDown_) {
+        if (!IsDebugFreeCameraActive() && runToggleDown && !runToggleWasDown_) {
             runModeEnabled_ = !runModeEnabled_;
+            locomotionModeNoticeSeconds_ = LocomotionModeNoticeDuration;
             const std::string_view diagnostic = runModeEnabled_
                 ? "island-simulator: run mode enabled (8.0 m/s)"
                 : "island-simulator: run mode disabled (4.3 m/s)";
@@ -1541,6 +1547,14 @@ namespace island
         waterViewOverlay_->Draw(waterViewModel_.Intensity(),
                                 playerMotion_.OceanCurrentStrength(terrain_),
                                 viewport.getWidthProperty(), viewport.getHeightProperty());
+
+        if (locomotionModeNoticeSeconds_ > 0.0f) {
+            const float opacity = std::clamp(
+                locomotionModeNoticeSeconds_ / 0.32f, 0.0f, 1.0f);
+            debugOverlay_->DrawLocomotionModeNotice(
+                runModeEnabled_, opacity,
+                viewport.getWidthProperty(), viewport.getHeightProperty());
+        }
 
         if (debugOverlayVisible_ && worldDebugVisible_) {
             const SoundscapeDebugState soundscapeDebug = soundscape_

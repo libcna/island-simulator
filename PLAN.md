@@ -266,7 +266,8 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 
 - [~] Implement keyboard movement and mouse look with pitch limits. WASD/arrows, correct
   screen-relative strafing, Shift-toggled 4.3/8.0 m/s walk/run, and simultaneous forward/mouse turns
-  are qualified on native Linux and Chromium; runtime configuration remains open.
+  are qualified on native Linux and Chromium. A 1.4-second normal-play notice now confirms each
+  persistent keyboard mode without becoming a permanent HUD; runtime configuration remains open.
 - [x] Capture/release relative mouse input on Linux. Click and first-movement-key acquisition avoid
   pre-capture absolute cursor deltas; one Escape edge releases and a second exits. A real isolated
   SDL/XTest regression covers the complete sequence.
@@ -679,7 +680,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   clean click reacquisition; fullscreen presentation remains open.
 - [~] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
   Controlled Chromium input now proves focus, WASD/arrows, persistent Shift-toggled running and
-  restoration of walking on the second press, simultaneous
+  restoration of walking on the second press, captures the transient run confirmation, simultaneous
   forward movement/relative look, F1, pointer
   release/reacquisition, aspect-preserving resize, and first-click CNA mixer plus dual-track
   startup. Audible hardware-browser output and genuine tab background/foreground recovery remain
@@ -4107,6 +4108,29 @@ Work next, in order:
   capture is intentionally deferred while the user plays the visible Linux build; the preceding
   fixed-monkey GLES 3 evidence therefore does not claim the new tufts. CNA and Sharp Runtime remain
   read-only, and no dependency defect or workaround was involved.
+
+### 2026-10-07 — Persistent run/walk mode feedback
+
+- Added a short normal-play confirmation for the persistent keyboard Shift toggle. `RUN MODE  8.0
+  M/S` uses a restrained warm-gold accent and `WALK MODE  4.3 M/S` uses seafoam; both reuse the
+  existing generated bitmap font/one-pixel texture, appear near the lower centre for 1.4 seconds,
+  and fade during the final 0.32 seconds. The fully expired path submits nothing, and analog touch
+  travel deliberately keeps its direct hold-style request without repeatedly triggering the text.
+- Kept debug input semantics independent: holding Shift for the debug-only F3 inspection camera
+  still selects 36 m/s flight but no longer changes the retained player mode or creates a normal
+  gameplay notice. Strengthened `IslandGameFreeCameraInput` to hold Shift during its real X11
+  flight and reject any player run-mode diagnostic; executing that revised native gate is deferred
+  until the operator closes the visible pre-change Linux process.
+- The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages. It still proves
+  that the first Shift edge persists after release, running exceeds 7.0 m/s, and the second edge
+  restores a maximum 4.3 m/s pace. A new machine-recorded screenshot visibly shows the correctly
+  premultiplied gold notice without a rectangular blend artifact. Final WebAssembly is 8,490,159
+  bytes.
+- Changed OpenGL 3.3 objects compile through `/rv/cnaccache` without relinking the visible game.
+  The arm64-only GLES 3 APK builds, passes application lint, verifies with signature scheme v2, and
+  is 18,701,940 bytes with a 15,891,656-byte stripped `libmain.so`. Android runtime appearance is
+  not newly claimed. CNA and Sharp Runtime remain read-only, and no dependency defect or workaround
+  was involved.
 
 ## Session-end checklist
 

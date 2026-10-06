@@ -181,6 +181,53 @@ namespace island
         }
     }
 
+    void DebugOverlay::DrawLocomotionModeNotice(const bool running, const float opacity,
+                                                const int viewportWidth,
+                                                const int viewportHeight)
+    {
+        const float boundedOpacity = std::clamp(opacity, 0.0f, 1.0f);
+        if (boundedOpacity <= 0.0f || viewportWidth <= 0 || viewportHeight <= 0) {
+            return;
+        }
+
+        const std::string text = running ? "RUN MODE  8.0 M/S" : "WALK MODE  4.3 M/S";
+        constexpr float scale = 1.65f;
+        constexpr int horizontalPadding = 13;
+        constexpr int verticalPadding = 9;
+        const Vector2 textSize = font_->MeasureString(text) * scale;
+        const int panelWidth = static_cast<int>(std::ceil(textSize.X))
+            + horizontalPadding * 2;
+        const int panelHeight = static_cast<int>(std::ceil(textSize.Y))
+            + verticalPadding * 2;
+        const int panelX = std::max(8, (viewportWidth - panelWidth) / 2);
+        const int panelY = std::max(8, viewportHeight - panelHeight - 58);
+
+        const auto premultiplied = [boundedOpacity](const int red, const int green,
+                                                     const int blue, const int alpha) {
+            const int boundedAlpha = static_cast<int>(std::lround(
+                static_cast<float>(alpha) * boundedOpacity));
+            const auto channel = [boundedAlpha](const int value) {
+                return static_cast<std::uint8_t>((value * boundedAlpha + 127) / 255);
+            };
+            return Color(channel(red), channel(green), channel(blue),
+                         static_cast<std::uint8_t>(boundedAlpha));
+        };
+        const Color accent = running
+            ? premultiplied(246, 204, 92, 244)
+            : premultiplied(148, 229, 202, 244);
+        const Color background = premultiplied(8, 21, 20, 204);
+        const Rectangle panel(panelX, panelY, panelWidth, panelHeight);
+
+        spriteBatch_->Begin();
+        spriteBatch_->Draw(*whitePixel_, panel, background);
+        spriteBatch_->Draw(*whitePixel_, Rectangle(panelX, panelY, panelWidth, 2), accent);
+        spriteBatch_->DrawString(*font_, text,
+            Vector2(static_cast<float>(panelX + horizontalPadding),
+                    static_cast<float>(panelY + verticalPadding)),
+            accent, 0.0f, Vector2::Zero, scale, SpriteEffects::None, 0.0f);
+        spriteBatch_->End();
+    }
+
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;

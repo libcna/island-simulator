@@ -43,8 +43,11 @@ Both clearing cameras also require the shared five-rock/one-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,486,871 bytes. The monkey scene additionally requires the near crown/cheek-tuft
-diagnostic and its inspected frame retains the complete facial-detail/crossfade path. The first-frame gate also requires the reported 1280 by 720 logical
+WebAssembly is 8,490,159 bytes. The monkey scene additionally requires the near crown/cheek-tuft
+diagnostic and its inspected frame retains the complete facial-detail/crossfade path. The input
+stage captures and visually validates the warm-gold `RUN MODE  8.0 M/S` confirmation while still
+proving that releasing Shift retains running and a second press restores walking. The first-frame
+gate also requires the reported 1280 by 720 logical
 backbuffer rather than inferring render resolution from the browser surface. This records the
 evidence environment; it is not a minimum-version or general browser-permission claim.
 
@@ -128,7 +131,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-current.png`, `build-probe/island-browser-fronds.png`,
 `build-probe/island-browser-distant.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
-`build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
+`build-probe/island-browser-shark.png`, `build-probe/island-browser-monkeys.png`, and
+`build-probe/island-browser-run-mode.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
 grass view also requires the per-instance blade-stature and near juvenile-underlayer diagnostic,
@@ -160,7 +164,7 @@ report the active offshore patrol, and the monkey view must report a visible mem
 seven-agent GPU-skinned troop. The
 monkey startup diagnostics must also prove that the local-pose crossfade path is active. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
-`SpriteBatch` composition path.
+`SpriteBatch` composition path; the input-stage image records the short normal-play confirmation.
 The machine-readable result is `build-probe/island-browser-smoke.json`.
 
 The 2026-10-06 startup-instrumentation run reported 134.8 ms deterministic world generation,
@@ -174,8 +178,8 @@ calls, then holds W while applying two separated pointer movements. The same dia
 must show both player displacement and changing yaw. It resets to the deterministic south-beach QA
 location, proves that Right moves toward visible screen-right, proves that Shift+Up exceeds the
 walking ceiling after Shift has been released, proves that a second Shift press restores walking,
-and then
-walk backward into the ocean. The shoreline crossing must produce a successful water-transition
+captures the first toggle's transient HUD, and then walks backward into the ocean. The shoreline
+crossing must produce a successful water-transition
 one-shot diagnostic. The harness then enables the portable F2 world line view, toggles F1, resizes to a
 non-16:9 browser window, explicitly unlocks, and clicks to reacquire. It records the initial/final
 player and viewport samples in the JSON report. Chromium's

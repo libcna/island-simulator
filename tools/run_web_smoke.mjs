@@ -235,6 +235,8 @@ try {
       "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes(
+      "island-simulator: keyboard run/walk toggle uses a transient mode confirmation")
+    && result.output?.includes(
       "island-simulator: near monkeys use restrained procedural crown and cheek fur tufts")
     && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
@@ -1177,9 +1179,23 @@ try {
   await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
   // Confirm each toggle edge from game output. A single short synthetic edge can fall entirely
   // between frames when SwiftShader and the browser share a heavily loaded worker.
-  const runModeEnabled = await dispatchKeyUntilOutput(
-    visualSessionId, "Shift", "ShiftLeft", 16,
-    "island-simulator: run mode enabled (8.0 m/s)");
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "Shift", code: "ShiftLeft", windowsVirtualKeyCode: 16,
+    nativeVirtualKeyCode: 16,
+  }, visualSessionId);
+  const runModeEnabled = await waitForOutput(
+    visualSessionId, "island-simulator: run mode enabled (8.0 m/s)");
+  await delay(100);
+  const runModeScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const runModeScreenshotPath = path.join(
+    buildDirectory, "island-browser-run-mode.png");
+  await writeFile(runModeScreenshotPath, Buffer.from(runModeScreenshot.data, "base64"));
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "Shift", code: "ShiftLeft", windowsVirtualKeyCode: 16,
+    nativeVirtualKeyCode: 16,
+  }, visualSessionId);
+  await delay(350);
   const runStartLength = (await readSmokeOutput(visualSessionId)).length;
   await dispatchKeyPress(visualSessionId, "ArrowUp", "ArrowUp", 38, 1300, 400);
   const runSamples = parseInputSamples(
@@ -1315,6 +1331,8 @@ try {
   const inputPassed = inputResult.output?.includes("island-simulator: renderer WEBGL2")
     && inputResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
+    && inputResult.output?.includes(
+      "island-simulator: keyboard run/walk toggle uses a transient mode confirmation")
     && inputResult.output?.includes(
       "island-simulator: world debug visualization enabled with 9 ground-contact samples,"
         + " resolved movement trace, wildlife navigation guides, 3 bird route regions,"
@@ -1498,6 +1516,7 @@ try {
     fishScreenshot: path.basename(fishScreenshotPath),
     sharkScreenshot: path.basename(sharkScreenshotPath),
     monkeyScreenshot: path.basename(monkeyScreenshotPath),
+    runModeScreenshot: path.basename(runModeScreenshotPath),
   };
   await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);

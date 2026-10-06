@@ -143,6 +143,8 @@ running the full CTest set on the owner's live desktop.
 
 Run `build/island-simulator`. Click inside the window or press a movement key to capture the mouse,
 use WASD or the arrow keys to move, and press Shift to toggle between walking and running on land.
+Each keyboard toggle briefly confirms `WALK MODE  4.3 M/S` or `RUN MODE  8.0 M/S` near the bottom
+of the view; no key must remain held.
 Press Escape once to release the mouse and again to exit. Mouse look remains active while a
 movement key is held. The controller follows the terrain,
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and
@@ -201,7 +203,8 @@ The automated browser smoke test verifies renderer initialization, the portable 
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, a finite first-draw startup timing line, four frames, clean shutdown, active
 overview/beach/jungle/prop/driftwood/reef/water/
-current/grass/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
+current/grass/frond/distant/bird/fish/shark/monkey screenshots, the transient run-mode confirmation,
+and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
 The driftwood view frames the authored three-silhouette cove group, including the forked third
 variant, and requires a nonzero per-instance near-LOD population.

@@ -133,7 +133,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    turns during the same update. Its right basis matches visible screen-right rather than world +X.
    Full touch-stick travel requests the faster land pace through a hysteretic threshold, while
    partial travel remains analog walking.
-4. `IslandGame` edge-detects either Shift key and retains the selected 4.3/8.0 m/s walk/run mode;
+4. `IslandGame` edge-detects either Shift key, retains the selected 4.3/8.0 m/s walk/run mode, and
+   starts a 1.4-second normal-play confirmation; debug free-camera Shift is deliberately excluded;
    `PlayerMotion` applies frame-time clamping, direction-independent vector acceleration,
    slope checks, swimming speed, the island-relative current field, the remote safety boundary,
    and horizontal solid-prop collision in both locomotion modes. The current velocity eases from
@@ -176,9 +177,11 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    translucent control rings through CNA `SpriteBatch` with conservative edge margins. Both the
    generated texture and tint colours use premultiplied RGB, matching the default `AlphaBlend`
    contract and avoiding opaque quads or bright antialiased fringes.
-12. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
-   CNA `SpriteBatch` after all 3D passes.
-13. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+12. For 1.4 seconds after a keyboard Shift edge, `DebugOverlay` uses the same generated font for a
+   small premultiplied run/walk confirmation; it submits nothing after the notice expires.
+13. When explicitly enabled, `DebugOverlay` submits its translucent developer panel and bitmap
+   text through CNA `SpriteBatch` after all 3D passes.
+14. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
 step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.

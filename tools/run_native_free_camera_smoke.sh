@@ -109,7 +109,9 @@ wait_for_log "debug free camera enabled" "F3 activation"
 wait_for_log "input sample.*free 1" "the first active-camera sample"
 "$XDOTOOL" keydown w
 "$XDOTOOL" keydown e
+"$XDOTOOL" keydown Shift_L
 sleep 1.2
+"$XDOTOOL" keyup Shift_L
 "$XDOTOOL" keyup e
 "$XDOTOOL" keyup w
 sleep 0.5
@@ -174,6 +176,12 @@ if ! awk '
 ' "$LOG_FILE"; then
     cat "$LOG_FILE" >&2
     echo "free-camera input smoke: flight did not move the camera while freezing the player" >&2
+    exit 1
+fi
+
+if grep -q "island-simulator: run mode" "$LOG_FILE"; then
+    cat "$LOG_FILE" >&2
+    echo "free-camera input smoke: debug Shift changed the player run/walk mode" >&2
     exit 1
 fi
 

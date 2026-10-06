@@ -972,6 +972,19 @@ restrained rather than spiky outline. The revised arm64 GLES 3 package builds an
 No isolated benchmark or physical-mobile run was performed, so this is a bounded geometry account
 and portability check rather than a measured zero-cost claim.
 
+### Transient keyboard locomotion confirmation
+
+A keyboard Shift edge now reuses the already resident generated debug font and one-pixel texture
+for a small premultiplied `RUN MODE` or `WALK MODE` panel. It exists for 1.4 seconds, fades during
+its final 0.32 seconds, and submits nothing at steady state. The Android analog stick keeps its
+direct hold-style threshold and therefore does not repeatedly create the message near its
+hysteresis boundary.
+
+The complete Chrome/SwiftShader suite proves the persistent 8.0 m/s selection after key release,
+the second-edge 4.3 m/s restore, and writes a visibly correct warm-gold confirmation screenshot.
+The arm64 GLES 3 package builds and lints. No isolated transient `SpriteBatch` timing was measured;
+the screenshot's debug-panel frame time is not a benchmark.
+
 ### Logical backbuffer qualification
 
 The renderer identity alone was insufficient for interpreting mobile cost because Android's

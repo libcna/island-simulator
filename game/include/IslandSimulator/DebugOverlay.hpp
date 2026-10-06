@@ -193,6 +193,10 @@ namespace island
         /** @brief Draws the diagnostics over an already-complete 3D scene. */
         void Draw(const DebugOverlayState& state);
 
+        /** @brief Draws a short normal-play confirmation after keyboard run-mode toggles. */
+        void DrawLocomotionModeNotice(bool running, float opacity,
+                                      int viewportWidth, int viewportHeight);
+
         [[nodiscard]] float FramesPerSecond() const noexcept { return framesPerSecond_; }
         [[nodiscard]] float FrameMilliseconds() const noexcept { return frameMilliseconds_; }
 
