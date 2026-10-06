@@ -1,7 +1,11 @@
 #include "IslandSimulator/FishRenderer.hpp"
 
+#include "IslandSimulator/EnvironmentLighting.hpp"
+
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdint>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -26,7 +30,7 @@ namespace island
     {
         constexpr float NearLodDistance = 72.0f;
         constexpr float MaximumDistance = 215.0f;
-        constexpr int MaximumVerticesPerFish = 66;
+        constexpr int MaximumVerticesPerFish = FishRenderer::NearVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(FishSchools::FishCount)
             * MaximumVerticesPerFish;
 
@@ -55,6 +59,22 @@ namespace island
              Color(224, 183, 58, 255)}
         }};
 
+        const Vector3 ToSun = Vector3::Normalize(Vector3(
+            environment::SunDirectionX, environment::SunDirectionY,
+            environment::SunDirectionZ));
+
+        [[nodiscard]] Color ScaleColor(const Color& color, const float brightness)
+        {
+            const float scale = std::clamp(brightness, 0.0f, 1.12f);
+            const auto channel = [scale](const std::uint8_t value) {
+                return static_cast<int>(std::lround(std::clamp(
+                    static_cast<float>(value) * scale, 0.0f, 255.0f)));
+            };
+            return Color(channel(color.getRProperty()), channel(color.getGProperty()),
+                         channel(color.getBProperty()),
+                         static_cast<int>(color.getAProperty()));
+        }
+
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
                          const Color& color)
@@ -64,12 +84,17 @@ namespace island
             vertices.emplace_back(c, color);
         }
 
-        void AddDoubleSidedTriangle(std::vector<VertexPositionColor>& vertices,
-                                    const Vector3& a, const Vector3& b, const Vector3& c,
-                                    const Color& color)
+        void AddLitTriangle(std::vector<VertexPositionColor>& vertices,
+                            const Vector3& a, const Vector3& b, const Vector3& c,
+                            const Color& color, const bool twoSided = false)
         {
-            AddTriangle(vertices, a, b, c, color);
-            AddTriangle(vertices, c, b, a, color);
+            const Vector3 normal = Vector3::Normalize(Vector3::Cross(b - a, c - a));
+            const float normalDotSun = Vector3::Dot(normal, ToSun);
+            const float directLight = twoSided ? std::abs(normalDotSun)
+                                               : std::max(0.0f, normalDotSun);
+            const float skyFill = twoSided ? std::abs(normal.Y) : std::max(0.0f, normal.Y);
+            AddTriangle(vertices, a, b, c,
+                        ScaleColor(color, 0.72f + directLight * 0.30f + skyFill * 0.06f));
         }
 
         [[nodiscard]] PoseAxes MakePoseAxes(const FishState& fish)
@@ -114,14 +139,14 @@ namespace island
             const Vector3 rightSide = LocalPoint(centre, axes, 0.17f, 0.0f, 0.03f, scale);
             const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.42f, scale);
 
-            AddTriangle(vertices, nose, top, left, palette.body);
-            AddTriangle(vertices, nose, rightSide, top, palette.body);
-            AddTriangle(vertices, nose, bottom, rightSide, palette.belly);
-            AddTriangle(vertices, nose, left, bottom, palette.belly);
-            AddTriangle(vertices, rear, left, top, palette.body);
-            AddTriangle(vertices, rear, top, rightSide, palette.body);
-            AddTriangle(vertices, rear, rightSide, bottom, palette.belly);
-            AddTriangle(vertices, rear, bottom, left, palette.belly);
+            AddLitTriangle(vertices, nose, top, left, palette.body);
+            AddLitTriangle(vertices, nose, rightSide, top, palette.body);
+            AddLitTriangle(vertices, nose, bottom, rightSide, palette.belly);
+            AddLitTriangle(vertices, nose, left, bottom, palette.belly);
+            AddLitTriangle(vertices, rear, left, top, palette.body);
+            AddLitTriangle(vertices, rear, top, rightSide, palette.body);
+            AddLitTriangle(vertices, rear, rightSide, bottom, palette.belly);
+            AddLitTriangle(vertices, rear, bottom, left, palette.belly);
 
             const float tailBend = fish.bodyWave * 0.17f;
             const Vector3 tailTop = LocalPoint(
@@ -130,8 +155,8 @@ namespace island
                 centre, axes, tailBend * 1.08f, 0.0f, -0.66f, scale);
             const Vector3 tailBottom = LocalPoint(
                 centre, axes, tailBend, -0.25f, -0.78f, scale);
-            AddDoubleSidedTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
-            AddDoubleSidedTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
+            AddTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
+            AddTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.13f, 0.12f, scale);
@@ -139,7 +164,7 @@ namespace island
                 centre, axes, 0.0f, 0.34f, -0.08f, scale);
             const Vector3 dorsalBack = LocalPoint(
                 centre, axes, bend * 0.45f, 0.12f, -0.27f, scale);
-            AddDoubleSidedTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, palette.fin);
+            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, palette.fin);
 
             const Vector3 finRoot = LocalPoint(
                 centre, axes, 0.0f, -0.04f, 0.08f, scale);
@@ -147,8 +172,8 @@ namespace island
                 centre, axes, -0.34f, -0.10f, -0.08f, scale);
             const Vector3 rightFin = LocalPoint(
                 centre, axes, 0.34f, -0.10f, -0.08f, scale);
-            AddDoubleSidedTriangle(vertices, finRoot, leftFin, rear, palette.fin);
-            AddDoubleSidedTriangle(vertices, finRoot, rear, rightFin, palette.fin);
+            AddTriangle(vertices, finRoot, leftFin, rear, palette.fin);
+            AddTriangle(vertices, finRoot, rear, rightFin, palette.fin);
 
             const Color eye(19, 31, 33, 255);
             const Color gill(65, 86, 83, 255);
@@ -188,10 +213,10 @@ namespace island
                 centre, axes, bend * 1.62f, 0.0f, -0.62f, scale);
             const Vector3 tailBottom = LocalPoint(
                 centre, axes, bend * 1.5f, -0.21f, -0.72f, scale);
-            AddDoubleSidedTriangle(vertices, nose, top, rear, palette.body);
-            AddDoubleSidedTriangle(vertices, nose, rear, bottom, palette.belly);
-            AddDoubleSidedTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
-            AddDoubleSidedTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
+            AddLitTriangle(vertices, nose, top, rear, palette.body, true);
+            AddLitTriangle(vertices, nose, rear, bottom, palette.belly, true);
+            AddTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
+            AddTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
         }
     }
 

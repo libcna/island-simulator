@@ -162,7 +162,8 @@ device disabled; normal runtime playback is qualified separately.
 `IslandGameBirdCapture` writes a close airborne wildlife view to
 `build/island-bird-capture.ppm`.
 `IslandGameFishCapture` writes a close shallow-water school view to
-`build/island-fish-capture.ppm`.
+`build/island-fish-capture.ppm` and requires the exact 51/12-vertex, single-surface-fin, CPU-faceted
+daylight path.
 `IslandGameSharkCapture` writes a close offshore patrol view to
 `build/island-shark-capture.ppm`.
 `IslandGameMonkeyCapture` writes a close GPU-skinned jungle wildlife view to

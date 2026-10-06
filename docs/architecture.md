@@ -373,7 +373,11 @@ heading error supplies bounded turn banking, so schools follow depth changes wit
 mechanically level. School-level activation uses the same shared wildlife
 tiers, so only nearby water receives full-rate updates. `FishRenderer` selects near articulated
 body/fin geometry or a far silhouette, gives both tiers a forked tail, adds eyes and gill marks only
-to the near tier, frustum/distance-culls agents, and streams all visible fish
+to the near tier, and applies fixed-sun CPU face colours to the closed near body plus two-sided
+lighting to the flat far silhouette. Because the batch
+uses `CullNone`, each thin fin/tail surface is emitted once instead of duplicating an exactly
+coincident reverse-winding triangle. Near/far geometry is therefore 51/12 vertices per fish rather
+than 66/24. The renderer frustum/distance-culls agents and streams all visible fish
 in one `DynamicVertexBuffer` draw before the transparent ocean. Native OpenGL 3.3 and actual
 Chromium/WebGL 2 dedicated captures match; the fish-inclusive arm64 GLES 3 APK builds but has not
 run on a stable Android target.

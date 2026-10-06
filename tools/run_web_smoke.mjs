@@ -213,6 +213,8 @@ try {
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
+    && result.output?.includes(
+      "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
@@ -962,6 +964,8 @@ try {
     && fishResult.output?.includes("island-simulator: fish 48 agents")
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
+    && fishResult.output?.includes(
+      "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

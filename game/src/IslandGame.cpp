@@ -594,6 +594,9 @@ namespace island
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"
+                  << "island-simulator: fish near/far geometry "
+                  << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
+                  << " vertices, single-surface fins and CPU faceted daylight\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"

@@ -528,7 +528,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   48-agent budget uses school-level full/reduced/dormant simulation tiers, per-fish frustum/distance
   culling, near/far meshes, and one dynamic-buffer draw submission. Smoothed depth pitch and turn
   banking now drive the existing portable CPU pose; both LODs have forked tails and the near tier
-  adds restrained eye/gill detail without another draw.
+  adds restrained eye/gill detail without another draw. CPU face colours give the body fixed-sun
+  faceting, while the existing cull-none batch lets thin fins use one surface; near/far geometry is
+  reduced from 66/24 to 51/12 vertices per fish.
 - [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
   CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one
@@ -3304,6 +3306,30 @@ Work next, in order:
   claim. The arm64 GLES 3 target builds and app lint passes; the v2-signed single-ABI APK is
   18,701,412 bytes, its stripped `libmain.so` is 15,891,128 bytes, and WebAssembly is 8,471,519
   bytes. The software AVD was not rerun; physical-device appearance/cost remain open. CNA and Sharp
+  Runtime remain unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Reduced and CPU-faceted fish geometry
+
+- The wildlife audit found that close fish retained an overly flat body read despite their existing
+  forked tails, dorsal/pectoral fins, eyes, gills, pitch, and banking. Added fixed-sun CPU face
+  colours to the closed body triangles, producing readable low-poly volume through the existing
+  `BasicEffect` vertex-colour path without a shader, normal stream, texture, or additional draw.
+- Removed the exact reverse-winding copies of every thin fin/tail triangle. `FishRenderer` already
+  selects `RasterizerState::CullNone`, so one surface is visible from both sides and the coincident
+  copy only duplicated transform/raster work. Near geometry falls from 66 to 51 vertices
+  (22 to 17 triangles), far geometry from 24 to 12 vertices (eight to four triangles), and the
+  48-fish worst-case dynamic buffer from 3,168 to 2,448 vertices. Population, simulation, culling,
+  LOD distances, animation, palettes, and the one-draw ceiling are unchanged.
+- Native OpenGL 3.3 before/after and actual Chrome 152/SwiftShader WebGL 2 close-school captures were
+  inspected at 1280 by 720 and retain every fin/tail silhouette with clearer body faceting. Native
+  and browser lifecycle/fish gates require the exact 51/12-vertex diagnostic. The complete Web
+  harness passes all 22 stages; the final native suite passes 37/37 in 36.72 seconds, including 29
+  actual OpenGL scenes and isolated SDL/XTest input.
+- Two shared-GPU fish-view safety runs, each with six near fish in one draw, measured
+  1.6764--1.7648 ms mean / 2.1861--2.3527 ms p95. These are functional cost checks rather than a
+  before/after speedup claim. The arm64 GLES 3 target builds and app lint passes; the v2-signed
+  single-ABI APK is 18,703,060 bytes, its stripped `libmain.so` is 15,892,776 bytes, and
+  WebAssembly is 8,472,951 bytes. Physical-Android appearance/cost remain open. CNA and Sharp
   Runtime remain unmodified, and no qualifying dependency defect was found.
 
 ## Session-end checklist

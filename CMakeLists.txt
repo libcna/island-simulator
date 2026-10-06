@@ -462,7 +462,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
+                "fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
         add_test(NAME IslandGameSharkCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-shark-capture.ppm"
                     --viewpoint shark)

@@ -792,6 +792,22 @@ these observations guard against a gross regression but are not an isolated befo
 | Monkeys | 1.8462 | 2.6229 | 3.2287 | 102 |
 | Traversal | 2.3070 | 3.4943 | 4.1055 | 12 final |
 
+### Single-surface and CPU-faceted fish follow-up
+
+`FishRenderer` already sets `RasterizerState::CullNone`, so every thin fin and tail triangle is
+visible from either side. The former explicit reverse-winding copy was exactly coincident and
+therefore redundant. Emitting each thin surface once reduces the near fish from 66 to 51 streamed
+vertices (22 to 17 triangles) and the far fish from 24 to 12 vertices (eight to four triangles).
+Worst-case dynamic-buffer capacity falls from 3,168 to 2,448 vertices without changing fish count,
+LOD range, simulation, culling, or the one-draw batch.
+
+The closed body faces now receive fixed-sun colour on the CPU before the existing dynamic upload,
+giving the small low-poly forms readable volume without adding a normal attribute, shader, texture,
+effect, draw, or GPU fragment work. This adds bounded cross/normalize/colour work for eight near or
+two far body faces per visible fish. The dedicated camera has six near fish, so it streams 306
+rather than 396 vertices. Two shared-GPU fish-view checks measured 1.6764--1.7648 ms mean and
+2.1861--2.3527 ms p95. These are functional cost checks, not a before/after speedup claim.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

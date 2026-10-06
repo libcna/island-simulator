@@ -28,7 +28,8 @@ forked near variant and per-instance large-prop range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
 landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
-with depth-following pitch, banked turns, forked tails, and near head detail, one occasional
+with depth-following pitch, banked turns, forked tails, 51/12-vertex CPU-lit near/far geometry,
+single-surface fins, and near head detail, one occasional
 non-hostile offshore shark with matching pose and silhouette treatment, seven GPU-skinned
 procedural monkeys with bounded calm-state head attention, fixed sunny sky
 with layered horizontal high wisps,
@@ -45,9 +46,10 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw. The software-emulator
 screenshot establishes integrated rendering but is not detailed enough to qualify every layer's
 appearance, touch feel, audio output, lifecycle, or performance.
-The latest single-ABI arm64 debug qualification build produced an 18,701,412-byte APK with a
-15,891,128-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
-noise-mottled portable footpath and reused crossing-wave ocean-colour treatments. The APK verifies
+The latest single-ABI arm64 debug qualification build produced an 18,703,060-byte APK with a
+15,892,776-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+noise-mottled portable footpath, reused crossing-wave ocean colour, and reduced CPU-lit fish
+treatments. The APK verifies
 with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
 incremental assembly.
