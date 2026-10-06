@@ -735,7 +735,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
   requires renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records
   logcat plus a device screenshot. Debug builds now accept a release-disabled intent argument array
-  for repeatable fixed-view capture; the reef-detail GLES3 pass is qualified with it. Rotation
+  for repeatable fixed-view capture; inspected beach, close-grass, jungle, water, monkey, and
+  reef GLES3 frames match the corresponding WebGL 2 composition and material paths. Rotation
   policy, process-death restoration, clean exit, and physical-device relaunch remain open.
 - [x] Recheck the software AVD's 27 gfxstream `GL_INVALID_OPERATION` uniform-query reports on a
   stable KVM emulator before assigning them to the driver, framework, or game. They did not recur
@@ -910,8 +911,10 @@ Android is not project completion.
   extended-play tests.
 - [ ] Run Android release-like package install, cold/warm launch, lifecycle, touch, audio, thermal,
   and extended-play tests.
-- [ ] Compare a representative view matrix across all three renderers and document unavoidable
-  differences rather than hiding them.
+- [x] Compare a representative view matrix across all three renderers and document unavoidable
+  differences rather than hiding them. Native and Web fixed-view evidence is joined by inspected
+  Android beach, close-grass, jungle, water, monkey, and reef captures; Android's centred viewport,
+  touch HUD, and emulator-only performance scope are recorded explicitly.
 - [x] Review every external and original distributable asset against `ASSET_LICENSES.md` and
   redistribution requirements. The tracked source tree has no external binary/content files; its
   one non-generated visual asset is the original Android vector launcher icon, now hash-gated by
@@ -1078,8 +1081,8 @@ after the same experience remains available.
 - [x] `docs/asset-pipeline.md`: current generation model, versioned manifest schema, validation,
   world report, external intake, deterministic conversion requirements, and limitations.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
-  documented; the KVM Android overview and first matched reef-detail capture are recorded, while
-  other matched close views and representative physical-device measurements remain open.
+  documented; six KVM Android fixed views are matched against WebGL 2 and the established native
+  suite, while representative physical-device measurements remain open.
 - [~] `docs/debugging.md`: overlay fields, direct QA teleports, deterministic captures, and the
   native performance-report workflow are documented. Android debug packages can now receive the
   same fixed-view arguments through a release-disabled intent bridge; deeper world-space
@@ -1149,8 +1152,9 @@ Work next, in order:
 5. Continue Android qualification on physical hardware. The KVM-accelerated API 35 AVD now proves
    complete-scene GLES 3 rendering, independent movement/look gestures, translucent touch HUD,
    same-process surface restoration, AAudio pause/resume, startup/memory instrumentation, and a
-   terrain-batching direction check. A debug-only fixed-view bridge also proves the close reef wet
-   material on GLES3. Simultaneous real-finger ergonomics, swimming, external audio focus, process
+   terrain-batching direction check. A debug-only fixed-view bridge now proves matched beach,
+   close-grass, jungle, water, monkey, and wet-reef views on GLES3. Simultaneous real-finger
+   ergonomics, swimming, external audio focus, process
    death, thermals, and physical mobile-GPU performance remain open.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete. The
@@ -3871,6 +3875,28 @@ Work next, in order:
   `libmain.so`. The retained ignored reef screenshot/log are about 0.6 MB and provide useful QA
   evidence. CNA and Sharp Runtime remained read-only and unchanged; no dependency workaround was
   required.
+
+### 2026-10-06 — Android GLES 3 representative view matrix
+
+- Reused the debug-only, release-disabled Android argument bridge to capture fixed beach,
+  close-grass, jungle, water, and monkey views on the API 35 x86_64 KVM/gfxstream AVD. Every launch
+  reported `OPENGLES3`, passed the first-frame/grass runtime gate, and emitted no fatal,
+  shader-compilation, or `GL_INVALID_OPERATION` diagnostic. First draw completed in
+  1606.499--2217.599 ms across these five runs; the figures identify successful startup on this
+  emulator and are not a shipping performance baseline.
+- Inspected a labelled side-by-side matrix of those frames plus the preceding reef frame against
+  their WebGL 2 counterparts. Scene geometry, broad terrain materials, close grass, jungle layers,
+  palm presentation, sky, water treatment, near skinned-monkey silhouette, and the reef wet band
+  remain visually consistent. Android deliberately adds its translucent touch HUD and centres the
+  1920 by 1080 game viewport inside the AVD's 2400 by 1080 landscape surface. Exact pixel identity,
+  animated-effect timing, automated image comparison, and physical-device quality/cost remain out
+  of scope for this evidence.
+- Stopped the headless emulator cleanly and confirmed that ADB has no remaining target. Restored
+  and linted the default arm64-v8a package through the required shared `/rv/cnaccache`; it contains
+  only the selected ABI and is 18,744,372 bytes with a 15,934,088-byte stripped `libmain.so`.
+  Retained the small ignored screenshots/logs as reproducible QA evidence and removed the temporary
+  comparison montage. CNA and Sharp Runtime remained read-only and unchanged; no dependency bug or
+  workaround was involved.
 
 ## Session-end checklist
 

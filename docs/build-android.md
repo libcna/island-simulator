@@ -241,6 +241,14 @@ framework, 2473.582 ms content, 22.667 ms pre-draw, and 53.453 ms first draw). N
 shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared. This qualifies the material
 path on gfxstream, not a physical mobile GPU or a sustained performance budget.
 
+The same launch bridge then captured beach, close grass, jungle, water, and monkey viewpoints.
+All five reported `OPENGLES3`, completed a first draw in 1606.499--2217.599 ms, and emitted no
+fatal, shader-compilation, or `GL_INVALID_OPERATION` diagnostic. Side-by-side inspection against
+the corresponding WebGL 2 frames found matching scene geometry, broad materials, grass and jungle
+density, water colour, sky, and the near skinned-monkey silhouette. Together with the reef frame,
+this is a six-view GLES 3 appearance matrix on gfxstream. It is not a pixel-identity test, an
+automated image comparison, or a physical-device performance qualification.
+
 A subsequent no-window qualification after moving the CNA pin to `fe20e3e9c` again used KVM
 version 12 and host-GPU gfxstream, completed a cold GLES 3 first frame in 2003.189 ms, and produced
 an inspected clean overview. This proves that the current 31-driftwood complete scene starts with

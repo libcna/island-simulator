@@ -124,9 +124,10 @@ been confirmed so far.
   genuine tab suspend/resume, fullscreen, and a second browser engine remain unverified.
 - Android arm64-v8a and x86_64 APKs build, and a KVM-accelerated API 35 x86_64 AVD renders the
   complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a
-  same-process hot resume, AAudio pause/resume, and a fixed close reef-material view are validated.
-  A debug-only intent bridge makes other fixed QA launches repeatable but does not replace their
-  inspection. Simultaneous real-finger ergonomics, audio-focus interruption, process-death
+  same-process hot resume, AAudio pause/resume, and fixed beach, close-grass, jungle, water,
+  monkey, and reef views are validated. The six frames were visually compared with the matching
+  WebGL 2 captures through the debug-only intent bridge. Simultaneous real-finger ergonomics,
+  audio-focus interruption, process-death
   recovery, physical mobile-GPU performance, thermal behaviour, and physical-device compatibility
   remain unverified.
 
