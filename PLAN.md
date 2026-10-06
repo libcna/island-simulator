@@ -907,7 +907,10 @@ Android is not project completion.
   and extended-play tests.
 - [ ] Compare a representative view matrix across all three renderers and document unavoidable
   differences rather than hiding them.
-- [ ] Review every external asset against `ASSET_LICENSES.md` and redistribution requirements.
+- [x] Review every external and original distributable asset against `ASSET_LICENSES.md` and
+  redistribution requirements. The tracked source tree has no external binary/content files; its
+  one non-generated visual asset is the original Android vector launcher icon, now hash-gated by
+  manifest schema 2 with a matching attribution row.
 - [ ] Review `BUGS.md`, known limitations, disabled fallbacks, warnings, and unverified claims.
 - [ ] Review repository size and remove only project-owned obsolete artifacts after checking for
   live users/processes.
@@ -3762,6 +3765,21 @@ Work next, in order:
 - The native core library was rebuilt through `/rv/cnaccache`. The visible OpenGL 3.3 game process
   was deliberately left running for the operator, so the final native executable relink and a
   subjective movement pass remain the immediate follow-up. No dependency repository was touched.
+
+### 2026-10-06 — Original-asset provenance audit
+
+- Audited every tracked source file and confirmed that the game ships no external mesh, texture,
+  animation, font, or audio data. The audit identified one previously implicit distributable
+  visual: the hand-authored Android vector launcher icon.
+- Upgraded the asset manifest to schema 2 with a distinct `projectFiles` collection. Original
+  distributable files now require a stable name, safe repository-relative path, exact SHA-256, and
+  matching `ASSET_LICENSES.md` row, while externally sourced files retain their fuller provenance
+  contract. Duplicate project/external paths, missing files, unsafe paths, stale hashes, and
+  orphaned attribution rows fail validation.
+- Recorded the launcher icon as original project artwork and hash-gated its exact XML. The updated
+  validator passes with 17 procedural records, 32 generator sources, one original project file,
+  18 documented attribution records, and zero external files. No dependency repository or runtime
+  package was changed.
 
 ## Session-end checklist
 

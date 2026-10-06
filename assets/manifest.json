@@ -1,6 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "externalFiles": [],
+  "projectFiles": [
+    {
+      "name": "android-launcher-icon",
+      "path": "android/app/src/main/res/drawable/ic_launcher.xml",
+      "sha256": "e0435e5572f4c6f425b9999b28f2c6bcd52741b74eee7bea07faf90d5a0df6e1",
+      "licenseRecord": "Original Android launcher icon"
+    }
+  ],
   "proceduralGenerators": [
     {
       "name": "island-field",

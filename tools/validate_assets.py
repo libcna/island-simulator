@@ -25,6 +25,7 @@ REQUIRED_EXTERNAL_FIELDS = {
     "use",
     "licenseRecord",
 }
+REQUIRED_PROJECT_FILE_FIELDS = {"name", "path", "sha256", "licenseRecord"}
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
@@ -94,8 +95,8 @@ def validate_manifest(root: Path) -> dict[str, Any]:
     manifest = load_json(manifest_path, errors)
     records = license_records(root / "ASSET_LICENSES.md", errors)
 
-    if manifest.get("schemaVersion") != 1:
-        errors.append("assets/manifest.json schemaVersion must be 1")
+    if manifest.get("schemaVersion") != 2:
+        errors.append("assets/manifest.json schemaVersion must be 2")
 
     generators = manifest.get("proceduralGenerators")
     if not isinstance(generators, list):
@@ -105,6 +106,10 @@ def validate_manifest(root: Path) -> dict[str, Any]:
     if not isinstance(external_files, list):
         errors.append("externalFiles must be an array")
         external_files = []
+    project_files = manifest.get("projectFiles")
+    if not isinstance(project_files, list):
+        errors.append("projectFiles must be an array")
+        project_files = []
 
     generator_names: set[str] = set()
     documented_records: set[str] = set()
@@ -138,6 +143,46 @@ def validate_manifest(root: Path) -> dict[str, Any]:
                 else:
                     generator_source_count += 1
 
+    project_file_names: set[str] = set()
+    listed_project_paths: set[str] = set()
+    for index, entry in enumerate(project_files):
+        prefix = f"projectFiles[{index}]"
+        if not isinstance(entry, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        missing = sorted(REQUIRED_PROJECT_FILE_FIELDS - entry.keys())
+        if missing:
+            errors.append(f"{prefix} is missing fields: {', '.join(missing)}")
+            continue
+        name = entry["name"]
+        if not isinstance(name, str) or not name.strip():
+            errors.append(f"{prefix}.name must be non-empty")
+        elif name in project_file_names:
+            errors.append(f"duplicate project asset name: {name}")
+        else:
+            project_file_names.add(name)
+        relative_path = entry["path"]
+        path = resolve_project_path(root, relative_path, f"{prefix}.path", errors)
+        if isinstance(relative_path, str):
+            if relative_path in listed_project_paths:
+                errors.append(f"duplicate project asset path: {relative_path}")
+            listed_project_paths.add(relative_path)
+        expected_hash = entry["sha256"]
+        if not isinstance(expected_hash, str) or not SHA256_PATTERN.fullmatch(expected_hash):
+            errors.append(f"{prefix}.sha256 must be a lowercase SHA-256 digest")
+        if path is not None:
+            if not path.is_file():
+                errors.append(f"missing project asset file: {relative_path}")
+            elif isinstance(expected_hash, str) and SHA256_PATTERN.fullmatch(expected_hash):
+                actual_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+                if actual_hash != expected_hash:
+                    errors.append(f"SHA-256 mismatch for {relative_path}")
+        record = entry["licenseRecord"]
+        if not isinstance(record, str) or record not in records:
+            errors.append(f"{prefix}.licenseRecord has no ASSET_LICENSES.md row: {record}")
+        else:
+            documented_records.add(record)
+
     listed_external_paths: set[str] = set()
     for index, entry in enumerate(external_files):
         prefix = f"externalFiles[{index}]"
@@ -154,6 +199,8 @@ def validate_manifest(root: Path) -> dict[str, Any]:
             if relative_path in listed_external_paths:
                 errors.append(f"duplicate external asset path: {relative_path}")
             listed_external_paths.add(relative_path)
+            if relative_path in listed_project_paths:
+                errors.append(f"asset path is both project-owned and external: {relative_path}")
             if not relative_path.startswith("assets/"):
                 errors.append(f"external asset must live under assets/: {relative_path}")
         if entry["role"] not in {"runtime", "source"}:
@@ -183,18 +230,23 @@ def validate_manifest(root: Path) -> dict[str, Any]:
         for path in (root / "assets").rglob("*")
         if path.is_file() and path != manifest_path
     }
-    for unlisted in sorted(discovered_asset_files - listed_external_paths):
+    listed_asset_paths = listed_external_paths | listed_project_paths
+    for unlisted in sorted(discovered_asset_files - listed_asset_paths):
         errors.append(f"unlisted file under assets/: {unlisted}")
-    for missing in sorted(listed_external_paths - discovered_asset_files):
+    for missing in sorted(
+        path for path in listed_asset_paths
+        if path.startswith("assets/") and path not in discovered_asset_files
+    ):
         errors.append(f"manifest lists a missing file under assets/: {missing}")
     for orphaned_record in sorted(records - documented_records):
         errors.append(f"ASSET_LICENSES.md row is absent from the manifest: {orphaned_record}")
 
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "valid": not errors,
         "proceduralGeneratorCount": len(generators),
         "proceduralSourceCount": generator_source_count,
+        "projectFileCount": len(project_files),
         "externalFileCount": len(external_files),
         "documentedLicenseRecordCount": len(documented_records),
         "errors": errors,
@@ -215,10 +267,12 @@ def main() -> int:
             return 1
 
     if report["valid"]:
+        project_file_suffix = "" if report["projectFileCount"] == 1 else "s"
         print(
             "island-simulator: asset validation passed: "
             f"{report['proceduralGeneratorCount']} procedural records, "
             f"{report['proceduralSourceCount']} generator sources, "
+            f"{report['projectFileCount']} project file{project_file_suffix}, "
             f"{report['externalFileCount']} external files"
         )
         return 0
