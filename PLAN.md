@@ -732,7 +732,11 @@ Dependencies: representative complete scene on all targets.
   inputs for actionable failure diagnostics.
 - [ ] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
   sizes, and impossible player/wildlife states in development builds.
-- [ ] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
+- [x] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
+  A host-only two-worker preset instruments the game-owned core, tests, and world-report tool while
+  omitting CNA and the graphical application. The first complete pass is clean. LeakSanitizer
+  cannot run under the managed process tracer, so it remains a separately documented
+  ordinary-terminal check.
 - [x] Add deterministic smoke mode plus fixed overview, first-person beach-path, and close-palm
   camera/capture modes for renderer evidence.
 - [ ] Rebuild from the documented clean state to detect undeclared files and absolute paths.
@@ -2519,6 +2523,24 @@ Work next, in order:
   regression evidence rather than a performance baseline. Android runtime remains unqualified
   without KVM or a physical device. No CNA or Sharp Runtime file was changed and no dependency
   defect was found.
+
+### 2026-10-06 — First-party ASan and UBSan gate
+
+- Added `ISLAND_ENABLE_SANITIZERS` and a dedicated `linux-sanitize` configure/build/test preset.
+  It uses AddressSanitizer plus UndefinedBehaviorSanitizer on `island_core`, its test executable,
+  and the deterministic world-report executable, with frame pointers retained and the build held
+  to two workers. `ISLAND_BUILD_GAME=OFF` keeps CNA, Sharp Runtime, renderer code, and unrelated
+  dependency targets outside this focused diagnostic build.
+- The initial managed-runner attempt confirmed that LeakSanitizer cannot operate under the host's
+  process tracing and exits before a project result. The reproducible CTest preset therefore
+  disables only leak detection; the Linux guide provides a direct `detect_leaks=1` invocation for
+  an ordinary untraced terminal. This is an execution-environment limitation, not a CNA or Sharp
+  Runtime defect.
+- The final instrumented suite passes 3/3 in 46.73 seconds: the complete deterministic core test,
+  world-report generation/validation, and the asset provenance gate. No address, bounds, lifetime,
+  alignment, integer, floating-point, enum, or other enabled undefined-behaviour diagnostic was
+  emitted. `build-sanitize/` is reproducible and is removed after the pass to avoid retaining a
+  redundant build tree.
 
 ## Session-end checklist
 

@@ -11,6 +11,8 @@ option(ISLAND_BUILD_TESTS "Build island-simulator core tests" ON)
 option(ISLAND_BUILD_TOOLS "Build island-simulator host development tools" ON)
 option(ISLAND_STRICT_DEPENDENCY_REVISIONS
        "Require the dependency revisions recorded in dependencies.lock" ON)
+option(ISLAND_ENABLE_SANITIZERS
+       "Instrument first-party island-simulator targets with AddressSanitizer and UBSan" OFF)
 
 set(CNA_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build/dependencies/cna-next" CACHE PATH
     "Read-only CNA next source tree")
@@ -70,13 +72,36 @@ function(island_enable_cna_consumer_warnings target)
     endif()
 endfunction()
 
+function(island_enable_first_party_sanitizers target)
+    if(NOT ISLAND_ENABLE_SANITIZERS)
+        return()
+    endif()
+    if(CMAKE_CROSSCOMPILING)
+        message(FATAL_ERROR "ISLAND_ENABLE_SANITIZERS is supported only for host builds")
+    endif()
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(FATAL_ERROR
+            "ISLAND_ENABLE_SANITIZERS requires a GCC- or Clang-compatible compiler")
+    endif()
+
+    target_compile_options(${target} PRIVATE
+        -fsanitize=address,undefined
+        -fno-omit-frame-pointer)
+    get_target_property(_island_target_type ${target} TYPE)
+    if(NOT _island_target_type STREQUAL "STATIC_LIBRARY")
+        target_link_options(${target} PRIVATE -fsanitize=address,undefined)
+    endif()
+endfunction()
+
 island_enable_first_party_warnings(island_core)
+island_enable_first_party_sanitizers(island_core)
 
 if(ISLAND_BUILD_TOOLS AND NOT CMAKE_CROSSCOMPILING)
     add_executable(island_world_report tools/WorldReport.cpp)
     set_target_properties(island_world_report PROPERTIES OUTPUT_NAME island-world-report)
     target_link_libraries(island_world_report PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_world_report)
+    island_enable_first_party_sanitizers(island_world_report)
 endif()
 
 if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
@@ -84,6 +109,7 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     add_executable(island_core_tests tests/CoreTests.cpp)
     target_link_libraries(island_core_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_core_tests)
+    island_enable_first_party_sanitizers(island_core_tests)
     add_test(NAME IslandCoreTests COMMAND island_core_tests)
 
     if(TARGET island_world_report)
@@ -214,6 +240,7 @@ if(ISLAND_BUILD_GAME)
     target_include_directories(island-simulator PRIVATE game/include)
     target_link_libraries(island-simulator PRIVATE IslandSimulator::Core CNA)
     island_enable_cna_consumer_warnings(island-simulator)
+    island_enable_first_party_sanitizers(island-simulator)
 
     if(COMMAND cna_copy_renderer_runtime)
         cna_copy_renderer_runtime(island-simulator)

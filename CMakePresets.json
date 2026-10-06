@@ -52,6 +52,21 @@
       }
     },
     {
+      "name": "linux-sanitize",
+      "displayName": "Linux Core AddressSanitizer and UBSan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-sanitize",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "ISLAND_BUILD_GAME": "OFF",
+        "ISLAND_BUILD_TESTS": "ON",
+        "ISLAND_BUILD_TOOLS": "ON",
+        "ISLAND_ENABLE_SANITIZERS": "ON"
+      }
+    },
+    {
       "name": "web-webgl2",
       "displayName": "Web WebGL 2 Release",
       "inherits": "web-base",
@@ -75,6 +90,15 @@
       "jobs": 2,
       "targets": [
         "island-simulator",
+        "island_core_tests",
+        "island_world_report"
+      ]
+    },
+    {
+      "name": "linux-sanitize",
+      "configurePreset": "linux-sanitize",
+      "jobs": 2,
+      "targets": [
         "island_core_tests",
         "island_world_report"
       ]
@@ -110,6 +134,20 @@
         "include": {
           "name": "^IslandCoreTests$"
         }
+      }
+    },
+    {
+      "name": "linux-sanitize",
+      "configurePreset": "linux-sanitize",
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=0:strict_string_checks=1:check_initialization_order=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1
       }
     }
   ]

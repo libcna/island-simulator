@@ -41,6 +41,29 @@ python3 tools/validate_assets.py --output /tmp/island-asset-report.json
 Both commands are registered as native CTests. See `docs/asset-pipeline.md` for report semantics
 and the external-asset intake gate.
 
+For a clean host-only memory and undefined-behaviour pass over all first-party core code and the
+world-report tool, use the dedicated preset:
+
+```bash
+cmake --preset linux-sanitize
+cmake --build --preset linux-sanitize
+ctest --preset linux-sanitize
+```
+
+This configuration enables AddressSanitizer and UndefinedBehaviorSanitizer only on
+island-simulator-owned targets, builds with at most two workers, and deliberately leaves the CNA
+application/dependency graph out of the build. The test preset stops on the first
+undefined-behaviour report. It disables LeakSanitizer because the managed development runner uses
+process tracing, under which LSan exits before reporting project results. On an ordinary terminal
+without a debugger or tracer, run a separate leak pass with:
+
+```bash
+ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1 \
+  build-sanitize/island_core_tests
+```
+
+`build-sanitize/` is reproducible and may be removed after a completed diagnostic pass.
+
 To use a separate read-only CNA `next` checkout instead of the generated export:
 
 ```bash
