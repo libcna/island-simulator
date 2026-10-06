@@ -485,8 +485,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   bounded dive pitch, visible turn banking,
   meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol.
   Monkey population, deterministic long-run state/motion, finite pose, terrain/slope validity,
-  idle/observe/walk/run-away reachability, meaningful travel, and tier accounting are covered
-  through a simulated 20-minute session. The same run samples clearance against the complete
+  idle/observe/walk/run-away reachability, bounded player-aware head posing in both directions,
+  meaningful travel, and tier accounting are covered through a simulated 20-minute session. The
+  same run samples clearance against the complete
   world obstacle set and requires deterministic steering deflections.
 
 ### Birds
@@ -550,7 +551,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   collision, validates spawn/target/movement clearance, and tries deterministic lateral steering
   before abandoning an obstructed target.
 - [x] Add mild player awareness without enemies, attacks, quests, or interaction systems. A player
-  within 7.5 m causes a brief bounded retreat followed by observation.
+  within 7.5 m causes a brief bounded retreat followed by observation. Calm idle/observe animals
+  between 7.5 and 30 m also ease their existing head bone toward the player within a restrained
+  0.34-radian limit, then relax the pose during locomotion or retreat.
 - [x] Distance-throttle animation and decisions while preserving nearby quality. The shared
   full/reduced/dormant policy throttles decisions, while render distance/frustum culling and a
   one-draw far mesh replace the three-pass facial-detail near LOD.
@@ -822,8 +825,8 @@ Android is not project completion.
 - [~] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
   Bird paths now drift slowly around their authored radii and their CPU pose blends between wing
   strokes, glides, and banked turns. Fish and shark now pitch with vertical motion, bank through
-  turns, and have clearer forked-tail/head silhouettes; monkey and long subjective tuning remain
-  open.
+  turns, and have clearer forked-tail/head silhouettes. Calm monkeys now use bounded player-aware
+  head posing on top of their existing clips; long subjective tuning remains open.
 - [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
 - [ ] Fix frame pacing, loading hitches, input focus issues, touch ergonomics, and platform-specific
   rendering differences found during real play.
@@ -1025,7 +1028,8 @@ Work next, in order:
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
-   are complete first passes. Bird flight now adds slow per-agent radial drift, banked turns, and
+   plus restrained calm-state player-aware head posing are complete first passes. Bird flight now
+   adds slow per-agent radial drift, banked turns, and
    intermittent smooth glides without another draw. Fish and shark movement now follows depth with
    pitch, banks through turns, and uses clearer forked-tail/near-head silhouettes without another
    draw; keep all four wildlife layers under subjective observation during play.
@@ -3046,6 +3050,31 @@ Work next, in order:
 - The deterministic world fingerprint remains `d83ecd714e10fc9f`; population, placement, collision,
   activation tiers, and offshore constraints are unchanged. CNA and Sharp Runtime were not
   modified, and no dependency defect was found.
+
+### 2026-10-06 — Calm monkey player-aware skeletal head posing
+
+- Added a renderer-independent, distance-faded look angle for calm `Idle` and `Observe` monkeys
+  when the player is 7.5--30 m away. It approaches at 0.75 radians per second, remains within
+  0.34 radians, relaxes during locomotion, and yields to the existing brief retreat inside 7.5 m;
+  no hostile or interaction system was introduced.
+- `MonkeyRenderer` composes the look into the existing head-bone local transform after normal clip
+  sampling or crossfade blending, then rebuilds the same fourteen-matrix world/skin palette. Agent
+  count, geometry, clips, effects, textures, draw counts, and the portable `SkinnedEffect` path are
+  unchanged. Core coverage requires smooth attention to both sides, exact determinism, finite pose,
+  and the bound throughout the simulated 20-minute wildlife session.
+- The close-review viewpoint now supplies a virtual observer at the same bearing but outside the
+  retreat radius, so the QA camera can remain near the face without making its subject immediately
+  run away. The deployable Web test page uses the fixed monkey view without the F1 panel because
+  first-draw scene populations are logged independently. Fresh native OpenGL 3.3 and actual
+  Chrome/WebGL 2 captures were inspected and match on the calm frontal pose and readable face.
+- The isolated native suite passes 37/37 in 71.66 seconds, including 29 real OpenGL scenes and real
+  X11 input. The complete Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages. The arm64
+  GLES 3 target builds, Gradle APK assembly and application lint pass, WebAssembly is 8,453,927
+  bytes, the stripped Android library is 15,858,992 bytes, and the APK is 33,591,368 bytes. Android
+  appearance and attention timing remain unqualified without KVM or a physical device.
+- The deterministic world fingerprint remains `d83ecd714e10fc9f`; placements, collision, home
+  ranges, and animation clip data are unchanged. CNA and Sharp Runtime were not modified, and no
+  dependency defect was found.
 
 ## Session-end checklist
 

@@ -1460,6 +1460,31 @@ int main()
           "monkey troop exercises all four material palettes");
     Check(maximumMonkeyScale - minimumMonkeyScale >= 0.20f,
           "monkey troop has meaningful individual scale variation");
+
+    island::MonkeyTroop attentiveMonkeys(terrain);
+    attentiveMonkeys.SetObstacles(worldObstacles);
+    const island::MonkeyState attentionStart = attentiveMonkeys.Monkeys().front();
+    const float leftObserverAngle = attentionStart.headingRadians + 0.90f;
+    for (int frame = 0; frame < 30; ++frame) {
+        attentiveMonkeys.Update(
+            1.0f / 30.0f,
+            attentionStart.x + std::cos(leftObserverAngle) * 12.0f,
+            attentionStart.y + 1.6f,
+            attentionStart.z + std::sin(leftObserverAngle) * 12.0f);
+    }
+    Check(attentiveMonkeys.Monkeys().front().headLookRadians > 0.20f,
+          "a calm monkey gradually attends toward a nearby observer on its left");
+    const float rightObserverAngle = attentionStart.headingRadians - 0.90f;
+    for (int frame = 0; frame < 50; ++frame) {
+        attentiveMonkeys.Update(
+            1.0f / 30.0f,
+            attentionStart.x + std::cos(rightObserverAngle) * 12.0f,
+            attentionStart.y + 1.6f,
+            attentionStart.z + std::sin(rightObserverAngle) * 12.0f);
+    }
+    Check(attentiveMonkeys.Monkeys().front().headLookRadians < -0.20f,
+          "a calm monkey smoothly redirects attention toward the opposite side");
+
     bool observedMonkeyIdle = false;
     bool observedMonkeyObserve = false;
     bool observedMonkeyWalk = false;
@@ -1498,6 +1523,7 @@ int main()
             Check(state.x == repeated.x && state.y == repeated.y
                       && state.z == repeated.z
                       && state.headingRadians == repeated.headingRadians
+                      && state.headLookRadians == repeated.headLookRadians
                       && state.speed == repeated.speed
                       && state.animationSeconds == repeated.animationSeconds
                       && state.homeX == repeated.homeX && state.homeZ == repeated.homeZ
@@ -1508,10 +1534,14 @@ int main()
                   "monkey troop remains deterministic over a long session");
             Check(std::isfinite(state.x) && std::isfinite(state.y)
                       && std::isfinite(state.z) && std::isfinite(state.headingRadians)
+                      && std::isfinite(state.headLookRadians)
                       && std::isfinite(state.animationSeconds)
                       && std::isfinite(state.homeX) && std::isfinite(state.homeZ)
                       && std::isfinite(state.targetX) && std::isfinite(state.targetZ),
                   "monkey pose remains finite over a long session");
+            Check(std::fabs(state.headLookRadians)
+                      <= island::MonkeyTroop::MaximumHeadLookRadians + 0.001f,
+                  "monkey head attention remains inside its restrained skeletal bound");
             Check(std::hypot(state.x - state.homeX, state.z - state.homeZ)
                       <= island::MonkeyTroop::MaximumHomeDistance + 0.001f
                       && std::hypot(state.targetX - state.homeX,

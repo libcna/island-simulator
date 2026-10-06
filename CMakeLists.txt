@@ -475,7 +475,8 @@ if(ISLAND_BUILD_GAME)
         set_tests_properties(IslandGameMonkeyCapture PROPERTIES
             TIMEOUT 30
             LABELS display
-            PASS_REGULAR_EXPRESSION "monkey crossfades 0/[1-9][0-9]* active/completed")
+            PASS_REGULAR_EXPRESSION
+                "calm monkeys use bounded skeletal head attention.*monkey crossfades 0/[1-9][0-9]* active/completed")
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

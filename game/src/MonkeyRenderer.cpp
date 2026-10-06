@@ -549,22 +549,30 @@ namespace island
                     Vector3::Lerp(fromTranslation, toTranslation, amount));
         }
 
-        void BuildBlendedPalette(const SkinningData& data,
-                                 const std::span<const Matrix> source,
-                                 const std::span<const Matrix> target,
-                                 const float amount,
-                                 std::vector<Matrix>& local,
-                                 std::vector<Matrix>& world,
-                                 std::vector<Matrix>& skin)
+        void BuildBlendedLocalTransforms(const SkinningData& data,
+                                         const std::span<const Matrix> source,
+                                         const std::span<const Matrix> target,
+                                         const float amount,
+                                         std::vector<Matrix>& local)
         {
             const std::size_t boneCount = static_cast<std::size_t>(data.BoneCount);
             local.resize(boneCount);
-            world.resize(boneCount);
-            skin.resize(boneCount);
             const float eased = amount * amount * (3.0f - 2.0f * amount);
-            const bool hasPrefix = data.SkeletonRootPrefix.size() == boneCount;
             for (std::size_t index = 0; index < boneCount; ++index) {
                 local[index] = BlendLocalTransform(source[index], target[index], eased);
+            }
+        }
+
+        void BuildSkinPalette(const SkinningData& data,
+                              const std::span<const Matrix> local,
+                              std::vector<Matrix>& world,
+                              std::vector<Matrix>& skin)
+        {
+            const std::size_t boneCount = static_cast<std::size_t>(data.BoneCount);
+            world.resize(boneCount);
+            skin.resize(boneCount);
+            const bool hasPrefix = data.SkeletonRootPrefix.size() == boneCount;
+            for (std::size_t index = 0; index < boneCount; ++index) {
                 const int parent = data.SkeletonHierarchy[index];
                 world[index] = parent < 0
                     ? (hasPrefix ? local[index] * data.SkeletonRootPrefix[index]
@@ -602,6 +610,9 @@ namespace island
         std::vector<Matrix> presentedLocalTransforms;
         std::vector<Matrix> blendedWorldTransforms;
         std::vector<Matrix> blendedSkinTransforms;
+        std::vector<Matrix> attentiveLocalTransforms;
+        std::vector<Matrix> attentiveWorldTransforms;
+        std::vector<Matrix> attentiveSkinTransforms;
     };
 
     MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device)
@@ -748,11 +759,13 @@ namespace island
                         / playback.crossfadeDuration,
                     0.0f, 1.0f);
                 if (amount < 1.0f) {
-                    BuildBlendedPalette(*skinningData_, playback.sourceLocalTransforms,
-                                        playback.player->GetBoneTransforms(), amount,
-                                        playback.presentedLocalTransforms,
-                                        playback.blendedWorldTransforms,
-                                        playback.blendedSkinTransforms);
+                    BuildBlendedLocalTransforms(
+                        *skinningData_, playback.sourceLocalTransforms,
+                        playback.player->GetBoneTransforms(), amount,
+                        playback.presentedLocalTransforms);
+                    BuildSkinPalette(*skinningData_, playback.presentedLocalTransforms,
+                                     playback.blendedWorldTransforms,
+                                     playback.blendedSkinTransforms);
                     skinTransforms = &playback.blendedSkinTransforms;
                     ++activeCrossfadeCount_;
                 } else {
@@ -762,6 +775,17 @@ namespace island
                 }
             } else {
                 playback.presentedLocalTransforms = playback.player->GetBoneTransforms();
+            }
+
+            if (std::fabs(monkey.headLookRadians) > 0.001f) {
+                playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
+                playback.attentiveLocalTransforms[Head]
+                    = Matrix::CreateRotationY(-monkey.headLookRadians)
+                        * playback.attentiveLocalTransforms[Head];
+                BuildSkinPalette(*skinningData_, playback.attentiveLocalTransforms,
+                                 playback.attentiveWorldTransforms,
+                                 playback.attentiveSkinTransforms);
+                skinTransforms = &playback.attentiveSkinTransforms;
             }
 
             const Vector3 centre(monkey.x, monkey.y + 0.72f * monkey.scale, monkey.z);

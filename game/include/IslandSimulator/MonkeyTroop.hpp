@@ -29,6 +29,7 @@ namespace island
         float y = 0.0f;
         float z = 0.0f;
         float headingRadians = 0.0f;
+        float headLookRadians = 0.0f;
         float speed = 0.0f;
         float animationSeconds = 0.0f;
         float scale = 1.0f;
@@ -50,6 +51,7 @@ namespace island
         static constexpr float ReducedSimulationDistance = 245.0f;
         static constexpr float CollisionRadius = 0.32f;
         static constexpr float MaximumHomeDistance = 34.0f;
+        static constexpr float MaximumHeadLookRadians = 0.34f;
 
         explicit MonkeyTroop(const IslandTerrain& terrain);
 

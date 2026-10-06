@@ -594,6 +594,7 @@ namespace island
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
+                  << "island-simulator: calm monkeys use bounded skeletal head attention\n"
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"
                   << "island-simulator: near-surface swimming view procedural edge veil\n"
@@ -678,7 +679,18 @@ namespace island
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
-        monkeyTroop_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        Vector3 monkeyObserver = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
+            const MonkeyState& subject = monkeyTroop_.Monkeys().front();
+            Vector3 direction(cameraPosition_.X - subject.x, 0.0f,
+                              cameraPosition_.Z - subject.z);
+            if (direction.LengthSquared() > 0.0001f) {
+                direction.Normalize();
+                monkeyObserver = Vector3(subject.x, cameraPosition_.Y, subject.z)
+                    + direction * 12.0f;
+            }
+        }
+        monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z);
         if (soundscape_ && worldDebugVisible_) {
             soundscape_->RefreshDebugSources(
                 cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z,

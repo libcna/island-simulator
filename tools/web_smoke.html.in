@@ -49,7 +49,7 @@
       ["birds", ["--viewpoint", "birds", "--debug-overlay"]],
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
-      ["monkeys", ["--viewpoint", "monkeys", "--debug-overlay"]],
+      ["monkeys", ["--viewpoint", "monkeys"]],
     ]);
     var Module = {
       arguments: modeArguments.get(mode) ?? ["--smoke-test"],

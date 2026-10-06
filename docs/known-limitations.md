@@ -93,7 +93,9 @@ been confirmed so far.
   use short lateral deflections before abandoning blocked targets. Idle/observe/walk/run changes
   now use short local-pose crossfades and preserve a continuous walk phase. The near tier has a
   readable light face mask, protruding eyes and nose, restrained eye gloss, and brighter fur/face
-  palettes without another draw call. They remain intentionally simple: tightly cluttered pockets
+  palettes without another draw call. Calm animals now add a bounded, distance-faded head turn
+  toward a nearby player using the existing skeleton and draw count. They remain intentionally
+  simple: tightly cluttered pockets
   can cause an early target reselection, and three silhouettes/four palettes cannot hide all
   procedural repetition; detailed surface treatment and long subjective behaviour tuning remain
   limited.

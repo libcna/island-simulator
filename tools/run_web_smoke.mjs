@@ -210,6 +210,8 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
+    && result.output?.includes(
+      "island-simulator: calm monkeys use bounded skeletal head attention")
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes(
       "island-simulator: terrain-conforming contact shadows in one portable near-field batch")
@@ -997,6 +999,8 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && monkeyResult.output?.includes("3 silhouettes, 4 palettes")
+    && monkeyResult.output?.includes(
+      "island-simulator: calm monkeys use bounded skeletal head attention")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")
     && /blends [1-9][0-9]*\/0 active\/completed/.test(monkeyResult.output ?? "")
     && !monkeyResult.error;

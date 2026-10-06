@@ -290,6 +290,22 @@ namespace island
             ChooseEscapeTarget(agent, observerX, observerZ);
         }
 
+        float desiredHeadLook = 0.0f;
+        if (observerDistance >= 7.5f && observerDistance < 30.0f
+            && (agent.state.behavior == MonkeyBehavior::Idle
+                || agent.state.behavior == MonkeyBehavior::Observe)) {
+            const float observerHeading = std::atan2(
+                observerZ - agent.state.z, observerX - agent.state.x);
+            const float proximity = std::clamp(
+                (30.0f - observerDistance) / 14.0f, 0.0f, 1.0f);
+            desiredHeadLook = std::clamp(
+                WrapAngle(observerHeading - agent.state.headingRadians),
+                -MaximumHeadLookRadians, MaximumHeadLookRadians) * proximity;
+        }
+        agent.state.headLookRadians += std::clamp(
+            desiredHeadLook - agent.state.headLookRadians,
+            -0.75f * deltaSeconds, 0.75f * deltaSeconds);
+
         if (agent.state.behavior == MonkeyBehavior::Wander) {
             ChooseWanderTarget(agent);
             EnterState(agent, MonkeyBehavior::Walk);

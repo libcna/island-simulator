@@ -387,7 +387,11 @@ CNA `AnimationPlayer` per agent supplies palettes to the portable `SkinnedEffect
 a light upper-face mask plus muzzle/ear detail in one pass and surface-visible eye/nose geometry in
 a second. Dark eyes use a restrained glossy response. The shared buffers add 86 vertices and 122
 triangles per visible near monkey, without another draw; far monkeys remain one draw each. Mesh
-selection does not otherwise change the per-agent draw count. The troop copies the player's palm,
+selection does not otherwise change the per-agent draw count. Calm idle/observe states derive a
+distance-faded horizontal look angle toward a player 7.5--30 m away, approach it at a bounded rate,
+and clamp it to 0.34 radians. The renderer composes that angle into the existing head-bone local
+transform and rebuilds the same fourteen-matrix skin palette; locomotion relaxes the look and a
+closer player still causes the established non-hostile retreat. The troop copies the player's palm,
 broadleaf, solid-rock, and
 fallen-log circular proxies once at world construction. Spawn, target, and movement queries retain
 a 0.32 m body clearance; blocked agents try bounded alternating lateral headings and then choose a
@@ -396,7 +400,8 @@ captures match, and the monkey-inclusive arm64 GLES 3 APK builds and passes app 
 snapshot the last presented local pose and use a 0.14--0.26 second eased blend: translation and
 scale interpolate linearly, rotation uses quaternion slerp, and the game recomposes world and
 inverse-bind skin palettes. `Wander` and `Walk` share one continuous locomotion phase. More detailed
-surface treatment, calls, and stable Android runtime validation remain open.
+surface treatment, calls, long observation of the attention timing, and stable Android runtime
+validation remain open.
 
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The

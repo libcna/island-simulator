@@ -30,7 +30,7 @@ landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
 with depth-following pitch, banked turns, forked tails, and near head detail, one occasional
 non-hostile offshore shark with matching pose and silhouette treatment, seven GPU-skinned
-procedural monkeys, fixed sunny sky
+procedural monkeys with bounded calm-state head attention, fixed sunny sky
 with layered horizontal high wisps,
 five fogged distant islets with 11 simplified palm silhouettes,
 one bounded terrain-conforming contact-shadow batch for near palms, canopy trees, land rocks,
@@ -45,8 +45,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,589,872-byte APK with a
-15,857,496-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,591,368-byte APK with a
+15,858,992-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 
