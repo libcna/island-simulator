@@ -57,6 +57,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
       ├── SoundscapeModel ──── deterministic PCM generation and shoreline-driven crossfades
+      ├── AudioAnalysis ────── deterministic PCM measurements for host-only quality reports
+      ├── WorldIdentity ────── shared procedural-layout seeds and stable diagnostic text
       ├── Soundscape ───────── CNA loop ownership, volume application, mute, and failure fallback
       └── IslandGame ───────── CNA lifecycle, input, camera, and pass ordering
 ```
@@ -65,7 +67,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 `JungleLayout`,
 `NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `TouchControls`, and
-`SoundscapeModel` form `IslandSimulator::Core` and
+`SoundscapeModel`, `AudioAnalysis`, and `WorldIdentity` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
 and converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
@@ -426,7 +428,13 @@ terrain, deterministic layouts, the combined collision grid, and initial wildlif
 their invariants, and emits ordered JSON plus a platform-local FNV-1a fingerprint over sampled
 terrain and generated world data. `tools/validate_assets.py` separately checks the versioned asset
 manifest, generator ownership, attribution rows, external-file hashes, and the rule that every
-file under `assets/` is declared. Neither host tool enters WebAssembly or Android packages.
+file under `assets/` is declared. Neither content-audit path enters WebAssembly or Android packages.
+
+The native-only `island-audio-report` target likewise links only the core. `AudioAnalysis` scans
+the exact generated PCM without copying it and records normalized DC offset, RMS energy, peak,
+loop-seam and internal steps, zero-crossing rate, duration, and a deterministic payload
+fingerprint. The tool validates all 12 sources and can serialize them as ordinary mono PCM16 WAV
+files for disposable listening review. Neither the report nor those previews enter a game package.
 
 ## Audio baseline
 

@@ -66,9 +66,10 @@ The fingerprint is a change detector for the qualified host/toolchain, not a pro
 standard-library math implementations produce identical floating-point bits. Intentional world
 changes may change it; review the JSON diff rather than replacing it blindly.
 
-`IslandAssetValidation` and `IslandWorldReport` are registered with CTest on native host builds.
-They do not enter Web or Android products. The standard full private-display test command also
-runs them before or alongside renderer tests.
+`IslandAssetValidation`, `IslandWorldReport`, `IslandAudioReport`, and the temporary WAV-export
+validator are registered with CTest on native host builds. They do not enter Web or Android
+products. The standard full private-display test command also runs them before or alongside
+renderer tests. Audio-specific semantics are documented in `docs/audio-review.md`.
 
 ## Adding an external asset
 

@@ -1,3 +1,4 @@
+#include "IslandSimulator/AudioAnalysis.hpp"
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
@@ -58,6 +59,29 @@ namespace
 
 int main()
 {
+    island::AmbientLoop knownSignal;
+    knownSignal.sampleRate = 4;
+    knownSignal.samples = {0, 16384, -16384, 0};
+    const island::AudioSignalStatistics knownStatistics =
+        island::AnalyzeAudioSignal(knownSignal);
+    Check(knownStatistics.finite && knownStatistics.sampleCount == 4U
+              && knownStatistics.sampleRate == 4,
+          "audio analysis accepts a finite PCM16 signal");
+    CheckNear(static_cast<float>(knownStatistics.durationSeconds), 1.0f, 0.0001f,
+              "audio analysis reports duration from sample count and rate");
+    CheckNear(static_cast<float>(knownStatistics.mean), 0.0f, 0.0001f,
+              "audio analysis reports normalized DC offset");
+    CheckNear(static_cast<float>(knownStatistics.rootMeanSquare), 0.353553f, 0.0001f,
+              "audio analysis reports normalized RMS energy");
+    CheckNear(static_cast<float>(knownStatistics.peak), 0.5f, 0.0001f,
+              "audio analysis reports normalized peak magnitude");
+    CheckNear(static_cast<float>(knownStatistics.seamStep), 0.0f, 0.0001f,
+              "audio analysis reports the loop seam step");
+    CheckNear(static_cast<float>(knownStatistics.maximumInternalStep), 1.0f, 0.0001f,
+              "audio analysis reports the largest adjacent PCM step");
+    Check(!island::AnalyzeAudioSignal({}).finite,
+          "audio analysis rejects an empty signal without a sample rate");
+
     const island::WorldSeedSet worldSeeds = island::AuthoritativeWorldSeeds();
     Check(worldSeeds == island::WorldSeedSet{0x7a11d5e3U, 0x6b4d2f91U,
                                              0x43b0a7d1U, 0xa7816c39U},

@@ -26,23 +26,24 @@ cmake --preset linux-debug
 cmake --build --preset linux-debug
 ```
 
-The preset deliberately builds only the game, core tests, and host world-report target. CNA is
+The preset deliberately builds only the game, core tests, and the two host report targets. CNA is
 added with `EXCLUDE_FROM_ALL`, so a bare all-target build does not pull unrelated framework tools
 into normal game iteration; explicit project targets remain preferable in automation.
 
-The preset also builds the renderer-independent `island_world_report` host tool. Generate a
-machine-readable deterministic content inventory with:
+The preset also builds the renderer-independent `island_world_report` and `island_audio_report`
+host tools. Generate machine-readable deterministic content and audio inventories with:
 
 ```bash
 build/island-world-report --output /tmp/island-world-report.json
+build/island-audio-report --output /tmp/island-audio-report.json
 python3 tools/validate_assets.py --output /tmp/island-asset-report.json
 ```
 
-Both commands are registered as native CTests. See `docs/asset-pipeline.md` for report semantics
-and the external-asset intake gate.
+All three commands are registered as native CTests. See `docs/asset-pipeline.md` for content-report
+semantics and `docs/audio-review.md` for source measurements and optional WAV preview export.
 
-For a clean host-only memory and undefined-behaviour pass over all first-party core code and the
-world-report tool, use the dedicated preset:
+For a clean host-only memory and undefined-behaviour pass over all first-party core code and both
+report tools, use the dedicated preset:
 
 ```bash
 cmake --preset linux-sanitize

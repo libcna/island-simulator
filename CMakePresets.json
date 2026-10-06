@@ -90,6 +90,7 @@
       "jobs": 2,
       "targets": [
         "island-simulator",
+        "island_audio_report",
         "island_core_tests",
         "island_world_report"
       ]
@@ -99,6 +100,7 @@
       "configurePreset": "linux-sanitize",
       "jobs": 2,
       "targets": [
+        "island_audio_report",
         "island_core_tests",
         "island_world_report"
       ]

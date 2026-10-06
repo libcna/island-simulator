@@ -98,7 +98,8 @@ cmake -S . -B build -G Ninja \
   -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DCNA_GRAPHICS_RENDERER=OPENGL33
-cmake --build build --target island-simulator island_core_tests island_world_report --parallel 2
+cmake --build build --target island-simulator island_core_tests island_world_report \
+  island_audio_report --parallel 2
 ctest --preset linux-core
 ```
 
@@ -148,6 +149,9 @@ wildlife, seed, and fingerprint statistics. Native overview captures are followe
 `tools/validate_capture.py`, which rejects truncated, black/white, flat, or spatially degenerate
 P6 output and writes machine-readable metrics. See `docs/asset-pipeline.md` and
 `docs/debugging.md`.
+Use `build/island-audio-report --output <path> --wav-directory <directory>` to audit every
+procedural source and export disposable PCM16 WAV previews for focused listening. See
+`docs/audio-review.md`.
 
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
@@ -176,4 +180,6 @@ software emulation; lifecycle, audio, touch ergonomics, and mobile performance r
 - `ASSET_LICENSES.md` records all asset provenance before assets enter a runtime build.
 - `docs/asset-pipeline.md` defines the manifest, validation gate, deterministic world report, and
   external-asset intake procedure.
+- `docs/audio-review.md` defines deterministic source analysis, WAV preview export, and the
+  remaining subjective listening protocol.
 - `docs/performance.md` defines the repeatable benchmark method, current evidence, and open budgets.

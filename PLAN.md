@@ -576,8 +576,10 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   would otherwise exceed the ceiling. Inland waves and distant/dormant wildlife are virtualized.
 - [~] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
   Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta,
-  distinct source PCM, silent wildlife endpoints, and the mono-to-CNA positional output path;
-  headphone listening remains.
+  distinct source PCM, silent wildlife endpoints, and the mono-to-CNA positional output path. A
+  native report now measures all 12 exact sources for DC offset, peak/RMS, loop seam versus normal
+  internal steps, zero-crossing rate, duration, uniqueness, and PCM footprint, and can export
+  standard PCM16 WAV previews; headphone listening remains.
 - [x] Add an accelerated long-session numerical regression. A deterministic 72,000-frame/
   twenty-minute route cycles beach, jungle, swimming/current, and wading/dry transitions while
   checking finite bounded mixes, undertow strength, bounded wave activity, exact crossing events,
@@ -977,8 +979,8 @@ Work next, in order:
 
 1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
-   Numerical headroom, actual Linux playback, and the six-source ceiling are verified; subjective
-   masking and fatigue are not.
+   Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
+   Linux playback, and the six-source ceiling are verified; subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
@@ -2617,6 +2619,31 @@ Work next, in order:
 - CNA and Sharp Runtime remain clean and unmodified and no dependency defect was found. Project
   build trees currently occupy approximately 2.6 GB native, 73 MB Web, 1.1 GB standalone Android,
   1.0 GB Gradle native, and 380 MB Gradle package output, with 379 GB free on the volume.
+
+### 2026-10-06 — Deterministic audio source audit and preview export
+
+- Added renderer-independent `AudioAnalysis` over the exact generated PCM16 buffers. It reports
+  normalized DC offset, RMS energy, peak, end-to-start seam step, maximum ordinary adjacent step,
+  zero-crossing rate, duration, and a stable source fingerprint without copying samples. Synthetic
+  core coverage locks normalization, duration, RMS, peak, seam, step, and invalid-empty behaviour.
+- Added the native `island-audio-report` host tool and CTest gate for all 12 procedural sources. It
+  locks the intended 22.05 kHz frame counts, bounded energy/headroom/DC/steps, exact silent
+  endpoints for one-shots, loop seams no worse than 125 percent of normal internal steps, unique
+  fingerprints, and the 2,445,344-byte PCM footprint. Current normalized peaks are 0.56--0.86,
+  absolute DC offset is below 0.0068, and loop seams are 0.0036--0.0402.
+- Added optional standard little-endian mono PCM16 WAV export for isolated listening. An independent
+  Python CTest invokes the real exporter in a temporary directory, parses every WAV, verifies the
+  complete 12-file inventory, channel/sample-width/rate/frame count/payload, and deletes all
+  previews. `docs/audio-review.md` separates these objective gates from the still-open 20-minute
+  headphone/speaker route and defines exact review locations and fatigue criteria.
+- The expanded native suite passes 33/33 in 67.14 seconds, including 26 OpenGL 3.3 scenes. The
+  first-party ASan/UBSan suite passes 6/6 in 52.68 seconds; its 41 MB build and the manual 2.4 MB
+  WAV preview were removed. The current Chrome 152/SwiftShader WebGL 2 harness passes in full, and
+  the arm64-v8a GLES 3 build, Gradle APK assembly, and application lint pass. Because analysis is
+  host-only and its static object is unreferenced by the game, package sizes remain 8,397,216 bytes
+  WebAssembly, 15,817,616 bytes stripped Android library, and 33,549,992 bytes APK.
+- CNA and Sharp Runtime remain clean and unmodified. No framework defect was found and `BUGS.md`
+  requires no new entry.
 
 ## Session-end checklist
 

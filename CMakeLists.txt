@@ -27,6 +27,7 @@ include(cmake/VerifyDependencies.cmake)
 island_verify_dependencies()
 
 add_library(island_core STATIC
+    game/src/AudioAnalysis.cpp
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp
     game/src/DebugFreeCamera.cpp
@@ -98,6 +99,12 @@ island_enable_first_party_warnings(island_core)
 island_enable_first_party_sanitizers(island_core)
 
 if(ISLAND_BUILD_TOOLS AND NOT CMAKE_CROSSCOMPILING)
+    add_executable(island_audio_report tools/AudioReport.cpp)
+    set_target_properties(island_audio_report PROPERTIES OUTPUT_NAME island-audio-report)
+    target_link_libraries(island_audio_report PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_audio_report)
+    island_enable_first_party_sanitizers(island_audio_report)
+
     add_executable(island_world_report tools/WorldReport.cpp)
     set_target_properties(island_world_report PROPERTIES OUTPUT_NAME island-world-report)
     target_link_libraries(island_world_report PRIVATE IslandSimulator::Core)
@@ -121,6 +128,14 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
             PASS_REGULAR_EXPRESSION "world report valid")
     endif()
 
+    if(TARGET island_audio_report)
+        add_test(NAME IslandAudioReport
+            COMMAND island_audio_report
+                    --output "${CMAKE_BINARY_DIR}/island-audio-report.json")
+        set_tests_properties(IslandAudioReport PROPERTIES
+            PASS_REGULAR_EXPRESSION "audio report valid")
+    endif()
+
     find_package(Python3 COMPONENTS Interpreter QUIET)
     if(Python3_Interpreter_FOUND)
         add_test(NAME IslandAssetValidation
@@ -131,6 +146,14 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         add_test(NAME IslandCaptureValidatorTests
             COMMAND "${Python3_EXECUTABLE}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateCaptureTests.py")
+        if(TARGET island_audio_report)
+            add_test(NAME IslandAudioPreviewExport
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateAudioPreviewTests.py"
+                        "$<TARGET_FILE:island_audio_report>")
+            set_tests_properties(IslandAudioPreviewExport PROPERTIES
+                PASS_REGULAR_EXPRESSION "audio preview export validation passed")
+        endif()
     endif()
 endif()
 
