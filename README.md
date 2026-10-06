@@ -143,6 +143,11 @@ Use `tools/run_native_benchmarks.sh` through the private GPU runner for warm, un
 frame-time reports across five fixed scenes plus a 676 m moving traversal. Reports include
 min/max/mean scene-population ranges as well as timing distributions; methodology and the initial
 Linux baseline are in `docs/performance.md`.
+Use `--startup-report <path>` to write a machine-readable first-draw report. It separates
+deterministic world construction, framework initialization, GPU/content creation, the interval
+before the first draw, and the first submitted draw. Combine it with `--smoke-test --overview` for
+an unattended run; the measurement ends before CNA presents the frame and is therefore not a
+GPU-completion timer. The native CTest suite validates the report after an actual OpenGL 3.3 draw.
 Use `python3 tools/validate_assets.py` to enforce the asset provenance gate and
 `build/island-world-report --output <path>` for deterministic terrain, placement, collision,
 wildlife, seed, and fingerprint statistics. Native overview captures are followed by
@@ -155,7 +160,8 @@ procedural source and export disposable PCM16 WAV previews for focused listening
 
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
-grass wind, four frames, clean shutdown, active overview/beach/jungle/prop/driftwood/reef/water/
+grass wind, a finite first-draw startup timing line, four frames, clean shutdown, active
+overview/beach/jungle/prop/driftwood/reef/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and

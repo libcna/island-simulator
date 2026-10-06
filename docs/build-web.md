@@ -88,7 +88,8 @@ With the Emscripten environment active, run:
 ```
 
 The test uses headless Chrome with SwiftShader to create a real WebGL 2 context. It first runs the
-game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
+game with `--smoke-test`, requires finite timings for all first-draw startup phases, and requires a
+clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
 beach, grass interaction, upright-ground-plant, segmented-palm and bark/coconut detail, jungle,
@@ -130,6 +131,10 @@ monkey startup diagnostics must also prove that the local-pose crossfade path is
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
 `SpriteBatch` composition path.
 The machine-readable result is `build-probe/island-browser-smoke.json`.
+
+The 2026-10-06 startup-instrumentation run reported 134.8 ms deterministic world generation,
+246.8 ms content creation, 15.7 ms game-owned first draw, and 438.0 ms total in SwiftShader. This
+qualifies the portable timing path, not hardware-browser cold-load performance or GPU completion.
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
 the canvas, assert pointer lock/focus, initialization of all four looping audio layers, preparation

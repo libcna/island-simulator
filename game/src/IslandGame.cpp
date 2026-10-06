@@ -14,6 +14,7 @@
 #include <locale>
 #include <limits>
 #include <numbers>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -82,7 +83,7 @@ namespace island
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
                            const bool inputDiagnostics, const bool showWorldDebug,
-                           std::string benchmarkPath)
+                           std::string benchmarkPath, std::string startupReportPath)
         : graphics_(this),
           birdFlock_(terrain_),
           fishSchools_(terrain_),
@@ -100,7 +101,8 @@ namespace island
           debugOverlayVisible_(showDebugOverlay),
           worldDebugVisible_(showWorldDebug),
           inputDiagnostics_(inputDiagnostics),
-          benchmarkPath_(std::move(benchmarkPath))
+          benchmarkPath_(std::move(benchmarkPath)),
+          startupReportPath_(std::move(startupReportPath))
     {
         std::vector<CircularObstacle> worldObstacles;
         worldObstacles.reserve(vegetationLayout_.Obstacles().size()
@@ -471,10 +473,16 @@ namespace island
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
 #endif
+        constructionFinished_ = std::chrono::steady_clock::now();
+        worldGenerationMilliseconds_ = std::chrono::duration<double, std::milli>(
+            constructionFinished_ - constructionStarted_).count();
     }
 
     void IslandGame::LoadContent()
     {
+        const auto contentStarted = std::chrono::steady_clock::now();
+        frameworkInitializationMilliseconds_ = std::chrono::duration<double, std::milli>(
+            contentStarted - constructionFinished_).count();
         auto& device = getGraphicsDeviceProperty();
         terrainRenderer_ = std::make_unique<TerrainRenderer>(device, terrain_);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
@@ -537,6 +545,9 @@ namespace island
         if (!smokeTest_ && !soundscapeNeedsGesture_) {
             TryStartSoundscape();
         }
+        contentFinished_ = std::chrono::steady_clock::now();
+        contentCreationMilliseconds_ = std::chrono::duration<double, std::milli>(
+            contentFinished_ - contentStarted).count();
 
         std::cout << "island-simulator: renderer " << device.GetGraphicsRendererName() << '\n'
                   << "island-simulator: terrain " << terrainRenderer_->VertexCount()
@@ -1275,8 +1286,82 @@ namespace island
                   << '\n';
     }
 
+    void IslandGame::RecordStartupTiming(
+        const std::chrono::steady_clock::time_point drawStarted)
+    {
+        if (startupTimingRecorded_) {
+            return;
+        }
+        const auto drawFinished = std::chrono::steady_clock::now();
+        postContentMilliseconds_ = std::chrono::duration<double, std::milli>(
+            drawStarted - contentFinished_).count();
+        firstDrawMilliseconds_ = std::chrono::duration<double, std::milli>(
+            drawFinished - drawStarted).count();
+        totalStartupMilliseconds_ = std::chrono::duration<double, std::milli>(
+            drawFinished - constructionStarted_).count();
+        startupTimingRecorded_ = true;
+
+        std::ostringstream status;
+        status.imbue(std::locale::classic());
+        status << std::fixed << std::setprecision(3)
+               << "island-simulator: startup world " << worldGenerationMilliseconds_
+               << " ms, framework " << frameworkInitializationMilliseconds_
+               << " ms, content " << contentCreationMilliseconds_
+               << " ms, pre-draw " << postContentMilliseconds_
+               << " ms, first draw " << firstDrawMilliseconds_
+               << " ms, total " << totalStartupMilliseconds_ << " ms\n";
+        std::cout << status.str();
+        if (!startupReportPath_.empty()) {
+            WriteStartupReport();
+            std::cout << "island-simulator: startup report " << startupReportPath_
+                      << " first draw recorded\n";
+        }
+    }
+
+    void IslandGame::WriteStartupReport()
+    {
+        std::ofstream output(startupReportPath_, std::ios::binary | std::ios::trunc);
+        if (!output) {
+            throw std::runtime_error(
+                "Cannot create startup report at '" + startupReportPath_ + "'");
+        }
+        const auto& viewport = getGraphicsDeviceProperty().getViewportProperty();
+        output.imbue(std::locale::classic());
+        output << std::fixed << std::setprecision(4)
+               << "{\n"
+               << "  \"schema_version\": 1,\n"
+               << "  \"renderer\": \""
+               << getGraphicsDeviceProperty().GetGraphicsRendererName() << "\",\n"
+               << "  \"viewpoint\": \"" << ViewpointName(viewpoint_) << "\",\n"
+               << "  \"resolution\": {\"width\": " << viewport.getWidthProperty()
+               << ", \"height\": " << viewport.getHeightProperty() << "},\n"
+               << "  \"audio\": {\"attempted\": "
+               << (soundscape_ && soundscape_->WasStartAttempted() ? "true" : "false")
+               << ", \"available\": "
+               << (soundscape_ && soundscape_->IsAvailable() ? "true" : "false")
+               << ", \"deferred_for_gesture\": "
+               << (soundscapeNeedsGesture_ ? "true" : "false")
+               << ", \"skipped_for_smoke_test\": "
+               << (smokeTest_ ? "true" : "false") << "},\n"
+               << "  \"timing_ms\": {\n"
+               << "    \"world_generation\": " << worldGenerationMilliseconds_ << ",\n"
+               << "    \"framework_initialization\": "
+               << frameworkInitializationMilliseconds_ << ",\n"
+               << "    \"gpu_content_creation\": " << contentCreationMilliseconds_ << ",\n"
+               << "    \"post_content_to_first_draw\": " << postContentMilliseconds_ << ",\n"
+               << "    \"first_draw\": " << firstDrawMilliseconds_ << ",\n"
+               << "    \"total\": " << totalStartupMilliseconds_ << "\n"
+               << "  }\n"
+               << "}\n";
+        if (!output) {
+            throw std::runtime_error(
+                "Failed while writing startup report at '" + startupReportPath_ + "'");
+        }
+    }
+
     void IslandGame::Draw(const GameTime& gameTime)
     {
+        const auto drawStarted = std::chrono::steady_clock::now();
         auto& device = getGraphicsDeviceProperty();
         if (!benchmarkPath_.empty() && !benchmarkReportPending_) {
             RecordBenchmarkFrame();
@@ -1545,6 +1630,7 @@ namespace island
         }
 
         if (drawnFrames_ == 0U) {
+            RecordStartupTiming(drawStarted);
             const PlayerPosition& player = playerMotion_.Position();
             const float currentStrength = playerMotion_.OceanCurrentStrength(terrain_);
             const float undertowTarget = WaterMovementModel::TargetMix(

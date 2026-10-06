@@ -423,6 +423,15 @@ trail, both clearings, dense jungle, and the opposite coast. All benchmarks disa
 fixed timestep, omit debug presentation, aggregate scene-count ranges, serialize JSON, and exit.
 Ordinary play retains its fixed-timestep/VSync configuration.
 
+Startup timing is likewise game-owned and opt-in only for file output. `IslandGame` timestamps its
+constructor entry, completed deterministic world construction, `LoadContent` entry/exit, first
+`Draw` entry, and first `Draw` exit. The schema-1 report therefore distinguishes world generation,
+framework/device setup, GPU-backed content creation, pre-draw scheduling, and game-owned draw
+submission without reaching into CNA. CNA calls `EndDraw` and presents only after the override
+returns, so the report deliberately does not call its last phase present or GPU-completion time.
+Every renderer emits the concise first-draw timing diagnostic; native OpenGL JSON has an ordered
+producer/parser CTest and the actual-browser WebGL harness gates the portable log path.
+
 The native-only `island-world-report` target links only `IslandSimulator::Core`. It reconstructs
 terrain, deterministic layouts, the combined collision grid, and initial wildlife twice, validates
 their invariants, and emits ordered JSON plus a platform-local FNV-1a fingerprint over sampled

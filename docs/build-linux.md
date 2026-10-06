@@ -99,6 +99,19 @@ Xwayland runner:
 `IslandGameSmoke` requires the layered-horizontal-wisp sky diagnostic in addition to renderer
 startup and a clean four-frame exit.
 
+`IslandGameStartupReport` performs an actual overview draw and writes
+`build/island-startup-report.json`; the dependent `IslandGameStartupReportValidation` checks its
+renderer/viewpoint/resolution identity, smoke-mode audio state, finite nonnegative phase timings,
+and coherent total. Generate the same schema manually with:
+
+```bash
+build/island-simulator --smoke-test --overview \
+  --startup-report /tmp/island-startup.json
+```
+
+Run this through the private GPU runner when it must not open on the live desktop. The first-draw
+phase ends when game-owned draw submission returns; CNA presents afterward.
+
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
 `IslandGameCaptureValidation` then checks its exact 1280 by 720 P6 payload, luminance spread,
 quantized colour diversity, and coarse spatial contrast. It writes

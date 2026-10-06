@@ -33,6 +33,41 @@ The benchmark intentionally rejects smoke, capture, overlay, world-debug, and in
 modes. Ordinary play retains VSync and the fixed 60 Hz simulation. Benchmarking must not change
 release presentation or movement semantics.
 
+## Startup measurement
+
+The game can write a schema-1 JSON report immediately after its first completed `Draw` body:
+
+```bash
+build/island-simulator --smoke-test --overview \
+  --startup-report /tmp/island-startup.json
+```
+
+The report separates deterministic world generation in the `IslandGame` constructor, CNA
+framework/device initialization before `LoadContent`, GPU resource and procedural content creation,
+the interval from completed content to the first draw, and the first draw submission. It also
+records renderer, fixed viewpoint, resolution, and whether audio was attempted, available,
+gesture-deferred, or deliberately skipped by smoke mode. The total spans construction through the
+end of the first game-owned draw.
+
+This is wall-clock application instrumentation. CNA presents after `IslandGame::Draw` returns, so
+`first_draw` does not include swap/present or guarantee GPU completion. `gpu_content_creation`
+names the phase in which GPU-backed resources are created; it can include driver synchronization
+and procedural CPU work and is not GPU-only time. Native smoke mode skips audio for determinism;
+use an interactive report when measuring real Linux mixer startup, and retain its audio state with
+the result.
+
+`IslandGameStartupReport` creates the report after an actual private-display OpenGL 3.3 draw and
+`IslandGameStartupReportValidation` rejects missing, negative, non-finite, inconsistent, or
+implausibly long measurements. The browser harness independently requires the same finite timing
+line from a real WebGL 2 context. A 2026-10-06 debug smoke while the visible game shared the GPU
+measured 494.8805 ms world generation, 526.8526 ms content creation, 2.6629 ms first draw, and
+1075.9222 ms total. That run proves instrumentation only; concurrent load and debug compilation
+make it unsuitable as a regression baseline. The actual Chrome 152/SwiftShader WebGL 2 gate
+measured 134.8 ms world generation, 246.8 ms content creation, 15.7 ms first draw, and 438.0 ms
+total; SwiftShader is likewise functional evidence rather than hardware-browser performance.
+Two isolated release and debug repetitions per target remain required before setting startup
+budgets.
+
 ## Moving traversal
 
 `--viewpoint traversal` is accepted only with `--benchmark`. It advances the authoritative player
@@ -506,6 +541,6 @@ and physical-mobile fragment measurements remain open.
 ## Budgets still to establish
 
 Final per-target frame-time, draw-call, triangle, memory, startup, audio-source, and thermal
-budgets remain open. Release-mode Linux measurements, browser instrumentation, Android device
-measurements, loading timing, and sustained whole-island routes are required before those limits
-can be set responsibly.
+budgets remain open. Startup phases and report validation now exist, but release-mode Linux
+repetitions, browser cold-load instrumentation, Android device measurements, memory timing, and
+sustained whole-island routes are required before those limits can be set responsibly.

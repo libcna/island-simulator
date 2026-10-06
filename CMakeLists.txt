@@ -305,6 +305,22 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "fixed sunny sky with layered horizontal high wisps, portable shader")
+        add_test(NAME IslandGameStartupReport
+            COMMAND island-simulator --smoke-test --overview
+                    --startup-report "${CMAKE_BINARY_DIR}/island-startup-report.json")
+        set_tests_properties(IslandGameStartupReport PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION "startup report .* first draw recorded")
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME IslandGameStartupReportValidation
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateStartupReportTests.py"
+                        "${CMAKE_BINARY_DIR}/island-startup-report.json")
+            set_tests_properties(IslandGameStartupReportValidation PROPERTIES
+                DEPENDS IslandGameStartupReport
+                PASS_REGULAR_EXPRESSION "startup report validation passed")
+        endif()
         add_test(NAME IslandGameCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-capture.ppm")
         set_tests_properties(IslandGameCapture PROPERTIES TIMEOUT 30 LABELS display)

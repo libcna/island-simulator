@@ -221,8 +221,10 @@ Dependencies: Phase 0 dependency/API baseline.
 - [ ] Establish namespace, include, ownership, units, coordinate, handedness, and naming rules.
 - [x] Add deterministic noise/terrain helpers with repeatability and scale tests.
 - [ ] Add small math/geometry helpers only where CNA's existing types do not already suffice.
-- [~] Add startup/render statistics and fatal exception diagnostics; structured subsystem logging
-  and asset-specific failure context remain open.
+- [~] Add startup/render statistics and fatal exception diagnostics. A schema-1 first-draw report
+  now separates world construction, framework initialization, GPU/content creation, pre-draw, and
+  game-owned draw submission on the portable game path; structured subsystem logging and
+  asset-specific failure context remain open.
 - [x] Add reproducible configure, bounded build, core-test, private GPU smoke, and capture commands.
 - [x] Create `README.md`, `BUGS.md`, `ASSET_LICENSES.md`, initial architecture, Linux build, and
   controls documentation.
@@ -699,8 +701,9 @@ Dependencies: representative complete scene on all targets.
 - [~] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
   per target rather than one desktop-only target. A first five-view 1280 by 720 debug-build Linux
   baseline records frame distributions and tracked scene submissions. A schema-2 moving-route
-  report adds population ranges, but clean repeated route timing, release, browser, Android,
-  memory, audio, loading, and thermal budgets remain open.
+  report adds population ranges. A schema-1 first-draw report now exposes five startup phases and
+  is gated on actual OpenGL 3.3 plus the WebGL 2 timing-log path, but clean repeated route/startup
+  timing, release, browser cold-load, Android, memory, audio, and thermal budgets remain open.
 
 ### Optimization
 
@@ -729,7 +732,10 @@ Dependencies: representative complete scene on all targets.
   non-dormant sources, use one voice, and are held while transient slots are occupied.
 - [ ] Reduce transparency/overdraw hotspots, especially grass and layered shoreline effects.
 - [ ] Audit texture formats/sizes/mipmaps and create smaller variants only when justified.
-- [ ] Measure loading and remove redundant runtime generation/conversion.
+- [~] Measure loading and remove redundant runtime generation/conversion. Game-owned wall-clock
+  phases now identify deterministic world construction and GPU/content creation separately through
+  first draw. Repeat isolated release measurements and profile the dominant generators before
+  changing the reproducible runtime-generation architecture.
 
 ### Reliability and automated coverage
 
@@ -968,8 +974,9 @@ after the same experience remains available.
   native performance-report workflow are documented; deeper world-space visualizers and
   common-failure guidance remain open.
 - [~] `docs/performance.md`: native method, five representative fixed scenes, the initial Linux
-  baseline, interpretation rules, and open budget work are documented. Release/Web/Android,
-  memory, loading, audio, and thermal budgets remain open.
+  baseline, startup phase/report semantics, interpretation rules, and open budget work are
+  documented. Release/Web/Android, memory, repeated cold loading, audio, and thermal budgets
+  remain open.
 - [x] `docs/known-limitations.md`: current environment, traversal, content, platform, and tooling
   limitations are recorded without claiming planned systems.
 
@@ -1020,6 +1027,9 @@ Work next, in order:
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
    justified by physical-mobile evidence or a clear close-view defect.
+9. Record two isolated debug and release startup reports after closing other GPU clients, then use
+   the phase split to investigate only demonstrated world/content bottlenecks. Add browser cold-load
+   and physical-Android launch evidence before assigning cross-target startup budgets.
 
 ## Validation ledger
 
@@ -2644,6 +2654,33 @@ Work next, in order:
   WebAssembly, 15,817,616 bytes stripped Android library, and 33,549,992 bytes APK.
 - CNA and Sharp Runtime remain clean and unmodified. No framework defect was found and `BUGS.md`
   requires no new entry.
+
+### 2026-10-06 — First-draw startup phase instrumentation
+
+- Added application-owned monotonic timing for deterministic world construction, CNA framework
+  initialization before `LoadContent`, GPU-backed/procedural content creation, the interval before
+  the first draw, the first game-owned draw body, and total construction-to-draw time. The normal
+  presentation is unchanged; every backend emits one concise diagnostic on its first frame.
+- Added `--startup-report <path>` with schema-1 JSON containing renderer, viewpoint, resolution,
+  explicit audio startup state, and finite millisecond phase values. The documentation distinguishes
+  game-owned draw submission from CNA's later present and GPU completion, so the evidence is not
+  overstated as GPU-only timing.
+- Added an ordered native producer/parser pair. An actual private-display OpenGL 3.3 overview draw
+  creates the file; the independent Python gate rejects wrong identity/audio state, missing,
+  negative, non-finite, incoherent, or over-one-minute values. The first concurrent debug run
+  measured 494.8805 ms world construction, 526.8526 ms GPU/content creation, 2.6629 ms first draw,
+  and 1075.9222 ms total. Because the operator's visible game remained active on the same GPU,
+  these values validate instrumentation but are not adopted as a performance baseline.
+- Extended the actual-browser WebGL 2 harness to require the same finite startup timing line. The
+  complete Chrome 152/SwiftShader harness passes all 20 renderer/lifecycle/input stages and reports
+  134.8 ms world construction, 246.8 ms content creation, 15.7 ms first draw, and 438.0 ms total;
+  those values are functional evidence, not a hardware-browser baseline.
+- The expanded native suite passes 35/35 in 41.07 seconds, including 27 actual OpenGL scenes and
+  real X11 free-camera input. The arm64-v8a GLES 3 target builds, the 33,555,128-byte APK assembles,
+  and application lint passes; its stripped library is 15,822,752 bytes and the WebAssembly module
+  is 8,407,294 bytes. Android runtime startup remains unqualified without KVM or a physical device.
+  Repeated isolated Linux measurements and cross-target startup budgets remain open. CNA and Sharp
+  Runtime remain clean and unmodified; no framework defect was found.
 
 ## Session-end checklist
 

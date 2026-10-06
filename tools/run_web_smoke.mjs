@@ -128,6 +128,8 @@ try {
   const smokePassed = result.exited === true
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
+    && /island-simulator: startup world [0-9.]+ ms, framework [0-9.]+ ms, content [0-9.]+ ms, pre-draw [0-9.]+ ms, first draw [0-9.]+ ms, total [0-9.]+ ms/.test(
+      result.output ?? "")
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
     && result.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")

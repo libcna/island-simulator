@@ -92,13 +92,15 @@ namespace island
          * @param capturePath Optional PPM path for a deterministic rendered-frame capture.
          * @param viewpoint Optional fixed QA camera without player movement.
          * @param benchmarkPath Optional JSON destination for an uncapped fixed-view benchmark.
+         * @param startupReportPath Optional JSON destination for first-draw phase timing.
          */
         explicit IslandGame(bool smokeTest = false, std::string capturePath = {},
                             FixedViewpoint viewpoint = FixedViewpoint::None,
                             bool showDebugOverlay = false,
                             bool inputDiagnostics = false,
                             bool showWorldDebug = false,
-                            std::string benchmarkPath = {});
+                            std::string benchmarkPath = {},
+                            std::string startupReportPath = {});
 
         GetTypeNameHPP()
 
@@ -116,7 +118,9 @@ namespace island
         void CaptureFrame(const std::string& path);
         void RecordBenchmarkFrame();
         void RecordBenchmarkSceneSample();
+        void RecordStartupTiming(std::chrono::steady_clock::time_point drawStarted);
         void WriteBenchmarkReport();
+        void WriteStartupReport();
         void UpdateBenchmarkTraversal();
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
@@ -151,6 +155,8 @@ namespace island
             Microsoft::Xna::Framework::Vector3 lastCameraPosition{0.0f, 0.0f, 0.0f};
         };
 
+        std::chrono::steady_clock::time_point constructionStarted_ =
+            std::chrono::steady_clock::now();
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
         DistantSceneryLayout distantSceneryLayout_;
@@ -225,6 +231,16 @@ namespace island
         float inputDiagnosticsTimer_ = 0.0f;
         std::uint32_t drawnFrames_ = 0;
         std::string benchmarkPath_;
+        std::string startupReportPath_;
+        std::chrono::steady_clock::time_point constructionFinished_;
+        std::chrono::steady_clock::time_point contentFinished_;
+        double worldGenerationMilliseconds_ = 0.0;
+        double frameworkInitializationMilliseconds_ = 0.0;
+        double contentCreationMilliseconds_ = 0.0;
+        double postContentMilliseconds_ = 0.0;
+        double firstDrawMilliseconds_ = 0.0;
+        double totalStartupMilliseconds_ = 0.0;
+        bool startupTimingRecorded_ = false;
         std::chrono::steady_clock::time_point benchmarkPreviousFrameTime_;
         std::vector<double> benchmarkFrameMilliseconds_;
         std::size_t benchmarkWarmupIntervals_ = 0U;

@@ -212,3 +212,7 @@ retains the latest resolved frame;
 a longer history and geometric step-up/depenetration views are not implemented. So do a teleport
 menu, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
 additions must remain opt-in and absent from the normal release presentation.
+
+For startup diagnosis, `--startup-report <path>` records five application-owned phases through the
+end of the first `Draw` body. It is intended for repeatable process-level measurement rather than
+the F1 overlay; see `docs/performance.md` for semantics and comparison rules.
