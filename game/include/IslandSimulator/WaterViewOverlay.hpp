@@ -24,7 +24,8 @@ namespace island
         WaterViewOverlay& operator=(WaterViewOverlay&&) = delete;
 
         /** @brief Draws one stretched procedural veil when intensity is nonzero. */
-        void Draw(float intensity, int viewportWidth, int viewportHeight);
+        void Draw(float intensity, float currentStrength,
+                  int viewportWidth, int viewportHeight);
 
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
 

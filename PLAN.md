@@ -278,9 +278,11 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
   depth-responsive near-surface edge veil are complete; a true geometric waterline and full
   underwater presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
-- [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. Lateral
-  current variation and audiovisual feedback remain open.
-- [ ] Add subtle audiovisual warning before the hard safety boundary.
+- [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. The
+  water-view veil now strengthens and cools across the same normalized field; lateral current
+  variation and a distinct audio cue remain open.
+- [~] Add subtle audiovisual warning before the hard safety boundary. Current-modulated peripheral
+  colour/intensity is complete without a HUD warning or geometric wall; audio remains open.
 - [x] Add a tested 92 m last-resort radial safety cap that removes outward velocity.
 
 ### Tests and tuning
@@ -845,6 +847,7 @@ after the same experience remains available.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, jungle-trail, natural-prop, driftwood, emergent-reef, near-surface-water,
+  active-current,
   fallen-frond, airborne bird-detail, and shallow-water fish views plus offshore-shark and
   GPU-skinned-monkey views are implemented and used by native/browser
   captures; free camera and more landmark views remain open.
@@ -1785,6 +1788,24 @@ Work next, in order:
   device. Two accelerated water-view benchmark repeats measured 1.5405--1.5895 ms mean,
   1.6881--1.8650 ms p95, and 110 tracked submissions. CNA and Sharp Runtime remain clean and
   unmodified; no dependency defect was found.
+
+### 2026-10-06 — Natural offshore-current visual feedback
+
+- Refined the water-view target into a calm 0.60--0.78 depth cue plus up to 0.22 from the existing
+  normalized 42--72 m offshore-current field. The single premultiplied overlay draw also removes
+  up to 12% red and 3% green from its tint as the current develops. This makes the periphery
+  quietly cooler and stronger while preserving the island view and avoiding text, alarm colours,
+  a geometric wall, or another render submission.
+- Added deterministic tests for full-current normalization and non-finite input fallback, plus a
+  fixed `--viewpoint current` camera 62 m off the south shore. Native and actual Chrome 152/WebGL 2
+  captures match; the browser overlay records intensity 0.963, normalized current 0.741, and one
+  draw. All 18 native tests pass, including 17 isolated OpenGL 3.3 scenes, and the expanded browser
+  lifecycle/render/input/audio-init harness passes.
+- The arm64-v8a GLES 3 APK rebuilds and app lint passes; stripped `libmain.so` is 15,636,704 bytes
+  and the APK is 33,369,080 bytes. Runtime appearance remains unqualified without KVM or a physical
+  device. Two accelerated current-view benchmark repeats tracked 91 submissions and measured
+  1.4501--1.4756 ms mean, 1.6750--1.8775 ms p95, and 1.8992--2.2975 ms p99. CNA and Sharp Runtime
+  remain clean and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

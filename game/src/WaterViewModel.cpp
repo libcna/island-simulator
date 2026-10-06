@@ -22,27 +22,33 @@ namespace island
     }
 
     float WaterViewModel::TargetIntensity(const bool swimming,
-                                          const float groundHeight) noexcept
+                                          const float groundHeight,
+                                          const float currentStrength) noexcept
     {
         if (!swimming) return 0.0f;
         const float safeGroundHeight = std::isfinite(groundHeight) ? groundHeight : 0.0f;
+        const float safeCurrentStrength = std::isfinite(currentStrength)
+            ? std::clamp(currentStrength, 0.0f, 1.0f)
+            : 0.0f;
         const float waterDepth = std::max(0.0f, -safeGroundHeight);
         const float depthBlend = SmoothStep((waterDepth - 0.35f) / 1.65f);
-        return 0.60f + 0.40f * depthBlend;
+        return 0.60f + 0.18f * depthBlend + 0.22f * SmoothStep(safeCurrentStrength);
     }
 
-    void WaterViewModel::Reset(const bool swimming, const float groundHeight) noexcept
+    void WaterViewModel::Reset(const bool swimming, const float groundHeight,
+                               const float currentStrength) noexcept
     {
-        intensity_ = TargetIntensity(swimming, groundHeight);
+        intensity_ = TargetIntensity(swimming, groundHeight, currentStrength);
     }
 
     float WaterViewModel::Update(const bool swimming, const float groundHeight,
+                                 const float currentStrength,
                                  const float deltaSeconds) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, MaximumStepSeconds)
             : 0.0f;
-        const float target = TargetIntensity(swimming, groundHeight);
+        const float target = TargetIntensity(swimming, groundHeight, currentStrength);
         const float rate = target > intensity_ ? EntryRatePerSecond : ExitRatePerSecond;
         intensity_ = MoveTowards(intensity_, target, rate * safeDelta);
         return intensity_;

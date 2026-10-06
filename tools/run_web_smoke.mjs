@@ -474,6 +474,39 @@ try {
     && !waterResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=current`,
+  }, visualSessionId);
+  let currentResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    currentResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (currentResult.output?.includes("island-simulator: terrain")
+        || currentResult.error) break;
+  }
+  await delay(1000);
+  const completedCurrentEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  currentResult = JSON.parse(completedCurrentEvaluation.result.value ?? "{}");
+
+  const currentScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const currentScreenshotPath = path.join(buildDirectory, "island-browser-current.png");
+  await writeFile(currentScreenshotPath, Buffer.from(currentScreenshot.data, "base64"));
+  const currentPassed = currentResult.output?.includes("island-simulator: renderer WEBGL2")
+    && currentResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && currentResult.output?.includes(
+      "island-simulator: near-surface swimming view procedural edge veil")
+    && /water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*/.test(
+      currentResult.output ?? "")
+    && !currentResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=fronds`,
   }, visualSessionId);
   let frondResult = {};
@@ -832,7 +865,8 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && driftwoodPassed && reefPassed && waterPassed && frondPassed
+    && junglePassed && propPassed && driftwoodPassed && reefPassed && waterPassed && currentPassed
+    && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
@@ -882,6 +916,11 @@ try {
       passed: waterPassed,
       output: waterResult.output ?? "",
       error: waterResult.error ?? "",
+    },
+    current: {
+      passed: currentPassed,
+      output: currentResult.output ?? "",
+      error: currentResult.error ?? "",
     },
     fronds: {
       passed: frondPassed,
@@ -935,6 +974,7 @@ try {
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
     reefScreenshot: path.basename(reefScreenshotPath),
     waterScreenshot: path.basename(waterScreenshotPath),
+    currentScreenshot: path.basename(currentScreenshotPath),
     frondScreenshot: path.basename(frondScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),

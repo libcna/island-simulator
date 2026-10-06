@@ -54,6 +54,7 @@ namespace island
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::WaterlineDetail: return "water";
+            case FixedViewpoint::CurrentBoundaryDetail: return "current";
             case FixedViewpoint::PropDetail: return "props";
             case FixedViewpoint::DriftwoodDetail: return "driftwood";
             case FixedViewpoint::ReefDetail: return "reef";
@@ -134,6 +135,13 @@ namespace island
                                       std::sin(angle) * radius);
             yaw_ = std::atan2(-cameraPosition_.X, -cameraPosition_.Z);
             pitch_ = -0.025f;
+        } else if (viewpoint_ == FixedViewpoint::CurrentBoundaryDetail) {
+            constexpr float angle = -std::numbers::pi_v<float> * 0.5f;
+            const float radius = terrain_.ShoreRadius(angle) + 62.0f;
+            cameraPosition_ = Vector3(std::cos(angle) * radius, 0.58f,
+                                      std::sin(angle) * radius);
+            yaw_ = std::atan2(-cameraPosition_.X, -cameraPosition_.Z);
+            pitch_ = -0.015f;
         } else if (viewpoint_ == FixedViewpoint::PropDetail
                    && !naturalPropLayout_.FallenLogs().empty()) {
             const FallenLogPlacement& log = naturalPropLayout_.FallenLogs().front();
@@ -288,10 +296,12 @@ namespace island
         worldDebugRenderer_ = std::make_unique<WorldDebugRenderer>(device, terrain_);
         playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
-            || viewpoint_ == FixedViewpoint::WaterlineDetail;
+            || viewpoint_ == FixedViewpoint::WaterlineDetail
+            || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail;
         waterViewModel_.Reset(waterViewAllowed
                                   && playerMotion_.Mode() == LocomotionMode::Swimming,
-                              playerMotion_.GroundHeight());
+                              playerMotion_.GroundHeight(),
+                              playerMotion_.OceanCurrentStrength(terrain_));
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
@@ -357,10 +367,12 @@ namespace island
             UpdateCamera(deltaSeconds);
         }
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
-            || viewpoint_ == FixedViewpoint::WaterlineDetail;
+            || viewpoint_ == FixedViewpoint::WaterlineDetail
+            || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail;
         (void)waterViewModel_.Update(
             waterViewAllowed && playerMotion_.Mode() == LocomotionMode::Swimming,
-            playerMotion_.GroundHeight(), deltaSeconds);
+            playerMotion_.GroundHeight(), playerMotion_.OceanCurrentStrength(terrain_),
+            deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -795,8 +807,9 @@ namespace island
                                  timeSeconds);
 
         const auto& viewport = device.getViewportProperty();
-        waterViewOverlay_->Draw(waterViewModel_.Intensity(), viewport.getWidthProperty(),
-                                viewport.getHeightProperty());
+        waterViewOverlay_->Draw(waterViewModel_.Intensity(),
+                                playerMotion_.OceanCurrentStrength(terrain_),
+                                viewport.getWidthProperty(), viewport.getHeightProperty());
 
         if (debugOverlayVisible_ && worldDebugVisible_) {
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
@@ -1009,7 +1022,8 @@ namespace island
                       << monkeyRenderer_->ActiveCrossfadeCount() << '/'
                       << monkeyRenderer_->CompletedCrossfadeCount()
                       << " active/completed; water view " << waterViewModel_.Intensity()
-                      << ", " << waterViewOverlay_->DrawCallCount() << " draw\n";
+                      << ", " << waterViewOverlay_->DrawCallCount() << " draw, current "
+                      << playerMotion_.OceanCurrentStrength(terrain_) << '\n';
         }
         ++drawnFrames_;
         const std::uint32_t targetFrames = !capturePath_.empty()

@@ -75,17 +75,24 @@ namespace island
 
     WaterViewOverlay::~WaterViewOverlay() = default;
 
-    void WaterViewOverlay::Draw(const float intensity, const int viewportWidth,
-                                const int viewportHeight)
+    void WaterViewOverlay::Draw(const float intensity, const float currentStrength,
+                                const int viewportWidth, const int viewportHeight)
     {
         const float safeIntensity = std::clamp(intensity, 0.0f, 1.0f);
+        const float safeCurrent = std::isfinite(currentStrength)
+            ? std::clamp(currentStrength, 0.0f, 1.0f)
+            : 0.0f;
         drawCallCount_ = 0;
         if (safeIntensity <= 0.001f || viewportWidth <= 0 || viewportHeight <= 0) return;
 
         const int alpha = static_cast<int>(std::lround(safeIntensity * 255.0f));
+        const int red = static_cast<int>(std::lround(
+            static_cast<float>(alpha) * (1.0f - safeCurrent * 0.12f)));
+        const int green = static_cast<int>(std::lround(
+            static_cast<float>(alpha) * (1.0f - safeCurrent * 0.03f)));
         spriteBatch_->Begin();
         spriteBatch_->Draw(*veilTexture_, Rectangle(0, 0, viewportWidth, viewportHeight),
-                           Color(alpha, alpha, alpha, alpha));
+                           Color(red, green, alpha, alpha));
         spriteBatch_->End();
         drawCallCount_ = 1;
     }

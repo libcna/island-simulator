@@ -95,6 +95,12 @@ submissions and held a 0.637 veil intensity. The result is 1.5405--1.5895 ms mea
 before/after attribution: the camera sees a different population than the five baseline views.
 Dry views submit no water-view draw.
 
+The subsequent current-feedback pass preserves that single draw and adds no texture or geometry.
+Two repeats at the 62 m offshore current camera tracked 91 submissions with intensity 0.963 and
+normalized current 0.741. They measured 1.4501--1.4756 ms mean, 1.6750--1.8775 ms p95, and
+1.8992--2.2975 ms p99. As above, these numbers characterize that fixed composition rather than an
+isolated tint cost.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

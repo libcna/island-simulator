@@ -55,6 +55,7 @@ namespace island
         BeachPath,
         JungleTrail,
         WaterlineDetail,
+        CurrentBoundaryDetail,
         PropDetail,
         DriftwoodDetail,
         ReefDetail,

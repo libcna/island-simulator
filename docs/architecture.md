@@ -46,7 +46,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── FirstPersonCameraMotion ─ bounded walking/swimming positional motion and opt-out
-      ├── WaterViewModel ───── depth-responsive near-surface veil intensity and transition smoothing
+      ├── WaterViewModel ───── depth/current-responsive veil intensity and transition smoothing
       ├── WaterViewOverlay ─── generated premultiplied edge texture and one conditional draw
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
@@ -116,9 +116,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 6. `FirstPersonCameraMotion` derives a bounded local right/up displacement from physical speed and
    locomotion mode. It eases between walking and swimming rhythms, clamps long frames, resets on
    debug teleports, and fades to the authoritative eye point when B disables it.
-7. `WaterViewModel` converts swimming state and authoritative support depth to a smoothed veil
-   intensity. `WaterViewOverlay` later uses that value for one generated `SpriteBatch` draw and
-   submits nothing while dry.
+7. `WaterViewModel` converts swimming state, authoritative support depth, and normalized offshore
+   current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
+   `SpriteBatch` draw, cools its tint slightly as current develops, and submits nothing while dry.
 8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
@@ -149,7 +149,9 @@ The current boundary is deliberately layered:
    hysteresis.
 2. At 42 m offshore, an inward current begins gently and outward input progressively loses effect.
 3. By 72 m offshore, the current is fully developed.
-4. At 92 m offshore, a last-resort positional safety cap removes residual outward velocity.
+4. The generated peripheral water veil strengthens and cools between the same current thresholds,
+   providing a quiet visual cue without a HUD warning or geometric wall.
+5. At 92 m offshore, a last-resort positional safety cap removes residual outward velocity.
 
 All distances derive from `IslandTerrain::SignedShoreDistance`; there is no beach collision wall or
 hard-coded rectangular boundary. Later audio, wave, and camera feedback can communicate the same
@@ -394,8 +396,8 @@ testing remain open.
   log proxy. Exact narrow-phase circle checks preserve the original result; dynamic obstacles,
   geometric step-up, and depenetration remain absent.
 - Swimming camera height, restrained opt-out camera motion, movement-responsive water audio, and a
-  subtle depth-responsive near-surface edge veil are functional. Full underwater fog, waterline,
-  refraction, and splash presentation remain open.
+  subtle depth/current-responsive near-surface edge veil are functional. Full underwater fog,
+  waterline, refraction, splash presentation, and a distinct current-audio cue remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
