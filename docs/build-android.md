@@ -47,8 +47,9 @@ variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
-157 land rocks, 14 emergent reef outcrops, 12 fallen logs, sparse beach driftwood with a three-limb
-forked near variant and per-instance large-prop range/LOD, 63 fallen palm
+157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 sparse beach-driftwood pieces with a
+three-limb forked near variant, an authored three-piece cove arc, and per-instance large-prop
+range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
 landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
@@ -70,8 +71,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,737,820-byte APK with a
-15,927,536-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,740,172-byte APK with a
+15,929,888-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark

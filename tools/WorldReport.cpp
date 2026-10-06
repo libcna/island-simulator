@@ -216,6 +216,7 @@ namespace
             hash.AddFloat(wood.length);
             hash.AddFloat(wood.radius);
             hash.AddByte(wood.variant);
+            hash.AddByte(wood.coveLandmark ? 1U : 0U);
         }
         HashScaledPlacements(hash, std::span(world.props.BeachDetails()));
         HashScaledPlacements(hash, std::span(world.props.FallenFronds()));

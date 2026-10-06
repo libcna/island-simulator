@@ -50,6 +50,7 @@ namespace island
         float length = 1.0f;
         float radius = 0.1f;
         std::uint8_t variant = 0U;
+        bool coveLandmark = false;
     };
 
     /** @brief One non-solid shell and pebble cluster scattered across dry sand. */
@@ -86,6 +87,8 @@ namespace island
         static constexpr int FallenFrondVariantCount = 3;
         static constexpr int AuthoredClearingRockCount = 5;
         static constexpr int AuthoredClearingLogCount = 1;
+        static constexpr int AuthoredCoveDriftwoodCount = 3;
+        static constexpr float AuthoredCoveAngle = -2.35f;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
         static constexpr int ReefRockSiteCount = 56;

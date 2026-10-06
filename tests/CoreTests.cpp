@@ -2292,12 +2292,16 @@ int main()
           "the west-clearing fallen-log landmark remains present");
     std::array<bool, island::NaturalPropLayout::DriftwoodVariantCount>
         observedDriftwoodVariants{};
+    std::size_t coveLandmarkDriftwoodCount = 0U;
+    std::array<bool, island::NaturalPropLayout::DriftwoodVariantCount>
+        coveLandmarkVariants{};
     for (std::size_t index = 0; index < props.Driftwood().size(); ++index) {
         const island::DriftwoodPlacement& wood = props.Driftwood()[index];
         const island::DriftwoodPlacement& repeated = repeatedProps.Driftwood()[index];
         Check(wood.x == repeated.x && wood.y == repeated.y && wood.z == repeated.z
                   && wood.yawRadians == repeated.yawRadians && wood.length == repeated.length
-                  && wood.radius == repeated.radius && wood.variant == repeated.variant,
+                  && wood.radius == repeated.radius && wood.variant == repeated.variant
+                  && wood.coveLandmark == repeated.coveLandmark,
               "driftwood placement is bitwise deterministic for one seed");
         Check(wood.length >= island::NaturalPropLayout::DriftwoodMinimumLength
                   && wood.length <= island::NaturalPropLayout::DriftwoodMaximumLength,
@@ -2308,6 +2312,33 @@ int main()
               "driftwood variant index remains in range");
         if (wood.variant < observedDriftwoodVariants.size()) {
             observedDriftwoodVariants[wood.variant] = true;
+        }
+        if (wood.coveLandmark) {
+            ++coveLandmarkDriftwoodCount;
+            const float angle = std::atan2(wood.z, wood.x);
+            Check(std::abs(std::remainder(
+                      angle - island::NaturalPropLayout::AuthoredCoveAngle,
+                      2.0f * std::numbers::pi_v<float>)) < 0.05f,
+                  "authored driftwood remains inside its sheltered cove arc");
+            Check(terrain.SignedShoreDistance(wood.x, wood.z) >= 6.8f
+                      && terrain.SignedShoreDistance(wood.x, wood.z) <= 10.7f,
+                  "authored cove driftwood centres remain on dry beach");
+            if (wood.variant < coveLandmarkVariants.size()) {
+                coveLandmarkVariants[wood.variant] = true;
+            }
+            for (const island::PalmPlacement& palm : vegetation.Palms()) {
+                Check(std::hypot(wood.x - palm.x, wood.z - palm.z) >= 2.0f,
+                      "authored cove driftwood remains clear of palm trunks");
+            }
+            for (const island::CanopyPlacement& tree : jungle.Canopy()) {
+                Check(std::hypot(wood.x - tree.x, wood.z - tree.z) >= 2.0f,
+                      "authored cove driftwood remains clear of canopy trunks");
+            }
+            for (const island::DriftwoodPlacement& other : props.Driftwood()) {
+                if (&other == &wood) continue;
+                Check(std::hypot(wood.x - other.x, wood.z - other.z) >= 2.4f,
+                      "authored cove driftwood remains visually separated");
+            }
         }
         const float directionX = std::cos(wood.yawRadians);
         const float directionZ = std::sin(wood.yawRadians);
@@ -2326,6 +2357,13 @@ int main()
     for (const bool observed : observedDriftwoodVariants) {
         Check(observed, "every authored driftwood silhouette remains represented");
     }
+    Check(coveLandmarkDriftwoodCount
+              == static_cast<std::size_t>(
+                  island::NaturalPropLayout::AuthoredCoveDriftwoodCount),
+          "the authored cove driftwood landmark remains complete");
+    Check(std::ranges::all_of(coveLandmarkVariants,
+                              [](const bool value) { return value; }),
+          "the authored cove landmark uses all three driftwood silhouettes");
     std::array<bool, island::NaturalPropLayout::BeachDetailVariantCount>
         observedBeachDetailVariants{};
     for (std::size_t index = 0; index < props.BeachDetails().size(); ++index) {

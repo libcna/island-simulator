@@ -16,7 +16,8 @@ been confirmed so far.
   broadleaf form with visible petioles and a separate five-leaf folded split form. All jungle
   tiers now choose LOD and maximum distance from each instance after coarse cell rejection. The
   third near driftwood variant adds a curved three-limb fork instead of another simple branch stub,
-  and rocks, logs, and driftwood now also choose range/LOD per instance. Bush
+  and three existing silhouettes form a first authored non-solid landmark in one cove. Rocks,
+  logs, and driftwood now also choose range/LOD per instance. Bush
   material diversity, additional ground-plant material diversity, broader shell/branch/beach-prop
   variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.

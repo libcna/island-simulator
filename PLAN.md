@@ -312,8 +312,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
 
 ### Island composition
 
-- [ ] Shape multiple coves, beach widths, low ridges, viewpoints, jungle pockets, clearings, and
-  readable paths without an implausible mountain.
+- [~] Shape multiple coves, beach widths, low ridges, viewpoints, jungle pockets, clearings, and
+  readable paths without an implausible mountain. The deterministic shoreline spans 209.7--252.1 m
+  in radius and the first authored three-silhouette driftwood arc gives the `-2.35` radian cove a
+  recognizable non-solid landmark; broader whole-route composition remains open.
 - [ ] Create biome/density masks with authored overrides and deterministic placement seeds.
 - [~] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions. Terrain vertices
   now carry authoritative shore distance and slope into a portable texture-free material shader;
@@ -379,8 +381,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
-  forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 28 three-variant
-  driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
+  forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 three-variant
+  driftwood pieces including a three-piece authored cove arc, 63 grove-associated fallen palm
+  fronds, and 265 four-variant shell/pebble
   clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
   edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
   their compact far tier. Near forest-floor variants now include six upright broad leaves with
@@ -1112,8 +1115,9 @@ Work next, in order:
    dry-earth material cue under its short grass. The east/west clearings now share their placement,
    QA, and distinct warm-dry/leaf-rich terrain definitions. Five authored rocks and one fallen log
    now give their outer rings different natural silhouettes while preserving the central walking
-   room; broader landmark variety, prop diversity, contact cues, authored biome variation, and
-   material tuning remain.
+   room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
+   arc in one sheltered cove; broader landmark variety, prop diversity, contact cues, authored
+   biome variation, and material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete. A clean six-view composition audit then identified overly uniform exposed dry sand
    and low-contrast close forest soil; sparse soft-edged pebble/shell flecks and a restrained
@@ -3600,6 +3604,30 @@ Work next, in order:
   `libmain.so`. Close material appearance and fragment cost on a physical Android device remain
   explicitly unqualified. CNA and Sharp Runtime remain clean, read-only, and unmodified; no
   qualifying dependency defect was found.
+
+### 2026-10-06 — Authored cove driftwood landmark
+
+- Composed three non-solid driftwood pieces into a recognizable arc at the shared `-2.35` radian
+  cove transect. The group uses all three existing silhouettes with varied length, radius, angle,
+  and shore-relative orientation. Exact terrain support keeps each piece grounded without adding
+  assets, geometry variants, shader branches, collision proxies, or a new draw type.
+- Core coverage locks the exact landmark population and silhouettes, deterministic state,
+  dry-beach placement and full-footprint constraints, reserved-route clearance, tree clearance,
+  and 2.4 m separation from every other driftwood piece. The world report remains valid with
+  fingerprint `97a64d24063a5a74`; only driftwood population changes from 28 to 31, while the
+  820-primitive / 481-cell collision field is unchanged.
+- Reframed the deterministic driftwood QA camera around the landmark centroid. Repeated isolated
+  Radeon 780M/OpenGL 3.3 captures pass and the inspected image shows all three pieces without a
+  blocked viewpoint. The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages
+  and its inspected cove composition matches native. The browser input gate now confirms each
+  synthetic Shift toggle from game output, preventing a short edge from falling between heavily
+  loaded SwiftShader frames without weakening the run/walk assertions.
+- WebAssembly is 8,494,145 bytes. The arm64 GLES 3 APK builds through the required shared
+  `/rv/cnaccache`, passes application lint, contains only arm64-v8a libraries, and verifies with
+  APK signature scheme v2. It is 18,740,172 bytes with a 15,929,888-byte stripped `libmain.so`.
+  Cove appearance and cost remain unqualified on Android because this instance-only composition
+  change was not used to justify another emulator run. CNA and Sharp Runtime remain clean, on
+  `next`, read-only, and unmodified; no qualifying dependency defect was found.
 
 ## Session-end checklist
 

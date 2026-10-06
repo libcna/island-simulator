@@ -795,6 +795,9 @@ void main()
         const int clearingLogCount = static_cast<int>(std::count_if(
             layout.FallenLogs().begin(), layout.FallenLogs().end(),
             [](const FallenLogPlacement& log) { return log.clearingLandmark; }));
+        const int coveDriftwoodCount = static_cast<int>(std::count_if(
+            layout.Driftwood().begin(), layout.Driftwood().end(),
+            [](const DriftwoodPlacement& wood) { return wood.coveLandmark; }));
         std::cout << "island-simulator: natural props " << totalRockCount_ << " rocks, "
                   << totalReefRockCount_ << " reef outcrops, "
                   << totalLogCount_ << " fallen logs, " << totalDriftwoodCount_
@@ -804,6 +807,8 @@ void main()
         std::cout << "island-simulator: clearing landmarks " << clearingRockCount
                   << " rocks and " << clearingLogCount
                   << " fallen log, shared authored placement\n";
+        std::cout << "island-simulator: cove landmark " << coveDriftwoodCount
+                  << " driftwood pieces, shared authored shoreline profile\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
                   << " shell/pebble clusters, near-field culled\n";
         if (customShaderReady_) {

@@ -706,6 +706,18 @@ qualify function and guard against a gross regression, not isolated branch or cu
 
 Hardware-browser and physical-Android performance remain open.
 
+### Authored cove driftwood landmark follow-up
+
+Three non-solid driftwood instances now form a spaced cove arc using the existing three mesh,
+material, LOD, culling, and variant-batch paths. No mesh, texture, collision proxy, shader branch,
+or new submission type was added. The deterministic QA camera moved from one close variant to the
+three-piece centroid, so its visible population and historical timings are not like-for-like.
+
+Core coverage locks all three variants, their dry-beach footprints, route clearance, trunk
+clearance, and 2.4 m minimum separation. Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2
+captures agree on the group composition. Physical-Android appearance and representative timing
+remain open; no frame-time claim is made from this composition change.
+
 ### Biome-aware grass colour follow-up
 
 The coast/path/clearing colour pass adds one 32-bit value to each grass instance, taking the

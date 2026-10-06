@@ -378,26 +378,42 @@ namespace island
                    && !naturalPropLayout_.Driftwood().empty()) {
             const auto selected = std::find_if(
                 naturalPropLayout_.Driftwood().begin(), naturalPropLayout_.Driftwood().end(),
-                [](const DriftwoodPlacement& wood) { return wood.variant == 2U; });
+                [](const DriftwoodPlacement& wood) {
+                    return wood.coveLandmark && wood.variant == 2U;
+                });
             const DriftwoodPlacement& wood = selected != naturalPropLayout_.Driftwood().end()
                 ? *selected : naturalPropLayout_.Driftwood().front();
-            const float directionX = std::cos(wood.yawRadians);
-            const float directionZ = std::sin(wood.yawRadians);
-            const float perpendicularX = -std::sin(wood.yawRadians);
-            const float perpendicularZ = std::cos(wood.yawRadians);
-            const float firstX = wood.x + perpendicularX * 3.3f - directionX * 1.35f;
-            const float firstZ = wood.z + perpendicularZ * 3.3f - directionZ * 1.35f;
-            const float secondX = wood.x - perpendicularX * 3.3f - directionX * 1.35f;
-            const float secondZ = wood.z - perpendicularZ * 3.3f - directionZ * 1.35f;
-            const bool firstIsLandward = terrain_.SignedShoreDistance(firstX, firstZ)
-                >= terrain_.SignedShoreDistance(secondX, secondZ);
-            const float cameraX = firstIsLandward ? firstX : secondX;
-            const float cameraZ = firstIsLandward ? firstZ : secondZ;
+            float targetX = 0.0f;
+            float targetY = 0.0f;
+            float targetZ = 0.0f;
+            int landmarkCount = 0;
+            for (const DriftwoodPlacement& candidate : naturalPropLayout_.Driftwood()) {
+                if (!candidate.coveLandmark) continue;
+                targetX += candidate.x;
+                targetY += candidate.y + candidate.radius;
+                targetZ += candidate.z;
+                ++landmarkCount;
+            }
+            if (landmarkCount > 0) {
+                targetX /= static_cast<float>(landmarkCount);
+                targetY /= static_cast<float>(landmarkCount);
+                targetZ /= static_cast<float>(landmarkCount);
+            } else {
+                targetX = wood.x;
+                targetY = wood.y + wood.radius;
+                targetZ = wood.z;
+            }
+            const float targetRadius = std::hypot(targetX, targetZ);
+            const float outwardX = targetRadius > 0.001f ? targetX / targetRadius : 0.0f;
+            const float outwardZ = targetRadius > 0.001f ? targetZ / targetRadius : -1.0f;
+            const float cameraX = targetX - outwardX * 12.0f - outwardZ * 3.5f;
+            const float cameraZ = targetZ - outwardZ * 12.0f + outwardX * 3.5f;
             cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
                                                    + PlayerMotion::EyeHeight,
                                       cameraZ);
-            yaw_ = std::atan2(wood.x - cameraX, wood.z - cameraZ);
-            pitch_ = -0.16f;
+            yaw_ = std::atan2(targetX - cameraX, targetZ - cameraZ);
+            pitch_ = std::atan2(targetY - cameraPosition_.Y,
+                                std::hypot(targetX - cameraX, targetZ - cameraZ));
         } else if (viewpoint_ == FixedViewpoint::ReefDetail) {
             const auto reef = std::max_element(
                 naturalPropLayout_.Rocks().begin(), naturalPropLayout_.Rocks().end(),

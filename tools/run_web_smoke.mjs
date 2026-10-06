@@ -241,9 +241,11 @@ try {
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
-    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 12 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 12 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
+    && result.output?.includes(
+      "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
     && result.output?.includes(
@@ -739,8 +741,10 @@ try {
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && driftwoodResult.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/28 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble clusters/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
+    && driftwoodResult.output?.includes(
+      "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
     && /driftwood QA per-instance near LOD [1-9][0-9]* pieces/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
@@ -1147,8 +1151,10 @@ try {
     && arrowLast.x < arrowFirst.x - 0.25;
 
   await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
-  await dispatchKeyPress(visualSessionId, "Shift", "ShiftLeft", 16, 180, 300);
-  const runModeEnabled = (await readSmokeOutput(visualSessionId)).includes(
+  // Confirm each toggle edge from game output. A single short synthetic edge can fall entirely
+  // between frames when SwiftShader and the browser share a heavily loaded worker.
+  const runModeEnabled = await dispatchKeyUntilOutput(
+    visualSessionId, "Shift", "ShiftLeft", 16,
     "island-simulator: run mode enabled (8.0 m/s)");
   const runStartLength = (await readSmokeOutput(visualSessionId)).length;
   await dispatchKeyPress(visualSessionId, "ArrowUp", "ArrowUp", 38, 1300, 400);
@@ -1161,8 +1167,8 @@ try {
     && runSamples.some(sample => sample.running === 1
       && Math.hypot(sample.velocityX, sample.velocityZ) > 7.0);
 
-  await dispatchKeyPress(visualSessionId, "Shift", "ShiftLeft", 16, 180, 300);
-  const runModeDisabled = (await readSmokeOutput(visualSessionId)).includes(
+  const runModeDisabled = await dispatchKeyUntilOutput(
+    visualSessionId, "Shift", "ShiftLeft", 16,
     "island-simulator: run mode disabled (4.3 m/s)");
   await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
   const walkStartLength = (await readSmokeOutput(visualSessionId)).length;

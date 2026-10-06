@@ -354,7 +354,7 @@ Chromium/WebGL 2 execute and visually match on the full shader; the current arm6
 compiles but has not been rerun on stable Android hardware.
 
 Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
-the 1.8--9.4 m offshore shelf, 12 mossy fallen logs in the low-slope interior, 28 small
+the 1.8--9.4 m offshore shelf, 12 mossy fallen logs in the low-slope interior, 31 small
 sun-bleached driftwood pieces, 63 fallen palm fronds around suitable groves, and 265 shell/pebble
 clusters in the dry beach belt. Four rock, three log, three driftwood,
 three frond, and four beach-detail variants use cell culling, variant batching, and a portable
@@ -373,8 +373,11 @@ all cues before their mesh transition. Contact geometry and every far mesh retai
 this keeps the material treatment texture-free and free of extra geometry, instance data, or draws.
 The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and
 driftwood then enforce maximum range and select near/far geometry from their actual instance
-position, preventing early switches at cell boundaries. The driftwood QA camera targets variant 2
-at an oblique first-person angle and exposes its near/far population.
+position, preventing early switches at cell boundaries. Three non-solid driftwood pieces use the
+three existing silhouettes to form an authored arc at the shared `-2.35` radian cove transect.
+Their centres and complete footprints remain inside the dry-beach belt, outside reserved routes,
+and separated from trunks and other driftwood. The driftwood QA camera frames the group centroid
+from inland and exposes its near/far population.
 Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
 fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
 while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced

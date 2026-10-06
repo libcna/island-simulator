@@ -14,9 +14,10 @@ ribbon,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
 irregular land rocks, 14 emergent near-shore reef outcrops, 12 mossy fallen logs,
-28 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field shell/pebble
-clusters. Five rocks and one fallen log form natural orientation landmarks around the outer rings
-of the two authored clearings without blocking their central walking room. Every dense near-island
+31 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field shell/pebble
+clusters. Three varied driftwood silhouettes form a non-solid landmark arc in one sheltered cove;
+five rocks and one fallen log form natural orientation landmarks around the outer rings of the two
+authored clearings without blocking their central walking room. Every dense near-island
 visual layer has spatial culling and appropriate distance
 reduction, while vegetation uses a calm breeze. Five unreachable, haze-softened low islets and 11
 simplified palm silhouettes break up the open-ocean horizon in one intentionally always-present
@@ -189,8 +190,8 @@ grass wind, a finite first-draw startup timing line, four frames, clean shutdown
 overview/beach/jungle/prop/driftwood/reef/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
-The driftwood view targets the forked third variant and requires a nonzero per-instance near-LOD
-population.
+The driftwood view frames the authored three-silhouette cove group, including the forked third
+variant, and requires a nonzero per-instance near-LOD population.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, arrow-key movement, Shift run/walk toggling,
 simultaneous forward movement and relative mouse look, a deterministic beach-to-water crossing with successful

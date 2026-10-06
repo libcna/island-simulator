@@ -412,6 +412,53 @@ namespace island
             }
         }
 
+        struct AuthoredCoveDriftwood
+        {
+            float angleOffset;
+            float inlandDistance;
+            float yawOffset;
+            float length;
+            float radius;
+            std::uint8_t variant;
+        };
+        constexpr std::array coveDriftwood{
+            AuthoredCoveDriftwood{0.000f, 7.0f, -0.12f, 4.4f, 0.17f, 2U},
+            AuthoredCoveDriftwood{0.028f, 9.5f, 0.33f, 3.3f, 0.13f, 0U},
+            AuthoredCoveDriftwood{-0.026f, 10.5f, -0.40f, 2.4f, 0.10f, 1U},
+        };
+        static_assert(coveDriftwood.size() == AuthoredCoveDriftwoodCount);
+        for (const AuthoredCoveDriftwood& authored : coveDriftwood) {
+            const float angle = AuthoredCoveAngle + authored.angleOffset;
+            const float radius = terrain.ShoreRadius(angle) - authored.inlandDistance;
+            DriftwoodPlacement wood;
+            wood.x = std::cos(angle) * radius;
+            wood.z = std::sin(angle) * radius;
+            wood.length = authored.length;
+            wood.radius = authored.radius;
+            wood.variant = authored.variant;
+            wood.coveLandmark = true;
+
+            const float gradientX = terrain.Sample(wood.x + 1.5f, wood.z).signedShoreDistance
+                - terrain.Sample(wood.x - 1.5f, wood.z).signedShoreDistance;
+            const float gradientZ = terrain.Sample(wood.x, wood.z + 1.5f).signedShoreDistance
+                - terrain.Sample(wood.x, wood.z - 1.5f).signedShoreDistance;
+            wood.yawRadians = std::atan2(gradientX, -gradientZ) + authored.yawOffset;
+
+            const float directionX = std::cos(wood.yawRadians);
+            const float directionZ = std::sin(wood.yawRadians);
+            float maximumSupportHeight = terrain.Height(wood.x, wood.z);
+            for (int sampleIndex = 0; sampleIndex < DriftwoodSupportSamples; ++sampleIndex) {
+                const float t = static_cast<float>(sampleIndex)
+                    / static_cast<float>(DriftwoodSupportSamples - 1) - 0.5f;
+                maximumSupportHeight = std::max(
+                    maximumSupportHeight,
+                    terrain.Height(wood.x + directionX * wood.length * t,
+                                   wood.z + directionZ * wood.length * t));
+            }
+            wood.y = maximumSupportHeight + wood.radius * 0.58f;
+            driftwood_.push_back(wood);
+        }
+
         beachDetails_.reserve(420U);
         for (int gridZ = -BeachDetailRadius; gridZ <= BeachDetailRadius; ++gridZ) {
             for (int gridX = -BeachDetailRadius; gridX <= BeachDetailRadius; ++gridX) {
