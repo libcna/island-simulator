@@ -152,7 +152,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    authoritative player eye.
 7. `WaterViewModel` converts swimming state, authoritative support depth, and normalized offshore
    current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
-   `SpriteBatch` draw, cools its tint slightly as current develops, and submits nothing while dry.
+   `SpriteBatch` draw with a vertical depth haze, restrained upper-surface scatter, and peripheral
+   colour; it cools slightly as current develops and submits nothing while dry.
    `WaterRippleModel` independently derives a smoothed, wrapped surface-ripple state from support
    depth and horizontal speed. The same finite-safe model detects moving wet/dry crossings with
    7.5/2.5 cm hysteresis, a 1.6-second cooldown, and a bounded 1.6-second transition phase; the
@@ -690,7 +691,8 @@ testing remain open.
   bounded deterministic recovery from an overlapping static proxy. Dynamic obstacles, geometric
   step-up, and continuous depenetration remain absent.
 - Swimming camera height, restrained opt-out camera motion, movement-responsive water audio, and a
-  subtle depth/current-responsive near-surface edge veil are functional. The same normalized
+  subtle depth/current-responsive near-surface depth/edge veil and surface scatter are functional.
+  The same normalized
   current now deepens the existing water loop into a bounded undertow cue. Moving wet/dry
   crossings add one bounded broken-ring surface burst. Full underwater fog, geometric waterline,
   refraction, and particle splash presentation remain open.

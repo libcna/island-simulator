@@ -43,7 +43,7 @@ Both clearing cameras also require the shared five-rock/one-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,464,191 bytes. This records the evidence environment; it is not a minimum-version
+WebAssembly is 8,464,649 bytes. This records the evidence environment; it is not a minimum-version
 or general browser-permission claim.
 
 ## Prerequisites
@@ -144,8 +144,8 @@ visible fallen logs plus a nonzero one-draw contact-shadow batch. The driftwood 
 authored cove group and must report its exact three-piece landmark diagnostic, the three-limb
 silhouette diagnostic, visible beach wood plus shell/pebble clusters, and a nonzero per-instance
 near-LOD population. The reef view must report a visible emergent outcrop and the near-rock
-fixed-sea-level wet-band diagnostic. The water view must report a nonzero procedural veil, exactly
-one overlay draw, and a
+fixed-sea-level wet-band diagnostic. The water view must report a nonzero generated
+depth/scatter/edge cue, exactly one overlay draw, and a
 nonzero player ripple plus a nonzero finite shoreline-transition burst integrated into the existing
 ocean submission, the
 current view must additionally report nonzero normalized current strength and undertow-audio

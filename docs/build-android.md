@@ -65,15 +65,16 @@ wood, and monkeys,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player
 water-movement audio, two water entry/exit accents, movement-driven shader-integrated water
 ripples, short hysteretic entry/exit surface bursts, a procedural near-surface swimming veil with
-offshore-current modulation, a deeper current-responsive undertow mix in the existing water loop,
+depth haze, restrained surface scatter, and offshore-current modulation, a deeper
+current-responsive undertow mix in the existing water loop,
 and a pooled
 positional voice with two bird and two monkey phrases. That package
 builds and passes application lint. The current x86_64 runtime gate constructed this complete scene,
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,690,996-byte APK with a
-15,880,712-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,691,524-byte APK with a
+15,881,240-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark

@@ -44,20 +44,34 @@ namespace island
                         (std::abs(v - 0.5f) - 0.29f) / 0.21f);
                     const float edge = 1.0f
                         - (1.0f - horizontalEdge) * (1.0f - verticalEdge);
-                    const float lowerVeil = SmoothStep((v - 0.62f) / 0.38f);
-                    const float ripple = 0.5f + 0.5f * std::sin(
-                        u * 25.0f + v * 7.0f + std::sin(u * 8.0f) * 0.8f);
+                    const float depthVeil = SmoothStep((v - 0.18f) / 0.82f);
+                    const float surfaceLight = 1.0f - SmoothStep((v - 0.04f) / 0.52f);
+                    const float firstRipple = 0.5f + 0.5f * std::sin(
+                        u * 31.0f + v * 8.0f + std::sin(u * 8.0f) * 0.9f);
+                    const float secondRipple = 0.5f + 0.5f * std::sin(
+                        u * -19.0f + v * 13.0f + std::sin(v * 11.0f) * 0.7f);
+                    const float surfaceScatter = SmoothStep(
+                        (firstRipple * 0.68f + secondRipple * 0.32f - 0.63f) / 0.29f)
+                        * surfaceLight;
+                    const float rayField = 0.5f + 0.5f * std::sin(
+                        u * 12.0f + v * 2.1f + std::sin(u * 3.7f) * 1.4f);
+                    const float lightRay = SmoothStep((rayField - 0.70f) / 0.25f)
+                        * surfaceLight * (0.45f + 0.55f * (1.0f - v));
                     const float alpha = std::clamp(
-                        10.0f + edge * 29.0f + lowerVeil * 13.0f + ripple * edge * 3.0f,
-                        0.0f, 58.0f);
+                        8.0f + edge * 25.0f + depthVeil * 15.0f
+                            + surfaceScatter * 10.0f + lightRay * 5.0f,
+                        0.0f, 63.0f);
                     const int alphaByte = static_cast<int>(std::lround(alpha));
                     const auto premultiply = [alphaByte](const float channel) {
                         return static_cast<int>(std::lround(
                             channel * static_cast<float>(alphaByte) / 255.0f));
                     };
+                    const float lightLift = surfaceScatter * 34.0f + lightRay * 18.0f;
                     pixels[static_cast<std::size_t>(y * TextureWidth + x)] = Color(
-                        premultiply(54.0f), premultiply(146.0f + lowerVeil * 8.0f),
-                        premultiply(156.0f + lowerVeil * 10.0f), alphaByte);
+                        premultiply(48.0f + lightLift),
+                        premultiply(142.0f + depthVeil * 8.0f + lightLift * 0.72f),
+                        premultiply(157.0f + depthVeil * 12.0f + lightLift * 0.84f),
+                        alphaByte);
                 }
             }
 

@@ -68,8 +68,9 @@ terrain cost.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, and a soft ocean-current
 boundary whose always-shoreward return includes mild coherent coast-parallel circulation,
-dual-zone touch input, a subtle depth-responsive near-surface water veil that cools and strengthens
-as the offshore current develops, and speed/depth-responsive player ripples that expand across the
+dual-zone touch input, a subtle depth-responsive near-surface water veil with upper-surface light
+scatter that cools and strengthens as the offshore current develops, and speed/depth-responsive
+player ripples that expand across the
 same animated ocean surface without another draw call. Moving entries and exits also trigger one
 short speed-scaled pair of broken surface rings, with depth hysteresis and a cooldown that prevent
 shoreline chatter. A fixed sunny gradient sky adds a sun disc

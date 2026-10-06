@@ -282,9 +282,9 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [x] Define depth-based water-entry/exit hysteresis.
 - [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. A
   restrained swimming camera rhythm, solid emergent-outcrop collision, and subtle
-  depth-responsive near-surface edge veil, movement-driven surface ripples, and hysteretic
-  speed-scaled entry/exit bursts are complete; a true geometric waterline and full underwater
-  presentation remain open.
+  depth-responsive near-surface haze/edge veil with restrained surface scatter, movement-driven
+  surface ripples, and hysteretic speed-scaled entry/exit bursts are complete; a true geometric
+  waterline and full underwater presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [x] Add progressive outward resistance and inward correction from 42 to 72 m offshore. Velocity
   now eases continuously from zero into a dominant shoreward return with restrained deterministic
@@ -361,15 +361,16 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Blend shoreline foam/readable moving wave edge and translucent water over the beach without
   visible z-fighting. A 384-segment ribbon now follows the authoritative shore independently of
   the coarse ocean grid and adds a narrow broken animated crest plus restrained receding wash over
-  the wet-sand pass. A subtle generated near-surface edge veil now fades with swimming state and
-  support depth, while depth/speed-responsive player ripples and one short broken-ring burst on a
-  moving wet/dry crossing reuse the animated ocean submission.
+  the wet-sand pass. A subtle generated near-surface depth haze, upper-surface scatter, and edge
+  veil now fade with swimming state and support depth, while depth/speed-responsive player ripples
+  and one short broken-ring burst on a moving wet/dry crossing reuse the animated ocean submission.
   The ocean now also reuses its existing two crossing-wave values for shallow-weighted subsurface
   colour structure that fades before the horizon; full underwater transitions and final
   wash/material tuning remain open.
 - [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
-  stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated edge veil with
-  one conditional `SpriteBatch` draw; waterline geometry, underwater fog, and refraction remain.
+  stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated depth/edge veil
+  with restrained upper-surface scatter and one conditional `SpriteBatch` draw; waterline
+  geometry, distance fog, and refraction remain.
 - [~] Provide an actionable stock `BasicEffect` fallback when portable custom effects are
   unavailable or fail compilation. WebGL 2 and Android GLES 3 use the full shader successfully,
   including inspected fixed water captures with an active transition burst. The fallback
@@ -1144,8 +1145,9 @@ Work next, in order:
    room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
    arc in one sheltered cove; broader landmark variety, prop diversity, contact cues, authored
    biome variation, and material tuning remain.
-   The first portable near-surface swimming veil, movement-driven surface ripples, and a bounded
-   speed-scaled broken-ring effect for moving water entry/exit are also complete. A clean six-view
+   The portable near-surface swimming veil now adds depth haze and restrained upper-surface
+   scatter without another draw; movement-driven surface ripples and a bounded speed-scaled
+   broken-ring effect for moving water entry/exit are also complete. A clean six-view
    composition audit then identified overly uniform exposed dry sand
    and low-contrast close forest soil; sparse soft-edged pebble/shell flecks and a restrained
    contrast increase now address those specific gaps without new geometry, textures, instances,
@@ -4004,6 +4006,33 @@ Work next, in order:
   evidence sets, and restored the linted v2-signed arm64-only APK at 18,690,996 bytes with a
   15,880,712-byte stripped `libmain.so`. These are functional KVM/gfxstream results, not physical
   mobile GPU, thermal, battery, or real-finger ergonomics claims.
+
+### 2026-10-07 — Portable near-surface depth and light-scatter cue
+
+- A cross-renderer composition review found that the fish and shark silhouettes were readable but
+  the water column below the surface remained too visually uniform. Refined the existing generated
+  160 by 90 premultiplied water-view texture with a restrained vertical depth haze, two crossing
+  upper-surface scatter fields, and a few broad light streaks. The same current modulation,
+  smoothed intensity, single conditional `SpriteBatch` draw, dry zero-draw path, and external-asset
+  count are retained. This is deliberately a near-surface cue, not a claim of distance fog,
+  refraction, caustic simulation, or a geometric waterline.
+- Compiled the changed OpenGL 3.3 consumer object through `/rv/cnaccache` and passed the complete
+  renderer-independent core test binary. The operator-visible Linux game was intentionally not
+  relinked or interrupted, so native visual requalification remains deferred until that process is
+  closed.
+- Rebuilt WebGL 2 and passed the complete real Chrome 152/SwiftShader 22-stage renderer,
+  lifecycle, input, audio-initialization, and visual harness twice during refinement. Inspected
+  calm-water, offshore-current, fish, and shark frames retain wildlife and shoreline readability
+  while gaining a subtle top-to-bottom water-column separation. The final WebAssembly is
+  8,464,649 bytes.
+- Built a temporary x86_64 package and ran the fixed calm-water view on the KVM/API 35 host-GPU
+  emulator. The inspected 2400 by 1080 frame reports `OPENGLES3`, water-view intensity 0.6 in one
+  draw, and 29.5 FPS; first draw completed in 1804.148 ms with no fatal, shader-error, or
+  `GL_INVALID_OPERATION` diagnostic. The emulator was stopped cleanly and ADB is empty. The
+  restored arm64-only APK passes application lint, verifies with signature scheme v2, and is
+  18,691,524 bytes with a 15,881,240-byte stripped `libmain.so`. All builds used at most two
+  workers and the required shared ccache. CNA and Sharp Runtime remain read-only and unchanged;
+  no dependency defect or workaround was involved.
 
 ## Session-end checklist
 

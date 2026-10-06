@@ -168,7 +168,8 @@ requires a nonzero one-draw terrain-contact-shadow batch.
 `build/island-reef-capture.ppm`; the current material should show a restrained dark/cool band at
 the mean water contact while leaving the upper rock dry.
 `IslandGameWaterViewCapture` writes a near-surface swimming view to
-`build/island-water-capture.ppm` and requires the procedural edge veil's nonzero intensity and
+`build/island-water-capture.ppm` and requires the procedural depth/scatter/edge cue's nonzero
+intensity and
 single conditional draw plus a nonzero movement-driven player ripple and shoreline-transition
 burst in the ocean shader. Ocean startup also reports the reused crossing-wave subsurface-colour
 path.

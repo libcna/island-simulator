@@ -11,7 +11,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
-    /** @brief Procedural low-opacity edge veil shown only while near-surface swimming. */
+    /** @brief Procedural low-opacity depth, surface-light, and edge cue while swimming. */
     class WaterViewOverlay final
     {
     public:
@@ -23,7 +23,7 @@ namespace island
         WaterViewOverlay(WaterViewOverlay&&) = delete;
         WaterViewOverlay& operator=(WaterViewOverlay&&) = delete;
 
-        /** @brief Draws one stretched procedural veil when intensity is nonzero. */
+        /** @brief Draws one stretched procedural water-view cue when intensity is nonzero. */
         void Draw(float intensity, float currentStrength,
                   int viewportWidth, int viewportHeight);
 

@@ -2,7 +2,7 @@
 
 namespace island
 {
-    /** @brief Smooth renderer-independent intensity for the near-surface swimming veil. */
+    /** @brief Smooth renderer-independent intensity for the near-surface water-view cue. */
     class WaterViewModel final
     {
     public:
