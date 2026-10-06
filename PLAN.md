@@ -734,8 +734,9 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
   requires renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records
-  logcat plus a device screenshot. Rotation policy, process-death restoration, clean exit, and
-  physical-device relaunch remain open.
+  logcat plus a device screenshot. Debug builds now accept a release-disabled intent argument array
+  for repeatable fixed-view capture; the reef-detail GLES3 pass is qualified with it. Rotation
+  policy, process-death restoration, clean exit, and physical-device relaunch remain open.
 - [x] Recheck the software AVD's 27 gfxstream `GL_INVALID_OPERATION` uniform-query reports on a
   stable KVM emulator before assigning them to the driver, framework, or game. They did not recur
   in the accelerated run, and no shader/fatal error appeared; no dependency bug is claimed.
@@ -1077,11 +1078,12 @@ after the same experience remains available.
 - [x] `docs/asset-pipeline.md`: current generation model, versioned manifest schema, validation,
   world report, external intake, deterministic conversion requirements, and limitations.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
-  documented; the KVM Android overview is recorded, while matched close-view captures and
-  representative physical-device measurements remain open.
+  documented; the KVM Android overview and first matched reef-detail capture are recorded, while
+  other matched close views and representative physical-device measurements remain open.
 - [~] `docs/debugging.md`: overlay fields, direct QA teleports, deterministic captures, and the
-  native performance-report workflow are documented; deeper world-space visualizers and
-  common-failure guidance remain open.
+  native performance-report workflow are documented. Android debug packages can now receive the
+  same fixed-view arguments through a release-disabled intent bridge; deeper world-space
+  visualizers and common-failure guidance remain open.
 - [~] `docs/performance.md`: native method, five representative fixed scenes, the initial Linux
   baseline, startup phase/report semantics, interpretation rules, and open budget work are
   documented. Android now has KVM startup, memory, and same-AVD terrain-batching evidence;
@@ -1147,8 +1149,9 @@ Work next, in order:
 5. Continue Android qualification on physical hardware. The KVM-accelerated API 35 AVD now proves
    complete-scene GLES 3 rendering, independent movement/look gestures, translucent touch HUD,
    same-process surface restoration, AAudio pause/resume, startup/memory instrumentation, and a
-   terrain-batching direction check. Simultaneous real-finger ergonomics, swimming, external audio
-   focus, process death, thermals, and physical mobile-GPU performance remain open.
+   terrain-batching direction check. A debug-only fixed-view bridge also proves the close reef wet
+   material on GLES3. Simultaneous real-finger ergonomics, swimming, external audio focus, process
+   death, thermals, and physical mobile-GPU performance remain open.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete. The
    headless Chrome freeze/active probe remains diagnostic-only because the latest passing input
@@ -3847,6 +3850,27 @@ Work next, in order:
   the actual desktop shader runtime and capture remain deferred so the operator's visible game is
   not relinked or interrupted. Android appearance and physical-GPU fragment cost likewise remain
   unqualified. CNA and Sharp Runtime remained read-only and unchanged.
+
+### 2026-10-06 — Android fixed-view QA bridge and reef qualification
+
+- Added a game-owned Android activity override that forwards a string-array intent extra to SDL's
+  existing public `getArguments()` hook only when Android marks the package debuggable. Release
+  packages return an empty argument array even if an external caller supplies the extra. Extended
+  the runtime-smoke helper with the optional comma-separated
+  `ISLAND_ANDROID_SMOKE_ARGUMENTS` input, keeping the normal no-argument gate unchanged.
+- KVM version 12 booted the API 35 `Medium_Phone` AVD in 22.240 seconds with host AMD Radeon 780M
+  gfxstream GLES. A temporary x86_64 APK installed and launched with
+  `--viewpoint reef --debug-overlay`; the actual 2400 by 1080 frame reports `OPENGLES3`, two visible
+  reef outcrops from the 14-object population, and visibly matches the WebGL 2
+  dry-upper/dark-wet-base treatment. First draw completed in 3879.191 ms total. No fatal,
+  shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared. This is functional emulator
+  evidence, not a physical-GPU performance claim.
+- Android application lint passes with the bridge. The headless AVD was stopped cleanly and no ADB
+  target remains. The default arm64-v8a APK was restored, contains only the requested ABI, and
+  verifies with signature scheme v2 at 18,744,372 bytes with a 15,934,088-byte stripped
+  `libmain.so`. The retained ignored reef screenshot/log are about 0.6 MB and provide useful QA
+  evidence. CNA and Sharp Runtime remained read-only and unchanged; no dependency workaround was
+  required.
 
 ## Session-end checklist
 

@@ -82,6 +82,13 @@ inspection camera. Press F3 again to return to the player; hiding F1 also exits 
 cannot remain active without an obvious developer presentation. The camera is limited to
 `+/-820 m` horizontally and `-18..260 m` vertically.
 
+Android debug packages can launch the same fixed QA views through the project-owned
+`com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra. The runtime smoke helper
+exposes it through `ISLAND_ANDROID_SMOKE_ARGUMENTS`; for example,
+`--viewpoint,reef,--debug-overlay` opens the reef detail and F1 panel. The activity checks Android's
+debuggable flag before forwarding the array, so release packages ignore externally supplied native
+arguments. See `docs/build-android.md` for the repeatable command.
+
 `IslandGameFreeCameraInput` drives this path with real X11 input. Native X11 sessions can use the
 selected private display; Wayland sessions automatically use an isolated Xvfb server because the
 compositor correctly refuses unattended keyboard-focus theft through Xwayland. It verifies both F3

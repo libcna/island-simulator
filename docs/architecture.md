@@ -697,7 +697,9 @@ testing remain open.
 - Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. The API 35
   x86_64 AVD now runs with KVM and host-GPU gfxstream; the complete GLES3 scene, independent
   movement/look gestures, same-process background/foreground recovery, and AAudio pause/resume are
-  validated. Simultaneous-gesture ergonomics, audio-focus interruption, sustained performance,
+  validated. The game-owned activity can pass a string-array QA command line into SDL only for a
+  debuggable package; release packages ignore it. This has also produced a fixed reef-detail GLES3
+  capture. Simultaneous-gesture ergonomics, audio-focus interruption, sustained performance,
   thermals, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
   exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view

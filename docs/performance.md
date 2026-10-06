@@ -499,7 +499,8 @@ branch, and neither change adds texture, geometry, instance data, CPU update, or
 submission. Native reef and jungle captures were inspected for the first pass; the current actual
 Chrome/SwiftShader WebGL 2 reef capture was inspected for the wet band and requires both explicit
 diagnostics. The arm64 GLES 3 package builds and lints, but device appearance and fragment cost
-remain unqualified.
+remain unqualified on physical hardware; a later fixed-view KVM/gfxstream capture qualifies the
+intended close appearance without establishing physical-GPU cost.
 
 Two isolated five-view repeats produced the ranges below. Scene populations and submissions match
 the preceding ground-plant baseline exactly, and the timing ranges show no integrated regression.

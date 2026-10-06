@@ -13,6 +13,8 @@ OUTPUT_DIR=${3:-build/android-runtime-smoke}
 PACKAGE=com.libcna.islandsimulator
 COMPONENT="$PACKAGE/.IslandSimulatorActivity"
 TIMEOUT_SECONDS=${ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS:-600}
+DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
+DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
 
 if [ ! -x "$ADB" ]; then
     echo "android runtime smoke: adb is not executable: $ADB" >&2
@@ -54,7 +56,13 @@ echo "android runtime smoke: installing $APK"
 "$ADB" logcat -c
 "$ADB" shell am force-stop "$PACKAGE"
 echo "android runtime smoke: launching $COMPONENT"
-"$ADB" shell am start -W -n "$COMPONENT" >"$LAUNCH_FILE"
+if [ -n "$DEBUG_ARGUMENTS" ]; then
+    echo "android runtime smoke: debug arguments $DEBUG_ARGUMENTS"
+    "$ADB" shell am start -W -n "$COMPONENT" \
+        --esa "$DEBUG_ARGUMENTS_EXTRA" "$DEBUG_ARGUMENTS" >"$LAUNCH_FILE"
+else
+    "$ADB" shell am start -W -n "$COMPONENT" >"$LAUNCH_FILE"
+fi
 
 DEADLINE=$(( $(date +%s) + TIMEOUT_SECONDS ))
 GAME_PID=

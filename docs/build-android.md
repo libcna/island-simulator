@@ -72,8 +72,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,742,396-byte APK with a
-15,932,112-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,744,372-byte APK with a
+15,934,088-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
@@ -106,6 +106,11 @@ and thumb from green to warm gold without restoring the former rectangular blend
 regressions prove the 92-percent engage and 78-percent release hysteresis; physical-device feel
 and threshold tuning remain open. The headless emulator was stopped and the arm64 package above
 was restored afterward.
+
+The game-owned activity also accepts the native QA command line from the
+`com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
+the installed application debuggable. Release packages ignore the extra. This keeps fixed-view
+renderer qualification inside island-simulator instead of requiring an SDL/CNA modification.
 
 ## Requirements
 
@@ -228,6 +233,14 @@ software-AVD uniform-query error appeared in the accelerated logs. A later memor
 87.3 MiB total PSS, 167.3 MiB RSS, and 0.5 MiB swap PSS. These are emulator observations, not
 physical-device budgets.
 
+A later debug-argument launch selected `--viewpoint reef --debug-overlay` on the same KVM/host-GPU
+configuration. The actual 2400 by 1080 frame reports `OPENGLES3`, contains two visible reef
+outcrops from the 14-object population, and visibly retains a dry upper rock with the darker/cooler
+sea-level contact band. It reached first draw in 3879.191 ms total (1324.831 ms world, 4.658 ms
+framework, 2473.582 ms content, 22.667 ms pre-draw, and 53.453 ms first draw). No fatal,
+shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared. This qualifies the material
+path on gfxstream, not a physical mobile GPU or a sustained performance budget.
+
 A subsequent no-window qualification after moving the CNA pin to `fe20e3e9c` again used KVM
 version 12 and host-GPU gfxstream, completed a cold GLES 3 first frame in 2003.189 ms, and produced
 an inspected clean overview. This proves that the current 31-driftwood complete scene starts with
@@ -266,6 +279,17 @@ The default evidence directory is ignored `build/android-runtime-smoke/`. The ga
 GLES 3 frame and process; it does not by itself qualify touch ergonomics, audio, lifecycle recovery,
 performance, memory, or thermals. Override the deliberately generous software-emulator timeout with
 `ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS` when testing faster hardware.
+
+For a fixed debug QA camera, pass a comma-separated native argument array. The application ignores
+this extra in non-debuggable packages:
+
+```bash
+ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,reef,--debug-overlay \
+  tools/run_android_runtime_smoke.sh \
+  "$ANDROID_SDK_ROOT/platform-tools/adb" \
+  android/app/build/outputs/apk/debug/app-debug.apk \
+  build/android-runtime-smoke-reef
+```
 
 ## Dependency overrides
 

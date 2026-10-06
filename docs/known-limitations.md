@@ -124,9 +124,11 @@ been confirmed so far.
   genuine tab suspend/resume, fullscreen, and a second browser engine remain unverified.
 - Android arm64-v8a and x86_64 APKs build, and a KVM-accelerated API 35 x86_64 AVD renders the
   complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a
-  same-process hot resume, and AAudio pause/resume are validated. Simultaneous real-finger
-  ergonomics, audio-focus interruption, process-death recovery, physical mobile-GPU performance,
-  thermal behaviour, and physical-device compatibility remain unverified.
+  same-process hot resume, AAudio pause/resume, and a fixed close reef-material view are validated.
+  A debug-only intent bridge makes other fixed QA launches repeatable but does not replace their
+  inspection. Simultaneous real-finger ergonomics, audio-focus interruption, process-death
+  recovery, physical mobile-GPU performance, thermal behaviour, and physical-device compatibility
+  remain unverified.
 
 ## Development tooling
 
@@ -139,8 +141,9 @@ been confirmed so far.
   shared-cell, wildlife heading/target/home-range, ambient-zone, nearest audio-candidate, active
   positional-emitter, exact nine-sample terrain-contact, and complete bird route-family/spawn views;
   movement history, steering proposals, and deeper per-system culling/LOD overlays remain open.
-- Eight direct debug teleports, a bounded debug-only inspection camera, a five-view native
-  fixed-frame suite plus a 676 m moving benchmark, an asset-manifest validator, and a deterministic
+- Eight direct debug teleports, a bounded debug-only inspection camera, a native/Web fixed-frame
+  suite plus a debug-only Android fixed-view launch bridge and a 676 m moving benchmark, an
+  asset-manifest validator, and a deterministic
   world-statistics report exist. The native overview has automated P6 integrity and broad
   non-degeneracy checks, but there is no teleport menu, pixel-golden comparison, or automated
   native/Web/Android image comparison yet. The moving benchmark has no Web/Android timing baseline,
