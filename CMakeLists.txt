@@ -127,6 +127,9 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
                     "${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_assets.py")
         set_tests_properties(IslandAssetValidation PROPERTIES
             PASS_REGULAR_EXPRESSION "asset validation passed")
+        add_test(NAME IslandCaptureValidatorTests
+            COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateCaptureTests.py")
     endif()
 endif()
 
@@ -281,6 +284,18 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGameCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-capture.ppm")
         set_tests_properties(IslandGameCapture PROPERTIES TIMEOUT 30 LABELS display)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME IslandGameCaptureValidation
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_capture.py"
+                        "${CMAKE_BINARY_DIR}/island-capture.ppm"
+                        --expect-width 1280
+                        --expect-height 720
+                        --output "${CMAKE_BINARY_DIR}/island-capture-report.json")
+            set_tests_properties(IslandGameCaptureValidation PROPERTIES
+                DEPENDS IslandGameCapture
+                PASS_REGULAR_EXPRESSION "capture validation passed")
+        endif()
         add_test(NAME IslandGameBeachCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-beach-capture.ppm"
                     --viewpoint beach)

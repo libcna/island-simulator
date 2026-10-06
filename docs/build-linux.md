@@ -99,6 +99,11 @@ Xwayland runner:
 startup and a clean four-frame exit.
 
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
+`IslandGameCaptureValidation` then checks its exact 1280 by 720 P6 payload, luminance spread,
+quantized colour diversity, and coarse spatial contrast. It writes
+`build/island-capture-report.json`; this catches empty, truncated, flat, overwhelmingly dark, and
+overwhelmingly bright output without pretending to be a pixel-golden comparison. The parser and
+failure thresholds have separate `IslandCaptureValidatorTests` coverage.
 `IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm`.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm` and
 requires the folded pointed-leaf near-bush path; the same startup also reports the

@@ -169,7 +169,10 @@ primary path for repeatable leaf-silhouette review. The contact view places an o
 above the jungle path while leaving the player footprint at the target, making all nine support
 samples and their normals visible. The movement view deterministically walks east into one palm,
 retains the rejected direct step and axis-slide resolution, and observes both endpoints from an
-offset camera. The WebGL 2 harness writes corresponding
+offset camera. Native CTest follows the overview with `tools/validate_capture.py`; it validates the
+complete 1280 by 720 P6 payload and broad luminance, colour-diversity, and spatial-contrast metrics,
+then writes `island-capture-report.json`. This is a deterministic non-degeneracy gate, not a
+pixel-golden or native-versus-Web image comparator. The WebGL 2 harness writes corresponding
 overview, beach, grass, ground, palm,
 jungle, prop, driftwood, reef, water, current, frond, distant, bird, fish, shark, and monkey PNG
 captures plus a JSON report under

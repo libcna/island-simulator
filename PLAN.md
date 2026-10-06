@@ -456,7 +456,10 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   depth, seabed clearance, and surface clearance. Monkeys validate every proposed move against a
   48 m interior margin, dry support, a 26-degree slope limit, and the player collision set of
   trunks, solid rocks, and sampled fallen logs.
-- [ ] Add debug visualization for regions, paths, state, and activation tiers.
+- [~] Add debug visualization for regions, paths, state, and activation tiers. F2 now covers all
+  bird route families/spawns/live radial targets, fish-school centres, the shark target, monkey
+  home/active targets, headings, behaviour colours, and full/reduced/dormant tiers; steering
+  proposals and non-bird spawn volumes remain open.
 - [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
   population, path-family mix, deterministic initialization/long-run motion, animation extremes,
   terrain clearance, route radius, and tier accounting are covered through a simulated 20-minute
@@ -738,8 +741,11 @@ Dependencies: representative complete scene on all targets.
   cannot run under the managed process tracer, so it remains a separately documented
   ordinary-terminal check.
 - [x] Add deterministic smoke mode plus fixed overview, first-person beach-path, and close-palm
-  camera/capture modes for renderer evidence.
-- [ ] Rebuild from the documented clean state to detect undeclared files and absolute paths.
+  camera/capture modes for renderer evidence. The native overview now has an independent P6 parser
+  and broad non-degeneracy gate with unit-tested malformed/truncated/solid-image failures.
+- [x] Rebuild from the documented clean state to detect undeclared files and absolute paths. The
+  clean Linux release reconstruction uses a new `/tmp` tree and explicit read-only sibling
+  dependencies; all project outputs remain outside dependency repositories.
 - [ ] Review active `BUGS.md` workarounds against newer dependency revisions before every baseline
   update; remove only after native behaviour is validated.
 
@@ -2563,6 +2569,27 @@ Work next, in order:
   release traversal remains open.
 - The 94 MB clean build tree and its temporary converted capture were removed after validation.
   CNA and Sharp Runtime remain clean and unmodified.
+
+### 2026-10-06 — Native capture integrity and non-degeneracy gate
+
+- Added a dependency-free P6 PPM parser and capture analyzer. It requires a complete 8-bit payload,
+  minimum/exact dimensions, useful mean brightness, luminance variation, at least 64 quantized RGB
+  bins, and coarse 8 by 4 spatial contrast; overwhelmingly black or white output is rejected. The
+  report records channel extrema/means, luminance statistics, dark/bright fractions, colour-bin
+  count, spatial contrast, and a payload SHA-256 without treating the hash as a portable golden.
+- Added parser regression coverage for comments and CRLF headers plus rejection of ASCII PPM,
+  truncated payloads, wrong dimensions, and flat solid output. `IslandGameCaptureValidation`
+  depends on the actual OpenGL overview capture and writes a machine-readable JSON report only
+  after that producer succeeds.
+- The current 1280 by 720 OpenGL 3.3 overview passes with 291 quantized colour bins, 26.05
+  luminance standard deviation, and 172.87 coarse spatial contrast. This catches empty/flat render
+  regressions while remaining tolerant of harmless driver-level pixel variation; semantic golden
+  and cross-renderer image comparison remain open.
+- The expanded isolated native suite passes 31/31 in 66.20 seconds, including 26 actual OpenGL 3.3
+  scenes, the ordered capture analyzer, and real X11 free-camera input. WebGL 2 and Android GLES 3
+  configurations both regenerate and report no build work because the new gate is intentionally
+  native-host tooling. CNA and Sharp Runtime remain clean and unmodified; no dependency defect was
+  found.
 
 ## Session-end checklist
 

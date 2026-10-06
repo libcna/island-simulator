@@ -4,6 +4,8 @@
 /.vscode/
 *.user
 *.swp
+__pycache__/
+*.py[cod]
 compile_commands.json
 /android/.gradle/
 /android/build/

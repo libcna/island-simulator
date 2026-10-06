@@ -113,6 +113,8 @@ been confirmed so far.
   movement history, steering proposals, and deeper per-system culling/LOD overlays remain open.
 - Eight direct debug teleports, a bounded debug-only inspection camera, a five-view native
   fixed-frame suite plus a 676 m moving benchmark, an asset-manifest validator, and a deterministic
-  world-statistics report exist. There is no teleport menu or automated renderer-image comparison
-  yet. The moving benchmark has no Web/Android timing baseline, and the world fingerprint is a
-  same-toolchain change detector rather than a cross-libm canonical world hash.
+  world-statistics report exist. The native overview has automated P6 integrity and broad
+  non-degeneracy checks, but there is no teleport menu, pixel-golden comparison, or automated
+  native/Web/Android image comparison yet. The moving benchmark has no Web/Android timing baseline,
+  and the world fingerprint is a same-toolchain change detector rather than a cross-libm canonical
+  world hash.

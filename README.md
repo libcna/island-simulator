@@ -141,7 +141,10 @@ min/max/mean scene-population ranges as well as timing distributions; methodolog
 Linux baseline are in `docs/performance.md`.
 Use `python3 tools/validate_assets.py` to enforce the asset provenance gate and
 `build/island-world-report --output <path>` for deterministic terrain, placement, collision,
-wildlife, seed, and fingerprint statistics. See `docs/asset-pipeline.md`.
+wildlife, seed, and fingerprint statistics. Native overview captures are followed by
+`tools/validate_capture.py`, which rejects truncated, black/white, flat, or spatially degenerate
+P6 output and writes machine-readable metrics. See `docs/asset-pipeline.md` and
+`docs/debugging.md`.
 
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
