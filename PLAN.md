@@ -364,8 +364,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
   edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
   their compact far tier. One near forest-floor variant now uses six upright broad leaves with
-  visible petioles while retaining its compact far tier; further floor-plant/bush material
-  diversity and broader natural beach-prop variety remain.
+  visible petioles while retaining its compact far tier. The shared portable shader now derives
+  two-sided geometric facet light from the fixed sun for every jungle tier without another vertex
+  stream or draw; further floor-plant/bush material diversity and broader natural beach-prop
+  variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
   placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
@@ -788,8 +790,11 @@ Android is not project completion.
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
   player ripples are functional; repeated whole-island composition tuning remains.
 - [ ] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation cues.
-- [ ] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
-  coherent permanent sunny art direction.
+- [~] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
+  coherent permanent sunny art direction. Terrain/ocean/sky share one sun, grass has two-sided
+  blade lighting, the jungle now has derivative-based two-sided facet light, and a bounded contact
+  batch grounds major near objects; unified atmospheric/exposure tuning and broader material
+  response remain.
 - [ ] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
 - [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
 - [ ] Fix frame pacing, loading hitches, input focus issues, touch ergonomics, and platform-specific
@@ -1026,7 +1031,9 @@ Work next, in order:
    are measured; do not add more geometry without physical/mobile evidence.
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
-   justified by physical-mobile evidence or a clear close-view defect.
+   justified by physical-mobile evidence or a clear close-view defect. The first fixed-sun
+   geometric facet-light pass is visually matched on native OpenGL and actual WebGL 2; observe its
+   readability and cost on physical mobile before extending the technique to more layers.
 9. Record two isolated debug and release startup reports after closing other GPU clients, then use
    the phase split to investigate only demonstrated world/content bottlenecks. Add browser cold-load
    and physical-Android launch evidence before assigning cross-target startup budgets.
@@ -2681,6 +2688,26 @@ Work next, in order:
   is 8,407,294 bytes. Android runtime startup remains unqualified without KVM or a physical device.
   Repeated isolated Linux measurements and cross-target startup budgets remain open. CNA and Sharp
   Runtime remain clean and unmodified; no framework defect was found.
+
+### 2026-10-06 — Fixed-sun jungle facet lighting
+
+- Reconstructed a safe per-fragment geometric face normal from derivatives of the already-present
+  world position in the portable instanced jungle shader. An absolute fixed-sun response treats
+  opaque foliage as two-sided and a restrained upward fill preserves tropical daylight. The pass
+  covers canopy near/far meshes, understory, bushes, and forest-floor plants without adding a
+  normal stream, textures, vertices, instances, CPU updates, or draw submissions.
+- Kept the technique inside island-simulator and within GLSL 330 / GLSL ES 300 core functionality.
+  The full Chrome 152/SwiftShader WebGL 2 harness passes all 20 stages and explicitly gates the new
+  path. Side-by-side native OpenGL and browser jungle/ground captures show the same composition and
+  clearer crown, trunk, and leaf facets. The stock-effect fallback remains functional but unlit.
+- The complete native suite passes 35/35 in 41.13 seconds, including 27 OpenGL scenes and real X11
+  input. Its concurrent jungle benchmark completed at 2.6643 ms mean / 3.3668 ms p95 and traversal
+  at 2.9798 ms mean / 3.7292 ms p95; the visible game shared the GPU, so these are safety checks,
+  not an isolated cost baseline. Physical-mobile and hardware-browser fragment cost remain open.
+- The arm64 GLES 3 target builds, the 33,555,720-byte APK assembles, and application lint passes;
+  its stripped library is 15,823,344 bytes and the WebAssembly module is 8,407,981 bytes. Android
+  runtime shader compilation/appearance remains unqualified without KVM or a physical device. CNA
+  and Sharp Runtime remain clean and unmodified, and no dependency defect was found.
 
 ## Session-end checklist
 

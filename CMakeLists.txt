@@ -351,7 +351,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "jungle near ground plants include an upright broadleaf silhouette")
+                "jungle fixed-sun two-sided geometric facet lighting")
         add_test(NAME IslandGameGroundPlantCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-ground-capture.ppm"
                     --viewpoint ground)

@@ -1,5 +1,7 @@
 #include "IslandSimulator/JungleRenderer.hpp"
 
+#include "IslandSimulator/EnvironmentLighting.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -98,6 +100,7 @@ in vec3 vColor;
 in vec3 vWorld;
 
 uniform vec3 uCameraPosition;
+uniform vec3 uToSun;
 
 out vec4 fragColor;
 
@@ -105,7 +108,14 @@ void main()
 {
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(250.0, 660.0, distanceToCamera);
-    vec3 color = mix(vColor, vec3(0.53, 0.78, 0.88), fog);
+    vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+    float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
+    vec3 faceNormal = faceVector * inverseFaceLength;
+    float twoSidedDiffuse = abs(dot(faceNormal, normalize(uToSun)));
+    float upwardFill = abs(faceNormal.y);
+    float daylight = 0.78 + twoSidedDiffuse * 0.24 + upwardFill * 0.05;
+    vec3 litColor = vColor * daylight;
+    vec3 color = mix(litColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -671,6 +681,7 @@ void main()
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
             std::cout << "island-simulator: jungle near ground plants include an upright broadleaf silhouette\n";
+            std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
                       << fallbackReason_ << '\n';
@@ -919,6 +930,9 @@ void main()
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
+            customEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
         } else {
             fallbackEffect_->setViewProperty(view);

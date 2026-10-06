@@ -28,6 +28,9 @@ clusters to two of the four variants without another draw submission.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
 and pointed perimeter leaves. A deterministic per-tree 105--129 m threshold staggers their
 transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
+The shared portable jungle shader reconstructs a two-sided geometric face normal from world-space
+derivatives, so canopy, understory, bush, and ground-plant facets respond coherently to the fixed
+sun without normal buffers, textures, or another draw.
 Nearby low bushes replace their largest smooth lobes with smaller overlapping volume and paired
 folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
 One near forest-floor variant now forms six upright broad leaves on visible petioles instead of

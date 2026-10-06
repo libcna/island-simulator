@@ -525,6 +525,20 @@ overlapping tails do not support an isolated cost claim. The retained two-run re
 Native and actual Chrome/SwiftShader jungle and ground captures agree visually. Hardware-browser
 and physical-mobile fragment measurements remain open.
 
+### Jungle facet-lighting functional cost check
+
+The portable jungle fragment shader now derives one safe geometric normal from world-position
+derivatives and evaluates a two-sided fixed-sun term plus small upward fill. It changes no vertex,
+index, instance, texture, culling, LOD, or submission count. Native and actual
+Chrome/SwiftShader jungle/ground images were visually compared and retain the same composition
+with substantially clearer low-poly crown and leaf facets.
+
+The complete parallel native regression run, while the operator's visible game still shared the
+GPU, recorded 2.6643 ms mean / 3.3668 ms p95 for the 95-submission jungle view and 2.9798 ms mean /
+3.7292 ms p95 for the moving traversal. These are functional safety observations, not an isolated
+before/after cost claim. Two isolated native repeats plus hardware-browser and physical-mobile
+fragment measurements remain required before extending the technique to additional dense layers.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

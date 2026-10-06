@@ -277,9 +277,13 @@ independent broad/fine cluster fields plus terrain height, slope, and shoreline 
 preserving the winding route, two clearings, and beach spawn. Each layer has independent near/far
 distances but remains gathered into variant batches; the deterministic jungle camera renders 63
 near and 46 far canopy trees, 102 bushes, and 129 ground plants in 25 submissions. A portable GLSL
-330 / GLSL ES 300 shader applies weighted calm wind, and `BasicEffect` remains the explicit
-fallback. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute the full shader; the current arm64
-GLES 3 package compiles but has not been rerun on stable Android hardware.
+330 / GLSL ES 300 shader applies weighted calm wind. Its fragment stage reconstructs a safe
+geometric face normal from world-position derivatives, uses the absolute fixed-sun response for
+two-sided foliage, and adds a small upward fill. This gives the deliberately low-poly crowns and
+leaves coherent facet depth without a normal stream, texture, mesh change, or additional
+submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3 and actual
+Chromium/WebGL 2 execute and visually match on the full shader; the current arm64 GLES 3 package
+compiles but has not been rerun on stable Android hardware.
 
 Natural props add 152 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
 the 1.8--9.4 m offshore shelf, 11 mossy fallen logs in the low-slope interior, 28 small

@@ -146,6 +146,8 @@ try {
     && result.output?.includes("palm procedural bark scars and restrained coconut clusters")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
+    && result.output?.includes(
+      "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes("island-simulator: birds 24 agents")
     && result.output?.includes("island-simulator: fish 48 agents")
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
@@ -487,6 +489,8 @@ try {
     && jungleResult.output?.includes(
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
+    && jungleResult.output?.includes(
+      "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && jungleResult.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && jungleResult.output?.includes(

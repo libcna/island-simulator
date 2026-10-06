@@ -20,8 +20,9 @@ been confirmed so far.
   close substrate-microvariation, sparse pointed leaf litter, and restrained fixed-sun interior
   dappling. The dapple is static material breakup rather than canopy-accurate shadow projection. A
   portable near-field contact layer now grounds palms, canopy trunks, land rocks, wood, and monkeys,
-  but there is still no authored biome texture blend, decals, broad substrate diversity, baked
-  ambient lighting, canopy-accurate occlusion, or full directional/self-shadowing.
+  and all instanced jungle foliage now receives two-sided fixed-sun geometric facet lighting, but
+  there is still no authored biome texture blend, decals, broad substrate diversity, baked ambient
+  lighting, canopy-accurate occlusion, or full directional/self-shadowing.
 - The ocean has depth colour, analytic waves/specular response, a coarse broad foam mask, and an
   exact shore-following animated crest/wash ribbon. Swimming now adds a deliberately subtle,
   depth-responsive turquoise edge veil that cools and strengthens with the offshore current, but
