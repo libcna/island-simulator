@@ -62,14 +62,16 @@ without a debugger or tracer, run a separate leak pass with:
 
 ```bash
 ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1 \
-  build-sanitize/island_core_tests
+  build-asan/island_core_tests
 ```
 
-`build-sanitize/` is reproducible and may be removed after a completed diagnostic pass.
+The preset deliberately reuses the workspace-approved `build-asan/` directory. It is reproducible
+and may be removed after a completed diagnostic pass when no other process owns it.
 The 2026-10-06 requalification against the current dependency pins passed all six registered
 tests in 73.98 seconds: core, world/audio reports, asset validation, capture-validator tests, and
 the independently parsed WAV preview export. No AddressSanitizer or UndefinedBehaviorSanitizer
-finding was emitted; the 44 MB generated tree was removed afterward.
+finding was emitted; the legacy 44 MB nonstandard tree was removed afterward and the preset was
+corrected to the approved shared name.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 

@@ -2686,7 +2686,7 @@ Work next, in order:
 - The final instrumented suite passes 3/3 in 46.73 seconds: the complete deterministic core test,
   world-report generation/validation, and the asset provenance gate. No address, bounds, lifetime,
   alignment, integer, floating-point, enum, or other enabled undefined-behaviour diagnostic was
-  emitted. `build-sanitize/` is reproducible and is removed after the pass to avoid retaining a
+  emitted. The reproducible sanitizer tree is removed after the pass to avoid retaining a
   redundant build tree.
 
 ### 2026-10-06 — Clean Linux release reconstruction
@@ -3715,8 +3715,18 @@ Work next, in order:
   capture-validator unit tests, and independently parsed disposable WAV export. No AddressSanitizer
   or UndefinedBehaviorSanitizer finding was emitted.
 - Configuration and compilation used the required `/rv/cnaccache` and two workers. The reproducible
-  44 MB `build-sanitize/` tree was removed after the pass rather than retained as obsolete output.
+  44 MB legacy sanitizer tree was removed after the pass rather than retained as obsolete output.
   CNA and Sharp Runtime remained read-only and unchanged; no dependency defect was observed.
+
+### 2026-10-06 — Workspace-compliant sanitizer build directory
+
+- Corrected the existing `linux-sanitize` preset from its legacy nonstandard directory to the
+  shared approved `build-asan/` directory. The preset name and its
+  combined first-party AddressSanitizer/UndefinedBehaviorSanitizer behaviour remain unchanged.
+- Updated the direct leak-check command and cleanup guidance. Future diagnostics now reuse one of
+  the closed-list workspace build directories and continue to use the single `/rv/cnaccache`.
+  No compilation was repeated merely to validate this path-only correction; CMake preset parsing
+  confirms the revised configuration. No dependency repository was touched.
 
 ## Session-end checklist
 

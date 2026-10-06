@@ -55,7 +55,7 @@
       "name": "linux-sanitize",
       "displayName": "Linux Core AddressSanitizer and UBSan",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-sanitize",
+      "binaryDir": "${sourceDir}/build-asan",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache",
