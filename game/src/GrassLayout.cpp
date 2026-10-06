@@ -19,6 +19,16 @@ namespace island
             const float t = std::clamp(value, 0.0f, 1.0f);
             return t * t * (3.0f - 2.0f * t);
         }
+
+        [[nodiscard]] float ClearingInfluence(const float x, const float z,
+                                              const ClearingDefinition& clearing) noexcept
+        {
+            const float offsetX = x - clearing.x;
+            const float offsetZ = z - clearing.z;
+            const float normalizedDistance = std::sqrt(offsetX * offsetX + offsetZ * offsetZ)
+                / clearing.radius;
+            return 1.0f - SmoothStep((normalizedDistance - 0.68f) / 0.32f);
+        }
     }
 
     std::uint32_t GrassLayout::Hash(const std::int32_t x, const std::int32_t z,
@@ -107,6 +117,21 @@ namespace island
                 }
                 patch.windPhase = UnitRandom(Hash(gridX, gridZ, seed ^ 0x1f83d9abU));
                 patch.colorVariation = UnitRandom(Hash(gridX, gridZ, seed ^ 0x5be0cd19U));
+                // A smooth material field gives each island region an identity without changing
+                // patch density, geometry, or draw count. Warm coastal turf transitions to cooler
+                // jungle grass; the path and east clearing are sun-dried while the shaded west
+                // clearing stays leaf-rich and cool.
+                patch.biomeTint = 0.62f + (0.34f - 0.62f) * coastalBlend;
+                if (pathScale && !VegetationLayout::IsInsideAuthoredClearing(x, z)) {
+                    patch.biomeTint = std::max(patch.biomeTint, 0.70f);
+                }
+                const float eastInfluence = ClearingInfluence(
+                    x, z, VegetationLayout::EastClearing);
+                const float westInfluence = ClearingInfluence(
+                    x, z, VegetationLayout::WestClearing);
+                patch.biomeTint += (0.88f - patch.biomeTint) * eastInfluence;
+                patch.biomeTint += (0.13f - patch.biomeTint) * westInfluence;
+                patch.biomeTint = std::clamp(patch.biomeTint, 0.0f, 1.0f);
                 patch.pathScale = pathScale;
                 patches_.push_back(patch);
             }

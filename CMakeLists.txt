@@ -383,7 +383,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "grass [1-9][0-9]*/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1")
+                "grass [1-9][0-9]*/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1")
         add_test(NAME IslandGamePalmCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-palm-capture.ppm"
                     --viewpoint palms)

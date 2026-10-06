@@ -10,6 +10,18 @@ fi
 GAME=$1
 XDOTOOL=$2
 
+if [ "${XDG_SESSION_TYPE:-}" = "wayland" ] && [ -z "${ISLAND_INPUT_SMOKE_XVFB:-}" ]; then
+    XVFB_RUN=$(command -v xvfb-run || true)
+    if [ -z "$XVFB_RUN" ]; then
+        echo "free-camera input smoke requires xvfb-run under a Wayland session" >&2
+        exit 2
+    fi
+    # Xwayland deliberately prevents unattended tools from stealing the real user's keyboard
+    # focus. Run this synthetic-input test on its own X server instead of fighting that policy.
+    export ISLAND_INPUT_SMOKE_XVFB=1
+    exec "$XVFB_RUN" -a -s '-screen 0 1280x720x24' "$0" "$GAME" "$XDOTOOL"
+fi
+
 if [ -z "${DISPLAY:-}" ]; then
     echo "free-camera input smoke requires an isolated X11/Xwayland display" >&2
     exit 2
@@ -50,7 +62,10 @@ wait_for_log()
     done
 }
 
-"$GAME" --debug-overlay --input-diagnostics >"$LOG_FILE" 2>&1 &
+# xdotool can only identify and drive X11/Xwayland windows. On mixed Wayland sessions SDL may
+# otherwise select its native Wayland backend even though DISPLAY is available, leaving the game
+# healthy but invisible to this deliberately X11-specific harness.
+SDL_VIDEODRIVER=x11 "$GAME" --debug-overlay --input-diagnostics >"$LOG_FILE" 2>&1 &
 GAME_PID=$!
 
 WINDOW=
@@ -77,6 +92,11 @@ if [ -z "$WINDOW" ]; then
 fi
 
 "$XDOTOOL" windowfocus --sync "$WINDOW"
+# Xwayland compositors can reject programmatic focus alone. A synthetic primary click inside the
+# test surface establishes seat focus before the global XTest key events used below.
+"$XDOTOOL" mousemove --sync --window "$WINDOW" 640 360
+"$XDOTOOL" click 1
+sleep 0.2
 wait_for_log "input sample" "the first game input sample"
 "$XDOTOOL" keydown F4
 sleep 0.3

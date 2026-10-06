@@ -1729,6 +1729,7 @@ namespace island
                       << grassRenderer_->VisibleCellCount() << " cells, "
                       << grassRenderer_->DrawCallCount() << " draws, interaction "
                       << grassInteractionModel_.Strength() << ", custom shader "
+                      << (grassRenderer_->UsesCustomShader() ? 1 : 0) << ", biome tint "
                       << (grassRenderer_->UsesCustomShader() ? 1 : 0) << "; birds "
                       << birdRenderer_->VisibleBirdCount() << '/'
                       << birdFlock_.Birds().size() << " visible (near "

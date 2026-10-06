@@ -7,6 +7,8 @@
 - a C++23 compiler
 - Python 3.10 or newer for the asset-manifest validator
 - ccache
+- `xdotool` for the optional synthetic free-camera input test
+- Xvfb (`xvfb-run`) for that test when the desktop session is Wayland
 - system SDL 3, SDL_image 3, and SDL_mixer 3 development packages
 - read-only sibling checkouts of Sharp Runtime `next`, EasyGL `develop`, and MetaGL `develop`
 - a CNA repository containing the locked `next` commit
@@ -130,7 +132,8 @@ path, while the west view requires the shared five-rock/one-log landmark-layout 
 `build/island-ground-capture.ppm` and requires a nonzero per-instance near-LOD population.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
-The grass startup also reports the five-level near curvature and portable two-sided daylight path.
+The grass startup also reports the five-level near curvature, portable two-sided daylight path, and
+coherent coast/path/clearing biome-colour field.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
 `build/island-palm-capture.ppm` and requires the segmented near-leaflet plus procedural
 bark-scar/coconut path.
@@ -168,8 +171,11 @@ samples. They are functional tests, not stable performance thresholds. Run the s
 measurement suite and interpret its limitations as documented in `docs/performance.md`.
 
 When `xdotool` is available, Debug configurations also register `IslandGameFreeCameraInput`. It
-must run through the private display command above: it activates F3, supplies horizontal and
-vertical flight input, observes the active camera diagnostic, restores player control, and exits.
+activates F3, supplies horizontal and vertical flight input, observes the active camera diagnostic,
+restores player control, and exits. On a native X11 session it uses the selected private display.
+On Wayland it automatically nests itself in Xvfb because Xwayland correctly prevents an unattended
+process from stealing the real user's keyboard focus; this remains a real SDL X11/XTest input path,
+not a Wayland-native qualification.
 
 ## Run interactively
 

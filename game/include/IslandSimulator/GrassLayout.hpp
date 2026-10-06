@@ -18,6 +18,8 @@ namespace island
         float spreadScale = 1.0f;
         float windPhase = 0.0f;
         float colorVariation = 0.0f;
+        /** Coherent 0--1 cool-to-warm material identity for the surrounding biome. */
+        float biomeTint = 0.5f;
         bool pathScale = false;
     };
 

@@ -177,6 +177,7 @@ namespace
             hash.AddFloat(placement.spreadScale);
             hash.AddFloat(placement.windPhase);
             hash.AddFloat(placement.colorVariation);
+            hash.AddFloat(placement.biomeTint);
             hash.AddByte(placement.pathScale ? 1U : 0U);
         }
 
@@ -383,8 +384,9 @@ namespace
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(placement.x, placement.y, placement.z, placement.yawRadians,
                              placement.scale, placement.spreadScale, placement.windPhase,
-                             placement.colorVariation)
-                && placement.scale > 0.0f && placement.spreadScale > 0.0f;
+                             placement.colorVariation, placement.biomeTint)
+                && placement.scale > 0.0f && placement.spreadScale > 0.0f
+                && placement.biomeTint >= 0.0f && placement.biomeTint <= 1.0f;
         }
         for (const island::RockPlacement& rock : world.props.Rocks()) {
             finiteSpecializedData = finiteSpecializedData

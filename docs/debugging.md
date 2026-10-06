@@ -82,8 +82,10 @@ inspection camera. Press F3 again to return to the player; hiding F1 also exits 
 cannot remain active without an obvious developer presentation. The camera is limited to
 `+/-820 m` horizontally and `-18..260 m` vertically.
 
-`IslandGameFreeCameraInput` drives this path with real X11 input on the private Xwayland display.
-It verifies both F3 edges and an active diagnostic sample; renderer-independent core tests cover
+`IslandGameFreeCameraInput` drives this path with real X11 input. Native X11 sessions can use the
+selected private display; Wayland sessions automatically use an isolated Xvfb server because the
+compositor correctly refuses unattended keyboard-focus theft through Xwayland. It verifies both F3
+edges and an active diagnostic sample; renderer-independent core tests cover
 frame-time clamping, normalized three-axis movement, yaw-relative fast travel, bounds, and the
 inactive-state invariant. This does not qualify Wayland-native or Android touch input.
 

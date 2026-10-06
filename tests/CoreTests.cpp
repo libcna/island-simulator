@@ -1740,6 +1740,10 @@ int main()
           "grass patch population stays inside the first geometry budget");
     Check(grass.Patches().size() == repeatedGrass.Patches().size(),
           "grass population is deterministic");
+    double eastClearingTintSum = 0.0;
+    double westClearingTintSum = 0.0;
+    std::size_t eastClearingPatchCount = 0U;
+    std::size_t westClearingPatchCount = 0U;
     for (std::size_t index = 0; index < grass.Patches().size(); ++index) {
         const island::GrassPlacement& patch = grass.Patches()[index];
         const island::GrassPlacement& repeated = repeatedGrass.Patches()[index];
@@ -1749,6 +1753,7 @@ int main()
                   && patch.spreadScale == repeated.spreadScale
                   && patch.windPhase == repeated.windPhase
                   && patch.colorVariation == repeated.colorVariation
+                  && patch.biomeTint == repeated.biomeTint
                   && patch.pathScale == repeated.pathScale,
               "grass placement data is bitwise deterministic for one seed");
         Check(sample.signedShoreDistance >= 20.0f && sample.height >= 2.1f,
@@ -1756,7 +1761,8 @@ int main()
         Check(sample.slopeRadians <= 0.4886922f,
               "grass rejects terrain steeper than its placement limit");
         Check(patch.windPhase >= 0.0f && patch.windPhase < 1.0f
-                  && patch.colorVariation >= 0.0f && patch.colorVariation < 1.0f,
+                  && patch.colorVariation >= 0.0f && patch.colorVariation < 1.0f
+                  && patch.biomeTint >= 0.0f && patch.biomeTint <= 1.0f,
               "grass shader variation values stay normalized");
         Check(patch.spreadScale >= island::GrassLayout::MinimumSpreadScale
                   && patch.spreadScale <= island::GrassLayout::MaximumSpreadScale,
@@ -1771,7 +1777,32 @@ int main()
                       && patch.scale <= island::GrassLayout::MaximumScale,
                   "ordinary grass scale remains in the authored range");
         }
+
+        const auto accumulateClearingTint = [&patch](
+            const island::ClearingDefinition& clearing, double& sum,
+            std::size_t& count) {
+            const float offsetX = patch.x - clearing.x;
+            const float offsetZ = patch.z - clearing.z;
+            if (offsetX * offsetX + offsetZ * offsetZ
+                <= clearing.radius * clearing.radius) {
+                sum += static_cast<double>(patch.biomeTint);
+                ++count;
+            }
+        };
+        accumulateClearingTint(island::VegetationLayout::EastClearing,
+                               eastClearingTintSum, eastClearingPatchCount);
+        accumulateClearingTint(island::VegetationLayout::WestClearing,
+                               westClearingTintSum, westClearingPatchCount);
     }
+    Check(eastClearingPatchCount >= 100U && westClearingPatchCount >= 100U,
+          "both authored clearings retain enough grass to express their material identity");
+    const double eastClearingAverageTint = eastClearingTintSum
+        / static_cast<double>(eastClearingPatchCount);
+    const double westClearingAverageTint = westClearingTintSum
+        / static_cast<double>(westClearingPatchCount);
+    Check(eastClearingAverageTint >= 0.70 && westClearingAverageTint <= 0.30
+              && eastClearingAverageTint - westClearingAverageTint >= 0.45,
+          "east and west clearing grass keep distinct warm and cool biome identities");
 
     const island::JungleLayout repeatedJungle(terrain);
     Check(jungle.Canopy().size() >= 100U && jungle.Canopy().size() <= 600U,

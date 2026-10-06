@@ -240,6 +240,8 @@ try {
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
+    && result.output?.includes(
+      "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -377,6 +379,8 @@ try {
     && visualResult.output?.includes(
       "island-simulator: near rocks use procedural strata and restrained lichen flecks")
     && visualResult.output?.includes("portable instanced wind shader")
+    && visualResult.output?.includes(
+      "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && visualResult.output?.includes("island-simulator: terrain")
     && !visualResult.error;
 
@@ -414,6 +418,8 @@ try {
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && beachResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
+    && beachResult.output?.includes(
+      "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && beachResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
     && beachResult.output?.includes("island-simulator: debug overlay active")
@@ -454,7 +460,9 @@ try {
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && grassResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
-    && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1/.test(
+    && grassResult.output?.includes(
+      "island-simulator: grass biome tint follows coast, path, and authored clearings")
+    && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1/.test(
       grassResult.output ?? "")
     && !grassResult.error;
 

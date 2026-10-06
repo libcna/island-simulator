@@ -69,9 +69,10 @@ namespace island
             float colorVariation;
             float normalX;
             float normalZ;
+            float biomeTint;
         };
 
-        static_assert(sizeof(GrassInstanceData) == 40U);
+        static_assert(sizeof(GrassInstanceData) == 44U);
 
         struct ClusterGeometry
         {
@@ -86,6 +87,7 @@ layout(location = 2) in vec2 aWindData;
 layout(location = 3) in vec4 aPlacement;
 layout(location = 4) in vec4 aVariation;
 layout(location = 5) in vec2 aSlope;
+layout(location = 6) in float aBiomeTint;
 
 uniform mat4 uViewProjection;
 uniform float uTime;
@@ -96,6 +98,7 @@ out vec3 vColor;
 out vec3 vWorld;
 out vec3 vBladeNormal;
 out float vBladeHeight;
+out float vBiomeTint;
 
 void main()
 {
@@ -143,12 +146,18 @@ void main()
     vBladeNormal = normalize(tangentX * bladeNormalX
                              + tangentZ * bladeNormalZ
                              + surfaceNormal * 0.10);
-    float colorShift = (aVariation.w - 0.5) * 0.14;
-    vColor = aColor.rgb * vec3(1.0 + colorShift * 0.55,
-                               1.0 + colorShift,
-                               1.0 + colorShift * 0.42);
+    float coolWeight = clamp((0.5 - aBiomeTint) * 2.0, 0.0, 1.0);
+    float warmWeight = clamp((aBiomeTint - 0.5) * 2.0, 0.0, 1.0);
+    vec3 biomeColor = mix(vec3(1.0), vec3(0.82, 0.98, 0.91), coolWeight);
+    biomeColor = mix(biomeColor, vec3(1.19, 1.045, 0.73), warmWeight);
+    float colorShift = (aVariation.w - 0.5) * 0.12;
+    vColor = aColor.rgb * biomeColor
+        * vec3(1.0 + colorShift * 0.55,
+               1.0 + colorShift,
+               1.0 + colorShift * 0.42);
     vWorld = world;
     vBladeHeight = clamp(aWindData.x, 0.0, 1.0);
+    vBiomeTint = aBiomeTint;
     gl_Position = uViewProjection * vec4(world, 1.0);
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -159,6 +168,7 @@ in vec3 vColor;
 in vec3 vWorld;
 in vec3 vBladeNormal;
 in float vBladeHeight;
+in float vBiomeTint;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -179,7 +189,12 @@ void main()
         * smoothstep(0.25, 0.92, vBladeHeight) * 0.10;
     float light = rootLight * (0.78 + twoSidedDiffuse * 0.30 + edgeLight + transmission);
     vec3 litColor = vColor * light;
-    vec3 color = mix(litColor, vec3(0.255, 0.465, 0.255), groundBlend);
+    float coolWeight = clamp((0.5 - vBiomeTint) * 2.0, 0.0, 1.0);
+    float warmWeight = clamp((vBiomeTint - 0.5) * 2.0, 0.0, 1.0);
+    vec3 groundColor = mix(vec3(0.255, 0.465, 0.255),
+                           vec3(0.205, 0.405, 0.235), coolWeight);
+    groundColor = mix(groundColor, vec3(0.335, 0.455, 0.185), warmWeight);
+    vec3 color = mix(litColor, groundColor, groundBlend);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -318,7 +333,9 @@ void main()
             VertexElement(16, VertexElementFormat::Vector4,
                           VertexElementUsage::TextureCoordinate, 2),
             VertexElement(32, VertexElementFormat::Vector2,
-                          VertexElementUsage::TextureCoordinate, 3)};
+                          VertexElementUsage::TextureCoordinate, 3),
+            VertexElement(40, VertexElementFormat::Single,
+                          VertexElementUsage::TextureCoordinate, 4)};
         return declaration;
     }
 
@@ -365,7 +382,9 @@ void main()
                       << "island-simulator: grass player interaction integrated into the "
                          "instanced vertex shader\n"
                       << "island-simulator: grass five-level near curvature with portable "
-                         "two-sided daylight shading\n";
+                         "two-sided daylight shading\n"
+                      << "island-simulator: grass biome tint follows coast, path, and authored "
+                         "clearings\n";
         } else {
             std::cerr << "island-simulator: grass " << totalPatchCount_
                       << " patches, stock-effect fallback: " << fallbackReason_ << '\n';
@@ -401,7 +420,7 @@ void main()
             instances[index].push_back(GrassInstanceData{
                 patch.x, patch.y, patch.z, patch.yawRadians,
                 patch.scale, patch.spreadScale, patch.windPhase, patch.colorVariation,
-                sample.normal.x, sample.normal.z});
+                sample.normal.x, sample.normal.z, patch.biomeTint});
 
             GrassCell& cell = cells_[index];
             cell.fallbackTransforms.push_back(

@@ -265,7 +265,12 @@ visible anchor instances one shared 28-blade near cluster or five-blade far clus
 shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
 independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
 path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
-the far tier into the ground before culling. `GrassInteractionModel` eases a normalized envelope
+the far tier into the ground before culling. Each instance also carries one coherent cool-to-warm
+biome value derived from shore distance and the shared route/clearing definitions. It makes coastal
+and path turf slightly drier, keeps the jungle cooler, gives the sunny east clearing an olive-gold
+identity, and makes the leaf-rich west clearing deeper and cooler. The fragment shader preserves
+that identity in its far-ground merge; the extra four-byte attribute does not change placement,
+geometry, or submission counts. `GrassInteractionModel` eases a normalized envelope
 from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
 interaction shares every existing instance and draw. Near blades use five curved control levels

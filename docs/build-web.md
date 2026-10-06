@@ -25,7 +25,9 @@ The renderer gate also requires the exact shore-following animated foam ribbon r
 stock-effect fallback. The close prop camera additionally requires a nonzero terrain-conforming
 contact-shadow population in exactly one portable draw. The beach and grass cameras require the
 five-level near-blade curvature and portable two-sided daylight path rather than only accepting the
-older flat-colour shader. The lifecycle plus close grass and jungle cameras require the near-field
+older flat-colour shader. The lifecycle, overview, beach, and grass cameras also require the
+coherent coast/path/clearing grass biome-colour path. The lifecycle plus close grass and jungle
+cameras require the near-field
 terrain microvariation and procedural leaf-litter path. The lifecycle and dedicated jungle camera
 also require derivative-based, two-sided fixed-sun facet lighting on the instanced vegetation
 shader rather than accepting its unlit fallback. The lifecycle, beach approach, and jungle camera

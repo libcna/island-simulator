@@ -400,9 +400,11 @@ Dependencies: stable terrain/shore queries and representative performance instru
   3.3 and actual WebGL 2. Near blades have folded side colour, two-sided fixed-sun lighting, root
   darkening, and restrained transmission; the earlier grass is visible in the first GLES3 frame,
   while the current shading package only compiles there. Measured mobile overdraw remains.
-- [~] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The first
+- [x] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The
   18,556-patch layout varies all five deterministically from terrain constraints and smooth cluster
-  noise; final biome masks remain open.
+  noise. A coherent cool-to-warm material field now differentiates coast, interior, short route
+  turf, the sunny east clearing, and the leaf-rich west clearing without changing population or
+  draw count; core tests lock its range, determinism, and clearing separation.
 - [x] Align clusters to authoritative terrain normals without flattening individual blade growth.
 - [~] Add vertex wind with bounded amplitude and coherent gust-free sunny-day motion. The portable
   two-frequency wind path is verified on OpenGL 3.3 and WebGL 2; GLES 3 remains unqualified.
@@ -3075,6 +3077,41 @@ Work next, in order:
 - The deterministic world fingerprint remains `d83ecd714e10fc9f`; placements, collision, home
   ranges, and animation clip data are unchanged. CNA and Sharp Runtime were not modified, and no
   dependency defect was found.
+
+### 2026-10-06 — Coherent grass biome colour and Wayland-safe input QA
+
+- A fresh native beach/jungle/east-clearing/west-clearing/water audit found that broad interior
+  grass fields retained one colour even where the terrain material already distinguished routes
+  and authored clearings. Added one deterministic 0--1 cool-to-warm value per grass anchor. Shore
+  distance now transitions warm coastal turf into cooler interior growth, non-clearing reserved
+  routes remain lightly sun-dried, the east clearing is olive-gold, and the leaf-rich west clearing
+  is deeper and cooler. A smooth inner/outer clearing blend avoids a material ring.
+- Extended the existing portable instanced shader with one 32-bit attribute and coherent near/far
+  palettes. The far-ground merge consumes the same value, so identity does not disappear at the
+  82--125 m transition. Population remains exactly 18,556; placement, geometry, cell culling,
+  near/far LOD, effects, and draw counts are unchanged. Core coverage locks finite normalized
+  values, exact repeatability, minimum clearing populations, and a strong east/west average-colour
+  separation. The intentional world-data fingerprint change is `d83ecd714e10fc9f` to
+  `b6aea3886cdfe525`.
+- Native before/after captures of close grass, jungle, and both clearings were inspected. The
+  accepted tuning is visible without making the scene neon or introducing a hard circular edge.
+  Actual Chrome/SwiftShader WebGL 2 clearing and close-grass captures match the OpenGL 3.3 result;
+  lifecycle, overview, beach, and grass gates now require the new diagnostic. One isolated native
+  six-view safety suite measured 1.2069--2.3128 ms mean and 1.6855--3.2074 ms p95 across its fixed
+  scenes; this is a gross-regression guard rather than a before/after GPU-cost claim.
+- The full native run exposed an environment-sensitive QA problem rather than a game or framework
+  regression: SDL correctly selected native Wayland, while the deliberately X11-only `xdotool`
+  harness could neither discover nor focus that surface. The game-side script now explicitly uses
+  SDL X11 and, under a Wayland session, automatically nests the synthetic-input test in Xvfb rather
+  than attempting to steal the operator's real keyboard focus. The final sequential native suite
+  passes 37/37 in 62.43 seconds, including 29 real OpenGL scenes and the isolated real SDL/XTest
+  input path.
+- The complete Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages; WebAssembly is
+  8,455,363 bytes. The arm64 GLES 3 target builds, the 33,592,792-byte APK assembles, application
+  lint passes, and its stripped library is 15,860,416 bytes. `/dev/kvm` is absent and no ADB device
+  is attached, so current Android runtime appearance and timing remain unqualified; root access
+  would not create a host KVM device. CNA and Sharp Runtime remain unmodified, and no dependency
+  defect was found.
 
 ## Session-end checklist
 

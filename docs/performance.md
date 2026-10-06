@@ -653,6 +653,27 @@ qualify function and guard against a gross regression, not isolated branch or cu
 
 Hardware-browser and physical-Android performance remain open.
 
+### Biome-aware grass colour follow-up
+
+The coast/path/clearing colour pass adds one 32-bit value to each grass instance, taking the
+instance record from 40 to 44 bytes. The existing instance population, near/far geometry, cell
+culling, shader effect, and draw submissions are unchanged. The vertex and fragment stages use
+bounded piecewise colour mixes, and the far-ground merge consumes the same biome value so grass
+does not revert to one colour at distance.
+
+One isolated six-view debug safety suite on the private accelerated display produced the values
+below. This is a post-change functional guard rather than an isolated before/after GPU-cost claim;
+the existing release, hardware-browser, and physical-Android measurements remain necessary.
+
+| View | Mean ms | p95 ms | p99 ms | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.4173 | 1.9245 | 2.3328 | 77 | 0 |
+| Beach | 2.0614 | 2.2890 | 2.6905 | 125 | 2,954 |
+| Jungle | 1.8265 | 2.3380 | 2.6544 | 99 | 2,932 |
+| Driftwood | 1.2069 | 1.6855 | 1.9505 | 54 | 99 |
+| Monkeys | 1.9478 | 2.5403 | 2.7793 | 100 | 2,946 |
+| Traversal | 2.3128 | 3.2074 | 3.7775 | 12 final | route-varying |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio
