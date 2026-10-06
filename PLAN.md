@@ -411,17 +411,18 @@ Dependencies: stable terrain/shore queries and representative performance instru
 ### Grass quality campaign
 
 - [~] Prototype clustered mesh blades and evaluate first-person silhouette/overdraw on all backends.
-  A 28-blade, five-control-level near mesh and five-blade, three-level far mesh now run on OpenGL
-  3.3 and actual WebGL 2. Near blades have folded side colour, two-sided fixed-sun lighting, root
-  darkening, and restrained transmission; the earlier grass is visible in the first GLES3 frame,
-  while the current shading package only compiles there. Measured mobile overdraw remains.
+  A 34-blade, five-control-level near mesh and five-blade, three-level far mesh now run on OpenGL
+  3.3, actual WebGL 2, and KVM/gfxstream GLES 3. Near blades have folded side colour, two-sided
+  fixed-sun lighting, root darkening, restrained transmission, five shorter juvenile blades, and
+  per-instance blade stature/colour/wind variation. Measured physical-mobile overdraw remains.
 - [x] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The
   18,556-patch layout varies all five deterministically from terrain constraints and smooth cluster
   noise. A coherent cool-to-warm material field now differentiates coast, interior, short route
   turf, the sunny east clearing, and the leaf-rich west clearing without changing population or
   draw count; core tests lock its range, determinism, and clearing separation. Sparse deterministic
   blades also carry a height-weighted sun-cured tip in the shared mesh vertex colour, adding local
-  age variation without another attribute, shader operation, texture, instance, or draw.
+  age variation without another attribute, texture, instance, or draw. The same existing instance
+  value now varies individual blade stature, colour, and wind amplitude inside each shared cluster.
 - [x] Align clusters to authoritative terrain normals without flattening individual blade growth.
 - [~] Add vertex wind with bounded amplitude and coherent gust-free sunny-day motion. The portable
   two-frequency wind path is verified on OpenGL 3.3 and WebGL 2; GLES 3 remains unqualified.
@@ -429,7 +430,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
   away from a 0.55 m stationary body radius, smoothly expand to 1.35 m at walking speed, and ease
   back after movement inside the existing portable instanced vertex shader.
 - [~] Implement near/middle/far density and mesh LOD with dither/fade or masked transitions. Near
-  (28-blade), middle (10-blade), and far (five-blade) meshes plus ground-colour distance merging
+  (34-blade), middle (10-blade), and far (five-blade) meshes plus ground-colour distance merging
   exist. Deterministic adjacent-tier smoothstep splits stagger individual replacements across
   62--78 m and 86--102 m instead of switching an entire 37.5 m cell or jumping directly between
   the extreme meshes. OpenGL 3.3 and WebGL 2 validate the same mixed-cell populations. Masked
@@ -791,7 +792,7 @@ Dependencies: representative complete scene on all targets.
   representative revised-geometry cost still requires real-hardware profiling.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
   reduced trunk/frond geometry per instance with deterministic transition staggering, broadleaf
-  trees select 776/208-triangle meshes per instance, and grass selects 28-blade/five-blade
+  trees select 776/208-triangle meshes per instance, and grass selects 34/10/5-blade
   clusters; the initial native scene baseline is recorded, while target budgets and true blended
   transitions remain open.
 - [x] Throttle distant wildlife and audio updates without visible popping. Shared
@@ -856,7 +857,9 @@ Android is not project completion.
   aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
   first-person depth without textures or extra draws. Biome-aware instance colour and sparse
-  height-weighted sun-cured tips now break up broad and blade-scale uniformity. The light middle
+  height-weighted sun-cured tips now break up broad and blade-scale uniformity. Five near juvenile
+  blades plus per-instance stature/colour/wind variation further reduce repeated tuft silhouettes.
+  The light middle
   mesh and two adjacent-tier population splits remove the old whole-cell/direct-extreme swap;
   transition-motion review, aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
@@ -3673,6 +3676,34 @@ Work next, in order:
   renderer-independent control change; the immediately preceding current-CNA-pin KVM/GLES 3
   complete-scene run remains the runtime evidence. CNA and Sharp Runtime remained read-only and
   unchanged; no qualifying dependency defect or game-side framework workaround was involved.
+
+### 2026-10-06 — Varied near-grass silhouette and juvenile underlayer
+
+- A six-view visual audit identified the close grass as the clearest remaining repeated ground
+  silhouette. Expanded only the near tier from 28 to 34 curved blades and made five of them a
+  shorter, narrower juvenile underlayer. The existing instance colour value now also seeds bounded
+  per-blade stature, colour, and wind-amplitude variation, so adjacent instances no longer repeat
+  the shared cluster literally. Population, instance layout, attributes, middle/far geometry, LOD
+  distances, culling, textures, allocations, and draw submissions are unchanged.
+- The dedicated view retains 957 near, 637 middle, and 1,233 far clusters in 21 grass draws. Its
+  visible grass geometry rises from 264,508 to 310,444 triangles, a deliberate 17.4 percent close-
+  view increase. Two isolated 600-sample OpenGL 3.3 debug checks retained 98 total tracked scene
+  submissions and measured 6.4599--7.2119 ms mean, 8.2017--8.8514 ms p95, and
+  9.1263--10.4740 ms p99. These are gross-regression checks, not an isolated cost or mobile budget.
+- The OpenGL 3.3 grass capture passes and inspected before/after frames show a fuller, less uniform
+  tuft edge. Core tests pass in 38.48 seconds. The complete actual Chrome 152/SwiftShader WebGL 2
+  harness passes all 22 stages, requires the new exact diagnostic, and its inspected grass/beach
+  captures match native. WebAssembly is 8,495,690 bytes.
+- The arm64-v8a GLES 3 APK builds through the required shared `/rv/cnaccache`, passes application
+  lint, contains only the selected ABI, and verifies with APK signature scheme v2. A fresh x86_64
+  package then ran on the API 35 KVM/host-GPU emulator: the revised GLSL ES 300 shader compiled,
+  the complete scene reached a clean first frame in 3946.689 ms total, and the inspected 2400 by
+  1080 screenshot retained varied grass plus clean translucent touch controls. The emulator was
+  stopped and the default arm64 package restored at 18,741,500 bytes with a 15,931,216-byte
+  stripped `libmain.so`. Physical-mobile close-grass quality, density cost, thermals, and sustained
+  performance remain unqualified. CNA and Sharp Runtime remained read-only and unchanged; no
+  qualifying dependency defect or workaround was involved. All compilation used at most two
+  workers and the single shared ccache.
 
 ## Session-end checklist
 

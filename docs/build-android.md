@@ -44,7 +44,8 @@ flecks, the broadleaf jungle with
 branch-supported near crowns, rounded far crowns, per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
 variants with per-instance LOD/range selection,
-speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
+speed-responsive player bending plus curved, two-sided daylight shading, per-instance blade
+stature, and a sparse juvenile underlayer in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 sparse beach-driftwood pieces with a
@@ -71,8 +72,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,740,844-byte APK with a
-15,930,560-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,741,500-byte APK with a
+15,931,216-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
@@ -88,6 +89,13 @@ before non-finite or out-of-domain values can reach procedural noise-cell conver
 with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
 incremental assembly.
+
+A later x86_64 pass exercised the denser 34-blade near-grass geometry and its new GLSL ES 300
+per-blade variation on the same KVM/host-GPU configuration. The complete scene reached a clean
+`OPENGLES3` first frame with no shader error in 3946.689 ms total, including a 103.050 ms first draw
+body. Its inspected 2400 by 1080 screenshot contains the expected varied grass silhouettes and
+clean touch-overlay blending. This is functional shader evidence, not a physical-mobile frame-time
+or close-grass quality claim. The arm64-only package above was restored afterward.
 
 ## Requirements
 

@@ -494,6 +494,8 @@ try {
     && grassResult.output?.includes(
       "island-simulator: grass sparse sun-cured tip variation in shared vertex colours")
     && grassResult.output?.includes(
+      "island-simulator: grass per-instance blade stature with near juvenile undergrowth")
+    && grassResult.output?.includes(
       "island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres")
     && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
       grassResult.output ?? "")

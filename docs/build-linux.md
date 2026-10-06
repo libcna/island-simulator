@@ -140,7 +140,10 @@ path, while the west view requires the shared five-rock/one-log landmark-layout 
 The grass startup also reports the five-level near curvature, portable two-sided daylight path, and
 coherent coast/path/clearing biome-colour field. Sparse deterministic sun-cured tips add restrained
 blade-scale age variation baked into the shared mesh vertex colours, without another texture,
-instance attribute, shader operation, or draw. The dedicated view must also contain nonzero near,
+instance attribute, or draw. The near tier additionally carries a sparse juvenile underlayer, and
+one existing instance value produces deterministic per-blade stature and small colour/wind
+variation so neighbouring clusters do not repeat the shared mesh literally. The dedicated view
+must also contain nonzero near,
 middle, and far populations plus a mixed cell from the adjacent-tier 62--78 m / 86--102 m LOD
 transitions.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to

@@ -53,7 +53,7 @@ namespace island
     {
         constexpr float LayoutExtent = 300.0f;
         constexpr float FarDistance = 135.0f;
-        constexpr int NearBladeCount = 28;
+        constexpr int NearBladeCount = 34;
         constexpr int MiddleBladeCount = 10;
         constexpr int FarBladeCount = 5;
         constexpr int NearBladeLevels = 5;
@@ -137,9 +137,12 @@ void main()
     float yawSin = sin(aPlacement.w);
     float localX = aPosition.x * yawCos - aPosition.z * yawSin;
     float localZ = aPosition.x * yawSin + aPosition.z * yawCos;
+    float bladeRandom = fract(sin(aWindData.y * 91.73 + aVariation.w * 37.21 + 0.618)
+                              * 43758.5453);
+    float bladeStature = mix(0.84, 1.16, bladeRandom);
     vec3 world = aPlacement.xyz
         + tangentX * (localX * aVariation.y)
-        + surfaceNormal * (aPosition.y * aVariation.x)
+        + surfaceNormal * (aPosition.y * aVariation.x * bladeStature)
         + tangentZ * (localZ * aVariation.y);
 
     float heightWeight = pow(clamp(aWindData.x, 0.0, 1.0), 1.55);
@@ -162,7 +165,8 @@ void main()
     float phase = (aWindData.y + aVariation.z) * 6.28318530718;
     float broad = sin(uTime * 0.86 + phase + world.x * 0.031 + world.z * 0.024);
     float detail = sin(uTime * 1.37 + phase * 1.73 - world.x * 0.071 + world.z * 0.063);
-    float sway = (broad * 0.085 + detail * 0.026) * heightWeight * aVariation.x;
+    float sway = (broad * 0.085 + detail * 0.026) * heightWeight * aVariation.x
+        * mix(0.92, 1.08, bladeRandom);
     world.x += sway;
     world.z += sway * 0.46;
     world.y -= abs(sway) * 0.055 * heightWeight;
@@ -177,7 +181,7 @@ void main()
     float warmWeight = clamp((aBiomeTint - 0.5) * 2.0, 0.0, 1.0);
     vec3 biomeColor = mix(vec3(1.0), vec3(0.82, 0.98, 0.91), coolWeight);
     biomeColor = mix(biomeColor, vec3(1.19, 1.045, 0.73), warmWeight);
-    float colorShift = (aVariation.w - 0.5) * 0.12;
+    float colorShift = (aVariation.w - 0.5) * 0.12 + (bladeRandom - 0.5) * 0.075;
     vColor = aColor.rgb * biomeColor
         * vec3(1.0 + colorShift * 0.55,
                1.0 + colorShift,
@@ -302,6 +306,7 @@ void main()
         {
             const bool middleMesh = tier == GrassMeshTier::Middle;
             const bool farMesh = tier == GrassMeshTier::Far;
+            const bool juvenileBlade = tier == GrassMeshTier::Near && blade % 6 == 5;
             const float normalizedRadius = std::sqrt(
                 (static_cast<float>(blade) + 0.45f) / static_cast<float>(bladeCount));
             const float angle = GoldenAngle * static_cast<float>(blade)
@@ -314,15 +319,20 @@ void main()
             const Vector3 side(-direction.Z, 0.0f, direction.X);
             const float individual = 0.87f
                 + 0.19f * static_cast<float>((blade * 5 + bladeCount) % 7) / 6.0f;
+            const float juvenileHeight = juvenileBlade
+                ? 0.56f + 0.06f * static_cast<float>(blade % 3) : 1.0f;
             const float height = (farMesh ? 0.60f
                 : (middleMesh ? 0.48f + 0.035f * static_cast<float>(blade % 5)
-                              : 0.40f + 0.045f * static_cast<float>(blade % 6))) * individual;
-            const float width = farMesh ? 0.11f
+                              : 0.40f + 0.045f * static_cast<float>(blade % 6)))
+                * individual * juvenileHeight;
+            const float width = (farMesh ? 0.11f
                 : (middleMesh ? 0.055f + 0.005f * static_cast<float>(blade % 4)
-                              : 0.023f + 0.004f * static_cast<float>(blade % 5));
-            const float lean = farMesh ? 0.12f
+                              : 0.023f + 0.004f * static_cast<float>(blade % 5)))
+                * (juvenileBlade ? 0.74f : 1.0f);
+            const float lean = (farMesh ? 0.12f
                 : (middleMesh ? 0.09f + 0.012f * static_cast<float>(blade % 5)
-                              : 0.07f + 0.018f * static_cast<float>(blade % 6));
+                              : 0.07f + 0.018f * static_cast<float>(blade % 6)))
+                * (juvenileBlade ? 0.62f : 1.0f);
             const float phase = std::fmod(static_cast<float>(blade) * 0.173f, 1.0f);
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
 
@@ -431,6 +441,8 @@ void main()
                          "clearings\n"
                       << "island-simulator: grass sparse sun-cured tip variation in shared "
                          "vertex colours\n"
+                      << "island-simulator: grass per-instance blade stature with near juvenile "
+                         "undergrowth\n"
                       << "island-simulator: grass three-tier per-patch LOD transitions "
                       << GrassLod::NearOnlyDistance << '-'
                       << GrassLod::MiddleOnlyStartDistance << '/'

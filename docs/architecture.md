@@ -297,7 +297,7 @@ only frond-weighted vertices with per-frond phase variation, leaving roots and t
 calm breeze.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
-visible anchor instances one shared 28-blade near, ten-blade middle, or five-blade far cluster. A
+visible anchor instances one shared 34-blade near, ten-blade middle, or five-blade far cluster. A
 stable per-patch ordering and renderer-independent smoothstep split progressively move each cell
 from near to middle across 62--78 m and middle to far across 86--102 m. This avoids both the old
 37.5 m whole-cell replacement and a direct extreme-mesh jump. Pure cells use one draw; a mixed
@@ -305,6 +305,10 @@ cell binds adjacent-tier ranges of the same instance buffer through two draws. N
 instance upload is required. The vertex
 shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
 independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
+near mesh interleaves five shorter, narrower juvenile blades among 29 mature blades. The existing
+per-instance colour value also seeds a portable per-blade stature, colour, and wind-amplitude
+offset, so repeated shared geometry retains distinct silhouettes without another attribute or
+instance upload. The
 path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
 the far tier into the ground before culling. Each instance also carries one coherent cool-to-warm
 biome value derived from shore distance and the shared route/clearing definitions. It makes coastal
@@ -315,7 +319,7 @@ geometry, or placement counts. `GrassInteractionModel` eases a normalized envelo
 from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
 interaction shares every existing instance and draw. Near blades use five curved control levels
-and 224 triangles per cluster; middle clusters use three levels and 40 triangles, while the far
+and 272 triangles per cluster; middle clusters use three levels and 40 triangles, while the far
 tier uses three levels and 20 triangles. Blade
 orientation is packed into the otherwise-unused vertex alpha channel, avoiding another buffer
 attribute while enabling two-sided fixed-sun diffuse, subtle view-edge transmission, folded side

@@ -128,6 +128,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
+grass view also requires the per-instance blade-stature and near juvenile-underlayer diagnostic,
+preventing the close tier from silently reverting to the more repetitive 28-blade cluster. The
 grass view also requires nonzero near, middle, and far populations in at least one mixed cell,
 proving that WebGL 2 honours the nonzero instance-buffer offsets used by the adjacent-tier
 62--78 m / 86--102 m LOD splits. The

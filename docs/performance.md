@@ -924,6 +924,23 @@ grounded bases. Two isolated 600-sample palm-view runs each rendered 47 near and
 2.5902--2.8770 ms p99. These are gross-regression guards rather than an isolated geometry-cost
 claim. Physical-Android appearance and vertex cost remain open.
 
+### Near-grass silhouette variation follow-up
+
+The near cluster grows from 28 to 34 blades while retaining five control levels. Five blades form
+a shorter, narrower juvenile underlayer; the other 29 retain the mature profile. The existing
+per-instance colour value also seeds bounded per-blade stature, colour, and wind-amplitude offsets
+in the portable vertex shader. This adds no instance field, layout population, texture, allocation,
+culling rule, LOD distance, or draw submission. Middle and far geometry remain unchanged.
+
+The dedicated view renders 957 near, 637 middle, and 1,233 far clusters in 21 grass submissions.
+The near mesh rises from 224 to 272 triangles, increasing this view's visible grass geometry from
+264,508 to 310,444 triangles, or 17.4 percent. Two isolated 600-sample debug-build checks retained
+98 total tracked scene submissions and measured 6.4599--7.2119 ms mean, 8.2017--8.8514 ms p95,
+and 9.1263--10.4740 ms p99. Actual OpenGL 3.3 and Chrome/SwiftShader captures were inspected and
+match; a KVM/gfxstream GLES 3 run reached a clean first frame and visibly retained the grass layer.
+These are gross-regression and portability checks, not an isolated speed comparison or a
+physical-mobile density budget.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio
