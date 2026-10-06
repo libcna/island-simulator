@@ -21,6 +21,19 @@ namespace island
     {
         constexpr int TextureSize = 96;
 
+        [[nodiscard]] Color PremultipliedColor(const int red, const int green,
+                                               const int blue, const int alpha) noexcept
+        {
+            // SpriteBatch's default AlphaBlend state expects premultiplied source RGB. Keeping
+            // transparent texels white would add an opaque rectangular quad on GLES as well as
+            // producing bright fringes around the antialiased circles on every renderer.
+            const auto premultiply = [alpha](const int channel) {
+                return static_cast<int>(std::lround(
+                    static_cast<float>(channel * alpha) / 255.0f));
+            };
+            return Color(premultiply(red), premultiply(green), premultiply(blue), alpha);
+        }
+
         [[nodiscard]] std::unique_ptr<Texture2D> CreateCircleTexture(
             GraphicsDevice& device, const bool ring)
         {
@@ -43,7 +56,7 @@ namespace island
                     }
                     const int alpha = static_cast<int>(std::lround(coverage * 255.0f));
                     pixels[static_cast<std::size_t>(y * TextureSize + x)] =
-                        Color(255, 255, 255, alpha);
+                        PremultipliedColor(255, 255, 255, alpha);
                 }
             }
 
@@ -125,17 +138,21 @@ namespace island
 
         spriteBatch_->Begin();
         spriteBatch_->Draw(*ringTexture_, CentredRectangle(movementCentreX, movementCentreY, radius),
-                           state.movementActive ? Color(99, 235, 190, 150)
-                                                : Color(235, 250, 244, 62));
+                           state.movementActive
+                               ? PremultipliedColor(99, 235, 190, 150)
+                               : PremultipliedColor(235, 250, 244, 62));
         spriteBatch_->Draw(*discTexture_, CentredRectangle(movementKnobX, movementKnobY, knobRadius),
-                           state.movementActive ? Color(225, 255, 243, 170)
-                                                : Color(235, 250, 244, 54));
+                           state.movementActive
+                               ? PremultipliedColor(225, 255, 243, 170)
+                               : PremultipliedColor(235, 250, 244, 54));
         spriteBatch_->Draw(*ringTexture_, CentredRectangle(lookX, lookY, radius * 0.82f),
-                           state.lookActive ? Color(110, 220, 255, 135)
-                                            : Color(235, 250, 255, 50));
+                           state.lookActive
+                               ? PremultipliedColor(110, 220, 255, 135)
+                               : PremultipliedColor(235, 250, 255, 50));
         spriteBatch_->Draw(*discTexture_, CentredRectangle(lookX, lookY, knobRadius * 0.72f),
-                           state.lookActive ? Color(225, 250, 255, 150)
-                                            : Color(235, 250, 255, 40));
+                           state.lookActive
+                               ? PremultipliedColor(225, 250, 255, 150)
+                               : PremultipliedColor(235, 250, 255, 40));
         spriteBatch_->End();
     }
 }
