@@ -3,6 +3,7 @@
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <array>
@@ -385,6 +386,8 @@ void main()
                          "two-sided daylight shading\n"
                       << "island-simulator: grass biome tint follows coast, path, and authored "
                          "clearings\n";
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass biome tint follows coast, path, and authored clearings");
         } else {
             std::cerr << "island-simulator: grass " << totalPatchCount_
                       << " patches, stock-effect fallback: " << fallbackReason_ << '\n';

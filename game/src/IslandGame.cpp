@@ -1,6 +1,7 @@
 #include "IslandSimulator/IslandGame.hpp"
 
 #include "IslandSimulator/PerformanceStatistics.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
 
 #include <algorithm>
@@ -573,7 +574,9 @@ namespace island
         contentCreationMilliseconds_ = std::chrono::duration<double, std::milli>(
             contentFinished_ - contentStarted).count();
 
-        std::cout << "island-simulator: renderer " << device.GetGraphicsRendererName() << '\n'
+        std::string rendererDiagnostic = "island-simulator: renderer ";
+        rendererDiagnostic.append(device.GetGraphicsRendererName());
+        std::cout << rendererDiagnostic << '\n'
                   << "island-simulator: terrain " << terrainRenderer_->VertexCount()
                   << " vertices, " << terrainRenderer_->PrimitiveCount() << " triangles in "
                   << terrainRenderer_->TotalCellCount()
@@ -621,6 +624,7 @@ namespace island
             }
         }
         std::cout.flush();
+        MirrorRuntimeDiagnosticToPlatformLog(rendererDiagnostic);
     }
 
     void IslandGame::TryStartSoundscape() noexcept
@@ -1350,7 +1354,9 @@ namespace island
                << " ms, pre-draw " << postContentMilliseconds_
                << " ms, first draw " << firstDrawMilliseconds_
                << " ms, total " << totalStartupMilliseconds_ << " ms\n";
-        std::cout << status.str();
+        const std::string startupDiagnostic = status.str();
+        std::cout << startupDiagnostic;
+        MirrorRuntimeDiagnosticToPlatformLog(startupDiagnostic);
         if (!startupReportPath_.empty()) {
             WriteStartupReport();
             std::cout << "island-simulator: startup report " << startupReportPath_

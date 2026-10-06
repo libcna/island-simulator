@@ -65,6 +65,10 @@ measured 494.8805 ms world generation, 526.8526 ms content creation, 2.6629 ms f
 make it unsuitable as a regression baseline. The actual Chrome 152/SwiftShader WebGL 2 gate
 measured 134.8 ms world generation, 246.8 ms content creation, 15.7 ms first draw, and 438.0 ms
 total; SwiftShader is likewise functional evidence rather than hardware-browser performance.
+The API 35 x86_64 software-only Android AVD reported 157126.852 ms world generation,
+256204.401 ms content creation, 7708.990 ms first draw, and 421449.067 ms total at 800 by 360.
+Those QEMU TCG values prove that the Android instrumentation and current GLES 3 scene reached a
+first draw; they must never be used as a device startup budget or performance comparison.
 Two isolated release and debug repetitions per target remain required before setting startup
 budgets.
 

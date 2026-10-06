@@ -692,7 +692,14 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
 - [~] Test install, first launch, relaunch, background/foreground, rotation policy, and clean exit.
   The x86_64 debug APK installed and first-launched on the API 35 `Medium_Phone` AVD, produced a
   2400 by 1080 GLES3 frame, and survived while rendering. The unaccelerated emulator's own System
-  UI repeatedly entered ANR/restart states, so touch and lifecycle claims remain open.
+  UI repeatedly entered ANR/restart states, so touch and lifecycle claims remain open. A repeatable
+  project-side runtime gate now installs the selected APK, launches from cleared logcat, requires
+  renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records logcat
+  plus a device screenshot. The current complete scene also passed that gate at a temporary 800 by
+  360 guest resolution; exact evidence and limitations are recorded below.
+- [ ] Recheck the software AVD's 27 gfxstream `GL_INVALID_OPERATION` uniform-query reports on a
+  stable KVM emulator or physical GLES 3 device before assigning them to the driver, framework, or
+  game. The current frame completed without a shader failure, so this is not yet a confirmed bug.
 - [~] Document device/API/ABI evidence and all unverified hardware classes. Build/install/runtime
   commands and the current emulator limitations are recorded; real-device evidence is absent.
 
@@ -3112,6 +3119,43 @@ Work next, in order:
   is attached, so current Android runtime appearance and timing remain unqualified; root access
   would not create a host KVM device. CNA and Sharp Runtime remain unmodified, and no dependency
   defect was found.
+
+### 2026-10-06 — Current Android GLES 3 first-frame qualification
+
+- Added a project-owned Android runtime gate that verifies device readiness, installs the selected
+  APK, clears logcat, launches the activity, follows only the game PID, requires the `OPENGLES3`,
+  biome-aware grass, and first-draw diagnostics, rejects fatal/shader failures, and records both
+  logcat and a screenshot. PID filtering avoids repeatedly transferring the entire system log from
+  an already CPU-bound software AVD. A configurable ten-minute deadline covers this environment
+  without weakening failure detection on faster devices.
+- SDLActivity does not expose C++ stdout through Android logcat. Added a narrow game-side diagnostic
+  mirror using Android's public log API for the three high-value milestones; Linux and Web retain
+  their existing stdout behaviour. The implementation and Android `liblog` linkage live entirely
+  in island-simulator. CNA and Sharp Runtime remain clean, read-only, and unmodified.
+- Rebuilt the x86_64 debug APK and ran it on the API 35 `Medium_Phone` AVD under QEMU TCG plus
+  SwiftShader GLES, with no host `/dev/kvm`. A fresh cold boot took 229 seconds. At a temporary
+  800 by 360 guest resolution, SDL loaded both native libraries, created an RGBA8888 surface, and
+  the current complete scene reported biome grass, renderer `OPENGLES3`, and a completed first
+  draw. Measured application phases were 157126.852 ms world generation, 256204.401 ms content
+  creation, 7708.990 ms first draw, and 421449.067 ms total.
+- The saved image visibly contains the current island and touch HUD behind Android's one-time
+  fullscreen help overlay. It is valid integrated GLES 3 evidence but not a subjective per-layer,
+  input, audio, lifecycle, frame-pacing, memory, or thermal qualification. System/System UI ANRs
+  remained frequent, and attempting to restore full resolution caused the guest `system_server`
+  to lose its window/activity services. A clean headless boot subsequently restored and verified
+  the original 1080 by 2400 size and 420 dpi before shutdown. Guest root would not supply missing
+  host virtualization.
+- Gfxstream logged 27 `GL_INVALID_OPERATION` results at uniform-location queries while the correct
+  frame still completed and no shader compile/link failure appeared. The observation remains a
+  renderer-environment triage item, not a CNA/Sharp Runtime bug entry, until it can be reproduced
+  on stable KVM-backed or physical GLES 3 hardware.
+- Post-change validation passes all 37 native tests in 71.80 seconds, including 29 real OpenGL 3.3
+  scenes and isolated SDL/XTest input. The complete Chrome 152/SwiftShader WebGL 2 harness passes
+  against the rebuilt 8,458,494-byte WebAssembly module. The default single-ABI arm64 package was
+  restored after emulator testing; application lint passes, its stripped `libmain.so` is
+  15,861,744 bytes, and the APK is 18,672,028 bytes. Removed approximately 1 GB of superseded
+  x86_64 NDK intermediates while retaining the runtime log/screenshot evidence and final arm64
+  artifact. The project-owned workspace now occupies approximately 3.7 GB.
 
 ## Session-end checklist
 

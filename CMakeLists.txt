@@ -247,6 +247,7 @@ if(ISLAND_BUILD_GAME)
         game/src/NaturalPropRenderer.cpp
         game/src/OceanRenderer.cpp
         game/src/PalmRenderer.cpp
+        game/src/RuntimeDiagnostics.cpp
         game/src/SharkRenderer.cpp
         game/src/ShorelineRenderer.cpp
         game/src/SkyRenderer.cpp
@@ -277,7 +278,7 @@ if(ISLAND_BUILD_GAME)
     endif()
 
     if(ANDROID AND TARGET SDL3::SDL3)
-        target_link_libraries(island-simulator PRIVATE SDL3::SDL3)
+        target_link_libraries(island-simulator PRIVATE SDL3::SDL3 log)
     endif()
 
     if(EMSCRIPTEN)

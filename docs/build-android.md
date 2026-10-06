@@ -5,14 +5,14 @@
 The project has an Android application for API 24 and newer. The native game target builds as
 `libmain.so`, uses CNA's SDL3 activity bridge, and selects the `OPENGLES3` renderer explicitly.
 The supported package ABIs are `arm64-v8a` for devices and `x86_64` for emulator testing. Both
-debug variants build; the x86_64 APK has also installed and rendered the current island on an API
-35 emulator.
+debug variants build; the x86_64 APK has also installed and rendered the current complete island
+scene on an API 35 emulator.
 
 The Android UI is fixed landscape/fullscreen and includes dual-zone touch movement/look controls
 with generated on-screen affordances. It uses the same restrained walking/swimming camera-motion
 model as desktop, although an on-screen opt-out is not implemented yet. The available emulator has
-no KVM acceleration, so its first
-GLES3 render is valid renderer evidence but not touch, lifecycle, or performance qualification.
+no KVM acceleration, so its first GLES3 render is valid renderer evidence but not touch, lifecycle,
+or performance qualification.
 Those claims still require a stable accelerated emulator or physical device.
 
 The current arm64 package includes the portable procedural sand/soil terrain material with
@@ -41,12 +41,12 @@ ripples, a procedural near-surface swimming veil with
 offshore-current modulation, a deeper current-responsive undertow mix in the existing water loop,
 and a pooled
 positional voice with two bird and two monkey phrases. That package
-builds and passes application lint, but
-the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
-qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
-contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,592,792-byte APK with a
-15,860,416-byte stripped `libmain.so` and passed `:app:lintDebug`.
+builds and passes application lint. The current x86_64 runtime gate constructed this complete scene,
+reported its biome-aware grass path, and completed a GLES 3 first draw. The software-emulator
+screenshot establishes integrated rendering but is not detailed enough to qualify every layer's
+appearance, touch feel, audio output, lifecycle, or performance.
+The latest single-ABI arm64 debug qualification build produced an 18,672,028-byte APK with a
+15,861,744-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 
@@ -131,18 +131,29 @@ the CNA baseline changes.
 
 ## Current runtime evidence
 
-The first runtime pass used the API 35 `Medium_Phone` Google Play x86_64 AVD with Android Emulator
+The runtime passes used the API 35 `Medium_Phone` Google Play x86_64 AVD with Android Emulator
 software acceleration disabled (`-accel off`) and SwiftShader GLES. The host exposes no `/dev/kvm`.
-The APK installed successfully, SDL loaded `libSDL3.so` and `libmain.so`, created a 2400 by 1080
-surface, and a captured frame visibly contains the terrain, palms, and mesh grass. The process
-continued submitting EGL frames without an application crash or shader exception.
+An initial 2400 by 1080 pass visibly rendered terrain, palms, mesh grass, and the touch HUD. For a
+repeatable current-content pass, the guest display was temporarily reduced to 800 by 360 so its
+software-rendered System UI could keep a surface alive. The setting was test-environment state, not
+an application quality tier, and the AVD was returned to its original 1080 by 2400 / 420 dpi state
+afterward.
 
-This AVD took about eight minutes to cold boot and typically needed 0.6--1.7 seconds per rendered
-frame. Its System and System UI processes repeatedly entered ANR/restart states under QEMU TCG,
-including while the game remained alive. Therefore this pass does not qualify frame rate, input
-latency, touch ergonomics, pause/resume, audio focus, sustained memory, thermals, or clean shutdown.
-Guest root access would not supply the missing host virtualization. Use KVM or a physical device
-for the remaining runtime matrix.
+The current APK loaded `libSDL3.so` and `libmain.so`, created an 800 by 360 RGBA8888 surface, and
+reported biome-aware grass, renderer `OPENGLES3`, and a completed first draw. Application timings
+were 157126.852 ms for world generation, 256204.401 ms for content creation, 7708.990 ms for the
+first draw body, and 421449.067 ms total. These extreme QEMU TCG values are diagnostic evidence,
+not a mobile baseline. The captured frame contains the complete current scene and touch HUD behind
+Android's one-time fullscreen help overlay.
+
+The AVD took 229 seconds for the successful cold boot. Its System and System UI processes repeatedly
+entered ANR/restart states under QEMU TCG, including while the game remained alive. Gfxstream also
+logged 27 `GL_INVALID_OPERATION` reports at uniform-location queries even though shader creation and
+the first frame completed; reproduce that observation on a stable target before classifying its
+source. This pass therefore does not qualify frame rate, input latency, touch ergonomics,
+pause/resume, audio focus, sustained memory, thermals, or clean shutdown. Guest root access would
+not supply the missing host virtualization. Use KVM or a physical device for the remaining runtime
+matrix.
 
 Useful diagnostics for a connected test target are:
 
@@ -152,6 +163,23 @@ adb logcat -c
 adb shell am start -W -n com.libcna.islandsimulator/.IslandSimulatorActivity
 adb logcat -d
 ```
+
+Once the device reports `device` and `adb shell getprop sys.boot_completed` reports `1`, the
+repeatable first-frame gate installs the selected APK,
+clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
+first-draw timing, and biome-grass diagnostics, rejects fatal/shader errors, and saves both logcat
+and a device screenshot:
+
+```bash
+tools/run_android_runtime_smoke.sh \
+  "$ANDROID_SDK_ROOT/platform-tools/adb" \
+  android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+The default evidence directory is ignored `build/android-runtime-smoke/`. The gate proves a live
+GLES 3 frame and process; it does not by itself qualify touch ergonomics, audio, lifecycle recovery,
+performance, memory, or thermals. Override the deliberately generous software-emulator timeout with
+`ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS` when testing faster hardware.
 
 ## Dependency overrides
 
