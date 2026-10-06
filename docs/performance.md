@@ -588,6 +588,39 @@ view and 2.7827 ms mean / 3.4859 ms p95 over the 675.9635 m traversal. The opera
 shared the GPU, so these guard against a gross regression rather than establishing a new isolated
 baseline. Hardware-browser and physical-Android cost remain open.
 
+### Split-leaf ground plant and instance-accurate jungle LOD follow-up
+
+Near ground-plant variant 2 now uses five low leaves with visible petioles, solid midribs, and three
+separated folded-lobe pairs per leaf. Its 140-triangle near mesh replaces the former 72-triangle
+strap-leaf rosette; its 16-triangle far mesh, 2,225-placement population, instance format, and
+variant submission remain unchanged. Native review rejected an initial broad undivided silhouette
+and a second overly skeletal pass before retaining the fuller folded-lobe composition.
+
+That review exposed a pre-existing game-side precision problem: understory, bush, and ground-plant
+LOD was selected from a shared cell centre, so a plant 2.8 m from the QA camera could receive its
+far mesh. All jungle classes now use the shared cell AABB only as a conservative rejection. Actual
+instance distance then enforces the maximum range and selects near/far LOD. The existing instance
+records already contained the required position and threshold fields, so the correction adds no
+allocation, instance-buffer field, shader branch, or per-vertex work. It adds bounded scalar
+distance tests while producing accurate populations; the ground QA view now reports 18 near and
+34 far ground plants instead of showing the selected close plant through its far representation.
+
+Two complete six-view native safety suites ran while the operator's visible game shared the GPU.
+The timing spread therefore qualifies function and catches a gross regression, but is not an
+isolated before/after comparison. Exact distance selection legitimately changes visible
+populations and adds three occupied near/far variant submissions in the fixed jungle view.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Understory / bushes / ground |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.7681--1.7834 | 1.9791--2.0042 | 2.1594--2.2077 | 77 | 0 / 0 / 0 |
+| Beach | 2.7009--2.7467 | 3.1837--3.2864 | 3.6394--3.6663 | 124 | 352 / 80 / 168 |
+| Jungle | 2.3368--2.8219 | 2.6892--3.4801 | 3.2293--3.9586 | 99 | 462 / 108 / 162 |
+| Driftwood | 1.3576--1.3643 | 1.7558--1.8695 | 2.1850--2.2899 | 26 | 0 / 0 / 0 |
+| Monkeys | 2.5465--2.9731 | 3.3558--3.8870 | 3.6482--4.4972 | 98 | 474 / 116 / 234 |
+| Traversal | 2.8276--3.2742 | 3.5034--4.2125 | 4.3222--4.7245 | 12 final | route-varying |
+
+Hardware-browser and physical-Android performance remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

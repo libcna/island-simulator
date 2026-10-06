@@ -372,8 +372,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
   clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
   edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
-  their compact far tier. One near forest-floor variant now uses six upright broad leaves with
-  visible petioles while retaining its compact far tier. The shared portable shader now derives
+  their compact far tier. Near forest-floor variants now include six upright broad leaves with
+  visible petioles and a separate five-leaf folded split form while retaining compact far
+  tiers. All four jungle layers now enforce range and near/far LOD per instance after conservative
+  cell rejection. The shared portable shader now derives
   two-sided geometric facet light from the fixed sun for every jungle tier without another vertex
   stream or draw; further floor-plant/bush material diversity and broader natural beach-prop
   variety remain.
@@ -1012,8 +1014,10 @@ Work next, in order:
    fish, and shark layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
-   paired folded leaves over smaller near lobes without touching its far tier; one near
-   ground-plant variant now adds an upright six-leaf form and a dedicated cross-renderer QA camera.
+   paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
+   variants now include both an upright six-leaf form and a five-leaf folded split form. The
+   dedicated cross-renderer QA camera targets the latter and verifies a nonzero per-instance near
+   LOD population.
    Near land and reef rocks now add restrained, texture-free strata and lichen only in their near
    LOD, without new geometry, textures, instances, or submissions.
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
@@ -2812,6 +2816,42 @@ Work next, in order:
   extensive external staged/unstaged changes at the locked commit; they were neither touched nor
   consumed. All builds used the clean project-owned export of CNA commit
   `f243c63a1dc56404d732deed902bd18bde9db9f7` and locked Sharp Runtime commit
+  `21c06910f7cf887cceebb45200e07b43dd45fef4`.
+
+### 2026-10-06 — Split-leaf floor plant and instance-accurate jungle LOD
+
+- Replaced the near mesh of ground-plant variant 2 with five low tropical leaves. Each leaf has a
+  visible petiole, solid curved midrib, and three separated pairs of folded lobes with deterministic
+  length, width, colour, and wind phase. The retained third visual pass is 140 triangles instead of
+  the former 72-triangle strap-leaf rosette; its 16-triangle far mesh, all 2,225 placements,
+  instance layout, batching, shader, and draw-submission ceiling remain unchanged.
+- Visual review rejected the first pass as too broad and the second as too skeletal. It also caught
+  a pre-existing game-side LOD precision problem: the variant-2 plant 2.8 m from the QA camera was
+  rendered with its far mesh because the renderer measured the centre of a shared 80 m scene cell.
+  No CNA defect was involved. The game now uses the cell AABB only for conservative rejection, then
+  uses actual instance distance to enforce maximum range and select near/far LOD for canopy,
+  understory, bushes, and ground plants. The existing instance record already contained the
+  necessary positions and thresholds.
+- Added explicit near/far counters for the three lower jungle layers. The fixed first-frame report,
+  native ground gate, and Chrome harness now expose per-instance LOD populations; the ground QA
+  view targets variant 2 and reports 18 near / 34 far ground plants. Native and actual Chrome
+  152/SwiftShader 1280 by 720 ground captures were inspected and agree. The world layout and stable
+  fingerprint remain `d83ecd714e10fc9f`.
+- Two complete six-view native safety suites ran while the operator's visible client shared the
+  GPU. Mean/p95 ranges were 1.7681--1.7834/1.9791--2.0042 ms overview,
+  2.7009--2.7467/3.1837--3.2864 ms beach, 2.3368--2.8219/2.6892--3.4801 ms jungle,
+  1.3576--1.3643/1.7558--1.8695 ms driftwood, 2.5465--2.9731/3.3558--3.8870 ms monkeys,
+  and 2.8276--3.2742/3.5034--4.2125 ms traversal. These are functional safety evidence, not an
+  isolated performance baseline.
+- The final native suite passes 37/37 in 171.17 seconds under shared host/GPU load, including 29
+  real OpenGL scenes and real X11 input. The complete Chrome harness passes all 22 lifecycle,
+  deployment, renderer, scene, and input stages. The arm64 GLES 3 target builds, the 33,573,584-byte
+  APK assembles, and application lint passes; the stripped library is 15,841,208 bytes and
+  WebAssembly is 8,428,883 bytes. Android appearance and physical-mobile cost remain unqualified.
+- No CNA or Sharp Runtime file was edited and no dependency defect was found. Sharp Runtime remains
+  clean on locked `next`; the externally dirty sibling CNA `next` worktree was neither touched nor
+  consumed. Validation used the clean project-owned export of locked CNA commit
+  `f243c63a1dc56404d732deed902bd18bde9db9f7` and Sharp Runtime commit
   `21c06910f7cf887cceebb45200e07b43dd45fef4`.
 
 ## Session-end checklist

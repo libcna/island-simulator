@@ -287,14 +287,17 @@ build fern and broad-leaf silhouettes from curved opaque strips. Three bush vari
 offset low lobes with two folded pointed leaves per lobe in the near tier to bridge the visual gap
 between grass and medium plants. Their unchanged 48-triangle far tier keeps only the compact
 volume. Near variants contain 320, 400, or 480 triangles without adding a submission. Three small
-forest-floor variants break up grass-heavy ground at first-person range. Variants 0 and 2 use
-short curved opaque leaves; near variant 1 instead uses six visible petioles and folded upright
-broad leaves, reducing that mesh from 64 to 36 triangles while its 16-triangle far form remains
-unchanged. Placement uses
+forest-floor variants break up grass-heavy ground at first-person range. Variant 0 uses seven
+short curved opaque leaves. Near variant 1 uses six visible petioles and folded upright broad
+leaves in 36 triangles; near variant 2 uses five low leaves with solid midribs and three separated,
+folded lobe pairs per leaf in 140 triangles. Both retain their unchanged 16-triangle far forms.
+Placement uses
 independent broad/fine cluster fields plus terrain height, slope, and shoreline constraints while
-preserving the winding route, two clearings, and beach spawn. Each layer has independent near/far
-distances but remains gathered into variant batches; the deterministic jungle camera renders 63
-near and 46 far canopy trees, 102 bushes, and 129 ground plants in 25 submissions. A portable GLSL
+preserving the winding route, two clearings, and beach spawn. A shared cell AABB first rejects
+irrelevant regions; actual instance distance then enforces maximum range and selects near/far LOD
+for canopy, understory, bushes, and forest-floor plants. Instances remain gathered into variant
+batches. The deterministic jungle camera renders 63 near and 46 far canopy trees, 462 understory
+plants, 108 bushes, and 162 ground plants in 28 jungle submissions. A portable GLSL
 330 / GLSL ES 300 shader applies weighted calm wind. Its fragment stage reconstructs a safe
 geometric face normal from world-position derivatives, uses the absolute fixed-sun response for
 two-sided foliage, and adds a small upward fill. This gives the deliberately low-poly crowns and

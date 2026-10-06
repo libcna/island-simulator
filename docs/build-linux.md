@@ -126,8 +126,8 @@ branch-supported/pointed-leaf near-canopy path.
 `IslandGameEastClearingCapture` and `IslandGameWestClearingCapture` write player-eye views from the
 two authoritative clearing centres. The east view requires their shared distinct-material shader
 path, while the west view requires the shared five-rock/one-log landmark-layout diagnostic.
-`IslandGameGroundPlantCapture` writes a cleared first-person broadleaf detail to
-`build/island-ground-capture.ppm` and requires the upright near-ground-plant path.
+`IslandGameGroundPlantCapture` writes a cleared first-person folded split-leaf detail to
+`build/island-ground-capture.ppm` and requires a nonzero per-instance near-LOD population.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
 The grass startup also reports the five-level near curvature and portable two-sided daylight path.

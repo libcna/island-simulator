@@ -98,7 +98,7 @@ game with `--smoke-test`, requires finite timings for all first-draw startup pha
 clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
-beach, grass interaction, upright-ground-plant, segmented-palm and bark/coconut detail, jungle,
+beach, grass interaction, folded-split-ground-plant, segmented-palm and bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
 fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a 1280 x 720 viewport.
 Every scene asserts the
@@ -119,8 +119,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
-dedicated ground view requires the upright broadleaf diagnostic and a nonzero visible
-forest-floor population. The
+dedicated ground view requires the upright/split-leaf diagnostic, exact variant-2 QA target, and a
+nonzero per-instance near-LOD forest-floor population. The
 palm view requires the segmented-leaflet and bark/coconut diagnostics plus nonzero near/far
 populations. The jungle
 view requires the branch-supported canopy and pointed-leaf near-bush diagnostics, nonzero near/far

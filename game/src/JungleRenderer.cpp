@@ -564,15 +564,125 @@ void main()
                 static_cast<std::uint16_t>(leafBase + 3U)});
         }
 
+        void AppendSplitGroundLeaf(PlantGeometry& geometry, const float angle,
+                                   const float length, const float width,
+                                   const float lift, const Color& baseColor,
+                                   const float windPhase)
+        {
+            const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const auto centre = [direction, length, lift](const float t) {
+                return direction * (length * t)
+                    + Vector3::Up * (lift * std::sin(t * std::numbers::pi_v<float>)
+                                     - 0.10f * length * t * t);
+            };
+
+            const float petioleWidth = 0.017f;
+            const Vector3 petioleEnd = centre(0.24f);
+            const auto petioleBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(-side * petioleWidth,
+                                           ShadeColor(baseColor, 0.60f),
+                                           Vector2(0.04f, windPhase));
+            geometry.vertices.emplace_back(side * petioleWidth,
+                                           ShadeColor(baseColor, 0.70f),
+                                           Vector2(0.04f, windPhase));
+            geometry.vertices.emplace_back(petioleEnd - side * petioleWidth,
+                                           ShadeColor(baseColor, 0.68f),
+                                           Vector2(0.34f, windPhase));
+            geometry.vertices.emplace_back(petioleEnd + side * petioleWidth,
+                                           ShadeColor(baseColor, 0.78f),
+                                           Vector2(0.34f, windPhase));
+            geometry.indices.insert(geometry.indices.end(), {
+                petioleBase, static_cast<std::uint16_t>(petioleBase + 2U),
+                static_cast<std::uint16_t>(petioleBase + 1U),
+                static_cast<std::uint16_t>(petioleBase + 1U),
+                static_cast<std::uint16_t>(petioleBase + 2U),
+                static_cast<std::uint16_t>(petioleBase + 3U)});
+
+            constexpr int spineSegments = 4;
+            constexpr float bladeStart = 0.22f;
+            const float spineHalfWidth = width * 0.19f;
+            const auto spineBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int segment = 0; segment <= spineSegments; ++segment) {
+                const float t = bladeStart + (1.0f - bladeStart)
+                    * static_cast<float>(segment) / static_cast<float>(spineSegments);
+                const float taper = 1.0f - 0.72f * std::pow(t, 2.2f);
+                const Vector3 point = centre(t) + Vector3::Up * (0.026f * std::sin(t * 3.1f));
+                const Color color = ShadeColor(baseColor, 0.79f + 0.19f * t);
+                geometry.vertices.emplace_back(point - side * (spineHalfWidth * taper), color,
+                                               Vector2(t * t, windPhase));
+                geometry.vertices.emplace_back(point + side * (spineHalfWidth * taper),
+                                               ShadeColor(color, 0.94f),
+                                               Vector2(t * t, windPhase));
+            }
+            for (int segment = 0; segment < spineSegments; ++segment) {
+                const auto left = static_cast<std::uint16_t>(spineBase + segment * 2);
+                const auto right = static_cast<std::uint16_t>(left + 1U);
+                const auto nextLeft = static_cast<std::uint16_t>(left + 2U);
+                const auto nextRight = static_cast<std::uint16_t>(left + 3U);
+                geometry.indices.insert(geometry.indices.end(), {
+                    left, nextLeft, right, right, nextLeft, nextRight});
+            }
+
+            constexpr int lobePairs = 3;
+            for (int pair = 0; pair < lobePairs; ++pair) {
+                const float pairT = 0.39f + static_cast<float>(pair) * 0.205f;
+                const float halfSpan = 0.065f - static_cast<float>(pair) * 0.005f;
+                const float extent = width * (1.0f - static_cast<float>(pair) * 0.17f);
+                for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
+                    const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
+                    const Vector3 innerStart = centre(pairT - halfSpan)
+                        + side * (sideSign * spineHalfWidth);
+                    const Vector3 innerMiddle = centre(pairT)
+                        + side * (sideSign * spineHalfWidth * 0.72f)
+                        + Vector3::Up * 0.040f;
+                    const Vector3 innerEnd = centre(pairT + halfSpan)
+                        + side * (sideSign * spineHalfWidth * 0.84f);
+                    const Vector3 outerShoulder = centre(pairT - 0.025f)
+                        + side * (sideSign * extent * 0.64f)
+                        + Vector3::Up * 0.028f;
+                    const Vector3 outerTip = centre(pairT + 0.028f)
+                        + side * (sideSign * extent);
+                    const auto lobeBase = static_cast<std::uint16_t>(geometry.vertices.size());
+                    const float windWeight = pairT * pairT;
+                    const Color lobeColor = sideIndex == 0
+                        ? ShadeColor(baseColor, 0.91f + static_cast<float>(pair) * 0.045f)
+                        : ShadeColor(baseColor, 1.02f - static_cast<float>(pair) * 0.035f);
+                    geometry.vertices.emplace_back(innerStart, ShadeColor(lobeColor, 0.82f),
+                                                   Vector2(windWeight, windPhase));
+                    geometry.vertices.emplace_back(outerShoulder, lobeColor,
+                                                   Vector2(windWeight, windPhase));
+                    geometry.vertices.emplace_back(innerMiddle, ShadeColor(lobeColor, 1.10f),
+                                                   Vector2(windWeight, windPhase));
+                    geometry.vertices.emplace_back(outerTip, ShadeColor(lobeColor, 0.95f),
+                                                   Vector2(windWeight, windPhase));
+                    geometry.vertices.emplace_back(innerEnd, ShadeColor(lobeColor, 0.86f),
+                                                   Vector2(windWeight, windPhase));
+                    geometry.indices.insert(geometry.indices.end(), {
+                        lobeBase, static_cast<std::uint16_t>(lobeBase + 1U),
+                        static_cast<std::uint16_t>(lobeBase + 2U),
+                        static_cast<std::uint16_t>(lobeBase + 2U),
+                        static_cast<std::uint16_t>(lobeBase + 1U),
+                        static_cast<std::uint16_t>(lobeBase + 3U),
+                        static_cast<std::uint16_t>(lobeBase + 2U),
+                        static_cast<std::uint16_t>(lobeBase + 3U),
+                        static_cast<std::uint16_t>(lobeBase + 4U)});
+                }
+            }
+        }
+
         [[nodiscard]] PlantGeometry CreateGroundPlantGeometry(const int variant,
                                                               const bool farMesh)
         {
             PlantGeometry geometry;
             const bool uprightBroadleaf = !farMesh && variant == 1;
-            const int leafCount = uprightBroadleaf ? 6 : (farMesh ? 4 : 7 + variant);
+            const bool splitLeaf = !farMesh && variant == 2;
+            const int leafCount = uprightBroadleaf ? 6 : (splitLeaf ? 5 : (farMesh ? 4 : 7));
             const int segments = farMesh ? 2 : 4;
-            const int verticesPerLeaf = uprightBroadleaf ? 9 : (segments + 1) * 2;
-            const int indicesPerLeaf = uprightBroadleaf ? 18 : segments * 6;
+            const int verticesPerLeaf = uprightBroadleaf ? 9
+                : (splitLeaf ? 44 : (segments + 1) * 2);
+            const int indicesPerLeaf = uprightBroadleaf ? 18
+                : (splitLeaf ? 84 : segments * 6);
             geometry.vertices.reserve(static_cast<std::size_t>(leafCount * verticesPerLeaf));
             geometry.indices.reserve(static_cast<std::size_t>(leafCount * indicesPerLeaf));
             const Color color = variant == 0 ? Color(54, 132, 55, 255)
@@ -597,6 +707,13 @@ void main()
                         0.57f + 0.055f * static_cast<float>((leaf * 2 + variant) % 3),
                         0.44f + 0.055f * static_cast<float>((leaf + variant) % 3),
                         0.25f + 0.035f * static_cast<float>((leaf * 4 + variant) % 3),
+                        leafColor, phase);
+                } else if (splitLeaf) {
+                    AppendSplitGroundLeaf(
+                        geometry, angle,
+                        0.68f + 0.045f * static_cast<float>((leaf + variant) % 3),
+                        0.27f + 0.022f * static_cast<float>((leaf * 2 + variant) % 3),
+                        0.49f + 0.035f * static_cast<float>((leaf * 3 + variant) % 2),
                         leafColor, phase);
                 } else {
                     AppendFrond(geometry, angle, length, width, lift,
@@ -680,7 +797,7 @@ void main()
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
-            std::cout << "island-simulator: jungle near ground plants include an upright broadleaf silhouette\n";
+            std::cout << "island-simulator: jungle near ground plants include upright and split-leaf silhouettes\n";
             std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
@@ -763,7 +880,8 @@ void main()
             cell.understory.push_back({Matrix::CreateScale(plant.scale)
                                            * Matrix::CreateRotationY(plant.yawRadians)
                                            * Matrix::CreateTranslation(plant.x, plant.y, plant.z),
-                                       plant.variant});
+                                       plant.variant, plant.x, plant.z,
+                                       UnderstoryNearDistance * UnderstoryNearDistance});
             const float radius = 2.2f * plant.scale;
             extendBounds(cell, Vector3(plant.x - radius, plant.y - 0.05f, plant.z - radius),
                          Vector3(plant.x + radius, plant.y + 2.2f * plant.scale, plant.z + radius));
@@ -774,7 +892,8 @@ void main()
             cell.bushes.push_back({Matrix::CreateScale(bush.scale)
                                        * Matrix::CreateRotationY(bush.yawRadians)
                                        * Matrix::CreateTranslation(bush.x, bush.y, bush.z),
-                                   bush.variant});
+                                   bush.variant, bush.x, bush.z,
+                                   BushNearDistance * BushNearDistance});
             const float radius = 1.35f * bush.scale;
             extendBounds(cell, Vector3(bush.x - radius, bush.y - 0.03f, bush.z - radius),
                          Vector3(bush.x + radius, bush.y + 1.2f * bush.scale,
@@ -787,7 +906,8 @@ void main()
                                              * Matrix::CreateRotationY(plant.yawRadians)
                                              * Matrix::CreateTranslation(
                                                  plant.x, plant.y, plant.z),
-                                         plant.variant});
+                                         plant.variant, plant.x, plant.z,
+                                         GroundPlantNearDistance * GroundPlantNearDistance});
             const float radius = 0.78f * plant.scale;
             extendBounds(cell, Vector3(plant.x - radius, plant.y - 0.02f, plant.z - radius),
                          Vector3(plant.x + radius, plant.y + 0.82f * plant.scale,
@@ -856,8 +976,14 @@ void main()
         visibleCanopyNearCount_ = 0;
         visibleCanopyFarCount_ = 0;
         visibleUnderstoryCount_ = 0;
+        visibleUnderstoryNearCount_ = 0;
+        visibleUnderstoryFarCount_ = 0;
         visibleBushCount_ = 0;
+        visibleBushNearCount_ = 0;
+        visibleBushFarCount_ = 0;
         visibleGroundPlantCount_ = 0;
+        visibleGroundPlantNearCount_ = 0;
+        visibleGroundPlantFarCount_ = 0;
         visibleCellCount_ = 0;
         drawCallCount_ = 0;
 
@@ -866,17 +992,26 @@ void main()
             if (!cell.occupied || frustum.Contains(cell.bounds) == ContainmentType::Disjoint) {
                 continue;
             }
-            const Vector3 centre = (cell.bounds.Min + cell.bounds.Max) * 0.5f;
-            const float deltaX = centre.X - cameraPosition.X;
-            const float deltaZ = centre.Z - cameraPosition.Z;
-            const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
+            const float cellDeltaX = std::max(
+                {cell.bounds.Min.X - cameraPosition.X, 0.0f,
+                 cameraPosition.X - cell.bounds.Max.X});
+            const float cellDeltaZ = std::max(
+                {cell.bounds.Min.Z - cameraPosition.Z, 0.0f,
+                 cameraPosition.Z - cell.bounds.Max.Z});
+            const float cellDistanceSquared = cellDeltaX * cellDeltaX
+                + cellDeltaZ * cellDeltaZ;
             bool cellVisible = false;
-            if (distanceSquared <= CanopyMaximumDistance * CanopyMaximumDistance) {
+            if (cellDistanceSquared <= CanopyMaximumDistance * CanopyMaximumDistance) {
                 for (const DrawInstance& instance : cell.canopy) {
                     const float instanceDeltaX = instance.x - cameraPosition.X;
                     const float instanceDeltaZ = instance.z - cameraPosition.Z;
-                    const bool nearLod = instanceDeltaX * instanceDeltaX
-                            + instanceDeltaZ * instanceDeltaZ
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared
+                        > CanopyMaximumDistance * CanopyMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
                         <= instance.nearLodDistanceSquared;
                     (nearLod ? visibleCanopyNear_ : visibleCanopyFar_)[instance.variant]
                         .push_back(instance.transform);
@@ -889,30 +1024,70 @@ void main()
                     cellVisible = true;
                 }
             }
-            if (distanceSquared <= UnderstoryMaximumDistance * UnderstoryMaximumDistance) {
-                const bool nearLod = distanceSquared <= UnderstoryNearDistance * UnderstoryNearDistance;
+            if (cellDistanceSquared <= UnderstoryMaximumDistance * UnderstoryMaximumDistance) {
                 for (const DrawInstance& instance : cell.understory) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared
+                        > UnderstoryMaximumDistance * UnderstoryMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
+                        <= instance.nearLodDistanceSquared;
                     (nearLod ? visibleUnderstoryNear_ : visibleUnderstoryFar_)[instance.variant]
                         .push_back(instance.transform);
+                    if (nearLod) {
+                        ++visibleUnderstoryNearCount_;
+                    } else {
+                        ++visibleUnderstoryFarCount_;
+                    }
                     ++visibleUnderstoryCount_;
                     cellVisible = true;
                 }
             }
-            if (distanceSquared <= BushMaximumDistance * BushMaximumDistance) {
-                const bool nearLod = distanceSquared <= BushNearDistance * BushNearDistance;
+            if (cellDistanceSquared <= BushMaximumDistance * BushMaximumDistance) {
                 for (const DrawInstance& instance : cell.bushes) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared > BushMaximumDistance * BushMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
+                        <= instance.nearLodDistanceSquared;
                     (nearLod ? visibleBushNear_ : visibleBushFar_)[instance.variant]
                         .push_back(instance.transform);
+                    if (nearLod) {
+                        ++visibleBushNearCount_;
+                    } else {
+                        ++visibleBushFarCount_;
+                    }
                     ++visibleBushCount_;
                     cellVisible = true;
                 }
             }
-            if (distanceSquared <= GroundPlantMaximumDistance * GroundPlantMaximumDistance) {
-                const bool nearLod = distanceSquared
-                    <= GroundPlantNearDistance * GroundPlantNearDistance;
+            if (cellDistanceSquared <= GroundPlantMaximumDistance * GroundPlantMaximumDistance) {
                 for (const DrawInstance& instance : cell.groundPlants) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared
+                        > GroundPlantMaximumDistance * GroundPlantMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
+                        <= instance.nearLodDistanceSquared;
                     (nearLod ? visibleGroundPlantNear_ : visibleGroundPlantFar_)[instance.variant]
                         .push_back(instance.transform);
+                    if (nearLod) {
+                        ++visibleGroundPlantNearCount_;
+                    } else {
+                        ++visibleGroundPlantFarCount_;
+                    }
                     ++visibleGroundPlantCount_;
                     cellVisible = true;
                 }

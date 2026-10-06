@@ -165,7 +165,7 @@ try {
     && result.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
-      "jungle near ground plants include an upright broadleaf silhouette")
+      "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 12 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
@@ -425,10 +425,11 @@ try {
   await writeFile(groundScreenshotPath, Buffer.from(groundScreenshot.data, "base64"));
   const groundPassed = groundResult.output?.includes("island-simulator: renderer WEBGL2")
     && groundResult.output?.includes(
-      "jungle near ground plants include an upright broadleaf silhouette")
+      "jungle near ground plants include upright and split-leaf silhouettes")
     && groundResult.output?.includes(
-      "island-simulator: ground QA target variant 1 at player-eye detail distance")
-    && /[1-9][0-9]*\/2225 ground plants/.test(groundResult.output ?? "")
+      "island-simulator: ground QA target variant 2 at player-eye detail distance")
+    && /[1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+      groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
 
@@ -506,8 +507,8 @@ try {
     && jungleResult.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
     && jungleResult.output?.includes(
-      "jungle near ground plants include an upright broadleaf silhouette")
-    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
+      "jungle near ground plants include upright and split-leaf silhouettes")
+    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/565 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 

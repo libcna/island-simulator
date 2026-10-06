@@ -375,7 +375,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "ground QA target variant 1 at player-eye detail distance")
+                "ground QA per-instance near LOD [1-9][0-9]* plants")
         add_test(NAME IslandGameGrassCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-grass-capture.ppm"
                     --viewpoint grass)

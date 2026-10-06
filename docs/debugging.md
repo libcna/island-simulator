@@ -182,10 +182,10 @@ build/island-simulator --capture /tmp/island-wildlife-nav.ppm --viewpoint monkey
 ```
 
 These runs render four frames and exit, except the monkey capture waits 24 frames for the startup
-crossfades to settle. The ground view selects a cleared variant-1 forest-floor plant beside the
-primary path for repeatable leaf-silhouette review. The contact view places an offset QA camera
-above the jungle path while leaving the player footprint at the target, making all nine support
-samples and their normals visible. The movement view deterministically walks east into one palm,
+crossfades to settle. The ground view selects a cleared variant-2 split-leaf forest-floor plant
+beside the primary path for repeatable leaf-silhouette review. The contact view places an offset QA
+camera above the jungle path while leaving the player footprint at the target, making all nine
+support samples and their normals visible. The movement view deterministically walks east into one palm,
 retains the rejected direct step and axis-slide resolution, and observes both endpoints from an
 offset camera. Native CTest follows the overview with `tools/validate_capture.py`; it validates the
 complete 1280 by 720 P6 payload and broad luminance, colour-diversity, and spatial-contrast metrics,

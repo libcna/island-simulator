@@ -194,7 +194,7 @@ namespace island
             const GroundPlantPlacement* selected = nullptr;
             float bestScore = std::numeric_limits<float>::max();
             for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
-                if (plant.variant != 1U) continue;
+                if (plant.variant != 2U) continue;
                 const float pathX = VegetationLayout::PrimaryPathCenterX(plant.z);
                 const float pathDistance = std::fabs(plant.x - pathX);
                 if (pathDistance < 3.2f || pathDistance > 6.5f) continue;
@@ -238,7 +238,7 @@ namespace island
             }
             if (selected == nullptr) {
                 for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
-                    if (plant.variant == 1U) {
+                    if (plant.variant == 2U) {
                         selected = &plant;
                         break;
                     }
@@ -1673,11 +1673,17 @@ namespace island
                       << jungleRenderer_->VisibleCanopyNearCount() << ", far "
                       << jungleRenderer_->VisibleCanopyFarCount() << "), "
                       << jungleRenderer_->VisibleUnderstoryCount() << '/'
-                      << jungleRenderer_->TotalUnderstoryCount() << " understory, "
+                      << jungleRenderer_->TotalUnderstoryCount() << " understory (near "
+                      << jungleRenderer_->VisibleUnderstoryNearCount() << ", far "
+                      << jungleRenderer_->VisibleUnderstoryFarCount() << "), "
                       << jungleRenderer_->VisibleBushCount() << '/'
-                      << jungleRenderer_->TotalBushCount() << " bushes, "
+                      << jungleRenderer_->TotalBushCount() << " bushes (near "
+                      << jungleRenderer_->VisibleBushNearCount() << ", far "
+                      << jungleRenderer_->VisibleBushFarCount() << "), "
                       << jungleRenderer_->VisibleGroundPlantCount() << '/'
-                      << jungleRenderer_->TotalGroundPlantCount() << " ground plants, "
+                      << jungleRenderer_->TotalGroundPlantCount() << " ground plants (near "
+                      << jungleRenderer_->VisibleGroundPlantNearCount() << ", far "
+                      << jungleRenderer_->VisibleGroundPlantFarCount() << "), "
                       << jungleRenderer_->DrawCallCount() << " draws; props "
                       << naturalPropRenderer_->VisibleRockCount() << '/'
                       << naturalPropRenderer_->TotalRockCount() << " rocks, "
@@ -1730,6 +1736,10 @@ namespace island
                       << " draw, player ripple " << waterRippleModel_.Intensity()
                       << ", phase " << waterRippleModel_.Phase() << ", current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
+            if (viewpoint_ == FixedViewpoint::GroundPlantDetail) {
+                std::cout << "island-simulator: ground QA per-instance near LOD "
+                          << jungleRenderer_->VisibleGroundPlantNearCount() << " plants\n";
+            }
             if (worldDebugVisible_) {
                 const PlayerMovementTrace& movementTrace = playerMotion_.MovementTrace();
                 std::cout << "island-simulator: world debug frame ground samples "

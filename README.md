@@ -37,8 +37,11 @@ derivatives, so canopy, understory, bush, and ground-plant facets respond cohere
 sun without normal buffers, textures, or another draw.
 Nearby low bushes replace their largest smooth lobes with smaller overlapping volume and paired
 folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
-One near forest-floor variant now forms six upright broad leaves on visible petioles instead of
-another low strap-leaf rosette; its compact far representation and batching remain unchanged.
+One near forest-floor variant forms six upright broad leaves on visible petioles, while another
+uses five low folded split leaves instead of repeating the strap-leaf rosette. Their
+compact far representations and batching remain unchanged. Understory, bush, and forest-floor
+LOD and maximum-distance selection use actual instance positions after a conservative cell reject,
+so first-person detail no longer changes early at a coarse cell boundary.
 Near land and reef rocks gain subtle texture-free strata and restrained lichen flecks from their
 portable material shader. The effect is deliberately limited to the near LOD so distant rock
 silhouettes remain calm and avoid unnecessary fragment work.

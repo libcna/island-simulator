@@ -59,10 +59,28 @@ namespace island
             return visibleCanopyFarCount_;
         }
         [[nodiscard]] int VisibleUnderstoryCount() const noexcept { return visibleUnderstoryCount_; }
+        [[nodiscard]] int VisibleUnderstoryNearCount() const noexcept
+        {
+            return visibleUnderstoryNearCount_;
+        }
+        [[nodiscard]] int VisibleUnderstoryFarCount() const noexcept
+        {
+            return visibleUnderstoryFarCount_;
+        }
         [[nodiscard]] int VisibleBushCount() const noexcept { return visibleBushCount_; }
+        [[nodiscard]] int VisibleBushNearCount() const noexcept { return visibleBushNearCount_; }
+        [[nodiscard]] int VisibleBushFarCount() const noexcept { return visibleBushFarCount_; }
         [[nodiscard]] int VisibleGroundPlantCount() const noexcept
         {
             return visibleGroundPlantCount_;
+        }
+        [[nodiscard]] int VisibleGroundPlantNearCount() const noexcept
+        {
+            return visibleGroundPlantNearCount_;
+        }
+        [[nodiscard]] int VisibleGroundPlantFarCount() const noexcept
+        {
+            return visibleGroundPlantFarCount_;
         }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
@@ -143,8 +161,14 @@ namespace island
         int visibleCanopyNearCount_ = 0;
         int visibleCanopyFarCount_ = 0;
         int visibleUnderstoryCount_ = 0;
+        int visibleUnderstoryNearCount_ = 0;
+        int visibleUnderstoryFarCount_ = 0;
         int visibleBushCount_ = 0;
+        int visibleBushNearCount_ = 0;
+        int visibleBushFarCount_ = 0;
         int visibleGroundPlantCount_ = 0;
+        int visibleGroundPlantNearCount_ = 0;
+        int visibleGroundPlantFarCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
     };
