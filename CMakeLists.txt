@@ -233,7 +233,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "grass player interaction integrated into the instanced vertex shader")
+                "grass five-level near curvature with portable two-sided daylight shading")
         add_test(NAME IslandGameJungleCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-jungle-capture.ppm"
                     --viewpoint jungle)

@@ -15,6 +15,9 @@ simplified palm silhouettes break up the open-ocean horizon in one intentionally
 portable static batch.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.
+The near mesh uses five curvature levels per blade, folded side colour, and portable two-sided
+daylight/root/transmission shading; the cheaper far mesh uses three levels and still merges into
+the terrain before culling.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling

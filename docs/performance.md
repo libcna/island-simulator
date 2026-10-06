@@ -171,6 +171,32 @@ and 2.5548--2.8423 ms p99. These measurements establish the fixed-camera cost en
 movement, transparent-overdraw inspection, release builds, and physical mobile hardware remain
 open.
 
+### Curved and daylight-shaded grass follow-up
+
+The close mesh now uses five rather than four control levels, increasing a near cluster from 168
+to 224 triangles. The far mesh drops from four to three levels and from 30 to 20 triangles because
+its screen-space silhouette does not benefit from the intermediate curve. Blade orientation is
+packed into existing vertex alpha, so two-sided fixed-sun diffuse, fold, root, view-edge, and
+restrained transmission cues require no new vertex stream, texture, instance data, CPU update, or
+draw submission.
+
+Two complete five-view repeats produced the ranges below. The composition and submission counts
+remain identical to the preceding grass-interaction measurements. The small timing differences are
+inside normal debug-build run variation and must not be interpreted as an isolated shader cost.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.2185--1.2292 | 1.5142--1.6064 | 1.9785--2.0901 | 81 | 0 |
+| Beach | 1.7259--1.7574 | 2.1388--2.1531 | 2.4479--2.5391 | 124 | 2,954 |
+| Jungle | 1.4096--1.4220 | 1.6226--1.7988 | 2.0396--2.1484 | 91 | 2,932 |
+| Driftwood/shore detail | 0.8239--0.8291 | 1.1045--1.1909 | 1.5008--1.5023 | 26 | 155 |
+| Monkeys | 1.5598--1.5601 | 2.0335--2.0783 | 2.2638--2.3146 | 97 | 2,946 |
+
+Two repeats of the dedicated full-interaction view rendered 2,827 grass clusters in 126 tracked
+submissions at 1.7429--1.7595 ms mean, 1.8919--1.9007 ms p95, and 2.2903--2.3129 ms p99. Native
+and actual Chrome/SwiftShader captures visually agree. Physical-device fragment cost and aliasing
+remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

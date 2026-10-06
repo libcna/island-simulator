@@ -320,6 +320,8 @@ try {
     && beachResult.output?.includes("portable instanced wind shader")
     && beachResult.output?.includes(
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
+    && beachResult.output?.includes(
+      "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
@@ -350,6 +352,8 @@ try {
   const grassPassed = grassResult.output?.includes("island-simulator: renderer WEBGL2")
     && grassResult.output?.includes(
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
+    && grassResult.output?.includes(
+      "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
     && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1/.test(
       grassResult.output ?? "")
     && !grassResult.error;

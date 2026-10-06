@@ -218,8 +218,13 @@ path keeps denser but shorter turf rather than an artificial bare stripe. Distan
 the far tier into the ground before culling. `GrassInteractionModel` eases a normalized envelope
 from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
-interaction shares every existing instance and draw. Native OpenGL 3.3 and WebGL 2 use the portable
-instanced shader; a slower static `BasicEffect` path remains functional but omits bending.
+interaction shares every existing instance and draw. Near blades use five curved control levels
+and 224 triangles per cluster; the reduced far tier uses three levels and 20 triangles. Blade
+orientation is packed into the otherwise-unused vertex alpha channel, avoiding another buffer
+attribute while enabling two-sided fixed-sun diffuse, subtle view-edge transmission, folded side
+colour, and root darkening. Native OpenGL 3.3 and WebGL 2 use the portable instanced shader; a
+slower static `BasicEffect` path remains functional but omits bending and the fragment-lighting
+detail.
 
 The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
 2,225 small forest-floor plants. Four

@@ -15,7 +15,9 @@ hardware-GPU performance, extended play, and a second browser engine are not yet
 
 The renderer gate also requires the exact shore-following animated foam ribbon rather than its
 stock-effect fallback. The close prop camera additionally requires a nonzero terrain-conforming
-contact-shadow population in exactly one portable draw.
+contact-shadow population in exactly one portable draw. The beach and grass cameras require the
+five-level near-blade curvature and portable two-sided daylight path rather than only accepting the
+older flat-colour shader.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader. This records the evidence
 environment; it is not a minimum-version claim.
@@ -93,7 +95,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
-interaction on the custom shader. The jungle view must report nonzero canopy, understory, low bushes,
+interaction on the custom shader, and both views require its curved two-sided daylight path. The
+jungle view must report nonzero canopy, understory, low bushes,
 and forest-floor plants, the prop view must report visible fallen logs plus a nonzero one-draw
 contact-shadow batch, the driftwood view must
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent

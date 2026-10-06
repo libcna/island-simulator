@@ -1,5 +1,6 @@
 #include "IslandSimulator/GrassRenderer.hpp"
 
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 
@@ -52,7 +53,8 @@ namespace island
         constexpr float FarDistance = 135.0f;
         constexpr int NearBladeCount = 28;
         constexpr int FarBladeCount = 5;
-        constexpr int BladeLevels = 4;
+        constexpr int NearBladeLevels = 5;
+        constexpr int FarBladeLevels = 3;
         constexpr float GoldenAngle = 2.39996323f;
 
         struct GrassInstanceData
@@ -92,6 +94,8 @@ uniform float uPlayerInteractionStrength;
 
 out vec3 vColor;
 out vec3 vWorld;
+out vec3 vBladeNormal;
+out float vBladeHeight;
 
 void main()
 {
@@ -133,11 +137,18 @@ void main()
     world.z += sway * 0.46;
     world.y -= abs(sway) * 0.055 * heightWeight;
 
+    float bladeFacing = aColor.a * 6.28318530718;
+    float bladeNormalX = cos(bladeFacing) * yawCos - sin(bladeFacing) * yawSin;
+    float bladeNormalZ = cos(bladeFacing) * yawSin + sin(bladeFacing) * yawCos;
+    vBladeNormal = normalize(tangentX * bladeNormalX
+                             + tangentZ * bladeNormalZ
+                             + surfaceNormal * 0.10);
     float colorShift = (aVariation.w - 0.5) * 0.14;
     vColor = aColor.rgb * vec3(1.0 + colorShift * 0.55,
                                1.0 + colorShift,
                                1.0 + colorShift * 0.42);
     vWorld = world;
+    vBladeHeight = clamp(aWindData.x, 0.0, 1.0);
     gl_Position = uViewProjection * vec4(world, 1.0);
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -146,8 +157,11 @@ void main()
         constexpr const char* FragmentBody = R"(
 in vec3 vColor;
 in vec3 vWorld;
+in vec3 vBladeNormal;
+in float vBladeHeight;
 
 uniform vec3 uCameraPosition;
+uniform vec3 uToSun;
 
 out vec4 fragColor;
 
@@ -155,7 +169,17 @@ void main()
 {
     float distanceToCamera = length(vWorld - uCameraPosition);
     float groundBlend = smoothstep(82.0, 125.0, distanceToCamera);
-    vec3 color = mix(vColor, vec3(0.255, 0.465, 0.255), groundBlend);
+    vec3 normal = normalize(vBladeNormal);
+    vec3 toSun = normalize(uToSun);
+    vec3 toCamera = normalize(uCameraPosition - vWorld);
+    float twoSidedDiffuse = abs(dot(normal, toSun));
+    float rootLight = mix(0.80, 1.0, smoothstep(0.0, 0.72, vBladeHeight));
+    float edgeLight = pow(1.0 - abs(dot(normal, toCamera)), 2.0) * 0.06;
+    float transmission = pow(max(dot(-toCamera, toSun), 0.0), 5.0)
+        * smoothstep(0.25, 0.92, vBladeHeight) * 0.10;
+    float light = rootLight * (0.78 + twoSidedDiffuse * 0.30 + edgeLight + transmission);
+    vec3 litColor = vColor * light;
+    vec3 color = mix(litColor, vec3(0.255, 0.465, 0.255), groundBlend);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -202,21 +226,27 @@ void main()
             return static_cast<std::size_t>(row * GrassRenderer::CellsPerAxis + column);
         }
 
-        [[nodiscard]] Color BladeColor(const int blade, const float heightFraction)
+        [[nodiscard]] Color BladeColor(const int blade, const float heightFraction,
+                                       const bool rightSide, const float facing)
         {
             const float bladeShift = static_cast<float>((blade * 17) % 9) / 8.0f - 0.5f;
-            const float light = 0.80f + heightFraction * 0.20f;
+            const bool reverseFold = (blade & 1) != 0;
+            const float foldLight = rightSide == reverseFold ? 0.94f : 1.06f;
+            const float light = (0.78f + heightFraction * 0.22f) * foldLight;
             const int red = static_cast<int>(std::lround((40.0f + bladeShift * 9.0f) * light));
             const int green = static_cast<int>(std::lround((124.0f + bladeShift * 19.0f) * light));
             const int blue = static_cast<int>(std::lround((38.0f + bladeShift * 8.0f) * light));
+            const float normalizedFacing = facing / (2.0f * std::numbers::pi_v<float>)
+                - std::floor(facing / (2.0f * std::numbers::pi_v<float>));
+            const int encodedFacing = static_cast<int>(std::lround(normalizedFacing * 255.0f));
             return Color(static_cast<std::uint8_t>(std::clamp(red, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(green, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(blue, 0, 255)),
-                         static_cast<std::uint8_t>(255));
+                         static_cast<std::uint8_t>(std::clamp(encodedFacing, 0, 255)));
         }
 
         void AppendBlade(ClusterGeometry& geometry, const int blade, const int bladeCount,
-                         const bool farMesh)
+                         const bool farMesh, const int bladeLevels)
         {
             const float normalizedRadius = std::sqrt(
                 (static_cast<float>(blade) + 0.45f) / static_cast<float>(bladeCount));
@@ -237,22 +267,25 @@ void main()
             const float phase = std::fmod(static_cast<float>(blade) * 0.173f, 1.0f);
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
 
-            for (int level = 0; level < BladeLevels; ++level) {
-                const float t = static_cast<float>(level) / static_cast<float>(BladeLevels - 1);
-                const float taper = level == BladeLevels - 1
+            for (int level = 0; level < bladeLevels; ++level) {
+                const float t = static_cast<float>(level) / static_cast<float>(bladeLevels - 1);
+                const float taper = level == bladeLevels - 1
                     ? 0.018f
                     : 0.58f + 0.42f * std::sin(t * std::numbers::pi_v<float>);
                 const Vector3 centre(baseX, 0.0f, baseZ);
                 const Vector3 curved = centre + Vector3(0.0f, 1.0f, 0.0f) * (height * t)
-                    + direction * (lean * t * t);
+                    + direction * (lean * t * t)
+                    + side * (0.012f * std::sin(t * std::numbers::pi_v<float>)
+                              * (blade % 3 == 0 ? -1.0f : 1.0f));
                 const Vector3 halfWidth = side * (width * taper);
-                const Color color = BladeColor(blade, t);
                 const Vector2 windData(t, phase);
-                geometry.vertices.emplace_back(curved - halfWidth, color, windData);
-                geometry.vertices.emplace_back(curved + halfWidth, color, windData);
+                geometry.vertices.emplace_back(curved - halfWidth,
+                                               BladeColor(blade, t, false, facing), windData);
+                geometry.vertices.emplace_back(curved + halfWidth,
+                                               BladeColor(blade, t, true, facing), windData);
             }
 
-            for (int level = 0; level < BladeLevels - 1; ++level) {
+            for (int level = 0; level < bladeLevels - 1; ++level) {
                 const auto left = static_cast<std::uint16_t>(base + level * 2);
                 const auto right = static_cast<std::uint16_t>(left + 1U);
                 const auto nextLeft = static_cast<std::uint16_t>(left + 2U);
@@ -263,14 +296,15 @@ void main()
         }
 
         [[nodiscard]] ClusterGeometry CreateClusterGeometry(const int bladeCount,
-                                                            const bool farMesh)
+                                                            const bool farMesh,
+                                                            const int bladeLevels)
         {
             ClusterGeometry geometry;
-            geometry.vertices.reserve(static_cast<std::size_t>(bladeCount * BladeLevels * 2));
+            geometry.vertices.reserve(static_cast<std::size_t>(bladeCount * bladeLevels * 2));
             geometry.indices.reserve(static_cast<std::size_t>(bladeCount
-                                                               * (BladeLevels - 1) * 6));
+                                                               * (bladeLevels - 1) * 6));
             for (int blade = 0; blade < bladeCount; ++blade) {
-                AppendBlade(geometry, blade, bladeCount, farMesh);
+                AppendBlade(geometry, blade, bladeCount, farMesh, bladeLevels);
             }
             return geometry;
         }
@@ -329,7 +363,9 @@ void main()
                       << " patches in " << CellCount
                       << " cells, portable instanced wind shader\n"
                       << "island-simulator: grass player interaction integrated into the "
-                         "instanced vertex shader\n";
+                         "instanced vertex shader\n"
+                      << "island-simulator: grass five-level near curvature with portable "
+                         "two-sided daylight shading\n";
         } else {
             std::cerr << "island-simulator: grass " << totalPatchCount_
                       << " patches, stock-effect fallback: " << fallbackReason_ << '\n';
@@ -352,8 +388,8 @@ void main()
                 BufferUsage::WriteOnly);
             mesh.indices->SetData(geometry.indices.data(), static_cast<int>(geometry.indices.size()));
         };
-        upload(CreateClusterGeometry(NearBladeCount, false), nearMesh_);
-        upload(CreateClusterGeometry(FarBladeCount, true), farMesh_);
+        upload(CreateClusterGeometry(NearBladeCount, false, NearBladeLevels), nearMesh_);
+        upload(CreateClusterGeometry(FarBladeCount, true, FarBladeLevels), farMesh_);
     }
 
     void GrassRenderer::CreateCells(const IslandTerrain& terrain, const GrassLayout& layout)
@@ -440,6 +476,9 @@ void main()
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
+            customEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
             customEffect_->SetUniformVec2(
                 "uPlayerPosition",
                 std::isfinite(playerPosition.X) ? playerPosition.X : cameraPosition.X,

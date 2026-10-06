@@ -372,8 +372,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
 ### Grass quality campaign
 
 - [~] Prototype clustered mesh blades and evaluate first-person silhouette/overdraw on all backends.
-  A 28-blade near mesh and five-blade far mesh now run on OpenGL 3.3 and actual WebGL 2 and are
-  visible in the first GLES3 frame; measured mobile overdraw and further close-up shaping remain.
+  A 28-blade, five-control-level near mesh and five-blade, three-level far mesh now run on OpenGL
+  3.3 and actual WebGL 2. Near blades have folded side colour, two-sided fixed-sun lighting, root
+  darkening, and restrained transmission; the earlier grass is visible in the first GLES3 frame,
+  while the current shading package only compiles there. Measured mobile overdraw remains.
 - [~] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The first
   18,556-patch layout varies all five deterministically from terrain constraints and smooth cluster
   noise; final biome masks remain open.
@@ -736,8 +738,11 @@ Android is not project completion.
   visual composition, and sound/wildlife.
 - [ ] Retune acceleration, deceleration, slope response, eye height, mouse/touch sensitivity,
   swimming, and water transitions from play evidence.
-- [ ] Improve grass close-up shape, density transitions, colour variation, wind coherence, and
-  aliasing until it holds up at first-person height.
+- [~] Improve grass close-up shape, density transitions, colour variation, wind coherence, and
+  aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
+  colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
+  first-person depth without textures or extra draws; pop-free LOD, richer biome colour, aliasing,
+  and physical-device tuning remain.
 - [ ] Break repeated palm/prop silhouettes and correct floating/sunken placements.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
@@ -1953,6 +1958,32 @@ Work next, in order:
   grass composition. The arm64-v8a GLES 3 APK rebuild and app lint pass; WebAssembly is 8,297,201
   bytes, stripped `libmain.so` is 15,694,160 bytes, and the APK is 33,426,536 bytes. Android
   runtime appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime
+  remain clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Curved and daylight-shaped grass blades
+
+- A close native critique identified flat, uniformly coloured grass as the weakest part of the
+  otherwise dense ground layer. The retained near cluster now uses five curved control levels and
+  224 triangles instead of four levels and 168 triangles; the far cluster deliberately drops to
+  three levels and 20 triangles from 30 because the intermediate curve was not useful at distance.
+- Packed deterministic blade orientation into the existing vertex-colour alpha channel rather
+  than expanding the vertex or instance stream. The portable GLSL 330 / GLSL ES 300 path now adds
+  shared fixed-sun two-sided diffuse, subtle folded-side colour, root darkening, view-edge light,
+  and restrained back-transmission. It adds no texture, instance data, CPU update, or draw call.
+  Visual review rejected the first overly dark tuning and retained a brighter bounded response.
+- Added an explicit native/browser startup gate for the five-level two-sided path. Native and
+  actual Chrome/SwiftShader grass captures were visually compared after final tuning and match;
+  the old `BasicEffect` fallback remains functional but intentionally omits detailed fragment
+  lighting.
+- Two complete native five-view repeats preserved 81/124/91/26/97 submissions. The beach view
+  measured 1.7259--1.7574 ms mean and 2.1388--2.1531 ms p95; the full-interaction close-grass view
+  measured 1.7429--1.7595 ms mean and 1.8919--1.9007 ms p95 across two repeats. The results stay
+  inside ordinary debug-build variation; no isolated performance improvement is claimed.
+- All 20 native tests pass, including 19 real OpenGL 3.3 scenes. The complete Chrome
+  152/WebGL 2 renderer/lifecycle/input/audio-init harness passes with the new shading gate. The
+  arm64-v8a GLES 3 APK rebuild and app lint pass; WebAssembly is 8,299,390 bytes, stripped
+  `libmain.so` is 15,698,448 bytes, and the APK is 33,430,824 bytes. Android runtime appearance and
+  mobile fragment cost remain unqualified without KVM or a physical device. CNA and Sharp Runtime
   remain clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
