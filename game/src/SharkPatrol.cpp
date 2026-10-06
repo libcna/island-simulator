@@ -3,6 +3,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <numbers>
 
@@ -87,7 +88,8 @@ namespace island
     void SharkPatrol::Update(const float deltaSeconds, const float observerX,
                              const float observerY, const float observerZ) noexcept
     {
-        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.1f);
+        const float safeDelta = std::isfinite(deltaSeconds)
+            ? std::clamp(deltaSeconds, 0.0f, 0.1f) : 0.0f;
         elapsedSeconds_ += safeDelta;
         ++frameIndex_;
 
@@ -122,6 +124,18 @@ namespace island
             UpdateMotion(std::min(accumulatedSeconds_, 0.5f));
             accumulatedSeconds_ = 0.0f;
         }
+#ifndef NDEBUG
+        assert(std::isfinite(state_.x) && std::isfinite(state_.y)
+               && std::isfinite(state_.z) && std::isfinite(state_.headingRadians));
+        assert(std::isfinite(state_.pitchRadians) && std::fabs(state_.pitchRadians) <= 0.181f);
+        assert(std::isfinite(state_.bankRadians) && std::fabs(state_.bankRadians) <= 0.241f);
+        assert(std::isfinite(state_.bodyWave) && std::fabs(state_.bodyWave) <= 1.001f);
+        assert(std::isfinite(state_.scale) && state_.scale > 0.0f);
+        assert(std::isfinite(state_.activity)
+               && state_.activity >= 0.0f && state_.activity <= 1.0f);
+        assert(std::isfinite(state_.targetX) && std::isfinite(state_.targetZ));
+        assert(state_.visible || state_.simulationTier == WildlifeSimulationTier::Dormant);
+#endif
     }
 
     void SharkPatrol::UpdateMotion(const float deltaSeconds) noexcept

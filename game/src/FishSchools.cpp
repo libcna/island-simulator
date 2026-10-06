@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <numbers>
 
@@ -133,7 +134,8 @@ namespace island
     void FishSchools::Update(const float deltaSeconds, const float observerX,
                              const float observerY, const float observerZ) noexcept
     {
-        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.1f);
+        const float safeDelta = std::isfinite(deltaSeconds)
+            ? std::clamp(deltaSeconds, 0.0f, 0.1f) : 0.0f;
         elapsedSeconds_ += safeDelta;
         ++frameIndex_;
         fullSimulationCount_ = 0;
@@ -178,6 +180,26 @@ namespace island
             states_[fishIndex] = agents_[fishIndex].state;
         }
         SyncSchoolStates();
+#ifndef NDEBUG
+        assert(states_.size() == FishCount && schoolStates_.size() == SchoolCount);
+        assert(fullSimulationCount_ + reducedSimulationCount_ + dormantSimulationCount_
+               == static_cast<int>(FishCount));
+        for (const FishSchoolState& school : schoolStates_) {
+            assert(std::isfinite(school.centreX) && std::isfinite(school.centreY)
+                   && std::isfinite(school.centreZ));
+            assert(school.direction == -1 || school.direction == 1);
+        }
+        for (const FishState& state : states_) {
+            assert(std::isfinite(state.x) && std::isfinite(state.y)
+                   && std::isfinite(state.z) && std::isfinite(state.headingRadians));
+            assert(std::isfinite(state.pitchRadians) && std::fabs(state.pitchRadians) <= 0.221f);
+            assert(std::isfinite(state.bankRadians) && std::fabs(state.bankRadians) <= 0.281f);
+            assert(std::isfinite(state.speed) && state.speed >= 0.0f);
+            assert(std::isfinite(state.bodyWave) && std::fabs(state.bodyWave) <= 1.001f);
+            assert(std::isfinite(state.scale) && state.scale > 0.0f);
+            assert(state.schoolIndex < SchoolCount && state.colorVariant < 4U);
+        }
+#endif
     }
 
     void FishSchools::UpdateSchool(const std::size_t schoolIndex,

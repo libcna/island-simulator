@@ -1,14 +1,20 @@
 #include "IslandSimulator/WildlifeSimulation.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace island
 {
     WildlifeSimulationTier WildlifeActivationPolicy::Classify(
         const float distance, const float fullDistance, const float reducedDistance) noexcept
     {
-        const float safeFullDistance = std::max(0.0f, fullDistance);
-        const float safeReducedDistance = std::max(safeFullDistance, reducedDistance);
+        if (!std::isfinite(distance)) {
+            return WildlifeSimulationTier::Dormant;
+        }
+        const float safeFullDistance = std::isfinite(fullDistance)
+            ? std::max(0.0f, fullDistance) : 0.0f;
+        const float safeReducedDistance = std::isfinite(reducedDistance)
+            ? std::max(safeFullDistance, reducedDistance) : safeFullDistance;
         if (distance <= safeFullDistance) {
             return WildlifeSimulationTier::Full;
         }

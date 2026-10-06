@@ -1090,6 +1090,13 @@ int main()
     Check(island::WildlifeActivationPolicy::Classify(275.0f, 100.0f, 250.0f)
               == island::WildlifeSimulationTier::Dormant,
           "far wildlife receives dormant-rate simulation");
+    const float quietNan = std::numeric_limits<float>::quiet_NaN();
+    Check(island::WildlifeActivationPolicy::Classify(quietNan, 100.0f, 250.0f)
+              == island::WildlifeSimulationTier::Dormant,
+          "non-finite observer distance fails closed to dormant wildlife simulation");
+    Check(island::WildlifeActivationPolicy::Classify(1.0f, quietNan, quietNan)
+              == island::WildlifeSimulationTier::Dormant,
+          "non-finite wildlife thresholds fail closed to a zero-distance envelope");
     Check(island::WildlifeActivationPolicy::UpdateDivisor(
               island::WildlifeSimulationTier::Full) == 1U
               && island::WildlifeActivationPolicy::UpdateDivisor(
@@ -1100,6 +1107,15 @@ int main()
 
     island::BirdFlock birds(terrain);
     island::BirdFlock repeatedBirds(terrain);
+    island::BirdFlock invalidInputBirds(terrain);
+    invalidInputBirds.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputBirds.DormantSimulationCount()
+              == static_cast<int>(island::BirdFlock::BirdCount)
+              && std::ranges::all_of(invalidInputBirds.Birds(), [](const auto& state) {
+                     return std::isfinite(state.x) && std::isfinite(state.y)
+                         && std::isfinite(state.z) && std::isfinite(state.headingRadians);
+                 }),
+          "bird simulation rejects non-finite frame and observer input without state poisoning");
     Check(birds.Birds().size() == island::BirdFlock::BirdCount,
           "bird flock has the intended bounded population");
     Check(birds.Routes().size() == island::BirdFlock::BirdCount,
@@ -1247,6 +1263,15 @@ int main()
 
     island::FishSchools fishSchools(terrain);
     island::FishSchools repeatedFishSchools(terrain);
+    island::FishSchools invalidInputFish(terrain);
+    invalidInputFish.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputFish.DormantSimulationCount()
+              == static_cast<int>(island::FishSchools::FishCount)
+              && std::ranges::all_of(invalidInputFish.Fish(), [](const auto& state) {
+                     return std::isfinite(state.x) && std::isfinite(state.y)
+                         && std::isfinite(state.z) && std::isfinite(state.headingRadians);
+                 }),
+          "fish simulation rejects non-finite frame and observer input without state poisoning");
     Check(fishSchools.Fish().size() == island::FishSchools::FishCount,
           "fish schools have the intended bounded population");
     Check(fishSchools.Schools().size() == island::FishSchools::SchoolCount,
@@ -1372,6 +1397,15 @@ int main()
 
     island::SharkPatrol shark(terrain);
     island::SharkPatrol repeatedShark(terrain);
+    island::SharkPatrol invalidInputShark(terrain);
+    invalidInputShark.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputShark.State().simulationTier
+              == island::WildlifeSimulationTier::Dormant
+              && std::isfinite(invalidInputShark.State().x)
+              && std::isfinite(invalidInputShark.State().y)
+              && std::isfinite(invalidInputShark.State().z)
+              && std::isfinite(invalidInputShark.State().headingRadians),
+          "shark simulation rejects non-finite frame and observer input without state poisoning");
     Check(shark.State().present && shark.State().visible
               && shark.State().activity == 1.0f,
           "shark begins with a bounded visible observation window");
@@ -1507,6 +1541,15 @@ int main()
           "collision broad phase materially reduces the average candidate population");
     island::MonkeyTroop monkeys(terrain);
     island::MonkeyTroop repeatedMonkeys(terrain);
+    island::MonkeyTroop invalidInputMonkeys(terrain);
+    invalidInputMonkeys.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputMonkeys.DormantSimulationCount()
+              == static_cast<int>(island::MonkeyTroop::MonkeyCount)
+              && std::ranges::all_of(invalidInputMonkeys.Monkeys(), [](const auto& state) {
+                     return std::isfinite(state.x) && std::isfinite(state.y)
+                         && std::isfinite(state.z) && std::isfinite(state.animationSeconds);
+                 }),
+          "monkey simulation rejects non-finite frame and observer input without state poisoning");
     monkeys.SetObstacles(worldObstacles);
     repeatedMonkeys.SetObstacles(worldObstacles);
     Check(monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount,
@@ -2372,6 +2415,24 @@ int main()
           "interior movement stays in walking mode");
     CheckNear(player.OceanCurrentStrength(terrain), 0.0f, 0.0001f,
               "ocean current remains inactive while walking");
+
+    island::PlayerMotion invalidInputPlayer;
+    invalidInputPlayer.SetPosition(terrain, 12.0f, -9.0f);
+    const island::PlayerPosition validPlayerPosition = invalidInputPlayer.Position();
+    invalidInputPlayer.Update(terrain, quietNan,
+                              std::numeric_limits<float>::infinity(), quietNan);
+    Check(invalidInputPlayer.Position().x == validPlayerPosition.x
+              && invalidInputPlayer.Position().y == validPlayerPosition.y
+              && invalidInputPlayer.Position().z == validPlayerPosition.z
+              && invalidInputPlayer.VelocityX() == 0.0f
+              && invalidInputPlayer.VelocityZ() == 0.0f,
+          "player movement rejects non-finite frame and direction input without state poisoning");
+    invalidInputPlayer.SetPosition(
+        terrain, quietNan, std::numeric_limits<float>::infinity());
+    Check(invalidInputPlayer.Position().x == validPlayerPosition.x
+              && invalidInputPlayer.Position().z == validPlayerPosition.z
+              && std::isfinite(invalidInputPlayer.Position().y),
+          "player placement retains the last valid coordinates for non-finite input");
 
     island::PlayerMotion runningPlayer;
     runningPlayer.SetPosition(terrain, 0.0f, 0.0f);

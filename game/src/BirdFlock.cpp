@@ -3,6 +3,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <limits>
 #include <numbers>
@@ -159,7 +160,8 @@ namespace island
     void BirdFlock::Update(const float deltaSeconds, const float observerX,
                            const float observerY, const float observerZ) noexcept
     {
-        const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.1f);
+        const float safeDelta = std::isfinite(deltaSeconds)
+            ? std::clamp(deltaSeconds, 0.0f, 0.1f) : 0.0f;
         elapsedSeconds_ += safeDelta;
         ++frameIndex_;
         fullSimulationCount_ = 0;
@@ -195,6 +197,22 @@ namespace island
             }
             states_[index] = agent.state;
         }
+#ifndef NDEBUG
+        assert(states_.size() == BirdCount);
+        assert(fullSimulationCount_ + reducedSimulationCount_ + dormantSimulationCount_
+               == static_cast<int>(BirdCount));
+        for (const BirdState& state : states_) {
+            assert(std::isfinite(state.x) && std::isfinite(state.y)
+                   && std::isfinite(state.z) && std::isfinite(state.headingRadians));
+            assert(std::isfinite(state.speed) && state.speed >= 0.0f);
+            assert(std::isfinite(state.wingPose) && std::fabs(state.wingPose) <= 1.001f);
+            assert(std::isfinite(state.bankRadians) && std::fabs(state.bankRadians) <= 0.341f);
+            assert(std::isfinite(state.glideAmount)
+                   && state.glideAmount >= 0.0f && state.glideAmount <= 1.0f);
+            assert(std::isfinite(state.scale) && state.scale > 0.0f);
+            assert(state.colorVariant < 3U);
+        }
+#endif
     }
 
     void BirdFlock::UpdateAgent(Agent& agent, const float deltaSeconds) noexcept

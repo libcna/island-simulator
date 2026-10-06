@@ -4,11 +4,15 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <numbers>
 #include <stdexcept>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -322,6 +326,95 @@ namespace island
             return data;
         }
 
+        void ValidateSkinningDataOrThrow(const SkinningData& data)
+        {
+            if (data.BoneCount != static_cast<int>(BoneCount)
+                || data.SkeletonHierarchy.size() != BoneCount
+                || data.BindPose.size() != BoneCount
+                || data.InverseBindPose.size() != BoneCount
+                || (!data.SkeletonRootPrefix.empty()
+                    && data.SkeletonRootPrefix.size() != BoneCount)) {
+                throw std::runtime_error(
+                    "procedural monkey skeleton has inconsistent 14-bone palette sizes");
+            }
+            for (std::size_t index = 0; index < BoneCount; ++index) {
+                const int parent = data.SkeletonHierarchy[index];
+                if ((index == 0U && parent != -1)
+                    || (index > 0U
+                        && (parent < 0 || parent >= static_cast<int>(index)))) {
+                    throw std::runtime_error(
+                        "procedural monkey skeleton is not in parent-before-child order");
+                }
+            }
+
+            constexpr std::array<std::string_view, 4> RequiredClips = {
+                "idle", "observe", "walk", "run"};
+            for (const std::string_view name : RequiredClips) {
+                const auto clipIterator = data.AnimationClips.find(std::string(name));
+                if (clipIterator == data.AnimationClips.end()) {
+                    throw std::runtime_error(
+                        "procedural monkey skeleton is missing animation clip "
+                        + std::string(name));
+                }
+                const AnimationClip& clip = clipIterator->second;
+                const double duration = clip.Duration.getTotalSecondsProperty();
+                if (!std::isfinite(duration) || duration <= 0.0
+                    || clip.TargetSpace != ClipTargetSpaceEXT::JointPalette
+                    || clip.Tracks.empty()) {
+                    throw std::runtime_error(
+                        "procedural monkey animation clip metadata is invalid: "
+                        + std::string(name));
+                }
+                for (const BoneTrackEXT& track : clip.Tracks) {
+                    if (track.BoneIndex < 0
+                        || track.BoneIndex >= static_cast<int>(BoneCount)
+                        || track.Keys.empty()) {
+                        throw std::runtime_error(
+                            "procedural monkey animation track has an invalid palette index");
+                    }
+                    double previousSeconds = -1.0;
+                    for (const KeyframeEXT& key : track.Keys) {
+                        const double seconds = key.Time.getTotalSecondsProperty();
+                        const bool transformIsFinite =
+                            std::isfinite(key.Translation.X)
+                            && std::isfinite(key.Translation.Y)
+                            && std::isfinite(key.Translation.Z)
+                            && std::isfinite(key.Rotation.X)
+                            && std::isfinite(key.Rotation.Y)
+                            && std::isfinite(key.Rotation.Z)
+                            && std::isfinite(key.Rotation.W)
+                            && std::isfinite(key.Scale.X)
+                            && std::isfinite(key.Scale.Y)
+                            && std::isfinite(key.Scale.Z);
+                        if (!std::isfinite(seconds) || seconds < previousSeconds
+                            || seconds < 0.0 || seconds > duration + 0.000001
+                            || !transformIsFinite) {
+                            throw std::runtime_error(
+                                "procedural monkey animation keyframes are invalid");
+                        }
+                        previousSeconds = seconds;
+                    }
+                }
+            }
+        }
+
+        void ValidateMeshOrThrow(const MeshData& mesh, const std::string_view name)
+        {
+            if (mesh.vertices.empty() || mesh.indices.empty()
+                || mesh.indices.size() % 3U != 0U
+                || mesh.vertices.size() > std::numeric_limits<std::uint16_t>::max()) {
+                throw std::runtime_error(
+                    "procedural monkey " + std::string(name) + " mesh metadata is invalid");
+            }
+            for (const std::uint16_t index : mesh.indices) {
+                if (static_cast<std::size_t>(index) >= mesh.vertices.size()) {
+                    throw std::runtime_error(
+                        "procedural monkey " + std::string(name)
+                        + " mesh contains an out-of-range index");
+                }
+            }
+        }
+
         void AddVertex(MeshData& mesh, const Vector3& position, const Vector3& normal,
                        const int bone)
         {
@@ -556,6 +649,8 @@ namespace island
                                          std::vector<Matrix>& local)
         {
             const std::size_t boneCount = static_cast<std::size_t>(data.BoneCount);
+            assert(source.size() == boneCount && target.size() == boneCount);
+            assert(std::isfinite(amount) && amount >= 0.0f && amount <= 1.0f);
             local.resize(boneCount);
             const float eased = amount * amount * (3.0f - 2.0f * amount);
             for (std::size_t index = 0; index < boneCount; ++index) {
@@ -569,6 +664,9 @@ namespace island
                               std::vector<Matrix>& skin)
         {
             const std::size_t boneCount = static_cast<std::size_t>(data.BoneCount);
+            assert(local.size() == boneCount);
+            assert(data.SkeletonHierarchy.size() == boneCount
+                   && data.InverseBindPose.size() == boneCount);
             world.resize(boneCount);
             skin.resize(boneCount);
             const bool hasPrefix = data.SkeletonRootPrefix.size() == boneCount;
@@ -624,8 +722,11 @@ namespace island
         whiteTexture_->SetData(&whitePixel, 1);
         const RigDefinition rig = CreateRig();
         skinningData_ = CreateSkinningData(rig);
+        ValidateSkinningDataOrThrow(*skinningData_);
         MeshData faceMesh = CreateFaceMesh();
         MeshData eyeMesh = CreateEyeMesh();
+        ValidateMeshOrThrow(faceMesh, "face");
+        ValidateMeshOrThrow(eyeMesh, "eye");
         faceVertexCount_ = static_cast<int>(faceMesh.vertices.size());
         facePrimitiveCount_ = static_cast<int>(faceMesh.indices.size() / 3U);
         eyeVertexCount_ = static_cast<int>(eyeMesh.vertices.size());
@@ -634,6 +735,8 @@ namespace island
         for (std::size_t variant = 0; variant < SilhouetteCount; ++variant) {
             MeshData nearMesh = CreateMonkeyMesh(rig, true, variant);
             MeshData farMesh = CreateMonkeyMesh(rig, false, variant);
+            ValidateMeshOrThrow(nearMesh, "near LOD");
+            ValidateMeshOrThrow(farMesh, "far LOD");
             nearVertexCounts_[variant] = static_cast<int>(nearMesh.vertices.size());
             nearPrimitiveCounts_[variant] = static_cast<int>(nearMesh.indices.size() / 3U);
             farVertexCounts_[variant] = static_cast<int>(farMesh.vertices.size());
@@ -753,6 +856,8 @@ namespace island
             }
 
             const std::vector<Matrix>* skinTransforms = &playback.player->GetSkinTransforms();
+            assert(playback.player->GetBoneTransforms().size() == BoneCount);
+            assert(skinTransforms->size() == BoneCount);
             if (playback.crossfading) {
                 const float amount = std::clamp(
                     (monkey.animationSeconds - playback.crossfadeStartSeconds)
@@ -787,6 +892,7 @@ namespace island
                                  playback.attentiveSkinTransforms);
                 skinTransforms = &playback.attentiveSkinTransforms;
             }
+            assert(skinTransforms->size() == BoneCount);
 
             const Vector3 centre(monkey.x, monkey.y + 0.72f * monkey.scale, monkey.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);

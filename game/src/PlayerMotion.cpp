@@ -3,8 +3,10 @@
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <limits>
+#include <numbers>
 
 namespace island
 {
@@ -95,15 +97,22 @@ namespace island
 
     void PlayerMotion::SetPosition(const IslandTerrain& terrain, const float x, const float z) noexcept
     {
-        position_.x = x;
-        position_.z = z;
+        position_.x = std::isfinite(x)
+            ? x : (std::isfinite(position_.x) ? position_.x : 0.0f);
+        position_.z = std::isfinite(z)
+            ? z : (std::isfinite(position_.z) ? position_.z : 0.0f);
         velocityX_ = 0.0f;
         velocityZ_ = 0.0f;
         movementTrace_ = PlayerMovementTrace{};
-        mode_ = terrain.Height(x, z) < WaterEntryTerrainHeight
+        mode_ = terrain.Height(position_.x, position_.z) < WaterEntryTerrainHeight
             ? LocomotionMode::Swimming
             : LocomotionMode::Walking;
         ResolveModeAndHeight(terrain, std::numeric_limits<float>::infinity());
+#ifndef NDEBUG
+        assert(std::isfinite(position_.x) && std::isfinite(position_.y)
+               && std::isfinite(position_.z));
+        assert(std::isfinite(groundHeight_) && std::isfinite(groundSlopeRadians_));
+#endif
     }
 
     float PlayerMotion::OffshoreDistance(const IslandTerrain& terrain) const noexcept
@@ -170,7 +179,10 @@ namespace island
         const float deltaSeconds, const std::span<const CircularObstacle> obstacles,
         const WorldCollisionGrid* collisionGrid) noexcept
     {
-        const float dt = std::clamp(deltaSeconds, 0.0f, MaximumStepSeconds);
+        const float dt = std::isfinite(deltaSeconds)
+            ? std::clamp(deltaSeconds, 0.0f, MaximumStepSeconds) : 0.0f;
+        inputX = std::isfinite(inputX) ? inputX : 0.0f;
+        inputZ = std::isfinite(inputZ) ? inputZ : 0.0f;
         const float inputLength = std::hypot(inputX, inputZ);
         if (inputLength > 1.0f) {
             inputX /= inputLength;
@@ -272,5 +284,13 @@ namespace island
         }
 
         ResolveModeAndHeight(terrain, 1.8f * dt);
+#ifndef NDEBUG
+        assert(std::isfinite(position_.x) && std::isfinite(position_.y)
+               && std::isfinite(position_.z));
+        assert(std::isfinite(velocityX_) && std::isfinite(velocityZ_));
+        assert(std::isfinite(groundHeight_) && std::isfinite(groundSlopeRadians_));
+        assert(groundSlopeRadians_ >= 0.0f
+               && groundSlopeRadians_ <= std::numbers::pi_v<float> * 0.5f + 0.001f);
+#endif
     }
 }

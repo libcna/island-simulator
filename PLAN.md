@@ -805,8 +805,14 @@ Dependencies: representative complete scene on all targets.
   inputs for actionable failure diagnostics. `IslandCommandLineValidation` now launches the real
   executable for eight invalid option/value/conflict cases and requires exit code 2, specific
   stderr guidance, and no stdout before graphics initialization. Malformed content cases remain.
-- [ ] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
-  sizes, and impossible player/wildlife states in development builds.
+- [~] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
+  sizes, and impossible player/wildlife states in development builds. Player and all four wildlife
+  simulations now reject non-finite frame/input values before they can poison persistent state and
+  assert finite poses, bounded animation values, valid populations, and home/range invariants in
+  debug builds. Monkey renderer startup validates all generated mesh indices, the complete
+  fourteen-bone hierarchy/palette, four required clips, track palette indices, ordered key times,
+  and finite key transforms before GPU upload. Broader terrain-domain and remaining renderer-mesh
+  assertions are still open.
 - [x] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
   A host-only two-worker preset instruments the game-owned core, tests, and world-report tool while
   omitting CNA and the graphical application. The first complete pass is clean. LeakSanitizer
@@ -3506,6 +3512,29 @@ Work next, in order:
   initializing graphics. This advances malformed-configuration coverage without pretending that
   malformed procedural content, shader packages, animation data, or audio inputs are now covered.
   CNA and Sharp Runtime remain read-only and unmodified; no dependency defect was involved.
+
+### 2026-10-06 — Finite simulation and procedural animation validation
+
+- Hardened `PlayerMotion`, bird, fish, shark, and monkey updates against non-finite time, movement,
+  placement, and observer values. Invalid time is a zero-length step, invalid direction is neutral,
+  invalid player placement retains the last valid coordinate, and invalid wildlife distance fails
+  closed to the dormant tier. Debug builds assert finite player/wildlife poses, bounded pose values,
+  complete population accounting, valid palette/school indices, and monkey home-range invariants.
+- Added fail-fast startup validation for the original procedural monkey assets. The generated
+  fourteen-bone hierarchy, bind/inverse-bind arrays, optional root prefix, required clips, joint-
+  palette target space, track indices, ordered key times, and finite key transforms must agree.
+  Face/eye plus all three near/far silhouette meshes must be nonempty triangle lists whose every
+  16-bit index addresses an uploaded vertex. Crossfade and recomposed skin palettes retain debug
+  size assertions at their unchecked indexing boundaries.
+- Core and command-line tests pass in 15.44 seconds, including explicit poisoned-input regressions.
+  Isolated actual OpenGL 3.3 smoke and monkey capture pass. The complete Chrome 152/SwiftShader
+  WebGL 2 harness passes all 22 stages and WebAssembly is 8,488,549 bytes.
+- The arm64 GLES 3 target and application lint pass. A fresh x86_64 APK then constructed the full
+  scene and passed the actual KVM/host-GPU GLES 3 first-frame gate at 1465.892 ms total startup; its
+  2400 by 1080 screenshot was inspected and retains clean touch-overlay blending. The emulator was
+  stopped afterward and the default v2-signed, arm64-only APK restored at 18,731,100 bytes with a
+  15,920,816-byte stripped `libmain.so`. CNA and Sharp Runtime remain clean, on `next`, read-only,
+  and unmodified; no qualifying dependency defect was found.
 
 ## Session-end checklist
 
