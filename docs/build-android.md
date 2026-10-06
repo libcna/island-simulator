@@ -79,8 +79,11 @@ faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-li
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
 terrain cell batching. It also validates every indexed procedural mesh plus the monkey fourteen-
 bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build of the
-same sources passed the KVM/host-GPU GLES 3 first-frame gate at 1465.892 ms total startup, after
-which the default arm64 package was restored. Public terrain queries additionally fail closed
+same sources passed the KVM/host-GPU GLES 3 first-frame gate at 1569.704 ms total startup:
+497.655 ms world generation, 4.515 ms framework initialization, 1011.413 ms content creation,
+21.083 ms before the first draw, and 35.038 ms for the first draw body. The inspected 2400 by 1080
+capture retains the complete scene and clean translucent touch controls. The default arm64 package
+was then restored. Public terrain queries additionally fail closed
 before non-finite or out-of-domain values can reach procedural noise-cell conversion. The APK verifies
 with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
@@ -206,6 +209,11 @@ reported 77 ms total / 80 ms wait. No fatal, shader-compilation, `GL_INVALID_OPE
 software-AVD uniform-query error appeared in the accelerated logs. A later memory snapshot reported
 87.3 MiB total PSS, 167.3 MiB RSS, and 0.5 MiB swap PSS. These are emulator observations, not
 physical-device budgets.
+
+A subsequent no-window qualification after the authored cove composition again used KVM version
+12 and host-GPU gfxstream, completed a cold GLES 3 first frame in 1569.704 ms, and produced an
+inspected clean overview. This proves that the current 31-driftwood complete scene starts on the
+emulator; the overview is not a close-view qualification of the cove landmark itself.
 
 SurfaceFlinger presentation samples at the same initial scene improved after terrain visible-cell
 run batching from 40.903 ms mean (24.45 frames/s, 71 of 126 intervals over 40 ms) to 34.163 and

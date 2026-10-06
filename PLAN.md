@@ -3625,9 +3625,11 @@ Work next, in order:
 - WebAssembly is 8,494,145 bytes. The arm64 GLES 3 APK builds through the required shared
   `/rv/cnaccache`, passes application lint, contains only arm64-v8a libraries, and verifies with
   APK signature scheme v2. It is 18,740,172 bytes with a 15,929,888-byte stripped `libmain.so`.
-  Cove appearance and cost remain unqualified on Android because this instance-only composition
-  change was not used to justify another emulator run. CNA and Sharp Runtime remain clean, on
-  `next`, read-only, and unmodified; no qualifying dependency defect was found.
+  A current x86_64 package then passed the actual KVM/host-GPU GLES 3 gate in 1569.704 ms total and
+  its 2400 by 1080 overview was inspected before restoring the arm64 package. This qualifies
+  complete-scene startup but not the cove's close appearance or cost on physical Android hardware.
+  The pinned CNA and Sharp Runtime exports used by the game remained read-only and unchanged; no
+  qualifying dependency defect was found.
 
 ## Session-end checklist
 
