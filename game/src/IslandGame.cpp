@@ -687,6 +687,16 @@ namespace island
             0.0f, worldSeedCopyFeedbackSeconds_ - deltaSeconds);
         locomotionModeNoticeSeconds_ = std::max(
             0.0f, locomotionModeNoticeSeconds_ - deltaSeconds);
+        // Fixed QA cameras deliberately reject player movement, but their diagnostic overlay
+        // remains interactive so automated and manual reviewers can inspect an unobstructed view.
+        const KeyboardState frameKeyboard = Keyboard::GetState();
+        const bool debugOverlayToggleDown = frameKeyboard.IsKeyDown(Keys::F1);
+        if (debugOverlayToggleDown && !debugOverlayToggleWasDown_) {
+            debugOverlayVisible_ = !debugOverlayVisible_;
+            std::cout << "island-simulator: debug overlay "
+                      << (debugOverlayVisible_ ? "enabled" : "disabled") << '\n';
+        }
+        debugOverlayToggleWasDown_ = debugOverlayToggleDown;
         if (!benchmarkPath_.empty()
             && viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
             UpdateBenchmarkTraversal();
@@ -881,14 +891,6 @@ namespace island
             mouseCaptured_ = false;
             setIsMouseVisibleProperty(true);
         }
-
-        const bool debugOverlayToggleDown = keyboard.IsKeyDown(Keys::F1);
-        if (debugOverlayToggleDown && !debugOverlayToggleWasDown_) {
-            debugOverlayVisible_ = !debugOverlayVisible_;
-            std::cout << "island-simulator: debug overlay "
-                      << (debugOverlayVisible_ ? "enabled" : "disabled") << '\n';
-        }
-        debugOverlayToggleWasDown_ = debugOverlayToggleDown;
 
         const bool worldDebugToggleDown = keyboard.IsKeyDown(Keys::F2);
         if (worldDebugToggleDown && !worldDebugToggleWasDown_) {

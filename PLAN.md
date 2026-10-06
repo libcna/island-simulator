@@ -1162,7 +1162,9 @@ Work next, in order:
    with individual culling/LOD/density fields only where they materially improve debugging. F1 now
    reports local static-collision candidates, nine terrain support samples, wildlife
    marker/target/home-range counts, bird route-family/spawn/target counts, and live audio sources
-   against their complete populations/budgets.
+   against their complete populations/budgets. F1 is now independently toggleable from fixed QA
+   cameras, and the browser matrix validates the populated panel before hiding it for clean visual
+   captures; retain diagnostic screenshots only where the panel itself is the subject under test.
 5. Continue Android qualification on physical hardware. The KVM-accelerated API 35 AVD now proves
    complete-scene GLES 3 rendering, independent movement/look gestures, translucent touch HUD,
    same-process surface restoration, AAudio pause/resume, startup/memory instrumentation, and a
@@ -4131,6 +4133,30 @@ Work next, in order:
   is 18,701,940 bytes with a 15,891,656-byte stripped `libmain.so`. Android runtime appearance is
   not newly claimed. CNA and Sharp Runtime remain read-only, and no dependency defect or workaround
   was involved.
+
+### 2026-10-07 — Unobstructed fixed-camera visual evidence
+
+- A review of the browser evidence found that the opt-in F1 panel covered more than half of most
+  fixed-camera captures. The statistics were useful, but those same images were poor evidence for
+  composition, LOD transitions, silhouettes, and full-frame rendering defects. Kept the panel as
+  an initial validation gate and changed the WebGL 2 matrix to focus the canvas, send a real F1
+  edge, require the exact disabled diagnostic, wait for a newly presented frame, and only then
+  save each visual reference.
+- Moved only the F1 edge handler out of the normal player-camera update. Fixed QA cameras still
+  reject movement, look, Shift locomotion changes, teleports, and free-camera controls, while their
+  diagnostic panel can now be hidden interactively. The ordinary first-person path retains the
+  same input state and behaviour. The browser helper fails explicitly if the panel was not active,
+  the canvas could not be focused, or the game did not acknowledge its removal.
+- The complete Chrome 152/SwiftShader 22-stage WebGL 2 suite passes without a synthetic click or
+  timing retry beyond the established bounded key helper. Manual inspection of regenerated beach,
+  jungle, east-clearing, and near-surface-water frames confirms a full unobstructed 1280 by 720
+  image with the expected scene and no residual panel. The final WebAssembly is 8,492,424 bytes.
+- The changed OpenGL 3.3 object compiles through `/rv/cnaccache`; the native executable is
+  intentionally not relinked while the operator's visible game process remains active. The default
+  arm64-only GLES 3 APK builds with two workers, passes application lint, verifies with signature
+  scheme v2, and is 18,702,516 bytes with a 15,892,232-byte stripped `libmain.so`. No new Android
+  runtime claim is made. CNA and Sharp Runtime remain read-only, and no dependency defect or
+  workaround was involved.
 
 ## Session-end checklist
 

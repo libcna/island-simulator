@@ -152,6 +152,39 @@ try {
     }
     return false;
   };
+  const captureVisualFrame = async (sessionId, fileName, debugOverlayEnabled = false) => {
+    if (debugOverlayEnabled) {
+      const output = await readSmokeOutput(sessionId);
+      if (!output.includes("island-simulator: debug overlay active")) {
+        throw new Error(`Visual capture ${fileName} did not start with the debug overlay active`);
+      }
+      await call("Page.bringToFront", {}, sessionId);
+      const focusResult = await call("Runtime.evaluate", {
+        expression: `(() => {
+          const canvas = document.getElementById("canvas");
+          if (!canvas) return false;
+          canvas.tabIndex = -1;
+          canvas.focus();
+          return document.activeElement === canvas;
+        })()`,
+        returnByValue: true,
+      }, sessionId);
+      if (focusResult.result.value !== true) {
+        throw new Error(`Visual capture ${fileName} could not focus the canvas`);
+      }
+      const overlayHidden = await dispatchKeyUntilOutput(
+        sessionId, "F1", "F1", 112, "island-simulator: debug overlay disabled");
+      if (!overlayHidden) {
+        throw new Error(`Visual capture ${fileName} could not hide the debug overlay`);
+      }
+      // Let at least one heavily loaded SwiftShader frame present without the overlay.
+      await delay(300);
+    }
+    const screenshot = await call("Page.captureScreenshot", { format: "png" }, sessionId);
+    const screenshotPath = path.join(buildDirectory, fileName);
+    await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
+    return screenshotPath;
+  };
 
   const { targetId: smokeTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: smokeSessionId } = await call(
@@ -399,9 +432,8 @@ try {
   }, visualSessionId);
   visualResult = JSON.parse(completedVisualEvaluation.result.value ?? "{}");
 
-  const screenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const screenshotPath = path.join(buildDirectory, "island-browser-smoke.png");
-  await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
+  const screenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-smoke.png");
 
   const visualPassed = visualResult.output?.includes("island-simulator: renderer WEBGL2")
     && visualResult.output?.includes("island-simulator: ocean portable custom shader")
@@ -445,9 +477,8 @@ try {
   }, visualSessionId);
   beachResult = JSON.parse(completedBeachEvaluation.result.value ?? "{}");
 
-  const beachScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const beachScreenshotPath = path.join(buildDirectory, "island-browser-beach.png");
-  await writeFile(beachScreenshotPath, Buffer.from(beachScreenshot.data, "base64"));
+  const beachScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-beach.png", true);
   const beachPassed = beachResult.output?.includes("island-simulator: renderer WEBGL2")
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
     && beachResult.output?.includes(
@@ -493,9 +524,8 @@ try {
   }, visualSessionId);
   grassResult = JSON.parse(completedGrassEvaluation.result.value ?? "{}");
 
-  const grassScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const grassScreenshotPath = path.join(buildDirectory, "island-browser-grass.png");
-  await writeFile(grassScreenshotPath, Buffer.from(grassScreenshot.data, "base64"));
+  const grassScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-grass.png", true);
   const grassPassed = grassResult.output?.includes("island-simulator: renderer WEBGL2")
     && grassResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -539,9 +569,8 @@ try {
   }, visualSessionId);
   groundResult = JSON.parse(completedGroundEvaluation.result.value ?? "{}");
 
-  const groundScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const groundScreenshotPath = path.join(buildDirectory, "island-browser-ground.png");
-  await writeFile(groundScreenshotPath, Buffer.from(groundScreenshot.data, "base64"));
+  const groundScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-ground.png", true);
   const groundPassed = groundResult.output?.includes("island-simulator: renderer WEBGL2")
     && groundResult.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
@@ -572,9 +601,8 @@ try {
   }, visualSessionId);
   palmResult = JSON.parse(completedPalmEvaluation.result.value ?? "{}");
 
-  const palmScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const palmScreenshotPath = path.join(buildDirectory, "island-browser-palms.png");
-  await writeFile(palmScreenshotPath, Buffer.from(palmScreenshot.data, "base64"));
+  const palmScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-palms.png", true);
   const palmPassed = palmResult.output?.includes("island-simulator: renderer WEBGL2")
     && palmResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -607,9 +635,8 @@ try {
   }, visualSessionId);
   jungleResult = JSON.parse(completedJungleEvaluation.result.value ?? "{}");
 
-  const jungleScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const jungleScreenshotPath = path.join(buildDirectory, "island-browser-jungle.png");
-  await writeFile(jungleScreenshotPath, Buffer.from(jungleScreenshot.data, "base64"));
+  const jungleScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-jungle.png", true);
   const junglePassed = jungleResult.output?.includes("island-simulator: renderer WEBGL2")
     && jungleResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -657,11 +684,8 @@ try {
       returnByValue: true,
     }, visualSessionId);
     clearingResult = JSON.parse(completedEvaluation.result.value ?? "{}");
-    const clearingScreenshot = await call(
-      "Page.captureScreenshot", { format: "png" }, visualSessionId);
-    const clearingScreenshotPath = path.join(buildDirectory, fileName);
-    await writeFile(clearingScreenshotPath,
-      Buffer.from(clearingScreenshot.data, "base64"));
+    const clearingScreenshotPath = await captureVisualFrame(
+      visualSessionId, fileName, true);
     return { result: clearingResult, screenshotPath: clearingScreenshotPath };
   };
 
@@ -713,9 +737,8 @@ try {
   }, visualSessionId);
   propResult = JSON.parse(completedPropEvaluation.result.value ?? "{}");
 
-  const propScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const propScreenshotPath = path.join(buildDirectory, "island-browser-props.png");
-  await writeFile(propScreenshotPath, Buffer.from(propScreenshot.data, "base64"));
+  const propScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-props.png", true);
   const propPassed = propResult.output?.includes("island-simulator: renderer WEBGL2")
     && propResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -750,11 +773,8 @@ try {
   }, visualSessionId);
   driftwoodResult = JSON.parse(completedDriftwoodEvaluation.result.value ?? "{}");
 
-  const driftwoodScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const driftwoodScreenshotPath = path.join(
-    buildDirectory, "island-browser-driftwood.png");
-  await writeFile(driftwoodScreenshotPath, Buffer.from(driftwoodScreenshot.data, "base64"));
+  const driftwoodScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-driftwood.png", true);
   const driftwoodPassed = driftwoodResult.output?.includes("island-simulator: renderer WEBGL2")
     && driftwoodResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -792,10 +812,8 @@ try {
   }, visualSessionId);
   reefResult = JSON.parse(completedReefEvaluation.result.value ?? "{}");
 
-  const reefScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const reefScreenshotPath = path.join(buildDirectory, "island-browser-reef.png");
-  await writeFile(reefScreenshotPath, Buffer.from(reefScreenshot.data, "base64"));
+  const reefScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-reef.png", true);
   const reefPassed = reefResult.output?.includes("island-simulator: renderer WEBGL2")
     && reefResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -828,10 +846,8 @@ try {
   }, visualSessionId);
   waterResult = JSON.parse(completedWaterEvaluation.result.value ?? "{}");
 
-  const waterScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const waterScreenshotPath = path.join(buildDirectory, "island-browser-water.png");
-  await writeFile(waterScreenshotPath, Buffer.from(waterScreenshot.data, "base64"));
+  const waterScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-water.png", true);
   const waterPassed = waterResult.output?.includes("island-simulator: renderer WEBGL2")
     && waterResult.output?.includes(
       "island-simulator: ocean reused crossing-wave subsurface colour")
@@ -864,10 +880,8 @@ try {
   }, visualSessionId);
   currentResult = JSON.parse(completedCurrentEvaluation.result.value ?? "{}");
 
-  const currentScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const currentScreenshotPath = path.join(buildDirectory, "island-browser-current.png");
-  await writeFile(currentScreenshotPath, Buffer.from(currentScreenshot.data, "base64"));
+  const currentScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-current.png", true);
   const currentPassed = currentResult.output?.includes("island-simulator: renderer WEBGL2")
     && currentResult.output?.includes(
       "island-simulator: ocean reused crossing-wave subsurface colour")
@@ -901,10 +915,8 @@ try {
   }, visualSessionId);
   distantResult = JSON.parse(completedDistantEvaluation.result.value ?? "{}");
 
-  const distantScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const distantScreenshotPath = path.join(buildDirectory, "island-browser-distant.png");
-  await writeFile(distantScreenshotPath, Buffer.from(distantScreenshot.data, "base64"));
+  const distantScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-distant.png", true);
   const distantPassed = distantResult.output?.includes("island-simulator: renderer WEBGL2")
     && distantResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -934,10 +946,8 @@ try {
   }, visualSessionId);
   frondResult = JSON.parse(completedFrondEvaluation.result.value ?? "{}");
 
-  const frondScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const frondScreenshotPath = path.join(buildDirectory, "island-browser-fronds.png");
-  await writeFile(frondScreenshotPath, Buffer.from(frondScreenshot.data, "base64"));
+  const frondScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-fronds.png", true);
   const frondPassed = frondResult.output?.includes("island-simulator: renderer WEBGL2")
     && frondResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -965,10 +975,8 @@ try {
   }, visualSessionId);
   birdResult = JSON.parse(completedBirdEvaluation.result.value ?? "{}");
 
-  const birdScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const birdScreenshotPath = path.join(buildDirectory, "island-browser-birds.png");
-  await writeFile(birdScreenshotPath, Buffer.from(birdScreenshot.data, "base64"));
+  const birdScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-birds.png", true);
   const birdPassed = birdResult.output?.includes("island-simulator: renderer WEBGL2")
     && birdResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -998,10 +1006,8 @@ try {
   }, visualSessionId);
   fishResult = JSON.parse(completedFishEvaluation.result.value ?? "{}");
 
-  const fishScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const fishScreenshotPath = path.join(buildDirectory, "island-browser-fish.png");
-  await writeFile(fishScreenshotPath, Buffer.from(fishScreenshot.data, "base64"));
+  const fishScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-fish.png", true);
   const fishPassed = fishResult.output?.includes("island-simulator: renderer WEBGL2")
     && fishResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -1033,10 +1039,8 @@ try {
   }, visualSessionId);
   sharkResult = JSON.parse(completedSharkEvaluation.result.value ?? "{}");
 
-  const sharkScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const sharkScreenshotPath = path.join(buildDirectory, "island-browser-shark.png");
-  await writeFile(sharkScreenshotPath, Buffer.from(sharkScreenshot.data, "base64"));
+  const sharkScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-shark.png", true);
   const sharkPassed = sharkResult.output?.includes("island-simulator: renderer WEBGL2")
     && sharkResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -1068,10 +1072,8 @@ try {
   }, visualSessionId);
   monkeyResult = JSON.parse(completedMonkeyEvaluation.result.value ?? "{}");
 
-  const monkeyScreenshot = await call(
-    "Page.captureScreenshot", { format: "png" }, visualSessionId);
-  const monkeyScreenshotPath = path.join(buildDirectory, "island-browser-monkeys.png");
-  await writeFile(monkeyScreenshotPath, Buffer.from(monkeyScreenshot.data, "base64"));
+  const monkeyScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-monkeys.png");
   const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
     && monkeyResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
