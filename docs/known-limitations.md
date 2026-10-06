@@ -17,10 +17,11 @@ been confirmed so far.
   diversity, broader shell/branch/beach-prop variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
-  close substrate-microvariation, and sparse pointed leaf-litter material shader. A portable
-  near-field contact layer now grounds palms, canopy trunks, land rocks, wood, and monkeys, but
-  there is still no authored biome texture blend, decals, broad substrate diversity, baked ambient
-  lighting, or full directional/self-shadowing.
+  close substrate-microvariation, sparse pointed leaf litter, and restrained fixed-sun interior
+  dappling. The dapple is static material breakup rather than canopy-accurate shadow projection. A
+  portable near-field contact layer now grounds palms, canopy trunks, land rocks, wood, and monkeys,
+  but there is still no authored biome texture blend, decals, broad substrate diversity, baked
+  ambient lighting, canopy-accurate occlusion, or full directional/self-shadowing.
 - The ocean has depth colour, analytic waves/specular response, a coarse broad foam mask, and an
   exact shore-following animated crest/wash ribbon. Swimming now adds a deliberately subtle,
   depth-responsive turquoise edge veil that cools and strengthens with the offshore current, but

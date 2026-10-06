@@ -448,6 +448,30 @@ regression or speed change is claimed.
 | Driftwood/shore detail | 0.7763--0.8006 | 0.8580--0.9871 | 1.2184--1.4301 | 26 | 1 |
 | Monkeys | 1.4925--1.5420 | 1.6373--2.0082 | 2.0427--2.2312 | 97 | 0 |
 
+### Fixed-sun interior-dapple follow-up
+
+The terrain shader reuses the existing broad, medium, and fine fields to add restrained warm sun
+patches and cooler floor areas beyond the beach transition. The slope and distance terms reuse
+the existing steep/detail fades, and a spatially coherent early branch skips the colour shaping
+for shore, distant, and fully steep fragments. The pass adds no noise sample, texture, geometry,
+CPU state, or draw submission.
+
+A same-session no-dapple control was compiled and measured twice before restoring the retained
+shader. Four content-heavy view ranges overlap the retained measurements. The overview control
+was 1.1640--1.1706 ms mean versus the retained shader's 1.1409--1.2137 ms; the broad variation and
+overlapping tails do not support an isolated cost claim. The retained two-run results are:
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions |
+| --- | ---: | ---: | ---: | ---: |
+| Overview | 1.1409--1.2137 | 1.2637--1.4466 | 1.3718--1.8739 | 77 |
+| Beach | 1.8151--1.9109 | 2.2815--2.3749 | 2.6576--2.8556 | 124 |
+| Jungle | 1.4837--1.6552 | 1.6501--2.2806 | 2.0622--2.7964 | 95 |
+| Driftwood/shore detail | 0.8237--0.9109 | 1.1105--1.3527 | 1.3728--1.6321 | 26 |
+| Monkeys | 1.6669--1.7469 | 2.2280--2.3417 | 2.4453--2.5808 | 97 |
+
+Native and actual Chrome/SwiftShader jungle and ground captures agree visually. Hardware-browser
+and physical-mobile fragment measurements remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

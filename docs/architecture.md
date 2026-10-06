@@ -183,6 +183,12 @@ presence from one hash; pointed curved silhouettes replace the rejected first ov
 detail uses no texture, geometry, asset, or draw submission, does not alter authoritative terrain
 queries, and disappears before it can alias into mid-distance scenery.
 
+The same material reuses its already-computed broad, medium, and fine fields for a restrained
+fixed-sun floor-dapple pass. It begins 34 m inland, fades in through 68 m, rejects fully steep
+ground, and shares the existing 95--285 m detail fade. A coherent early branch avoids the extra
+colour shaping on shore, distant, and fully steep fragments. The effect is static material
+breakup suited to the permanent daylight art direction, not a claim of geometric canopy shadowing.
+
 `DistantSceneryLayout` places five low islets at least 570 m from the island centre, outside every
 player-accessible ocean boundary but within the 850 m ocean surface. `DistantSceneryRenderer`
 combines their irregular rock ridges and 11 simplified trunk/frond/crown silhouettes into one

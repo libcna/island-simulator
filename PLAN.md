@@ -312,8 +312,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   now carry authoritative shore distance and slope into a portable texture-free material shader;
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
   steeper interior ground exposes a muted soil tint, and a distance-bounded microvariation octave
-  plus two sparse deterministic grids add curved pointed leaf litter to the interior. Authored
-  biome masks, decals, rock strata, broader litter diversity, and final colour/scale tuning remain.
+  plus two sparse deterministic grids add curved pointed leaf litter to the interior. A restrained
+  fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition.
+  Authored biome masks, decals, rock strata, broader litter diversity, and final colour/scale
+  tuning remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
   Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
   unreachable haze-softened low islets with 11 simplified palm silhouettes now break up the
@@ -964,7 +966,8 @@ Work next, in order:
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
-   curved interior leaf litter now break up exposed jungle-floor gaps; broader prop diversity,
+   curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
+   jungle-floor gaps; broader prop diversity,
    contact cues, authored biome variation, and material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
@@ -2356,6 +2359,31 @@ Work next, in order:
   and the APK is 33,492,008 bytes. Android runtime appearance remains unqualified without KVM or a
   physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency
   defect was found.
+
+### 2026-10-06 — Fixed-sun jungle-floor material breakup
+
+- Added restrained warm sun patches and cooler shaded areas to low-slope ground beginning 34 m
+  inland. The terrain shader reuses its existing broad, medium, and fine fields plus the existing
+  steep and 95--285 m detail fades; it adds no noise sample, texture, geometry, CPU state, asset,
+  or draw submission. A coherent early branch skips the colour shaping on shore, distant, and
+  fully steep fragments. This is deliberately static material breakup for the permanent sunny
+  presentation, not geometric canopy-shadow simulation.
+- Compared deterministic native before/after jungle and ground captures and retained the second,
+  readable-but-bounded contrast pass. The beach composition remained unchanged. Native OpenGL 3.3
+  and actual Chrome/SwiftShader WebGL 2 jungle and ground images agree; the browser startup, grass,
+  and jungle stages now require the explicit dapple diagnostic.
+- Built and measured a same-session no-dapple control twice, restored the final path, then ran two
+  final five-view suites. Four content-heavy ranges overlap the control. Final means were
+  1.1409--1.2137 ms overview, 1.8151--1.9109 ms beach, 1.4837--1.6552 ms jungle,
+  0.8237--0.9109 ms driftwood, and 1.6669--1.7469 ms monkeys at unchanged
+  77/124/95/26/97 submissions. No isolated performance change is claimed; hardware-browser and
+  physical-mobile fragment cost remain open.
+- All 25 native tests pass, including 24 real OpenGL 3.3 scenes. The complete Chrome 152/SwiftShader
+  WebGL 2 renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3
+  APK and application lint pass; WebAssembly is 8,367,403 bytes, stripped `libmain.so` is
+  15,760,336 bytes, and the APK is 33,492,712 bytes. Android runtime appearance remains unqualified
+  without KVM or a physical device. CNA `f243c63a1dc5` and Sharp Runtime `21c06910f7cf` remain
+  clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

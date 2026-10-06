@@ -149,6 +149,17 @@ void main()
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
 
+    if (detailFade > 0.0 && signedShoreDistance > 34.0 && steep < 1.0) {
+        float canopyDappleMask = smoothstep(34.0, 68.0, signedShoreDistance)
+            * (1.0 - steep) * detailFade;
+        float dappleField = broad * 0.72 + medium * 0.46 + fine * 0.055;
+        float sunDapple = smoothstep(0.07, 0.30, dappleField);
+        float canopyShade = 1.0 - smoothstep(-0.20, 0.10, dappleField);
+        color = mix(color, color * vec3(0.89, 0.93, 0.86),
+                    canopyShade * canopyDappleMask);
+        color += vec3(0.052, 0.045, 0.018) * sunDapple * canopyDappleMask;
+    }
+
     float closeDetail = (1.0 - smoothstep(24.0, 68.0, distanceToCamera))
         * smoothstep(22.0, 38.0, signedShoreDistance)
         * (1.0 - smoothstep(0.34, 0.66, slopeRadians));
@@ -280,7 +291,9 @@ void main()
                     materialReady_ = true;
                     std::cout << "island-simulator: terrain portable sand/soil material shader\n"
                               << "island-simulator: terrain near-field microvariation and "
-                                 "procedural interior leaf litter\n";
+                                 "procedural interior leaf litter\n"
+                              << "island-simulator: terrain fixed-sun interior dapple from "
+                                 "shared portable noise fields\n";
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

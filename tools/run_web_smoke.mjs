@@ -131,6 +131,8 @@ try {
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
     && result.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
+    && result.output?.includes(
+      "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -377,6 +379,8 @@ try {
     && grassResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && grassResult.output?.includes(
+      "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
+    && grassResult.output?.includes(
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && grassResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
@@ -478,6 +482,8 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && jungleResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
+    && jungleResult.output?.includes(
+      "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && jungleResult.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
