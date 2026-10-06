@@ -24,6 +24,9 @@ of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelo
 while per-palm 125--145 m thresholds stagger the transition and avoid switching whole cells at once.
 The near tier also adds texture-free leaf-scar rings to the trunks and restrained faceted coconut
 clusters to two of the four variants without another draw submission.
+Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
+and pointed perimeter leaves. A deterministic per-tree 105--129 m threshold staggers their
+transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling

@@ -150,6 +150,8 @@ try {
     && result.output?.includes(
       "island-simulator: terrain-conforming contact shadows in one portable near-field batch")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
+    && result.output?.includes(
+      "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
@@ -433,7 +435,9 @@ try {
     && jungleResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /jungle [1-9][0-9]*\/281 canopy, [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
+    && jungleResult.output?.includes(
+      "jungle near canopy tapered support branches and pointed leaf silhouettes")
+    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 

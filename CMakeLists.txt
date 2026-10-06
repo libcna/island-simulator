@@ -238,7 +238,11 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGameJungleCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-jungle-capture.ppm"
                     --viewpoint jungle)
-        set_tests_properties(IslandGameJungleCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameJungleCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "jungle near canopy tapered support branches and pointed leaf silhouettes")
         add_test(NAME IslandGameGrassCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-grass-capture.ppm"
                     --viewpoint grass)

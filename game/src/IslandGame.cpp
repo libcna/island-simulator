@@ -869,6 +869,10 @@ namespace island
                << "    \"palms_near\": " << palmRenderer_->VisibleNearPalmCount() << ",\n"
                << "    \"palms_far\": " << palmRenderer_->VisibleFarPalmCount() << ",\n"
                << "    \"canopy\": " << jungleRenderer_->VisibleCanopyCount() << ",\n"
+               << "    \"canopy_near\": "
+               << jungleRenderer_->VisibleCanopyNearCount() << ",\n"
+               << "    \"canopy_far\": "
+               << jungleRenderer_->VisibleCanopyFarCount() << ",\n"
                << "    \"understory\": " << jungleRenderer_->VisibleUnderstoryCount() << ",\n"
                << "    \"bushes\": " << jungleRenderer_->VisibleBushCount() << ",\n"
                << "    \"ground_plants\": " << jungleRenderer_->VisibleGroundPlantCount()
@@ -1019,6 +1023,8 @@ namespace island
             overlayState.palmDraws = palmRenderer_->DrawCallCount();
             overlayState.visibleCanopy = jungleRenderer_->VisibleCanopyCount();
             overlayState.totalCanopy = jungleRenderer_->TotalCanopyCount();
+            overlayState.nearCanopy = jungleRenderer_->VisibleCanopyNearCount();
+            overlayState.farCanopy = jungleRenderer_->VisibleCanopyFarCount();
             overlayState.visibleUnderstory = jungleRenderer_->VisibleUnderstoryCount();
             overlayState.totalUnderstory = jungleRenderer_->TotalUnderstoryCount();
             overlayState.visibleBushes = jungleRenderer_->VisibleBushCount();
@@ -1154,7 +1160,9 @@ namespace island
                       << palmRenderer_->VisibleCellCount() << " cells, "
                       << palmRenderer_->DrawCallCount() << " draws; jungle "
                       << jungleRenderer_->VisibleCanopyCount() << '/'
-                      << jungleRenderer_->TotalCanopyCount() << " canopy, "
+                      << jungleRenderer_->TotalCanopyCount() << " canopy (near "
+                      << jungleRenderer_->VisibleCanopyNearCount() << ", far "
+                      << jungleRenderer_->VisibleCanopyFarCount() << "), "
                       << jungleRenderer_->VisibleUnderstoryCount() << '/'
                       << jungleRenderer_->TotalUnderstoryCount() << " understory, "
                       << jungleRenderer_->VisibleBushCount() << '/'

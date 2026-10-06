@@ -50,6 +50,14 @@ namespace island
         [[nodiscard]] int TotalBushCount() const noexcept { return totalBushCount_; }
         [[nodiscard]] int TotalGroundPlantCount() const noexcept { return totalGroundPlantCount_; }
         [[nodiscard]] int VisibleCanopyCount() const noexcept { return visibleCanopyCount_; }
+        [[nodiscard]] int VisibleCanopyNearCount() const noexcept
+        {
+            return visibleCanopyNearCount_;
+        }
+        [[nodiscard]] int VisibleCanopyFarCount() const noexcept
+        {
+            return visibleCanopyFarCount_;
+        }
         [[nodiscard]] int VisibleUnderstoryCount() const noexcept { return visibleUnderstoryCount_; }
         [[nodiscard]] int VisibleBushCount() const noexcept { return visibleBushCount_; }
         [[nodiscard]] int VisibleGroundPlantCount() const noexcept
@@ -74,6 +82,9 @@ namespace island
         {
             Microsoft::Xna::Framework::Matrix transform;
             std::uint8_t variant = 0U;
+            float x = 0.0f;
+            float z = 0.0f;
+            float nearLodDistanceSquared = 0.0f;
         };
 
         struct JungleCell
@@ -129,6 +140,8 @@ namespace island
         int totalBushCount_ = 0;
         int totalGroundPlantCount_ = 0;
         int visibleCanopyCount_ = 0;
+        int visibleCanopyNearCount_ = 0;
+        int visibleCanopyFarCount_ = 0;
         int visibleUnderstoryCount_ = 0;
         int visibleBushCount_ = 0;
         int visibleGroundPlantCount_ = 0;

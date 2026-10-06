@@ -50,6 +50,8 @@ namespace island
         int palmDraws = 0;
         int visibleCanopy = 0;
         int totalCanopy = 0;
+        int nearCanopy = 0;
+        int farCanopy = 0;
         int visibleUnderstory = 0;
         int totalUnderstory = 0;
         int visibleBushes = 0;

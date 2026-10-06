@@ -248,18 +248,22 @@ detail.
 
 The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
 2,225 small forest-floor plants. Four
-canopy variants combine tapered trunks with clustered low-poly crowns; four understory variants
+canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their
+776-triangle near meshes add seven tapered support branches and eight pointed perimeter leaves;
+rounded 208-triangle far meshes preserve the crown volume without the close silhouette detail.
+A stable yaw-derived 105--129 m threshold selects LOD per tree after cell rejection, avoiding the
+old 155 m whole-cell switch. Four understory variants
 build fern and broad-leaf silhouettes from curved opaque strips. Three bush variants combine
 offset low ellipsoid lobes to bridge the visual gap between grass and medium plants. Three small
 rosette variants use short curved opaque leaves to break up grass-heavy ground at first-person
 range. Placement uses
 independent broad/fine cluster fields plus terrain height, slope, and shoreline constraints while
 preserving the winding route, two clearings, and beach spawn. Each layer has independent near/far
-distances but remains gathered into variant batches; the deterministic jungle camera renders 102
-bushes and 129 ground plants in 24 submissions. A portable GLSL 330 / GLSL ES 300 shader
-applies weighted calm wind, and `BasicEffect` remains the explicit fallback. Native OpenGL 3.3 and
-actual Chromium/WebGL 2 execute the full shader; the current arm64 GLES 3 package compiles but has
-not been rerun on stable Android hardware.
+distances but remains gathered into variant batches; the deterministic jungle camera renders 63
+near and 46 far canopy trees, 102 bushes, and 129 ground plants in 25 submissions. A portable GLSL
+330 / GLSL ES 300 shader applies weighted calm wind, and `BasicEffect` remains the explicit
+fallback. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute the full shader; the current arm64
+GLES 3 package compiles but has not been rerun on stable Android hardware.
 
 Natural props add 152 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
 the 1.8--9.4 m offshore shelf, 11 mossy fallen logs in the low-slope interior, 28 small

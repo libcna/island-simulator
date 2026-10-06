@@ -355,8 +355,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
   forest-floor plants, 152 land rocks, 14 emergent reef outcrops, 11 fallen logs, 28 three-variant
   driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
-  clusters; richer
-  ground/bush silhouettes and broader natural beach-prop variety remain.
+  clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
+  edge leaves; richer ground/bush silhouettes and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
   placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
@@ -695,18 +695,19 @@ Dependencies: representative complete scene on all targets.
   moving traversal, release configuration, WebGL 2, and physical Android profiles remain open.
 - [~] Implement terrain/vegetation cell frustum and distance culling. Terrain and palms share a
   64-cell partition; grass uses 256 finer cells. All are frustum culled, palms/grass have distance
-  cutoffs, palms choose staggered 125--145 m LOD per instance after cell rejection, and grass selects
-  near/far geometry by cell distance. Per-instance wildlife policy and pop-free vegetation
-  transitions remain open.
+  cutoffs, palms choose staggered 125--145 m LOD per instance after cell rejection, broadleaf
+  canopy trees choose staggered 105--129 m LOD per instance, and grass selects near/far geometry
+  by cell distance. Per-instance wildlife policy and pop-free vegetation transitions remain open.
 - [~] Tune static batching/instancing and verify it does not increase memory or Web/mobile stalls.
   CNA hardware instancing reduces the 330-palm overview to four far-variant draws and bounds mixed
   first-person views to eight near/far variant draws on native OpenGL 3.3 and actual WebGL 2.
   Android GLES 3 rendered the earlier palm/grass scene once in the software-emulated AVD;
   representative revised-geometry cost still requires real-hardware profiling.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
-  reduced trunk/frond geometry per instance with deterministic transition staggering and grass
-  selects 28-blade/five-blade clusters; the initial native scene baseline is recorded, while target
-  budgets and true blended transitions remain open.
+  reduced trunk/frond geometry per instance with deterministic transition staggering, broadleaf
+  trees select 776/208-triangle meshes per instance, and grass selects 28-blade/five-blade
+  clusters; the initial native scene baseline is recorded, while target budgets and true blended
+  transitions remain open.
 - [x] Throttle distant wildlife and audio updates without visible popping. Shared
   full/reduced/dormant simulation tiers bound agent work; positional calls select only nearby
   non-dormant sources, use one voice, and are held while transient slots are occupied.
@@ -960,6 +961,9 @@ Work next, in order:
 7. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal. The first silhouette and near material/coconut passes
    are measured; do not add more geometry without physical/mobile evidence.
+8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
+   during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
+   justified by physical-mobile evidence or a clear close-view defect.
 
 ## Validation ledger
 
@@ -2095,6 +2099,34 @@ Work next, in order:
   15,712,544 bytes, and the APK is 33,444,920 bytes. Android runtime appearance and cost remain
   unqualified without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and
   unmodified; no dependency defect was found.
+
+### 2026-10-06 — Branch-supported broadleaf crowns and per-tree LOD
+
+- Reworked only the near broadleaf canopy silhouette: eight slightly smaller and separated crown
+  lobes gain deterministic contour irregularity, seven visible tapered support branches, and eight
+  pointed perimeter leaves. The near tree rises from 688 to 776 triangles. Rounded the far mesh
+  from 136 to 208 triangles to avoid the original diamond-like mid-distance silhouette while
+  remaining under 27 percent of near geometry. No texture, asset, instance stream, or new content
+  population was introduced.
+- Replaced the 155 m whole-cell canopy choice with a deterministic yaw-derived 105--129 m per-tree
+  threshold after cell rejection. The jungle QA view now splits 109 visible trees into 63 near and
+  46 far instances; F1, first-frame diagnostics, and benchmark JSON expose the split. One additional
+  variant/tier group raises that view from 94 to 95 total tracked submissions; other representative
+  scene totals remain 77/124/26/97.
+- Visual review retained the spatial branch-supported lobe design after rejecting an experimental small
+  core with five-leaf fans per cluster that made the trees flat and star-shaped. Native overview,
+  beach, and jungle captures were inspected. The actual Chrome/SwiftShader WebGL 2 jungle capture
+  visually agrees and its gate requires the new diagnostic plus nonzero near/far populations.
+- One benchmark run that overlapped the Emscripten link was explicitly discarded. Two isolated
+  repeats measured 1.1770--1.2129 ms overview, 1.7932 ms beach, 1.4689--1.5011 ms jungle,
+  0.8360--0.8621 ms driftwood, and 1.6264--1.6429 ms monkeys. The first three overlap the prior
+  integrated baseline; the near-canopy-heavy monkey view adds roughly 0.04--0.07 ms mean.
+- All 21 native tests pass, including 20 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 19 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,326,360 bytes, stripped `libmain.so` is 15,721,568 bytes,
+  and the APK is 33,453,944 bytes. Android runtime appearance and cost remain unqualified without
+  KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
+  dependency defect was found.
 
 ## Session-end checklist
 

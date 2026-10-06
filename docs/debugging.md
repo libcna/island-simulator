@@ -54,8 +54,8 @@ Current fields are:
 - visible contact-shadow total split across palms, canopy trees, land rocks, wood, and monkeys,
   plus the pass draw count;
 - visible/total palms, near/far LOD population, cells, and draw submissions;
-- visible/total broadleaf canopy, understory, low-bush, and forest-floor populations plus
-  cells/draw submissions;
+- visible/total broadleaf canopy with near/far LOD population, understory, low-bush, and
+  forest-floor populations plus cells/draw submissions;
 - visible/total rocks, the emergent-reef subset, fallen logs, beach driftwood, fallen palm fronds,
   and shell/pebble clusters plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, draw submissions, and smoothed player-interaction strength;

@@ -42,7 +42,8 @@ namespace island
 {
     namespace
     {
-        constexpr float CanopyNearDistance = 155.0f;
+        constexpr float CanopyNearMinimumDistance = 105.0f;
+        constexpr float CanopyNearDistanceRange = 24.0f;
         constexpr float CanopyMaximumDistance = 475.0f;
         constexpr float UnderstoryNearDistance = 58.0f;
         constexpr float UnderstoryMaximumDistance = 128.0f;
@@ -196,10 +197,11 @@ void main()
 
         void AppendLeafCluster(PlantGeometry& geometry, const Vector3& centre,
                                const Vector3& radius, const Color& baseColor,
-                               const float windPhase, const bool farMesh)
+                               const float windPhase, const bool farMesh,
+                               const bool roundedFar = false)
         {
-            const int rings = farMesh ? 2 : 4;
-            const int slices = farMesh ? 6 : 9;
+            const int rings = farMesh ? (roundedFar ? 3 : 2) : 4;
+            const int slices = farMesh ? (roundedFar ? 7 : 6) : 9;
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int ring = 0; ring <= rings; ++ring) {
                 const float ringT = static_cast<float>(ring) / static_cast<float>(rings);
@@ -211,11 +213,15 @@ void main()
                         * static_cast<float>(slice) / static_cast<float>(slices);
                     const Vector3 direction(horizontal * std::cos(angle), std::sin(latitude),
                                             horizontal * std::sin(angle));
+                    const float contour = farMesh ? 1.0f
+                        : 0.91f + 0.07f * std::cos(angle * 3.0f + windPhase * 6.2831853f)
+                            + 0.035f * std::sin(angle * 5.0f - windPhase * 4.1f);
                     const float light = 0.70f + 0.29f * std::max(
                         0.0f, direction.X * 0.52f + direction.Y * 0.75f - direction.Z * 0.20f);
                     geometry.vertices.emplace_back(
-                        centre + Vector3(direction.X * radius.X, direction.Y * radius.Y,
-                                         direction.Z * radius.Z),
+                        centre + Vector3(direction.X * radius.X * contour,
+                                         direction.Y * radius.Y,
+                                         direction.Z * radius.Z * contour),
                         ShadeColor(baseColor, light), Vector2(0.76f, windPhase));
                 }
             }
@@ -233,11 +239,84 @@ void main()
             }
         }
 
+        void AppendCanopyBranch(PlantGeometry& geometry, const Vector3& start,
+                                const Vector3& end, const Color& baseColor,
+                                const float windPhase)
+        {
+            constexpr int sides = 4;
+            const Vector3 axis = Vector3::Normalize(end - start);
+            const Vector3 reference = std::fabs(axis.Y) < 0.88f
+                ? Vector3::Up : Vector3::Right;
+            const Vector3 right = Vector3::Normalize(Vector3::Cross(reference, axis));
+            const Vector3 up = Vector3::Normalize(Vector3::Cross(axis, right));
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int endpoint = 0; endpoint < 2; ++endpoint) {
+                const Vector3 centre = endpoint == 0 ? start : end;
+                const float radius = endpoint == 0 ? 0.17f : 0.085f;
+                const float windWeight = endpoint == 0 ? 0.12f : 0.58f;
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const Vector3 outward = right * std::cos(angle) + up * std::sin(angle);
+                    geometry.vertices.emplace_back(
+                        centre + outward * radius,
+                        ShadeColor(baseColor, 0.76f + 0.10f * static_cast<float>(side)),
+                        Vector2(windWeight, windPhase));
+                }
+            }
+            for (int side = 0; side < sides; ++side) {
+                const int next = (side + 1) % sides;
+                const auto lower = static_cast<std::uint16_t>(base + side);
+                const auto lowerNext = static_cast<std::uint16_t>(base + next);
+                const auto upper = static_cast<std::uint16_t>(base + sides + side);
+                const auto upperNext = static_cast<std::uint16_t>(base + sides + next);
+                geometry.indices.insert(geometry.indices.end(),
+                                        {lower, upper, lowerNext,
+                                         lowerNext, upper, upperNext});
+            }
+        }
+
+        void AppendCanopyLeaf(PlantGeometry& geometry, const Vector3& root,
+                              const float angle, const float length, const float width,
+                              const float droop, const Color& baseColor,
+                              const float windPhase)
+        {
+            const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const Vector3 shoulder = root + direction * (length * 0.48f);
+            const Vector3 ridge = shoulder + Vector3(0.0f, 0.16f - droop * 0.18f, 0.0f);
+            const Vector3 tip = root + direction * length - Vector3::Up * droop;
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(root, ShadeColor(baseColor, 0.78f),
+                                           Vector2(0.55f, windPhase));
+            geometry.vertices.emplace_back(shoulder - side * width,
+                                           ShadeColor(baseColor, 0.91f),
+                                           Vector2(0.78f, windPhase));
+            geometry.vertices.emplace_back(ridge, ShadeColor(baseColor, 1.10f),
+                                           Vector2(0.80f, windPhase));
+            geometry.vertices.emplace_back(shoulder + side * width,
+                                           ShadeColor(baseColor, 0.84f),
+                                           Vector2(0.78f, windPhase));
+            geometry.vertices.emplace_back(tip, ShadeColor(baseColor, 0.96f),
+                                           Vector2(0.90f, windPhase));
+            geometry.indices.insert(geometry.indices.end(), {
+                base, static_cast<std::uint16_t>(base + 1U),
+                static_cast<std::uint16_t>(base + 2U),
+                base, static_cast<std::uint16_t>(base + 2U),
+                static_cast<std::uint16_t>(base + 3U),
+                static_cast<std::uint16_t>(base + 1U),
+                static_cast<std::uint16_t>(base + 4U),
+                static_cast<std::uint16_t>(base + 2U),
+                static_cast<std::uint16_t>(base + 2U),
+                static_cast<std::uint16_t>(base + 4U),
+                static_cast<std::uint16_t>(base + 3U)});
+        }
+
         [[nodiscard]] PlantGeometry CreateCanopyGeometry(const int variant, const bool farMesh)
         {
             PlantGeometry geometry;
-            geometry.vertices.reserve(farMesh ? 150U : 430U);
-            geometry.indices.reserve(farMesh ? 700U : 1900U);
+            geometry.vertices.reserve(farMesh ? 150U : 560U);
+            geometry.indices.reserve(farMesh ? 700U : 2400U);
             float crownX = 0.0f;
             float crownY = 0.0f;
             float crownZ = 0.0f;
@@ -251,18 +330,51 @@ void main()
                 const float angle = static_cast<float>(variant) * 0.57f
                     + static_cast<float>(cluster) * 2.39996323f;
                 const float radial = cluster == 0 ? 0.0f
-                    : 1.4f + 0.34f * static_cast<float>((cluster + variant) % 4);
+                    : (farMesh ? 1.4f + 0.34f * static_cast<float>((cluster + variant) % 4)
+                               : 1.75f + 0.38f * static_cast<float>((cluster + variant) % 4));
                 const float vertical = static_cast<float>((cluster * 3 + variant) % 5) * 0.38f;
                 const Vector3 centre(crownX + std::cos(angle) * radial,
                                      crownY - 0.35f + vertical,
                                      crownZ + std::sin(angle) * radial);
-                const float width = 2.65f + 0.22f * static_cast<float>((cluster + variant) % 3);
+                const float width = farMesh
+                    ? 2.65f + 0.22f * static_cast<float>((cluster + variant) % 3)
+                    : 2.35f + 0.18f * static_cast<float>((cluster + variant) % 3);
                 const float phase = std::fmod(static_cast<float>(cluster) * 0.139f
                                               + static_cast<float>(variant) * 0.23f, 1.0f);
+                if (!farMesh && cluster > 0) {
+                    const Vector3 branchStart(crownX + std::cos(angle) * 0.12f,
+                                              crownY - 1.20f,
+                                              crownZ + std::sin(angle) * 0.12f);
+                    const Vector3 branchEnd = centre - Vector3::Up * 0.62f
+                        - Vector3(std::cos(angle) * 0.48f, 0.0f,
+                                  std::sin(angle) * 0.48f);
+                    AppendCanopyBranch(geometry, branchStart, branchEnd,
+                                       Color(78 + variant * 3, 62 + variant * 2, 38, 255),
+                                       phase);
+                }
                 AppendLeafCluster(geometry, centre,
-                                  Vector3(width, 1.65f + 0.13f * variant, width * 0.91f),
+                                  Vector3(width,
+                                          farMesh ? 1.65f + 0.13f * variant
+                                                  : 1.38f + 0.10f * variant,
+                                          width * 0.91f),
                                   cluster % 3 == 0 ? ShadeColor(leafBase, 1.10f) : leafBase,
-                                  phase, farMesh);
+                                  phase, farMesh, farMesh);
+                if (!farMesh) {
+                    const float leafAngle = angle
+                        + (cluster % 2 == 0 ? -0.32f : 0.39f);
+                    const Vector3 leafDirection(std::cos(leafAngle), 0.0f,
+                                                std::sin(leafAngle));
+                    const Vector3 leafRoot = centre + leafDirection * (width * 0.72f)
+                        - Vector3::Up * (0.12f + 0.05f * static_cast<float>(cluster % 3));
+                    AppendCanopyLeaf(
+                        geometry, leafRoot, leafAngle,
+                        1.48f + 0.11f * static_cast<float>((cluster + variant) % 4),
+                        0.42f + 0.04f * static_cast<float>((cluster * 2 + variant) % 3),
+                        0.42f + 0.08f * static_cast<float>((cluster + variant) % 3),
+                        cluster % 2 == 0 ? ShadeColor(leafBase, 1.03f)
+                                         : ShadeColor(leafBase, 0.91f),
+                        phase);
+                }
             }
             return geometry;
         }
@@ -457,6 +569,7 @@ void main()
                   << " small plants\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
+            std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
                       << fallbackReason_ << '\n';
@@ -519,11 +632,16 @@ void main()
         };
         for (const CanopyPlacement& tree : layout.Canopy()) {
             JungleCell& cell = cells_[CellIndex(tree.x, tree.z)];
+            const float normalizedYaw = tree.yawRadians
+                / (2.0f * std::numbers::pi_v<float>);
+            const float nearLodDistance = CanopyNearMinimumDistance
+                + CanopyNearDistanceRange * normalizedYaw;
             cell.canopy.push_back({Matrix::CreateScale(tree.scale)
                                        * Matrix::CreateRotationY(tree.yawRadians)
                                        * Matrix::CreateTranslation(tree.x, tree.y, tree.z),
-                                   tree.variant});
-            const float radius = 5.5f * tree.scale;
+                                   tree.variant, tree.x, tree.z,
+                                   nearLodDistance * nearLodDistance});
+            const float radius = 6.2f * tree.scale;
             extendBounds(cell, Vector3(tree.x - radius, tree.y - 0.1f, tree.z - radius),
                          Vector3(tree.x + radius, tree.y + 16.5f * tree.scale, tree.z + radius));
             ++totalCanopyCount_;
@@ -623,6 +741,8 @@ void main()
         for (auto& transforms : visibleGroundPlantNear_) transforms.clear();
         for (auto& transforms : visibleGroundPlantFar_) transforms.clear();
         visibleCanopyCount_ = 0;
+        visibleCanopyNearCount_ = 0;
+        visibleCanopyFarCount_ = 0;
         visibleUnderstoryCount_ = 0;
         visibleBushCount_ = 0;
         visibleGroundPlantCount_ = 0;
@@ -640,10 +760,19 @@ void main()
             const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
             bool cellVisible = false;
             if (distanceSquared <= CanopyMaximumDistance * CanopyMaximumDistance) {
-                const bool nearLod = distanceSquared <= CanopyNearDistance * CanopyNearDistance;
                 for (const DrawInstance& instance : cell.canopy) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const bool nearLod = instanceDeltaX * instanceDeltaX
+                            + instanceDeltaZ * instanceDeltaZ
+                        <= instance.nearLodDistanceSquared;
                     (nearLod ? visibleCanopyNear_ : visibleCanopyFar_)[instance.variant]
                         .push_back(instance.transform);
+                    if (nearLod) {
+                        ++visibleCanopyNearCount_;
+                    } else {
+                        ++visibleCanopyFarCount_;
+                    }
                     ++visibleCanopyCount_;
                     cellVisible = true;
                 }

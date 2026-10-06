@@ -307,6 +307,37 @@ Native and actual Chrome/SwiftShader close-palm captures visually agree. The arm
 builds with the final shader and geometry, but physical-device appearance and cost remain
 unqualified.
 
+### Broadleaf crown silhouette and per-tree LOD follow-up
+
+The retained broadleaf near mesh adds seven tapered support branches, eight pointed perimeter
+leaves, smaller separated crown lobes, and deterministic contour irregularity. It contains 776
+triangles instead of 688. The far crown was rounded from 136 to 208 triangles so it remains
+credible at the 105--129 m transition while still costing under 27 percent of the near mesh.
+The prior 155 m whole-cell choice was replaced by a yaw-staggered per-tree test after cell
+rejection. Benchmark JSON and F1 diagnostics now expose near/far canopy populations.
+
+Visual review rejected an intermediate small-core/five-leaf-fan design because it made every
+canopy flat and star-shaped. Native and actual Chrome/SwiftShader captures of the retained spatial
+crown agree. In the deterministic jungle view, 109 visible trees split into 63 near and 46 far
+instances; the mixed LOD needs 25 jungle submissions rather than the prior 24 because one
+additional variant/tier group is legitimately occupied.
+
+Two isolated five-view repeats produced the ranges below. Overview, beach, and jungle overlap the
+preceding integrated baseline. The monkey view, with 75 near crowns, rises by roughly
+0.04--0.07 ms mean; that small measured cost is retained for the improved close silhouette.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Canopy near / far |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1770--1.2129 | 1.3607--1.5038 | 1.6589--1.8401 | 77 | 0 / 225 |
+| Beach | 1.7932--1.7932 | 1.9957--2.0057 | 2.3679--2.4637 | 124 | 49 / 231 |
+| Jungle | 1.4689--1.5011 | 1.6423--1.7189 | 2.0614--2.1899 | 95 | 63 / 46 |
+| Driftwood/shore detail | 0.8360--0.8621 | 1.1511--1.2726 | 1.5135--1.6196 | 26 | 0 / 0 |
+| Monkeys | 1.6264--1.6429 | 2.1366--2.1403 | 2.3410--2.3680 | 97 | 75 / 53 |
+
+An earlier benchmark overlapping the WebAssembly link was discarded as contaminated before these
+two isolated repeats. The arm64 GLES 3 package builds and lints; physical-device appearance,
+transition behaviour, and cost remain unqualified.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio
