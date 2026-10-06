@@ -4078,9 +4078,11 @@ Work next, in order:
   functional emulator observations, not a physical-mobile performance claim.
 - Stopped the emulator cleanly and confirmed ADB empty. Restored/linted the default arm64-only APK,
   verified its signature scheme v2, and measured 18,697,540 bytes with a 15,887,256-byte stripped
-  `libmain.so`. Native changed objects compile and all renderer-independent tests pass; the
-  operator-visible Linux process remains intentionally undisturbed. CNA and Sharp Runtime stayed
-  read-only and no dependency defect or workaround was involved.
+  `libmain.so`. After the operator closed the preceding Linux session, the complete current
+  executable linked through `/rv/cnaccache`, all six renderer-independent gates passed, and a
+  live-desktop four-frame overview smoke selected `OPENGL33`, compiled every current scene shader,
+  reported the same 1280 by 720 logical backbuffer, and exited cleanly. CNA and Sharp Runtime
+  stayed read-only and no dependency defect or workaround was involved.
 
 ## Session-end checklist
 

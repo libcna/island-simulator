@@ -74,9 +74,11 @@ finding was emitted; the legacy 44 MB nonstandard tree was removed afterward and
 corrected to the approved shared name.
 
 The 2026-10-07 `9fbe34468c69` CNA `next` refresh compiles the selected OpenGL 3.3 framework and
-game objects, and all six non-display gates pass. The complete display-backed suite awaits the
-operator-visible prior executable closing so the replacement binary is not relinked underneath
-that play session.
+game objects, and all six non-display gates pass. After the operator closed the preceding play
+session, the complete current executable linked successfully and a live-desktop four-frame
+overview smoke selected CNA `OPENGL33`, compiled every current scene shader, reported a 1280 by 720
+logical backbuffer, and exited cleanly. The full 33-capture/input/benchmark display suite remains a
+separate private-display qualification rather than being inferred from that short smoke.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 
