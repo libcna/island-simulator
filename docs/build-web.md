@@ -36,6 +36,8 @@ also require the authored primary-footpath terrain material diagnostic. Dedicate
 clearing cameras require their shared authored-material diagnostic and exact QA-camera identity.
 The lifecycle, beach approach, and jungle gates additionally require the narrow irregular-wear
 diagnostic, preventing a silent return to the former broad, uniformly coloured path treatment.
+The lifecycle and beach gates also require the sparse close sand pebble/shell diagnostic; dedicated
+driftwood and fallen-frond captures expose that material at first-person scale.
 Both clearing cameras also require the shared five-rock/one-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4

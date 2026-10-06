@@ -21,7 +21,8 @@ been confirmed so far.
   variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
-  close substrate-microvariation, sparse pointed leaf litter, and restrained fixed-sun interior
+  close substrate-microvariation, sparse pointed leaf litter, close dry-sand pebble/shell flecks,
+  and restrained fixed-sun interior
   dappling. The authored main corridor now has a narrower, noise-mottled broken-edge dry-earth
   footpath under its short grass while retaining a wider vegetation-free walking corridor. The two
   clearings have distinct warm-dry and darker leaf-rich treatments, and their

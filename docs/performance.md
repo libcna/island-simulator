@@ -885,6 +885,19 @@ immediately preceding 1.0604/1.3832/1.7685 ms integrated shore-detail observatio
 against a gross regression rather than proving an isolated shader cost. Physical-Android and
 hardware-browser fragment measurements remain open.
 
+### Sparse dry-beach substrate follow-up
+
+Two deterministic elliptical-fleck grids now run only for visible dry-sand fragments within 58 m.
+The fragment shader uses a fixed soft edge, then blends one restrained dark-pebble and one
+lower-density pale-shell population. An explicit dry-substrate branch skips both grid hashes on
+wet, inland, and more distant fragments. The pass adds no derivative evaluation, texture sample,
+geometry, instance, allocation, collision rule, or draw submission.
+
+Native OpenGL 3.3 driftwood and fallen-frond captures and actual Chrome/SwiftShader WebGL 2
+captures agree on the sparse scale and distribution. The complete browser harness passes all 22
+stages and requires the exact feature diagnostic. Representative native, hardware-browser, and
+physical-Android timing deltas remain open; no speedup or mobile cost claim is made.
+
 ### Irregular faceted near-palm root follow-up
 
 Each near palm replaces five single-triangle contact tabs with five closed ridge wedges whose

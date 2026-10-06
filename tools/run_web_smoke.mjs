@@ -192,6 +192,8 @@ try {
     && result.output?.includes(
       "island-simulator: terrain close sand granulation and shoreline-raked ripples")
     && result.output?.includes(
+      "island-simulator: terrain sparse close sand pebbles and shell flecks")
+    && result.output?.includes(
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && result.output?.includes(
       "island-simulator: terrain authored primary footpath material")
@@ -445,6 +447,8 @@ try {
       "island-simulator: terrain authored primary footpath material")
     && beachResult.output?.includes(
       "island-simulator: terrain footpath narrow irregular wear")
+    && beachResult.output?.includes(
+      "island-simulator: terrain sparse close sand pebbles and shell flecks")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;

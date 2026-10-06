@@ -115,6 +115,24 @@ float leafLitter(vec2 worldPosition, float scale, vec2 offset, float threshold)
     return shape * step(threshold, fract(seed * 23.47));
 }
 
+float groundFleck(vec2 worldPosition, float scale, vec2 offset, float threshold)
+{
+    vec2 grid = worldPosition * scale + offset;
+    vec2 cell = floor(grid);
+    vec2 local = fract(grid) - 0.5;
+    float seed = hash12(cell + offset * 0.23);
+    vec2 jitter = fract(vec2(seed * 31.17, seed * 53.61)) - 0.5;
+    local -= jitter * 0.70;
+    float angle = fract(seed * 9.73) * 6.28318530718;
+    vec2 axis = vec2(cos(angle), sin(angle));
+    vec2 rotated = vec2(dot(local, axis), dot(local, vec2(-axis.y, axis.x)));
+    vec2 radii = vec2(mix(0.045, 0.082, fract(seed * 17.31)),
+                      mix(0.025, 0.052, fract(seed * 29.17)));
+    float ellipticalDistance = length(rotated / radii);
+    float shape = 1.0 - smoothstep(0.82, 1.18, ellipticalDistance);
+    return shape * step(threshold, fract(seed * 19.41));
+}
+
 void main()
 {
     vec2 p = vWorld.xz;
@@ -184,6 +202,18 @@ void main()
         color *= vec3(1.0 + brokenCrest * rippleMask * 0.025,
                       1.0 + brokenCrest * rippleMask * 0.021,
                       1.0 + brokenCrest * rippleMask * 0.014);
+
+        float drySubstrate = sand
+            * (1.0 - smoothstep(18.0, 58.0, distanceToCamera))
+            * smoothstep(1.4, 4.8, signedShoreDistance);
+        if (drySubstrate > 0.0) {
+            float darkPebble = groundFleck(p, 0.90, vec2(8.2, -15.7), 0.60);
+            float paleShell = groundFleck(p, 1.15, vec2(-11.4, 6.9), 0.79);
+            color = mix(color, vec3(0.255, 0.240, 0.195),
+                        darkPebble * drySubstrate * 0.36);
+            color = mix(color, vec3(0.940, 0.855, 0.650),
+                        paleShell * drySubstrate * 0.42);
+        }
     }
 
     float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)
@@ -248,9 +278,9 @@ void main()
         * (1.0 - smoothstep(0.34, 0.66, slopeRadians));
     if (closeDetail > 0.0) {
         float micro = valueNoise(p * 1.26 + vec2(-21.4, 8.3));
-        color *= vec3(1.0 + micro * 0.030,
-                      1.0 + micro * 0.052,
-                      1.0 + micro * 0.027) * closeDetail
+        color *= vec3(1.0 + micro * 0.050,
+                      1.0 + micro * 0.082,
+                      1.0 + micro * 0.043) * closeDetail
             + vec3(1.0 - closeDetail);
         float litterPatch = clamp(0.52 + broad * 0.82 + medium * 0.30, 0.18, 1.0)
             * mix(1.0, 0.58, eastClearingMask)
@@ -259,9 +289,9 @@ void main()
         float darkLeaf = leafLitter(p, 3.10, vec2(-7.1, 19.6), 0.95);
         float litterAmount = closeDetail * litterPatch;
         color = mix(color, vec3(0.255, 0.165, 0.055),
-                    warmLeaf * litterAmount * 0.46);
+                    warmLeaf * litterAmount * 0.56);
         color = mix(color, vec3(0.145, 0.105, 0.046),
-                    darkLeaf * litterAmount * 0.40);
+                    darkLeaf * litterAmount * 0.50);
     }
 
     float wetEdge = (1.0 - smoothstep(0.0, 2.3, abs(signedShoreDistance)))
@@ -379,6 +409,8 @@ void main()
                                  "procedural interior leaf litter\n"
                               << "island-simulator: terrain close sand granulation and "
                                  "shoreline-raked ripples\n"
+                              << "island-simulator: terrain sparse close sand pebbles and "
+                                 "shell flecks\n"
                               << "island-simulator: terrain fixed-sun interior dapple from "
                                  "shared portable noise fields\n"
                               << "island-simulator: terrain authored primary footpath material\n"

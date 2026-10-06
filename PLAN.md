@@ -319,7 +319,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   now carry authoritative shore distance and slope into a portable texture-free material shader;
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
   a close-only octave adds dry-sand granulation, and a bounded signed-shore-distance term adds
-  broken raked crests parallel to the water edge. Steeper interior ground exposes a muted soil
+  broken raked crests parallel to the water edge. Two soft-edged deterministic close-only grids
+  add sparse dark pebbles and pale shell flecks to otherwise exposed dry sand without geometry or
+  texture samples. Steeper interior ground exposes a muted soil
   tint, and a distance-bounded microvariation octave plus two sparse deterministic grids add
   curved pointed leaf litter to the interior. A restrained
   fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition. The
@@ -1113,8 +1115,11 @@ Work next, in order:
    room; broader landmark variety, prop diversity, contact cues, authored biome variation, and
    material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
-   complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
-   design is justified.
+   complete. A clean six-view composition audit then identified overly uniform exposed dry sand
+   and low-contrast close forest soil; sparse soft-edged pebble/shell flecks and a restrained
+   contrast increase now address those specific gaps without new geometry, textures, instances,
+   or submissions. Defer waterline geometry, underwater fog, and refraction until a similarly
+   portable design is justified.
 4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
    wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
    with individual culling/LOD/density fields only where they materially improve debugging. F1 now
@@ -3574,6 +3579,27 @@ Work next, in order:
   The immediately preceding KVM/GLES 3 complete-scene run remains the Android runtime evidence;
   the emulator was not needlessly restarted for this platform-independent startup check. CNA and
   Sharp Runtime remain clean, read-only, and unmodified.
+
+### 2026-10-06 — Sparse near-field dry-beach substrate
+
+- A clean six-view composition audit found that exposed dry sand remained nearly uniform at
+  first-person scale even after broad variation, close granulation, and shore-following ripples.
+  Added two deterministic jittered grids of soft-edged elliptical dark-pebble and pale-shell
+  flecks. They run only on dry sand within 58 m, fade with distance and shore position, and add no
+  texture, mesh, instance, allocation, collision rule, gameplay state, or draw submission.
+- The same audit found the existing close jungle-floor microvariation and leaf litter too faint in
+  broad gaps. Raised only their bounded near-field contrast while retaining the original density,
+  material palette, distance/slope gates, and zero-submission design.
+- Core tests pass. Seven actual OpenGL 3.3 material captures pass; the driftwood
+  and fallen-frond views were inspected at 1280 by 720 and show sparse irregular substrate without
+  a visible grid. The complete Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages, requires
+  the exact new feature diagnostic, and its corresponding captures visually match native.
+  WebAssembly is 8,492,759 bytes.
+- The arm64 GLES 3 APK assembles through the required shared `/rv/cnaccache`, application lint
+  passes, and the v2-signed arm64-only package is 18,737,820 bytes with a 15,927,536-byte stripped
+  `libmain.so`. Close material appearance and fragment cost on a physical Android device remain
+  explicitly unqualified. CNA and Sharp Runtime remain clean, read-only, and unmodified; no
+  qualifying dependency defect was found.
 
 ## Session-end checklist
 

@@ -216,6 +216,12 @@ crest lines remain approximately parallel to the irregular water edge instead of
 stripes. Both terms fade with camera distance; the raked crests additionally stop 14 m inland.
 They change only material colour and add no texture, mesh, draw submission, or collision detail.
 
+Two deterministic grids add sparse dark-pebble and pale-shell flecks to exposed dry sand within
+58 m. Each occupied cell hashes a jittered centre, orientation, and elliptical scale; a fixed
+soft edge avoids derivative work and keeps the branch valid in GLSL 330 and GLSL ES 300. An early
+dry-substrate branch avoids both grid evaluations outside that close dry-beach region. This layer
+is material-only and remains separate from the larger instanced shell/pebble prop clusters.
+
 The same material reuses its already-computed broad, medium, and fine fields for a restrained
 fixed-sun floor-dapple pass. It begins 34 m inland, fades in through 68 m, rejects fully steep
 ground, and shares the existing 95--285 m detail fade. A coherent early branch avoids the extra

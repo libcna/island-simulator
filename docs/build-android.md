@@ -39,7 +39,8 @@ Do not run the emulator or game as root. Verify access with
 can instead launch the emulator or validation command through `sg kvm`.
 
 The current arm64 package includes the portable procedural sand/soil terrain material with
-near-field interior microvariation and sparse curved leaf litter, the broadleaf jungle with
+near-field interior microvariation, sparse curved leaf litter, and close dry-sand pebble/shell
+flecks, the broadleaf jungle with
 branch-supported near crowns, rounded far crowns, per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
 variants with per-instance LOD/range selection,
@@ -69,9 +70,10 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,736,332-byte APK with a
-15,926,048-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
-noise-mottled portable footpath, close sand granulation and shoreline-raked ripples, irregular
+The latest single-ABI arm64 debug qualification build produced an 18,737,820-byte APK with a
+15,927,536-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
+and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
 terrain cell batching. It also validates every indexed procedural mesh plus the monkey fourteen-
