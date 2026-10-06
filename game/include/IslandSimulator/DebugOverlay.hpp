@@ -82,6 +82,9 @@ namespace island
         int propDraws = 0;
         int visibleGrassPatches = 0;
         int totalGrassPatches = 0;
+        int nearGrassPatches = 0;
+        int farGrassPatches = 0;
+        int mixedGrassLodCells = 0;
         int grassCells = 0;
         int grassDraws = 0;
         float grassInteractionStrength = 0.0f;

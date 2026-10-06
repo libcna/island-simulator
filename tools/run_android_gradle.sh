@@ -30,4 +30,20 @@ export CCACHE_DIR=/rv/cnaccache
 export CCACHE_BASEDIR=/rv
 export CMAKE_BUILD_PARALLEL_LEVEL=2
 
+# Android Gradle Plugin's incremental debug packaging can retain the superseded uncompressed
+# native library as unreachable ZIP data after a C++ relink. Recreate only the generated APK for
+# an explicit debug assembly/package request; all expensive native intermediates stay incremental.
+for task in "$@"; do
+    case "${task}" in
+        assembleDebug|:app:assembleDebug|app:assembleDebug|packageDebug|:app:packageDebug|app:packageDebug)
+            debug_apk="${repository_dir}/android/app/build/outputs/apk/debug/app-debug.apk"
+            if [[ -f "${debug_apk}" ]]; then
+                rm -- "${debug_apk}"
+                echo "run_android_gradle.sh: removed the previous debug APK before packaging."
+            fi
+            break
+            ;;
+    esac
+done
+
 exec "${gradle_wrapper}" -p "${repository_dir}/android" --max-workers=2 "$@"

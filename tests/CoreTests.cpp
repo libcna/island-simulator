@@ -7,6 +7,7 @@
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
+#include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
@@ -1736,6 +1737,37 @@ int main()
 
     const island::GrassLayout grass(terrain);
     const island::GrassLayout repeatedGrass(terrain);
+    const island::GrassLodSplit emptyGrassLod = island::GrassLod::Split(0, 82.0f);
+    Check(emptyGrassLod.nearCount == 0 && emptyGrassLod.farCount == 0,
+          "grass LOD ignores an empty population");
+    const island::GrassLodSplit invalidGrassLod = island::GrassLod::Split(
+        3, std::numeric_limits<float>::quiet_NaN());
+    const island::GrassLodSplit infiniteGrassLod = island::GrassLod::Split(
+        3, std::numeric_limits<float>::infinity());
+    Check(invalidGrassLod.nearCount == 3 && invalidGrassLod.farCount == 0
+              && infiniteGrassLod.nearCount == 0 && infiniteGrassLod.farCount == 3,
+          "grass LOD handles invalid and unbounded distances conservatively");
+    const island::GrassLodSplit nearGrassLod = island::GrassLod::Split(
+        101, island::GrassLod::NearOnlyDistance);
+    const island::GrassLodSplit middleGrassLod = island::GrassLod::Split(101, 82.0f);
+    const island::GrassLodSplit farGrassLod = island::GrassLod::Split(
+        101, island::GrassLod::FarOnlyDistance);
+    Check(nearGrassLod.nearCount == 101 && nearGrassLod.farCount == 0
+              && middleGrassLod.nearCount == 50 && middleGrassLod.farCount == 51
+              && farGrassLod.nearCount == 0 && farGrassLod.farCount == 101,
+          "grass LOD covers near, mixed, and far populations at its authored distances");
+    int previousNearGrassCount = 101;
+    for (int step = 0; step <= 96; ++step) {
+        const float distance = island::GrassLod::NearOnlyDistance
+            + static_cast<float>(step) * 0.25f;
+        const island::GrassLodSplit split = island::GrassLod::Split(101, distance);
+        Check(split.nearCount >= 0 && split.farCount >= 0
+                  && split.nearCount + split.farCount == 101,
+              "grass LOD conserves every patch through its transition");
+        Check(split.nearCount <= previousNearGrassCount,
+              "grass near-LOD population decreases monotonically with distance");
+        previousNearGrassCount = split.nearCount;
+    }
     Check(grass.Patches().size() >= 10000U && grass.Patches().size() <= 40000U,
           "grass patch population stays inside the first geometry budget");
     Check(grass.Patches().size() == repeatedGrass.Patches().size(),

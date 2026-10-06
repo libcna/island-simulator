@@ -311,6 +311,8 @@ namespace island
 
         auto grass = DiagnosticLine();
         grass << "GRASS " << state.visibleGrassPatches << '/' << state.totalGrassPatches
+              << "  LOD " << state.nearGrassPatches << '/' << state.farGrassPatches
+              << " MIX " << state.mixedGrassLodCells
               << "  CELLS " << state.grassCells << " DRAWS " << state.grassDraws
               << "  INTERACTION " << state.grassInteractionStrength;
         lines.push_back(grass.str());

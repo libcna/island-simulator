@@ -50,6 +50,11 @@ namespace island
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] int TotalPatchCount() const noexcept { return totalPatchCount_; }
         [[nodiscard]] int VisiblePatchCount() const noexcept { return visiblePatchCount_; }
+        [[nodiscard]] int VisibleNearPatchCount() const noexcept {
+            return visibleNearPatchCount_;
+        }
+        [[nodiscard]] int VisibleFarPatchCount() const noexcept { return visibleFarPatchCount_; }
+        [[nodiscard]] int MixedLodCellCount() const noexcept { return mixedLodCellCount_; }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
         [[nodiscard]] const std::string& FallbackReason() const noexcept { return fallbackReason_; }
@@ -76,8 +81,10 @@ namespace island
             InstanceDeclaration();
         void CreateMeshes();
         void CreateCells(const IslandTerrain& terrain, const GrassLayout& layout);
-        void DrawInstancedMesh(const GrassMesh& mesh, const GrassCell& cell);
-        void DrawFallbackMesh(const GrassMesh& mesh, const GrassCell& cell);
+        void DrawInstancedMesh(const GrassMesh& mesh, const GrassCell& cell,
+                               int instanceOffset, int instanceCount);
+        void DrawFallbackMesh(const GrassMesh& mesh, const GrassCell& cell,
+                              int instanceOffset, int instanceCount);
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> customEffect_;
@@ -88,6 +95,9 @@ namespace island
         std::string fallbackReason_;
         int totalPatchCount_ = 0;
         int visiblePatchCount_ = 0;
+        int visibleNearPatchCount_ = 0;
+        int visibleFarPatchCount_ = 0;
+        int mixedLodCellCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
         bool customShaderReady_ = false;

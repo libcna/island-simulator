@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
+#include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 
@@ -50,7 +51,6 @@ namespace island
     namespace
     {
         constexpr float LayoutExtent = 300.0f;
-        constexpr float NearDistance = 82.0f;
         constexpr float FarDistance = 135.0f;
         constexpr int NearBladeCount = 28;
         constexpr int FarBladeCount = 5;
@@ -80,6 +80,22 @@ namespace island
             std::vector<VertexPositionColorTexture> vertices;
             std::vector<std::uint16_t> indices;
         };
+
+        struct CellBuildEntry
+        {
+            GrassInstanceData instance;
+            Matrix fallbackTransform;
+            std::uint32_t lodOrder = 0U;
+        };
+
+        [[nodiscard]] std::uint32_t GrassLodOrder(std::uint32_t index) noexcept
+        {
+            index ^= index >> 16U;
+            index *= 0x7feb352dU;
+            index ^= index >> 15U;
+            index *= 0x846ca68bU;
+            return index ^ (index >> 16U);
+        }
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
@@ -397,7 +413,10 @@ void main()
                       << "island-simulator: grass biome tint follows coast, path, and authored "
                          "clearings\n"
                       << "island-simulator: grass sparse sun-cured tip variation in shared "
-                         "vertex colours\n";
+                         "vertex colours\n"
+                      << "island-simulator: grass staggered per-patch near/far LOD transition "
+                      << GrassLod::NearOnlyDistance << '-' << GrassLod::FarOnlyDistance
+                      << " metres\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass biome tint follows coast, path, and authored clearings");
         } else {
@@ -428,20 +447,23 @@ void main()
 
     void GrassRenderer::CreateCells(const IslandTerrain& terrain, const GrassLayout& layout)
     {
-        std::array<std::vector<GrassInstanceData>, CellCount> instances;
+        std::array<std::vector<CellBuildEntry>, CellCount> entries;
+        std::uint32_t placementIndex = 0U;
         for (const GrassPlacement& patch : layout.Patches()) {
             const TerrainSample sample = terrain.Sample(patch.x, patch.z);
             const std::size_t index = CellIndex(patch.x, patch.z);
-            instances[index].push_back(GrassInstanceData{
-                patch.x, patch.y, patch.z, patch.yawRadians,
-                patch.scale, patch.spreadScale, patch.windPhase, patch.colorVariation,
-                sample.normal.x, sample.normal.z, patch.biomeTint});
+            entries[index].push_back(CellBuildEntry{
+                GrassInstanceData{
+                    patch.x, patch.y, patch.z, patch.yawRadians,
+                    patch.scale, patch.spreadScale, patch.windPhase, patch.colorVariation,
+                    sample.normal.x, sample.normal.z, patch.biomeTint},
+                Matrix::CreateScale(patch.spreadScale, patch.scale, patch.spreadScale)
+                    * Matrix::CreateRotationY(patch.yawRadians)
+                    * Matrix::CreateTranslation(patch.x, patch.y, patch.z),
+                GrassLodOrder(placementIndex)});
+            ++placementIndex;
 
             GrassCell& cell = cells_[index];
-            cell.fallbackTransforms.push_back(
-                Matrix::CreateScale(patch.spreadScale, patch.scale, patch.spreadScale)
-                * Matrix::CreateRotationY(patch.yawRadians)
-                * Matrix::CreateTranslation(patch.x, patch.y, patch.z));
             ++cell.patchCount;
             ++totalPatchCount_;
             const Vector3 minimum(patch.x - 1.4f, patch.y - 0.08f, patch.z - 1.4f);
@@ -456,33 +478,48 @@ void main()
         }
 
         for (std::size_t index = 0; index < cells_.size(); ++index) {
-            if (instances[index].empty()) {
+            if (entries[index].empty()) {
                 continue;
             }
+            std::ranges::sort(entries[index], {}, &CellBuildEntry::lodOrder);
+            std::vector<GrassInstanceData> instances;
+            instances.reserve(entries[index].size());
+            GrassCell& cell = cells_[index];
+            cell.fallbackTransforms.reserve(entries[index].size());
+            for (const CellBuildEntry& entry : entries[index]) {
+                instances.push_back(entry.instance);
+                cell.fallbackTransforms.push_back(entry.fallbackTransform);
+            }
             cells_[index].instances = std::make_unique<VertexBuffer>(
-                device_, InstanceDeclaration(), static_cast<int>(instances[index].size()),
+                device_, InstanceDeclaration(), static_cast<int>(instances.size()),
                 BufferUsage::WriteOnly);
-            cells_[index].instances->SetDataRaw(instances[index].data(),
-                                                static_cast<int>(instances[index].size()),
+            cells_[index].instances->SetDataRaw(instances.data(),
+                                                static_cast<int>(instances.size()),
                                                 static_cast<int>(sizeof(GrassInstanceData)));
         }
     }
 
-    void GrassRenderer::DrawInstancedMesh(const GrassMesh& mesh, const GrassCell& cell)
+    void GrassRenderer::DrawInstancedMesh(const GrassMesh& mesh, const GrassCell& cell,
+                                          const int instanceOffset, const int instanceCount)
     {
+        if (instanceCount <= 0) {
+            return;
+        }
         device_.SetVertexBuffers({VertexBufferBinding(mesh.vertices.get(), 0, 0),
-                                  VertexBufferBinding(cell.instances.get(), 0, 1)});
+                                  VertexBufferBinding(cell.instances.get(), instanceOffset, 1)});
         device_.setIndicesProperty(mesh.indices.get());
         device_.DrawInstancedPrimitives(PrimitiveType::TriangleList, 0, 0, mesh.vertexCount,
-                                        0, mesh.primitiveCount, cell.patchCount);
+                                        0, mesh.primitiveCount, instanceCount);
         ++drawCallCount_;
     }
 
-    void GrassRenderer::DrawFallbackMesh(const GrassMesh& mesh, const GrassCell& cell)
+    void GrassRenderer::DrawFallbackMesh(const GrassMesh& mesh, const GrassCell& cell,
+                                         const int instanceOffset, const int instanceCount)
     {
         device_.SetVertexBuffer(mesh.vertices.get());
         device_.setIndicesProperty(mesh.indices.get());
-        for (const Matrix& transform : cell.fallbackTransforms) {
+        for (int index = instanceOffset; index < instanceOffset + instanceCount; ++index) {
+            const Matrix& transform = cell.fallbackTransforms[static_cast<std::size_t>(index)];
             fallbackEffect_->setWorldProperty(transform);
             fallbackEffect_->getCurrentTechniqueProperty()->getPassesProperty()[0]->Apply();
             device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0, mesh.vertexCount,
@@ -496,6 +533,9 @@ void main()
                              const float playerInteractionStrength, const float timeSeconds)
     {
         visiblePatchCount_ = 0;
+        visibleNearPatchCount_ = 0;
+        visibleFarPatchCount_ = 0;
+        mixedLodCellCount_ = 0;
         visibleCellCount_ = 0;
         drawCallCount_ = 0;
 
@@ -541,12 +581,19 @@ void main()
             }
             ++visibleCellCount_;
             visiblePatchCount_ += cell.patchCount;
-            const GrassMesh& mesh = distanceSquared <= NearDistance * NearDistance
-                ? nearMesh_ : farMesh_;
+            const GrassLodSplit split = GrassLod::Split(
+                cell.patchCount, std::sqrt(distanceSquared));
+            visibleNearPatchCount_ += split.nearCount;
+            visibleFarPatchCount_ += split.farCount;
+            if (split.nearCount > 0 && split.farCount > 0) {
+                ++mixedLodCellCount_;
+            }
             if (customShaderReady_) {
-                DrawInstancedMesh(mesh, cell);
+                DrawInstancedMesh(nearMesh_, cell, 0, split.nearCount);
+                DrawInstancedMesh(farMesh_, cell, split.nearCount, split.farCount);
             } else {
-                DrawFallbackMesh(mesh, cell);
+                DrawFallbackMesh(nearMesh_, cell, 0, split.nearCount);
+                DrawFallbackMesh(farMesh_, cell, split.nearCount, split.farCount);
             }
         }
 

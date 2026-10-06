@@ -464,7 +464,9 @@ try {
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && grassResult.output?.includes(
       "island-simulator: grass sparse sun-cured tip variation in shared vertex colours")
-    && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1/.test(
+    && grassResult.output?.includes(
+      "island-simulator: grass staggered per-patch near/far LOD transition 70-94 metres")
+    && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
       grassResult.output ?? "")
     && !grassResult.error;
 

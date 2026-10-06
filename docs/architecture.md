@@ -20,6 +20,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── GrassLayout ──────── deterministic density, scale, phase, and colour anchors
       │       │
       │       ├── GrassInteractionModel ─ smoothed player-motion bending strength
+      │       ├── GrassLod ─── renderer-independent progressive population split
       │       └── GrassRenderer ─ near/far clusters, culling, instancing, wind, and local bending
       ├── JungleLayout ─────── canopy/understory/bush/ground placement and trunk proxies
       │       │
@@ -261,7 +262,11 @@ only frond-weighted vertices with per-frond phase variation, leaving roots and t
 calm breeze.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
-visible anchor instances one shared 28-blade near cluster or five-blade far cluster. The vertex
+visible anchor instances one shared 28-blade near cluster or five-blade far cluster. A stable
+per-patch ordering and renderer-independent smoothstep split progressively move each cell from
+near to far across 70--94 m rather than replacing the entire 37.5 m cell at once. Pure cells use
+one draw; a mixed cell binds a near prefix and far suffix of the same instance buffer through two
+draws. No per-frame instance upload is required. The vertex
 shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
 independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
 path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
@@ -270,7 +275,7 @@ biome value derived from shore distance and the shared route/clearing definition
 and path turf slightly drier, keeps the jungle cooler, gives the sunny east clearing an olive-gold
 identity, and makes the leaf-rich west clearing deeper and cooler. The fragment shader preserves
 that identity in its far-ground merge; the extra four-byte attribute does not change placement,
-geometry, or submission counts. `GrassInteractionModel` eases a normalized envelope
+geometry, or placement counts. `GrassInteractionModel` eases a normalized envelope
 from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
 interaction shares every existing instance and draw. Near blades use five curved control levels

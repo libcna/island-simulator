@@ -414,11 +414,14 @@ Dependencies: stable terrain/shore queries and representative performance instru
   away from a 0.55 m stationary body radius, smoothly expand to 1.35 m at walking speed, and ease
   back after movement inside the existing portable instanced vertex shader.
 - [~] Implement near/middle/far density and mesh LOD with dither/fade or masked transitions. Near
-  and far meshes plus ground-colour distance merging exist; a middle tier and pop-free transition
-  still need visual/performance evidence.
+  and far meshes plus ground-colour distance merging exist. A deterministic smoothstep population
+  split now staggers individual patch replacements across 70--94 m instead of switching an entire
+  37.5 m cell in one frame; OpenGL 3.3 and WebGL 2 validate the same mixed-cell result. A true
+  middle tier, masked blend, traversal review, and physical-mobile evidence remain.
 - [~] Cull cells by frustum/distance and batch or instance where CNA's verified path permits. A
-  256-cell grid and one hardware-instanced draw per visible cell are verified on native and WebGL 2;
-  Android counters and sustained performance remain open.
+  256-cell grid uses one hardware-instanced draw for a pure-LOD cell and two only while that cell
+  crosses the progressive LOD band. The close QA view uses 19 draws for 15 cells, with four mixed;
+  native and WebGL 2 agree. Android counters and sustained performance remain open.
 - [~] Test worst-case first-person grass views for aliasing, transparency, overdraw, and frame time.
   A deterministic close grass camera now runs in native and browser suites, verifies the full
   interaction path, and has a two-repeat native debug-build timing envelope. Transparent-overdraw,
@@ -814,7 +817,8 @@ Android is not project completion.
   aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
   first-person depth without textures or extra draws. Biome-aware instance colour and sparse
-  height-weighted sun-cured tips now break up broad and blade-scale uniformity; pop-free LOD,
+  height-weighted sun-cured tips now break up broad and blade-scale uniformity. The 70--94 m
+  per-patch population split removes the old whole-cell hard swap; transition-motion review,
   aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
   tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
@@ -3184,6 +3188,37 @@ Work next, in order:
   of the new static colours remains open for physical or KVM-backed hardware.
 - CNA and Sharp Runtime remain unmodified. The deterministic world fingerprint, all populations,
   and placement data are unchanged, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Progressive grass LOD and compact Android packaging
+
+- Replaced the single 82 m whole-cell grass mesh switch with a renderer-independent 70--94 m
+  smoothstep population split. Each cell's existing instance records are deterministically ordered
+  once, then a near prefix and far suffix are rendered through the same buffer. Individual patches
+  change mesh progressively as the viewer moves; no instance field, shader branch, geometry,
+  texture, placement, population, culling radius, or world fingerprint changed.
+- Pure cells retain one submission. Only a cell inside the transition band uses two submissions.
+  The dedicated close view has 2,827 visible patches across 15 cells: 1,318 near, 1,509 far, four
+  mixed cells, and 19 grass draws. F1 now exposes near/far/mixed counts. Core coverage checks empty,
+  endpoint, midpoint, conservation, and monotonic split behaviour across 97 transition samples.
+- Native OpenGL 3.3 and actual Chrome 152/SwiftShader WebGL 2 captures were inspected and match
+  those exact counts. This also validates the nonzero per-instance `VertexBufferBinding` offset on
+  both renderers. The Web harness requires the explicit LOD diagnostic and nonzero near, far, and
+  mixed populations. The full browser harness passes all 22 stages.
+- The six-view native debug safety suite recorded 1.4942--2.8983 ms mean and 1.8951--3.6413 ms p95.
+  Representative fixed views add zero to five total scene submissions; comparisons with the prior
+  colour-only run are mixed and approximately within one percent. The full native suite passes
+  37/37 in 41.20 seconds with two-way test parallelism, including 29 actual OpenGL scenes and
+  isolated SDL/XTest input. WebAssembly is 8,468,671 bytes.
+- The arm64-v8a GLES 3 target builds and app lint passes. Its stripped `libmain.so` is 15,888,768
+  bytes. Reproducing the native-source rebuild showed that incremental APK packaging retained one
+  superseded native library as unreachable archive data, inflating the signed file from 18,699,052
+  to 34,571,416 bytes. The project Gradle wrapper now removes only the generated debug APK before
+  explicit debug packaging; native intermediates remain incremental, repackaging takes under a
+  second, and repeated output is a valid v2-signed 18,699,052-byte single-ABI APK.
+- The software AVD was not rerun: its already-qualified current GLES 3 first-frame path took about
+  seven minutes without host KVM, while this milestone changes buffer selection rather than shader
+  code. Physical or KVM-backed Android visual/performance evidence remains required. CNA and Sharp
+  Runtime remain unmodified, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

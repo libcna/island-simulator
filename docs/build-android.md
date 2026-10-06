@@ -45,8 +45,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw. The software-emulator
 screenshot establishes integrated rendering but is not detailed enough to qualify every layer's
 appearance, touch feel, audio output, lifecycle, or performance.
-The latest clean single-ABI arm64 debug qualification build produced an 18,672,364-byte APK with a
-15,862,080-byte stripped `libmain.so` and passed `:app:lintDebug`. The APK verifies with signature
+The latest clean single-ABI arm64 debug qualification build produced an 18,699,052-byte APK with a
+15,888,768-byte stripped `libmain.so` and passed `:app:lintDebug`. The APK verifies with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
 incremental assembly.
 
@@ -107,6 +107,13 @@ The APK is written under `android/app/build/outputs/apk/debug/`. Install and lau
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.libcna.islandsimulator/.IslandSimulatorActivity
 ```
+
+Always invoke debug assembly through `tools/run_android_gradle.sh`. Android Gradle Plugin can keep
+the superseded uncompressed native library as unreachable ZIP data when it updates an existing APK
+after a C++ relink. The project wrapper removes only that generated APK before an explicit
+`assembleDebug` or `packageDebug`; native/object intermediates remain incremental, and the package
+task normally takes under a second when everything else is current. A clean APK should be close to
+the sum shown by `unzip -lv`, rather than larger by approximately one stripped `libmain.so`.
 
 Each build writes the same `app-debug.apk` output path, so rebuild without `-PislandAbi=x86_64`
 before distributing the default arm64-v8a package. Confirm the selected ABI and package metadata:

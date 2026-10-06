@@ -699,6 +699,33 @@ not evidence of a speedup or isolated static-colour cost.
 | Monkeys | 2.5456 | 3.0738 | 3.5427 | 100 | 2,946 |
 | Traversal | 2.9033 | 3.7133 | 4.4274 | 12 final | route-varying |
 
+### Progressive grass LOD follow-up
+
+Grass cells no longer replace every patch at one 82 m threshold. Instance records in each cell are
+ordered once by a deterministic rank, and a smoothstep population split moves the boundary from an
+all-near prefix to an all-far suffix across 70--94 m. A pure cell still takes one submission; only a
+mixed cell takes one near and one far submission. No shader operation, instance field, geometry,
+texture, population, culling radius, or per-frame instance upload was added.
+
+The dedicated close view renders 2,827 patches in 15 cells as 1,318 near and 1,509 far patches.
+Four cells are mixed, so the pass uses 19 rather than 15 submissions. OpenGL 3.3 and actual
+Chrome/SwiftShader WebGL 2 report those same counts and show matching frames, which also qualifies
+the nonzero per-instance buffer offset on both paths.
+
+One six-view native debug safety suite produced the values below while the operator's visible game
+shared the GPU. Fixed-view total submissions increase only where a grass cell is mixed. Compared
+with the immediately preceding static-colour suite, scene timings move in both directions and are
+approximately within one percent; this is functional cost evidence, not a hardware budget.
+
+| View | Mean ms | p95 ms | p99 ms | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.7975 | 2.2197 | 2.5680 | 77 | 0 |
+| Beach | 2.7294 | 3.0683 | 3.6776 | 127 | 2,954 |
+| Jungle | 2.4005 | 2.6208 | 3.3256 | 103 | 2,932 |
+| Driftwood | 1.4942 | 1.8951 | 2.4016 | 54 | 99 |
+| Monkeys | 2.5529 | 3.3032 | 3.5371 | 105 | 2,946 |
+| Traversal | 2.8983 | 3.6413 | 4.1533 | 12 final | route-varying |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

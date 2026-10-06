@@ -1559,6 +1559,9 @@ namespace island
             overlayState.propDraws = naturalPropRenderer_->DrawCallCount();
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
+            overlayState.nearGrassPatches = grassRenderer_->VisibleNearPatchCount();
+            overlayState.farGrassPatches = grassRenderer_->VisibleFarPatchCount();
+            overlayState.mixedGrassLodCells = grassRenderer_->MixedLodCellCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
             overlayState.grassDraws = grassRenderer_->DrawCallCount();
             overlayState.grassInteractionStrength = grassInteractionModel_.Strength();
@@ -1736,7 +1739,10 @@ namespace island
                       << grassRenderer_->DrawCallCount() << " draws, interaction "
                       << grassInteractionModel_.Strength() << ", custom shader "
                       << (grassRenderer_->UsesCustomShader() ? 1 : 0) << ", biome tint "
-                      << (grassRenderer_->UsesCustomShader() ? 1 : 0) << "; birds "
+                      << (grassRenderer_->UsesCustomShader() ? 1 : 0) << ", LOD near "
+                      << grassRenderer_->VisibleNearPatchCount() << ", far "
+                      << grassRenderer_->VisibleFarPatchCount() << ", mixed cells "
+                      << grassRenderer_->MixedLodCellCount() << "; birds "
                       << birdRenderer_->VisibleBirdCount() << '/'
                       << birdFlock_.Birds().size() << " visible (near "
                       << birdRenderer_->VisibleNearBirdCount() << ", far "
