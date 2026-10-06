@@ -1,6 +1,7 @@
 #include "IslandSimulator/IslandGame.hpp"
 
 #include "IslandSimulator/PerformanceStatistics.hpp"
+#include "IslandSimulator/WorldIdentity.hpp"
 
 #include <algorithm>
 #include <array>
@@ -27,6 +28,7 @@
 #include "Microsoft/Xna/Framework/Graphics/GraphicsProfile.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
 #include "Microsoft/Xna/Framework/Input/ButtonState.hpp"
+#include "CNA/Input/Clipboard.hpp"
 #include "Microsoft/Xna/Framework/Input/Keyboard.hpp"
 #include "Microsoft/Xna/Framework/Input/Keys.hpp"
 #include "Microsoft/Xna/Framework/Input/Mouse.hpp"
@@ -603,6 +605,8 @@ namespace island
         const float deltaSeconds = std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
+        worldSeedCopyFeedbackSeconds_ = std::max(
+            0.0f, worldSeedCopyFeedbackSeconds_ - deltaSeconds);
         if (!benchmarkPath_.empty()
             && viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
             UpdateBenchmarkTraversal();
@@ -782,6 +786,18 @@ namespace island
                       << '\n';
         }
         worldDebugToggleWasDown_ = worldDebugToggleDown;
+
+        const bool worldSeedCopyDown = keyboard.IsKeyDown(Keys::F4);
+        if (debugOverlayVisible_ && worldSeedCopyDown && !worldSeedCopyWasDown_) {
+            const std::string seedText = WorldSeedClipboardText(AuthoritativeWorldSeeds());
+            CNA::Input::Clipboard::SetTextEXT(seedText);
+            worldSeedCopySucceeded_ = CNA::Input::Clipboard::GetTextEXT() == seedText;
+            worldSeedCopyFeedbackSeconds_ = 3.0f;
+            std::cout << "island-simulator: world seed clipboard copy "
+                      << (worldSeedCopySucceeded_ ? "confirmed" : "unavailable")
+                      << '\n' << std::flush;
+        }
+        worldSeedCopyWasDown_ = worldSeedCopyDown;
 
 #ifndef NDEBUG
         const bool debugFreeCameraToggleDown = keyboard.IsKeyDown(Keys::F3);
@@ -1344,6 +1360,10 @@ namespace island
             overlayState.cameraPosition = renderCameraPosition_;
             overlayState.freeCameraActive = IsDebugFreeCameraActive();
             overlayState.renderer = device.GetGraphicsRendererName();
+            overlayState.worldSeeds = AuthoritativeWorldSeeds();
+            overlayState.worldSeedCopyFeedbackActive =
+                worldSeedCopyFeedbackSeconds_ > 0.0f;
+            overlayState.worldSeedCopySucceeded = worldSeedCopySucceeded_;
             overlayState.swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
             overlayState.groundHeight = playerMotion_.GroundHeight();
             overlayState.groundSlopeDegrees = playerMotion_.GroundSlopeRadians()

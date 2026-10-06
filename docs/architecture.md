@@ -384,6 +384,12 @@ reporting the fixed simulation timestep. F1 toggles it during interactive play; 
 is the explicit automation path. Native OpenGL 3.3 and actual WebGL 2 captures validate the same
 SpriteBatch route.
 
+`WorldIdentity` is the renderer-independent owner of the diagnostic seed set and its stable text
+representations. It obtains each value from the corresponding layout's public `DefaultSeed`, so
+the F1 rows, F4 clipboard block, core tests, and `island-world-report` cannot drift into separate
+manually maintained copies. Clipboard access remains an application-edge concern in `IslandGame`;
+the deterministic core does not depend on CNA or a window system.
+
 `WorldDebugRenderer` is the F2-only 3D companion to the panel. It uses `BasicEffect` vertex-colour
 line lists rather than custom shaders: shoreline/current contours are depth-aware, while local
 collision, cell, player, current-vector, and wildlife markers use an x-ray pass so vegetation does

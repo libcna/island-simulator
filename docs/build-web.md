@@ -7,7 +7,8 @@ renderer. Automated evidence covers renderer initialization, clean short-run lif
 overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer lock,
 canvas focus, WASD traversal, relative mouse look, the B camera-motion opt-out, F1 input, pointer
 release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering is also toggled
-through browser input. The first click opens
+through browser input, and F4 must execute its explicit confirmed/unavailable clipboard path. The
+first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
 and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. The F2
 path includes the same nine terrain-contact samples/normals, attempted/resolved movement trace,
@@ -16,6 +17,9 @@ headings, nearby live bird radial targets, six terrain-following ambient-zone co
 positional-source markers.
 Audible output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.
+The F1 panel exposes the same authoritative seed rows as desktop. F4 attempts to copy their stable
+text report, but browser clipboard permission and user-gesture policy can prevent immediate
+readback; the panel then reports `UNAVAILABLE` instead of claiming success.
 
 The renderer gate also requires the exact shore-following animated foam ribbon rather than its
 stock-effect fallback. The close prop camera additionally requires a nonzero terrain-conforming
@@ -24,8 +28,9 @@ five-level near-blade curvature and portable two-sided daylight path rather than
 older flat-colour shader. The lifecycle plus close grass and jungle cameras require the near-field
 terrain microvariation and procedural leaf-litter path.
 
-The latest automated run used Chrome 152.0.7977.82 with SwiftShader. This records the evidence
-environment; it is not a minimum-version claim.
+The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
+clipboard readback on its focused localhost canvas. This records the evidence environment; it is
+not a minimum-version or general browser-permission claim.
 
 ## Prerequisites
 

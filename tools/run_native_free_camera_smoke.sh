@@ -78,6 +78,10 @@ fi
 
 "$XDOTOOL" windowfocus --sync "$WINDOW"
 wait_for_log "input sample" "the first game input sample"
+"$XDOTOOL" keydown F4
+sleep 0.3
+"$XDOTOOL" keyup F4
+wait_for_log "world seed clipboard copy confirmed" "the F4 clipboard copy"
 "$XDOTOOL" keydown F3
 sleep 0.3
 "$XDOTOOL" keyup F3

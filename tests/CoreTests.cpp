@@ -22,6 +22,7 @@
 #include "IslandSimulator/WaterRippleModel.hpp"
 #include "IslandSimulator/WaterViewModel.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
+#include "IslandSimulator/WorldIdentity.hpp"
 #include "IslandSimulator/WildlifeSimulation.hpp"
 
 #include <algorithm>
@@ -57,6 +58,20 @@ namespace
 
 int main()
 {
+    const island::WorldSeedSet worldSeeds = island::AuthoritativeWorldSeeds();
+    Check(worldSeeds == island::WorldSeedSet{0x7a11d5e3U, 0x6b4d2f91U,
+                                             0x43b0a7d1U, 0xa7816c39U},
+          "world identity exposes the four authoritative layout seeds");
+    Check(island::WorldSeedOverlayHex(0x00001a2bU) == "00001A2B",
+          "world seed overlay formatting is fixed-width uppercase hexadecimal");
+    Check(island::WorldSeedClipboardText(worldSeeds)
+              == "island-simulator world seeds\n"
+                 "palms=0x7a11d5e3\n"
+                 "grass=0x6b4d2f91\n"
+                 "jungle=0x43b0a7d1\n"
+                 "natural-props=0xa7816c39\n",
+          "world seed clipboard text is stable and report-friendly");
+
     const island::BenchmarkTraversalRoute benchmarkRoute;
     const island::BenchmarkRouteSample routeStart = benchmarkRoute.Sample(0.0f);
     const island::BenchmarkRouteSample routeEnd = benchmarkRoute.Sample(1.0f);

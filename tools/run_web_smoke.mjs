@@ -960,6 +960,17 @@ try {
   await delay(350);
 
   await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "F4", code: "F4", windowsVirtualKeyCode: 115,
+    nativeVirtualKeyCode: 115,
+  }, visualSessionId);
+  await delay(350);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "F4", code: "F4", windowsVirtualKeyCode: 115,
+    nativeVirtualKeyCode: 115,
+  }, visualSessionId);
+  await delay(350);
+
+  await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
     nativeVirtualKeyCode: 112,
   }, visualSessionId);
@@ -1070,6 +1081,8 @@ try {
         + " resolved movement trace, wildlife navigation guides, 3 bird route regions,"
         + " 24 bird spawns, 6 audio-zone contours, and positional-emitter markers")
     && inputResult.output?.includes("island-simulator: debug overlay disabled")
+    && /island-simulator: world seed clipboard copy (confirmed|unavailable)/.test(
+      inputResult.output ?? "")
     && lockedState.pointerLocked === true
     && lockedState.focused === true
     && samples.some(sample => sample.captured === 1 && sample.relative === 1)

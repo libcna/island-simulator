@@ -184,11 +184,12 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(19U);
+        lines.reserve(22U);
 #ifndef NDEBUG
-        lines.emplace_back("F1 DEBUG  F2 WORLD  F3 FREECAM  F5-F12 TELEPORT  M MUTE");
+        lines.emplace_back(
+            "F1 DEBUG  F2 WORLD  F3 FREECAM  F4 COPY SEEDS  F5-F12 TELEPORT  M MUTE");
 #else
-        lines.emplace_back("F1 DEBUG  F2 WORLD  F5-F12 TELEPORT  M MUTE");
+        lines.emplace_back("F1 DEBUG  F2 WORLD  F4 COPY SEEDS  F5-F12 TELEPORT  M MUTE");
 #endif
 
         auto timing = DiagnosticLine();
@@ -256,6 +257,16 @@ namespace island
         lines.push_back(worldContact.str());
 
         lines.push_back("RENDERER " + state.renderer);
+
+        lines.push_back(
+            "SEEDS PALM/GRASS " + WorldSeedOverlayHex(state.worldSeeds.palms) + '/'
+            + WorldSeedOverlayHex(state.worldSeeds.grass));
+        lines.push_back(
+            "SEEDS JUNGLE/PROPS " + WorldSeedOverlayHex(state.worldSeeds.jungle) + '/'
+            + WorldSeedOverlayHex(state.worldSeeds.naturalProps) + "  F4 "
+            + (state.worldSeedCopyFeedbackActive
+                   ? (state.worldSeedCopySucceeded ? "COPIED" : "UNAVAILABLE")
+                   : "COPY"));
 
         auto terrain = DiagnosticLine();
         terrain << "TERRAIN CELLS " << state.visibleTerrainCells << '/'

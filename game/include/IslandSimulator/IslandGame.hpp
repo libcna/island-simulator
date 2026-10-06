@@ -209,6 +209,9 @@ namespace island
         bool debugOverlayToggleWasDown_ = false;
         bool worldDebugVisible_ = false;
         bool worldDebugToggleWasDown_ = false;
+        bool worldSeedCopyWasDown_ = false;
+        bool worldSeedCopySucceeded_ = false;
+        float worldSeedCopyFeedbackSeconds_ = 0.0f;
 #ifndef NDEBUG
         bool debugFreeCameraToggleWasDown_ = false;
 #endif

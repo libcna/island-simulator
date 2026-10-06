@@ -129,6 +129,9 @@ sources against the six-source ceiling.
 In debug builds, F3 toggles a bounded inspection camera while F1 is visible. Mouse look remains
 unchanged; WASD flies horizontally, Q/E moves down/up, and Shift increases speed. The player stays
 fixed, and hiding F1 immediately restores the first-person camera.
+The overlay also shows the four authoritative procedural-layout seeds. Press F4 while it is visible
+to copy a stable seed report; the panel reports `COPIED` only after reading back the same text and
+otherwise reports `UNAVAILABLE`.
 Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
 overlay is visible, F5 through F12 teleport among eight fixed QA locations, including views toward
 the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.
@@ -154,7 +157,7 @@ The close prop view additionally requires a nonzero one-draw contact-shadow batc
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world
-lines, F1,
+lines, F4 seed-copy execution with explicit clipboard status, F1,
 pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-
 accelerated browser listening pass, genuine tab background/foreground behaviour, and another
 browser engine remain open.

@@ -47,6 +47,7 @@ add_library(island_core STATIC
     game/src/VegetationLayout.cpp
     game/src/WaterRippleModel.cpp
     game/src/WaterViewModel.cpp
+    game/src/WorldIdentity.cpp
     game/src/WorldCollisionGrid.cpp
     game/src/WildlifeSimulation.cpp)
 add_library(IslandSimulator::Core ALIAS island_core)

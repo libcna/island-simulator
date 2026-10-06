@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+#include "IslandSimulator/WorldIdentity.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
 namespace Microsoft::Xna::Framework::Graphics
@@ -23,6 +24,9 @@ namespace island
         Microsoft::Xna::Framework::Vector3 playerPosition;
         Microsoft::Xna::Framework::Vector3 cameraPosition;
         std::string renderer;
+        WorldSeedSet worldSeeds;
+        bool worldSeedCopyFeedbackActive = false;
+        bool worldSeedCopySucceeded = false;
         bool freeCameraActive = false;
         bool swimming = false;
         float groundHeight = 0.0f;

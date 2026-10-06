@@ -9,6 +9,7 @@
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
+#include "IslandSimulator/WorldIdentity.hpp"
 
 #include <algorithm>
 #include <array>
@@ -159,10 +160,11 @@ namespace
     [[nodiscard]] std::uint64_t Fingerprint(const WorldSnapshot& world) noexcept
     {
         StableHash hash;
-        hash.AddUint32(island::VegetationLayout::DefaultSeed);
-        hash.AddUint32(island::GrassLayout::DefaultSeed);
-        hash.AddUint32(island::JungleLayout::DefaultSeed);
-        hash.AddUint32(island::NaturalPropLayout::DefaultSeed);
+        const island::WorldSeedSet seeds = island::AuthoritativeWorldSeeds();
+        hash.AddUint32(seeds.palms);
+        hash.AddUint32(seeds.grass);
+        hash.AddUint32(seeds.jungle);
+        hash.AddUint32(seeds.naturalProps);
         HashSnapshotTerrain(hash, world.terrain);
 
         HashScaledPlacements(hash, std::span(world.palms.Palms()));
@@ -457,6 +459,7 @@ namespace
                      const TerrainStatistics& terrain, const std::uint64_t fingerprint,
                      const bool valid)
     {
+        const island::WorldSeedSet seeds = island::AuthoritativeWorldSeeds();
         output.imbue(std::locale::classic());
         output << std::fixed << std::setprecision(4)
                << "{\n"
@@ -464,11 +467,11 @@ namespace
                << "  \"valid\": " << (valid ? "true" : "false") << ",\n"
                << "  \"fingerprint\": \"" << FingerprintString(fingerprint) << "\",\n"
                << "  \"seeds\": {\n"
-               << "    \"palms\": \"0x" << std::hex << island::VegetationLayout::DefaultSeed
+               << "    \"palms\": \"0x" << std::hex << seeds.palms
                << "\",\n"
-               << "    \"grass\": \"0x" << island::GrassLayout::DefaultSeed << "\",\n"
-               << "    \"jungle\": \"0x" << island::JungleLayout::DefaultSeed << "\",\n"
-               << "    \"naturalProps\": \"0x" << island::NaturalPropLayout::DefaultSeed
+               << "    \"grass\": \"0x" << seeds.grass << "\",\n"
+               << "    \"jungle\": \"0x" << seeds.jungle << "\",\n"
+               << "    \"naturalProps\": \"0x" << seeds.naturalProps
                << "\"\n"
                << std::dec << "  },\n"
                << "  \"terrain\": {\n"

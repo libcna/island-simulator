@@ -897,8 +897,11 @@ after the same experience remains available.
   shark presence/activity, monkey state counts, plus audio mix/undertow/event counters. The F2
   world view and deterministic capture now add boundary/collision/cell/wildlife markers; warning
   budgets and deeper views remain open.
-- [~] Deterministic seed display/copy. `island-world-report` emits the four authoritative layout
-  seeds in machine-readable JSON; an in-game overlay field and clipboard action remain open.
+- [x] Deterministic seed display/copy. One game-owned `WorldIdentity` source now feeds the four
+  authoritative layout seeds to `island-world-report`, deterministic tests, and two F1 rows. F4
+  copies a stable English report and distinguishes confirmed readback from unavailable clipboard
+  access; native private-display input covers the confirmed round trip, while browser policy can
+  fail visibly without hiding the seed values.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
   South beach, jungle trail, two clearings, fish shallows, offshore shark, monkey troop, and the
   active current field are implemented; remaining landmark locations remain.
@@ -2590,6 +2593,30 @@ Work next, in order:
   configurations both regenerate and report no build work because the new gate is intentionally
   native-host tooling. CNA and Sharp Runtime remain clean and unmodified; no dependency defect was
   found.
+
+### 2026-10-06 — Reproducible in-game world identity
+
+- Added the renderer-independent `WorldIdentity` component as the single diagnostic view of the
+  palm, grass, jungle, and natural-prop layout defaults. The deterministic report fingerprint and
+  JSON now consume that component instead of repeating the four constants; the established
+  fingerprint remains `2e2cd5d73dba8a18`. Core tests lock the exact seed set, fixed-width overlay
+  formatting, and stable English clipboard text.
+- Added two seed rows to the F1 panel and an F4 action that writes the stable report through CNA's
+  public clipboard API. A three-second status says `COPIED` only after exact immediate readback;
+  unavailable or permission-gated platforms report `UNAVAILABLE` while leaving the values visible.
+  The existing private-Xwayland input gate now proves a native round trip before exercising F3.
+  Visual review of the 1280 by 720 OpenGL capture confirmed that all 22 rows and the expanded key
+  legend fit without clipping.
+- The complete native OpenGL 3.3 suite passes 31/31 in 66.18 seconds. The first-party ASan/UBSan
+  suite passes 4/4 in 47.71 seconds with leak detection disabled only for the documented managed
+  tracing limitation; its 37 MB temporary build was removed afterward. Chrome 152/SwiftShader
+  passes the complete WebGL 2 harness, including an actual confirmed F4 clipboard round trip from
+  the focused canvas. The arm64-v8a GLES 3 build, APK assembly, and application lint pass; current
+  artifacts are 8,397,216 bytes for WebAssembly, 15,817,616 bytes for the stripped Android
+  library, and 33,549,992 bytes for the APK.
+- CNA and Sharp Runtime remain clean and unmodified and no dependency defect was found. Project
+  build trees currently occupy approximately 2.6 GB native, 73 MB Web, 1.1 GB standalone Android,
+  1.0 GB Gradle native, and 380 MB Gradle package output, with 379 GB free on the volume.
 
 ## Session-end checklist
 

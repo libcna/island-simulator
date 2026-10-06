@@ -50,6 +50,23 @@ The overlay is deliberately implemented with CNA's public `SpriteBatch`, `Sprite
 `Texture2D` APIs. Its original 5 by 7 uppercase font atlas is generated at runtime, so debugging
 does not depend on a platform font, a content compiler, or an undeclared asset.
 
+The panel shows all four authoritative procedural-layout seeds as fixed-width hexadecimal values.
+Press F4 while F1 is visible to copy this stable text block:
+
+```text
+island-simulator world seeds
+palms=0x7a11d5e3
+grass=0x6b4d2f91
+jungle=0x43b0a7d1
+natural-props=0xa7816c39
+```
+
+`COPIED` appears for three seconds only if immediate clipboard readback exactly matches the block.
+`UNAVAILABLE` means the platform declined or could not confirm the write; the visible values remain
+authoritative. This distinction matters in browsers, where clipboard access can be permission- and
+user-gesture-gated even though the key was handled by the game. The native private-display input
+gate presses F4 and requires a confirmed round trip.
+
 While the overlay is visible, F5 through F12 teleport to the south beach, jungle trail, east
 clearing, west clearing, south fish shallows, offshore shark view, monkey troop, and the 62 m
 offshore current field. These fixed
@@ -79,6 +96,7 @@ Current fields are:
 - near-surface water-view intensity and its conditional draw count;
 - local collision broad-phase candidates versus the complete static obstacle population;
 - active renderer identity;
+- all four authoritative layout seeds plus confirmed/unavailable F4 clipboard feedback;
 - visible/total terrain cells;
 - fixed distant-scenery islet count and its single draw submission;
 - visible contact-shadow total split across palms, canopy trees, land rocks, wood, and monkeys,
