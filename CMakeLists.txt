@@ -153,6 +153,7 @@ if(ISLAND_BUILD_GAME)
 
     set(_island_game_sources
         game/src/BirdRenderer.cpp
+        game/src/ContactShadowRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp
@@ -256,7 +257,11 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGamePropCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-prop-capture.ppm"
                     --viewpoint props)
-        set_tests_properties(IslandGamePropCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGamePropCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw")
         add_test(NAME IslandGameDriftwoodCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-driftwood-capture.ppm"
                     --viewpoint driftwood)

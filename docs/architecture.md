@@ -130,8 +130,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
-   state, then submits opaque terrain, distant scenery, natural props, broadleaf jungle, mesh grass, palms, the
-   one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
+   state, then submits opaque terrain and distant scenery. `ContactShadowRenderer` overlays its
+   depth-read terrain grounding batch before natural props, broadleaf jungle, mesh grass, palms,
+   the one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
    monkeys, and transparent ocean using one view/projection pair. Aquatic wildlife is submitted
    before water so ocean transparency colours and reveals it. The near-surface veil follows the
    3D and shoreline passes so it colours their combined result.
@@ -177,6 +178,16 @@ combines their irregular rock ridges and 11 simplified trunk/frond/crown silhoue
 palette into the horizon; the later transparent ocean pass visually covers the low bases. The
 layout is deterministic and renderer-independent, while the rendering path uses no texture,
 custom shader, instancing requirement, or modern-only feature.
+
+`ContactShadowRenderer` provides a deliberately bounded alternative to a full shadow map. It
+precomputes twelve-segment terrain-conforming soft ellipses for every palm, canopy trunk, land
+rock, fallen log, and driftwood item, then generates the same form for the seven moving monkeys.
+Only frustum-visible instances inside class-specific 78--105 m ranges enter one premultiplied-alpha
+`BasicEffect` batch. Alpha fades over the outer 22 percent of each range. Cached geometry is
+refreshed after 0.25 m of camera motion, a small view/projection change, or 0.08 m of monkey motion;
+this keeps close grounding responsive while avoiding repeated procedural terrain sampling and
+per-frame buffer uploads at a nearly fixed view. The pass uses no textures, shadow maps, custom
+shader, or renderer-specific feature.
 
 `SkyRenderer` draws a camera-centred 900 m sphere before world geometry. Its GLSL 330 / GLSL ES
 300 fragment shader combines a horizon-to-zenith tropical gradient, warm sun disc and halo, and
@@ -403,8 +414,9 @@ testing remain open.
 
 - Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
 - Palms have four geometry variants, placement clustering, cell culling, near/far meshes, subtle
-  shader wind, trunk collision, and small root contact wedges. Pop-free LOD blending, richer
-  close-up geometry/materials, and grounding shadow remain open.
+  shader wind, trunk collision, small root wedges, and a near-field terrain contact shadow.
+  Pop-free LOD blending, richer close-up geometry/materials, and full directional/self-shadowing
+  remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.

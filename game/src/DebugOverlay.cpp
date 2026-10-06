@@ -184,7 +184,7 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(18U);
+        lines.reserve(19U);
         lines.emplace_back("F1 DEBUG  F2 WORLD  F5-F12 TELEPORT  M MUTE");
 
         auto timing = DiagnosticLine();
@@ -227,6 +227,16 @@ namespace island
                 << state.totalTerrainCells << "  DISTANT " << state.distantIslets
                 << " ISLETS " << state.distantSceneryDraws << " DRAW";
         lines.push_back(terrain.str());
+
+        auto shadows = DiagnosticLine();
+        shadows << "CONTACT SHADOWS " << state.visibleContactShadows
+                << "  P " << state.visiblePalmShadows
+                << " C " << state.visibleCanopyShadows
+                << " R " << state.visibleRockShadows
+                << " W " << state.visibleWoodShadows
+                << " M " << state.visibleMonkeyShadows
+                << "  DRAWS " << state.contactShadowDraws;
+        lines.push_back(shadows.str());
 
         auto palms = DiagnosticLine();
         palms << "PALMS " << state.visiblePalms << '/' << state.totalPalms

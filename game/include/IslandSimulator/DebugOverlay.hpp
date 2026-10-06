@@ -33,6 +33,13 @@ namespace island
         int totalTerrainCells = 0;
         int distantIslets = 0;
         int distantSceneryDraws = 0;
+        int visibleContactShadows = 0;
+        int visiblePalmShadows = 0;
+        int visibleCanopyShadows = 0;
+        int visibleRockShadows = 0;
+        int visibleWoodShadows = 0;
+        int visibleMonkeyShadows = 0;
+        int contactShadowDraws = 0;
         int visiblePalms = 0;
         int totalPalms = 0;
         int nearPalms = 0;

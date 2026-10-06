@@ -117,6 +117,27 @@ GPU cost. The heaviest beach view remains below 1.9 ms p95 in both repeats.
 | Driftwood/shore detail | 0.8084--0.8159 | 1.0957--1.1484 | 1.2494--1.3649 | 25 |
 | Monkeys | 1.4467--1.5199 | 1.5762--1.8300 | 1.6290--2.2619 | 96 |
 
+### Terrain contact-shadow follow-up
+
+The first implementation sampled the procedural terrain under every visible ellipse on every
+frame. Although the beach camera submitted only 348 shadow triangles, its mean time rose to
+2.9014 ms. That implementation was rejected before commit. The retained path precomputes all
+static terrain-conforming geometry and refreshes the culled upload only after 0.25 m of camera
+motion, a small view/projection change, or 0.08 m of monkey motion. It preserves one draw and a
+soft distance fade without paying the terrain generator cost every frame.
+
+Two final five-view repeats produced the ranges below. A nearby shadow population adds exactly one
+tracked submission; the far overview correctly submits none. These fixed cameras exercise the
+cache more gently than a moving traversal, so a sustained moving-route benchmark remains required.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Shadows / triangles |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.2019--1.2710 | 1.4421--1.7637 | 1.9101--2.1372 | 81 | 0 / 0 |
+| Beach | 1.7500--1.7589 | 2.1141--2.1572 | 2.5180--2.6049 | 124 | 29 / 348 |
+| Jungle | 1.3729--1.3913 | 1.5558--1.5663 | 1.9584--1.9830 | 91 | 28 / 336 |
+| Driftwood/shore detail | 0.7841--0.8205 | 0.9525--1.0426 | 1.3320--1.3448 | 26 | 3 / 36 |
+| Monkeys | 1.4917--1.5610 | 1.6883--2.1026 | 2.1477--2.3905 | 97 | 26 / 312 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -399,10 +399,12 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add distance haze/fog that enlarges perceived scale without washing out nearby jungle. The
   distant-scenery batch now uses restrained 260--790 m `BasicEffect` fog; unified world haze and
   near/middle-distance atmospheric tuning remain.
-- [ ] Evaluate one bounded directional shadow solution or baked/vertex alternatives on all targets.
-- [~] Provide contact/grounding cues for palms, rocks, props, and animals even when shadows degrade.
-  Near-tier palms have procedural root wedges; shadow/ambient-occlusion alternatives and all other
-  object classes remain open.
+- [~] Evaluate one bounded directional shadow solution or baked/vertex alternatives on all targets.
+  The retained portable contact-shadow batch is the first measured fallback; full directional or
+  baked canopy shadowing and Android runtime evidence remain open.
+- [x] Provide contact/grounding cues for palms, rocks, props, and animals even when shadows degrade.
+  Root wedges remain on near palms, while one terrain-conforming soft batch now covers nearby
+  palms, canopy trees, land rocks, fallen logs, driftwood, and monkeys on native and actual WebGL 2.
 - [x] Add distant low-cost scenery and vegetation cards/meshes without exposing the world edge.
   Five deterministic islets stay beyond the player's 92 m offshore safety region, remain inside
   the 850 m ocean surface, and combine 787 opaque triangles plus 11 palm silhouettes in one
@@ -839,7 +841,8 @@ after the same experience remains available.
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current/water-view state, renderer, terrain/vegetation visibility,
-  distant scenery, LOD counts, draws, bird/fish/shark/monkey render LOD and simulation tiers,
+  distant scenery, contact-shadow class/triangle counts, LOD counts, draws,
+  bird/fish/shark/monkey render LOD and simulation tiers,
   shark presence/activity, monkey state counts, plus audio mix/undertow/event counters. The F2
   world view and deterministic capture now add boundary/collision/cell/wildlife markers; warning
   budgets and deeper views remain open.
@@ -1867,6 +1870,31 @@ Work next, in order:
   subjective cross-platform listening remain unqualified without a physical device or suitable
   accelerated emulator. CNA and Sharp Runtime remain clean and unmodified; no dependency defect
   was found.
+
+### 2026-10-06 — Portable terrain contact shadows
+
+- Added one texture-free, terrain-conforming `BasicEffect` batch for nearby palms, broadleaf
+  canopy trees, land rocks, fallen logs, driftwood, and monkeys. Twelve-segment radial-alpha
+  ellipses follow authoritative terrain height, use the shared fixed sun direction for the taller
+  silhouettes, fade over the outer 22 percent of class-specific 78--105 m ranges, and draw before
+  their opaque owners with depth reads but no depth writes. Offshore reef rocks and small foliage
+  are intentionally excluded.
+- Rejected the first working implementation after measurement: per-frame procedural height
+  sampling raised the beach mean to 2.9014 ms. Static geometry is now sampled once at load, while
+  culling and buffer uploads refresh after 0.25 m of camera movement, a small view/projection
+  change, or 0.08 m of monkey movement. The retained two-repeat beach mean is 1.7500--1.7589 ms;
+  the five views submit 0/29/28/3/26 shadows and 0/348/336/36/312 triangles. A nonempty view costs
+  exactly one tracked draw; the distant overview remains at zero shadow work.
+- Extended the F1 overlay with total and palm/canopy/rock/wood/monkey shadow counts plus draws, and
+  extended benchmark JSON with visible contact shadows and triangles. The native prop capture and
+  actual-Chromium prop camera both require a nonzero one-draw batch. Native and Web captures were
+  visually inspected for grounding, dark decals, and terrain fighting.
+- All 19 native tests pass, including 18 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes after the final optimized rebuild. The final
+  arm64-v8a GLES 3 APK rebuild and app lint pass; stripped `libmain.so` is 15,682,120 bytes and the
+  APK is 33,414,496 bytes. Android runtime appearance remains unqualified without KVM or a physical
+  device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency defect was
+  found.
 
 ## Session-end checklist
 

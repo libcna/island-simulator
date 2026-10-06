@@ -142,6 +142,8 @@ try {
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes("3 silhouettes, 4 palettes")
+    && result.output?.includes(
+      "island-simulator: terrain-conforming contact shadows in one portable near-field batch")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
@@ -376,6 +378,8 @@ try {
     && propResult.output?.includes("natural-prop portable shader with near/far LOD")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/11 logs/.test(
+      propResult.output ?? "")
+    && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
     && !propResult.error;
 

@@ -14,7 +14,8 @@ output on a visible hardware browser, genuine tab background/foreground recovery
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.
 
 The renderer gate also requires the exact shore-following animated foam ribbon rather than its
-stock-effect fallback.
+stock-effect fallback. The close prop camera additionally requires a nonzero terrain-conforming
+contact-shadow population in exactly one portable draw.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader. This records the evidence
 environment; it is not a minimum-version claim.
@@ -91,7 +92,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
 view must report nonzero grass, the jungle view must report nonzero canopy, understory, low bushes,
-and forest-floor plants, the prop view must report visible fallen logs, the driftwood view must
+and forest-floor plants, the prop view must report visible fallen logs plus a nonzero one-draw
+contact-shadow batch, the driftwood view must
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent
 outcrop, the water view must report a nonzero procedural veil and exactly one overlay draw, the
 current view must additionally report nonzero normalized current strength and undertow-audio

@@ -10,6 +10,7 @@
 
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
+#include "IslandSimulator/ContactShadowRenderer.hpp"
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
@@ -125,6 +126,7 @@ namespace island
         TouchControlState touchControlState_;
         WaterViewModel waterViewModel_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
+        std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
         std::unique_ptr<FishRenderer> fishRenderer_;

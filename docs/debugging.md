@@ -50,6 +50,8 @@ Current fields are:
 - active renderer identity;
 - visible/total terrain cells;
 - fixed distant-scenery islet count and its single draw submission;
+- visible contact-shadow total split across palms, canopy trees, land rocks, wood, and monkeys,
+  plus the pass draw count;
 - visible/total palms, near/far LOD population, cells, and draw submissions;
 - visible/total broadleaf canopy, understory, low-bush, and forest-floor populations plus
   cells/draw submissions;
@@ -77,7 +79,8 @@ performance conclusions.
 
 `--benchmark <report.json>` selects an uncapped, variable-timestep fixed-view run, discards 120
 warm-up intervals, records 600 intervals, writes interpolated median/p95/p99 statistics and scene
-counts, then exits. It cannot be combined with capture or debug modes. For example:
+counts, including contact-shadow population and triangle count, then exits. It cannot be combined
+with capture or debug modes. For example:
 
 ```bash
 build/island-simulator --benchmark /tmp/island-jungle.json --viewpoint jungle
@@ -114,7 +117,8 @@ crossfades to settle. The WebGL 2 harness writes corresponding overview, beach,
 jungle, prop, driftwood, reef, water, current, frond, distant, bird, fish, shark, and monkey PNG captures plus a JSON report under
 `build-probe/`. Captures prove
 initialization, shader selection, draw-path
-execution, and deterministic composition. A separate live harness section records browser input
+execution, and deterministic composition. The prop capture requires a nonzero contact-shadow
+population and its single draw. A separate live harness section records browser input
 and pointer-lock evidence. The deployable-page pass also proves first-gesture CNA mixer/track
 startup for all four looping layers, and the deterministic live-input pass proves acceptance of
 one shoreline transition effect. These checks do not prove audible hardware-browser quality,

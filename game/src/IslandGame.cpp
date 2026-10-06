@@ -289,6 +289,8 @@ namespace island
         terrainRenderer_ = std::make_unique<TerrainRenderer>(device, terrain_);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
             device, distantSceneryLayout_);
+        contactShadowRenderer_ = std::make_unique<ContactShadowRenderer>(
+            device, terrain_, vegetationLayout_, jungleLayout_, naturalPropLayout_);
         birdRenderer_ = std::make_unique<BirdRenderer>(device);
         fishRenderer_ = std::make_unique<FishRenderer>(device);
         sharkRenderer_ = std::make_unique<SharkRenderer>(device);
@@ -338,6 +340,8 @@ namespace island
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
+                  << "island-simulator: terrain-conforming contact shadows in one portable "
+                     "near-field batch\n"
                   << "island-simulator: near-surface swimming view procedural edge veil\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
@@ -716,6 +720,7 @@ namespace island
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
+            + contactShadowRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
             + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
@@ -752,6 +757,10 @@ namespace island
                << "    \"terrain_cells\": " << terrainRenderer_->VisibleCellCount() << ",\n"
                << "    \"distant_islets\": "
                << distantSceneryRenderer_->IsletCount() << ",\n"
+               << "    \"contact_shadows\": "
+               << contactShadowRenderer_->VisibleShadowCount() << ",\n"
+               << "    \"contact_shadow_triangles\": "
+               << contactShadowRenderer_->PrimitiveCount() << ",\n"
                << "    \"palms\": " << palmRenderer_->VisiblePalmCount() << ",\n"
                << "    \"canopy\": " << jungleRenderer_->VisibleCanopyCount() << ",\n"
                << "    \"understory\": " << jungleRenderer_->VisibleUnderstoryCount() << ",\n"
@@ -800,6 +809,8 @@ namespace island
         device.setDepthStencilStateProperty(DepthStencilState::Default);
         terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
         distantSceneryRenderer_->Draw(cameraView_, cameraProjection_);
+        contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                     monkeyTroop_.Monkeys());
 
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
@@ -868,6 +879,19 @@ namespace island
             overlayState.totalTerrainCells = terrainRenderer_->TotalCellCount();
             overlayState.distantIslets = distantSceneryRenderer_->IsletCount();
             overlayState.distantSceneryDraws = distantSceneryRenderer_->DrawCallCount();
+            overlayState.visibleContactShadows =
+                contactShadowRenderer_->VisibleShadowCount();
+            overlayState.visiblePalmShadows =
+                contactShadowRenderer_->VisiblePalmShadowCount();
+            overlayState.visibleCanopyShadows =
+                contactShadowRenderer_->VisibleCanopyShadowCount();
+            overlayState.visibleRockShadows =
+                contactShadowRenderer_->VisibleRockShadowCount();
+            overlayState.visibleWoodShadows =
+                contactShadowRenderer_->VisibleWoodShadowCount();
+            overlayState.visibleMonkeyShadows =
+                contactShadowRenderer_->VisibleMonkeyShadowCount();
+            overlayState.contactShadowDraws = contactShadowRenderer_->DrawCallCount();
             overlayState.visiblePalms = palmRenderer_->VisiblePalmCount();
             overlayState.totalPalms = palmRenderer_->TotalPalmCount();
             overlayState.nearPalms = palmRenderer_->VisibleNearPalmCount();
@@ -1058,6 +1082,10 @@ namespace island
                       << " active/completed; distant "
                       << distantSceneryRenderer_->IsletCount() << " islets, "
                       << distantSceneryRenderer_->DrawCallCount()
+                      << " draw; contact shadows "
+                      << contactShadowRenderer_->VisibleShadowCount() << ", "
+                      << contactShadowRenderer_->PrimitiveCount() << " triangles, "
+                      << contactShadowRenderer_->DrawCallCount()
                       << " draw; water view " << waterViewModel_.Intensity()
                       << ", " << waterViewOverlay_->DrawCallCount() << " draw, current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
