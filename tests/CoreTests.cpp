@@ -1837,6 +1837,172 @@ int main()
     CheckNear(player.OceanCurrentStrength(terrain), 0.0f, 0.0001f,
               "ocean current remains inactive while walking");
 
+    float coveAngle = 0.0f;
+    float headlandAngle = 0.0f;
+    float minimumShoreRadius = std::numeric_limits<float>::infinity();
+    float maximumShoreRadius = 0.0f;
+    for (int sampleIndex = 0; sampleIndex < 720; ++sampleIndex) {
+        const float angle = -std::numbers::pi_v<float>
+            + 2.0f * std::numbers::pi_v<float>
+                * static_cast<float>(sampleIndex) / 720.0f;
+        const float radius = terrain.ShoreRadius(angle);
+        if (radius < minimumShoreRadius) {
+            minimumShoreRadius = radius;
+            coveAngle = angle;
+        }
+        if (radius > maximumShoreRadius) {
+            maximumShoreRadius = radius;
+            headlandAngle = angle;
+        }
+    }
+    const std::array<float, 6> shorelineTransects = {
+        coveAngle, headlandAngle, -2.35f, -0.78f, 0.69f, 2.18f};
+    int completedShorelineRoundTrips = 0;
+    bool shorelineTraversalStayedFinite = true;
+    for (const float angle : shorelineTransects) {
+        const float outwardX = std::cos(angle);
+        const float outwardZ = std::sin(angle);
+        const float shoreRadius = terrain.ShoreRadius(angle);
+        island::PlayerMotion transectPlayer;
+        transectPlayer.SetPosition(
+            terrain, outwardX * (shoreRadius - 14.0f),
+            outwardZ * (shoreRadius - 14.0f));
+        Check(transectPlayer.Mode() == island::LocomotionMode::Walking,
+              "shoreline traversal begins on walkable dry ground");
+
+        int outwardWaterEntries = 0;
+        float maximumOffshoreDistance = 0.0f;
+        island::LocomotionMode previousMode = transectPlayer.Mode();
+        for (int step = 0; step < 900; ++step) {
+            transectPlayer.Update(terrain, outwardX, outwardZ, 1.0f / 60.0f);
+            if (previousMode == island::LocomotionMode::Walking
+                && transectPlayer.Mode() == island::LocomotionMode::Swimming) {
+                ++outwardWaterEntries;
+            }
+            previousMode = transectPlayer.Mode();
+            maximumOffshoreDistance = std::max(
+                maximumOffshoreDistance, transectPlayer.OffshoreDistance(terrain));
+            shorelineTraversalStayedFinite = shorelineTraversalStayedFinite
+                && std::isfinite(transectPlayer.Position().x)
+                && std::isfinite(transectPlayer.Position().y)
+                && std::isfinite(transectPlayer.Position().z);
+            if (transectPlayer.Mode() == island::LocomotionMode::Swimming
+                && maximumOffshoreDistance >= 20.0f) {
+                break;
+            }
+        }
+
+        int inwardLandExits = 0;
+        previousMode = transectPlayer.Mode();
+        for (int step = 0; step < 1200; ++step) {
+            transectPlayer.Update(terrain, -outwardX, -outwardZ, 1.0f / 60.0f);
+            if (previousMode == island::LocomotionMode::Swimming
+                && transectPlayer.Mode() == island::LocomotionMode::Walking) {
+                ++inwardLandExits;
+            }
+            previousMode = transectPlayer.Mode();
+            shorelineTraversalStayedFinite = shorelineTraversalStayedFinite
+                && std::isfinite(transectPlayer.Position().x)
+                && std::isfinite(transectPlayer.Position().y)
+                && std::isfinite(transectPlayer.Position().z);
+            if (transectPlayer.Mode() == island::LocomotionMode::Walking
+                && terrain.SignedShoreDistance(
+                    transectPlayer.Position().x, transectPlayer.Position().z) >= 5.0f) {
+                break;
+            }
+        }
+
+        Check(outwardWaterEntries == 1 && maximumOffshoreDistance >= 20.0f,
+              "each authored shoreline transect enters stable near-shore swimming once");
+        Check(inwardLandExits == 1
+                  && transectPlayer.Mode() == island::LocomotionMode::Walking
+                  && terrain.SignedShoreDistance(
+                      transectPlayer.Position().x, transectPlayer.Position().z) >= 5.0f,
+              "each authored shoreline transect returns to stable dry-ground walking once");
+        if (outwardWaterEntries == 1 && inwardLandExits == 1) {
+            ++completedShorelineRoundTrips;
+        }
+    }
+    Check(completedShorelineRoundTrips
+              == static_cast<int>(shorelineTransects.size()),
+          "cove, headland, and varied-coast traversal scenarios all complete");
+    Check(shorelineTraversalStayedFinite,
+          "all shoreline traversal positions remain finite");
+
+    bool foundSteepBankScenario = false;
+    float steepBankSlope = 0.0f;
+    float steepBankStartX = 0.0f;
+    float steepBankStartZ = 0.0f;
+    float steepBankUphillX = 0.0f;
+    float steepBankUphillZ = 0.0f;
+    for (int z = -220; z <= 220; z += 2) {
+        for (int x = -220; x <= 220; x += 2) {
+            const float targetX = static_cast<float>(x);
+            const float targetZ = static_cast<float>(z);
+            const island::TerrainSample target = terrain.Sample(targetX, targetZ);
+            if (target.signedShoreDistance < 24.0f
+                || target.height < 0.2f
+                || target.slopeRadians <= steepBankSlope) {
+                continue;
+            }
+            const float gradientX = terrain.Height(targetX + 0.5f, targetZ)
+                - terrain.Height(targetX - 0.5f, targetZ);
+            const float gradientZ = terrain.Height(targetX, targetZ + 0.5f)
+                - terrain.Height(targetX, targetZ - 0.5f);
+            const float gradientLength = std::hypot(gradientX, gradientZ);
+            if (gradientLength < 0.05f) continue;
+            const float uphillX = gradientX / gradientLength;
+            const float uphillZ = gradientZ / gradientLength;
+            const float startX = targetX - uphillX * 2.4f;
+            const float startZ = targetZ - uphillZ * 2.4f;
+            const island::TerrainSample bankStart = terrain.Sample(startX, startZ);
+            if (bankStart.height < 0.2f
+                || bankStart.slopeRadians > island::PlayerMotion::MaximumWalkSlopeRadians
+                || bankStart.signedShoreDistance < 20.0f) {
+                continue;
+            }
+            foundSteepBankScenario = true;
+            steepBankSlope = target.slopeRadians;
+            steepBankStartX = startX;
+            steepBankStartZ = startZ;
+            steepBankUphillX = uphillX;
+            steepBankUphillZ = uphillZ;
+        }
+    }
+    Check(foundSteepBankScenario && steepBankSlope >= 0.30f,
+          "deterministic interior search finds a representative steep-bank approach");
+    if (foundSteepBankScenario) {
+        island::PlayerMotion bankWalker;
+        bankWalker.SetPosition(terrain, steepBankStartX, steepBankStartZ);
+        const float initialGroundHeight = bankWalker.GroundHeight();
+        float minimumGroundHeight = initialGroundHeight;
+        float maximumGroundHeight = initialGroundHeight;
+        int rejectionCount = 0;
+        bool bankTraversalStayedFinite = true;
+        for (int step = 0; step < 360; ++step) {
+            bankWalker.Update(
+                terrain, steepBankUphillX, steepBankUphillZ, 1.0f / 60.0f);
+            rejectionCount += bankWalker.MovementTrace().terrainRejections;
+            minimumGroundHeight = std::min(minimumGroundHeight, bankWalker.GroundHeight());
+            maximumGroundHeight = std::max(maximumGroundHeight, bankWalker.GroundHeight());
+            bankTraversalStayedFinite = bankTraversalStayedFinite
+                && std::isfinite(bankWalker.Position().x)
+                && std::isfinite(bankWalker.Position().y)
+                && std::isfinite(bankWalker.Position().z);
+        }
+        const float uphillProgress =
+            (bankWalker.Position().x - steepBankStartX) * steepBankUphillX
+            + (bankWalker.Position().z - steepBankStartZ) * steepBankUphillZ;
+        Check(uphillProgress > 0.5f || rejectionCount > 0,
+              "steep-bank traversal either climbs valid support or exercises slope rejection");
+        Check(maximumGroundHeight - minimumGroundHeight > 0.20f || rejectionCount > 0,
+              "steep-bank traversal observes elevation change or an authoritative limit");
+        Check(bankWalker.Mode() == island::LocomotionMode::Walking,
+              "steep-bank traversal cannot spuriously enter swimming mode");
+        Check(bankTraversalStayedFinite,
+              "steep-bank traversal remains numerically stable");
+    }
+
     const float eastShore = terrain.ShoreRadius(0.0f);
     player.SetPosition(terrain, eastShore + 24.0f, 0.0f);
     Check(player.Mode() == island::LocomotionMode::Swimming,
@@ -1948,6 +2114,72 @@ int main()
               "indexed and exhaustive obstacle paths stop at the same position");
     CheckNear(indexedPlayer.Position().z, player.Position().z, 0.0001f,
               "indexed and exhaustive obstacle paths preserve identical axis sliding");
+
+    const island::CircularObstacle* selectedRockObstacle = nullptr;
+    float rockApproachX = 0.0f;
+    float rockApproachZ = 0.0f;
+    float rockStartX = 0.0f;
+    float rockStartZ = 0.0f;
+    for (const island::RockPlacement& rock : props.Rocks()) {
+        if (!rock.solid || rock.offshore
+            || terrain.SignedShoreDistance(rock.x, rock.z) < 28.0f
+            || terrain.Sample(rock.x, rock.z).slopeRadians > 0.30f) {
+            continue;
+        }
+        const auto obstacle = std::ranges::find_if(
+            props.Obstacles(), [&rock](const island::CircularObstacle& candidate) {
+                return std::abs(candidate.x - rock.x) < 0.0001f
+                    && std::abs(candidate.z - rock.z) < 0.0001f;
+            });
+        if (obstacle == props.Obstacles().end()) continue;
+        const float radiusFromCentre = std::hypot(rock.x, rock.z);
+        if (radiusFromCentre < 1.0f) continue;
+        const float outwardX = rock.x / radiusFromCentre;
+        const float outwardZ = rock.z / radiusFromCentre;
+        const float startX = rock.x - outwardX * (obstacle->radius + 2.4f);
+        const float startZ = rock.z - outwardZ * (obstacle->radius + 2.4f);
+        const island::TerrainSample approachStart = terrain.Sample(startX, startZ);
+        if (approachStart.height < 0.2f
+            || approachStart.slopeRadians > island::PlayerMotion::MaximumWalkSlopeRadians
+            || approachStart.signedShoreDistance < 18.0f) {
+            continue;
+        }
+        selectedRockObstacle = &*obstacle;
+        rockApproachX = outwardX;
+        rockApproachZ = outwardZ;
+        rockStartX = startX;
+        rockStartZ = startZ;
+        break;
+    }
+    Check(selectedRockObstacle != nullptr,
+          "deterministic natural-prop layout supplies a walkable land-rock approach");
+    if (selectedRockObstacle != nullptr) {
+        island::PlayerMotion rockWalker;
+        rockWalker.SetPosition(terrain, rockStartX, rockStartZ);
+        int rockObstacleRejections = 0;
+        int rockTerrainRejections = 0;
+        for (int step = 0; step < 360; ++step) {
+            rockWalker.Update(
+                terrain, rockApproachX, rockApproachZ, 1.0f / 60.0f,
+                std::span<const island::CircularObstacle>(selectedRockObstacle, 1U));
+            rockObstacleRejections += rockWalker.MovementTrace().obstacleRejections;
+            rockTerrainRejections += rockWalker.MovementTrace().terrainRejections;
+        }
+        const float finalClearance = std::hypot(
+            rockWalker.Position().x - selectedRockObstacle->x,
+            rockWalker.Position().z - selectedRockObstacle->z);
+        const float requiredClearance = island::PlayerMotion::CapsuleRadius
+            + selectedRockObstacle->radius;
+        const float approachProgress =
+            (rockWalker.Position().x - rockStartX) * rockApproachX
+            + (rockWalker.Position().z - rockStartZ) * rockApproachZ;
+        Check(approachProgress > 0.5f,
+              "player advances along the deterministic land-rock approach");
+        Check(finalClearance >= requiredClearance - 0.001f,
+              "player capsule cannot tunnel through an authored land-rock proxy");
+        Check(rockObstacleRejections > 0 && rockTerrainRejections == 0,
+              "authored land-rock traversal is rejected by collision rather than terrain");
+    }
 
     if (failures != 0) {
         std::cerr << failures << " core test assertion(s) failed\n";

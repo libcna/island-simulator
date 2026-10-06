@@ -289,8 +289,10 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 ### Tests and tuning
 
 - [~] Unit-test terrain scale/determinism, shore distance, normals/slopes/surfaces, footprint ground
-  support, movement integration, water hysteresis, long-frame substeps, and boundary forces.
-- [ ] Add deterministic traversal scenarios for coves, rocks, steep banks, and shore entry/exit.
+  support, movement integration, water hysteresis, long-frame substeps, boundary forces, six
+  shoreline round trips, an automatically selected steep-bank approach, and an authored land-rock
+  collision route. Longer route-duration and input-feel tests remain.
+- [x] Add deterministic traversal scenarios for coves, rocks, steep banks, and shore entry/exit.
 - [ ] Run repeated 10+ minute Linux traversal sessions and record feel defects in this plan.
 
 Exit validation:
@@ -2384,6 +2386,25 @@ Work next, in order:
   15,760,336 bytes, and the APK is 33,492,712 bytes. Android runtime appearance remains unqualified
   without KVM or a physical device. CNA `f243c63a1dc5` and Sharp Runtime `21c06910f7cf` remain
   clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Deterministic traversal scenarios
+
+- Added six complete dry-ground to near-shore-swimming to dry-ground controller runs. The set
+  derives the deepest cove and furthest headland from 720 shoreline samples, then adds four fixed
+  coast directions. Every route must cross the water hysteresis exactly once in each direction,
+  reach 20 m offshore, return at least 5 m inland, and keep all positions finite.
+- Added a deterministic island-wide search for the steepest approach that begins on valid walkable
+  support. The resulting controller run must either follow changing ground uphill or exercise the
+  authoritative slope limit, remain in walking mode, and stay numerically stable. This adapts to
+  intentional terrain composition changes without hard-coding a fragile coordinate.
+- Added a route into a real solid land rock selected from `NaturalPropLayout`, using its exact
+  generated collision proxy. The controller must advance toward it, preserve capsule clearance,
+  accumulate obstacle rejections, and accumulate zero terrain rejections, proving the scenario
+  reaches the intended collision path rather than failing incidentally on terrain.
+- The focused renderer-independent core test passes, and the complete isolated accelerated native
+  suite passes 25/25 in 34.58 seconds, including 24 real OpenGL 3.3 scenes and the graphics-profile
+  refusal audit. Web and Android products are unaffected because their runtime sources did not
+  change. CNA and Sharp Runtime remain read-only; no dependency defect was found.
 
 ## Session-end checklist
 

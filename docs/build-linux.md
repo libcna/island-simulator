@@ -47,6 +47,11 @@ Core tests require no display:
 ctest --preset linux-core
 ```
 
+The core suite includes deterministic controller round trips across the deepest cove, furthest
+headland, and four additional shore transects, plus an automatically selected steep-bank approach
+and a real generated land-rock collision route. These scenarios exercise the authoritative terrain
+and layout rather than maintaining a second test-only world description.
+
 GPU tests must not run on the owner's live desktop. In this workspace use CNA's private Weston and
 Xwayland runner:
 
