@@ -338,6 +338,28 @@ An earlier benchmark overlapping the WebAssembly link was discarded as contamina
 two isolated repeats. The arm64 GLES 3 package builds and lints; physical-device appearance,
 transition behaviour, and cost remain unqualified.
 
+### Pointed-leaf near-bush follow-up
+
+The three near-bush variants now use smaller volume lobes with two folded pointed leaves per lobe,
+raising their geometry from 288/360/432 to 320/400/480 triangles. The 48-triangle far meshes,
+placements, instance streams, culling, update work, and existing variant/tier submissions remain
+unchanged. Native and actual Chrome/SwiftShader captures agree on the retained silhouette.
+
+Two isolated five-view repeats produced the ranges below. Scene populations and tracked
+submissions exactly match the preceding canopy baseline. The bush-heavy jungle and monkey ranges
+overlap it closely, so no isolated speed change is claimed.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible bushes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1614--1.1628 | 1.2993--1.3172 | 1.3906--1.4960 | 77 | 0 |
+| Beach | 1.7704--1.7861 | 1.9685--2.0025 | 2.3378--2.3659 | 124 | 99 |
+| Jungle | 1.4870--1.5316 | 1.8256--1.9536 | 2.1059--2.3510 | 95 | 102 |
+| Driftwood/shore detail | 0.8477--0.8619 | 1.2613--1.3641 | 1.5483--1.6303 | 26 | 0 |
+| Monkeys | 1.6192--1.6376 | 2.1083--2.1500 | 2.2909--2.6107 | 97 | 142 |
+
+The arm64 GLES 3 package builds and lints with this geometry; physical-device appearance and cost
+remain unqualified.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

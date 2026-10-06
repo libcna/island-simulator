@@ -101,8 +101,8 @@ view must report nonzero grass; the dedicated grass view must report full smooth
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
 palm view requires the segmented-leaflet and bark/coconut diagnostics plus nonzero near/far
 populations. The jungle
-view requires the branch-supported/pointed-leaf diagnostic, nonzero near/far canopy populations,
-understory, low bushes, and forest-floor plants. The prop view must report visible fallen logs plus
+view requires the branch-supported canopy and pointed-leaf near-bush diagnostics, nonzero near/far
+canopy populations, understory, low bushes, and forest-floor plants. The prop view must report visible fallen logs plus
 a nonzero one-draw contact-shadow batch, the driftwood view must
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent
 outcrop, the water view must report a nonzero procedural veil, exactly one overlay draw, and a

@@ -27,6 +27,8 @@ clusters to two of the four variants without another draw submission.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
 and pointed perimeter leaves. A deterministic per-tree 105--129 m threshold staggers their
 transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
+Nearby low bushes replace their largest smooth lobes with smaller overlapping volume and paired
+folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling

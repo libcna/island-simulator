@@ -356,7 +356,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   forest-floor plants, 152 land rocks, 14 emergent reef outcrops, 11 fallen logs, 28 three-variant
   driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
   clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
-  edge leaves; richer ground/bush silhouettes and broader natural beach-prop variety remain.
+  edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
+  their compact far tier; richer forest-floor silhouettes, bush material diversity, and broader
+  natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
   placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
@@ -940,8 +942,9 @@ Work next, in order:
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
    fish, and shark layers under subjective observation during play.
-3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
-   sparse driftwood layer only where composition review needs it. The first portable sand/soil,
+3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
+   layer only where composition review needs it. The first low-bush silhouette follow-up now adds
+   paired folded leaves over smaller near lobes without touching its far tier. The portable sand/soil,
    wet-edge, and slope-material pass, the initial small-plant layer, and a first near-field
    shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
@@ -2125,6 +2128,30 @@ Work next, in order:
   renderer/lifecycle/input/audio-init harness passes all 19 stages. The arm64-v8a GLES 3 APK and
   application lint pass; WebAssembly is 8,326,360 bytes, stripped `libmain.so` is 15,721,568 bytes,
   and the APK is 33,453,944 bytes. Android runtime appearance and cost remain unqualified without
+  KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
+  dependency defect was found.
+
+### 2026-10-06 — Pointed-leaf near bushes
+
+- Reworked only the near meshes for all three low-bush variants. Each of four to six smaller,
+  separated volume lobes now carries two folded pointed leaves with deterministic size, angle,
+  colour, droop, ridge, and wind-phase variation. The variants rise from 288/360/432 to
+  320/400/480 triangles. Their 48-triangle far meshes, 565 placements, instance streams, culling,
+  CPU updates, and draw submissions are unchanged.
+- Reused the canopy's five-vertex pointed-leaf primitive after generalizing its ridge height. Two
+  more timid iterations were inspected and rejected because their small edge-only leaves were
+  nearly invisible at first-person height. The retained smaller-lobe/overlaid-leaf composition is
+  readable without forming a regular star. Native and actual Chrome/SwiftShader WebGL 2 jungle
+  captures agree; both platform gates require the explicit near-bush diagnostic.
+- Two isolated five-view repeats retained 77/124/95/26/97 tracked submissions and exact visible
+  populations. Mean frame time measured 1.1614--1.1628 ms overview, 1.7704--1.7861 ms beach,
+  1.4870--1.5316 ms jungle, 0.8477--0.8619 ms driftwood, and 1.6192--1.6376 ms monkeys. These
+  ranges overlap the preceding integrated baseline closely enough that no isolated performance
+  change is claimed.
+- All 21 native tests pass, including 20 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 19 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,326,857 bytes, stripped `libmain.so` is 15,722,544 bytes,
+  and the APK is 33,454,920 bytes. Android runtime appearance and cost remain unqualified without
   KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
   dependency defect was found.
 

@@ -254,7 +254,9 @@ rounded 208-triangle far meshes preserve the crown volume without the close silh
 A stable yaw-derived 105--129 m threshold selects LOD per tree after cell rejection, avoiding the
 old 155 m whole-cell switch. Four understory variants
 build fern and broad-leaf silhouettes from curved opaque strips. Three bush variants combine
-offset low ellipsoid lobes to bridge the visual gap between grass and medium plants. Three small
+offset low lobes with two folded pointed leaves per lobe in the near tier to bridge the visual gap
+between grass and medium plants. Their unchanged 48-triangle far tier keeps only the compact
+volume. Near variants contain 320, 400, or 480 triangles without adding a submission. Three small
 rosette variants use short curved opaque leaves to break up grass-heavy ground at first-person
 range. Placement uses
 independent broad/fine cluster fields plus terrain height, slope, and shoreline constraints while
@@ -458,7 +460,8 @@ testing remain open.
   collision, small root wedges, and a near-field terrain contact shadow. True LOD blending, richer
   bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
-  grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
+  grounding, and near bushes now replace their largest smooth lobes with folded pointed leaves,
+  but transition popping, close-up material shape, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
 - The first distant-scenery layer provides five fogged low islets and 11 simplified palms in one
   portable batch. Its silhouette variety is deliberately restrained; unified world haze, richer

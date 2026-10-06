@@ -11,8 +11,9 @@ been confirmed so far.
   exist, while small rosette/forest-floor plants, grove-associated fallen palm fronds, and
   near-field shell/pebble clusters improve close ground contact. Near broadleaf crowns now have
   separated irregular lobes, visible support branches, pointed edge leaves, and staggered per-tree
-  LOD into a rounded far mesh. Bush and ground-plant
-  silhouette/material diversity, broader shell/branch/beach-prop variety, richer mid-distance scenery, wet
+  LOD into a rounded far mesh. Near bushes now layer paired folded pointed leaves over smaller
+  lobes while the far tier stays compact. Bush material diversity, ground-plant silhouette/material
+  diversity, broader shell/branch/beach-prop variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
   close substrate-microvariation, and sparse pointed leaf-litter material shader. A portable

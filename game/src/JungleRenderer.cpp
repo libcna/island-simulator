@@ -276,15 +276,16 @@ void main()
             }
         }
 
-        void AppendCanopyLeaf(PlantGeometry& geometry, const Vector3& root,
-                              const float angle, const float length, const float width,
-                              const float droop, const Color& baseColor,
-                              const float windPhase)
+        void AppendPointedLeaf(PlantGeometry& geometry, const Vector3& root,
+                               const float angle, const float length, const float width,
+                               const float droop, const Color& baseColor,
+                               const float windPhase, const float ridgeHeight = 0.16f)
         {
             const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
             const Vector3 side(-direction.Z, 0.0f, direction.X);
             const Vector3 shoulder = root + direction * (length * 0.48f);
-            const Vector3 ridge = shoulder + Vector3(0.0f, 0.16f - droop * 0.18f, 0.0f);
+            const Vector3 ridge = shoulder
+                + Vector3(0.0f, ridgeHeight - droop * 0.18f, 0.0f);
             const Vector3 tip = root + direction * length - Vector3::Up * droop;
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
             geometry.vertices.emplace_back(root, ShadeColor(baseColor, 0.78f),
@@ -366,7 +367,7 @@ void main()
                                                 std::sin(leafAngle));
                     const Vector3 leafRoot = centre + leafDirection * (width * 0.72f)
                         - Vector3::Up * (0.12f + 0.05f * static_cast<float>(cluster % 3));
-                    AppendCanopyLeaf(
+                    AppendPointedLeaf(
                         geometry, leafRoot, leafAngle,
                         1.48f + 0.11f * static_cast<float>((cluster + variant) % 4),
                         0.42f + 0.04f * static_cast<float>((cluster * 2 + variant) % 3),
@@ -449,20 +450,45 @@ void main()
                 const float angle = static_cast<float>(variant) * 0.61f
                     + static_cast<float>(cluster) * 2.39996323f;
                 const float radial = cluster == 0 ? 0.0f
-                    : 0.38f + 0.10f * static_cast<float>((cluster + variant) % 3);
+                    : 0.40f + 0.11f * static_cast<float>((cluster + variant) % 3);
                 const float height = 0.39f
                     + 0.08f * static_cast<float>((cluster * 2 + variant) % 3);
-                const float width = 0.68f
-                    + 0.09f * static_cast<float>((cluster + variant) % 3);
+                const float width = 0.57f
+                    + 0.07f * static_cast<float>((cluster + variant) % 3);
                 const float phase = std::fmod(static_cast<float>(cluster) * 0.173f
                                               + static_cast<float>(variant) * 0.21f, 1.0f);
                 AppendLeafCluster(
                     geometry,
                     Vector3(std::cos(angle) * radial, height, std::sin(angle) * radial),
-                    Vector3(width, 0.42f + 0.05f * static_cast<float>(variant),
+                    Vector3(width, 0.35f + 0.045f * static_cast<float>(variant),
                             width * 0.88f),
                     cluster % 3 == 0 ? ShadeColor(baseColor, 1.08f) : baseColor,
                     phase, farMesh);
+                if (!farMesh) {
+                    const Vector3 leafCentre(std::cos(angle) * radial,
+                                             height + 0.14f,
+                                             std::sin(angle) * radial);
+                    for (int leaf = 0; leaf < 2; ++leaf) {
+                        const float leafAngle = angle
+                            + (leaf == 0 ? -0.46f : 0.34f)
+                            + 0.07f * static_cast<float>((cluster + variant) % 3);
+                        const Vector3 direction(std::cos(leafAngle), 0.0f,
+                                                std::sin(leafAngle));
+                        const Vector3 root = leafCentre + direction * 0.06f;
+                        AppendPointedLeaf(
+                            geometry, root, leafAngle,
+                            0.88f + 0.08f * static_cast<float>(
+                                (cluster + leaf + variant) % 3),
+                            0.21f + 0.03f * static_cast<float>(
+                                (cluster * 2 + leaf + variant) % 3),
+                            0.09f + 0.025f * static_cast<float>(
+                                (cluster + leaf + variant) % 3),
+                            leaf == 0 ? ShadeColor(baseColor, 1.08f)
+                                      : ShadeColor(baseColor, 0.91f),
+                            std::fmod(phase + static_cast<float>(leaf) * 0.083f, 1.0f),
+                            0.08f);
+                    }
+                }
             }
             return geometry;
         }
@@ -570,6 +596,7 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
+            std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
                       << fallbackReason_ << '\n';

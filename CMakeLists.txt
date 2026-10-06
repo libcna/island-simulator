@@ -242,7 +242,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "jungle near canopy tapered support branches and pointed leaf silhouettes")
+                "jungle near bushes with pointed leaf edge breakup")
         add_test(NAME IslandGameGrassCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-grass-capture.ppm"
                     --viewpoint grass)
