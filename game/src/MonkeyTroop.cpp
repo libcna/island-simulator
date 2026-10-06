@@ -15,7 +15,6 @@ namespace island
         constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
         constexpr float GoldenAngle = 2.39996322972865332f;
         constexpr float MinimumLandFromShore = 48.0f;
-        constexpr float MaximumHomeDistance = 34.0f;
         constexpr float MaximumSlope = 0.46f;
 
         [[nodiscard]] float WrapAngle(float value) noexcept
@@ -106,19 +105,21 @@ namespace island
             const float x = std::cos(angle) * radius;
             const float z = std::sin(angle) * radius;
             if (IsValidGround(x, z)) {
-                agent.homeX = x;
-                agent.homeZ = z;
+                agent.state.homeX = x;
+                agent.state.homeZ = z;
                 found = true;
                 break;
             }
         }
         if (!found) {
-            agent.homeX = std::cos(baseAngle) * 58.0f;
-            agent.homeZ = std::sin(baseAngle) * 58.0f;
+            agent.state.homeX = std::cos(baseAngle) * 58.0f;
+            agent.state.homeZ = std::sin(baseAngle) * 58.0f;
         }
 
-        agent.state.x = agent.homeX;
-        agent.state.z = agent.homeZ;
+        agent.state.x = agent.state.homeX;
+        agent.state.z = agent.state.homeZ;
+        agent.state.targetX = agent.state.homeX;
+        agent.state.targetZ = agent.state.homeZ;
         agent.state.y = terrain_.Height(agent.state.x, agent.state.z);
         agent.state.headingRadians = WrapAngle(baseAngle + std::numbers::pi_v<float> * 0.5f);
         agent.state.scale = 0.86f + static_cast<float>(index % 5U) * 0.055f;
@@ -173,16 +174,16 @@ namespace island
                 + static_cast<std::uint32_t>(attempt) * 17U;
             const float angle = UnitSequence(sequence) * TwoPi;
             const float distance = 8.0f + UnitSequence(sequence + 5U) * 20.0f;
-            const float x = agent.homeX + std::cos(angle) * distance;
-            const float z = agent.homeZ + std::sin(angle) * distance;
+            const float x = agent.state.homeX + std::cos(angle) * distance;
+            const float z = agent.state.homeZ + std::sin(angle) * distance;
             if (IsValidGround(x, z)) {
-                agent.targetX = x;
-                agent.targetZ = z;
+                agent.state.targetX = x;
+                agent.state.targetZ = z;
                 return;
             }
         }
-        agent.targetX = agent.homeX;
-        agent.targetZ = agent.homeZ;
+        agent.state.targetX = agent.state.homeX;
+        agent.state.targetZ = agent.state.homeZ;
     }
 
     void MonkeyTroop::ChooseEscapeTarget(Agent& agent, const float observerX,
@@ -206,15 +207,16 @@ namespace island
             const float distance = 16.0f + static_cast<float>(attempt % 4) * 2.5f;
             const float x = agent.state.x + candidateX * distance;
             const float z = agent.state.z + candidateZ * distance;
-            if (std::hypot(x - agent.homeX, z - agent.homeZ) <= MaximumHomeDistance
+            if (std::hypot(x - agent.state.homeX, z - agent.state.homeZ)
+                    <= MaximumHomeDistance
                 && IsValidGround(x, z)) {
-                agent.targetX = x;
-                agent.targetZ = z;
+                agent.state.targetX = x;
+                agent.state.targetZ = z;
                 return;
             }
         }
-        agent.targetX = agent.homeX;
-        agent.targetZ = agent.homeZ;
+        agent.state.targetX = agent.state.homeX;
+        agent.state.targetZ = agent.state.homeZ;
     }
 
     bool MonkeyTroop::TryMove(Agent& agent, const float headingRadians,
@@ -222,7 +224,7 @@ namespace island
     {
         const float proposedX = agent.state.x + std::cos(headingRadians) * distance;
         const float proposedZ = agent.state.z + std::sin(headingRadians) * distance;
-        if (std::hypot(proposedX - agent.homeX, proposedZ - agent.homeZ)
+        if (std::hypot(proposedX - agent.state.homeX, proposedZ - agent.state.homeZ)
                 > MaximumHomeDistance
             || !IsValidGround(proposedX, proposedZ)) {
             return false;
@@ -293,8 +295,8 @@ namespace island
             EnterState(agent, MonkeyBehavior::Walk);
         } else if (agent.state.behavior == MonkeyBehavior::Walk
                    || agent.state.behavior == MonkeyBehavior::RunAway) {
-            const float toTargetX = agent.targetX - agent.state.x;
-            const float toTargetZ = agent.targetZ - agent.state.z;
+            const float toTargetX = agent.state.targetX - agent.state.x;
+            const float toTargetZ = agent.state.targetZ - agent.state.z;
             const float targetDistance = std::hypot(toTargetX, toTargetZ);
             if (targetDistance > 0.05f) {
                 const float desiredHeading = std::atan2(toTargetZ, toTargetX);

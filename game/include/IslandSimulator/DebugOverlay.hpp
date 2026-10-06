@@ -137,6 +137,8 @@ namespace island
         int collisionObstacles = 0;
         int worldDebugCells = 0;
         int worldDebugWildlife = 0;
+        int worldDebugWildlifeTargets = 0;
+        int worldDebugMonkeyHomes = 0;
         int worldDebugAudioZones = 0;
         int worldDebugAudioCandidates = 0;
         int worldDebugActiveAudioEmitters = 0;

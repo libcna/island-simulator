@@ -26,6 +26,16 @@ namespace island
         std::uint8_t colorVariant = 0U;
     };
 
+    /** @brief Authoritative centre and motion tier for one shallow-water school. */
+    struct FishSchoolState
+    {
+        float centreX = 0.0f;
+        float centreY = 0.0f;
+        float centreZ = 0.0f;
+        int direction = 1;
+        WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
+    };
+
     /** @brief Deterministic near-shore fish schools with bounded water constraints. */
     class FishSchools final
     {
@@ -42,6 +52,7 @@ namespace island
                     float observerZ) noexcept;
 
         [[nodiscard]] std::span<const FishState> Fish() const noexcept;
+        [[nodiscard]] std::span<const FishSchoolState> Schools() const noexcept;
         [[nodiscard]] int FullSimulationCount() const noexcept { return fullSimulationCount_; }
         [[nodiscard]] int ReducedSimulationCount() const noexcept {
             return reducedSimulationCount_;
@@ -80,11 +91,13 @@ namespace island
         void InitializeAgent(std::size_t fishIndex);
         void UpdateSchool(std::size_t schoolIndex, float deltaSeconds) noexcept;
         void ResolveSchoolCentre(School& school) const noexcept;
+        void SyncSchoolStates() noexcept;
 
         const IslandTerrain& terrain_;
         std::vector<School> schools_;
         std::vector<Agent> agents_;
         std::vector<FishState> states_;
+        std::vector<FishSchoolState> schoolStates_;
         float elapsedSeconds_ = 0.0f;
         std::uint64_t frameIndex_ = 0U;
         int fullSimulationCount_ = 0;

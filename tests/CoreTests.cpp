@@ -964,6 +964,24 @@ int main()
     island::FishSchools repeatedFishSchools(terrain);
     Check(fishSchools.Fish().size() == island::FishSchools::FishCount,
           "fish schools have the intended bounded population");
+    Check(fishSchools.Schools().size() == island::FishSchools::SchoolCount,
+          "fish navigation exposes every authoritative school centre");
+    for (std::size_t index = 0; index < fishSchools.Schools().size(); ++index) {
+        const island::FishSchoolState& school = fishSchools.Schools()[index];
+        const island::FishSchoolState& repeated = repeatedFishSchools.Schools()[index];
+        const island::TerrainSample sample = terrain.Sample(school.centreX, school.centreZ);
+        Check(school.centreX == repeated.centreX && school.centreY == repeated.centreY
+                  && school.centreZ == repeated.centreZ
+                  && school.direction == repeated.direction,
+              "fish school centres initialize deterministically");
+        Check(std::isfinite(school.centreX) && std::isfinite(school.centreY)
+                  && std::isfinite(school.centreZ),
+              "fish school centre diagnostics remain finite");
+        Check((school.direction == -1 || school.direction == 1)
+                  && sample.signedShoreDistance <= -2.8f
+                  && sample.signedShoreDistance >= -48.2f,
+              "fish school centres stay in the authored water belt");
+    }
     std::array<int, island::FishSchools::SchoolCount> fishPerSchool{};
     for (std::size_t index = 0; index < fishSchools.Fish().size(); ++index) {
         const island::FishState& fish = fishSchools.Fish()[index];
@@ -1001,6 +1019,18 @@ int main()
                                    observerFish.y, observerFish.z);
         const auto fishStates = fishSchools.Fish();
         const auto repeatedStates = repeatedFishSchools.Fish();
+        const auto schoolStates = fishSchools.Schools();
+        const auto repeatedSchoolStates = repeatedFishSchools.Schools();
+        for (std::size_t index = 0; index < schoolStates.size(); ++index) {
+            const island::FishSchoolState& school = schoolStates[index];
+            const island::FishSchoolState& repeated = repeatedSchoolStates[index];
+            Check(school.centreX == repeated.centreX
+                      && school.centreY == repeated.centreY
+                      && school.centreZ == repeated.centreZ
+                      && school.direction == repeated.direction
+                      && school.simulationTier == repeated.simulationTier,
+                  "fish school navigation remains deterministic over a long session");
+        }
         for (std::size_t index = 0; index < fishStates.size(); ++index) {
             const island::FishState& fish = fishStates[index];
             const island::FishState& repeated = repeatedStates[index];
@@ -1042,7 +1072,9 @@ int main()
     Check(shark.State().x == repeatedShark.State().x
               && shark.State().y == repeatedShark.State().y
               && shark.State().z == repeatedShark.State().z
-              && shark.State().headingRadians == repeatedShark.State().headingRadians,
+              && shark.State().headingRadians == repeatedShark.State().headingRadians
+              && shark.State().targetX == repeatedShark.State().targetX
+              && shark.State().targetZ == repeatedShark.State().targetZ,
           "shark patrol initialization is deterministic");
     bool observedPresentShark = false;
     bool observedHiddenShark = false;
@@ -1063,12 +1095,20 @@ int main()
                   && state.headingRadians == repeated.headingRadians
                   && state.bodyWave == repeated.bodyWave
                   && state.activity == repeated.activity
+                  && state.targetX == repeated.targetX
+                  && state.targetZ == repeated.targetZ
                   && state.present == repeated.present && state.visible == repeated.visible
                   && state.simulationTier == repeated.simulationTier,
               "shark patrol remains deterministic over a long session");
         Check(std::isfinite(state.x) && std::isfinite(state.y)
-                  && std::isfinite(state.z) && std::isfinite(state.headingRadians),
+                  && std::isfinite(state.z) && std::isfinite(state.headingRadians)
+                  && std::isfinite(state.targetX) && std::isfinite(state.targetZ),
               "shark pose remains finite over a long session");
+        const island::TerrainSample targetSample = terrain.Sample(
+            state.targetX, state.targetZ);
+        Check(targetSample.signedShoreDistance <= -33.8f
+                  && targetSample.signedShoreDistance >= -88.2f,
+              "shark route target remains in the authored offshore patrol belt");
         Check(sample.signedShoreDistance <= -33.8f
                   && sample.signedShoreDistance >= -88.2f,
               "shark remains in the authored offshore patrol belt");
@@ -1204,13 +1244,24 @@ int main()
                       && state.headingRadians == repeated.headingRadians
                       && state.speed == repeated.speed
                       && state.animationSeconds == repeated.animationSeconds
+                      && state.homeX == repeated.homeX && state.homeZ == repeated.homeZ
+                      && state.targetX == repeated.targetX
+                      && state.targetZ == repeated.targetZ
                       && state.behavior == repeated.behavior
                       && state.simulationTier == repeated.simulationTier,
                   "monkey troop remains deterministic over a long session");
             Check(std::isfinite(state.x) && std::isfinite(state.y)
                       && std::isfinite(state.z) && std::isfinite(state.headingRadians)
-                      && std::isfinite(state.animationSeconds),
+                      && std::isfinite(state.animationSeconds)
+                      && std::isfinite(state.homeX) && std::isfinite(state.homeZ)
+                      && std::isfinite(state.targetX) && std::isfinite(state.targetZ),
                   "monkey pose remains finite over a long session");
+            Check(std::hypot(state.x - state.homeX, state.z - state.homeZ)
+                      <= island::MonkeyTroop::MaximumHomeDistance + 0.001f
+                      && std::hypot(state.targetX - state.homeX,
+                                    state.targetZ - state.homeZ)
+                          <= island::MonkeyTroop::MaximumHomeDistance + 0.001f,
+                  "monkey pose and active target remain inside the authoritative home range");
             Check(state.animationSeconds >= previousMonkeys[index].animationSeconds,
                   "monkey animation clock remains monotonic across behaviour changes");
             observedMonkeyContinuousClipClock = observedMonkeyContinuousClipClock

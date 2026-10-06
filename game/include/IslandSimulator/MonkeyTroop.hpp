@@ -32,6 +32,10 @@ namespace island
         float speed = 0.0f;
         float animationSeconds = 0.0f;
         float scale = 1.0f;
+        float homeX = 0.0f;
+        float homeZ = 0.0f;
+        float targetX = 0.0f;
+        float targetZ = 0.0f;
         MonkeyBehavior behavior = MonkeyBehavior::Idle;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
         std::uint8_t colorVariant = 0U;
@@ -45,6 +49,7 @@ namespace island
         static constexpr float FullSimulationDistance = 95.0f;
         static constexpr float ReducedSimulationDistance = 245.0f;
         static constexpr float CollisionRadius = 0.32f;
+        static constexpr float MaximumHomeDistance = 34.0f;
 
         explicit MonkeyTroop(const IslandTerrain& terrain);
 
@@ -69,10 +74,6 @@ namespace island
         struct Agent
         {
             MonkeyState state;
-            float homeX = 0.0f;
-            float homeZ = 0.0f;
-            float targetX = 0.0f;
-            float targetZ = 0.0f;
             float stateSecondsRemaining = 0.0f;
             float accumulatedSeconds = 0.0f;
             std::uint32_t decisionCounter = 0U;

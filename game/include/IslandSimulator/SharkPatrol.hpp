@@ -18,6 +18,8 @@ namespace island
         float bodyWave = 0.0f;
         float scale = 2.8f;
         float activity = 1.0f;
+        float targetX = 0.0f;
+        float targetZ = 0.0f;
         bool present = true;
         bool visible = true;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
@@ -49,8 +51,6 @@ namespace island
         const IslandTerrain& terrain_;
         SharkState state_;
         float routeAngle_ = 0.0f;
-        float targetX_ = 0.0f;
-        float targetZ_ = 0.0f;
         float elapsedSeconds_ = 0.0f;
         float presenceSecondsRemaining_ = 0.0f;
         float accumulatedSeconds_ = 0.0f;

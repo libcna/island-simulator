@@ -10,8 +10,8 @@ release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering
 through browser input. The first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
 and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. The F2
-path includes the same nine terrain-contact samples/normals, six terrain-following ambient-zone
-contours, and positional-source markers.
+path includes the same nine terrain-contact samples/normals, fish-school/shark/monkey navigation
+guides, six terrain-following ambient-zone contours, and positional-source markers.
 Audible output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.
 

@@ -29,6 +29,9 @@ WebGL 2, and OpenGL ES 3. It draws:
 - wildlife heading arrows, with full-simulation agents in species/state colours, reduced agents
   in yellow, and dormant agents in grey. Monkey full-tier colours distinguish idle, observe,
   ordinary locomotion, and run-away states;
+- exact nearby fish-school centres, the current shark route target, and each nearby monkey's
+  terrain-following 34 m home range. Walking/running monkeys add their exact active target and a
+  line from the current pose;
 - the nearest non-dormant bird audio candidate in cyan and monkey candidate in violet. A playing
   positional call adds a larger pale marker and an x-ray line from the listener to the exact
   emitter position captured when that call began.
@@ -78,7 +81,8 @@ Current fields are:
   undertow cue strength, and played stronger-wave/water-transition counts;
 - played positional bird/monkey call counts, pooled wildlife-voice active/idle state, and currently
   playing sources against the hard six-source ceiling;
-- F2 visibility plus nearby obstacle, shared-cell, wildlife-marker, audio zone/candidate/active-
+- F2 visibility plus nearby obstacle, shared-cell, wildlife marker/target/monkey-home-range
+  (`WILDLIFE M/T/H`), audio zone/candidate/active-
   emitter (`AUDIO Z/C/E`), terrain sample/support/over-limit (`CONTACT S/S/O`), line, and draw
   counts.
 
@@ -125,6 +129,7 @@ build/island-simulator --capture /tmp/island-monkeys.ppm --viewpoint monkeys
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overview --world-debug
 build/island-simulator --capture /tmp/island-contact.ppm --viewpoint contact --world-debug
+build/island-simulator --capture /tmp/island-wildlife-nav.ppm --viewpoint monkeys --world-debug
 ```
 
 These runs render four frames and exit, except the monkey capture waits 24 frames for the startup
@@ -146,8 +151,8 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 
 ## Planned diagnostics
 
-The F2 pass covers the world geometry and audio diagnostics listed above. Exact wildlife
-targets/spawn regions, individual renderer culling volumes and LOD radii, grass-density fields,
-and swept/attempted movement remain open. So do a teleport menu, free camera, target-specific
-budget warnings, and renderer-specific CPU/GPU separation. All additions must remain opt-in and
-absent from the normal release presentation.
+The F2 pass covers the world geometry and audio diagnostics listed above. Bird route families,
+wildlife spawn regions, steering avoidance proposals, individual renderer culling volumes and LOD
+radii, grass-density fields, and swept/attempted player movement remain open. So do a teleport
+menu, free camera, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
+additions must remain opt-in and absent from the normal release presentation.

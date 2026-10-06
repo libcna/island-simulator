@@ -382,9 +382,13 @@ crossfade distances and terrain height. X-ray markers show the nearest non-dorma
 audio candidates and the exact pooled positional emitter while a call is active. Distance gates
 limit local marker generation. The renderer also consumes the same public nine-point unit offsets
 used by `PlayerMotion`, resamples their authoritative terrain height/slope/normal, rings the points
-that resolve the player's support height, and colours over-limit slopes red. The complete view
-still costs two draw submissions. `--viewpoint contact --world-debug` provides an offset
-deterministic review camera in addition to the overview capture.
+that resolve the player's support height, and colours over-limit slopes red. `FishSchools` exposes
+one compact centre/tier snapshot per school, while monkey state carries its authoritative home and
+active target and shark state carries its current route target. F2 uses those simulation-owned
+values for route markers and terrain-following monkey home ranges rather than reconstructing them
+from rendered poses. The complete view still costs two draw submissions. The `--viewpoint contact
+--world-debug` combination provides an offset deterministic review camera, and the monkey viewpoint provides a
+repeatable navigation-guide capture in addition to the overview.
 
 The opt-in benchmark path remains game-owned and does not add renderer hooks. `IslandGame` records
 wall-clock intervals between consecutive `Draw` entries after a fixed warm-up, while the
@@ -501,7 +505,8 @@ testing remain open.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
   exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view
   now includes the exact terrain footprint/normals, ambient zones, wildlife audio candidates,
-  active-emitter marking, and source-budget counts; deeper target/spawn/culling layers and
-  configuration UI remain absent. Eight
+  active-emitter marking, fish-school centres, shark and monkey targets, monkey home ranges, and
+  source-budget counts; bird route families, spawn/culling layers, and configuration UI remain
+  absent. Eight
   direct QA teleports and deterministic
   bird/fish/shark/monkey close-review cameras are available.

@@ -56,9 +56,11 @@ namespace island
         schools_.resize(SchoolCount);
         agents_.resize(FishCount);
         states_.resize(FishCount);
+        schoolStates_.resize(SchoolCount);
         for (std::size_t schoolIndex = 0; schoolIndex < schools_.size(); ++schoolIndex) {
             InitializeSchool(schoolIndex);
         }
+        SyncSchoolStates();
         for (std::size_t fishIndex = 0; fishIndex < agents_.size(); ++fishIndex) {
             InitializeAgent(fishIndex);
             states_[fishIndex] = agents_[fishIndex].state;
@@ -175,6 +177,7 @@ namespace island
         for (std::size_t fishIndex = 0; fishIndex < agents_.size(); ++fishIndex) {
             states_[fishIndex] = agents_[fishIndex].state;
         }
+        SyncSchoolStates();
     }
 
     void FishSchools::UpdateSchool(const std::size_t schoolIndex,
@@ -253,5 +256,24 @@ namespace island
     std::span<const FishState> FishSchools::Fish() const noexcept
     {
         return states_;
+    }
+
+    std::span<const FishSchoolState> FishSchools::Schools() const noexcept
+    {
+        return schoolStates_;
+    }
+
+    void FishSchools::SyncSchoolStates() noexcept
+    {
+        for (std::size_t index = 0; index < schools_.size(); ++index) {
+            const School& school = schools_[index];
+            schoolStates_[index] = FishSchoolState{
+                school.centreX,
+                school.centreY,
+                school.centreZ,
+                school.direction,
+                school.simulationTier,
+            };
+        }
     }
 }

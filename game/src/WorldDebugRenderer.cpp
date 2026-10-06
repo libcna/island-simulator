@@ -26,6 +26,8 @@ namespace island
         constexpr int ObstacleSegments = 16;
         constexpr int PlayerSegments = 24;
         constexpr int AudioMarkerSegments = 16;
+        constexpr int WildlifeTargetSegments = 16;
+        constexpr int MonkeyHomeRangeSegments = 32;
         constexpr int CellEdgeSegments = 6;
         constexpr float ObstacleVisibleDistance = 52.0f;
         constexpr float CellVisibleDistance = 135.0f;
@@ -55,6 +57,37 @@ namespace island
                         Vector3(x + std::cos(angleB) * radius, y,
                                 z + std::sin(angleB) * radius), color);
             }
+        }
+
+        void AddTerrainCircle(std::vector<VertexPositionColor>& vertices,
+                              const IslandTerrain& terrain, const float x, const float z,
+                              const float radius, const int segments, const Color& color)
+        {
+            for (int index = 0; index < segments; ++index) {
+                const float angleA = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(index) / static_cast<float>(segments);
+                const float angleB = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(index + 1) / static_cast<float>(segments);
+                const float xA = x + std::cos(angleA) * radius;
+                const float zA = z + std::sin(angleA) * radius;
+                const float xB = x + std::cos(angleB) * radius;
+                const float zB = z + std::sin(angleB) * radius;
+                AddLine(vertices,
+                        Vector3(xA, terrain.Height(xA, zA) + 0.42f, zA),
+                        Vector3(xB, terrain.Height(xB, zB) + 0.42f, zB), color);
+            }
+        }
+
+        void AddTargetMarker(std::vector<VertexPositionColor>& vertices,
+                             const Vector3& position, const float radius, const Color& color)
+        {
+            AddCircle(vertices, position.X, position.Y, position.Z, radius,
+                      WildlifeTargetSegments, color);
+            AddLine(vertices, position - Vector3::Right * radius,
+                    position + Vector3::Right * radius, color);
+            AddLine(vertices, position - Vector3::Forward * radius,
+                    position + Vector3::Forward * radius, color);
+            AddLine(vertices, position, position + Vector3::Up * radius, color);
         }
 
         void AddBoundary(std::vector<VertexPositionColor>& vertices,
@@ -174,6 +207,7 @@ namespace island
                                   const std::span<const CircularObstacle> obstacles,
                                   const std::span<const BirdState> birds,
                                   const std::span<const FishState> fish,
+                                  const std::span<const FishSchoolState> fishSchools,
                                   const SharkState& shark,
                                   const std::span<const MonkeyState> monkeys,
                                   const SoundscapeDebugState& soundscape)
@@ -352,6 +386,8 @@ namespace island
         }
 
         wildlifeMarkerCount_ = 0;
+        wildlifeTargetCount_ = 0;
+        monkeyHomeRangeCount_ = 0;
         for (const BirdState& bird : birds) {
             if (!IsNear(cameraPosition, bird.x, bird.y, bird.z, BirdMarkerDistance)) {
                 continue;
@@ -372,12 +408,36 @@ namespace island
                              TierColor(fishState.simulationTier, Color(70, 180, 255, 255)));
             ++wildlifeMarkerCount_;
         }
+        for (const FishSchoolState& school : fishSchools) {
+            if (!IsNear(cameraPosition, school.centreX, school.centreY, school.centreZ,
+                        FishMarkerDistance)) {
+                continue;
+            }
+            const Color color = TierColor(
+                school.simulationTier, Color(80, 235, 255, 255));
+            AddTargetMarker(overlayVertices,
+                            Vector3(school.centreX, school.centreY, school.centreZ),
+                            2.2f, color);
+            ++wildlifeTargetCount_;
+        }
         if (shark.present && IsNear(cameraPosition, shark.x, shark.y, shark.z,
                                     SharkPatrol::ReducedSimulationDistance)) {
             AddHeadingMarker(overlayVertices, Vector3(shark.x, shark.y, shark.z),
                              shark.headingRadians, 8.0f,
                              TierColor(shark.simulationTier, Color(255, 90, 180, 255)));
             ++wildlifeMarkerCount_;
+        }
+        const float sharkTargetY = OceanLineHeight + 0.24f;
+        if (IsNear(cameraPosition, shark.targetX, sharkTargetY, shark.targetZ,
+                   SharkPatrol::ReducedSimulationDistance)) {
+            const Color targetColor(255, 120, 205, 255);
+            const Vector3 target(shark.targetX, sharkTargetY, shark.targetZ);
+            AddTargetMarker(overlayVertices, target, 3.2f, targetColor);
+            if (shark.visible) {
+                AddLine(overlayVertices, Vector3(shark.x, shark.y, shark.z),
+                        target, targetColor);
+            }
+            ++wildlifeTargetCount_;
         }
         for (const MonkeyState& monkey : monkeys) {
             if (!IsNear(cameraPosition, monkey.x, monkey.y, monkey.z,
@@ -396,6 +456,28 @@ namespace island
                              Vector3(monkey.x, monkey.y + 0.65f, monkey.z),
                              monkey.headingRadians, 2.2f,
                              TierColor(monkey.simulationTier, fullColor));
+            const Color navigationColor = TierColor(
+                monkey.simulationTier, Color(255, 225, 105, 255));
+            const float homeY = terrain_.Height(monkey.homeX, monkey.homeZ) + 0.48f;
+            AddTargetMarker(overlayVertices,
+                            Vector3(monkey.homeX, homeY, monkey.homeZ),
+                            0.75f, navigationColor);
+            AddTerrainCircle(overlayVertices, terrain_, monkey.homeX, monkey.homeZ,
+                             MonkeyTroop::MaximumHomeDistance,
+                             MonkeyHomeRangeSegments, navigationColor);
+            ++monkeyHomeRangeCount_;
+            if (monkey.behavior == MonkeyBehavior::Walk
+                || monkey.behavior == MonkeyBehavior::RunAway) {
+                const Vector3 target(
+                    monkey.targetX,
+                    terrain_.Height(monkey.targetX, monkey.targetZ) + 0.62f,
+                    monkey.targetZ);
+                AddTargetMarker(overlayVertices, target, 0.95f, navigationColor);
+                AddLine(overlayVertices,
+                        Vector3(monkey.x, monkey.y + 0.65f, monkey.z),
+                        target, navigationColor);
+                ++wildlifeTargetCount_;
+            }
             ++wildlifeMarkerCount_;
         }
 

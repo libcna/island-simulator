@@ -360,6 +360,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "world debug frame ground samples 9, supports [1-9]")
+        add_test(NAME IslandGameWildlifeNavigationCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-wildlife-navigation.ppm"
+                    --viewpoint monkeys --world-debug)
+        set_tests_properties(IslandGameWildlifeNavigationCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "wildlife markers [1-9][0-9]*, targets [1-9][0-9]*, homes [1-7]")
         add_test(NAME IslandGameBenchmark
             COMMAND island-simulator
                     --benchmark "${CMAKE_BINARY_DIR}/island-benchmark-jungle.json"

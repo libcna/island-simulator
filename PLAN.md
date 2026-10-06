@@ -888,8 +888,9 @@ after the same experience remains available.
 - [~] Vegetation cell, culling, LOD, and density visualization. F2 draws nearby shared 8 by 8
   terrain/palm/jungle/prop cells; grass cells, actual frusta, LOD radii, and density fields remain.
 - [~] Wildlife spawn region, state, steering, and simulation-tier visualization. F2 heading arrows
-  use full/reduced/dormant colours and monkey full-tier behaviour colours; targets, homes, route
-  bounds, avoidance proposals, and spawn regions remain.
+  use full/reduced/dormant colours and monkey full-tier behaviour colours. It also draws exact
+  fish-school centres, the shark route target, terrain-following monkey home ranges, and active
+  monkey movement targets; bird route bounds, avoidance proposals, and spawn regions remain.
 - [x] Audio zone/emitter/source-count visualization. F2 draws the six authoritative terrain-
   following surf/breeze/jungle crossfade boundaries, nearest non-dormant bird/monkey candidates,
   and the exact active pooled emitter; F1 reports the active-source count against the six-source
@@ -967,10 +968,11 @@ Work next, in order:
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
 4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
-   wildlife-heading, and audio-zone/emitter visualization with exact targets/spawn regions and
-   individual culling/LOD/density fields only where they materially improve debugging. F1 now
-   reports local static-collision candidates, nine terrain support samples, and live audio sources
-   against their complete populations/budgets.
+   wildlife-heading/navigation, and audio-zone/emitter visualization with bird route/spawn regions
+   and individual culling/LOD/density fields only where they materially improve debugging. F1 now
+   reports local static-collision candidates, nine terrain support samples, wildlife
+   marker/target/home-range counts, and live audio sources against their complete
+   populations/budgets.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -2304,6 +2306,30 @@ Work next, in order:
   application lint pass; WebAssembly is 8,352,169 bytes, stripped `libmain.so` is 15,741,472 bytes,
   and the APK is 33,473,848 bytes. Android runtime appearance remains unqualified without KVM or
   a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency
+  defect was found.
+
+### 2026-10-06 — Authoritative wildlife navigation diagnostics
+
+- Exposed one compact authoritative centre/tier snapshot per fish school and moved the shark route
+  target plus each monkey's home/active target into their renderer-independent public state. The
+  simulations remain the only owners of those values; F2 no longer needs to infer navigation from
+  a rendered heading. The seven monkeys retain the same 34 m home constraint and all runtime
+  wildlife behaviour remains deterministic.
+- Extended the existing two-draw F2 batch with nearby fish-school centre markers, the current
+  shark route target and pose-to-target line, terrain-following monkey home circles, exact home
+  markers, and active walk/run targets. The panel now reports wildlife marker/target/home-range
+  counts. A dedicated monkey navigation capture reported 18 markers, 2 active targets, and 4
+  nearby home ranges without another draw submission.
+- Expanded long-session core coverage to verify deterministic fish-school centres, shark route
+  targets, and monkey navigation state; all coordinates stay finite and inside the corresponding
+  water belt or monkey home radius. One initial shark assertion incorrectly assumed every route
+  target itself had deep seabed even though actual movement independently rejects shallow
+  proposals; the final test checks the simulation's real offshore-belt contract.
+- All 24 native tests pass, including 23 real OpenGL 3.3 scenes. The Chrome 152/SwiftShader WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,360,630 bytes, stripped `libmain.so` is 15,755,280 bytes,
+  and the APK is 33,487,656 bytes. Android runtime appearance remains unqualified without KVM or a
+  physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency
   defect was found.
 
 ## Session-end checklist

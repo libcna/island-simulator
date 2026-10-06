@@ -45,13 +45,13 @@ namespace island
           bodyPhase_(0.7f)
     {
         ResolveRouteTarget();
-        const float radius = std::max(1.0f, std::hypot(targetX_, targetZ_));
-        const float radialX = targetX_ / radius;
-        const float radialZ = targetZ_ / radius;
+        const float radius = std::max(1.0f, std::hypot(state_.targetX, state_.targetZ));
+        const float radialX = state_.targetX / radius;
+        const float radialZ = state_.targetZ / radius;
         const float tangentX = -radialZ * static_cast<float>(direction_);
         const float tangentZ = radialX * static_cast<float>(direction_);
-        state_.x = targetX_ - tangentX * 2.4f;
-        state_.z = targetZ_ - tangentZ * 2.4f;
+        state_.x = state_.targetX - tangentX * 2.4f;
+        state_.z = state_.targetZ - tangentZ * 2.4f;
         state_.headingRadians = std::atan2(tangentZ, tangentX);
         const float seabed = terrain_.Height(state_.x, state_.z);
         state_.y = std::max(seabed + 1.2f, -2.4f);
@@ -73,14 +73,14 @@ namespace island
         const float offshoreVariation = std::sin(elapsedSeconds_ * 0.037f + 0.8f) * 5.5f
             + std::sin(elapsedSeconds_ * 0.013f + 2.1f) * 2.5f;
         float radius = terrain_.ShoreRadius(routeAngle_) + 52.0f + offshoreVariation;
-        targetX_ = std::cos(routeAngle_) * radius;
-        targetZ_ = std::sin(routeAngle_) * radius;
-        TerrainSample sample = terrain_.Sample(targetX_, targetZ_);
+        state_.targetX = std::cos(routeAngle_) * radius;
+        state_.targetZ = std::sin(routeAngle_) * radius;
+        TerrainSample sample = terrain_.Sample(state_.targetX, state_.targetZ);
         for (int attempt = 0; attempt < 10 && sample.height > -3.5f; ++attempt) {
             radius += 2.5f;
-            targetX_ = std::cos(routeAngle_) * radius;
-            targetZ_ = std::sin(routeAngle_) * radius;
-            sample = terrain_.Sample(targetX_, targetZ_);
+            state_.targetX = std::cos(routeAngle_) * radius;
+            state_.targetZ = std::sin(routeAngle_) * radius;
+            sample = terrain_.Sample(state_.targetX, state_.targetZ);
         }
     }
 
@@ -129,13 +129,14 @@ namespace island
         if (deltaSeconds <= 0.0f) {
             return;
         }
-        const float routeRadius = std::max(1.0f, std::hypot(targetX_, targetZ_));
+        const float routeRadius = std::max(
+            1.0f, std::hypot(state_.targetX, state_.targetZ));
         routeAngle_ = WrapAngle(routeAngle_ + static_cast<float>(direction_)
             * 1.05f / routeRadius * deltaSeconds);
         ResolveRouteTarget();
 
-        const float toTargetX = targetX_ - state_.x;
-        const float toTargetZ = targetZ_ - state_.z;
+        const float toTargetX = state_.targetX - state_.x;
+        const float toTargetZ = state_.targetZ - state_.z;
         const float desiredHeading = std::atan2(toTargetZ, toTargetX)
             + std::sin(elapsedSeconds_ * 0.11f + 1.7f) * 0.055f;
         state_.headingRadians += std::clamp(

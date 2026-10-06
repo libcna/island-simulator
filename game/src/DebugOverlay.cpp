@@ -217,7 +217,9 @@ namespace island
                    << "  COLLISION " << state.collisionCandidates << '/'
                    << state.collisionObstacles
                    << " CELLS " << state.worldDebugCells
-                   << " WILDLIFE " << state.worldDebugWildlife
+                   << " WILDLIFE " << state.worldDebugWildlife << '/'
+                   << state.worldDebugWildlifeTargets << '/'
+                   << state.worldDebugMonkeyHomes
                    << " AUDIO " << state.worldDebugAudioZones << '/'
                    << state.worldDebugAudioCandidates << '/'
                    << state.worldDebugActiveAudioEmitters

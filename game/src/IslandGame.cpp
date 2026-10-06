@@ -533,7 +533,8 @@ namespace island
         }
         if (worldDebugVisible_) {
             std::cout << "island-simulator: world debug visualization active with 9 ground-contact "
-                         "samples, 6 audio-zone contours, and positional-emitter markers\n";
+                         "samples, wildlife navigation guides, 6 audio-zone contours, and "
+                         "positional-emitter markers\n";
         }
         if (!benchmarkPath_.empty()) {
             std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
@@ -698,8 +699,8 @@ namespace island
             worldDebugVisible_ = !worldDebugVisible_;
             std::cout << "island-simulator: world debug visualization "
                       << (worldDebugVisible_
-                              ? "enabled with 9 ground-contact samples, 6 audio-zone contours, "
-                                "and positional-emitter markers"
+                              ? "enabled with 9 ground-contact samples, wildlife navigation "
+                                "guides, 6 audio-zone contours, and positional-emitter markers"
                               : "disabled")
                       << '\n';
         }
@@ -1076,7 +1077,7 @@ namespace island
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
                                       worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),
-                                      fishSchools_.Fish(),
+                                      fishSchools_.Fish(), fishSchools_.Schools(),
                                       sharkPatrol_.State(), monkeyTroop_.Monkeys(),
                                       soundscapeDebug);
         }
@@ -1240,6 +1241,10 @@ namespace island
                 overlayState.worldDebugObstacles = worldDebugRenderer_->VisibleObstacleCount();
                 overlayState.worldDebugCells = worldDebugRenderer_->VisibleCellCount();
                 overlayState.worldDebugWildlife = worldDebugRenderer_->WildlifeMarkerCount();
+                overlayState.worldDebugWildlifeTargets =
+                    worldDebugRenderer_->WildlifeTargetCount();
+                overlayState.worldDebugMonkeyHomes =
+                    worldDebugRenderer_->MonkeyHomeRangeCount();
                 overlayState.worldDebugAudioZones = worldDebugRenderer_->AudioZoneCount();
                 overlayState.worldDebugAudioCandidates =
                     worldDebugRenderer_->AudioCandidateCount();
@@ -1344,6 +1349,10 @@ namespace island
                           << worldDebugRenderer_->GroundContactSampleCount() << ", supports "
                           << worldDebugRenderer_->GroundSupportSampleCount()
                           << ", steep " << worldDebugRenderer_->SteepGroundSampleCount()
+                          << "; wildlife markers "
+                          << worldDebugRenderer_->WildlifeMarkerCount()
+                          << ", targets " << worldDebugRenderer_->WildlifeTargetCount()
+                          << ", homes " << worldDebugRenderer_->MonkeyHomeRangeCount()
                           << "; audio zones " << worldDebugRenderer_->AudioZoneCount()
                           << ", candidates "
                           << worldDebugRenderer_->AudioCandidateCount()

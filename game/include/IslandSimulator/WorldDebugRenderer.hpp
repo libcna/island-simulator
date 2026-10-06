@@ -46,6 +46,7 @@ namespace island
                   std::span<const CircularObstacle> obstacles,
                   std::span<const BirdState> birds,
                   std::span<const FishState> fish,
+                  std::span<const FishSchoolState> fishSchools,
                   const SharkState& shark,
                   std::span<const MonkeyState> monkeys,
                   const SoundscapeDebugState& soundscape);
@@ -61,6 +62,14 @@ namespace island
         [[nodiscard]] int WildlifeMarkerCount() const noexcept
         {
             return wildlifeMarkerCount_;
+        }
+        [[nodiscard]] int WildlifeTargetCount() const noexcept
+        {
+            return wildlifeTargetCount_;
+        }
+        [[nodiscard]] int MonkeyHomeRangeCount() const noexcept
+        {
+            return monkeyHomeRangeCount_;
         }
         [[nodiscard]] int AudioZoneCount() const noexcept { return audioZoneCount_; }
         [[nodiscard]] int AudioCandidateCount() const noexcept
@@ -91,6 +100,8 @@ namespace island
         int visibleObstacleCount_ = 0;
         int visibleCellCount_ = 0;
         int wildlifeMarkerCount_ = 0;
+        int wildlifeTargetCount_ = 0;
+        int monkeyHomeRangeCount_ = 0;
         int audioZoneCount_ = 0;
         int audioCandidateCount_ = 0;
         int activeAudioEmitterCount_ = 0;
