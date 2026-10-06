@@ -90,6 +90,13 @@ viewpoint hill. Later biome masks, routes, coves, and landmarks must preserve th
 rendering, collision, vegetation, wildlife, water, and tests all consult the same authoritative
 field or a documented derived cache.
 
+The public terrain-query contract accepts horizontal coordinates whose absolute components are at
+most 1,000,000 m, vastly beyond every reachable or rendered position. Non-finite or larger input
+fails closed to a finite, upward-facing deep-seabed sample and water classification before value
+noise can convert a cell coordinate to `int32_t`. A non-finite polar angle selects the deterministic
+zero-angle shoreline profile. This boundary keeps malformed debug, spawn, or movement data from
+poisoning later collision and rendering state without complicating valid-world queries.
+
 Terrain vertices carry the authoritative signed shoreline distance and slope beside their
 prelit base colour. A portable GLSL 330 / GLSL ES 300 material pass uses those values for sand,
 wet-edge, interior-soil, and exposed-slope transitions, then adds two scales of smooth value noise

@@ -50,6 +50,9 @@ namespace island
         /** @brief Nominal island diameter in metres. */
         static constexpr float NominalDiameter = 500.0f;
 
+        /** @brief Largest supported absolute horizontal query coordinate in metres. */
+        static constexpr float MaximumQueryCoordinate = 1'000'000.0f;
+
         /**
          * @brief Returns the radial shoreline distance for a polar angle.
          * @param angleRadians Angle around the island in radians.
@@ -78,7 +81,8 @@ namespace island
          *
          * This is the preferred query when a system needs more than height alone. Keeping these
          * derived values together prevents collision, placement, and rendering from using subtly
-         * different finite-difference conventions.
+         * different finite-difference conventions. Non-finite or out-of-domain coordinates return
+         * a finite, upward-facing deep-seabed sample instead of entering procedural noise math.
          */
         [[nodiscard]] TerrainSample Sample(float x, float z) const noexcept;
 

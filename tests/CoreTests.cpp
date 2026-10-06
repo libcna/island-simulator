@@ -1789,6 +1789,25 @@ int main()
     Check(!terrain.IsLand(420.0f, 0.0f), "far offshore point is water");
     Check(terrain.Height(420.0f, 0.0f) < -3.0f, "offshore seabed descends");
     Check(terrain.Height(0.0f, 0.0f) > 8.0f, "interior has useful elevation");
+    const island::TerrainSample invalidTerrainSample = terrain.Sample(
+        quietNan, std::numeric_limits<float>::infinity());
+    Check(invalidTerrainSample.height == -22.0f
+              && invalidTerrainSample.signedShoreDistance
+                  == -island::IslandTerrain::MaximumQueryCoordinate
+              && invalidTerrainSample.normal.x == 0.0f
+              && invalidTerrainSample.normal.y == 1.0f
+              && invalidTerrainSample.normal.z == 0.0f
+              && invalidTerrainSample.slopeRadians == 0.0f
+              && invalidTerrainSample.surface == island::TerrainSurface::DeepSeabed,
+          "non-finite terrain coordinates fail closed to a finite deep-seabed sample");
+    Check(terrain.Height(std::numeric_limits<float>::max(), 0.0f) == -22.0f
+              && terrain.SignedShoreDistance(
+                     0.0f, -island::IslandTerrain::MaximumQueryCoordinate - 1.0f)
+                  == -island::IslandTerrain::MaximumQueryCoordinate
+              && !terrain.IsLand(quietNan, 0.0f),
+          "out-of-domain terrain queries avoid procedural-noise conversion and remain water");
+    CheckNear(terrain.ShoreRadius(quietNan), terrain.ShoreRadius(0.0f), 0.0001f,
+              "non-finite shoreline angles use the deterministic zero-angle profile");
 
     const island::TerrainSample centreSample = terrain.Sample(0.0f, 0.0f);
     const float centreNormalLength = std::hypot(

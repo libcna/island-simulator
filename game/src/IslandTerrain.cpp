@@ -1,14 +1,35 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <bit>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace island
 {
     namespace
     {
+        constexpr float DeepSeabedHeight = -22.0f;
+
+        [[nodiscard]] bool IsSupportedCoordinate(const float x, const float z) noexcept
+        {
+            return std::isfinite(x) && std::isfinite(z)
+                && std::fabs(x) <= IslandTerrain::MaximumQueryCoordinate
+                && std::fabs(z) <= IslandTerrain::MaximumQueryCoordinate;
+        }
+
+        [[nodiscard]] TerrainSample OutOfDomainSample() noexcept
+        {
+            return TerrainSample{
+                .height = DeepSeabedHeight,
+                .signedShoreDistance = -IslandTerrain::MaximumQueryCoordinate,
+                .normal = TerrainNormal{0.0f, 1.0f, 0.0f},
+                .slopeRadians = 0.0f,
+                .surface = TerrainSurface::DeepSeabed};
+        }
+
         [[nodiscard]] constexpr float SmoothStep(const float value) noexcept
         {
             const float clamped = std::clamp(value, 0.0f, 1.0f);
@@ -36,6 +57,13 @@ namespace island
 
     float IslandTerrain::ValueNoise(const float x, const float z, const std::uint32_t seed) noexcept
     {
+        assert(std::isfinite(x) && std::isfinite(z));
+#ifndef NDEBUG
+        constexpr float MaximumNoiseCoordinate =
+            static_cast<float>(std::numeric_limits<std::int32_t>::max() - 2);
+        assert(std::fabs(x) <= MaximumNoiseCoordinate
+               && std::fabs(z) <= MaximumNoiseCoordinate);
+#endif
         const auto x0 = static_cast<std::int32_t>(std::floor(x));
         const auto z0 = static_cast<std::int32_t>(std::floor(z));
         const auto unit = [seed](const std::int32_t cellX, const std::int32_t cellZ) {
@@ -68,11 +96,15 @@ namespace island
 
     float IslandTerrain::ShoreRadius(const float angleRadians) const noexcept
     {
-        const float broad = 12.0f * std::sin(angleRadians * 3.0f + 0.55f)
-            + 8.0f * std::sin(angleRadians * 5.0f - 1.3f)
-            + 4.5f * std::sin(angleRadians * 9.0f + 2.1f);
-        const float directionX = std::cos(angleRadians);
-        const float directionZ = std::sin(angleRadians);
+        const float finiteAngle = std::isfinite(angleRadians) ? angleRadians : 0.0f;
+        const float safeAngle = std::fabs(finiteAngle) <= std::numbers::pi_v<float>
+            ? finiteAngle
+            : std::remainder(finiteAngle, 2.0f * std::numbers::pi_v<float>);
+        const float broad = 12.0f * std::sin(safeAngle * 3.0f + 0.55f)
+            + 8.0f * std::sin(safeAngle * 5.0f - 1.3f)
+            + 4.5f * std::sin(safeAngle * 9.0f + 2.1f);
+        const float directionX = std::cos(safeAngle);
+        const float directionZ = std::sin(safeAngle);
         const float irregular = 9.0f * FractalNoise(directionX * 2.4f + 3.7f,
                                                     directionZ * 2.4f - 1.9f, 0x51a7U);
         return NominalDiameter * 0.46f + broad + irregular;
@@ -80,6 +112,9 @@ namespace island
 
     float IslandTerrain::SignedShoreDistance(const float x, const float z) const noexcept
     {
+        if (!IsSupportedCoordinate(x, z)) {
+            return -MaximumQueryCoordinate;
+        }
         const float radius = std::hypot(x, z);
         const float angle = radius > 0.0001f ? std::atan2(z, x) : 0.0f;
         return ShoreRadius(angle) - radius;
@@ -87,12 +122,16 @@ namespace island
 
     float IslandTerrain::Height(const float x, const float z) const noexcept
     {
+        if (!IsSupportedCoordinate(x, z)) {
+            return DeepSeabedHeight;
+        }
         const float inland = SignedShoreDistance(x, z);
         if (inland <= 0.0f) {
             const float offshore = -inland;
             const float shelf = -0.035f * offshore - 0.00012f * offshore * offshore;
             const float seabedDetail = 0.35f * FractalNoise(x * 0.025f, z * 0.025f, 0xb34cU);
-            return std::max(-22.0f, shelf + seabedDetail * SmoothStep(offshore / 14.0f));
+            return std::max(DeepSeabedHeight,
+                            shelf + seabedDetail * SmoothStep(offshore / 14.0f));
         }
 
         const float beach = std::min(inland, 18.0f) * 0.095f;
@@ -108,6 +147,9 @@ namespace island
 
     TerrainSample IslandTerrain::Sample(const float x, const float z) const noexcept
     {
+        if (!IsSupportedCoordinate(x, z)) {
+            return OutOfDomainSample();
+        }
         TerrainSample sample;
         sample.height = Height(x, z);
         sample.signedShoreDistance = SignedShoreDistance(x, z);

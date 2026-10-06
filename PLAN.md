@@ -811,8 +811,9 @@ Dependencies: representative complete scene on all targets.
   assert finite poses, bounded animation values, valid populations, and home/range invariants in
   debug builds. Monkey renderer startup validates all generated mesh indices, the complete
   fourteen-bone hierarchy/palette, four required clips, track palette indices, ordered key times,
-  and finite key transforms before GPU upload. Broader terrain-domain and remaining renderer-mesh
-  assertions are still open.
+  and finite key transforms before GPU upload. Public terrain queries now define a one-million-
+  metre numeric domain and fail closed to a finite upward-facing deep-seabed sample outside it,
+  preventing unsafe float-to-noise-cell conversion. Remaining renderer-mesh assertions are open.
 - [x] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
   A host-only two-worker preset instruments the game-owned core, tests, and world-report tool while
   omitting CNA and the graphical application. The first complete pass is clean. LeakSanitizer
@@ -3535,6 +3536,23 @@ Work next, in order:
   stopped afterward and the default v2-signed, arm64-only APK restored at 18,731,100 bytes with a
   15,920,816-byte stripped `libmain.so`. CNA and Sharp Runtime remain clean, on `next`, read-only,
   and unmodified; no qualifying dependency defect was found.
+
+### 2026-10-06 — Bounded terrain-query domain
+
+- Defined a public one-million-metre absolute horizontal query limit, far outside the approximately
+  500 m island and all distant scenery. `Height`, `Sample`, `SignedShoreDistance`, and `IsLand` now
+  fail closed for non-finite or larger coordinates to finite deep seabed, a negative shore distance,
+  an upward normal, zero slope, and a water classification. This prevents `floor(NaN/Inf)` or an
+  out-of-range floating-point value from reaching the procedural noise cell's `int32_t` conversion.
+  Non-finite shoreline angles use the deterministic zero-angle profile; ordinary `atan2` angles
+  avoid an unnecessary range-reduction call.
+- Core regression coverage exercises `NaN`, infinity, maximum float, and the explicit domain edge;
+  the debug suite passes in 18.60 seconds with private noise-domain assertions active. Linux
+  OpenGL 3.3, WebGL 2, and arm64 GLES 3 targets compile from the same implementation using the
+  required shared ccache and two workers. WebAssembly is 8,488,514 bytes; the v2-signed arm64-only
+  APK is 18,732,292 bytes with a 15,922,008-byte stripped `libmain.so`, and application lint passes.
+  Runtime behaviour for valid world coordinates is unchanged. CNA and Sharp Runtime remain clean,
+  read-only, and unmodified.
 
 ## Session-end checklist
 
