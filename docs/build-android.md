@@ -72,21 +72,23 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,747,868-byte APK with a
-15,937,584-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,690,996-byte APK with a
+15,880,712-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
 terrain cell batching. It also validates every indexed procedural mesh plus the monkey fourteen-
-bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build of the
-same sources and current CNA pin passed the KVM/host-GPU GLES 3 first-frame gate at 2003.189 ms
-total startup: 861.991 ms world generation, 4.482 ms framework initialization, 1075.736 ms content
-creation, 20.038 ms before the first draw, and 40.942 ms for the first draw body. The inspected
+bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build of
+the same sources and preceding `fe20e3e9c` CNA pin passed the KVM/host-GPU GLES 3 first-frame gate
+at 2003.189 ms total startup: 861.991 ms world generation, 4.482 ms framework initialization,
+1075.736 ms content creation, 20.038 ms before the first draw, and 40.942 ms for the first draw
+body. The inspected
 2400 by 1080 capture retains the complete scene and clean translucent touch controls. The default
-arm64 package was then restored. Public terrain queries additionally fail closed
-before non-finite or out-of-domain values can reach procedural noise-cell conversion. The APK verifies
-with signature
+arm64 package was then restored. The current `9fbe34468c69` pin builds and lints, but has not been
+rerun because `/dev/kvm` is absent from the current execution namespace. Public terrain queries
+additionally fail closed before non-finite or out-of-domain values can reach procedural noise-cell
+conversion. The APK verifies with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
 incremental assembly.
 
@@ -260,7 +262,8 @@ A subsequent no-window qualification after moving the CNA pin to `fe20e3e9c` aga
 version 12 and host-GPU gfxstream, completed a cold GLES 3 first frame in 2003.189 ms, and produced
 an inspected clean overview. This proves that the current 31-driftwood complete scene starts with
 the qualified dependency baseline; the overview is not a close-view qualification of the cove
-landmark itself, and the one-run timing is not a performance comparison.
+landmark itself, and the one-run timing is not a performance comparison. It describes the
+then-qualified baseline rather than the current `9fbe34468c69` build-only qualification.
 
 SurfaceFlinger presentation samples at the same initial scene improved after terrain visible-cell
 run batching from 40.903 ms mean (24.45 frames/s, 71 of 126 intervals over 40 ms) to 34.163 and

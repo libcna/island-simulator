@@ -67,11 +67,16 @@ ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1 \
 
 The preset deliberately reuses the workspace-approved `build-asan/` directory. It is reproducible
 and may be removed after a completed diagnostic pass when no other process owns it.
-The 2026-10-06 requalification against the current dependency pins passed all six registered
+The 2026-10-06 requalification against the then-current dependency pins passed all six registered
 tests in 73.98 seconds: core, world/audio reports, asset validation, capture-validator tests, and
 the independently parsed WAV preview export. No AddressSanitizer or UndefinedBehaviorSanitizer
 finding was emitted; the legacy 44 MB nonstandard tree was removed afterward and the preset was
 corrected to the approved shared name.
+
+The 2026-10-07 `9fbe34468c69` CNA `next` refresh compiles the selected OpenGL 3.3 framework and
+game objects, and all six non-display gates pass. The complete display-backed suite awaits the
+operator-visible prior executable closing so the replacement binary is not relinked underneath
+that play session.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 

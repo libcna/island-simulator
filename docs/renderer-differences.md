@@ -8,14 +8,16 @@ Game code uses CNA abstractions, portable 16-bit index buffers, and explicit GLS
 platform may reduce density or distance after measurement, but it must not remove core terrain,
 ocean, vegetation, traversal, wildlife, or soundscape systems.
 
-All evidence below uses the dependency revisions in `dependencies.lock`.
+Current build and Web runtime evidence uses the dependency revisions in `dependencies.lock`.
+Android rows explicitly distinguish the retained `fe20e3e9c` runtime matrix from the current
+`9fbe34468c69` build/lint qualification; the latter is not promoted to runtime evidence.
 
 ## Current evidence
 
 | Area | Linux / OpenGL 3.3 | Web / WebGL 2 | Android / OpenGL ES 3 |
 |---|---|---|---|
-| Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 | Android Emulator 36.5.11, API 35 x86_64 AVD, KVM, gfxstream host GPU on AMD Radeon 780M |
-| Runtime state | Repeated interactive play plus isolated GPU smoke/captures | Automated real-browser render and controlled input | Installed complete-scene render, independent movement/look gestures, and same-process background/foreground recovery |
+| Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 | Android Emulator 36.5.11, API 35 x86_64 AVD, KVM, gfxstream host GPU on AMD Radeon 780M for the retained preceding-pin runtime matrix; current-pin arm64 build/lint uses the same SDK/NDK toolchain |
+| Runtime state | Repeated interactive play plus isolated GPU smoke/captures; the operator-visible process predates the latest CNA-only baseline refresh | Automated real-browser render and controlled input on current `9fbe34468c69` | Installed complete-scene render, independent movement/look gestures, and same-process background/foreground recovery on preceding `fe20e3e9c`; current `9fbe34468c69` builds/lints but awaits a KVM-visible session |
 | Terrain | Portable procedural sand/soil shader with close dry-sand granulation, soft-edged pebble/shell flecks, shoreline-raked ripples, interior microvariation, sparse curved leaf litter, fixed-sun inland dappling, a narrow noise-mottled authored footpath, and distinct east/west clearing materials; one 58,081-vertex/115,200-triangle shared mesh retains 64 cull cells and coalesces adjacent visible index ranges | Same GLSL ES 300 material/cell/detail/path/clearing diagnostics required by the harness; shared-buffer diagnostic reports 58 visible cells in three draws; dedicated dry-beach captures expose the close cues | Fixed beach, grass, and jungle captures visibly match the shared geometry and broad material transitions without seams; close pebble/fleck detail and physical-mobile fragment cost remain unqualified |
 | Sky | Full fixed gradient/sun shader with sparse layered horizontal high wisps selected | Same GLSL ES 300 shader required by every harness scene; browser captures show no former vertical streaks | The six fixed captures retain the same sunny gradient, haze, and horizontal-wisp presentation |
 | Distant scenery | Five fogged unreachable islets and 11 simplified palms in one 787-triangle `BasicEffect` batch | Same batch; dedicated browser capture visually matches native | Batch compiles into the arm64 APK; current runtime capture does not qualify it |
@@ -62,8 +64,8 @@ after representative physical-device profiling.
 
 ## Performance interpretation
 
-The current Android emulator uses KVM for CPU execution and host-GPU gfxstream rather than the
-former QEMU TCG/SwiftShader path. It is suitable for functional GLES, input, lifecycle, startup,
+The recorded Android emulator evidence uses KVM for CPU execution and host-GPU gfxstream rather
+than the former QEMU TCG/SwiftShader path. It is suitable for functional GLES, input, lifecycle, startup,
 and same-environment before/after checks. Its compositor cadence and translated host graphics do
 not represent a physical mobile GPU, so shipping density, memory, thermal, power, and frame-time
 decisions still require a representative device.
@@ -78,6 +80,8 @@ physical-device budgets remain separate.
 
 - Extend the matched Android matrix with dedicated birds, fish, shark, swimming-veil, distant-scenery,
   contact-shadow, and LOD-transition views where those checks provide useful additional evidence.
+- Repeat at least the overview/water gates on the current CNA pin once `/dev/kvm` is visible in the
+  execution namespace.
 - Exercise simultaneous real-finger movement/look, swimming, cancellation, audio-focus changes,
   process death, and long pause/resume on a physical Android target.
 - Run a visible hardware-accelerated Web session and another browser engine.

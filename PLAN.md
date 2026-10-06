@@ -53,15 +53,15 @@ environment.
 - Keep simulation and placement deterministic when this improves tests, debugging, and captures.
 - Preserve a playable build at meaningful milestones; do not accumulate large untested batches.
 
-## Verified workspace baseline (refreshed 2026-10-06)
+## Verified workspace baseline (refreshed 2026-10-07)
 
 - [x] Confirmed `island-simulator` is a new repository on unborn branch `develop`, with no source
   files or commits at campaign start.
 - [x] Read the workspace build policy in `../AGENTS.md`.
 - [x] Located CNA at `../cna` and inspected its repository instructions and current APIs.
-- [x] Qualified and locked CNA `next` at commit `fe20e3e9c23b` (`docs(PLAT-142): count the follow-up
-  commits correctly`, 2026-10-06). The preceding qualified exports were `39e84add7777` and
-  `f243c63a1dc5`; the campaign started from `b0e97bb1bb87`.
+- [x] Qualified and locked CNA `next` at commit `9fbe34468c69` (`docs(Task RRC-019): one retirement
+  record for DIRECTX12, CANVAS, OPENGLES2 and WEBGL1`, 2026-10-07). The preceding qualified export
+  was `fe20e3e9c23b`; the campaign started from `b0e97bb1bb87`.
 - [x] Confirmed no separate stale CNA worktree is being mistaken for the current `next` identity.
 - [x] Located Sharp Runtime at `../sharp-runtime`, read its repository instructions, and confirmed
   it is on local `next` at `21c06910f7cf` (`fix(MSR-030): repair Windows consumer portability`,
@@ -3958,6 +3958,33 @@ Work next, in order:
   Android runtime pass was not claimed: `/dev/kvm` is presently absent from this execution
   namespace even though earlier KVM/gfxstream captures remain valid evidence. CNA and Sharp
   Runtime remained read-only and unchanged; no dependency defect or workaround was involved.
+
+### 2026-10-07 — CNA `next` renderer-retirement baseline refresh
+
+- Advanced the reproducible CNA pin from `fe20e3e9c23b5353a5b63bbda36f236d799d6612` to the
+  workspace's clean current `next` commit `9fbe34468c69872204536bfe3dd6f106404d9403` after reviewing
+  both intervening commits. They deliberately retire DIRECTX12, CANVAS, OPENGLES2, and WEBGL1;
+  island-simulator's required OPENGL33, WEBGL2, and OPENGLES3 EasyGL profiles remain supported.
+  Sharp Runtime stays clean on `next` at `21c06910f7cf887cceebb45200e07b43dd45fef4`.
+- Removed the obsolete 323 MiB generated CNA export only after confirming that no build process
+  held it, then materialized one replacement at the exact new commit. The new 321 MiB export
+  retains the matching vendored SDL snapshots and avoids a duplicate dependency tree. Neither CNA
+  nor Sharp Runtime was edited.
+- Reconfigured the existing Linux tree for explicit OPENGL33, compiled the revised 160,614,552-byte
+  `libcna.so` and game consumer objects, and passed all six non-display gates. The complete native
+  display suite and executable relink remain deferred because the operator-visible prior build is
+  still running; this is recorded as an evidence boundary rather than silently claiming the new
+  pin's OpenGL runtime.
+- Reconfigured and rebuilt the Web package for explicit WEBGL2, then passed the complete actual
+  Chrome 152/SwiftShader 22-stage renderer, lifecycle, scene, audio-initialization, and input
+  harness. The inspected current-field frame retains the intended island/ocean presentation and
+  reports its exact drift. WebAssembly is 8,464,191 bytes.
+- Rebuilt and linted the arm64-v8a OPENGLES3 Android package. It contains only the requested ABI,
+  verifies with APK signature scheme v2, and is 18,690,996 bytes with a 15,880,712-byte stripped
+  `libmain.so`. Runtime was not inferred from compilation: `/dev/kvm` is absent from this execution
+  namespace, so the previous pin's six-view KVM/gfxstream matrix remains the latest Android runtime
+  evidence. All compilation used `/rv/cnaccache` and no more than two workers. No framework defect
+  affecting island-simulator was found, so no `BUGS.md` entry or workaround was added.
 
 ## Session-end checklist
 
