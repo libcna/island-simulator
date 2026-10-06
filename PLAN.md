@@ -404,7 +404,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   18,556-patch layout varies all five deterministically from terrain constraints and smooth cluster
   noise. A coherent cool-to-warm material field now differentiates coast, interior, short route
   turf, the sunny east clearing, and the leaf-rich west clearing without changing population or
-  draw count; core tests lock its range, determinism, and clearing separation.
+  draw count; core tests lock its range, determinism, and clearing separation. Sparse deterministic
+  blades also carry a height-weighted sun-cured tip in the shared mesh vertex colour, adding local
+  age variation without another attribute, shader operation, texture, instance, or draw.
 - [x] Align clusters to authoritative terrain normals without flattening individual blade growth.
 - [~] Add vertex wind with bounded amplitude and coherent gust-free sunny-day motion. The portable
   two-frequency wind path is verified on OpenGL 3.3 and WebGL 2; GLES 3 remains unqualified.
@@ -811,8 +813,9 @@ Android is not project completion.
 - [~] Improve grass close-up shape, density transitions, colour variation, wind coherence, and
   aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
-  first-person depth without textures or extra draws; pop-free LOD, richer biome colour, aliasing,
-  and physical-device tuning remain.
+  first-person depth without textures or extra draws. Biome-aware instance colour and sparse
+  height-weighted sun-cured tips now break up broad and blade-scale uniformity; pop-free LOD,
+  aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
   tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
   envelope; near-only procedural trunk scars and coconut clusters on two variants add a first
@@ -3156,6 +3159,31 @@ Work next, in order:
   15,861,744 bytes, and the APK is 18,672,028 bytes. Removed approximately 1 GB of superseded
   x86_64 NDK intermediates while retaining the runtime log/screenshot evidence and final arm64
   artifact. The project-owned workspace now occupies approximately 3.7 GB.
+
+### 2026-10-06 — Sparse sun-cured grass-tip variation
+
+- A close native and browser audit found that the broader biome-aware colour field worked, but
+  individual blade tips remained too uniform at first-person height. Added a sparse deterministic
+  sun-cured subset to the existing shared near/far mesh vertex colours. The tint increases smoothly
+  toward each selected tip while preserving green roots and folded-side lighting.
+- A first shader-based experiment was rejected because its subtle result did not justify permanent
+  per-vertex runtime arithmetic. The accepted CPU mesh-build path changes only static packed
+  colours: geometry, textures, instance records, populations, culling, shader work, and draw counts
+  remain unchanged. Native close and full-scene captures plus the actual Chrome/SwiftShader WebGL 2
+  grass capture were inspected and agree on the restrained result.
+- A native six-view gross-regression suite recorded 1.4789--2.9033 ms mean and 1.8064--3.7133 ms
+  p95 across its fixed scenes while the visible operator game shared the GPU. Differences from the
+  immediately preceding experimental run were mixed, as expected for a static colour-only change;
+  no runtime performance claim is inferred. The complete native suite passes 37/37 in 71.86
+  seconds, including 29 OpenGL scenes and isolated SDL/XTest input. The complete Chrome 152 WebGL 2
+  harness passes and requires the new diagnostic.
+- A clean arm64-v8a Gradle build and app lint pass produced an 18,672,364-byte v2-signed APK with a
+  15,862,080-byte stripped `libmain.so`; an immediate no-change rebuild stayed byte-for-byte the
+  same size. WebAssembly is 8,458,810 bytes. The earlier 34,544,728-byte incremental APK was a stale
+  packaging artifact and was superseded by the clean reproducible package. Android visual tuning
+  of the new static colours remains open for physical or KVM-backed hardware.
+- CNA and Sharp Runtime remain unmodified. The deterministic world fingerprint, all populations,
+  and placement data are unchanged, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

@@ -45,8 +45,10 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw. The software-emulator
 screenshot establishes integrated rendering but is not detailed enough to qualify every layer's
 appearance, touch feel, audio output, lifecycle, or performance.
-The latest single-ABI arm64 debug qualification build produced an 18,672,028-byte APK with a
-15,861,744-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest clean single-ABI arm64 debug qualification build produced an 18,672,364-byte APK with a
+15,862,080-byte stripped `libmain.so` and passed `:app:lintDebug`. The APK verifies with signature
+scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
+incremental assembly.
 
 ## Requirements
 

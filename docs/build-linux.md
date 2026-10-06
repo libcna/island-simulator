@@ -133,7 +133,9 @@ path, while the west view requires the shared five-rock/one-log landmark-layout 
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
 The grass startup also reports the five-level near curvature, portable two-sided daylight path, and
-coherent coast/path/clearing biome-colour field.
+coherent coast/path/clearing biome-colour field. Sparse deterministic sun-cured tips add restrained
+blade-scale age variation baked into the shared mesh vertex colours, without another texture,
+instance attribute, shader operation, or draw.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
 `build/island-palm-capture.ppm` and requires the segmented near-leaflet plus procedural
 bark-scar/coconut path.

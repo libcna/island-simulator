@@ -678,6 +678,27 @@ the existing release, hardware-browser, and physical-Android measurements remain
 | Monkeys | 1.9478 | 2.5403 | 2.7793 | 100 | 2,946 |
 | Traversal | 2.3128 | 3.2074 | 3.7775 | 12 final | route-varying |
 
+### Sparse sun-cured grass-tip follow-up
+
+The accepted tip variation is baked once into the existing shared near/far mesh vertex colours.
+It adds no shader operation, texture, instance field, geometry, population, culling work, or draw.
+A shader-based prototype was deliberately discarded after review because its subtle visual result
+did not justify permanent vertex-stage arithmetic.
+
+One six-view native debug safety suite on the private accelerated display produced the values
+below while the operator's visible game shared the GPU. The immediately preceding experimental
+suite moved in both directions, so these values are a gross-regression and reproducibility guard,
+not evidence of a speedup or isolated static-colour cost.
+
+| View | Mean ms | p95 ms | p99 ms | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.8332 | 2.2592 | 2.6108 | 77 | 0 |
+| Beach | 2.7034 | 2.9226 | 3.6312 | 125 | 2,954 |
+| Jungle | 2.3808 | 2.6545 | 3.3306 | 99 | 2,932 |
+| Driftwood | 1.4789 | 1.8064 | 2.4349 | 54 | 99 |
+| Monkeys | 2.5456 | 3.0738 | 3.5427 | 100 | 2,946 |
+| Traversal | 2.9033 | 3.7133 | 4.4274 | 12 final | route-varying |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -249,9 +249,19 @@ void main()
             const bool reverseFold = (blade & 1) != 0;
             const float foldLight = rightSide == reverseFold ? 0.94f : 1.06f;
             const float light = (0.78f + heightFraction * 0.22f) * foldLight;
-            const int red = static_cast<int>(std::lround((40.0f + bladeShift * 9.0f) * light));
-            const int green = static_cast<int>(std::lround((124.0f + bladeShift * 19.0f) * light));
-            const int blue = static_cast<int>(std::lround((38.0f + bladeShift * 8.0f) * light));
+            const bool sunCured = ((blade * 5 + 2) % 11) < 2;
+            const float curedProfile = sunCured
+                ? 0.08f + 0.60f * heightFraction * heightFraction
+                : 0.0f;
+            const float redCure = 1.0f + curedProfile * 0.75f;
+            const float greenCure = 1.0f + curedProfile * 0.06f;
+            const float blueCure = 1.0f - curedProfile * 0.82f;
+            const int red = static_cast<int>(std::lround(
+                (40.0f + bladeShift * 9.0f) * light * redCure));
+            const int green = static_cast<int>(std::lround(
+                (124.0f + bladeShift * 19.0f) * light * greenCure));
+            const int blue = static_cast<int>(std::lround(
+                (38.0f + bladeShift * 8.0f) * light * blueCure));
             const float normalizedFacing = facing / (2.0f * std::numbers::pi_v<float>)
                 - std::floor(facing / (2.0f * std::numbers::pi_v<float>));
             const int encodedFacing = static_cast<int>(std::lround(normalizedFacing * 255.0f));
@@ -385,7 +395,9 @@ void main()
                       << "island-simulator: grass five-level near curvature with portable "
                          "two-sided daylight shading\n"
                       << "island-simulator: grass biome tint follows coast, path, and authored "
-                         "clearings\n";
+                         "clearings\n"
+                      << "island-simulator: grass sparse sun-cured tip variation in shared "
+                         "vertex colours\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass biome tint follows coast, path, and authored clearings");
         } else {
