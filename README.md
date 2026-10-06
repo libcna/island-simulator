@@ -137,8 +137,9 @@ Press Escape once to release the mouse and again to exit. Mouse look remains act
 movement key is held. The controller follows the terrain,
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and
 enters swimming water with hysteresis. Swimming retains collision with solid emergent reef rocks.
-A static 16 m collision grid limits each capsule test to nearby proxies;
-geometric step-up and collision depenetration are not implemented yet.
+A static 16 m collision grid limits each capsule test to nearby proxies; bounded one-time recovery
+prevents a placement or debug teleport from leaving the player embedded in a static proxy.
+Geometric step-up and continuous recovery from moving obstacles are not implemented yet.
 Walking and swimming apply restrained, speed-responsive positional camera motion; press B to
 smoothly disable or restore it.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,

@@ -16,6 +16,8 @@ namespace island
         constexpr float WaterExitTerrainHeight = -0.16f;
         constexpr float MaximumStepSeconds = 0.1f;
         constexpr float MaximumHorizontalSubstep = 0.14f;
+        constexpr float DepenetrationSkin = 0.001f;
+        constexpr int MaximumDepenetrationPasses = 8;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -64,6 +66,63 @@ namespace island
                                                     sample.slopeRadians);
         }
         return contact;
+    }
+
+    int PlayerMotion::ResolveObstaclePenetration(
+        const std::span<const CircularObstacle> obstacles) noexcept
+    {
+        int correctionCount = 0;
+        for (int pass = 0; pass < MaximumDepenetrationPasses; ++pass) {
+            bool corrected = false;
+            for (const CircularObstacle& obstacle : obstacles) {
+                if (!std::isfinite(obstacle.x) || !std::isfinite(obstacle.z)
+                    || !std::isfinite(obstacle.radius)) {
+                    continue;
+                }
+                const float combinedRadius = CapsuleRadius + std::max(0.0f, obstacle.radius);
+                float separationX = position_.x - obstacle.x;
+                float separationZ = position_.z - obstacle.z;
+                const float distanceSquared = separationX * separationX
+                    + separationZ * separationZ;
+                if (distanceSquared >= combinedRadius * combinedRadius) {
+                    continue;
+                }
+
+                float distance = std::sqrt(std::max(0.0f, distanceSquared));
+                if (distance > 0.000001f) {
+                    separationX /= distance;
+                    separationZ /= distance;
+                } else {
+                    // An exact centre overlap has no separating direction. Prefer away from the
+                    // island centre so teleport recovery remains deterministic and unsurprising.
+                    const float obstacleRadius = std::hypot(obstacle.x, obstacle.z);
+                    if (obstacleRadius > 0.000001f) {
+                        separationX = obstacle.x / obstacleRadius;
+                        separationZ = obstacle.z / obstacleRadius;
+                    } else {
+                        separationX = 1.0f;
+                        separationZ = 0.0f;
+                    }
+                    distance = 0.0f;
+                }
+
+                const float pushDistance = combinedRadius - distance + DepenetrationSkin;
+                position_.x += separationX * pushDistance;
+                position_.z += separationZ * pushDistance;
+                const float inwardVelocity = velocityX_ * separationX
+                    + velocityZ_ * separationZ;
+                if (inwardVelocity < 0.0f) {
+                    velocityX_ -= separationX * inwardVelocity;
+                    velocityZ_ -= separationZ * inwardVelocity;
+                }
+                ++correctionCount;
+                corrected = true;
+            }
+            if (!corrected) {
+                break;
+            }
+        }
+        return correctionCount;
     }
 
     PlayerMotion::HorizontalStepResult PlayerMotion::TryHorizontalStep(
@@ -122,6 +181,7 @@ namespace island
         velocityX_ = 0.0f;
         velocityZ_ = 0.0f;
         movementTrace_ = PlayerMovementTrace{};
+        depenetrationPending_ = true;
         mode_ = terrain.Height(position_.x, position_.z) < WaterEntryTerrainHeight
             ? LocomotionMode::Swimming
             : LocomotionMode::Walking;
@@ -207,6 +267,15 @@ namespace island
             inputZ /= inputLength;
         }
 
+        PlayerMovementTrace trace;
+        trace.startX = position_.x;
+        trace.startZ = position_.z;
+        if (depenetrationPending_ && (collisionGrid != nullptr || !obstacles.empty())) {
+            trace.obstacleDepenetrations = ResolveObstaclePenetration(
+                collisionGrid != nullptr ? collisionGrid->Obstacles() : obstacles);
+            depenetrationPending_ = false;
+        }
+
         const float speed = mode_ == LocomotionMode::Walking
             ? (running_ ? RunSpeed : WalkSpeed)
             : SwimSpeed;
@@ -239,12 +308,10 @@ namespace island
         const float totalDeltaX = velocityX_ * dt;
         const float totalDeltaZ = velocityZ_ * dt;
         const float movementDistance = std::hypot(totalDeltaX, totalDeltaZ);
-        PlayerMovementTrace trace;
-        trace.startX = position_.x;
-        trace.startZ = position_.z;
         trace.attemptedX = position_.x + totalDeltaX;
         trace.attemptedZ = position_.z + totalDeltaZ;
-        trace.valid = movementDistance > 0.000001f;
+        trace.valid = movementDistance > 0.000001f
+            || trace.obstacleDepenetrations > 0;
         const auto recordRejection = [&trace](const HorizontalStepResult result) {
             if (result == HorizontalStepResult::ObstacleBlocked) {
                 ++trace.obstacleRejections;

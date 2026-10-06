@@ -136,7 +136,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 4. `IslandGame` edge-detects either Shift key and retains the selected 4.3/8.0 m/s walk/run mode;
    `PlayerMotion` applies frame-time clamping, direction-independent vector acceleration,
    slope checks, swimming speed, the island-relative current field, the remote safety boundary,
-   and horizontal solid-prop collision in both locomotion modes.
+   and horizontal solid-prop collision in both locomotion modes. The first indexed update after
+   explicit placement performs a bounded static-proxy depenetration pass, preventing a debug
+   teleport or future spawn from leaving the capsule embedded.
 5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the
    proposed capsule footprint exactly against nearby trunk, land/reef rock, and log circular
    obstacles while retaining axis sliding when one component is valid.
@@ -677,8 +679,9 @@ testing remain open.
   portable batch. Its silhouette variety is deliberately restrained; unified world haze, richer
   mid-distance composition, and final horizon balance remain open.
 - Collision uses a static 16 m spatial grid over every palm, canopy-trunk, solid-rock, and sampled
-  log proxy. Exact narrow-phase circle checks preserve the original result; dynamic obstacles,
-  geometric step-up, and depenetration remain absent.
+  log proxy. Exact narrow-phase circle checks preserve the original result, and placement performs
+  bounded deterministic recovery from an overlapping static proxy. Dynamic obstacles, geometric
+  step-up, and continuous depenetration remain absent.
 - Swimming camera height, restrained opt-out camera motion, movement-responsive water audio, and a
   subtle depth/current-responsive near-surface edge veil are functional. The same normalized
   current now deepens the existing water loop into a bounded undertow cue. Full underwater fog,

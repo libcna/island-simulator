@@ -163,6 +163,7 @@ namespace island
         int movementObstacleRejections = 0;
         int movementTerrainRejections = 0;
         int movementSlideSubsteps = 0;
+        int movementObstacleDepenetrations = 0;
         bool movementSafetyClamped = false;
         int worldDebugLines = 0;
         int worldDebugDraws = 0;

@@ -1742,6 +1742,8 @@ namespace island
                 overlayState.movementObstacleRejections = movementTrace.obstacleRejections;
                 overlayState.movementTerrainRejections = movementTrace.terrainRejections;
                 overlayState.movementSlideSubsteps = movementTrace.slideSubsteps;
+                overlayState.movementObstacleDepenetrations =
+                    movementTrace.obstacleDepenetrations;
                 overlayState.movementSafetyClamped = movementTrace.safetyClamped;
                 overlayState.worldDebugLines = worldDebugRenderer_->LineCount();
                 overlayState.worldDebugDraws = worldDebugRenderer_->DrawCallCount();
@@ -1869,7 +1871,8 @@ namespace island
                           << ", spawns " << worldDebugRenderer_->BirdSpawnMarkerCount()
                           << ", radial targets "
                           << worldDebugRenderer_->BirdRouteTargetCount()
-                          << "; movement obstacle/terrain/slide/clamp "
+                          << "; movement depenetrate/obstacle/terrain/slide/clamp "
+                          << movementTrace.obstacleDepenetrations << '/'
                           << movementTrace.obstacleRejections << '/'
                           << movementTrace.terrainRejections << '/'
                           << movementTrace.slideSubsteps << '/'

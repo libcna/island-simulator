@@ -125,8 +125,8 @@ Current fields are:
   (`WILDLIFE M/T/H`), bird route-family/spawn/live-target (`BIRD R/S/T`), audio
   zone/candidate/active-emitter (`AUDIO Z/C/E`), terrain
   sample/support/over-limit (`CONTACT S/S/O`), line, and draw
-  counts. `MOVE O/T/S/C` reports obstacle rejections, terrain rejections, slide substeps, and
-  ocean-safety clamping for the retained movement trace.
+  counts. `MOVE D/O/T/S/C` reports static-placement depenetrations, obstacle rejections, terrain
+  rejections, slide substeps, and ocean-safety clamping for the retained movement trace.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative
@@ -211,9 +211,10 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 The F2 pass covers the world geometry and audio diagnostics listed above, including the complete
 bird route/spawn layer. Steering avoidance proposals, spawn regions for other wildlife, individual
 renderer culling volumes and LOD radii, and grass-density fields remain open. The movement trace
-retains the latest resolved frame;
-a longer history and geometric step-up/depenetration views are not implemented. So do a teleport
-menu, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
+retains the latest resolved frame and classifies an exact placement correction as obstacle contact;
+a longer history, geometric step-up, and continuous dynamic-obstacle recovery views are not
+implemented. So do a teleport menu, target-specific budget warnings, and renderer-specific
+CPU/GPU separation. All
 additions must remain opt-in and absent from the normal release presentation.
 
 For startup diagnosis, `--startup-report <path>` records five application-owned phases through the

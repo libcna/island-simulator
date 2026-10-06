@@ -414,11 +414,14 @@ namespace island
                 return std::max(terrain_.Height(x, z) + offset,
                                 OceanLineHeight + offset);
             };
-            const bool movementRejected = movementTrace.obstacleRejections > 0
+            const bool movementRejected = movementTrace.obstacleDepenetrations > 0
+                || movementTrace.obstacleRejections > 0
                 || movementTrace.terrainRejections > 0 || movementTrace.safetyClamped;
+            const bool obstacleContact = movementTrace.obstacleDepenetrations > 0
+                || movementTrace.obstacleRejections > 0;
             const Color attemptedColor = movementTrace.terrainRejections > 0
                 ? Color(255, 72, 65, 255)
-                : (movementTrace.obstacleRejections > 0
+                : (obstacleContact
                     ? Color(255, 150, 45, 255)
                     : (movementTrace.safetyClamped
                         ? Color(255, 80, 190, 255)

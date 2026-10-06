@@ -2645,6 +2645,7 @@ int main()
     Check(firstMovementTrace.obstacleRejections == 0
               && firstMovementTrace.terrainRejections == 0
               && firstMovementTrace.slideSubsteps == 0
+              && firstMovementTrace.obstacleDepenetrations == 0
               && !firstMovementTrace.safetyClamped,
           "unobstructed movement diagnostics report no rejection or clamp");
     Check(player.VelocityX() > 0.0f && player.VelocityX() < island::PlayerMotion::WalkSpeed,
@@ -2991,6 +2992,50 @@ int main()
               "indexed and exhaustive obstacle paths stop at the same position");
     CheckNear(indexedPlayer.Position().z, player.Position().z, 0.0001f,
               "indexed and exhaustive obstacle paths preserve identical axis sliding");
+
+    const island::CircularObstacle embeddedObstacle{0.0f, 0.0f, 0.42f};
+    const std::span<const island::CircularObstacle> embeddedObstacles(
+        &embeddedObstacle, 1U);
+    island::PlayerMotion embeddedPlayer;
+    embeddedPlayer.SetPosition(terrain, embeddedObstacle.x, embeddedObstacle.z);
+    embeddedPlayer.Update(terrain, 0.0f, 0.0f, 1.0f / 60.0f, embeddedObstacles);
+    const float embeddedClearance = island::PlayerMotion::CapsuleRadius
+        + embeddedObstacle.radius;
+    const float recoveredDistance = std::hypot(
+        embeddedPlayer.Position().x - embeddedObstacle.x,
+        embeddedPlayer.Position().z - embeddedObstacle.z);
+    Check(std::isfinite(embeddedPlayer.Position().x)
+              && std::isfinite(embeddedPlayer.Position().z)
+              && recoveredDistance >= embeddedClearance,
+          "placement inside a static obstacle recovers to finite capsule clearance");
+    Check(embeddedPlayer.Position().x > embeddedObstacle.x
+              && std::abs(embeddedPlayer.Position().z - embeddedObstacle.z) < 0.0001f,
+          "exact-centre placement recovery uses its deterministic outward direction");
+    Check(embeddedPlayer.MovementTrace().valid
+              && embeddedPlayer.MovementTrace().obstacleDepenetrations == 1
+              && embeddedPlayer.MovementTrace().obstacleRejections == 0,
+          "movement diagnostics distinguish placement recovery from blocked movement");
+    const island::PlayerPosition recoveredPosition = embeddedPlayer.Position();
+    embeddedPlayer.Update(terrain, 0.0f, 0.0f, 1.0f / 60.0f, embeddedObstacles);
+    CheckNear(embeddedPlayer.Position().x, recoveredPosition.x, 0.0001f,
+              "static placement recovery does not drift on later idle updates along x");
+    CheckNear(embeddedPlayer.Position().z, recoveredPosition.z, 0.0001f,
+              "static placement recovery does not drift on later idle updates along z");
+
+    const island::WorldCollisionGrid embeddedCollisionGrid(embeddedObstacles);
+    island::PlayerMotion indexedEmbeddedPlayer;
+    indexedEmbeddedPlayer.SetPosition(terrain, embeddedObstacle.x, embeddedObstacle.z);
+    indexedEmbeddedPlayer.Update(
+        terrain, 0.0f, 0.0f, 1.0f / 60.0f, embeddedCollisionGrid);
+    CheckNear(indexedEmbeddedPlayer.Position().x, recoveredPosition.x, 0.0001f,
+              "indexed and exhaustive placement recovery agree along x");
+    CheckNear(indexedEmbeddedPlayer.Position().z, recoveredPosition.z, 0.0001f,
+              "indexed and exhaustive placement recovery agree along z");
+    Check(indexedEmbeddedPlayer.MovementTrace().obstacleDepenetrations == 1
+              && !embeddedCollisionGrid.IntersectsCircle(
+                  indexedEmbeddedPlayer.Position().x, indexedEmbeddedPlayer.Position().z,
+                  island::PlayerMotion::CapsuleRadius),
+          "indexed placement recovery ends outside the obstacle and reports its correction");
 
     const island::CircularObstacle* selectedRockObstacle = nullptr;
     float rockApproachX = 0.0f;

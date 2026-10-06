@@ -32,7 +32,7 @@ namespace island
         float z = 0.0f;
     };
 
-    /** @brief Last nonzero horizontal move before and after collision/slope resolution. */
+    /** @brief Last horizontal move or placement correction before and after resolution. */
     struct PlayerMovementTrace
     {
         float startX = 0.0f;
@@ -44,6 +44,7 @@ namespace island
         int obstacleRejections = 0;
         int terrainRejections = 0;
         int slideSubsteps = 0;
+        int obstacleDepenetrations = 0;
         bool safetyClamped = false;
         bool valid = false;
     };
@@ -162,6 +163,7 @@ namespace island
                                                float maximumDelta) noexcept;
         [[nodiscard]] static GroundContact SampleGroundContact(const IslandTerrain& terrain,
                                                                float x, float z) noexcept;
+        int ResolveObstaclePenetration(std::span<const CircularObstacle> obstacles) noexcept;
         [[nodiscard]] HorizontalStepResult TryHorizontalStep(
             const IslandTerrain& terrain,
             std::span<const CircularObstacle> obstacles,
@@ -180,6 +182,7 @@ namespace island
         float groundSlopeRadians_ = 0.0f;
         LocomotionMode mode_ = LocomotionMode::Walking;
         bool running_ = false;
+        bool depenetrationPending_ = true;
         PlayerMovementTrace movementTrace_;
     };
 }

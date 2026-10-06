@@ -251,12 +251,14 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [~] Add broad-phase spatial partitioning for rocks/trees and capsule-vs-world collision. A static
   16 m grid now indexes the shared palm, broadleaf, solid land/reef-rock, and sampled fallen-log
   proxies;
-  exact narrow-phase checks retain substepped axis sliding. Dynamic obstacles and depenetration
-  remain open.
+  exact narrow-phase checks retain substepped axis sliding. A bounded one-time full-set pass safely
+  recovers explicit placements from overlapping static proxies; dynamic obstacles and continuous
+  depenetration remain open.
 - [~] Add footprint-aware ground support, ground following, a 38-degree uphill limit, axis sliding,
   bounded step rejection, and palm-trunk collision. Solid land-rock, reef-outcrop, and log
   collision is active while walking; the same horizontal proxies constrain swimming.
-  Depenetration and geometric step-up remain open.
+  Static placement/teleport depenetration is implemented; continuous dynamic-obstacle recovery and
+  geometric step-up remain open.
 - [x] Prevent terrain tunnelling under low frame rates with a 100 ms time clamp and 0.14 m maximum
   horizontal substeps; keep swept prop tests open with prop collision.
 
@@ -1021,8 +1023,8 @@ after the same experience remains available.
 - [~] Terrain/capsule/contact visualization. Player footprint, nearby solid horizontal proxies,
   the exact nine terrain samples, 1.5 m normals, resolved support rings, player support line, and
   red over-limit slope markers are visible. The latest exact attempted/resolved horizontal step is
-  retained with obstacle/terrain/axis-slide/safety-clamp classification; movement history,
-  geometric step-up, and depenetration remain.
+  retained with depenetration/obstacle/terrain/axis-slide/safety-clamp classification; movement
+  history, geometric step-up, and continuous dynamic-obstacle recovery remain.
 - [~] Shore distance/current vector visualization. F2 draws the irregular shoreline, all three
   current thresholds, and the player's active inward-current arrow; a scalar field view remains.
 - [~] Vegetation cell, culling, LOD, and density visualization. F2 draws nearby shared 8 by 8
@@ -2519,8 +2521,9 @@ Work next, in order:
   trace so stale data cannot be mistaken for post-teleport movement.
 - Extended the existing F2 x-ray batch with exact-scale attempted and resolved lines and endpoint
   rings. Clear attempts are cyan, obstacle rejections orange, terrain rejections red, safety
-  clamps magenta, and the resolved endpoint green. F1 reports `MOVE O/T/S/C`; the normal
-  presentation still pays no extra draw submission and the complete F2 view remains two draws.
+  clamps magenta, and the resolved endpoint green. F1 now reports `MOVE D/O/T/S/C`, including
+  later static-placement recovery; the normal presentation still pays no extra draw submission and
+  the complete F2 view remains two draws.
 - Added `--viewpoint movement`, which deterministically walks east into a real palm proxy before
   positioning an independent camera. Its automated capture and visual inspection show the two
   overlapping exact endpoints at the trunk and report `2/0/1/0`: two obstacle rejections, zero
@@ -3800,6 +3803,27 @@ Work next, in order:
   No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. The headless AVD was stopped
   and the default arm64 package restored. Physical-device ergonomics remain open. CNA and Sharp
   Runtime remained read-only and unchanged.
+
+### 2026-10-06 — Static placement depenetration
+
+- Added a bounded one-time recovery pass to the renderer-independent player controller. The first
+  collision-aware update after explicit placement checks the static obstacle set, pushes an
+  overlapping capsule out with a 1 mm separation skin, removes only velocity directed back into
+  the obstacle, and stops after eight passes. Exact-centre overlaps choose a deterministic
+  island-relative direction. Normal movement still uses the 16 m broad phase and pays no full-set
+  scan; moving obstacles and continuous depenetration remain explicitly out of scope.
+- Extended the retained movement trace and F1/F2 diagnostics with a separate depenetration count.
+  Orange obstacle-contact visualization now covers both a rejected move and a placement
+  correction, while the overlay reports `MOVE D/O/T/S/C`. Deterministic core regressions prove
+  finite clearance, stable exact-centre direction, no idle drift, diagnostic classification, and
+  matching exhaustive/indexed results. The complete core test passes in 40.61 seconds.
+- The shared sources compile for WebGL 2 and arm64 GLES 3. The Android application build and lint
+  pass; the APK contains only arm64-v8a native libraries and verifies with signature scheme v2.
+  WebAssembly is 8,497,359 bytes; the APK is 18,744,052 bytes with a 15,933,768-byte stripped
+  `libmain.so`. No renderer runtime was repeated for this renderer-independent correction. The
+  operator's visible OpenGL 3.3 process was deliberately left running, so the native executable
+  relink and an interactive placement pass remain follow-up work. CNA and Sharp Runtime remained
+  read-only and unchanged; no qualifying dependency defect or workaround was involved.
 
 ## Session-end checklist
 

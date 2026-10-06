@@ -251,7 +251,8 @@ namespace island
         worldContact << "WORLD CONTACT S/S/O " << state.worldDebugGroundSamples << '/'
                      << state.worldDebugGroundSupports << '/'
                      << state.worldDebugSteepSamples
-                     << "  MOVE O/T/S/C " << state.movementObstacleRejections << '/'
+                     << "  MOVE D/O/T/S/C " << state.movementObstacleDepenetrations << '/'
+                     << state.movementObstacleRejections << '/'
                      << state.movementTerrainRejections << '/'
                      << state.movementSlideSubsteps << '/'
                      << (state.movementSafetyClamped ? 1 : 0);

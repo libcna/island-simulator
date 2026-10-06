@@ -65,7 +65,9 @@ been confirmed so far.
 
 - Walking, slopes, palm/broadleaf trunk collision, swimming, and the offshore current are
   functional. Static palm, broadleaf, land/reef-rock, and log proxies use a 16 m spatial broad
-  phase in both locomotion modes, but dynamic obstacles and depenetration are not implemented.
+  phase in both locomotion modes. Explicit placement and debug teleports get a bounded one-time
+  recovery from overlapping static proxies; dynamic obstacles and continuous depenetration are not
+  implemented.
 - Substantial rocks and fallen logs have conservative collision; smaller rock dressing remains
   non-solid. Fourteen emergent reef outcrops remain solid while swimming. Walking and swimming now
   use very mild speed-responsive positional camera motion,
