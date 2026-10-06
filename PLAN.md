@@ -801,8 +801,10 @@ Dependencies: representative complete scene on all targets.
 
 ### Reliability and automated coverage
 
-- [ ] Test malformed/missing terrain, configuration, model, texture, animation, shader, and audio
-  inputs for actionable failure diagnostics.
+- [~] Test malformed/missing terrain, configuration, model, texture, animation, shader, and audio
+  inputs for actionable failure diagnostics. `IslandCommandLineValidation` now launches the real
+  executable for eight invalid option/value/conflict cases and requires exit code 2, specific
+  stderr guidance, and no stdout before graphics initialization. Malformed content cases remain.
 - [ ] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
   sizes, and impossible player/wildlife states in development builds.
 - [x] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
@@ -3493,6 +3495,17 @@ Work next, in order:
   8.0 m/s run enabled followed by 4.3 m/s run disabled, qualifying the same toggle path on the
   touch-oriented target without claiming physical-device keyboard ergonomics. CNA and Sharp
   Runtime remain read-only and unmodified; no qualifying dependency defect was found.
+
+### 2026-10-06 — Pre-graphics command-line failure validation
+
+- Added `IslandCommandLineValidation`, a display-independent test that invokes the real executable
+  for eight invalid command lines. It requires exit code 2, the specific actionable stderr text,
+  and an empty stdout stream for unknown options, three missing option values, an unknown
+  viewpoint, a benchmark/debug conflict, and traversal requested without a benchmark destination.
+- The gate passes in 0.08 seconds and proves every case fails before constructing `IslandGame` or
+  initializing graphics. This advances malformed-configuration coverage without pretending that
+  malformed procedural content, shader packages, animation data, or audio inputs are now covered.
+  CNA and Sharp Runtime remain read-only and unmodified; no dependency defect was involved.
 
 ## Session-end checklist
 

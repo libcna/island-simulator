@@ -316,6 +316,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION "startup report .* first draw recorded")
         if(Python3_Interpreter_FOUND)
+            add_test(NAME IslandCommandLineValidation
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateCommandLineTests.py"
+                        "$<TARGET_FILE:island-simulator>")
+            set_tests_properties(IslandCommandLineValidation PROPERTIES
+                TIMEOUT 15
+                PASS_REGULAR_EXPRESSION
+                    "command-line validation passed [(]8 invalid invocations[)]")
+
             add_test(NAME IslandGameStartupReportValidation
                 COMMAND "${Python3_EXECUTABLE}"
                         "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateStartupReportTests.py"

@@ -90,6 +90,11 @@ headland, and four additional shore transects, plus an automatically selected st
 and a real generated land-rock collision route. These scenarios exercise the authoritative terrain
 and layout rather than maintaining a second test-only world description.
 
+`IslandCommandLineValidation` is also display-independent. It starts the real executable for eight
+invalid invocations and requires exit code 2, an actionable stderr diagnostic, and no stdout before
+graphics initialization. The cases cover an unknown option, missing option values, an unknown
+viewpoint, a benchmark/debug conflict, and traversal without a benchmark destination.
+
 GPU tests must not run on the owner's live desktop. In this workspace use CNA's private Weston and
 Xwayland runner:
 
