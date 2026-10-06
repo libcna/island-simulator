@@ -204,6 +204,15 @@ and muted dry-earth colour. Short mesh grass remains on the route, so it reads a
 tropical footpath rather than a bare road or objective marker. The cue adds no geometry, texture,
 draw submission, or collision rule.
 
+The same layout owns the exact centres and radii of the east and west clearings. Vegetation
+reservation, F7/F8 teleports, fixed QA cameras, tests, and terrain rendering consume those shared
+definitions. The shader evaluates only the relevant clearing for each side of the island and uses
+squared distance plus existing noise to avoid a per-fragment square root while retaining a soft,
+irregular edge. The larger east room receives a restrained warm, dry tint and reduced litter; the
+smaller west room receives a darker leaf-rich tint and increased litter. Both suppress the static
+canopy dapple inside their open centres and retain short grass. No texture, geometry, placement,
+collision, instance, or draw submission is added.
+
 `DistantSceneryLayout` places five low islets at least 570 m from the island centre, outside every
 player-accessible ocean boundary but within the 850 m ocean surface. `DistantSceneryRenderer`
 combines their irregular rock ridges and 11 simplified trunk/frond/crown silhouettes into one

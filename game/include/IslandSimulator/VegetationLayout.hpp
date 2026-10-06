@@ -20,6 +20,14 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One authored vegetation clearing shared by placement, QA, and terrain material. */
+    struct ClearingDefinition
+    {
+        float x = 0.0f;
+        float z = 0.0f;
+        float radius = 0.0f;
+    };
+
     /** @brief Renderer-independent, reproducible vegetation placement for the island. */
     class VegetationLayout final
     {
@@ -35,6 +43,8 @@ namespace island
         static constexpr float PrimaryPathMinimumZ = -225.0f;
         static constexpr float PrimaryPathMaximumZ = 190.0f;
         static constexpr float PrimaryPathReservedHalfWidth = 6.2f;
+        static constexpr ClearingDefinition EastClearing {43.0f, -18.0f, 32.0f};
+        static constexpr ClearingDefinition WestClearing {-82.0f, 62.0f, 24.0f};
 
         explicit VegetationLayout(const IslandTerrain& terrain,
                                   std::uint32_t seed = DefaultSeed);

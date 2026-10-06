@@ -352,6 +352,22 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "jungle fixed-sun two-sided geometric facet lighting")
+        add_test(NAME IslandGameEastClearingCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-east-clearing.ppm"
+                    --viewpoint east)
+        set_tests_properties(IslandGameEastClearingCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "terrain distinct authored east/west clearing materials")
+        add_test(NAME IslandGameWestClearingCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-west-clearing.ppm"
+                    --viewpoint west)
+        set_tests_properties(IslandGameWestClearingCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "terrain distinct authored east/west clearing materials")
         add_test(NAME IslandGameGroundPlantCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-ground-capture.ppm"
                     --viewpoint ground)

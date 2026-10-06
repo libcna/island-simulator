@@ -84,8 +84,10 @@ namespace island
         }
 
         // Two intentional rooms in the vegetation and a safe uncluttered player spawn.
-        return DistanceSquared(x, z, 43.0f, -18.0f) < 32.0f * 32.0f
-            || DistanceSquared(x, z, -82.0f, 62.0f) < 24.0f * 24.0f
+        return DistanceSquared(x, z, EastClearing.x, EastClearing.z)
+                   < EastClearing.radius * EastClearing.radius
+            || DistanceSquared(x, z, WestClearing.x, WestClearing.z)
+                   < WestClearing.radius * WestClearing.radius
             || DistanceSquared(x, z, 0.0f, -225.0f) < 17.0f * 17.0f;
     }
 

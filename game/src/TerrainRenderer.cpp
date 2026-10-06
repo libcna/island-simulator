@@ -67,6 +67,8 @@ in vec2 vTerrainData;
 uniform vec3 uCameraPosition;
 uniform vec4 uPrimaryPathShape;
 uniform vec2 uPrimaryPathZRange;
+uniform vec3 uEastClearing;
+uniform vec3 uWestClearing;
 
 out vec4 fragColor;
 
@@ -133,6 +135,24 @@ void main()
         * smoothstep(-4.0, 0.8, signedShoreDistance);
     float interior = smoothstep(8.0, 25.0, signedShoreDistance);
     float steep = smoothstep(0.30, 0.70, slopeRadians) * interior;
+    float eastClearingMask = 0.0;
+    float westClearingMask = 0.0;
+    if (detailFade > 0.0 && interior > 0.0 && steep < 1.0) {
+        vec3 clearing = p.x > -18.0 ? uEastClearing : uWestClearing;
+        vec2 clearingDelta = p - clearing.xy;
+        float irregularRadius = clearing.z - broad * 2.20 - medium * 0.85;
+        float innerRadius = irregularRadius - 2.8;
+        float outerRadius = irregularRadius + 1.2;
+        float clearingMask = (1.0 - smoothstep(innerRadius * innerRadius,
+                                               outerRadius * outerRadius,
+                                               dot(clearingDelta, clearingDelta)))
+            * interior * (1.0 - steep) * detailFade;
+        if (p.x > -18.0) {
+            eastClearingMask = clearingMask;
+        } else {
+            westClearingMask = clearingMask;
+        }
+    }
 
     vec3 color = vBaseColor;
     float sandVariation = (broad * 0.190 + medium * 0.125 + fine * 0.026)
@@ -151,6 +171,12 @@ void main()
         * interior * detailFade;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
+    vec3 sunlitClearingGround = vec3(0.400, 0.385, 0.145);
+    vec3 leafRichClearingGround = vec3(0.170, 0.225, 0.072);
+    color = mix(color, sunlitClearingGround,
+                eastClearingMask * (0.34 + medium * 0.040));
+    color = mix(color, leafRichClearingGround,
+                westClearingMask * (0.30 + broad * 0.045));
 
     if (detailFade > 0.0 && signedShoreDistance > 20.0 && steep < 1.0) {
         float pathCentre = uPrimaryPathShape.x + uPrimaryPathShape.y
@@ -174,7 +200,8 @@ void main()
 
     if (detailFade > 0.0 && signedShoreDistance > 34.0 && steep < 1.0) {
         float canopyDappleMask = smoothstep(34.0, 68.0, signedShoreDistance)
-            * (1.0 - steep) * detailFade;
+            * (1.0 - steep) * detailFade
+            * (1.0 - max(eastClearingMask, westClearingMask) * 0.78);
         float dappleField = broad * 0.72 + medium * 0.46 + fine * 0.055;
         float sunDapple = smoothstep(0.07, 0.30, dappleField);
         float canopyShade = 1.0 - smoothstep(-0.20, 0.10, dappleField);
@@ -192,7 +219,9 @@ void main()
                       1.0 + micro * 0.052,
                       1.0 + micro * 0.027) * closeDetail
             + vec3(1.0 - closeDetail);
-        float litterPatch = clamp(0.52 + broad * 0.82 + medium * 0.30, 0.18, 1.0);
+        float litterPatch = clamp(0.52 + broad * 0.82 + medium * 0.30, 0.18, 1.0)
+            * mix(1.0, 0.58, eastClearingMask)
+            * mix(1.0, 1.22, westClearingMask);
         float warmLeaf = leafLitter(p, 2.05, vec2(13.7, -4.3), 0.89);
         float darkLeaf = leafLitter(p, 3.10, vec2(-7.1, 19.6), 0.95);
         float litterAmount = closeDetail * litterPatch;
@@ -317,7 +346,9 @@ void main()
                                  "procedural interior leaf litter\n"
                               << "island-simulator: terrain fixed-sun interior dapple from "
                                  "shared portable noise fields\n"
-                              << "island-simulator: terrain authored primary footpath material\n";
+                              << "island-simulator: terrain authored primary footpath material\n"
+                              << "island-simulator: terrain distinct authored east/west "
+                                 "clearing materials\n";
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';
@@ -428,6 +459,12 @@ void main()
             materialEffect_->SetUniformVec2(
                 "uPrimaryPathZRange", VegetationLayout::PrimaryPathMinimumZ,
                 VegetationLayout::PrimaryPathMaximumZ);
+            materialEffect_->SetUniformVec3(
+                "uEastClearing", VegetationLayout::EastClearing.x,
+                VegetationLayout::EastClearing.z, VegetationLayout::EastClearing.radius);
+            materialEffect_->SetUniformVec3(
+                "uWestClearing", VegetationLayout::WestClearing.x,
+                VegetationLayout::WestClearing.z, VegetationLayout::WestClearing.radius);
         } else {
             fallbackEffect_->setWorldProperty(Matrix::getIdentityProperty());
             fallbackEffect_->setViewProperty(view);

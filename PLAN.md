@@ -319,16 +319,19 @@ Dependencies: stable terrain/shore queries and representative performance instru
   plus two sparse deterministic grids add curved pointed leaf litter to the interior. A restrained
   fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition. The
   same portable shader now draws a subdued broken-edge dry-earth footpath from the authoritative
-  vegetation-reserved corridor, with short grass retained over it. Authored biome masks, clearing
-  treatments, decals, broader litter diversity, and final colour/scale tuning remain.
+  vegetation-reserved corridor, with short grass retained over it. The two shared authored clearing
+  definitions now drive distinct warm-dry and darker leaf-rich surface treatments. Authored biome
+  masks, clearing landmark props, decals, broader litter diversity, and final colour/scale tuning
+  remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
   Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
   unreachable haze-softened low islets with 11 simplified palm silhouettes now break up the
   open-ocean horizon in one static batch; grouped shallow banks remain.
 - [~] Keep routes traversable and provide alternating enclosed/revealing views. The deterministic
   south-to-north corridor and two clearings reserve vegetation/prop space; its first shared terrain
-  material cue improves first-person legibility without becoming a road or HUD marker. Whole-route
-  composition review, clearing identities, and stronger enclosed/revealing rhythm remain.
+  material cue improves first-person legibility without becoming a road or HUD marker. The two
+  rooms now have distinct ground identities and dedicated cross-renderer QA views. Whole-route
+  composition review, landmark props, and stronger enclosed/revealing rhythm remain.
 
 ### Ocean and shoreline
 
@@ -795,7 +798,8 @@ Android is not project completion.
   player ripples are functional; repeated whole-island composition tuning remains.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
-  placement curve; distinct clearing/landmark treatment and whole-route density retuning remain.
+  placement curve, and the east/west clearing definitions drive distinct surface treatments.
+  Unique landmark props and whole-route density retuning remain.
 - [~] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
   coherent permanent sunny art direction. Terrain/ocean/sky share one sun, grass has two-sided
   blade lighting, the jungle now has derivative-based two-sided facet light, and a bounded contact
@@ -1018,8 +1022,9 @@ Work next, in order:
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
-   dry-earth material cue under its short grass; distinct clearing materials and identities,
-   broader prop diversity, contact cues, authored biome variation, and material tuning remain.
+   dry-earth material cue under its short grass. The east/west clearings now share their placement,
+   QA, and distinct warm-dry/leaf-rich terrain definitions; unique clearing landmarks, broader prop
+   diversity, contact cues, authored biome variation, and material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
@@ -2740,6 +2745,36 @@ Work next, in order:
   bytes and WebAssembly is 8,409,554 bytes. Android runtime appearance and physical-mobile fragment
   cost remain unqualified without a suitable device. CNA and Sharp Runtime remain clean and
   unmodified, and no dependency defect was found.
+
+### 2026-10-06 — Distinct authored clearing identities
+
+- Promoted the existing east/west clearing centres and radii into shared renderer-independent
+  definitions. Vegetation reservation, F7/F8 teleports, two new fixed QA viewpoints, deterministic
+  tests, and terrain rendering now consume the same values instead of repeating coordinates. The
+  stable world fingerprint remains `2e2cd5d73dba8a18` and no placement count changed.
+- Added portable warm-dry east and darker leaf-rich west ground treatments with soft noise-broken
+  boundaries, reduced/increased litter respectively, and restrained suppression of the static
+  canopy dapple inside their open centres. Short grass remains. The mask evaluates only the
+  relevant side and the retained squared-distance implementation avoids the first pass's fragment
+  square root; no texture, geometry, CPU placement, instance, collision, or draw submission was
+  added.
+- Dedicated 1280 by 720 native OpenGL 3.3 and actual Chrome 152/SwiftShader WebGL 2 captures of
+  both clearings were inspected and agree without visible hard circular edges. The final Web
+  harness passes all 22 lifecycle, deployment, renderer, scene, and input stages. After the mask
+  optimization, targeted native clearing/benchmark coverage passes 4/4 and the final complete
+  suite passes 37/37 in 43.05 seconds, including 29 actual OpenGL scenes and real X11 input.
+- Two final concurrent native safety runs measure 2.4283--2.7870 ms mean / 3.1108--3.5510 ms p95
+  for the jungle view and 3.0796--3.0869 ms mean / 3.8265--3.9338 ms p95 over the 675.9635 m
+  traversal. They are not isolated branch-cost baselines because the operator's visible game shared
+  the GPU. The arm64 GLES 3 target builds,
+  the 33,559,808-byte APK assembles, and application lint passes; the stripped library is
+  15,827,432 bytes and WebAssembly is 8,412,017 bytes. Android appearance and physical-mobile cost
+  remain unqualified without a suitable device.
+- No CNA or Sharp Runtime file was edited by island-simulator and no dependency defect was found.
+  Sharp Runtime remains clean on locked `next`. During this milestone, the sibling CNA `next`
+  worktree acquired extensive external staged/unstaged changes at the locked commit; they were not
+  touched or consumed. Configure/build validation continued against the clean project-owned export
+  of locked CNA commit `f243c63a1dc56404d732deed902bd18bde9db9f7`.
 
 ## Session-end checklist
 

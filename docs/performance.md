@@ -554,6 +554,23 @@ traversal at 3.0229 ms mean / 3.8266 ms p95. The operator's visible game shared 
 are functional safety checks rather than an isolated measurement of the shader branch. Hardware-
 browser and physical-Android fragment cost remain open.
 
+### Distinct authored clearing-material follow-up
+
+The east and west clearing masks share their authoritative placement centres/radii and reuse the
+terrain shader's existing noise, detail fade, slope rejection, and litter fields. Only the clearing
+on the relevant side of the island is evaluated. The retained implementation compares squared
+distance, avoiding the first pass's per-fragment square root while keeping a soft irregular edge.
+The treatment adds no texture, geometry, CPU placement, instance, or draw submission.
+
+Dedicated 1280 by 720 native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 captures of both
+clearings were inspected and agree: the larger east room reads warmer/drier, while the smaller west
+room is darker and leaf-richer without either appearing as a hard circular decal. After the squared-
+distance revision, two concurrent native runs measured 2.4283--2.7870 ms mean / 3.1108--3.5510 ms
+p95 for the jungle view and 3.0796--3.0869 ms mean / 3.8265--3.9338 ms p95 over the 675.9635 m
+traversal. The visible game shared the GPU, so these results qualify function and guard against a
+gross regression; they are not an isolated fragment-cost baseline. Hardware-browser and physical-
+Android cost remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

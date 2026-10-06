@@ -37,6 +37,8 @@
       ["ground", ["--viewpoint", "ground", "--debug-overlay"]],
       ["palms", ["--viewpoint", "palms", "--debug-overlay"]],
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
+      ["east", ["--viewpoint", "east", "--debug-overlay"]],
+      ["west", ["--viewpoint", "west", "--debug-overlay"]],
       ["props", ["--viewpoint", "props", "--debug-overlay"]],
       ["driftwood", ["--viewpoint", "driftwood", "--debug-overlay"]],
       ["reef", ["--viewpoint", "reef", "--debug-overlay"]],

@@ -137,6 +137,8 @@ try {
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && result.output?.includes(
       "island-simulator: terrain authored primary footpath material")
+    && result.output?.includes(
+      "island-simulator: terrain distinct authored east/west clearing materials")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -506,6 +508,59 @@ try {
     && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
+
+  const captureClearingView = async (mode, fileName) => {
+    await call("Page.navigate", {
+      url: `http://127.0.0.1:${port}/island-smoke.html?mode=${mode}`,
+    }, visualSessionId);
+    let clearingResult = {};
+    for (let attempt = 0; attempt < 200; ++attempt) {
+      await delay(100);
+      const evaluation = await call("Runtime.evaluate", {
+        expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+        returnByValue: true,
+      }, visualSessionId);
+      clearingResult = JSON.parse(evaluation.result.value ?? "{}");
+      if (clearingResult.output?.includes("island-simulator: terrain")
+          || clearingResult.error) break;
+    }
+    await delay(1000);
+    const completedEvaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    clearingResult = JSON.parse(completedEvaluation.result.value ?? "{}");
+    const clearingScreenshot = await call(
+      "Page.captureScreenshot", { format: "png" }, visualSessionId);
+    const clearingScreenshotPath = path.join(buildDirectory, fileName);
+    await writeFile(clearingScreenshotPath,
+      Buffer.from(clearingScreenshot.data, "base64"));
+    return { result: clearingResult, screenshotPath: clearingScreenshotPath };
+  };
+
+  const eastClearingCapture = await captureClearingView(
+    "east", "island-browser-east-clearing.png");
+  const eastClearingResult = eastClearingCapture.result;
+  const eastClearingPassed = eastClearingResult.output?.includes(
+    "island-simulator: renderer WEBGL2")
+    && eastClearingResult.output?.includes(
+      "island-simulator: terrain distinct authored east/west clearing materials")
+    && eastClearingResult.output?.includes(
+      "island-simulator: east clearing QA camera at authored centre")
+    && eastClearingResult.output?.includes("island-simulator: debug overlay active")
+    && !eastClearingResult.error;
+
+  const westClearingCapture = await captureClearingView(
+    "west", "island-browser-west-clearing.png");
+  const westClearingResult = westClearingCapture.result;
+  const westClearingPassed = westClearingResult.output?.includes(
+    "island-simulator: renderer WEBGL2")
+    && westClearingResult.output?.includes(
+      "island-simulator: terrain distinct authored east/west clearing materials")
+    && westClearingResult.output?.includes(
+      "island-simulator: west clearing QA camera at authored centre")
+    && westClearingResult.output?.includes("island-simulator: debug overlay active")
+    && !westClearingResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=props`,
@@ -1109,7 +1164,8 @@ try {
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && grassPassed
     && groundPassed
-    && palmPassed && junglePassed && propPassed && driftwoodPassed && reefPassed
+    && palmPassed && junglePassed && eastClearingPassed && westClearingPassed
+    && propPassed && driftwoodPassed && reefPassed
     && waterPassed && currentPassed
     && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
@@ -1156,6 +1212,16 @@ try {
       passed: junglePassed,
       output: jungleResult.output ?? "",
       error: jungleResult.error ?? "",
+    },
+    eastClearing: {
+      passed: eastClearingPassed,
+      output: eastClearingResult.output ?? "",
+      error: eastClearingResult.error ?? "",
+    },
+    westClearing: {
+      passed: westClearingPassed,
+      output: westClearingResult.output ?? "",
+      error: westClearingResult.error ?? "",
     },
     props: {
       passed: propPassed,
@@ -1238,6 +1304,8 @@ try {
     groundScreenshot: path.basename(groundScreenshotPath),
     palmScreenshot: path.basename(palmScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
+    eastClearingScreenshot: path.basename(eastClearingCapture.screenshotPath),
+    westClearingScreenshot: path.basename(westClearingCapture.screenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
     reefScreenshot: path.basename(reefScreenshotPath),

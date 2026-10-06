@@ -29,11 +29,13 @@ older flat-colour shader. The lifecycle plus close grass and jungle cameras requ
 terrain microvariation and procedural leaf-litter path. The lifecycle and dedicated jungle camera
 also require derivative-based, two-sided fixed-sun facet lighting on the instanced vegetation
 shader rather than accepting its unlit fallback. The lifecycle, beach approach, and jungle camera
-also require the authored primary-footpath terrain material diagnostic.
+also require the authored primary-footpath terrain material diagnostic. Dedicated east/west
+clearing cameras require their shared authored-material diagnostic and exact QA-camera identity.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
-clipboard readback on its focused localhost canvas. This records the evidence environment; it is
-not a minimum-version or general browser-permission claim.
+clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
+renderer, scene, and input stages passed. This records the evidence environment; it is not a
+minimum-version or general browser-permission claim.
 
 ## Prerequisites
 
@@ -96,8 +98,9 @@ clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
 beach, grass interaction, upright-ground-plant, segmented-palm and bark/coconut detail, jungle,
-prop, driftwood, reef, near-surface water, offshore-current, fallen-frond, distant-horizon, bird,
-fish, shark, and monkey instances at a 1280 x 720 viewport. Every scene asserts the
+east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
+fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a 1280 x 720 viewport.
+Every scene asserts the
 layered-horizontal-wisp fixed-sky shader diagnostic.
 The
 captures are saved as `build-probe/island-browser-smoke.png`,
@@ -105,6 +108,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-grass.png`,
 `build-probe/island-browser-ground.png`,
 `build-probe/island-browser-palms.png`,
+`build-probe/island-browser-east-clearing.png`,
+`build-probe/island-browser-west-clearing.png`,
 `build-probe/island-browser-props.png`, `build-probe/island-browser-driftwood.png`,
 `build-probe/island-browser-reef.png`, `build-probe/island-browser-water.png`,
 `build-probe/island-browser-current.png`, `build-probe/island-browser-fronds.png`,

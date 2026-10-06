@@ -5,8 +5,9 @@ experience built in C++23 with CNA. The project is at the beginning of a long de
 The current slice renders a deterministic approximately 500 m island with portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
 microvariation, sparse curved leaf litter, restrained fixed-sun jungle-floor dappling, and a
-broken-edge earthen footpath that follows the same authored corridor reserved by vegetation, plus an
-animated tropical ocean with an exact
+broken-edge earthen footpath that follows the same authored corridor reserved by vegetation. Two
+authored clearings use distinct sunlit-dry and leaf-rich ground treatments. An animated tropical
+ocean adds an exact
 shore-following foam/wash ribbon,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152

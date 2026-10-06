@@ -1592,6 +1592,16 @@ int main()
                   < island::VegetationLayout::PrimaryPathMaximumZ
               && island::VegetationLayout::PrimaryPathReservedHalfWidth > 4.0f,
           "primary path material range remains ordered inside a walkable reserve");
+    Check(island::VegetationLayout::EastClearing.radius > 20.0f
+              && island::VegetationLayout::WestClearing.radius > 20.0f,
+          "authored clearings retain useful first-person room dimensions");
+    Check(island::VegetationLayout::IsReservedRoute(
+              island::VegetationLayout::EastClearing.x,
+              island::VegetationLayout::EastClearing.z)
+              && island::VegetationLayout::IsReservedRoute(
+                  island::VegetationLayout::WestClearing.x,
+                  island::VegetationLayout::WestClearing.z),
+          "authored clearing material centres remain vegetation-reserved");
     for (int z = -216; z <= 180; z += 18) {
         const float pathX = island::VegetationLayout::PrimaryPathCenterX(static_cast<float>(z));
         Check(island::VegetationLayout::IsReservedRoute(pathX, static_cast<float>(z)),

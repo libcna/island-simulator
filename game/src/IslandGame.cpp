@@ -57,6 +57,8 @@ namespace island
             case FixedViewpoint::Overview: return "overview";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
+            case FixedViewpoint::EastClearingDetail: return "east";
+            case FixedViewpoint::WestClearingDetail: return "west";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
             case FixedViewpoint::GroundContactDetail: return "contact";
@@ -147,6 +149,22 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::EastClearingDetail) {
+            const ClearingDefinition& clearing = VegetationLayout::EastClearing;
+            cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)
+                                                   + PlayerMotion::EyeHeight,
+                                      clearing.z);
+            yaw_ = -std::numbers::pi_v<float> * 0.5f;
+            pitch_ = -0.085f;
+            std::cout << "island-simulator: east clearing QA camera at authored centre\n";
+        } else if (viewpoint_ == FixedViewpoint::WestClearingDetail) {
+            const ClearingDefinition& clearing = VegetationLayout::WestClearing;
+            cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)
+                                                   + PlayerMotion::EyeHeight,
+                                      clearing.z);
+            yaw_ = std::numbers::pi_v<float> * 0.25f;
+            pitch_ = -0.085f;
+            std::cout << "island-simulator: west clearing QA camera at authored centre\n";
         } else if (viewpoint_ == FixedViewpoint::GroundContactDetail) {
             constexpr float contactZ = 45.0f;
             const float contactX = VegetationLayout::PrimaryPathCenterX(contactZ);
@@ -855,12 +873,12 @@ namespace island
                     yaw_ = std::numbers::pi_v<float> * 0.5f;
                     pitch_ = -0.065f;
                 } else if (index == 2U) {
-                    x = 43.0f;
-                    z = -18.0f;
+                    x = VegetationLayout::EastClearing.x;
+                    z = VegetationLayout::EastClearing.z;
                     yaw_ = -std::numbers::pi_v<float> * 0.5f;
                 } else if (index == 3U) {
-                    x = -82.0f;
-                    z = 62.0f;
+                    x = VegetationLayout::WestClearing.x;
+                    z = VegetationLayout::WestClearing.z;
                     yaw_ = std::numbers::pi_v<float> * 0.25f;
                 } else if (index == 4U && !fishSchools_.Fish().empty()) {
                     const FishState& fish = fishSchools_.Fish().front();

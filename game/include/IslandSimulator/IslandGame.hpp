@@ -63,6 +63,8 @@ namespace island
         Overview,
         BeachPath,
         JungleTrail,
+        EastClearingDetail,
+        WestClearingDetail,
         GrassDetail,
         GroundPlantDetail,
         GroundContactDetail,

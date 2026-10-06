@@ -123,6 +123,8 @@ requires the authored primary-footpath terrain material.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm` and
 requires the folded pointed-leaf near-bush path; the same startup also reports the
 branch-supported/pointed-leaf near-canopy path.
+`IslandGameEastClearingCapture` and `IslandGameWestClearingCapture` write player-eye views from the
+two authoritative clearing centres and require their shared distinct-material shader path.
 `IslandGameGroundPlantCapture` writes a cleared first-person broadleaf detail to
 `build/island-ground-capture.ppm` and requires the upright near-ground-plant path.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
