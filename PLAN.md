@@ -3705,6 +3705,19 @@ Work next, in order:
   qualifying dependency defect or workaround was involved. All compilation used at most two
   workers and the single shared ccache.
 
+### 2026-10-06 — Current-pin ASan/UBSan requalification
+
+- Recreated the dedicated host-only sanitizer preset against the pinned CNA `next` export and
+  current Sharp Runtime `next` revision. Only island-simulator-owned core/tests and report tools
+  were instrumented; the renderer/dependency graph remained deliberately outside this diagnostic.
+- All 6/6 gates passed in 73.98 seconds with strict undefined-behaviour failure enabled: the full
+  core suite, deterministic world report, all 12-source audio report, asset manifest validation,
+  capture-validator unit tests, and independently parsed disposable WAV export. No AddressSanitizer
+  or UndefinedBehaviorSanitizer finding was emitted.
+- Configuration and compilation used the required `/rv/cnaccache` and two workers. The reproducible
+  44 MB `build-sanitize/` tree was removed after the pass rather than retained as obsolete output.
+  CNA and Sharp Runtime remained read-only and unchanged; no dependency defect was observed.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.
