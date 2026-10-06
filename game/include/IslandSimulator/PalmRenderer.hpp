@@ -66,6 +66,9 @@ namespace island
         struct PalmDrawInstance
         {
             Microsoft::Xna::Framework::Matrix transform;
+            float x = 0.0f;
+            float z = 0.0f;
+            float nearLodDistanceSquared = 0.0f;
             std::uint8_t variant = 0U;
         };
 

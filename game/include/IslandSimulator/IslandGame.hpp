@@ -60,6 +60,7 @@ namespace island
         BeachPath,
         JungleTrail,
         GrassDetail,
+        PalmDetail,
         WaterlineDetail,
         CurrentBoundaryDetail,
         DistantSceneryDetail,

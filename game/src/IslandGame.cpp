@@ -55,6 +55,7 @@ namespace island
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::GrassDetail: return "grass";
+            case FixedViewpoint::PalmDetail: return "palms";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
             case FixedViewpoint::DistantSceneryDetail: return "distant";
@@ -131,6 +132,37 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::PalmDetail
+                   && !vegetationLayout_.Palms().empty()) {
+            constexpr float targetX = -120.0f;
+            constexpr float targetZ = -135.0f;
+            const PalmPlacement* selected = &vegetationLayout_.Palms().front();
+            float bestScore = std::numeric_limits<float>::max();
+            for (const PalmPlacement& palm : vegetationLayout_.Palms()) {
+                const float shoreDistance = terrain_.SignedShoreDistance(palm.x, palm.z);
+                if (shoreDistance < 28.0f || shoreDistance > 82.0f) continue;
+                const float deltaX = palm.x - targetX;
+                const float deltaZ = palm.z - targetZ;
+                const float score = deltaX * deltaX + deltaZ * deltaZ
+                    - palm.scale * 120.0f;
+                if (score < bestScore) {
+                    bestScore = score;
+                    selected = &palm;
+                }
+            }
+            const Vector3 radial = Vector3::Normalize(
+                Vector3(selected->x, 0.0f, selected->z));
+            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            const float cameraX = selected->x - radial.X * 14.0f + tangent.X * 2.0f;
+            const float cameraZ = selected->z - radial.Z * 14.0f + tangent.Z * 2.0f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            const Vector3 target(selected->x, selected->y + 5.2f * selected->scale,
+                                 selected->z);
+            const Vector3 toPalm = target - cameraPosition_;
+            yaw_ = std::atan2(toPalm.X, toPalm.Z);
+            pitch_ = std::atan2(toPalm.Y, std::hypot(toPalm.X, toPalm.Z));
         } else if (viewpoint_ == FixedViewpoint::GrassDetail
                    && !grassLayout_.Patches().empty()) {
             constexpr float targetX = 35.0f;
@@ -833,6 +865,8 @@ namespace island
                << "    \"contact_shadow_triangles\": "
                << contactShadowRenderer_->PrimitiveCount() << ",\n"
                << "    \"palms\": " << palmRenderer_->VisiblePalmCount() << ",\n"
+               << "    \"palms_near\": " << palmRenderer_->VisibleNearPalmCount() << ",\n"
+               << "    \"palms_far\": " << palmRenderer_->VisibleFarPalmCount() << ",\n"
                << "    \"canopy\": " << jungleRenderer_->VisibleCanopyCount() << ",\n"
                << "    \"understory\": " << jungleRenderer_->VisibleUnderstoryCount() << ",\n"
                << "    \"bushes\": " << jungleRenderer_->VisibleBushCount() << ",\n"

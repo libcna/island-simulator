@@ -19,6 +19,9 @@ walking speed and releases after movement stops, entirely inside the existing in
 The near mesh uses five curvature levels per blade, folded side colour, and portable two-sided
 daylight/root/transmission shading; the cheaper far mesh uses three levels and still merges into
 the terrain before culling.
+Nearby palm crowns use nine paired tapered-leaflet stations on each of 10--12 curved fronds instead
+of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelope at distance,
+while per-palm 125--145 m thresholds stagger the transition and avoid switching whole cells at once.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling

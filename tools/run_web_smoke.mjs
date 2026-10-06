@@ -138,6 +138,7 @@ try {
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
+    && result.output?.includes("palm near mesh segmented leaflet silhouettes")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
     && result.output?.includes("island-simulator: birds 24 agents")
@@ -367,6 +368,38 @@ try {
     && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1/.test(
       grassResult.output ?? "")
     && !grassResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=palms`,
+  }, visualSessionId);
+  let palmResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    palmResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (palmResult.output?.includes("island-simulator: terrain") || palmResult.error) break;
+  }
+  await delay(1000);
+  const completedPalmEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  palmResult = JSON.parse(completedPalmEvaluation.result.value ?? "{}");
+
+  const palmScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const palmScreenshotPath = path.join(buildDirectory, "island-browser-palms.png");
+  await writeFile(palmScreenshotPath, Buffer.from(palmScreenshot.data, "base64"));
+  const palmPassed = palmResult.output?.includes("island-simulator: renderer WEBGL2")
+    && palmResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
+    && palmResult.output?.includes("palm portable wind shader with near/far mesh LOD")
+    && palmResult.output?.includes("palm near mesh segmented leaflet silhouettes")
+    && /palms [1-9][0-9]*\/330 \(near [1-9][0-9]*, far [0-9]+\)/.test(
+      palmResult.output ?? "")
+    && !palmResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=jungle`,
@@ -972,7 +1005,8 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && grassPassed
-    && junglePassed && propPassed && driftwoodPassed && reefPassed && waterPassed && currentPassed
+    && palmPassed && junglePassed && propPassed && driftwoodPassed && reefPassed
+    && waterPassed && currentPassed
     && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
   const report = {
@@ -1003,6 +1037,11 @@ try {
       passed: grassPassed,
       output: grassResult.output ?? "",
       error: grassResult.error ?? "",
+    },
+    palms: {
+      passed: palmPassed,
+      output: palmResult.output ?? "",
+      error: palmResult.error ?? "",
     },
     jungle: {
       passed: junglePassed,
@@ -1087,6 +1126,7 @@ try {
     screenshot: path.basename(screenshotPath),
     beachScreenshot: path.basename(beachScreenshotPath),
     grassScreenshot: path.basename(grassScreenshotPath),
+    palmScreenshot: path.basename(palmScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),

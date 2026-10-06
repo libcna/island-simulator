@@ -344,10 +344,11 @@ Dependencies: stable terrain/shore queries and representative performance instru
 ### Vegetation and props
 
 - [~] Build multiple procedural palm variants with different height, lean, curvature, crown
-  rotation, frond arrangement, scale, and clustering. Four curved tapered trunk/ribbon-frond
-  variants, 330 varied instances, near/far meshes, root contact wedges, and portable shader wind
-  now run on native OpenGL 3.3 and WebGL 2; richer close-up materials, pop-free LOD blending, and
-  instrumented Android wind/LOD qualification remain open despite the first visible GLES3 scene.
+  rotation, frond arrangement, scale, and clustering. Four curved tapered trunk variants, 330
+  varied instances, segmented near leaflets, widened-ribbon far crowns, root contact wedges,
+  staggered per-instance near/far thresholds, and portable shader wind now run on native OpenGL 3.3
+  and WebGL 2; richer close-up materials, true LOD blending, and instrumented Android wind/LOD
+  qualification remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
@@ -693,16 +694,18 @@ Dependencies: representative complete scene on all targets.
   moving traversal, release configuration, WebGL 2, and physical Android profiles remain open.
 - [~] Implement terrain/vegetation cell frustum and distance culling. Terrain and palms share a
   64-cell partition; grass uses 256 finer cells. All are frustum culled, palms/grass have distance
-  cutoffs, and grass selects near/far geometry by cell distance. Per-instance wildlife policy and
-  pop-free vegetation transitions remain open.
+  cutoffs, palms choose staggered 125--145 m LOD per instance after cell rejection, and grass selects
+  near/far geometry by cell distance. Per-instance wildlife policy and pop-free vegetation
+  transitions remain open.
 - [~] Tune static batching/instancing and verify it does not increase memory or Web/mobile stalls.
-  CNA hardware instancing reduces the 330-palm overview to eight near/far variant draws on native
-  OpenGL 3.3 and actual WebGL 2. Android GLES 3 rendered the current palm/grass scene once in the
-  software-emulated AVD; representative mobile cost still requires real-hardware profiling.
+  CNA hardware instancing reduces the 330-palm overview to four far-variant draws and bounds mixed
+  first-person views to eight near/far variant draws on native OpenGL 3.3 and actual WebGL 2.
+  Android GLES 3 rendered the earlier palm/grass scene once in the software-emulated AVD;
+  representative revised-geometry cost still requires real-hardware profiling.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
-  reduced trunk/frond geometry by cell distance and grass selects 28-blade/five-blade clusters;
-  the initial native scene baseline is recorded, while target budgets and pop-free transitions
-  remain open.
+  reduced trunk/frond geometry per instance with deterministic transition staggering and grass
+  selects 28-blade/five-blade clusters; the initial native scene baseline is recorded, while target
+  budgets and true blended transitions remain open.
 - [x] Throttle distant wildlife and audio updates without visible popping. Shared
   full/reduced/dormant simulation tiers bound agent work; positional calls select only nearby
   non-dormant sources, use one voice, and are held while transient slots are occupied.
@@ -717,8 +720,8 @@ Dependencies: representative complete scene on all targets.
 - [ ] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
   sizes, and impossible player/wildlife states in development builds.
 - [ ] Run ASan and UBSan selectively on first-party core/tests; do not build unused sanitizer sets.
-- [x] Add deterministic smoke mode plus fixed overview and first-person beach-path camera/capture
-  modes for renderer evidence.
+- [x] Add deterministic smoke mode plus fixed overview, first-person beach-path, and close-palm
+  camera/capture modes for renderer evidence.
 - [ ] Rebuild from the documented clean state to detect undeclared files and absolute paths.
 - [ ] Review active `BUGS.md` workarounds against newer dependency revisions before every baseline
   update; remove only after native behaviour is validated.
@@ -745,7 +748,9 @@ Android is not project completion.
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
   first-person depth without textures or extra draws; pop-free LOD, richer biome colour, aliasing,
   and physical-device tuning remain.
-- [ ] Break repeated palm/prop silhouettes and correct floating/sunken placements.
+- [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
+  tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
+  envelope; prop repetition, palm material richness, placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
   player ripples are functional; repeated whole-island composition tuning remains.
@@ -879,7 +884,7 @@ after the same experience remains available.
   bounds, avoidance proposals, and spawn regions remain.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, grass-interaction detail, jungle-trail, natural-prop, driftwood, emergent-reef,
+  beach-path, grass-interaction detail, close-palm, jungle-trail, natural-prop, driftwood, emergent-reef,
   near-surface-water, active-current, fallen-frond, distant-horizon, airborne bird-detail, and
   shallow-water fish views plus offshore-shark and GPU-skinned-monkey views are implemented and
   used by native/browser captures; free camera and more landmark views remain open.
@@ -949,8 +954,9 @@ Work next, in order:
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete.
-7. Revisit palm silhouette/material richness and pop-free LOD transition against the new five-view
-   native baseline; do not raise geometry cost without repeating representative measurements.
+7. Continue palm material/root-placement review and observe the new segmented-leaflet versus
+   widened-ribbon 125--145 m transition during traversal. The first silhouette pass is measured;
+   do not add more geometry without physical/mobile evidence.
 
 ## Validation ledger
 
@@ -2025,7 +2031,7 @@ Work next, in order:
   vertical streaks are absent. An actual Chrome/WebGL 2 distant capture was also inspected.
 - Changed the native smoke and every relevant browser scene gate to require the new explicit sky
   diagnostic. All 20 native tests pass, including 19 real OpenGL 3.3 scenes. After one transient
-  aggregate harness failure, a clean rerun reported all 19 Chrome 152/WebGL 2 lifecycle, deployment,
+  aggregate harness failure, a clean rerun reported all 18 Chrome 152/WebGL 2 lifecycle, deployment,
   scene, input, and audio-init stages passing.
 - Two complete native five-view repeats preserved 81/124/91/26/97 submissions. Mean frame time was
   1.2251--1.2462 ms overview, 1.8222--1.8359 ms beach, 1.4726--1.6432 ms jungle,
@@ -2036,6 +2042,32 @@ Work next, in order:
   stripped `libmain.so` is 15,700,864 bytes, and the APK is 33,433,240 bytes. Android appearance
   and fragment cost remain unqualified without KVM or a physical device. CNA and Sharp Runtime
   remain clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Segmented palm crowns and per-instance LOD
+
+- Replaced each near palm's solid ribbon frond with a thin curved rachis and nine pairs of tapered
+  leaflets. The four near variants now contain 469--533 triangles instead of 289--317; the
+  unchanged 102-triangle far tier uses wider ribbons that preserve the new feathered crown envelope.
+  Native review rejected the first sparse, overlong seven-station leaflets and retained a denser,
+  shorter nine-station silhouette.
+- Replaced the 210 m whole-cell mesh choice with per-palm distance selection after cell rejection.
+  A deterministic yaw-derived 125--145 m threshold staggers transitions rather than flipping every
+  palm in a 62.5 m cell together. Benchmark JSON now records near and far palm populations.
+- Added a deterministic `--viewpoint palms` composition, a native capture/gate, a browser mode and
+  PNG, and an explicit segmented-leaflet startup diagnostic. Native and actual Chrome/SwiftShader
+  WebGL 2 captures were inspected and agree; the browser scene reports 17 near and 7 far palms in
+  four palm draws.
+- Two complete five-view native repeats measured 1.1554--1.2202 ms overview,
+  1.8172--1.9053 ms beach, 1.4788--1.6474 ms jungle, 0.8373--0.9157 ms driftwood, and
+  1.5833--1.7823 ms monkeys. Overview submissions fall from 81 to 77 because all 299 visible palms
+  use four far-variant draws; the mixed jungle view rises from 91 to 94, and other submissions stay
+  at 124/26/97. Integrated timings overlap the preceding sample, so no isolated speedup is claimed.
+- All 21 native tests pass, including 20 real OpenGL 3.3 scenes. The expanded Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 19 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,307,543 bytes, stripped `libmain.so` is 15,709,232 bytes,
+  and the APK is 33,441,608 bytes. Revised Android appearance, aliasing, and cost remain unqualified
+  without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
+  dependency defect was found.
 
 ## Session-end checklist
 

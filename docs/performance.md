@@ -248,6 +248,39 @@ the preceding sample; physical-mobile and hardware-browser fragment measurements
 Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 compile and render the retained shader.
 The arm64 GLES 3 package builds, but its runtime appearance and fragment cost remain unqualified.
 
+### Segmented palm leaflets and per-instance LOD follow-up
+
+The near palm mesh replaces each broad seven-segment ribbon with a thin 14-triangle rachis and
+nine pairs of tapered one-triangle leaflets. Depending on its 10--12-frond variant, a complete near
+palm now contains 469--533 triangles instead of 289--317. The far mesh remains 102 triangles, but
+its seven ribbons are widened to approximate the feathered crown envelope.
+
+The previous 210 m whole-cell LOD choice kept excessive detail and could switch every palm in a
+62.5 m cell together. The retained path tests the already gathered 330-instance population
+individually and derives a stable 125--145 m threshold from each palm's deterministic yaw. This
+reduces near instances from 35 to 0 in overview, 125 to 69 at the beach, 118 to 37 in jungle, and
+87 to 37 in the monkey view; the close driftwood view intentionally keeps all 18 visible palms near.
+Overview palm submissions fall from eight to four, jungle increases from five to eight because it
+now legitimately contains all four near and far variants, and the other views retain their prior
+palm submission counts.
+
+Two complete five-view repeats produced the ranges below. The mixed-content timings overlap the
+preceding sky sample and show the usual second-run scheduling variation, so no isolated speedup is
+claimed. The result buys a materially better close silhouette while bounding the added geometry to
+palms where the leaflets remain readable.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Palm near / far |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1554--1.2202 | 1.3370--1.5019 | 1.6559--1.8756 | 77 | 0 / 299 |
+| Beach | 1.8172--1.9053 | 2.1165--2.5438 | 2.4653--2.9766 | 124 | 69 / 251 |
+| Jungle | 1.4788--1.6474 | 1.6638--2.2253 | 2.1412--2.6124 | 94 | 37 / 83 |
+| Driftwood/shore detail | 0.8373--0.9157 | 1.1517--1.3824 | 1.4243--1.7186 | 26 | 18 / 0 |
+| Monkeys | 1.5833--1.7823 | 1.8955--2.4438 | 2.2376--2.8668 | 97 | 37 / 68 |
+
+The dedicated close-palm native and actual Chrome/SwiftShader WebGL 2 captures visually agree.
+The arm64 GLES 3 package builds with the revised geometry; physical-device aliasing, transition,
+and fragment/vertex cost remain unqualified.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

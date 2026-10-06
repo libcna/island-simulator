@@ -42,7 +42,8 @@ namespace island
 {
     namespace
     {
-        constexpr float NearLodDistance = 210.0f;
+        constexpr float NearLodMinimumDistance = 125.0f;
+        constexpr float NearLodDistanceRange = 20.0f;
         constexpr float MaximumDistance = 520.0f;
 
         struct PalmGeometry
@@ -241,6 +242,8 @@ void main()
                     ? Color(42, 128 + variant * 3, 52, 255)
                     : (frond % 3 == 1 ? Color(51, 147, 58 + variant * 2, 255)
                                       : Color(34, 112, 49, 255));
+                const float frondShade = 0.78f + 0.22f
+                    * std::max(0.0f, direction.X * 0.62f + direction.Z * 0.35f);
                 const float windPhase = std::fmod(
                     static_cast<float>(frond) / static_cast<float>(frondCount)
                         + static_cast<float>(variant) * 0.117f,
@@ -252,15 +255,17 @@ void main()
                     const float arch = lift * std::sin(t * std::numbers::pi_v<float>)
                         - drop * t * t;
                     const float width = segment == segments
-                        ? 0.035f
-                        : 0.12f + 0.52f
-                            * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.62f);
+                        ? (farMesh ? 0.035f : 0.018f)
+                        : (farMesh
+                               ? 0.14f + 0.68f
+                                   * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.62f)
+                               : 0.035f + 0.075f
+                                   * std::pow(std::sin(t * std::numbers::pi_v<float>), 0.70f));
                     const Vector3 centre(crownX + direction.X * radial,
                                          crownY + arch,
                                          crownZ + direction.Z * radial);
-                    const float shade = 0.78f + 0.22f
-                        * std::max(0.0f, direction.X * 0.62f + direction.Z * 0.35f);
-                    const Color color = ShadeColor(leafBase, shade * (0.92f + 0.08f * t));
+                    const Color color = ShadeColor(
+                        leafBase, frondShade * (0.92f + 0.08f * t));
                     const Vector2 windData(t * t, windPhase);
                     geometry.vertices.emplace_back(centre - side * width, color, windData);
                     geometry.vertices.emplace_back(centre + side * width, color, windData);
@@ -274,6 +279,57 @@ void main()
                     geometry.indices.insert(geometry.indices.end(),
                                             {left, nextLeft, right,
                                              right, nextLeft, nextRight});
+                }
+
+                if (farMesh) {
+                    continue;
+                }
+
+                constexpr int LeafletStations = 9;
+                for (int station = 0; station < LeafletStations; ++station) {
+                    const float t = 0.11f + static_cast<float>(station) * 0.095f;
+                    const float radial = length * t;
+                    const float arch = lift * std::sin(t * std::numbers::pi_v<float>)
+                        - drop * t * t;
+                    const Vector3 centre(crownX + direction.X * radial,
+                                         crownY + arch,
+                                         crownZ + direction.Z * radial);
+                    const float envelope = std::pow(
+                        std::sin(t * std::numbers::pi_v<float>), 0.56f);
+                    const float lengthVariation = 0.94f + 0.06f
+                        * static_cast<float>((station + frond + variant) % 3);
+                    const float leafletLength = 0.74f * envelope * lengthVariation;
+                    const float sweep = 0.16f + 0.17f * (1.0f - t);
+                    const float droop = 0.06f + 0.18f * t;
+                    const float rootWeight = t * t;
+                    const float tipT = std::min(1.0f, t + 0.07f);
+                    const Vector2 rootWind(rootWeight, windPhase);
+                    const Vector2 tipWind(tipT * tipT, windPhase);
+
+                    for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
+                        const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
+                        const Vector3 outward = side * sideSign;
+                        const Vector3 rootBack = centre - direction * 0.10f
+                            + outward * 0.025f;
+                        const Vector3 rootFront = centre + direction * 0.09f
+                            + outward * 0.035f;
+                        const Vector3 tip = centre + outward * leafletLength
+                            + direction * sweep - Vector3::Up * droop;
+                        const float sideShade = sideIndex == 0 ? 0.90f : 1.02f;
+                        const Color leafletColor = ShadeColor(
+                            leafBase, frondShade * sideShade * (0.96f + 0.05f * t));
+                        const auto leafletBase = static_cast<std::uint16_t>(
+                            geometry.vertices.size());
+                        geometry.vertices.emplace_back(
+                            rootBack, ShadeColor(leafletColor, 0.90f), rootWind);
+                        geometry.vertices.emplace_back(tip, leafletColor, tipWind);
+                        geometry.vertices.emplace_back(
+                            rootFront, ShadeColor(leafletColor, 1.04f), rootWind);
+                        geometry.indices.insert(geometry.indices.end(), {
+                            leafletBase,
+                            static_cast<std::uint16_t>(leafletBase + 1U),
+                            static_cast<std::uint16_t>(leafletBase + 2U)});
+                    }
                 }
             }
         }
@@ -364,6 +420,7 @@ void main()
                   << '\n';
         if (customShaderReady_) {
             std::cout << "island-simulator: palm portable wind shader with near/far mesh LOD\n";
+            std::cout << "island-simulator: palm near mesh segmented leaflet silhouettes\n";
         } else {
             std::cerr << "island-simulator: palm stock-effect fallback: " << fallbackReason_
                       << '\n';
@@ -401,6 +458,13 @@ void main()
             instance.transform = Matrix::CreateScale(palm.scale)
                 * Matrix::CreateRotationY(palm.yawRadians)
                 * Matrix::CreateTranslation(palm.x, palm.y, palm.z);
+            instance.x = palm.x;
+            instance.z = palm.z;
+            const float normalizedYaw = palm.yawRadians
+                / (2.0f * std::numbers::pi_v<float>);
+            const float nearLodDistance = NearLodMinimumDistance
+                + NearLodDistanceRange * normalizedYaw;
+            instance.nearLodDistanceSquared = nearLodDistance * nearLodDistance;
             instance.variant = palm.variant;
             cell.instances.push_back(instance);
             ++totalPalmCount_;
@@ -495,9 +559,13 @@ void main()
             if (distanceSquared > MaximumDistance * MaximumDistance) {
                 continue;
             }
-            const bool nearLod = distanceSquared <= NearLodDistance * NearLodDistance;
             ++visibleCellCount_;
             for (const PalmDrawInstance& instance : cell.instances) {
+                const float instanceDeltaX = instance.x - cameraPosition.X;
+                const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                const bool nearLod = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ
+                    <= instance.nearLodDistanceSquared;
                 if (nearLod) {
                     visibleNearTransforms_[instance.variant].push_back(instance.transform);
                     ++visibleNearPalmCount_;

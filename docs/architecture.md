@@ -212,14 +212,19 @@ testing are disabled only for this pass and restored immediately afterward. A ve
 supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the current arm64 GLES
 3 package compiles its GLSL ES path, but stable Android runtime validation remains open.
 
-Four palm variants use curved tapered trunk meshes and 10--12 ribbon fronds in the near tier, with
-root wedges around the trunk base as a low-cost contact cue. A lower-segment trunk and seven-frond
-far tier reduces distant vertex work. A deterministic 330-instance layout is grouped into the same
-8 by 8 spatial grid as terrain. CNA hardware instancing reduces a typical overview from hundreds
-of palm submissions to eight near/far variant draws; capability-checked per-palm drawing remains
-the functional fallback. Cells are rejected by frustum and a conservative distance bound before
-instances are gathered. The portable GLSL 330 / GLSL ES 300 shader bends only frond-weighted
-vertices with per-frond phase variation, leaving roots and trunks stable in a calm breeze.
+Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near tier, with root
+wedges around the trunk base as a low-cost contact cue. Each near frond combines a thin curved
+rachis with nine pairs of independently tapered leaflets; the lower-segment far tier uses seven
+widened ribbon fronds that preserve the feathered crown envelope without retaining sub-pixel
+leaflet geometry. A deterministic 330-instance layout is grouped into the same 8 by 8 spatial grid
+as terrain. CNA hardware instancing reduces a typical overview from hundreds of palm submissions
+to four far-variant draws; mixed first-person scenes remain bounded to eight near/far variant draws.
+Cells are rejected by frustum and a conservative distance bound, then each gathered palm selects
+its LOD against a deterministic 125--145 m threshold derived from placement yaw. This replaces the
+old whole-cell 210 m switch and staggers visible changes around the player. Capability-checked
+per-palm drawing remains the functional fallback. The portable GLSL 330 / GLSL ES 300 shader bends
+only frond-weighted vertices with per-frond phase variation, leaving roots and trunks stable in a
+calm breeze.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
 visible anchor instances one shared 28-blade near cluster or five-blade far cluster. The vertex
@@ -440,10 +445,10 @@ testing remain open.
 ## Current limitations
 
 - Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
-- Palms have four geometry variants, placement clustering, cell culling, near/far meshes, subtle
-  shader wind, trunk collision, small root wedges, and a near-field terrain contact shadow.
-  Pop-free LOD blending, richer close-up geometry/materials, and full directional/self-shadowing
-  remain open.
+- Palms have four geometry variants, segmented near leaflets, widened far crown silhouettes,
+  staggered per-instance LOD, placement clustering, cell culling, subtle shader wind, trunk
+  collision, small root wedges, and a near-field terrain contact shadow. True LOD blending, richer
+  bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
