@@ -360,6 +360,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "world debug frame ground samples 9, supports [1-9]")
+        add_test(NAME IslandGameMovementTraceCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-movement-trace.ppm"
+                    --viewpoint movement --world-debug)
+        set_tests_properties(IslandGameMovementTraceCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "movement obstacle/terrain/slide/clamp [1-9][0-9]*/0/[1-9][0-9]*/0")
         add_test(NAME IslandGameWildlifeNavigationCapture
             COMMAND island-simulator
                     --capture "${CMAKE_BINARY_DIR}/island-wildlife-navigation.ppm"

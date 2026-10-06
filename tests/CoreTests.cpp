@@ -1819,6 +1819,17 @@ int main()
           "capsule ground slope includes the centre sample");
     player.Update(terrain, 1.0f, 0.0f, 1.0f / 60.0f);
     Check(player.Position().x > start.x, "walking input accelerates the player");
+    const island::PlayerMovementTrace firstMovementTrace = player.MovementTrace();
+    Check(firstMovementTrace.valid && firstMovementTrace.startX == start.x
+              && firstMovementTrace.attemptedX > firstMovementTrace.startX,
+          "movement diagnostics retain the exact nonzero attempted step");
+    CheckNear(firstMovementTrace.resolvedX, player.Position().x, 0.0001f,
+              "movement diagnostics retain the exact resolved player position");
+    Check(firstMovementTrace.obstacleRejections == 0
+              && firstMovementTrace.terrainRejections == 0
+              && firstMovementTrace.slideSubsteps == 0
+              && !firstMovementTrace.safetyClamped,
+          "unobstructed movement diagnostics report no rejection or clamp");
     Check(player.VelocityX() > 0.0f && player.VelocityX() < island::PlayerMotion::WalkSpeed,
           "walking acceleration does not jump to full speed");
     Check(player.Mode() == island::LocomotionMode::Walking,
@@ -1881,6 +1892,15 @@ int main()
     Check(player.VelocityX() <= 0.01f,
           "safety boundary removes residual outward velocity");
 
+    island::PlayerMotion safetyTracePlayer;
+    safetyTracePlayer.SetPosition(
+        terrain, eastShore + island::PlayerMotion::SafetyDistance + 4.0f, 0.0f);
+    safetyTracePlayer.Update(terrain, 0.0f, 0.0f, 1.0f / 60.0f);
+    Check(safetyTracePlayer.MovementTrace().safetyClamped
+              && safetyTracePlayer.OffshoreDistance(terrain)
+                  <= island::PlayerMotion::SafetyDistance + 0.01f,
+          "movement diagnostics record an explicit ocean safety-boundary correction");
+
     player.SetPosition(terrain, 0.0f, 0.0f);
     player.Update(terrain, 1.0f, 0.0f, 5.0f);
     Check(player.Position().x - 0.0f < 0.2f,
@@ -1910,6 +1930,11 @@ int main()
           "player capsule cannot enter a palm trunk proxy");
     Check(player.Position().x < testTrunk.x,
           "blocked movement does not tunnel through a trunk");
+    Check(player.MovementTrace().obstacleRejections > 0
+              && player.MovementTrace().terrainRejections == 0
+              && player.MovementTrace().slideSubsteps > 0
+              && player.MovementTrace().attemptedX > player.MovementTrace().resolvedX,
+          "movement diagnostics distinguish blocked direct motion and axis sliding");
 
     const island::WorldCollisionGrid testCollisionGrid(
         std::span<const island::CircularObstacle>(&testTrunk, 1U));

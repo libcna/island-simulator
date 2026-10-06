@@ -32,6 +32,22 @@ namespace island
         float z = 0.0f;
     };
 
+    /** @brief Last nonzero horizontal move before and after collision/slope resolution. */
+    struct PlayerMovementTrace
+    {
+        float startX = 0.0f;
+        float startZ = 0.0f;
+        float attemptedX = 0.0f;
+        float attemptedZ = 0.0f;
+        float resolvedX = 0.0f;
+        float resolvedZ = 0.0f;
+        int obstacleRejections = 0;
+        int terrainRejections = 0;
+        int slideSubsteps = 0;
+        bool safetyClamped = false;
+        bool valid = false;
+    };
+
     /**
      * @brief First traversal slice: accelerated ground movement, swimming, and a soft ocean limit.
      *
@@ -105,6 +121,12 @@ namespace island
         /** @brief Returns the steepest sampled terrain slope under the player footprint. */
         [[nodiscard]] float GroundSlopeRadians() const noexcept { return groundSlopeRadians_; }
 
+        /** @brief Returns the last nonzero attempted and resolved horizontal movement step. */
+        [[nodiscard]] const PlayerMovementTrace& MovementTrace() const noexcept
+        {
+            return movementTrace_;
+        }
+
         /** @brief Returns positive distance offshore, or zero on land. */
         [[nodiscard]] float OffshoreDistance(const IslandTerrain& terrain) const noexcept;
 
@@ -112,6 +134,13 @@ namespace island
         [[nodiscard]] float OceanCurrentStrength(const IslandTerrain& terrain) const noexcept;
 
     private:
+        enum class HorizontalStepResult
+        {
+            Accepted,
+            ObstacleBlocked,
+            TerrainBlocked
+        };
+
         struct GroundContact
         {
             float height = 0.0f;
@@ -122,10 +151,11 @@ namespace island
                                                float maximumDelta) noexcept;
         [[nodiscard]] static GroundContact SampleGroundContact(const IslandTerrain& terrain,
                                                                float x, float z) noexcept;
-        [[nodiscard]] bool TryHorizontalStep(const IslandTerrain& terrain,
-                                             std::span<const CircularObstacle> obstacles,
-                                             const WorldCollisionGrid* collisionGrid,
-                                             float deltaX, float deltaZ) noexcept;
+        [[nodiscard]] HorizontalStepResult TryHorizontalStep(
+            const IslandTerrain& terrain,
+            std::span<const CircularObstacle> obstacles,
+            const WorldCollisionGrid* collisionGrid,
+            float deltaX, float deltaZ) noexcept;
         void UpdateInternal(const IslandTerrain& terrain, float inputX, float inputZ,
                             float deltaSeconds, std::span<const CircularObstacle> obstacles,
                             const WorldCollisionGrid* collisionGrid) noexcept;
@@ -138,5 +168,6 @@ namespace island
         float groundHeight_ = 0.0f;
         float groundSlopeRadians_ = 0.0f;
         LocomotionMode mode_ = LocomotionMode::Walking;
+        PlayerMovementTrace movementTrace_;
     };
 }

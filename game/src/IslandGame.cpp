@@ -57,6 +57,7 @@ namespace island
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
             case FixedViewpoint::GroundContactDetail: return "contact";
+            case FixedViewpoint::MovementTraceDetail: return "movement";
             case FixedViewpoint::PalmDetail: return "palms";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
@@ -146,6 +147,18 @@ namespace island
             const Vector3 toContact = target - cameraPosition_;
             yaw_ = std::atan2(toContact.X, toContact.Z);
             pitch_ = std::atan2(toContact.Y, std::hypot(toContact.X, toContact.Z));
+        } else if (viewpoint_ == FixedViewpoint::MovementTraceDetail
+                   && !vegetationLayout_.Obstacles().empty()) {
+            const CircularObstacle& obstacle = vegetationLayout_.Obstacles().front();
+            const float cameraX = obstacle.x - 2.2f;
+            const float cameraZ = obstacle.z + 4.8f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ) + 2.5f,
+                                      cameraZ);
+            const Vector3 target(obstacle.x, terrain_.Height(obstacle.x, obstacle.z) + 0.7f,
+                                 obstacle.z);
+            const Vector3 toTarget = target - cameraPosition_;
+            yaw_ = std::atan2(toTarget.X, toTarget.Z);
+            pitch_ = std::atan2(toTarget.Y, std::hypot(toTarget.X, toTarget.Z));
         } else if (viewpoint_ == FixedViewpoint::GroundPlantDetail
                    && !jungleLayout_.GroundPlants().empty()) {
             const GroundPlantPlacement* selected = nullptr;
@@ -477,6 +490,14 @@ namespace island
             constexpr float contactZ = 45.0f;
             playerMotion_.SetPosition(
                 terrain_, VegetationLayout::PrimaryPathCenterX(contactZ), contactZ);
+        } else if (viewpoint_ == FixedViewpoint::MovementTraceDetail
+                   && !vegetationLayout_.Obstacles().empty()) {
+            const CircularObstacle& obstacle = vegetationLayout_.Obstacles().front();
+            playerMotion_.SetPosition(terrain_, obstacle.x - 1.8f, obstacle.z);
+            for (int step = 0; step < 90; ++step) {
+                playerMotion_.Update(terrain_, 1.0f, 0.0f, 1.0f / 60.0f,
+                                     worldCollisionGrid_);
+            }
         } else {
             playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
         }
@@ -533,8 +554,8 @@ namespace island
         }
         if (worldDebugVisible_) {
             std::cout << "island-simulator: world debug visualization active with 9 ground-contact "
-                         "samples, wildlife navigation guides, 6 audio-zone contours, and "
-                         "positional-emitter markers\n";
+                         "samples, resolved movement trace, wildlife navigation guides, 6 "
+                         "audio-zone contours, and positional-emitter markers\n";
         }
         if (!benchmarkPath_.empty()) {
             std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
@@ -699,8 +720,9 @@ namespace island
             worldDebugVisible_ = !worldDebugVisible_;
             std::cout << "island-simulator: world debug visualization "
                       << (worldDebugVisible_
-                              ? "enabled with 9 ground-contact samples, wildlife navigation "
-                                "guides, 6 audio-zone contours, and positional-emitter markers"
+                              ? "enabled with 9 ground-contact samples, resolved movement trace, "
+                                "wildlife navigation guides, 6 audio-zone contours, and "
+                                "positional-emitter markers"
                               : "disabled")
                       << '\n';
         }
@@ -1076,6 +1098,7 @@ namespace island
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
+                                      playerMotion_.MovementTrace(),
                                       worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),
                                       fishSchools_.Fish(), fishSchools_.Schools(),
                                       sharkPatrol_.State(), monkeyTroop_.Monkeys(),
@@ -1238,6 +1261,7 @@ namespace island
             overlayState.collisionObstacles = static_cast<int>(
                 worldCollisionGrid_.Obstacles().size());
             if (worldDebugVisible_) {
+                const PlayerMovementTrace& movementTrace = playerMotion_.MovementTrace();
                 overlayState.worldDebugObstacles = worldDebugRenderer_->VisibleObstacleCount();
                 overlayState.worldDebugCells = worldDebugRenderer_->VisibleCellCount();
                 overlayState.worldDebugWildlife = worldDebugRenderer_->WildlifeMarkerCount();
@@ -1256,6 +1280,10 @@ namespace island
                     worldDebugRenderer_->GroundSupportSampleCount();
                 overlayState.worldDebugSteepSamples =
                     worldDebugRenderer_->SteepGroundSampleCount();
+                overlayState.movementObstacleRejections = movementTrace.obstacleRejections;
+                overlayState.movementTerrainRejections = movementTrace.terrainRejections;
+                overlayState.movementSlideSubsteps = movementTrace.slideSubsteps;
+                overlayState.movementSafetyClamped = movementTrace.safetyClamped;
                 overlayState.worldDebugLines = worldDebugRenderer_->LineCount();
                 overlayState.worldDebugDraws = worldDebugRenderer_->DrawCallCount();
             }
@@ -1345,6 +1373,7 @@ namespace island
                       << ", phase " << waterRippleModel_.Phase() << ", current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
             if (worldDebugVisible_) {
+                const PlayerMovementTrace& movementTrace = playerMotion_.MovementTrace();
                 std::cout << "island-simulator: world debug frame ground samples "
                           << worldDebugRenderer_->GroundContactSampleCount() << ", supports "
                           << worldDebugRenderer_->GroundSupportSampleCount()
@@ -1353,6 +1382,11 @@ namespace island
                           << worldDebugRenderer_->WildlifeMarkerCount()
                           << ", targets " << worldDebugRenderer_->WildlifeTargetCount()
                           << ", homes " << worldDebugRenderer_->MonkeyHomeRangeCount()
+                          << "; movement obstacle/terrain/slide/clamp "
+                          << movementTrace.obstacleRejections << '/'
+                          << movementTrace.terrainRejections << '/'
+                          << movementTrace.slideSubsteps << '/'
+                          << (movementTrace.safetyClamped ? 1 : 0)
                           << "; audio zones " << worldDebugRenderer_->AudioZoneCount()
                           << ", candidates "
                           << worldDebugRenderer_->AudioCandidateCount()

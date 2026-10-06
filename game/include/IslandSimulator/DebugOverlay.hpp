@@ -145,6 +145,10 @@ namespace island
         int worldDebugGroundSamples = 0;
         int worldDebugGroundSupports = 0;
         int worldDebugSteepSamples = 0;
+        int movementObstacleRejections = 0;
+        int movementTerrainRejections = 0;
+        int movementSlideSubsteps = 0;
+        bool movementSafetyClamped = false;
         int worldDebugLines = 0;
         int worldDebugDraws = 0;
     };

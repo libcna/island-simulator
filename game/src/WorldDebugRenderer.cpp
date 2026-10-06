@@ -204,6 +204,7 @@ namespace island
                                   const PlayerPosition& playerPosition,
                                   const float playerGroundHeight,
                                   const bool playerSwimming,
+                                  const PlayerMovementTrace& movementTrace,
                                   const std::span<const CircularObstacle> obstacles,
                                   const std::span<const BirdState> birds,
                                   const std::span<const FishState> fish,
@@ -357,6 +358,50 @@ namespace island
         AddLine(overlayVertices,
                 Vector3(playerPosition.x, playerGroundHeight + 0.06f, playerPosition.z),
                 Vector3(playerPosition.x, playerPosition.y, playerPosition.z), playerColor);
+
+        if (movementTrace.valid) {
+            const auto markerHeight = [this](const float x, const float z,
+                                             const float offset) {
+                return std::max(terrain_.Height(x, z) + offset,
+                                OceanLineHeight + offset);
+            };
+            const bool movementRejected = movementTrace.obstacleRejections > 0
+                || movementTrace.terrainRejections > 0 || movementTrace.safetyClamped;
+            const Color attemptedColor = movementTrace.terrainRejections > 0
+                ? Color(255, 72, 65, 255)
+                : (movementTrace.obstacleRejections > 0
+                    ? Color(255, 150, 45, 255)
+                    : (movementTrace.safetyClamped
+                        ? Color(255, 80, 190, 255)
+                        : Color(75, 225, 255, 255)));
+            const Color resolvedColor(115, 255, 150, 255);
+            const Vector3 attemptedStart(
+                movementTrace.startX,
+                markerHeight(movementTrace.startX, movementTrace.startZ, 0.82f),
+                movementTrace.startZ);
+            const Vector3 attemptedEnd(
+                movementTrace.attemptedX,
+                markerHeight(movementTrace.attemptedX, movementTrace.attemptedZ, 0.82f),
+                movementTrace.attemptedZ);
+            const Vector3 resolvedStart(
+                movementTrace.startX,
+                markerHeight(movementTrace.startX, movementTrace.startZ, 0.48f),
+                movementTrace.startZ);
+            const Vector3 resolvedEnd(
+                movementTrace.resolvedX,
+                markerHeight(movementTrace.resolvedX, movementTrace.resolvedZ, 0.48f),
+                movementTrace.resolvedZ);
+            AddLine(overlayVertices, attemptedStart, attemptedEnd, attemptedColor);
+            AddLine(overlayVertices, resolvedStart, resolvedEnd, resolvedColor);
+            AddCircle(overlayVertices, attemptedEnd.X, attemptedEnd.Y, attemptedEnd.Z,
+                      movementRejected ? 0.24f : 0.16f, 8, attemptedColor);
+            AddCircle(overlayVertices, resolvedEnd.X, resolvedEnd.Y, resolvedEnd.Z,
+                      0.18f, 8, resolvedColor);
+            AddLine(overlayVertices, attemptedEnd - Vector3::Up * 0.22f,
+                    attemptedEnd + Vector3::Up * 0.22f, attemptedColor);
+            AddLine(overlayVertices, resolvedEnd - Vector3::Up * 0.18f,
+                    resolvedEnd + Vector3::Up * 0.18f, resolvedColor);
+        }
 
         const float offshoreDistance = std::max(
             0.0f, -terrain_.SignedShoreDistance(playerPosition.x, playerPosition.z));

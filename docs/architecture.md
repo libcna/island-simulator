@@ -382,12 +382,15 @@ crossfade distances and terrain height. X-ray markers show the nearest non-dorma
 audio candidates and the exact pooled positional emitter while a call is active. Distance gates
 limit local marker generation. The renderer also consumes the same public nine-point unit offsets
 used by `PlayerMotion`, resamples their authoritative terrain height/slope/normal, rings the points
-that resolve the player's support height, and colours over-limit slopes red. `FishSchools` exposes
-one compact centre/tier snapshot per school, while monkey state carries its authoritative home and
-active target and shark state carries its current route target. F2 uses those simulation-owned
-values for route markers and terrain-following monkey home ranges rather than reconstructing them
-from rendered poses. The complete view still costs two draw submissions. The `--viewpoint contact
---world-debug` combination provides an offset deterministic review camera, and the monkey viewpoint provides a
+that resolve the player's support height, and colours over-limit slopes red. `PlayerMotion` also
+retains its latest nonzero attempted step, resolved endpoint, obstacle/terrain rejection counts,
+axis-slide count, and safety-clamp flag; F2 draws both endpoints at exact world scale.
+`FishSchools` exposes one compact centre/tier snapshot per school, while monkey state carries its
+authoritative home and active target and shark state carries its current route target. F2 uses
+those simulation-owned values for route markers and terrain-following monkey home ranges rather
+than reconstructing them from rendered poses. The complete view still costs two draw submissions.
+The `--viewpoint contact --world-debug` combination provides an offset deterministic review
+camera, the movement viewpoint reproduces obstacle rejection, and the monkey viewpoint provides a
 repeatable navigation-guide capture in addition to the overview.
 
 The opt-in benchmark path remains game-owned and does not add renderer hooks. `IslandGame` records

@@ -47,21 +47,22 @@ namespace island
         return contact;
     }
 
-    bool PlayerMotion::TryHorizontalStep(const IslandTerrain& terrain,
-                                         const std::span<const CircularObstacle> obstacles,
-                                         const WorldCollisionGrid* collisionGrid,
-                                         const float deltaX, const float deltaZ) noexcept
+    PlayerMotion::HorizontalStepResult PlayerMotion::TryHorizontalStep(
+        const IslandTerrain& terrain,
+        const std::span<const CircularObstacle> obstacles,
+        const WorldCollisionGrid* collisionGrid,
+        const float deltaX, const float deltaZ) noexcept
     {
         const float distance = std::hypot(deltaX, deltaZ);
         if (distance <= 0.000001f) {
-            return true;
+            return HorizontalStepResult::Accepted;
         }
 
         const float candidateX = position_.x + deltaX;
         const float candidateZ = position_.z + deltaZ;
         if (collisionGrid) {
             if (collisionGrid->IntersectsCircle(candidateX, candidateZ, CapsuleRadius)) {
-                return false;
+                return HorizontalStepResult::ObstacleBlocked;
             }
         } else {
             for (const CircularObstacle& obstacle : obstacles) {
@@ -70,7 +71,7 @@ namespace island
                 const float separationZ = candidateZ - obstacle.z;
                 if (separationX * separationX + separationZ * separationZ
                     < combinedRadius * combinedRadius) {
-                    return false;
+                    return HorizontalStepResult::ObstacleBlocked;
                 }
             }
         }
@@ -84,13 +85,13 @@ namespace island
                 && candidate.maximumSlopeRadians > MaximumWalkSlopeRadians;
             if (rise > MaximumStepHeight || pathSlope > MaximumWalkSlopeRadians
                 || uphillOnSteepGround) {
-                return false;
+                return HorizontalStepResult::TerrainBlocked;
             }
         }
 
         position_.x = candidateX;
         position_.z = candidateZ;
-        return true;
+        return HorizontalStepResult::Accepted;
     }
 
     void PlayerMotion::SetPosition(const IslandTerrain& terrain, const float x, const float z) noexcept
@@ -99,6 +100,7 @@ namespace island
         position_.z = z;
         velocityX_ = 0.0f;
         velocityZ_ = 0.0f;
+        movementTrace_ = PlayerMovementTrace{};
         mode_ = terrain.Height(x, z) < WaterEntryTerrainHeight
             ? LocomotionMode::Swimming
             : LocomotionMode::Walking;
@@ -206,26 +208,50 @@ namespace island
         const float totalDeltaX = velocityX_ * dt;
         const float totalDeltaZ = velocityZ_ * dt;
         const float movementDistance = std::hypot(totalDeltaX, totalDeltaZ);
+        PlayerMovementTrace trace;
+        trace.startX = position_.x;
+        trace.startZ = position_.z;
+        trace.attemptedX = position_.x + totalDeltaX;
+        trace.attemptedZ = position_.z + totalDeltaZ;
+        trace.valid = movementDistance > 0.000001f;
+        const auto recordRejection = [&trace](const HorizontalStepResult result) {
+            if (result == HorizontalStepResult::ObstacleBlocked) {
+                ++trace.obstacleRejections;
+            } else if (result == HorizontalStepResult::TerrainBlocked) {
+                ++trace.terrainRejections;
+            }
+        };
         const int substeps = std::max(1, static_cast<int>(
             std::ceil(movementDistance / MaximumHorizontalSubstep)));
         const float stepX = totalDeltaX / static_cast<float>(substeps);
         const float stepZ = totalDeltaZ / static_cast<float>(substeps);
         for (int step = 0; step < substeps; ++step) {
-            if (TryHorizontalStep(terrain, obstacles, collisionGrid, stepX, stepZ)) {
+            const HorizontalStepResult direct = TryHorizontalStep(
+                terrain, obstacles, collisionGrid, stepX, stepZ);
+            if (direct == HorizontalStepResult::Accepted) {
                 continue;
             }
+            recordRejection(direct);
+            ++trace.slideSubsteps;
 
             // Sliding along one axis keeps glancing contact from feeling like a complete stop.
-            if (!TryHorizontalStep(terrain, obstacles, collisionGrid, stepX, 0.0f)) {
+            const HorizontalStepResult xSlide = TryHorizontalStep(
+                terrain, obstacles, collisionGrid, stepX, 0.0f);
+            if (xSlide != HorizontalStepResult::Accepted) {
+                recordRejection(xSlide);
                 velocityX_ = 0.0f;
             }
-            if (!TryHorizontalStep(terrain, obstacles, collisionGrid, 0.0f, stepZ)) {
+            const HorizontalStepResult zSlide = TryHorizontalStep(
+                terrain, obstacles, collisionGrid, 0.0f, stepZ);
+            if (zSlide != HorizontalStepResult::Accepted) {
+                recordRejection(zSlide);
                 velocityZ_ = 0.0f;
             }
         }
 
         const float newOffshore = OffshoreDistance(terrain);
         if (newOffshore > SafetyDistance) {
+            trace.safetyClamped = true;
             const float angle = std::atan2(position_.z, position_.x);
             const float safeRadius = terrain.ShoreRadius(angle) + SafetyDistance;
             position_.x = std::cos(angle) * safeRadius;
@@ -236,6 +262,12 @@ namespace island
                 velocityX_ -= std::cos(angle) * outwardVelocity;
                 velocityZ_ -= std::sin(angle) * outwardVelocity;
             }
+        }
+
+        trace.resolvedX = position_.x;
+        trace.resolvedZ = position_.z;
+        if (trace.valid || trace.safetyClamped) {
+            movementTrace_ = trace;
         }
 
         ResolveModeAndHeight(terrain, 1.8f * dt);

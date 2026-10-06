@@ -226,6 +226,10 @@ namespace island
                    << " CONTACT " << state.worldDebugGroundSamples << '/'
                    << state.worldDebugGroundSupports << '/'
                    << state.worldDebugSteepSamples
+                   << " MOVE " << state.movementObstacleRejections << '/'
+                   << state.movementTerrainRejections << '/'
+                   << state.movementSlideSubsteps << '/'
+                   << (state.movementSafetyClamped ? 1 : 0)
                    << " LINES " << state.worldDebugLines
                    << " DRAWS " << state.worldDebugDraws;
         lines.push_back(worldDebug.str());

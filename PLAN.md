@@ -882,7 +882,9 @@ after the same experience remains available.
   active current field are implemented; remaining landmark locations remain.
 - [~] Terrain/capsule/contact visualization. Player footprint, nearby solid horizontal proxies,
   the exact nine terrain samples, 1.5 m normals, resolved support rings, player support line, and
-  red over-limit slope markers are visible; swept/attempted motion remains.
+  red over-limit slope markers are visible. The latest exact attempted/resolved horizontal step is
+  retained with obstacle/terrain/axis-slide/safety-clamp classification; movement history,
+  geometric step-up, and depenetration remain.
 - [~] Shore distance/current vector visualization. F2 draws the irregular shoreline, all three
   current thresholds, and the player's active inward-current arrow; a scalar field view remains.
 - [~] Vegetation cell, culling, LOD, and density visualization. F2 draws nearby shared 8 by 8
@@ -896,8 +898,8 @@ after the same experience remains available.
   and the exact active pooled emitter; F1 reports the active-source count against the six-source
   ceiling.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, grass-interaction detail, ground-contact, close-palm, jungle-trail, natural-prop,
-  driftwood, emergent-reef,
+  beach-path, grass-interaction detail, ground-contact, movement-trace, close-palm, jungle-trail,
+  natural-prop, driftwood, emergent-reef,
   near-surface-water, active-current, fallen-frond, distant-horizon, airborne bird-detail, and
   shallow-water fish views plus offshore-shark and GPU-skinned-monkey views are implemented and
   used by native/browser captures; free camera and more landmark views remain open.
@@ -2329,6 +2331,29 @@ Work next, in order:
   renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
   application lint pass; WebAssembly is 8,360,630 bytes, stripped `libmain.so` is 15,755,280 bytes,
   and the APK is 33,487,656 bytes. Android runtime appearance remains unqualified without KVM or a
+  physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency
+  defect was found.
+
+### 2026-10-06 — Attempted versus resolved player-movement diagnostics
+
+- Replaced the controller's private boolean step result with an internal accepted/obstacle/terrain
+  classification while preserving the same collision, slope, substep, and axis-slide decisions.
+  `PlayerMotion` now retains the latest nonzero start, intended endpoint, resolved endpoint,
+  rejection counts, slide-substep count, and outer-ocean safety-clamp flag. Teleports reset the
+  trace so stale data cannot be mistaken for post-teleport movement.
+- Extended the existing F2 x-ray batch with exact-scale attempted and resolved lines and endpoint
+  rings. Clear attempts are cyan, obstacle rejections orange, terrain rejections red, safety
+  clamps magenta, and the resolved endpoint green. F1 reports `MOVE O/T/S/C`; the normal
+  presentation still pays no extra draw submission and the complete F2 view remains two draws.
+- Added `--viewpoint movement`, which deterministically walks east into a real palm proxy before
+  positioning an independent camera. Its automated capture and visual inspection show the two
+  overlapping exact endpoints at the trunk and report `2/0/1/0`: two obstacle rejections, zero
+  terrain rejections, one slide substep, and no ocean clamp. Core coverage separately verifies an
+  unobstructed move, blocked obstacle classification, and a forced ocean safety correction.
+- All 25 native tests pass, including 24 real OpenGL 3.3 scenes. The Chrome 152/SwiftShader WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,366,637 bytes, stripped `libmain.so` is 15,759,632 bytes,
+  and the APK is 33,492,008 bytes. Android runtime appearance remains unqualified without KVM or a
   physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency
   defect was found.
 

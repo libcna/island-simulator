@@ -1055,7 +1055,7 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && inputResult.output?.includes(
       "island-simulator: world debug visualization enabled with 9 ground-contact samples,"
-        + " wildlife navigation guides, 6 audio-zone contours,"
+        + " resolved movement trace, wildlife navigation guides, 6 audio-zone contours,"
         + " and positional-emitter markers")
     && inputResult.output?.includes("island-simulator: debug overlay disabled")
     && lockedState.pointerLocked === true

@@ -25,6 +25,9 @@ WebGL 2, and OpenGL ES 3. It draws:
 - the exact nine-point terrain footprint used by walking collision. Green lines show sampled
   normals, red lines exceed the 38-degree walk limit, white rings identify samples supporting the
   resolved player height, and a white line joins ground support to the player eye;
+- the last nonzero horizontal player step at its exact world scale. Cyan/orange/red/magenta marks
+  the attempted endpoint for clear/obstacle/terrain/safety-limit motion, while green marks the
+  actual resolved endpoint after substepping and axis sliding;
 - nearby shared terrain/vegetation cell edges in green;
 - wildlife heading arrows, with full-simulation agents in species/state colours, reduced agents
   in yellow, and dormant agents in grey. Monkey full-tier colours distinguish idle, observe,
@@ -82,9 +85,10 @@ Current fields are:
 - played positional bird/monkey call counts, pooled wildlife-voice active/idle state, and currently
   playing sources against the hard six-source ceiling;
 - F2 visibility plus nearby obstacle, shared-cell, wildlife marker/target/monkey-home-range
-  (`WILDLIFE M/T/H`), audio zone/candidate/active-
-  emitter (`AUDIO Z/C/E`), terrain sample/support/over-limit (`CONTACT S/S/O`), line, and draw
-  counts.
+  (`WILDLIFE M/T/H`), audio zone/candidate/active-emitter (`AUDIO Z/C/E`), terrain
+  sample/support/over-limit (`CONTACT S/S/O`), line, and draw
+  counts. `MOVE O/T/S/C` reports obstacle rejections, terrain rejections, slide substeps, and
+  ocean-safety clamping for the retained movement trace.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative
@@ -129,6 +133,7 @@ build/island-simulator --capture /tmp/island-monkeys.ppm --viewpoint monkeys
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overview --world-debug
 build/island-simulator --capture /tmp/island-contact.ppm --viewpoint contact --world-debug
+build/island-simulator --capture /tmp/island-movement.ppm --viewpoint movement --world-debug
 build/island-simulator --capture /tmp/island-wildlife-nav.ppm --viewpoint monkeys --world-debug
 ```
 
@@ -136,7 +141,9 @@ These runs render four frames and exit, except the monkey capture waits 24 frame
 crossfades to settle. The ground view selects a cleared variant-1 forest-floor plant beside the
 primary path for repeatable leaf-silhouette review. The contact view places an offset QA camera
 above the jungle path while leaving the player footprint at the target, making all nine support
-samples and their normals visible. The WebGL 2 harness writes corresponding
+samples and their normals visible. The movement view deterministically walks east into one palm,
+retains the rejected direct step and axis-slide resolution, and observes both endpoints from an
+offset camera. The WebGL 2 harness writes corresponding
 overview, beach, grass, ground, palm,
 jungle, prop, driftwood, reef, water, current, frond, distant, bird, fish, shark, and monkey PNG
 captures plus a JSON report under
@@ -153,6 +160,7 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 
 The F2 pass covers the world geometry and audio diagnostics listed above. Bird route families,
 wildlife spawn regions, steering avoidance proposals, individual renderer culling volumes and LOD
-radii, grass-density fields, and swept/attempted player movement remain open. So do a teleport
+radii, and grass-density fields remain open. The movement trace retains the latest resolved frame;
+a longer history and geometric step-up/depenetration views are not implemented. So do a teleport
 menu, free camera, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
 additions must remain opt-in and absent from the normal release presentation.

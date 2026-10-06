@@ -106,9 +106,10 @@ been confirmed so far.
   monkey behaviour counts, current
   surf/breeze/jungle/player-water levels, played
   wave/splash counts, mute/availability state, and live source use against the six-source budget.
-  F2 adds world-space shoreline/current, collision, shared-cell, wildlife heading/target/home-range,
-  ambient-zone, nearest audio-candidate, active positional-emitter, and exact nine-sample
-  terrain-contact views; swept movement and deeper per-system overlays remain open.
+  F2 adds world-space shoreline/current, collision, exact attempted/resolved player motion,
+  shared-cell, wildlife heading/target/home-range, ambient-zone, nearest audio-candidate, active
+  positional-emitter, and exact nine-sample terrain-contact views; movement history and deeper
+  per-system overlays remain open.
 - Eight direct debug teleports and a five-view native frame-time suite exist, but there is no
   teleport menu, sustained moving benchmark route, asset validation command, or automated
   renderer-image comparison yet.

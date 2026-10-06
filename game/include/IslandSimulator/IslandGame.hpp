@@ -62,6 +62,7 @@ namespace island
         GrassDetail,
         GroundPlantDetail,
         GroundContactDetail,
+        MovementTraceDetail,
         PalmDetail,
         WaterlineDetail,
         CurrentBoundaryDetail,
