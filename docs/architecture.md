@@ -197,16 +197,17 @@ actual Chromium/WebGL 2 execute the full shader; the current arm64 GLES 3 packag
 not been rerun on stable Android hardware.
 
 Natural props add 152 irregular rocks across beach/interior bands, 11 mossy fallen logs in the
-low-slope interior, 28 small sun-bleached driftwood pieces, and 265 shell/pebble clusters in the dry
-beach belt. Four rock, three log, three driftwood, and four beach-detail variants use cell culling,
-variant batching, and a portable static GLSL 330 / GLSL ES 300 shader; the larger classes retain
-independent near/far meshes while tiny beach details disappear beyond 52 m. Opaque contact geometry
-grounds the layers without transparency overdraw; driftwood uses an irregular bent tube plus one or
-two branch stubs. Placement validates each complete log/driftwood footprint against shore distance,
-route reservations, nearby trees, slope, and support-height variation. Collision is limited to
-substantial rocks and sampled fallen-log spans, leaving driftwood and substrate detail non-solid.
-Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced path; dedicated prop and
-driftwood cameras provide deterministic close review.
+low-slope interior, 28 small sun-bleached driftwood pieces, 63 fallen palm fronds around suitable
+groves, and 265 shell/pebble clusters in the dry beach belt. Four rock, three log, three driftwood,
+three frond, and four beach-detail variants use cell culling, variant batching, and a portable
+static GLSL 330 / GLSL ES 300 shader; the larger classes retain independent near/far meshes while
+tiny beach details disappear beyond 52 m and fronds beyond 76 m. Opaque geometry grounds the
+layers without transparency overdraw; driftwood uses an irregular bent tube plus branch stubs, and
+fronds use a curved rachis with 28 tapered leaflets. Placement validates complete footprints
+against shore distance, route reservations, nearby trees, slope, and support-height variation.
+Collision is limited to substantial rocks and sampled fallen-log spans, leaving small dressing
+non-solid. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced path; dedicated prop,
+driftwood, and frond cameras provide deterministic close review.
 
 The first wildlife renderer draws 24 procedural birds distributed across shore, canopy, and high
 route families. `BirdFlock` combines soft radial steering with two incommensurate wander terms,

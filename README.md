@@ -8,7 +8,8 @@ shore-following foam/wash ribbon,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152
 irregular rocks, 11 mossy fallen logs,
-28 pieces of sun-bleached beach driftwood, and 265 near-field shell/pebble clusters. Every visual
+28 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field shell/pebble
+clusters. Every visual
 layer has spatial culling and appropriate distance reduction, while vegetation uses a calm breeze.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,

@@ -51,12 +51,20 @@ namespace island
         {
             return totalBeachDetailCount_;
         }
+        [[nodiscard]] int TotalFallenFrondCount() const noexcept
+        {
+            return totalFallenFrondCount_;
+        }
         [[nodiscard]] int VisibleRockCount() const noexcept { return visibleRockCount_; }
         [[nodiscard]] int VisibleLogCount() const noexcept { return visibleLogCount_; }
         [[nodiscard]] int VisibleDriftwoodCount() const noexcept { return visibleDriftwoodCount_; }
         [[nodiscard]] int VisibleBeachDetailCount() const noexcept
         {
             return visibleBeachDetailCount_;
+        }
+        [[nodiscard]] int VisibleFallenFrondCount() const noexcept
+        {
+            return visibleFallenFrondCount_;
         }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
@@ -87,6 +95,7 @@ namespace island
             std::vector<DrawInstance> logs;
             std::vector<DrawInstance> driftwood;
             std::vector<DrawInstance> beachDetails;
+            std::vector<DrawInstance> fallenFronds;
             bool occupied = false;
         };
 
@@ -107,6 +116,7 @@ namespace island
         std::array<PropMesh, NaturalPropLayout::DriftwoodVariantCount> driftwoodNearMeshes_;
         std::array<PropMesh, NaturalPropLayout::DriftwoodVariantCount> driftwoodFarMeshes_;
         std::array<PropMesh, NaturalPropLayout::BeachDetailVariantCount> beachDetailMeshes_;
+        std::array<PropMesh, NaturalPropLayout::FallenFrondVariantCount> fallenFrondMeshes_;
         std::array<PropCell, TerrainMeshLayout::CellCount> cells_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    NaturalPropLayout::RockVariantCount> visibleRockNear_;
@@ -122,6 +132,8 @@ namespace island
                    NaturalPropLayout::DriftwoodVariantCount> visibleDriftwoodFar_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    NaturalPropLayout::BeachDetailVariantCount> visibleBeachDetails_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   NaturalPropLayout::FallenFrondVariantCount> visibleFallenFronds_;
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
@@ -129,10 +141,12 @@ namespace island
         int totalLogCount_ = 0;
         int totalDriftwoodCount_ = 0;
         int totalBeachDetailCount_ = 0;
+        int totalFallenFrondCount_ = 0;
         int visibleRockCount_ = 0;
         int visibleLogCount_ = 0;
         int visibleDriftwoodCount_ = 0;
         int visibleBeachDetailCount_ = 0;
+        int visibleFallenFrondCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
     };

@@ -55,6 +55,7 @@ namespace island
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::PropDetail: return "props";
             case FixedViewpoint::DriftwoodDetail: return "driftwood";
+            case FixedViewpoint::FallenFrondDetail: return "fronds";
             case FixedViewpoint::BirdDetail: return "birds";
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::SharkDetail: return "shark";
@@ -154,6 +155,29 @@ namespace island
                                       cameraZ);
             yaw_ = std::atan2(wood.x - cameraX, wood.z - cameraZ);
             pitch_ = -0.16f;
+        } else if (viewpoint_ == FixedViewpoint::FallenFrondDetail
+                   && !naturalPropLayout_.FallenFronds().empty()) {
+            const auto closestToShore = std::min_element(
+                naturalPropLayout_.FallenFronds().begin(),
+                naturalPropLayout_.FallenFronds().end(),
+                [this](const FallenFrondPlacement& first,
+                       const FallenFrondPlacement& second) {
+                    return terrain_.SignedShoreDistance(first.x, first.z)
+                        < terrain_.SignedShoreDistance(second.x, second.z);
+                });
+            const FallenFrondPlacement& frond = *closestToShore;
+            const Vector3 direction(std::cos(frond.yawRadians), 0.0f,
+                                    std::sin(frond.yawRadians));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const float cameraX = frond.x - direction.X * 0.8f + side.X * 3.1f;
+            const float cameraZ = frond.z - direction.Z * 0.8f + side.Z * 3.1f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            const Vector3 toFrond = Vector3(frond.x, frond.y + 0.10f, frond.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(toFrond.X, toFrond.Z);
+            pitch_ = std::atan2(toFrond.Y, std::hypot(toFrond.X, toFrond.Z));
         } else if (viewpoint_ == FixedViewpoint::BirdDetail
                    && birdFlock_.Birds().size() > 10U) {
             const BirdState& bird = birdFlock_.Birds()[10U];
@@ -662,6 +686,8 @@ namespace island
                << "    \"fallen_logs\": " << naturalPropRenderer_->VisibleLogCount() << ",\n"
                << "    \"driftwood\": " << naturalPropRenderer_->VisibleDriftwoodCount()
                << ",\n"
+               << "    \"fallen_fronds\": "
+               << naturalPropRenderer_->VisibleFallenFrondCount() << ",\n"
                << "    \"beach_details\": "
                << naturalPropRenderer_->VisibleBeachDetailCount() << ",\n"
                << "    \"birds\": " << birdRenderer_->VisibleBirdCount() << ",\n"
@@ -778,6 +804,10 @@ namespace island
             overlayState.visibleBeachDetails =
                 naturalPropRenderer_->VisibleBeachDetailCount();
             overlayState.totalBeachDetails = naturalPropRenderer_->TotalBeachDetailCount();
+            overlayState.visibleFallenFronds =
+                naturalPropRenderer_->VisibleFallenFrondCount();
+            overlayState.totalFallenFronds =
+                naturalPropRenderer_->TotalFallenFrondCount();
             overlayState.propCells = naturalPropRenderer_->VisibleCellCount();
             overlayState.propDraws = naturalPropRenderer_->DrawCallCount();
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
@@ -899,6 +929,9 @@ namespace island
                       << naturalPropRenderer_->VisibleBeachDetailCount() << '/'
                       << naturalPropRenderer_->TotalBeachDetailCount()
                       << " shell/pebble clusters, "
+                      << naturalPropRenderer_->VisibleFallenFrondCount() << '/'
+                      << naturalPropRenderer_->TotalFallenFrondCount()
+                      << " fallen fronds, "
                       << naturalPropRenderer_->DrawCallCount() << " draws; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "

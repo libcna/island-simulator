@@ -32,7 +32,8 @@ int main(const int argc, char* argv[])
             viewpoint = island::FixedViewpoint::Overview;
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
-                std::cerr << "island-simulator: --viewpoint requires overview, beach, jungle, props, driftwood, birds, fish, shark, or monkeys\n";
+                std::cerr << "island-simulator: --viewpoint requires overview, beach, jungle, "
+                             "props, driftwood, fronds, birds, fish, shark, or monkeys\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -46,6 +47,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::PropDetail;
             } else if (name == "driftwood") {
                 viewpoint = island::FixedViewpoint::DriftwoodDetail;
+            } else if (name == "fronds") {
+                viewpoint = island::FixedViewpoint::FallenFrondDetail;
             } else if (name == "birds") {
                 viewpoint = island::FixedViewpoint::BirdDetail;
             } else if (name == "fish") {

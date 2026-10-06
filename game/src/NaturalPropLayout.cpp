@@ -23,6 +23,7 @@ namespace island
         constexpr int DriftwoodSupportSamples = 5;
         constexpr float BeachDetailSpacing = 6.0f;
         constexpr int BeachDetailRadius = 47;
+        constexpr int FallenFrondSupportSamples = 5;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -337,6 +338,75 @@ namespace island
                     Hash(gridX, gridZ, seed ^ 0x1f83d9abU) % BeachDetailVariantCount);
                 beachDetails_.push_back(detail);
             }
+        }
+
+        fallenFronds_.reserve(150U);
+        for (const PalmPlacement& palm : palms.Palms()) {
+            const auto palmX = static_cast<std::int32_t>(std::lround(palm.x * 8.0f));
+            const auto palmZ = static_cast<std::int32_t>(std::lround(palm.z * 8.0f));
+            const std::uint32_t siteHash = Hash(palmX, palmZ, seed ^ 0x5be0cd19U);
+            if (UnitRandom(siteHash) >= 0.46f) continue;
+
+            const float radialAngle = UnitRandom(Hash(palmX, palmZ, seed ^ 0xcbbb9d5dU))
+                * 2.0f * std::numbers::pi_v<float>;
+            const float offset = 2.4f + 2.8f
+                * UnitRandom(Hash(palmX, palmZ, seed ^ 0x629a292aU));
+            const float x = palm.x + std::cos(radialAngle) * offset;
+            const float z = palm.z + std::sin(radialAngle) * offset;
+            const TerrainSample centre = terrain.Sample(x, z);
+            if (centre.signedShoreDistance < 7.0f
+                || centre.signedShoreDistance > 188.0f
+                || centre.height < 0.45f || centre.slopeRadians > 0.31415927f
+                || VegetationLayout::IsReservedRoute(x, z)
+                || NearTree(x, z, 1.25f, palms, jungle)) {
+                continue;
+            }
+            bool separated = true;
+            for (const FallenFrondPlacement& existing : fallenFronds_) {
+                if (DistanceSquared(x, z, existing.x, existing.z) < 8.41f) {
+                    separated = false;
+                    break;
+                }
+            }
+            if (!separated) continue;
+
+            FallenFrondPlacement frond;
+            frond.x = x;
+            frond.z = z;
+            frond.yawRadians = radialAngle
+                + (UnitRandom(Hash(palmX, palmZ, seed ^ 0x9159015aU)) - 0.5f) * 0.72f;
+            frond.scale = FallenFrondMinimumScale
+                + (FallenFrondMaximumScale - FallenFrondMinimumScale)
+                    * UnitRandom(Hash(palmX, palmZ, seed ^ 0x152fecd8U));
+            frond.variant = static_cast<std::uint8_t>(
+                Hash(palmX, palmZ, seed ^ 0x67332667U) % FallenFrondVariantCount);
+
+            const float directionX = std::cos(frond.yawRadians);
+            const float directionZ = std::sin(frond.yawRadians);
+            float maximumSupportHeight = centre.height;
+            float minimumSupportHeight = centre.height;
+            bool validFootprint = true;
+            for (int sampleIndex = 0; sampleIndex < FallenFrondSupportSamples; ++sampleIndex) {
+                const float t = static_cast<float>(sampleIndex)
+                    / static_cast<float>(FallenFrondSupportSamples - 1) - 0.5f;
+                const float sampleX = frond.x + directionX * frond.scale * t;
+                const float sampleZ = frond.z + directionZ * frond.scale * t;
+                const TerrainSample support = terrain.Sample(sampleX, sampleZ);
+                maximumSupportHeight = std::max(maximumSupportHeight, support.height);
+                minimumSupportHeight = std::min(minimumSupportHeight, support.height);
+                if (support.signedShoreDistance < 6.0f
+                    || support.signedShoreDistance > 190.0f
+                    || support.slopeRadians > 0.34906585f
+                    || VegetationLayout::IsReservedRoute(sampleX, sampleZ)) {
+                    validFootprint = false;
+                    break;
+                }
+            }
+            if (!validFootprint || maximumSupportHeight - minimumSupportHeight > 0.22f) {
+                continue;
+            }
+            frond.y = maximumSupportHeight + 0.022f;
+            fallenFronds_.push_back(frond);
         }
     }
 }

@@ -141,7 +141,7 @@ try {
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
@@ -407,6 +407,37 @@ try {
     && /props [0-9]+\/152 rocks, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=fronds`,
+  }, visualSessionId);
+  let frondResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    frondResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (frondResult.output?.includes("island-simulator: terrain")
+        || frondResult.error) break;
+  }
+  await delay(1000);
+  const completedFrondEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  frondResult = JSON.parse(completedFrondEvaluation.result.value ?? "{}");
+
+  const frondScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const frondScreenshotPath = path.join(buildDirectory, "island-browser-fronds.png");
+  await writeFile(frondScreenshotPath, Buffer.from(frondScreenshot.data, "base64"));
+  const frondPassed = frondResult.output?.includes("island-simulator: renderer WEBGL2")
+    && frondResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && frondResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && /[1-9][0-9]*\/63 fallen fronds/.test(frondResult.output ?? "")
+    && !frondResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=birds`,
@@ -736,7 +767,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && driftwoodPassed && birdPassed && fishPassed
+    && junglePassed && propPassed && driftwoodPassed && frondPassed && birdPassed && fishPassed
     && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
@@ -776,6 +807,11 @@ try {
       passed: driftwoodPassed,
       output: driftwoodResult.output ?? "",
       error: driftwoodResult.error ?? "",
+    },
+    fronds: {
+      passed: frondPassed,
+      output: frondResult.output ?? "",
+      error: frondResult.error ?? "",
     },
     birds: {
       passed: birdPassed,
@@ -822,6 +858,7 @@ try {
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
+    frondScreenshot: path.basename(frondScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),
     sharkScreenshot: path.basename(sharkScreenshotPath),

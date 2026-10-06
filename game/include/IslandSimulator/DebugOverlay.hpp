@@ -53,6 +53,8 @@ namespace island
         int totalDriftwood = 0;
         int visibleBeachDetails = 0;
         int totalBeachDetails = 0;
+        int visibleFallenFronds = 0;
+        int totalFallenFronds = 0;
         int propCells = 0;
         int propDraws = 0;
         int visibleGrassPatches = 0;

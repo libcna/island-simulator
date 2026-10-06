@@ -60,6 +60,17 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One non-solid fallen palm frond resting near its source grove. */
+    struct FallenFrondPlacement
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yawRadians = 0.0f;
+        float scale = 1.0f;
+        std::uint8_t variant = 0U;
+    };
+
     /** @brief Deterministic beach/interior rocks and fallen-wood composition. */
     class NaturalPropLayout final
     {
@@ -69,6 +80,7 @@ namespace island
         static constexpr int LogVariantCount = 3;
         static constexpr int DriftwoodVariantCount = 3;
         static constexpr int BeachDetailVariantCount = 4;
+        static constexpr int FallenFrondVariantCount = 3;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
         static constexpr float LogMinimumLength = 3.8f;
@@ -77,6 +89,8 @@ namespace island
         static constexpr float DriftwoodMaximumLength = 4.6f;
         static constexpr float BeachDetailMinimumScale = 0.72f;
         static constexpr float BeachDetailMaximumScale = 1.30f;
+        static constexpr float FallenFrondMinimumScale = 2.45f;
+        static constexpr float FallenFrondMaximumScale = 3.75f;
 
         NaturalPropLayout(const IslandTerrain& terrain,
                           const VegetationLayout& palms,
@@ -96,6 +110,10 @@ namespace island
         {
             return beachDetails_;
         }
+        [[nodiscard]] const std::vector<FallenFrondPlacement>& FallenFronds() const noexcept
+        {
+            return fallenFronds_;
+        }
         [[nodiscard]] const std::vector<CircularObstacle>& Obstacles() const noexcept
         {
             return obstacles_;
@@ -112,6 +130,7 @@ namespace island
         std::vector<FallenLogPlacement> fallenLogs_;
         std::vector<DriftwoodPlacement> driftwood_;
         std::vector<BeachDetailPlacement> beachDetails_;
+        std::vector<FallenFrondPlacement> fallenFronds_;
         std::vector<CircularObstacle> obstacles_;
     };
 }

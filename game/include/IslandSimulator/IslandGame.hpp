@@ -54,6 +54,7 @@ namespace island
         JungleTrail,
         PropDetail,
         DriftwoodDetail,
+        FallenFrondDetail,
         BirdDetail,
         FishDetail,
         SharkDetail,

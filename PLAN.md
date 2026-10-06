@@ -336,14 +336,14 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
-  forest-floor plants, 152 rocks, 11 fallen logs, 28 three-variant driftwood pieces, and 265
-  four-variant shell/pebble clusters; richer ground/bush silhouettes and broader natural
-  beach-prop variety remain.
+  forest-floor plants, 152 rocks, 11 fallen logs, 28 three-variant driftwood pieces, 63
+  grove-associated fallen palm fronds, and 265 four-variant shell/pebble clusters; richer
+  ground/bush silhouettes and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
-  canopy, understory, bush, forest-floor, rock, log, driftwood, and beach-detail placement is
-  deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise weighted, and
-  reserves a winding primary path, two clearings, and spawn; final biome masks and prop separation
-  remain open.
+  canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
+  placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
+  weighted, and reserves a winding primary path, two clearings, and spawn; final biome masks and
+  prop separation remain open.
 - [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds, grass, canopy
   crowns, understory leaves, low bushes, and forest-floor plants use bounded weighted motion on OpenGL 3.3 and WebGL 2;
   Android GLES 3 runtime validation of the expanded jungle shader remains open.
@@ -886,8 +886,8 @@ Work next, in order:
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it. The first portable sand/soil,
    wet-edge, and slope-material pass, the initial small-plant layer, and a first near-field
-   shell/pebble substrate layer are complete; broader prop diversity, contact cues, and material
-   tuning remain.
+   shell/pebble substrate layer, and a first grove-associated fallen-frond layer are complete;
+   broader prop diversity, contact cues, and material tuning remain.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
    LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
@@ -1704,6 +1704,27 @@ Work next, in order:
   transitions. The final arm64-v8a GLES 3 APK rebuilds with `libmain.so` and passes app lint;
   Android touch feel remains unqualified without suitable hardware. CNA and Sharp Runtime remain
   clean and unmodified, and no dependency defect was found.
+
+### 2026-10-06 — Grove-associated fallen palm fronds
+
+- Added 63 deterministic non-solid fallen fronds derived from suitable palm groves rather than a
+  uniform world scatter. Placement samples each complete 2.45--3.75 m footprint, rejects steep or
+  uneven support, water, distant interior, routes, nearby trunks, and centres closer than 2.9 m.
+  Core coverage locks population, exact repeatability, scale/variant bounds, all support samples,
+  route clearance, support height, spacing, and exclusion from the solid collision population.
+- Added three opaque generated meshes with a curved rachis, 28 tapered leaflets, fresh/olive/dry
+  palettes, shared portable natural-prop shading, variant-level hardware instancing, cell/frustum
+  culling, and an individual 76 m cutoff. The complete layer needs at most three extra submissions,
+  no texture memory, transparency overdraw, collision proxy, or external asset. F1 and benchmark
+  JSON now expose visible/total fronds.
+- Added a deterministic `fronds` detail camera and native/Web capture gates. The first eight-pair
+  silhouette was rejected during visual review as too skeletal; the denser second mesh was inspected
+  natively and in actual Chrome 152/WebGL 2 and matches across renderers. All 15 native tests pass,
+  the complete browser renderer/input/audio-init harness passes, and the arm64-v8a GLES 3 APK
+  rebuilds with clean app lint. Two five-view accelerated debug benchmark repeats keep the heaviest
+  beach scene at 1.7127--1.7321 ms mean / 1.8899--1.9729 ms p95 with four visible fronds and four
+  additional tracked submissions. Physical Android appearance/performance remains unqualified; CNA
+  and Sharp Runtime remain clean and unmodified.
 
 ## Session-end checklist
 

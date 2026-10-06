@@ -53,6 +53,22 @@ comparison baseline, not a shipping budget: it uses a debug build, one integrate
 one resolution, no isolated audio output, and no WebGL 2 or Android hardware measurement. It also
 does not expose GPU-only time, thermal throttling, memory bandwidth, power, or loading cost.
 
+### Fallen-frond follow-up
+
+Two immediate repeats after adding 63 near-field fallen palm fronds produced the ranges below.
+Only one to four fronds are visible in the affected fixed views; variant instancing adds one to
+four submissions there and zero to overview. The heaviest beach view remains below 2.0 ms p95 in
+both repeats, while the ranges demonstrate enough run-to-run variation that individual p99 changes
+must not be attributed to the layer alone.
+
+| View | Mean ms range | p95 ms range | Tracked submissions | Visible fronds |
+| --- | ---: | ---: | ---: | ---: |
+| Overview | 1.2138--1.2419 | 1.4671--1.5990 | 80 | 0 |
+| Beach | 1.7127--1.7321 | 1.8899--1.9729 | 122 | 4 |
+| Jungle | 1.3537--1.3655 | 1.5223--1.5727 | 89 | 2 |
+| Driftwood/shore detail | 0.7677--0.7932 | 0.9293--1.0406 | 24 | 1 |
+| Monkeys | 1.4361--1.4869 | 1.5600--1.6807 | 95 | 2 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -1329,10 +1329,13 @@ int main()
           "driftwood population stays inside its sparse beach-composition budget");
     Check(props.BeachDetails().size() >= 120U && props.BeachDetails().size() <= 600U,
           "shell/pebble clusters stay inside their near-field beach-detail budget");
+    Check(props.FallenFronds().size() >= 30U && props.FallenFronds().size() <= 180U,
+          "fallen palm fronds stay inside their near-field composition budget");
     Check(props.Rocks().size() == repeatedProps.Rocks().size()
               && props.FallenLogs().size() == repeatedProps.FallenLogs().size()
               && props.Driftwood().size() == repeatedProps.Driftwood().size()
-              && props.BeachDetails().size() == repeatedProps.BeachDetails().size(),
+              && props.BeachDetails().size() == repeatedProps.BeachDetails().size()
+              && props.FallenFronds().size() == repeatedProps.FallenFronds().size(),
           "natural-prop populations are deterministic");
     std::size_t solidRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
@@ -1446,8 +1449,53 @@ int main()
     Check(std::ranges::all_of(observedBeachDetailVariants,
                               [](const bool value) { return value; }),
           "shell/pebble population exercises all four mesh variants");
+    std::array<bool, island::NaturalPropLayout::FallenFrondVariantCount>
+        observedFallenFrondVariants{};
+    for (std::size_t index = 0; index < props.FallenFronds().size(); ++index) {
+        const island::FallenFrondPlacement& frond = props.FallenFronds()[index];
+        const island::FallenFrondPlacement& repeated = repeatedProps.FallenFronds()[index];
+        Check(frond.x == repeated.x && frond.y == repeated.y && frond.z == repeated.z
+                  && frond.yawRadians == repeated.yawRadians
+                  && frond.scale == repeated.scale && frond.variant == repeated.variant,
+              "fallen-frond placement is bitwise deterministic for one seed");
+        Check(frond.scale >= island::NaturalPropLayout::FallenFrondMinimumScale
+                  && frond.scale <= island::NaturalPropLayout::FallenFrondMaximumScale,
+              "fallen-frond scale remains in the authored range");
+        Check(frond.variant < observedFallenFrondVariants.size(),
+              "fallen-frond variant index remains in range");
+        if (frond.variant < observedFallenFrondVariants.size()) {
+            observedFallenFrondVariants[frond.variant] = true;
+        }
+        const float directionX = std::cos(frond.yawRadians);
+        const float directionZ = std::sin(frond.yawRadians);
+        float maximumSupportHeight = -std::numeric_limits<float>::infinity();
+        for (int sampleIndex = 0; sampleIndex < 5; ++sampleIndex) {
+            const float t = static_cast<float>(sampleIndex) / 4.0f - 0.5f;
+            const float sampleX = frond.x + directionX * frond.scale * t;
+            const float sampleZ = frond.z + directionZ * frond.scale * t;
+            const island::TerrainSample support = terrain.Sample(sampleX, sampleZ);
+            maximumSupportHeight = std::max(maximumSupportHeight, support.height);
+            Check(support.signedShoreDistance >= 6.0f
+                      && support.signedShoreDistance <= 190.0f,
+                  "the complete fallen-frond footprint stays on coastal/interior ground");
+            Check(support.slopeRadians <= 0.34906585f,
+                  "the complete fallen-frond footprint stays on gentle support");
+            Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
+                  "the complete fallen-frond footprint keeps authored routes open");
+        }
+        CheckNear(frond.y, maximumSupportHeight + 0.022f, 0.0001f,
+                  "fallen fronds rest on the highest sampled terrain support");
+        for (std::size_t other = 0; other < index; ++other) {
+            const island::FallenFrondPlacement& previous = props.FallenFronds()[other];
+            Check(std::hypot(frond.x - previous.x, frond.z - previous.z) >= 2.899f,
+                  "fallen fronds preserve their minimum centre spacing");
+        }
+    }
+    Check(std::ranges::all_of(observedFallenFrondVariants,
+                              [](const bool value) { return value; }),
+          "fallen-frond population exercises all three colour/shape variants");
     Check(props.Obstacles().size() == solidRockCount + props.FallenLogs().size() * 7U,
-          "natural-prop collision excludes driftwood/beach detail and matches solid spans");
+          "natural-prop collision excludes small decorative props and matches solid spans");
 
     for (int z = -360; z <= 360; z += 12) {
         for (int x = -360; x <= 360; x += 12) {

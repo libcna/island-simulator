@@ -28,19 +28,22 @@
       console.log(line);
     };
     const mode = new URLSearchParams(location.search).get("mode") ?? "smoke";
+    const modeArguments = new Map([
+      ["interactive", []],
+      ["input", ["--debug-overlay", "--input-diagnostics"]],
+      ["overview", ["--overview"]],
+      ["beach", ["--viewpoint", "beach", "--debug-overlay"]],
+      ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
+      ["props", ["--viewpoint", "props", "--debug-overlay"]],
+      ["driftwood", ["--viewpoint", "driftwood", "--debug-overlay"]],
+      ["fronds", ["--viewpoint", "fronds", "--debug-overlay"]],
+      ["birds", ["--viewpoint", "birds", "--debug-overlay"]],
+      ["fish", ["--viewpoint", "fish", "--debug-overlay"]],
+      ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
+      ["monkeys", ["--viewpoint", "monkeys", "--debug-overlay"]],
+    ]);
     var Module = {
-      arguments: mode === "interactive" ? []
-        : (mode === "input" ? ["--debug-overlay", "--input-diagnostics"]
-        : (mode === "overview" ? ["--overview"]
-          : (mode === "beach" ? ["--viewpoint", "beach", "--debug-overlay"]
-            : (mode === "jungle" ? ["--viewpoint", "jungle", "--debug-overlay"]
-              : (mode === "props" ? ["--viewpoint", "props", "--debug-overlay"]
-                : (mode === "driftwood" ? ["--viewpoint", "driftwood", "--debug-overlay"]
-                  : (mode === "birds" ? ["--viewpoint", "birds", "--debug-overlay"]
-                    : (mode === "fish" ? ["--viewpoint", "fish", "--debug-overlay"]
-                      : (mode === "shark" ? ["--viewpoint", "shark", "--debug-overlay"]
-                        : (mode === "monkeys" ? ["--viewpoint", "monkeys", "--debug-overlay"]
-                          : ["--smoke-test"])))))))))),
+      arguments: modeArguments.get(mode) ?? ["--smoke-test"],
       canvas: document.getElementById("canvas"),
       print: (...values) => record("", values),
       printErr: (...values) => record("ERR: ", values),
