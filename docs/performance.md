@@ -836,6 +836,20 @@ immediately preceding 1.0604/1.3832/1.7685 ms integrated shore-detail observatio
 against a gross regression rather than proving an isolated shader cost. Physical-Android and
 hardware-browser fragment measurements remain open.
 
+### Irregular faceted near-palm root follow-up
+
+Each near palm replaces five single-triangle contact tabs with five closed ridge wedges whose
+angle, length, width, and height vary deterministically by root and palm variant. This raises a
+near variant from 469--541 to 494--566 triangles: 25 additional triangles per near palm, with no
+change to the far mesh, instance record, population, LOD threshold, shader, texture, allocation,
+culling rule, collision proxy, or existing four-variant near draw submissions.
+
+Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 close-palm captures agree on the retained
+grounded bases. Two isolated 600-sample palm-view runs each rendered 47 near and 246 far palms in
+111 tracked scene submissions and measured 1.6128--1.6437 ms mean, 2.1310--2.2256 ms p95, and
+2.5902--2.8770 ms p99. These are gross-regression guards rather than an isolated geometry-cost
+claim. Physical-Android appearance and vertex cost remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

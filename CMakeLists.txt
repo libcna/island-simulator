@@ -394,7 +394,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "palm procedural bark scars and restrained coconut clusters")
+                "palm near root wedges ground trunk bases")
         add_test(NAME IslandGameWaterViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
                     --viewpoint water)

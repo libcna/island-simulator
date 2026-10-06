@@ -257,9 +257,10 @@ testing are disabled only for this pass and restored immediately afterward. A ve
 supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the current arm64 GLES
 3 package compiles its GLSL ES path, but stable Android runtime validation remains open.
 
-Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near tier, with root
-wedges around the trunk base as a low-cost contact cue. Each near frond combines a thin curved
-rachis with nine pairs of independently tapered leaflets; the lower-segment far tier uses seven
+Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near tier, with five
+faceted root wedges around the trunk base as a low-cost contact cue. Their deterministic angle,
+length, width, and ridge-height variation avoids a regular radial stamp. Each near frond combines a
+thin curved rachis with nine pairs of independently tapered leaflets; the lower-segment far tier uses seven
 widened ribbon fronds that preserve the feathered crown envelope without retaining sub-pixel
 leaflet geometry. Two near variants add four or five small faceted coconuts beneath the crown; the
 near draw also enables texture-free leaf-scar rings on trunks, while the far draw disables that
@@ -612,8 +613,8 @@ testing remain open.
 - Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
 - Palms have four geometry variants, segmented near leaflets, widened far crown silhouettes,
   staggered per-instance LOD, placement clustering, cell culling, subtle shader wind, trunk
-  collision, small root wedges, and a near-field terrain contact shadow. True LOD blending, richer
-  bark/frond materials, and full directional/self-shadowing remain open.
+  collision, irregular faceted root wedges, and a near-field terrain contact shadow. True LOD
+  blending, richer bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, and near bushes now replace their largest smooth lobes with folded pointed leaves,
   while near rocks have restrained strata/lichen, near logs have bark/growth rings, and driftwood

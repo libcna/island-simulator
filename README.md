@@ -29,7 +29,9 @@ Nearby palm crowns use nine paired tapered-leaflet stations on each of 10--12 cu
 of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelope at distance,
 while per-palm 125--145 m thresholds stagger the transition and avoid switching whole cells at once.
 The near tier also adds texture-free leaf-scar rings to the trunks and restrained faceted coconut
-clusters to two of the four variants without another draw submission.
+clusters to two of the four variants without another draw submission. Five irregular faceted root
+wedges vary in angle, length, width, and height around each near trunk instead of ending it in a
+flat cylinder or a regular stamped star.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
 and pointed perimeter leaves. A deterministic per-tree 105--129 m threshold staggers their
 transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.

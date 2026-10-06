@@ -203,6 +203,7 @@ try {
     && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("palm near mesh segmented leaflet silhouettes")
+    && result.output?.includes("palm near root wedges ground trunk bases")
     && result.output?.includes("palm procedural bark scars and restrained coconut clusters")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
@@ -547,6 +548,7 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && palmResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && palmResult.output?.includes("palm near mesh segmented leaflet silhouettes")
+    && palmResult.output?.includes("palm near root wedges ground trunk bases")
     && palmResult.output?.includes(
       "palm procedural bark scars and restrained coconut clusters")
     && /palms [1-9][0-9]*\/330 \(near [1-9][0-9]*, far [0-9]+\)/.test(

@@ -161,24 +161,61 @@ void main()
 
         void AppendRoots(PalmGeometry& geometry, const int variant)
         {
-            const Color color(82 + variant * 3, 65 + variant * 2, 38, 255);
+            const Color color(103 + variant * 3, 73 + variant * 2, 40, 255);
             for (int root = 0; root < 5; ++root) {
+                const float rootIndex = static_cast<float>(root + 1);
+                const float angleVariation = std::sin(
+                    rootIndex * 2.17f + static_cast<float>(variant) * 1.31f);
+                const float lengthVariation = 0.5f + 0.5f * std::sin(
+                    rootIndex * 4.13f + static_cast<float>(variant) * 0.73f);
+                const float widthVariation = 0.5f + 0.5f * std::sin(
+                    rootIndex * 3.11f - static_cast<float>(variant) * 0.91f);
                 const float angle = static_cast<float>(root) * 2.0f
-                    * std::numbers::pi_v<float> / 5.0f + static_cast<float>(variant) * 0.29f;
+                    * std::numbers::pi_v<float> / 5.0f + static_cast<float>(variant) * 0.29f
+                    + angleVariation * 0.12f;
                 const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
                 const Vector3 side(-direction.Z, 0.0f, direction.X);
+                const float innerWidth = 0.105f + widthVariation * 0.045f;
+                const float outerWidth = 0.040f + widthVariation * 0.025f;
+                const float crestHeight = 0.20f + lengthVariation * 0.07f;
+                const Vector3 innerCentre = direction * 0.22f;
+                const Vector3 outerCentre = direction * (0.62f + lengthVariation * 0.22f);
                 const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-                geometry.vertices.emplace_back(direction * 0.20f + Vector3(0.0f, 0.16f, 0.0f),
-                                               ShadeColor(color, 1.08f), Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(direction * 0.70f + side * 0.12f
-                                                   + Vector3(0.0f, 0.025f, 0.0f),
-                                               color, Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(direction * 0.70f - side * 0.12f
-                                                   + Vector3(0.0f, 0.025f, 0.0f),
-                                               ShadeColor(color, 0.82f), Vector2(0.0f, 0.0f));
-                geometry.indices.insert(geometry.indices.end(), {base,
+                geometry.vertices.emplace_back(
+                    innerCentre - side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
+                    ShadeColor(color, 0.82f), Vector2(0.0f, 0.0f));
+                geometry.vertices.emplace_back(
+                    innerCentre + side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
+                    color, Vector2(0.0f, 0.0f));
+                geometry.vertices.emplace_back(
+                    innerCentre + direction * 0.02f + Vector3(0.0f, crestHeight, 0.0f),
+                    ShadeColor(color, 1.10f), Vector2(0.0f, 0.0f));
+                geometry.vertices.emplace_back(
+                    outerCentre - side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
+                    ShadeColor(color, 0.76f), Vector2(0.0f, 0.0f));
+                geometry.vertices.emplace_back(
+                    outerCentre + side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
+                    ShadeColor(color, 0.90f), Vector2(0.0f, 0.0f));
+                geometry.vertices.emplace_back(
+                    outerCentre - direction * 0.03f + Vector3(0.0f, 0.055f, 0.0f),
+                    ShadeColor(color, 0.96f), Vector2(0.0f, 0.0f));
+                geometry.indices.insert(geometry.indices.end(), {
+                    base, static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 5U),
                     static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 2U)});
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    base, static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    static_cast<std::uint16_t>(base + 5U)});
             }
         }
 
@@ -414,8 +451,8 @@ void main()
         [[nodiscard]] PalmGeometry CreatePalmGeometry(const int variant, const bool farMesh)
         {
             PalmGeometry geometry;
-            geometry.vertices.reserve(farMesh ? 160U : 360U);
-            geometry.indices.reserve(farMesh ? 480U : 1000U);
+            geometry.vertices.reserve(farMesh ? 160U : 400U);
+            geometry.indices.reserve(farMesh ? 480U : 1100U);
             if (!farMesh) {
                 AppendRoots(geometry, variant);
             }
@@ -501,6 +538,7 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: palm portable wind shader with near/far mesh LOD\n";
             std::cout << "island-simulator: palm near mesh segmented leaflet silhouettes\n";
+            std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";
         } else {

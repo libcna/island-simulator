@@ -368,9 +368,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
 
 - [~] Build multiple procedural palm variants with different height, lean, curvature, crown
   rotation, frond arrangement, scale, and clustering. Four curved tapered trunk variants, 330
-  varied instances, segmented near leaflets, widened-ribbon far crowns, root contact wedges,
-  staggered per-instance near/far thresholds, near-only procedural leaf scars, two restrained
-  coconut-bearing variants, and portable shader wind now run on native OpenGL 3.3 and WebGL 2;
+  varied instances, segmented near leaflets, widened-ribbon far crowns, irregular faceted
+  near-root wedges, staggered per-instance near/far thresholds, near-only procedural leaf scars,
+  two restrained coconut-bearing variants, and portable shader wind now run on native OpenGL 3.3
+  and WebGL 2;
   broader bark/fruit variation, true LOD blending, and instrumented Android wind/LOD qualification
   remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
@@ -839,8 +840,9 @@ Android is not project completion.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
   tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
   envelope; near-only procedural trunk scars and coconut clusters on two variants add a first
-  material/content pass without new draws. Prop repetition, root placement review, broader palm
-  variation, and true LOD blending remain.
+  material/content pass without new draws. Five deterministic near-root wedges now vary in angle,
+  length, width, and height rather than reading as flat tabs or a radial stamp. Prop repetition,
+  broader palm variation, physical-device placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
   player ripples are functional; repeated whole-island composition tuning remains.
@@ -1106,9 +1108,9 @@ Work next, in order:
    background/foreground test; automated first-gesture audio initialization is complete. The
    headless Chrome freeze/active probe remains diagnostic-only because the latest passing input
    run did not emit a post-resume game sample even after a three-second allowance.
-7. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
-   125--145 m transition during traversal. The first silhouette and near material/coconut passes
-   are measured; do not add more geometry without physical/mobile evidence.
+7. Observe the irregular faceted palm roots and segmented-leaflet versus widened-ribbon 125--145 m
+   transition during traversal and on physical mobile hardware. The close-root, crown-silhouette,
+   and near material/coconut passes are measured; do not add more geometry without new evidence.
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
    justified by physical-mobile evidence or a clear close-view defect. The first fixed-sun
@@ -3390,6 +3392,25 @@ Work next, in order:
   isolated speedup claim.
 - The arm64 GLES 3 APK assembles through the shared `/rv/cnaccache`; it is 18,706,876 bytes, its
   stripped `libmain.so` is 15,896,592 bytes, and WebAssembly is 8,474,383 bytes. Actual Android
+  appearance/cost remains open because `/dev/kvm` is still absent. CNA and Sharp Runtime remain
+  unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Irregular faceted near-palm roots
+
+- Replaced each near palm's five flat single-triangle root tabs with five six-triangle ridge
+  wedges. Root angle, length, width, and ridge height vary deterministically by root and variant,
+  avoiding both the former nearly invisible contact and the rejected regular five-point star.
+  Near variants rise from 469--541 to 494--566 triangles; the far mesh, instance layout,
+  population, culling, LOD thresholds, collision proxies, shaders, and draw submissions do not
+  change.
+- Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 close-palm captures agree on the retained
+  grounded bases, and the Chrome suite passes all 22 stages with an exact root-wedge diagnostic.
+  Two isolated 600-sample palm-view checks retained 47 near and 246 far palms in 111 tracked scene
+  submissions and measured 1.6128--1.6437 ms mean, 2.1310--2.2256 ms p95, and
+  2.5902--2.8770 ms p99. These guard against a gross regression rather than isolating geometry
+  cost.
+- The arm64 GLES 3 APK assembles through the shared `/rv/cnaccache`; it is 18,708,476 bytes, its
+  stripped `libmain.so` is 15,898,192 bytes, and WebAssembly is 8,477,780 bytes. Physical-Android
   appearance/cost remains open because `/dev/kvm` is still absent. CNA and Sharp Runtime remain
   unmodified, and no qualifying dependency defect was found.
 
