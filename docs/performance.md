@@ -493,11 +493,13 @@ remain unqualified.
 ### Near-rock material follow-up
 
 Near rock vertices now select a restrained texture-free fragment treatment with world-space strata
-and sparse lichen modulation. Far rocks and contact disks skip the branch, and the change adds no
-texture, geometry, instance data, CPU update, or tracked submission. Native reef and jungle
-captures were inspected, and the actual Chrome/SwiftShader WebGL 2 reef stage requires the same
-material diagnostic. The arm64 GLES 3 package builds and lints, but device appearance and fragment
-cost remain unqualified.
+and sparse lichen modulation. A later same-branch follow-up adds a low fixed-sea-level dark/cool
+wet band, faded by the existing near-detail distance factor. Far rocks and contact disks skip the
+branch, and neither change adds texture, geometry, instance data, CPU update, or tracked
+submission. Native reef and jungle captures were inspected for the first pass; the current actual
+Chrome/SwiftShader WebGL 2 reef capture was inspected for the wet band and requires both explicit
+diagnostics. The arm64 GLES 3 package builds and lints, but device appearance and fragment cost
+remain unqualified.
 
 Two isolated five-view repeats produced the ranges below. Scene populations and submissions match
 the preceding ground-plant baseline exactly, and the timing ranges show no integrated regression.

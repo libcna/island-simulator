@@ -48,9 +48,9 @@ speed-responsive player bending plus curved, two-sided daylight shading, per-ins
 stature, and a sparse juvenile underlayer in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
-157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 sparse beach-driftwood pieces with a
-three-limb forked near variant, an authored three-piece cove arc, and per-instance large-prop
-range/LOD, 63 fallen palm
+157 land rocks and 14 emergent reef outcrops with near-only strata/lichen plus a low fixed-sea-level
+wet band, 12 fallen logs, 31 sparse beach-driftwood pieces with a three-limb forked near variant,
+an authored three-piece cove arc, and per-instance large-prop range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
 landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,

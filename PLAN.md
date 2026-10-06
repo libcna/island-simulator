@@ -1112,8 +1112,9 @@ Work next, in order:
    variants now include both an upright six-leaf form and a five-leaf folded split form. The
    dedicated cross-renderer QA camera targets the latter and verifies a nonzero per-instance near
    LOD population.
-   Near land and reef rocks now add restrained, texture-free strata and lichen only in their near
-   LOD, without new geometry, textures, instances, or submissions.
+   Near land and reef rocks now add restrained, texture-free strata, lichen, and a low
+   fixed-sea-level wet band only in their near LOD, without new geometry, textures, instances, or
+   submissions.
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
@@ -3828,6 +3829,24 @@ Work next, in order:
   runtime was not repeated for this renderer-independent correction; the immediately preceding
   KVM/GLES 3 touch-running pass remains current. CNA and Sharp Runtime remained read-only and
   unchanged; no qualifying dependency defect or workaround was involved.
+
+### 2026-10-06 — Emergent-rock wet contact band
+
+- A current 19-view WebGL 2 composition audit identified the reef-detail outcrop as uniformly dry
+  down to its water intersection. Added a restrained dark/cool wet band below 0.32 m world height
+  to the existing near-rock material branch, modulated by the same distance fade as strata and
+  lichen. Far rocks and contact disks retain the plain path. The change adds no texture, vertex,
+  instance data, CPU update, collision work, or draw submission.
+- Added an explicit startup diagnostic and made the browser lifecycle, overview, and dedicated
+  reef gates require it. The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22
+  stages; the new 1280 by 720 reef capture was inspected and shows a subtle darker wet base while
+  retaining the dry upper-rock treatment. WebAssembly is 8,497,747 bytes.
+- The arm64 GLES 3 package rebuilds and application lint passes through `/rv/cnaccache`; the APK
+  contains only arm64-v8a libraries and verifies with signature scheme v2. It is 18,744,372 bytes
+  with a 15,934,088-byte stripped `libmain.so`. The native OpenGL 3.3 renderer object compiles, but
+  the actual desktop shader runtime and capture remain deferred so the operator's visible game is
+  not relinked or interrupted. Android appearance and physical-GPU fragment cost likewise remain
+  unqualified. CNA and Sharp Runtime remained read-only and unchanged.
 
 ## Session-end checklist
 

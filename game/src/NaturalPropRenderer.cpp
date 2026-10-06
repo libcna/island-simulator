@@ -113,8 +113,11 @@ void main()
         detailedColor = mix(detailedColor,
                             detailedColor * vec3(0.84, 1.04, 0.82),
                             lichen * 0.16);
-        materialColor = mix(vColor, detailedColor,
-                            1.0 - smoothstep(58.0, 90.0, distanceToCamera));
+        float nearDetail = 1.0 - smoothstep(58.0, 90.0, distanceToCamera);
+        materialColor = mix(vColor, detailedColor, nearDetail);
+        float wetBand = (1.0 - smoothstep(-0.08, 0.32, vWorld.y)) * nearDetail;
+        vec3 wetColor = materialColor * vec3(0.68, 0.76, 0.77);
+        materialColor = mix(materialColor, wetColor, wetBand * 0.52);
     } else if (vMaterialDetail < 0.625) {
         float barkAngle = atan(vLocal.y, vLocal.z);
         float coarseGroove = 0.5 + 0.5 * sin(
@@ -814,6 +817,7 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
             std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
+            std::cout << "island-simulator: near low rocks use a fixed-sea-level wet material band\n";
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";

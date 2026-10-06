@@ -142,8 +142,9 @@ canopy populations, understory, low bushes, and forest-floor plants. The prop vi
 visible fallen logs plus a nonzero one-draw contact-shadow batch. The driftwood view frames the
 authored cove group and must report its exact three-piece landmark diagnostic, the three-limb
 silhouette diagnostic, visible beach wood plus shell/pebble clusters, and a nonzero per-instance
-near-LOD population. The reef view must report a visible emergent
-outcrop, the water view must report a nonzero procedural veil, exactly one overlay draw, and a
+near-LOD population. The reef view must report a visible emergent outcrop and the near-rock
+fixed-sea-level wet-band diagnostic. The water view must report a nonzero procedural veil, exactly
+one overlay draw, and a
 nonzero player ripple integrated into the existing ocean submission, the
 current view must additionally report nonzero normalized current strength and undertow-audio
 target, the frond view must
