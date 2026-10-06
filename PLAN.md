@@ -852,8 +852,10 @@ Android is not project completion.
 
 - [ ] Complete at least three recorded whole-island critique passes focused separately on traversal,
   visual composition, and sound/wildlife.
-- [ ] Retune acceleration, deceleration, slope response, eye height, mouse/touch sensitivity,
-  swimming, and water transitions from play evidence.
+- [~] Retune acceleration, deceleration, slope response, eye height, mouse/touch sensitivity,
+  swimming, and water transitions from play evidence. Horizontal acceleration and braking are now
+  vector-bounded, removing the former faster diagonal response while retaining the 4.3/8.0 m/s
+  walk/run targets; longer subjective traversal tuning remains open.
 - [~] Improve grass close-up shape, density transitions, colour variation, wind coherence, and
   aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
@@ -3746,6 +3748,20 @@ Work next, in order:
   Android runtime was not repeated for impossible normal-platform values; the immediately
   preceding KVM run remains the current valid-input GLES 3 evidence. CNA and Sharp Runtime stayed
   read-only and unchanged, and no dependency workaround was introduced.
+
+### 2026-10-06 — Direction-independent player acceleration
+
+- Replaced component-wise horizontal velocity changes with one vector-bounded response. Cardinal
+  and diagonal walking now accelerate and brake at the same physical rate, while the selected
+  4.3 m/s walking, 8.0 m/s running, and 2.15 m/s swimming targets remain unchanged. This also
+  removes the former diagonal turn surge without changing input axes, collision, or slope rules.
+- Added deterministic regressions comparing cardinal and diagonal response after both acceleration
+  and release. The complete native core suite passes in 18.52 seconds. The shared implementation
+  compiles for WebGL 2 and arm64 GLES 3; current WebAssembly is 8,496,213 bytes and the rebuilt
+  arm64 package is 18,742,444 bytes with a 15,932,160-byte stripped `libmain.so`.
+- The native core library was rebuilt through `/rv/cnaccache`. The visible OpenGL 3.3 game process
+  was deliberately left running for the operator, so the final native executable relink and a
+  subjective movement pass remain the immediate follow-up. No dependency repository was touched.
 
 ## Session-end checklist
 

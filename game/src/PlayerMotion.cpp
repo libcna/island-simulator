@@ -22,6 +22,24 @@ namespace island
             const float t = std::clamp(value, 0.0f, 1.0f);
             return t * t * (3.0f - 2.0f * t);
         }
+
+        void MoveVectorTowards(float& currentX, float& currentZ,
+                               const float targetX, const float targetZ,
+                               const float maximumDelta) noexcept
+        {
+            const float deltaX = targetX - currentX;
+            const float deltaZ = targetZ - currentZ;
+            const float distance = std::hypot(deltaX, deltaZ);
+            if (distance <= maximumDelta || distance <= 0.000001f) {
+                currentX = targetX;
+                currentZ = targetZ;
+                return;
+            }
+
+            const float scale = maximumDelta / distance;
+            currentX += deltaX * scale;
+            currentZ += deltaZ * scale;
+        }
     }
 
     float PlayerMotion::MoveTowards(const float current, const float target,
@@ -215,8 +233,8 @@ namespace island
         const float acceleration = mode_ == LocomotionMode::Walking
             ? (moving ? (running_ ? 16.0f : 13.0f) : 9.0f)
             : (moving ? 4.5f : 2.8f);
-        velocityX_ = MoveTowards(velocityX_, targetVelocityX, acceleration * dt);
-        velocityZ_ = MoveTowards(velocityZ_, targetVelocityZ, acceleration * dt);
+        MoveVectorTowards(velocityX_, velocityZ_, targetVelocityX, targetVelocityZ,
+                          acceleration * dt);
 
         const float totalDeltaX = velocityX_ * dt;
         const float totalDeltaZ = velocityZ_ * dt;

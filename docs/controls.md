@@ -23,6 +23,8 @@ movement and carries the player back toward the island. A subtle peripheral tint
 undertow texture strengthen with that same current field. Moving through shallow or swimming water
 also produces subtle expanding surface ripples around the player. On land, nearby mesh-grass tips
 bend smoothly farther aside as walking speed rises and relax after the player stops.
+Horizontal acceleration and braking have the same response in cardinal and diagonal directions,
+so changing direction does not create a faster diagonal surge.
 
 Jumping is intentionally absent. The game is not a platformer.
 

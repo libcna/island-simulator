@@ -2649,6 +2649,27 @@ int main()
               && std::isfinite(invalidInputPlayer.Position().y),
           "player placement retains the last valid coordinates for non-finite input");
 
+    island::PlayerMotion cardinalAccelerationPlayer;
+    island::PlayerMotion diagonalAccelerationPlayer;
+    cardinalAccelerationPlayer.SetPosition(terrain, 0.0f, 0.0f);
+    diagonalAccelerationPlayer.SetPosition(terrain, 0.0f, 0.0f);
+    cardinalAccelerationPlayer.Update(terrain, 0.0f, 1.0f, 1.0f / 60.0f);
+    diagonalAccelerationPlayer.Update(terrain, 1.0f, 1.0f, 1.0f / 60.0f);
+    const float cardinalAccelerationSpeed = std::hypot(
+        cardinalAccelerationPlayer.VelocityX(), cardinalAccelerationPlayer.VelocityZ());
+    const float diagonalAccelerationSpeed = std::hypot(
+        diagonalAccelerationPlayer.VelocityX(), diagonalAccelerationPlayer.VelocityZ());
+    CheckNear(diagonalAccelerationSpeed, cardinalAccelerationSpeed, 0.0001f,
+              "walking acceleration is independent of movement direction");
+    cardinalAccelerationPlayer.Update(terrain, 0.0f, 0.0f, 1.0f / 60.0f);
+    diagonalAccelerationPlayer.Update(terrain, 0.0f, 0.0f, 1.0f / 60.0f);
+    CheckNear(std::hypot(diagonalAccelerationPlayer.VelocityX(),
+                         diagonalAccelerationPlayer.VelocityZ()),
+              std::hypot(cardinalAccelerationPlayer.VelocityX(),
+                         cardinalAccelerationPlayer.VelocityZ()),
+              0.0001f,
+              "walking deceleration is independent of movement direction");
+
     island::PlayerMotion runningPlayer;
     runningPlayer.SetPosition(terrain, 0.0f, 0.0f);
     runningPlayer.SetRunning(true);

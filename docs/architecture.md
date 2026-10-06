@@ -132,10 +132,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    result by current camera yaw before physics. Mouse yaw is updated first, so held forward movement
    turns during the same update. Its right basis matches visible screen-right rather than world +X.
 4. `IslandGame` edge-detects either Shift key and retains the selected 4.3/8.0 m/s walk/run mode;
-   `PlayerMotion` applies frame-time clamping, acceleration,
-   slope checks, swimming speed, the
-   island-relative current field, the remote safety boundary, and horizontal solid-prop collision
-   in both locomotion modes.
+   `PlayerMotion` applies frame-time clamping, direction-independent vector acceleration,
+   slope checks, swimming speed, the island-relative current field, the remote safety boundary,
+   and horizontal solid-prop collision in both locomotion modes.
 5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the
    proposed capsule footprint exactly against nearby trunk, land/reef rock, and log circular
    obstacles while retaining axis sliding when one component is valid.
