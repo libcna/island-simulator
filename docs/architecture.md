@@ -41,6 +41,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
+      ├── ShorelineRenderer ── exact-coast foam/wash ribbon and stock-effect fallback
       ├── TerrainRenderer ──── terrain cells, culling, portable material, and stock fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
@@ -263,6 +264,14 @@ keeps the scene operable with a clear diagnostic if the custom effect cannot be 
 OpenGL 3.3 and actual WebGL 2 execution select the full path. The API 35 Android emulator has
 created a real GLES3 surface and visibly rendered the current terrain/palm/grass scene; the captured
 camera did not establish every ocean effect variant, and mobile-GPU profiling remains open.
+
+`ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
+ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and
+therefore follows the authoritative coastline independently of the ocean grid's 10.625 m spacing.
+Explicit GLSL 330 / GLSL ES 300 stages reuse the ocean's three vertex waves and animate a narrow,
+broken crest plus a restrained receding wash. Terrain depth naturally clips the landward edge; a
+premultiplied vertex-colour `BasicEffect` ribbon remains as the logged fallback. The full layer is
+2,695 vertices, 4,608 triangles, one transparent draw submission, and no texture or external asset.
 
 The game requests the XNA `HiDef` profile because its deterministic QA capture uses back-buffer
 readback and the intended 3D feature set exceeds a `Reach`-only design. This is an application

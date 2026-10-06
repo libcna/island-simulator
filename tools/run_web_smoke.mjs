@@ -144,6 +144,7 @@ try {
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
+    && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")

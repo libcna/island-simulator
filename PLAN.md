@@ -316,8 +316,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Derive shallow/deep tropical colour and transparency from authoritative terrain depth and
   shore information baked into the ocean vertices.
 - [~] Blend shoreline foam/readable moving wave edge and translucent water over the beach without
-  visible z-fighting. A first shore-distance-driven wet-sand darkening pass is active; close
-  first-person wet-edge/foam alignment and richer wash detail remain open.
+  visible z-fighting. A 384-segment ribbon now follows the authoritative shore independently of
+  the coarse ocean grid and adds a narrow broken animated crest plus restrained receding wash over
+  the wet-sand pass. Close entry/underwater transitions and final wash/material tuning remain open.
 - [ ] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and stable.
 - [~] Provide an actionable stock `BasicEffect` fallback when portable custom effects are
   unavailable or fail compilation. WebGL 2 uses the full shader successfully; Android GLES 3
@@ -1656,13 +1657,34 @@ Work next, in order:
   native report path without treating a hardware-specific duration as a pass threshold.
 - Added a five-view private-GPU suite for overview, beach, jungle, shore detail, and monkeys plus
   `docs/performance.md` methodology and limitations. On the 1280 by 720 debug build using the
-  accelerated Radeon 780M/Mesa 25.0.7 environment, beach was the heaviest fixed scene at 1.6424 ms
-  mean and 1.9168 ms p95 across 600 samples and 117 tracked submissions. Audio was unavailable in
-  the isolated compositor, so this is a comparison baseline rather than a shipping budget.
+  accelerated Radeon 780M/Mesa 25.0.7 environment, beach was the heaviest fixed scene at 1.6497 ms
+  mean and 1.8729 ms p95 across 600 samples and 118 tracked submissions after the shoreline-ribbon
+  pass. Audio was unavailable in the isolated compositor, so this is a comparison baseline rather
+  than a shipping budget.
 - All 14 native tests pass, including 13 real OpenGL 3.3 GPU scenes. The full actual-Chrome WebGL 2
   renderer/input/audio-init harness passes after rebuilding, and the arm64-v8a GLES 3 APK rebuilds
   with clean app lint. Web hardware performance and Android device performance remain unqualified;
   no CNA or Sharp Runtime source was modified and no dependency defect was found.
+
+### 2026-10-06 — Exact shoreline foam and wash ribbon
+
+- Added a game-owned 384-segment by six-strip ribbon derived directly from the authoritative
+  `ShoreRadius` contour. Its 2.5 m landward-to-5.5 m offshore span avoids depending on the ocean
+  grid's 10.625 m spacing, while terrain depth clips foam that should remain below raised sand.
+- Added explicit GLSL 330 / GLSL ES 300 stages that reuse the ocean's three surface waves, animate
+  a narrow phase-varied broken crest, add a restrained receding wash, distance-fade the pass, and
+  output correct premultiplied alpha. A static premultiplied vertex-colour `BasicEffect` fallback
+  remains available with an actionable diagnostic.
+- The layer costs 2,695 vertices, 4,608 triangles, one transparent draw submission, no texture,
+  no collision, and no external asset. Core tests lock the portable 16-bit topology and radial
+  extents. Native and actual Chromium/WebGL 2 driftwood captures were visually compared and show
+  the same narrow shore edge without a visible ring seam.
+- Repeated the five-view accelerated native benchmark after integration: the heaviest beach view
+  remains 1.6497 ms mean / 1.8729 ms p95 in this debug-build comparison and now tracks 118 scene
+  submissions. All 14 native tests pass, the complete Chrome/WebGL 2 renderer/input/audio-init
+  harness passes with an explicit shoreline-shader gate, and the arm64-v8a GLES 3 APK rebuilds with
+  clean app lint. Android runtime appearance remains unqualified without suitable hardware; no CNA
+  or Sharp Runtime source was modified and no dependency defect was found.
 
 ## Session-end checklist
 

@@ -34,19 +34,20 @@ release presentation or movement semantics.
 
 ## Initial Linux development baseline
 
-The first suite was recorded on 2026-10-06 at 1280 by 720 with the debug build, CNA `next`
+The baseline below was recorded on 2026-10-06 at 1280 by 720 with the debug build, CNA `next`
 `f243c63a1dc5`, and Sharp Runtime `next` `21c06910f7cf`. The private display reported direct,
 accelerated AMD Radeon 780M rendering through radeonsi/Mesa 25.0.7. Audio was unavailable inside
 the isolated compositor, so this baseline does not measure the active mixer.
 
 | View | Mean ms | p95 ms | p99 ms | Tracked submissions |
 | --- | ---: | ---: | ---: | ---: |
-| Overview | 1.1701 | 1.2963 | 1.4914 | 79 |
-| Beach | 1.6424 | 1.9168 | 2.4599 | 117 |
-| Jungle | 1.3322 | 1.5457 | 1.9885 | 85 |
-| Driftwood/shore detail | 0.7560 | 1.0045 | 1.2885 | 22 |
-| Monkeys | 1.4536 | 1.5980 | 1.7173 | 92 |
+| Overview | 1.2042 | 1.4473 | 1.9363 | 80 |
+| Beach | 1.6497 | 1.8729 | 2.2889 | 118 |
+| Jungle | 1.3333 | 1.5824 | 1.9248 | 86 |
+| Driftwood/shore detail | 0.7948 | 1.1231 | 1.3856 | 23 |
+| Monkeys | 1.4125 | 1.5616 | 1.6715 | 93 |
 
+This baseline includes the exact shoreline foam ribbon and its one additional tracked submission.
 The beach view is currently the heaviest of these fixed native scenes. This is a development
 comparison baseline, not a shipping budget: it uses a debug build, one integrated GPU/driver,
 one resolution, no isolated audio output, and no WebGL 2 or Android hardware measurement. It also

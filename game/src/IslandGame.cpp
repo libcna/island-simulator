@@ -226,6 +226,7 @@ namespace island
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
+        shorelineRenderer_ = std::make_unique<ShorelineRenderer>(device, terrain_);
         skyRenderer_ = std::make_unique<SkyRenderer>(device);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
         touchOverlay_ = std::make_unique<TouchOverlay>(device);
@@ -591,7 +592,8 @@ namespace island
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
-            + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount();
+            + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
+            + shorelineRenderer_->DrawCallCount();
 
         std::ofstream output(benchmarkPath_);
         if (!output) {
@@ -694,6 +696,8 @@ namespace island
 
         oceanRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
                              timeSeconds);
+        shorelineRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+                                 timeSeconds);
 
         if (debugOverlayVisible_ && worldDebugVisible_) {
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,

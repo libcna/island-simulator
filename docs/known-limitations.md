@@ -15,6 +15,9 @@ been confirmed so far.
 - Terrain combines procedural vertex colour with a first texture-free sand/soil, wet-edge, and
   exposed-slope material shader. It still has no authored biome texture blend, decals, broad
   substrate diversity, or baked ambient/contact lighting.
+- The ocean has depth colour, analytic waves/specular response, a coarse broad foam mask, and a
+  new exact shore-following animated crest/wash ribbon. Close water entry lacks underwater tint,
+  refraction-like cues, splash particles, and final wash/material tuning.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic variation, wind,
   culling, and LOD, but visible transition popping, close-up material simplicity, and weak
   grounding/contact cues remain.

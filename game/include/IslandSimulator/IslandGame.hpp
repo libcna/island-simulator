@@ -27,6 +27,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/SharkRenderer.hpp"
+#include "IslandSimulator/ShorelineRenderer.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/TerrainRenderer.hpp"
@@ -120,6 +121,7 @@ namespace island
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
+        std::unique_ptr<ShorelineRenderer> shorelineRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;
         std::unique_ptr<TerrainRenderer> terrainRenderer_;

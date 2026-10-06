@@ -12,6 +12,9 @@ and prepares both wave/splash pairs plus the pooled positional bird/monkey call 
 output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.
 
+The renderer gate also requires the exact shore-following animated foam ribbon rather than its
+stock-effect fallback.
+
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader. This records the evidence
 environment; it is not a minimum-version claim.
 

@@ -9,6 +9,7 @@
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/ShorelineMeshLayout.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
@@ -1001,6 +1002,16 @@ int main()
     CheckNear(island::OceanMeshLayout::Coordinate(island::OceanMeshLayout::QuadsPerAxis),
               island::OceanMeshLayout::Extent, 0.0001f,
               "ocean grid ends at its documented extent");
+    Check(island::ShorelineMeshLayout::VertexCount == 2695U,
+          "shoreline ribbon stays inside its compact portable vertex budget");
+    Check(island::ShorelineMeshLayout::TriangleCount == 4608U,
+          "shoreline ribbon triangle count is deterministic");
+    CheckNear(island::ShorelineMeshLayout::RadialOffset(0), -2.5f, 0.0001f,
+              "shoreline ribbon begins landward of the authoritative contour");
+    CheckNear(island::ShorelineMeshLayout::RadialOffset(
+                  island::ShorelineMeshLayout::AcrossQuadCount),
+              5.5f, 0.0001f,
+              "shoreline ribbon ends in the shallow offshore wash band");
 
     Check(island::TerrainMeshLayout::CellCount == 64U,
           "terrain layout has the expected bounded cell count");
