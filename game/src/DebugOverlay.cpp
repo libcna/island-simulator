@@ -209,7 +209,8 @@ namespace island
         lines.push_back(position.str());
 
         auto locomotion = DiagnosticLine();
-        locomotion << "STATE " << (state.swimming ? "SWIMMING" : "WALKING")
+        locomotion << "STATE " << (state.swimming ? "SWIMMING"
+                                                   : (state.running ? "RUNNING" : "WALKING"))
                    << (state.freeCameraActive ? "  FREE CAMERA" : "")
                    << "  GROUND " << state.groundHeight
                    << "  SLOPE " << state.groundSlopeDegrees << " DEG";

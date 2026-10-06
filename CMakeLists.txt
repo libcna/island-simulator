@@ -33,6 +33,7 @@ add_library(island_core STATIC
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
     game/src/FirstPersonCameraMotion.cpp
+    game/src/FirstPersonInput.cpp
     game/src/FishSchools.cpp
     game/src/GrassInteractionModel.cpp
     game/src/GrassLayout.cpp
@@ -470,7 +471,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
+                "shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
         add_test(NAME IslandGameMonkeyCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-monkey-capture.ppm"
                     --viewpoint monkeys)
@@ -547,6 +548,16 @@ if(ISLAND_BUILD_GAME)
                     LABELS "display;input"
                     RUN_SERIAL TRUE
                     PASS_REGULAR_EXPRESSION "free-camera input smoke passed")
+
+                add_test(NAME IslandGamePlayerInput
+                    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tools/run_native_player_input_smoke.sh"
+                            "$<TARGET_FILE:island-simulator>"
+                            "${ISLAND_XDOTOOL_EXECUTABLE}")
+                set_tests_properties(IslandGamePlayerInput PROPERTIES
+                    TIMEOUT 30
+                    LABELS "display;input"
+                    RUN_SERIAL TRUE
+                    PASS_REGULAR_EXPRESSION "player input smoke passed")
             endif()
         endif()
     endif()

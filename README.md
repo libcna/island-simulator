@@ -125,8 +125,9 @@ ctest --preset linux-core
 The graphical tests need an isolated display; use the command in `docs/build-linux.md` rather than
 running the full CTest set on the owner's live desktop.
 
-Run `build/island-simulator`. Click inside the window to capture the mouse, use WASD to move, and
-press Escape to release the mouse; press Escape again to exit. The controller follows the terrain,
+Run `build/island-simulator`. Click inside the window or press a movement key to capture the mouse,
+use WASD or the arrow keys to move, and hold Shift to run on land. Press Escape once to release the
+mouse and again to exit. Mouse look remains active while a movement key is held. The controller follows the terrain,
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and
 enters swimming water with hysteresis. Swimming retains collision with solid emergent reef rocks.
 A static 16 m collision grid limits each capsule test to nearby proxies;
@@ -186,8 +187,9 @@ The close prop view additionally requires a nonzero one-draw contact-shadow batc
 The driftwood view targets the forked third variant and requires a nonzero per-instance near-LOD
 population.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
-positional-wildlife audio resources, WASD, relative mouse
-look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world
+positional-wildlife audio resources, WASD, arrow-key movement, Shift running, simultaneous forward
+movement and relative mouse look, a deterministic beach-to-water crossing with successful
+transition-audio playback, F2 world
 lines, F4 seed-copy execution with explicit clipboard status, F1,
 pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-
 accelerated browser listening pass, genuine tab background/foreground behaviour, and another
@@ -196,8 +198,9 @@ browser engine remain open.
 The Android project produces arm64-v8a device and x86_64 emulator APKs with an explicit GLES 3
 renderer. The left half of the screen supplies a floating movement stick and the right half uses
 relative drag-to-look, with subtle generated control indicators. The first software-emulated GLES3
-frame is validated, but the available host has no KVM and its Android System UI is unstable under
-software emulation; lifecycle, audio, touch ergonomics, and mobile performance remain open. See
+frame is validated, but the current environment still exposes no `/dev/kvm` even though the host
+KVM modules are loaded; Android's System UI is unstable under software emulation. Lifecycle,
+audio, touch ergonomics, and mobile performance remain open. See
 `docs/build-android.md` and `PLAN.md` for exact evidence and commands.
 
 ## Project records

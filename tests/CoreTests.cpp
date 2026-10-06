@@ -5,6 +5,7 @@
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
+#include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassLod.hpp"
@@ -177,6 +178,48 @@ int main()
     Check(rejectedInvalidFrameTime,
           "frame-time statistics reject non-finite sample durations");
 
+    const island::FirstPersonMovementIntent forwardIntent =
+        island::FirstPersonInput::Resolve(
+            island::FirstPersonDigitalInput{true, false, false, false, false},
+            0.0f, 0.0f, 0.0f);
+    CheckNear(forwardIntent.worldX, 0.0f, 0.0001f,
+              "first-person forward input has no lateral drift at zero yaw");
+    CheckNear(forwardIntent.worldZ, 1.0f, 0.0001f,
+              "first-person forward input follows zero yaw");
+    const island::FirstPersonMovementIntent rightIntent =
+        island::FirstPersonInput::Resolve(
+            island::FirstPersonDigitalInput{false, false, false, true, false},
+            0.0f, 0.0f, 0.0f);
+    CheckNear(rightIntent.worldX, -1.0f, 0.0001f,
+              "first-person right input follows screen-right in the view convention");
+    CheckNear(rightIntent.worldZ, 0.0f, 0.0001f,
+              "first-person right input has no forward drift at zero yaw");
+    const island::FirstPersonMovementIntent leftIntent =
+        island::FirstPersonInput::Resolve(
+            island::FirstPersonDigitalInput{false, false, true, false, false},
+            0.0f, 0.0f, 0.0f);
+    CheckNear(leftIntent.worldX, 1.0f, 0.0001f,
+              "first-person left input opposes screen-right in the view convention");
+    const island::FirstPersonMovementIntent rotatedRunIntent =
+        island::FirstPersonInput::Resolve(
+            island::FirstPersonDigitalInput{true, false, false, false, true},
+            0.0f, 0.0f, -std::numbers::pi_v<float> * 0.5f);
+    CheckNear(rotatedRunIntent.worldX, -1.0f, 0.0001f,
+              "first-person forward intent immediately follows changed mouse yaw");
+    CheckNear(rotatedRunIntent.worldZ, 0.0f, 0.0001f,
+              "first-person changed-yaw intent remains normalized");
+    Check(rotatedRunIntent.run, "first-person intent preserves the run modifier");
+    const island::FirstPersonMovementIntent invalidAnalogIntent =
+        island::FirstPersonInput::Resolve(
+            island::FirstPersonDigitalInput{},
+            std::numeric_limits<float>::quiet_NaN(),
+            std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::quiet_NaN());
+    CheckNear(invalidAnalogIntent.worldX, 0.0f, 0.0001f,
+              "first-person input rejects non-finite lateral values");
+    CheckNear(invalidAnalogIntent.worldZ, 0.0f, 0.0001f,
+              "first-person input rejects non-finite forward values");
+
     island::DebugFreeCamera freeCamera;
     freeCamera.Update(0.0f, island::DebugFreeCameraInput{1.0f, 0.0f, 0.0f, false}, 0.1f);
     Check(!freeCamera.IsActive()
@@ -199,6 +242,12 @@ int main()
                              freeCamera.Position().z - beforeDiagonal.z)),
               island::DebugFreeCamera::BaseSpeed * 0.1f, 0.0001f,
               "debug free camera normalizes three-axis input");
+    freeCamera.Activate(10.0f, 20.0f, 30.0f);
+    freeCamera.Update(0.0f, island::DebugFreeCameraInput{0.0f, 1.0f, 0.0f, false}, 0.1f);
+    CheckNear(freeCamera.Position().x, 8.8f, 0.0001f,
+              "debug free camera right input follows the visible view convention");
+    CheckNear(freeCamera.Position().z, 30.0f, 0.0001f,
+              "debug free camera right input has no forward drift");
     const float beforeFastX = freeCamera.Position().x;
     freeCamera.Update(
         std::numbers::pi_v<float> * 0.5f,
@@ -2273,6 +2322,25 @@ int main()
           "interior movement stays in walking mode");
     CheckNear(player.OceanCurrentStrength(terrain), 0.0f, 0.0001f,
               "ocean current remains inactive while walking");
+
+    island::PlayerMotion runningPlayer;
+    runningPlayer.SetPosition(terrain, 0.0f, 0.0f);
+    runningPlayer.SetRunning(true);
+    for (int frame = 0; frame < 120; ++frame) {
+        runningPlayer.Update(terrain, 0.0f, 1.0f, 1.0f / 60.0f);
+    }
+    Check(runningPlayer.IsRunning(), "held run input selects the running land pace");
+    CheckNear(std::hypot(runningPlayer.VelocityX(), runningPlayer.VelocityZ()),
+              island::PlayerMotion::RunSpeed, 0.001f,
+              "running acceleration reaches the bounded running speed");
+    runningPlayer.SetRunning(false);
+    for (int frame = 0; frame < 120; ++frame) {
+        runningPlayer.Update(terrain, 0.0f, 1.0f, 1.0f / 60.0f);
+    }
+    Check(!runningPlayer.IsRunning(), "releasing run input restores the walking land pace");
+    CheckNear(std::hypot(runningPlayer.VelocityX(), runningPlayer.VelocityZ()),
+              island::PlayerMotion::WalkSpeed, 0.001f,
+              "released run input settles at the bounded walking speed");
 
     float coveAngle = 0.0f;
     float headlandAngle = 0.0f;

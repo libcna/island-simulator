@@ -5,7 +5,7 @@
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
 overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer lock,
-canvas focus, WASD traversal, relative mouse look, the B camera-motion opt-out, F1 input, pointer
+canvas focus, WASD/arrow traversal, Shift running, simultaneous movement/relative mouse look, the B camera-motion opt-out, F1 input, pointer
 release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering is also toggled
 through browser input, and F4 must execute its explicit confirmed/unavailable clipboard path. The
 first click opens
@@ -159,11 +159,12 @@ qualifies the portable timing path, not hardware-browser cold-load performance o
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
 the canvas, assert pointer lock/focus, initialization of all four looping audio layers, preparation
 of both wave and both shoreline-transition variants, and preparation of positional bird/monkey
-calls, then hold W
-long enough to measure world movement, reset to the deterministic south-beach QA location, and
+calls, then holds W while applying two separated pointer movements. The same diagnostic segment
+must show both player displacement and changing yaw. It resets to the deterministic south-beach QA
+location, proves that Right moves toward visible screen-right, proves that Shift+Up exceeds the
+walking ceiling, and then
 walk backward into the ocean. The shoreline crossing must produce a successful water-transition
-one-shot diagnostic. The harness then moves the relative pointer, enables the portable F2 world
-line view, toggles F1, resizes to a
+one-shot diagnostic. The harness then enables the portable F2 world line view, toggles F1, resizes to a
 non-16:9 browser window, explicitly unlocks, and clicks to reacquire. It records the initial/final
 player and viewport samples in the JSON report. Chromium's
 synthetic page-freeze command did not yield reliable resume evidence in this environment, so real

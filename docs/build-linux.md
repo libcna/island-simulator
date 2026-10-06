@@ -183,6 +183,12 @@ On Wayland it automatically nests itself in Xvfb because Xwayland correctly prev
 process from stealing the real user's keyboard focus; this remains a real SDL X11/XTest input path,
 not a Wayland-native qualification.
 
+`IslandGamePlayerInput` separately uses real SDL/XTest input to require keyboard-edge native mouse
+capture, simultaneous W plus relative mouse turning, correct visible-right motion from both D and
+Right, Shift+Up running above the walk-speed ceiling, and two distinct Escape edges for release and
+exit. The deterministic core suite independently locks the camera-basis signs and 4.3/6.5 m/s land
+pace limits.
+
 ## Run interactively
 
 ```bash

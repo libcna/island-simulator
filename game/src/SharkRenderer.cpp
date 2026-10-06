@@ -1,5 +1,7 @@
 #include "IslandSimulator/SharkRenderer.hpp"
 
+#include "IslandSimulator/WildlifeRenderLighting.hpp"
+
 #include <algorithm>
 #include <cmath>
 
@@ -26,7 +28,7 @@ namespace island
     {
         constexpr float NearLodDistance = 240.0f;
         constexpr float MaximumDistance = 710.0f;
-        constexpr int MaximumVertexCount = 66;
+        constexpr int MaximumVertexCount = SharkRenderer::NearVertexCount;
 
         struct PoseAxes
         {
@@ -44,12 +46,12 @@ namespace island
             vertices.emplace_back(c, color);
         }
 
-        void AddDoubleSidedTriangle(std::vector<VertexPositionColor>& vertices,
-                                    const Vector3& a, const Vector3& b, const Vector3& c,
-                                    const Color& color)
+        void AddLitTriangle(std::vector<VertexPositionColor>& vertices,
+                            const Vector3& a, const Vector3& b, const Vector3& c,
+                            const Color& color, const bool twoSided = false)
         {
-            AddTriangle(vertices, a, b, c, color);
-            AddTriangle(vertices, c, b, a, color);
+            AddTriangle(vertices, a, b, c,
+                        wildlife_render::FacetColor(a, b, c, color, twoSided));
         }
 
         [[nodiscard]] Color ActivityColor(const Color& color, const float activity)
@@ -110,14 +112,14 @@ namespace island
             const Vector3 left = LocalPoint(centre, axes, -0.18f, 0.0f, 0.10f, scale);
             const Vector3 rightSide = LocalPoint(centre, axes, 0.18f, 0.0f, 0.10f, scale);
             const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.56f, scale);
-            AddTriangle(vertices, nose, top, left, body);
-            AddTriangle(vertices, nose, rightSide, top, body);
-            AddTriangle(vertices, nose, bottom, rightSide, belly);
-            AddTriangle(vertices, nose, left, bottom, belly);
-            AddTriangle(vertices, rear, left, top, body);
-            AddTriangle(vertices, rear, top, rightSide, body);
-            AddTriangle(vertices, rear, rightSide, bottom, belly);
-            AddTriangle(vertices, rear, bottom, left, belly);
+            AddLitTriangle(vertices, nose, top, left, body);
+            AddLitTriangle(vertices, nose, rightSide, top, body);
+            AddLitTriangle(vertices, nose, bottom, rightSide, belly);
+            AddLitTriangle(vertices, nose, left, bottom, belly);
+            AddLitTriangle(vertices, rear, left, top, body);
+            AddLitTriangle(vertices, rear, top, rightSide, body);
+            AddLitTriangle(vertices, rear, rightSide, bottom, belly);
+            AddLitTriangle(vertices, rear, bottom, left, belly);
 
             const float tailBend = shark.bodyWave * 0.17f;
             const Vector3 tailTop = LocalPoint(
@@ -126,8 +128,8 @@ namespace island
                 centre, axes, tailBend * 1.06f, 0.0f, -0.78f, scale);
             const Vector3 tailBottom = LocalPoint(
                 centre, axes, tailBend, -0.34f, -0.94f, scale);
-            AddDoubleSidedTriangle(vertices, rear, tailTop, tailNotch, fin);
-            AddDoubleSidedTriangle(vertices, rear, tailNotch, tailBottom, fin);
+            AddTriangle(vertices, rear, tailTop, tailNotch, fin);
+            AddTriangle(vertices, rear, tailNotch, tailBottom, fin);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.14f, 0.23f, scale);
@@ -135,7 +137,7 @@ namespace island
                 centre, axes, 0.0f, 0.57f, -0.08f, scale);
             const Vector3 dorsalBack = LocalPoint(
                 centre, axes, bend * 0.35f, 0.12f, -0.34f, scale);
-            AddDoubleSidedTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, fin);
+            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, fin);
 
             const Vector3 finRoot = LocalPoint(
                 centre, axes, 0.0f, -0.02f, 0.14f, scale);
@@ -143,8 +145,8 @@ namespace island
                 centre, axes, -0.52f, -0.12f, -0.08f, scale);
             const Vector3 rightFin = LocalPoint(
                 centre, axes, 0.52f, -0.12f, -0.08f, scale);
-            AddDoubleSidedTriangle(vertices, finRoot, leftFin, rear, fin);
-            AddDoubleSidedTriangle(vertices, finRoot, rear, rightFin, fin);
+            AddTriangle(vertices, finRoot, leftFin, rear, fin);
+            AddTriangle(vertices, finRoot, rear, rightFin, fin);
 
             const Color eye = ActivityColor(Color(15, 24, 27, 255), shark.activity);
             const Color gill = ActivityColor(Color(43, 59, 64, 255), shark.activity);
@@ -188,11 +190,11 @@ namespace island
                 centre, axes, bend * 1.5f, -0.30f, -0.91f, scale);
             const Vector3 dorsal = LocalPoint(
                 centre, axes, 0.0f, 0.49f, -0.06f, scale);
-            AddDoubleSidedTriangle(vertices, nose, top, rear, body);
-            AddDoubleSidedTriangle(vertices, nose, rear, bottom, belly);
-            AddDoubleSidedTriangle(vertices, rear, tailTop, tailNotch, fin);
-            AddDoubleSidedTriangle(vertices, rear, tailNotch, tailBottom, fin);
-            AddDoubleSidedTriangle(vertices, top, dorsal, rear, fin);
+            AddLitTriangle(vertices, nose, top, rear, body, true);
+            AddLitTriangle(vertices, nose, rear, bottom, belly, true);
+            AddTriangle(vertices, rear, tailTop, tailNotch, fin);
+            AddTriangle(vertices, rear, tailNotch, tailBottom, fin);
+            AddTriangle(vertices, top, dorsal, rear, fin);
         }
     }
 

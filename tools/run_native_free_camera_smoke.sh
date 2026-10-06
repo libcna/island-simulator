@@ -120,6 +120,10 @@ wait_for_log "debug free camera disabled" "the second F3 edge"
 "$XDOTOOL" keydown Escape
 sleep 0.3
 "$XDOTOOL" keyup Escape
+sleep 0.2
+"$XDOTOOL" keydown Escape
+sleep 0.3
+"$XDOTOOL" keyup Escape
 
 ATTEMPT=0
 while kill -0 "$GAME_PID" 2>/dev/null && [ "$ATTEMPT" -lt 100 ]; do

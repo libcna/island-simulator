@@ -21,6 +21,9 @@ namespace island
     class SharkRenderer final
     {
     public:
+        static constexpr int NearVertexCount = 51;
+        static constexpr int FarVertexCount = 15;
+
         explicit SharkRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device);
         ~SharkRenderer();
 

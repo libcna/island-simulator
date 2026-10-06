@@ -60,6 +60,7 @@ namespace island
         static constexpr float EyeHeight = 1.72f;
         static constexpr float SwimmingEyeHeight = 0.58f;
         static constexpr float WalkSpeed = 4.3f;
+        static constexpr float RunSpeed = 6.5f;
         static constexpr float SwimSpeed = 2.15f;
         static constexpr float CapsuleRadius = 0.34f;
         static constexpr float MaximumStepHeight = 0.38f;
@@ -116,6 +117,15 @@ namespace island
         /** @brief Returns whether the player is walking or swimming. */
         [[nodiscard]] LocomotionMode Mode() const noexcept { return mode_; }
 
+        /** @brief Requests the faster land pace while the run modifier is held. */
+        void SetRunning(bool running) noexcept { running_ = running; }
+
+        /** @brief Returns whether the faster land pace is currently active. */
+        [[nodiscard]] bool IsRunning() const noexcept
+        {
+            return running_ && mode_ == LocomotionMode::Walking;
+        }
+
         /** @brief Returns the resolved terrain support height under the player footprint. */
         [[nodiscard]] float GroundHeight() const noexcept { return groundHeight_; }
 
@@ -169,6 +179,7 @@ namespace island
         float groundHeight_ = 0.0f;
         float groundSlopeRadians_ = 0.0f;
         LocomotionMode mode_ = LocomotionMode::Walking;
+        bool running_ = false;
         PlayerMovementTrace movementTrace_;
     };
 }

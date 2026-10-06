@@ -32,8 +32,8 @@ namespace island
 
         const float forwardX = std::sin(yawRadians);
         const float forwardZ = std::cos(yawRadians);
-        const float rightX = forwardZ;
-        const float rightZ = -forwardX;
+        const float rightX = -forwardZ;
+        const float rightZ = forwardX;
         const float speed = BaseSpeed * (input.fast ? FastMultiplier : 1.0f);
         const float step = speed * std::clamp(deltaSeconds, 0.0f, 0.1f);
         position_.x = std::clamp(

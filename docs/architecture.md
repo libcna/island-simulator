@@ -64,14 +64,15 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       └── IslandGame ───────── CNA lifecycle, input, camera, and pass ordering
 ```
 
-`IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
+`IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonInput`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
 `NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `TouchControls`, and
 `SoundscapeModel`, `AudioAnalysis`, and `WorldIdentity` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
-`IslandGame` converts CNA keyboard, mouse, and touch snapshots to a world-space movement direction
-and converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
+`IslandGame` maps CNA keyboard snapshots into `FirstPersonDigitalInput`; the renderer-independent
+resolver combines them with touch axes and camera yaw using the screen-right basis required by the
+view convention. It converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
 consume the same palm, broadleaf, rock, and fallen-log placements; rendering never becomes a
 separate source of world truth.
 
@@ -115,8 +116,13 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 1. CNA polls platform events and publishes keyboard, mouse, and touch snapshots.
 2. `IslandGame::Update` reads each input device once. `TouchControls` retains stable movement/look
    pointer roles, emits one-frame relative look deltas, and cancels invalid contacts explicitly.
-3. Input is transformed by camera yaw into a normalized horizontal wish direction.
-4. `PlayerMotion` applies frame-time clamping, acceleration, slope checks, swimming speed, the
+   Native desktop movement can acquire relative mouse mode on its first key edge; acquisition never
+   consumes the pre-capture absolute cursor position as look input.
+3. `FirstPersonInput` gives WASD and arrows the same local axes, combines touch, and transforms the
+   result by current camera yaw before physics. Mouse yaw is updated first, so held forward movement
+   turns during the same update. Its right basis matches visible screen-right rather than world +X.
+4. `PlayerMotion` applies frame-time clamping, acceleration, the held 4.3/6.5 m/s walk/run choice,
+   slope checks, swimming speed, the
    island-relative current field, the remote safety boundary, and horizontal solid-prop collision
    in both locomotion modes.
 5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the
@@ -389,9 +395,12 @@ system. A deterministic schedule alternates roughly 42--66 second visible patrol
 tail stroke, vertical-velocity pitch, and heading-error bank prevent rigid motion. The shared
 observer-distance policy reduces or suspends
 updates when appropriate. `SharkRenderer` uses a recognizable original low-poly silhouette,
-forked tail in both LODs, near eye/gill accents, individual frustum/distance rejection, and one
-portable `BasicEffect` dynamic
-batch before the ocean. Native OpenGL 3.3 and actual Chromium/WebGL 2 dedicated captures match;
+forked tail in both LODs, near eye/gill accents, fixed-sun CPU face colours, individual
+frustum/distance rejection, and one portable `BasicEffect` dynamic
+batch. The shared `WildlifeRenderLighting` helper keeps fish and shark facet treatment identical.
+Because culling is disabled for the thin fins, they are emitted once rather than as coincident
+reverse-winding copies; near/far geometry is 51/15 rather than 66/30 vertices. The batch renders
+before the ocean. Native OpenGL 3.3 and actual Chromium/WebGL 2 dedicated captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.
 
 Seven original procedural monkeys exercise CNA's actual skeletal-animation path without an
@@ -621,7 +630,8 @@ testing remain open.
   hardware-browser quality, genuine tab lifecycle, another browser engine, and visible
   hardware-GPU performance remain unverified.
 - Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. One x86_64
-  API 35 GLES3 frame is visually validated, but the host has no KVM and the software-emulated
+  API 35 GLES3 frame is visually validated, but `/dev/kvm` is still absent from the current
+  environment despite loaded host KVM modules, and the software-emulated
   Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
   audio focus, sustained performance, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers

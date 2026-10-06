@@ -10,10 +10,32 @@ scene on an API 35 emulator.
 
 The Android UI is fixed landscape/fullscreen and includes dual-zone touch movement/look controls
 with generated on-screen affordances. It uses the same restrained walking/swimming camera-motion
-model as desktop, although an on-screen opt-out is not implemented yet. The available emulator has
-no KVM acceleration, so its first GLES3 render is valid renderer evidence but not touch, lifecycle,
-or performance qualification.
+model as desktop, although an on-screen opt-out is not implemented yet. The host now loads `kvm`
+and `kvm_amd`, and the developer is a member of the `kvm` group, but this environment still exposes
+no `/dev/kvm` device node. Its existing software-emulated GLES3 render is valid renderer evidence
+but not touch, lifecycle, or performance qualification.
 Those claims still require a stable accelerated emulator or physical device.
+
+The current host reports KVM at misc-device `10:232`. If its device node remains absent after the
+modules are loaded, recreate it through udev (preferred) or explicitly as root, then start a fresh
+shell so the configured `kvm` group is active:
+
+```bash
+sudo udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add
+sudo udevadm settle
+ls -l /dev/kvm
+```
+
+Only if udev still does not create the node:
+
+```bash
+sudo mknod -m 660 /dev/kvm c 10 232
+sudo chown root:kvm /dev/kvm
+```
+
+Do not run the emulator or game as root. Verify access with
+`$ANDROID_SDK_ROOT/emulator/emulator -accel-check`; a shell opened before group membership changed
+can instead launch the validation command through `sg kvm`.
 
 The current arm64 package includes the portable procedural sand/soil terrain material with
 near-field interior microvariation and sparse curved leaf litter, the broadleaf jungle with
@@ -46,10 +68,10 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw. The software-emulator
 screenshot establishes integrated rendering but is not detailed enough to qualify every layer's
 appearance, touch feel, audio output, lifecycle, or performance.
-The latest single-ABI arm64 debug qualification build produced an 18,703,060-byte APK with a
-15,892,776-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
-noise-mottled portable footpath, reused crossing-wave ocean colour, and reduced CPU-lit fish
-treatments. The APK verifies
+The latest single-ABI arm64 debug qualification build produced an 18,705,724-byte APK with a
+15,895,440-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+noise-mottled portable footpath, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
+geometry, and the shared run-capable input resolver used by hardware keyboards. The APK verifies
 with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
 incremental assembly.

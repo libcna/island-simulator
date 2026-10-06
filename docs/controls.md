@@ -4,9 +4,10 @@
 
 | Input | Action |
 |---|---|
-| Left click | Capture the mouse for first-person look |
+| Left click or first movement-key press | Capture the mouse for first-person look |
 | Mouse | Look around while captured |
-| W / A / S / D | Move with acceleration and deceleration |
+| W / A / S / D or arrow keys | Move with acceleration and deceleration |
+| Hold either Shift | Run on land; swimming speed remains unchanged |
 | F1 | Show or hide the developer diagnostics overlay |
 | F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, bird route/spawn, and audio-zone/emitter diagnostics; visible only with F1 |
 | F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |
@@ -45,12 +46,14 @@ the inspection camera. Press F3 again, or hide F1, to return exactly to the stat
 
 ## Web (current)
 
-The Web release build uses the same WASD, mouse-look, F1, F2, F4, B, M, and Escape controls. Its production page
+The Web release build uses the same WASD/arrow movement, Shift running, mouse-look, F1, F2, F4, B,
+M, and Escape controls. Browser security still requires a click before pointer lock. Its production page
 displays click-to-play instructions and requests pointer lock directly from the first left-button
 gesture, as required by browser security policy. The same gesture starts audio after browser
 activation. Escape releases pointer lock; clicking the canvas acquires it again. Automated
 Chromium/SwiftShader coverage verifies those transitions, audio-mixer/track initialization,
-keyboard movement, relative mouse look, focus, and responsive 16:9 sizing. Audible quality on a
+correct screen-relative strafing, arrow parity, running, simultaneous movement/mouse look, focus,
+and responsive 16:9 sizing. Audible quality on a
 visible hardware-accelerated browser and a second browser engine remain to be checked manually.
 
 ## Android
@@ -70,5 +73,6 @@ display-size change. The HUD remains inside conservative display-edge margins.
 
 The implementation and deterministic multi-touch tests are complete, and the same HUD rendering
 code compiles for OpenGL 3.3, WebGL 2, and OpenGL ES 3. The available API 35 emulator rendered the
-game through GLES3 but is too unstable without KVM to establish touch feel or pause/resume quality.
+game through GLES3 but is too unstable without an exposed `/dev/kvm` device to establish touch
+feel or pause/resume quality.
 Sensitivity, optional handedness, and real-device ergonomic tuning remain open.

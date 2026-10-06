@@ -215,6 +215,8 @@ try {
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && result.output?.includes(
       "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
+    && result.output?.includes(
+      "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
@@ -999,6 +1001,8 @@ try {
     && sharkResult.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && sharkResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
+    && sharkResult.output?.includes(
+      "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
     && /shark visible activity/.test(sharkResult.output ?? "")
     && !sharkResult.error;
 
@@ -1066,21 +1070,102 @@ try {
   }, visualSessionId);
   const lockedState = JSON.parse(lockedEvaluation.result.value ?? "{}");
 
+  const parseInputSamples = output => [...output.matchAll(
+    /input sample captured (\d) relative (\d) player ([-+0-9.eE]+) ([-+0-9.eE]+) camera ([-+0-9.eE]+) ([-+0-9.eE]+) ([-+0-9.eE]+) free (\d) yaw ([-+0-9.eE]+) pitch ([-+0-9.eE]+) viewport (\d+) (\d+) run (\d) velocity ([-+0-9.eE]+) ([-+0-9.eE]+)/g)]
+    .map(match => ({
+      captured: Number(match[1]),
+      relative: Number(match[2]),
+      x: Number(match[3]),
+      z: Number(match[4]),
+      cameraX: Number(match[5]),
+      cameraY: Number(match[6]),
+      cameraZ: Number(match[7]),
+      freeCamera: Number(match[8]),
+      yaw: Number(match[9]),
+      pitch: Number(match[10]),
+      viewportWidth: Number(match[11]),
+      viewportHeight: Number(match[12]),
+      running: Number(match[13]),
+      velocityX: Number(match[14]),
+      velocityZ: Number(match[15]),
+    }));
+
+  const concurrentStartLength = (await readSmokeOutput(visualSessionId)).length;
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
     nativeVirtualKeyCode: 87,
   }, visualSessionId);
-  await delay(1000);
+  await delay(300);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: 700, y: 360, button: "none", buttons: 0,
+  }, visualSessionId);
+  await delay(400);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: 620, y: 340, button: "none", buttons: 0,
+  }, visualSessionId);
+  await delay(400);
   await call("Input.dispatchKeyEvent", {
     type: "keyUp", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
     nativeVirtualKeyCode: 87,
   }, visualSessionId);
+  await delay(400);
+  const concurrentSamples = parseInputSamples(
+    (await readSmokeOutput(visualSessionId)).slice(concurrentStartLength));
+  const concurrentFirst = concurrentSamples[0];
+  const concurrentLast = concurrentSamples.at(-1);
+  const concurrentYawRange = concurrentSamples.length > 0
+    ? Math.max(...concurrentSamples.map(sample => sample.yaw))
+      - Math.min(...concurrentSamples.map(sample => sample.yaw))
+    : 0;
+  const simultaneousMoveAndLook = concurrentFirst && concurrentLast
+    && Math.hypot(concurrentLast.x - concurrentFirst.x,
+      concurrentLast.z - concurrentFirst.z) > 0.35
+    && concurrentYawRange > 0.005;
+
+  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  const arrowStartLength = (await readSmokeOutput(visualSessionId)).length;
+  await dispatchKeyPress(visualSessionId, "ArrowRight", "ArrowRight", 39, 900, 400);
+  const arrowSamples = parseInputSamples(
+    (await readSmokeOutput(visualSessionId)).slice(arrowStartLength));
+  const arrowFirst = arrowSamples[0];
+  const arrowLast = arrowSamples.at(-1);
+  const rightArrowMovedRight = arrowFirst && arrowLast
+    && arrowLast.x < arrowFirst.x - 0.25;
+
+  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  const runStartLength = (await readSmokeOutput(visualSessionId)).length;
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "Shift", code: "ShiftLeft", windowsVirtualKeyCode: 16,
+    nativeVirtualKeyCode: 16,
+  }, visualSessionId);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
+    nativeVirtualKeyCode: 38,
+  }, visualSessionId);
+  await delay(1300);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
+    nativeVirtualKeyCode: 38,
+  }, visualSessionId);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "Shift", code: "ShiftLeft", windowsVirtualKeyCode: 16,
+    nativeVirtualKeyCode: 16,
+  }, visualSessionId);
+  await delay(400);
+  const runSamples = parseInputSamples(
+    (await readSmokeOutput(visualSessionId)).slice(runStartLength));
+  const runFirst = runSamples[0];
+  const runLast = runSamples.at(-1);
+  const arrowRunWorked = runFirst && runLast
+    && runLast.z > runFirst.z + 0.35
+    && runSamples.some(sample => sample.running === 1
+      && Math.hypot(sample.velocityX, sample.velocityZ) > 5.2);
+
   await dispatchKeyUntilOutput(
     visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion disabled");
   await dispatchKeyUntilOutput(
     visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion enabled");
-  await dispatchKeyUntilOutput(
-    visualSessionId, "F5", "F5", 116, "island-simulator: debug teleport south beach");
+  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
     nativeVirtualKeyCode: 83,
@@ -1095,13 +1180,6 @@ try {
     nativeVirtualKeyCode: 83,
   }, visualSessionId);
   await delay(300);
-  await call("Input.dispatchMouseEvent", {
-    type: "mouseMoved", x: 700, y: 360, button: "none", buttons: 0,
-  }, visualSessionId);
-  await call("Input.dispatchMouseEvent", {
-    type: "mouseMoved", x: 620, y: 340, button: "none", buttons: 0,
-  }, visualSessionId);
-  await delay(700);
 
   await dispatchKeyUntilOutput(
     visualSessionId, "F2", "F2", 113,
@@ -1162,22 +1240,7 @@ try {
     returnByValue: true,
   }, visualSessionId);
   inputResult = JSON.parse(completedInputEvaluation.result.value ?? "{}");
-  const samples = [...(inputResult.output ?? "").matchAll(
-    /input sample captured (\d) relative (\d) player ([-+0-9.eE]+) ([-+0-9.eE]+) camera ([-+0-9.eE]+) ([-+0-9.eE]+) ([-+0-9.eE]+) free (\d) yaw ([-+0-9.eE]+) pitch ([-+0-9.eE]+) viewport (\d+) (\d+)/g)]
-    .map(match => ({
-      captured: Number(match[1]),
-      relative: Number(match[2]),
-      x: Number(match[3]),
-      z: Number(match[4]),
-      cameraX: Number(match[5]),
-      cameraY: Number(match[6]),
-      cameraZ: Number(match[7]),
-      freeCamera: Number(match[8]),
-      yaw: Number(match[9]),
-      pitch: Number(match[10]),
-      viewportWidth: Number(match[11]),
-      viewportHeight: Number(match[12]),
-    }));
+  const samples = parseInputSamples(inputResult.output ?? "");
   const initialSample = samples[0];
   const finalSample = samples.at(-1);
   const lifecycleResumed = samples.length > samplesBeforeLifecycle;
@@ -1214,6 +1277,9 @@ try {
     && lockedState.focused === true
     && samples.some(sample => sample.captured === 1 && sample.relative === 1)
     && keyboardMoved
+    && simultaneousMoveAndLook
+    && rightArrowMovedRight
+    && arrowRunWorked
     && cameraMotionToggled
     && waterTransitionPlayed
     && mouseLookChanged
@@ -1343,6 +1409,9 @@ try {
       pointerLocked: lockedState.pointerLocked ?? false,
       focused: lockedState.focused ?? false,
       keyboardMoved: Boolean(keyboardMoved),
+      simultaneousMoveAndLook: Boolean(simultaneousMoveAndLook),
+      rightArrowMovedRight: Boolean(rightArrowMovedRight),
+      arrowRunWorked: Boolean(arrowRunWorked),
       cameraMotionToggled: Boolean(cameraMotionToggled),
       waterTransitionPlayed: Boolean(waterTransitionPlayed),
       mouseLookChanged: Boolean(mouseLookChanged),

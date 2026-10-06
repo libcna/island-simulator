@@ -28,7 +28,7 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 | Grass | Hardware instancing, wind, curved/lit 28/10/5-blade near/middle/far clusters with adjacent-tier population transitions, biome-aware coast/path/clearing colour, and speed-responsive local player bending | Same curved, biome-aware two-sided daylight shader/instancing path; the full-interaction capture proves nonzero near/middle/far populations and mixed cells while matching native | Three-tier biome/shading-inclusive arm64 APK builds; runtime appearance and sustained mobile cost remain unqualified |
 | Birds | 24 procedural agents, near/far meshes, CPU wing animation, one dynamic draw | Same simulation and `BasicEffect` batch; dedicated browser capture is visually inspected | Bird-inclusive arm64 APK builds; runtime remains unqualified |
 | Fish | 48 agents in eight depth-bounded schools, 51/12-vertex CPU-lit near/far meshes, single-surface fins, CPU tail animation, one dynamic draw | Same simulation, reduced geometry, and `BasicEffect` batch; dedicated browser capture is visually inspected and requires the exact mesh diagnostic | Revised fish-inclusive arm64 APK builds; runtime remains unqualified |
-| Shark | One occasional non-hostile deep-water patrol, near/far meshes, CPU body/tail animation, one dynamic draw | Same simulation and `BasicEffect` batch; dedicated browser capture is visually inspected | Shark-inclusive arm64 APK builds; runtime remains unqualified |
+| Shark | One occasional non-hostile deep-water patrol, 51/15-vertex CPU-lit near/far meshes, single-surface fins, CPU body/tail animation, one dynamic draw | Same simulation, reduced geometry, and `BasicEffect` batch; dedicated browser capture is visually inspected and requires the exact mesh diagnostic | Revised shark-inclusive arm64 APK builds; runtime remains unqualified |
 | Monkeys | Seven agents, three near/far silhouettes, four palettes, generated fourteen-bone rig, four clips, local-pose crossfades, CNA `SkinnedEffect` | Same mesh-selection/GPU-skinning/crossfade path; dedicated browser capture and all four live states are visually inspected | Monkey-inclusive arm64 APK builds and app lint passes; runtime remains unqualified |
 | Audio | CNA opened a 44.1 kHz stereo device, plays four procedural mono loops, modulates the water loop with the offshore undertow cue, prepared both wave/water accent variants, and accepted a scheduled stronger-wave one-shot | First click opened the CNA mixer and prepared every current effect; deterministic shoreline traversal played a selected water-transition variant, while the current camera validates the shared undertow target | Complete current audio layer builds into the arm64 APK; device playback/focus remains unqualified |
 | Camera feel | Speed-responsive, positional-only walking/swimming motion; B opt-out | Same renderer-independent model; B disable/restore is automated in Chromium | Same model compiles; touch feel and a runtime opt-out UI remain open |
@@ -42,8 +42,9 @@ after representative physical-device profiling.
 
 ## Input and lifecycle differences
 
-- Linux and Web use click-to-capture relative mouse input, WASD, B camera-motion opt-out, F1/F2
-  diagnostics, F4 seed copy, M, and Escape.
+- Linux supports click or movement-key capture; Web requires a click for browser pointer lock. Both
+  use WASD or arrows, held Shift running, B camera-motion opt-out, F1/F2 diagnostics, F4 seed copy,
+  M, and Escape. Automated native and browser tests cover simultaneous movement and mouse look.
 - Browsers require a user gesture for pointer lock. The production shell requests it on the first
   click and handles release/reacquisition and responsive resizing.
 - Android uses a stable left movement pointer and right relative-look pointer. Display-size changes

@@ -182,7 +182,8 @@ Dependencies: none.
   need inspection before the Web build.
 - [x] Inventory Android SDK platform 35, Build Tools 36.1.0, NDK 29.0.14206865, SDK CMake 4.1.2,
   JDK 21, Gradle 8.12, arm64-v8a/x86_64 package paths, and three API 35 x86_64 AVDs. No physical
-  device or `/dev/kvm` acceleration is available in the current environment.
+  device is connected. The host now loads `kvm`/`kvm_amd` and group membership is configured, but
+  `/dev/kvm` is still absent from the current environment.
 - [x] Capture the initial subsystem and dependency decisions in `docs/architecture.md`.
 - [x] Create this plan before implementation.
 
@@ -261,9 +262,12 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 
 ### First-person controller
 
-- [~] Implement keyboard movement and mouse look with pitch limits. Runtime configuration remains
-  open.
-- [~] Capture/release relative mouse input on Linux. Focus, Web, and mobile differences remain open.
+- [~] Implement keyboard movement and mouse look with pitch limits. WASD/arrows, correct
+  screen-relative strafing, held-Shift 4.3/6.5 m/s walk/run, and simultaneous forward/mouse turns
+  are qualified on native Linux and Chromium; runtime configuration remains open.
+- [x] Capture/release relative mouse input on Linux. Click and first-movement-key acquisition avoid
+  pre-capture absolute cursor deltas; one Escape edge releases and a second exits. A real isolated
+  SDL/XTest regression covers the complete sequence.
 - [~] Establish initial eye height, acceleration, deceleration, walking speed, and a 0.34 m capsule
   footprint. Full capsule-vs-prop collision and evidence-based tuning remain open.
 - [x] Add optional mild head motion only if it improves presence and can be disabled. A tested,
@@ -535,6 +539,8 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
   CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one
   portable dynamic-buffer draw. Both LODs have a forked tail and the near tier adds eye/gill detail.
+  Shared fixed-sun CPU facet lighting and cull-none single-surface fins reduce near/far geometry
+  from 66/30 to 51/15 vertices without another draw.
 - [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
   It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
   layer for roughly 92--160 seconds before the next appearance.
@@ -653,7 +659,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   The production shell provides click-to-play controls, first-gesture lock, Escape release, and
   clean click reacquisition; fullscreen presentation remains open.
 - [~] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
-  Controlled Chromium input now proves focus, WASD movement, relative look, F1, pointer
+  Controlled Chromium input now proves focus, WASD/arrows, held-Shift running, simultaneous
+  forward movement/relative look, F1, pointer
   release/reacquisition, aspect-preserving resize, and first-click CNA mixer plus dual-track
   startup. Audible hardware-browser output and genuine tab background/foreground recovery remain
   unverified; synthetic CDP freeze/thaw was inconclusive.
@@ -683,7 +690,8 @@ Exit validation:
 Dependencies: stable input abstraction, scalable UI/debug display, mobile quality tiers.
 
 - [x] Inventory Android SDK, NDK, Gradle, Java, device/emulator, and supported ABI state. The
-  available API 35 emulator has no KVM acceleration; no physical device is connected.
+  host KVM modules and group membership now exist, but `/dev/kvm` remains unavailable to the
+  current environment; no physical device is connected.
 - [x] Adapt the CNA template Android shell with island-specific package/application identities,
   API 24 minimum/API 35 target, a launcher icon, no-backup policy, landscape presentation, and an
   isolated read-only-source SDL Java bridge module.
@@ -3331,6 +3339,40 @@ Work next, in order:
   single-ABI APK is 18,703,060 bytes, its stripped `libmain.so` is 15,892,776 bytes, and
   WebAssembly is 8,472,951 bytes. Physical-Android appearance/cost remain open. CNA and Sharp
   Runtime remain unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Correct first-person controls and reduced shark geometry
+
+- Direct operator play found three real usability defects: A/D followed the opposite visible side,
+  arrows were unmapped, and starting with W before clicking left the mouse uncaptured so forward
+  movement could not turn. Added renderer-independent `FirstPersonInput`: WASD and arrows share
+  digital axes, touch remains additive, yaw is applied before physics, and the perpendicular basis
+  now matches visible screen-right under the existing `CreateLookAt` convention. The debug free
+  camera uses the same sign. Core tests lock forward/right/left/changed-yaw results and reject
+  non-finite analog inputs.
+- Either Shift now requests a 6.5 m/s land run above the existing 4.3 m/s walk, with a modestly
+  higher acceleration ceiling; swimming remains 2.15 m/s. Linux can acquire relative mouse mode
+  on the first movement-key edge as well as click, suppresses the stale absolute cursor sample on
+  the acquisition frame, and applies mouse yaw before resolving held forward input. Escape now
+  reacts to edges, so one press releases capture and a second press exits as documented.
+- Added `IslandGamePlayerInput`, a real isolated SDL/XTest gate that requires keyboard mouse
+  capture, simultaneous W plus two relative turns, correct D and Right-arrow strafing, Shift+Up
+  speed above the walking ceiling, and distinct release/exit edges. The complete native suite
+  passes 38/38 in 51.55 seconds, including 30 display-backed tests and two isolated input tests.
+  Actual Chrome 152/SwiftShader WebGL 2 passes all 22 stages; its JSON report independently marks
+  `simultaneousMoveAndLook`, `rightArrowMovedRight`, and `arrowRunWorked` true.
+- Applied the fish renderer's proven cull-none cleanup to the shark and extracted shared
+  `WildlifeRenderLighting`. Single-surface fins reduce near/far shark geometry from 66/30 to 51/15
+  vertices while fixed-sun CPU body facets add no attribute, texture, effect, or draw. Native
+  before/after captures retain the complete tail/dorsal/pectoral silhouette, and the actual Web
+  shark gate requires the exact diagnostic. Two one-shark/one-draw safety runs measured
+  1.4463--1.4549 ms mean, 1.9150--2.0607 ms p95, and 2.2383--2.3108 ms p99 across 85 tracked
+  submissions; these are functional checks, not an isolated speedup claim.
+- The arm64 GLES 3 target builds and app lint passes. The v2-signed, single-ABI APK is 18,705,724
+  bytes, its stripped `libmain.so` is 15,895,440 bytes, and WebAssembly is 8,473,165 bytes. An
+  immediate no-change APK assembly reproduced the same size. Host `kvm`/`kvm_amd` modules are
+  loaded and the account is listed in the `kvm` group, but this shell has not inherited that group
+  and `/dev/kvm` remains absent, so accelerated Android runtime qualification is still open. CNA
+  and Sharp Runtime remain unmodified, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

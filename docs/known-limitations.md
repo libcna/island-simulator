@@ -72,8 +72,9 @@ been confirmed so far.
   bands; entry splash particles and body/shore displacement remain absent. The outer-ocean current
   also deepens the existing player-water loop into a restrained undertow cue; subjective
   headphone/speaker tuning remains open.
-- Desktop mouse sensitivity and mobile touch sensitivity are compile-time values. There is no
-  settings UI, remapping, gamepad control scheme, or handed touch layout yet.
+- Desktop mouse sensitivity, 4.3/6.5 m/s walk/run speeds, and mobile touch sensitivity are
+  compile-time values. WASD and arrows are supported, but there is no settings UI, remapping,
+  gamepad control scheme, or handed touch layout yet.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,
   score, progression, day/night cycle, or dynamic weather.
 
@@ -116,8 +117,9 @@ been confirmed so far.
 - WebGL 2 runs in Chromium with automated rendering, pointer-lock, keyboard/mouse, overlay, resize,
   and first-gesture audio-mixer/track initialization coverage. Audible hardware-browser quality,
   genuine tab suspend/resume, fullscreen, and a second browser engine remain unverified.
-- Android arm64-v8a and x86_64 APKs build, and an API 35 x86_64 AVD rendered one GLES3 scene. The
-  host lacks KVM and the software-emulated System UI is unstable, so touch feel, lifecycle, audio,
+- Android arm64-v8a and x86_64 APKs build, and an API 35 x86_64 AVD rendered one GLES3 scene. Host
+  KVM modules are loaded but `/dev/kvm` is not exposed to the current environment; the
+  software-emulated System UI is unstable, so touch feel, lifecycle, audio,
   performance, thermal behaviour, and physical-device compatibility remain unverified.
 
 ## Development tooling

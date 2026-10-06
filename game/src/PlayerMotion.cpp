@@ -177,7 +177,9 @@ namespace island
             inputZ /= inputLength;
         }
 
-        const float speed = mode_ == LocomotionMode::Walking ? WalkSpeed : SwimSpeed;
+        const float speed = mode_ == LocomotionMode::Walking
+            ? (running_ ? RunSpeed : WalkSpeed)
+            : SwimSpeed;
         float targetVelocityX = inputX * speed;
         float targetVelocityZ = inputZ * speed;
 
@@ -199,7 +201,7 @@ namespace island
 
         const bool moving = std::hypot(targetVelocityX, targetVelocityZ) > 0.001f;
         const float acceleration = mode_ == LocomotionMode::Walking
-            ? (moving ? 13.0f : 9.0f)
+            ? (moving ? (running_ ? 16.0f : 13.0f) : 9.0f)
             : (moving ? 4.5f : 2.8f);
         velocityX_ = MoveTowards(velocityX_, targetVelocityX, acceleration * dt);
         velocityZ_ = MoveTowards(velocityZ_, targetVelocityZ, acceleration * dt);

@@ -1,11 +1,9 @@
 #include "IslandSimulator/FishRenderer.hpp"
 
-#include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/WildlifeRenderLighting.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstdint>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -59,22 +57,6 @@ namespace island
              Color(224, 183, 58, 255)}
         }};
 
-        const Vector3 ToSun = Vector3::Normalize(Vector3(
-            environment::SunDirectionX, environment::SunDirectionY,
-            environment::SunDirectionZ));
-
-        [[nodiscard]] Color ScaleColor(const Color& color, const float brightness)
-        {
-            const float scale = std::clamp(brightness, 0.0f, 1.12f);
-            const auto channel = [scale](const std::uint8_t value) {
-                return static_cast<int>(std::lround(std::clamp(
-                    static_cast<float>(value) * scale, 0.0f, 255.0f)));
-            };
-            return Color(channel(color.getRProperty()), channel(color.getGProperty()),
-                         channel(color.getBProperty()),
-                         static_cast<int>(color.getAProperty()));
-        }
-
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
                          const Color& color)
@@ -88,13 +70,8 @@ namespace island
                             const Vector3& a, const Vector3& b, const Vector3& c,
                             const Color& color, const bool twoSided = false)
         {
-            const Vector3 normal = Vector3::Normalize(Vector3::Cross(b - a, c - a));
-            const float normalDotSun = Vector3::Dot(normal, ToSun);
-            const float directLight = twoSided ? std::abs(normalDotSun)
-                                               : std::max(0.0f, normalDotSun);
-            const float skyFill = twoSided ? std::abs(normal.Y) : std::max(0.0f, normal.Y);
             AddTriangle(vertices, a, b, c,
-                        ScaleColor(color, 0.72f + directLight * 0.30f + skyFill * 0.06f));
+                        wildlife_render::FacetColor(a, b, c, color, twoSided));
         }
 
         [[nodiscard]] PoseAxes MakePoseAxes(const FishState& fish)

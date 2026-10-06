@@ -225,6 +225,8 @@ namespace island
 #endif
         bool muteToggleWasDown_ = false;
         bool cameraMotionToggleWasDown_ = false;
+        bool movementKeyWasDown_ = false;
+        bool escapeWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
         std::array<bool, 8> debugTeleportWasDown_{};
         std::size_t monkeyTeleportIndex_ = 0U;

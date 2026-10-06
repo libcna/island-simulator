@@ -808,6 +808,18 @@ two far body faces per visible fish. The dedicated camera has six near fish, so 
 rather than 396 vertices. Two shared-GPU fish-view checks measured 1.6764--1.7648 ms mean and
 2.1861--2.3527 ms p95. These are functional cost checks, not a before/after speedup claim.
 
+### Single-surface and CPU-faceted shark follow-up
+
+The shark uses the same cull-none `BasicEffect` contract as the fish. Removing exact coincident
+reverse-winding fin/tail triangles reduces its near geometry from 66 to 51 streamed vertices
+(22 to 17 triangles) and its far geometry from 30 to 15 vertices (ten to five triangles). Fixed-sun
+CPU face colours reuse the shared wildlife helper and add no attribute, texture, effect, or draw.
+
+The dedicated view retains one visible shark and one shark draw within 85 tracked submissions.
+Two shared-GPU debug-build safety checks measured 1.4463--1.4549 ms mean,
+1.9150--2.0607 ms p95, and 2.2383--2.3108 ms p99. These checks reject a gross regression but do
+not establish an isolated before/after speedup.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -29,6 +29,7 @@ namespace island
         bool worldSeedCopySucceeded = false;
         bool freeCameraActive = false;
         bool swimming = false;
+        bool running = false;
         float groundHeight = 0.0f;
         float groundSlopeDegrees = 0.0f;
         float offshoreDistance = 0.0f;

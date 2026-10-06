@@ -1,5 +1,6 @@
 #include "IslandSimulator/IslandGame.hpp"
 
+#include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
@@ -597,6 +598,9 @@ namespace island
                   << "island-simulator: fish near/far geometry "
                   << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"
+                  << "island-simulator: shark near/far geometry "
+                  << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
+                  << " vertices, single-surface fins and CPU faceted daylight\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
@@ -718,7 +722,10 @@ namespace island
                           << " free " << (IsDebugFreeCameraActive() ? 1 : 0)
                           << " yaw " << yaw_ << " pitch " << pitch_
                           << " viewport " << viewport.getWidthProperty() << ' '
-                          << viewport.getHeightProperty() << '\n' << std::flush;
+                          << viewport.getHeightProperty()
+                          << " run " << (playerMotion_.IsRunning() ? 1 : 0)
+                          << " velocity " << playerMotion_.VelocityX() << ' '
+                          << playerMotion_.VelocityZ() << '\n' << std::flush;
             }
         }
     }
@@ -791,8 +798,17 @@ namespace island
         const bool touchInteracting = touchControlState_.movementActive
             || touchControlState_.lookActive;
 
-        const bool movementKeyDown = keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::A)
-            || keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::D);
+        const FirstPersonDigitalInput digitalInput{
+            keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::Up),
+            keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::Down),
+            keyboard.IsKeyDown(Keys::A) || keyboard.IsKeyDown(Keys::Left),
+            keyboard.IsKeyDown(Keys::D) || keyboard.IsKeyDown(Keys::Right),
+            keyboard.IsKeyDown(Keys::LeftShift) || keyboard.IsKeyDown(Keys::RightShift),
+        };
+        const bool movementKeyDown = digitalInput.forward || digitalInput.backward
+            || digitalInput.left || digitalInput.right;
+        const bool movementKeyPressed = movementKeyDown && !movementKeyWasDown_;
+        movementKeyWasDown_ = movementKeyDown;
         if (soundscapeNeedsGesture_
             && (mouse.getLeftButtonProperty() == ButtonState::Pressed
                 || !touchContacts.empty() || movementKeyDown)) {
@@ -957,7 +973,10 @@ namespace island
             debugTeleportWasDown_[index] = down;
         }
 
-        if (keyboard.IsKeyDown(Keys::Escape)) {
+        const bool escapeDown = keyboard.IsKeyDown(Keys::Escape);
+        const bool escapePressed = escapeDown && !escapeWasDown_;
+        escapeWasDown_ = escapeDown;
+        if (escapePressed) {
             if (mouseCaptured_) {
                 mouseCaptured_ = false;
                 Mouse::setIsRelativeMouseModeEXTProperty(false);
@@ -968,13 +987,22 @@ namespace island
             return;
         }
 
+        bool acquiredMouseThisFrame = false;
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+        (void)movementKeyPressed;
+        constexpr bool keyboardCanCaptureMouse = false;
+#else
+        const bool keyboardCanCaptureMouse = movementKeyPressed;
+#endif
         if (!touchInteracting && !smokeTest_ && !mouseCaptured_
-            && mouse.getLeftButtonProperty() == ButtonState::Pressed) {
+            && (mouse.getLeftButtonProperty() == ButtonState::Pressed
+                || keyboardCanCaptureMouse)) {
             mouseCaptured_ = true;
             Mouse::setIsRelativeMouseModeEXTProperty(true);
             setIsMouseVisibleProperty(false);
+            acquiredMouseThisFrame = true;
         }
-        if (mouseCaptured_) {
+        if (mouseCaptured_ && !acquiredMouseThisFrame) {
             yaw_ -= static_cast<float>(mouse.getXProperty()) * MouseSensitivity;
             pitch_ = std::clamp(pitch_ - static_cast<float>(mouse.getYProperty()) * MouseSensitivity,
                                 -1.48f, 1.48f);
@@ -988,24 +1016,22 @@ namespace island
         }
 
         const Vector3 forward(std::sin(yaw_), 0.0f, std::cos(yaw_));
-        const Vector3 right(forward.Z, 0.0f, -forward.X);
-        Vector3 wish = Vector3::Zero;
-        if (keyboard.IsKeyDown(Keys::W)) wish = wish + forward;
-        if (keyboard.IsKeyDown(Keys::S)) wish = wish - forward;
-        if (keyboard.IsKeyDown(Keys::D)) wish = wish + right;
-        if (keyboard.IsKeyDown(Keys::A)) wish = wish - right;
-        wish = wish + forward * touchControlState_.moveForward
-            + right * touchControlState_.moveRight;
+        const Vector3 right(-forward.Z, 0.0f, forward.X);
+        const FirstPersonMovementIntent movementIntent = FirstPersonInput::Resolve(
+            digitalInput, touchControlState_.moveForward,
+            touchControlState_.moveRight, yaw_);
+        const Vector3 wish(movementIntent.worldX, 0.0f, movementIntent.worldZ);
+        playerMotion_.SetRunning(movementIntent.run);
 
 #ifndef NDEBUG
         if (debugFreeCamera_.IsActive()) {
             const float vertical = (keyboard.IsKeyDown(Keys::E) ? 1.0f : 0.0f)
                 - (keyboard.IsKeyDown(Keys::Q) ? 1.0f : 0.0f);
-            const bool fast = keyboard.IsKeyDown(Keys::LeftShift)
-                || keyboard.IsKeyDown(Keys::RightShift);
+            const bool fast = movementIntent.run;
             debugFreeCamera_.Update(
                 yaw_, DebugFreeCameraInput{Vector3::Dot(wish, forward),
-                                            Vector3::Dot(wish, right), vertical, fast},
+                                            Vector3::Dot(wish, right),
+                                            vertical, fast},
                 deltaSeconds);
             const DebugFreeCameraPosition& freePosition = debugFreeCamera_.Position();
             cameraPosition_ = Vector3(freePosition.x, freePosition.y, freePosition.z);
@@ -1499,6 +1525,7 @@ namespace island
                 worldSeedCopyFeedbackSeconds_ > 0.0f;
             overlayState.worldSeedCopySucceeded = worldSeedCopySucceeded_;
             overlayState.swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
+            overlayState.running = playerMotion_.IsRunning();
             overlayState.groundHeight = playerMotion_.GroundHeight();
             overlayState.groundSlopeDegrees = playerMotion_.GroundSlopeRadians()
                 * 180.0f / std::numbers::pi_v<float>;
