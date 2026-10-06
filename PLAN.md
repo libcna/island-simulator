@@ -783,7 +783,10 @@ Android is not project completion.
 
 ### Release qualification
 
-- [ ] Run Linux release build and multiple fresh-user smoke sessions.
+- [~] Run Linux release build and multiple fresh-user smoke sessions. A clean two-worker release
+  tree now builds directly against the read-only sibling dependencies, passes the core/tool gates,
+  starts four times on isolated OpenGL 3.3, and produces a visually inspected overview. A longer
+  subjective release traversal from a fresh user environment remains open.
 - [ ] Run actual-browser release build, cold load, focus/pointer-lock, audio, resize/fullscreen, and
   extended-play tests.
 - [ ] Run Android release-like package install, cold/warm launch, lifecycle, touch, audio, thermal,
@@ -2541,6 +2544,25 @@ Work next, in order:
   alignment, integer, floating-point, enum, or other enabled undefined-behaviour diagnostic was
   emitted. `build-sanitize/` is reproducible and is removed after the pass to avoid retaining a
   redundant build tree.
+
+### 2026-10-06 — Clean Linux release reconstruction
+
+- Configured a new release tree under `/tmp` without reusing any project object, generated file,
+  or configured dependency target. It consumed the clean read-only sibling CNA `next` at
+  `f243c63a1dc5`, Sharp Runtime `next` at `21c06910f7cf`, EasyGL `develop` at `1edf4c1a4708`, and
+  MetaGL `develop` at `40829ca76a4e`, while all build outputs stayed outside those repositories.
+  The complete 623-step game/core/tool build succeeded with two workers.
+- GCC 14 release optimization emitted four dependency-only diagnostics in CNA bitmap, CNB/glTF,
+  and XNB import/write helpers. No island-simulator source warning was emitted, the game does not
+  use those source-content paths, and no behavioural reproduction or material game impact was
+  found; they are therefore not recorded as confirmed framework defects in `BUGS.md`.
+- The clean release core, world-report, and asset gates pass 3/3 in 3.68 seconds. The actual OpenGL
+  3.3 executable then passed one isolated smoke followed by three repeated fresh-process smokes;
+  a release overview capture was also rendered and visually inspected. The optimized game
+  executable is 974,776 bytes before its dynamic CNA/runtime dependencies. A longer subjective
+  release traversal remains open.
+- The 94 MB clean build tree and its temporary converted capture were removed after validation.
+  CNA and Sharp Runtime remain clean and unmodified.
 
 ## Session-end checklist
 
