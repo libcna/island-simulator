@@ -76,6 +76,12 @@ invalid display geometry releases both roles, and relative-look output is bounde
 span per update. The next valid contact can immediately acquire the released role. The HUD remains
 inside conservative display-edge margins.
 
+Pushing the movement stick through 92 percent of its usable range selects the 8.0 m/s land pace;
+easing it below 78 percent returns to walking. The gap prevents pace chatter near the threshold,
+and the movement ring/thumb change from green to warm gold while touch running is selected.
+Swimming keeps its independent 2.15 m/s pace. A run mode selected by a hardware Shift key remains
+independent of the temporary touch-stick selection.
+
 The implementation and deterministic multi-touch tests are complete, and the same HUD rendering
 code runs on OpenGL 3.3, WebGL 2, and OpenGL ES 3. A KVM-accelerated API 35 emulator visibly
 validated the translucent HUD and separately injected left-zone movement and right-zone look

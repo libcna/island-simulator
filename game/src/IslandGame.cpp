@@ -831,7 +831,7 @@ namespace island
             keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::Down),
             keyboard.IsKeyDown(Keys::A) || keyboard.IsKeyDown(Keys::Left),
             keyboard.IsKeyDown(Keys::D) || keyboard.IsKeyDown(Keys::Right),
-            runModeEnabled_,
+            runModeEnabled_ || touchControlState_.runRequested,
         };
         const bool movementKeyDown = digitalInput.forward || digitalInput.backward
             || digitalInput.left || digitalInput.right;

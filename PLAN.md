@@ -708,7 +708,9 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
 - [x] Add explicit `OPENGLES3` CMake and Gradle configurations plus reproducible arm64-v8a and
   x86_64 packaging instructions. Both ABI APKs build; the default output is arm64-v8a.
 - [~] Implement dual-zone touch controls: a floating movement stick, relative look region, stable
-  contact ownership, and a minimal asset-free HUD. Deterministic interpreter tests pass; the
+  contact ownership, and a minimal asset-free HUD. Deterministic interpreter tests pass; full
+  movement travel selects the 8.0 m/s land pace through 92/78 percent hysteresis and a warm-gold
+  ring/thumb cue while partial travel retains analog walking. The
   premultiplied translucent HUD and independent movement/look gestures run on the accelerated
   GLES 3 AVD. Simultaneous real-finger and physical-device ergonomic validation remain open.
 - [~] Handle pointer IDs, safe display margins, fixed-landscape orientation, resize, and missing or
@@ -3780,6 +3782,24 @@ Work next, in order:
   validator passes with 17 procedural records, 32 generator sources, one original project file,
   18 documented attribution records, and zero external files. No dependency repository or runtime
   package was changed.
+
+### 2026-10-06 — Analog touch running and GLES 3 validation
+
+- Added a mobile path to the existing faster land pace without another button: movement-stick
+  output at or above 92 percent requests 8.0 m/s running, while easing below 78 percent returns the
+  touch selection to analog walking. Hysteresis prevents threshold chatter, release/reset cancels
+  the request, swimming retains 2.15 m/s, and a hardware Shift toggle remains independent.
+- Reused the generated touch HUD to communicate the state. Its movement ring and thumb change from
+  green to restrained warm gold while touch running is selected, with no new textures, controls,
+  draw submissions, or external assets. Deterministic tests cover engage, retained hysteresis,
+  release, and cancellation; the complete native core suite passes in 43.56 seconds.
+- The same sources compile for WebGL 2 and arm64 GLES 3. WebAssembly is 8,496,519 bytes; the
+  arm64-only APK is 18,742,396 bytes with a 15,932,112-byte stripped `libmain.so`. An actual
+  x86_64 API 35 KVM/gfxstream run reached a clean GLES 3 frame; a sustained full-travel gesture
+  moved the player and an inspected 2400 by 1080 capture shows the clean warm-gold active cue.
+  No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. The headless AVD was stopped
+  and the default arm64 package restored. Physical-device ergonomics remain open. CNA and Sharp
+  Runtime remained read-only and unchanged.
 
 ## Session-end checklist
 

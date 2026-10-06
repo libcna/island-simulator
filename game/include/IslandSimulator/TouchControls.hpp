@@ -36,6 +36,7 @@ namespace island
         float lookTouchY = 0.0f;
         bool movementActive = false;
         bool lookActive = false;
+        bool runRequested = false; ///< Full-stick land pace with hysteretic release.
     };
 
     /**
@@ -50,6 +51,8 @@ namespace island
     public:
         static constexpr float MovementRadiusFraction = 0.14f;
         static constexpr float MovementDeadZone = 0.12f;
+        static constexpr float RunEngageMagnitude = 0.92f; ///< Normalized stick travel.
+        static constexpr float RunReleaseMagnitude = 0.78f; ///< Prevents threshold chatter.
 
         /** @brief Advances the interpreter from the complete current touch snapshot. */
         [[nodiscard]] TouchControlState Update(std::span<const TouchContact> contacts,

@@ -72,8 +72,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,742,444-byte APK with a
-15,932,160-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,742,396-byte APK with a
+15,932,112-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
@@ -100,6 +100,12 @@ The subsequent renderer-independent touch hardening rejects poisoned display/con
 they reach movement, camera, or HUD state. Core regressions cover cancellation and recovery; the
 same sources compile into the current WebGL 2 and arm64 GLES 3 packages. The Android runtime was
 not repeated for input values that a normal platform touch event cannot produce.
+A later x86_64 KVM run exercised the new touch-run path. A sustained full-travel movement gesture
+advanced the player through the complete scene and visibly changed the premultiplied movement ring
+and thumb from green to warm gold without restoring the former rectangular blend artifact. Core
+regressions prove the 92-percent engage and 78-percent release hysteresis; physical-device feel
+and threshold tuning remain open. The headless emulator was stopped and the arm64 package above
+was restored afterward.
 
 ## Requirements
 

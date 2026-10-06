@@ -80,6 +80,7 @@ namespace island
         if (magnitude <= MovementDeadZone) {
             state_.moveRight = 0.0f;
             state_.moveForward = 0.0f;
+            state_.runRequested = false;
             return;
         }
 
@@ -89,6 +90,11 @@ namespace island
         forward /= magnitude;
         state_.moveRight = right * normalizedMagnitude;
         state_.moveForward = forward * normalizedMagnitude;
+        if (state_.runRequested) {
+            state_.runRequested = normalizedMagnitude > RunReleaseMagnitude;
+        } else {
+            state_.runRequested = normalizedMagnitude >= RunEngageMagnitude;
+        }
     }
 
     TouchControlState TouchControls::Update(const std::span<const TouchContact> contacts,
@@ -124,6 +130,7 @@ namespace island
             state_.moveRight = 0.0f;
             state_.moveForward = 0.0f;
             state_.movementActive = false;
+            state_.runRequested = false;
         }
         const TouchContact* look = FindContact(contacts, lookId_);
         if (look == nullptr || !IsUsableContact(*look, displayWidth, displayHeight)

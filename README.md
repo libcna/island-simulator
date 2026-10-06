@@ -204,7 +204,9 @@ browser engine remain open.
 
 The Android project produces arm64-v8a device and x86_64 emulator APKs with an explicit GLES 3
 renderer. The left half of the screen supplies a floating movement stick and the right half uses
-relative drag-to-look, with subtle generated premultiplied-alpha control indicators. Android
+relative drag-to-look, with subtle generated premultiplied-alpha control indicators. Near-full
+movement-stick travel selects the faster land pace with a warm-gold visual cue; easing inward
+returns to analog walking. Android
 Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-GPU gfxstream.
 The complete current scene, independent movement/look gestures, a same-process hot resume, and
 AAudio pause/resume are validated there. This is meaningful emulator qualification, but it does

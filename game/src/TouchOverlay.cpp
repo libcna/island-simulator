@@ -136,15 +136,22 @@ namespace island
                                static_cast<float>(viewportHeight) - lookRadius - edgeInset);
         }
 
+        const Color movementRingColor = state.runRequested
+            ? PremultipliedColor(255, 208, 112, 168)
+            : state.movementActive
+                ? PremultipliedColor(99, 235, 190, 150)
+                : PremultipliedColor(235, 250, 244, 62);
+        const Color movementKnobColor = state.runRequested
+            ? PremultipliedColor(255, 244, 205, 188)
+            : state.movementActive
+                ? PremultipliedColor(225, 255, 243, 170)
+                : PremultipliedColor(235, 250, 244, 54);
+
         spriteBatch_->Begin();
         spriteBatch_->Draw(*ringTexture_, CentredRectangle(movementCentreX, movementCentreY, radius),
-                           state.movementActive
-                               ? PremultipliedColor(99, 235, 190, 150)
-                               : PremultipliedColor(235, 250, 244, 62));
+                           movementRingColor);
         spriteBatch_->Draw(*discTexture_, CentredRectangle(movementKnobX, movementKnobY, knobRadius),
-                           state.movementActive
-                               ? PremultipliedColor(225, 255, 243, 170)
-                               : PremultipliedColor(235, 250, 244, 54));
+                           movementKnobColor);
         spriteBatch_->Draw(*ringTexture_, CentredRectangle(lookX, lookY, radius * 0.82f),
                            state.lookActive
                                ? PremultipliedColor(110, 220, 255, 135)

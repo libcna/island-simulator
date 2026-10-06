@@ -1128,6 +1128,8 @@ int main()
               "look presentation follows the owned contact");
     CheckNear(touchState.lookTouchY, 344.0f, 0.0001f,
               "look presentation preserves vertical contact position");
+    Check(touchState.runRequested,
+          "a near-full movement-stick throw requests the faster land pace");
 
     touchContacts[0] = {11, 900.0f, -200.0f, island::TouchPhase::Moved};
     touchState = touchControls.Update(touchContacts, 1280.0f, 720.0f);
@@ -1144,6 +1146,8 @@ int main()
           "released and missing contacts cancel both touch roles");
     CheckNear(touchState.moveForward, 0.0f, 0.0001f,
               "cancelled movement returns neutral output");
+    Check(!touchState.runRequested,
+          "releasing the movement contact cancels its run request");
 
     const std::array<island::TouchContact, 1> tinyMovement = {{
         {31, 160.0f, 500.0f, island::TouchPhase::Pressed},
@@ -1158,6 +1162,25 @@ int main()
     touchState = touchControls.Update(tinyMovementMoved, 1000.0f, 600.0f);
     Check(touchState.movementActive && touchState.moveForward == 0.0f,
           "display resize safely re-anchors an active movement contact");
+
+    island::TouchControls touchRunControls;
+    std::array<island::TouchContact, 1> touchRunContact = {{
+        {41, 150.0f, 500.0f, island::TouchPhase::Pressed},
+    }};
+    (void)touchRunControls.Update(touchRunContact, 1280.0f, 720.0f);
+    touchRunContact[0] = {41, 250.0f, 500.0f, island::TouchPhase::Moved};
+    island::TouchControlState touchRunState = touchRunControls.Update(
+        touchRunContact, 1280.0f, 720.0f);
+    Check(touchRunState.runRequested,
+          "full touch-stick travel engages touch running");
+    touchRunContact[0] = {41, 235.0f, 500.0f, island::TouchPhase::Moved};
+    touchRunState = touchRunControls.Update(touchRunContact, 1280.0f, 720.0f);
+    Check(touchRunState.runRequested,
+          "touch running remains engaged inside its release hysteresis");
+    touchRunContact[0] = {41, 220.0f, 500.0f, island::TouchPhase::Moved};
+    touchRunState = touchRunControls.Update(touchRunContact, 1280.0f, 720.0f);
+    Check(!touchRunState.runRequested,
+          "easing the stick inward restores touch walking");
 
     const std::array<island::TouchContact, 1> invalidTouch = {{
         {44, std::numeric_limits<float>::quiet_NaN(), 300.0f,

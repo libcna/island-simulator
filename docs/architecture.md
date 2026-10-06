@@ -131,6 +131,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 3. `FirstPersonInput` gives WASD and arrows the same local axes, combines touch, and transforms the
    result by current camera yaw before physics. Mouse yaw is updated first, so held forward movement
    turns during the same update. Its right basis matches visible screen-right rather than world +X.
+   Full touch-stick travel requests the faster land pace through a hysteretic threshold, while
+   partial travel remains analog walking.
 4. `IslandGame` edge-detects either Shift key and retains the selected 4.3/8.0 m/s walk/run mode;
    `PlayerMotion` applies frame-time clamping, direction-independent vector acceleration,
    slope checks, swimming speed, the island-relative current field, the remote safety boundary,

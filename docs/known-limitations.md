@@ -75,9 +75,9 @@ been confirmed so far.
   bands; entry splash particles and body/shore displacement remain absent. The outer-ocean current
   also deepens the existing player-water loop into a restrained undertow cue; subjective
   headphone/speaker tuning remains open.
-- Desktop mouse sensitivity, 4.3/8.0 m/s walk/run speeds, and mobile touch sensitivity are
-  compile-time values. WASD and arrows are supported, but there is no settings UI, remapping,
-  gamepad control scheme, or handed touch layout yet.
+- Desktop mouse sensitivity, 4.3/8.0 m/s walk/run speeds, mobile touch sensitivity, and the
+  92/78-percent touch-run thresholds are compile-time values. WASD and arrows are supported, but
+  there is no settings UI, remapping, gamepad control scheme, or handed touch layout yet.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,
   score, progression, day/night cycle, or dynamic weather.
 
