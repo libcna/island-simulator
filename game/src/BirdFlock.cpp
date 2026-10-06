@@ -103,6 +103,22 @@ namespace island
         agent.wanderPhaseB = std::fmod(sequence * 1.379f + 1.1f, TwoPi);
         agent.wanderFrequencyA = 0.19f + static_cast<float>(index % 5U) * 0.017f;
         agent.wanderFrequencyB = 0.071f + static_cast<float>(index % 7U) * 0.011f;
+        agent.radialDriftPhase = std::fmod(sequence * 1.137f + 0.6f, TwoPi);
+        agent.radialDriftFrequency = 0.018f
+            + static_cast<float>(index % 6U) * 0.0027f;
+        switch (agent.state.family) {
+        case BirdPathFamily::Shore:
+            agent.radialDriftAmplitude = 9.0f + static_cast<float>(index % 3U) * 1.4f;
+            break;
+        case BirdPathFamily::Canopy:
+            agent.radialDriftAmplitude = 7.0f + static_cast<float>(index % 4U) * 1.2f;
+            break;
+        case BirdPathFamily::High:
+            agent.radialDriftAmplitude = 13.0f + static_cast<float>(index % 3U) * 2.0f;
+            break;
+        }
+        agent.glidePhase = std::fmod(sequence * 1.541f + 0.9f, TwoPi);
+        agent.glideFrequency = 0.105f + static_cast<float>(index % 5U) * 0.011f;
         agent.flapPhase = std::fmod(sequence * 1.97f, TwoPi);
         agent.flapSpeed = 5.2f + static_cast<float>(index % 6U) * 0.54f;
         agent.state.wingPose = std::sin(agent.flapPhase);
@@ -191,8 +207,11 @@ namespace island
         const float radialZ = agent.state.z / radius;
         const float tangentX = -radialZ * static_cast<float>(agent.route.direction);
         const float tangentZ = radialX * static_cast<float>(agent.route.direction);
+        const float preferredRadius = agent.route.preferredRadius
+            + std::sin(elapsedSeconds_ * agent.radialDriftFrequency
+                       + agent.radialDriftPhase) * agent.radialDriftAmplitude;
         const float radialCorrection = std::clamp(
-            (agent.route.preferredRadius - radius) * 0.018f, -0.52f, 0.52f);
+            (preferredRadius - radius) * 0.018f, -0.52f, 0.52f);
         const float desiredX = tangentX + radialX * radialCorrection;
         const float desiredZ = tangentZ + radialZ * radialCorrection;
         const float wander = std::sin(elapsedSeconds_ * agent.wanderFrequencyA
@@ -200,8 +219,16 @@ namespace island
             + std::sin(elapsedSeconds_ * agent.wanderFrequencyB
                        + agent.wanderPhaseB) * 0.075f;
         const float desiredHeading = std::atan2(desiredZ, desiredX) + wander;
+        const float headingError = WrapAngle(desiredHeading - agent.state.headingRadians);
         agent.state.headingRadians = LerpAngle(
             agent.state.headingRadians, desiredHeading, deltaSeconds * 0.82f);
+        const float orbitBank = static_cast<float>(agent.route.direction)
+            * std::clamp(agent.state.speed / radius * 1.35f, 0.035f, 0.17f);
+        const float desiredBank = std::clamp(
+            orbitBank + headingError * 0.58f, -0.34f, 0.34f);
+        agent.state.bankRadians += std::clamp(
+            desiredBank - agent.state.bankRadians,
+            -deltaSeconds * 0.62f, deltaSeconds * 0.62f);
 
         const float speedVariation = 1.0f
             + std::sin(elapsedSeconds_ * 0.21f + agent.wanderPhaseB) * 0.055f;
@@ -221,9 +248,21 @@ namespace island
                                     -maximumVerticalStep, maximumVerticalStep);
 
         agent.flapPhase = std::fmod(agent.flapPhase + agent.flapSpeed * deltaSeconds, TwoPi);
-        const float glideModulation = 0.72f
+        const float glideSignal = std::sin(
+            elapsedSeconds_ * agent.glideFrequency + agent.glidePhase)
+            + 0.38f * std::sin(elapsedSeconds_ * agent.glideFrequency * 0.417f
+                              + agent.glidePhase * 1.73f);
+        const float targetGlide = std::clamp((glideSignal - 0.42f) / 0.42f, 0.0f, 1.0f);
+        agent.state.glideAmount += std::clamp(
+            targetGlide - agent.state.glideAmount,
+            -deltaSeconds * 0.72f, deltaSeconds * 0.72f);
+        const float flapAmplitude = 0.72f
             + 0.28f * std::sin(elapsedSeconds_ * 0.31f + agent.verticalPhase);
-        agent.state.wingPose = std::sin(agent.flapPhase) * glideModulation;
+        const float flappingPose = std::sin(agent.flapPhase) * flapAmplitude;
+        const float glidingPose = 0.11f
+            + std::sin(elapsedSeconds_ * 0.23f + agent.wanderPhaseA) * 0.035f;
+        agent.state.wingPose = std::lerp(
+            flappingPose, glidingPose, agent.state.glideAmount);
     }
 
     std::span<const BirdState> BirdFlock::Birds() const noexcept

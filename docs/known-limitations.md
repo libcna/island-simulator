@@ -78,8 +78,9 @@ been confirmed so far.
 ## Wildlife and audio
 
 - A first 24-bird procedural flock has varied shore/canopy/high paths, animated wing strokes,
-  culling, terrain clearance, and distance-scaled simulation. It still lacks calls, perching,
-  landing, and long subjective behaviour tuning. Eight shallow-water schools add 48 fish with
+  slow per-agent radial drift, banked turns, intermittent glides, positional calls, culling,
+  terrain clearance, and distance-scaled simulation. It still lacks perching, landing, and long
+  subjective behaviour tuning. Eight shallow-water schools add 48 fish with
   depth/shore constraints, animated tails, culling, and distance-scaled simulation; their geometry,
   schooling variation, water integration, and long subjective tuning remain first-pass quality. A
   first non-hostile shark alternates occasional offshore patrols with longer absences, stays out of

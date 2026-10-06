@@ -63,7 +63,8 @@ as the offshore current develops, and speed/depth-responsive player ripples that
 same animated ocean surface without another draw call. A fixed sunny gradient sky adds a sun disc
 and sparse, layered horizontal high-cloud wisps without a weather simulation. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
-wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. Eight
+wing strokes, intermittent glides, banked turns, slow radial route drift, terrain clearance,
+visibility culling, and distance-throttled simulation. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface. One
 non-hostile shark occasionally patrols deeper offshore water with a varied dive and tail cycle.
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,

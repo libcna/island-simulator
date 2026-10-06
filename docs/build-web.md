@@ -159,6 +159,12 @@ player and viewport samples in the JSON report. Chromium's
 synthetic page-freeze command did not yield reliable resume evidence in this environment, so real
 tab background/foreground behaviour remains unqualified rather than being inferred.
 
+Discrete input checks wait for the corresponding authoritative game diagnostic and retry a bounded
+number of times. The backward shoreline traversal likewise remains held until the first transition
+accent is reported, up to a bounded timeout. This keeps SwiftShader frame-time spikes from turning
+brief DevTools key edges into false failures while still requiring the game to observe every tested
+control and state transition.
+
 This smoke test proves browser/WebAssembly/WebGL execution, first-gesture CNA mixer/track
 initialization, and acceptance of the shoreline transition one-shot, but it is not a substitute for
 a visible interactive listening pass using hardware acceleration. Do not infer audible quality,

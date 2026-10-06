@@ -66,11 +66,12 @@ namespace island
         }
 
         [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
-                                         const Vector3& forward, const float localX,
+                                         const Vector3& up, const Vector3& forward,
+                                         const float localX,
                                          const float localY, const float localZ,
                                          const float scale)
         {
-            return centre + right * (localX * scale) + Vector3::Up * (localY * scale)
+            return centre + right * (localX * scale) + up * (localY * scale)
                 + forward * (localZ * scale);
         }
 
@@ -81,14 +82,24 @@ namespace island
             const Vector3 centre(bird.x, bird.y, bird.z);
             const Vector3 forward(std::cos(bird.headingRadians), 0.0f,
                                   std::sin(bird.headingRadians));
-            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const Vector3 levelRight(-forward.Z, 0.0f, forward.X);
+            const float bankCosine = std::cos(bird.bankRadians);
+            const float bankSine = std::sin(bird.bankRadians);
+            const Vector3 right = levelRight * bankCosine + Vector3::Up * bankSine;
+            const Vector3 up = Vector3::Up * bankCosine - levelRight * bankSine;
             const float scale = bird.scale;
-            const Vector3 nose = LocalPoint(centre, right, forward, 0.0f, 0.0f, 0.66f, scale);
-            const Vector3 tail = LocalPoint(centre, right, forward, 0.0f, 0.0f, -0.52f, scale);
-            const Vector3 top = LocalPoint(centre, right, forward, 0.0f, 0.14f, 0.02f, scale);
-            const Vector3 bottom = LocalPoint(centre, right, forward, 0.0f, -0.105f, 0.01f, scale);
-            const Vector3 left = LocalPoint(centre, right, forward, -0.14f, 0.0f, 0.01f, scale);
-            const Vector3 rightSide = LocalPoint(centre, right, forward, 0.14f, 0.0f, 0.01f, scale);
+            const Vector3 nose = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.0f, 0.66f, scale);
+            const Vector3 tail = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.0f, -0.52f, scale);
+            const Vector3 top = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.14f, 0.02f, scale);
+            const Vector3 bottom = LocalPoint(
+                centre, right, up, forward, 0.0f, -0.105f, 0.01f, scale);
+            const Vector3 left = LocalPoint(
+                centre, right, up, forward, -0.14f, 0.0f, 0.01f, scale);
+            const Vector3 rightSide = LocalPoint(
+                centre, right, up, forward, 0.14f, 0.0f, 0.01f, scale);
 
             AddTriangle(vertices, nose, top, left, palette.body);
             AddTriangle(vertices, nose, rightSide, top, palette.body);
@@ -100,24 +111,27 @@ namespace island
             AddTriangle(vertices, tail, bottom, left, palette.lowerWing);
 
             const float wingLift = bird.wingPose * 0.38f;
-            const Vector3 leftFront = LocalPoint(centre, right, forward, -0.06f, 0.035f,
-                                                  0.20f, scale);
-            const Vector3 leftBack = LocalPoint(centre, right, forward, -0.08f, 0.015f,
-                                                 -0.24f, scale);
-            const Vector3 leftTip = LocalPoint(centre, right, forward, -1.04f, wingLift,
-                                                -0.06f, scale);
-            const Vector3 rightFront = LocalPoint(centre, right, forward, 0.06f, 0.035f,
-                                                   0.20f, scale);
-            const Vector3 rightBack = LocalPoint(centre, right, forward, 0.08f, 0.015f,
-                                                  -0.24f, scale);
-            const Vector3 rightTip = LocalPoint(centre, right, forward, 1.04f, wingLift,
-                                                 -0.06f, scale);
+            const Vector3 leftFront = LocalPoint(
+                centre, right, up, forward, -0.06f, 0.035f, 0.20f, scale);
+            const Vector3 leftBack = LocalPoint(
+                centre, right, up, forward, -0.08f, 0.015f, -0.24f, scale);
+            const Vector3 leftTip = LocalPoint(
+                centre, right, up, forward, -1.04f, wingLift, -0.06f, scale);
+            const Vector3 rightFront = LocalPoint(
+                centre, right, up, forward, 0.06f, 0.035f, 0.20f, scale);
+            const Vector3 rightBack = LocalPoint(
+                centre, right, up, forward, 0.08f, 0.015f, -0.24f, scale);
+            const Vector3 rightTip = LocalPoint(
+                centre, right, up, forward, 1.04f, wingLift, -0.06f, scale);
             AddDoubleSidedTriangle(vertices, leftFront, leftTip, leftBack, palette.upperWing);
             AddDoubleSidedTriangle(vertices, rightFront, rightBack, rightTip, palette.upperWing);
 
-            const Vector3 tailRoot = LocalPoint(centre, right, forward, 0.0f, 0.0f, -0.40f, scale);
-            const Vector3 tailLeft = LocalPoint(centre, right, forward, -0.34f, 0.0f, -0.83f, scale);
-            const Vector3 tailRight = LocalPoint(centre, right, forward, 0.34f, 0.0f, -0.83f, scale);
+            const Vector3 tailRoot = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.0f, -0.40f, scale);
+            const Vector3 tailLeft = LocalPoint(
+                centre, right, up, forward, -0.34f, 0.0f, -0.83f, scale);
+            const Vector3 tailRight = LocalPoint(
+                centre, right, up, forward, 0.34f, 0.0f, -0.83f, scale);
             AddDoubleSidedTriangle(vertices, tailRoot, tailLeft, tailRight, palette.tail);
         }
 
@@ -128,15 +142,21 @@ namespace island
             const Vector3 centre(bird.x, bird.y, bird.z);
             const Vector3 forward(std::cos(bird.headingRadians), 0.0f,
                                   std::sin(bird.headingRadians));
-            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const Vector3 levelRight(-forward.Z, 0.0f, forward.X);
+            const float bankCosine = std::cos(bird.bankRadians);
+            const float bankSine = std::sin(bird.bankRadians);
+            const Vector3 right = levelRight * bankCosine + Vector3::Up * bankSine;
+            const Vector3 up = Vector3::Up * bankCosine - levelRight * bankSine;
             const float scale = bird.scale;
             const float wingLift = bird.wingPose * 0.30f;
-            const Vector3 nose = LocalPoint(centre, right, forward, 0.0f, 0.0f, 0.60f, scale);
-            const Vector3 tail = LocalPoint(centre, right, forward, 0.0f, 0.0f, -0.55f, scale);
-            const Vector3 leftTip = LocalPoint(centre, right, forward, -0.98f, wingLift,
-                                                -0.04f, scale);
-            const Vector3 rightTip = LocalPoint(centre, right, forward, 0.98f, wingLift,
-                                                 -0.04f, scale);
+            const Vector3 nose = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.0f, 0.60f, scale);
+            const Vector3 tail = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.0f, -0.55f, scale);
+            const Vector3 leftTip = LocalPoint(
+                centre, right, up, forward, -0.98f, wingLift, -0.04f, scale);
+            const Vector3 rightTip = LocalPoint(
+                centre, right, up, forward, 0.98f, wingLift, -0.04f, scale);
             AddDoubleSidedTriangle(vertices, nose, leftTip, tail, palette.upperWing);
             AddDoubleSidedTriangle(vertices, nose, tail, rightTip, palette.upperWing);
         }

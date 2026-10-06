@@ -1048,6 +1048,8 @@ int main()
         Check(bird.x == repeated.x && bird.y == repeated.y && bird.z == repeated.z
                   && bird.headingRadians == repeated.headingRadians
                   && bird.speed == repeated.speed && bird.scale == repeated.scale
+                  && bird.bankRadians == repeated.bankRadians
+                  && bird.glideAmount == repeated.glideAmount
                   && bird.family == repeated.family
                   && bird.colorVariant == repeated.colorVariant,
               "bird initialization is deterministic");
@@ -1125,6 +1127,9 @@ int main()
     float minimumObservedBirdRadius = 1000.0f;
     bool observedWingUp = false;
     bool observedWingDown = false;
+    bool observedStrongGlide = false;
+    bool observedLeftBank = false;
+    bool observedRightBank = false;
     constexpr int birdSimulationFrames = 36000;
     for (int frame = 0; frame < birdSimulationFrames; ++frame) {
         birds.Update(1.0f / 30.0f, 0.0f, 15.0f, 0.0f);
@@ -1137,23 +1142,36 @@ int main()
             Check(bird.x == repeated.x && bird.y == repeated.y && bird.z == repeated.z
                       && bird.headingRadians == repeated.headingRadians
                       && bird.wingPose == repeated.wingPose
+                      && bird.bankRadians == repeated.bankRadians
+                      && bird.glideAmount == repeated.glideAmount
                       && bird.simulationTier == repeated.simulationTier,
                   "bird simulation remains deterministic over a long session");
             const float radius = std::hypot(bird.x, bird.z);
             maximumObservedBirdRadius = std::max(maximumObservedBirdRadius, radius);
             minimumObservedBirdRadius = std::min(minimumObservedBirdRadius, radius);
-            Check(std::isfinite(bird.headingRadians) && std::isfinite(bird.wingPose),
+            Check(std::isfinite(bird.headingRadians) && std::isfinite(bird.wingPose)
+                      && std::isfinite(bird.bankRadians) && std::isfinite(bird.glideAmount),
                   "bird flight pose remains finite over a long session");
+            Check(std::fabs(bird.bankRadians) <= 0.341f
+                      && bird.glideAmount >= 0.0f && bird.glideAmount <= 1.0f,
+                  "bird banking and glide blend remain inside portable pose bounds");
             Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.8f,
                   "bird flight maintains its minimum terrain clearance");
             observedWingUp = observedWingUp || bird.wingPose > 0.55f;
             observedWingDown = observedWingDown || bird.wingPose < -0.55f;
+            observedStrongGlide = observedStrongGlide || bird.glideAmount > 0.92f;
+            observedLeftBank = observedLeftBank || bird.bankRadians < -0.055f;
+            observedRightBank = observedRightBank || bird.bankRadians > 0.055f;
         }
     }
     Check(minimumObservedBirdRadius > 35.0f && maximumObservedBirdRadius < 315.0f,
           "all bird route families remain in the authored island airspace");
     Check(observedWingUp && observedWingDown,
           "bird animation visits both wing stroke extremes");
+    Check(observedStrongGlide,
+          "bird animation enters sustained intermittent glide periods");
+    Check(observedLeftBank && observedRightBank,
+          "opposed route directions produce visible banking in both directions");
     Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
               + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
           "bird simulation tiers account for the complete flock");

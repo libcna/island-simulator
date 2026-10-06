@@ -475,9 +475,10 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   home/active targets, headings, behaviour colours, and full/reduced/dormant tiers; steering
   proposals and non-bird spawn volumes remain open.
 - [~] Unit-test state transitions, bounds, spawn validity, avoidance, and deterministic seeds. Bird
-  population, path-family mix, deterministic initialization/long-run motion, animation extremes,
-  terrain clearance, route radius, and tier accounting are covered through a simulated 20-minute
-  flight. Fish population/school distribution, water validity, deterministic motion, tail extremes,
+  population, path-family mix, deterministic initialization/long-run motion, wing extremes,
+  intermittent glide reachability, opposed bank directions, terrain clearance, route radius, and
+  tier accounting are covered through a simulated 20-minute flight. Fish population/school
+  distribution, water validity, deterministic motion, tail extremes,
   meaningful route travel, and tier accounting are covered through a simulated ten-minute swim.
   Shark deterministic motion, water/depth validity, presence/absence cycles, body animation,
   meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol.
@@ -490,10 +491,12 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 
 - [x] Add multiple path families above shore/interior with altitude, speed, turn, and group variation.
   Ten shore, eight canopy, and six high agents use distinct radii, altitudes, speeds, directions,
-  vertical phases, and two-frequency steering variation.
+  vertical phases, two-frequency steering variation, and slow individual radial drift.
 - [x] Avoid short obvious loops and synchronized animation. Per-agent incommensurate steering,
-  altitude, and flap phases remove shared cycles; a long deterministic regression guards bounded
-  nondegenerate motion, while subjective whole-island observation remains a polish task.
+  altitude, flap, radial-drift, and glide phases remove shared cycles. Smooth intermittent glides
+  and route/steering-derived bank angles break up perpetual level flapping without increasing the
+  population, geometry, or one-draw submission budget. A long deterministic regression guards
+  bounded nondegenerate motion, while subjective whole-island observation remains a polish task.
 - [x] Add occasional near and distant appearances with bounded active counts. The fixed 24-agent
   budget uses individual frustum/distance culling, near/far procedural meshes, distance-throttled
   updates, and one dynamic-buffer draw submission.
@@ -811,7 +814,9 @@ Android is not project completion.
   blade lighting, the jungle now has derivative-based two-sided facet light, and a bounded contact
   batch grounds major near objects; unified atmospheric/exposure tuning and broader material
   response remain.
-- [ ] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
+- [~] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
+  Bird paths now drift slowly around their authored radii and their CPU pose blends between wing
+  strokes, glides, and banked turns; fish, shark, monkey, and long subjective tuning remain open.
 - [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
 - [ ] Fix frame pacing, loading hitches, input focus issues, touch ergonomics, and platform-specific
   rendering differences found during real play.
@@ -1013,8 +1018,9 @@ Work next, in order:
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
-   are complete first passes. Keep bird, fish, and shark layers under subjective observation during
-   play.
+   are complete first passes. Bird flight now adds slow per-agent radial drift, banked turns, and
+   intermittent smooth glides without another draw; keep it, fish, and shark layers under
+   subjective observation during play.
 3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
    paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
@@ -2977,6 +2983,34 @@ Work next, in order:
   GLES 3 target builds, application lint passes, the 33,582,736-byte APK assembles, and its stripped
   library is 15,850,360 bytes; WebAssembly is 8,435,697 bytes. Android appearance remains
   unqualified without stable hardware/KVM execution.
+- CNA and Sharp Runtime were not modified, and no dependency defect was found.
+
+### 2026-10-06 — Radially varied, banked, intermittently gliding bird flight
+
+- Extended every authored shore/canopy/high bird route with a separate slow radial-drift phase,
+  frequency, and family-scaled 7--17 m amplitude. The existing two-frequency heading wander,
+  vertical clearance, speed variation, and bounded airspace remain authoritative; routes no longer
+  converge on one fixed-radius orbit over long observation.
+- Added smoothly approached route/steering-derived bank angles bounded to 0.34 radians and
+  deterministic, smoothly entered intermittent glide windows. The flap clock continues through a
+  glide, so resuming a wing stroke does not reset all birds to a shared phase. `BirdRenderer`
+  rotates the existing near and far body/wing bases by the bank pose; population, triangles,
+  dynamic-buffer capacity, culling, simulation tiers, and the one-draw ceiling are unchanged.
+- Extended the simulated 20-minute regression to require finite bounded bank/glide state, a strong
+  glide, both bank directions, both wing-stroke extremes, unchanged terrain clearance, bounded
+  radii, and exact repeatability. Native and Chromium bird captures were inspected and show the
+  banked silhouette. A new startup diagnostic is mandatory in the native bird capture and both the
+  Web lifecycle and dedicated bird gates.
+- A heavily loaded SwiftShader pass proved every renderer/scene gate, including the bird gate, but
+  missed fixed-duration `B`, `F1`, `F4`, and shoreline input sampling. The browser harness now
+  waits for authoritative game diagnostics with bounded retries and holds shoreline traversal until
+  the actual first transition accent. The resulting complete Chrome 152/WebGL 2 harness passes all
+  22 stages; genuine tab background/foreground recovery remains diagnostic-only and unqualified.
+- The correctly isolated native suite passes 37/37 in 74.81 seconds, including 29 real OpenGL
+  scenes and real X11 input. The arm64 GLES 3 target builds, the 33,585,008-byte APK assembles,
+  application lint passes, its stripped library is 15,852,632 bytes, and WebAssembly is 8,437,245
+  bytes. Android appearance remains unqualified without stable hardware/KVM execution. The world
+  fingerprint remains `d83ecd714e10fc9f`.
 - CNA and Sharp Runtime were not modified, and no dependency defect was found.
 
 ## Session-end checklist

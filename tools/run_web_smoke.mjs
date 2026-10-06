@@ -127,6 +127,31 @@ try {
     }, sessionId);
     await delay(500);
   };
+  const readSmokeOutput = async sessionId => {
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "globalThis.islandSmokeResult?.output ?? ''",
+      returnByValue: true,
+    }, sessionId);
+    return evaluation.result.value ?? "";
+  };
+  const waitForOutput = async (sessionId, pattern, attempts = 12) => {
+    for (let attempt = 0; attempt < attempts; ++attempt) {
+      const output = await readSmokeOutput(sessionId);
+      if (typeof pattern === "string" ? output.includes(pattern) : pattern.test(output)) {
+        return true;
+      }
+      await delay(250);
+    }
+    return false;
+  };
+  const dispatchKeyUntilOutput = async (sessionId, key, code, virtualKeyCode, pattern) => {
+    if (await waitForOutput(sessionId, pattern, 1)) return true;
+    for (let attempt = 0; attempt < 3; ++attempt) {
+      await dispatchKeyPress(sessionId, key, code, virtualKeyCode, 650, 350);
+      if (await waitForOutput(sessionId, pattern)) return true;
+    }
+    return false;
+  };
 
   const { targetId: smokeTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: smokeSessionId } = await call(
@@ -178,6 +203,8 @@ try {
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes("island-simulator: birds 24 agents")
+    && result.output?.includes(
+      "island-simulator: bird flight uses slow radial drift, banking, and intermittent glide")
     && result.output?.includes("island-simulator: fish 48 agents")
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -868,6 +895,8 @@ try {
     && birdResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && birdResult.output?.includes("island-simulator: birds 24 agents")
+    && birdResult.output?.includes(
+      "island-simulator: bird flight uses slow radial drift, banking, and intermittent glide")
     && /birds [1-9][0-9]*\/24 visible/.test(birdResult.output ?? "")
     && !birdResult.error;
 
@@ -1004,15 +1033,21 @@ try {
     type: "keyUp", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
     nativeVirtualKeyCode: 87,
   }, visualSessionId);
-  for (let toggle = 0; toggle < 2; ++toggle) {
-    await dispatchKeyPress(visualSessionId, "b", "KeyB", 66);
-  }
-  await dispatchKeyPress(visualSessionId, "F5", "F5", 116);
+  await dispatchKeyUntilOutput(
+    visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion disabled");
+  await dispatchKeyUntilOutput(
+    visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion enabled");
+  await dispatchKeyUntilOutput(
+    visualSessionId, "F5", "F5", 116, "island-simulator: debug teleport south beach");
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
     nativeVirtualKeyCode: 83,
   }, visualSessionId);
-  await delay(6000);
+  for (let attempt = 0; attempt < 15; ++attempt) {
+    await delay(1000);
+    if ((await readSmokeOutput(visualSessionId)).includes(
+      "island-simulator: first water-transition accent played")) break;
+  }
   await call("Input.dispatchKeyEvent", {
     type: "keyUp", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
     nativeVirtualKeyCode: 83,
@@ -1026,11 +1061,16 @@ try {
   }, visualSessionId);
   await delay(700);
 
-  await dispatchKeyPress(visualSessionId, "F2", "F2", 113);
-  await dispatchKeyPress(visualSessionId, "F4", "F4", 115);
-  // F2 intentionally adds a large diagnostic line batch. The shared helper keeps both edges
-  // across several SwiftShader frames even under that debug-only load.
-  await dispatchKeyPress(visualSessionId, "F1", "F1", 112);
+  await dispatchKeyUntilOutput(
+    visualSessionId, "F2", "F2", 113,
+    "island-simulator: world debug visualization enabled with 9 ground-contact samples");
+  await dispatchKeyUntilOutput(
+    visualSessionId, "F4", "F4", 115,
+    /island-simulator: world seed clipboard copy (confirmed|unavailable)/);
+  // F2 intentionally adds a large diagnostic line batch. Wait for authoritative game output
+  // after every edge so even sub-10-FPS SwiftShader runs cannot silently miss the input.
+  await dispatchKeyUntilOutput(
+    visualSessionId, "F1", "F1", 112, "island-simulator: debug overlay disabled");
 
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1000, height: 600, deviceScaleFactor: 1, mobile: false,

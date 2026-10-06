@@ -583,6 +583,8 @@ namespace island
                   << worldCollisionGrid_.CellCount() << " occupied cells\n"
                   << "island-simulator: birds " << birdFlock_.Birds().size()
                   << " agents in a distance-throttled one-batch simulation\n"
+                  << "island-simulator: bird flight uses slow radial drift, banking, and "
+                     "intermittent glide\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"

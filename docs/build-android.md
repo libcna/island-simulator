@@ -27,7 +27,7 @@ staggered per-instance near/far LOD,
 forked near variant and per-instance large-prop range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
 landmark composition, 24 simulated
-procedural birds, eight fish schools,
+procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
 one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys, fixed sunny sky
 with layered horizontal high wisps,
 five fogged distant islets with 11 simplified palm silhouettes,
@@ -43,8 +43,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,578,336-byte APK with a
-15,845,960-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,585,008-byte APK with a
+15,852,632-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

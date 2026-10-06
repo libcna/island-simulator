@@ -338,11 +338,12 @@ collision, and culling paths as procedural props, while invariant tests keep eve
 its clearing and outside the central walking room.
 
 The first wildlife renderer draws 24 procedural birds distributed across shore, canopy, and high
-route families. `BirdFlock` combines soft radial steering with two incommensurate wander terms,
-individual speeds, vertical oscillation, flap phases, and terrain-derived minimum clearance.
+route families. `BirdFlock` combines soft radial steering with per-agent slow radius drift, two
+incommensurate wander terms, individual speeds, vertical oscillation, flap phases, smoothly
+entered intermittent glide windows, banked turns, and terrain-derived minimum clearance.
 Observer distance selects full, quarter-rate, or one-thirtieth-rate simulation while accumulated
 time preserves average motion. `BirdRenderer` frustum/distance-culls individual agents, selects a
-closed near mesh or double-sided far silhouette, applies CPU wing pose, and streams all visible
+closed near mesh or double-sided far silhouette, applies CPU wing and bank poses, and streams all visible
 triangles through one CNA `DynamicVertexBuffer` draw. The portable `BasicEffect` path has no custom
 shader or modern-only feature. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute and visually
 match the dedicated bird capture; the bird-inclusive arm64 GLES 3 APK builds, with runtime still

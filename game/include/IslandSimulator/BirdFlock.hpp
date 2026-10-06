@@ -29,6 +29,8 @@ namespace island
         float headingRadians = 0.0f;
         float speed = 0.0f;
         float wingPose = 0.0f;
+        float bankRadians = 0.0f;
+        float glideAmount = 0.0f;
         float scale = 1.0f;
         BirdPathFamily family = BirdPathFamily::Shore;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
@@ -97,6 +99,11 @@ namespace island
             float wanderPhaseB = 0.0f;
             float wanderFrequencyA = 0.0f;
             float wanderFrequencyB = 0.0f;
+            float radialDriftPhase = 0.0f;
+            float radialDriftFrequency = 0.0f;
+            float radialDriftAmplitude = 0.0f;
+            float glidePhase = 0.0f;
+            float glideFrequency = 0.0f;
             float flapPhase = 0.0f;
             float flapSpeed = 0.0f;
             float accumulatedSeconds = 0.0f;

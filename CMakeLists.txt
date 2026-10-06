@@ -448,7 +448,11 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGameBirdCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bird-capture.ppm"
                     --viewpoint birds)
-        set_tests_properties(IslandGameBirdCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameBirdCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "bird flight uses slow radial drift, banking, and intermittent glide")
         add_test(NAME IslandGameFishCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-fish-capture.ppm"
                     --viewpoint fish)
