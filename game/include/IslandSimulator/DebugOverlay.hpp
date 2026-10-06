@@ -47,6 +47,8 @@ namespace island
         int jungleDraws = 0;
         int visibleRocks = 0;
         int totalRocks = 0;
+        int visibleReefRocks = 0;
+        int totalReefRocks = 0;
         int visibleLogs = 0;
         int totalLogs = 0;
         int visibleDriftwood = 0;

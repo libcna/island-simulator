@@ -1338,6 +1338,7 @@ int main()
               && props.FallenFronds().size() == repeatedProps.FallenFronds().size(),
           "natural-prop populations are deterministic");
     std::size_t solidRockCount = 0U;
+    std::size_t reefRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
         const island::RockPlacement& rock = props.Rocks()[index];
         const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
@@ -1346,23 +1347,40 @@ int main()
                   && rock.yawRadians == repeated.yawRadians
                   && rock.scaleX == repeated.scaleX && rock.scaleY == repeated.scaleY
                   && rock.scaleZ == repeated.scaleZ && rock.variant == repeated.variant
-                  && rock.solid == repeated.solid,
+                  && rock.solid == repeated.solid && rock.offshore == repeated.offshore,
               "rock placement is bitwise deterministic for one seed");
-        Check(sample.signedShoreDistance >= 1.5f
-                  && sample.signedShoreDistance <= 202.0f,
-              "rocks stay inside their coastal/interior placement belt");
-        Check(sample.height >= 0.15f && sample.slopeRadians <= 0.5759587f,
-              "rocks remain on suitable unsubmerged ground");
-        Check(!island::VegetationLayout::IsReservedRoute(rock.x, rock.z),
-              "rocks keep authored routes and clearings open");
+        if (rock.offshore) {
+            ++reefRockCount;
+            Check(sample.signedShoreDistance <= -1.8f
+                      && sample.signedShoreDistance >= -9.4f,
+                  "reef outcrops remain inside the authored shallow-water belt");
+            Check(sample.height <= -0.04f && rock.solid,
+                  "reef outcrops originate on submerged support and remain solid");
+            Check(rock.y + rock.scaleY * 1.03f >= 0.39f,
+                  "reef outcrops remain visibly emergent above the ocean surface");
+            Check(rock.scaleX > 0.90f && rock.scaleX < 3.55f
+                      && rock.scaleY > 0.70f && rock.scaleY < 3.40f
+                      && rock.scaleZ > 0.90f && rock.scaleZ < 3.60f,
+                  "reef-outcrop axis scales remain inside their authored bounds");
+        } else {
+            Check(sample.signedShoreDistance >= 1.5f
+                      && sample.signedShoreDistance <= 202.0f,
+                  "land rocks stay inside their coastal/interior placement belt");
+            Check(sample.height >= 0.15f && sample.slopeRadians <= 0.5759587f,
+                  "land rocks remain on suitable unsubmerged ground");
+            Check(!island::VegetationLayout::IsReservedRoute(rock.x, rock.z),
+                  "land rocks keep authored routes and clearings open");
+            Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
+                      && rock.scaleY > 0.24f && rock.scaleY < 1.70f
+                      && rock.scaleZ > 0.35f && rock.scaleZ < 2.35f,
+                  "land-rock axis scales remain inside conservative visual bounds");
+        }
         Check(rock.variant < island::NaturalPropLayout::RockVariantCount,
               "rock variant index remains in range");
-        Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
-                  && rock.scaleY > 0.24f && rock.scaleY < 1.70f
-                  && rock.scaleZ > 0.35f && rock.scaleZ < 2.35f,
-              "rock axis scales remain inside conservative visual bounds");
         if (rock.solid) ++solidRockCount;
     }
+    Check(reefRockCount >= 12U && reefRockCount <= 34U,
+          "reef outcrops stay inside their sparse shoreline-composition budget");
     for (std::size_t index = 0; index < props.FallenLogs().size(); ++index) {
         const island::FallenLogPlacement& log = props.FallenLogs()[index];
         const island::FallenLogPlacement& repeated = repeatedProps.FallenLogs()[index];
@@ -1538,6 +1556,32 @@ int main()
     CheckNear(player.Position().y, 0.58f, 0.001f, "swimming eye rests near the water surface");
     CheckNear(player.OceanCurrentStrength(terrain), 0.0f, 0.0001f,
               "ocean current remains inactive inside the near-shore swimming area");
+
+    const island::CircularObstacle testReef{eastShore + 25.4f, 0.0f, 0.62f};
+    island::PlayerMotion reefSwimmer;
+    reefSwimmer.SetPosition(terrain, eastShore + 24.0f, 0.0f);
+    for (int step = 0; step < 180; ++step) {
+        reefSwimmer.Update(
+            terrain, 1.0f, 0.0f, 1.0f / 60.0f,
+            std::span<const island::CircularObstacle>(&testReef, 1U));
+    }
+    const float reefClearance = island::PlayerMotion::CapsuleRadius + testReef.radius;
+    Check(reefSwimmer.Position().x <= testReef.x - reefClearance + 0.001f,
+          "a near-shore swimmer cannot pass through an emergent-rock proxy");
+    Check(reefSwimmer.Mode() == island::LocomotionMode::Swimming,
+          "emergent-rock collision is exercised while the controller remains in swimming mode");
+    const island::WorldCollisionGrid reefCollisionGrid(
+        std::span<const island::CircularObstacle>(&testReef, 1U));
+    island::PlayerMotion indexedReefSwimmer;
+    indexedReefSwimmer.SetPosition(terrain, eastShore + 24.0f, 0.0f);
+    for (int step = 0; step < 180; ++step) {
+        indexedReefSwimmer.Update(terrain, 1.0f, 0.0f, 1.0f / 60.0f,
+                                  reefCollisionGrid);
+    }
+    CheckNear(indexedReefSwimmer.Position().x, reefSwimmer.Position().x, 0.0001f,
+              "indexed and exhaustive swimming collision stop at the same position");
+    CheckNear(indexedReefSwimmer.Position().z, reefSwimmer.Position().z, 0.0001f,
+              "indexed and exhaustive swimming collision preserve identical axis sliding");
 
     player.SetPosition(terrain, eastShore + island::PlayerMotion::FullCurrentDistance, 0.0f);
     CheckNear(player.OceanCurrentStrength(terrain), 1.0f, 0.0001f,

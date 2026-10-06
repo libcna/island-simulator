@@ -247,12 +247,14 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [~] Implement and test height, land/water, island-relative shoreline distance, unit normal,
   slope, and coarse physical-surface queries. Authored biome masks and bounds queries remain open.
 - [~] Add broad-phase spatial partitioning for rocks/trees and capsule-vs-world collision. A static
-  16 m grid now indexes the shared palm, broadleaf, solid-rock, and sampled fallen-log proxies;
+  16 m grid now indexes the shared palm, broadleaf, solid land/reef-rock, and sampled fallen-log
+  proxies;
   exact narrow-phase checks retain substepped axis sliding. Dynamic obstacles and depenetration
   remain open.
 - [~] Add footprint-aware ground support, ground following, a 38-degree uphill limit, axis sliding,
-  bounded step rejection, and palm-trunk collision. Solid-rock/log collision is active;
-  depenetration and geometric step-up remain open.
+  bounded step rejection, and palm-trunk collision. Solid land-rock, reef-outcrop, and log
+  collision is active while walking; the same horizontal proxies constrain swimming.
+  Depenetration and geometric step-up remain open.
 - [x] Prevent terrain tunnelling under low frame rates with a 100 ms time clamp and 0.14 m maximum
   horizontal substeps; keep swept prop tests open with prop collision.
 
@@ -272,7 +274,8 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 
 - [x] Define depth-based water-entry/exit hysteresis.
 - [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. A
-  restrained swimming camera rhythm is complete; underwater/waterline presentation remains open.
+  restrained swimming camera rhythm and solid emergent-outcrop collision are complete;
+  underwater/waterline presentation remains open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. Lateral
   current variation and audiovisual feedback remain open.
@@ -306,7 +309,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
   and steeper interior ground exposes a muted soil tint. Authored biome masks, decals, rock strata,
   leaf litter, and final colour/scale tuning remain.
-- [ ] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
+- [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
+  Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter; grouped
+  banks and distant low-cost features remain.
 - [ ] Keep routes traversable and provide alternating enclosed/revealing views.
 
 ### Ocean and shoreline
@@ -336,8 +341,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
-  forest-floor plants, 152 rocks, 11 fallen logs, 28 three-variant driftwood pieces, 63
-  grove-associated fallen palm fronds, and 265 four-variant shell/pebble clusters; richer
+  forest-floor plants, 152 land rocks, 14 emergent reef outcrops, 11 fallen logs, 28 three-variant
+  driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
+  clusters; richer
   ground/bush silhouettes and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
@@ -348,10 +354,11 @@ Dependencies: stable terrain/shore queries and representative performance instru
   crowns, understory leaves, low bushes, and forest-floor plants use bounded weighted motion on OpenGL 3.3 and WebGL 2;
   Android GLES 3 runtime validation of the expanded jungle shader remains open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
-  One radius-matched circular proxy is active per palm and canopy trunk; substantial rocks and
-  fallen logs are solid, while fronds, crowns, understory, ground plants, small rocks, and driftwood
-  remain non-colliding. Broader play-tuning remains open; the shared static-proxy spatial broad
-  phase is active.
+  One radius-matched circular proxy is active per palm and canopy trunk; substantial land rocks,
+  emergent reef outcrops, and fallen logs are solid, while fronds, crowns, understory, ground
+  plants, small rocks, and driftwood remain non-colliding. The same proxies now constrain walking
+  and swimming. Broader play-tuning remains open; the shared static-proxy spatial broad phase is
+  active.
 
 ### Grass quality campaign
 
@@ -886,8 +893,9 @@ Work next, in order:
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it. The first portable sand/soil,
    wet-edge, and slope-material pass, the initial small-plant layer, and a first near-field
-   shell/pebble substrate layer, and a first grove-associated fallen-frond layer are complete;
-   broader prop diversity, contact cues, and material tuning remain.
+   shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
+   shallow-reef outcrops are complete; broader prop diversity, contact cues, and material tuning
+   remain.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
    LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
@@ -1725,6 +1733,29 @@ Work next, in order:
   beach scene at 1.7127--1.7321 ms mean / 1.8899--1.9729 ms p95 with four visible fronds and four
   additional tracked submissions. Physical Android appearance/performance remains unqualified; CNA
   and Sharp Runtime remain clean and unmodified.
+
+### 2026-10-06 — Emergent reef outcrops and swimming collision
+
+- Added 14 deterministic solid outcrops around the authoritative 1.8--9.4 m offshore shelf. A
+  jittered 56-site angular layout avoids grid stamping, scales every rock from its actual seabed
+  support so at least 0.39 m remains visibly emergent, favours the grey/olive coastal palettes, and
+  reuses the existing four instanced rock batches. Core coverage locks repeatability, placement
+  belt, submerged support, emergence, scale bounds, solid-proxy accounting, and population budget.
+- Unified horizontal obstacle resolution across walking and swimming. Swimmers retain reduced
+  acceleration and omit terrain slope rejection, but now use the same substepped exact/grid-backed
+  proxy tests and axis sliding, preventing passage through the new outcrops. Exhaustive and indexed
+  swimming paths have a deterministic equivalence regression.
+- Rejected the initial pointed five-ring capture as too diamond-like. The inspected revision gives
+  near rocks seven irregular shaped rings, twelve sides, a broad embedded base, a small asymmetric
+  cap, brighter faceted colour variation, and a reduced four-ring/seven-side far mesh. Native and
+  actual Chrome 152/WebGL 2 reef captures match; the F1 prop row exposes the visible/total subset.
+- All 16 native tests pass, including the new dedicated reef capture. The complete Chrome WebGL 2
+  renderer/input/audio-init harness passes with its new reef scene, and the arm64-v8a GLES 3 APK
+  rebuilds with clean application lint. Two five-view accelerated benchmark repeats retain the
+  existing 80/122/89/24/95 tracked submissions; the heaviest beach view measures
+  1.6988--1.7015 ms mean and 1.8836--1.9754 ms p95 with five visible outcrops. Physical Android
+  collision feel and appearance remain unqualified without KVM or a connected device. CNA and
+  Sharp Runtime remain clean and unmodified.
 
 ## Session-end checklist
 

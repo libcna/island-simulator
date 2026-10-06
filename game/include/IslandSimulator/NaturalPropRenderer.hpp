@@ -45,6 +45,7 @@ namespace island
         [[nodiscard]] bool UsesInstancing() const noexcept { return instancingSupported_; }
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] int TotalRockCount() const noexcept { return totalRockCount_; }
+        [[nodiscard]] int TotalReefRockCount() const noexcept { return totalReefRockCount_; }
         [[nodiscard]] int TotalLogCount() const noexcept { return totalLogCount_; }
         [[nodiscard]] int TotalDriftwoodCount() const noexcept { return totalDriftwoodCount_; }
         [[nodiscard]] int TotalBeachDetailCount() const noexcept
@@ -56,6 +57,7 @@ namespace island
             return totalFallenFrondCount_;
         }
         [[nodiscard]] int VisibleRockCount() const noexcept { return visibleRockCount_; }
+        [[nodiscard]] int VisibleReefRockCount() const noexcept { return visibleReefRockCount_; }
         [[nodiscard]] int VisibleLogCount() const noexcept { return visibleLogCount_; }
         [[nodiscard]] int VisibleDriftwoodCount() const noexcept { return visibleDriftwoodCount_; }
         [[nodiscard]] int VisibleBeachDetailCount() const noexcept
@@ -86,6 +88,7 @@ namespace island
             std::uint8_t variant = 0U;
             float x = 0.0f;
             float z = 0.0f;
+            bool offshore = false;
         };
 
         struct PropCell
@@ -138,11 +141,13 @@ namespace island
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
         int totalRockCount_ = 0;
+        int totalReefRockCount_ = 0;
         int totalLogCount_ = 0;
         int totalDriftwoodCount_ = 0;
         int totalBeachDetailCount_ = 0;
         int totalFallenFrondCount_ = 0;
         int visibleRockCount_ = 0;
+        int visibleReefRockCount_ = 0;
         int visibleLogCount_ = 0;
         int visibleDriftwoodCount_ = 0;
         int visibleBeachDetailCount_ = 0;

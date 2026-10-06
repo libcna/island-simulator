@@ -102,10 +102,10 @@ namespace island
                                                float maximumDelta) noexcept;
         [[nodiscard]] static GroundContact SampleGroundContact(const IslandTerrain& terrain,
                                                                float x, float z) noexcept;
-        [[nodiscard]] bool TryWalkStep(const IslandTerrain& terrain,
-                                       std::span<const CircularObstacle> obstacles,
-                                       const WorldCollisionGrid* collisionGrid,
-                                       float deltaX, float deltaZ) noexcept;
+        [[nodiscard]] bool TryHorizontalStep(const IslandTerrain& terrain,
+                                             std::span<const CircularObstacle> obstacles,
+                                             const WorldCollisionGrid* collisionGrid,
+                                             float deltaX, float deltaZ) noexcept;
         void UpdateInternal(const IslandTerrain& terrain, float inputX, float inputZ,
                             float deltaSeconds, std::span<const CircularObstacle> obstacles,
                             const WorldCollisionGrid* collisionGrid) noexcept;

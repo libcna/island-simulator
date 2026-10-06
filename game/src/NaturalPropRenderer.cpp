@@ -161,20 +161,24 @@ void main()
         [[nodiscard]] PropGeometry CreateRockGeometry(const int variant, const bool farMesh)
         {
             PropGeometry geometry;
-            const int rings = farMesh ? 3 : 5;
-            const int slices = farMesh ? 6 : 9;
-            geometry.vertices.reserve(static_cast<std::size_t>((rings + 1) * slices + slices + 1));
-            geometry.indices.reserve(static_cast<std::size_t>(rings * slices * 6 + slices * 3));
+            const int rings = farMesh ? 4 : 7;
+            const int slices = farMesh ? 7 : 12;
+            geometry.vertices.reserve(
+                static_cast<std::size_t>((rings + 2) * slices + 2));
+            geometry.indices.reserve(
+                static_cast<std::size_t>(rings * slices * 6 + slices * 6));
             AppendContactDisk(geometry, slices);
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-            const Color rockBase = variant == 0 ? Color(104, 105, 92, 255)
-                : (variant == 1 ? Color(118, 108, 87, 255)
-                   : (variant == 2 ? Color(88, 104, 93, 255)
-                                   : Color(112, 116, 105, 255)));
+            const Color rockBase = variant == 0 ? Color(112, 113, 98, 255)
+                : (variant == 1 ? Color(126, 115, 92, 255)
+                   : (variant == 2 ? Color(98, 116, 104, 255)
+                                   : Color(124, 128, 116, 255)));
             for (int ring = 0; ring <= rings; ++ring) {
                 const float t = static_cast<float>(ring) / static_cast<float>(rings);
-                const float radialBase = std::sin(t * std::numbers::pi_v<float>);
-                const float y = t * (1.03f + 0.05f * variant);
+                const float radialBase = (0.72f
+                    + 0.38f * std::sin(t * std::numbers::pi_v<float>))
+                    * (1.0f - 0.55f * t);
+                const float y = t * (0.98f + 0.045f * variant);
                 for (int slice = 0; slice < slices; ++slice) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(slice) / static_cast<float>(slices);
@@ -184,8 +188,13 @@ void main()
                     const Vector3 normal(std::cos(angle) * radialBase,
                                          std::sin((t - 0.5f) * std::numbers::pi_v<float>),
                                          std::sin(angle) * radialBase);
-                    const float light = 0.63f + 0.34f * std::max(
-                        0.0f, normal.X * 0.54f + normal.Y * 0.77f - normal.Z * 0.18f);
+                    const float light = std::clamp(
+                        0.72f + 0.30f * std::max(
+                            0.0f, normal.X * 0.54f + normal.Y * 0.77f
+                                      - normal.Z * 0.18f)
+                            + 0.05f * std::sin(
+                                angle * (3.0f + static_cast<float>(variant)) + t * 11.0f),
+                        0.68f, 1.08f);
                     geometry.vertices.emplace_back(
                         Vector3(std::cos(angle) * radial, y, std::sin(angle) * radial),
                         ShadeColor(rockBase, light));
@@ -202,6 +211,19 @@ void main()
                                             {lower, upper, lowerNext,
                                              lowerNext, upper, upperNext});
                 }
+            }
+            const auto cap = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(
+                Vector3((static_cast<float>(variant) - 1.5f) * 0.035f,
+                        1.035f + 0.04f * static_cast<float>(variant),
+                        std::sin(static_cast<float>(variant) * 1.7f) * 0.035f),
+                ShadeColor(rockBase, 0.91f));
+            const auto topRing = static_cast<std::uint16_t>(base + rings * slices);
+            for (int slice = 0; slice < slices; ++slice) {
+                const auto current = static_cast<std::uint16_t>(topRing + slice);
+                const auto next = static_cast<std::uint16_t>(
+                    topRing + (slice + 1) % slices);
+                geometry.indices.insert(geometry.indices.end(), {current, cap, next});
             }
             return geometry;
         }
@@ -629,6 +651,7 @@ void main()
         CreateMeshes();
         CreateCells(layout);
         std::cout << "island-simulator: natural props " << totalRockCount_ << " rocks, "
+                  << totalReefRockCount_ << " reef outcrops, "
                   << totalLogCount_ << " fallen logs, " << totalDriftwoodCount_
                   << " driftwood pieces, " << totalFallenFrondCount_
                   << " fallen palm fronds, "
@@ -700,11 +723,12 @@ void main()
             cell.rocks.push_back({Matrix::CreateScale(rock.scaleX, rock.scaleY, rock.scaleZ)
                                       * Matrix::CreateRotationY(rock.yawRadians)
                                       * Matrix::CreateTranslation(rock.x, rock.y, rock.z),
-                                  rock.variant});
+                                  rock.variant, rock.x, rock.z, rock.offshore});
             const float radius = std::max(rock.scaleX, rock.scaleZ);
             extendBounds(cell, Vector3(rock.x - radius, rock.y - 0.1f, rock.z - radius),
                          Vector3(rock.x + radius, rock.y + rock.scaleY * 1.2f, rock.z + radius));
             ++totalRockCount_;
+            if (rock.offshore) ++totalReefRockCount_;
         }
         for (const FallenLogPlacement& log : layout.FallenLogs()) {
             PropCell& cell = cells_[CellIndex(log.x, log.z)];
@@ -827,6 +851,7 @@ void main()
         for (auto& transforms : visibleBeachDetails_) transforms.clear();
         for (auto& transforms : visibleFallenFronds_) transforms.clear();
         visibleRockCount_ = 0;
+        visibleReefRockCount_ = 0;
         visibleLogCount_ = 0;
         visibleDriftwoodCount_ = 0;
         visibleBeachDetailCount_ = 0;
@@ -850,6 +875,7 @@ void main()
                     (nearLod ? visibleRockNear_ : visibleRockFar_)[instance.variant]
                         .push_back(instance.transform);
                     ++visibleRockCount_;
+                    if (instance.offshore) ++visibleReefRockCount_;
                     cellVisible = true;
                 }
             }

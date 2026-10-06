@@ -23,9 +23,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── JungleLayout ─────── canopy/understory/bush/ground placement and trunk proxies
       │       │
       │       └── JungleRenderer ─ four-layer LOD, culling, instancing, and wind
-      ├── NaturalPropLayout ── rock/log/driftwood placement and solid-prop collision proxies
+      ├── NaturalPropLayout ── land/reef rock and fallen-dressing placement plus solid proxies
       │       │
-      │       └── NaturalPropRenderer ─ rock/log meshes, LOD, culling, and instancing
+      │       └── NaturalPropRenderer ─ rock/log/frond meshes, LOD, culling, and instancing
       ├── BirdFlock ───────── deterministic shore/canopy/high flight and simulation tiers
       │       │
       │       └── BirdRenderer ─ CPU wing pose, near/far meshes, culling, one dynamic batch
@@ -106,10 +106,11 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    pointer roles, emits one-frame relative look deltas, and cancels invalid contacts explicitly.
 3. Input is transformed by camera yaw into a normalized horizontal wish direction.
 4. `PlayerMotion` applies frame-time clamping, acceleration, slope checks, swimming speed, the
-   island-relative current field, and the remote safety boundary.
+   island-relative current field, the remote safety boundary, and horizontal solid-prop collision
+   in both locomotion modes.
 5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the
-   proposed capsule footprint exactly against nearby trunk, rock, and log circular obstacles while
-   retaining axis sliding when one component is valid.
+   proposed capsule footprint exactly against nearby trunk, land/reef rock, and log circular
+   obstacles while retaining axis sliding when one component is valid.
 6. `FirstPersonCameraMotion` derives a bounded local right/up displacement from physical speed and
    locomotion mode. It eases between walking and swimming rhythms, clamps long frames, resets on
    debug teleports, and fades to the authoritative eye point when B disables it.
@@ -196,18 +197,20 @@ applies weighted calm wind, and `BasicEffect` remains the explicit fallback. Nat
 actual Chromium/WebGL 2 execute the full shader; the current arm64 GLES 3 package compiles but has
 not been rerun on stable Android hardware.
 
-Natural props add 152 irregular rocks across beach/interior bands, 11 mossy fallen logs in the
-low-slope interior, 28 small sun-bleached driftwood pieces, 63 fallen palm fronds around suitable
-groves, and 265 shell/pebble clusters in the dry beach belt. Four rock, three log, three driftwood,
+Natural props add 152 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
+the 1.8--9.4 m offshore shelf, 11 mossy fallen logs in the low-slope interior, 28 small
+sun-bleached driftwood pieces, 63 fallen palm fronds around suitable groves, and 265 shell/pebble
+clusters in the dry beach belt. Four rock, three log, three driftwood,
 three frond, and four beach-detail variants use cell culling, variant batching, and a portable
 static GLSL 330 / GLSL ES 300 shader; the larger classes retain independent near/far meshes while
 tiny beach details disappear beyond 52 m and fronds beyond 76 m. Opaque geometry grounds the
 layers without transparency overdraw; driftwood uses an irregular bent tube plus branch stubs, and
 fronds use a curved rachis with 28 tapered leaflets. Placement validates complete footprints
 against shore distance, route reservations, nearby trees, slope, and support-height variation.
-Collision is limited to substantial rocks and sampled fallen-log spans, leaving small dressing
-non-solid. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced path; dedicated prop,
-driftwood, and frond cameras provide deterministic close review.
+Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
+fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
+while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced
+path; dedicated prop, driftwood, reef, and frond cameras provide deterministic close review.
 
 The first wildlife renderer draws 24 procedural birds distributed across shore, canopy, and high
 route families. `BirdFlock` combines soft radial steering with two incommensurate wander terms,

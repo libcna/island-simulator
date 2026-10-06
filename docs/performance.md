@@ -69,6 +69,23 @@ must not be attributed to the layer alone.
 | Driftwood/shore detail | 0.7677--0.7932 | 0.9293--1.0406 | 24 | 1 |
 | Monkeys | 1.4361--1.4869 | 1.5600--1.6807 | 95 | 2 |
 
+### Emergent-reef and rock-silhouette follow-up
+
+Two repeats after adding 14 solid emergent outcrops and refining the shared near/far rock meshes
+produced the ranges below. The outcrops join the existing four rock-variant instance batches, so
+they add no tracked submissions in these views. Near rocks now use seven shaped rings, twelve
+sides, a broad embedded base, and a small irregular cap instead of the earlier pointed five-ring
+silhouette; far rocks use a reduced four-ring/seven-side form. The heaviest beach view remains
+below 2.0 ms p95 in both repeats.
+
+| View | Mean ms range | p95 ms range | Tracked submissions | Visible reef outcrops |
+| --- | ---: | ---: | ---: | ---: |
+| Overview | 1.1612--1.1792 | 1.2832--1.3979 | 80 | 4 |
+| Beach | 1.6988--1.7015 | 1.8836--1.9754 | 122 | 5 |
+| Jungle | 1.3434--1.3749 | 1.4827--1.7016 | 89 | 2 |
+| Driftwood/shore detail | 0.7914--0.7975 | 1.0853--1.0934 | 24 | 1 |
+| Monkeys | 1.4593--1.4856 | 1.6682--1.6773 | 95 | 2 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

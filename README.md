@@ -7,10 +7,10 @@ sand, wet-edge, soil, and slope material variation, an animated tropical ocean w
 shore-following foam/wash ribbon,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152
-irregular rocks, 11 mossy fallen logs,
+irregular land rocks, 14 emergent near-shore reef outcrops, 11 mossy fallen logs,
 28 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field shell/pebble
-clusters. Every visual
-layer has spatial culling and appropriate distance reduction, while vegetation uses a calm breeze.
+clusters. Every visual layer has spatial culling and appropriate distance reduction, while
+vegetation uses a calm breeze.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. A first
@@ -36,8 +36,8 @@ progression, dynamic weather, or day/night cycle.
 ## Dependency baseline
 
 The project consumes read-only CNA `next` and Sharp Runtime `next` checkouts. Exact qualified
-commits are stored in `dependencies.lock`. In the current workspace CNA's shared checkout is on a
-different branch, so the project creates an ignored, unmodified source export of CNA `next`:
+commits are stored in `dependencies.lock`. The current workspace checkouts are both on `next`; the
+project still creates an ignored, unmodified CNA source export so its build input remains pinned:
 
 ```bash
 tools/materialize_cna_next.sh
@@ -70,8 +70,8 @@ running the full CTest set on the owner's live desktop.
 Run `build/island-simulator`. Click inside the window to capture the mouse, use WASD to move, and
 press Escape to release the mouse; press Escape again to exit. The controller follows the terrain,
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and
-enters swimming water with hysteresis. A static 16 m collision grid limits each capsule test to
-nearby proxies;
+enters swimming water with hysteresis. Swimming retains collision with solid emergent reef rocks.
+A static 16 m collision grid limits each capsule test to nearby proxies;
 geometric step-up and collision depenetration are not implemented yet.
 Walking and swimming apply restrained, speed-responsive positional camera motion; press B to
 smoothly disable or restore it.

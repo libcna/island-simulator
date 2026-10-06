@@ -141,7 +141,7 @@ try {
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
@@ -372,7 +372,8 @@ try {
     && propResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && propResult.output?.includes("natural-prop portable shader with near/far LOD")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/152 rocks, [1-9][0-9]*\/11 logs/.test(propResult.output ?? "")
+    && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/11 logs/.test(
+      propResult.output ?? "")
     && !propResult.error;
 
   await call("Page.navigate", {
@@ -404,9 +405,40 @@ try {
   const driftwoodPassed = driftwoodResult.output?.includes("island-simulator: renderer WEBGL2")
     && driftwoodResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
-    && /props [0-9]+\/152 rocks, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
+    && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=reef`,
+  }, visualSessionId);
+  let reefResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    reefResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (reefResult.output?.includes("island-simulator: terrain")
+        || reefResult.error) break;
+  }
+  await delay(1000);
+  const completedReefEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  reefResult = JSON.parse(completedReefEvaluation.result.value ?? "{}");
+
+  const reefScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const reefScreenshotPath = path.join(buildDirectory, "island-browser-reef.png");
+  await writeFile(reefScreenshotPath, Buffer.from(reefScreenshot.data, "base64"));
+  const reefPassed = reefResult.output?.includes("island-simulator: renderer WEBGL2")
+    && reefResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && reefResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
+    && !reefResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=fronds`,
@@ -767,8 +799,8 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && driftwoodPassed && frondPassed && birdPassed && fishPassed
-    && sharkPassed && monkeyPassed && inputPassed;
+    && junglePassed && propPassed && driftwoodPassed && reefPassed && frondPassed
+    && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -807,6 +839,11 @@ try {
       passed: driftwoodPassed,
       output: driftwoodResult.output ?? "",
       error: driftwoodResult.error ?? "",
+    },
+    reef: {
+      passed: reefPassed,
+      output: reefResult.output ?? "",
+      error: reefResult.error ?? "",
     },
     fronds: {
       passed: frondPassed,
@@ -858,6 +895,7 @@ try {
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
+    reefScreenshot: path.basename(reefScreenshotPath),
     frondScreenshot: path.basename(frondScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),

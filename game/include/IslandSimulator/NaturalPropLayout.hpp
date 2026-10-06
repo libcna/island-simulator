@@ -11,7 +11,7 @@ namespace island
     class JungleLayout;
     class VegetationLayout;
 
-    /** @brief One irregular rock instance with independent axis scale. */
+    /** @brief One irregular land or emergent-reef rock with independent axis scale. */
     struct RockPlacement
     {
         float x = 0.0f;
@@ -23,6 +23,7 @@ namespace island
         float scaleZ = 1.0f;
         std::uint8_t variant = 0U;
         bool solid = true;
+        bool offshore = false;
     };
 
     /** @brief One fallen natural log placed away from authored walking routes. */
@@ -71,7 +72,7 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
-    /** @brief Deterministic beach/interior rocks and fallen-wood composition. */
+    /** @brief Deterministic beach, shallow-reef, interior-rock, and fallen-wood composition. */
     class NaturalPropLayout final
     {
     public:
@@ -83,6 +84,7 @@ namespace island
         static constexpr int FallenFrondVariantCount = 3;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
+        static constexpr int ReefRockSiteCount = 56;
         static constexpr float LogMinimumLength = 3.8f;
         static constexpr float LogMaximumLength = 7.2f;
         static constexpr float DriftwoodMinimumLength = 1.8f;

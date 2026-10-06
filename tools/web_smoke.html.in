@@ -36,6 +36,7 @@
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
       ["props", ["--viewpoint", "props", "--debug-overlay"]],
       ["driftwood", ["--viewpoint", "driftwood", "--debug-overlay"]],
+      ["reef", ["--viewpoint", "reef", "--debug-overlay"]],
       ["fronds", ["--viewpoint", "fronds", "--debug-overlay"]],
       ["birds", ["--viewpoint", "birds", "--debug-overlay"]],
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],

@@ -241,6 +241,7 @@ namespace island
 
         auto props = DiagnosticLine();
         props << "PROPS R " << state.visibleRocks << '/' << state.totalRocks
+              << " REEF " << state.visibleReefRocks << '/' << state.totalReefRocks
               << " L " << state.visibleLogs << '/' << state.totalLogs
               << " D " << state.visibleDriftwood << '/' << state.totalDriftwood
               << " F " << state.visibleFallenFronds << '/' << state.totalFallenFronds

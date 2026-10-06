@@ -55,6 +55,7 @@ namespace island
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::PropDetail: return "props";
             case FixedViewpoint::DriftwoodDetail: return "driftwood";
+            case FixedViewpoint::ReefDetail: return "reef";
             case FixedViewpoint::FallenFrondDetail: return "fronds";
             case FixedViewpoint::BirdDetail: return "birds";
             case FixedViewpoint::FishDetail: return "fish";
@@ -155,6 +156,26 @@ namespace island
                                       cameraZ);
             yaw_ = std::atan2(wood.x - cameraX, wood.z - cameraZ);
             pitch_ = -0.16f;
+        } else if (viewpoint_ == FixedViewpoint::ReefDetail) {
+            const auto reef = std::max_element(
+                naturalPropLayout_.Rocks().begin(), naturalPropLayout_.Rocks().end(),
+                [](const RockPlacement& first, const RockPlacement& second) {
+                    if (first.offshore != second.offshore) return !first.offshore;
+                    return first.scaleY < second.scaleY;
+                });
+            if (reef != naturalPropLayout_.Rocks().end() && reef->offshore) {
+                const Vector3 radial = Vector3::Normalize(Vector3(reef->x, 0.0f, reef->z));
+                const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+                const float cameraX = reef->x - radial.X * 7.5f + tangent.X * 1.4f;
+                const float cameraZ = reef->z - radial.Z * 7.5f + tangent.Z * 1.4f;
+                cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                       + PlayerMotion::EyeHeight,
+                                          cameraZ);
+                const Vector3 toReef = Vector3(reef->x, reef->y + reef->scaleY * 0.56f,
+                                               reef->z) - cameraPosition_;
+                yaw_ = std::atan2(toReef.X, toReef.Z);
+                pitch_ = std::atan2(toReef.Y, std::hypot(toReef.X, toReef.Z));
+            }
         } else if (viewpoint_ == FixedViewpoint::FallenFrondDetail
                    && !naturalPropLayout_.FallenFronds().empty()) {
             const auto closestToShore = std::min_element(
@@ -683,6 +704,8 @@ namespace island
                << ",\n"
                << "    \"grass_clusters\": " << grassRenderer_->VisiblePatchCount() << ",\n"
                << "    \"rocks\": " << naturalPropRenderer_->VisibleRockCount() << ",\n"
+               << "    \"reef_outcrops\": "
+               << naturalPropRenderer_->VisibleReefRockCount() << ",\n"
                << "    \"fallen_logs\": " << naturalPropRenderer_->VisibleLogCount() << ",\n"
                << "    \"driftwood\": " << naturalPropRenderer_->VisibleDriftwoodCount()
                << ",\n"
@@ -797,6 +820,8 @@ namespace island
             overlayState.jungleDraws = jungleRenderer_->DrawCallCount();
             overlayState.visibleRocks = naturalPropRenderer_->VisibleRockCount();
             overlayState.totalRocks = naturalPropRenderer_->TotalRockCount();
+            overlayState.visibleReefRocks = naturalPropRenderer_->VisibleReefRockCount();
+            overlayState.totalReefRocks = naturalPropRenderer_->TotalReefRockCount();
             overlayState.visibleLogs = naturalPropRenderer_->VisibleLogCount();
             overlayState.totalLogs = naturalPropRenderer_->TotalLogCount();
             overlayState.visibleDriftwood = naturalPropRenderer_->VisibleDriftwoodCount();
@@ -922,6 +947,8 @@ namespace island
                       << jungleRenderer_->DrawCallCount() << " draws; props "
                       << naturalPropRenderer_->VisibleRockCount() << '/'
                       << naturalPropRenderer_->TotalRockCount() << " rocks, "
+                      << naturalPropRenderer_->VisibleReefRockCount() << '/'
+                      << naturalPropRenderer_->TotalReefRockCount() << " reef outcrops, "
                       << naturalPropRenderer_->VisibleLogCount() << '/'
                       << naturalPropRenderer_->TotalLogCount() << " logs, "
                       << naturalPropRenderer_->VisibleDriftwoodCount() << '/'

@@ -61,6 +61,8 @@ Xwayland runner:
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm`.
 `IslandGameDriftwoodCapture` writes a close beach-composition view to
 `build/island-driftwood-capture.ppm`.
+`IslandGameReefCapture` writes a close emergent shallow-water outcrop view to
+`build/island-reef-capture.ppm`.
 `IslandGameFallenFrondCapture` writes a close dry-beach/palm-grove transition view to
 `build/island-frond-capture.ppm`.
 `IslandGameBirdCapture` writes a close airborne wildlife view to

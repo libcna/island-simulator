@@ -61,10 +61,10 @@ namespace island
         return contact;
     }
 
-    bool PlayerMotion::TryWalkStep(const IslandTerrain& terrain,
-                                   const std::span<const CircularObstacle> obstacles,
-                                   const WorldCollisionGrid* collisionGrid,
-                                   const float deltaX, const float deltaZ) noexcept
+    bool PlayerMotion::TryHorizontalStep(const IslandTerrain& terrain,
+                                         const std::span<const CircularObstacle> obstacles,
+                                         const WorldCollisionGrid* collisionGrid,
+                                         const float deltaX, const float deltaZ) noexcept
     {
         const float distance = std::hypot(deltaX, deltaZ);
         if (distance <= 0.000001f) {
@@ -89,15 +89,17 @@ namespace island
             }
         }
 
-        const GroundContact current = SampleGroundContact(terrain, position_.x, position_.z);
-        const GroundContact candidate = SampleGroundContact(terrain, candidateX, candidateZ);
-        const float rise = candidate.height - current.height;
-        const float pathSlope = std::atan2(std::max(0.0f, rise), distance);
-        const bool uphillOnSteepGround = rise > 0.002f
-            && candidate.maximumSlopeRadians > MaximumWalkSlopeRadians;
-        if (rise > MaximumStepHeight || pathSlope > MaximumWalkSlopeRadians
-            || uphillOnSteepGround) {
-            return false;
+        if (mode_ == LocomotionMode::Walking) {
+            const GroundContact current = SampleGroundContact(terrain, position_.x, position_.z);
+            const GroundContact candidate = SampleGroundContact(terrain, candidateX, candidateZ);
+            const float rise = candidate.height - current.height;
+            const float pathSlope = std::atan2(std::max(0.0f, rise), distance);
+            const bool uphillOnSteepGround = rise > 0.002f
+                && candidate.maximumSlopeRadians > MaximumWalkSlopeRadians;
+            if (rise > MaximumStepHeight || pathSlope > MaximumWalkSlopeRadians
+                || uphillOnSteepGround) {
+                return false;
+            }
         }
 
         position_.x = candidateX;
@@ -223,21 +225,15 @@ namespace island
         const float stepX = totalDeltaX / static_cast<float>(substeps);
         const float stepZ = totalDeltaZ / static_cast<float>(substeps);
         for (int step = 0; step < substeps; ++step) {
-            if (mode_ == LocomotionMode::Swimming) {
-                position_.x += stepX;
-                position_.z += stepZ;
-                continue;
-            }
-
-            if (TryWalkStep(terrain, obstacles, collisionGrid, stepX, stepZ)) {
+            if (TryHorizontalStep(terrain, obstacles, collisionGrid, stepX, stepZ)) {
                 continue;
             }
 
             // Sliding along one axis keeps glancing contact from feeling like a complete stop.
-            if (!TryWalkStep(terrain, obstacles, collisionGrid, stepX, 0.0f)) {
+            if (!TryHorizontalStep(terrain, obstacles, collisionGrid, stepX, 0.0f)) {
                 velocityX_ = 0.0f;
             }
-            if (!TryWalkStep(terrain, obstacles, collisionGrid, 0.0f, stepZ)) {
+            if (!TryHorizontalStep(terrain, obstacles, collisionGrid, 0.0f, stepZ)) {
                 velocityZ_ = 0.0f;
             }
         }

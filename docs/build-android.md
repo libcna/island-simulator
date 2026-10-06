@@ -17,8 +17,8 @@ Those claims still require a stable accelerated emulator or physical device.
 
 The current arm64 package includes the portable procedural sand/soil terrain material, the
 broadleaf jungle with low bushes and forest-floor plants,
-rocks, fallen logs, sparse beach driftwood, 63 fallen palm fronds, 265 near-field shell/pebble
-clusters, 24 simulated
+152 land rocks, 14 emergent reef outcrops, fallen logs, sparse beach driftwood, 63 fallen palm
+fronds, 265 near-field shell/pebble clusters, 24 simulated
 procedural birds, eight fish schools,
 one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys, fixed sunny sky,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player

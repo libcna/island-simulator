@@ -246,6 +246,13 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION "[1-9][0-9]*/63 fallen fronds")
+        add_test(NAME IslandGameReefCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-reef-capture.ppm"
+                    --viewpoint reef)
+        set_tests_properties(IslandGameReefCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION "[1-9][0-9]*/[1-9][0-9]* reef outcrops")
         add_test(NAME IslandGameBirdCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bird-capture.ppm"
                     --viewpoint birds)

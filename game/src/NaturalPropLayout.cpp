@@ -151,6 +151,49 @@ namespace island
             }
         }
 
+        for (int site = 0; site < ReefRockSiteCount; ++site) {
+            const std::uint32_t siteHash = Hash(site, -site - 17, seed ^ 0x243f6a91U);
+            if (UnitRandom(siteHash) >= 0.43f) continue;
+
+            const float sitePhase = static_cast<float>(site)
+                + (UnitRandom(Hash(site, 11, seed ^ 0xb7e15169U)) - 0.5f) * 0.72f;
+            const float angle = sitePhase * 2.0f * std::numbers::pi_v<float>
+                / static_cast<float>(ReefRockSiteCount);
+            const float offshoreDistance = 2.2f + 6.8f
+                * UnitRandom(Hash(site, 29, seed ^ 0x9e3779b0U));
+            const float radius = terrain.ShoreRadius(angle) + offshoreDistance;
+            const float x = std::cos(angle) * radius;
+            const float z = std::sin(angle) * radius;
+            const TerrainSample sample = terrain.Sample(x, z);
+            if (sample.signedShoreDistance > -1.8f
+                || sample.signedShoreDistance < -9.4f || sample.height > -0.04f) {
+                continue;
+            }
+
+            const float baseScale = 1.15f + 1.65f * std::pow(
+                UnitRandom(Hash(site, 47, seed ^ 0xc2b2ae3cU)), 1.2f);
+            RockPlacement rock;
+            rock.x = x;
+            rock.z = z;
+            rock.yawRadians = UnitRandom(Hash(site, 71, seed ^ 0x27d4eb2eU))
+                * 2.0f * std::numbers::pi_v<float>;
+            rock.scaleX = baseScale
+                * (0.82f + 0.44f * UnitRandom(Hash(site, 83, seed ^ 0x165667b8U)));
+            rock.scaleY = baseScale
+                * (0.68f + 0.52f * UnitRandom(Hash(site, 97, seed ^ 0xd3a26465U)));
+            rock.scaleZ = baseScale
+                * (0.80f + 0.48f * UnitRandom(Hash(site, 109, seed ^ 0xfd7046c4U)));
+            rock.scaleY = std::max(rock.scaleY, (0.42f - sample.height) / 0.95f);
+            rock.y = sample.height - rock.scaleY * 0.08f;
+            rock.variant = static_cast<std::uint8_t>(
+                2U + Hash(site, 131, seed ^ 0xb55a4f08U) % 2U);
+            rock.solid = true;
+            rock.offshore = true;
+            rocks_.push_back(rock);
+            obstacles_.push_back(CircularObstacle{
+                rock.x, rock.z, 0.63f * std::max(rock.scaleX, rock.scaleZ)});
+        }
+
         fallenLogs_.reserve(36U);
         for (int gridZ = -LogRadius; gridZ <= LogRadius; ++gridZ) {
             for (int gridX = -LogRadius; gridX <= LogRadius; ++gridX) {
