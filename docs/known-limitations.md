@@ -19,8 +19,10 @@ been confirmed so far.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
   close substrate-microvariation, sparse pointed leaf litter, and restrained fixed-sun interior
   dappling. The authored main corridor now has a subdued broken-edge dry-earth footpath under its
-  short grass. The two clearings have distinct warm-dry and darker leaf-rich treatments, but still
-  lack unique prop landmarks or bespoke geometry. The dapple is static material breakup rather
+  short grass. The two clearings have distinct warm-dry and darker leaf-rich treatments, and their
+  outer rings now carry a first five-rock/one-log natural-landmark composition without blocking
+  their centres. Broader unique composition and bespoke landmark geometry remain limited. The
+  dapple is static material breakup rather
   than canopy-accurate shadow projection. A
   portable near-field contact layer now grounds palms, canopy trunks, land rocks, wood, and monkeys,
   and all instanced jungle foliage now receives two-sided fixed-sun geometric facet lighting, but

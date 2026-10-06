@@ -367,7 +367,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "terrain distinct authored east/west clearing materials")
+                "clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
         add_test(NAME IslandGameGroundPlantCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-ground-capture.ppm"
                     --viewpoint ground)

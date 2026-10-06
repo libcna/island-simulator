@@ -10,10 +10,12 @@ authored clearings use distinct sunlit-dry and leaf-rich ground treatments. An a
 ocean adds an exact
 shore-following foam/wash ribbon,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
-bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152
-irregular land rocks, 14 emergent near-shore reef outcrops, 11 mossy fallen logs,
+bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
+irregular land rocks, 14 emergent near-shore reef outcrops, 12 mossy fallen logs,
 28 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field shell/pebble
-clusters. Every dense near-island visual layer has spatial culling and appropriate distance
+clusters. Five rocks and one fallen log form natural orientation landmarks around the outer rings
+of the two authored clearings without blocking their central walking room. Every dense near-island
+visual layer has spatial culling and appropriate distance
 reduction, while vegetation uses a calm breeze. Five unreachable, haze-softened low islets and 11
 simplified palm silhouettes break up the open-ocean horizon in one intentionally always-present
 portable static batch.

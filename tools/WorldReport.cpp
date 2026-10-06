@@ -195,6 +195,7 @@ namespace
             hash.AddByte(rock.variant);
             hash.AddByte(rock.solid ? 1U : 0U);
             hash.AddByte(rock.offshore ? 1U : 0U);
+            hash.AddByte(rock.clearingLandmark ? 1U : 0U);
         }
 
         hash.AddSize(world.props.FallenLogs().size());
@@ -204,6 +205,7 @@ namespace
             hash.AddFloat(log.length);
             hash.AddFloat(log.radius);
             hash.AddByte(log.variant);
+            hash.AddByte(log.clearingLandmark ? 1U : 0U);
         }
 
         hash.AddSize(world.props.Driftwood().size());

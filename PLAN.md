@@ -320,9 +320,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition. The
   same portable shader now draws a subdued broken-edge dry-earth footpath from the authoritative
   vegetation-reserved corridor, with short grass retained over it. The two shared authored clearing
-  definitions now drive distinct warm-dry and darker leaf-rich surface treatments. Authored biome
-  masks, clearing landmark props, decals, broader litter diversity, and final colour/scale tuning
-  remain.
+  definitions now drive distinct warm-dry and darker leaf-rich surface treatments. Five authored
+  rocks and one fallen log add a first natural landmark composition around their outer rings while
+  retaining open centres. Authored biome masks, richer landmarks, decals, broader litter diversity,
+  and final colour/scale tuning remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
   Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
   unreachable haze-softened low islets with 11 simplified palm silhouettes now break up the
@@ -330,8 +331,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Keep routes traversable and provide alternating enclosed/revealing views. The deterministic
   south-to-north corridor and two clearings reserve vegetation/prop space; its first shared terrain
   material cue improves first-person legibility without becoming a road or HUD marker. The two
-  rooms now have distinct ground identities and dedicated cross-renderer QA views. Whole-route
-  composition review, landmark props, and stronger enclosed/revealing rhythm remain.
+  rooms now have distinct ground identities, first rock/log landmark groups, and dedicated cross-
+  renderer QA views. Whole-route composition review, broader landmarks, and stronger enclosed/
+  revealing rhythm remain.
 
 ### Ocean and shoreline
 
@@ -366,7 +368,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
-  forest-floor plants, 152 land rocks, 14 emergent reef outcrops, 11 fallen logs, 28 three-variant
+  forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 28 three-variant
   driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
   clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
   edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
@@ -798,8 +800,9 @@ Android is not project completion.
   player ripples are functional; repeated whole-island composition tuning remains.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
-  placement curve, and the east/west clearing definitions drive distinct surface treatments.
-  Unique landmark props and whole-route density retuning remain.
+  placement curve, and the east/west clearing definitions drive distinct surface treatments plus a
+  first natural landmark pass made from five rocks and one fallen log around their outer rings.
+  Broader landmark variety and whole-route density retuning remain.
 - [~] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
   coherent permanent sunny art direction. Terrain/ocean/sky share one sun, grass has two-sided
   blade lighting, the jungle now has derivative-based two-sided facet light, and a bounded contact
@@ -1023,8 +1026,10 @@ Work next, in order:
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
    dry-earth material cue under its short grass. The east/west clearings now share their placement,
-   QA, and distinct warm-dry/leaf-rich terrain definitions; unique clearing landmarks, broader prop
-   diversity, contact cues, authored biome variation, and material tuning remain.
+   QA, and distinct warm-dry/leaf-rich terrain definitions. Five authored rocks and one fallen log
+   now give their outer rings different natural silhouettes while preserving the central walking
+   room; broader landmark variety, prop diversity, contact cues, authored biome variation, and
+   material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
@@ -2775,6 +2780,39 @@ Work next, in order:
   worktree acquired extensive external staged/unstaged changes at the locked commit; they were not
   touched or consumed. Configure/build validation continued against the clean project-owned export
   of locked CNA commit `f243c63a1dc56404d732deed902bd18bde9db9f7`.
+
+### 2026-10-06 — Authored natural clearing landmarks
+
+- Added five deliberately placed land rocks and one fallen log to the outer rings of the shared
+  clearing definitions. The east room uses an irregular three-rock group; the west room uses two
+  rocks and a transverse cut-ended log. All reuse the existing natural-prop meshes, variants,
+  shader, LOD, culling, contact-shadow, instance batches, and collision paths. No texture, mesh,
+  shader, render pass, or draw submission was added, and the open central walking areas remain
+  intact.
+- Exposed one renderer-independent clearing-membership query and marked authored landmark records
+  explicitly. Core tests now lock deterministic flags/counts, deep-interior support, outer-ring
+  position, complete log-footprint membership, central-room clearance, and separation between
+  procedural props and reserved routes. The world report hashes the new identity flags. Its
+  intentional new fingerprint is `d83ecd714e10fc9f`, with 171 total rocks including 14 reef
+  outcrops, 12 fallen logs, and 820 static proxies in 481 occupied 16 m cells.
+- Dedicated 1280 by 720 native OpenGL 3.3 and actual Chrome 152/SwiftShader WebGL 2 east/west
+  clearing captures were inspected and agree. The final complete native suite passes 37/37 in
+  46.62 seconds, including 29 actual OpenGL scenes, the hardened core assertions, and real X11
+  input. The complete Chrome harness passes all 22
+  lifecycle, deployment, renderer, scene, and input stages and requires the shared landmark
+  diagnostic in both clearing views.
+- Sequential native safety runs measured 2.3671 ms mean / 2.7291 ms p95 for the fixed jungle view
+  and 2.7827 ms mean / 3.4859 ms p95 over the 675.9635 m traversal. They are not isolated baselines
+  because the operator's visible game shared the GPU. The arm64 GLES 3 target builds, the
+  33,563,264-byte APK assembles, and application lint passes; the stripped library is 15,830,888
+  bytes and WebAssembly is 8,414,099 bytes. Android landmark appearance and physical-mobile cost
+  remain unqualified without a suitable device.
+- No CNA or Sharp Runtime file was edited by island-simulator and no dependency defect was found.
+  Sharp Runtime remains clean on locked `next`. The sibling CNA `next` worktree still contains
+  extensive external staged/unstaged changes at the locked commit; they were neither touched nor
+  consumed. All builds used the clean project-owned export of CNA commit
+  `f243c63a1dc56404d732deed902bd18bde9db9f7` and locked Sharp Runtime commit
+  `21c06910f7cf887cceebb45200e07b43dd45fef4`.
 
 ## Session-end checklist
 

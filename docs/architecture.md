@@ -303,8 +303,8 @@ submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3
 Chromium/WebGL 2 execute and visually match on the full shader; the current arm64 GLES 3 package
 compiles but has not been rerun on stable Android hardware.
 
-Natural props add 152 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
-the 1.8--9.4 m offshore shelf, 11 mossy fallen logs in the low-slope interior, 28 small
+Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
+the 1.8--9.4 m offshore shelf, 12 mossy fallen logs in the low-slope interior, 28 small
 sun-bleached driftwood pieces, 63 fallen palm fronds around suitable groves, and 265 shell/pebble
 clusters in the dry beach belt. Four rock, three log, three driftwood,
 three frond, and four beach-detail variants use cell culling, variant batching, and a portable
@@ -322,7 +322,11 @@ this keeps the material treatment texture-free and free of extra geometry, insta
 Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
 fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
 while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced
-path; dedicated prop, driftwood, reef, and frond cameras provide deterministic close review.
+path; dedicated prop, driftwood, reef, and frond cameras provide deterministic close review. Five
+of the land rocks and one fallen log are deliberately authored in irregular groups around the
+outer rings of the two shared clearing definitions. They use the same geometry, rendering,
+collision, and culling paths as procedural props, while invariant tests keep every landmark inside
+its clearing and outside the central walking room.
 
 The first wildlife renderer draws 24 procedural birds distributed across shore, canopy, and high
 route families. `BirdFlock` combines soft radial steering with two incommensurate wander terms,

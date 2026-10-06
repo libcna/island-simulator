@@ -124,7 +124,8 @@ requires the authored primary-footpath terrain material.
 requires the folded pointed-leaf near-bush path; the same startup also reports the
 branch-supported/pointed-leaf near-canopy path.
 `IslandGameEastClearingCapture` and `IslandGameWestClearingCapture` write player-eye views from the
-two authoritative clearing centres and require their shared distinct-material shader path.
+two authoritative clearing centres. The east view requires their shared distinct-material shader
+path, while the west view requires the shared five-rock/one-log landmark-layout diagnostic.
 `IslandGameGroundPlantCapture` writes a cleared first-person broadleaf detail to
 `build/island-ground-capture.ppm` and requires the upright near-ground-plant path.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to

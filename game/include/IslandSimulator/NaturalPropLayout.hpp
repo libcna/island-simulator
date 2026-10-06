@@ -24,9 +24,10 @@ namespace island
         std::uint8_t variant = 0U;
         bool solid = true;
         bool offshore = false;
+        bool clearingLandmark = false;
     };
 
-    /** @brief One fallen natural log placed away from authored walking routes. */
+    /** @brief One fallen natural log, normally procedural or explicitly used as a landmark. */
     struct FallenLogPlacement
     {
         float x = 0.0f;
@@ -36,6 +37,7 @@ namespace island
         float length = 1.0f;
         float radius = 0.25f;
         std::uint8_t variant = 0U;
+        bool clearingLandmark = false;
     };
 
     /** @brief One small non-solid piece of sun-bleached driftwood on the beach. */
@@ -82,6 +84,8 @@ namespace island
         static constexpr int DriftwoodVariantCount = 3;
         static constexpr int BeachDetailVariantCount = 4;
         static constexpr int FallenFrondVariantCount = 3;
+        static constexpr int AuthoredClearingRockCount = 5;
+        static constexpr int AuthoredClearingLogCount = 1;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
         static constexpr int ReefRockSiteCount = 56;

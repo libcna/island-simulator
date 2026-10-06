@@ -166,7 +166,9 @@ try {
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
       "jungle near ground plants include an upright broadleaf silhouette")
-    && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 12 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes(
+      "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
     && result.output?.includes(
@@ -547,6 +549,8 @@ try {
       "island-simulator: terrain distinct authored east/west clearing materials")
     && eastClearingResult.output?.includes(
       "island-simulator: east clearing QA camera at authored centre")
+    && eastClearingResult.output?.includes(
+      "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
     && eastClearingResult.output?.includes("island-simulator: debug overlay active")
     && !eastClearingResult.error;
 
@@ -559,6 +563,8 @@ try {
       "island-simulator: terrain distinct authored east/west clearing materials")
     && westClearingResult.output?.includes(
       "island-simulator: west clearing QA camera at authored centre")
+    && westClearingResult.output?.includes(
+      "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
     && westClearingResult.output?.includes("island-simulator: debug overlay active")
     && !westClearingResult.error;
 
@@ -592,7 +598,7 @@ try {
     && propResult.output?.includes(
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/11 logs/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/12 logs/.test(
       propResult.output ?? "")
     && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
@@ -630,7 +636,7 @@ try {
     && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
     && driftwoodResult.output?.includes(
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
-    && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
 

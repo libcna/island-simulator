@@ -84,11 +84,16 @@ namespace island
         }
 
         // Two intentional rooms in the vegetation and a safe uncluttered player spawn.
+        return IsInsideAuthoredClearing(x, z)
+            || DistanceSquared(x, z, 0.0f, -225.0f) < 17.0f * 17.0f;
+    }
+
+    bool VegetationLayout::IsInsideAuthoredClearing(const float x, const float z) noexcept
+    {
         return DistanceSquared(x, z, EastClearing.x, EastClearing.z)
                    < EastClearing.radius * EastClearing.radius
             || DistanceSquared(x, z, WestClearing.x, WestClearing.z)
-                   < WestClearing.radius * WestClearing.radius
-            || DistanceSquared(x, z, 0.0f, -225.0f) < 17.0f * 17.0f;
+                   < WestClearing.radius * WestClearing.radius;
     }
 
     VegetationLayout::VegetationLayout(const IslandTerrain& terrain, const std::uint32_t seed)

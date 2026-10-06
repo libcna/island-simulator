@@ -709,12 +709,21 @@ void main()
 
         CreateMeshes();
         CreateCells(layout);
+        const int clearingRockCount = static_cast<int>(std::count_if(
+            layout.Rocks().begin(), layout.Rocks().end(),
+            [](const RockPlacement& rock) { return rock.clearingLandmark; }));
+        const int clearingLogCount = static_cast<int>(std::count_if(
+            layout.FallenLogs().begin(), layout.FallenLogs().end(),
+            [](const FallenLogPlacement& log) { return log.clearingLandmark; }));
         std::cout << "island-simulator: natural props " << totalRockCount_ << " rocks, "
                   << totalReefRockCount_ << " reef outcrops, "
                   << totalLogCount_ << " fallen logs, " << totalDriftwoodCount_
                   << " driftwood pieces, " << totalFallenFrondCount_
                   << " fallen palm fronds, "
                   << (instancingSupported_ ? "hardware instancing" : "per-prop fallback") << '\n';
+        std::cout << "island-simulator: clearing landmarks " << clearingRockCount
+                  << " rocks and " << clearingLogCount
+                  << " fallen log, shared authored placement\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
                   << " shell/pebble clusters, near-field culled\n";
         if (customShaderReady_) {

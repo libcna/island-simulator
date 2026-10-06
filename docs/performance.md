@@ -571,6 +571,23 @@ traversal. The visible game shared the GPU, so these results qualify function an
 gross regression; they are not an isolated fragment-cost baseline. Hardware-browser and physical-
 Android cost remain open.
 
+### Authored natural clearing-landmark follow-up
+
+The first natural landmark pass reuses the existing rock and fallen-log meshes, material shader,
+cell ownership, LOD, culling, instancing, contact-shadow, and collision paths. It adds five land-
+rock instances and one fallen-log instance across the outer rings of the two clearings, plus five
+rock proxies and seven sampled log proxies. It adds no shader, mesh, texture, render pass, or draw
+submission. The deterministic world now contains 171 rocks in total, including 14 offshore
+outcrops, 12 fallen logs, and 820 static collision proxies in 481 occupied 16 m cells.
+
+Dedicated 1280 by 720 native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 captures of both
+clearings were inspected and agree. The east composition reads as an irregular three-rock group;
+the west uses two rocks and a transverse cut-ended log. Both preserve their open central walking
+room. A sequential native safety check measured 2.3671 ms mean / 2.7291 ms p95 in the fixed jungle
+view and 2.7827 ms mean / 3.4859 ms p95 over the 675.9635 m traversal. The operator's visible game
+shared the GPU, so these guard against a gross regression rather than establishing a new isolated
+baseline. Hardware-browser and physical-Android cost remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

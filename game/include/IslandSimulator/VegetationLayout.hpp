@@ -58,6 +58,9 @@ namespace island
         /** @brief Reports whether a point is reserved for a path, clearing, or player spawn. */
         [[nodiscard]] static bool IsReservedRoute(float x, float z) noexcept;
 
+        /** @brief Reports whether a point is inside either authored vegetation clearing. */
+        [[nodiscard]] static bool IsInsideAuthoredClearing(float x, float z) noexcept;
+
         /** @brief Returns the authored centre line of the primary south-to-north path. */
         [[nodiscard]] static float PrimaryPathCenterX(float z) noexcept;
 

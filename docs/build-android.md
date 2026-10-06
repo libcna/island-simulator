@@ -22,8 +22,9 @@ compact far tier, and forest-floor plants including one upright broadleaf near v
 speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
-152 land rocks, 14 emergent reef outcrops, fallen logs, sparse beach driftwood, 63 fallen palm
-fronds, 265 near-field shell/pebble clusters, 24 simulated
+157 land rocks, 14 emergent reef outcrops, 12 fallen logs, sparse beach driftwood, 63 fallen palm
+fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
+landmark composition, 24 simulated
 procedural birds, eight fish schools,
 one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys, fixed sunny sky
 with layered horizontal high wisps,
@@ -40,8 +41,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,559,808-byte APK with a
-15,827,432-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,563,264-byte APK with a
+15,830,888-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

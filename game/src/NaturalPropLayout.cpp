@@ -5,6 +5,7 @@
 #include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <cmath>
 #include <numbers>
@@ -194,6 +195,48 @@ namespace island
                 rock.x, rock.z, 0.63f * std::max(rock.scaleX, rock.scaleZ)});
         }
 
+        struct AuthoredClearingRock
+        {
+            const ClearingDefinition* clearing;
+            float offsetX;
+            float offsetZ;
+            float yawRadians;
+            float scaleX;
+            float scaleY;
+            float scaleZ;
+            std::uint8_t variant;
+        };
+        constexpr std::array clearingRocks{
+            AuthoredClearingRock{&VegetationLayout::EastClearing,
+                                 -22.0f, 7.0f, 0.20f, 1.70f, 0.95f, 1.45f, 1U},
+            AuthoredClearingRock{&VegetationLayout::EastClearing,
+                                 -24.0f, 10.0f, 1.10f, 1.15f, 0.70f, 0.95f, 3U},
+            AuthoredClearingRock{&VegetationLayout::EastClearing,
+                                 -20.0f, 12.0f, 2.00f, 0.85f, 0.55f, 1.05f, 1U},
+            AuthoredClearingRock{&VegetationLayout::WestClearing,
+                                 16.0f, 12.0f, 0.60f, 1.05f, 0.70f, 0.95f, 2U},
+            AuthoredClearingRock{&VegetationLayout::WestClearing,
+                                 7.0f, 20.0f, 1.80f, 0.78f, 0.50f, 0.92f, 0U},
+        };
+        static_assert(clearingRocks.size() == AuthoredClearingRockCount);
+        for (const AuthoredClearingRock& authored : clearingRocks) {
+            RockPlacement rock;
+            rock.x = authored.clearing->x + authored.offsetX;
+            rock.z = authored.clearing->z + authored.offsetZ;
+            const TerrainSample support = terrain.Sample(rock.x, rock.z);
+            rock.y = support.height - 0.06f * authored.scaleY;
+            rock.yawRadians = authored.yawRadians;
+            rock.scaleX = authored.scaleX;
+            rock.scaleY = authored.scaleY;
+            rock.scaleZ = authored.scaleZ;
+            rock.variant = authored.variant;
+            rock.solid = true;
+            rock.clearingLandmark = true;
+            rocks_.push_back(rock);
+            obstacles_.push_back(CircularObstacle{
+                rock.x, rock.z, 0.63f * std::max(rock.scaleX, rock.scaleZ)});
+        }
+
         fallenLogs_.reserve(36U);
         for (int gridZ = -LogRadius; gridZ <= LogRadius; ++gridZ) {
             for (int gridX = -LogRadius; gridX <= LogRadius; ++gridX) {
@@ -264,6 +307,33 @@ namespace island
                 }
             }
         }
+
+        FallenLogPlacement clearingLog;
+        clearingLog.x = VegetationLayout::WestClearing.x + 12.0f;
+        clearingLog.z = VegetationLayout::WestClearing.z + 13.0f;
+        clearingLog.yawRadians = 2.38f;
+        clearingLog.length = 6.6f;
+        clearingLog.radius = 0.38f;
+        clearingLog.variant = 2U;
+        clearingLog.clearingLandmark = true;
+        const float clearingLogDirectionX = std::cos(clearingLog.yawRadians);
+        const float clearingLogDirectionZ = std::sin(clearingLog.yawRadians);
+        float clearingLogSupportHeight = terrain.Height(clearingLog.x, clearingLog.z);
+        for (int sampleIndex = 0; sampleIndex < LogCollisionSamples; ++sampleIndex) {
+            const float t = static_cast<float>(sampleIndex)
+                / static_cast<float>(LogCollisionSamples - 1) - 0.5f;
+            const float sampleX = clearingLog.x
+                + clearingLogDirectionX * clearingLog.length * t;
+            const float sampleZ = clearingLog.z
+                + clearingLogDirectionZ * clearingLog.length * t;
+            clearingLogSupportHeight = std::max(
+                clearingLogSupportHeight, terrain.Height(sampleX, sampleZ));
+            obstacles_.push_back(CircularObstacle{
+                sampleX, sampleZ, clearingLog.radius * 0.92f});
+        }
+        clearingLog.y = clearingLogSupportHeight + clearingLog.radius * 0.68f;
+        fallenLogs_.push_back(clearingLog);
+        static_assert(AuthoredClearingLogCount == 1);
 
         driftwood_.reserve(72U);
         for (int gridZ = -DriftwoodRadius; gridZ <= DriftwoodRadius; ++gridZ) {

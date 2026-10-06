@@ -1799,6 +1799,7 @@ int main()
           "natural-prop populations are deterministic");
     std::size_t solidRockCount = 0U;
     std::size_t reefRockCount = 0U;
+    std::size_t clearingLandmarkRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
         const island::RockPlacement& rock = props.Rocks()[index];
         const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
@@ -1807,7 +1808,8 @@ int main()
                   && rock.yawRadians == repeated.yawRadians
                   && rock.scaleX == repeated.scaleX && rock.scaleY == repeated.scaleY
                   && rock.scaleZ == repeated.scaleZ && rock.variant == repeated.variant
-                  && rock.solid == repeated.solid && rock.offshore == repeated.offshore,
+                  && rock.solid == repeated.solid && rock.offshore == repeated.offshore
+                  && rock.clearingLandmark == repeated.clearingLandmark,
               "rock placement is bitwise deterministic for one seed");
         if (rock.offshore) {
             ++reefRockCount;
@@ -1823,13 +1825,37 @@ int main()
                       && rock.scaleZ > 0.90f && rock.scaleZ < 3.60f,
                   "reef-outcrop axis scales remain inside their authored bounds");
         } else {
-            Check(sample.signedShoreDistance >= 1.5f
-                      && sample.signedShoreDistance <= 202.0f,
-                  "land rocks stay inside their coastal/interior placement belt");
+            if (rock.clearingLandmark) {
+                Check(sample.signedShoreDistance >= 30.0f,
+                      "authored clearing rocks remain on deep interior ground");
+            } else {
+                Check(sample.signedShoreDistance >= 1.5f
+                          && sample.signedShoreDistance <= 202.0f,
+                      "procedural land rocks stay inside their placement belt");
+            }
             Check(sample.height >= 0.15f && sample.slopeRadians <= 0.5759587f,
                   "land rocks remain on suitable unsubmerged ground");
-            Check(!island::VegetationLayout::IsReservedRoute(rock.x, rock.z),
-                  "land rocks keep authored routes and clearings open");
+            if (rock.clearingLandmark) {
+                ++clearingLandmarkRockCount;
+                const float eastDistance = std::hypot(
+                    rock.x - island::VegetationLayout::EastClearing.x,
+                    rock.z - island::VegetationLayout::EastClearing.z);
+                const float westDistance = std::hypot(
+                    rock.x - island::VegetationLayout::WestClearing.x,
+                    rock.z - island::VegetationLayout::WestClearing.z);
+                const island::ClearingDefinition& clearing = eastDistance < westDistance
+                    ? island::VegetationLayout::EastClearing
+                    : island::VegetationLayout::WestClearing;
+                const float clearingDistance = std::min(eastDistance, westDistance);
+                Check(clearingDistance > clearing.radius * 0.70f
+                          && clearingDistance < clearing.radius * 0.92f,
+                      "authored clearing rocks stay in a traversable outer landmark ring");
+                Check(island::VegetationLayout::IsInsideAuthoredClearing(rock.x, rock.z),
+                      "authored clearing rocks remain associated with a clearing");
+            } else {
+                Check(!island::VegetationLayout::IsReservedRoute(rock.x, rock.z),
+                      "procedural land rocks keep authored routes and clearings open");
+            }
             Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
                       && rock.scaleY > 0.24f && rock.scaleY < 1.70f
                       && rock.scaleZ > 0.35f && rock.scaleZ < 2.35f,
@@ -1841,12 +1867,18 @@ int main()
     }
     Check(reefRockCount >= 12U && reefRockCount <= 34U,
           "reef outcrops stay inside their sparse shoreline-composition budget");
+    Check(clearingLandmarkRockCount
+              == static_cast<std::size_t>(
+                  island::NaturalPropLayout::AuthoredClearingRockCount),
+          "both clearing landmark rock groups remain complete");
+    std::size_t clearingLandmarkLogCount = 0U;
     for (std::size_t index = 0; index < props.FallenLogs().size(); ++index) {
         const island::FallenLogPlacement& log = props.FallenLogs()[index];
         const island::FallenLogPlacement& repeated = repeatedProps.FallenLogs()[index];
         Check(log.x == repeated.x && log.y == repeated.y && log.z == repeated.z
                   && log.yawRadians == repeated.yawRadians && log.length == repeated.length
-                  && log.radius == repeated.radius && log.variant == repeated.variant,
+                  && log.radius == repeated.radius && log.variant == repeated.variant
+                  && log.clearingLandmark == repeated.clearingLandmark,
               "fallen-log placement is bitwise deterministic for one seed");
         Check(log.length >= island::NaturalPropLayout::LogMinimumLength
                   && log.length <= island::NaturalPropLayout::LogMaximumLength,
@@ -1861,12 +1893,27 @@ int main()
             const float t = static_cast<float>(sampleIndex) / 6.0f - 0.5f;
             const float sampleX = log.x + directionX * log.length * t;
             const float sampleZ = log.z + directionZ * log.length * t;
-            Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
-                  "the complete fallen-log footprint stays outside authored routes");
+            if (log.clearingLandmark) {
+                Check(island::VegetationLayout::IsInsideAuthoredClearing(sampleX, sampleZ),
+                      "the complete landmark-log footprint stays inside its clearing");
+                const island::ClearingDefinition& clearing =
+                    island::VegetationLayout::WestClearing;
+                Check(std::hypot(sampleX - clearing.x, sampleZ - clearing.z)
+                          > clearing.radius * 0.56f,
+                      "the landmark log preserves the clearing's central walking room");
+            } else {
+                Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
+                      "procedural fallen logs stay outside authored routes");
+            }
             Check(terrain.Sample(sampleX, sampleZ).signedShoreDistance >= 30.0f,
                   "the complete fallen-log footprint stays in the island interior");
         }
+        if (log.clearingLandmark) ++clearingLandmarkLogCount;
     }
+    Check(clearingLandmarkLogCount
+              == static_cast<std::size_t>(
+                  island::NaturalPropLayout::AuthoredClearingLogCount),
+          "the west-clearing fallen-log landmark remains present");
     for (std::size_t index = 0; index < props.Driftwood().size(); ++index) {
         const island::DriftwoodPlacement& wood = props.Driftwood()[index];
         const island::DriftwoodPlacement& repeated = repeatedProps.Driftwood()[index];
