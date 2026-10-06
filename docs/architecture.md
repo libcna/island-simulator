@@ -410,6 +410,13 @@ interpolated percentiles. Benchmark runs select an existing fixed camera, disabl
 fixed timestep, omit debug presentation, serialize a small JSON report, and exit. Ordinary play
 retains its fixed-timestep/VSync configuration.
 
+The native-only `island-world-report` target links only `IslandSimulator::Core`. It reconstructs
+terrain, deterministic layouts, the combined collision grid, and initial wildlife twice, validates
+their invariants, and emits ordered JSON plus a platform-local FNV-1a fingerprint over sampled
+terrain and generated world data. `tools/validate_assets.py` separately checks the versioned asset
+manifest, generator ownership, attribution rows, external-file hashes, and the rule that every
+file under `assets/` is declared. Neither host tool enters WebAssembly or Android packages.
+
 ## Audio baseline
 
 `SoundscapeModel` supplies original deterministic 22.05 kHz mono PCM16 source material at startup.

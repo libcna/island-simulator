@@ -98,7 +98,7 @@ cmake -S . -B build -G Ninja \
   -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DCNA_GRAPHICS_RENDERER=OPENGL33
-cmake --build build --target island-simulator island_core_tests --parallel 2
+cmake --build build --target island-simulator island_core_tests island_world_report --parallel 2
 ctest --preset linux-core
 ```
 
@@ -137,6 +137,9 @@ Use `--world-debug` to enable both the panel and world visualization at launch.
 Use `tools/run_native_benchmarks.sh` through the private GPU runner for warm, uncapped JSON
 frame-time reports across five fixed scenes; methodology and the initial Linux baseline are in
 `docs/performance.md`.
+Use `python3 tools/validate_assets.py` to enforce the asset provenance gate and
+`build/island-world-report --output <path>` for deterministic terrain, placement, collision,
+wildlife, seed, and fingerprint statistics. See `docs/asset-pipeline.md`.
 
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
@@ -163,4 +166,6 @@ software emulation; lifecycle, audio, touch ergonomics, and mobile performance r
 - `PLAN.md` is the living development ledger.
 - `BUGS.md` records confirmed CNA or Sharp Runtime defects and game-side workarounds.
 - `ASSET_LICENSES.md` records all asset provenance before assets enter a runtime build.
+- `docs/asset-pipeline.md` defines the manifest, validation gate, deterministic world report, and
+  external-asset intake procedure.
 - `docs/performance.md` defines the repeatable benchmark method, current evidence, and open budgets.

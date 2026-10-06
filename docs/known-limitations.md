@@ -111,7 +111,8 @@ been confirmed so far.
   shared-cell, wildlife heading/target/home-range, ambient-zone, nearest audio-candidate, active
   positional-emitter, and exact nine-sample terrain-contact views; movement history and deeper
   per-system overlays remain open.
-- Eight direct debug teleports, a bounded debug-only inspection camera, and a five-view native
-  frame-time suite exist, but there is no teleport menu, sustained moving benchmark route, asset
-  validation command, or automated
-  renderer-image comparison yet.
+- Eight direct debug teleports, a bounded debug-only inspection camera, a five-view native
+  frame-time suite, an asset-manifest validator, and a deterministic world-statistics report
+  exist. There is no teleport menu, sustained moving benchmark route, or automated renderer-image
+  comparison yet. The world fingerprint is a same-toolchain change detector, not a cross-libm
+  canonical world hash.

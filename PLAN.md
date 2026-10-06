@@ -881,7 +881,8 @@ after the same experience remains available.
   shark presence/activity, monkey state counts, plus audio mix/undertow/event counters. The F2
   world view and deterministic capture now add boundary/collision/cell/wildlife markers; warning
   budgets and deeper views remain open.
-- [ ] Deterministic seed display/copy.
+- [~] Deterministic seed display/copy. `island-world-report` emits the four authoritative layout
+  seeds in machine-readable JSON; an in-game overlay field and clipboard action remain open.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
   South beach, jungle trail, two clearings, fish shallows, offshore shark, monkey troop, and the
   active current field are implemented; remaining landmark locations remain.
@@ -909,7 +910,10 @@ after the same experience remains available.
   shallow-water fish views plus offshore-shark and GPU-skinned-monkey views are implemented and
   used by native/browser captures. Debug builds add bounded F3 flight with frozen player state,
   12/36 m/s movement, automatic F1-visible lifetime, and real private-Xwayland key-input coverage.
-- [ ] Asset validation command and deterministic world-statistics report.
+- [x] Asset validation command and deterministic world-statistics report. The standard-library-only
+  manifest validator gates every file under `assets/`, generator ownership, hashes, provenance,
+  and attribution rows. The native `island-world-report` reconstructs the world twice and emits
+  terrain, placement, collision, wildlife, seed, and platform-local fingerprint JSON.
 - [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
   warm-up and 600 sampled uncapped intervals with JSON mean/median/p95/p99 output, while
   `tools/run_native_benchmarks.sh` covers five fixed representative scenes. A sustained moving
@@ -922,8 +926,8 @@ after the same experience remains available.
 - [x] `PLAN.md`: this living ledger.
 - [x] `BUGS.md`: defect schema and current no-confirmed-defects record exist; update whenever
   evidence qualifies a dependency defect.
-- [~] `ASSET_LICENSES.md`: original procedural baseline is recorded; it remains a gate and must be
-  extended before any external asset enters a runtime build.
+- [x] `ASSET_LICENSES.md`: the original procedural baseline is recorded and cross-checked against
+  the versioned asset manifest; it remains a maintained gate before external content enters.
 - [x] `docs/build-linux.md`: prerequisites, exact dependencies, configure/build/run/test.
 - [x] `docs/build-web.md`: SDK, package, serve, browser requirements, validation, and explicit
   unverified interaction/performance scope.
@@ -933,7 +937,8 @@ after the same experience remains available.
   coordinates exist; extend as systems are added.
 - [~] `docs/controls.md`: desktop/Web and implemented Android dual-zone touch controls are
   documented; configurable sensitivity/layout and real-device ergonomic notes remain open.
-- [ ] `docs/asset-pipeline.md`: source formats, generation/conversion, manifests, validation.
+- [x] `docs/asset-pipeline.md`: current generation model, versioned manifest schema, validation,
+  world report, external intake, deterministic conversion requirements, and limitations.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
   documented; matched Android captures and representative cross-target measurements remain open.
 - [~] `docs/debugging.md`: overlay fields, direct QA teleports, deterministic captures, and the
@@ -2430,6 +2435,28 @@ Work next, in order:
   stripped `libmain.so` is 15,765,176 bytes, and the APK is 33,497,552 bytes. Android runtime
   appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime remain
   clean on `next` and unmodified; no dependency defect was found.
+
+### 2026-10-06 — Asset gate and deterministic world report
+
+- Added schema-versioned `assets/manifest.json`. Its 17 procedural records map every current
+  generated-content attribution row to 32 owning source files; the external-file list is empty
+  because the game still ships no external mesh, texture, animation, font, or audio data.
+- Added the standard-library-only `tools/validate_assets.py`. It rejects malformed schema, unsafe
+  paths, duplicate records, missing generator sources, orphaned `ASSET_LICENSES.md` rows, unlisted
+  files under `assets/`, incomplete provenance fields, missing files, and SHA-256 mismatches. It
+  can also write a small machine-readable JSON report.
+- Added the native-only `island-world-report` target. It reconstructs the authoritative world
+  twice, validates finite/ranged placement data and derived populations, then writes stable-order
+  JSON with public seeds, terrain/surface sampling, all content counts, collision cells, wildlife,
+  and a platform-local fingerprint. The current fingerprint is `2e2cd5d73dba8a18`; sampled shore
+  radii are 209.7295--252.0567 m, heights are -14.5815--19.3941 m, and the report agrees with 808
+  static obstacles in 479 cells.
+- Added `IslandAssetValidation` and `IslandWorldReport` to native CTest. The expanded isolated
+  suite passes 28/28 in 38.74 seconds, including 25 display-backed OpenGL tests and the serial
+  real-input free-camera test. Web reconfiguration confirms the host target is absent and leaves
+  the 8,367,853-byte WASM unchanged. Android reconfiguration, arm64 APK assembly, and lint pass
+  with the same 15,765,176-byte stripped library and 33,497,552-byte APK. The tools are excluded
+  when cross-compiling, so runtime products and their qualification claims are unchanged.
 
 ## Session-end checklist
 

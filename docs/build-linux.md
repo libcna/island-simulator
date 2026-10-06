@@ -5,6 +5,7 @@
 - CMake 3.23 or newer
 - Ninja
 - a C++23 compiler
+- Python 3.10 or newer for the asset-manifest validator
 - ccache
 - system SDL 3, SDL_image 3, and SDL_mixer 3 development packages
 - read-only sibling checkouts of Sharp Runtime `next`, EasyGL `develop`, and MetaGL `develop`
@@ -25,9 +26,20 @@ cmake --preset linux-debug
 cmake --build --preset linux-debug
 ```
 
-The preset deliberately builds only the game and core-test targets. CNA is added with
-`EXCLUDE_FROM_ALL`, so a bare all-target build does not pull unrelated framework tools into normal
-game iteration; explicit project targets remain preferable in automation.
+The preset deliberately builds only the game, core tests, and host world-report target. CNA is
+added with `EXCLUDE_FROM_ALL`, so a bare all-target build does not pull unrelated framework tools
+into normal game iteration; explicit project targets remain preferable in automation.
+
+The preset also builds the renderer-independent `island_world_report` host tool. Generate a
+machine-readable deterministic content inventory with:
+
+```bash
+build/island-world-report --output /tmp/island-world-report.json
+python3 tools/validate_assets.py --output /tmp/island-asset-report.json
+```
+
+Both commands are registered as native CTests. See `docs/asset-pipeline.md` for report semantics
+and the external-asset intake gate.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 

@@ -75,7 +75,8 @@
       "jobs": 2,
       "targets": [
         "island-simulator",
-        "island_core_tests"
+        "island_core_tests",
+        "island_world_report"
       ]
     },
     {

@@ -29,3 +29,8 @@ generated from original project code and contain no external asset data.
 External assets must be added here before they enter a runtime build. Each entry must include a
 stable source, author where applicable, exact license, modifications, and in-game use. Downloaded
 archives and remote URLs alone are not reproducible provenance.
+
+`assets/manifest.json` maps every row above to its owning procedural source files and is the
+machine-readable gate for future external files. Run `python3 tools/validate_assets.py` after any
+content or attribution change. See `docs/asset-pipeline.md` for the required external-file fields,
+hashing rules, and intake procedure.

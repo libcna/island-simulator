@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(ISLAND_BUILD_GAME "Build the graphical island-simulator application" ON)
 option(ISLAND_BUILD_TESTS "Build island-simulator core tests" ON)
+option(ISLAND_BUILD_TOOLS "Build island-simulator host development tools" ON)
 option(ISLAND_STRICT_DEPENDENCY_REVISIONS
        "Require the dependency revisions recorded in dependencies.lock" ON)
 
@@ -70,12 +71,36 @@ endfunction()
 
 island_enable_first_party_warnings(island_core)
 
+if(ISLAND_BUILD_TOOLS AND NOT CMAKE_CROSSCOMPILING)
+    add_executable(island_world_report tools/WorldReport.cpp)
+    set_target_properties(island_world_report PROPERTIES OUTPUT_NAME island-world-report)
+    target_link_libraries(island_world_report PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_world_report)
+endif()
+
 if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     enable_testing()
     add_executable(island_core_tests tests/CoreTests.cpp)
     target_link_libraries(island_core_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_core_tests)
     add_test(NAME IslandCoreTests COMMAND island_core_tests)
+
+    if(TARGET island_world_report)
+        add_test(NAME IslandWorldReport
+            COMMAND island_world_report
+                    --output "${CMAKE_BINARY_DIR}/island-world-report.json")
+        set_tests_properties(IslandWorldReport PROPERTIES
+            PASS_REGULAR_EXPRESSION "world report valid")
+    endif()
+
+    find_package(Python3 COMPONENTS Interpreter QUIET)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME IslandAssetValidation
+            COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_assets.py")
+        set_tests_properties(IslandAssetValidation PROPERTIES
+            PASS_REGULAR_EXPRESSION "asset validation passed")
+    endif()
 endif()
 
 if(ISLAND_BUILD_GAME)

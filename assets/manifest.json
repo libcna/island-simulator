@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "externalFiles": [],
+  "proceduralGenerators": [
+    {
+      "name": "island-field",
+      "licenseRecord": "Procedural island field",
+      "sources": [
+        "game/src/IslandTerrain.cpp",
+        "game/src/TerrainRenderer.cpp"
+      ]
+    },
+    {
+      "name": "animated-ocean",
+      "licenseRecord": "Procedural animated ocean",
+      "sources": [
+        "game/src/OceanRenderer.cpp",
+        "game/src/WaterRippleModel.cpp"
+      ]
+    },
+    {
+      "name": "water-view-veil",
+      "licenseRecord": "Procedural water-view veil",
+      "sources": [
+        "game/src/WaterViewModel.cpp",
+        "game/src/WaterViewOverlay.cpp"
+      ]
+    },
+    {
+      "name": "palms",
+      "licenseRecord": "Procedural palms",
+      "sources": [
+        "game/src/VegetationLayout.cpp",
+        "game/src/PalmRenderer.cpp"
+      ]
+    },
+    {
+      "name": "mesh-grass",
+      "licenseRecord": "Procedural mesh grass",
+      "sources": [
+        "game/src/GrassLayout.cpp",
+        "game/src/GrassInteractionModel.cpp",
+        "game/src/GrassRenderer.cpp"
+      ]
+    },
+    {
+      "name": "broadleaf-jungle",
+      "licenseRecord": "Procedural broadleaf jungle",
+      "sources": [
+        "game/src/JungleLayout.cpp",
+        "game/src/JungleRenderer.cpp"
+      ]
+    },
+    {
+      "name": "natural-props",
+      "licenseRecord": "Procedural natural props",
+      "sources": [
+        "game/src/NaturalPropLayout.cpp",
+        "game/src/NaturalPropRenderer.cpp"
+      ]
+    },
+    {
+      "name": "fixed-sky",
+      "licenseRecord": "Procedural fixed sky",
+      "sources": [
+        "game/src/SkyRenderer.cpp"
+      ]
+    },
+    {
+      "name": "distant-scenery",
+      "licenseRecord": "Procedural distant scenery",
+      "sources": [
+        "game/src/DistantSceneryLayout.cpp",
+        "game/src/DistantSceneryRenderer.cpp"
+      ]
+    },
+    {
+      "name": "contact-shadows",
+      "licenseRecord": "Procedural contact shadows",
+      "sources": [
+        "game/src/ContactShadowRenderer.cpp"
+      ]
+    },
+    {
+      "name": "flying-birds",
+      "licenseRecord": "Procedural flying birds",
+      "sources": [
+        "game/src/BirdFlock.cpp",
+        "game/src/BirdRenderer.cpp"
+      ]
+    },
+    {
+      "name": "fish-schools",
+      "licenseRecord": "Procedural fish schools",
+      "sources": [
+        "game/src/FishSchools.cpp",
+        "game/src/FishRenderer.cpp"
+      ]
+    },
+    {
+      "name": "offshore-shark",
+      "licenseRecord": "Procedural offshore shark",
+      "sources": [
+        "game/src/SharkPatrol.cpp",
+        "game/src/SharkRenderer.cpp"
+      ]
+    },
+    {
+      "name": "monkey-troop",
+      "licenseRecord": "Procedural monkey troop",
+      "sources": [
+        "game/src/MonkeyTroop.cpp",
+        "game/src/MonkeyRenderer.cpp"
+      ]
+    },
+    {
+      "name": "ambient-soundscape",
+      "licenseRecord": "Procedural ambient soundscape",
+      "sources": [
+        "game/src/SoundscapeModel.cpp",
+        "game/src/Soundscape.cpp"
+      ]
+    },
+    {
+      "name": "touch-controls",
+      "licenseRecord": "Generated touch controls",
+      "sources": [
+        "game/src/TouchControls.cpp",
+        "game/src/TouchOverlay.cpp"
+      ]
+    },
+    {
+      "name": "developer-font",
+      "licenseRecord": "Developer bitmap font",
+      "sources": [
+        "game/src/DebugOverlay.cpp"
+      ]
+    }
+  ]
+}
