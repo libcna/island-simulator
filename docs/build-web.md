@@ -95,7 +95,8 @@ view must report nonzero grass, the jungle view must report nonzero canopy, unde
 and forest-floor plants, the prop view must report visible fallen logs plus a nonzero one-draw
 contact-shadow batch, the driftwood view must
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent
-outcrop, the water view must report a nonzero procedural veil and exactly one overlay draw, the
+outcrop, the water view must report a nonzero procedural veil, exactly one overlay draw, and a
+nonzero player ripple integrated into the existing ocean submission, the
 current view must additionally report nonzero normalized current strength and undertow-audio
 target, the frond view must
 report visible grove-associated fallen fronds, the distant view must report all five unreachable

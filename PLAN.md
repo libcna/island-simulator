@@ -275,8 +275,8 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [x] Define depth-based water-entry/exit hysteresis.
 - [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. A
   restrained swimming camera rhythm, solid emergent-outcrop collision, and subtle
-  depth-responsive near-surface edge veil are complete; a true geometric waterline and full
-  underwater presentation remain open.
+  depth-responsive near-surface edge veil plus movement-driven surface ripples are complete; a
+  true geometric waterline and full underwater presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. The
   water-view veil and undertow audio now strengthen across the same normalized field; lateral
@@ -331,7 +331,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   visible z-fighting. A 384-segment ribbon now follows the authoritative shore independently of
   the coarse ocean grid and adds a narrow broken animated crest plus restrained receding wash over
   the wet-sand pass. A subtle generated near-surface edge veil now fades with swimming state and
-  support depth; full underwater transitions and final wash/material tuning remain open.
+  support depth, while depth/speed-responsive player ripples reuse the animated ocean submission;
+  full underwater transitions and final wash/material tuning remain open.
 - [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
   stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated edge veil with
   one conditional `SpriteBatch` draw; waterline geometry, underwater fog, and refraction remain.
@@ -731,7 +732,9 @@ Android is not project completion.
 - [ ] Improve grass close-up shape, density transitions, colour variation, wind coherence, and
   aliasing until it holds up at first-person height.
 - [ ] Break repeated palm/prop silhouettes and correct floating/sunken placements.
-- [ ] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain seams.
+- [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
+  seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
+  player ripples are functional; repeated whole-island composition tuning remains.
 - [ ] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation cues.
 - [ ] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
   coherent permanent sunny art direction.
@@ -840,7 +843,8 @@ after the same experience remains available.
 ## Debug and developer tooling backlog
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
-  frame spacing, player/shore/current/water-view state, renderer, terrain/vegetation visibility,
+  frame spacing, player/shore/current/water-ripple/water-view state, renderer,
+  terrain/vegetation visibility,
   distant scenery, contact-shadow class/triangle counts, LOD counts, draws,
   bird/fish/shark/monkey render LOD and simulation tiers,
   shark presence/activity, monkey state counts, plus audio mix/undertow/event counters. The F2
@@ -919,8 +923,9 @@ Work next, in order:
    shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete; broader prop diversity, contact cues, and material tuning
    remain.
-   The first portable near-surface swimming veil is also complete; defer waterline geometry,
-   underwater fog, and refraction until a similarly portable design is justified.
+   The first portable near-surface swimming veil and movement-driven surface ripples are also
+   complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
+   design is justified.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
    LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
@@ -1895,6 +1900,28 @@ Work next, in order:
   APK is 33,414,496 bytes. Android runtime appearance remains unqualified without KVM or a physical
   device. CNA and Sharp Runtime remain clean on `next` and unmodified; no dependency defect was
   found.
+
+### 2026-10-06 — Movement-driven player water ripples
+
+- Added a renderer-independent `WaterRippleModel` that converts authoritative ground depth,
+  swimming state, and horizontal speed into a bounded eased intensity plus wrapped radial phase.
+  Dry and stationary water states remain exactly zero; long frames, invalid inputs, wading,
+  swimming, sustained phase wrapping, deterministic reset, and complete release have core tests.
+- Integrated two thin expanding, spatially varied bands into the existing ocean fragment shader.
+  They share its displaced surface, shallow-water weighting, foam colour, GLSL 330/ES 300 package,
+  and single draw submission. A uniform branch skips ripple math while inactive; no geometry,
+  texture, external asset, or additional draw was added. Visual review rejected an initially broad,
+  bright ring and retained a much thinner 0.24-maximum foam contribution.
+- Extended F1 diagnostics and benchmark JSON with ripple intensity/phase. The native and browser
+  water gates require a nonzero deterministic ripple, while the offshore-current camera proves the
+  zero-ripple stationary case remains valid. Two accelerated active-water repeats retained 112
+  tracked submissions and measured 1.6218--1.7052 ms mean and 2.0327--2.4040 ms p95.
+- All 19 native tests pass, including 18 real OpenGL 3.3 scenes. The complete Chrome
+  152/WebGL 2 renderer/lifecycle/input/audio-init harness passes and visually rendered the new
+  shader path. The arm64-v8a GLES 3 APK rebuild and app lint pass; WebAssembly is 8,293,998 bytes,
+  stripped `libmain.so` is 15,687,656 bytes, and the APK is 33,420,032 bytes. Android runtime
+  appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime remain
+  clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

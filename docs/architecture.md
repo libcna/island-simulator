@@ -49,6 +49,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── FirstPersonCameraMotion ─ bounded walking/swimming positional motion and opt-out
+      ├── WaterRippleModel ──── depth/speed-responsive ocean-ripple intensity and phase
       ├── WaterViewModel ───── depth/current-responsive veil intensity and transition smoothing
       ├── WaterViewOverlay ─── generated premultiplied edge texture and one conditional draw
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
@@ -122,6 +123,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 7. `WaterViewModel` converts swimming state, authoritative support depth, and normalized offshore
    current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
    `SpriteBatch` draw, cools its tint slightly as current develops, and submits nothing while dry.
+   `WaterRippleModel` independently derives a smoothed, wrapped surface-ripple state from support
+   depth and horizontal speed; the ocean shader consumes it without another render submission.
 8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch/undertow from
    authoritative shoreline, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
@@ -300,9 +303,13 @@ surface treatment, calls, and stable Android runtime validation remain open.
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
-depth-driven tropical colour/transparency, moving foam, and haze. A stock `BasicEffect` fallback
-keeps the scene operable with a clear diagnostic if the custom effect cannot be created. Native
-OpenGL 3.3 and actual WebGL 2 execution select the full path. The API 35 Android emulator has
+depth-driven tropical colour/transparency, moving foam, haze, and two thin movement-driven ripple
+bands centred on the player. The ripple state eases from authoritative depth/speed input, wraps
+deterministically, uses subtle spatial breakup, and skips its fragment work while inactive; it
+shares the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
+a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
+ripple.
+Native OpenGL 3.3 and actual WebGL 2 execution select the full path. The API 35 Android emulator has
 created a real GLES3 surface and visibly rendered the current terrain/palm/grass scene; the captured
 camera did not establish every ocean effect variant, and mobile-GPU profiling remains open.
 

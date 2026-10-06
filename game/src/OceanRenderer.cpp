@@ -85,6 +85,9 @@ in float vShoreFoam;
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
 uniform float uTime;
+uniform vec2 uPlayerWaterPosition;
+uniform float uPlayerRippleIntensity;
+uniform float uPlayerRipplePhase;
 
 out vec4 fragColor;
 
@@ -102,6 +105,16 @@ vec2 oceanSlope(vec2 p, float time)
     slope += d3 * (0.014 * 0.370) * cos(dot(p, d3) * 0.370 + time * 1.83 + 0.8);
     slope += d4 * (0.008 * 0.710) * cos(dot(p, d4) * 0.710 + time * 2.27 + 4.1);
     return slope;
+}
+
+float playerRippleBand(float distanceToPlayer, float phase)
+{
+    float radius = mix(0.34, 1.85, phase);
+    float width = mix(0.018, 0.050, phase);
+    float band = 1.0 - smoothstep(width, width + 0.035,
+                                  abs(distanceToPlayer - radius));
+    float envelope = sin(phase * 3.14159265);
+    return band * envelope * envelope;
 }
 
 void main()
@@ -135,6 +148,20 @@ void main()
     float foam = clamp(vShoreFoam, 0.0, 1.0)
         * smoothstep(0.47, 0.79, crossingWaves + length(slope) * 4.2);
     foam *= 0.68 + 0.32 * sin(dot(vWorld.xz, vec2(0.91, -0.43)) + uTime * 0.36);
+    if (uPlayerRippleIntensity > 0.001) {
+        vec2 playerOffset = vWorld.xz - uPlayerWaterPosition;
+        float distanceToPlayer = length(playerOffset);
+        float firstPhase = fract(uPlayerRipplePhase);
+        float secondPhase = fract(uPlayerRipplePhase + 0.5);
+        float playerRipple = max(playerRippleBand(distanceToPlayer, firstPhase),
+                                 playerRippleBand(distanceToPlayer, secondPhase));
+        float spatialVariation = 0.72 + 0.28 * sin(
+            dot(playerOffset, vec2(4.7, -3.9)) + uTime * 0.54
+            + uPlayerRipplePhase * 7.0);
+        playerRipple *= clamp(uPlayerRippleIntensity, 0.0, 1.0)
+            * mix(0.58, 1.0, clamp(vShallow, 0.0, 1.0)) * spatialVariation;
+        foam = max(foam, playerRipple * 0.24);
+    }
     foam = clamp(foam, 0.0, 0.86);
     water = mix(water, vec3(0.82, 0.94, 0.91), foam);
 
@@ -293,7 +320,10 @@ void main()
     }
 
     void OceanRenderer::Draw(const Matrix& view, const Matrix& projection,
-                             const Vector3& cameraPosition, const float timeSeconds)
+                             const Vector3& cameraPosition, const float timeSeconds,
+                             const float playerX, const float playerZ,
+                             const float playerRippleIntensity,
+                             const float playerRipplePhase)
     {
         device_.setRasterizerStateProperty(RasterizerState::CullNone);
         device_.setBlendStateProperty(BlendState::AlphaBlend);
@@ -310,6 +340,15 @@ void main()
                 "uToSun", environment::SunDirectionX, environment::SunDirectionY,
                 environment::SunDirectionZ);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
+            customEffect_->SetUniformVec2("uPlayerWaterPosition", playerX, playerZ);
+            customEffect_->SetUniformFloat(
+                "uPlayerRippleIntensity",
+                std::isfinite(playerRippleIntensity)
+                    ? std::clamp(playerRippleIntensity, 0.0f, 1.0f) : 0.0f);
+            customEffect_->SetUniformFloat(
+                "uPlayerRipplePhase",
+                std::isfinite(playerRipplePhase)
+                    ? playerRipplePhase - std::floor(playerRipplePhase) : 0.0f);
             DrawGeometry();
         } else {
             fallbackEffect_->setWorldProperty(Matrix::getIdentityProperty());

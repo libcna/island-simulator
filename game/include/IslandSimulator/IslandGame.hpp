@@ -38,6 +38,7 @@
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WaterRippleModel.hpp"
 #include "IslandSimulator/WaterViewModel.hpp"
 #include "IslandSimulator/WaterViewOverlay.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
@@ -124,6 +125,7 @@ namespace island
         FirstPersonCameraMotion cameraMotion_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
+        WaterRippleModel waterRippleModel_;
         WaterViewModel waterViewModel_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;

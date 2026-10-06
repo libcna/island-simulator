@@ -66,7 +66,7 @@ requires a nonzero one-draw terrain-contact-shadow batch.
 `build/island-reef-capture.ppm`.
 `IslandGameWaterViewCapture` writes a near-surface swimming view to
 `build/island-water-capture.ppm` and requires the procedural edge veil's nonzero intensity and
-single conditional draw.
+single conditional draw plus a nonzero movement-driven player ripple in the ocean shader.
 `IslandGameCurrentViewCapture` writes a 62 m offshore view to
 `build/island-current-capture.ppm` and requires nonzero current-modulated veil feedback plus a
 nonzero renderer-independent undertow-audio target. Capture mode intentionally leaves the audio

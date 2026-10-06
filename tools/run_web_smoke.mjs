@@ -148,6 +148,8 @@ try {
     && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
+    && result.output?.includes(
+      "island-simulator: movement-driven player ripples integrated into the portable ocean shader")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
@@ -476,7 +478,8 @@ try {
     && waterResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && waterResult.output?.includes(
       "island-simulator: near-surface swimming view procedural edge veil")
-    && /water view 0[.][1-9][0-9]*, 1 draw/.test(waterResult.output ?? "")
+    && /water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01](?:[.][0-9]+)?/.test(
+      waterResult.output ?? "")
     && !waterResult.error;
 
   await call("Page.navigate", {
@@ -508,7 +511,7 @@ try {
     && currentResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && currentResult.output?.includes(
       "island-simulator: near-surface swimming view procedural edge veil")
-    && /water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*/.test(
+    && /water view 0[.][1-9][0-9]*, 1 draw, player ripple [01](?:[.][0-9]+)?, phase [01](?:[.][0-9]+)?, current 0[.][1-9][0-9]*/.test(
       currentResult.output ?? "")
     && /undertow target 0[.][1-9][0-9]*/.test(currentResult.output ?? "")
     && !currentResult.error;

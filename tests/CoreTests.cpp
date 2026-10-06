@@ -16,6 +16,7 @@
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WaterRippleModel.hpp"
 #include "IslandSimulator/WaterViewModel.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WildlifeSimulation.hpp"
@@ -185,6 +186,53 @@ int main()
                            std::numeric_limits<float>::quiet_NaN());
     CheckNear(waterView.Intensity(), beforeInvalidWaterDelta, 0.000001f,
               "water-view transition rejects a non-finite frame duration safely");
+
+    CheckNear(island::WaterRippleModel::TargetIntensity(false, 1.0f, 3.0f),
+              0.0f, 0.000001f,
+              "dry movement does not create an ocean-surface ripple");
+    CheckNear(island::WaterRippleModel::TargetIntensity(true, -1.0f, 0.0f),
+              0.0f, 0.000001f,
+              "stationary swimming does not create a perpetual ripple");
+    const float wadingRipple = island::WaterRippleModel::TargetIntensity(
+        false, -0.20f, 1.0f);
+    const float swimmingRipple = island::WaterRippleModel::TargetIntensity(
+        true, -1.0f, 2.0f);
+    Check(wadingRipple > 0.15f && wadingRipple < 0.35f,
+          "moving through shallow water creates a restrained wading ripple");
+    CheckNear(swimmingRipple, 1.0f, 0.000001f,
+              "active swimming can reach the bounded full ripple intensity");
+    CheckNear(island::WaterRippleModel::TargetIntensity(
+                  true, -1.0f, std::numeric_limits<float>::quiet_NaN()),
+              0.0f, 0.000001f,
+              "non-finite ripple input fails closed");
+    island::WaterRippleModel waterRipple;
+    const float firstRippleStep = waterRipple.Update(true, -1.0f, 2.0f, 1.0f / 60.0f);
+    Check(firstRippleStep > 0.0f && firstRippleStep < swimmingRipple,
+          "player ripple intensity eases in instead of appearing in one frame");
+    const float firstRipplePhase = waterRipple.Phase();
+    Check(firstRipplePhase > 0.0f && firstRipplePhase < 1.0f,
+          "active player ripples advance a wrapped radial phase");
+    const float beforeLongRippleFrame = waterRipple.Intensity();
+    (void)waterRipple.Update(true, -1.0f, 2.0f, 5.0f);
+    Check(waterRipple.Intensity() - beforeLongRippleFrame
+              <= island::WaterRippleModel::EntryRatePerSecond
+                    * island::WaterRippleModel::MaximumStepSeconds + 0.000001f,
+          "player ripple intensity clamps a long frame");
+    waterRipple.Reset(true, -1.0f, 2.0f);
+    CheckNear(waterRipple.Intensity(), 1.0f, 0.000001f,
+              "player ripple reset snaps deterministic QA placement to its target");
+    CheckNear(waterRipple.Phase(), 0.0f, 0.000001f,
+              "player ripple reset returns to a deterministic phase");
+    for (int frame = 0; frame < 600; ++frame) {
+        (void)waterRipple.Update(true, -1.0f, 2.0f, 1.0f / 60.0f);
+        Check(waterRipple.Phase() >= 0.0f && waterRipple.Phase() < 1.0f,
+              "player ripple phase remains wrapped during sustained movement");
+    }
+    for (int frame = 0; frame < 180; ++frame) {
+        (void)waterRipple.Update(true, -1.0f, 0.0f, 1.0f / 60.0f);
+    }
+    CheckNear(waterRipple.Intensity(), 0.0f, 0.000001f,
+              "stationary water movement releases the ripple fully");
 
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();

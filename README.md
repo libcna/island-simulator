@@ -21,8 +21,9 @@ terrain cost.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, a subtle depth-responsive near-surface water veil that cools and strengthens
-as the offshore current develops, and a fixed sunny gradient sky with a sun disc and calm high
-clouds. A first
+as the offshore current develops, and speed/depth-responsive player ripples that expand across the
+same animated ocean surface without another draw call. A fixed sunny gradient sky adds a sun disc
+and calm high clouds. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
 wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface. One
@@ -88,8 +89,8 @@ Walking and swimming apply restrained, speed-responsive positional camera motion
 smoothly disable or restore it.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, contact-shadow class/draw statistics, vegetation draw statistics, ambient mix
-levels, player-water gain, wave/splash counts, undertow cue strength, and positional bird/monkey
-call activity.
+levels, player-ripple intensity/phase, player-water gain, wave/splash counts, undertow cue
+strength, and positional bird/monkey call activity.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, wildlife headings, simulation-tier colours, and the active inward-current vector.

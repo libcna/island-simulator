@@ -138,6 +138,17 @@ cache more gently than a moving traversal, so a sustained moving-route benchmark
 | Driftwood/shore detail | 0.7841--0.8205 | 0.9525--1.0426 | 1.3320--1.3448 | 26 | 3 / 36 |
 | Monkeys | 1.4917--1.5610 | 1.6883--2.1026 | 2.1477--2.3905 | 97 | 26 / 312 |
 
+### Movement-driven player-ripple follow-up
+
+The player ripple is integrated into the existing ocean fragment shader and therefore adds no
+geometry, texture, or draw submission. A uniform branch skips the distance, spatial-variation,
+and band work
+when its smoothed intensity is zero. Two accelerated repeats of the dedicated water view kept the
+ripple active at 0.984 intensity, tracked the same 112 scene submissions, and measured
+1.6218--1.7052 ms mean, 2.0327--2.4040 ms p95, and 2.3293--2.7735 ms p99. This characterizes the
+complete active-water composition rather than isolating fragment cost; moving-route profiling and
+mobile hardware qualification remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

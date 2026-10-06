@@ -42,8 +42,10 @@ been confirmed so far.
   use very mild speed-responsive positional camera motion,
   which can be smoothly disabled with B. There is no geometric step-up, jump, or complete
   underwater presentation; restrained visual near-surface/current and audio entry/exit feedback
-  are implemented. The outer-ocean current now also deepens the existing player-water loop into a
-  restrained undertow cue; subjective headphone/speaker tuning remains open.
+  are implemented. Movement in water now produces restrained shader-integrated expanding ripple
+  bands; entry splash particles and body/shore displacement remain absent. The outer-ocean current
+  also deepens the existing player-water loop into a restrained undertow cue; subjective
+  headphone/speaker tuning remains open.
 - Desktop mouse sensitivity and mobile touch sensitivity are compile-time values. There is no
   settings UI, remapping, gamepad control scheme, or handed touch layout yet.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,

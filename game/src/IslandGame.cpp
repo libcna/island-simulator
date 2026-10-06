@@ -314,6 +314,12 @@ namespace island
                                   && playerMotion_.Mode() == LocomotionMode::Swimming,
                               playerMotion_.GroundHeight(),
                               playerMotion_.OceanCurrentStrength(terrain_));
+        const float initialRippleSpeed = viewpoint_ == FixedViewpoint::WaterlineDetail
+            ? 1.35f
+            : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
+        waterRippleModel_.Reset(
+            playerMotion_.Mode() == LocomotionMode::Swimming,
+            playerMotion_.GroundHeight(), initialRippleSpeed);
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
@@ -342,7 +348,9 @@ namespace island
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"
-                  << "island-simulator: near-surface swimming view procedural edge veil\n";
+                  << "island-simulator: near-surface swimming view procedural edge veil\n"
+                  << "island-simulator: movement-driven player ripples integrated into the "
+                     "portable ocean shader\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -389,6 +397,12 @@ namespace island
             waterViewAllowed && playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), playerMotion_.OceanCurrentStrength(terrain_),
             deltaSeconds);
+        const float rippleSpeed = viewpoint_ == FixedViewpoint::WaterlineDetail
+            ? 1.35f
+            : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
+        (void)waterRippleModel_.Update(
+            playerMotion_.Mode() == LocomotionMode::Swimming,
+            playerMotion_.GroundHeight(), rippleSpeed, deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -781,6 +795,10 @@ namespace island
                << "    \"birds\": " << birdRenderer_->VisibleBirdCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"shark\": " << (sharkRenderer_->IsVisible() ? 1 : 0) << ",\n"
+               << "    \"player_water_ripple\": "
+               << waterRippleModel_.Intensity() << ",\n"
+               << "    \"player_water_ripple_phase\": "
+               << waterRippleModel_.Phase() << ",\n"
                << "    \"monkeys\": " << monkeyRenderer_->VisibleMonkeyCount() << "\n"
                << "  }\n"
                << "}\n";
@@ -837,8 +855,10 @@ namespace island
         monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                               monkeyTroop_.Monkeys());
 
+        const PlayerPosition& oceanPlayer = playerMotion_.Position();
         oceanRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                             timeSeconds);
+                             timeSeconds, oceanPlayer.x, oceanPlayer.z,
+                             waterRippleModel_.Intensity(), waterRippleModel_.Phase());
         shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                  timeSeconds);
 
@@ -873,6 +893,8 @@ namespace island
                 * 180.0f / std::numbers::pi_v<float>;
             overlayState.offshoreDistance = playerMotion_.OffshoreDistance(terrain_);
             overlayState.oceanCurrentStrength = playerMotion_.OceanCurrentStrength(terrain_);
+            overlayState.waterRippleIntensity = waterRippleModel_.Intensity();
+            overlayState.waterRipplePhase = waterRippleModel_.Phase();
             overlayState.waterViewIntensity = waterViewModel_.Intensity();
             overlayState.waterViewDraws = waterViewOverlay_->DrawCallCount();
             overlayState.visibleTerrainCells = terrainRenderer_->VisibleCellCount();
@@ -1087,7 +1109,9 @@ namespace island
                       << contactShadowRenderer_->PrimitiveCount() << " triangles, "
                       << contactShadowRenderer_->DrawCallCount()
                       << " draw; water view " << waterViewModel_.Intensity()
-                      << ", " << waterViewOverlay_->DrawCallCount() << " draw, current "
+                      << ", " << waterViewOverlay_->DrawCallCount()
+                      << " draw, player ripple " << waterRippleModel_.Intensity()
+                      << ", phase " << waterRippleModel_.Phase() << ", current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
         }
         ++drawnFrames_;

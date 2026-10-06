@@ -25,16 +25,17 @@ five fogged distant islets with 11 simplified palm silhouettes,
 one bounded terrain-conforming contact-shadow batch for near palms, canopy trees, land rocks,
 wood, and monkeys,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player
-water-movement audio, two water entry/exit accents, a procedural near-surface swimming veil with
+water-movement audio, two water entry/exit accents, movement-driven shader-integrated water
+ripples, a procedural near-surface swimming veil with
 offshore-current modulation, a deeper current-responsive undertow mix in the existing water loop,
 and a pooled
 positional voice with two bird and two monkey phrases. That package
 builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
-contact-shadow, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,414,496-byte APK with a
-15,682,120-byte stripped `libmain.so` and passed `:app:lintDebug`.
+contact-shadow, water-ripple, water-view, or audio systems.
+The latest arm64 debug qualification build produced a 33,420,032-byte APK with a
+15,687,656-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

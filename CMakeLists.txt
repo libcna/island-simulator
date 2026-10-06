@@ -39,6 +39,7 @@ add_library(island_core STATIC
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
     game/src/VegetationLayout.cpp
+    game/src/WaterRippleModel.cpp
     game/src/WaterViewModel.cpp
     game/src/WorldCollisionGrid.cpp
     game/src/WildlifeSimulation.cpp)
@@ -238,7 +239,8 @@ if(ISLAND_BUILD_GAME)
         set_tests_properties(IslandGameWaterViewCapture PROPERTIES
             TIMEOUT 30
             LABELS display
-            PASS_REGULAR_EXPRESSION "water view 0[.][1-9][0-9]*, 1 draw")
+            PASS_REGULAR_EXPRESSION
+                "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?")
         add_test(NAME IslandGameCurrentViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-current-capture.ppm"
                     --viewpoint current)
@@ -246,7 +248,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*, undertow target 0[.][1-9][0-9]*")
+                "water view 0[.][1-9][0-9]*, 1 draw, player ripple [01]([.][0-9]+)?, phase [01]([.][0-9]+)?, current 0[.][1-9][0-9]*, undertow target 0[.][1-9][0-9]*")
         add_test(NAME IslandGameDistantSceneryCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-distant-capture.ppm"
                     --viewpoint distant)
