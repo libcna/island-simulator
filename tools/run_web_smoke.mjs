@@ -1143,33 +1143,38 @@ try {
     && arrowLast.x < arrowFirst.x - 0.25;
 
   await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  await dispatchKeyPress(visualSessionId, "Shift", "ShiftLeft", 16, 180, 300);
+  const runModeEnabled = (await readSmokeOutput(visualSessionId)).includes(
+    "island-simulator: run mode enabled (8.0 m/s)");
   const runStartLength = (await readSmokeOutput(visualSessionId)).length;
-  await call("Input.dispatchKeyEvent", {
-    type: "keyDown", key: "Shift", code: "ShiftLeft", windowsVirtualKeyCode: 16,
-    nativeVirtualKeyCode: 16,
-  }, visualSessionId);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyDown", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
-    nativeVirtualKeyCode: 38,
-  }, visualSessionId);
-  await delay(1300);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyUp", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
-    nativeVirtualKeyCode: 38,
-  }, visualSessionId);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyUp", key: "Shift", code: "ShiftLeft", windowsVirtualKeyCode: 16,
-    nativeVirtualKeyCode: 16,
-  }, visualSessionId);
-  await delay(400);
+  await dispatchKeyPress(visualSessionId, "ArrowUp", "ArrowUp", 38, 1300, 400);
   const runSamples = parseInputSamples(
     (await readSmokeOutput(visualSessionId)).slice(runStartLength));
   const runFirst = runSamples[0];
   const runLast = runSamples.at(-1);
-  const arrowRunWorked = runFirst && runLast
+  const retainedRunWorked = runFirst && runLast
     && runLast.z > runFirst.z + 0.35
     && runSamples.some(sample => sample.running === 1
-      && Math.hypot(sample.velocityX, sample.velocityZ) > 5.2);
+      && Math.hypot(sample.velocityX, sample.velocityZ) > 7.0);
+
+  await dispatchKeyPress(visualSessionId, "Shift", "ShiftLeft", 16, 180, 300);
+  const runModeDisabled = (await readSmokeOutput(visualSessionId)).includes(
+    "island-simulator: run mode disabled (4.3 m/s)");
+  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  const walkStartLength = (await readSmokeOutput(visualSessionId)).length;
+  await dispatchKeyPress(visualSessionId, "ArrowUp", "ArrowUp", 38, 1000, 400);
+  const walkSamples = parseInputSamples(
+    (await readSmokeOutput(visualSessionId)).slice(walkStartLength));
+  const walkFirst = walkSamples[0];
+  const walkLast = walkSamples.at(-1);
+  const restoredWalkWorked = walkFirst && walkLast
+    && walkLast.z > walkFirst.z + 0.35
+    && walkSamples.some(sample => sample.running === 0
+      && Math.hypot(sample.velocityX, sample.velocityZ) > 3.5)
+    && walkSamples.every(sample => sample.running === 0
+      && Math.hypot(sample.velocityX, sample.velocityZ) <= 4.35);
+  const runToggleWorked = runModeEnabled && retainedRunWorked
+    && runModeDisabled && restoredWalkWorked;
 
   await dispatchKeyUntilOutput(
     visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion disabled");
@@ -1289,7 +1294,7 @@ try {
     && keyboardMoved
     && simultaneousMoveAndLook
     && rightArrowMovedRight
-    && arrowRunWorked
+    && runToggleWorked
     && cameraMotionToggled
     && waterTransitionPlayed
     && mouseLookChanged
@@ -1421,7 +1426,10 @@ try {
       keyboardMoved: Boolean(keyboardMoved),
       simultaneousMoveAndLook: Boolean(simultaneousMoveAndLook),
       rightArrowMovedRight: Boolean(rightArrowMovedRight),
-      arrowRunWorked: Boolean(arrowRunWorked),
+      runModeEnabled: Boolean(runModeEnabled),
+      retainedRunWorked: Boolean(retainedRunWorked),
+      runModeDisabled: Boolean(runModeDisabled),
+      restoredWalkWorked: Boolean(restoredWalkWorked),
       cameraMotionToggled: Boolean(cameraMotionToggled),
       waterTransitionPlayed: Boolean(waterTransitionPlayed),
       mouseLookChanged: Boolean(mouseLookChanged),

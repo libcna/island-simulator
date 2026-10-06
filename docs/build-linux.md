@@ -185,9 +185,9 @@ not a Wayland-native qualification.
 
 `IslandGamePlayerInput` separately uses real SDL/XTest input to require keyboard-edge native mouse
 capture, simultaneous W plus relative mouse turning, correct visible-right motion from both D and
-Right, Shift+Up running above the walk-speed ceiling, and two distinct Escape edges for release and
-exit. The deterministic core suite independently locks the camera-basis signs and 4.3/6.5 m/s land
-pace limits.
+Right, a released Shift press retaining the 8.0 m/s run mode, a second Shift press restoring the
+4.3 m/s walk mode, and two distinct Escape edges for release and exit. The deterministic core suite
+independently locks the camera-basis signs and 4.3/8.0 m/s land pace limits.
 
 ## Run interactively
 

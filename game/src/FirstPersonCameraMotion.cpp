@@ -32,6 +32,11 @@ namespace island
             ? PlayerMotion::WalkSpeed
             : PlayerMotion::SwimSpeed;
         const float normalizedSpeed = std::clamp(speed / referenceSpeed, 0.0f, 1.0f);
+        const float runBlend = mode == LocomotionMode::Walking
+            ? std::clamp((speed - PlayerMotion::WalkSpeed)
+                             / (PlayerMotion::RunSpeed - PlayerMotion::WalkSpeed),
+                         0.0f, 1.0f)
+            : 0.0f;
         const float targetStrength = enabled_ ? normalizedSpeed : 0.0f;
         const float strengthResponse = targetStrength > motionStrength_ ? 7.5f : 5.0f;
         motionStrength_ = SmoothTowards(motionStrength_, targetStrength, strengthResponse, dt);
@@ -39,7 +44,8 @@ namespace island
                                    3.5f, dt);
 
         if (motionStrength_ > 0.0001f) {
-            const float walkingCyclesPerSecond = 0.78f + normalizedSpeed * 0.38f;
+            const float walkingCyclesPerSecond = 0.78f + normalizedSpeed * 0.38f
+                + runBlend * 0.48f;
             const float swimmingCyclesPerSecond = 0.45f + normalizedSpeed * 0.22f;
             const float cyclesPerSecond = std::lerp(walkingCyclesPerSecond,
                                                     swimmingCyclesPerSecond, swimBlend_);
@@ -49,8 +55,10 @@ namespace island
             phaseRadians_ = std::fmod(phaseRadians_, std::numbers::pi_v<float> * 2.0f);
         }
 
-        const float walkingLateral = std::sin(phaseRadians_) * 0.007f;
-        const float walkingVertical = std::sin(phaseRadians_ * 2.0f) * 0.012f;
+        const float walkingLateral = std::sin(phaseRadians_)
+            * std::lerp(0.007f, MaximumLateralOffset, runBlend);
+        const float walkingVertical = std::sin(phaseRadians_ * 2.0f)
+            * std::lerp(0.012f, MaximumVerticalOffset, runBlend);
         const float swimmingLateral = std::sin(phaseRadians_ + 0.55f) * MaximumLateralOffset;
         const float swimmingVertical = std::sin(phaseRadians_) * MaximumVerticalOffset;
         offset_.lateralMeters = std::lerp(walkingLateral, swimmingLateral, swimBlend_)

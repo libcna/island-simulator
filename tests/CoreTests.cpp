@@ -208,7 +208,7 @@ int main()
               "first-person forward intent immediately follows changed mouse yaw");
     CheckNear(rotatedRunIntent.worldZ, 0.0f, 0.0001f,
               "first-person changed-yaw intent remains normalized");
-    Check(rotatedRunIntent.run, "first-person intent preserves the run modifier");
+    Check(rotatedRunIntent.run, "first-person intent preserves the selected run mode");
     const island::FirstPersonMovementIntent invalidAnalogIntent =
         island::FirstPersonInput::Resolve(
             island::FirstPersonDigitalInput{},
@@ -295,6 +295,25 @@ int main()
     }
     Check(largestWalkingLateral > 0.005f && largestWalkingVertical > 0.009f,
           "full-speed walking produces restrained but nonzero camera motion");
+    island::FirstPersonCameraMotion runningCameraMotion;
+    float largestRunningLateral = 0.0f;
+    float largestRunningVertical = 0.0f;
+    for (int frame = 0; frame < 240; ++frame) {
+        const island::CameraMotionOffset offset = runningCameraMotion.Update(
+            island::PlayerMotion::RunSpeed, island::LocomotionMode::Walking, 1.0f / 60.0f);
+        largestRunningLateral = std::max(largestRunningLateral,
+                                        std::abs(offset.lateralMeters));
+        largestRunningVertical = std::max(largestRunningVertical,
+                                         std::abs(offset.verticalMeters));
+        Check(std::abs(offset.lateralMeters)
+                  <= island::FirstPersonCameraMotion::MaximumLateralOffset + 0.000001f
+                  && std::abs(offset.verticalMeters)
+                  <= island::FirstPersonCameraMotion::MaximumVerticalOffset + 0.000001f,
+              "running camera motion stays inside both comfort bounds");
+    }
+    Check(largestRunningLateral > largestWalkingLateral
+              && largestRunningVertical > largestWalkingVertical,
+          "running has a stronger camera-motion signature than walking");
     for (int frame = 0; frame < 180; ++frame) {
         (void)cameraMotion.Update(island::PlayerMotion::SwimSpeed,
                                   island::LocomotionMode::Swimming, 1.0f / 60.0f);
@@ -2360,7 +2379,9 @@ int main()
     for (int frame = 0; frame < 120; ++frame) {
         runningPlayer.Update(terrain, 0.0f, 1.0f, 1.0f / 60.0f);
     }
-    Check(runningPlayer.IsRunning(), "held run input selects the running land pace");
+    Check(island::PlayerMotion::RunSpeed >= 8.0f,
+          "selected run mode provides the faster requested land pace");
+    Check(runningPlayer.IsRunning(), "selected run mode activates the running land pace");
     CheckNear(std::hypot(runningPlayer.VelocityX(), runningPlayer.VelocityZ()),
               island::PlayerMotion::RunSpeed, 0.001f,
               "running acceleration reaches the bounded running speed");
@@ -2368,10 +2389,10 @@ int main()
     for (int frame = 0; frame < 120; ++frame) {
         runningPlayer.Update(terrain, 0.0f, 1.0f, 1.0f / 60.0f);
     }
-    Check(!runningPlayer.IsRunning(), "releasing run input restores the walking land pace");
+    Check(!runningPlayer.IsRunning(), "selecting walk mode restores the walking land pace");
     CheckNear(std::hypot(runningPlayer.VelocityX(), runningPlayer.VelocityZ()),
               island::PlayerMotion::WalkSpeed, 0.001f,
-              "released run input settles at the bounded walking speed");
+              "selected walk mode settles at the bounded walking speed");
 
     float coveAngle = 0.0f;
     float headlandAngle = 0.0f;

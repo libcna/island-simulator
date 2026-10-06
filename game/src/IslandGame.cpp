@@ -798,12 +798,22 @@ namespace island
         const bool touchInteracting = touchControlState_.movementActive
             || touchControlState_.lookActive;
 
+        const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
+            || keyboard.IsKeyDown(Keys::RightShift);
+        if (runToggleDown && !runToggleWasDown_) {
+            runModeEnabled_ = !runModeEnabled_;
+            std::cout << "island-simulator: run mode "
+                      << (runModeEnabled_ ? "enabled (8.0 m/s)" : "disabled (4.3 m/s)")
+                      << '\n';
+        }
+        runToggleWasDown_ = runToggleDown;
+
         const FirstPersonDigitalInput digitalInput{
             keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::Up),
             keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::Down),
             keyboard.IsKeyDown(Keys::A) || keyboard.IsKeyDown(Keys::Left),
             keyboard.IsKeyDown(Keys::D) || keyboard.IsKeyDown(Keys::Right),
-            keyboard.IsKeyDown(Keys::LeftShift) || keyboard.IsKeyDown(Keys::RightShift),
+            runModeEnabled_,
         };
         const bool movementKeyDown = digitalInput.forward || digitalInput.backward
             || digitalInput.left || digitalInput.right;
@@ -1027,7 +1037,7 @@ namespace island
         if (debugFreeCamera_.IsActive()) {
             const float vertical = (keyboard.IsKeyDown(Keys::E) ? 1.0f : 0.0f)
                 - (keyboard.IsKeyDown(Keys::Q) ? 1.0f : 0.0f);
-            const bool fast = movementIntent.run;
+            const bool fast = runToggleDown;
             debugFreeCamera_.Update(
                 yaw_, DebugFreeCameraInput{Vector3::Dot(wish, forward),
                                             Vector3::Dot(wish, right),

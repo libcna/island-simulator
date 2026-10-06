@@ -121,7 +121,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 3. `FirstPersonInput` gives WASD and arrows the same local axes, combines touch, and transforms the
    result by current camera yaw before physics. Mouse yaw is updated first, so held forward movement
    turns during the same update. Its right basis matches visible screen-right rather than world +X.
-4. `PlayerMotion` applies frame-time clamping, acceleration, the held 4.3/6.5 m/s walk/run choice,
+4. `IslandGame` edge-detects either Shift key and retains the selected 4.3/8.0 m/s walk/run mode;
+   `PlayerMotion` applies frame-time clamping, acceleration,
    slope checks, swimming speed, the
    island-relative current field, the remote safety boundary, and horizontal solid-prop collision
    in both locomotion modes.

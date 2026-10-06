@@ -263,7 +263,7 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 ### First-person controller
 
 - [~] Implement keyboard movement and mouse look with pitch limits. WASD/arrows, correct
-  screen-relative strafing, held-Shift 4.3/6.5 m/s walk/run, and simultaneous forward/mouse turns
+  screen-relative strafing, Shift-toggled 4.3/8.0 m/s walk/run, and simultaneous forward/mouse turns
   are qualified on native Linux and Chromium; runtime configuration remains open.
 - [x] Capture/release relative mouse input on Linux. Click and first-movement-key acquisition avoid
   pre-capture absolute cursor deltas; one Escape edge releases and a second exits. A real isolated
@@ -662,7 +662,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   The production shell provides click-to-play controls, first-gesture lock, Escape release, and
   clean click reacquisition; fullscreen presentation remains open.
 - [~] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
-  Controlled Chromium input now proves focus, WASD/arrows, held-Shift running, simultaneous
+  Controlled Chromium input now proves focus, WASD/arrows, persistent Shift-toggled running and
+  restoration of walking on the second press, simultaneous
   forward movement/relative look, F1, pointer
   release/reacquisition, aspect-preserving resize, and first-click CNA mixer plus dual-track
   startup. Audible hardware-browser output and genuine tab background/foreground recovery remain
@@ -3467,6 +3468,29 @@ Work next, in order:
   18,710,140 bytes and its stripped `libmain.so` is 15,899,856 bytes. The final incremental native
   build is current and `IslandCoreTests` passes in 19.19 seconds. CNA and Sharp Runtime remain clean,
   on `next`, read-only, and unmodified; no qualifying dependency defect was found.
+
+### 2026-10-06 — Persistent Shift run toggle and faster running pace
+
+- Replaced hold-to-run with an edge-triggered land-pace mode: either Shift key toggles running on
+  the first press and restores walking on the next press. Releasing Shift no longer cancels the
+  selected mode, both Shift keys share one edge state, swimming remains fixed at 2.15 m/s, and the
+  debug inspection camera deliberately retains its separate hold-Shift fast-flight behaviour.
+- Increased the land run ceiling from 6.5 to 8.0 m/s while retaining the 4.3 m/s walk ceiling.
+  Running now adds a bounded cadence and amplitude blend to first-person camera motion so the
+  faster pace remains readable instead of appearing to glide; all offsets remain inside the
+  existing 10 mm lateral and 18 mm vertical comfort bounds. Core tests cover the new speed and
+  stronger-but-bounded running presentation.
+- The incremental Linux/OpenGL 3.3 build used the required shared `/rv/cnaccache`; core tests pass
+  in 16.34 seconds. The isolated real SDL/XTest input gate passes in 12.49 seconds and proves that
+  running remains active above 7.0 m/s after Shift is released, then that a second Shift press
+  restores a maximum 4.3 m/s walking pace.
+- The complete actual Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages. Its input report
+  independently marks `runModeEnabled`, `retainedRunWorked`, `runModeDisabled`, and
+  `restoredWalkWorked` true; WebAssembly is 8,482,000 bytes. The arm64-v8a GLES 3 APK rebuilds and
+  application lint passes; it is 18,710,604 bytes and its stripped `libmain.so` is 15,900,320
+  bytes. Android compilation is current, while this keyboard-specific change has not been rerun
+  on the touch-oriented emulator. CNA and Sharp Runtime remain read-only and unmodified; no
+  qualifying dependency defect was found.
 
 ## Session-end checklist
 

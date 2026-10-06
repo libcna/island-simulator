@@ -193,14 +193,14 @@ if ! awk '
     exit 1
 fi
 
-# Up must match W, and holding either Shift must reach a speed above the walking ceiling.
+# One Shift press must select running after release; a second press must restore walking.
 reset_to_south_beach
+tap_key Shift_L
+sleep 0.25
 RUN_LINE=$(wc -l < "$LOG_FILE")
-"$XDOTOOL" keydown Shift_L
 "$XDOTOOL" keydown Up
 sleep 1.2
 "$XDOTOOL" keyup Up
-"$XDOTOOL" keyup Shift_L
 sleep 0.35
 capture_since "$RUN_LINE" "$WORK_DIR/arrow-run.log"
 if ! awk '
@@ -208,13 +208,38 @@ if ! awk '
         if (count == 0) first_z = $10;
         last_z = $10;
         speed = sqrt($27 ^ 2 + $28 ^ 2);
-        if ($24 == "run" && $25 == 1 && speed > 5.2) fast = 1;
+        if ($24 == "run" && $25 == 1 && speed > 7.0) fast = 1;
         count += 1;
     }
     END { exit !(count >= 3 && last_z > first_z + 0.35 && fast == 1); }
 ' "$WORK_DIR/arrow-run.log"; then
     cat "$WORK_DIR/arrow-run.log" >&2
-    echo "player input smoke: Shift+Up did not produce forward running" >&2
+    echo "player input smoke: a released Shift press did not retain the faster run mode" >&2
+    exit 1
+fi
+
+tap_key Shift_L
+sleep 0.25
+reset_to_south_beach
+WALK_LINE=$(wc -l < "$LOG_FILE")
+"$XDOTOOL" keydown Up
+sleep 1.0
+"$XDOTOOL" keyup Up
+sleep 0.35
+capture_since "$WALK_LINE" "$WORK_DIR/arrow-walk.log"
+if ! awk '
+    /input sample/ && $15 == "free" && $16 == 0 {
+        if (count == 0) first_z = $10;
+        last_z = $10;
+        speed = sqrt($27 ^ 2 + $28 ^ 2);
+        if ($24 != "run" || $25 != 0 || speed > 4.35) invalid = 1;
+        if (speed > 3.5) walking = 1;
+        count += 1;
+    }
+    END { exit !(count >= 3 && last_z > first_z + 0.35 && walking == 1 && invalid != 1); }
+' "$WORK_DIR/arrow-walk.log"; then
+    cat "$WORK_DIR/arrow-walk.log" >&2
+    echo "player input smoke: the second Shift press did not restore walking" >&2
     exit 1
 fi
 

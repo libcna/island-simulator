@@ -9,7 +9,7 @@ namespace island
         bool backward = false;
         bool left = false;
         bool right = false;
-        bool run = false;
+        bool run = false; ///< Selected land pace, not the physical Shift-key state.
     };
 
     /** @brief World-space movement intent produced from keyboard, touch, and camera yaw. */

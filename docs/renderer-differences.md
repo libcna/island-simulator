@@ -43,8 +43,9 @@ after representative physical-device profiling.
 ## Input and lifecycle differences
 
 - Linux supports click or movement-key capture; Web requires a click for browser pointer lock. Both
-  use WASD or arrows, held Shift running, B camera-motion opt-out, F1/F2 diagnostics, F4 seed copy,
-  M, and Escape. Automated native and browser tests cover simultaneous movement and mouse look.
+  use WASD or arrows, Shift run/walk toggling, B camera-motion opt-out, F1/F2 diagnostics, F4 seed
+  copy, M, and Escape. Automated native and browser tests cover simultaneous movement and mouse
+  look.
 - Browsers require a user gesture for pointer lock. The production shell requests it on the first
   click and handles release/reacquisition and responsive resizing.
 - Android uses a stable left movement pointer and right relative-look pointer. Display-size changes
