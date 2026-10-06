@@ -589,6 +589,8 @@ namespace island
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
+                  << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
+                     "forked tails, and near head detail\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"

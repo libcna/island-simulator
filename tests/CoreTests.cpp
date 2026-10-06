@@ -1205,6 +1205,8 @@ int main()
         const island::TerrainSample sample = terrain.Sample(fish.x, fish.z);
         Check(fish.x == repeated.x && fish.y == repeated.y && fish.z == repeated.z
                   && fish.headingRadians == repeated.headingRadians
+                  && fish.pitchRadians == repeated.pitchRadians
+                  && fish.bankRadians == repeated.bankRadians
                   && fish.bodyWave == repeated.bodyWave && fish.speed == repeated.speed
                   && fish.scale == repeated.scale && fish.schoolIndex == repeated.schoolIndex
                   && fish.colorVariant == repeated.colorVariant,
@@ -1227,6 +1229,10 @@ int main()
     const island::FishState initialLeadFish = fishSchools.Fish().front();
     bool observedFishTailLeft = false;
     bool observedFishTailRight = false;
+    bool observedFishPitchUp = false;
+    bool observedFishPitchDown = false;
+    bool observedFishLeftBank = false;
+    bool observedFishRightBank = false;
     constexpr int fishSimulationFrames = 18000;
     for (int frame = 0; frame < fishSimulationFrames; ++frame) {
         const island::FishState observerFish = fishSchools.Fish().front();
@@ -1253,12 +1259,19 @@ int main()
             const island::TerrainSample sample = terrain.Sample(fish.x, fish.z);
             Check(fish.x == repeated.x && fish.y == repeated.y && fish.z == repeated.z
                       && fish.headingRadians == repeated.headingRadians
+                      && fish.pitchRadians == repeated.pitchRadians
+                      && fish.bankRadians == repeated.bankRadians
                       && fish.bodyWave == repeated.bodyWave
                       && fish.simulationTier == repeated.simulationTier,
                   "fish simulation remains deterministic over a long session");
             Check(std::isfinite(fish.x) && std::isfinite(fish.y)
-                      && std::isfinite(fish.z) && std::isfinite(fish.headingRadians),
+                      && std::isfinite(fish.z) && std::isfinite(fish.headingRadians)
+                      && std::isfinite(fish.pitchRadians)
+                      && std::isfinite(fish.bankRadians),
                   "fish pose remains finite over a long session");
+            Check(std::fabs(fish.pitchRadians) <= 0.221f
+                      && std::fabs(fish.bankRadians) <= 0.281f,
+                  "fish pitch and bank remain inside restrained pose bounds");
             Check(sample.signedShoreDistance <= -2.8f
                       && sample.signedShoreDistance >= -48.2f,
                   "fish remain inside the authored near-shore water belt");
@@ -1267,6 +1280,10 @@ int main()
                   "fish remain below the surface and above the seabed");
             observedFishTailLeft = observedFishTailLeft || fish.bodyWave > 0.65f;
             observedFishTailRight = observedFishTailRight || fish.bodyWave < -0.65f;
+            observedFishPitchUp = observedFishPitchUp || fish.pitchRadians > 0.035f;
+            observedFishPitchDown = observedFishPitchDown || fish.pitchRadians < -0.035f;
+            observedFishLeftBank = observedFishLeftBank || fish.bankRadians < -0.035f;
+            observedFishRightBank = observedFishRightBank || fish.bankRadians > 0.035f;
         }
     }
     const island::FishState finalLeadFish = fishSchools.Fish().front();
@@ -1275,6 +1292,10 @@ int main()
           "fish schools traverse a meaningful section of shoreline over time");
     Check(observedFishTailLeft && observedFishTailRight,
           "fish animation visits both tail-stroke extremes");
+    Check(observedFishPitchUp && observedFishPitchDown,
+          "fish schools pitch into both rising and descending depth changes");
+    Check(observedFishLeftBank && observedFishRightBank,
+          "fish schools bank through turns in both directions");
     Check(fishSchools.FullSimulationCount() + fishSchools.ReducedSimulationCount()
               + fishSchools.DormantSimulationCount()
               == static_cast<int>(island::FishSchools::FishCount),
@@ -1289,6 +1310,8 @@ int main()
               && shark.State().y == repeatedShark.State().y
               && shark.State().z == repeatedShark.State().z
               && shark.State().headingRadians == repeatedShark.State().headingRadians
+              && shark.State().pitchRadians == repeatedShark.State().pitchRadians
+              && shark.State().bankRadians == repeatedShark.State().bankRadians
               && shark.State().targetX == repeatedShark.State().targetX
               && shark.State().targetZ == repeatedShark.State().targetZ,
           "shark patrol initialization is deterministic");
@@ -1296,6 +1319,9 @@ int main()
     bool observedHiddenShark = false;
     bool observedSharkTailLeft = false;
     bool observedSharkTailRight = false;
+    bool observedSharkPitchUp = false;
+    bool observedSharkPitchDown = false;
+    bool observedSharkBank = false;
     float sharkTravelDistance = 0.0f;
     island::SharkState previousShark = shark.State();
     constexpr int sharkSimulationFrames = 36000;
@@ -1309,6 +1335,8 @@ int main()
         const island::TerrainSample sample = terrain.Sample(state.x, state.z);
         Check(state.x == repeated.x && state.y == repeated.y && state.z == repeated.z
                   && state.headingRadians == repeated.headingRadians
+                  && state.pitchRadians == repeated.pitchRadians
+                  && state.bankRadians == repeated.bankRadians
                   && state.bodyWave == repeated.bodyWave
                   && state.activity == repeated.activity
                   && state.targetX == repeated.targetX
@@ -1318,8 +1346,13 @@ int main()
               "shark patrol remains deterministic over a long session");
         Check(std::isfinite(state.x) && std::isfinite(state.y)
                   && std::isfinite(state.z) && std::isfinite(state.headingRadians)
+                  && std::isfinite(state.pitchRadians)
+                  && std::isfinite(state.bankRadians)
                   && std::isfinite(state.targetX) && std::isfinite(state.targetZ),
               "shark pose remains finite over a long session");
+        Check(std::fabs(state.pitchRadians) <= 0.181f
+                  && std::fabs(state.bankRadians) <= 0.241f,
+              "shark pitch and bank remain inside restrained pose bounds");
         const island::TerrainSample targetSample = terrain.Sample(
             state.targetX, state.targetZ);
         Check(targetSample.signedShoreDistance <= -33.8f
@@ -1342,6 +1375,9 @@ int main()
             || (!state.present && state.activity < 0.035f && !state.visible);
         observedSharkTailLeft = observedSharkTailLeft || state.bodyWave > 0.65f;
         observedSharkTailRight = observedSharkTailRight || state.bodyWave < -0.65f;
+        observedSharkPitchUp = observedSharkPitchUp || state.pitchRadians > 0.035f;
+        observedSharkPitchDown = observedSharkPitchDown || state.pitchRadians < -0.035f;
+        observedSharkBank = observedSharkBank || std::fabs(state.bankRadians) > 0.018f;
     }
     Check(shark.PresenceCycleCount() >= 8U,
           "shark alternates through several bounded presence cycles in twenty minutes");
@@ -1349,6 +1385,10 @@ int main()
           "shark reaches both fully present and fully hidden states");
     Check(observedSharkTailLeft && observedSharkTailRight,
           "shark animation visits both tail-stroke extremes");
+    Check(observedSharkPitchUp && observedSharkPitchDown,
+          "shark pitches through both dive and return transitions");
+    Check(observedSharkBank,
+          "shark visibly banks while following its varied offshore patrol");
     Check(sharkTravelDistance > 700.0f,
           "shark patrol covers a meaningful offshore route over time");
 

@@ -15,6 +15,8 @@ namespace island
         float y = 0.0f;
         float z = 0.0f;
         float headingRadians = 0.0f;
+        float pitchRadians = 0.0f;
+        float bankRadians = 0.0f;
         float bodyWave = 0.0f;
         float scale = 2.8f;
         float activity = 1.0f;

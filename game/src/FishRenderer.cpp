@@ -26,7 +26,7 @@ namespace island
     {
         constexpr float NearLodDistance = 72.0f;
         constexpr float MaximumDistance = 215.0f;
-        constexpr int MaximumVerticesPerFish = 54;
+        constexpr int MaximumVerticesPerFish = 66;
         constexpr int MaximumVertexCount = static_cast<int>(FishSchools::FishCount)
             * MaximumVerticesPerFish;
 
@@ -35,6 +35,13 @@ namespace island
             Color body;
             Color belly;
             Color fin;
+        };
+
+        struct PoseAxes
+        {
+            Vector3 right;
+            Vector3 up;
+            Vector3 forward;
         };
 
         const std::array<FishPalette, 4> Palettes = {{
@@ -65,13 +72,31 @@ namespace island
             AddTriangle(vertices, c, b, a, color);
         }
 
-        [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
-                                         const Vector3& forward, const float localX,
+        [[nodiscard]] PoseAxes MakePoseAxes(const FishState& fish)
+        {
+            const Vector3 levelForward(std::cos(fish.headingRadians), 0.0f,
+                                       std::sin(fish.headingRadians));
+            const Vector3 levelRight(-levelForward.Z, 0.0f, levelForward.X);
+            const float pitchCosine = std::cos(fish.pitchRadians);
+            const float pitchSine = std::sin(fish.pitchRadians);
+            const Vector3 forward = levelForward * pitchCosine + Vector3::Up * pitchSine;
+            const Vector3 pitchUp = Vector3::Up * pitchCosine - levelForward * pitchSine;
+            const float bankCosine = std::cos(fish.bankRadians);
+            const float bankSine = std::sin(fish.bankRadians);
+            return PoseAxes{
+                levelRight * bankCosine + pitchUp * bankSine,
+                pitchUp * bankCosine - levelRight * bankSine,
+                forward,
+            };
+        }
+
+        [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const PoseAxes& axes,
+                                         const float localX,
                                          const float localY, const float localZ,
                                          const float scale)
         {
-            return centre + right * (localX * scale) + Vector3::Up * (localY * scale)
-                + forward * (localZ * scale);
+            return centre + axes.right * (localX * scale) + axes.up * (localY * scale)
+                + axes.forward * (localZ * scale);
         }
 
         void AppendNearFish(std::vector<VertexPositionColor>& vertices,
@@ -79,17 +104,15 @@ namespace island
         {
             const FishPalette& palette = Palettes[fish.colorVariant % Palettes.size()];
             const Vector3 centre(fish.x, fish.y, fish.z);
-            const Vector3 forward(std::cos(fish.headingRadians), 0.0f,
-                                  std::sin(fish.headingRadians));
-            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const PoseAxes axes = MakePoseAxes(fish);
             const float scale = fish.scale;
             const float bend = fish.bodyWave * 0.075f;
-            const Vector3 nose = LocalPoint(centre, right, forward, 0.0f, 0.0f, 0.49f, scale);
-            const Vector3 top = LocalPoint(centre, right, forward, 0.0f, 0.19f, 0.03f, scale);
-            const Vector3 bottom = LocalPoint(centre, right, forward, 0.0f, -0.15f, 0.03f, scale);
-            const Vector3 left = LocalPoint(centre, right, forward, -0.17f, 0.0f, 0.03f, scale);
-            const Vector3 rightSide = LocalPoint(centre, right, forward, 0.17f, 0.0f, 0.03f, scale);
-            const Vector3 rear = LocalPoint(centre, right, forward, bend, 0.0f, -0.42f, scale);
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.49f, scale);
+            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.19f, 0.03f, scale);
+            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.15f, 0.03f, scale);
+            const Vector3 left = LocalPoint(centre, axes, -0.17f, 0.0f, 0.03f, scale);
+            const Vector3 rightSide = LocalPoint(centre, axes, 0.17f, 0.0f, 0.03f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.42f, scale);
 
             AddTriangle(vertices, nose, top, left, palette.body);
             AddTriangle(vertices, nose, rightSide, top, palette.body);
@@ -101,28 +124,50 @@ namespace island
             AddTriangle(vertices, rear, bottom, left, palette.belly);
 
             const float tailBend = fish.bodyWave * 0.17f;
-            const Vector3 tailTop = LocalPoint(centre, right, forward, tailBend, 0.25f,
-                                                -0.75f, scale);
-            const Vector3 tailBottom = LocalPoint(centre, right, forward, tailBend, -0.25f,
-                                                   -0.75f, scale);
-            AddDoubleSidedTriangle(vertices, rear, tailTop, tailBottom, palette.fin);
+            const Vector3 tailTop = LocalPoint(
+                centre, axes, tailBend, 0.25f, -0.78f, scale);
+            const Vector3 tailNotch = LocalPoint(
+                centre, axes, tailBend * 1.08f, 0.0f, -0.66f, scale);
+            const Vector3 tailBottom = LocalPoint(
+                centre, axes, tailBend, -0.25f, -0.78f, scale);
+            AddDoubleSidedTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
+            AddDoubleSidedTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
 
-            const Vector3 dorsalFront = LocalPoint(centre, right, forward, 0.0f, 0.13f,
-                                                    0.12f, scale);
-            const Vector3 dorsalTip = LocalPoint(centre, right, forward, 0.0f, 0.34f,
-                                                  -0.08f, scale);
-            const Vector3 dorsalBack = LocalPoint(centre, right, forward, bend * 0.45f, 0.12f,
-                                                   -0.27f, scale);
+            const Vector3 dorsalFront = LocalPoint(
+                centre, axes, 0.0f, 0.13f, 0.12f, scale);
+            const Vector3 dorsalTip = LocalPoint(
+                centre, axes, 0.0f, 0.34f, -0.08f, scale);
+            const Vector3 dorsalBack = LocalPoint(
+                centre, axes, bend * 0.45f, 0.12f, -0.27f, scale);
             AddDoubleSidedTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, palette.fin);
 
-            const Vector3 finRoot = LocalPoint(centre, right, forward, 0.0f, -0.04f,
-                                                0.08f, scale);
-            const Vector3 leftFin = LocalPoint(centre, right, forward, -0.34f, -0.10f,
-                                                -0.08f, scale);
-            const Vector3 rightFin = LocalPoint(centre, right, forward, 0.34f, -0.10f,
-                                                 -0.08f, scale);
+            const Vector3 finRoot = LocalPoint(
+                centre, axes, 0.0f, -0.04f, 0.08f, scale);
+            const Vector3 leftFin = LocalPoint(
+                centre, axes, -0.34f, -0.10f, -0.08f, scale);
+            const Vector3 rightFin = LocalPoint(
+                centre, axes, 0.34f, -0.10f, -0.08f, scale);
             AddDoubleSidedTriangle(vertices, finRoot, leftFin, rear, palette.fin);
             AddDoubleSidedTriangle(vertices, finRoot, rear, rightFin, palette.fin);
+
+            const Color eye(19, 31, 33, 255);
+            const Color gill(65, 86, 83, 255);
+            AddTriangle(vertices,
+                        LocalPoint(centre, axes, -0.108f, 0.062f, 0.255f, scale),
+                        LocalPoint(centre, axes, -0.117f, 0.012f, 0.278f, scale),
+                        LocalPoint(centre, axes, -0.121f, 0.014f, 0.214f, scale), eye);
+            AddTriangle(vertices,
+                        LocalPoint(centre, axes, 0.108f, 0.062f, 0.255f, scale),
+                        LocalPoint(centre, axes, 0.121f, 0.014f, 0.214f, scale),
+                        LocalPoint(centre, axes, 0.117f, 0.012f, 0.278f, scale), eye);
+            AddTriangle(vertices,
+                        LocalPoint(centre, axes, -0.145f, 0.055f, 0.135f, scale),
+                        LocalPoint(centre, axes, -0.151f, -0.047f, 0.117f, scale),
+                        LocalPoint(centre, axes, -0.147f, -0.035f, 0.145f, scale), gill);
+            AddTriangle(vertices,
+                        LocalPoint(centre, axes, 0.145f, 0.055f, 0.135f, scale),
+                        LocalPoint(centre, axes, 0.147f, -0.035f, 0.145f, scale),
+                        LocalPoint(centre, axes, 0.151f, -0.047f, 0.117f, scale), gill);
         }
 
         void AppendFarFish(std::vector<VertexPositionColor>& vertices,
@@ -130,22 +175,23 @@ namespace island
         {
             const FishPalette& palette = Palettes[fish.colorVariant % Palettes.size()];
             const Vector3 centre(fish.x, fish.y, fish.z);
-            const Vector3 forward(std::cos(fish.headingRadians), 0.0f,
-                                  std::sin(fish.headingRadians));
-            const Vector3 right(-forward.Z, 0.0f, forward.X);
+            const PoseAxes axes = MakePoseAxes(fish);
             const float scale = fish.scale;
             const float bend = fish.bodyWave * 0.12f;
-            const Vector3 nose = LocalPoint(centre, right, forward, 0.0f, 0.0f, 0.46f, scale);
-            const Vector3 top = LocalPoint(centre, right, forward, 0.0f, 0.17f, 0.0f, scale);
-            const Vector3 bottom = LocalPoint(centre, right, forward, 0.0f, -0.14f, 0.0f, scale);
-            const Vector3 rear = LocalPoint(centre, right, forward, bend, 0.0f, -0.43f, scale);
-            const Vector3 tailTop = LocalPoint(centre, right, forward, bend * 1.5f, 0.21f,
-                                                -0.70f, scale);
-            const Vector3 tailBottom = LocalPoint(centre, right, forward, bend * 1.5f, -0.21f,
-                                                   -0.70f, scale);
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.46f, scale);
+            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.17f, 0.0f, scale);
+            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.14f, 0.0f, scale);
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.43f, scale);
+            const Vector3 tailTop = LocalPoint(
+                centre, axes, bend * 1.5f, 0.21f, -0.72f, scale);
+            const Vector3 tailNotch = LocalPoint(
+                centre, axes, bend * 1.62f, 0.0f, -0.62f, scale);
+            const Vector3 tailBottom = LocalPoint(
+                centre, axes, bend * 1.5f, -0.21f, -0.72f, scale);
             AddDoubleSidedTriangle(vertices, nose, top, rear, palette.body);
             AddDoubleSidedTriangle(vertices, nose, rear, bottom, palette.belly);
-            AddDoubleSidedTriangle(vertices, rear, tailTop, tailBottom, palette.fin);
+            AddDoubleSidedTriangle(vertices, rear, tailTop, tailNotch, palette.fin);
+            AddDoubleSidedTriangle(vertices, rear, tailNotch, tailBottom, palette.fin);
         }
     }
 

@@ -207,6 +207,8 @@ try {
       "island-simulator: bird flight uses slow radial drift, banking, and intermittent glide")
     && result.output?.includes("island-simulator: fish 48 agents")
     && result.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
+    && result.output?.includes(
+      "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes(
@@ -928,6 +930,8 @@ try {
     && fishResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && fishResult.output?.includes("island-simulator: fish 48 agents")
+    && fishResult.output?.includes(
+      "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 
@@ -959,6 +963,8 @@ try {
     && sharkResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && sharkResult.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
+    && sharkResult.output?.includes(
+      "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && /shark visible activity/.test(sharkResult.output ?? "")
     && !sharkResult.error;
 

@@ -456,11 +456,19 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGameFishCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-fish-capture.ppm"
                     --viewpoint fish)
-        set_tests_properties(IslandGameFishCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameFishCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
         add_test(NAME IslandGameSharkCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-shark-capture.ppm"
                     --viewpoint shark)
-        set_tests_properties(IslandGameSharkCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameSharkCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
         add_test(NAME IslandGameMonkeyCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-monkey-capture.ppm"
                     --viewpoint monkeys)

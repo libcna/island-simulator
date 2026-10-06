@@ -354,9 +354,12 @@ authoritative irregular shoreline instead of a circular approximation; each rout
 for sufficient seabed depth. Stable local formation offsets supply separation/cohesion while
 individual steering, speed, depth phase, and tail phase prevent rigid synchronized motion. Every
 proposed move must remain 3--48 m offshore on submerged terrain, and each vertical pose is clamped
-between a seabed clearance and the surface. School-level activation uses the same shared wildlife
+between a seabed clearance and the surface. Smoothed vertical velocity supplies bounded pitch and
+heading error supplies bounded turn banking, so schools follow depth changes without remaining
+mechanically level. School-level activation uses the same shared wildlife
 tiers, so only nearby water receives full-rate updates. `FishRenderer` selects near articulated
-body/fin geometry or a far silhouette, frustum/distance-culls agents, and streams all visible fish
+body/fin geometry or a far silhouette, gives both tiers a forked tail, adds eyes and gill marks only
+to the near tier, frustum/distance-culls agents, and streams all visible fish
 in one `DynamicVertexBuffer` draw before the transparent ocean. Native OpenGL 3.3 and actual
 Chromium/WebGL 2 dedicated captures match; the fish-inclusive arm64 GLES 3 APK builds but has not
 run on a stable Android target.
@@ -365,9 +368,11 @@ run on a stable Android target.
 system. A deterministic schedule alternates roughly 42--66 second visible patrols with longer
 92--160 second deep-diving absences. During a patrol, bounded radial steering keeps the shark
 34--88 m offshore and searches for seabed no shallower than -3.5 m; a slow depth cycle, body wave,
-and tail stroke prevent rigid motion. The shared observer-distance policy reduces or suspends
+tail stroke, vertical-velocity pitch, and heading-error bank prevent rigid motion. The shared
+observer-distance policy reduces or suspends
 updates when appropriate. `SharkRenderer` uses a recognizable original low-poly silhouette,
-near/far geometry, individual frustum/distance rejection, and one portable `BasicEffect` dynamic
+forked tail in both LODs, near eye/gill accents, individual frustum/distance rejection, and one
+portable `BasicEffect` dynamic
 batch before the ocean. Native OpenGL 3.3 and actual Chromium/WebGL 2 dedicated captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.
 

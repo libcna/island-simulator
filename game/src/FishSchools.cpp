@@ -220,6 +220,11 @@ namespace island
                 agent.state.headingRadians, desiredHeading);
             agent.state.headingRadians += std::clamp(
                 headingDifference, -1.55f * deltaSeconds, 1.55f * deltaSeconds);
+            const float desiredBank = std::clamp(
+                headingDifference * 0.58f, -0.28f, 0.28f);
+            agent.state.bankRadians += std::clamp(
+                desiredBank - agent.state.bankRadians,
+                -1.1f * deltaSeconds, 1.1f * deltaSeconds);
 
             const float speedScale = std::clamp(0.78f + targetDistance * 0.22f, 0.78f, 1.32f);
             const float proposedX = agent.state.x + std::cos(agent.state.headingRadians)
@@ -245,8 +250,15 @@ namespace island
             const TerrainSample currentSample = terrain_.Sample(agent.state.x, agent.state.z);
             const float desiredDepth = FishDepth(currentSample.height, agent.depthPhase,
                                                  elapsedSeconds_);
+            const float previousY = agent.state.y;
             agent.state.y += std::clamp(desiredDepth - agent.state.y,
                                         -0.9f * deltaSeconds, 0.9f * deltaSeconds);
+            const float verticalSpeed = (agent.state.y - previousY) / deltaSeconds;
+            const float desiredPitch = std::clamp(
+                std::atan2(verticalSpeed, agent.state.speed * speedScale), -0.22f, 0.22f);
+            agent.state.pitchRadians += std::clamp(
+                desiredPitch - agent.state.pitchRadians,
+                -0.72f * deltaSeconds, 0.72f * deltaSeconds);
             agent.bodyPhase = std::fmod(agent.bodyPhase
                                         + agent.bodySpeed * speedScale * deltaSeconds, TwoPi);
             agent.state.bodyWave = std::sin(agent.bodyPhase);

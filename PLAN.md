@@ -478,9 +478,11 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   population, path-family mix, deterministic initialization/long-run motion, wing extremes,
   intermittent glide reachability, opposed bank directions, terrain clearance, route radius, and
   tier accounting are covered through a simulated 20-minute flight. Fish population/school
-  distribution, water validity, deterministic motion, tail extremes,
+  distribution, water validity, deterministic motion, tail extremes, bounded depth pitch, and
+  opposed turn banks,
   meaningful route travel, and tier accounting are covered through a simulated ten-minute swim.
   Shark deterministic motion, water/depth validity, presence/absence cycles, body animation,
+  bounded dive pitch, visible turn banking,
   meaningful route travel, and tier accounting are covered through a simulated 20-minute patrol.
   Monkey population, deterministic long-run state/motion, finite pose, terrain/slope validity,
   idle/observe/walk/run-away reachability, meaningful travel, and tier accounting are covered
@@ -512,10 +514,13 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   individual body/tail phases, and reject invalid land/deep-ocean moves.
 - [x] Activate/cull schools spatially; never simulate large invisible populations. The fixed
   48-agent budget uses school-level full/reduced/dormant simulation tiers, per-fish frustum/distance
-  culling, near/far meshes, and one dynamic-buffer draw submission.
+  culling, near/far meshes, and one dynamic-buffer draw submission. Smoothed depth pitch and turn
+  banking now drive the existing portable CPU pose; both LODs have forked tails and the near tier
+  adds restrained eye/gill detail without another draw.
 - [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
-  CPU body/tail motion, frustum/distance culling, and one portable dynamic-buffer draw.
+  CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one
+  portable dynamic-buffer draw. Both LODs have a forked tail and the near tier adds eye/gill detail.
 - [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
   It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
   layer for roughly 92--160 seconds before the next appearance.
@@ -816,7 +821,9 @@ Android is not project completion.
   response remain.
 - [~] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
   Bird paths now drift slowly around their authored radii and their CPU pose blends between wing
-  strokes, glides, and banked turns; fish, shark, monkey, and long subjective tuning remain open.
+  strokes, glides, and banked turns. Fish and shark now pitch with vertical motion, bank through
+  turns, and have clearer forked-tail/head silhouettes; monkey and long subjective tuning remain
+  open.
 - [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
 - [ ] Fix frame pacing, loading hitches, input focus issues, touch ergonomics, and platform-specific
   rendering differences found during real play.
@@ -1019,8 +1026,9 @@ Work next, in order:
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
    are complete first passes. Bird flight now adds slow per-agent radial drift, banked turns, and
-   intermittent smooth glides without another draw; keep it, fish, and shark layers under
-   subjective observation during play.
+   intermittent smooth glides without another draw. Fish and shark movement now follows depth with
+   pitch, banks through turns, and uses clearer forked-tail/near-head silhouettes without another
+   draw; keep all four wildlife layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
    paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
@@ -3012,6 +3020,32 @@ Work next, in order:
   bytes. Android appearance remains unqualified without stable hardware/KVM execution. The world
   fingerprint remains `d83ecd714e10fc9f`.
 - CNA and Sharp Runtime were not modified, and no dependency defect was found.
+
+### 2026-10-06 — Depth-following, banked aquatic wildlife silhouettes
+
+- Added bounded, smoothly approached vertical-velocity pitch and heading-error banking to every
+  fish and to the occasional shark. Fish pitch stays within 0.22 radians and bank within 0.28;
+  shark pitch stays within 0.18 and bank within 0.24. The CPU basis composes both poses with the
+  existing yaw/body/tail animation through portable `BasicEffect`, so no renderer-specific shader
+  path or new draw submission is required.
+- Reworked both fish and shark tail fins into forked silhouettes at near and far LOD, then added
+  restrained eye and gill triangles to the near LOD. The existing single dynamic buffer and one-draw
+  ceiling per species remain unchanged; the exact near worst case is 66 vertices per animal. Fresh
+  native close captures were inspected and show readable heads, tail forks, and varied non-level
+  silhouettes without obvious intersection.
+- Extended deterministic long-session core coverage to compare the new pose state exactly, reject
+  non-finite/out-of-range values, and require upward/downward pitch plus both fish bank directions
+  and visible shark banking. Native and Web lifecycle/fish/shark gates now require the explicit
+  aquatic-pose startup diagnostic.
+- The isolated native suite passes 37/37 in 70.92 seconds, including 29 real OpenGL scenes and real
+  X11 input. The complete Chrome 152/SwiftShader WebGL 2 harness passes all 22 lifecycle, renderer,
+  scene, and input stages; dedicated fish and shark captures were inspected. The arm64 GLES 3
+  target builds, Gradle APK assembly and application lint pass, WebAssembly is 8,452,228 bytes,
+  the stripped Android library is 15,857,496 bytes, and the APK is 33,589,872 bytes. Android
+  appearance and timing remain unqualified without KVM or a physical device.
+- The deterministic world fingerprint remains `d83ecd714e10fc9f`; population, placement, collision,
+  activation tiers, and offshore constraints are unchanged. CNA and Sharp Runtime were not
+  modified, and no dependency defect was found.
 
 ## Session-end checklist
 

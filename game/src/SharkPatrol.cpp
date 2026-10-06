@@ -139,9 +139,16 @@ namespace island
         const float toTargetZ = state_.targetZ - state_.z;
         const float desiredHeading = std::atan2(toTargetZ, toTargetX)
             + std::sin(elapsedSeconds_ * 0.11f + 1.7f) * 0.055f;
+        const float headingDifference = SignedAngleDifference(
+            state_.headingRadians, desiredHeading);
         state_.headingRadians += std::clamp(
-            SignedAngleDifference(state_.headingRadians, desiredHeading),
+            headingDifference,
             -0.62f * deltaSeconds, 0.62f * deltaSeconds);
+        const float desiredBank = std::clamp(
+            headingDifference * 0.65f, -0.24f, 0.24f);
+        state_.bankRadians += std::clamp(
+            desiredBank - state_.bankRadians,
+            -0.52f * deltaSeconds, 0.52f * deltaSeconds);
 
         const float targetDistance = std::hypot(toTargetX, toTargetZ);
         const float speed = std::clamp(1.65f + targetDistance * 0.06f, 1.65f, 2.45f);
@@ -166,8 +173,15 @@ namespace island
         const float hiddenDepth = std::max(seabed + 0.85f, -8.0f);
         const float desiredDepth = hiddenDepth
             + (std::max(seabed + 1.15f, surfacePatrolDepth) - hiddenDepth) * state_.activity;
+        const float previousY = state_.y;
         state_.y += std::clamp(desiredDepth - state_.y,
                                -0.72f * deltaSeconds, 0.72f * deltaSeconds);
+        const float verticalSpeed = (state_.y - previousY) / deltaSeconds;
+        const float desiredPitch = std::clamp(
+            std::atan2(verticalSpeed, speed), -0.18f, 0.18f);
+        state_.pitchRadians += std::clamp(
+            desiredPitch - state_.pitchRadians,
+            -0.38f * deltaSeconds, 0.38f * deltaSeconds);
         bodyPhase_ = std::fmod(bodyPhase_ + speed * 1.48f * deltaSeconds, TwoPi);
         state_.bodyWave = std::sin(bodyPhase_);
     }
