@@ -1,10 +1,12 @@
 #pragma once
 
 #include <array>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
@@ -65,12 +67,14 @@ namespace island
          * @param smokeTest Whether to exit automatically after a few rendered frames.
          * @param capturePath Optional PPM path for a deterministic rendered-frame capture.
          * @param viewpoint Optional fixed QA camera without player movement.
+         * @param benchmarkPath Optional JSON destination for an uncapped fixed-view benchmark.
          */
         explicit IslandGame(bool smokeTest = false, std::string capturePath = {},
                             FixedViewpoint viewpoint = FixedViewpoint::None,
                             bool showDebugOverlay = false,
                             bool inputDiagnostics = false,
-                            bool showWorldDebug = false);
+                            bool showWorldDebug = false,
+                            std::string benchmarkPath = {});
 
         GetTypeNameHPP()
 
@@ -86,6 +90,8 @@ namespace island
 
     private:
         void CaptureFrame(const std::string& path);
+        void RecordBenchmarkFrame();
+        void WriteBenchmarkReport();
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
         void UpdateCameraMatrices();
@@ -142,5 +148,11 @@ namespace island
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;
         std::uint32_t drawnFrames_ = 0;
+        std::string benchmarkPath_;
+        std::chrono::steady_clock::time_point benchmarkPreviousFrameTime_;
+        std::vector<double> benchmarkFrameMilliseconds_;
+        std::size_t benchmarkWarmupIntervals_ = 0U;
+        bool benchmarkHasPreviousFrame_ = false;
+        bool benchmarkReportPending_ = false;
     };
 }

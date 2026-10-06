@@ -630,7 +630,8 @@ Dependencies: representative complete scene on all targets.
   fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
   counts, positional bird/monkey call counts and voice state, and bird/fish/shark/monkey
   render/simulation statistics on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
-  obstacle, shared-cell, and wildlife-marker counts; a total backend voice counter remains.
+  obstacle, shared-cell, and wildlife-marker counts. A separate uncapped native benchmark records
+  warm mean/median/p95/p99 frame intervals and scene counts; a total backend voice counter remains.
 - [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation. One F2 toggle now
   covers shoreline/current thresholds and vector, nearby collision/player footprints, shared
@@ -639,12 +640,16 @@ Dependencies: representative complete scene on all targets.
 - [~] Add debug teleport locations and a debug-only free camera. Seven direct F5--F11 locations are
   active only while the diagnostics overlay is visible; a menu, water-limit locations, and free
   camera remain open.
-- [ ] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
-  per target rather than one desktop-only target.
+- [~] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
+  per target rather than one desktop-only target. A first five-view 1280 by 720 debug-build Linux
+  baseline records frame distributions and tracked scene submissions; release, browser, Android,
+  memory, audio, loading, and thermal budgets remain open.
 
 ### Optimization
 
-- [ ] Profile representative beach, dense jungle, hill vista, waterline, and wildlife scenes.
+- [~] Profile representative beach, dense jungle, hill vista, waterline, and wildlife scenes. The
+  first fixed-view native suite covers overview, beach, dense jungle, shore detail, and monkeys;
+  moving traversal, release configuration, WebGL 2, and physical Android profiles remain open.
 - [~] Implement terrain/vegetation cell frustum and distance culling. Terrain and palms share a
   64-cell partition; grass uses 256 finer cells. All are frustum culled, palms/grass have distance
   cutoffs, and grass selects near/far geometry by cell distance. Per-instance wildlife policy and
@@ -655,7 +660,8 @@ Dependencies: representative complete scene on all targets.
   software-emulated AVD; representative mobile cost still requires real-hardware profiling.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
   reduced trunk/frond geometry by cell distance and grass selects 28-blade/five-blade clusters;
-  measured budgets and pop-free transitions remain open.
+  the initial native scene baseline is recorded, while target budgets and pop-free transitions
+  remain open.
 - [x] Throttle distant wildlife and audio updates without visible popping. Shared
   full/reduced/dormant simulation tiers bound agent work; positional calls select only nearby
   non-dormant sources, use one voice, and are held while transient slots are occupied.
@@ -828,7 +834,10 @@ after the same experience remains available.
   views plus offshore-shark and GPU-skinned-monkey views are implemented and used by native/browser
   captures; free camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
-- [ ] Frame-time capture and representative scene benchmark route.
+- [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
+  warm-up and 600 sampled uncapped intervals with JSON mean/median/p95/p99 output, while
+  `tools/run_native_benchmarks.sh` covers five fixed representative scenes. A sustained moving
+  traversal and Web/Android equivalents remain open.
 
 ## Documentation deliverables
 
@@ -851,10 +860,12 @@ after the same experience remains available.
 - [ ] `docs/asset-pipeline.md`: source formats, generation/conversion, manifests, validation.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
   documented; matched Android captures and representative cross-target measurements remain open.
-- [~] `docs/debugging.md`: overlay fields, direct QA teleports, and deterministic capture workflows
-  are documented; world-space visualizers, performance capture, and common-failure guidance remain
-  open.
-- [ ] `docs/performance.md`: budgets, representative scenes, measurements, decisions.
+- [~] `docs/debugging.md`: overlay fields, direct QA teleports, deterministic captures, and the
+  native performance-report workflow are documented; deeper world-space visualizers and
+  common-failure guidance remain open.
+- [~] `docs/performance.md`: native method, five representative fixed scenes, the initial Linux
+  baseline, interpretation rules, and open budget work are documented. Release/Web/Android,
+  memory, loading, audio, and thermal budgets remain open.
 - [x] `docs/known-limitations.md`: current environment, traversal, content, platform, and tooling
   limitations are recorded without claiming planned systems.
 
@@ -882,8 +893,8 @@ Work next, in order:
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete.
-7. Revisit palm silhouette/material richness and pop-free LOD transition after measured frame-time
-   instrumentation exists; do not raise geometry cost blindly.
+7. Revisit palm silhouette/material richness and pop-free LOD transition against the new five-view
+   native baseline; do not raise geometry cost without repeating representative measurements.
 
 ## Validation ledger
 
@@ -1632,6 +1643,26 @@ Work next, in order:
   driftwood captures were visually compared and match; all 13 native tests and the full browser
   harness pass. The arm64-v8a GLES 3 APK rebuilds and app lint remains clean; device runtime is
   still unqualified without KVM or physical hardware.
+
+### 2026-10-06 — Repeatable native frame-time evidence
+
+- Added a game-owned `--benchmark <report.json>` mode that selects a fixed QA camera, disables
+  VSync and the fixed timestep, discards 120 warm-up intervals, records 600 end-to-end intervals,
+  and exits with a machine-readable mean/median/p95/p99/min/max/FPS report. Debug, capture, and
+  smoke combinations are rejected so measurements retain one defined presentation path.
+- Added tested renderer-independent statistics with interpolated percentiles and explicit invalid-
+  input diagnostics. JSON also records resolution, renderer, sampling configuration, tracked scene
+  submissions, and representative visible populations. `IslandGameBenchmark` protects the complete
+  native report path without treating a hardware-specific duration as a pass threshold.
+- Added a five-view private-GPU suite for overview, beach, jungle, shore detail, and monkeys plus
+  `docs/performance.md` methodology and limitations. On the 1280 by 720 debug build using the
+  accelerated Radeon 780M/Mesa 25.0.7 environment, beach was the heaviest fixed scene at 1.6424 ms
+  mean and 1.9168 ms p95 across 600 samples and 117 tracked submissions. Audio was unavailable in
+  the isolated compositor, so this is a comparison baseline rather than a shipping budget.
+- All 14 native tests pass, including 13 real OpenGL 3.3 GPU scenes. The full actual-Chrome WebGL 2
+  renderer/input/audio-init harness passes after rebuilding, and the arm64-v8a GLES 3 APK rebuilds
+  with clean app lint. Web hardware performance and Android device performance remain unqualified;
+  no CNA or Sharp Runtime source was modified and no dependency defect was found.
 
 ## Session-end checklist
 

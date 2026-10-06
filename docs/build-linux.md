@@ -52,7 +52,7 @@ Xwayland runner:
 
 ```bash
 ../cna/tools/platform/run_gpu_tests_private.sh \
-  build -R '^IslandGame(Smoke|Capture|BeachCapture|JungleCapture|PropCapture|DriftwoodCapture|BirdCapture|FishCapture|SharkCapture|MonkeyCapture|DebugOverlayCapture|WorldDebugCapture)$' --output-on-failure -j2
+  build --output-on-failure -j2
 ```
 
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
@@ -72,10 +72,21 @@ Xwayland runner:
 They are reproducible QA outputs and are ignored by Git. Convert or inspect them only during a
 visual review.
 
+`IslandGameBenchmark` validates the uncapped 600-sample JSON reporting path at the dense-jungle
+view. It is a functional test, not a stable performance threshold. Run the five-view measurement
+suite and interpret its limitations as documented in `docs/performance.md`.
+
 ## Run interactively
 
 ```bash
 build/island-simulator
+```
+
+For repeatable frame-time reports on a private accelerated display:
+
+```bash
+../cna/tools/platform/run_gpu_tests_private.sh \
+  --exec ./tools/run_native_benchmarks.sh /tmp/island-benchmarks
 ```
 
 The executable dynamically loads `build/CNA/libcna.so` through its generated build-tree runtime

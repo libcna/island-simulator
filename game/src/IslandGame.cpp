@@ -1,11 +1,16 @@
 #include "IslandSimulator/IslandGame.hpp"
 
+#include "IslandSimulator/PerformanceStatistics.hpp"
+
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <locale>
 #include <numbers>
 #include <stdexcept>
 #include <string>
@@ -39,12 +44,31 @@ namespace island
         constexpr float TouchLookSensitivity = 0.0032f;
         constexpr std::uint32_t SmokeTestFrames = 4U;
         constexpr std::uint32_t MonkeyCaptureFrames = 24U;
+        constexpr std::size_t BenchmarkWarmupIntervals = 120U;
+        constexpr std::size_t BenchmarkSampleIntervals = 600U;
 
+        [[nodiscard]] const char* ViewpointName(const FixedViewpoint viewpoint) noexcept
+        {
+            switch (viewpoint) {
+            case FixedViewpoint::Overview: return "overview";
+            case FixedViewpoint::BeachPath: return "beach";
+            case FixedViewpoint::JungleTrail: return "jungle";
+            case FixedViewpoint::PropDetail: return "props";
+            case FixedViewpoint::DriftwoodDetail: return "driftwood";
+            case FixedViewpoint::BirdDetail: return "birds";
+            case FixedViewpoint::FishDetail: return "fish";
+            case FixedViewpoint::SharkDetail: return "shark";
+            case FixedViewpoint::MonkeyDetail: return "monkeys";
+            case FixedViewpoint::None: return "interactive";
+            }
+            return "unknown";
+        }
     }
 
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
-                           const bool inputDiagnostics, const bool showWorldDebug)
+                           const bool inputDiagnostics, const bool showWorldDebug,
+                           std::string benchmarkPath)
         : graphics_(this),
           birdFlock_(terrain_),
           fishSchools_(terrain_),
@@ -60,7 +84,8 @@ namespace island
           capturePath_(std::move(capturePath)),
           debugOverlayVisible_(showDebugOverlay),
           worldDebugVisible_(showWorldDebug),
-          inputDiagnostics_(inputDiagnostics)
+          inputDiagnostics_(inputDiagnostics),
+          benchmarkPath_(std::move(benchmarkPath))
     {
         std::vector<CircularObstacle> worldObstacles;
         worldObstacles.reserve(vegetationLayout_.Obstacles().size()
@@ -75,6 +100,9 @@ namespace island
         worldCollisionGrid_.Reset(worldObstacles);
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
+            viewpoint_ = FixedViewpoint::Overview;
+        }
+        if (!benchmarkPath_.empty() && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
         if (viewpoint_ == FixedViewpoint::Overview) {
@@ -170,13 +198,16 @@ namespace island
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
         graphics_.setPreferredBackBufferHeightProperty(720);
+        if (!benchmarkPath_.empty()) {
+            graphics_.setSynchronizeWithVerticalRetraceProperty(false);
+        }
 #if defined(__ANDROID__)
         graphics_.setIsFullScreenProperty(true);
         touchOverlayVisible_ = true;
 #endif
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
-        setIsFixedTimeStepProperty(true);
+        setIsFixedTimeStepProperty(benchmarkPath_.empty());
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
 #endif
@@ -231,6 +262,11 @@ namespace island
         }
         if (worldDebugVisible_) {
             std::cout << "island-simulator: world debug visualization active\n";
+        }
+        if (!benchmarkPath_.empty()) {
+            std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
+                      << " warming " << BenchmarkWarmupIntervals << " intervals, sampling "
+                      << BenchmarkSampleIntervals << " intervals with VSync disabled\n";
         }
         std::cout.flush();
     }
@@ -524,9 +560,104 @@ namespace island
         std::cout << "island-simulator: captured frame to " << path << '\n';
     }
 
+    void IslandGame::RecordBenchmarkFrame()
+    {
+        const auto now = std::chrono::steady_clock::now();
+        if (!benchmarkHasPreviousFrame_) {
+            benchmarkPreviousFrameTime_ = now;
+            benchmarkHasPreviousFrame_ = true;
+            return;
+        }
+
+        const double frameMilliseconds =
+            std::chrono::duration<double, std::milli>(now - benchmarkPreviousFrameTime_).count();
+        benchmarkPreviousFrameTime_ = now;
+        if (benchmarkWarmupIntervals_ < BenchmarkWarmupIntervals) {
+            ++benchmarkWarmupIntervals_;
+            return;
+        }
+        benchmarkFrameMilliseconds_.push_back(frameMilliseconds);
+        if (benchmarkFrameMilliseconds_.size() >= BenchmarkSampleIntervals) {
+            benchmarkReportPending_ = true;
+        }
+    }
+
+    void IslandGame::WriteBenchmarkReport()
+    {
+        const FrameTimeSummary summary =
+            CalculateFrameTimeSummary(benchmarkFrameMilliseconds_);
+        const auto& viewport = getGraphicsDeviceProperty().getViewportProperty();
+        const int trackedSceneDraws = 2 + terrainRenderer_->VisibleCellCount()
+            + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
+            + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
+            + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
+            + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount();
+
+        std::ofstream output(benchmarkPath_);
+        if (!output) {
+            throw std::runtime_error(
+                "Cannot create benchmark report at '" + benchmarkPath_ + "'");
+        }
+        output.imbue(std::locale::classic());
+        output << std::fixed << std::setprecision(4)
+               << "{\n"
+               << "  \"schema_version\": 1,\n"
+               << "  \"renderer\": \""
+               << getGraphicsDeviceProperty().GetGraphicsRendererName() << "\",\n"
+               << "  \"viewpoint\": \"" << ViewpointName(viewpoint_) << "\",\n"
+               << "  \"resolution\": {\"width\": " << viewport.getWidthProperty()
+               << ", \"height\": " << viewport.getHeightProperty() << "},\n"
+               << "  \"settings\": {\"vsync\": false, \"fixed_timestep\": false, "
+               << "\"warmup_intervals\": " << BenchmarkWarmupIntervals
+               << ", \"sample_intervals\": " << BenchmarkSampleIntervals << "},\n"
+               << "  \"timing\": {\n"
+               << "    \"sample_count\": " << summary.sampleCount << ",\n"
+               << "    \"mean_ms\": " << summary.meanMilliseconds << ",\n"
+               << "    \"median_ms\": " << summary.medianMilliseconds << ",\n"
+               << "    \"p95_ms\": " << summary.percentile95Milliseconds << ",\n"
+               << "    \"p99_ms\": " << summary.percentile99Milliseconds << ",\n"
+               << "    \"min_ms\": " << summary.minimumMilliseconds << ",\n"
+               << "    \"max_ms\": " << summary.maximumMilliseconds << ",\n"
+               << "    \"mean_fps\": " << summary.meanFramesPerSecond << "\n"
+               << "  },\n"
+               << "  \"scene\": {\n"
+               << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
+               << "    \"terrain_cells\": " << terrainRenderer_->VisibleCellCount() << ",\n"
+               << "    \"palms\": " << palmRenderer_->VisiblePalmCount() << ",\n"
+               << "    \"canopy\": " << jungleRenderer_->VisibleCanopyCount() << ",\n"
+               << "    \"understory\": " << jungleRenderer_->VisibleUnderstoryCount() << ",\n"
+               << "    \"bushes\": " << jungleRenderer_->VisibleBushCount() << ",\n"
+               << "    \"ground_plants\": " << jungleRenderer_->VisibleGroundPlantCount()
+               << ",\n"
+               << "    \"grass_clusters\": " << grassRenderer_->VisiblePatchCount() << ",\n"
+               << "    \"rocks\": " << naturalPropRenderer_->VisibleRockCount() << ",\n"
+               << "    \"fallen_logs\": " << naturalPropRenderer_->VisibleLogCount() << ",\n"
+               << "    \"driftwood\": " << naturalPropRenderer_->VisibleDriftwoodCount()
+               << ",\n"
+               << "    \"beach_details\": "
+               << naturalPropRenderer_->VisibleBeachDetailCount() << ",\n"
+               << "    \"birds\": " << birdRenderer_->VisibleBirdCount() << ",\n"
+               << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
+               << "    \"shark\": " << (sharkRenderer_->IsVisible() ? 1 : 0) << ",\n"
+               << "    \"monkeys\": " << monkeyRenderer_->VisibleMonkeyCount() << "\n"
+               << "  }\n"
+               << "}\n";
+        if (!output) {
+            throw std::runtime_error(
+                "Failed while writing benchmark report at '" + benchmarkPath_ + "'");
+        }
+        std::cout << "island-simulator: benchmark completed " << summary.sampleCount
+                  << " samples, mean " << summary.meanMilliseconds << " ms, p95 "
+                  << summary.percentile95Milliseconds << " ms, report " << benchmarkPath_
+                  << '\n';
+    }
+
     void IslandGame::Draw(const GameTime& gameTime)
     {
         auto& device = getGraphicsDeviceProperty();
+        if (!benchmarkPath_.empty() && !benchmarkReportPending_) {
+            RecordBenchmarkFrame();
+        }
         debugOverlay_->UpdateFrameTiming();
         device.Clear(Color(136, 202, 224, 255), 1.0f);
         UpdateCameraMatrices();
@@ -777,6 +908,11 @@ namespace island
         }
         if (smokeTest_ && drawnFrames_ >= targetFrames) {
             std::cout << "island-simulator: smoke test rendered " << drawnFrames_ << " frames\n";
+            Exit();
+        }
+        if (benchmarkReportPending_) {
+            WriteBenchmarkReport();
+            benchmarkReportPending_ = false;
             Exit();
         }
     }

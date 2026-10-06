@@ -6,6 +6,7 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
+#include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
@@ -20,8 +21,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <numeric>
 #include <numbers>
+#include <stdexcept>
 #include <string_view>
 #include <vector>
 
@@ -46,6 +49,43 @@ namespace
 
 int main()
 {
+    const std::array<double, 5> frameTimes = {50.0, 10.0, 30.0, 20.0, 40.0};
+    const island::FrameTimeSummary frameSummary =
+        island::CalculateFrameTimeSummary(frameTimes);
+    Check(frameSummary.sampleCount == frameTimes.size(),
+          "frame-time statistics retain their sample count");
+    CheckNear(static_cast<float>(frameSummary.minimumMilliseconds), 10.0f, 0.0001f,
+              "frame-time statistics report the minimum");
+    CheckNear(static_cast<float>(frameSummary.maximumMilliseconds), 50.0f, 0.0001f,
+              "frame-time statistics report the maximum");
+    CheckNear(static_cast<float>(frameSummary.meanMilliseconds), 30.0f, 0.0001f,
+              "frame-time statistics report the arithmetic mean");
+    CheckNear(static_cast<float>(frameSummary.medianMilliseconds), 30.0f, 0.0001f,
+              "frame-time statistics report the interpolated median");
+    CheckNear(static_cast<float>(frameSummary.percentile95Milliseconds), 48.0f, 0.0001f,
+              "frame-time statistics report the interpolated 95th percentile");
+    CheckNear(static_cast<float>(frameSummary.percentile99Milliseconds), 49.6f, 0.0001f,
+              "frame-time statistics report the interpolated 99th percentile");
+    CheckNear(static_cast<float>(frameSummary.meanFramesPerSecond), 33.3333f, 0.001f,
+              "frame-time statistics derive mean frames per second");
+    bool rejectedEmptyFrameTimes = false;
+    try {
+        (void)island::CalculateFrameTimeSummary(std::span<const double>());
+    } catch (const std::invalid_argument&) {
+        rejectedEmptyFrameTimes = true;
+    }
+    Check(rejectedEmptyFrameTimes, "frame-time statistics reject an empty sample set");
+    bool rejectedInvalidFrameTime = false;
+    const std::array<double, 1> invalidFrameTime = {
+        std::numeric_limits<double>::quiet_NaN()};
+    try {
+        (void)island::CalculateFrameTimeSummary(invalidFrameTime);
+    } catch (const std::invalid_argument&) {
+        rejectedInvalidFrameTime = true;
+    }
+    Check(rejectedInvalidFrameTime,
+          "frame-time statistics reject non-finite sample durations");
+
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();

@@ -83,6 +83,9 @@ and monkey troop.
 The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 Use `--world-debug` to enable both the panel and world visualization at launch.
+Use `tools/run_native_benchmarks.sh` through the private GPU runner for warm, uncapped JSON
+frame-time reports across five fixed scenes; methodology and the initial Linux baseline are in
+`docs/performance.md`.
 
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
@@ -108,3 +111,4 @@ software emulation; lifecycle, audio, touch ergonomics, and mobile performance r
 - `PLAN.md` is the living development ledger.
 - `BUGS.md` records confirmed CNA or Sharp Runtime defects and game-side workarounds.
 - `ASSET_LICENSES.md` records all asset provenance before assets enter a runtime build.
+- `docs/performance.md` defines the repeatable benchmark method, current evidence, and open budgets.

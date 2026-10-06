@@ -16,6 +16,7 @@ int main(const int argc, char* argv[])
     bool inputDiagnostics = false;
     island::FixedViewpoint viewpoint = island::FixedViewpoint::None;
     std::string capturePath;
+    std::string benchmarkPath;
     for (int index = 1; index < argc; ++index) {
         const std::string_view argument(argv[index]);
         if (argument == "--smoke-test") {
@@ -64,14 +65,26 @@ int main(const int argc, char* argv[])
             }
             capturePath = argv[index];
             smokeTest = true;
+        } else if (argument == "--benchmark") {
+            if (++index >= argc) {
+                std::cerr << "island-simulator: --benchmark requires a JSON output path\n";
+                return 2;
+            }
+            benchmarkPath = argv[index];
         } else {
             std::cerr << "island-simulator: unknown argument '" << argument << "'\n";
             return 2;
         }
     }
+    if (!benchmarkPath.empty()
+        && (smokeTest || showDebugOverlay || showWorldDebug || inputDiagnostics)) {
+        std::cerr << "island-simulator: --benchmark cannot be combined with smoke, capture, "
+                     "or debug modes\n";
+        return 2;
+    }
     try {
         island::IslandGame game(smokeTest, std::move(capturePath), viewpoint, showDebugOverlay,
-                                inputDiagnostics, showWorldDebug);
+                                inputDiagnostics, showWorldDebug, std::move(benchmarkPath));
         game.Run();
         return 0;
     } catch (const std::exception& error) {

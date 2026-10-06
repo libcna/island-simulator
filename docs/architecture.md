@@ -280,6 +280,13 @@ collision, cell, player, current-vector, and wildlife markers use an x-ray pass 
 not conceal diagnostic state. Distance gates limit local marker generation, and the complete view
 costs two draw submissions. `--world-debug` provides a deterministic capture path.
 
+The opt-in benchmark path remains game-owned and does not add renderer hooks. `IslandGame` records
+wall-clock intervals between consecutive `Draw` entries after a fixed warm-up, while the
+renderer-independent `PerformanceStatistics` component validates samples and calculates stable
+interpolated percentiles. Benchmark runs select an existing fixed camera, disable VSync and the
+fixed timestep, omit debug presentation, serialize a small JSON report, and exit. Ordinary play
+retains its fixed-timestep/VSync configuration.
+
 ## Audio baseline
 
 `SoundscapeModel` supplies original deterministic 22.05 kHz mono PCM16 source material at startup.

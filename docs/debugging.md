@@ -70,6 +70,20 @@ timestep. Startup and four-frame smoke captures are intentionally too short for 
 FPS number. Use a sustained interactive run and compare representative viewpoints before drawing
 performance conclusions.
 
+## Recorded performance reports
+
+`--benchmark <report.json>` selects an uncapped, variable-timestep fixed-view run, discards 120
+warm-up intervals, records 600 intervals, writes interpolated median/p95/p99 statistics and scene
+counts, then exits. It cannot be combined with capture or debug modes. For example:
+
+```bash
+build/island-simulator --benchmark /tmp/island-jungle.json --viewpoint jungle
+```
+
+`tools/run_native_benchmarks.sh` repeats the measurement for overview, beach, jungle, driftwood,
+and monkey views. See `docs/performance.md` for the isolated-GPU command, interpretation rules,
+initial baseline, and explicit limitations.
+
 ## Deterministic captures
 
 The executable provides fixed views used by CTest and the browser harness:
@@ -104,5 +118,5 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 The first F2 pass covers the world geometry listed above. Exact wildlife targets/spawn regions,
 individual renderer culling volumes and LOD radii, grass-density fields, terrain contact normals,
 audio zones/emitters, and source-count visualization remain open. So do a teleport menu, free
-camera, recorded frame histograms, and target-specific budget warnings. All additions must remain
-opt-in and absent from the normal release presentation.
+camera, target-specific budget warnings, and renderer-specific CPU/GPU separation. All additions
+must remain opt-in and absent from the normal release presentation.

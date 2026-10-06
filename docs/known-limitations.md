@@ -79,5 +79,6 @@ been confirmed so far.
   wave/splash counts, and mute/availability state. F2 adds the first world-space shoreline/current,
   collision, shared-cell, and wildlife view; audio-emitter visualization and deeper per-system
   overlays remain open.
-- Seven direct debug teleports exist, but there is no teleport menu, benchmark route, asset
-  validation command, or automated renderer-image comparison yet.
+- Seven direct debug teleports and a five-view native frame-time suite exist, but there is no
+  teleport menu, sustained moving benchmark route, asset validation command, or automated
+  renderer-image comparison yet.

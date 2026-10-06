@@ -31,6 +31,7 @@ add_library(island_core STATIC
     game/src/JungleLayout.cpp
     game/src/MonkeyTroop.cpp
     game/src/NaturalPropLayout.cpp
+    game/src/PerformanceStatistics.cpp
     game/src/PlayerMotion.cpp
     game/src/SharkPatrol.cpp
     game/src/SoundscapeModel.cpp
@@ -266,5 +267,13 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION "world debug visualization active")
+        add_test(NAME IslandGameBenchmark
+            COMMAND island-simulator
+                    --benchmark "${CMAKE_BINARY_DIR}/island-benchmark-jungle.json"
+                    --viewpoint jungle)
+        set_tests_properties(IslandGameBenchmark PROPERTIES
+            TIMEOUT 45
+            LABELS display
+            PASS_REGULAR_EXPRESSION "benchmark completed 600 samples")
     endif()
 endif()
