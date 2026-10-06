@@ -166,6 +166,8 @@ try {
       "island-simulator: near rocks use procedural strata and restrained lichen flecks")
     && result.output?.includes(
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
+    && result.output?.includes(
+      "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
@@ -553,6 +555,8 @@ try {
     && driftwoodResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && driftwoodResult.output?.includes(
+      "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;

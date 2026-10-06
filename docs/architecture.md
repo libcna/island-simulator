@@ -281,9 +281,10 @@ fronds use a curved rachis with 28 tapered leaflets. Placement validates complet
 against shore distance, route reservations, nearby trees, slope, and support-height variation.
 The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
 fragments for subtle world-space strata and sparse lichen, near-log sides for local-space bark
-fissures, and near cut ends for gently irregular growth rings. Distance fades remove these cues
-before their mesh transition. Contact geometry and every far mesh retain the plain path; this keeps
-the material treatment texture-free and free of extra geometry, instance data, or draws.
+fissures, near cut ends for gently irregular growth rings, and near-driftwood sides/branches for
+softer sun-bleached longitudinal weathering. Driftwood cut ends remain plain. Distance fades remove
+all cues before their mesh transition. Contact geometry and every far mesh retain the plain path;
+this keeps the material treatment texture-free and free of extra geometry, instance data, or draws.
 Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
 fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
 while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced
@@ -468,8 +469,8 @@ testing remain open.
   bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, and near bushes now replace their largest smooth lobes with folded pointed leaves,
-  while near rocks have restrained procedural strata/lichen and near logs have faded bark/growth
-  rings. Transition popping, richer close-up prop shapes, bush diversity, biome variation,
+  while near rocks have restrained strata/lichen, near logs have bark/growth rings, and driftwood
+  has subtle faded grain. Transition popping, richer close-up prop shapes, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
 - The first distant-scenery layer provides five fogged low islets and 11 simplified palms in one
   portable batch. Its silhouette variety is deliberately restrained; unified world haze, richer

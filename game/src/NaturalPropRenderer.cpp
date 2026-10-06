@@ -133,6 +133,16 @@ void main()
             * (0.94 + 0.08 * smoothstep(0.18, 0.82, growthRing));
         materialColor = mix(vColor, detailedColor,
                             1.0 - smoothstep(42.0, 70.0, distanceToCamera));
+    } else if (vMaterialDetail < 0.9375) {
+        float woodAngle = atan(vLocal.y, vLocal.z);
+        float weathering = 0.5 + 0.5 * sin(
+            woodAngle * 6.0 + sin(vLocal.x * 13.0) * 0.62);
+        float dryCrease = 1.0 - smoothstep(0.03, 0.21, abs(sin(
+            woodAngle * 9.0 + sin(vLocal.x * 8.0) * 0.48)));
+        vec3 detailedColor = vColor
+            * (0.96 + 0.06 * weathering) * (1.0 - 0.07 * dryCrease);
+        materialColor = mix(vColor, detailedColor,
+                            1.0 - smoothstep(30.0, 56.0, distanceToCamera));
     }
     vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
@@ -369,9 +379,13 @@ void main()
             PropGeometry geometry;
             const int sections = farMesh ? 2 : 4;
             const int sides = farMesh ? 5 : 7;
-            const Color wood = variant == 0 ? Color(157, 137, 103, 255)
+            const Color woodBase = variant == 0 ? Color(157, 137, 103, 255)
                 : (variant == 1 ? Color(171, 148, 109, 255)
                                 : Color(142, 126, 98, 255));
+            const Color wood(static_cast<int>(woodBase.getRProperty()),
+                             static_cast<int>(woodBase.getGProperty()),
+                             static_cast<int>(woodBase.getBProperty()),
+                             farMesh ? 255 : 224);
             const auto sideBase = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int section = 0; section <= sections; ++section) {
                 const float t = static_cast<float>(section) / static_cast<float>(sections);
@@ -412,7 +426,7 @@ void main()
                 }
             }
 
-            const Color endColor = ShadeColor(wood, 1.08f);
+            const Color endColor = ShadeColor(woodBase, 1.08f);
             for (int end = 0; end < 2; ++end) {
                 const float x = end == 0 ? -0.505f : 0.505f;
                 const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
@@ -707,6 +721,7 @@ void main()
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
             std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
+            std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';

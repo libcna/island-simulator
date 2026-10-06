@@ -427,6 +427,27 @@ made. The log-free driftwood view remains unchanged.
 | Driftwood/shore detail | 0.7623--0.7831 | 0.8515--0.8769 | 0.9498--1.1295 | 26 | 0 |
 | Monkeys | 1.5258--1.5775 | 1.6939--2.0028 | 2.0933--2.3130 | 97 | 5 |
 
+### Sun-bleached driftwood material follow-up
+
+Near driftwood sides and branch stubs now select a soft local-space longitudinal weathering field;
+cut ends and every far mesh retain the plain material. Detail fades from 30--56 m before the 58 m
+mesh transition and adds no geometry, texture, instance data, CPU update, or submission. Visual
+review rejected a first higher-frequency treatment because its repeated short fissures looked
+stamped. Native and actual Chrome/SwiftShader close-driftwood captures agree on the retained
+lower-contrast, longer-grain pass.
+
+Two isolated five-view repeats produced the ranges below. They overlap the preceding integrated
+baseline, including the driftwood view that directly exercises one near instance, so no measurable
+regression or speed change is claimed.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible driftwood |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.0887--1.1593 | 1.1837--1.3169 | 1.2811--1.8612 | 77 | 0 |
+| Beach | 1.6999--1.7333 | 1.8244--1.8673 | 2.4286--2.4534 | 124 | 4 |
+| Jungle | 1.4114--1.4611 | 1.5479--1.7658 | 2.0095--2.1207 | 95 | 1 |
+| Driftwood/shore detail | 0.7763--0.8006 | 0.8580--0.9871 | 1.2184--1.4301 | 26 | 1 |
+| Monkeys | 1.4925--1.5420 | 1.6373--2.0082 | 2.0427--2.2312 | 97 | 0 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

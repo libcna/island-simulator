@@ -951,6 +951,8 @@ Work next, in order:
    LOD, without new geometry, textures, instances, or submissions.
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
+   Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
+   and far meshes plain, likewise without new geometry, textures, or submissions.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
@@ -2228,6 +2230,27 @@ Work next, in order:
   renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
   application lint pass; WebAssembly is 8,339,116 bytes, stripped `libmain.so` is 15,731,472 bytes,
   and the APK is 33,463,848 bytes. Android runtime appearance and fragment cost remain unqualified
+  without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified;
+  no dependency defect was found.
+
+### 2026-10-06 — Sun-bleached near-driftwood grain
+
+- Added a soft local-space longitudinal weathering field to near driftwood sides and branch stubs
+  through the existing natural-prop shader. Cut ends and far meshes retain the plain path; detail
+  fades from 30--56 m before the 58 m mesh transition. The change adds no geometry, texture,
+  instance data, CPU update, draw submission, collision change, or asset.
+- Rejected the first inspected version because frequent dark dashes made its grain look stamped.
+  The retained lower-frequency, lower-contrast pattern forms longer irregular marks and preserves
+  the calm sun-bleached palette. Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 driftwood
+  captures agree; the browser lifecycle and driftwood gates require its diagnostic.
+- Two isolated five-view repeats retained 77/124/95/26/97 tracked submissions and exact scene
+  populations. Mean frame time measured 1.0887--1.1593 ms overview, 1.6999--1.7333 ms beach,
+  1.4114--1.4611 ms jungle, 0.7763--0.8006 ms driftwood, and 1.4925--1.5420 ms monkeys. The
+  ranges overlap the preceding integrated baseline, so no measurable change is claimed.
+- All 22 native tests pass, including 21 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,340,007 bytes, stripped `libmain.so` is 15,732,256 bytes,
+  and the APK is 33,464,632 bytes. Android runtime appearance and fragment cost remain unqualified
   without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified;
   no dependency defect was found.
 

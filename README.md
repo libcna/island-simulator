@@ -36,6 +36,8 @@ portable material shader. The effect is deliberately limited to the near LOD so 
 silhouettes remain calm and avoid unnecessary fragment work.
 Nearby fallen logs use the same portable material path for gently irregular cut-end growth rings
 and longitudinal bark fissures. Both rock and wood detail fade out before their LOD transition.
+Sun-bleached driftwood adds a still softer near-only longitudinal weathering treatment while
+keeping its cut ends calm and its distant mesh plain.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling
