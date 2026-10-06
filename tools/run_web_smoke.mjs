@@ -177,9 +177,14 @@ try {
 
   const terrainBatchMatch = (result.output ?? "").match(
     /visible terrain cells ([1-9][0-9]*)\/64 in ([1-9][0-9]*) shared-buffer draws/);
+  const viewportMatch = (result.output ?? "").match(
+    /island-simulator: viewport ([1-9][0-9]*)x([1-9][0-9]*) logical backbuffer/);
   const smokePassed = result.exited === true
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
+    && viewportMatch !== null
+    && Number(viewportMatch[1]) === 1280
+    && Number(viewportMatch[2]) === 720
     && /island-simulator: startup world [0-9.]+ ms, framework [0-9.]+ ms, content [0-9.]+ ms, pre-draw [0-9.]+ ms, first draw [0-9.]+ ms, total [0-9.]+ ms/.test(
       result.output ?? "")
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")

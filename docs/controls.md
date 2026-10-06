@@ -33,7 +33,7 @@ Jumping is intentionally absent. The game is not a platformer.
 
 The developer overlay starts hidden during ordinary play. Launching with `--debug-overlay` enables
 it immediately for captures and QA; `--world-debug` also enables its F2 world view. It reports
-wall-clock frame timing, renderer identity, player and ocean-current state, visible
+wall-clock frame timing, renderer/logical-viewport identity, player and ocean-current state, visible
 terrain/vegetation cells, LOD populations, draw counts, and active audio sources against the
 six-source ceiling. Its world-navigation line separately reports wildlife markers/targets/home
 ranges and bird route-family/spawn/live-target counts. See `docs/debugging.md` for interpretation

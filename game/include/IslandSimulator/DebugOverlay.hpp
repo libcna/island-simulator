@@ -24,6 +24,8 @@ namespace island
         Microsoft::Xna::Framework::Vector3 playerPosition;
         Microsoft::Xna::Framework::Vector3 cameraPosition;
         std::string renderer;
+        int viewportWidth = 0;
+        int viewportHeight = 0;
         WorldSeedSet worldSeeds;
         bool worldSeedCopyFeedbackActive = false;
         bool worldSeedCopySucceeded = false;

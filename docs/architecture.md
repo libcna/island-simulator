@@ -49,7 +49,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── ShorelineRenderer ── exact-coast foam/wash ribbon and stock-effect fallback
       ├── TerrainRenderer ──── shared mesh, cell culling/run batching, portable material, fallback
-      ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
+      ├── DebugOverlay ─────── asset-free font, viewport/frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── DebugFreeCamera ──── bounded renderer-independent inspection flight in debug builds
       ├── FirstPersonCameraMotion ─ bounded walking/swimming positional motion and opt-out

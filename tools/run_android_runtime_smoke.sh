@@ -91,6 +91,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
     # Filtering at the device avoids transferring the entire system log from slow software AVDs.
     "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
+        && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: startup world" "$LOG_FILE" \
         && grep -q "island-simulator: grass biome tint follows coast, path, and authored clearings" \
             "$LOG_FILE"; then

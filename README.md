@@ -151,7 +151,8 @@ prevents a placement or debug teleport from leaving the player embedded in a sta
 Geometric step-up and continuous recovery from moving obstacles are not implemented yet.
 Walking and swimming apply restrained, speed-responsive positional camera motion; press B to
 smoothly disable or restore it.
-Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
+Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity
+and the actual logical backbuffer size,
 culling counts, contact-shadow class/draw statistics, vegetation draw statistics, ambient mix
 levels, grass-interaction strength, player-ripple and transition-burst intensity/phase, player-water
 gain, wave/splash counts, undertow cue strength, and positional bird/monkey call activity.

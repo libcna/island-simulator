@@ -139,7 +139,7 @@ been confirmed so far.
 
 ## Development tooling
 
-- The overlay reports frame timing, player/water state, renderer identity, terrain/vegetation
+- The overlay reports frame timing, player/water state, renderer/logical-viewport identity, terrain/vegetation
   visibility, LOD populations, draw counts, bird/fish/shark/monkey render and simulation tiers,
   monkey behaviour counts, current
   surf/breeze/jungle/player-water levels, played

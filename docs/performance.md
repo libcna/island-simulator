@@ -959,6 +959,23 @@ match; a KVM/gfxstream GLES 3 run reached a clean first frame and visibly retain
 These are gross-regression and portability checks, not an isolated speed comparison or a
 physical-mobile density budget.
 
+### Logical backbuffer qualification
+
+The renderer identity alone was insufficient for interpreting mobile cost because Android's
+physical screenshot surface is 2400 by 1080 while the game requests a 1280 by 720 backbuffer. The
+first rendered frame now emits the actual `GraphicsDevice` viewport to standard output and the
+Android platform log, and the opt-in F1 row displays the same value. This adds no normal-scene draw
+or per-frame log work; only the already enabled debug panel gains text.
+
+Chrome/WebGL 2 and the API 35 KVM/host-GPU GLES 3 run both reported a 1280 by 720 logical
+backbuffer. Android scales that image into the centred 1920 by 1080 presentation region of the
+2400 by 1080 surface. The inspected fixed-monkey frame showed 31.5 FPS / 29.1 ms with the full F1
+panel active, while its first draw completed in 1439.657 ms total. Those values are a diagnostic
+snapshot, not a sustained benchmark or physical-device budget. They do establish that future
+mobile density decisions must be based on 921,600 shaded logical pixels rather than the physical
+surface dimensions. Both Web and Android smoke gates now reject a missing viewport diagnostic or
+any value other than 1280 by 720.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

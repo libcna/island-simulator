@@ -104,7 +104,7 @@ Current fields are:
 - player water-ripple intensity/wrapped phase plus shoreline-burst intensity/finite phase;
 - near-surface water-view intensity and its conditional draw count;
 - local collision broad-phase candidates versus the complete static obstacle population;
-- active renderer identity;
+- active renderer identity and actual logical backbuffer width/height;
 - all four authoritative layout seeds plus confirmed/unavailable F4 clipboard feedback;
 - visible/total terrain cells and the smaller number of coalesced terrain draw submissions;
 - fixed distant-scenery islet count and its single draw submission;

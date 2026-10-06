@@ -1570,6 +1570,8 @@ namespace island
             overlayState.cameraPosition = renderCameraPosition_;
             overlayState.freeCameraActive = IsDebugFreeCameraActive();
             overlayState.renderer = device.GetGraphicsRendererName();
+            overlayState.viewportWidth = viewport.getWidthProperty();
+            overlayState.viewportHeight = viewport.getHeightProperty();
             overlayState.worldSeeds = AuthoritativeWorldSeeds();
             overlayState.worldSeedCopyFeedbackActive =
                 worldSeedCopyFeedbackSeconds_ > 0.0f;
@@ -1777,6 +1779,13 @@ namespace island
                 playerMotion_.Mode() == LocomotionMode::Swimming,
                 std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
                 currentStrength).currentCue;
+            std::ostringstream viewportStatus;
+            viewportStatus << "island-simulator: viewport "
+                           << viewport.getWidthProperty() << 'x'
+                           << viewport.getHeightProperty() << " logical backbuffer";
+            const std::string viewportDiagnostic = viewportStatus.str();
+            std::cout << viewportDiagnostic << std::endl;
+            MirrorRuntimeDiagnosticToPlatformLog(viewportDiagnostic);
             std::cout << "island-simulator: visible terrain cells "
                       << terrainRenderer_->VisibleCellCount() << '/'
                       << terrainRenderer_->TotalCellCount() << " in "

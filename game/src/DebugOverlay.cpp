@@ -261,7 +261,10 @@ namespace island
                      << (state.movementSafetyClamped ? 1 : 0);
         lines.push_back(worldContact.str());
 
-        lines.push_back("RENDERER " + state.renderer);
+        lines.push_back(
+            "RENDERER " + state.renderer + "  VIEWPORT "
+            + std::to_string(state.viewportWidth) + 'X'
+            + std::to_string(state.viewportHeight));
 
         lines.push_back(
             "SEEDS PALM/GRASS " + WorldSeedOverlayHex(state.worldSeeds.palms) + '/'

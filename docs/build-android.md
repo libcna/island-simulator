@@ -73,8 +73,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,694,612-byte APK with a
-15,884,328-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,697,540-byte APK with a
+15,887,256-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, irregular near-canopy buttress roots, reused crossing-wave ocean
@@ -208,7 +208,9 @@ The current qualification pass uses the API 35 `Medium_Phone` Google Play x86_64
 Emulator 36.5.11, `-accel on`, and `-gpu host`. `emulator -accel-check` reports KVM version 12 as
 usable. Gfxstream translates GLES through the host AMD Radeon 780M. The guest remains at its
 physical 1080 by 2400 / 420 dpi configuration and presents the landscape application surface at
-2400 by 1080. CNA preserves its requested 16:9 game viewport as a centred 1920 by 1080 region.
+2400 by 1080. CNA renders the requested 1280 by 720 logical backbuffer and scales that 16:9 image
+into a centred 1920 by 1080 presentation region; the remaining side bars belong to the physical
+surface and do not increase 3D shading resolution.
 
 The current APK loaded `libSDL3.so` and `libmain.so`, created an RGBA8888 GLES 3 surface, opened a
 44.1 kHz stereo AAudio stream, reported renderer `OPENGLES3`, and completed its first draw. The
@@ -267,6 +269,15 @@ the qualified dependency baseline; the overview is not a close-view qualificatio
 landmark itself, and the one-run timing is not a performance comparison. It describes the
 then-qualified baseline rather than the current `9fbe34468c69` build-only qualification.
 
+The current-pin viewport qualification adds the authoritative logical backbuffer to both the F1
+panel and the first-frame platform log. A fixed monkey launch on the same API 35 KVM/host-GPU AVD
+reported `OPENGLES3` and `1280x720 logical backbuffer`; the inspected 2400 by 1080 physical
+screenshot shows the same `VIEWPORT 1280X720` value and 31.5 FPS / 29.1 ms at that instant. First
+draw completed in 1439.657 ms total. Both runtime gates now require exactly 1280 by 720 rather than
+accepting a missing or inferred logical resolution. No fatal, shader-compilation, or
+`GL_INVALID_OPERATION` diagnostic appeared. This validates resolution accounting and functional
+presentation on gfxstream, not sustained performance on a physical mobile GPU.
+
 SurfaceFlinger presentation samples at the same initial scene improved after terrain visible-cell
 run batching from 40.903 ms mean (24.45 frames/s, 71 of 126 intervals over 40 ms) to 34.163 and
 32.590 ms mean (29.27 and 30.68 frames/s, respectively, with 6 and 1 intervals over 40 ms). This is
@@ -286,8 +297,8 @@ adb logcat -d
 Once the device reports `device` and `adb shell getprop sys.boot_completed` reports `1`, the
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
-first-draw timing, and biome-grass diagnostics, rejects fatal/shader errors, and saves both logcat
-and a device screenshot:
+logical viewport, first-draw timing, and biome-grass diagnostics, rejects fatal/shader errors, and
+saves both logcat and a device screenshot:
 
 ```bash
 tools/run_android_runtime_smoke.sh \

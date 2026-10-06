@@ -1017,7 +1017,7 @@ after the same experience remains available.
 ## Debug and developer tooling backlog
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
-  frame spacing, player/shore/current/water-ripple/water-view state, renderer,
+  frame spacing, player/shore/current/water-ripple/water-view state, renderer/logical viewport,
   terrain/vegetation visibility,
   distant scenery, contact-shadow class/triangle counts, LOD counts, draws,
   bird/fish/shark/monkey render LOD and simulation tiers,
@@ -3900,7 +3900,7 @@ Work next, in order:
   their WebGL 2 counterparts. Scene geometry, broad terrain materials, close grass, jungle layers,
   palm presentation, sky, water treatment, near skinned-monkey silhouette, and the reef wet band
   remain visually consistent. Android deliberately adds its translucent touch HUD and centres the
-  1920 by 1080 game viewport inside the AVD's 2400 by 1080 landscape surface. Exact pixel identity,
+  scaled 1920 by 1080 presentation region inside the AVD's 2400 by 1080 landscape surface. Exact pixel identity,
   animated-effect timing, automated image comparison, and physical-device quality/cost remain out
   of scope for this evidence.
 - Stopped the headless emulator cleanly and confirmed that ADB has no remaining target. Restored
@@ -4058,6 +4058,29 @@ Work next, in order:
   passes application lint, verifies with signature scheme v2, and is 18,694,612 bytes with a
   15,884,328-byte stripped `libmain.so`. Compilation used two workers and the required shared
   ccache; CNA and Sharp Runtime remain read-only and unchanged.
+
+### 2026-10-07 — Cross-renderer logical-viewport qualification
+
+- Added the actual `GraphicsDevice` logical viewport to the opt-in F1 renderer row and to a
+  one-shot first-frame diagnostic. The latter is mirrored through the existing Android platform
+  log bridge so it is not lost with the following long population diagnostic. Normal presentation
+  gains no draw, allocation, or recurring log operation; the F1 panel simply extends an existing
+  text row.
+- Strengthened both real-browser and Android GLES 3 smoke gates to require exactly
+  `1280x720 logical backbuffer`. The complete Chrome
+  152/SwiftShader 22-stage WebGL 2 suite passes, including lifecycle, renderer, scene, input, audio
+  initialization, and all fixed captures. The final WebAssembly is 8,482,838 bytes.
+- Built x86_64 through the required shared ccache and ran the fixed monkey camera on the API 35
+  KVM/host-GPU AVD. Both logcat and the inspected 2400 by 1080 physical screenshot report
+  `OPENGLES3` with a 1280 by 720 logical backbuffer; CNA scales it into the centred 1920 by 1080
+  presentation region. The captured F1 sample reports 31.5 FPS / 29.1 ms and first draw completed
+  in 1439.657 ms without a fatal, shader-error, or `GL_INVALID_OPERATION` diagnostic. These are
+  functional emulator observations, not a physical-mobile performance claim.
+- Stopped the emulator cleanly and confirmed ADB empty. Restored/linted the default arm64-only APK,
+  verified its signature scheme v2, and measured 18,697,540 bytes with a 15,887,256-byte stripped
+  `libmain.so`. Native changed objects compile and all renderer-independent tests pass; the
+  operator-visible Linux process remains intentionally undisturbed. CNA and Sharp Runtime stayed
+  read-only and no dependency defect or workaround was involved.
 
 ## Session-end checklist
 
