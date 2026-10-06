@@ -102,6 +102,31 @@ try {
     pending.set(id, { resolve, reject });
     browserSocket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
   });
+  const dispatchKeyPress = async (sessionId, key, code, virtualKeyCode,
+    holdMilliseconds = 500, settleMilliseconds = 400) => {
+    await call("Input.dispatchKeyEvent", {
+      type: "keyDown", key, code, windowsVirtualKeyCode: virtualKeyCode,
+      nativeVirtualKeyCode: virtualKeyCode,
+    }, sessionId);
+    await delay(holdMilliseconds);
+    await call("Input.dispatchKeyEvent", {
+      type: "keyUp", key, code, windowsVirtualKeyCode: virtualKeyCode,
+      nativeVirtualKeyCode: virtualKeyCode,
+    }, sessionId);
+    await delay(settleMilliseconds);
+  };
+  const dispatchMouseClick = async (sessionId, x, y) => {
+    await call("Input.dispatchMouseEvent", {
+      type: "mousePressed", x, y, button: "left", buttons: 1, clickCount: 1,
+    }, sessionId);
+    // A real click spans game updates. Keep the button down long enough for a heavily loaded
+    // SwiftShader frame to observe CNA's pressed state as well as the browser pointer-lock event.
+    await delay(500);
+    await call("Input.dispatchMouseEvent", {
+      type: "mouseReleased", x, y, button: "left", buttons: 0, clickCount: 1,
+    }, sessionId);
+    await delay(500);
+  };
 
   const { targetId: smokeTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: smokeSessionId } = await call(
@@ -958,14 +983,7 @@ try {
     if (inputResult.output?.includes("island-simulator: input sample") || inputResult.error) break;
   }
 
-  await call("Input.dispatchMouseEvent", {
-    type: "mousePressed", x: 640, y: 360, button: "left", buttons: 1, clickCount: 1,
-  }, visualSessionId);
-  await delay(150);
-  await call("Input.dispatchMouseEvent", {
-    type: "mouseReleased", x: 640, y: 360, button: "left", buttons: 0, clickCount: 1,
-  }, visualSessionId);
-  await delay(500);
+  await dispatchMouseClick(visualSessionId, 640, 360);
   const lockedEvaluation = await call("Runtime.evaluate", {
     expression: `JSON.stringify({
       pointerLocked: document.pointerLockElement === Module.canvas,
@@ -987,29 +1005,9 @@ try {
     nativeVirtualKeyCode: 87,
   }, visualSessionId);
   for (let toggle = 0; toggle < 2; ++toggle) {
-    await call("Input.dispatchKeyEvent", {
-      type: "keyDown", key: "b", code: "KeyB", windowsVirtualKeyCode: 66,
-      nativeVirtualKeyCode: 66,
-    }, visualSessionId);
-    // Keep both edges across several SwiftShader frames. A 100 ms press can be consumed between
-    // fixed updates while Chrome is compiling or submitting a dense scene.
-    await delay(350);
-    await call("Input.dispatchKeyEvent", {
-      type: "keyUp", key: "b", code: "KeyB", windowsVirtualKeyCode: 66,
-      nativeVirtualKeyCode: 66,
-    }, visualSessionId);
-    await delay(350);
+    await dispatchKeyPress(visualSessionId, "b", "KeyB", 66);
   }
-  await call("Input.dispatchKeyEvent", {
-    type: "keyDown", key: "F5", code: "F5", windowsVirtualKeyCode: 116,
-    nativeVirtualKeyCode: 116,
-  }, visualSessionId);
-  await delay(100);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyUp", key: "F5", code: "F5", windowsVirtualKeyCode: 116,
-    nativeVirtualKeyCode: 116,
-  }, visualSessionId);
-  await delay(150);
+  await dispatchKeyPress(visualSessionId, "F5", "F5", 116);
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
     nativeVirtualKeyCode: 83,
@@ -1028,40 +1026,11 @@ try {
   }, visualSessionId);
   await delay(700);
 
-  await call("Input.dispatchKeyEvent", {
-    type: "keyDown", key: "F2", code: "F2", windowsVirtualKeyCode: 113,
-    nativeVirtualKeyCode: 113,
-  }, visualSessionId);
-  await delay(350);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyUp", key: "F2", code: "F2", windowsVirtualKeyCode: 113,
-    nativeVirtualKeyCode: 113,
-  }, visualSessionId);
-  await delay(350);
-
-  await call("Input.dispatchKeyEvent", {
-    type: "keyDown", key: "F4", code: "F4", windowsVirtualKeyCode: 115,
-    nativeVirtualKeyCode: 115,
-  }, visualSessionId);
-  await delay(350);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyUp", key: "F4", code: "F4", windowsVirtualKeyCode: 115,
-    nativeVirtualKeyCode: 115,
-  }, visualSessionId);
-  await delay(350);
-
-  await call("Input.dispatchKeyEvent", {
-    type: "keyDown", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
-    nativeVirtualKeyCode: 112,
-  }, visualSessionId);
-  // F2 intentionally adds a large diagnostic line batch. Keep F1 down across several
-  // SwiftShader frames so the input gate remains deterministic under that debug-only load.
-  await delay(350);
-  await call("Input.dispatchKeyEvent", {
-    type: "keyUp", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
-    nativeVirtualKeyCode: 112,
-  }, visualSessionId);
-  await delay(300);
+  await dispatchKeyPress(visualSessionId, "F2", "F2", 113);
+  await dispatchKeyPress(visualSessionId, "F4", "F4", 115);
+  // F2 intentionally adds a large diagnostic line batch. The shared helper keeps both edges
+  // across several SwiftShader frames even under that debug-only load.
+  await dispatchKeyPress(visualSessionId, "F1", "F1", 112);
 
   await call("Emulation.setDeviceMetricsOverride", {
     width: 1000, height: 600, deviceScaleFactor: 1, mobile: false,
@@ -1085,13 +1054,7 @@ try {
     returnByValue: true,
   }, visualSessionId);
   const pointerUnlocked = unlockedEvaluation.result.value === true;
-  await call("Input.dispatchMouseEvent", {
-    type: "mousePressed", x: 480, y: 270, button: "left", buttons: 1, clickCount: 1,
-  }, visualSessionId);
-  await call("Input.dispatchMouseEvent", {
-    type: "mouseReleased", x: 480, y: 270, button: "left", buttons: 0, clickCount: 1,
-  }, visualSessionId);
-  await delay(450);
+  await dispatchMouseClick(visualSessionId, 480, 270);
   const relockedEvaluation = await call("Runtime.evaluate", {
     expression: "document.pointerLockElement === Module.canvas",
     returnByValue: true,
@@ -1108,7 +1071,9 @@ try {
   await delay(500);
   await call("Page.setWebLifecycleState", { state: "active" }, visualSessionId);
   await call("Page.bringToFront", {}, visualSessionId);
-  await delay(1500);
+  // Allow several quarter-second game diagnostics even when the first resumed frames rebuild
+  // browser/SwiftShader state.
+  await delay(3000);
 
   const completedInputEvaluation = await call("Runtime.evaluate", {
     expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",

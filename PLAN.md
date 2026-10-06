@@ -1047,7 +1047,9 @@ Work next, in order:
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
-   background/foreground test; automated first-gesture audio initialization is complete.
+   background/foreground test; automated first-gesture audio initialization is complete. The
+   headless Chrome freeze/active probe remains diagnostic-only because the latest passing input
+   run did not emit a post-resume game sample even after a three-second allowance.
 7. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal. The first silhouette and near material/coconut passes
    are measured; do not add more geometry without physical/mobile evidence.
@@ -2914,6 +2916,23 @@ Work next, in order:
   content-writer warnings observed on Android and Web are outside island-simulator's runtime asset
   path and predate this update; they do not materially affect the game and are not a `BUGS.md`
   entry. No confirmed CNA or Sharp Runtime defect was found during the advancement.
+
+### 2026-10-06 — Web input-harness timing hardening
+
+- Replaced repeated Chrome DevTools key-event sequences with one explicit press helper that holds
+  both edges across multiple SwiftShader frames. Pointer-lock clicks now likewise hold the mouse
+  button across game updates instead of assuming a 150 ms press will always be sampled. This
+  hardens QA only; production game input and dependency code are unchanged.
+- The complete real-Chrome WebGL 2 harness passes all 22 stages with the hardened timing. Its input
+  evidence includes pointer lock and focus, CNA relative-mouse capture, keyboard traversal into
+  water, the first water-transition accent, mouse look, camera-motion toggles, F1/F2/F4 debug
+  controls, aspect-preserving resize, unlock/relock, and continued rendering without a browser
+  exception.
+- The synthetic DevTools freeze/active transition did not append a post-resume quarter-second game
+  diagnostic in the latest passing run. It was already a reported diagnostic rather than a pass
+  condition and is not equivalent to a user moving a real tab between foreground and background.
+  Genuine visible-tab lifecycle and audio-focus validation remain in the execution queue; this
+  observation is not classified as a CNA defect without that evidence.
 
 ## Session-end checklist
 
