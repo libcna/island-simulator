@@ -1738,35 +1738,50 @@ int main()
     const island::GrassLayout grass(terrain);
     const island::GrassLayout repeatedGrass(terrain);
     const island::GrassLodSplit emptyGrassLod = island::GrassLod::Split(0, 82.0f);
-    Check(emptyGrassLod.nearCount == 0 && emptyGrassLod.farCount == 0,
+    Check(emptyGrassLod.nearCount == 0 && emptyGrassLod.middleCount == 0
+              && emptyGrassLod.farCount == 0,
           "grass LOD ignores an empty population");
     const island::GrassLodSplit invalidGrassLod = island::GrassLod::Split(
         3, std::numeric_limits<float>::quiet_NaN());
     const island::GrassLodSplit infiniteGrassLod = island::GrassLod::Split(
         3, std::numeric_limits<float>::infinity());
-    Check(invalidGrassLod.nearCount == 3 && invalidGrassLod.farCount == 0
-              && infiniteGrassLod.nearCount == 0 && infiniteGrassLod.farCount == 3,
+    Check(invalidGrassLod.nearCount == 3 && invalidGrassLod.middleCount == 0
+              && invalidGrassLod.farCount == 0 && infiniteGrassLod.nearCount == 0
+              && infiniteGrassLod.middleCount == 0 && infiniteGrassLod.farCount == 3,
           "grass LOD handles invalid and unbounded distances conservatively");
     const island::GrassLodSplit nearGrassLod = island::GrassLod::Split(
         101, island::GrassLod::NearOnlyDistance);
+    const island::GrassLodSplit nearMiddleGrassLod = island::GrassLod::Split(101, 70.0f);
     const island::GrassLodSplit middleGrassLod = island::GrassLod::Split(101, 82.0f);
+    const island::GrassLodSplit middleFarGrassLod = island::GrassLod::Split(101, 94.0f);
     const island::GrassLodSplit farGrassLod = island::GrassLod::Split(
         101, island::GrassLod::FarOnlyDistance);
-    Check(nearGrassLod.nearCount == 101 && nearGrassLod.farCount == 0
-              && middleGrassLod.nearCount == 50 && middleGrassLod.farCount == 51
-              && farGrassLod.nearCount == 0 && farGrassLod.farCount == 101,
-          "grass LOD covers near, mixed, and far populations at its authored distances");
+    Check(nearGrassLod.nearCount == 101 && nearGrassLod.middleCount == 0
+              && nearGrassLod.farCount == 0 && nearMiddleGrassLod.nearCount == 50
+              && nearMiddleGrassLod.middleCount == 51 && nearMiddleGrassLod.farCount == 0
+              && middleGrassLod.nearCount == 0 && middleGrassLod.middleCount == 101
+              && middleGrassLod.farCount == 0 && middleFarGrassLod.nearCount == 0
+              && middleFarGrassLod.middleCount == 50 && middleFarGrassLod.farCount == 51
+              && farGrassLod.nearCount == 0 && farGrassLod.middleCount == 0
+              && farGrassLod.farCount == 101,
+          "grass LOD covers near, middle, far, and adjacent mixed populations");
     int previousNearGrassCount = 101;
-    for (int step = 0; step <= 96; ++step) {
+    int previousFarGrassCount = 0;
+    for (int step = 0; step <= 160; ++step) {
         const float distance = island::GrassLod::NearOnlyDistance
             + static_cast<float>(step) * 0.25f;
         const island::GrassLodSplit split = island::GrassLod::Split(101, distance);
-        Check(split.nearCount >= 0 && split.farCount >= 0
-                  && split.nearCount + split.farCount == 101,
-              "grass LOD conserves every patch through its transition");
+        Check(split.nearCount >= 0 && split.middleCount >= 0 && split.farCount >= 0
+                  && split.nearCount + split.middleCount + split.farCount == 101,
+              "grass LOD conserves every patch through both transitions");
         Check(split.nearCount <= previousNearGrassCount,
               "grass near-LOD population decreases monotonically with distance");
+        Check(split.farCount >= previousFarGrassCount,
+              "grass far-LOD population increases monotonically with distance");
+        Check(!(split.nearCount > 0 && split.farCount > 0),
+              "grass never mixes non-adjacent near and far meshes");
         previousNearGrassCount = split.nearCount;
+        previousFarGrassCount = split.farCount;
     }
     Check(grass.Patches().size() >= 10000U && grass.Patches().size() <= 40000U,
           "grass patch population stays inside the first geometry budget");

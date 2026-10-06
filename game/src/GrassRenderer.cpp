@@ -53,8 +53,10 @@ namespace island
         constexpr float LayoutExtent = 300.0f;
         constexpr float FarDistance = 135.0f;
         constexpr int NearBladeCount = 28;
+        constexpr int MiddleBladeCount = 10;
         constexpr int FarBladeCount = 5;
         constexpr int NearBladeLevels = 5;
+        constexpr int MiddleBladeLevels = 3;
         constexpr int FarBladeLevels = 3;
         constexpr float GoldenAngle = 2.39996323f;
 
@@ -79,6 +81,13 @@ namespace island
         {
             std::vector<VertexPositionColorTexture> vertices;
             std::vector<std::uint16_t> indices;
+        };
+
+        enum class GrassMeshTier
+        {
+            Near,
+            Middle,
+            Far
         };
 
         struct CellBuildEntry
@@ -288,24 +297,31 @@ void main()
         }
 
         void AppendBlade(ClusterGeometry& geometry, const int blade, const int bladeCount,
-                         const bool farMesh, const int bladeLevels)
+                         const GrassMeshTier tier, const int bladeLevels)
         {
+            const bool middleMesh = tier == GrassMeshTier::Middle;
+            const bool farMesh = tier == GrassMeshTier::Far;
             const float normalizedRadius = std::sqrt(
                 (static_cast<float>(blade) + 0.45f) / static_cast<float>(bladeCount));
-            const float angle = GoldenAngle * static_cast<float>(blade) + (farMesh ? 0.51f : 0.0f);
-            const float baseX = std::cos(angle) * normalizedRadius * (farMesh ? 0.82f : 1.02f);
-            const float baseZ = std::sin(angle) * normalizedRadius * (farMesh ? 0.82f : 1.02f);
+            const float angle = GoldenAngle * static_cast<float>(blade)
+                + (farMesh ? 0.51f : (middleMesh ? 0.27f : 0.0f));
+            const float clusterRadius = farMesh ? 0.82f : (middleMesh ? 0.93f : 1.02f);
+            const float baseX = std::cos(angle) * normalizedRadius * clusterRadius;
+            const float baseZ = std::sin(angle) * normalizedRadius * clusterRadius;
             const float facing = angle * 1.71f + static_cast<float>(blade % 4) * 0.43f;
             const Vector3 direction(std::cos(facing), 0.0f, std::sin(facing));
             const Vector3 side(-direction.Z, 0.0f, direction.X);
             const float individual = 0.87f
                 + 0.19f * static_cast<float>((blade * 5 + bladeCount) % 7) / 6.0f;
-            const float height = (farMesh ? 0.60f : 0.40f
-                + 0.045f * static_cast<float>(blade % 6)) * individual;
+            const float height = (farMesh ? 0.60f
+                : (middleMesh ? 0.48f + 0.035f * static_cast<float>(blade % 5)
+                              : 0.40f + 0.045f * static_cast<float>(blade % 6))) * individual;
             const float width = farMesh ? 0.11f
-                : 0.023f + 0.004f * static_cast<float>(blade % 5);
+                : (middleMesh ? 0.055f + 0.005f * static_cast<float>(blade % 4)
+                              : 0.023f + 0.004f * static_cast<float>(blade % 5));
             const float lean = farMesh ? 0.12f
-                : 0.07f + 0.018f * static_cast<float>(blade % 6);
+                : (middleMesh ? 0.09f + 0.012f * static_cast<float>(blade % 5)
+                              : 0.07f + 0.018f * static_cast<float>(blade % 6));
             const float phase = std::fmod(static_cast<float>(blade) * 0.173f, 1.0f);
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
 
@@ -338,7 +354,7 @@ void main()
         }
 
         [[nodiscard]] ClusterGeometry CreateClusterGeometry(const int bladeCount,
-                                                            const bool farMesh,
+                                                            const GrassMeshTier tier,
                                                             const int bladeLevels)
         {
             ClusterGeometry geometry;
@@ -346,7 +362,7 @@ void main()
             geometry.indices.reserve(static_cast<std::size_t>(bladeCount
                                                                * (bladeLevels - 1) * 6));
             for (int blade = 0; blade < bladeCount; ++blade) {
-                AppendBlade(geometry, blade, bladeCount, farMesh, bladeLevels);
+                AppendBlade(geometry, blade, bladeCount, tier, bladeLevels);
             }
             return geometry;
         }
@@ -414,9 +430,11 @@ void main()
                          "clearings\n"
                       << "island-simulator: grass sparse sun-cured tip variation in shared "
                          "vertex colours\n"
-                      << "island-simulator: grass staggered per-patch near/far LOD transition "
-                      << GrassLod::NearOnlyDistance << '-' << GrassLod::FarOnlyDistance
-                      << " metres\n";
+                      << "island-simulator: grass three-tier per-patch LOD transitions "
+                      << GrassLod::NearOnlyDistance << '-'
+                      << GrassLod::MiddleOnlyStartDistance << '/'
+                      << GrassLod::MiddleOnlyEndDistance << '-'
+                      << GrassLod::FarOnlyDistance << " metres\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass biome tint follows coast, path, and authored clearings");
         } else {
@@ -441,8 +459,12 @@ void main()
                 BufferUsage::WriteOnly);
             mesh.indices->SetData(geometry.indices.data(), static_cast<int>(geometry.indices.size()));
         };
-        upload(CreateClusterGeometry(NearBladeCount, false, NearBladeLevels), nearMesh_);
-        upload(CreateClusterGeometry(FarBladeCount, true, FarBladeLevels), farMesh_);
+        upload(CreateClusterGeometry(
+            NearBladeCount, GrassMeshTier::Near, NearBladeLevels), nearMesh_);
+        upload(CreateClusterGeometry(
+            MiddleBladeCount, GrassMeshTier::Middle, MiddleBladeLevels), middleMesh_);
+        upload(CreateClusterGeometry(
+            FarBladeCount, GrassMeshTier::Far, FarBladeLevels), farMesh_);
     }
 
     void GrassRenderer::CreateCells(const IslandTerrain& terrain, const GrassLayout& layout)
@@ -534,6 +556,7 @@ void main()
     {
         visiblePatchCount_ = 0;
         visibleNearPatchCount_ = 0;
+        visibleMiddlePatchCount_ = 0;
         visibleFarPatchCount_ = 0;
         mixedLodCellCount_ = 0;
         visibleCellCount_ = 0;
@@ -584,16 +607,25 @@ void main()
             const GrassLodSplit split = GrassLod::Split(
                 cell.patchCount, std::sqrt(distanceSquared));
             visibleNearPatchCount_ += split.nearCount;
+            visibleMiddlePatchCount_ += split.middleCount;
             visibleFarPatchCount_ += split.farCount;
-            if (split.nearCount > 0 && split.farCount > 0) {
+            const int activeLodCount = (split.nearCount > 0 ? 1 : 0)
+                + (split.middleCount > 0 ? 1 : 0) + (split.farCount > 0 ? 1 : 0);
+            if (activeLodCount > 1) {
                 ++mixedLodCellCount_;
             }
             if (customShaderReady_) {
                 DrawInstancedMesh(nearMesh_, cell, 0, split.nearCount);
-                DrawInstancedMesh(farMesh_, cell, split.nearCount, split.farCount);
+                DrawInstancedMesh(
+                    middleMesh_, cell, split.nearCount, split.middleCount);
+                DrawInstancedMesh(farMesh_, cell,
+                                  split.nearCount + split.middleCount, split.farCount);
             } else {
                 DrawFallbackMesh(nearMesh_, cell, 0, split.nearCount);
-                DrawFallbackMesh(farMesh_, cell, split.nearCount, split.farCount);
+                DrawFallbackMesh(
+                    middleMesh_, cell, split.nearCount, split.middleCount);
+                DrawFallbackMesh(farMesh_, cell,
+                                 split.nearCount + split.middleCount, split.farCount);
             }
         }
 

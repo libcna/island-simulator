@@ -726,6 +726,30 @@ approximately within one percent; this is functional cost evidence, not a hardwa
 | Monkeys | 2.5529 | 3.3032 | 3.5371 | 105 | 2,946 |
 | Traversal | 2.8983 | 3.6413 | 4.1533 | 12 final | route-varying |
 
+### Lightweight middle grass LOD follow-up
+
+The three-tier path inserts a ten-blade, three-control-level, 40-triangle middle cluster between
+the 224-triangle near and 20-triangle far meshes. Adjacent-tier population splits cover 62--78 m
+and 86--102 m; no cell activates all three tiers or mixes near directly with far. The close view
+uses 21 draws for 15 cells and renders 957 near, 637 middle, and 1,233 far clusters. This totals
+264,508 visible grass triangles, about 19 percent below the preceding two-tier view's 325,412.
+
+A first 72-triangle middle prototype was rejected after two complete suites repeatedly raised the
+moving traversal mean by 12--18 percent. Two suites of the accepted 40-triangle mesh produced the
+ranges below while the operator game shared the GPU. The broad variation, especially on the beach,
+prevents an isolated speedup claim. Both traversal runs did avoid the rejected regression and
+improved over the preceding 2.8983 ms mean as representative visible grass geometry fell by about
+32 percent. Hardware-browser and physical-Android budgets remain open.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible grass |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.5472--1.7343 | 1.7151--2.1256 | 2.1110--2.3584 | 77 | 0 |
+| Beach | 2.4676--3.0860 | 3.3206--4.3729 | 4.0564--5.6822 | 131 | 2,954 |
+| Jungle | 2.3738--2.5596 | 3.1162--3.5006 | 3.8502--4.1885 | 103 | 2,932 |
+| Driftwood | 1.3194--1.5304 | 1.6323--1.9888 | 2.0161--2.5426 | 54 | 99 |
+| Monkeys | 2.3322--2.3326 | 3.0050--3.0351 | 3.3030--3.5892 | 102 | 2,946 |
+| Traversal | 2.4887--2.6431 | 3.1023--3.2107 | 3.4072--3.5939 | 12 final | route-varying |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

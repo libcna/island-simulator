@@ -8,6 +8,7 @@ namespace island
     struct GrassLodSplit
     {
         int nearCount = 0;
+        int middleCount = 0;
         int farCount = 0;
     };
 
@@ -15,8 +16,10 @@ namespace island
     class GrassLod final
     {
     public:
-        static constexpr float NearOnlyDistance = 70.0f;
-        static constexpr float FarOnlyDistance = 94.0f;
+        static constexpr float NearOnlyDistance = 62.0f;
+        static constexpr float MiddleOnlyStartDistance = 78.0f;
+        static constexpr float MiddleOnlyEndDistance = 86.0f;
+        static constexpr float FarOnlyDistance = 102.0f;
 
         [[nodiscard]] static GrassLodSplit Split(int patchCount, float distance) noexcept;
     };

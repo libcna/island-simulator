@@ -25,7 +25,7 @@ namespace island
     class GrassLayout;
     class IslandTerrain;
 
-    /** @brief Cell-batched mesh grass with portable vertex wind and a static fallback. */
+    /** @brief Cell-batched three-tier mesh grass with portable wind and a static fallback. */
     class GrassRenderer final
     {
     public:
@@ -52,6 +52,9 @@ namespace island
         [[nodiscard]] int VisiblePatchCount() const noexcept { return visiblePatchCount_; }
         [[nodiscard]] int VisibleNearPatchCount() const noexcept {
             return visibleNearPatchCount_;
+        }
+        [[nodiscard]] int VisibleMiddlePatchCount() const noexcept {
+            return visibleMiddlePatchCount_;
         }
         [[nodiscard]] int VisibleFarPatchCount() const noexcept { return visibleFarPatchCount_; }
         [[nodiscard]] int MixedLodCellCount() const noexcept { return mixedLodCellCount_; }
@@ -90,12 +93,14 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> customEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         GrassMesh nearMesh_;
+        GrassMesh middleMesh_;
         GrassMesh farMesh_;
         std::array<GrassCell, CellCount> cells_;
         std::string fallbackReason_;
         int totalPatchCount_ = 0;
         int visiblePatchCount_ = 0;
         int visibleNearPatchCount_ = 0;
+        int visibleMiddlePatchCount_ = 0;
         int visibleFarPatchCount_ = 0;
         int mixedLodCellCount_ = 0;
         int visibleCellCount_ = 0;

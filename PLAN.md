@@ -414,14 +414,15 @@ Dependencies: stable terrain/shore queries and representative performance instru
   away from a 0.55 m stationary body radius, smoothly expand to 1.35 m at walking speed, and ease
   back after movement inside the existing portable instanced vertex shader.
 - [~] Implement near/middle/far density and mesh LOD with dither/fade or masked transitions. Near
-  and far meshes plus ground-colour distance merging exist. A deterministic smoothstep population
-  split now staggers individual patch replacements across 70--94 m instead of switching an entire
-  37.5 m cell in one frame; OpenGL 3.3 and WebGL 2 validate the same mixed-cell result. A true
-  middle tier, masked blend, traversal review, and physical-mobile evidence remain.
+  (28-blade), middle (10-blade), and far (five-blade) meshes plus ground-colour distance merging
+  exist. Deterministic adjacent-tier smoothstep splits stagger individual replacements across
+  62--78 m and 86--102 m instead of switching an entire 37.5 m cell or jumping directly between
+  the extreme meshes. OpenGL 3.3 and WebGL 2 validate the same mixed-cell populations. Masked
+  blending, longer traversal review, and physical-mobile evidence remain.
 - [~] Cull cells by frustum/distance and batch or instance where CNA's verified path permits. A
   256-cell grid uses one hardware-instanced draw for a pure-LOD cell and two only while that cell
-  crosses the progressive LOD band. The close QA view uses 19 draws for 15 cells, with four mixed;
-  native and WebGL 2 agree. Android counters and sustained performance remain open.
+  crosses either progressive LOD band. The close QA view uses 21 draws for 15 cells, with six
+  mixed; native and WebGL 2 agree. Android counters and sustained performance remain open.
 - [~] Test worst-case first-person grass views for aliasing, transparency, overdraw, and frame time.
   A deterministic close grass camera now runs in native and browser suites, verifies the full
   interaction path, and has a two-repeat native debug-build timing envelope. Transparent-overdraw,
@@ -817,9 +818,9 @@ Android is not project completion.
   aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
   first-person depth without textures or extra draws. Biome-aware instance colour and sparse
-  height-weighted sun-cured tips now break up broad and blade-scale uniformity. The 70--94 m
-  per-patch population split removes the old whole-cell hard swap; transition-motion review,
-  aliasing, and physical-device tuning remain.
+  height-weighted sun-cured tips now break up broad and blade-scale uniformity. The light middle
+  mesh and two adjacent-tier population splits remove the old whole-cell/direct-extreme swap;
+  transition-motion review, aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
   tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
   envelope; near-only procedural trunk scars and coconut clusters on two variants add a first
@@ -3219,6 +3220,37 @@ Work next, in order:
   seven minutes without host KVM, while this milestone changes buffer selection rather than shader
   code. Physical or KVM-backed Android visual/performance evidence remains required. CNA and Sharp
   Runtime remain unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Lightweight middle grass LOD
+
+- Added a ten-blade, three-control-level, 40-triangle middle cluster between the existing
+  28-blade/224-triangle near and five-blade/20-triangle far meshes. The same deterministically
+  ordered instance buffer now transitions near-to-middle across 62--78 m, remains wholly middle
+  through 86 m, and transitions middle-to-far through 102 m. Non-adjacent near/far meshes are
+  never active together, and a cell still needs at most two grass submissions.
+- An initial 12-blade/four-level, 72-triangle middle prototype was rejected after two six-view
+  suites repeatedly made the traversal mean 12--18 percent slower. The accepted mesh reduced both
+  geometry and transition widths. In the close QA view it renders 957 near, 637 middle, and 1,233
+  far patches across 15 cells, with six mixed cells and 21 draws. Its 264,508 visible grass
+  triangles are about 19 percent below the preceding two-tier view's 325,412 despite the smoother
+  two-step silhouette progression.
+- Two accepted-mesh six-view debug suites recorded 1.3194--3.0860 ms mean and 1.6323--4.3729 ms
+  p95 across their fixed scenes while the operator game shared the GPU. Noise is substantial, but
+  neither traversal repeated the rejected regression: both improved from the preceding 2.8983 ms
+  mean to 2.4887--2.6431 ms as its visible grass geometry fell by about 32 percent. These are
+  safety results rather than a hardware performance budget.
+- Core tests cover empty/invalid/unbounded input, exact near/middle/far and both midpoint splits,
+  population conservation, monotonic extreme-tier movement, and exclusion of simultaneous
+  non-adjacent tiers across 161 distance samples. The exact-source native suite passes 37/37 in
+  40.55 seconds, including 29 real OpenGL scenes and isolated SDL/XTest input.
+- The complete Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages. Its inspected grass
+  capture exactly matches native populations, mixed-cell count, and draw count, and requires the
+  three-tier diagnostic. WebAssembly is 8,470,486 bytes. The arm64 GLES 3 target builds and app
+  lint passes; the v2-signed compact single-ABI APK is 18,700,484 bytes and its stripped
+  `libmain.so` is 15,890,200 bytes. Physical-Android appearance and cost remain open.
+- Population, placement, instance layout, culling radius, shaders, and the deterministic world
+  fingerprint are unchanged. CNA and Sharp Runtime remain unmodified, and no qualifying
+  dependency defect was found.
 
 ## Session-end checklist
 

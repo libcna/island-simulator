@@ -135,8 +135,9 @@ path, while the west view requires the shared five-rock/one-log landmark-layout 
 The grass startup also reports the five-level near curvature, portable two-sided daylight path, and
 coherent coast/path/clearing biome-colour field. Sparse deterministic sun-cured tips add restrained
 blade-scale age variation baked into the shared mesh vertex colours, without another texture,
-instance attribute, shader operation, or draw. The dedicated view must also contain nonzero near
-and far populations plus a mixed cell from the staggered 70--94 m per-patch LOD transition.
+instance attribute, shader operation, or draw. The dedicated view must also contain nonzero near,
+middle, and far populations plus a mixed cell from the adjacent-tier 62--78 m / 86--102 m LOD
+transitions.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
 `build/island-palm-capture.ppm` and requires the segmented near-leaflet plus procedural
 bark-scar/coconut path.

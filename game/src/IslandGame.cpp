@@ -1560,6 +1560,7 @@ namespace island
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
             overlayState.totalGrassPatches = grassRenderer_->TotalPatchCount();
             overlayState.nearGrassPatches = grassRenderer_->VisibleNearPatchCount();
+            overlayState.middleGrassPatches = grassRenderer_->VisibleMiddlePatchCount();
             overlayState.farGrassPatches = grassRenderer_->VisibleFarPatchCount();
             overlayState.mixedGrassLodCells = grassRenderer_->MixedLodCellCount();
             overlayState.grassCells = grassRenderer_->VisibleCellCount();
@@ -1740,7 +1741,8 @@ namespace island
                       << grassInteractionModel_.Strength() << ", custom shader "
                       << (grassRenderer_->UsesCustomShader() ? 1 : 0) << ", biome tint "
                       << (grassRenderer_->UsesCustomShader() ? 1 : 0) << ", LOD near "
-                      << grassRenderer_->VisibleNearPatchCount() << ", far "
+                      << grassRenderer_->VisibleNearPatchCount() << ", middle "
+                      << grassRenderer_->VisibleMiddlePatchCount() << ", far "
                       << grassRenderer_->VisibleFarPatchCount() << ", mixed cells "
                       << grassRenderer_->MixedLodCellCount() << "; birds "
                       << birdRenderer_->VisibleBirdCount() << '/'
