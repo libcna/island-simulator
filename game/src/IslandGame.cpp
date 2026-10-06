@@ -55,6 +55,7 @@ namespace island
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::GrassDetail: return "grass";
+            case FixedViewpoint::GroundPlantDetail: return "ground";
             case FixedViewpoint::PalmDetail: return "palms";
             case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
@@ -132,6 +133,77 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::GroundPlantDetail
+                   && !jungleLayout_.GroundPlants().empty()) {
+            const GroundPlantPlacement* selected = nullptr;
+            float bestScore = std::numeric_limits<float>::max();
+            for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
+                if (plant.variant != 1U) continue;
+                const float pathX = VegetationLayout::PrimaryPathCenterX(plant.z);
+                const float pathDistance = std::fabs(plant.x - pathX);
+                if (pathDistance < 3.2f || pathDistance > 6.5f) continue;
+                const auto hasNearby = [&plant](const auto& placements,
+                                                const float radius) {
+                    const float radiusSquared = radius * radius;
+                    for (const auto& placement : placements) {
+                        const float deltaX = plant.x - placement.x;
+                        const float deltaZ = plant.z - placement.z;
+                        const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
+                        if (distanceSquared > 0.01f && distanceSquared < radiusSquared) {
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+                if (hasNearby(jungleLayout_.Understory(), 4.5f)
+                    || hasNearby(jungleLayout_.Bushes(), 3.2f)
+                    || hasNearby(jungleLayout_.GroundPlants(), 1.5f)) {
+                    continue;
+                }
+                bool obstructed = false;
+                for (const CircularObstacle& obstacle : worldCollisionGrid_.Obstacles()) {
+                    const float deltaX = plant.x - obstacle.x;
+                    const float deltaZ = plant.z - obstacle.z;
+                    const float clearance = obstacle.radius + 3.0f;
+                    if (deltaX * deltaX + deltaZ * deltaZ < clearance * clearance) {
+                        obstructed = true;
+                        break;
+                    }
+                }
+                if (obstructed) continue;
+                const float shoreDistance = terrain_.SignedShoreDistance(plant.x, plant.z);
+                const float score = std::fabs(shoreDistance - 58.0f) * 1.4f
+                    + std::fabs(pathDistance - 4.2f) * 5.0f
+                    - plant.scale * 2.0f;
+                if (score < bestScore) {
+                    bestScore = score;
+                    selected = &plant;
+                }
+            }
+            if (selected == nullptr) {
+                for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
+                    if (plant.variant == 1U) {
+                        selected = &plant;
+                        break;
+                    }
+                }
+            }
+            if (selected == nullptr) selected = &jungleLayout_.GroundPlants().front();
+            const float pathX = VegetationLayout::PrimaryPathCenterX(selected->z);
+            const float cameraOffset = pathX < selected->x ? -2.8f : 2.8f;
+            const float cameraX = selected->x + cameraOffset;
+            const float cameraZ = selected->z;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            const Vector3 target(selected->x, selected->y + 0.42f * selected->scale,
+                                 selected->z);
+            const Vector3 toPlant = target - cameraPosition_;
+            yaw_ = std::atan2(toPlant.X, toPlant.Z);
+            pitch_ = std::atan2(toPlant.Y, std::hypot(toPlant.X, toPlant.Z));
+            std::cout << "island-simulator: ground QA target variant "
+                      << static_cast<int>(selected->variant)
+                      << " at player-eye detail distance\n";
         } else if (viewpoint_ == FixedViewpoint::PalmDetail
                    && !vegetationLayout_.Palms().empty()) {
             constexpr float targetX = -120.0f;

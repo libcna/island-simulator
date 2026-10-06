@@ -257,8 +257,10 @@ build fern and broad-leaf silhouettes from curved opaque strips. Three bush vari
 offset low lobes with two folded pointed leaves per lobe in the near tier to bridge the visual gap
 between grass and medium plants. Their unchanged 48-triangle far tier keeps only the compact
 volume. Near variants contain 320, 400, or 480 triangles without adding a submission. Three small
-rosette variants use short curved opaque leaves to break up grass-heavy ground at first-person
-range. Placement uses
+forest-floor variants break up grass-heavy ground at first-person range. Variants 0 and 2 use
+short curved opaque leaves; near variant 1 instead uses six visible petioles and folded upright
+broad leaves, reducing that mesh from 64 to 36 triangles while its 16-triangle far form remains
+unchanged. Placement uses
 independent broad/fine cluster fields plus terrain height, slope, and shoreline constraints while
 preserving the winding route, two clearings, and beach spawn. Each layer has independent near/far
 distances but remains gathered into variant batches; the deterministic jungle camera renders 63

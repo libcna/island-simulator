@@ -100,6 +100,7 @@ build/island-simulator --capture /tmp/island-overview.ppm
 build/island-simulator --capture /tmp/island-beach.ppm --viewpoint beach
 build/island-simulator --capture /tmp/island-palms.ppm --viewpoint palms
 build/island-simulator --capture /tmp/island-jungle.ppm --viewpoint jungle
+build/island-simulator --capture /tmp/island-ground.ppm --viewpoint ground
 build/island-simulator --capture /tmp/island-props.ppm --viewpoint props
 build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
 build/island-simulator --capture /tmp/island-reef.ppm --viewpoint reef
@@ -115,7 +116,9 @@ build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overvie
 ```
 
 These runs render four frames and exit, except the monkey capture waits 24 frames for the startup
-crossfades to settle. The WebGL 2 harness writes corresponding overview, beach, grass, palm,
+crossfades to settle. The ground view selects a cleared variant-1 forest-floor plant beside the
+primary path for repeatable leaf-silhouette review. The WebGL 2 harness writes corresponding
+overview, beach, grass, ground, palm,
 jungle, prop, driftwood, reef, water, current, frond, distant, bird, fish, shark, and monkey PNG
 captures plus a JSON report under
 `build-probe/`. Captures prove

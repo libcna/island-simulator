@@ -493,15 +493,78 @@ void main()
             return geometry;
         }
 
+        void AppendUprightGroundLeaf(PlantGeometry& geometry, const float angle,
+                                     const float height, const float reach,
+                                     const float width, const Color& baseColor,
+                                     const float windPhase)
+        {
+            const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const Vector3 root = direction * 0.035f;
+            const Vector3 petioleEnd = direction * (reach * 0.28f)
+                + Vector3::Up * (height * 0.31f);
+            const float petioleWidth = 0.018f;
+            const auto stemBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(root - side * petioleWidth,
+                                           ShadeColor(baseColor, 0.62f),
+                                           Vector2(0.08f, windPhase));
+            geometry.vertices.emplace_back(root + side * petioleWidth,
+                                           ShadeColor(baseColor, 0.72f),
+                                           Vector2(0.08f, windPhase));
+            geometry.vertices.emplace_back(petioleEnd - side * petioleWidth,
+                                           ShadeColor(baseColor, 0.70f),
+                                           Vector2(0.48f, windPhase));
+            geometry.vertices.emplace_back(petioleEnd + side * petioleWidth,
+                                           ShadeColor(baseColor, 0.80f),
+                                           Vector2(0.48f, windPhase));
+            geometry.indices.insert(geometry.indices.end(), {
+                stemBase, static_cast<std::uint16_t>(stemBase + 2U),
+                static_cast<std::uint16_t>(stemBase + 1U),
+                static_cast<std::uint16_t>(stemBase + 1U),
+                static_cast<std::uint16_t>(stemBase + 2U),
+                static_cast<std::uint16_t>(stemBase + 3U)});
+
+            const Vector3 shoulder = direction * (reach * 0.64f)
+                + Vector3::Up * (height * 0.64f);
+            const Vector3 ridge = shoulder + Vector3::Up * 0.045f;
+            const Vector3 tip = direction * reach + Vector3::Up * height;
+            const auto leafBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(petioleEnd, ShadeColor(baseColor, 0.76f),
+                                           Vector2(0.48f, windPhase));
+            geometry.vertices.emplace_back(shoulder - side * width,
+                                           ShadeColor(baseColor, 0.90f),
+                                           Vector2(0.76f, windPhase));
+            geometry.vertices.emplace_back(ridge, ShadeColor(baseColor, 1.10f),
+                                           Vector2(0.80f, windPhase));
+            geometry.vertices.emplace_back(shoulder + side * width,
+                                           ShadeColor(baseColor, 0.84f),
+                                           Vector2(0.76f, windPhase));
+            geometry.vertices.emplace_back(tip, ShadeColor(baseColor, 0.98f),
+                                           Vector2(0.92f, windPhase));
+            geometry.indices.insert(geometry.indices.end(), {
+                leafBase, static_cast<std::uint16_t>(leafBase + 1U),
+                static_cast<std::uint16_t>(leafBase + 2U),
+                leafBase, static_cast<std::uint16_t>(leafBase + 2U),
+                static_cast<std::uint16_t>(leafBase + 3U),
+                static_cast<std::uint16_t>(leafBase + 1U),
+                static_cast<std::uint16_t>(leafBase + 4U),
+                static_cast<std::uint16_t>(leafBase + 2U),
+                static_cast<std::uint16_t>(leafBase + 2U),
+                static_cast<std::uint16_t>(leafBase + 4U),
+                static_cast<std::uint16_t>(leafBase + 3U)});
+        }
+
         [[nodiscard]] PlantGeometry CreateGroundPlantGeometry(const int variant,
                                                               const bool farMesh)
         {
             PlantGeometry geometry;
-            const int leafCount = farMesh ? 4 : 7 + variant;
+            const bool uprightBroadleaf = !farMesh && variant == 1;
+            const int leafCount = uprightBroadleaf ? 6 : (farMesh ? 4 : 7 + variant);
             const int segments = farMesh ? 2 : 4;
-            geometry.vertices.reserve(static_cast<std::size_t>(
-                leafCount * (segments + 1) * 2));
-            geometry.indices.reserve(static_cast<std::size_t>(leafCount * segments * 6));
+            const int verticesPerLeaf = uprightBroadleaf ? 9 : (segments + 1) * 2;
+            const int indicesPerLeaf = uprightBroadleaf ? 18 : segments * 6;
+            geometry.vertices.reserve(static_cast<std::size_t>(leafCount * verticesPerLeaf));
+            geometry.indices.reserve(static_cast<std::size_t>(leafCount * indicesPerLeaf));
             const Color color = variant == 0 ? Color(54, 132, 55, 255)
                 : (variant == 1 ? Color(45, 119, 48, 255)
                                 : Color(65, 139, 62, 255));
@@ -516,9 +579,19 @@ void main()
                 const float lift = 0.43f + 0.055f * static_cast<float>(variant);
                 const float phase = std::fmod(static_cast<float>(leaf) / leafCount
                                               + static_cast<float>(variant) * 0.27f, 1.0f);
-                AppendFrond(geometry, angle, length, width, lift,
-                            leaf % 3 == 0 ? ShadeColor(color, 1.10f) : color,
-                            phase, segments);
+                const Color leafColor = leaf % 3 == 0
+                    ? ShadeColor(color, 1.10f) : color;
+                if (uprightBroadleaf) {
+                    AppendUprightGroundLeaf(
+                        geometry, angle,
+                        0.57f + 0.055f * static_cast<float>((leaf * 2 + variant) % 3),
+                        0.44f + 0.055f * static_cast<float>((leaf + variant) % 3),
+                        0.25f + 0.035f * static_cast<float>((leaf * 4 + variant) % 3),
+                        leafColor, phase);
+                } else {
+                    AppendFrond(geometry, angle, length, width, lift,
+                                leafColor, phase, segments);
+                }
             }
             return geometry;
         }
@@ -597,6 +670,7 @@ void main()
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
+            std::cout << "island-simulator: jungle near ground plants include an upright broadleaf silhouette\n";
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
                       << fallbackReason_ << '\n';

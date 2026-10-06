@@ -357,8 +357,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   driftwood pieces, 63 grove-associated fallen palm fronds, and 265 four-variant shell/pebble
   clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
   edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
-  their compact far tier; richer forest-floor silhouettes, bush material diversity, and broader
-  natural beach-prop variety remain.
+  their compact far tier. One near forest-floor variant now uses six upright broad leaves with
+  visible petioles while retaining its compact far tier; further floor-plant/bush material
+  diversity and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
   placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
@@ -944,9 +945,10 @@ Work next, in order:
    fish, and shark layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
-   paired folded leaves over smaller near lobes without touching its far tier. The portable sand/soil,
-   wet-edge, and slope-material pass, the initial small-plant layer, and a first near-field
-   shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
+   paired folded leaves over smaller near lobes without touching its far tier; one near
+   ground-plant variant now adds an upright six-leaf form and a dedicated cross-renderer QA camera.
+   The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
+   first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
    curved interior leaf litter now break up exposed jungle-floor gaps; broader prop diversity,
    contact cues, authored biome variation, and material tuning remain.
@@ -2152,6 +2154,31 @@ Work next, in order:
   renderer/lifecycle/input/audio-init harness passes all 19 stages. The arm64-v8a GLES 3 APK and
   application lint pass; WebAssembly is 8,326,857 bytes, stripped `libmain.so` is 15,722,544 bytes,
   and the APK is 33,454,920 bytes. Android runtime appearance and cost remain unqualified without
+  KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
+  dependency defect was found.
+
+### 2026-10-06 — Upright broadleaf forest-floor variant
+
+- Replaced the near mesh of ground-plant variant 1 with six upright broad leaves. Each leaf has a
+  visible two-triangle petiole and a folded four-triangle pointed blade with deterministic height,
+  reach, width, colour, and wind phase. The variant falls from 64 to 36 triangles while creating a
+  materially different first-person silhouette. Its 16-triangle far mesh, all 2,225 placements,
+  culling, instance data, CPU work, and draw submissions are unchanged; the other two variants
+  retain their curved strap-leaf forms.
+- Added `--viewpoint ground`, which deterministically selects a variant-1 plant near the winding
+  path with clearance from understory, bushes, other floor plants, and static obstacles, then views
+  it from player eye height. `IslandGameGroundPlantCapture` and a new actual-browser ground stage
+  retain native/WebGL 2 screenshots and require the explicit mesh diagnostic plus a nonzero visible
+  ground-plant population. Both images were inspected and agree.
+- Two preliminary benchmark suites that overlapped the visible interactive game were rejected.
+  Two clean isolated repeats retained 77/124/95/26/97 submissions and the exact prior populations.
+  Mean frame time measured 1.1504--1.1513 ms overview, 1.6825--1.7669 ms beach,
+  1.4611--1.4616 ms jungle, 0.7627--0.7730 ms driftwood, and 1.5347--1.5658 ms monkeys. The
+  ranges show no regression; no speedup is claimed from the small triangle reduction.
+- All 22 native tests pass, including 21 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,336,760 bytes, stripped `libmain.so` is 15,729,232 bytes,
+  and the APK is 33,461,608 bytes. Android runtime appearance and cost remain unqualified without
   KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
   dependency defect was found.
 

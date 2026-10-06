@@ -154,6 +154,8 @@ try {
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && result.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
+    && result.output?.includes(
+      "jungle near ground plants include an upright broadleaf silhouette")
     && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
@@ -375,6 +377,38 @@ try {
     && !grassResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=ground`,
+  }, visualSessionId);
+  let groundResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    groundResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (groundResult.output?.includes("island-simulator: terrain") || groundResult.error) break;
+  }
+  await delay(1000);
+  const completedGroundEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  groundResult = JSON.parse(completedGroundEvaluation.result.value ?? "{}");
+
+  const groundScreenshot = await call("Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const groundScreenshotPath = path.join(buildDirectory, "island-browser-ground.png");
+  await writeFile(groundScreenshotPath, Buffer.from(groundScreenshot.data, "base64"));
+  const groundPassed = groundResult.output?.includes("island-simulator: renderer WEBGL2")
+    && groundResult.output?.includes(
+      "jungle near ground plants include an upright broadleaf silhouette")
+    && groundResult.output?.includes(
+      "island-simulator: ground QA target variant 1 at player-eye detail distance")
+    && /[1-9][0-9]*\/2225 ground plants/.test(groundResult.output ?? "")
+    && groundResult.output?.includes("island-simulator: debug overlay active")
+    && !groundResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=palms`,
   }, visualSessionId);
   let palmResult = {};
@@ -441,6 +475,8 @@ try {
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
+    && jungleResult.output?.includes(
+      "jungle near ground plants include an upright broadleaf silhouette")
     && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory, [1-9][0-9]*\/565 bushes, [1-9][0-9]*\/2225 ground plants/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
@@ -1016,6 +1052,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && grassPassed
+    && groundPassed
     && palmPassed && junglePassed && propPassed && driftwoodPassed && reefPassed
     && waterPassed && currentPassed
     && distantPassed && frondPassed
@@ -1048,6 +1085,11 @@ try {
       passed: grassPassed,
       output: grassResult.output ?? "",
       error: grassResult.error ?? "",
+    },
+    ground: {
+      passed: groundPassed,
+      output: groundResult.output ?? "",
+      error: groundResult.error ?? "",
     },
     palms: {
       passed: palmPassed,
@@ -1137,6 +1179,7 @@ try {
     screenshot: path.basename(screenshotPath),
     beachScreenshot: path.basename(beachScreenshotPath),
     grassScreenshot: path.basename(grassScreenshotPath),
+    groundScreenshot: path.basename(groundScreenshotPath),
     palmScreenshot: path.basename(palmScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
     propScreenshot: path.basename(propScreenshotPath),

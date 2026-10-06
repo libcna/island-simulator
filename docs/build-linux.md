@@ -63,6 +63,8 @@ startup and a clean four-frame exit.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm` and
 requires the folded pointed-leaf near-bush path; the same startup also reports the
 branch-supported/pointed-leaf near-canopy path.
+`IslandGameGroundPlantCapture` writes a cleared first-person broadleaf detail to
+`build/island-ground-capture.ppm` and requires the upright near-ground-plant path.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
 The beach capture also gates the five-level near curvature and portable two-sided daylight path.

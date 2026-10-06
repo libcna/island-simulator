@@ -18,7 +18,7 @@ Those claims still require a stable accelerated emulator or physical device.
 The current arm64 package includes the portable procedural sand/soil terrain material with
 near-field interior microvariation and sparse curved leaf litter, the broadleaf jungle with
 branch-supported near crowns, rounded far crowns, per-tree LOD, pointed-leaf near bushes with a
-compact far tier, and forest-floor plants,
+compact far tier, and forest-floor plants including one upright broadleaf near variant,
 speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
@@ -40,8 +40,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,454,920-byte APK with a
-15,722,544-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,461,608-byte APK with a
+15,729,232-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

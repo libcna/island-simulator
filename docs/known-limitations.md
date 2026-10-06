@@ -12,7 +12,8 @@ been confirmed so far.
   near-field shell/pebble clusters improve close ground contact. Near broadleaf crowns now have
   separated irregular lobes, visible support branches, pointed edge leaves, and staggered per-tree
   LOD into a rounded far mesh. Near bushes now layer paired folded pointed leaves over smaller
-  lobes while the far tier stays compact. Bush material diversity, ground-plant silhouette/material
+  lobes while the far tier stays compact. One near forest-floor variant adds an upright broadleaf
+  form with visible petioles. Bush material diversity, additional ground-plant silhouette/material
   diversity, broader shell/branch/beach-prop variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,

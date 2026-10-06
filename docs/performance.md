@@ -360,6 +360,30 @@ overlap it closely, so no isolated speed change is claimed.
 The arm64 GLES 3 package builds and lints with this geometry; physical-device appearance and cost
 remain unqualified.
 
+### Upright broadleaf ground-plant follow-up
+
+Near ground-plant variant 1 now uses six visible petioles and folded upright broad leaves. Its
+geometry falls from 64 to 36 triangles; the 16-triangle far mesh, other variants, placements,
+instance streams, culling, update work, and submissions remain unchanged. A cleared deterministic
+ground camera verifies the intended first-person silhouette on native OpenGL 3.3 and actual
+Chrome/SwiftShader WebGL 2.
+
+Two preliminary suites were rejected because the visible interactive game was still rendering on
+the same GPU. After closing that client, two isolated five-view repeats produced the ranges below.
+Populations and submissions exactly match the preceding baseline. No regression is visible, but
+the small geometry reduction is not claimed as a measured speedup.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible ground plants |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1504--1.1513 | 1.2580--1.2740 | 1.3373--1.4452 | 77 | 0 |
+| Beach | 1.6825--1.7669 | 1.8066--2.1904 | 2.2505--2.4963 | 124 | 209 |
+| Jungle | 1.4611--1.4616 | 1.7001--1.7433 | 2.0958--2.1076 | 95 | 129 |
+| Driftwood/shore detail | 0.7627--0.7730 | 0.8487--0.8721 | 0.9874--1.0737 | 26 | 0 |
+| Monkeys | 1.5347--1.5658 | 1.9839--2.0686 | 2.2044--2.6052 | 97 | 257 |
+
+The arm64 GLES 3 package builds and lints with this geometry; physical-device appearance and cost
+remain unqualified.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -29,6 +29,8 @@ and pointed perimeter leaves. A deterministic per-tree 105--129 m threshold stag
 transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
 Nearby low bushes replace their largest smooth lobes with smaller overlapping volume and paired
 folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
+One near forest-floor variant now forms six upright broad leaves on visible petioles instead of
+another low strap-leaf rosette; its compact far representation and batching remain unchanged.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling
