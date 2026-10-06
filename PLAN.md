@@ -3820,10 +3820,14 @@ Work next, in order:
 - The shared sources compile for WebGL 2 and arm64 GLES 3. The Android application build and lint
   pass; the APK contains only arm64-v8a native libraries and verifies with signature scheme v2.
   WebAssembly is 8,497,359 bytes; the APK is 18,744,052 bytes with a 15,933,768-byte stripped
-  `libmain.so`. No renderer runtime was repeated for this renderer-independent correction. The
-  operator's visible OpenGL 3.3 process was deliberately left running, so the native executable
-  relink and an interactive placement pass remain follow-up work. CNA and Sharp Runtime remained
-  read-only and unchanged; no qualifying dependency defect or workaround was involved.
+  `libmain.so`. The actual Chrome 152/SwiftShader WebGL 2 suite subsequently passes all 22 stages,
+  including every fixed scene, simultaneous forward movement and mouse look, screen-right arrow
+  movement, retained run after releasing the first Shift press, and return to walking after the
+  second press. The operator's visible OpenGL 3.3 process was deliberately left running, so the
+  native executable relink and an interactive placement pass remain follow-up work. Android
+  runtime was not repeated for this renderer-independent correction; the immediately preceding
+  KVM/GLES 3 touch-running pass remains current. CNA and Sharp Runtime remained read-only and
+  unchanged; no qualifying dependency defect or workaround was involved.
 
 ## Session-end checklist
 
