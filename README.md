@@ -66,7 +66,8 @@ terrain-conforming contact shadows. The twelve-segment soft ellipses use one por
 plus movement-thresholded uploads so this grounding cue does not become a per-frame procedural
 terrain cost.
 It supports
-first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
+first-person terrain walking, near-shore swimming, trunk collision, and a soft ocean-current
+boundary whose always-shoreward return includes mild coherent coast-parallel circulation,
 dual-zone touch input, a subtle depth-responsive near-surface water veil that cools and strengthens
 as the offshore current develops, and speed/depth-responsive player ripples that expand across the
 same animated ocean surface without another draw call. Moving entries and exits also trigger one
@@ -157,7 +158,7 @@ cells, all nine terrain-contact samples and normals, wildlife headings, simulati
 nearby fish-school centres, the shark route target, monkey home ranges and active movement targets,
 three bird-family route volumes, all 24 authored bird spawn headings, and nearby live radial targets,
 the last exact attempted/resolved player step with rejection classification,
-the active inward-current vector, all six ambient crossfade boundaries, the nearest bird/monkey
+the exact active inward/circulating-current vector, all six ambient crossfade boundaries, the nearest bird/monkey
 audio candidates, and any active positional wildlife emitter. The panel also reports active audio
 sources against the six-source ceiling.
 In debug builds, F3 toggles a bounded inspection camera while F1 is visible. Mouse look remains

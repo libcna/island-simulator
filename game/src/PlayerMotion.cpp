@@ -207,6 +207,28 @@ namespace island
                           / (FullCurrentDistance - SoftCurrentStart));
     }
 
+    OceanCurrentDrift PlayerMotion::OceanCurrentVelocity(
+        const IslandTerrain& terrain) const noexcept
+    {
+        const float strength = OceanCurrentStrength(terrain);
+        const float radius = std::hypot(position_.x, position_.z);
+        if (strength <= 0.0f || radius <= 0.001f) {
+            return {};
+        }
+
+        const float outwardX = position_.x / radius;
+        const float outwardZ = position_.z / radius;
+        const float angle = std::atan2(position_.z, position_.x);
+        const float inwardSpeed = strength * (0.25f + 1.85f * strength);
+        const float circulationVariation = 0.72f + 0.28f * std::sin(angle * 3.0f + 0.65f);
+        const float tangentialSpeed = strength * (0.18f + 0.42f * strength)
+            * circulationVariation;
+        return {
+            -outwardX * inwardSpeed - outwardZ * tangentialSpeed,
+            -outwardZ * inwardSpeed + outwardX * tangentialSpeed,
+        };
+    }
+
     void PlayerMotion::ResolveModeAndHeight(const IslandTerrain& terrain,
                                             const float maximumVerticalDelta) noexcept
     {
@@ -293,9 +315,9 @@ namespace island
                 targetVelocityX -= outwardX * outwardSpeed * strength;
                 targetVelocityZ -= outwardZ * outwardSpeed * strength;
             }
-            const float inwardCurrent = 0.25f + 1.85f * strength;
-            targetVelocityX -= outwardX * inwardCurrent;
-            targetVelocityZ -= outwardZ * inwardCurrent;
+            const OceanCurrentDrift current = OceanCurrentVelocity(terrain);
+            targetVelocityX += current.x;
+            targetVelocityZ += current.z;
         }
 
         const bool moving = std::hypot(targetVelocityX, targetVelocityZ) > 0.001f;

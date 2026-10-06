@@ -206,6 +206,12 @@ normalized current 0.741. They measured 1.4501--1.4756 ms mean, 1.6750--1.8775 m
 1.8992--2.2975 ms p99. As above, these numbers characterize that fixed composition rather than an
 isolated tint cost.
 
+The later coherent-current pass changes only renderer-independent player movement and debug data.
+It adds one `atan2`, one sine, and a few scalar operations per active player update, allocates no
+memory, and adds no release draw submission, mesh, texture, shader work, or audio source. F1/F2
+reuse the existing debug passes and display the exact velocity only when diagnostics are enabled;
+the fixed-scene GPU timings above therefore remain the relevant rendering baseline.
+
 ### Distant-scenery follow-up
 
 Two complete five-view repeats after adding the five-islet horizon batch produced the ranges

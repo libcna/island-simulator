@@ -77,8 +77,10 @@ been confirmed so far.
   are implemented. Movement in water now produces restrained shader-integrated expanding ripple
   bands, while moving entry/exit produces one stronger 1.6-second broken-ring burst protected by
   the same 7.5/2.5 cm hysteresis and cooldown as the sound cue. True particles and persistent
-  body/shore displacement remain absent. The outer-ocean current
-  also deepens the existing player-water loop into a restrained undertow cue; subjective
+  body/shore displacement remain absent. The outer-ocean current eases into a dominant shoreward
+  return with a first deterministic coast-parallel circulation variation; it is not a spatially
+  turbulent flow simulation and does not react to individual coves, rocks, or waves. It also
+  deepens the existing player-water loop into a restrained undertow cue; subjective
   headphone/speaker tuning remains open.
 - Desktop mouse sensitivity, 4.3/8.0 m/s walk/run speeds, mobile touch sensitivity, and the
   92/78-percent touch-run thresholds are compile-time values. WASD and arrows are supported, but

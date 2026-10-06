@@ -628,7 +628,9 @@ namespace island
                      "near-field batch\n"
                   << "island-simulator: near-surface swimming view procedural edge veil\n"
                   << "island-simulator: movement ripples and shoreline-transition bursts "
-                     "integrated into the portable ocean shader\n";
+                     "integrated into the portable ocean shader\n"
+                  << "island-simulator: outer-ocean current uses progressive inward return "
+                     "with mild coherent circulation\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -1540,9 +1542,12 @@ namespace island
         if (debugOverlayVisible_ && worldDebugVisible_) {
             const SoundscapeDebugState soundscapeDebug = soundscape_
                 ? soundscape_->DebugState() : SoundscapeDebugState{};
+            const OceanCurrentDrift oceanCurrent =
+                playerMotion_.OceanCurrentVelocity(terrain_);
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
+                                      oceanCurrent,
                                       playerMotion_.MovementTrace(),
                                       worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),
                                       birdFlock_.Routes(), birdFlock_.RouteRegions(),
@@ -1575,6 +1580,10 @@ namespace island
                 * 180.0f / std::numbers::pi_v<float>;
             overlayState.offshoreDistance = playerMotion_.OffshoreDistance(terrain_);
             overlayState.oceanCurrentStrength = playerMotion_.OceanCurrentStrength(terrain_);
+            const OceanCurrentDrift oceanCurrent =
+                playerMotion_.OceanCurrentVelocity(terrain_);
+            overlayState.oceanCurrentX = oceanCurrent.x;
+            overlayState.oceanCurrentZ = oceanCurrent.z;
             overlayState.waterRippleIntensity = waterRippleModel_.Intensity();
             overlayState.waterRipplePhase = waterRippleModel_.Phase();
             overlayState.waterSplashIntensity = waterRippleModel_.SplashIntensity();

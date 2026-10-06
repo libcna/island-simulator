@@ -19,7 +19,8 @@
 
 Movement follows terrain, refuses uphill motion steeper than 38 degrees, and switches to swimming
 in sufficiently deep water. Swimming is slower. An offshore current progressively resists outward
-movement and carries the player back toward the island. A subtle peripheral tint and deeper
+movement and carries the player back toward the island while adding a mild coast-parallel drift;
+its inward component always dominates. A subtle peripheral tint and deeper
 undertow texture strengthen with that same current field. Moving through shallow or swimming water
 also produces subtle expanding surface ripples around the player. A moving water entry or exit
 adds one stronger but short broken-ring burst; depth hysteresis and a cooldown keep small shoreline

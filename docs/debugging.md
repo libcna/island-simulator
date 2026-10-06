@@ -19,7 +19,7 @@ WebGL 2, and OpenGL ES 3. It draws:
   safety threshold in magenta-red;
 - six terrain-following ambient-zone contours: canopy breeze 12--105 m inland in yellow-green,
   surf 18--125 m inland in cyan/blue, and jungle texture 30--112 m inland in green;
-- a yellow inward arrow at the player once the current is active;
+- a yellow arrow showing the exact inward/circulating current vector once it is active;
 - the player footprint in white and nearby palm, canopy, rock, and log collision proxies in
   orange;
 - the exact nine-point terrain footprint used by walking collision. Green lines show sampled
@@ -100,7 +100,7 @@ Current fields are:
 
 - smoothed wall-clock frame duration and a half-second FPS sample;
 - player eye position, walking/swimming state, ground support height, and maximum footprint slope;
-- positive offshore distance and normalized ocean-current strength;
+- positive offshore distance, normalized ocean-current strength, and exact world-space drift;
 - player water-ripple intensity/wrapped phase plus shoreline-burst intensity/finite phase;
 - near-surface water-view intensity and its conditional draw count;
 - local collision broad-phase candidates versus the complete static obstacle population;

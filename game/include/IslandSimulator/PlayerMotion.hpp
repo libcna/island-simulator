@@ -32,6 +32,13 @@ namespace island
         float z = 0.0f;
     };
 
+    /** @brief World-space environmental drift applied inside the outer-ocean current. */
+    struct OceanCurrentDrift
+    {
+        float x = 0.0f;
+        float z = 0.0f;
+    };
+
     /** @brief Last horizontal move or placement correction before and after resolution. */
     struct PlayerMovementTrace
     {
@@ -144,6 +151,10 @@ namespace island
 
         /** @brief Returns the normalized strength of the active outer-ocean current. */
         [[nodiscard]] float OceanCurrentStrength(const IslandTerrain& terrain) const noexcept;
+
+        /** @brief Returns the exact inward/circulating world-space current velocity. */
+        [[nodiscard]] OceanCurrentDrift OceanCurrentVelocity(
+            const IslandTerrain& terrain) const noexcept;
 
     private:
         enum class HorizontalStepResult

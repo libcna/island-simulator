@@ -219,6 +219,7 @@ namespace island
         auto water = DiagnosticLine();
         water << "OFFSHORE " << state.offshoreDistance
               << " M  CURRENT " << state.oceanCurrentStrength
+              << " DRIFT " << state.oceanCurrentX << '/' << state.oceanCurrentZ
               << "  RIPPLE " << state.waterRippleIntensity
               << " PHASE " << state.waterRipplePhase
               << "  SPLASH " << state.waterSplashIntensity

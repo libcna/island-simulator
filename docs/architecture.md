@@ -136,7 +136,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 4. `IslandGame` edge-detects either Shift key and retains the selected 4.3/8.0 m/s walk/run mode;
    `PlayerMotion` applies frame-time clamping, direction-independent vector acceleration,
    slope checks, swimming speed, the island-relative current field, the remote safety boundary,
-   and horizontal solid-prop collision in both locomotion modes. The first indexed update after
+   and horizontal solid-prop collision in both locomotion modes. The current velocity eases from
+   zero at 42 m offshore to a dominant shoreward return plus restrained, spatially coherent
+   coast-parallel circulation at 72 m. The first indexed update after
    explicit placement performs a bounded static-proxy depenetration pass, preventing a debug
    teleport or future spawn from leaving the capsule embedded.
 5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the

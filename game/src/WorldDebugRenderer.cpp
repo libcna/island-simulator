@@ -251,6 +251,7 @@ namespace island
                                   const PlayerPosition& playerPosition,
                                   const float playerGroundHeight,
                                   const bool playerSwimming,
+                                  const OceanCurrentDrift& oceanCurrent,
                                   const PlayerMovementTrace& movementTrace,
                                   const std::span<const CircularObstacle> obstacles,
                                   const std::span<const BirdState> birds,
@@ -458,26 +459,24 @@ namespace island
         const float offshoreDistance = std::max(
             0.0f, -terrain_.SignedShoreDistance(playerPosition.x, playerPosition.z));
         if (offshoreDistance > PlayerMotion::SoftCurrentStart) {
-            const float radius = std::hypot(playerPosition.x, playerPosition.z);
-            if (radius > 0.001f) {
-                const float inwardX = -playerPosition.x / radius;
-                const float inwardZ = -playerPosition.z / radius;
-                const float strength = std::clamp(
-                    (offshoreDistance - PlayerMotion::SoftCurrentStart)
-                        / (PlayerMotion::FullCurrentDistance - PlayerMotion::SoftCurrentStart),
-                    0.0f, 1.0f);
-                const float arrowLength = 5.0f + strength * 8.0f;
+            const float currentMagnitude = std::hypot(oceanCurrent.x, oceanCurrent.z);
+            if (currentMagnitude > 0.001f) {
+                const float currentX = oceanCurrent.x / currentMagnitude;
+                const float currentZ = oceanCurrent.z / currentMagnitude;
+                const float normalizedMagnitude = std::clamp(
+                    currentMagnitude / 2.2f, 0.0f, 1.0f);
+                const float arrowLength = 5.0f + normalizedMagnitude * 8.0f;
                 const Vector3 start(playerPosition.x, OceanLineHeight + 0.18f,
                                     playerPosition.z);
-                const Vector3 end = start + Vector3(inwardX, 0.0f, inwardZ) * arrowLength;
-                const Vector3 side(-inwardZ, 0.0f, inwardX);
+                const Vector3 end = start + Vector3(currentX, 0.0f, currentZ) * arrowLength;
+                const Vector3 side(-currentZ, 0.0f, currentX);
                 const Color currentColor(255, 238, 96, 255);
                 AddLine(overlayVertices, start, end, currentColor);
                 AddLine(overlayVertices, end,
-                        end - Vector3(inwardX, 0.0f, inwardZ) * 2.0f + side * 1.2f,
+                        end - Vector3(currentX, 0.0f, currentZ) * 2.0f + side * 1.2f,
                         currentColor);
                 AddLine(overlayVertices, end,
-                        end - Vector3(inwardX, 0.0f, inwardZ) * 2.0f - side * 1.2f,
+                        end - Vector3(currentX, 0.0f, currentZ) * 2.0f - side * 1.2f,
                         currentColor);
             }
         }

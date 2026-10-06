@@ -34,6 +34,8 @@ namespace island
         float groundSlopeDegrees = 0.0f;
         float offshoreDistance = 0.0f;
         float oceanCurrentStrength = 0.0f;
+        float oceanCurrentX = 0.0f;
+        float oceanCurrentZ = 0.0f;
         float waterRippleIntensity = 0.0f;
         float waterRipplePhase = 0.0f;
         float waterSplashIntensity = 0.0f;

@@ -43,6 +43,7 @@ namespace island
                   const PlayerPosition& playerPosition,
                   float playerGroundHeight,
                   bool playerSwimming,
+                  const OceanCurrentDrift& oceanCurrent,
                   const PlayerMovementTrace& movementTrace,
                   std::span<const CircularObstacle> obstacles,
                   std::span<const BirdState> birds,

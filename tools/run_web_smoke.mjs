@@ -250,6 +250,8 @@ try {
     && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
     && result.output?.includes(
       "island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader")
+    && result.output?.includes(
+      "island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes(
       "island-simulator: near rocks use procedural strata and restrained lichen flecks")

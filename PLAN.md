@@ -286,9 +286,11 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
   speed-scaled entry/exit bursts are complete; a true geometric waterline and full underwater
   presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
-- [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. The
-  water-view veil and undertow audio now strengthen across the same normalized field; lateral
-  current variation remains open.
+- [x] Add progressive outward resistance and inward correction from 42 to 72 m offshore. Velocity
+  now eases continuously from zero into a dominant shoreward return with restrained deterministic
+  coast-parallel circulation; the water-view veil and undertow audio strengthen across the same
+  normalized field. More complex cove-, rock-, or wave-responsive turbulence is intentionally
+  outside the current boundary model.
 - [x] Add subtle audiovisual warning before the hard safety boundary. Current-modulated peripheral
   colour/intensity and a bounded deeper undertow bed in the existing water loop share the same
   normalized field without a HUD warning, geometric wall, or fifth persistent source.
@@ -1034,7 +1036,8 @@ after the same experience remains available.
   retained with depenetration/obstacle/terrain/axis-slide/safety-clamp classification; movement
   history, geometric step-up, and continuous dynamic-obstacle recovery remain.
 - [~] Shore distance/current vector visualization. F2 draws the irregular shoreline, all three
-  current thresholds, and the player's active inward-current arrow; a scalar field view remains.
+  current thresholds, and the player's exact active inward/circulating-current arrow; a scalar
+  field view remains.
 - [~] Vegetation cell, culling, LOD, and density visualization. F2 draws nearby shared 8 by 8
   terrain/palm/jungle/prop cells; grass cells, actual frusta, LOD radii, and density fields remain.
 - [~] Wildlife spawn region, state, steering, and simulation-tier visualization. F2 heading arrows
@@ -3930,6 +3933,31 @@ Work next, in order:
   18,747,868 bytes with a 15,937,584-byte stripped `libmain.so`. The functional emulator run is
   not a physical-GPU cost claim. All compilation used at most two workers and `/rv/cnaccache`;
   CNA and Sharp Runtime remained read-only and unchanged.
+
+### 2026-10-07 — Coherent outer-ocean circulation
+
+- Replaced the old step-like purely radial return speed with one renderer-independent velocity
+  function. The field now eases continuously from zero at the 42 m soft boundary, reaches a
+  2.1 m/s shoreward component at 72 m, and adds only a restrained positive coast-parallel drift
+  with gentle three-lobe spatial variation. Outward input suppression and the independent 92 m
+  safety recovery remain intact, so circulation cannot weaken the guaranteed return to shore.
+- Made the exact velocity authoritative for movement and diagnostics. F1 reports both normalized
+  current strength and world-space `DRIFT x/z`; the existing two-draw F2 pass points its yellow
+  arrow along that same velocity rather than reconstructing a purely radial approximation. The
+  release scene adds no draw, allocation, asset, shader work, or audio source.
+- Added deterministic regressions for dominant shoreward velocity, restrained lateral drift,
+  continuous zero-speed onset, idle-swimmer shoreward progress, and meaningful coast-parallel
+  displacement while retaining the existing long-run escape-prevention tests. All six non-display
+  gates pass. The changed OpenGL 3.3 consumer objects compile through `/rv/cnaccache`; the visible
+  operator game remains on the prior executable so it was not interrupted or unsafely relinked.
+- The complete Chrome 152/SwiftShader WebGL 2 renderer/lifecycle/input/audio harness passes all 22
+  stages. Its inspected 1280 by 720 current capture reports a nonzero exact drift while preserving
+  the previous scene and water presentation; WebAssembly is 8,500,109 bytes. The arm64-v8a GLES 3
+  package builds and application lint passes, contains only the requested ABI, and verifies with
+  APK signature scheme v2 at 18,748,788 bytes with a 15,938,504-byte stripped `libmain.so`. A new
+  Android runtime pass was not claimed: `/dev/kvm` is presently absent from this execution
+  namespace even though earlier KVM/gfxstream captures remain valid evidence. CNA and Sharp
+  Runtime remained read-only and unchanged; no dependency defect or workaround was involved.
 
 ## Session-end checklist
 

@@ -2949,6 +2949,37 @@ int main()
     player.SetPosition(terrain, eastShore + island::PlayerMotion::FullCurrentDistance, 0.0f);
     CheckNear(player.OceanCurrentStrength(terrain), 1.0f, 0.0001f,
               "ocean current reaches full normalized strength at its documented distance");
+    const island::OceanCurrentDrift fullCurrent = player.OceanCurrentVelocity(terrain);
+    Check(fullCurrent.x < -2.05f && fullCurrent.z > 0.35f
+              && std::hypot(fullCurrent.x, fullCurrent.z) < 2.25f,
+          "full current remains strongly shoreward with restrained coherent circulation");
+    bool currentFieldRemainsSafe = true;
+    for (int step = 0; step < 16; ++step) {
+        const float angle = 2.0f * std::numbers::pi_v<float>
+            * static_cast<float>(step) / 16.0f;
+        const float outwardX = std::cos(angle);
+        const float outwardZ = std::sin(angle);
+        const float currentRadius = terrain.ShoreRadius(angle)
+            + island::PlayerMotion::FullCurrentDistance;
+        player.SetPosition(terrain, outwardX * currentRadius, outwardZ * currentRadius);
+        const island::OceanCurrentDrift current = player.OceanCurrentVelocity(terrain);
+        const float inwardSpeed = -(current.x * outwardX + current.z * outwardZ);
+        const float circulationSpeed = -current.x * outwardZ + current.z * outwardX;
+        currentFieldRemainsSafe = currentFieldRemainsSafe
+            && std::isfinite(current.x) && std::isfinite(current.z)
+            && inwardSpeed > 2.09f && inwardSpeed < 2.11f
+            && circulationSpeed > 0.25f && circulationSpeed < 0.61f
+            && inwardSpeed > circulationSpeed;
+    }
+    Check(currentFieldRemainsSafe,
+          "full current stays finite, shoreward-dominant, and coherently circulating "
+          "around the island");
+    player.SetPosition(terrain, eastShore + island::PlayerMotion::SoftCurrentStart + 0.25f,
+                       0.0f);
+    const island::OceanCurrentDrift thresholdCurrent =
+        player.OceanCurrentVelocity(terrain);
+    Check(std::hypot(thresholdCurrent.x, thresholdCurrent.z) < 0.002f,
+          "current velocity eases continuously from zero at the soft boundary");
 
     player.SetPosition(terrain, eastShore + 80.0f, 0.0f);
     const float offshoreBeforeCurrent = player.OffshoreDistance(terrain);
@@ -2957,6 +2988,8 @@ int main()
     }
     Check(player.OffshoreDistance(terrain) < offshoreBeforeCurrent,
           "outer-ocean current gently carries an idle swimmer shoreward");
+    Check(player.Position().z > 0.20f,
+          "outer-ocean current gives an idle swimmer a mild coast-parallel drift");
 
     player.SetPosition(terrain, eastShore + 88.0f, 0.0f);
     for (int step = 0; step < 900; ++step) {
