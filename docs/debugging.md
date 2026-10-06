@@ -99,7 +99,7 @@ Current fields are:
 - local collision broad-phase candidates versus the complete static obstacle population;
 - active renderer identity;
 - all four authoritative layout seeds plus confirmed/unavailable F4 clipboard feedback;
-- visible/total terrain cells;
+- visible/total terrain cells and the smaller number of coalesced terrain draw submissions;
 - fixed distant-scenery islet count and its single draw submission;
 - visible contact-shadow total split across palms, canopy trees, land rocks, wood, and monkeys,
   plus the pass draw count;

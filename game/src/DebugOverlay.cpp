@@ -271,7 +271,8 @@ namespace island
 
         auto terrain = DiagnosticLine();
         terrain << "TERRAIN CELLS " << state.visibleTerrainCells << '/'
-                << state.totalTerrainCells << "  DISTANT " << state.distantIslets
+                << state.totalTerrainCells << " DRAWS " << state.terrainDraws
+                << "  DISTANT " << state.distantIslets
                 << " ISLETS " << state.distantSceneryDraws << " DRAW";
         lines.push_back(terrain.str());
 

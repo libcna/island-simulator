@@ -175,12 +175,18 @@ try {
     if (result.exited || result.error) break;
   }
 
+  const terrainBatchMatch = (result.output ?? "").match(
+    /visible terrain cells ([1-9][0-9]*)\/64 in ([1-9][0-9]*) shared-buffer draws/);
   const smokePassed = result.exited === true
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && /island-simulator: startup world [0-9.]+ ms, framework [0-9.]+ ms, content [0-9.]+ ms, pre-draw [0-9.]+ ms, first draw [0-9.]+ ms, total [0-9.]+ ms/.test(
       result.output ?? "")
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
+    && result.output?.includes(
+      "island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers")
+    && terrainBatchMatch !== null
+    && Number(terrainBatchMatch[2]) < Number(terrainBatchMatch[1])
     && result.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && result.output?.includes(

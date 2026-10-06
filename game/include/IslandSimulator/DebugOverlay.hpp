@@ -40,6 +40,7 @@ namespace island
         int waterViewDraws = 0;
         int visibleTerrainCells = 0;
         int totalTerrainCells = 0;
+        int terrainDraws = 0;
         int distantIslets = 0;
         int distantSceneryDraws = 0;
         int visibleContactShadows = 0;

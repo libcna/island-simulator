@@ -5,6 +5,7 @@
 #include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <exception>
@@ -406,72 +407,81 @@ void main()
     {
         cells_.clear();
         cells_.reserve(TerrainMeshLayout::CellCount);
-        vertexCount_ = 0;
-        primitiveCount_ = 0;
+        std::vector<VertexPositionColorTexture> vertices;
+        std::vector<std::uint16_t> indices;
+        vertices.reserve(static_cast<std::size_t>(TerrainMeshLayout::Resolution
+                                                  * TerrainMeshLayout::Resolution));
+        indices.reserve(static_cast<std::size_t>(TerrainMeshLayout::QuadsPerAxis
+                                                 * TerrainMeshLayout::QuadsPerAxis * 6));
+
+        for (int gridRow = 0; gridRow < TerrainMeshLayout::Resolution; ++gridRow) {
+            const float z = TerrainMeshLayout::Coordinate(gridRow);
+            for (int gridColumn = 0; gridColumn < TerrainMeshLayout::Resolution;
+                 ++gridColumn) {
+                const float x = TerrainMeshLayout::Coordinate(gridColumn);
+                const TerrainSample sample = terrain.Sample(x, z);
+                vertices.emplace_back(Vector3(x, sample.height, z), TerrainColor(sample),
+                                      Vector2(sample.signedShoreDistance,
+                                              sample.slopeRadians));
+            }
+        }
 
         for (std::size_t cellIndex = 0; cellIndex < TerrainMeshLayout::CellCount; ++cellIndex) {
             const TerrainCellLayout layout = TerrainMeshLayout::Cell(cellIndex);
-            std::vector<VertexPositionColorTexture> vertices;
-            std::vector<std::uint16_t> indices;
-            vertices.reserve(static_cast<std::size_t>(TerrainMeshLayout::VerticesPerCellAxis
-                                                       * TerrainMeshLayout::VerticesPerCellAxis));
-            indices.reserve(static_cast<std::size_t>(layout.quadColumns * layout.quadRows * 6));
             float minimumHeight = std::numeric_limits<float>::infinity();
             float maximumHeight = -std::numeric_limits<float>::infinity();
 
             for (int localRow = 0; localRow <= layout.quadRows; ++localRow) {
-                const float z = TerrainMeshLayout::Coordinate(layout.firstGridRow + localRow);
                 for (int localColumn = 0; localColumn <= layout.quadColumns; ++localColumn) {
-                    const float x = TerrainMeshLayout::Coordinate(
-                        layout.firstGridColumn + localColumn);
-                    const TerrainSample sample = terrain.Sample(x, z);
-                    vertices.emplace_back(Vector3(x, sample.height, z), TerrainColor(sample),
-                                          Vector2(sample.signedShoreDistance,
-                                                  sample.slopeRadians));
-                    minimumHeight = std::min(minimumHeight, sample.height);
-                    maximumHeight = std::max(maximumHeight, sample.height);
+                    const int gridRow = layout.firstGridRow + localRow;
+                    const int gridColumn = layout.firstGridColumn + localColumn;
+                    const std::size_t vertexIndex = static_cast<std::size_t>(
+                        gridRow * TerrainMeshLayout::Resolution + gridColumn);
+                    const float height = vertices[vertexIndex].Position.Y;
+                    minimumHeight = std::min(minimumHeight, height);
+                    maximumHeight = std::max(maximumHeight, height);
                 }
             }
 
+            RenderCell cell;
+            cell.firstIndex = static_cast<int>(indices.size());
             for (int row = 0; row < layout.quadRows; ++row) {
                 for (int column = 0; column < layout.quadColumns; ++column) {
                     const auto topLeft = static_cast<std::uint16_t>(
-                        row * TerrainMeshLayout::VerticesPerCellAxis + column);
+                        (layout.firstGridRow + row) * TerrainMeshLayout::Resolution
+                        + layout.firstGridColumn + column);
                     const auto topRight = static_cast<std::uint16_t>(topLeft + 1U);
                     const auto bottomLeft = static_cast<std::uint16_t>(
-                        topLeft + TerrainMeshLayout::VerticesPerCellAxis);
+                        topLeft + TerrainMeshLayout::Resolution);
                     const auto bottomRight = static_cast<std::uint16_t>(bottomLeft + 1U);
                     indices.insert(indices.end(), {topLeft, bottomLeft, topRight,
                                                    topRight, bottomLeft, bottomRight});
                 }
             }
 
-            RenderCell cell;
-            cell.vertexCount = static_cast<int>(vertices.size());
-            cell.primitiveCount = static_cast<int>(indices.size() / 3U);
+            cell.primitiveCount = layout.quadColumns * layout.quadRows * 2;
             cell.bounds = BoundingBox(
                 Vector3(layout.minimumX, minimumHeight - 0.1f, layout.minimumZ),
                 Vector3(layout.maximumX, maximumHeight + 0.1f, layout.maximumZ));
-            cell.vertices = std::make_unique<VertexBuffer>(
-                device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
-                cell.vertexCount, BufferUsage::WriteOnly);
-            cell.vertices->SetData(vertices.data(), cell.vertexCount);
-            cell.indices = std::make_unique<IndexBuffer>(
-                device_, IndexElementSize::SixteenBits, static_cast<int>(indices.size()),
-                BufferUsage::WriteOnly);
-            cell.indices->SetData(indices.data(), static_cast<int>(indices.size()));
-            vertexCount_ += cell.vertexCount;
-            primitiveCount_ += cell.primitiveCount;
             cells_.push_back(std::move(cell));
         }
+
+        vertexCount_ = static_cast<int>(vertices.size());
+        primitiveCount_ = static_cast<int>(indices.size() / 3U);
+        vertices_ = std::make_unique<VertexBuffer>(
+            device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
+            vertexCount_, BufferUsage::WriteOnly);
+        vertices_->SetData(vertices.data(), vertexCount_);
+        indices_ = std::make_unique<IndexBuffer>(
+            device_, IndexElementSize::SixteenBits, static_cast<int>(indices.size()),
+            BufferUsage::WriteOnly);
+        indices_->SetData(indices.data(), static_cast<int>(indices.size()));
     }
 
-    void TerrainRenderer::DrawGeometry(const RenderCell& cell)
+    void TerrainRenderer::DrawGeometry(const int firstIndex, const int primitiveCount)
     {
-        device_.SetVertexBuffer(cell.vertices.get());
-        device_.setIndicesProperty(cell.indices.get());
-        device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0, cell.vertexCount, 0,
-                                      cell.primitiveCount);
+        device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0, vertexCount_,
+                                      firstIndex, primitiveCount);
     }
 
     void TerrainRenderer::Draw(const Matrix& view, const Matrix& projection,
@@ -505,21 +515,38 @@ void main()
             fallbackEffect_->setProjectionProperty(projection);
         }
 
+        std::array<bool, TerrainMeshLayout::CellCount> visible{};
         visibleCellCount_ = 0;
-        for (const RenderCell& cell : cells_) {
-            if (!frustum.Intersects(cell.bounds)) {
-                continue;
-            }
-            if (materialReady_) {
-                DrawGeometry(cell);
-            } else {
-                for (auto& pass : fallbackEffect_->getCurrentTechniqueProperty()
-                                      ->getPassesProperty()) {
-                    pass.Apply();
-                    DrawGeometry(cell);
+        for (std::size_t cellIndex = 0; cellIndex < cells_.size(); ++cellIndex) {
+            visible[cellIndex] = frustum.Intersects(cells_[cellIndex].bounds);
+            visibleCellCount_ += visible[cellIndex] ? 1 : 0;
+        }
+
+        const TerrainMeshLayout::CellRuns runs =
+            TerrainMeshLayout::CoalesceVisibleCells(visible);
+        drawCallCount_ = 0;
+        device_.SetVertexBuffer(vertices_.get());
+        device_.setIndicesProperty(indices_.get());
+        const auto drawRuns = [&]() {
+            for (std::size_t runIndex = 0; runIndex < runs.count; ++runIndex) {
+                const TerrainMeshLayout::CellRun& run = runs.values[runIndex];
+                const RenderCell& firstCell = cells_[run.firstCell];
+                int runPrimitiveCount = 0;
+                for (std::size_t offset = 0; offset < run.cellCount; ++offset) {
+                    runPrimitiveCount += cells_[run.firstCell + offset].primitiveCount;
                 }
+                DrawGeometry(firstCell.firstIndex, runPrimitiveCount);
+                ++drawCallCount_;
             }
-            ++visibleCellCount_;
+        };
+        if (materialReady_) {
+            drawRuns();
+        } else {
+            for (auto& pass : fallbackEffect_->getCurrentTechniqueProperty()
+                                  ->getPassesProperty()) {
+                pass.Apply();
+                drawRuns();
+            }
         }
     }
 }

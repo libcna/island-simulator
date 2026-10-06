@@ -47,7 +47,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── ShorelineRenderer ── exact-coast foam/wash ribbon and stock-effect fallback
-      ├── TerrainRenderer ──── terrain cells, culling, portable material, and stock fallback
+      ├── TerrainRenderer ──── shared mesh, cell culling/run batching, portable material, fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── DebugFreeCamera ──── bounded renderer-independent inspection flight in debug builds
@@ -154,7 +154,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    before water so ocean transparency colours and reveals it. The near-surface veil follows the
    3D and shoreline passes so it colours their combined result.
 11. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
-   translucent control rings through CNA `SpriteBatch` with conservative edge margins.
+   translucent control rings through CNA `SpriteBatch` with conservative edge margins. Both the
+   generated texture and tint colours use premultiplied RGB, matching the default `AlphaBlend`
+   contract and avoiding opaque quads or bright antialiased fringes.
 12. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
    CNA `SpriteBatch` after all 3D passes.
 13. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
@@ -182,9 +184,12 @@ current without changing its physical invariant.
 
 ## Rendering baseline
 
-The terrain's authoritative 241 by 241 source grid is partitioned into 64 render cells. Each cell
-has portable 16-bit indices and an independent bounding box for frustum rejection; exact shared
-sample coordinates prevent cracks. Fixed daylight is currently baked into procedural terrain and
+The terrain's authoritative 241 by 241 source grid is stored once as 58,081 vertices in one
+portable 16-bit indexed mesh. Its indices are ordered in 64 render cells with independent bounding
+boxes for frustum rejection. Adjacent visible cells are coalesced into contiguous index ranges, so
+an overview currently submits 58 visible cells in three draws instead of 58 separate vertex/index
+buffer draws. Exact shared vertices prevent cracks and eliminate duplicated cell-edge data while
+retaining cell-granular culling. Fixed daylight is currently baked into procedural terrain and
 palm vertex colours. Terrain, ocean, and sky share one project-owned fixed sun direction so the
 surface lighting, water glint, and visible sun cannot silently diverge.
 
@@ -450,9 +455,10 @@ deterministically, uses subtle spatial breakup, and skips its fragment work whil
 shares the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
 a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
 ripple.
-Native OpenGL 3.3 and actual WebGL 2 execution select the full path. The API 35 Android emulator has
-created a real GLES3 surface and visibly rendered the current terrain/palm/grass scene; the captured
-camera did not establish every ocean effect variant, and mobile-GPU profiling remains open.
+Native OpenGL 3.3 and actual WebGL 2 execution select the full path. A KVM-accelerated API 35
+Android emulator has created a real GLES3 surface and visibly rendered the complete current scene;
+the overview does not establish every close ocean-effect variant, and physical mobile-GPU
+profiling remains open.
 
 `ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
 ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and
@@ -610,7 +616,8 @@ testing remain open.
 
 ## Current limitations
 
-- Terrain has cell culling but no distance LOD, authored material textures, or final biome masks.
+- Terrain has shared-buffer cell culling and contiguous visible-run batching but no distance LOD,
+  authored material textures, or final biome masks.
 - Palms have four geometry variants, segmented near leaflets, widened far crown silhouettes,
   staggered per-instance LOD, placement clustering, cell culling, subtle shader wind, trunk
   collision, irregular faceted root wedges, and a near-field terrain contact shadow. True LOD
@@ -636,11 +643,11 @@ testing remain open.
   release/reacquisition, responsive 16:9 presentation, and first-gesture CNA audio startup. Audible
   hardware-browser quality, genuine tab lifecycle, another browser engine, and visible
   hardware-GPU performance remain unverified.
-- Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. One x86_64
-  API 35 GLES3 frame is visually validated, but `/dev/kvm` is still absent from the current
-  environment despite loaded host KVM modules, and the software-emulated
-  Google Play image repeatedly enters System UI ANRs. Touch ergonomics, lifecycle restoration,
-  audio focus, sustained performance, and physical-device behaviour remain unverified.
+- Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. The API 35
+  x86_64 AVD now runs with KVM and host-GPU gfxstream; the complete GLES3 scene, independent
+  movement/look gestures, same-process background/foreground recovery, and AAudio pause/resume are
+  validated. Simultaneous-gesture ergonomics, audio-focus interruption, sustained performance,
+  thermals, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
   exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view
   now includes the exact terrain footprint/normals, ambient zones, wildlife audio candidates,

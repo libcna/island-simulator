@@ -117,10 +117,11 @@ been confirmed so far.
 - WebGL 2 runs in Chromium with automated rendering, pointer-lock, keyboard/mouse, overlay, resize,
   and first-gesture audio-mixer/track initialization coverage. Audible hardware-browser quality,
   genuine tab suspend/resume, fullscreen, and a second browser engine remain unverified.
-- Android arm64-v8a and x86_64 APKs build, and an API 35 x86_64 AVD rendered one GLES3 scene. Host
-  KVM modules are loaded but `/dev/kvm` is not exposed to the current environment; the
-  software-emulated System UI is unstable, so touch feel, lifecycle, audio,
-  performance, thermal behaviour, and physical-device compatibility remain unverified.
+- Android arm64-v8a and x86_64 APKs build, and a KVM-accelerated API 35 x86_64 AVD renders the
+  complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a
+  same-process hot resume, and AAudio pause/resume are validated. Simultaneous real-finger
+  ergonomics, audio-focus interruption, process-death recovery, physical mobile-GPU performance,
+  thermal behaviour, and physical-device compatibility remain unverified.
 
 ## Development tooling
 

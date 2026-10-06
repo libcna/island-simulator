@@ -72,7 +72,8 @@ a unit vector, applies a dead zone, and cancels missing contacts or contacts inv
 display-size change. The HUD remains inside conservative display-edge margins.
 
 The implementation and deterministic multi-touch tests are complete, and the same HUD rendering
-code compiles for OpenGL 3.3, WebGL 2, and OpenGL ES 3. The available API 35 emulator rendered the
-game through GLES3 but is too unstable without an exposed `/dev/kvm` device to establish touch
-feel or pause/resume quality.
-Sensitivity, optional handedness, and real-device ergonomic tuning remain open.
+code runs on OpenGL 3.3, WebGL 2, and OpenGL ES 3. A KVM-accelerated API 35 emulator visibly
+validated the translucent HUD and separately injected left-zone movement and right-zone look
+gestures. The game also survived a same-process background/foreground cycle with its audio stream
+paused and resumed. Simultaneous real-finger feel, sensitivity, optional handedness, and
+physical-device ergonomic tuning remain open.

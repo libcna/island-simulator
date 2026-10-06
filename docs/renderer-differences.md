@@ -14,9 +14,9 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 
 | Area | Linux / OpenGL 3.3 | Web / WebGL 2 | Android / OpenGL ES 3 |
 |---|---|---|---|
-| Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 | API 35 x86_64 AVD with SwiftShader GLES, no KVM |
-| Runtime state | Repeated interactive play plus isolated GPU smoke/captures | Automated real-browser render and controlled input | One installed first-launch render; unstable host System UI prevents full lifecycle qualification |
-| Terrain | Portable procedural sand/soil shader with close dry-sand granulation, shoreline-raked ripples, interior microvariation, sparse curved leaf litter, fixed-sun inland dappling, a narrow noise-mottled authored footpath, and distinct east/west clearing materials; 64 frustum-culled cells | Same GLSL ES 300 material/cell/detail/path/clearing diagnostics required by the harness; dedicated beach, driftwood, approach, jungle, and both clearing captures expose the cues | Revised sand/path/clearing-inclusive arm64 APK builds; runtime appearance and fragment cost remain unqualified |
+| Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 | Android Emulator 36.5.11, API 35 x86_64 AVD, KVM, gfxstream host GPU on AMD Radeon 780M |
+| Runtime state | Repeated interactive play plus isolated GPU smoke/captures | Automated real-browser render and controlled input | Installed complete-scene render, independent movement/look gestures, and same-process background/foreground recovery |
+| Terrain | Portable procedural sand/soil shader with close dry-sand granulation, shoreline-raked ripples, interior microvariation, sparse curved leaf litter, fixed-sun inland dappling, a narrow noise-mottled authored footpath, and distinct east/west clearing materials; one 58,081-vertex/115,200-triangle shared mesh retains 64 cull cells and coalesces adjacent visible index ranges | Same GLSL ES 300 material/cell/detail/path/clearing diagnostics required by the harness; shared-buffer diagnostic reports 58 visible cells in three draws; dedicated captures expose the close cues | Shared-buffer GLES 3 overview is visually validated without seams; close material appearance and physical-mobile fragment cost remain unqualified |
 | Sky | Full fixed gradient/sun shader with sparse layered horizontal high wisps selected | Same GLSL ES 300 shader required by every harness scene; browser captures show no former vertical streaks | Sky-inclusive arm64 APK builds; current shader runtime remains unqualified |
 | Distant scenery | Five fogged unreachable islets and 11 simplified palms in one 787-triangle `BasicEffect` batch | Same batch; dedicated browser capture visually matches native | Batch compiles into the arm64 APK; current runtime capture does not qualify it |
 | Contact shadows | One terrain-conforming `BasicEffect` batch grounds nearby palms, canopy trees, land rocks, wood, and monkeys; static sampling and small-movement uploads are cached | Same batch; close browser prop capture reports 35 shadows and 420 triangles in one draw | Pass compiles into the arm64 APK; current runtime capture does not qualify it |
@@ -30,11 +30,11 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 | Fish | 48 agents in eight depth-bounded schools, 51/12-vertex CPU-lit near/far meshes, single-surface fins, CPU tail animation, one dynamic draw | Same simulation, reduced geometry, and `BasicEffect` batch; dedicated browser capture is visually inspected and requires the exact mesh diagnostic | Revised fish-inclusive arm64 APK builds; runtime remains unqualified |
 | Shark | One occasional non-hostile deep-water patrol, 51/15-vertex CPU-lit near/far meshes, single-surface fins, CPU body/tail animation, one dynamic draw | Same simulation, reduced geometry, and `BasicEffect` batch; dedicated browser capture is visually inspected and requires the exact mesh diagnostic | Revised shark-inclusive arm64 APK builds; runtime remains unqualified |
 | Monkeys | Seven agents, three near/far silhouettes, four palettes, generated fourteen-bone rig, four clips, local-pose crossfades, CNA `SkinnedEffect` | Same mesh-selection/GPU-skinning/crossfade path; dedicated browser capture and all four live states are visually inspected | Monkey-inclusive arm64 APK builds and app lint passes; runtime remains unqualified |
-| Audio | CNA opened a 44.1 kHz stereo device, plays four procedural mono loops, modulates the water loop with the offshore undertow cue, prepared both wave/water accent variants, and accepted a scheduled stronger-wave one-shot | First click opened the CNA mixer and prepared every current effect; deterministic shoreline traversal played a selected water-transition variant, while the current camera validates the shared undertow target | Complete current audio layer builds into the arm64 APK; device playback/focus remains unqualified |
-| Camera feel | Speed-responsive, positional-only walking/swimming motion; B opt-out | Same renderer-independent model; B disable/restore is automated in Chromium | Same model compiles; touch feel and a runtime opt-out UI remain open |
+| Audio | CNA opened a 44.1 kHz stereo device, plays four procedural mono loops, modulates the water loop with the offshore undertow cue, prepared both wave/water accent variants, and accepted a scheduled stronger-wave one-shot | First click opened the CNA mixer and prepared every current effect; deterministic shoreline traversal played a selected water-transition variant, while the current camera validates the shared undertow target | AAudio opened 44.1 kHz stereo and paused/restarted across a same-process Home/resume cycle; audible quality and external audio-focus interruption remain open |
+| Camera feel | Speed-responsive, positional-only walking/swimming motion; B opt-out | Same renderer-independent model; B disable/restore is automated in Chromium | Independent movement and relative-look gestures work; real-finger simultaneous feel and a runtime opt-out UI remain open |
 | Debug UI | Runtime-generated font/SpriteBatch panel with authoritative seed rows and confirmed F4 clipboard copy, plus two-draw F2 `BasicEffect` lines for traversal, exact attempted/resolved movement and nine-point terrain contact/normal queries, scene cells, wildlife headings/navigation, all three bird route volumes and 24 spawn headings, six ambient-zone contours, audio candidates, and the active positional emitter. Debug builds add bounded F3 inspection flight with real Xwayland input coverage | Same panel and F2 line path; F4 uses the browser clipboard surface but reports unavailable when permission or gesture policy prevents verified readback. Automated F2 input validation requires the movement/contact/navigation/bird-route/audio diagnostic. The production release excludes F3 ownership and update code at compile time | Same seed panel and F4 clipboard path; debug APKs compile the F3 keyboard path, but there is no touch affordance and runtime remains unqualified |
-| Touch UI | Hidden until a touch is observed | Hidden until a touch is observed | Generated movement/look rings are enabled by default; post-HUD runtime capture remains open |
-| Presentation | 1280 by 720 preferred window | 1280 by 720 canvas with aspect-preserving CSS fit | Fixed landscape/fullscreen request; emulator surface was 2400 by 1080 |
+| Touch UI | Hidden until a touch is observed | Hidden until a touch is observed | Premultiplied generated movement/look rings are enabled by default and visibly validated as translucent rather than rectangular |
+| Presentation | 1280 by 720 preferred window | 1280 by 720 canvas with aspect-preserving CSS fit | Fixed landscape/fullscreen 2400 by 1080 surface with a centred 1920 by 1080 game viewport |
 
 No deliberate material or content downgrade exists yet. That is not a promise that the current
 desktop density is appropriate for all mobile GPUs; Android quality tiers will be introduced only
@@ -49,30 +49,32 @@ after representative physical-device profiling.
   click and handles release/reacquisition and responsive resizing.
 - Android uses a stable left movement pointer and right relative-look pointer. Display-size changes
   and missing/released contacts cancel safely. Fixed landscape avoids an unsupported live rotation
-  transition during play.
+  transition during play. Independent movement/look gestures are validated on the accelerated AVD;
+  simultaneous real-finger ergonomics remain a physical-device task.
 - Browser first-gesture mixer/track startup is automated in Chromium; audible hardware-browser
-  quality and genuine tab suspension/resume remain open. Android audio focus and graphics resource
-  restoration require a stable accelerated emulator or physical device.
+  quality and genuine tab suspension/resume remain open. Android surface and AAudio restoration
+  survive one same-process Home/resume cycle; external audio-focus changes and process death remain
+  open.
 
 ## Performance interpretation
 
-Do not compare the current Android emulator frame time with Linux or browser performance. Without
-`/dev/kvm`, the AVD uses QEMU TCG for CPU execution and SwiftShader for graphics; measured frames
-took roughly 0.6--1.7 seconds and the operating system itself repeatedly entered ANR states. This
-only establishes that the package loads and produces GLES3 output. Mobile density, memory, thermal,
-and frame-time decisions require a real device or KVM-accelerated emulator.
+The current Android emulator uses KVM for CPU execution and host-GPU gfxstream rather than the
+former QEMU TCG/SwiftShader path. It is suitable for functional GLES, input, lifecycle, startup,
+and same-environment before/after checks. Its compositor cadence and translated host graphics do
+not represent a physical mobile GPU, so shipping density, memory, thermal, power, and frame-time
+decisions still require a representative device.
 
 Linux now has a repeatable five-view uncapped frame-time suite, a 676 m moving traversal, and an
 initial accelerated Radeon 780M baseline documented in `docs/performance.md`. The same C++
 benchmark path compiles into Web
-and Android, but no browser or device number is considered qualified until it runs on explicitly
-identified hardware without SwiftShader or unaccelerated QEMU.
+and Android. Emulator measurements retain their exact AVD, KVM, gfxstream, and host-GPU identity;
+physical-device budgets remain separate.
 
 ## Open qualification work
 
-- Capture matched beach and ocean views on Android after the touch HUD change.
-- Exercise simultaneous touch movement/look, swimming, cancellation, and pause/resume on a stable
-  Android target.
+- Capture matched close beach, jungle, ocean, wildlife, and swimming views on Android.
+- Exercise simultaneous real-finger movement/look, swimming, cancellation, audio-focus changes,
+  process death, and long pause/resume on a physical Android target.
 - Run a visible hardware-accelerated Web session and another browser engine.
 - Measure representative beach, jungle, hill, waterline, and active-current views on every target.
 - Record any measured quality-tier divergence here before enabling it by default.

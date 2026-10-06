@@ -44,26 +44,28 @@ namespace island
         }
         [[nodiscard]] int VertexCount() const noexcept { return vertexCount_; }
         [[nodiscard]] int PrimitiveCount() const noexcept { return primitiveCount_; }
+        [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
 
     private:
         struct RenderCell
         {
-            std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices;
-            std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> indices;
             Microsoft::Xna::Framework::BoundingBox bounds;
-            int vertexCount = 0;
+            int firstIndex = 0;
             int primitiveCount = 0;
         };
 
         void CreateMesh(const IslandTerrain& terrain);
-        void DrawGeometry(const RenderCell& cell);
+        void DrawGeometry(int firstIndex, int primitiveCount);
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> materialEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> indices_;
         std::vector<RenderCell> cells_;
         bool materialReady_ = false;
         int visibleCellCount_ = 0;
+        int drawCallCount_ = 0;
         int vertexCount_ = 0;
         int primitiveCount_ = 0;
     };

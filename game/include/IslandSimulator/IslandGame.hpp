@@ -139,6 +139,9 @@ namespace island
             int minimumTerrainCells = 0;
             int maximumTerrainCells = 0;
             std::uint64_t totalTerrainCells = 0U;
+            int minimumTerrainDraws = 0;
+            int maximumTerrainDraws = 0;
+            std::uint64_t totalTerrainDraws = 0U;
             int minimumContactShadows = 0;
             int maximumContactShadows = 0;
             std::uint64_t totalContactShadows = 0U;

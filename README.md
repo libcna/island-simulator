@@ -2,7 +2,7 @@
 
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming
 experience built in C++23 with CNA. The project is at the beginning of a long development campaign.
-The current slice renders a deterministic approximately 500 m island with portable procedural
+The current playable slice renders a deterministic approximately 500 m island with portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
 microvariation, sparse curved leaf litter, close dry-sand granulation, subtle shoreline-raked
 ripples, restrained fixed-sun jungle-floor dappling, and a narrow noise-mottled, broken-edge
@@ -84,10 +84,11 @@ water-entry/exit textures. The same continuous water layer now develops a subtle
 bed as the 42--72 m offshore current strengthens, without adding another persistent source. Two
 bird phrases and two monkey contact phrases share one positional
 voice attached to actual nearby agents. All audio is generated without external sound files. The
-complete scene runs on Linux/OpenGL 3.3 and in an actual
-Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
-terrain/palm/grass scene through OpenGL ES 3; the current complete arm64 APK builds and lints, but
-its runtime and real-device touch feel are not yet qualified.
+complete scene runs on Linux/OpenGL 3.3, in an actual Chromium/WebGL 2 context, and in a
+KVM-accelerated Android API 35 x86_64 emulator through OpenGL ES 3. The accelerated Android pass
+also exercises movement and look gestures, AAudio startup, and background/foreground recovery.
+Physical-device touch ergonomics, thermals, and sustained mobile-GPU performance are not yet
+qualified.
 
 There are deliberately no quests, combat, inventory, crafting, survival systems, score,
 progression, dynamic weather, or day/night cycle.
@@ -199,10 +200,11 @@ browser engine remain open.
 
 The Android project produces arm64-v8a device and x86_64 emulator APKs with an explicit GLES 3
 renderer. The left half of the screen supplies a floating movement stick and the right half uses
-relative drag-to-look, with subtle generated control indicators. The first software-emulated GLES3
-frame is validated, but the current environment still exposes no `/dev/kvm` even though the host
-KVM modules are loaded; Android's System UI is unstable under software emulation. Lifecycle,
-audio, touch ergonomics, and mobile performance remain open. See
+relative drag-to-look, with subtle generated premultiplied-alpha control indicators. Android
+Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-GPU gfxstream.
+The complete current scene, independent movement/look gestures, a same-process hot resume, and
+AAudio pause/resume are validated there. This is meaningful emulator qualification, but it does
+not replace physical-device ergonomics, thermal, driver, and sustained-performance testing. See
 `docs/build-android.md` and `PLAN.md` for exact evidence and commands.
 
 ## Project records

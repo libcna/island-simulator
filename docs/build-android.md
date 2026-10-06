@@ -10,15 +10,16 @@ scene on an API 35 emulator.
 
 The Android UI is fixed landscape/fullscreen and includes dual-zone touch movement/look controls
 with generated on-screen affordances. It uses the same restrained walking/swimming camera-motion
-model as desktop, although an on-screen opt-out is not implemented yet. The host now loads `kvm`
-and `kvm_amd`, and the developer is a member of the `kvm` group, but this environment still exposes
-no `/dev/kvm` device node. Its existing software-emulated GLES3 render is valid renderer evidence
-but not touch, lifecycle, or performance qualification.
-Those claims still require a stable accelerated emulator or physical device.
+model as desktop, although an on-screen opt-out is not implemented yet. The host loads `kvm` and
+`kvm_amd`, exposes `/dev/kvm` as device `10:232`, and grants the developer access through the
+`kvm` group. Android Emulator 36.5.11 now runs the API 35 x86_64 AVD with KVM and host-GPU
+gfxstream. The complete scene, independent movement/look gestures, same-process hot resume, and
+AAudio pause/resume are validated there. Physical-device ergonomics, driver coverage, thermals,
+and extended performance remain open.
 
-The current host reports KVM at misc-device `10:232`. If its device node remains absent after the
-modules are loaded, recreate it through udev (preferred) or explicitly as root, then start a fresh
-shell so the configured `kvm` group is active:
+If another host reports KVM at misc-device `10:232` but lacks the device node after its modules are
+loaded, recreate it through udev (preferred) or explicitly as root, then start a fresh shell so the
+configured `kvm` group is active:
 
 ```bash
 sudo udevadm trigger --subsystem-match=misc --sysname-match=kvm --action=add
@@ -35,7 +36,7 @@ sudo chown root:kvm /dev/kvm
 
 Do not run the emulator or game as root. Verify access with
 `$ANDROID_SDK_ROOT/emulator/emulator -accel-check`; a shell opened before group membership changed
-can instead launch the validation command through `sg kvm`.
+can instead launch the emulator or validation command through `sg kvm`.
 
 The current arm64 package includes the portable procedural sand/soil terrain material with
 near-field interior microvariation and sparse curved leaf litter, the broadleaf jungle with
@@ -65,14 +66,15 @@ offshore-current modulation, a deeper current-responsive undertow mix in the exi
 and a pooled
 positional voice with two bird and two monkey phrases. That package
 builds and passes application lint. The current x86_64 runtime gate constructed this complete scene,
-reported its biome-aware grass path, and completed a GLES 3 first draw. The software-emulator
-screenshot establishes integrated rendering but is not detailed enough to qualify every layer's
-appearance, touch feel, audio output, lifecycle, or performance.
-The latest single-ABI arm64 debug qualification build produced an 18,708,476-byte APK with a
-15,898,192-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
+overview establishes integrated rendering, including the corrected translucent touch HUD, but is
+not detailed enough to qualify every layer's close appearance.
+The latest single-ABI arm64 debug qualification build produced an 18,710,140-byte APK with a
+15,899,856-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
-geometry, and the shared run-capable input resolver used by hardware keyboards. The APK verifies
+geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
+terrain cell batching. The APK verifies
 with signature
 scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
 incremental assembly.
@@ -167,29 +169,41 @@ the CNA baseline changes.
 
 ## Current runtime evidence
 
-The runtime passes used the API 35 `Medium_Phone` Google Play x86_64 AVD with Android Emulator
-software acceleration disabled (`-accel off`) and SwiftShader GLES. The host exposes no `/dev/kvm`.
-An initial 2400 by 1080 pass visibly rendered terrain, palms, mesh grass, and the touch HUD. For a
-repeatable current-content pass, the guest display was temporarily reduced to 800 by 360 so its
-software-rendered System UI could keep a surface alive. The setting was test-environment state, not
-an application quality tier, and the AVD was returned to its original 1080 by 2400 / 420 dpi state
-afterward.
+The current qualification pass uses the API 35 `Medium_Phone` Google Play x86_64 AVD with Android
+Emulator 36.5.11, `-accel on`, and `-gpu host`. `emulator -accel-check` reports KVM version 12 as
+usable. Gfxstream translates GLES through the host AMD Radeon 780M. The guest remains at its
+physical 1080 by 2400 / 420 dpi configuration and presents the landscape application surface at
+2400 by 1080. CNA preserves its requested 16:9 game viewport as a centred 1920 by 1080 region.
 
-The current APK loaded `libSDL3.so` and `libmain.so`, created an 800 by 360 RGBA8888 surface, and
-reported biome-aware grass, renderer `OPENGLES3`, and a completed first draw. Application timings
-were 157126.852 ms for world generation, 256204.401 ms for content creation, 7708.990 ms for the
-first draw body, and 421449.067 ms total. These extreme QEMU TCG values are diagnostic evidence,
-not a mobile baseline. The captured frame contains the complete current scene and touch HUD behind
-Android's one-time fullscreen help overlay.
+The current APK loaded `libSDL3.so` and `libmain.so`, created an RGBA8888 GLES 3 surface, opened a
+44.1 kHz stereo AAudio stream, reported renderer `OPENGLES3`, and completed its first draw. The
+shared-buffer terrain build measured 487.895 ms for world generation, 3.421 ms for framework
+initialization, 1107.472 ms for content creation, 20.058 ms before the first draw, 47.937 ms for
+the first draw body, and 1666.782 ms total. The previous unaccelerated QEMU TCG pass took
+421449.067 ms total; that historical number remains useful only to explain why it was not a valid
+runtime target.
 
-The AVD took 229 seconds for the successful cold boot. Its System and System UI processes repeatedly
-entered ANR/restart states under QEMU TCG, including while the game remained alive. Gfxstream also
-logged 27 `GL_INVALID_OPERATION` reports at uniform-location queries even though shader creation and
-the first frame completed; reproduce that observation on a stable target before classifying its
-source. This pass therefore does not qualify frame rate, input latency, touch ergonomics,
-pause/resume, audio focus, sustained memory, thermals, or clean shutdown. Guest root access would
-not supply the missing host virtualization. Use KVM or a physical device for the remaining runtime
-matrix.
+The first accelerated screenshot exposed opaque white touch rectangles caused by game-owned
+straight-alpha pixels entering CNA `SpriteBatch`'s premultiplied-alpha blend state. The game now
+premultiplies both generated circle texels and tint colours. A rebuilt GLES 3 capture shows clean
+translucent rings without rectangular backgrounds. Separately injected left-zone movement and
+right-zone relative-look gestures changed the player position and view while the process remained
+alive. Deterministic core tests continue to cover simultaneous contact ownership and cancellation;
+real-finger simultaneous ergonomics still require a physical device.
+
+Pressing Home destroyed the surface and paused AAudio; bringing the activity back recreated the
+surface, restarted the same audio stream, and retained the same process. The hot activity launch
+reported 77 ms total / 80 ms wait. No fatal, shader-compilation, `GL_INVALID_OPERATION`, or prior
+software-AVD uniform-query error appeared in the accelerated logs. A later memory snapshot reported
+87.3 MiB total PSS, 167.3 MiB RSS, and 0.5 MiB swap PSS. These are emulator observations, not
+physical-device budgets.
+
+SurfaceFlinger presentation samples at the same initial scene improved after terrain visible-cell
+run batching from 40.903 ms mean (24.45 frames/s, 71 of 126 intervals over 40 ms) to 34.163 and
+32.590 ms mean (29.27 and 30.68 frames/s, respectively, with 6 and 1 intervals over 40 ms). This is
+useful same-AVD before/after evidence, but it includes compositor/emulator effects and is not a
+mobile GPU frame-time claim. Physical-device input latency, touch ergonomics, audio-focus
+interruption, sustained memory, thermals, and clean process-death restoration remain open.
 
 Useful diagnostics for a connected test target are:
 

@@ -581,7 +581,7 @@ namespace island
                   << "island-simulator: terrain " << terrainRenderer_->VertexCount()
                   << " vertices, " << terrainRenderer_->PrimitiveCount() << " triangles in "
                   << terrainRenderer_->TotalCellCount()
-                  << " cells\n"
+                  << " cull cells with shared buffers\n"
                   << "island-simulator: collision grid "
                   << worldCollisionGrid_.Obstacles().size() << " static obstacles in "
                   << worldCollisionGrid_.CellCount() << " occupied cells\n"
@@ -1135,7 +1135,7 @@ namespace island
 
     int IslandGame::TrackedSceneDrawCount() const noexcept
     {
-        return 2 + terrainRenderer_->VisibleCellCount()
+        return 2 + terrainRenderer_->DrawCallCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
@@ -1149,6 +1149,7 @@ namespace island
     {
         const int trackedDraws = TrackedSceneDrawCount();
         const int terrainCells = terrainRenderer_->VisibleCellCount();
+        const int terrainDraws = terrainRenderer_->DrawCallCount();
         const int contactShadows = contactShadowRenderer_->VisibleShadowCount();
         const int palms = palmRenderer_->VisiblePalmCount();
         const int canopy = jungleRenderer_->VisibleCanopyCount();
@@ -1159,6 +1160,7 @@ namespace island
         if (ranges.sampleCount == 0U) {
             ranges.minimumTrackedDraws = ranges.maximumTrackedDraws = trackedDraws;
             ranges.minimumTerrainCells = ranges.maximumTerrainCells = terrainCells;
+            ranges.minimumTerrainDraws = ranges.maximumTerrainDraws = terrainDraws;
             ranges.minimumContactShadows = ranges.maximumContactShadows = contactShadows;
             ranges.minimumPalms = ranges.maximumPalms = palms;
             ranges.minimumCanopy = ranges.maximumCanopy = canopy;
@@ -1170,6 +1172,8 @@ namespace island
             ranges.maximumTrackedDraws = std::max(ranges.maximumTrackedDraws, trackedDraws);
             ranges.minimumTerrainCells = std::min(ranges.minimumTerrainCells, terrainCells);
             ranges.maximumTerrainCells = std::max(ranges.maximumTerrainCells, terrainCells);
+            ranges.minimumTerrainDraws = std::min(ranges.minimumTerrainDraws, terrainDraws);
+            ranges.maximumTerrainDraws = std::max(ranges.maximumTerrainDraws, terrainDraws);
             ranges.minimumContactShadows = std::min(
                 ranges.minimumContactShadows, contactShadows);
             ranges.maximumContactShadows = std::max(
@@ -1187,6 +1191,7 @@ namespace island
         }
         ranges.totalTrackedDraws += static_cast<std::uint64_t>(trackedDraws);
         ranges.totalTerrainCells += static_cast<std::uint64_t>(terrainCells);
+        ranges.totalTerrainDraws += static_cast<std::uint64_t>(terrainDraws);
         ranges.totalContactShadows += static_cast<std::uint64_t>(contactShadows);
         ranges.totalPalms += static_cast<std::uint64_t>(palms);
         ranges.totalCanopy += static_cast<std::uint64_t>(canopy);
@@ -1290,6 +1295,10 @@ namespace island
                << ranges.minimumTerrainCells << ", \"max\": "
                << ranges.maximumTerrainCells << ", \"mean\": "
                << meanCount(ranges.totalTerrainCells) << "},\n"
+               << "    \"terrain_draw_submissions\": {\"min\": "
+               << ranges.minimumTerrainDraws << ", \"max\": "
+               << ranges.maximumTerrainDraws << ", \"mean\": "
+               << meanCount(ranges.totalTerrainDraws) << "},\n"
                << "    \"contact_shadows\": {\"min\": "
                << ranges.minimumContactShadows << ", \"max\": "
                << ranges.maximumContactShadows << ", \"mean\": "
@@ -1308,6 +1317,8 @@ namespace island
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
                << "    \"terrain_cells\": " << terrainRenderer_->VisibleCellCount() << ",\n"
+               << "    \"terrain_draw_submissions\": "
+               << terrainRenderer_->DrawCallCount() << ",\n"
                << "    \"distant_islets\": "
                << distantSceneryRenderer_->IsletCount() << ",\n"
                << "    \"contact_shadows\": "
@@ -1537,6 +1548,7 @@ namespace island
             overlayState.waterViewDraws = waterViewOverlay_->DrawCallCount();
             overlayState.visibleTerrainCells = terrainRenderer_->VisibleCellCount();
             overlayState.totalTerrainCells = terrainRenderer_->TotalCellCount();
+            overlayState.terrainDraws = terrainRenderer_->DrawCallCount();
             overlayState.distantIslets = distantSceneryRenderer_->IsletCount();
             overlayState.distantSceneryDraws = distantSceneryRenderer_->DrawCallCount();
             overlayState.visibleContactShadows =
@@ -1720,7 +1732,9 @@ namespace island
                 currentStrength).currentCue;
             std::cout << "island-simulator: visible terrain cells "
                       << terrainRenderer_->VisibleCellCount() << '/'
-                      << terrainRenderer_->TotalCellCount() << ", collision candidates "
+                      << terrainRenderer_->TotalCellCount() << " in "
+                      << terrainRenderer_->DrawCallCount()
+                      << " shared-buffer draws, collision candidates "
                       << worldCollisionGrid_.CandidateCount(
                              player.x, player.z, PlayerMotion::CapsuleRadius)
                       << '/' << worldCollisionGrid_.Obstacles().size() << ", palms "

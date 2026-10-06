@@ -1691,6 +1691,37 @@ int main()
               == static_cast<std::size_t>(island::TerrainMeshLayout::QuadsPerAxis
                                            * island::TerrainMeshLayout::QuadsPerAxis * 2),
           "terrain cells cover every source-grid triangle exactly once");
+    Check(island::TerrainMeshLayout::Resolution * island::TerrainMeshLayout::Resolution
+              == 58081,
+          "the shared terrain vertex grid remains inside the portable 16-bit index budget");
+    std::array<bool, island::TerrainMeshLayout::CellCount> noVisibleTerrainCells{};
+    Check(island::TerrainMeshLayout::CoalesceVisibleCells(noVisibleTerrainCells).count == 0U,
+          "terrain batching emits no range when every cell is culled");
+    std::array<bool, island::TerrainMeshLayout::CellCount> allVisibleTerrainCells{};
+    allVisibleTerrainCells.fill(true);
+    const island::TerrainMeshLayout::CellRuns oneTerrainRun =
+        island::TerrainMeshLayout::CoalesceVisibleCells(allVisibleTerrainCells);
+    Check(oneTerrainRun.count == 1U && oneTerrainRun.values[0].firstCell == 0U
+              && oneTerrainRun.values[0].cellCount == island::TerrainMeshLayout::CellCount,
+          "terrain batching merges one fully visible island into one index range");
+    std::array<bool, island::TerrainMeshLayout::CellCount> sparseTerrainCells{};
+    sparseTerrainCells[0] = true;
+    sparseTerrainCells[1] = true;
+    sparseTerrainCells[3] = true;
+    sparseTerrainCells[4] = true;
+    sparseTerrainCells[5] = true;
+    sparseTerrainCells.back() = true;
+    const island::TerrainMeshLayout::CellRuns sparseTerrainRuns =
+        island::TerrainMeshLayout::CoalesceVisibleCells(sparseTerrainCells);
+    Check(sparseTerrainRuns.count == 3U
+              && sparseTerrainRuns.values[0].firstCell == 0U
+              && sparseTerrainRuns.values[0].cellCount == 2U
+              && sparseTerrainRuns.values[1].firstCell == 3U
+              && sparseTerrainRuns.values[1].cellCount == 3U
+              && sparseTerrainRuns.values[2].firstCell
+                  == island::TerrainMeshLayout::CellCount - 1U
+              && sparseTerrainRuns.values[2].cellCount == 1U,
+          "terrain batching preserves gaps while merging adjacent visible cells");
 
     Check(terrain.IsLand(0.0f, 0.0f), "island centre is land");
     Check(!terrain.IsLand(420.0f, 0.0f), "far offshore point is water");

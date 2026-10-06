@@ -26,6 +26,7 @@ The suite covers overview, beach, dense jungle, shoreline detail, and close monk
 then a 676 m moving camera rail. The generated schema-2 JSON files contain resolution, renderer
 identity, sampling settings, mean/median/p95/p99 frame duration, minimum/maximum duration, mean
 FPS, the final scene snapshot, and min/max/mean ranges for tracked submissions, terrain cells,
+coalesced terrain draw submissions,
 contact shadows, palms, canopy, and grass. These generated reports belong under `build/` or
 `/tmp`; they are evidence, not source artifacts.
 
@@ -65,12 +66,38 @@ measured 494.8805 ms world generation, 526.8526 ms content creation, 2.6629 ms f
 make it unsuitable as a regression baseline. The actual Chrome 152/SwiftShader WebGL 2 gate
 measured 134.8 ms world generation, 246.8 ms content creation, 15.7 ms first draw, and 438.0 ms
 total; SwiftShader is likewise functional evidence rather than hardware-browser performance.
-The API 35 x86_64 software-only Android AVD reported 157126.852 ms world generation,
+The historical API 35 x86_64 software-only Android AVD reported 157126.852 ms world generation,
 256204.401 ms content creation, 7708.990 ms first draw, and 421449.067 ms total at 800 by 360.
-Those QEMU TCG values prove that the Android instrumentation and current GLES 3 scene reached a
-first draw; they must never be used as a device startup budget or performance comparison.
+Those QEMU TCG values only proved that the Android instrumentation and GLES 3 scene reached a first
+draw. After `/dev/kvm` became available, the same API 35 AVD under Android Emulator 36.5.11,
+KVM, and host-GPU gfxstream reported 487.895 ms world generation, 3.421 ms framework
+initialization, 1107.472 ms content creation, 20.058 ms pre-draw, 47.937 ms first draw, and
+1666.782 ms total at its restored 2400 by 1080 landscape surface. This is an emulator startup
+qualification point, not a physical-device budget.
 Two isolated release and debug repetitions per target remain required before setting startup
 budgets.
+
+## KVM Android emulator qualification
+
+The accelerated API 35 x86_64 pass uses KVM version 12 and gfxstream on the host AMD Radeon 780M.
+The complete GLES 3 scene, AAudio startup, independent movement/look gestures, and a same-process
+Home/resume cycle are functional. A memory snapshot after the scene settled reported 87.3 MiB
+total PSS, 167.3 MiB RSS, and 0.5 MiB swap PSS. The hot resume took 77 ms application total /
+80 ms wait and paused then restarted the existing 44.1 kHz stereo AAudio stream.
+
+The terrain originally retained 64 independently culled cells but also owned 64 duplicated-edge
+vertex/index buffer pairs and issued one draw per visible cell. It now stores the 241 by 241 grid
+as one 58,081-vertex, 115,200-triangle 16-bit mesh, retains all 64 cell bounds and cell-ordered
+index ranges, and coalesces adjacent visible cells. The overview exposes 58 visible cells as three
+terrain submissions. Native OpenGL 3.3, actual WebGL 2, and Android GLES 3 overview captures show
+the same continuous terrain without seams.
+
+Two post-change SurfaceFlinger samples at the same initial Android scene averaged 34.163 ms and
+32.590 ms between presentations (29.27 and 30.68 frames/s), with 6 and 1 of 126 intervals over
+40 ms. The isolated pre-change sample averaged 40.903 ms (24.45 frames/s) with 71 of 126 intervals
+over 40 ms. This is a strong same-AVD direction check, not isolated GPU timing: it includes the
+Android compositor, emulator, host scheduling, and host graphics translation. Physical-device
+frame pacing, thermal behaviour, power, and sustained memory remain open.
 
 ## Moving traversal
 
@@ -108,6 +135,28 @@ The beach view is currently the heaviest of these fixed native scenes. This is a
 comparison baseline, not a shipping budget: it uses a debug build, one integrated GPU/driver,
 one resolution, no isolated audio output, and no WebGL 2 or Android hardware measurement. It also
 does not expose GPU-only time, thermal throttling, memory bandwidth, power, or loading cost.
+
+## Current shared-buffer Linux qualification
+
+After the full scene and shared terrain-buffer work, a fresh isolated private-Xwayland suite on the
+same Radeon 780M recorded the following debug results. Audio remained unavailable in the private
+compositor. These numbers are not a direct terrain-only before/after comparison with the initial
+baseline because many later visual systems were added; they establish the current runnable state
+and validate the lower submission accounting.
+
+| View | Mean ms | p95 ms | p99 ms | Tracked submissions | Terrain cells / draws |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.3356 | 1.8511 | 2.1589 | 22 | 58 / 3 |
+| Beach | 2.2530 | 2.9296 | 3.3000 | 91 | 44 / 4 |
+| Jungle | 2.4574 | 3.8252 | 5.9426 | 88 | 23 / 8 |
+| Driftwood/shore detail | 1.4333 | 1.9200 | 2.5739 | 48 | 9 / 3 |
+| Monkeys | 2.3064 | 3.5301 | 4.3514 | 87 | 20 / 5 |
+| Moving traversal | 3.7348 | 7.7032 | 9.6555 | 7 at final sample | 7 / 2 at final sample |
+
+The traversal ranged over 6--47 visible terrain cells but only 2--7 terrain submissions, with a
+4.4617-draw mean. Its total tracked submissions ranged from 7 to 94. Fixed-scene terrain draw
+counts remain constant across all 600 samples, and every report includes the new structured
+`terrain_draw_submissions` field.
 
 ### Fallen-frond follow-up
 

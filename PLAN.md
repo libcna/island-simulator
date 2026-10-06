@@ -182,8 +182,8 @@ Dependencies: none.
   need inspection before the Web build.
 - [x] Inventory Android SDK platform 35, Build Tools 36.1.0, NDK 29.0.14206865, SDK CMake 4.1.2,
   JDK 21, Gradle 8.12, arm64-v8a/x86_64 package paths, and three API 35 x86_64 AVDs. No physical
-  device is connected. The host now loads `kvm`/`kvm_amd` and group membership is configured, but
-  `/dev/kvm` is still absent from the current environment.
+  device is connected. The host loads `kvm`/`kvm_amd`; `/dev/kvm` is present and accessible to the
+  configured `kvm` group, and Emulator 36.5.11 confirms KVM version 12 is usable.
 - [x] Capture the initial subsystem and dependency decisions in `docs/architecture.md`.
 - [x] Create this plan before implementation.
 
@@ -693,37 +693,42 @@ Exit validation:
 Dependencies: stable input abstraction, scalable UI/debug display, mobile quality tiers.
 
 - [x] Inventory Android SDK, NDK, Gradle, Java, device/emulator, and supported ABI state. The
-  host KVM modules and group membership now exist, but `/dev/kvm` remains unavailable to the
-  current environment; no physical device is connected.
+  host KVM modules, group membership, and `/dev/kvm` access now work; no physical device is
+  connected.
 - [x] Adapt the CNA template Android shell with island-specific package/application identities,
   API 24 minimum/API 35 target, a launcher icon, no-backup policy, landscape presentation, and an
   isolated read-only-source SDL Java bridge module.
 - [x] Add explicit `OPENGLES3` CMake and Gradle configurations plus reproducible arm64-v8a and
   x86_64 packaging instructions. Both ABI APKs build; the default output is arm64-v8a.
 - [~] Implement dual-zone touch controls: a floating movement stick, relative look region, stable
-  contact ownership, and a minimal asset-free HUD. Deterministic interpreter tests pass and the
-  HUD compiles on all three renderers; real-device ergonomic validation remains open.
+  contact ownership, and a minimal asset-free HUD. Deterministic interpreter tests pass; the
+  premultiplied translucent HUD and independent movement/look gestures run on the accelerated
+  GLES 3 AVD. Simultaneous real-finger and physical-device ergonomic validation remain open.
 - [~] Handle pointer IDs, safe display margins, fixed-landscape orientation, resize, and missing or
-  released contact cancellation. Core tests cover ownership/cancellation/resize. Pause/resume
-  resource restoration still needs a stable emulator or physical device.
+  released contact cancellation. Core tests cover ownership/cancellation/resize. One same-process
+  Home/resume cycle recreated the GLES surface and resumed AAudio without changing PID; longer
+  suspends and process-death restoration remain open.
 - [ ] Add configurable sensitivity and left/right layout considerations where practical.
-- [ ] Verify audio focus/lifecycle and resource restoration after backgrounding.
+- [~] Verify audio focus/lifecycle and resource restoration after backgrounding. AAudio opened at
+  44.1 kHz stereo, paused during Home, and restarted after a same-process hot resume. External
+  focus interruption, process death, and audible physical-device quality remain open.
 - [ ] Add mobile quality defaults for grass, shadows, wildlife distance, water, textures, and audio.
-- [ ] Profile CPU/GPU frame time, memory, thermal behaviour, and loading on a real device when
-  available; use emulator evidence only for claims it can support.
+- [~] Profile CPU/GPU frame time, memory, thermal behaviour, and loading on a real device when
+  available; use emulator evidence only for claims it can support. The KVM/gfxstream AVD now has
+  startup, memory, and SurfaceFlinger before/after samples; no physical GPU, thermal, or power
+  budget is claimed.
 - [~] Test install, first launch, relaunch, background/foreground, rotation policy, and clean exit.
-  The x86_64 debug APK installed and first-launched on the API 35 `Medium_Phone` AVD, produced a
-  2400 by 1080 GLES3 frame, and survived while rendering. The unaccelerated emulator's own System
-  UI repeatedly entered ANR/restart states, so touch and lifecycle claims remain open. A repeatable
-  project-side runtime gate now installs the selected APK, launches from cleared logcat, requires
-  renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records logcat
-  plus a device screenshot. The current complete scene also passed that gate at a temporary 800 by
-  360 guest resolution; exact evidence and limitations are recorded below.
-- [ ] Recheck the software AVD's 27 gfxstream `GL_INVALID_OPERATION` uniform-query reports on a
-  stable KVM emulator or physical GLES 3 device before assigning them to the driver, framework, or
-  game. The current frame completed without a shader failure, so this is not yet a confirmed bug.
+  The x86_64 debug APK installs and starts on the KVM-accelerated API 35 `Medium_Phone` AVD,
+  produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
+  background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
+  requires renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records
+  logcat plus a device screenshot. Rotation policy, process-death restoration, clean exit, and
+  physical-device relaunch remain open.
+- [x] Recheck the software AVD's 27 gfxstream `GL_INVALID_OPERATION` uniform-query reports on a
+  stable KVM emulator before assigning them to the driver, framework, or game. They did not recur
+  in the accelerated run, and no shader/fatal error appeared; no dependency bug is claimed.
 - [~] Document device/API/ABI evidence and all unverified hardware classes. Build/install/runtime
-  commands and the current emulator limitations are recorded; real-device evidence is absent.
+  commands and KVM/gfxstream emulator limits are recorded; real-device evidence is absent.
 
 Exit validation:
 
@@ -1037,18 +1042,20 @@ after the same experience remains available.
 - [~] `docs/architecture.md`: current subsystem boundaries, ownership, update/render flow, and
   coordinates exist; extend as systems are added.
 - [~] `docs/controls.md`: desktop/Web and implemented Android dual-zone touch controls are
-  documented; configurable sensitivity/layout and real-device ergonomic notes remain open.
+  documented with functional accelerated-AVD gestures; configurable sensitivity/layout,
+  simultaneous real-finger use, and physical-device ergonomic notes remain open.
 - [x] `docs/asset-pipeline.md`: current generation model, versioned manifest schema, validation,
   world report, external intake, deterministic conversion requirements, and limitations.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
-  documented; matched Android captures and representative cross-target measurements remain open.
+  documented; the KVM Android overview is recorded, while matched close-view captures and
+  representative physical-device measurements remain open.
 - [~] `docs/debugging.md`: overlay fields, direct QA teleports, deterministic captures, and the
   native performance-report workflow are documented; deeper world-space visualizers and
   common-failure guidance remain open.
 - [~] `docs/performance.md`: native method, five representative fixed scenes, the initial Linux
   baseline, startup phase/report semantics, interpretation rules, and open budget work are
-  documented. Release/Web/Android, memory, repeated cold loading, audio, and thermal budgets
-  remain open.
+  documented. Android now has KVM startup, memory, and same-AVD terrain-batching evidence;
+  release/Web/physical-Android, repeated cold loading, audio, and thermal budgets remain open.
 - [x] `docs/known-limitations.md`: current environment, traversal, content, platform, and tooling
   limitations are recorded without claiming planned systems.
 
@@ -1102,8 +1109,11 @@ Work next, in order:
    reports local static-collision candidates, nine terrain support samples, wildlife
    marker/target/home-range counts, bird route-family/spawn/target counts, and live audio sources
    against their complete populations/budgets.
-5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
-   KVM-accelerated emulator; the current software AVD is evidence for rendering only.
+5. Continue Android qualification on physical hardware. The KVM-accelerated API 35 AVD now proves
+   complete-scene GLES 3 rendering, independent movement/look gestures, translucent touch HUD,
+   same-process surface restoration, AAudio pause/resume, startup/memory instrumentation, and a
+   terrain-batching direction check. Simultaneous real-finger ergonomics, swimming, external audio
+   focus, process death, thermals, and physical mobile-GPU performance remain open.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete. The
    headless Chrome freeze/active probe remains diagnostic-only because the latest passing input
@@ -3413,6 +3423,50 @@ Work next, in order:
   stripped `libmain.so` is 15,898,192 bytes, and WebAssembly is 8,477,780 bytes. Physical-Android
   appearance/cost remains open because `/dev/kvm` is still absent. CNA and Sharp Runtime remain
   unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Accelerated Android qualification and shared terrain buffers
+
+- The operator restored `/dev/kvm` as the host misc device `10:232`. The developer account has
+  read/write access through group `kvm`, and `emulator -accel-check` reports KVM version 12 usable.
+  Android Emulator 36.5.11 runs the API 35 `Medium_Phone` x86_64 AVD with `-accel on`, host-GPU
+  gfxstream on the AMD Radeon 780M, and its original 1080 by 2400 / 420 dpi guest configuration.
+- The accelerated x86_64 APK renders the complete current GLES 3 scene at a 2400 by 1080 landscape
+  surface. Startup fell from the historical, invalid-for-performance QEMU TCG total of
+  421449.067 ms to 1666.782 ms: 487.895 ms world, 3.421 ms framework, 1107.472 ms content,
+  20.058 ms pre-draw, and 47.937 ms first draw. A settled snapshot reports 87.3 MiB PSS,
+  167.3 MiB RSS, and 0.5 MiB swap PSS. These are identified emulator observations, not physical
+  mobile budgets.
+- The first accelerated capture exposed opaque white rectangles behind the touch controls.
+  `TouchOverlay` had supplied straight-alpha white pixels and tints to CNA `SpriteBatch`'s default
+  premultiplied blend contract. The game now premultiplies both generated circle texels and tint
+  colours. Rebuilt GLES 3 captures show clean translucent rings; independently injected left-zone
+  movement and right-zone relative-look gestures change player position and view. This was
+  game-owned code, not a CNA defect, so `BUGS.md` remains unchanged.
+- One Home/resume cycle retained the same process, destroyed and recreated the surface, paused and
+  restarted the 44.1 kHz stereo AAudio stream, and reported a 77 ms hot launch / 80 ms wait. No
+  fatal, shader, `GL_INVALID_OPERATION`, or earlier software-AVD uniform-query error recurred.
+  Simultaneous real-finger ergonomics, swimming, audio-focus interruption, process death, thermals,
+  and physical-device driver/performance coverage remain open.
+- Replaced 64 duplicated-edge terrain vertex/index buffer pairs with one shared 58,081-vertex,
+  115,200-triangle 16-bit mesh. The original 64 independent cell bounds and cell-ordered index
+  ranges remain; consecutive visible cells coalesce into draw runs. The overview now renders 58
+  visible cells in three terrain submissions. Core tests cover empty, full, and sparse run
+  construction plus the portable index budget, and F1/benchmark JSON expose the actual terrain
+  draw count.
+- At the same accelerated Android spawn, isolated SurfaceFlinger presentation cadence changed from
+  40.903 ms mean / 24.45 frames/s with 71 of 126 intervals above 40 ms to two post-change samples
+  of 34.163 and 32.590 ms / 29.27 and 30.68 frames/s with 6 and 1 intervals above 40 ms. This is
+  useful same-AVD directional evidence, not a physical mobile GPU claim.
+- A fresh isolated Radeon 780M/OpenGL 3.3 six-view suite passes. Fixed views use 3--8 terrain draws
+  for 9--58 visible cells; the 675.9635 m traversal ranges over 6--47 cells in only 2--7 terrain
+  submissions. Its mean is 3.7348 ms and p95 is 7.7032 ms in the current debug scene. The actual
+  Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages, reports 58 cells in three draws, and
+  produces an inspected seam-free overview; WebAssembly is 8,481,359 bytes.
+- The final arm64-v8a APK was rebuilt through the required shared `/rv/cnaccache`, passes
+  application lint, contains only arm64-v8a, and verifies with APK signature scheme v2. It is
+  18,710,140 bytes and its stripped `libmain.so` is 15,899,856 bytes. The final incremental native
+  build is current and `IslandCoreTests` passes in 19.19 seconds. CNA and Sharp Runtime remain clean,
+  on `next`, read-only, and unmodified; no qualifying dependency defect was found.
 
 ## Session-end checklist
 
