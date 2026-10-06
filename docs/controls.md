@@ -69,7 +69,10 @@ The current Android build uses two simultaneous touch zones:
 Subtle generated circles show the movement origin/thumb and the current look contact. The control
 interpreter preserves pointer ownership if a finger crosses the screen centre, clamps movement to
 a unit vector, applies a dead zone, and cancels missing contacts or contacts invalidated by a
-display-size change. The HUD remains inside conservative display-edge margins.
+display-size change. Non-finite or implausibly remote coordinates are treated as a missing contact,
+invalid display geometry releases both roles, and relative-look output is bounded to one display
+span per update. The next valid contact can immediately acquire the released role. The HUD remains
+inside conservative display-edge margins.
 
 The implementation and deterministic multi-touch tests are complete, and the same HUD rendering
 code runs on OpenGL 3.3, WebGL 2, and OpenGL ES 3. A KVM-accelerated API 35 emulator visibly

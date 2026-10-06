@@ -712,7 +712,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   premultiplied translucent HUD and independent movement/look gestures run on the accelerated
   GLES 3 AVD. Simultaneous real-finger and physical-device ergonomic validation remain open.
 - [~] Handle pointer IDs, safe display margins, fixed-landscape orientation, resize, and missing or
-  released contact cancellation. Core tests cover ownership/cancellation/resize. One same-process
+  released contact cancellation. Core tests cover ownership/cancellation/resize plus non-finite,
+  implausibly remote, and invalid-display inputs with immediate valid-contact recovery. One same-process
   Home/resume cycle recreated the GLES surface and resumed AAudio without changing PID; longer
   suspends and process-death restoration remain open.
 - [ ] Add configurable sensitivity and left/right layout considerations where practical.
@@ -3727,6 +3728,24 @@ Work next, in order:
   the closed-list workspace build directories and continue to use the single `/rv/cnaccache`.
   No compilation was repeated merely to validate this path-only correction; CMake preset parsing
   confirms the revised configuration. No dependency repository was touched.
+
+### 2026-10-06 — Finite-safe touch ownership and camera deltas
+
+- Hardened the renderer-independent dual-zone touch interpreter against invalid platform data.
+  Non-finite, negative-ID, or implausibly remote contacts cannot acquire or retain movement/look
+  ownership; non-finite, nonpositive, or implausible display extents release both roles; and look
+  deltas are capped to one display span. Valid out-of-bounds dragging near an edge and deliberate
+  centre-line crossing continue to preserve ownership and analog movement.
+- Added core regressions proving that poisoned coordinates remain finite, cancel an owned look
+  contact without a camera jump, reject extreme finite coordinates, release safely on invalid
+  display geometry, and accept the next valid contact. The complete core suite passes in
+  18.47 seconds.
+- The shared implementation compiles for Linux/OpenGL 3.3, WebGL 2, and arm64 GLES 3. The Android
+  package and application lint pass through `/rv/cnaccache`; the v2-signed, arm64-only APK is
+  18,742,188 bytes with a 15,931,904-byte stripped `libmain.so`. WebAssembly is 8,496,251 bytes.
+  Android runtime was not repeated for impossible normal-platform values; the immediately
+  preceding KVM run remains the current valid-input GLES 3 evidence. CNA and Sharp Runtime stayed
+  read-only and unchanged, and no dependency workaround was introduced.
 
 ## Session-end checklist
 

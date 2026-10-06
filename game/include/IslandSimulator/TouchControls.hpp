@@ -66,7 +66,7 @@ namespace island
         [[nodiscard]] static const TouchContact* FindContact(
             std::span<const TouchContact> contacts, int id) noexcept;
         void AssignNewContacts(std::span<const TouchContact> contacts,
-                               float displayWidth) noexcept;
+                               float displayWidth, float displayHeight) noexcept;
         void UpdateMovement(const TouchContact& contact, float displayHeight) noexcept;
 
         TouchControlState state_;

@@ -5,11 +5,26 @@
 
 namespace island
 {
+    namespace
+    {
+        constexpr float MaximumDisplayExtent = 65536.0f;
+
+        [[nodiscard]] bool IsUsableContact(const TouchContact& contact,
+                                           const float displayWidth,
+                                           const float displayHeight) noexcept
+        {
+            return contact.id >= 0 && std::isfinite(contact.x) && std::isfinite(contact.y)
+                && contact.x >= -displayWidth && contact.x <= displayWidth * 2.0f
+                && contact.y >= -displayHeight && contact.y <= displayHeight * 2.0f;
+        }
+    }
+
     const TouchContact* TouchControls::FindContact(
         const std::span<const TouchContact> contacts, const int id) noexcept
     {
         for (const TouchContact& contact : contacts) {
-            if (contact.id == id) {
+            if (contact.id == id && contact.id >= 0
+                && std::isfinite(contact.x) && std::isfinite(contact.y)) {
                 return &contact;
             }
         }
@@ -26,10 +41,12 @@ namespace island
     }
 
     void TouchControls::AssignNewContacts(const std::span<const TouchContact> contacts,
-                                          const float displayWidth) noexcept
+                                          const float displayWidth,
+                                          const float displayHeight) noexcept
     {
         for (const TouchContact& contact : contacts) {
-            if (contact.phase == TouchPhase::Released || contact.id == movementId_
+            if (!IsUsableContact(contact, displayWidth, displayHeight)
+                || contact.phase == TouchPhase::Released || contact.id == movementId_
                 || contact.id == lookId_) {
                 continue;
             }
@@ -78,7 +95,10 @@ namespace island
                                             const float displayWidth,
                                             const float displayHeight) noexcept
     {
-        if (displayWidth <= 0.0f || displayHeight <= 0.0f) {
+        if (!std::isfinite(displayWidth) || !std::isfinite(displayHeight)
+            || displayWidth <= 0.0f || displayHeight <= 0.0f
+            || displayWidth > MaximumDisplayExtent
+            || displayHeight > MaximumDisplayExtent) {
             Reset();
             displayWidth_ = 0.0f;
             displayHeight_ = 0.0f;
@@ -97,19 +117,22 @@ namespace island
         state_.lookDeltaY = 0.0f;
 
         const TouchContact* movement = FindContact(contacts, movementId_);
-        if (movement == nullptr || movement->phase == TouchPhase::Released) {
+        if (movement == nullptr
+            || !IsUsableContact(*movement, displayWidth, displayHeight)
+            || movement->phase == TouchPhase::Released) {
             movementId_ = -1;
             state_.moveRight = 0.0f;
             state_.moveForward = 0.0f;
             state_.movementActive = false;
         }
         const TouchContact* look = FindContact(contacts, lookId_);
-        if (look == nullptr || look->phase == TouchPhase::Released) {
+        if (look == nullptr || !IsUsableContact(*look, displayWidth, displayHeight)
+            || look->phase == TouchPhase::Released) {
             lookId_ = -1;
             state_.lookActive = false;
         }
 
-        AssignNewContacts(contacts, displayWidth);
+        AssignNewContacts(contacts, displayWidth, displayHeight);
         movement = FindContact(contacts, movementId_);
         if (movement != nullptr && movement->phase != TouchPhase::Released) {
             state_.movementActive = true;
@@ -122,8 +145,10 @@ namespace island
             state_.lookTouchX = look->x;
             state_.lookTouchY = look->y;
             if (look->phase != TouchPhase::Pressed) {
-                state_.lookDeltaX = look->x - lastLookX_;
-                state_.lookDeltaY = look->y - lastLookY_;
+                state_.lookDeltaX = std::clamp(
+                    look->x - lastLookX_, -displayWidth, displayWidth);
+                state_.lookDeltaY = std::clamp(
+                    look->y - lastLookY_, -displayHeight, displayHeight);
             }
             lastLookX_ = look->x;
             lastLookY_ = look->y;

@@ -124,6 +124,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 1. CNA polls platform events and publishes keyboard, mouse, and touch snapshots.
 2. `IslandGame::Update` reads each input device once. `TouchControls` retains stable movement/look
    pointer roles, emits one-frame relative look deltas, and cancels invalid contacts explicitly.
+   Non-finite or implausibly remote contact coordinates cannot acquire or retain a role, invalid
+   display geometry releases both roles, and a one-frame look delta is capped to one display span.
    Native desktop movement can acquire relative mouse mode on its first key edge; acquisition never
    consumes the pre-capture absolute cursor position as look input.
 3. `FirstPersonInput` gives WASD and arrows the same local axes, combines touch, and transforms the

@@ -1159,6 +1159,46 @@ int main()
     Check(touchState.movementActive && touchState.moveForward == 0.0f,
           "display resize safely re-anchors an active movement contact");
 
+    const std::array<island::TouchContact, 1> invalidTouch = {{
+        {44, std::numeric_limits<float>::quiet_NaN(), 300.0f,
+         island::TouchPhase::Pressed},
+    }};
+    touchState = touchControls.Update(invalidTouch, 1280.0f, 720.0f);
+    Check(!touchState.movementActive && !touchState.lookActive
+              && std::isfinite(touchState.moveRight)
+              && std::isfinite(touchState.moveForward)
+              && std::isfinite(touchState.lookDeltaX)
+              && std::isfinite(touchState.lookDeltaY),
+          "non-finite touch coordinates cannot acquire a role or poison output");
+
+    const std::array<island::TouchContact, 1> validLook = {{
+        {45, 1000.0f, 360.0f, island::TouchPhase::Pressed},
+    }};
+    touchState = touchControls.Update(validLook, 1280.0f, 720.0f);
+    Check(touchState.lookActive,
+          "a valid look contact acquires its role after an invalid contact");
+    const std::array<island::TouchContact, 1> poisonedOwnedLook = {{
+        {45, std::numeric_limits<float>::infinity(), 360.0f,
+         island::TouchPhase::Moved},
+    }};
+    touchState = touchControls.Update(poisonedOwnedLook, 1280.0f, 720.0f);
+    Check(!touchState.lookActive && touchState.lookDeltaX == 0.0f
+              && touchState.lookDeltaY == 0.0f,
+          "an invalid owned look contact is cancelled without a camera jump");
+
+    const std::array<island::TouchContact, 1> implausibleTouch = {{
+        {46, std::numeric_limits<float>::max(), 300.0f,
+         island::TouchPhase::Pressed},
+    }};
+    touchState = touchControls.Update(implausibleTouch, 1280.0f, 720.0f);
+    Check(!touchState.movementActive && !touchState.lookActive,
+          "implausibly distant finite touch coordinates are rejected");
+    touchState = touchControls.Update(validLook,
+                                      std::numeric_limits<float>::quiet_NaN(), 720.0f);
+    Check(!touchState.movementActive && !touchState.lookActive
+              && touchState.moveRight == 0.0f && touchState.moveForward == 0.0f,
+          "non-finite display geometry releases all touch ownership safely");
+
     const island::IslandTerrain terrain;
 
     const island::DistantSceneryLayout distantScenery;

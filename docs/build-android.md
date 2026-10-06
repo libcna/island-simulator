@@ -72,8 +72,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,741,500-byte APK with a
-15,931,216-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,742,188-byte APK with a
+15,931,904-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
@@ -96,6 +96,10 @@ per-blade variation on the same KVM/host-GPU configuration. The complete scene r
 body. Its inspected 2400 by 1080 screenshot contains the expected varied grass silhouettes and
 clean touch-overlay blending. This is functional shader evidence, not a physical-mobile frame-time
 or close-grass quality claim. The arm64-only package above was restored afterward.
+The subsequent renderer-independent touch hardening rejects poisoned display/contact values before
+they reach movement, camera, or HUD state. Core regressions cover cancellation and recovery; the
+same sources compile into the current WebGL 2 and arm64 GLES 3 packages. The Android runtime was
+not repeated for input values that a normal platform touch event cannot produce.
 
 ## Requirements
 
