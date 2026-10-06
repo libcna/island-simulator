@@ -889,7 +889,10 @@ after the same experience remains available.
 - [~] Wildlife spawn region, state, steering, and simulation-tier visualization. F2 heading arrows
   use full/reduced/dormant colours and monkey full-tier behaviour colours; targets, homes, route
   bounds, avoidance proposals, and spawn regions remain.
-- [ ] Audio zone/emitter/source-count visualization.
+- [x] Audio zone/emitter/source-count visualization. F2 draws the six authoritative terrain-
+  following surf/breeze/jungle crossfade boundaries, nearest non-dormant bird/monkey candidates,
+  and the exact active pooled emitter; F1 reports the active-source count against the six-source
+  ceiling.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, grass-interaction detail, close-palm, jungle-trail, natural-prop, driftwood, emergent-reef,
   near-surface-water, active-current, fallen-frond, distant-horizon, airborne bird-detail, and
@@ -961,10 +964,11 @@ Work next, in order:
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
-4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
-   heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
-   LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
-   reports the local static-collision candidate count against the complete proxy population.
+4. Extend the completed F2 shoreline/current, nearby collision, shared-cell, wildlife-heading,
+   and audio-zone/emitter visualization with terrain contacts, exact targets/spawn regions, and
+   individual culling/LOD/density fields only where they materially improve debugging. F1 now
+   reports both local static-collision candidates and live audio sources against their complete
+   populations/budgets.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -2253,6 +2257,29 @@ Work next, in order:
   and the APK is 33,464,632 bytes. Android runtime appearance and fragment cost remain unqualified
   without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified;
   no dependency defect was found.
+
+### 2026-10-06 — Soundscape world diagnostics
+
+- Completed the audio portion of the F2 tooling backlog. Six depth-aware contours now follow the
+  terrain at the authoritative breeze 12--105 m, surf 18--125 m, and jungle 30--112 m inland
+  crossfade boundaries. The distances became named `SoundscapeModel` constants, so rendering and
+  mixing cannot silently drift apart. The opt-in pass remains two line-list submissions.
+- The same view marks the nearest non-dormant bird and monkey audio candidates. While the pooled
+  positional voice is playing, a larger species-coloured marker and listener-to-emitter line show
+  the exact snapshotted source used by CNA `Apply3D`. F1 reports `AUDIO Z/C/E` counts plus live
+  sources against the hard six-source ceiling. Candidate refresh outside ordinary playback is
+  limited to F2 mode; the normal release presentation gains no extra wildlife scan.
+- Strengthened the native world-debug capture gate to require all six contours and at least one
+  selected candidate. The inspected overview contains 2,024 line segments in the same two draws.
+  The Web input gate now requires the exact new F2 diagnostic. Its F1 key hold was raised from 100
+  to 350 ms after two runs reproduced a missed event under the new SwiftShader debug-only load;
+  the resulting final run passes rather than hiding the timing weakness.
+- All 22 native tests pass, including 21 real OpenGL 3.3 scenes. The final Chrome 152/SwiftShader
+  WebGL 2 renderer/lifecycle/input/audio-init harness passes all 20 stages and directly observes
+  the new F2 path. The arm64-v8a GLES 3 APK and application lint pass; WebAssembly is 8,347,459
+  bytes, stripped `libmain.so` is 15,738,144 bytes, and the APK is 33,470,520 bytes. Android
+  runtime appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime
+  remain clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

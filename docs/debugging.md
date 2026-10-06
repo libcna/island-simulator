@@ -17,17 +17,22 @@ WebGL 2, and OpenGL ES 3. It draws:
 - the authoritative irregular shoreline in cyan;
 - the 42 m soft-current threshold in yellow, 72 m full-current threshold in orange, and 92 m
   safety threshold in magenta-red;
+- six terrain-following ambient-zone contours: canopy breeze 12--105 m inland in yellow-green,
+  surf 18--125 m inland in cyan/blue, and jungle texture 30--112 m inland in green;
 - a yellow inward arrow at the player once the current is active;
 - the player footprint in white and nearby palm, canopy, rock, and log collision proxies in
   orange;
 - nearby shared terrain/vegetation cell edges in green;
 - wildlife heading arrows, with full-simulation agents in species/state colours, reduced agents
   in yellow, and dormant agents in grey. Monkey full-tier colours distinguish idle, observe,
-  ordinary locomotion, and run-away states.
+  ordinary locomotion, and run-away states;
+- the nearest non-dormant bird audio candidate in cyan and monkey candidate in violet. A playing
+  positional call adds a larger pale marker and an x-ray line from the listener to the exact
+  emitter position captured when that call began.
 
 The local proxies, cells, and wildlife markers are intentionally x-ray lines so dense grass or
-foliage cannot hide them. Shore/current contours remain depth-aware. F2 is a developer aid only;
-F1 hides all world lines without changing the stored F2 toggle.
+foliage cannot hide them. Shore/current and audio-zone contours remain depth-aware. F2 is a
+developer aid only; F1 hides all world lines without changing the stored F2 toggle.
 
 The overlay is deliberately implemented with CNA's public `SpriteBatch`, `SpriteFont`, and
 `Texture2D` APIs. Its original 5 by 7 uppercase font atlas is generated at runtime, so debugging
@@ -68,8 +73,10 @@ Current fields are:
   active/completed skeletal crossfades;
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, smoothed
   undertow cue strength, and played stronger-wave/water-transition counts;
-- played positional bird/monkey call counts and pooled wildlife-voice active/idle state.
-- F2 visibility plus nearby obstacle, shared-cell, wildlife-marker, line, and draw counts.
+- played positional bird/monkey call counts, pooled wildlife-voice active/idle state, and currently
+  playing sources against the hard six-source ceiling;
+- F2 visibility plus nearby obstacle, shared-cell, wildlife-marker, audio zone/candidate/active-
+  emitter (`AUDIO Z/C/E`), line, and draw counts.
 
 Frame timing measures intervals between actual `Draw` calls rather than the game's fixed simulation
 timestep. Startup and four-frame smoke captures are intentionally too short for a representative
@@ -132,8 +139,8 @@ hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
 
 ## Planned diagnostics
 
-The first F2 pass covers the world geometry listed above. Exact wildlife targets/spawn regions,
-individual renderer culling volumes and LOD radii, grass-density fields, terrain contact normals,
-audio zones/emitters, and source-count visualization remain open. So do a teleport menu, free
-camera, target-specific budget warnings, and renderer-specific CPU/GPU separation. All additions
-must remain opt-in and absent from the normal release presentation.
+The F2 pass covers the world geometry and audio diagnostics listed above. Exact wildlife
+targets/spawn regions, individual renderer culling volumes and LOD radii, grass-density fields,
+and terrain contact normals remain open. So do a teleport menu, free camera, target-specific
+budget warnings, and renderer-specific CPU/GPU separation. All additions must remain opt-in and
+absent from the normal release presentation.

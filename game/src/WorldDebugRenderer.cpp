@@ -25,6 +25,7 @@ namespace island
         constexpr int BoundarySegments = 192;
         constexpr int ObstacleSegments = 16;
         constexpr int PlayerSegments = 24;
+        constexpr int AudioMarkerSegments = 16;
         constexpr int CellEdgeSegments = 6;
         constexpr float ObstacleVisibleDistance = 52.0f;
         constexpr float CellVisibleDistance = 135.0f;
@@ -73,6 +74,45 @@ namespace island
                         Vector3(std::cos(angleB) * radiusB, height,
                                 std::sin(angleB) * radiusB), color);
             }
+        }
+
+        void AddTerrainBoundary(std::vector<VertexPositionColor>& vertices,
+                                const IslandTerrain& terrain, const float inlandDistance,
+                                const Color& color)
+        {
+            for (int index = 0; index < BoundarySegments; ++index) {
+                const float angleA = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(index) / static_cast<float>(BoundarySegments);
+                const float angleB = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(index + 1) / static_cast<float>(BoundarySegments);
+                const float radiusA = terrain.ShoreRadius(angleA) - inlandDistance;
+                const float radiusB = terrain.ShoreRadius(angleB) - inlandDistance;
+                const float xA = std::cos(angleA) * radiusA;
+                const float zA = std::sin(angleA) * radiusA;
+                const float xB = std::cos(angleB) * radiusB;
+                const float zB = std::sin(angleB) * radiusB;
+                AddLine(vertices,
+                        Vector3(xA, terrain.Height(xA, zA) + 0.38f, zA),
+                        Vector3(xB, terrain.Height(xB, zB) + 0.38f, zB), color);
+            }
+        }
+
+        void AddAudioSourceMarker(std::vector<VertexPositionColor>& vertices,
+                                  const WildlifeAudioSource& source,
+                                  const float radius, const Color& color)
+        {
+            if (!source.available) {
+                return;
+            }
+            const Vector3 position(source.x, source.y, source.z);
+            AddCircle(vertices, source.x, source.y, source.z, radius,
+                      AudioMarkerSegments, color);
+            AddLine(vertices, position - Vector3::Up * radius,
+                    position + Vector3::Up * radius, color);
+            AddLine(vertices, position - Vector3::Right * radius,
+                    position + Vector3::Right * radius, color);
+            AddLine(vertices, position - Vector3::Forward * radius,
+                    position + Vector3::Forward * radius, color);
         }
 
         [[nodiscard]] Color TierColor(const WildlifeSimulationTier tier,
@@ -135,11 +175,12 @@ namespace island
                                   const std::span<const BirdState> birds,
                                   const std::span<const FishState> fish,
                                   const SharkState& shark,
-                                  const std::span<const MonkeyState> monkeys)
+                                  const std::span<const MonkeyState> monkeys,
+                                  const SoundscapeDebugState& soundscape)
     {
         std::vector<VertexPositionColor> surfaceVertices;
         std::vector<VertexPositionColor> overlayVertices;
-        surfaceVertices.reserve(static_cast<std::size_t>(BoundarySegments * 4 * 2));
+        surfaceVertices.reserve(static_cast<std::size_t>(BoundarySegments * 10 * 2));
         overlayVertices.reserve(static_cast<std::size_t>(ObstacleSegments * 40 * 2
                                 + PlayerSegments * 2 + 2048));
 
@@ -154,6 +195,26 @@ namespace island
         AddBoundary(surfaceVertices, terrain_, PlayerMotion::SafetyDistance,
                     OceanLineHeight + 0.09f,
                     Color(255, 62, 105, 255));
+
+        AddTerrainBoundary(surfaceVertices, terrain_,
+                           SoundscapeModel::BreezeFadeStartDistance,
+                           Color(205, 255, 112, 255));
+        AddTerrainBoundary(surfaceVertices, terrain_,
+                           SoundscapeModel::SurfFadeStartDistance,
+                           Color(85, 225, 255, 255));
+        AddTerrainBoundary(surfaceVertices, terrain_,
+                           SoundscapeModel::JungleFadeStartDistance,
+                           Color(112, 255, 150, 255));
+        AddTerrainBoundary(surfaceVertices, terrain_,
+                           SoundscapeModel::BreezeFadeEndDistance,
+                           Color(130, 190, 70, 255));
+        AddTerrainBoundary(surfaceVertices, terrain_,
+                           SoundscapeModel::JungleFadeEndDistance,
+                           Color(35, 190, 85, 255));
+        AddTerrainBoundary(surfaceVertices, terrain_,
+                           SoundscapeModel::SurfFadeEndDistance,
+                           Color(50, 125, 235, 255));
+        audioZoneCount_ = 6;
 
         visibleCellCount_ = 0;
         for (std::size_t cellIndex = 0; cellIndex < TerrainMeshLayout::CellCount; ++cellIndex) {
@@ -299,6 +360,32 @@ namespace island
                              monkey.headingRadians, 2.2f,
                              TierColor(monkey.simulationTier, fullColor));
             ++wildlifeMarkerCount_;
+        }
+
+        audioCandidateCount_ = 0;
+        if (soundscape.nearestBird.available) {
+            AddAudioSourceMarker(overlayVertices, soundscape.nearestBird, 1.7f,
+                                 Color(105, 225, 255, 255));
+            ++audioCandidateCount_;
+        }
+        if (soundscape.nearestMonkey.available) {
+            AddAudioSourceMarker(overlayVertices, soundscape.nearestMonkey, 1.4f,
+                                 Color(225, 135, 255, 255));
+            ++audioCandidateCount_;
+        }
+
+        activeAudioEmitterCount_ = 0;
+        const WildlifeCallRequest& activeCall = soundscape.activeWildlifeCall;
+        if (activeCall.type != WildlifeCallType::None && activeCall.source.available) {
+            const Color activeColor = activeCall.type == WildlifeCallType::Bird
+                ? Color(225, 250, 255, 255) : Color(255, 215, 105, 255);
+            AddAudioSourceMarker(overlayVertices, activeCall.source, 2.8f, activeColor);
+            AddCircle(overlayVertices, activeCall.source.x, activeCall.source.y,
+                      activeCall.source.z, 3.6f, AudioMarkerSegments, activeColor);
+            AddLine(overlayVertices, cameraPosition,
+                    Vector3(activeCall.source.x, activeCall.source.y,
+                            activeCall.source.z), activeColor);
+            activeAudioEmitterCount_ = 1;
         }
 
         lineCount_ = static_cast<int>((surfaceVertices.size() + overlayVertices.size()) / 2U);

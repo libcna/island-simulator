@@ -955,7 +955,9 @@ try {
     type: "keyDown", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
     nativeVirtualKeyCode: 112,
   }, visualSessionId);
-  await delay(100);
+  // F2 intentionally adds a large diagnostic line batch. Keep F1 down across several
+  // SwiftShader frames so the input gate remains deterministic under that debug-only load.
+  await delay(350);
   await call("Input.dispatchKeyEvent", {
     type: "keyUp", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
     nativeVirtualKeyCode: 112,
@@ -1051,7 +1053,9 @@ try {
   const inputPassed = inputResult.output?.includes("island-simulator: renderer WEBGL2")
     && inputResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
-    && inputResult.output?.includes("island-simulator: world debug visualization enabled")
+    && inputResult.output?.includes(
+      "island-simulator: world debug visualization enabled with 6 audio-zone contours"
+        + " and positional-emitter markers")
     && inputResult.output?.includes("island-simulator: debug overlay disabled")
     && lockedState.pointerLocked === true
     && lockedState.focused === true

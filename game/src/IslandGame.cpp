@@ -513,7 +513,8 @@ namespace island
             std::cout << "island-simulator: debug overlay active\n";
         }
         if (worldDebugVisible_) {
-            std::cout << "island-simulator: world debug visualization active\n";
+            std::cout << "island-simulator: world debug visualization active with 6 audio-zone "
+                         "contours and positional-emitter markers\n";
         }
         if (!benchmarkPath_.empty()) {
             std::cout << "island-simulator: benchmark " << ViewpointName(viewpoint_)
@@ -569,6 +570,11 @@ namespace island
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         monkeyTroop_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        if (soundscape_ && worldDebugVisible_) {
+            soundscape_->RefreshDebugSources(
+                cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z,
+                birdFlock_.Birds(), monkeyTroop_.Monkeys());
+        }
         if (inputDiagnostics_) {
             inputDiagnosticsTimer_ += deltaSeconds;
             if (inputDiagnosticsTimer_ >= 0.25f) {
@@ -672,7 +678,10 @@ namespace island
         if (worldDebugToggleDown && !worldDebugToggleWasDown_) {
             worldDebugVisible_ = !worldDebugVisible_;
             std::cout << "island-simulator: world debug visualization "
-                      << (worldDebugVisible_ ? "enabled" : "disabled") << '\n';
+                      << (worldDebugVisible_
+                              ? "enabled with 6 audio-zone contours and positional-emitter markers"
+                              : "disabled")
+                      << '\n';
         }
         worldDebugToggleWasDown_ = worldDebugToggleDown;
 
@@ -1041,12 +1050,15 @@ namespace island
                                 viewport.getWidthProperty(), viewport.getHeightProperty());
 
         if (debugOverlayVisible_ && worldDebugVisible_) {
+            const SoundscapeDebugState soundscapeDebug = soundscape_
+                ? soundscape_->DebugState() : SoundscapeDebugState{};
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
                                       worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),
                                       fishSchools_.Fish(),
-                                      sharkPatrol_.State(), monkeyTroop_.Monkeys());
+                                      sharkPatrol_.State(), monkeyTroop_.Monkeys(),
+                                      soundscapeDebug);
         }
 
         if (touchOverlayVisible_) {
@@ -1194,6 +1206,9 @@ namespace island
                 overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
                 overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
+                const SoundscapeDebugState soundscapeDebug = soundscape_->DebugState();
+                overlayState.playingAudioSources = soundscapeDebug.playingSourceCount;
+                overlayState.audioSourceBudget = soundscapeDebug.sourceBudget;
             }
             overlayState.worldDebugVisible = worldDebugVisible_;
             overlayState.collisionCandidates = static_cast<int>(
@@ -1205,6 +1220,11 @@ namespace island
                 overlayState.worldDebugObstacles = worldDebugRenderer_->VisibleObstacleCount();
                 overlayState.worldDebugCells = worldDebugRenderer_->VisibleCellCount();
                 overlayState.worldDebugWildlife = worldDebugRenderer_->WildlifeMarkerCount();
+                overlayState.worldDebugAudioZones = worldDebugRenderer_->AudioZoneCount();
+                overlayState.worldDebugAudioCandidates =
+                    worldDebugRenderer_->AudioCandidateCount();
+                overlayState.worldDebugActiveAudioEmitters =
+                    worldDebugRenderer_->ActiveAudioEmitterCount();
                 overlayState.worldDebugLines = worldDebugRenderer_->LineCount();
                 overlayState.worldDebugDraws = worldDebugRenderer_->DrawCallCount();
             }
@@ -1293,6 +1313,13 @@ namespace island
                       << " draw, player ripple " << waterRippleModel_.Intensity()
                       << ", phase " << waterRippleModel_.Phase() << ", current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
+            if (worldDebugVisible_) {
+                std::cout << "island-simulator: world debug frame audio zones "
+                          << worldDebugRenderer_->AudioZoneCount() << ", candidates "
+                          << worldDebugRenderer_->AudioCandidateCount()
+                          << ", active emitters "
+                          << worldDebugRenderer_->ActiveAudioEmitterCount() << '\n';
+            }
         }
         ++drawnFrames_;
         const std::uint32_t targetFrames = !capturePath_.empty()

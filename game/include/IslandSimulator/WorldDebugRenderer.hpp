@@ -10,6 +10,7 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/WorldCollision.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
@@ -35,7 +36,7 @@ namespace island
         WorldDebugRenderer(WorldDebugRenderer&&) = delete;
         WorldDebugRenderer& operator=(WorldDebugRenderer&&) = delete;
 
-        /** @brief Draws traversal boundaries, local scene cells, collision, and wildlife markers. */
+        /** @brief Draws traversal, collision, wildlife, and soundscape diagnostics. */
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
@@ -46,7 +47,8 @@ namespace island
                   std::span<const BirdState> birds,
                   std::span<const FishState> fish,
                   const SharkState& shark,
-                  std::span<const MonkeyState> monkeys);
+                  std::span<const MonkeyState> monkeys,
+                  const SoundscapeDebugState& soundscape);
 
         [[nodiscard]] int VisibleObstacleCount() const noexcept
         {
@@ -60,6 +62,15 @@ namespace island
         {
             return wildlifeMarkerCount_;
         }
+        [[nodiscard]] int AudioZoneCount() const noexcept { return audioZoneCount_; }
+        [[nodiscard]] int AudioCandidateCount() const noexcept
+        {
+            return audioCandidateCount_;
+        }
+        [[nodiscard]] int ActiveAudioEmitterCount() const noexcept
+        {
+            return activeAudioEmitterCount_;
+        }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
@@ -68,6 +79,9 @@ namespace island
         int visibleObstacleCount_ = 0;
         int visibleCellCount_ = 0;
         int wildlifeMarkerCount_ = 0;
+        int audioZoneCount_ = 0;
+        int audioCandidateCount_ = 0;
+        int activeAudioEmitterCount_ = 0;
         int lineCount_ = 0;
         int drawCallCount_ = 0;
     };

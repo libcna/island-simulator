@@ -29,10 +29,23 @@ namespace island
         float velocityZ = 0.0f;
     };
 
+    /** @brief Read-only runtime state consumed by opt-in audio diagnostics. */
+    struct SoundscapeDebugState
+    {
+        WildlifeAudioSource nearestBird;
+        WildlifeAudioSource nearestMonkey;
+        WildlifeCallRequest activeWildlifeCall;
+        int playingSourceCount = 0;
+        int sourceBudget = 6;
+    };
+
     /** @brief Owns the procedural ambient layers and their CNA playback instances. */
     class Soundscape final
     {
     public:
+        static constexpr int PersistentSourceCount = 4;
+        static constexpr int MaximumPlayingSourceCount = 6;
+
         Soundscape();
         ~Soundscape();
 
@@ -51,6 +64,11 @@ namespace island
                     const SoundscapeListenerState& listener,
                     std::span<const BirdState> birds,
                     std::span<const MonkeyState> monkeys) noexcept;
+
+        /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
+        void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
+                                 std::span<const BirdState> birds,
+                                 std::span<const MonkeyState> monkeys) noexcept;
 
         /** @brief Toggles user-requested silence without destroying the active loops. */
         void ToggleMuted() noexcept;
@@ -83,6 +101,20 @@ namespace island
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
+        }
+        [[nodiscard]] SoundscapeDebugState DebugState() const noexcept
+        {
+            SoundscapeDebugState state;
+            state.nearestBird = nearestBirdSource_;
+            state.nearestMonkey = nearestMonkeySource_;
+            state.activeWildlifeCall = activeWildlifeCall_;
+            state.playingSourceCount = available_
+                ? PersistentSourceCount + static_cast<int>(waveInstance_ != nullptr)
+                    + static_cast<int>(waterTransitionInstance_ != nullptr)
+                    + static_cast<int>(wildlifeInstance_ != nullptr)
+                : 0;
+            state.sourceBudget = MaximumPlayingSourceCount;
+            return state;
         }
 
     private:
@@ -120,6 +152,8 @@ namespace island
             monkeyCallAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
             wildlifeInstance_;
+        WildlifeAudioSource nearestBirdSource_;
+        WildlifeAudioSource nearestMonkeySource_;
         WildlifeCallRequest activeWildlifeCall_;
         std::string error_;
         bool available_ = false;

@@ -198,6 +198,13 @@ namespace island
     class SoundscapeModel final
     {
     public:
+        static constexpr float BreezeFadeStartDistance = 12.0f;
+        static constexpr float SurfFadeStartDistance = 18.0f;
+        static constexpr float JungleFadeStartDistance = 30.0f;
+        static constexpr float BreezeFadeEndDistance = 105.0f;
+        static constexpr float JungleFadeEndDistance = 112.0f;
+        static constexpr float SurfFadeEndDistance = 125.0f;
+
         /** @brief Computes the steady-state mix at one player location. */
         [[nodiscard]] static SoundscapeMix TargetMix(float signedShoreDistance,
                                                      bool swimming) noexcept;

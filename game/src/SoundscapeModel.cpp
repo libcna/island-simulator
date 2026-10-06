@@ -633,12 +633,15 @@ namespace island
                                              const bool swimming) noexcept
     {
         const float inlandDistance = std::max(0.0f, signedShoreDistance);
-        const float surfPresence = 1.0f - SmoothStep(18.0f, 125.0f, inlandDistance);
-        const float canopyPresence = SmoothStep(12.0f, 105.0f, inlandDistance);
+        const float surfPresence = 1.0f - SmoothStep(
+            SurfFadeStartDistance, SurfFadeEndDistance, inlandDistance);
+        const float canopyPresence = SmoothStep(
+            BreezeFadeStartDistance, BreezeFadeEndDistance, inlandDistance);
         SoundscapeMix result;
         result.surfVolume = 0.055f + surfPresence * 0.34f;
         result.breezeVolume = 0.075f + canopyPresence * 0.12f;
-        result.jungleVolume = SmoothStep(30.0f, 112.0f, inlandDistance) * 0.078f;
+        result.jungleVolume = SmoothStep(
+            JungleFadeStartDistance, JungleFadeEndDistance, inlandDistance) * 0.078f;
         if (swimming) {
             result.surfVolume = std::max(result.surfVolume, 0.35f);
             result.breezeVolume *= 0.72f;

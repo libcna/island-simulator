@@ -129,12 +129,17 @@ namespace island
         int playedBirdCalls = 0;
         int playedMonkeyCalls = 0;
         bool wildlifeCallActive = false;
+        int playingAudioSources = 0;
+        int audioSourceBudget = 0;
         bool worldDebugVisible = false;
         int worldDebugObstacles = 0;
         int collisionCandidates = 0;
         int collisionObstacles = 0;
         int worldDebugCells = 0;
         int worldDebugWildlife = 0;
+        int worldDebugAudioZones = 0;
+        int worldDebugAudioCandidates = 0;
+        int worldDebugActiveAudioEmitters = 0;
         int worldDebugLines = 0;
         int worldDebugDraws = 0;
     };

@@ -218,6 +218,9 @@ namespace island
                    << state.collisionObstacles
                    << " CELLS " << state.worldDebugCells
                    << " WILDLIFE " << state.worldDebugWildlife
+                   << " AUDIO " << state.worldDebugAudioZones << '/'
+                   << state.worldDebugAudioCandidates << '/'
+                   << state.worldDebugActiveAudioEmitters
                    << " LINES " << state.worldDebugLines
                    << " DRAWS " << state.worldDebugDraws;
         lines.push_back(worldDebug.str());
@@ -326,7 +329,9 @@ namespace island
         auto wildlifeAudio = DiagnosticLine();
         wildlifeAudio << "POSITIONAL CALLS  BIRD " << state.playedBirdCalls
                       << " MONKEY " << state.playedMonkeyCalls
-                      << "  VOICE " << (state.wildlifeCallActive ? "ACTIVE" : "IDLE");
+                      << "  VOICE " << (state.wildlifeCallActive ? "ACTIVE" : "IDLE")
+                      << "  SOURCES " << state.playingAudioSources << '/'
+                      << state.audioSourceBudget;
         lines.push_back(wildlifeAudio.str());
 
         constexpr float scale = 1.45f;

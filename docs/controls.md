@@ -8,7 +8,7 @@
 | Mouse | Look around while captured |
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
-| F2 | Toggle world-space shoreline/current, collision, cell, and wildlife diagnostics; visible only with F1 |
+| F2 | Toggle world-space shoreline/current, collision, cell, wildlife, and audio-zone/emitter diagnostics; visible only with F1 |
 | F5 / F6 / F7 / F8 / F9 / F10 / F11 / F12 | With the overlay visible, teleport to eight QA locations; F9 faces the fish shallows, F10 the offshore shark, repeated F11 presses cycle through all seven monkeys, and F12 enters the active offshore current for feedback QA |
 | B | Smoothly disable or restore restrained walking/swimming camera motion |
 | M | Mute or unmute the ambient soundscape |
@@ -26,8 +26,8 @@ Jumping is intentionally absent. The game is not a platformer.
 The developer overlay starts hidden during ordinary play. Launching with `--debug-overlay` enables
 it immediately for captures and QA; `--world-debug` also enables its F2 world view. It reports
 wall-clock frame timing, renderer identity, player and ocean-current state, visible
-terrain/vegetation cells, LOD populations, and draw counts. See `docs/debugging.md` for
-interpretation and limitations.
+terrain/vegetation cells, LOD populations, draw counts, and active audio sources against the
+six-source ceiling. See `docs/debugging.md` for interpretation and limitations.
 
 ## Web (current)
 

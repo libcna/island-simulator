@@ -118,7 +118,9 @@ levels, grass-interaction strength, player-ripple intensity/phase, player-water 
 counts, undertow cue strength, and positional bird/monkey call activity.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
-cells, wildlife headings, simulation-tier colours, and the active inward-current vector.
+cells, wildlife headings, simulation-tier colours, the active inward-current vector, all six
+ambient crossfade boundaries, the nearest bird/monkey audio candidates, and any active positional
+wildlife emitter. The panel also reports active audio sources against the six-source ceiling.
 Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
 overlay is visible, F5 through F12 teleport among eight fixed QA locations, including views toward
 the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.

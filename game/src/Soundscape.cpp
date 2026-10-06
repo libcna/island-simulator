@@ -85,6 +85,17 @@ namespace island
 
     Soundscape::~Soundscape() = default;
 
+    void Soundscape::RefreshDebugSources(
+        const float listenerX, const float listenerY, const float listenerZ,
+        const std::span<const BirdState> birds,
+        const std::span<const MonkeyState> monkeys) noexcept
+    {
+        nearestBirdSource_ = NearestBirdSource(
+            birds, listenerX, listenerY, listenerZ);
+        nearestMonkeySource_ = NearestMonkeySource(
+            monkeys, listenerX, listenerY, listenerZ);
+    }
+
     bool Soundscape::Start(const float signedShoreDistance, const bool swimming,
                            const float waterDepth, const float horizontalSpeed,
                            const float oceanCurrentStrength) noexcept
@@ -356,6 +367,7 @@ namespace island
             } catch (const std::exception& exception) {
                 wildlifeInstance_.reset();
                 wildlifeSecondsRemaining_ = 0.0f;
+                activeWildlifeCall_ = {};
                 wildlifeCallsEnabled_ = false;
                 if (!wildlifeFailureReported_) {
                     wildlifeFailureReported_ = true;
@@ -443,15 +455,13 @@ namespace island
             }
         }
 
-        const WildlifeAudioSource birdSource = NearestBirdSource(
-            birds, listenerState.x, listenerState.y, listenerState.z);
-        const WildlifeAudioSource monkeySource = NearestMonkeySource(
-            monkeys, listenerState.x, listenerState.y, listenerState.z);
+        RefreshDebugSources(listenerState.x, listenerState.y, listenerState.z,
+                            birds, monkeys);
         const bool wildlifeSlotAvailable = available_ && !muted_ && wildlifeCallsEnabled_
             && !wildlifeInstance_ && !waveInstance_ && !waterTransitionInstance_;
         const WildlifeCallRequest wildlifeCall = wildlifeScheduler_.Update(
             safeDelta, swimming, signedShoreDistance, listenerState.x, listenerState.y,
-            listenerState.z, birdSource, monkeySource, wildlifeSlotAvailable);
+            listenerState.z, nearestBirdSource_, nearestMonkeySource_, wildlifeSlotAvailable);
         if (wildlifeCall.type == WildlifeCallType::None) {
             return;
         }
@@ -498,6 +508,7 @@ namespace island
         } catch (const std::exception& exception) {
             wildlifeInstance_.reset();
             wildlifeSecondsRemaining_ = 0.0f;
+            activeWildlifeCall_ = {};
             wildlifeCallsEnabled_ = false;
             if (!wildlifeFailureReported_) {
                 wildlifeFailureReported_ = true;

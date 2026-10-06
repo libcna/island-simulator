@@ -9,8 +9,9 @@ canvas focus, WASD traversal, relative mouse look, the B camera-motion opt-out, 
 release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering is also toggled
 through browser input. The first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
-and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. Audible
-output on a visible hardware browser, genuine tab background/foreground recovery,
+and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. The F2
+path includes the same six terrain-following ambient-zone contours and positional-source markers.
+Audible output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, extended play, and a second browser engine are not yet validated.
 
 The renderer gate also requires the exact shore-following animated foam ribbon rather than its
