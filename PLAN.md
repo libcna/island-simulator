@@ -392,8 +392,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 three-variant
   driftwood pieces including a three-piece authored cove arc, 63 grove-associated fallen palm
   fronds, and 265 four-variant shell/pebble
-  clusters. Near canopy meshes now add tapered support branches, irregular separated lobes, and pointed
-  edge leaves. Near bushes now use smaller lobes with paired folded pointed leaves while retaining
+  clusters. Near canopy meshes now add tapered support branches, irregular separated lobes,
+  pointed edge leaves, and four/five short irregular buttress roots. Near bushes now use smaller
+  lobes with paired folded pointed leaves while retaining
   their compact far tier. Near forest-floor variants now include six upright broad leaves with
   visible petioles and a separate five-leaf folded split form while retaining compact far
   tiers. All four jungle layers now enforce range and near/far LOD per instance after conservative
@@ -1174,8 +1175,9 @@ Work next, in order:
    transition during traversal and on physical mobile hardware. The close-root, crown-silhouette,
    and near material/coconut passes are measured; do not add more geometry without new evidence.
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
-   during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
-   justified by physical-mobile evidence or a clear close-view defect. The first fixed-sun
+   during traversal. A clear close-view cylindrical trunk-base defect justified a small near-only
+   four/five-buttress pass; the far tier, culling, instances, and draws remain unchanged. Further
+   canopy geometry should be justified by physical-mobile evidence or another clear defect. The first fixed-sun
    geometric facet-light pass is visually matched on native OpenGL and actual WebGL 2; observe its
    readability and cost on physical mobile before extending the technique to more layers.
 9. Record two isolated debug and release startup reports after closing other GPU clients, then use
@@ -4033,6 +4035,29 @@ Work next, in order:
   18,691,524 bytes with a 15,881,240-byte stripped `libmain.so`. All builds used at most two
   workers and the required shared ccache. CNA and Sharp Runtime remain read-only and unchanged;
   no dependency defect or workaround was involved.
+
+### 2026-10-07 — Near-canopy buttress grounding pass
+
+- The same clean jungle/monkey composition audit exposed an abrupt cylindrical termination on
+  nearby broadleaf trunks. Added four or five short, deterministically irregular buttress wedges
+  to each shared near-canopy variant. Length, angle, width, crest height, and facet shade vary by
+  variant/root; the static bases carry zero wind weight. The far meshes, placements, culling,
+  contact shadows, instance streams, and draw submissions are unchanged.
+- Each shared near mesh gains only 24 or 30 vertices and the same number of triangles. The maximum
+  authored tip/width radius remains inside the existing combined player-capsule/trunk collision
+  footprint at every 0.78--1.28 tree scale, avoiding a new visible snag outside the proxy. The
+  runtime mesh validator covers every new index before upload.
+- The OpenGL 3.3 consumer object compiles through `/rv/cnaccache` without relinking the still-live
+  operator game. The complete Chrome 152/SwiftShader 22-stage WebGL 2 harness passes and requires
+  the new exact diagnostic; inspected jungle and monkey frames show the grounded base without a
+  new silhouette problem. Final WebAssembly is 8,471,341 bytes.
+- A temporary x86_64 package then rendered the fixed monkey view on the KVM/API 35 host-GPU AVD.
+  The inspected 2400 by 1080 frame shows the new tree base beside the monkey, reports `OPENGLES3`
+  and 23.0 FPS, and completed first draw in 2421.371 ms without a fatal, shader-error, or
+  `GL_INVALID_OPERATION` diagnostic. After a clean emulator shutdown, the restored arm64-only APK
+  passes application lint, verifies with signature scheme v2, and is 18,694,612 bytes with a
+  15,884,328-byte stripped `libmain.so`. Compilation used two workers and the required shared
+  ccache; CNA and Sharp Runtime remain read-only and unchanged.
 
 ## Session-end checklist
 

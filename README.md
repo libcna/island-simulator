@@ -37,7 +37,9 @@ clusters to two of the four variants without another draw submission. Five irreg
 wedges vary in angle, length, width, and height around each near trunk instead of ending it in a
 flat cylinder or a regular stamped star.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
-and pointed perimeter leaves. A deterministic per-tree 105--129 m threshold staggers their
+and pointed perimeter leaves. Their near trunks now meet the forest floor through four or five
+short irregular buttress roots instead of a uniform cylinder, using the same instanced mesh and
+draw submissions. A deterministic per-tree 105--129 m threshold staggers their
 transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
 The shared portable jungle shader reconstructs a two-sided geometric face normal from world-space
 derivatives, so canopy, understory, bush, and ground-plant facets respond coherently to the fixed

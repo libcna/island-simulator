@@ -43,7 +43,7 @@ Both clearing cameras also require the shared five-rock/one-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,464,649 bytes. This records the evidence environment; it is not a minimum-version
+WebAssembly is 8,471,341 bytes. This records the evidence environment; it is not a minimum-version
 or general browser-permission claim.
 
 ## Prerequisites

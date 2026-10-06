@@ -238,6 +238,8 @@ try {
     && result.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && result.output?.includes(
+      "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
+    && result.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
@@ -615,6 +617,8 @@ try {
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && jungleResult.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
+    && jungleResult.output?.includes(
+      "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && jungleResult.output?.includes(
       "jungle near bushes with pointed leaf edge breakup")
     && jungleResult.output?.includes(

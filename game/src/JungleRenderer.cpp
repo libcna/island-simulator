@@ -160,6 +160,70 @@ void main()
                          channel(color.getBProperty()), color.getAProperty());
         }
 
+        void AppendCanopyButtresses(PlantGeometry& geometry, const int variant)
+        {
+            const int buttressCount = 4 + variant % 2;
+            const Color bark(104 + variant * 4, 79 + variant * 2, 48, 255);
+            for (int buttress = 0; buttress < buttressCount; ++buttress) {
+                const float rootIndex = static_cast<float>(buttress + 1);
+                const float angleVariation = std::sin(
+                    rootIndex * 2.41f + static_cast<float>(variant) * 0.83f);
+                const float lengthVariation = 0.5f + 0.5f * std::sin(
+                    rootIndex * 3.73f - static_cast<float>(variant) * 1.17f);
+                const float widthVariation = 0.5f + 0.5f * std::sin(
+                    rootIndex * 5.19f + static_cast<float>(variant) * 0.61f);
+                const float angle = static_cast<float>(buttress) * 2.0f
+                    * std::numbers::pi_v<float> / static_cast<float>(buttressCount)
+                    + static_cast<float>(variant) * 0.37f + angleVariation * 0.11f;
+                const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+                const Vector3 side(-direction.Z, 0.0f, direction.X);
+                const float innerWidth = 0.13f + widthVariation * 0.05f;
+                const float outerWidth = 0.035f + widthVariation * 0.025f;
+                const float crestHeight = 0.58f + lengthVariation * 0.24f;
+                const Vector3 innerCentre = direction * 0.25f;
+                // The maximum scaled tip stays inside the player-blocked trunk footprint for
+                // every authored canopy scale, so the visual flare does not create a snag cue.
+                const Vector3 outerCentre = direction * (0.58f + lengthVariation * 0.09f);
+                const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                const Vector2 still(0.0f, static_cast<float>(buttress) * 0.17f);
+                geometry.vertices.emplace_back(
+                    innerCentre - side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
+                    ShadeColor(bark, 0.80f), still);
+                geometry.vertices.emplace_back(
+                    innerCentre + side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
+                    ShadeColor(bark, 0.96f), still);
+                geometry.vertices.emplace_back(
+                    innerCentre + direction * 0.015f + Vector3(0.0f, crestHeight, 0.0f),
+                    ShadeColor(bark, 1.08f), still);
+                geometry.vertices.emplace_back(
+                    outerCentre - side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
+                    ShadeColor(bark, 0.74f), still);
+                geometry.vertices.emplace_back(
+                    outerCentre + side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
+                    ShadeColor(bark, 0.88f), still);
+                geometry.vertices.emplace_back(
+                    outerCentre - direction * 0.025f + Vector3(0.0f, 0.060f, 0.0f),
+                    ShadeColor(bark, 0.93f), still);
+                geometry.indices.insert(geometry.indices.end(), {
+                    base, static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    base, static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    static_cast<std::uint16_t>(base + 5U)});
+            }
+        }
+
         void AppendCanopyTrunk(PlantGeometry& geometry, const int variant, const bool farMesh,
                                float& crownX, float& crownY, float& crownZ)
         {
@@ -327,11 +391,14 @@ void main()
         [[nodiscard]] PlantGeometry CreateCanopyGeometry(const int variant, const bool farMesh)
         {
             PlantGeometry geometry;
-            geometry.vertices.reserve(farMesh ? 150U : 560U);
-            geometry.indices.reserve(farMesh ? 700U : 2400U);
+            geometry.vertices.reserve(farMesh ? 150U : 600U);
+            geometry.indices.reserve(farMesh ? 700U : 2600U);
             float crownX = 0.0f;
             float crownY = 0.0f;
             float crownZ = 0.0f;
+            if (!farMesh) {
+                AppendCanopyButtresses(geometry, variant);
+            }
             AppendCanopyTrunk(geometry, variant, farMesh, crownX, crownY, crownZ);
 
             const int clusterCount = farMesh ? 4 : 8;
@@ -797,6 +864,7 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
+            std::cout << "island-simulator: jungle near canopy irregular buttress roots ground trunk bases\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
             std::cout << "island-simulator: jungle near ground plants include upright and split-leaf silhouettes\n";
             std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";

@@ -340,8 +340,9 @@ detail.
 The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
 2,225 small forest-floor plants. Four
 canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their
-776-triangle near meshes add seven tapered support branches and eight pointed perimeter leaves;
-rounded 208-triangle far meshes preserve the crown volume without the close silhouette detail.
+800/806-triangle near meshes add four/five short irregular buttress roots, seven tapered support
+branches, and eight pointed perimeter leaves; rounded 208-triangle far meshes preserve the crown
+volume without the close silhouette detail.
 A stable yaw-derived 105--129 m threshold selects LOD per tree after cell rejection, avoiding the
 old 155 m whole-cell switch. Four understory variants
 build fern and broad-leaf silhouettes from curved opaque strips. Three bush variants combine
