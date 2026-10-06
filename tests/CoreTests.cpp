@@ -1914,6 +1914,8 @@ int main()
               == static_cast<std::size_t>(
                   island::NaturalPropLayout::AuthoredClearingLogCount),
           "the west-clearing fallen-log landmark remains present");
+    std::array<bool, island::NaturalPropLayout::DriftwoodVariantCount>
+        observedDriftwoodVariants{};
     for (std::size_t index = 0; index < props.Driftwood().size(); ++index) {
         const island::DriftwoodPlacement& wood = props.Driftwood()[index];
         const island::DriftwoodPlacement& repeated = repeatedProps.Driftwood()[index];
@@ -1928,6 +1930,9 @@ int main()
               "driftwood radius remains in the authored range");
         Check(wood.variant < island::NaturalPropLayout::DriftwoodVariantCount,
               "driftwood variant index remains in range");
+        if (wood.variant < observedDriftwoodVariants.size()) {
+            observedDriftwoodVariants[wood.variant] = true;
+        }
         const float directionX = std::cos(wood.yawRadians);
         const float directionZ = std::sin(wood.yawRadians);
         for (int sampleIndex = 0; sampleIndex < 5; ++sampleIndex) {
@@ -1941,6 +1946,9 @@ int main()
             Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
                   "the complete driftwood footprint stays outside authored routes");
         }
+    }
+    for (const bool observed : observedDriftwoodVariants) {
+        Check(observed, "every authored driftwood silhouette remains represented");
     }
     std::array<bool, island::NaturalPropLayout::BeachDetailVariantCount>
         observedBeachDetailVariants{};

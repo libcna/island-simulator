@@ -450,7 +450,85 @@ void main()
                 }
             }
 
-            if (!farMesh) {
+            if (!farMesh && variant == 2) {
+                const auto appendTaperedLimb = [&geometry, &wood](
+                    const std::array<Vector3, 3>& path, const float baseHalfWidth,
+                    const float baseRadius, const float brightness) {
+                    constexpr int ringCount = 3;
+                    constexpr int sides = 6;
+                    const auto limbBase = static_cast<std::uint16_t>(geometry.vertices.size());
+                    for (int ring = 0; ring < ringCount; ++ring) {
+                        const Vector3 tangent = ring == 0 ? path[1] - path[0]
+                            : (ring == 1 ? path[2] - path[0] : path[2] - path[1]);
+                        const float yzLength = std::hypot(tangent.Y, tangent.Z);
+                        const Vector3 transverse = yzLength > 0.0001f
+                            ? Vector3(0.0f, -tangent.Z / yzLength,
+                                      tangent.Y / yzLength)
+                            : Vector3(0.0f, 0.0f, 1.0f);
+                        const float taper = ring == 0 ? 1.0f : (ring == 1 ? 0.62f : 0.22f);
+                        for (int side = 0; side < sides; ++side) {
+                            const float angle = 2.0f * std::numbers::pi_v<float>
+                                * static_cast<float>(side) / static_cast<float>(sides);
+                            const Vector3 offset(
+                                std::cos(angle) * baseHalfWidth * taper, 0.0f, 0.0f);
+                            const float light = brightness * (0.78f + 0.22f
+                                * std::max(0.0f, std::sin(angle)));
+                            geometry.vertices.emplace_back(
+                                path[ring] + offset
+                                    + transverse * (std::sin(angle) * baseRadius * taper),
+                                ShadeColor(wood, light));
+                        }
+                    }
+                    for (int ring = 0; ring < ringCount - 1; ++ring) {
+                        for (int side = 0; side < sides; ++side) {
+                            const int next = (side + 1) % sides;
+                            const auto lower = static_cast<std::uint16_t>(
+                                limbBase + ring * sides + side);
+                            const auto lowerNext = static_cast<std::uint16_t>(
+                                limbBase + ring * sides + next);
+                            const auto upper = static_cast<std::uint16_t>(
+                                limbBase + (ring + 1) * sides + side);
+                            const auto upperNext = static_cast<std::uint16_t>(
+                                limbBase + (ring + 1) * sides + next);
+                            geometry.indices.insert(geometry.indices.end(),
+                                                    {lower, upper, lowerNext,
+                                                     lowerNext, upper, upperNext});
+                        }
+                    }
+                    const Vector3 tipDirection = path[2] - path[1];
+                    const float tipYzLength = std::hypot(tipDirection.Y, tipDirection.Z);
+                    const Vector3 tip = tipYzLength > 0.0001f
+                        ? path[2] + Vector3(0.0f, tipDirection.Y / tipYzLength * 0.055f,
+                                            tipDirection.Z / tipYzLength * 0.055f)
+                        : path[2];
+                    const auto tipIndex = static_cast<std::uint16_t>(geometry.vertices.size());
+                    geometry.vertices.emplace_back(tip, ShadeColor(wood, brightness * 1.05f));
+                    const auto lastRing = static_cast<std::uint16_t>(
+                        limbBase + (ringCount - 1) * sides);
+                    for (int side = 0; side < sides; ++side) {
+                        geometry.indices.insert(
+                            geometry.indices.end(),
+                            {static_cast<std::uint16_t>(lastRing + side), tipIndex,
+                             static_cast<std::uint16_t>(lastRing + (side + 1) % sides)});
+                    }
+                };
+
+                appendTaperedLimb(
+                    {Vector3(-0.20f, 0.35f, 0.28f),
+                     Vector3(-0.28f, 1.78f, 0.42f),
+                     Vector3(-0.42f, 3.34f, 0.62f)},
+                    0.026f, 0.30f, 0.96f);
+                appendTaperedLimb(
+                    {Vector3(0.16f, 0.32f, -0.26f),
+                     Vector3(0.25f, 1.54f, -0.40f),
+                     Vector3(0.42f, 2.84f, -0.58f)},
+                    0.023f, 0.28f, 0.90f);
+                appendTaperedLimb(
+                    {Vector3(-0.29f, 1.68f, 0.41f),
+                     Vector3(-0.13f, 2.55f, 0.54f),
+                     Vector3(0.02f, 3.36f, 0.72f)},
+                    0.018f, 0.22f, 1.02f);
+            } else if (!farMesh) {
                 const int branchCount = 1 + variant % 2;
                 for (int branch = 0; branch < branchCount; ++branch) {
                     const float branchX = branch == 0
@@ -731,6 +809,7 @@ void main()
             std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
+            std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';
@@ -806,7 +885,7 @@ void main()
             cell.logs.push_back({Matrix::CreateScale(log.length, log.radius, log.radius)
                                      * Matrix::CreateRotationY(log.yawRadians)
                                      * Matrix::CreateTranslation(log.x, log.y, log.z),
-                                 log.variant});
+                                 log.variant, log.x, log.z});
             const float boundRadius = log.length * 0.55f;
             extendBounds(cell, Vector3(log.x - boundRadius, log.y - log.radius, log.z - boundRadius),
                          Vector3(log.x + boundRadius, log.y + log.radius, log.z + boundRadius));
@@ -817,12 +896,12 @@ void main()
             cell.driftwood.push_back({Matrix::CreateScale(wood.length, wood.radius, wood.radius)
                                           * Matrix::CreateRotationY(wood.yawRadians)
                                           * Matrix::CreateTranslation(wood.x, wood.y, wood.z),
-                                      wood.variant});
+                                      wood.variant, wood.x, wood.z});
             const float boundRadius = wood.length * 0.56f;
             extendBounds(cell,
                          Vector3(wood.x - boundRadius, wood.y - wood.radius,
                                  wood.z - boundRadius),
-                         Vector3(wood.x + boundRadius, wood.y + wood.radius * 2.2f,
+                         Vector3(wood.x + boundRadius, wood.y + wood.radius * 3.6f,
                                  wood.z + boundRadius));
             ++totalDriftwoodCount_;
         }
@@ -925,6 +1004,8 @@ void main()
         visibleReefRockCount_ = 0;
         visibleLogCount_ = 0;
         visibleDriftwoodCount_ = 0;
+        visibleDriftwoodNearCount_ = 0;
+        visibleDriftwoodFarCount_ = 0;
         visibleBeachDetailCount_ = 0;
         visibleFallenFrondCount_ = 0;
         visibleCellCount_ = 0;
@@ -935,14 +1016,26 @@ void main()
             if (!cell.occupied || frustum.Contains(cell.bounds) == ContainmentType::Disjoint) {
                 continue;
             }
-            const Vector3 centre = (cell.bounds.Min + cell.bounds.Max) * 0.5f;
-            const float deltaX = centre.X - cameraPosition.X;
-            const float deltaZ = centre.Z - cameraPosition.Z;
+            const float closestX = std::clamp(cameraPosition.X,
+                                              cell.bounds.Min.X, cell.bounds.Max.X);
+            const float closestZ = std::clamp(cameraPosition.Z,
+                                              cell.bounds.Min.Z, cell.bounds.Max.Z);
+            const float deltaX = closestX - cameraPosition.X;
+            const float deltaZ = closestZ - cameraPosition.Z;
             const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
             bool cellVisible = false;
             if (distanceSquared <= RockMaximumDistance * RockMaximumDistance) {
-                const bool nearLod = distanceSquared <= RockNearDistance * RockNearDistance;
                 for (const DrawInstance& instance : cell.rocks) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared
+                        > RockMaximumDistance * RockMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
+                        <= RockNearDistance * RockNearDistance;
                     (nearLod ? visibleRockNear_ : visibleRockFar_)[instance.variant]
                         .push_back(instance.transform);
                     ++visibleRockCount_;
@@ -951,8 +1044,16 @@ void main()
                 }
             }
             if (distanceSquared <= LogMaximumDistance * LogMaximumDistance) {
-                const bool nearLod = distanceSquared <= LogNearDistance * LogNearDistance;
                 for (const DrawInstance& instance : cell.logs) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared > LogMaximumDistance * LogMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
+                        <= LogNearDistance * LogNearDistance;
                     (nearLod ? visibleLogNear_ : visibleLogFar_)[instance.variant]
                         .push_back(instance.transform);
                     ++visibleLogCount_;
@@ -960,12 +1061,22 @@ void main()
                 }
             }
             if (distanceSquared <= DriftwoodMaximumDistance * DriftwoodMaximumDistance) {
-                const bool nearLod = distanceSquared
-                    <= DriftwoodNearDistance * DriftwoodNearDistance;
                 for (const DrawInstance& instance : cell.driftwood) {
+                    const float instanceDeltaX = instance.x - cameraPosition.X;
+                    const float instanceDeltaZ = instance.z - cameraPosition.Z;
+                    const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
+                        + instanceDeltaZ * instanceDeltaZ;
+                    if (instanceDistanceSquared
+                        > DriftwoodMaximumDistance * DriftwoodMaximumDistance) {
+                        continue;
+                    }
+                    const bool nearLod = instanceDistanceSquared
+                        <= DriftwoodNearDistance * DriftwoodNearDistance;
                     (nearLod ? visibleDriftwoodNear_ : visibleDriftwoodFar_)[instance.variant]
                         .push_back(instance.transform);
                     ++visibleDriftwoodCount_;
+                    if (nearLod) ++visibleDriftwoodNearCount_;
+                    else ++visibleDriftwoodFarCount_;
                     cellVisible = true;
                 }
             }

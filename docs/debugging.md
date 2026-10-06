@@ -104,8 +104,8 @@ Current fields are:
 - visible/total palms, near/far LOD population, cells, and draw submissions;
 - visible/total broadleaf canopy with near/far LOD population, understory, low-bush, and
   forest-floor populations plus cells/draw submissions;
-- visible/total rocks, the emergent-reef subset, fallen logs, beach driftwood, fallen palm fronds,
-  and shell/pebble clusters plus shared prop cells/draw submissions;
+- visible/total rocks, the emergent-reef subset, fallen logs, beach driftwood with near/far LOD,
+  fallen palm fronds, and shell/pebble clusters plus shared prop cells/draw submissions;
 - visible/total grass clusters, cells, draw submissions, and smoothed player-interaction strength;
 - visible/total birds, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
 - visible/total fish, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;

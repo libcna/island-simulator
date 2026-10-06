@@ -180,6 +180,8 @@ try {
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && result.output?.includes(
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
+    && result.output?.includes(
+      "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
@@ -637,7 +639,11 @@ try {
     && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
     && driftwoodResult.output?.includes(
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
+    && driftwoodResult.output?.includes(
+      "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/28 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble clusters/.test(
+      driftwoodResult.output ?? "")
+    && /driftwood QA per-instance near LOD [1-9][0-9]* pieces/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
 

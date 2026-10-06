@@ -621,6 +621,38 @@ populations and adds three occupied near/far variant submissions in the fixed ju
 
 Hardware-browser and physical-Android performance remain open.
 
+### Forked driftwood and instance-accurate natural-prop LOD follow-up
+
+Near driftwood variant 2 replaces its single four-triangle branch spike with three curved tapered
+six-sided limbs. The complete near mesh grows from 74 to 160 triangles; its 30-triangle far mesh,
+28-placement population, instance layout, material shader, and variant submission remain
+unchanged. Native review rejected the initial side-on composition because the limbs collapsed into
+the camera axis. The retained oblique QA view shows the fork clearly and reports four near / zero
+far driftwood pieces. Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 captures agree.
+
+The review also extended the preceding instance-distance correction to the natural-prop renderer.
+Shared cell AABBs now perform only conservative range rejection; actual rock, fallen-log, and
+driftwood positions enforce their maximum distances and choose near/far LOD. Log and driftwood
+instance records already had position fields that were not populated; populating and consuming
+them adds no GPU instance field, allocation, shader branch, texture, or draw. It does add bounded
+scalar distance tests and can legitimately change occupied near/far submissions at cell edges.
+
+Two six-view native safety suites ran while the operator's visible game shared the GPU. The
+driftwood camera itself also changed from side-on variant 0 to an oblique variant-2 view, so its
+population/submission count is not a like-for-like comparison with historical rows. These timings
+qualify function and guard against a gross regression, not isolated branch or culling cost.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Rocks / logs / driftwood |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.7762--1.7842 | 2.0748--2.1294 | 2.3675--2.4924 | 77 | 34 / 0 / 1 |
+| Beach | 2.6986--2.7497 | 3.0540--3.4583 | 3.6351--3.9753 | 125 | 78 / 3 / 2 |
+| Jungle | 2.3285--2.3619 | 2.6086--2.6343 | 3.2364--3.2916 | 99 | 56 / 4 / 1 |
+| Driftwood | 1.4848--1.4964 | 1.8351--1.9153 | 2.3159--2.3499 | 54 | 8 / 0 / 4 |
+| Monkeys | 2.5316--2.5605 | 3.3698--3.3737 | 3.5537--3.6877 | 100 | 44 / 5 / 0 |
+| Traversal | 2.8703--2.9211 | 3.7702--3.9156 | 4.3033--4.5354 | 12 final | route-varying |
+
+Hardware-browser and physical-Android performance remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

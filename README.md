@@ -47,8 +47,10 @@ portable material shader. The effect is deliberately limited to the near LOD so 
 silhouettes remain calm and avoid unnecessary fragment work.
 Nearby fallen logs use the same portable material path for gently irregular cut-end growth rings
 and longitudinal bark fissures. Both rock and wood detail fade out before their LOD transition.
-Sun-bleached driftwood adds a still softer near-only longitudinal weathering treatment while
-keeping its cut ends calm and its distant mesh plain.
+Sun-bleached driftwood adds a still softer near-only longitudinal weathering treatment. Its third
+near variant replaces a simple spike with three curved tapered fork limbs, while cut ends and all
+far meshes stay calm and inexpensive. Rocks, fallen logs, and driftwood select range and LOD from
+each instance after a conservative cell-bounds rejection rather than switching an entire cell.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling
@@ -174,6 +176,8 @@ grass wind, a finite first-draw startup timing line, four frames, clean shutdown
 overview/beach/jungle/prop/driftwood/reef/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
+The driftwood view targets the forked third variant and requires a nonzero per-instance near-LOD
+population.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world

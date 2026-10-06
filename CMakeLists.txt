@@ -430,7 +430,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "props .*driftwood, [1-9][0-9]*/265 shell/pebble clusters")
+                "driftwood QA per-instance near LOD [1-9][0-9]* pieces")
         add_test(NAME IslandGameFallenFrondCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-frond-capture.ppm"
                     --viewpoint fronds)

@@ -374,13 +374,19 @@ namespace island
             pitch_ = -0.14f;
         } else if (viewpoint_ == FixedViewpoint::DriftwoodDetail
                    && !naturalPropLayout_.Driftwood().empty()) {
-            const DriftwoodPlacement& wood = naturalPropLayout_.Driftwood().front();
+            const auto selected = std::find_if(
+                naturalPropLayout_.Driftwood().begin(), naturalPropLayout_.Driftwood().end(),
+                [](const DriftwoodPlacement& wood) { return wood.variant == 2U; });
+            const DriftwoodPlacement& wood = selected != naturalPropLayout_.Driftwood().end()
+                ? *selected : naturalPropLayout_.Driftwood().front();
+            const float directionX = std::cos(wood.yawRadians);
+            const float directionZ = std::sin(wood.yawRadians);
             const float perpendicularX = -std::sin(wood.yawRadians);
             const float perpendicularZ = std::cos(wood.yawRadians);
-            const float firstX = wood.x + perpendicularX * 3.6f;
-            const float firstZ = wood.z + perpendicularZ * 3.6f;
-            const float secondX = wood.x - perpendicularX * 3.6f;
-            const float secondZ = wood.z - perpendicularZ * 3.6f;
+            const float firstX = wood.x + perpendicularX * 3.3f - directionX * 1.35f;
+            const float firstZ = wood.z + perpendicularZ * 3.3f - directionZ * 1.35f;
+            const float secondX = wood.x - perpendicularX * 3.3f - directionX * 1.35f;
+            const float secondZ = wood.z - perpendicularZ * 3.3f - directionZ * 1.35f;
             const bool firstIsLandward = terrain_.SignedShoreDistance(firstX, firstZ)
                 >= terrain_.SignedShoreDistance(secondX, secondZ);
             const float cameraX = firstIsLandward ? firstX : secondX;
@@ -1692,7 +1698,9 @@ namespace island
                       << naturalPropRenderer_->VisibleLogCount() << '/'
                       << naturalPropRenderer_->TotalLogCount() << " logs, "
                       << naturalPropRenderer_->VisibleDriftwoodCount() << '/'
-                      << naturalPropRenderer_->TotalDriftwoodCount() << " driftwood, "
+                      << naturalPropRenderer_->TotalDriftwoodCount() << " driftwood (near "
+                      << naturalPropRenderer_->VisibleDriftwoodNearCount() << ", far "
+                      << naturalPropRenderer_->VisibleDriftwoodFarCount() << "), "
                       << naturalPropRenderer_->VisibleBeachDetailCount() << '/'
                       << naturalPropRenderer_->TotalBeachDetailCount()
                       << " shell/pebble clusters, "
@@ -1739,6 +1747,10 @@ namespace island
             if (viewpoint_ == FixedViewpoint::GroundPlantDetail) {
                 std::cout << "island-simulator: ground QA per-instance near LOD "
                           << jungleRenderer_->VisibleGroundPlantNearCount() << " plants\n";
+            }
+            if (viewpoint_ == FixedViewpoint::DriftwoodDetail) {
+                std::cout << "island-simulator: driftwood QA per-instance near LOD "
+                          << naturalPropRenderer_->VisibleDriftwoodNearCount() << " pieces\n";
             }
             if (worldDebugVisible_) {
                 const PlayerMovementTrace& movementTrace = playerMotion_.MovementTrace();

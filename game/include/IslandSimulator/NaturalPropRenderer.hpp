@@ -60,6 +60,14 @@ namespace island
         [[nodiscard]] int VisibleReefRockCount() const noexcept { return visibleReefRockCount_; }
         [[nodiscard]] int VisibleLogCount() const noexcept { return visibleLogCount_; }
         [[nodiscard]] int VisibleDriftwoodCount() const noexcept { return visibleDriftwoodCount_; }
+        [[nodiscard]] int VisibleDriftwoodNearCount() const noexcept
+        {
+            return visibleDriftwoodNearCount_;
+        }
+        [[nodiscard]] int VisibleDriftwoodFarCount() const noexcept
+        {
+            return visibleDriftwoodFarCount_;
+        }
         [[nodiscard]] int VisibleBeachDetailCount() const noexcept
         {
             return visibleBeachDetailCount_;
@@ -150,6 +158,8 @@ namespace island
         int visibleReefRockCount_ = 0;
         int visibleLogCount_ = 0;
         int visibleDriftwoodCount_ = 0;
+        int visibleDriftwoodNearCount_ = 0;
+        int visibleDriftwoodFarCount_ = 0;
         int visibleBeachDetailCount_ = 0;
         int visibleFallenFrondCount_ = 0;
         int visibleCellCount_ = 0;

@@ -23,7 +23,8 @@ variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
-157 land rocks, 14 emergent reef outcrops, 12 fallen logs, sparse beach driftwood, 63 fallen palm
+157 land rocks, 14 emergent reef outcrops, 12 fallen logs, sparse beach driftwood with a three-limb
+forked near variant and per-instance large-prop range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
 landmark composition, 24 simulated
 procedural birds, eight fish schools,
@@ -42,8 +43,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,573,584-byte APK with a
-15,841,208-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,578,336-byte APK with a
+15,845,960-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

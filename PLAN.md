@@ -59,10 +59,13 @@ environment.
   files or commits at campaign start.
 - [x] Read the workspace build policy in `../AGENTS.md`.
 - [x] Located CNA at `../cna` and inspected its repository instructions and current APIs.
-- [x] Identified current CNA `next` at commit `f243c63a1dc5` (`fix(MSR-040): preserve Wayland
+- [x] Qualified and locked CNA `next` at commit `f243c63a1dc5` (`fix(MSR-040): preserve Wayland
   mouse recentering`, 2026-10-06). The earlier qualified export was `b0e97bb1bb87`.
-- [x] Confirmed the main `../cna` worktree is now clean, on local `next`, and aligned with
-  `origin/next`; island-simulator continues to consume a read-only project-owned archive export.
+- [~] The read-only `../cna` worktree advanced externally during the 2026-10-06 polish campaign
+  and is now clean on local/origin `next` at `39e84add7777` (`refactor(PLAT-142): retire the direct
+  Win32, X11 and Wayland platforms`). Island-simulator still consumes the last fully qualified
+  project-owned export at `f243c63a1dc5`; deliberate review, lock advancement, and three-target
+  requalification are the next dependency task.
 - [x] Confirmed no separate stale CNA worktree is being mistaken for the current `next` identity.
 - [x] Located Sharp Runtime at `../sharp-runtime`, read its repository instructions, and confirmed
   it is on local `next` at `21c06910f7cf` (`fix(MSR-030): repair Windows consumer portability`,
@@ -1004,15 +1007,19 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
+1. Review CNA `next` `39e84add7777` against the locked `f243c63a1dc5` baseline, recheck `BUGS.md`,
+   deliberately advance the project-owned export and `dependencies.lock`, then rerun native,
+   WebGL 2, and Android build/runtime gates. The upstream change removes 89,195 lines of retired
+   direct-platform code across 302 files, so it must not be consumed silently inside an art change.
+2. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
    Linux playback, and the six-source ceiling are verified; subjective masking and fatigue are not.
-2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
+3. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
    fish, and shark layers under subjective observation during play.
-3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
+4. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
    paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
    variants now include both an upright six-leaf form and a five-leaf folded split form. The
@@ -1023,7 +1030,9 @@ Work next, in order:
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
-   and far meshes plain, likewise without new geometry, textures, or submissions.
+   and far meshes plain. Its third near variant now uses a curved three-limb fork, while the
+   dedicated native/WebGL QA camera proves a nonzero per-instance near LOD. Rocks, logs, and
+   driftwood now enforce range and LOD from their actual positions after conservative cell bounds.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
@@ -1037,25 +1046,25 @@ Work next, in order:
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
-4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
+5. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
    wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
    with individual culling/LOD/density fields only where they materially improve debugging. F1 now
    reports local static-collision candidates, nine terrain support samples, wildlife
    marker/target/home-range counts, bird route-family/spawn/target counts, and live audio sources
    against their complete populations/budgets.
-5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
+6. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
-6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
+7. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete.
-7. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
+8. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal. The first silhouette and near material/coconut passes
    are measured; do not add more geometry without physical/mobile evidence.
-8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
+9. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
    justified by physical-mobile evidence or a clear close-view defect. The first fixed-sun
    geometric facet-light pass is visually matched on native OpenGL and actual WebGL 2; observe its
    readability and cost on physical mobile before extending the technique to more layers.
-9. Record two isolated debug and release startup reports after closing other GPU clients, then use
+10. Record two isolated debug and release startup reports after closing other GPU clients, then use
    the phase split to investigate only demonstrated world/content bottlenecks. Add browser cold-load
    and physical-Android launch evidence before assigning cross-target startup budgets.
 
@@ -2853,6 +2862,40 @@ Work next, in order:
   consumed. Validation used the clean project-owned export of locked CNA commit
   `f243c63a1dc56404d732deed902bd18bde9db9f7` and Sharp Runtime commit
   `21c06910f7cf887cceebb45200e07b43dd45fef4`.
+
+### 2026-10-06 — Forked driftwood and instance-accurate natural-prop LOD
+
+- Replaced the single four-triangle branch spike on near driftwood variant 2 with three curved,
+  tapered, six-sided limbs. The retained oblique composition is 160 triangles instead of 74 and
+  reads as a distinct weathered fork from first-person height; the 30-triangle far mesh, all 28
+  placements, material shader, instance format, batching, and submission ceiling remain unchanged.
+  The first side-on review was rejected because the branch depth collapsed into the camera axis.
+- Extended exact instance-distance range/LOD selection to rocks, fallen logs, and driftwood after
+  discovering their remaining cell-centre decision. Shared cell AABBs now provide conservative
+  rejection only. Existing log/driftwood position fields are populated and consumed without
+  changing GPU instance data; the dedicated QA view reports four near / zero far driftwood. Core
+  coverage now locks the presence of all three deterministic driftwood variants. This was
+  game-side code and no dependency defect was involved.
+- Native OpenGL 3.3 and actual Chrome 152/SwiftShader WebGL 2 captures were inspected and match.
+  Two six-view native safety suites completed under shared GPU load; representative mean/p95
+  ranges were 1.7762--1.7842/2.0748--2.1294 ms overview,
+  2.6986--2.7497/3.0540--3.4583 ms beach, 2.3285--2.3619/2.6086--2.6343 ms jungle,
+  1.4848--1.4964/1.8351--1.9153 ms driftwood, 2.5316--2.5605/3.3698--3.3737 ms monkeys,
+  and 2.8703--2.9211/3.7702--3.9156 ms traversal. The changed driftwood QA camera makes its
+  historical scene population non-comparable; these are functional safety checks, not isolated
+  geometry/culling cost claims.
+- The final native suite passes 37/37 in 42.98 seconds, including 29 actual OpenGL scenes and real
+  X11 input. The complete Chrome harness passes all 22 lifecycle, deployment, renderer, scene, and
+  input stages. The arm64 GLES 3 target builds, the 33,578,336-byte APK assembles, and application
+  lint passes; the stripped library is 15,845,960 bytes and WebAssembly is 8,434,685 bytes. Android
+  appearance and physical-mobile cost remain unqualified. The world layout and stable fingerprint
+  remain `d83ecd714e10fc9f`.
+- No CNA or Sharp Runtime file was edited and no dependency defect was found. Validation used the
+  clean project-owned CNA export at locked commit `f243c63a1dc56404d732deed902bd18bde9db9f7`
+  and Sharp Runtime `21c06910f7cf887cceebb45200e07b43dd45fef4`. At the final read-only boundary
+  audit, the external CNA worktree had independently become clean on the newer `next` commit
+  `39e84add777730969f58074fa1ffa010dc5c7d2c`; deliberate baseline review and requalification are
+  recorded as the next task rather than silently mixed into this milestone.
 
 ## Session-end checklist
 

@@ -313,8 +313,10 @@ clusters in the dry beach belt. Four rock, three log, three driftwood,
 three frond, and four beach-detail variants use cell culling, variant batching, and a portable
 static GLSL 330 / GLSL ES 300 shader; the larger classes retain independent near/far meshes while
 tiny beach details disappear beyond 52 m and fronds beyond 76 m. Opaque geometry grounds the
-layers without transparency overdraw; driftwood uses an irregular bent tube plus branch stubs, and
-fronds use a curved rachis with 28 tapered leaflets. Placement validates complete footprints
+layers without transparency overdraw. Driftwood variants 0 and 1 use an irregular bent tube plus
+one or two branch stubs; near variant 2 uses three curved, six-sided tapered fork limbs for a
+distinct 160-triangle silhouette while its far tier stays at 30 triangles. Fronds use a curved
+rachis with 28 tapered leaflets. Placement validates complete footprints
 against shore distance, route reservations, nearby trees, slope, and support-height variation.
 The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
 fragments for subtle world-space strata and sparse lichen, near-log sides for local-space bark
@@ -322,6 +324,10 @@ fissures, near cut ends for gently irregular growth rings, and near-driftwood si
 softer sun-bleached longitudinal weathering. Driftwood cut ends remain plain. Distance fades remove
 all cues before their mesh transition. Contact geometry and every far mesh retain the plain path;
 this keeps the material treatment texture-free and free of extra geometry, instance data, or draws.
+The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and
+driftwood then enforce maximum range and select near/far geometry from their actual instance
+position, preventing early switches at cell boundaries. The driftwood QA camera targets variant 2
+at an oblique first-person angle and exposes its near/far population.
 Collision is limited to substantial rocks, every visibly emergent reef outcrop, and sampled
 fallen-log spans, leaving small dressing non-solid. The player applies those horizontal proxies
 while both walking and swimming. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full instanced
