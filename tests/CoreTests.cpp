@@ -423,8 +423,8 @@ int main()
     const island::AmbientLoop repeatedMonkeyCallAlternate = island::GenerateMonkeyCallAlternate();
     Check(surfLoop.sampleRate == 22050 && breezeLoop.sampleRate == 22050,
           "procedural ambience uses the intended portable sample rate");
-    Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 220500U,
-          "procedural ambient loops are ten seconds long");
+    Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 242550U,
+          "procedural ambient loops have their intended staggered portable lengths");
     Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 264600U,
           "daytime-jungle ambience has its intended twelve-second portable format");
     Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U
@@ -432,8 +432,21 @@ int main()
               && waveAccentAlternate.samples.size() == 88200U,
           "both stronger-wave accents have the intended four-second portable format");
     Check(waterMovementLoop.sampleRate == 22050
-              && waterMovementLoop.samples.size() == 132300U,
-          "player water movement has its intended six-second portable format");
+              && waterMovementLoop.samples.size() == 154350U,
+          "player water movement has its intended seven-second portable format");
+    const std::array<std::size_t, 4> persistentLoopSeconds = {
+        surfLoop.samples.size() / 22050U,
+        breezeLoop.samples.size() / 22050U,
+        jungleLoop.samples.size() / 22050U,
+        waterMovementLoop.samples.size() / 22050U,
+    };
+    const std::size_t combinedLoopPeriod = std::accumulate(
+        persistentLoopSeconds.begin(), persistentLoopSeconds.end(), std::size_t{1U},
+        [](const std::size_t left, const std::size_t right) {
+            return std::lcm(left, right);
+        });
+    Check(combinedLoopPeriod == 4620U,
+          "persistent ambience avoids a complete repeated phase alignment for 77 minutes");
     Check(waterTransitionAccent.sampleRate == 22050
               && waterTransitionAccent.samples.size() == 33075U
               && waterTransitionAccentAlternate.sampleRate == 22050

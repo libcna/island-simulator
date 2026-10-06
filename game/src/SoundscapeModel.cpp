@@ -172,11 +172,14 @@ namespace island
 
     AmbientLoop GenerateBreezeLoop()
     {
-        const std::vector<float> noise = Noise(0xb4ee2e19U);
+        constexpr int loopSeconds = 11;
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * loopSeconds);
+        const std::vector<float> noise = Noise(0xb4ee2e19U, frameCount);
         const std::vector<float> leaves = CircularSmooth(noise, 11U);
         const std::vector<float> canopy = CircularSmooth(noise, 85U);
         const std::vector<float> gust = CircularSmooth(noise, 1450U);
-        std::vector<float> samples(AmbientFrameCount);
+        std::vector<float> samples(frameCount);
         for (std::size_t index = 0; index < samples.size(); ++index) {
             const float phase = static_cast<float>(index) / static_cast<float>(samples.size());
             const float movement = 0.55f
@@ -305,7 +308,9 @@ namespace island
 
     AmbientLoop GenerateWaterMovementLoop()
     {
-        constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 6);
+        constexpr int loopSeconds = 7;
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * loopSeconds);
         const std::vector<float> noise = Noise(0x5a17e24bU, frameCount);
         const std::vector<float> droplets = CircularSmooth(noise, 3U);
         const std::vector<float> wash = CircularSmooth(noise, 48U);

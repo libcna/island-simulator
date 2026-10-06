@@ -23,7 +23,7 @@ namespace island
     /** @brief Generates a seamless ten-second surf bed without external audio assets. */
     [[nodiscard]] AmbientLoop GenerateSurfLoop();
 
-    /** @brief Generates a seamless ten-second light-canopy-breeze bed. */
+    /** @brief Generates a seamless eleven-second light-canopy-breeze bed. */
     [[nodiscard]] AmbientLoop GenerateBreezeLoop();
 
     /** @brief Generates a seamless twelve-second subtle daytime-jungle bed. */
@@ -35,7 +35,7 @@ namespace island
     /** @brief Generates a second four-second wave shape for repetition control. */
     [[nodiscard]] AmbientLoop GenerateWaveAccentAlternate();
 
-    /** @brief Generates a seamless six-second water-motion bed for wading and swimming. */
+    /** @brief Generates a seamless seven-second water-motion bed for wading and swimming. */
     [[nodiscard]] AmbientLoop GenerateWaterMovementLoop();
 
     /** @brief Generates one short non-looping water entry/exit accent. */

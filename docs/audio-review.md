@@ -51,7 +51,7 @@ build/island-audio-report \
 ```
 
 The directory contains four loop beds and eight one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 2.33 MiB plus headers. Delete the directory after review;
+22.05 kHz PCM16 WAV files. They total about 2.42 MiB plus headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -73,7 +73,8 @@ subjective task.
 
 ## Current measured baseline
 
-The current report validates 12 unique sources and 2,445,344 PCM payload bytes. Normalized peaks
-range from approximately 0.56 to 0.86. Absolute DC offset remains below 0.0068. The four loop seams
-range from approximately 0.0036 to 0.0402 and remain below their own largest ordinary internal
-step. These figures establish regression bounds, not a claim of perceptual quality.
+The current report validates 12 unique sources and 2,533,544 PCM payload bytes. Normalized peaks
+range from approximately 0.56 to 0.86. Absolute DC offset remains below 0.0069. The four loop seams
+range from approximately 0.0036 to 0.0271 and remain below their own largest ordinary internal
+step. The persistent 10/11/12/7-second lengths align as a complete pattern only every 77 minutes;
+these figures establish regression bounds, not a claim of perceptual quality.

@@ -165,11 +165,11 @@ namespace
         clips.reserve(12U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
-        clips.push_back({"canopy breeze", "breeze.wav", true, 220500U,
+        clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
                          island::GenerateBreezeLoop()});
         clips.push_back({"daytime jungle", "jungle.wav", true, 264600U,
                          island::GenerateJungleLoop()});
-        clips.push_back({"player water movement", "water-movement.wav", true, 132300U,
+        clips.push_back({"player water movement", "water-movement.wav", true, 154350U,
                          island::GenerateWaterMovementLoop()});
         clips.push_back({"stronger wave A", "stronger-wave-a.wav", false, 88200U,
                          island::GenerateWaveAccent()});

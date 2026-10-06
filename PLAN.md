@@ -569,18 +569,20 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   mixing and richer biome zones remain.
 - [~] Add non-repetitive surf beds and occasional stronger waves tied to shoreline proximity. A
   deterministic ten-second filtered-noise bed now follows shoreline distance, and two distinct
-  four-second washes are selected at varied 14--32 second intervals near audible surf. Subjective
-  balance and long-session fatigue tuning remain.
+  four-second washes are selected at varied 14--32 second intervals near audible surf. The four
+  persistent beds now use 10/11/12/7-second lengths, delaying their complete shared phase
+  recurrence from one minute to 77 minutes. Subjective balance and long-session fatigue tuning
+  remain.
 - [~] Add wind-through-vegetation, jungle beds, birds, insects where tasteful, monkey calls, distant
-  wildlife, and sparse water splashes. A light-canopy-breeze loop and subtle twelve-second daytime
-  jungle bed increase inland, two cooldown-protected water entry/exit textures are active, and two
-  bird plus two monkey phrases now play sparsely from real nearby agents; additional insect/accent
-  variation and richer biome layers remain.
+  wildlife, and sparse water splashes. An eleven-second light-canopy-breeze loop and subtle
+  twelve-second daytime-jungle bed increase inland, two cooldown-protected water entry/exit
+  textures are active, and two bird plus two monkey phrases now play sparsely from real nearby
+  agents; additional insect/accent variation and richer biome layers remain.
 - [x] Add positional one-shots/emitters where direction and distance improve presence. One pooled
   mono wildlife voice uses CNA `AudioListener`/`AudioEmitter`/`Apply3D`, camera orientation, agent
   positions, 24 m reference falloff, distance gates, and species habitat gates.
 - [x] Add player wading/swimming movement audio without repetitive rapid triggering. One continuous
-  six-second procedural loop follows authoritative support depth, locomotion mode, and horizontal
+  seven-second procedural loop follows authoritative support depth, locomotion mode, and horizontal
   speed with asymmetric fade smoothing and wading/swimming pitch variation. The same source now
   gains a deeper 0.08-maximum undertow bed across the 42--72 m current field, with separate 650 ms
   cue smoothing and no dry-state leakage.
@@ -1006,7 +1008,8 @@ Work next, in order:
 1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
-   Linux playback, and the six-source ceiling are verified; subjective masking and fatigue are not.
+   Linux playback, the six-source ceiling, and a 77-minute aggregate loop phase period are verified;
+   subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
@@ -2933,6 +2936,26 @@ Work next, in order:
   condition and is not equivalent to a user moving a real tab between foreground and background.
   Genuine visible-tab lifecycle and audio-focus validation remain in the execution queue; this
   observation is not classified as a CNA defect without that evidence.
+
+### 2026-10-06 — Long-period persistent soundscape phasing
+
+- Identified that the prior 10/10/12/6-second surf, breeze, jungle, and player-water loops returned
+  to the same aggregate phase after 60 seconds. Retained the qualified ten-second surf and
+  twelve-second jungle sources while extending breeze to eleven seconds and player water to seven.
+  The 10/11/12/7-second set has a least common multiple of 4,620 seconds, so the complete persistent
+  pattern now takes 77 minutes to realign. Core coverage locks that property.
+- The change adds only 88,200 bytes of generated mono PCM16 memory and no packaged asset, active
+  source, mixer voice, draw submission, or external license. The audio report validates all 12
+  unique sources and a 2,533,544-byte PCM footprint. Peaks remain approximately 0.56--0.86,
+  absolute DC remains below 0.0069, and the four loop seams span approximately 0.0036--0.0271,
+  each below its own largest ordinary internal step. WAV export and independent parsing pass.
+- The native suite passes 37/37 in 84.12 seconds under shared game/browser load, including 29 real
+  OpenGL scenes and real X11 input. The complete Chrome 152/SwiftShader WebGL 2 harness passes all
+  22 stages. The arm64 GLES 3 target builds, application lint passes, the 33,582,240-byte APK
+  assembles, and its stripped library is 15,849,864 bytes; WebAssembly remains 8,435,054 bytes.
+  Physical Android playback and the subjective 20-minute headphone/speaker route remain open.
+- The world fingerprint remains `d83ecd714e10fc9f`. CNA and Sharp Runtime were not modified, and no
+  dependency defect was found.
 
 ## Session-end checklist
 
