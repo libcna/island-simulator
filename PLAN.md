@@ -317,8 +317,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   steeper interior ground exposes a muted soil tint, and a distance-bounded microvariation octave
   plus two sparse deterministic grids add curved pointed leaf litter to the interior. A restrained
   fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition. The
-  same portable shader now draws a subdued broken-edge dry-earth footpath from the authoritative
-  vegetation-reserved corridor, with short grass retained over it. The two shared authored clearing
+  same portable shader now draws a narrower, noise-mottled broken-edge dry-earth footpath from the
+  authoritative vegetation-reserved corridor, with short grass retained over it and the wider
+  walking reservation left unchanged. The two shared authored clearing
   definitions now drive distinct warm-dry and darker leaf-rich surface treatments. Five authored
   rocks and one fallen log add a first natural landmark composition around their outer rings while
   retaining open centres. Authored biome masks, richer landmarks, decals, broader litter diversity,
@@ -831,8 +832,10 @@ Android is not project completion.
   player ripples are functional; repeated whole-island composition tuning remains.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
-  placement curve, and the east/west clearing definitions drive distinct surface treatments plus a
-  first natural landmark pass made from five rocks and one fallen log around their outer rings.
+  placement curve; its visible wear was narrowed and given local shaded/sun-dry variation while the
+  broader vegetation-free route remains walkable. The east/west clearing definitions drive
+  distinct surface treatments plus a first natural landmark pass made from five rocks and one
+  fallen log around their outer rings.
   Broader landmark variety and whole-route density retuning remain.
 - [~] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
   coherent permanent sunny art direction. Terrain/ocean/sky share one sun, grass has two-sided
@@ -3251,6 +3254,30 @@ Work next, in order:
 - Population, placement, instance layout, culling radius, shaders, and the deterministic world
   fingerprint are unchanged. CNA and Sharp Runtime remain unmodified, and no qualifying
   dependency defect was found.
+
+### 2026-10-06 — Narrow irregular primary-footpath wear
+
+- A comparative eight-view visual audit found that the main interior path still read as an overly
+  broad, materially flat strip. Reduced its varying visible half-width from 2.05--2.77 m to
+  1.52--2.16 m while retaining the 6.2 m vegetation reservation, traversal, collision, and short
+  grass. Stronger fine edge breakup, a subtly offset compacted centre, and shaded-to-sun-dry earth
+  variation now return the sides to ordinary substrate without turning the route into a road.
+- Rejected an initial separate path-noise evaluation: the extra four-corner field was almost
+  indistinguishable in captures and not justified for mobile fragment work. The accepted path
+  reuses the terrain shader's existing medium and fine fields, adding no noise octave, geometry,
+  texture, CPU placement, instance data, or draw submission. Two final traversal checks measured
+  2.5100--2.7317 ms mean / 3.4736--3.6927 ms p95 while the operator game shared the GPU; this is a
+  gross-regression guard, not an isolated speedup claim.
+- Native OpenGL 3.3 before/after captures and the actual Chrome 152/SwiftShader WebGL 2 result were
+  inspected at 1280 by 720 and agree on the narrower treatment. The Web harness now requires its
+  explicit diagnostic in lifecycle, beach, and jungle stages and passes all 22 stages. The final
+  native suite passes 37/37 in 39.03 seconds, including 29 real OpenGL scenes and isolated
+  SDL/XTest input.
+- The arm64 GLES 3 target builds and application lint passes. The v2-signed, single-ABI APK is
+  18,700,980 bytes, its stripped `libmain.so` is 15,890,696 bytes, and WebAssembly is 8,471,044
+  bytes. The software AVD was not rerun for a material-only shader change after its current GLES 3
+  first frame had already required about seven minutes; physical-device appearance and cost remain
+  open. CNA and Sharp Runtime remain unmodified, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

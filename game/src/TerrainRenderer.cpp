@@ -185,17 +185,26 @@ void main()
                                      uPrimaryPathZRange.x + 16.0, p.y)
             * (1.0 - smoothstep(uPrimaryPathZRange.y - 16.0,
                                 uPrimaryPathZRange.y, p.y));
-        float pathWidth = 2.05 + (broad + 0.5) * 0.72;
-        float brokenLateralDistance = abs(p.x - pathCentre)
-            + medium * 0.52 + fine * 0.035;
+        float lateralOffset = p.x - pathCentre;
+        float pathWidth = 1.52 + (broad + 0.5) * 0.64;
+        float brokenLateralDistance = abs(lateralOffset)
+            + medium * 0.48 + fine * 0.095;
         float pathMask = (1.0 - smoothstep(pathWidth - 0.42,
-                                           pathWidth + 0.68,
+                                           pathWidth + 0.62,
                                            brokenLateralDistance))
             * pathRange * smoothstep(20.0, 42.0, signedShoreDistance)
             * (1.0 - steep) * detailFade;
-        float compactedCentre = 1.0 - smoothstep(0.25, 1.08, abs(p.x - pathCentre));
-        vec3 dryEarth = vec3(0.315, 0.220, 0.090);
-        color = mix(color, dryEarth, pathMask * (0.52 + compactedCentre * 0.12));
+        if (pathMask > 0.0) {
+            float compactedCentre = 1.0 - smoothstep(
+                0.16, 0.94, abs(lateralOffset + medium * 0.14));
+            float pathMottle = clamp(medium * 0.86 + fine * 0.08, -0.5, 0.5);
+            vec3 shadedEarth = vec3(0.285, 0.192, 0.072);
+            vec3 sunDryEarth = vec3(0.370, 0.275, 0.126);
+            vec3 dryEarth = mix(shadedEarth, sunDryEarth, pathMottle + 0.5);
+            float pathBlend = pathMask
+                * (0.46 + compactedCentre * 0.16 + pathMottle * 0.055);
+            color = mix(color, dryEarth, pathBlend);
+        }
     }
 
     if (detailFade > 0.0 && signedShoreDistance > 34.0 && steep < 1.0) {
@@ -347,6 +356,7 @@ void main()
                               << "island-simulator: terrain fixed-sun interior dapple from "
                                  "shared portable noise fields\n"
                               << "island-simulator: terrain authored primary footpath material\n"
+                              << "island-simulator: terrain footpath narrow irregular wear\n"
                               << "island-simulator: terrain distinct authored east/west "
                                  "clearing materials\n";
                 } else {

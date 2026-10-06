@@ -201,9 +201,11 @@ range, and reserved half-width owned by `VegetationLayout`. Palm, jungle, prop, 
 and terrain-material code consume that same definition rather than duplicating path coordinates.
 The terrain shader receives the centre-line parameters as uniforms and reuses its
 existing noise/detail fields to form a narrow broken edge, compacted centre, inland/endpoint fades,
-and muted dry-earth colour. Short mesh grass remains on the route, so it reads as a lightly worn
-tropical footpath rather than a bare road or objective marker. The cue adds no geometry, texture,
-draw submission, or collision rule.
+and muted dry-earth colour. The already-computed medium and fine fields give the compacted earth
+shaded/sun-dry mottling without adding another noise evaluation. The visible material is
+deliberately narrower than the vegetation reservation. Short mesh grass remains on the route, so
+it reads as a lightly worn tropical footpath rather than a bare road or objective marker. The cue
+adds no geometry, texture, draw submission, or collision rule.
 
 The same layout owns the exact centres and radii of the east and west clearings. Vegetation
 reservation, F7/F8 teleports, fixed QA cameras, tests, and terrain rendering consume those shared

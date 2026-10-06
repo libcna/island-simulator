@@ -121,7 +121,7 @@ quantized colour diversity, and coarse spatial contrast. It writes
 overwhelmingly bright output without pretending to be a pixel-golden comparison. The parser and
 failure thresholds have separate `IslandCaptureValidatorTests` coverage.
 `IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm` and
-requires the authored primary-footpath terrain material.
+requires both the authored primary-footpath material and its narrow irregular-wear path.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm` and
 requires the folded pointed-leaf near-bush path; the same startup also reports the
 branch-supported/pointed-leaf near-canopy path.

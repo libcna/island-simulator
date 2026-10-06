@@ -188,6 +188,8 @@ try {
     && result.output?.includes(
       "island-simulator: terrain authored primary footpath material")
     && result.output?.includes(
+      "island-simulator: terrain footpath narrow irregular wear")
+    && result.output?.includes(
       "island-simulator: terrain distinct authored east/west clearing materials")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes(
@@ -422,6 +424,8 @@ try {
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && beachResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
+    && beachResult.output?.includes(
+      "island-simulator: terrain footpath narrow irregular wear")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
@@ -569,6 +573,8 @@ try {
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && jungleResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
+    && jungleResult.output?.includes(
+      "island-simulator: terrain footpath narrow irregular wear")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && jungleResult.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")

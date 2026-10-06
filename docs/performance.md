@@ -750,6 +750,23 @@ improved over the preceding 2.8983 ms mean as representative visible grass geome
 | Monkeys | 2.3322--2.3326 | 3.0050--3.0351 | 3.3030--3.5892 | 102 | 2,946 |
 | Traversal | 2.4887--2.6431 | 3.1023--3.2107 | 3.4072--3.5939 | 12 final | route-varying |
 
+### Narrow irregular footpath follow-up
+
+The visible worn half-width now varies from 1.52 to 2.16 m instead of 2.05 to 2.77 m. This does
+not change the wider vegetation reservation, traversal geometry, collision, terrain mesh, texture
+count, or submissions. More of the route edge therefore returns to ordinary green substrate while
+the full walking corridor stays clear. The compacted centre shifts slightly with the existing
+medium field, and the shaded/sun-dry soil mix reuses the already-computed medium and fine fields.
+There is no new noise evaluation in the accepted shader.
+
+A first prototype evaluated a separate four-corner noise field inside the path. It looked nearly
+identical and produced noisy traversal means of 2.6301 and 2.9680 ms while the visible operator game
+shared the GPU, so it was rejected as needless mobile fragment work. The accepted reused-field
+version measured 2.5100 and 2.7317 ms mean, with 3.4736 and 3.6927 ms p95. Those ranges overlap the
+preceding three-tier-grass traversal observations and are only a gross-regression guard, not a
+speedup claim. Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 path captures were inspected
+at 1280 by 720 and retain the same narrower treatment.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

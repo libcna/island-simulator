@@ -33,6 +33,8 @@ also require derivative-based, two-sided fixed-sun facet lighting on the instanc
 shader rather than accepting its unlit fallback. The lifecycle, beach approach, and jungle camera
 also require the authored primary-footpath terrain material diagnostic. Dedicated east/west
 clearing cameras require their shared authored-material diagnostic and exact QA-camera identity.
+The lifecycle, beach approach, and jungle gates additionally require the narrow irregular-wear
+diagnostic, preventing a silent return to the former broad, uniformly coloured path treatment.
 Both clearing cameras also require the shared five-rock/one-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4

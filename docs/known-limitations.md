@@ -22,8 +22,9 @@ been confirmed so far.
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
   close substrate-microvariation, sparse pointed leaf litter, and restrained fixed-sun interior
-  dappling. The authored main corridor now has a subdued broken-edge dry-earth footpath under its
-  short grass. The two clearings have distinct warm-dry and darker leaf-rich treatments, and their
+  dappling. The authored main corridor now has a narrower, noise-mottled broken-edge dry-earth
+  footpath under its short grass while retaining a wider vegetation-free walking corridor. The two
+  clearings have distinct warm-dry and darker leaf-rich treatments, and their
   outer rings now carry a first five-rock/one-log natural-landmark composition without blocking
   their centres. Broader unique composition and bespoke landmark geometry remain limited. The
   dapple is static material breakup rather
