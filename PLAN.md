@@ -3981,10 +3981,29 @@ Work next, in order:
   reports its exact drift. WebAssembly is 8,464,191 bytes.
 - Rebuilt and linted the arm64-v8a OPENGLES3 Android package. It contains only the requested ABI,
   verifies with APK signature scheme v2, and is 18,690,996 bytes with a 15,880,712-byte stripped
-  `libmain.so`. Runtime was not inferred from compilation: `/dev/kvm` is absent from this execution
-  namespace, so the previous pin's six-view KVM/gfxstream matrix remains the latest Android runtime
-  evidence. All compilation used `/rv/cnaccache` and no more than two workers. No framework defect
+  `libmain.so`. The restricted sandbox hid `/dev/kvm`, so runtime was initially left unclaimed;
+  an explicitly escalated host check and the follow-up milestone below then qualified the current
+  pin. All compilation used `/rv/cnaccache` and no more than two workers. No framework defect
   affecting island-simulator was found, so no `BUGS.md` entry or workaround was added.
+
+### 2026-10-07 — Current-pin Android GLES 3 requalification
+
+- Confirmed outside the restricted filesystem sandbox that `/dev/kvm` is device 10:232, the
+  developer belongs to group `kvm`, both read/write probes pass, and Emulator 36.5.11 reports KVM
+  version 12 usable. No new device node, root-run emulator, or `sg` workaround is required.
+- Built the current `9fbe34468c69` sources for x86_64 and booted the existing API 35 `Medium_Phone`
+  AVD in 15.876 seconds using `-accel on` and host AMD Radeon 780M gfxstream. The ordinary overview
+  reported `OPENGLES3`, opened its 44.1 kHz AAudio stream, and completed first draw in 2179.350 ms
+  total. Its inspected 2400 by 1080 frame retains the complete sunny island, dense grass/jungle,
+  and clean translucent dual-zone controls.
+- Ran a second debug-argument launch at the fixed offshore-current view. It completed first draw in
+  1555.412 ms and the inspected frame reports normalized current 0.7, exact `DRIFT 0.3/1.2`, water
+  view intensity 1.0 in one draw, undertow 0.9, and `OPENGLES3`. Neither launch emitted a fatal,
+  shader-compilation, or `GL_INVALID_OPERATION` diagnostic.
+- Stopped the emulator cleanly, confirmed ADB empty, retained the two small ignored screenshot/log
+  evidence sets, and restored the linted v2-signed arm64-only APK at 18,690,996 bytes with a
+  15,880,712-byte stripped `libmain.so`. These are functional KVM/gfxstream results, not physical
+  mobile GPU, thermal, battery, or real-finger ergonomics claims.
 
 ## Session-end checklist
 

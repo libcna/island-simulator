@@ -79,18 +79,16 @@ and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
 terrain cell batching. It also validates every indexed procedural mesh plus the monkey fourteen-
-bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build of
-the same sources and preceding `fe20e3e9c` CNA pin passed the KVM/host-GPU GLES 3 first-frame gate
-at 2003.189 ms total startup: 861.991 ms world generation, 4.482 ms framework initialization,
-1075.736 ms content creation, 20.038 ms before the first draw, and 40.942 ms for the first draw
-body. The inspected
-2400 by 1080 capture retains the complete scene and clean translucent touch controls. The default
-arm64 package was then restored. The current `9fbe34468c69` pin builds and lints, but has not been
-rerun because `/dev/kvm` is absent from the current execution namespace. Public terrain queries
-additionally fail closed before non-finite or out-of-domain values can reach procedural noise-cell
-conversion. The APK verifies with signature
-scheme v2, contains only the selected ABI, and remains the same size after an immediate no-change
-incremental assembly.
+bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build
+of the same sources and current `9fbe34468c69` CNA pin passed two KVM/host-GPU GLES 3 first-frame
+gates. The ordinary overview completed in 2179.350 ms, while the fixed offshore-current view
+completed in 1555.412 ms and visibly reported normalized current 0.7 with exact `DRIFT 0.3/1.2`.
+Both inspected 2400 by 1080 captures retain the complete scene and clean translucent touch
+controls; no fatal, shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared. The default
+arm64 package was then restored. Public terrain queries additionally fail closed before non-finite
+or out-of-domain values can reach procedural noise-cell conversion. The APK verifies with
+signature scheme v2, contains only the selected ABI, and remains the same size after an immediate
+no-change incremental assembly.
 
 A later x86_64 pass exercised the denser 34-blade near-grass geometry and its new GLSL ES 300
 per-blade variation on the same KVM/host-GPU configuration. The complete scene reached a clean
@@ -212,9 +210,11 @@ physical 1080 by 2400 / 420 dpi configuration and presents the landscape applica
 
 The current APK loaded `libSDL3.so` and `libmain.so`, created an RGBA8888 GLES 3 surface, opened a
 44.1 kHz stereo AAudio stream, reported renderer `OPENGLES3`, and completed its first draw. The
-shared-buffer terrain build measured 487.895 ms for world generation, 3.421 ms for framework
-initialization, 1107.472 ms for content creation, 20.058 ms before the first draw, 47.937 ms for
-the first draw body, and 1666.782 ms total. The previous unaccelerated QEMU TCG pass took
+current overview measured 728.549 ms for world generation, 2.625 ms for framework initialization,
+1354.746 ms for content creation, 23.770 ms before the first draw, 69.660 ms for the first draw
+body, and 2179.350 ms total. The fixed offshore-current view measured 521.314, 2.319, 972.728,
+19.533, and 39.518 ms for those phases, respectively, or 1555.412 ms total. These one-run figures
+prove startup and are not a performance comparison. The previous unaccelerated QEMU TCG pass took
 421449.067 ms total; that historical number remains useful only to explain why it was not a valid
 runtime target.
 
