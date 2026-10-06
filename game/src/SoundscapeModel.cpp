@@ -461,7 +461,8 @@ namespace island
 
     WaterMovementMix WaterMovementModel::TargetMix(const float waterDepth,
                                                     const bool swimming,
-                                                    const float horizontalSpeed) noexcept
+                                                    const float horizontalSpeed,
+                                                    const float oceanCurrentStrength) noexcept
     {
         const float referenceSpeed = swimming ? PlayerMotion::SwimSpeed
                                               : PlayerMotion::WalkSpeed;
@@ -471,32 +472,50 @@ namespace island
         const float depthPresence = swimming
             ? 1.0f
             : SmoothStep(0.035f, 0.38f, std::max(0.0f, waterDepth));
+        const float safeCurrent = swimming && std::isfinite(oceanCurrentStrength)
+            ? std::clamp(oceanCurrentStrength, 0.0f, 1.0f) : 0.0f;
+        const float currentCue = SmoothStep(0.06f, 0.96f, safeCurrent);
 
         WaterMovementMix result;
-        result.volume = movement * depthPresence * (swimming ? 0.17f : 0.115f);
-        result.pitch = swimming
+        const float movementVolume = movement * depthPresence * (swimming ? 0.17f : 0.115f);
+        const float currentVolume = currentCue * (0.032f + currentCue * 0.048f);
+        result.volume = std::max(movementVolume, currentVolume);
+        result.pitch = (swimming
             ? -0.14f + normalizedSpeed * 0.08f
-            : 0.025f + normalizedSpeed * 0.12f;
+            : 0.025f + normalizedSpeed * 0.12f) - currentCue * 0.08f;
+        result.currentCue = currentCue;
         return result;
     }
 
     void WaterMovementModel::Reset(const float waterDepth, const bool swimming,
-                                   const float horizontalSpeed) noexcept
+                                   const float horizontalSpeed,
+                                   const float oceanCurrentStrength) noexcept
     {
-        mix_ = TargetMix(waterDepth, swimming, horizontalSpeed);
+        mix_ = TargetMix(waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
     }
 
     WaterMovementMix WaterMovementModel::Update(const float waterDepth, const bool swimming,
                                                 const float horizontalSpeed,
-                                                const float deltaSeconds) noexcept
+                                                const float deltaSeconds,
+                                                const float oceanCurrentStrength) noexcept
     {
-        const WaterMovementMix target = TargetMix(waterDepth, swimming, horizontalSpeed);
+        const WaterMovementMix target = TargetMix(
+            waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         const float safeDelta = std::clamp(deltaSeconds, 0.0f, 0.25f);
-        const float volumeTimeConstant = target.volume > mix_.volume ? 0.14f : 0.34f;
+        const float currentBlend = 1.0f - std::exp(-safeDelta / 0.65f);
+        mix_.currentCue += (target.currentCue - mix_.currentCue) * currentBlend;
+
+        const WaterMovementMix calmTarget = TargetMix(
+            waterDepth, swimming, horizontalSpeed, 0.0f);
+        const float currentVolume = mix_.currentCue
+            * (0.032f + mix_.currentCue * 0.048f);
+        const float targetVolume = std::max(calmTarget.volume, currentVolume);
+        const float targetPitch = calmTarget.pitch - mix_.currentCue * 0.08f;
+        const float volumeTimeConstant = targetVolume > mix_.volume ? 0.14f : 0.34f;
         const float volumeBlend = 1.0f - std::exp(-safeDelta / volumeTimeConstant);
         const float pitchBlend = 1.0f - std::exp(-safeDelta / 0.42f);
-        mix_.volume += (target.volume - mix_.volume) * volumeBlend;
-        mix_.pitch += (target.pitch - mix_.pitch) * pitchBlend;
+        mix_.volume += (targetVolume - mix_.volume) * volumeBlend;
+        mix_.pitch += (targetPitch - mix_.pitch) * pitchBlend;
         return mix_;
     }
 

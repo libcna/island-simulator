@@ -364,7 +364,9 @@ namespace island
         const float waterDepth = std::max(0.0f, -playerMotion_.GroundHeight());
         const float horizontalSpeed = std::hypot(playerMotion_.VelocityX(),
                                                  playerMotion_.VelocityZ());
-        (void)soundscape_->Start(shoreDistance, swimming, waterDepth, horizontalSpeed);
+        (void)soundscape_->Start(
+            shoreDistance, swimming, waterDepth, horizontalSpeed,
+            playerMotion_.OceanCurrentStrength(terrain_));
         soundscapeNeedsGesture_ = false;
     }
 
@@ -494,11 +496,12 @@ namespace island
         }
         worldDebugToggleWasDown_ = worldDebugToggleDown;
 
-        constexpr std::array<Keys, 7> teleportKeys = {
-            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::F11};
-        constexpr std::array<const char*, 7> teleportNames = {
+        constexpr std::array<Keys, 8> teleportKeys = {
+            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::F11,
+            Keys::F12};
+        constexpr std::array<const char*, 8> teleportNames = {
             "south beach", "jungle trail", "east clearing", "west clearing",
-            "fish shallows", "offshore shark", "monkey troop"};
+            "fish shallows", "offshore shark", "monkey troop", "offshore current"};
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
@@ -543,6 +546,13 @@ namespace island
                     z = monkey.z + std::sin(monkey.headingRadians) * 5.0f;
                     yaw_ = std::atan2(monkey.x - x, monkey.z - z);
                     pitch_ = -0.08f;
+                } else if (index == 7U) {
+                    constexpr float angle = -std::numbers::pi_v<float> * 0.5f;
+                    const float radius = terrain_.ShoreRadius(angle) + 62.0f;
+                    x = std::cos(angle) * radius;
+                    z = std::sin(angle) * radius;
+                    yaw_ = 0.0f;
+                    pitch_ = -0.015f;
                 }
                 playerMotion_.SetPosition(terrain_, x, z);
                 cameraMotion_.Reset();
@@ -620,6 +630,7 @@ namespace island
                                 playerMotion_.Mode() == LocomotionMode::Swimming,
                                 std::max(0.0f, -playerMotion_.GroundHeight()),
                                 std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
+                                playerMotion_.OceanCurrentStrength(terrain_),
                                 deltaSeconds, listener,
                                 birdFlock_.Birds(), monkeyTroop_.Monkeys());
         }
@@ -954,6 +965,7 @@ namespace island
                 overlayState.breezeVolume = soundscape_->Mix().breezeVolume;
                 overlayState.jungleVolume = soundscape_->Mix().jungleVolume;
                 overlayState.waterMovementVolume = soundscape_->WaterMix().volume;
+                overlayState.oceanCurrentAudioCue = soundscape_->WaterMix().currentCue;
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
                 overlayState.playedWaterTransitions =
                     soundscape_->PlayedWaterTransitionCount();
@@ -979,6 +991,12 @@ namespace island
 
         if (drawnFrames_ == 0U) {
             const PlayerPosition& player = playerMotion_.Position();
+            const float currentStrength = playerMotion_.OceanCurrentStrength(terrain_);
+            const float undertowTarget = WaterMovementModel::TargetMix(
+                std::max(0.0f, -playerMotion_.GroundHeight()),
+                playerMotion_.Mode() == LocomotionMode::Swimming,
+                std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
+                currentStrength).currentCue;
             std::cout << "island-simulator: visible terrain cells "
                       << terrainRenderer_->VisibleCellCount() << '/'
                       << terrainRenderer_->TotalCellCount() << ", collision candidates "
@@ -1042,7 +1060,7 @@ namespace island
                       << distantSceneryRenderer_->DrawCallCount()
                       << " draw; water view " << waterViewModel_.Intensity()
                       << ", " << waterViewOverlay_->DrawCallCount() << " draw, current "
-                      << playerMotion_.OceanCurrentStrength(terrain_) << '\n';
+                      << currentStrength << ", undertow target " << undertowTarget << '\n';
         }
         ++drawnFrames_;
         const std::uint32_t targetFrames = !capturePath_.empty()

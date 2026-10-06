@@ -161,7 +161,7 @@ namespace island
         bool muteToggleWasDown_ = false;
         bool cameraMotionToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
-        std::array<bool, 7> debugTeleportWasDown_{};
+        std::array<bool, 8> debugTeleportWasDown_{};
         std::size_t monkeyTeleportIndex_ = 0U;
         bool inputDiagnostics_ = false;
         bool touchOverlayVisible_ = false;

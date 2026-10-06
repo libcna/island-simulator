@@ -506,6 +506,7 @@ try {
       "island-simulator: near-surface swimming view procedural edge veil")
     && /water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*/.test(
       currentResult.output ?? "")
+    && /undertow target 0[.][1-9][0-9]*/.test(currentResult.output ?? "")
     && !currentResult.error;
 
   await call("Page.navigate", {

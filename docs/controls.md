@@ -9,14 +9,15 @@
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
 | F2 | Toggle world-space shoreline/current, collision, cell, and wildlife diagnostics; visible only with F1 |
-| F5 / F6 / F7 / F8 / F9 / F10 / F11 | With the overlay visible, teleport to seven QA locations; F9 faces the fish shallows, F10 the offshore shark, and repeated F11 presses cycle through all seven monkeys |
+| F5 / F6 / F7 / F8 / F9 / F10 / F11 / F12 | With the overlay visible, teleport to eight QA locations; F9 faces the fish shallows, F10 the offshore shark, repeated F11 presses cycle through all seven monkeys, and F12 enters the active offshore current for feedback QA |
 | B | Smoothly disable or restore restrained walking/swimming camera motion |
 | M | Mute or unmute the ambient soundscape |
 | Escape | Release captured mouse; press again to exit |
 
 Movement follows terrain, refuses uphill motion steeper than 38 degrees, and switches to swimming
 in sufficiently deep water. Swimming is slower. An offshore current progressively resists outward
-movement and carries the player back toward the island.
+movement and carries the player back toward the island. A subtle peripheral tint and deeper
+undertow texture strengthen with that same current field.
 
 Jumping is intentionally absent. The game is not a platformer.
 

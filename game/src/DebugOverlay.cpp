@@ -185,7 +185,7 @@ namespace island
     {
         std::vector<std::string> lines;
         lines.reserve(18U);
-        lines.emplace_back("F1 DEBUG  F2 WORLD  F5-F11 TELEPORT  M MUTE");
+        lines.emplace_back("F1 DEBUG  F2 WORLD  F5-F12 TELEPORT  M MUTE");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
@@ -304,6 +304,7 @@ namespace island
               << "  SURF " << state.surfVolume << " BREEZE " << state.breezeVolume
               << " JUNGLE " << state.jungleVolume;
         audio << " WATER " << state.waterMovementVolume
+              << " UNDERTOW " << state.oceanCurrentAudioCue
               << " WAVES " << state.playedWaveAccents
               << " SPLASHES " << state.playedWaterTransitions;
         lines.push_back(audio.str());

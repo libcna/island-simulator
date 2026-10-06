@@ -245,7 +245,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*")
+                "water view 0[.][1-9][0-9]*, 1 draw, current 0[.][1-9][0-9]*, undertow target 0[.][1-9][0-9]*")
         add_test(NAME IslandGameDistantSceneryCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-distant-capture.ppm"
                     --viewpoint distant)

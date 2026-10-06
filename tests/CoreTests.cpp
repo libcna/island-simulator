@@ -361,6 +361,13 @@ int main()
         island::WaterMovementModel::TargetMix(0.24f, false, 3.0f);
     const island::WaterMovementMix swimmingMovement =
         island::WaterMovementModel::TargetMix(0.7f, true, 2.0f);
+    const island::WaterMovementMix idleCurrent =
+        island::WaterMovementModel::TargetMix(2.5f, true, 0.0f, 1.0f);
+    const island::WaterMovementMix dryCurrent =
+        island::WaterMovementModel::TargetMix(0.0f, false, 4.3f, 1.0f);
+    const island::WaterMovementMix invalidCurrent =
+        island::WaterMovementModel::TargetMix(
+            2.5f, true, 0.0f, std::numeric_limits<float>::quiet_NaN());
     CheckNear(dryMovement.volume, 0.0f, 0.0001f,
               "dry walking never activates the player water layer");
     CheckNear(idleWater.volume, 0.0f, 0.0001f,
@@ -369,6 +376,14 @@ int main()
           "wading is audible and active swimming carries the stronger water mix");
     Check(swimmingMovement.pitch < wadingMovement.pitch,
           "swimming shifts the shared water texture below the wading pitch");
+    Check(idleCurrent.currentCue == 1.0f
+              && idleCurrent.volume >= 0.075f && idleCurrent.volume <= 0.081f
+              && idleCurrent.pitch < swimmingMovement.pitch,
+          "full offshore current reuses the water loop as a bounded deeper undertow cue");
+    CheckNear(dryCurrent.currentCue, 0.0f, 0.0001f,
+              "ocean-current audio remains disabled outside swimming");
+    CheckNear(invalidCurrent.currentCue, 0.0f, 0.0001f,
+              "non-finite ocean-current audio input degrades to the calm mix");
     island::WaterMovementModel waterMovementModel;
     waterMovementModel.Reset(0.0f, false, 0.0f);
     const island::WaterMovementMix firstWadingFrame =
@@ -386,6 +401,28 @@ int main()
         waterMovementModel.Update(0.0f, false, 0.0f, 1.0f / 60.0f);
     Check(firstDryFrame.volume > 0.0f && firstDryFrame.volume < movingWaterVolume,
           "water movement fades out without rapid stop/start chatter");
+    waterMovementModel.Reset(2.5f, true, 0.0f, 0.0f);
+    const island::WaterMovementMix firstCurrentFrame = waterMovementModel.Update(
+        2.5f, true, 0.0f, 1.0f / 60.0f, 1.0f);
+    Check(firstCurrentFrame.currentCue > 0.0f && firstCurrentFrame.currentCue < 0.03f
+              && firstCurrentFrame.volume > 0.0f && firstCurrentFrame.volume < 0.001f,
+          "undertow audio fades in instead of snapping at the current threshold");
+    for (int step = 0; step < 240; ++step) {
+        (void)waterMovementModel.Update(2.5f, true, 0.0f, 1.0f / 60.0f, 1.0f);
+    }
+    CheckNear(waterMovementModel.Mix().currentCue, 1.0f, 0.003f,
+              "undertow audio converges to the full-current target smoothly");
+    const island::WaterMovementMix firstCalmFrame = waterMovementModel.Update(
+        2.5f, true, 0.0f, 1.0f / 60.0f, 0.0f);
+    Check(firstCalmFrame.currentCue > 0.0f && firstCalmFrame.currentCue < 1.0f,
+          "undertow audio releases smoothly after leaving the current field");
+    for (int step = 0; step < 360; ++step) {
+        (void)waterMovementModel.Update(2.5f, true, 0.0f, 1.0f / 60.0f, 0.0f);
+    }
+    CheckNear(waterMovementModel.Mix().currentCue, 0.0f, 0.0002f,
+              "undertow cue fully returns to the calm stationary-water state");
+    CheckNear(waterMovementModel.Mix().volume, 0.0f, 0.0002f,
+              "undertow audio leaves no residual gain in calm stationary water");
 
     island::WaterTransitionScheduler waterTransitionScheduler;
     waterTransitionScheduler.Reset(0.0f, false);
@@ -597,10 +634,13 @@ int main()
         const float waterDepth = block == 2 ? 0.7f
             : block == 3 && blockStep < biomeBlockSteps / 2 ? 0.12f : 0.0f;
         const float speed = block == 1 ? 2.8f : swimming ? 1.8f : 3.2f;
+        const float oceanCurrentStrength = swimming
+            ? static_cast<float>(blockStep) / static_cast<float>(biomeBlockSteps - 1)
+            : 0.0f;
         const island::SoundscapeMix longMix = longSoundscapeModel.Update(
             signedShoreDistance, swimming, longStepSeconds);
         const island::WaterMovementMix longWaterMix = longWaterMovementModel.Update(
-            waterDepth, swimming, speed, longStepSeconds);
+            waterDepth, swimming, speed, longStepSeconds, oceanCurrentStrength);
         const island::WaveAccentRequest longWave = longWaveScheduler.Update(
             longStepSeconds, longMix.surfVolume);
         const island::WaterTransitionRequest longTransition = longTransitionScheduler.Update(
@@ -615,8 +655,10 @@ int main()
             && longMix.jungleVolume <= 0.08f
             && std::isfinite(longWaterMix.volume) && longWaterMix.volume >= 0.0f
             && longWaterMix.volume <= 0.18f
-            && std::isfinite(longWaterMix.pitch) && longWaterMix.pitch >= -0.15f
-            && longWaterMix.pitch <= 0.15f;
+            && std::isfinite(longWaterMix.pitch) && longWaterMix.pitch >= -0.23f
+            && longWaterMix.pitch <= 0.15f
+            && std::isfinite(longWaterMix.currentCue)
+            && longWaterMix.currentCue >= 0.0f && longWaterMix.currentCue <= 1.0f;
         if (longWave.trigger) {
             ++longWaveCount;
             if (longWave.variant < longWaveVariants.size()) {

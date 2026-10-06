@@ -27,7 +27,9 @@ three silhouette meshes, four material palettes, portable CNA GPU skeletal anima
 state-transition crossfades. The current audio pass adds original procedural shoreline surf, two
 varied occasional stronger waves, light canopy breeze, a subtle daytime-jungle texture,
 speed/depth-responsive movement through shallow or swimming water, and two restrained
-water-entry/exit textures. Two bird phrases and two monkey contact phrases share one positional
+water-entry/exit textures. The same continuous water layer now develops a subtle deeper undertow
+bed as the 42--72 m offshore current strengthens, without adding another persistent source. Two
+bird phrases and two monkey contact phrases share one positional
 voice attached to actual nearby agents. All audio is generated without external sound files. The
 complete scene runs on Linux/OpenGL 3.3 and in an actual
 Chromium/WebGL 2 context. An Android API 35 x86_64 emulator rendered the earlier
@@ -81,14 +83,13 @@ Walking and swimming apply restrained, speed-responsive positional camera motion
 smoothly disable or restore it.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, vegetation draw statistics, ambient mix levels, player-water gain, wave/splash
-counts, and positional bird/monkey call activity.
+counts, undertow cue strength, and positional bird/monkey call activity.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, wildlife headings, simulation-tier colours, and the active inward-current vector.
 Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
-overlay is visible, F5 through F11 teleport
-among seven fixed QA locations, including views toward the south fish shallows, offshore shark,
-and monkey troop.
+overlay is visible, F5 through F12 teleport among eight fixed QA locations, including views toward
+the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.
 The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 Use `--world-debug` to enable both the panel and world visualization at launch.

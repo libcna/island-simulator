@@ -24,7 +24,8 @@ one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys,
 five fogged distant islets with 11 simplified palm silhouettes,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player
 water-movement audio, two water entry/exit accents, a procedural near-surface swimming veil with
-offshore-current modulation, and a pooled
+offshore-current modulation, a deeper current-responsive undertow mix in the existing water loop,
+and a pooled
 positional voice with two bird and two monkey phrases. That package
 builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime

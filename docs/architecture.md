@@ -122,8 +122,8 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 7. `WaterViewModel` converts swimming state, authoritative support depth, and normalized offshore
    current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
    `SpriteBatch` draw, cools its tint slightly as current develops, and submits nothing while dry.
-8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
-   shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
+8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch/undertow from
+   authoritative shoreline, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
    positional bird/monkey call voice from nearby wildlife state.
 9. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
@@ -154,7 +154,9 @@ The current boundary is deliberately layered:
 3. By 72 m offshore, the current is fully developed.
 4. The generated peripheral water veil strengthens and cools between the same current thresholds,
    providing a quiet visual cue without a HUD warning or geometric wall.
-5. At 92 m offshore, a last-resort positional safety cap removes residual outward velocity.
+5. The existing continuous player-water loop develops a bounded deeper undertow bed from the same
+   normalized field, remaining silent outside swimming and adding no persistent audio source.
+6. At 92 m offshore, a last-resort positional safety cap removes residual outward velocity.
 
 All distances derive from `IslandTerrain::SignedShoreDistance`; there is no beach collision wall or
 hard-coded rectangular boundary. Later audio, wave, and camera feedback can communicate the same
@@ -339,10 +341,13 @@ conservative 0.078 gain deep inland, falls to eight percent of that target while
 a slower 2.6-second fade so the biome does not sound like an audio trigger volume.
 
 A six-second water-motion loop follows the player's authoritative support depth, locomotion mode,
-and horizontal velocity. Dry movement and stationary water produce zero gain; shallow wading and
-active swimming fade in with different conservative pitch ranges. One persistent loop avoids the
-rapid repeated one-shot cadence common to footstep-style water effects, while 140 ms attack and
-340 ms release smoothing prevent hard edges and state-transition chatter. All current procedural
+horizontal velocity, and normalized offshore-current strength. Dry movement and calm stationary
+water produce zero gain; shallow wading and active swimming fade in with different conservative
+pitch ranges. Past the 42 m current threshold, the same loop supplies a slowly deepening undertow
+bed capped at 0.08 gain, so the safety feedback does not consume a fifth persistent source. One
+persistent loop avoids the rapid repeated one-shot cadence common to footstep-style water effects,
+while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
+state-transition chatter. All current procedural
 PCM payloads total 2,445,344 bytes (about 2.33 MiB) before backend bookkeeping, including the
 wildlife phrases described below.
 
@@ -410,8 +415,9 @@ testing remain open.
   log proxy. Exact narrow-phase circle checks preserve the original result; dynamic obstacles,
   geometric step-up, and depenetration remain absent.
 - Swimming camera height, restrained opt-out camera motion, movement-responsive water audio, and a
-  subtle depth/current-responsive near-surface edge veil are functional. Full underwater fog,
-  waterline, refraction, splash presentation, and a distinct current-audio cue remain open.
+  subtle depth/current-responsive near-surface edge veil are functional. The same normalized
+  current now deepens the existing water loop into a bounded undertow cue. Full underwater fog,
+  waterline, refraction, and splash presentation remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
@@ -424,6 +430,6 @@ testing remain open.
   audio focus, sustained performance, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers
   exist, and birds/monkeys share a bounded positional call voice. The first F2 world-space view
-  exists; deeper target/spawn/culling/audio layers and configuration UI remain absent. Seven
+  exists; deeper target/spawn/culling/audio layers and configuration UI remain absent. Eight
   direct QA teleports and deterministic
   bird/fish/shark/monkey close-review cameras are available.

@@ -94,7 +94,8 @@ view must report nonzero grass, the jungle view must report nonzero canopy, unde
 and forest-floor plants, the prop view must report visible fallen logs, the driftwood view must
 report visible beach wood plus shell/pebble clusters, the reef view must report a visible emergent
 outcrop, the water view must report a nonzero procedural veil and exactly one overlay draw, the
-current view must additionally report nonzero normalized current strength, the frond view must
+current view must additionally report nonzero normalized current strength and undertow-audio
+target, the frond view must
 report visible grove-associated fallen fronds, the distant view must report all five unreachable
 islets in exactly one portable batch, and the bird/fish views must report nonzero
 visible populations from the 24-agent flock and 48-agent school population, the shark view must

@@ -39,7 +39,8 @@ been confirmed so far.
   use very mild speed-responsive positional camera motion,
   which can be smoothly disabled with B. There is no geometric step-up, jump, or complete
   underwater presentation; restrained visual near-surface/current and audio entry/exit feedback
-  are implemented. The outer-ocean current still lacks a distinct audio warning.
+  are implemented. The outer-ocean current now also deepens the existing player-water loop into a
+  restrained undertow cue; subjective headphone/speaker tuning remains open.
 - Desktop mouse sensitivity and mobile touch sensitivity are compile-time values. There is no
   settings UI, remapping, gamepad control scheme, or handed touch layout yet.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,
@@ -89,6 +90,6 @@ been confirmed so far.
   wave/splash counts, and mute/availability state. F2 adds the first world-space shoreline/current,
   collision, shared-cell, and wildlife view; audio-emitter visualization and deeper per-system
   overlays remain open.
-- Seven direct debug teleports and a five-view native frame-time suite exist, but there is no
+- Eight direct debug teleports and a five-view native frame-time suite exist, but there is no
   teleport menu, sustained moving benchmark route, asset validation command, or automated
   renderer-image comparison yet.

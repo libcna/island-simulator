@@ -279,10 +279,11 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
   underwater presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. The
-  water-view veil now strengthens and cools across the same normalized field; lateral current
-  variation and a distinct audio cue remain open.
-- [~] Add subtle audiovisual warning before the hard safety boundary. Current-modulated peripheral
-  colour/intensity is complete without a HUD warning or geometric wall; audio remains open.
+  water-view veil and undertow audio now strengthen across the same normalized field; lateral
+  current variation remains open.
+- [x] Add subtle audiovisual warning before the hard safety boundary. Current-modulated peripheral
+  colour/intensity and a bounded deeper undertow bed in the existing water loop share the same
+  normalized field without a HUD warning, geometric wall, or fifth persistent source.
 - [x] Add a tested 92 m last-resort radial safety cap that removes outward velocity.
 
 ### Tests and tuning
@@ -541,7 +542,9 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   positions, 24 m reference falloff, distance gates, and species habitat gates.
 - [x] Add player wading/swimming movement audio without repetitive rapid triggering. One continuous
   six-second procedural loop follows authoritative support depth, locomotion mode, and horizontal
-  speed with asymmetric fade smoothing and wading/swimming pitch variation.
+  speed with asymmetric fade smoothing and wading/swimming pitch variation. The same source now
+  gains a deeper 0.08-maximum undertow bed across the 42--72 m current field, with separate 650 ms
+  cue smoothing and no dry-state leakage.
 - [x] Bound simultaneously active sources and virtualize/throttle inaudible emitters. The current
   system has exactly four persistent loops and at most two transient voices. Wildlife owns one
   pooled voice, starts only with both transient slots idle, and is pre-empted when a water crossing
@@ -551,8 +554,9 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   distinct source PCM, silent wildlife endpoints, and the mono-to-CNA positional output path;
   headphone listening remains.
 - [x] Add an accelerated long-session numerical regression. A deterministic 72,000-frame/
-  twenty-minute route cycles beach, jungle, swimming, and wading/dry transitions while checking
-  finite bounded mixes, bounded wave activity, exact crossing events, and both accent variants.
+  twenty-minute route cycles beach, jungle, swimming/current, and wading/dry transitions while
+  checking finite bounded mixes, undertow strength, bounded wave activity, exact crossing events,
+  and both accent variants.
 - [x] Provide graceful no-audio diagnostics/fallback without crashing the visual experience. Start
   and runtime volume failures log an actionable reason, disable audio resources, and leave graphics
   and traversal active; the F1 overlay exposes `UNAVAILABLE` rather than hiding the failure.
@@ -649,10 +653,10 @@ Dependencies: representative complete scene on all targets.
 - [~] Add debug overlay: FPS, frame time, player coordinates/state, renderer/backend, visible
   terrain/vegetation cells, draw counts if available, wildlife active/simulated counts, and audio
   source counts. The asset-free F1 overlay now covers all existing terrain/player/water/vegetation
-  fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, played wave/splash
-  counts, positional bird/monkey call counts and voice state, and bird/fish/shark/monkey
-  render/simulation statistics plus the five-islet/one-draw distant-scenery status on OpenGL 3.3
-  and WebGL 2. F2 also reports world-line, nearby
+  fields plus ambient availability/mute, surf/breeze/jungle/player-water levels, undertow strength,
+  played wave/splash counts, positional bird/monkey call counts and voice state, and
+  bird/fish/shark/monkey render/simulation statistics plus the five-islet/one-draw distant-scenery
+  status on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
   obstacle, shared-cell, and wildlife-marker counts. A separate uncapped native benchmark records
   warm mean/median/p95/p99 frame intervals and scene counts; a total backend voice counter remains.
 - [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
@@ -660,9 +664,9 @@ Dependencies: representative complete scene on all targets.
   covers shoreline/current thresholds and vector, nearby collision/player footprints, shared
   cells, and tier/state-coloured wildlife headings. Per-layer toggles, spawn/target regions,
   detailed culling/LOD/density, terrain normals, and audio emitters remain.
-- [~] Add debug teleport locations and a debug-only free camera. Seven direct F5--F11 locations are
-  active only while the diagnostics overlay is visible; a menu, water-limit locations, and free
-  camera remain open.
+- [~] Add debug teleport locations and a debug-only free camera. Eight direct F5--F12 locations are
+  active only while the diagnostics overlay is visible, including the 62 m current field; a menu
+  and free camera remain open.
 - [~] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
   per target rather than one desktop-only target. A first five-view 1280 by 720 debug-build Linux
   baseline records frame distributions and tracked scene submissions; release, browser, Android,
@@ -836,13 +840,13 @@ after the same experience remains available.
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
   frame spacing, player/shore/current/water-view state, renderer, terrain/vegetation visibility,
   distant scenery, LOD counts, draws, bird/fish/shark/monkey render LOD and simulation tiers,
-  shark presence/activity, monkey state counts, plus audio mix/event counters. The F2 world view
-  and deterministic capture now add boundary/collision/cell/wildlife markers; warning budgets and
-  deeper views remain open.
+  shark presence/activity, monkey state counts, plus audio mix/undertow/event counters. The F2
+  world view and deterministic capture now add boundary/collision/cell/wildlife markers; warning
+  budgets and deeper views remain open.
 - [ ] Deterministic seed display/copy.
 - [~] Teleports for beach, cove, jungle, clearing, hill, deep-water limit, fish, shark, and monkeys.
-  South beach, jungle trail, two clearings, fish shallows, offshore shark, and monkey troop are
-  implemented; remaining water-limit/landmark locations remain.
+  South beach, jungle trail, two clearings, fish shallows, offshore shark, monkey troop, and the
+  active current field are implemented; remaining landmark locations remain.
 - [~] Terrain/capsule/contact visualization. Player footprint and nearby solid horizontal proxies
   are visible; swept motion, step/slope samples, support contact, and normals remain.
 - [~] Shore distance/current vector visualization. F2 draws the irregular shoreline, all three
@@ -898,9 +902,10 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Tune the complete four-layer soundscape, both accent pairs, and the new pooled positional
-   bird/monkey voice through a 20-minute headphone/speaker route. Numerical headroom, actual Linux
-   playback, and the six-source ceiling are verified; subjective masking and fatigue are not.
+1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
+   and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
+   Numerical headroom, actual Linux playback, and the six-source ceiling are verified; subjective
+   masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
@@ -1836,6 +1841,31 @@ Work next, in order:
 - Two five-view accelerated benchmark repeats show the scenery adds exactly one tracked submission
   to every scene: 81/123/90/25/96. The heaviest beach view measures 1.6756--1.6996 ms mean and
   1.8311--1.8803 ms p95. CNA and Sharp Runtime remain clean and unmodified; no dependency defect
+  was found.
+
+### 2026-10-06 — Current-responsive undertow audio cue
+
+- Extended the existing six-second player-water loop mix with the authoritative normalized
+  42--72 m offshore-current strength. Calm stationary water remains silent; while swimming, a
+  smoothstep-controlled deeper undertow bed grows to at most 0.08 gain and lowers pitch by at most
+  0.08. Separate 650 ms cue smoothing prevents a trigger-like boundary without changing physics.
+- Kept the hard audio budget unchanged at four persistent loops plus two transients. The cue
+  reuses the existing procedural player-water PCM, allocates no fifth source, adds no asset or
+  sample memory, and remains exactly zero outside swimming or for non-finite input. F1 exposes the
+  smoothed `UNDERTOW` value.
+- Added an F12 overlay-only teleport to the south 62 m current field for direct feedback QA. The
+  deterministic current capture now requires a nonzero renderer-independent undertow target while
+  correctly leaving the audio device disabled in capture mode. Core coverage locks full-current,
+  dry, invalid-input, fade-in/release, zero residual gain, convergence, and twenty-minute
+  bounded-ramp behaviour.
+- All 19 native tests pass, including 18 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes; its current camera reports normalized current
+  0.741 and undertow target 0.851. A normal (non-capture) Linux run at the same fixed camera opened
+  the real 44.1 kHz mixer, started all four persistent loops, and reported the same current/target.
+  The arm64-v8a GLES 3 APK rebuilds and app lint passes; stripped
+  `libmain.so` is 15,651,008 bytes and the APK is 33,383,384 bytes. Android playback/focus and
+  subjective cross-platform listening remain unqualified without a physical device or suitable
+  accelerated emulator. CNA and Sharp Runtime remain clean and unmodified; no dependency defect
   was found.
 
 ## Session-end checklist

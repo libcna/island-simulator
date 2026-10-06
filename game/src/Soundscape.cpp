@@ -86,14 +86,16 @@ namespace island
     Soundscape::~Soundscape() = default;
 
     bool Soundscape::Start(const float signedShoreDistance, const bool swimming,
-                           const float waterDepth, const float horizontalSpeed) noexcept
+                           const float waterDepth, const float horizontalSpeed,
+                           const float oceanCurrentStrength) noexcept
     {
         if (startAttempted_) {
             return available_;
         }
         startAttempted_ = true;
         model_.Reset(signedShoreDistance, swimming);
-        waterMovementModel_.Reset(waterDepth, swimming, horizontalSpeed);
+        waterMovementModel_.Reset(
+            waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         try {
             const AmbientLoop surf = GenerateSurfLoop();
             const AmbientLoop breeze = GenerateBreezeLoop();
@@ -266,7 +268,8 @@ namespace island
 
     void Soundscape::Update(
         const float signedShoreDistance, const bool swimming, const float waterDepth,
-        const float horizontalSpeed, const float deltaSeconds,
+        const float horizontalSpeed, const float oceanCurrentStrength,
+        const float deltaSeconds,
         const SoundscapeListenerState& listenerState,
         const std::span<const BirdState> birds,
         const std::span<const MonkeyState> monkeys) noexcept
@@ -323,7 +326,7 @@ namespace island
 
         (void)model_.Update(signedShoreDistance, swimming, safeDelta);
         (void)waterMovementModel_.Update(
-            waterDepth, swimming, horizontalSpeed, safeDelta);
+            waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
         ApplyVolumes();
 
         AudioListener listener;

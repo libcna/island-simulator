@@ -86,18 +86,22 @@ namespace island
     {
         float volume = 0.0f;
         float pitch = 0.0f;
+        float currentCue = 0.0f;
     };
 
-    /** @brief Maps authoritative water depth and player speed to a non-chattering loop mix. */
+    /** @brief Maps water depth, speed, and offshore current to one non-chattering loop mix. */
     class WaterMovementModel final
     {
     public:
         [[nodiscard]] static WaterMovementMix TargetMix(float waterDepth, bool swimming,
-                                                        float horizontalSpeed) noexcept;
-        void Reset(float waterDepth, bool swimming, float horizontalSpeed) noexcept;
+                                                        float horizontalSpeed,
+                                                        float oceanCurrentStrength = 0.0f) noexcept;
+        void Reset(float waterDepth, bool swimming, float horizontalSpeed,
+                   float oceanCurrentStrength = 0.0f) noexcept;
         [[nodiscard]] WaterMovementMix Update(float waterDepth, bool swimming,
                                               float horizontalSpeed,
-                                              float deltaSeconds) noexcept;
+                                              float deltaSeconds,
+                                              float oceanCurrentStrength = 0.0f) noexcept;
         [[nodiscard]] const WaterMovementMix& Mix() const noexcept { return mix_; }
 
     private:

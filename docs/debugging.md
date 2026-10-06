@@ -33,8 +33,9 @@ The overlay is deliberately implemented with CNA's public `SpriteBatch`, `Sprite
 `Texture2D` APIs. Its original 5 by 7 uppercase font atlas is generated at runtime, so debugging
 does not depend on a platform font, a content compiler, or an undeclared asset.
 
-While the overlay is visible, F5 through F11 teleport to the south beach, jungle trail, east
-clearing, west clearing, south fish shallows, offshore shark view, and monkey troop. These fixed
+While the overlay is visible, F5 through F12 teleport to the south beach, jungle trail, east
+clearing, west clearing, south fish shallows, offshore shark view, monkey troop, and the 62 m
+offshore current field. These fixed
 locations shorten traversal and wildlife/vegetation QA without exposing teleports during the
 ordinary presentation. Repeated F11 presses cycle through all seven monkeys for silhouette,
 animation, and obstacle-clearance inspection.
@@ -62,8 +63,8 @@ Current fields are:
 - visible/total monkeys, near/far render LOD, full/reduced/dormant simulation tiers, compact
   idle/observe/walk/run state counts, draw count, cumulative obstacle-avoidance deflections, and
   active/completed skeletal crossfades;
-- audio availability/mute state, current surf/breeze/jungle/player-water mix levels, and played
-  stronger-wave/water-transition counts;
+- audio availability/mute state, current surf/breeze/jungle/player-water mix levels, smoothed
+  undertow cue strength, and played stronger-wave/water-transition counts;
 - played positional bird/monkey call counts and pooled wildlife-voice active/idle state.
 - F2 visibility plus nearby obstacle, shared-cell, wildlife-marker, line, and draw counts.
 
