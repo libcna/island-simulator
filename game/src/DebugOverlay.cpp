@@ -243,6 +243,7 @@ namespace island
         props << "PROPS R " << state.visibleRocks << '/' << state.totalRocks
               << " L " << state.visibleLogs << '/' << state.totalLogs
               << " D " << state.visibleDriftwood << '/' << state.totalDriftwood
+              << " S " << state.visibleBeachDetails << '/' << state.totalBeachDetails
               << "  CELLS " << state.propCells << " DRAWS " << state.propDraws;
         lines.push_back(props.str());
 

@@ -1,6 +1,7 @@
 #include "IslandSimulator/NaturalPropRenderer.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <exception>
@@ -47,6 +48,7 @@ namespace island
         constexpr float LogMaximumDistance = 175.0f;
         constexpr float DriftwoodNearDistance = 58.0f;
         constexpr float DriftwoodMaximumDistance = 145.0f;
+        constexpr float BeachDetailMaximumDistance = 52.0f;
 
         struct PropGeometry
         {
@@ -402,6 +404,88 @@ void main()
             return geometry;
         }
 
+        void AppendBeachPebble(PropGeometry& geometry, const float centreX,
+                               const float centreZ, const float radiusX,
+                               const float radiusZ, const float height,
+                               const float rotation, const Color& baseColor,
+                               const bool scalloped)
+        {
+            constexpr int sides = 7;
+            const Color contact = ShadeColor(baseColor, 0.48f);
+            const auto contactCentre = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(Vector3(centreX, 0.006f, centreZ), contact);
+            for (int side = 0; side < sides; ++side) {
+                const float angle = rotation + 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(side) / static_cast<float>(sides);
+                geometry.vertices.emplace_back(
+                    Vector3(centreX + std::cos(angle) * radiusX * 1.12f,
+                            0.006f,
+                            centreZ + std::sin(angle) * radiusZ * 1.12f),
+                    contact);
+            }
+            for (int side = 0; side < sides; ++side) {
+                geometry.indices.insert(
+                    geometry.indices.end(),
+                    {contactCentre,
+                     static_cast<std::uint16_t>(contactCentre + 1U + side),
+                     static_cast<std::uint16_t>(contactCentre + 1U + (side + 1) % sides)});
+            }
+
+            const auto top = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(
+                Vector3(centreX - std::sin(rotation) * radiusZ * 0.12f,
+                        height, centreZ + std::cos(rotation) * radiusX * 0.12f),
+                ShadeColor(baseColor, 1.16f));
+            for (int side = 0; side < sides; ++side) {
+                const float angle = rotation + 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(side) / static_cast<float>(sides);
+                const float ridge = scalloped && side % 2 == 0 ? 1.0f : 0.82f;
+                const float light = 0.70f + 0.26f
+                    * std::max(0.0f, std::sin(angle) * 0.82f - std::cos(angle) * 0.18f);
+                geometry.vertices.emplace_back(
+                    Vector3(centreX + std::cos(angle) * radiusX * ridge,
+                            0.012f,
+                            centreZ + std::sin(angle) * radiusZ * ridge),
+                    ShadeColor(baseColor, light));
+            }
+            for (int side = 0; side < sides; ++side) {
+                geometry.indices.insert(
+                    geometry.indices.end(),
+                    {top,
+                     static_cast<std::uint16_t>(top + 1U + side),
+                     static_cast<std::uint16_t>(top + 1U + (side + 1) % sides)});
+            }
+        }
+
+        [[nodiscard]] PropGeometry CreateBeachDetailGeometry(const int variant)
+        {
+            PropGeometry geometry;
+            geometry.vertices.reserve(64U);
+            geometry.indices.reserve(168U);
+            const float phase = static_cast<float>(variant) * 0.73f;
+            const std::array<Color, 4> colors = {
+                Color(216, 195, 153, 255),
+                Color(190, 132, 103, 255),
+                Color(146, 145, 126, 255),
+                Color(229, 214, 178, 255),
+            };
+            for (int item = 0; item < 4; ++item) {
+                const float angle = phase + static_cast<float>(item) * 1.83f;
+                const float distance = item == 0 ? 0.08f
+                    : 0.19f + 0.055f * static_cast<float>((item + variant) % 3);
+                const float size = 0.075f
+                    + 0.018f * static_cast<float>((item * 3 + variant) % 4);
+                const bool shell = (item + variant) % 3 == 0;
+                AppendBeachPebble(
+                    geometry, std::cos(angle) * distance, std::sin(angle) * distance,
+                    size * (shell ? 1.28f : 1.0f),
+                    size * (shell ? 0.82f : 0.92f),
+                    size * (shell ? 0.66f : 0.52f), angle * 0.61f,
+                    colors[static_cast<std::size_t>((item + variant) % colors.size())], shell);
+            }
+            return geometry;
+        }
+
         [[nodiscard]] std::size_t CellIndex(const float x, const float z) noexcept
         {
             constexpr float cellWidth = 2.0f * TerrainMeshLayout::Extent
@@ -470,6 +554,8 @@ void main()
                   << totalLogCount_ << " fallen logs, " << totalDriftwoodCount_
                   << " driftwood pieces, "
                   << (instancingSupported_ ? "hardware instancing" : "per-prop fallback") << '\n';
+        std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
+                  << " shell/pebble clusters, near-field culled\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
         } else {
@@ -507,6 +593,10 @@ void main()
                    driftwoodNearMeshes_[variant]);
             upload(CreateDriftwoodGeometry(static_cast<int>(variant), true),
                    driftwoodFarMeshes_[variant]);
+        }
+        for (std::size_t variant = 0; variant < beachDetailMeshes_.size(); ++variant) {
+            upload(CreateBeachDetailGeometry(static_cast<int>(variant)),
+                   beachDetailMeshes_[variant]);
         }
     }
 
@@ -558,6 +648,21 @@ void main()
                                  wood.z + boundRadius));
             ++totalDriftwoodCount_;
         }
+        for (const BeachDetailPlacement& detail : layout.BeachDetails()) {
+            PropCell& cell = cells_[CellIndex(detail.x, detail.z)];
+            cell.beachDetails.push_back({
+                Matrix::CreateScale(detail.scale)
+                    * Matrix::CreateRotationY(detail.yawRadians)
+                    * Matrix::CreateTranslation(detail.x, detail.y, detail.z),
+                detail.variant, detail.x, detail.z});
+            const float radius = detail.scale * 0.58f;
+            extendBounds(cell,
+                         Vector3(detail.x - radius, detail.y - 0.02f,
+                                 detail.z - radius),
+                         Vector3(detail.x + radius, detail.y + detail.scale * 0.13f,
+                                 detail.z + radius));
+            ++totalBeachDetailCount_;
+        }
         for (auto& transforms : visibleRockNear_) transforms.reserve(layout.Rocks().size());
         for (auto& transforms : visibleRockFar_) transforms.reserve(layout.Rocks().size());
         for (auto& transforms : visibleLogNear_) transforms.reserve(layout.FallenLogs().size());
@@ -567,6 +672,9 @@ void main()
         }
         for (auto& transforms : visibleDriftwoodFar_) {
             transforms.reserve(layout.Driftwood().size());
+        }
+        for (auto& transforms : visibleBeachDetails_) {
+            transforms.reserve(layout.BeachDetails().size());
         }
     }
 
@@ -615,9 +723,11 @@ void main()
         for (auto& transforms : visibleLogFar_) transforms.clear();
         for (auto& transforms : visibleDriftwoodNear_) transforms.clear();
         for (auto& transforms : visibleDriftwoodFar_) transforms.clear();
+        for (auto& transforms : visibleBeachDetails_) transforms.clear();
         visibleRockCount_ = 0;
         visibleLogCount_ = 0;
         visibleDriftwoodCount_ = 0;
+        visibleBeachDetailCount_ = 0;
         visibleCellCount_ = 0;
         drawCallCount_ = 0;
 
@@ -659,6 +769,17 @@ void main()
                     cellVisible = true;
                 }
             }
+            for (const DrawInstance& instance : cell.beachDetails) {
+                const float detailDeltaX = instance.x - cameraPosition.X;
+                const float detailDeltaZ = instance.z - cameraPosition.Z;
+                if (detailDeltaX * detailDeltaX + detailDeltaZ * detailDeltaZ
+                    > BeachDetailMaximumDistance * BeachDetailMaximumDistance) {
+                    continue;
+                }
+                visibleBeachDetails_[instance.variant].push_back(instance.transform);
+                ++visibleBeachDetailCount_;
+                cellVisible = true;
+            }
             if (cellVisible) ++visibleCellCount_;
         }
 
@@ -688,6 +809,9 @@ void main()
         for (std::size_t variant = 0; variant < driftwoodNearMeshes_.size(); ++variant) {
             DrawInstances(driftwoodNearMeshes_[variant], visibleDriftwoodNear_[variant]);
             DrawInstances(driftwoodFarMeshes_[variant], visibleDriftwoodFar_[variant]);
+        }
+        for (std::size_t variant = 0; variant < beachDetailMeshes_.size(); ++variant) {
+            DrawInstances(beachDetailMeshes_[variant], visibleBeachDetails_[variant]);
         }
         device_.SetVertexBuffers({});
         device_.setIndicesProperty(nullptr);

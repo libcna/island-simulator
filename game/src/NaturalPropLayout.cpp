@@ -21,6 +21,8 @@ namespace island
         constexpr float DriftwoodSpacing = 17.5f;
         constexpr int DriftwoodRadius = 18;
         constexpr int DriftwoodSupportSamples = 5;
+        constexpr float BeachDetailSpacing = 6.0f;
+        constexpr int BeachDetailRadius = 47;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -293,6 +295,47 @@ namespace island
                 }
                 wood.y = maximumSupportHeight + wood.radius * 0.58f;
                 driftwood_.push_back(wood);
+            }
+        }
+
+        beachDetails_.reserve(420U);
+        for (int gridZ = -BeachDetailRadius; gridZ <= BeachDetailRadius; ++gridZ) {
+            for (int gridX = -BeachDetailRadius; gridX <= BeachDetailRadius; ++gridX) {
+                const std::uint32_t siteHash = Hash(gridX, gridZ, seed ^ 0x6a09e667U);
+                const float jitterX = (UnitRandom(siteHash) - 0.5f)
+                    * BeachDetailSpacing * 0.82f;
+                const float jitterZ = (UnitRandom(
+                    Hash(gridX, gridZ, seed ^ 0xbb67ae85U)) - 0.5f)
+                    * BeachDetailSpacing * 0.82f;
+                const float x = static_cast<float>(gridX) * BeachDetailSpacing + jitterX;
+                const float z = static_cast<float>(gridZ) * BeachDetailSpacing + jitterZ;
+                const TerrainSample sample = terrain.Sample(x, z);
+                if (sample.signedShoreDistance < 3.0f
+                    || sample.signedShoreDistance > 18.0f
+                    || sample.height < 0.22f || sample.slopeRadians > 0.2617994f
+                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    continue;
+                }
+
+                const float cluster = ClusterNoise(x, z, seed ^ 0x3c6ef372U);
+                const float density = 0.28f + cluster * 0.34f;
+                if (UnitRandom(Hash(gridX, gridZ, seed ^ 0xa54ff53aU)) >= density) {
+                    continue;
+                }
+
+                BeachDetailPlacement detail;
+                detail.x = x;
+                detail.y = sample.height + 0.012f;
+                detail.z = z;
+                detail.yawRadians = UnitRandom(
+                    Hash(gridX, gridZ, seed ^ 0x510e527fU))
+                    * 2.0f * std::numbers::pi_v<float>;
+                detail.scale = BeachDetailMinimumScale
+                    + (BeachDetailMaximumScale - BeachDetailMinimumScale)
+                        * UnitRandom(Hash(gridX, gridZ, seed ^ 0x9b05688cU));
+                detail.variant = static_cast<std::uint8_t>(
+                    Hash(gridX, gridZ, seed ^ 0x1f83d9abU) % BeachDetailVariantCount);
+                beachDetails_.push_back(detail);
             }
         }
     }

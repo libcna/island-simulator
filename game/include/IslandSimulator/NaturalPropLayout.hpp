@@ -49,6 +49,17 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One non-solid shell and pebble cluster scattered across dry sand. */
+    struct BeachDetailPlacement
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yawRadians = 0.0f;
+        float scale = 1.0f;
+        std::uint8_t variant = 0U;
+    };
+
     /** @brief Deterministic beach/interior rocks and fallen-wood composition. */
     class NaturalPropLayout final
     {
@@ -57,12 +68,15 @@ namespace island
         static constexpr int RockVariantCount = 4;
         static constexpr int LogVariantCount = 3;
         static constexpr int DriftwoodVariantCount = 3;
+        static constexpr int BeachDetailVariantCount = 4;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;
         static constexpr float LogMinimumLength = 3.8f;
         static constexpr float LogMaximumLength = 7.2f;
         static constexpr float DriftwoodMinimumLength = 1.8f;
         static constexpr float DriftwoodMaximumLength = 4.6f;
+        static constexpr float BeachDetailMinimumScale = 0.72f;
+        static constexpr float BeachDetailMaximumScale = 1.30f;
 
         NaturalPropLayout(const IslandTerrain& terrain,
                           const VegetationLayout& palms,
@@ -77,6 +91,10 @@ namespace island
         [[nodiscard]] const std::vector<DriftwoodPlacement>& Driftwood() const noexcept
         {
             return driftwood_;
+        }
+        [[nodiscard]] const std::vector<BeachDetailPlacement>& BeachDetails() const noexcept
+        {
+            return beachDetails_;
         }
         [[nodiscard]] const std::vector<CircularObstacle>& Obstacles() const noexcept
         {
@@ -93,6 +111,7 @@ namespace island
         std::vector<RockPlacement> rocks_;
         std::vector<FallenLogPlacement> fallenLogs_;
         std::vector<DriftwoodPlacement> driftwood_;
+        std::vector<BeachDetailPlacement> beachDetails_;
         std::vector<CircularObstacle> obstacles_;
     };
 }

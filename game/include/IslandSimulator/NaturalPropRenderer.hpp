@@ -25,7 +25,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
-    /** @brief Portable instanced rocks, fallen logs, and beach driftwood with culling and LOD. */
+    /** @brief Portable instanced rocks, wood, and small beach details with distance reduction. */
     class NaturalPropRenderer final
     {
     public:
@@ -47,9 +47,17 @@ namespace island
         [[nodiscard]] int TotalRockCount() const noexcept { return totalRockCount_; }
         [[nodiscard]] int TotalLogCount() const noexcept { return totalLogCount_; }
         [[nodiscard]] int TotalDriftwoodCount() const noexcept { return totalDriftwoodCount_; }
+        [[nodiscard]] int TotalBeachDetailCount() const noexcept
+        {
+            return totalBeachDetailCount_;
+        }
         [[nodiscard]] int VisibleRockCount() const noexcept { return visibleRockCount_; }
         [[nodiscard]] int VisibleLogCount() const noexcept { return visibleLogCount_; }
         [[nodiscard]] int VisibleDriftwoodCount() const noexcept { return visibleDriftwoodCount_; }
+        [[nodiscard]] int VisibleBeachDetailCount() const noexcept
+        {
+            return visibleBeachDetailCount_;
+        }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
 
@@ -68,6 +76,8 @@ namespace island
         {
             Microsoft::Xna::Framework::Matrix transform;
             std::uint8_t variant = 0U;
+            float x = 0.0f;
+            float z = 0.0f;
         };
 
         struct PropCell
@@ -76,6 +86,7 @@ namespace island
             std::vector<DrawInstance> rocks;
             std::vector<DrawInstance> logs;
             std::vector<DrawInstance> driftwood;
+            std::vector<DrawInstance> beachDetails;
             bool occupied = false;
         };
 
@@ -95,6 +106,7 @@ namespace island
         std::array<PropMesh, NaturalPropLayout::LogVariantCount> logFarMeshes_;
         std::array<PropMesh, NaturalPropLayout::DriftwoodVariantCount> driftwoodNearMeshes_;
         std::array<PropMesh, NaturalPropLayout::DriftwoodVariantCount> driftwoodFarMeshes_;
+        std::array<PropMesh, NaturalPropLayout::BeachDetailVariantCount> beachDetailMeshes_;
         std::array<PropCell, TerrainMeshLayout::CellCount> cells_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    NaturalPropLayout::RockVariantCount> visibleRockNear_;
@@ -108,15 +120,19 @@ namespace island
                    NaturalPropLayout::DriftwoodVariantCount> visibleDriftwoodNear_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    NaturalPropLayout::DriftwoodVariantCount> visibleDriftwoodFar_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   NaturalPropLayout::BeachDetailVariantCount> visibleBeachDetails_;
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
         int totalRockCount_ = 0;
         int totalLogCount_ = 0;
         int totalDriftwoodCount_ = 0;
+        int totalBeachDetailCount_ = 0;
         int visibleRockCount_ = 0;
         int visibleLogCount_ = 0;
         int visibleDriftwoodCount_ = 0;
+        int visibleBeachDetailCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
     };

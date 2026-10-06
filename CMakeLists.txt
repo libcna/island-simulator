@@ -231,7 +231,11 @@ if(ISLAND_BUILD_GAME)
         add_test(NAME IslandGameDriftwoodCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-driftwood-capture.ppm"
                     --viewpoint driftwood)
-        set_tests_properties(IslandGameDriftwoodCapture PROPERTIES TIMEOUT 30 LABELS display)
+        set_tests_properties(IslandGameDriftwoodCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "props .*driftwood, [1-9][0-9]*/265 shell/pebble clusters")
         add_test(NAME IslandGameBirdCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-bird-capture.ppm"
                     --viewpoint birds)

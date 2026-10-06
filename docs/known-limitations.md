@@ -8,12 +8,13 @@ been confirmed so far.
 
 - The island has a strong terrain/ocean/palm/grass foundation and a first layered broadleaf jungle,
   but the jungle is not final. A first low-bush layer plus rocks, fallen logs, and sparse driftwood
-  exist, and a small rosette/forest-floor layer improves close ground contact. Bush and ground-plant
-  silhouette/material diversity, broader shell/branch/beach-prop variety, distant scenery, wet
+  exist, while small rosette/forest-floor plants and near-field shell/pebble clusters improve close
+  ground contact. Bush and ground-plant silhouette/material diversity, broader shell/branch/
+  beach-prop variety, distant scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a first texture-free sand/soil, wet-edge, and
-  exposed-slope material shader. It still has no authored biome texture blend, decals, small
-  substrate props, or baked ambient/contact lighting.
+  exposed-slope material shader. It still has no authored biome texture blend, decals, broad
+  substrate diversity, or baked ambient/contact lighting.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic variation, wind,
   culling, and LOD, but visible transition popping, close-up material simplicity, and weak
   grounding/contact cues remain.

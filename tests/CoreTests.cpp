@@ -1218,9 +1218,12 @@ int main()
           "fallen-log population stays inside its first composition budget");
     Check(props.Driftwood().size() >= 12U && props.Driftwood().size() <= 100U,
           "driftwood population stays inside its sparse beach-composition budget");
+    Check(props.BeachDetails().size() >= 120U && props.BeachDetails().size() <= 600U,
+          "shell/pebble clusters stay inside their near-field beach-detail budget");
     Check(props.Rocks().size() == repeatedProps.Rocks().size()
               && props.FallenLogs().size() == repeatedProps.FallenLogs().size()
-              && props.Driftwood().size() == repeatedProps.Driftwood().size(),
+              && props.Driftwood().size() == repeatedProps.Driftwood().size()
+              && props.BeachDetails().size() == repeatedProps.BeachDetails().size(),
           "natural-prop populations are deterministic");
     std::size_t solidRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
@@ -1302,8 +1305,40 @@ int main()
                   "the complete driftwood footprint stays outside authored routes");
         }
     }
+    std::array<bool, island::NaturalPropLayout::BeachDetailVariantCount>
+        observedBeachDetailVariants{};
+    for (std::size_t index = 0; index < props.BeachDetails().size(); ++index) {
+        const island::BeachDetailPlacement& detail = props.BeachDetails()[index];
+        const island::BeachDetailPlacement& repeated = repeatedProps.BeachDetails()[index];
+        const island::TerrainSample sample = terrain.Sample(detail.x, detail.z);
+        Check(detail.x == repeated.x && detail.y == repeated.y
+                  && detail.z == repeated.z
+                  && detail.yawRadians == repeated.yawRadians
+                  && detail.scale == repeated.scale && detail.variant == repeated.variant,
+              "shell/pebble placement is bitwise deterministic for one seed");
+        Check(sample.signedShoreDistance >= 3.0f
+                  && sample.signedShoreDistance <= 18.0f,
+              "shell/pebble clusters remain in the authored dry-sand belt");
+        Check(sample.height >= 0.22f && sample.slopeRadians <= 0.2617994f,
+              "shell/pebble clusters stay on dry low-slope support");
+        CheckNear(detail.y, sample.height + 0.012f, 0.0001f,
+                  "shell/pebble clusters rest just above authoritative terrain");
+        Check(!island::VegetationLayout::IsReservedRoute(detail.x, detail.z),
+              "shell/pebble clusters keep authored routes and spawn clear");
+        Check(detail.variant < observedBeachDetailVariants.size(),
+              "shell/pebble cluster variant index remains in range");
+        if (detail.variant < observedBeachDetailVariants.size()) {
+            observedBeachDetailVariants[detail.variant] = true;
+        }
+        Check(detail.scale >= island::NaturalPropLayout::BeachDetailMinimumScale
+                  && detail.scale <= island::NaturalPropLayout::BeachDetailMaximumScale,
+              "shell/pebble cluster scale remains in the authored range");
+    }
+    Check(std::ranges::all_of(observedBeachDetailVariants,
+                              [](const bool value) { return value; }),
+          "shell/pebble population exercises all four mesh variants");
     Check(props.Obstacles().size() == solidRockCount + props.FallenLogs().size() * 7U,
-          "natural-prop collision excludes small driftwood and matches solid prop spans");
+          "natural-prop collision excludes driftwood/beach detail and matches solid spans");
 
     for (int z = -360; z <= 360; z += 12) {
         for (int x = -360; x <= 360; x += 12) {

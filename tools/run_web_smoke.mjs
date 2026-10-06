@@ -142,6 +142,7 @@ try {
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 152 rocks, 11 fallen logs, 28 driftwood pieces, hardware instancing")
+    && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("portable instanced wind shader")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
@@ -402,7 +403,7 @@ try {
   const driftwoodPassed = driftwoodResult.output?.includes("island-simulator: renderer WEBGL2")
     && driftwoodResult.output?.includes("island-simulator: fixed sunny sky portable shader")
     && driftwoodResult.output?.includes("natural-prop portable shader with near/far LOD")
-    && /props [0-9]+\/152 rocks, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood/.test(
+    && /props [0-9]+\/152 rocks, [0-9]+\/11 logs, [1-9][0-9]*\/28 driftwood, [1-9][0-9]*\/265 shell\/pebble clusters/.test(
       driftwoodResult.output ?? "")
     && !driftwoodResult.error;
 

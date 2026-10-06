@@ -614,6 +614,9 @@ namespace island
             overlayState.totalLogs = naturalPropRenderer_->TotalLogCount();
             overlayState.visibleDriftwood = naturalPropRenderer_->VisibleDriftwoodCount();
             overlayState.totalDriftwood = naturalPropRenderer_->TotalDriftwoodCount();
+            overlayState.visibleBeachDetails =
+                naturalPropRenderer_->VisibleBeachDetailCount();
+            overlayState.totalBeachDetails = naturalPropRenderer_->TotalBeachDetailCount();
             overlayState.propCells = naturalPropRenderer_->VisibleCellCount();
             overlayState.propDraws = naturalPropRenderer_->DrawCallCount();
             overlayState.visibleGrassPatches = grassRenderer_->VisiblePatchCount();
@@ -732,6 +735,9 @@ namespace island
                       << naturalPropRenderer_->TotalLogCount() << " logs, "
                       << naturalPropRenderer_->VisibleDriftwoodCount() << '/'
                       << naturalPropRenderer_->TotalDriftwoodCount() << " driftwood, "
+                      << naturalPropRenderer_->VisibleBeachDetailCount() << '/'
+                      << naturalPropRenderer_->TotalBeachDetailCount()
+                      << " shell/pebble clusters, "
                       << naturalPropRenderer_->DrawCallCount() << " draws; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "

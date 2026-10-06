@@ -7,8 +7,9 @@ sand, wet-edge, soil, and slope material variation, an animated tropical ocean,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 152
 irregular rocks, 11 mossy fallen logs,
-and 28 pieces of sun-bleached beach driftwood. Every visual layer has spatial culling and distance
-LOD, while vegetation uses a calm breeze. It supports
+28 pieces of sun-bleached beach driftwood, and 265 near-field shell/pebble clusters. Every visual
+layer has spatial culling and appropriate distance reduction, while vegetation uses a calm breeze.
+It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated

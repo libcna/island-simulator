@@ -333,13 +333,14 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
-  forest-floor plants, 152 rocks, 11 fallen logs, and 28 three-variant driftwood pieces; richer
-  ground/bush silhouettes and broader natural beach-prop variety remain.
+  forest-floor plants, 152 rocks, 11 fallen logs, 28 three-variant driftwood pieces, and 265
+  four-variant shell/pebble clusters; richer ground/bush silhouettes and broader natural
+  beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
-  canopy, understory, bush, forest-floor, rock, log, and driftwood placement is deterministic,
-  shore-distance/slope/height constrained, multi-scale cluster-noise weighted, and reserves a
-  winding primary path, two clearings, and spawn; final biome masks and prop separation remain
-  open.
+  canopy, understory, bush, forest-floor, rock, log, driftwood, and beach-detail placement is
+  deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise weighted, and
+  reserves a winding primary path, two clearings, and spawn; final biome masks and prop separation
+  remain open.
 - [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds, grass, canopy
   crowns, understory leaves, low bushes, and forest-floor plants use bounded weighted motion on OpenGL 3.3 and WebGL 2;
   Android GLES 3 runtime validation of the expanded jungle shader remains open.
@@ -870,8 +871,9 @@ Work next, in order:
    fish, and shark layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the first low-bush/forest-floor silhouettes and
    sparse driftwood layer only where composition review needs it. The first portable sand/soil,
-   wet-edge, and slope-material pass plus the initial small-plant layer are complete; authored
-   substrate props, contact cues, and material tuning remain.
+   wet-edge, and slope-material pass, the initial small-plant layer, and a first near-field
+   shell/pebble substrate layer are complete; broader prop diversity, contact cues, and material
+   tuning remain.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
    LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
@@ -1613,6 +1615,23 @@ Work next, in order:
   considers 14 of 794 proxies while preserving the same world result; the 794 proxies occupy 467
   non-empty cells. All 13 native tests pass (12 create the real OpenGL renderer), the complete
   Chrome 152/WebGL 2 harness passes, and the arm64-v8a GLES 3 APK rebuilds with clean app lint.
+
+### 2026-10-06 — Near-field shell and pebble clusters
+
+- Added 265 deterministic non-solid substrate clusters to the 3--18 m dry-sand belt. Placement is
+  low-slope and height constrained, keeps authored routes/spawn clear, uses multi-scale clustering,
+  and varies yaw, scale, and four original game-generated mesh compositions.
+- Each tiny opaque mesh combines four differently proportioned faceted shells/pebbles with muted
+  coral, limestone, grey, and sun-bleached palettes plus close contact geometry. The layer reuses
+  the portable natural-prop shader and hardware-instancing path, culls individual instances beyond
+  52 m, and costs no more than four extra draw submissions when all variants are nearby. No asset,
+  texture memory, transparency overdraw, collision proxy, or license attribution was added.
+- Extended F1/startup/first-frame counts and the deterministic layout regression with population,
+  exact repeatability, dry-sand belt, support, route-clearance, scale, and full-variant checks. The
+  native driftwood capture now requires visible substrate clusters. Native and Chrome/WebGL 2
+  driftwood captures were visually compared and match; all 13 native tests and the full browser
+  harness pass. The arm64-v8a GLES 3 APK rebuilds and app lint remains clean; device runtime is
+  still unqualified without KVM or physical hardware.
 
 ## Session-end checklist
 

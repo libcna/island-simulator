@@ -15,10 +15,11 @@ Those claims still require a stable accelerated emulator or physical device.
 
 The current arm64 package includes the portable procedural sand/soil terrain material, the
 broadleaf jungle with low bushes and forest-floor plants,
-rocks, fallen logs, sparse beach driftwood, 24 simulated procedural birds, eight fish schools,
+rocks, fallen logs, sparse beach driftwood, 265 near-field shell/pebble clusters, 24 simulated
+procedural birds, eight fish schools,
 one occasional non-hostile offshore shark, seven GPU-skinned procedural monkeys, fixed sunny sky,
-and procedural surf/breeze/jungle,
-two sparse wave accents, player water-movement audio, two water entry/exit accents, and a pooled
+and procedural surf/breeze/jungle, two sparse wave accents, player water-movement audio, two water
+entry/exit accents, and a pooled
 positional voice with two bird and two monkey phrases. That package
 builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
