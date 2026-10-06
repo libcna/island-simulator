@@ -802,9 +802,11 @@ namespace island
             || keyboard.IsKeyDown(Keys::RightShift);
         if (runToggleDown && !runToggleWasDown_) {
             runModeEnabled_ = !runModeEnabled_;
-            std::cout << "island-simulator: run mode "
-                      << (runModeEnabled_ ? "enabled (8.0 m/s)" : "disabled (4.3 m/s)")
-                      << '\n';
+            const std::string_view diagnostic = runModeEnabled_
+                ? "island-simulator: run mode enabled (8.0 m/s)"
+                : "island-simulator: run mode disabled (4.3 m/s)";
+            std::cout << diagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         }
         runToggleWasDown_ = runToggleDown;
 

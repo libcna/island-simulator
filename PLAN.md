@@ -3481,16 +3481,18 @@ Work next, in order:
   existing 10 mm lateral and 18 mm vertical comfort bounds. Core tests cover the new speed and
   stronger-but-bounded running presentation.
 - The incremental Linux/OpenGL 3.3 build used the required shared `/rv/cnaccache`; core tests pass
-  in 16.34 seconds. The isolated real SDL/XTest input gate passes in 12.49 seconds and proves that
-  running remains active above 7.0 m/s after Shift is released, then that a second Shift press
-  restores a maximum 4.3 m/s walking pace.
+  in 16.34 seconds. The final isolated real SDL/XTest input gate passes in 12.55 seconds and proves
+  that running remains active above 7.0 m/s after Shift is released, then that a second Shift
+  press restores a maximum 4.3 m/s walking pace.
 - The complete actual Chrome 152/SwiftShader WebGL 2 harness passes all 22 stages. Its input report
   independently marks `runModeEnabled`, `retainedRunWorked`, `runModeDisabled`, and
   `restoredWalkWorked` true; WebAssembly is 8,482,000 bytes. The arm64-v8a GLES 3 APK rebuilds and
-  application lint passes; it is 18,710,604 bytes and its stripped `libmain.so` is 15,900,320
-  bytes. Android compilation is current, while this keyboard-specific change has not been rerun
-  on the touch-oriented emulator. CNA and Sharp Runtime remain read-only and unmodified; no
-  qualifying dependency defect was found.
+  application lint passes; it is 18,710,652 bytes and its stripped `libmain.so` is 15,900,368
+  bytes. The updated x86_64 APK then passed the actual accelerated GLES 3 first-frame gate. Two
+  separated external-keyboard Shift events produced the expected Android platform diagnostics for
+  8.0 m/s run enabled followed by 4.3 m/s run disabled, qualifying the same toggle path on the
+  touch-oriented target without claiming physical-device keyboard ergonomics. CNA and Sharp
+  Runtime remain read-only and unmodified; no qualifying dependency defect was found.
 
 ## Session-end checklist
 

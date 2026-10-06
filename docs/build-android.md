@@ -188,8 +188,10 @@ straight-alpha pixels entering CNA `SpriteBatch`'s premultiplied-alpha blend sta
 premultiplies both generated circle texels and tint colours. A rebuilt GLES 3 capture shows clean
 translucent rings without rectangular backgrounds. Separately injected left-zone movement and
 right-zone relative-look gestures changed the player position and view while the process remained
-alive. Deterministic core tests continue to cover simultaneous contact ownership and cancellation;
-real-finger simultaneous ergonomics still require a physical device.
+alive. Two separated external-keyboard Shift events on the updated x86_64 build also produced the
+expected 8.0 m/s run-enabled and 4.3 m/s walk-restored platform diagnostics. Deterministic core
+tests continue to cover simultaneous contact ownership and cancellation; real-finger simultaneous
+ergonomics still require a physical device.
 
 Pressing Home destroyed the surface and paused AAudio; bringing the activity back recreated the
 surface, restarted the same audio stream, and retained the same process. The hot activity launch
