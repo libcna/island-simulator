@@ -66,8 +66,10 @@ running the full CTest set on the owner's live desktop.
 
 Run `build/island-simulator`. Click inside the window to capture the mouse, use WASD to move, and
 press Escape to release the mouse; press Escape again to exit. The controller follows the terrain,
-rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and enters swimming
-water with hysteresis. Rock/complex prop collision and geometric step-up are not implemented yet.
+rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and
+enters swimming water with hysteresis. A static 16 m collision grid limits each capsule test to
+nearby proxies;
+geometric step-up and collision depenetration are not implemented yet.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, vegetation draw statistics, ambient mix levels, player-water gain, wave/splash
 counts, and positional bird/monkey call activity.

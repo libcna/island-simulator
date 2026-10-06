@@ -7,6 +7,8 @@
 
 namespace island
 {
+    class WorldCollisionGrid;
+
     /** @brief Physical movement state relevant to animation, audio, and camera presentation. */
     enum class LocomotionMode
     {
@@ -61,6 +63,10 @@ namespace island
                     float deltaSeconds,
                     std::span<const CircularObstacle> obstacles = {}) noexcept;
 
+        /** @brief Advances movement using the static-world spatial collision index. */
+        void Update(const IslandTerrain& terrain, float inputX, float inputZ,
+                    float deltaSeconds, const WorldCollisionGrid& obstacles) noexcept;
+
         /** @brief Returns current eye/camera position. */
         [[nodiscard]] const PlayerPosition& Position() const noexcept { return position_; }
 
@@ -98,7 +104,11 @@ namespace island
                                                                float x, float z) noexcept;
         [[nodiscard]] bool TryWalkStep(const IslandTerrain& terrain,
                                        std::span<const CircularObstacle> obstacles,
+                                       const WorldCollisionGrid* collisionGrid,
                                        float deltaX, float deltaZ) noexcept;
+        void UpdateInternal(const IslandTerrain& terrain, float inputX, float inputZ,
+                            float deltaSeconds, std::span<const CircularObstacle> obstacles,
+                            const WorldCollisionGrid* collisionGrid) noexcept;
         void ResolveModeAndHeight(const IslandTerrain& terrain,
                                   float maximumVerticalDelta) noexcept;
 

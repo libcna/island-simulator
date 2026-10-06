@@ -44,6 +44,7 @@ Current fields are:
 - smoothed wall-clock frame duration and a half-second FPS sample;
 - player eye position, walking/swimming state, ground support height, and maximum footprint slope;
 - positive offshore distance and normalized ocean-current strength;
+- local collision broad-phase candidates versus the complete static obstacle population;
 - active renderer identity;
 - visible/total terrain cells;
 - visible/total palms, near/far LOD population, cells, and draw submissions;

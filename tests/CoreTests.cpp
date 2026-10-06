@@ -12,6 +12,7 @@
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WildlifeSimulation.hpp"
 
 #include <algorithm>
@@ -802,6 +803,38 @@ int main()
                           jungle.Obstacles().end());
     worldObstacles.insert(worldObstacles.end(), props.Obstacles().begin(),
                           props.Obstacles().end());
+    const island::WorldCollisionGrid worldCollisionGrid(worldObstacles);
+    Check(worldCollisionGrid.Obstacles().size() == worldObstacles.size()
+              && worldCollisionGrid.CellCount() > 0U,
+          "world collision grid indexes the complete static obstacle set");
+    bool collisionGridMatchesBruteForce = true;
+    std::size_t collisionCandidateTotal = 0U;
+    std::size_t collisionQueryCount = 0U;
+    for (int row = -20; row <= 20; ++row) {
+        for (int column = -20; column <= 20; ++column) {
+            const float queryX = static_cast<float>(column) * 13.7f + 0.19f;
+            const float queryZ = static_cast<float>(row) * 13.1f - 0.23f;
+            const float queryRadius = island::PlayerMotion::CapsuleRadius;
+            const bool bruteForceHit = std::ranges::any_of(
+                worldObstacles, [queryX, queryZ, queryRadius](const auto& obstacle) {
+                    const float combinedRadius = queryRadius
+                        + std::max(0.0f, obstacle.radius);
+                    const float dx = queryX - obstacle.x;
+                    const float dz = queryZ - obstacle.z;
+                    return dx * dx + dz * dz < combinedRadius * combinedRadius;
+                });
+            collisionGridMatchesBruteForce = collisionGridMatchesBruteForce
+                && worldCollisionGrid.IntersectsCircle(queryX, queryZ, queryRadius)
+                    == bruteForceHit;
+            collisionCandidateTotal += worldCollisionGrid.CandidateCount(
+                queryX, queryZ, queryRadius);
+            ++collisionQueryCount;
+        }
+    }
+    Check(collisionGridMatchesBruteForce,
+          "collision broad phase exactly matches exhaustive circle tests across the island");
+    Check(collisionCandidateTotal / collisionQueryCount < worldObstacles.size() / 8U,
+          "collision broad phase materially reduces the average candidate population");
     island::MonkeyTroop monkeys(terrain);
     island::MonkeyTroop repeatedMonkeys(terrain);
     monkeys.SetObstacles(worldObstacles);
@@ -1364,6 +1397,19 @@ int main()
           "player capsule cannot enter a palm trunk proxy");
     Check(player.Position().x < testTrunk.x,
           "blocked movement does not tunnel through a trunk");
+
+    const island::WorldCollisionGrid testCollisionGrid(
+        std::span<const island::CircularObstacle>(&testTrunk, 1U));
+    island::PlayerMotion indexedPlayer;
+    indexedPlayer.SetPosition(terrain, 0.0f, 0.0f);
+    for (int step = 0; step < 180; ++step) {
+        indexedPlayer.Update(terrain, 1.0f, 0.0f, 1.0f / 60.0f,
+                             testCollisionGrid);
+    }
+    CheckNear(indexedPlayer.Position().x, player.Position().x, 0.0001f,
+              "indexed and exhaustive obstacle paths stop at the same position");
+    CheckNear(indexedPlayer.Position().z, player.Position().z, 0.0001f,
+              "indexed and exhaustive obstacle paths preserve identical axis sliding");
 
     if (failures != 0) {
         std::cerr << failures << " core test assertion(s) failed\n";

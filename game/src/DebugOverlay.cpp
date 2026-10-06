@@ -210,6 +210,8 @@ namespace island
         auto worldDebug = DiagnosticLine();
         worldDebug << "WORLD DEBUG " << (state.worldDebugVisible ? "ON" : "OFF")
                    << "  OBSTACLES " << state.worldDebugObstacles
+                   << "  COLLISION " << state.collisionCandidates << '/'
+                   << state.collisionObstacles
                    << " CELLS " << state.worldDebugCells
                    << " WILDLIFE " << state.worldDebugWildlife
                    << " LINES " << state.worldDebugLines

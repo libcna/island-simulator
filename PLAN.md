@@ -246,12 +246,13 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
   remain open.
 - [~] Implement and test height, land/water, island-relative shoreline distance, unit normal,
   slope, and coarse physical-surface queries. Authored biome masks and bounds queries remain open.
-- [~] Add broad-phase spatial partitioning for rocks/trees and capsule-vs-world collision. Palm
-  trunks now use shared deterministic circular proxies with substepped collision and axis sliding;
-  a spatial broad phase, depenetration, and future rock proxies remain open.
+- [~] Add broad-phase spatial partitioning for rocks/trees and capsule-vs-world collision. A static
+  16 m grid now indexes the shared palm, broadleaf, solid-rock, and sampled fallen-log proxies;
+  exact narrow-phase checks retain substepped axis sliding. Dynamic obstacles and depenetration
+  remain open.
 - [~] Add footprint-aware ground support, ground following, a 38-degree uphill limit, axis sliding,
-  bounded step rejection, and palm-trunk collision. Rock collision, spatial broad phase, and
-  depenetration remain open.
+  bounded step rejection, and palm-trunk collision. Solid-rock/log collision is active;
+  depenetration and geometric step-up remain open.
 - [x] Prevent terrain tunnelling under low frame rates with a 100 ms time clamp and 0.14 m maximum
   horizontal substeps; keep swept prop tests open with prop collision.
 
@@ -344,8 +345,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   Android GLES 3 runtime validation of the expanded jungle shader remains open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
   One radius-matched circular proxy is active per palm and canopy trunk; substantial rocks and
-  fallen logs are solid, while fronds, crowns, understory, ground plants, small rocks, and driftwood remain
-  non-colliding. Broader play-tuning and a spatial broad phase remain open.
+  fallen logs are solid, while fronds, crowns, understory, ground plants, small rocks, and driftwood
+  remain non-colliding. Broader play-tuning remains open; the shared static-proxy spatial broad
+  phase is active.
 
 ### Grass quality campaign
 
@@ -872,7 +874,8 @@ Work next, in order:
    substrate props, contact cues, and material tuning remain.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
-   LOD/density fields, and audio emitters only where they materially improve debugging.
+   LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
+   reports the local static-collision candidate count against the complete proxy population.
 5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -1595,6 +1598,21 @@ Work next, in order:
   and its driftwood capture matches the OpenGL 3.3 material composition. The arm64-v8a GLES 3 APK
   rebuilds with the shader; physical-device visual/performance qualification remains open. No CNA
   or Sharp Runtime source was modified and no dependency defect was found.
+
+### 2026-10-06 — Static collision broad phase
+
+- Added an immutable game-owned 16 m spatial grid over all 794 palm, broadleaf, solid-rock, and
+  sampled fallen-log collision proxies. Player substeps query nearby cell populations before the
+  unchanged exact circle test, retaining slope rejection and axis sliding without scanning every
+  obstacle.
+- Kept the exhaustive span-based `PlayerMotion` path as a regression oracle. Core coverage compares
+  indexed and exhaustive overlap results across 1,681 island-wide queries and confirms identical
+  stop/slide results against a focused trunk case. It also requires a material average reduction in
+  broad-phase candidates.
+- Added startup grid diagnostics and an F1 local-candidate counter. The deterministic beach view
+  considers 14 of 794 proxies while preserving the same world result; the 794 proxies occupy 467
+  non-empty cells. All 13 native tests pass (12 create the real OpenGL renderer), the complete
+  Chrome 152/WebGL 2 harness passes, and the arm64-v8a GLES 3 APK rebuilds with clean app lint.
 
 ## Session-end checklist
 

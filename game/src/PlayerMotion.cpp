@@ -1,5 +1,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 
+#include "IslandSimulator/WorldCollisionGrid.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -61,6 +63,7 @@ namespace island
 
     bool PlayerMotion::TryWalkStep(const IslandTerrain& terrain,
                                    const std::span<const CircularObstacle> obstacles,
+                                   const WorldCollisionGrid* collisionGrid,
                                    const float deltaX, const float deltaZ) noexcept
     {
         const float distance = std::hypot(deltaX, deltaZ);
@@ -70,13 +73,19 @@ namespace island
 
         const float candidateX = position_.x + deltaX;
         const float candidateZ = position_.z + deltaZ;
-        for (const CircularObstacle& obstacle : obstacles) {
-            const float combinedRadius = CapsuleRadius + std::max(0.0f, obstacle.radius);
-            const float separationX = candidateX - obstacle.x;
-            const float separationZ = candidateZ - obstacle.z;
-            if (separationX * separationX + separationZ * separationZ
-                < combinedRadius * combinedRadius) {
+        if (collisionGrid) {
+            if (collisionGrid->IntersectsCircle(candidateX, candidateZ, CapsuleRadius)) {
                 return false;
+            }
+        } else {
+            for (const CircularObstacle& obstacle : obstacles) {
+                const float combinedRadius = CapsuleRadius + std::max(0.0f, obstacle.radius);
+                const float separationX = candidateX - obstacle.x;
+                const float separationZ = candidateZ - obstacle.z;
+                if (separationX * separationX + separationZ * separationZ
+                    < combinedRadius * combinedRadius) {
+                    return false;
+                }
             }
         }
 
@@ -157,6 +166,21 @@ namespace island
                               const float deltaSeconds,
                               const std::span<const CircularObstacle> obstacles) noexcept
     {
+        UpdateInternal(terrain, inputX, inputZ, deltaSeconds, obstacles, nullptr);
+    }
+
+    void PlayerMotion::Update(const IslandTerrain& terrain, const float inputX,
+                              const float inputZ, const float deltaSeconds,
+                              const WorldCollisionGrid& obstacles) noexcept
+    {
+        UpdateInternal(terrain, inputX, inputZ, deltaSeconds, {}, &obstacles);
+    }
+
+    void PlayerMotion::UpdateInternal(
+        const IslandTerrain& terrain, float inputX, float inputZ,
+        const float deltaSeconds, const std::span<const CircularObstacle> obstacles,
+        const WorldCollisionGrid* collisionGrid) noexcept
+    {
         const float dt = std::clamp(deltaSeconds, 0.0f, MaximumStepSeconds);
         const float inputLength = std::hypot(inputX, inputZ);
         if (inputLength > 1.0f) {
@@ -205,15 +229,15 @@ namespace island
                 continue;
             }
 
-            if (TryWalkStep(terrain, obstacles, stepX, stepZ)) {
+            if (TryWalkStep(terrain, obstacles, collisionGrid, stepX, stepZ)) {
                 continue;
             }
 
             // Sliding along one axis keeps glancing contact from feeling like a complete stop.
-            if (!TryWalkStep(terrain, obstacles, stepX, 0.0f)) {
+            if (!TryWalkStep(terrain, obstacles, collisionGrid, stepX, 0.0f)) {
                 velocityX_ = 0.0f;
             }
-            if (!TryWalkStep(terrain, obstacles, 0.0f, stepZ)) {
+            if (!TryWalkStep(terrain, obstacles, collisionGrid, 0.0f, stepZ)) {
                 velocityZ_ = 0.0f;
             }
         }

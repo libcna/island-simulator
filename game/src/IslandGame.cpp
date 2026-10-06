@@ -62,16 +62,18 @@ namespace island
           worldDebugVisible_(showWorldDebug),
           inputDiagnostics_(inputDiagnostics)
     {
-        worldObstacles_.reserve(vegetationLayout_.Obstacles().size()
-                                + jungleLayout_.Obstacles().size()
-                                + naturalPropLayout_.Obstacles().size());
-        worldObstacles_.insert(worldObstacles_.end(), vegetationLayout_.Obstacles().begin(),
-                               vegetationLayout_.Obstacles().end());
-        worldObstacles_.insert(worldObstacles_.end(), jungleLayout_.Obstacles().begin(),
-                               jungleLayout_.Obstacles().end());
-        worldObstacles_.insert(worldObstacles_.end(), naturalPropLayout_.Obstacles().begin(),
-                               naturalPropLayout_.Obstacles().end());
-        monkeyTroop_.SetObstacles(worldObstacles_);
+        std::vector<CircularObstacle> worldObstacles;
+        worldObstacles.reserve(vegetationLayout_.Obstacles().size()
+                               + jungleLayout_.Obstacles().size()
+                               + naturalPropLayout_.Obstacles().size());
+        worldObstacles.insert(worldObstacles.end(), vegetationLayout_.Obstacles().begin(),
+                              vegetationLayout_.Obstacles().end());
+        worldObstacles.insert(worldObstacles.end(), jungleLayout_.Obstacles().begin(),
+                              jungleLayout_.Obstacles().end());
+        worldObstacles.insert(worldObstacles.end(), naturalPropLayout_.Obstacles().begin(),
+                              naturalPropLayout_.Obstacles().end());
+        worldCollisionGrid_.Reset(worldObstacles);
+        monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -212,6 +214,9 @@ namespace island
                   << " vertices, " << terrainRenderer_->PrimitiveCount() << " triangles in "
                   << terrainRenderer_->TotalCellCount()
                   << " cells\n"
+                  << "island-simulator: collision grid "
+                  << worldCollisionGrid_.Obstacles().size() << " static obstacles in "
+                  << worldCollisionGrid_.CellCount() << " occupied cells\n"
                   << "island-simulator: birds " << birdFlock_.Birds().size()
                   << " agents in a distance-throttled one-batch simulation\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
@@ -455,7 +460,7 @@ namespace island
         wish = wish + forward * touchControlState_.moveForward
             + right * touchControlState_.moveRight;
 
-        playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldObstacles_);
+        playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldCollisionGrid_);
         const PlayerPosition& position = playerMotion_.Position();
         cameraPosition_ = Vector3(position.x, position.y, position.z);
         if (soundscape_) {
@@ -563,7 +568,8 @@ namespace island
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
-                                      worldObstacles_, birdFlock_.Birds(), fishSchools_.Fish(),
+                                      worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),
+                                      fishSchools_.Fish(),
                                       sharkPatrol_.State(), monkeyTroop_.Monkeys());
         }
 
@@ -682,6 +688,11 @@ namespace island
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
             }
             overlayState.worldDebugVisible = worldDebugVisible_;
+            overlayState.collisionCandidates = static_cast<int>(
+                worldCollisionGrid_.CandidateCount(player.x, player.z,
+                                                   PlayerMotion::CapsuleRadius));
+            overlayState.collisionObstacles = static_cast<int>(
+                worldCollisionGrid_.Obstacles().size());
             if (worldDebugVisible_) {
                 overlayState.worldDebugObstacles = worldDebugRenderer_->VisibleObstacleCount();
                 overlayState.worldDebugCells = worldDebugRenderer_->VisibleCellCount();
@@ -693,9 +704,13 @@ namespace island
         }
 
         if (drawnFrames_ == 0U) {
+            const PlayerPosition& player = playerMotion_.Position();
             std::cout << "island-simulator: visible terrain cells "
                       << terrainRenderer_->VisibleCellCount() << '/'
-                      << terrainRenderer_->TotalCellCount() << ", palms "
+                      << terrainRenderer_->TotalCellCount() << ", collision candidates "
+                      << worldCollisionGrid_.CandidateCount(
+                             player.x, player.z, PlayerMotion::CapsuleRadius)
+                      << '/' << worldCollisionGrid_.Obstacles().size() << ", palms "
                       << palmRenderer_->VisiblePalmCount() << '/'
                       << palmRenderer_->TotalPalmCount() << " (near "
                       << palmRenderer_->VisibleNearPalmCount() << ", far "

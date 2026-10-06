@@ -13,6 +13,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │
       ├── PlayerMotion ─────── renderer-independent walking, swimming, obstacle collision,
       │                        and ocean limit
+      ├── WorldCollisionGrid ─ static 16 m broad phase over shared collision proxies
       ├── VegetationLayout ─── deterministic palm placement and trunk collision proxies
       │       │
       │       └── PalmRenderer ─ near/far meshes, cell culling, instancing, and shader wind
@@ -103,8 +104,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 3. Input is transformed by camera yaw into a normalized horizontal wish direction.
 4. `PlayerMotion` applies frame-time clamping, acceleration, slope checks, swimming speed, the
    island-relative current field, and the remote safety boundary.
-5. `PlayerMotion` tests the proposed capsule footprint against terrain and visible trunk-sized
-   circular obstacles, retaining axis sliding when one component is valid.
+5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the
+   proposed capsule footprint exactly against nearby trunk, rock, and log circular obstacles while
+   retaining axis sliding when one component is valid.
 6. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
@@ -356,8 +358,9 @@ testing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, but transition popping, close-up leaf/material shape, bush diversity, biome variation,
   and measured mobile density still need repeated polish. Broader beach-prop variety remains.
-- Collision checks every palm, canopy-trunk, solid-rock, and sampled log proxy and has no spatial
-  broad phase yet; geometric step-up remains absent.
+- Collision uses a static 16 m spatial grid over every palm, canopy-trunk, solid-rock, and sampled
+  log proxy. Exact narrow-phase circle checks preserve the original result; dynamic obstacles,
+  geometric step-up, and depenetration remain absent.
 - Swimming camera height and movement-responsive water audio are functional, but camera bob,
   underwater presentation, and distinct water entry/exit details remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass

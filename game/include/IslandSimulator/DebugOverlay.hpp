@@ -108,6 +108,8 @@ namespace island
         bool wildlifeCallActive = false;
         bool worldDebugVisible = false;
         int worldDebugObstacles = 0;
+        int collisionCandidates = 0;
+        int collisionObstacles = 0;
         int worldDebugCells = 0;
         int worldDebugWildlife = 0;
         int worldDebugLines = 0;

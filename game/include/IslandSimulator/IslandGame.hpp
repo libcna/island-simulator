@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
@@ -32,6 +31,7 @@
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WorldDebugRenderer.hpp"
 #include "Microsoft/Xna/Framework/Game.hpp"
 #include "Microsoft/Xna/Framework/GameTime.hpp"
@@ -100,7 +100,7 @@ namespace island
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
         NaturalPropLayout naturalPropLayout_;
-        std::vector<CircularObstacle> worldObstacles_;
+        WorldCollisionGrid worldCollisionGrid_;
         PlayerMotion playerMotion_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
