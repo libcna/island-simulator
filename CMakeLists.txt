@@ -412,7 +412,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?")
+                "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+")
         add_test(NAME IslandGameCurrentViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-current-capture.ppm"
                     --viewpoint current)

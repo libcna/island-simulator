@@ -21,7 +21,9 @@ Movement follows terrain, refuses uphill motion steeper than 38 degrees, and swi
 in sufficiently deep water. Swimming is slower. An offshore current progressively resists outward
 movement and carries the player back toward the island. A subtle peripheral tint and deeper
 undertow texture strengthen with that same current field. Moving through shallow or swimming water
-also produces subtle expanding surface ripples around the player. On land, nearby mesh-grass tips
+also produces subtle expanding surface ripples around the player. A moving water entry or exit
+adds one stronger but short broken-ring burst; depth hysteresis and a cooldown keep small shoreline
+corrections from retriggering it. On land, nearby mesh-grass tips
 bend smoothly farther aside as walking speed rises and relax after the player stops.
 Horizontal acceleration and braking have the same response in cardinal and diagonal directions,
 so changing direction does not create a faster diagonal surge.

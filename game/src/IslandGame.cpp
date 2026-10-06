@@ -575,6 +575,9 @@ namespace island
         waterRippleModel_.Reset(
             playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), initialRippleSpeed);
+        if (viewpoint_ == FixedViewpoint::WaterlineDetail) {
+            waterRippleModel_.TriggerSplash(true, initialRippleSpeed);
+        }
         const float initialGrassSpeed = viewpoint_ == FixedViewpoint::GrassDetail
             ? 3.2f
             : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ());
@@ -624,8 +627,8 @@ namespace island
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"
                   << "island-simulator: near-surface swimming view procedural edge veil\n"
-                  << "island-simulator: movement-driven player ripples integrated into the "
-                     "portable ocean shader\n";
+                  << "island-simulator: movement ripples and shoreline-transition bursts "
+                     "integrated into the portable ocean shader\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -1523,7 +1526,9 @@ namespace island
         const PlayerPosition& oceanPlayer = playerMotion_.Position();
         oceanRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                              timeSeconds, oceanPlayer.x, oceanPlayer.z,
-                             waterRippleModel_.Intensity(), waterRippleModel_.Phase());
+                             waterRippleModel_.Intensity(), waterRippleModel_.Phase(),
+                             waterRippleModel_.SplashIntensity(),
+                             waterRippleModel_.SplashPhase());
         shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                  timeSeconds);
 
@@ -1572,6 +1577,8 @@ namespace island
             overlayState.oceanCurrentStrength = playerMotion_.OceanCurrentStrength(terrain_);
             overlayState.waterRippleIntensity = waterRippleModel_.Intensity();
             overlayState.waterRipplePhase = waterRippleModel_.Phase();
+            overlayState.waterSplashIntensity = waterRippleModel_.SplashIntensity();
+            overlayState.waterSplashPhase = waterRippleModel_.SplashPhase();
             overlayState.waterViewIntensity = waterViewModel_.Intensity();
             overlayState.waterViewDraws = waterViewOverlay_->DrawCallCount();
             overlayState.visibleTerrainCells = terrainRenderer_->VisibleCellCount();
@@ -1847,7 +1854,9 @@ namespace island
                       << " draw; water view " << waterViewModel_.Intensity()
                       << ", " << waterViewOverlay_->DrawCallCount()
                       << " draw, player ripple " << waterRippleModel_.Intensity()
-                      << ", phase " << waterRippleModel_.Phase() << ", current "
+                      << ", phase " << waterRippleModel_.Phase()
+                      << ", splash " << waterRippleModel_.SplashIntensity()
+                      << ", phase " << waterRippleModel_.SplashPhase() << ", current "
                       << currentStrength << ", undertow target " << undertowTarget << '\n';
             if (viewpoint_ == FixedViewpoint::GroundPlantDetail) {
                 std::cout << "island-simulator: ground QA per-instance near LOD "

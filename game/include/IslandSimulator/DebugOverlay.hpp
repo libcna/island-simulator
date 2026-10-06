@@ -36,6 +36,8 @@ namespace island
         float oceanCurrentStrength = 0.0f;
         float waterRippleIntensity = 0.0f;
         float waterRipplePhase = 0.0f;
+        float waterSplashIntensity = 0.0f;
+        float waterSplashPhase = 1.0f;
         float waterViewIntensity = 0.0f;
         int waterViewDraws = 0;
         int visibleTerrainCells = 0;

@@ -506,6 +506,37 @@ int main()
     CheckNear(waterRipple.Intensity(), 0.0f, 0.000001f,
               "stationary water movement releases the ripple fully");
 
+    island::WaterRippleModel waterSplash;
+    waterSplash.Reset(false, 0.0f, 0.0f);
+    (void)waterSplash.Update(false, -0.10f, 3.0f, 1.0f / 60.0f);
+    const float entrySplashIntensity = waterSplash.SplashIntensity();
+    Check(entrySplashIntensity > 0.70f && entrySplashIntensity <= 1.0f,
+          "moving across the wet threshold starts a bounded entry burst");
+    Check(waterSplash.SplashPhase() > 0.0f && waterSplash.SplashPhase() < 0.05f,
+          "entry burst begins with a smoothly advancing normalized phase");
+    const float hysteresisPhase = waterSplash.SplashPhase();
+    (void)waterSplash.Update(false, -0.04f, 3.0f, 1.0f / 60.0f);
+    Check(waterSplash.SplashPhase() > hysteresisPhase,
+          "water-depth hysteresis does not retrigger a burst in the transition band");
+    const float cooldownPhase = waterSplash.SplashPhase();
+    (void)waterSplash.Update(false, 0.0f, 3.0f, 1.0f / 60.0f);
+    Check(waterSplash.SplashPhase() > cooldownPhase,
+          "an opposite crossing during cooldown cannot restart the active burst");
+    for (int frame = 0; frame < 120; ++frame) {
+        (void)waterSplash.Update(false, -0.10f, 0.0f, 1.0f / 60.0f);
+    }
+    CheckNear(waterSplash.SplashIntensity(), 0.0f, 0.000001f,
+              "shoreline burst retires completely after its bounded lifetime");
+    (void)waterSplash.Update(false, 0.0f, 2.0f, 1.0f / 60.0f);
+    Check(waterSplash.SplashIntensity() > 0.0f
+              && waterSplash.SplashIntensity() < entrySplashIntensity,
+          "leaving the water starts a gentler exit burst after cooldown");
+    waterSplash.Reset(false, 0.0f, 0.0f);
+    (void)waterSplash.Update(false, -0.10f,
+                             std::numeric_limits<float>::quiet_NaN(), 1.0f / 60.0f);
+    CheckNear(waterSplash.SplashIntensity(), 0.0f, 0.000001f,
+              "non-finite crossing input cannot start a surface burst");
+
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();

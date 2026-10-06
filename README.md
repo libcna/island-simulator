@@ -1,8 +1,9 @@
 # island-simulator
 
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming
-experience built in C++23 with CNA. The project is at the beginning of a long development campaign.
-The current playable slice renders a deterministic approximately 500 m island with portable procedural
+experience built in C++23 with CNA. The project remains under an active long-form development and
+polish campaign. The current playable slice renders a deterministic approximately 500 m island with
+portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
 microvariation, sparse curved leaf litter, close dry-sand granulation, soft-edged pebble/shell
 flecks, subtle shoreline-raked ripples, restrained fixed-sun jungle-floor dappling, and a narrow
@@ -68,7 +69,9 @@ It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
 dual-zone touch input, a subtle depth-responsive near-surface water veil that cools and strengthens
 as the offshore current develops, and speed/depth-responsive player ripples that expand across the
-same animated ocean surface without another draw call. A fixed sunny gradient sky adds a sun disc
+same animated ocean surface without another draw call. Moving entries and exits also trigger one
+short speed-scaled pair of broken surface rings, with depth hysteresis and a cooldown that prevent
+shoreline chatter. A fixed sunny gradient sky adds a sun disc
 and sparse, layered horizontal high-cloud wisps without a weather simulation. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
 wing strokes, intermittent glides, banked turns, slow radial route drift, terrain clearance,
@@ -146,8 +149,8 @@ Walking and swimming apply restrained, speed-responsive positional camera motion
 smoothly disable or restore it.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, contact-shadow class/draw statistics, vegetation draw statistics, ambient mix
-levels, grass-interaction strength, player-ripple intensity/phase, player-water gain, wave/splash
-counts, undertow cue strength, and positional bird/monkey call activity.
+levels, grass-interaction strength, player-ripple and transition-burst intensity/phase, player-water
+gain, wave/splash counts, undertow cue strength, and positional bird/monkey call activity.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, all nine terrain-contact samples and normals, wildlife headings, simulation-tier colours,

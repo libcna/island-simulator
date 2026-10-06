@@ -89,6 +89,8 @@ uniform float uTime;
 uniform vec2 uPlayerWaterPosition;
 uniform float uPlayerRippleIntensity;
 uniform float uPlayerRipplePhase;
+uniform float uPlayerSplashIntensity;
+uniform float uPlayerSplashPhase;
 
 out vec4 fragColor;
 
@@ -116,6 +118,23 @@ float playerRippleBand(float distanceToPlayer, float phase)
                                   abs(distanceToPlayer - radius));
     float envelope = sin(phase * 3.14159265);
     return band * envelope * envelope;
+}
+
+float playerSplashBand(vec2 playerOffset, float phase)
+{
+    float distanceToPlayer = length(playerOffset);
+    float radius = mix(0.18, 2.65, phase);
+    float width = mix(0.15, 0.045, phase);
+    float leading = 1.0 - smoothstep(width, width + 0.045,
+                                     abs(distanceToPlayer - radius));
+    float trailingRadius = radius * 0.72;
+    float trailing = 1.0 - smoothstep(width * 0.72, width + 0.055,
+                                      abs(distanceToPlayer - trailingRadius));
+    float angle = atan(playerOffset.y, playerOffset.x);
+    float brokenCrest = 0.70 + 0.30 * sin(angle * 7.0 + phase * 13.0 + uTime * 0.7);
+    float envelope = smoothstep(0.0, 0.08, phase)
+        * (1.0 - smoothstep(0.72, 1.0, phase));
+    return max(leading, trailing * 0.52) * brokenCrest * envelope;
 }
 
 void main()
@@ -170,6 +189,13 @@ void main()
         playerRipple *= clamp(uPlayerRippleIntensity, 0.0, 1.0)
             * mix(0.58, 1.0, clamp(vShallow, 0.0, 1.0)) * spatialVariation;
         foam = max(foam, playerRipple * 0.24);
+    }
+    if (uPlayerSplashIntensity > 0.001) {
+        vec2 playerOffset = vWorld.xz - uPlayerWaterPosition;
+        float splash = playerSplashBand(playerOffset, clamp(uPlayerSplashPhase, 0.0, 1.0));
+        splash *= clamp(uPlayerSplashIntensity, 0.0, 1.0)
+            * mix(0.72, 1.0, clamp(vShallow, 0.0, 1.0));
+        foam = max(foam, splash * 0.58);
     }
     foam = clamp(foam, 0.0, 0.86);
     water = mix(water, vec3(0.82, 0.94, 0.91), foam);
@@ -333,7 +359,9 @@ void main()
                              const Vector3& cameraPosition, const float timeSeconds,
                              const float playerX, const float playerZ,
                              const float playerRippleIntensity,
-                             const float playerRipplePhase)
+                             const float playerRipplePhase,
+                             const float playerSplashIntensity,
+                             const float playerSplashPhase)
     {
         device_.setRasterizerStateProperty(RasterizerState::CullNone);
         device_.setBlendStateProperty(BlendState::AlphaBlend);
@@ -359,6 +387,14 @@ void main()
                 "uPlayerRipplePhase",
                 std::isfinite(playerRipplePhase)
                     ? playerRipplePhase - std::floor(playerRipplePhase) : 0.0f);
+            customEffect_->SetUniformFloat(
+                "uPlayerSplashIntensity",
+                std::isfinite(playerSplashIntensity)
+                    ? std::clamp(playerSplashIntensity, 0.0f, 1.0f) : 0.0f);
+            customEffect_->SetUniformFloat(
+                "uPlayerSplashPhase",
+                std::isfinite(playerSplashPhase)
+                    ? std::clamp(playerSplashPhase, 0.0f, 1.0f) : 1.0f);
             DrawGeometry();
         } else {
             fallbackEffect_->setWorldProperty(Matrix::getIdentityProperty());

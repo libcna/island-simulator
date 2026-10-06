@@ -145,7 +145,8 @@ silhouette diagnostic, visible beach wood plus shell/pebble clusters, and a nonz
 near-LOD population. The reef view must report a visible emergent outcrop and the near-rock
 fixed-sea-level wet-band diagnostic. The water view must report a nonzero procedural veil, exactly
 one overlay draw, and a
-nonzero player ripple integrated into the existing ocean submission, the
+nonzero player ripple plus a nonzero finite shoreline-transition burst integrated into the existing
+ocean submission, the
 current view must additionally report nonzero normalized current strength and undertow-audio
 target, the frond view must
 report visible grove-associated fallen fronds, the distant view must report all five unreachable

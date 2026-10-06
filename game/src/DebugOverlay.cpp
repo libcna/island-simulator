@@ -221,6 +221,8 @@ namespace island
               << " M  CURRENT " << state.oceanCurrentStrength
               << "  RIPPLE " << state.waterRippleIntensity
               << " PHASE " << state.waterRipplePhase
+              << "  SPLASH " << state.waterSplashIntensity
+              << " PHASE " << state.waterSplashPhase
               << "  VIEW " << state.waterViewIntensity
               << " DRAWS " << state.waterViewDraws;
         lines.push_back(water.str());

@@ -53,7 +53,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── DebugFreeCamera ──── bounded renderer-independent inspection flight in debug builds
       ├── FirstPersonCameraMotion ─ bounded walking/swimming positional motion and opt-out
-      ├── WaterRippleModel ──── depth/speed-responsive ocean-ripple intensity and phase
+      ├── WaterRippleModel ──── movement ripples plus hysteretic entry/exit surface bursts
       ├── WaterViewModel ───── depth/current-responsive veil intensity and transition smoothing
       ├── WaterViewOverlay ─── generated premultiplied edge texture and one conditional draw
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
@@ -152,7 +152,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
    `SpriteBatch` draw, cools its tint slightly as current develops, and submits nothing while dry.
    `WaterRippleModel` independently derives a smoothed, wrapped surface-ripple state from support
-   depth and horizontal speed; the ocean shader consumes it without another render submission.
+   depth and horizontal speed. The same finite-safe model detects moving wet/dry crossings with
+   7.5/2.5 cm hysteresis, a 1.6-second cooldown, and a bounded 1.6-second transition phase; the
+   ocean shader consumes both states without another render submission.
 8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch/undertow from
    authoritative shoreline, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
@@ -489,20 +491,21 @@ in the frame loop, and its valid and malformed boundaries are host-tested withou
 The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
-depth-driven tropical colour/transparency, moving foam, haze, and two thin movement-driven ripple
-bands centred on the player. The two crossing-wave values already used to break up broad foam also
+depth-driven tropical colour/transparency, moving foam, haze, two thin movement-driven ripple
+bands, and a speed-scaled pair of broken entry/exit rings centred on the player. The two
+crossing-wave values already used to break up broad foam also
 apply restrained bright/dark subsurface colour in the non-reflective surface component. The colour
 detail favours shallow water and fades from 135 to 420 m so it reads in exploration views without
 aliasing across the horizon or adding another trigonometric field. The ripple state eases from
 authoritative depth/speed input, wraps
-deterministically, uses subtle spatial breakup, and skips its fragment work while inactive; it
-shares the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
+deterministically, uses subtle spatial breakup, and skips its fragment work while inactive. A
+separate finite transition phase expands and fades its broken double crest, then retires fully;
+both effects share the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
 a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
-ripple.
-Native OpenGL 3.3 and actual WebGL 2 execution select the full path. A KVM-accelerated API 35
-Android emulator has created a real GLES3 surface and visibly rendered the complete current scene;
-the overview does not establish every close ocean-effect variant, and physical mobile-GPU
-profiling remains open.
+ripple or transition burst.
+Native OpenGL 3.3 has executed the preceding ripple path and compiles the revised game objects;
+actual Chrome/WebGL 2 and a KVM-accelerated API 35 Android GLES3 surface visibly render the full
+transition-burst path. Physical mobile-GPU profiling and a post-change desktop capture remain open.
 
 `ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
 ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and
@@ -686,8 +689,9 @@ testing remain open.
   step-up, and continuous depenetration remain absent.
 - Swimming camera height, restrained opt-out camera motion, movement-responsive water audio, and a
   subtle depth/current-responsive near-surface edge veil are functional. The same normalized
-  current now deepens the existing water loop into a bounded undertow cue. Full underwater fog,
-  waterline, refraction, and splash presentation remain open.
+  current now deepens the existing water loop into a bounded undertow cue. Moving wet/dry
+  crossings add one bounded broken-ring surface burst. Full underwater fog, geometric waterline,
+  refraction, and particle splash presentation remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,

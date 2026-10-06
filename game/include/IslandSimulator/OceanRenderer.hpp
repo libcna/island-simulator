@@ -37,7 +37,8 @@ namespace island
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
                   float timeSeconds, float playerX, float playerZ,
-                  float playerRippleIntensity, float playerRipplePhase);
+                  float playerRippleIntensity, float playerRipplePhase,
+                  float playerSplashIntensity, float playerSplashPhase);
 
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] const std::string& FallbackReason() const noexcept { return fallbackReason_; }

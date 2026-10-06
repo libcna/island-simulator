@@ -254,6 +254,15 @@ kept the ripple active at 0.984 intensity, tracked the same 112 scene submission
 complete active-water composition rather than isolating fragment cost; moving-route profiling and
 mobile hardware qualification remain open.
 
+### Shoreline-transition surface-burst follow-up
+
+The entry/exit burst reuses the ocean submission and player-position uniforms, adding no geometry,
+texture, allocation, or draw. Its additional fragment branch is inactive outside the bounded
+1.6-second effect; while active it evaluates two radial bands and angular breakup only for the
+existing ocean fragments. Actual WebGL 2 and KVM/gfxstream GLES3 water captures compile and show
+the effect. No new native or physical-mobile timing is assigned from those functional checks, so
+the existing active-water measurements remain context rather than a claimed isolated burst cost.
+
 ### Speed-responsive player-grass follow-up
 
 The player bend is integrated into the existing instanced grass vertex shader and adds no mesh,

@@ -282,8 +282,9 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [x] Define depth-based water-entry/exit hysteresis.
 - [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. A
   restrained swimming camera rhythm, solid emergent-outcrop collision, and subtle
-  depth-responsive near-surface edge veil plus movement-driven surface ripples are complete; a
-  true geometric waterline and full underwater presentation remain open.
+  depth-responsive near-surface edge veil, movement-driven surface ripples, and hysteretic
+  speed-scaled entry/exit bursts are complete; a true geometric waterline and full underwater
+  presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. The
   water-view veil and undertow audio now strengthen across the same normalized field; lateral
@@ -359,7 +360,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   visible z-fighting. A 384-segment ribbon now follows the authoritative shore independently of
   the coarse ocean grid and adds a narrow broken animated crest plus restrained receding wash over
   the wet-sand pass. A subtle generated near-surface edge veil now fades with swimming state and
-  support depth, while depth/speed-responsive player ripples reuse the animated ocean submission.
+  support depth, while depth/speed-responsive player ripples and one short broken-ring burst on a
+  moving wet/dry crossing reuse the animated ocean submission.
   The ocean now also reuses its existing two crossing-wave values for shallow-weighted subsurface
   colour structure that fades before the horizon; full underwater transitions and final
   wash/material tuning remain open.
@@ -367,8 +369,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated edge veil with
   one conditional `SpriteBatch` draw; waterline geometry, underwater fog, and refraction remain.
 - [~] Provide an actionable stock `BasicEffect` fallback when portable custom effects are
-  unavailable or fail compilation. WebGL 2 uses the full shader successfully; Android GLES 3
-  compiles and runs the scene, but the captured inland camera does not yet qualify the water path.
+  unavailable or fail compilation. WebGL 2 and Android GLES 3 use the full shader successfully,
+  including inspected fixed water captures with an active transition burst. The fallback
+  intentionally omits shader-only ripple/burst detail.
 
 ### Vegetation and props
 
@@ -879,7 +882,8 @@ Android is not project completion.
   broader palm variation, physical-device placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
-  player ripples are functional; repeated whole-island composition tuning remains.
+  player ripples plus a bounded water-entry/exit surface burst are functional; repeated
+  whole-island composition tuning remains.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
   placement curve; its visible wear was narrowed and given local shaded/sun-dry variation while the
@@ -1137,8 +1141,9 @@ Work next, in order:
    room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
    arc in one sheltered cove; broader landmark variety, prop diversity, contact cues, authored
    biome variation, and material tuning remain.
-   The first portable near-surface swimming veil and movement-driven surface ripples are also
-   complete. A clean six-view composition audit then identified overly uniform exposed dry sand
+   The first portable near-surface swimming veil, movement-driven surface ripples, and a bounded
+   speed-scaled broken-ring effect for moving water entry/exit are also complete. A clean six-view
+   composition audit then identified overly uniform exposed dry sand
    and low-contrast close forest soil; sparse soft-edged pebble/shell flecks and a restrained
    contrast increase now address those specific gaps without new geometry, textures, instances,
    or submissions. Defer waterline geometry, underwater fog, and refraction until a similarly
@@ -3897,6 +3902,34 @@ Work next, in order:
   Retained the small ignored screenshots/logs as reproducible QA evidence and removed the temporary
   comparison montage. CNA and Sharp Runtime remained read-only and unchanged; no dependency bug or
   workaround was involved.
+
+### 2026-10-07 — Shoreline-transition surface bursts
+
+- Extended the renderer-independent water-ripple state with a finite wet/dry crossing detector.
+  Moving entry uses a 7.5 cm depth threshold, exit uses 2.5 cm, and a 1.6-second cooldown matches
+  the existing audio scheduler so shallow-boundary correction cannot chatter. Each accepted
+  crossing starts one 1.6-second, speed-scaled phase; exit is deliberately gentler, stationary or
+  non-finite input fails closed, and reset/teleport placement never creates a false burst.
+- The existing portable ocean fragment shader consumes two additional bounded uniforms and draws
+  a spatially broken leading/trailing ring pair around the player. It reuses the existing ocean
+  mesh and submission, allocates no texture or geometry, and skips the added radial/angle work
+  while inactive. F1 and first-frame diagnostics expose burst strength/phase. Deterministic tests
+  cover entry strength, phase advance, hysteresis, finite lifetime, gentler exit, cooldown, and
+  invalid input; the complete core suite passes.
+- The complete Chrome 152/SwiftShader WebGL 2 harness passes with all 22 stages and the revised
+  interaction/Shift gates. Its inspected 1280 by 720 water capture reports a 0.6-strength burst at
+  phase 0.8 and visibly shows the restrained expanding crest; WebAssembly is 8,500,585 bytes. The
+  revised desktop OpenGL 3.3 consumer objects compile through the shared ccache, but the running
+  operator-visible game was intentionally not relinked or interrupted, so the post-change desktop
+  shader capture remains follow-up work.
+- A temporary x86_64 APK then ran the same fixed water view on the API 35 KVM/host-GPU emulator.
+  The actual 2400 by 1080 frame reports `OPENGLES3`, a 0.6-strength burst at phase 0.6, matching
+  water/shore composition, and clean translucent touch controls. First draw completed in
+  4247.442 ms total; no fatal, shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared.
+  The emulator was stopped and ADB is empty. The restored/linted v2-signed arm64-only APK is
+  18,747,868 bytes with a 15,937,584-byte stripped `libmain.so`. The functional emulator run is
+  not a physical-GPU cost claim. All compilation used at most two workers and `/rv/cnaccache`;
+  CNA and Sharp Runtime remained read-only and unchanged.
 
 ## Session-end checklist
 

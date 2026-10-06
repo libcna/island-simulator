@@ -39,8 +39,9 @@ been confirmed so far.
   waves/specular response, a coarse broad foam mask, and an exact shore-following animated
   crest/wash ribbon. Swimming now adds a deliberately subtle,
   depth-responsive turquoise edge veil that cools and strengthens with the offshore current, but
-  full underwater fog, a geometric waterline, refraction-like cues, splash particles, and final
-  wash/material tuning remain absent.
+  full underwater fog, a geometric waterline, refraction-like cues, true splash particles, and
+  final wash/material tuning remain absent. Moving water entry/exit does produce a short
+  speed-scaled pair of broken shader-integrated surface rings.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic
   calm wind, and nearby mesh grass now bends around the player's stationary body radius and expands
   with movement speed. Its curved near blades have directional two-sided daylight, root, fold, and
@@ -74,7 +75,9 @@ been confirmed so far.
   which can be smoothly disabled with B. There is no geometric step-up, jump, or complete
   underwater presentation; restrained visual near-surface/current and audio entry/exit feedback
   are implemented. Movement in water now produces restrained shader-integrated expanding ripple
-  bands; entry splash particles and body/shore displacement remain absent. The outer-ocean current
+  bands, while moving entry/exit produces one stronger 1.6-second broken-ring burst protected by
+  the same 7.5/2.5 cm hysteresis and cooldown as the sound cue. True particles and persistent
+  body/shore displacement remain absent. The outer-ocean current
   also deepens the existing player-water loop into a restrained undertow cue; subjective
   headphone/speaker tuning remains open.
 - Desktop mouse sensitivity, 4.3/8.0 m/s walk/run speeds, mobile touch sensitivity, and the

@@ -64,7 +64,7 @@ one bounded terrain-conforming contact-shadow batch for near palms, canopy trees
 wood, and monkeys,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player
 water-movement audio, two water entry/exit accents, movement-driven shader-integrated water
-ripples, a procedural near-surface swimming veil with
+ripples, short hysteretic entry/exit surface bursts, a procedural near-surface swimming veil with
 offshore-current modulation, a deeper current-responsive undertow mix in the existing water loop,
 and a pooled
 positional voice with two bird and two monkey phrases. That package
@@ -72,8 +72,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,744,372-byte APK with a
-15,934,088-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
+The latest single-ABI arm64 debug qualification build produced an 18,747,868-byte APK with a
+15,937,584-byte stripped `libmain.so` and passed `:app:lintDebug`. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, reused crossing-wave ocean colour, reduced CPU-lit fish/shark
@@ -248,6 +248,13 @@ the corresponding WebGL 2 frames found matching scene geometry, broad materials,
 density, water colour, sky, and the near skinned-monkey silhouette. Together with the reef frame,
 this is a six-view GLES 3 appearance matrix on gfxstream. It is not a pixel-identity test, an
 automated image comparison, or a physical-device performance qualification.
+
+After the shoreline-transition surface burst was added, a fresh fixed water launch exercised the
+revised GLSL ES 300 fragment path. The inspected 2400 by 1080 frame reports `OPENGLES3`, a
+0.6-strength burst at phase 0.6, and visibly retains the same water/shore composition with clean
+touch controls. It completed first draw in 4247.442 ms total and emitted no fatal,
+shader-compilation, or `GL_INVALID_OPERATION` diagnostic. This qualifies the functional effect on
+gfxstream, not its sustained cost on a physical mobile GPU.
 
 A subsequent no-window qualification after moving the CNA pin to `fe20e3e9c` again used KVM
 version 12 and host-GPU gfxstream, completed a cold GLES 3 first frame in 2003.189 ms, and produced
