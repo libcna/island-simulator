@@ -346,9 +346,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Build multiple procedural palm variants with different height, lean, curvature, crown
   rotation, frond arrangement, scale, and clustering. Four curved tapered trunk variants, 330
   varied instances, segmented near leaflets, widened-ribbon far crowns, root contact wedges,
-  staggered per-instance near/far thresholds, and portable shader wind now run on native OpenGL 3.3
-  and WebGL 2; richer close-up materials, true LOD blending, and instrumented Android wind/LOD
-  qualification remain open despite the first visible GLES3 scene.
+  staggered per-instance near/far thresholds, near-only procedural leaf scars, two restrained
+  coconut-bearing variants, and portable shader wind now run on native OpenGL 3.3 and WebGL 2;
+  broader bark/fruit variation, true LOD blending, and instrumented Android wind/LOD qualification
+  remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
@@ -750,7 +751,9 @@ Android is not project completion.
   and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
   tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
-  envelope; prop repetition, palm material richness, placement review, and true LOD blending remain.
+  envelope; near-only procedural trunk scars and coconut clusters on two variants add a first
+  material/content pass without new draws. Prop repetition, root placement review, broader palm
+  variation, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
   player ripples are functional; repeated whole-island composition tuning remains.
@@ -954,9 +957,9 @@ Work next, in order:
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete.
-7. Continue palm material/root-placement review and observe the new segmented-leaflet versus
-   widened-ribbon 125--145 m transition during traversal. The first silhouette pass is measured;
-   do not add more geometry without physical/mobile evidence.
+7. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
+   125--145 m transition during traversal. The first silhouette and near material/coconut passes
+   are measured; do not add more geometry without physical/mobile evidence.
 
 ## Validation ledger
 
@@ -2068,6 +2071,30 @@ Work next, in order:
   and the APK is 33,441,608 bytes. Revised Android appearance, aliasing, and cost remain unqualified
   without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
   dependency defect was found.
+
+### 2026-10-06 — Near-palm bark scars and coconut variation
+
+- Added subtle texture-free leaf-scar rings to the near palm draws. A per-batch uniform skips the
+  material branch for the far tier, preventing distant band aliasing and unnecessary fragment work.
+  Added four or five small faceted coconuts beneath the crowns of variants three and one,
+  respectively. The affected near meshes gain 32 or 40 triangles, bringing the four-variant range
+  to 469--541 triangles; far meshes remain 102 triangles. No texture, asset, instance stream, CPU
+  update, or draw submission was added.
+- Moved the deterministic palm QA camera from the cluttered inner belt to a sparse coastal palm and
+  view from the beach side. Native and actual Chrome/SwiftShader WebGL 2 captures were inspected;
+  the leaf scars remain restrained, fruits sit partly beneath the leaflets, and both renderers agree.
+  Native and browser gates now require an explicit material/coconut diagnostic.
+- Two complete final five-view repeats retained 77/124/94/26/97 submissions and the exact prior
+  near/far populations. Mean frame time measured 1.1773--1.2073 ms overview,
+  1.7777--1.8420 ms beach, 1.4675--1.5164 ms jungle, 0.8188--0.8599 ms driftwood, and
+  1.5762--1.5991 ms monkeys. The ranges overlap the previous integrated baseline, so no isolated
+  speed change is claimed.
+- All 21 native tests pass, including 20 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 19 stages. The final arm64-v8a GLES 3 APK
+  rebuild and application lint pass; WebAssembly is 8,314,191 bytes, stripped `libmain.so` is
+  15,712,544 bytes, and the APK is 33,444,920 bytes. Android runtime appearance and cost remain
+  unqualified without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and
+  unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

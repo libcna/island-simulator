@@ -65,7 +65,8 @@ startup and a clean four-frame exit.
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
 The beach capture also gates the five-level near curvature and portable two-sided daylight path.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
-`build/island-palm-capture.ppm` and requires the segmented near-leaflet path.
+`build/island-palm-capture.ppm` and requires the segmented near-leaflet plus procedural
+bark-scar/coconut path.
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm` and
 requires a nonzero one-draw terrain-contact-shadow batch.
 `IslandGameDriftwoodCapture` writes a close beach-composition view to

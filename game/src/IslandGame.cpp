@@ -140,11 +140,12 @@ namespace island
             float bestScore = std::numeric_limits<float>::max();
             for (const PalmPlacement& palm : vegetationLayout_.Palms()) {
                 const float shoreDistance = terrain_.SignedShoreDistance(palm.x, palm.z);
-                if (shoreDistance < 28.0f || shoreDistance > 82.0f) continue;
+                if (shoreDistance < 8.0f || shoreDistance > 24.0f) continue;
                 const float deltaX = palm.x - targetX;
                 const float deltaZ = palm.z - targetZ;
                 const float score = deltaX * deltaX + deltaZ * deltaZ
-                    - palm.scale * 120.0f;
+                    - palm.scale * 120.0f
+                    - ((palm.variant == 1U || palm.variant == 3U) ? 600.0f : 0.0f);
                 if (score < bestScore) {
                     bestScore = score;
                     selected = &palm;
@@ -153,8 +154,8 @@ namespace island
             const Vector3 radial = Vector3::Normalize(
                 Vector3(selected->x, 0.0f, selected->z));
             const Vector3 tangent(-radial.Z, 0.0f, radial.X);
-            const float cameraX = selected->x - radial.X * 14.0f + tangent.X * 2.0f;
-            const float cameraZ = selected->z - radial.Z * 14.0f + tangent.Z * 2.0f;
+            const float cameraX = selected->x + radial.X * 14.0f + tangent.X * 2.0f;
+            const float cameraZ = selected->z + radial.Z * 14.0f + tangent.Z * 2.0f;
             cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
                                                    + PlayerMotion::EyeHeight,
                                       cameraZ);

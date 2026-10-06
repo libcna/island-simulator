@@ -19,7 +19,8 @@ The current arm64 package includes the portable procedural sand/soil terrain mat
 near-field interior microvariation and sparse curved leaf litter, the
 broadleaf jungle with low bushes and forest-floor plants,
 speed-responsive player bending plus curved, two-sided daylight shading in the instanced mesh grass,
-segmented near-palm leaflets with staggered per-instance near/far LOD,
+segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
+staggered per-instance near/far LOD,
 152 land rocks, 14 emergent reef outcrops, fallen logs, sparse beach driftwood, 63 fallen palm
 fronds, 265 near-field shell/pebble clusters, 24 simulated
 procedural birds, eight fish schools,

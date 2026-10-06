@@ -216,9 +216,13 @@ Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near
 wedges around the trunk base as a low-cost contact cue. Each near frond combines a thin curved
 rachis with nine pairs of independently tapered leaflets; the lower-segment far tier uses seven
 widened ribbon fronds that preserve the feathered crown envelope without retaining sub-pixel
-leaflet geometry. A deterministic 330-instance layout is grouped into the same 8 by 8 spatial grid
-as terrain. CNA hardware instancing reduces a typical overview from hundreds of palm submissions
-to four far-variant draws; mixed first-person scenes remain bounded to eight near/far variant draws.
+leaflet geometry. Two near variants add four or five small faceted coconuts beneath the crown; the
+near draw also enables texture-free leaf-scar rings on trunks, while the far draw disables that
+fragment detail to avoid distant aliasing and unnecessary work. These details reuse the existing
+geometry, shader, and draw batches. A deterministic 330-instance layout is grouped into the same
+8 by 8 spatial grid as terrain. CNA hardware instancing reduces a typical overview from hundreds
+of palm submissions to four far-variant draws; mixed first-person scenes remain bounded to eight
+near/far variant draws.
 Cells are rejected by frustum and a conservative distance bound, then each gathered palm selects
 its LOD against a deterministic 125--145 m threshold derived from placement yaw. This replaces the
 old whole-cell 210 m switch and staggers visible changes around the player. Capability-checked

@@ -281,6 +281,32 @@ The dedicated close-palm native and actual Chrome/SwiftShader WebGL 2 captures v
 The arm64 GLES 3 package builds with the revised geometry; physical-device aliasing, transition,
 and fragment/vertex cost remain unqualified.
 
+### Near-palm bark and coconut material follow-up
+
+The two coconut-bearing near variants add four or five six-vertex faceted fruits, respectively,
+for 32 or 40 extra triangles. Near variants therefore span 469--541 triangles; the unchanged far
+variants remain 102 triangles. Subtle texture-free leaf-scar rings are evaluated only for near
+draws through a per-batch uniform, so distant trunks avoid both the extra fragment work and
+high-frequency band aliasing. The additions reuse the four existing near-variant submissions and
+introduce no texture, asset, instance data, CPU update, or draw call.
+
+Two complete final five-view repeats produced the ranges below. They overlap the preceding
+segmented-crown baseline and preserve every submission and near/far population. No isolated speed
+change is claimed; the result adds readable close material cues without a measurable integrated
+regression on this debug baseline.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Palm near / far |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1773--1.2073 | 1.4178--1.5443 | 1.9134--1.9965 | 77 | 0 / 299 |
+| Beach | 1.7777--1.8420 | 1.9404--2.3915 | 2.3468--2.6916 | 124 | 69 / 251 |
+| Jungle | 1.4675--1.5164 | 1.6497--1.9800 | 2.1155--2.3181 | 94 | 37 / 83 |
+| Driftwood/shore detail | 0.8188--0.8599 | 1.0771--1.2883 | 1.4991--1.5395 | 26 | 18 / 0 |
+| Monkeys | 1.5762--1.5991 | 1.9065--2.0653 | 2.2238--2.3010 | 97 | 37 / 68 |
+
+Native and actual Chrome/SwiftShader close-palm captures visually agree. The arm64 GLES 3 package
+builds with the final shader and geometry, but physical-device appearance and cost remain
+unqualified.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

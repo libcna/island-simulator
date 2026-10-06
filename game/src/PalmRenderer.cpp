@@ -66,6 +66,8 @@ uniform float uTime;
 
 out vec3 vColor;
 out vec3 vWorld;
+out float vWindWeight;
+out float vLocalHeight;
 
 void main()
 {
@@ -82,6 +84,8 @@ void main()
     vec4 world = instanceTransform * vec4(local, 1.0);
     vColor = aColor.rgb;
     vWorld = world.xyz;
+    vWindWeight = aWindData.x;
+    vLocalHeight = aPosition.y;
     gl_Position = uViewProjection * world;
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -90,8 +94,11 @@ void main()
         constexpr const char* FragmentBody = R"(
 in vec3 vColor;
 in vec3 vWorld;
+in float vWindWeight;
+in float vLocalHeight;
 
 uniform vec3 uCameraPosition;
+uniform float uMaterialDetail;
 
 out vec4 fragColor;
 
@@ -99,7 +106,16 @@ void main()
 {
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(230.0, 620.0, distanceToCamera);
-    vec3 color = mix(vColor, vec3(0.53, 0.78, 0.88), fog);
+    vec3 material = vColor;
+    if (uMaterialDetail > 0.5) {
+        float trunkMask = (1.0 - smoothstep(0.01, 0.055, vWindWeight))
+            * smoothstep(0.28, 0.75, vLocalHeight);
+        float ringPhase = fract(vLocalHeight * 1.18 + 0.17);
+        float ringDistance = min(ringPhase, 1.0 - ringPhase);
+        float barkScar = 1.0 - smoothstep(0.025, 0.085, ringDistance);
+        material *= 1.0 - trunkMask * barkScar * 0.13;
+    }
+    vec3 color = mix(material, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
 }
 )";
@@ -219,6 +235,67 @@ void main()
             crownX = std::cos(curveAngle) * lean;
             crownY = height;
             crownZ = std::sin(curveAngle) * lean;
+        }
+
+        void AppendCoconuts(PalmGeometry& geometry, const int variant,
+                            const float crownX, const float crownY, const float crownZ)
+        {
+            if (variant != 1 && variant != 3) {
+                return;
+            }
+
+            const int fruitCount = variant == 1 ? 5 : 4;
+            for (int fruit = 0; fruit < fruitCount; ++fruit) {
+                const float angle = static_cast<float>(variant) * 0.47f
+                    + static_cast<float>(fruit) * 2.39996323f;
+                const float orbit = 0.22f + 0.08f * static_cast<float>(fruit % 2);
+                const Vector3 centre(crownX + std::cos(angle) * orbit,
+                                     crownY - 0.30f - 0.12f * static_cast<float>(fruit % 3),
+                                     crownZ + std::sin(angle) * orbit);
+                const float radius = 0.22f + 0.025f * static_cast<float>((fruit + variant) % 3);
+                const float halfHeight = radius * 1.14f;
+                const Color baseColor = variant == 1
+                    ? Color(103, 116 + fruit * 3, 45, 255)
+                    : Color(119, 92 + fruit * 2, 42, 255);
+                const float windPhase = std::fmod(
+                    static_cast<float>(fruit) * 0.173f + static_cast<float>(variant) * 0.11f,
+                    1.0f);
+                const Vector2 windData(0.06f, windPhase);
+                const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                geometry.vertices.emplace_back(
+                    centre + Vector3::Up * halfHeight, ShadeColor(baseColor, 1.12f), windData);
+                geometry.vertices.emplace_back(
+                    centre - Vector3::Up * halfHeight, ShadeColor(baseColor, 0.70f), windData);
+                geometry.vertices.emplace_back(
+                    centre + Vector3(radius, 0.0f, 0.0f), ShadeColor(baseColor, 1.03f), windData);
+                geometry.vertices.emplace_back(
+                    centre - Vector3(radius, 0.0f, 0.0f), ShadeColor(baseColor, 0.78f), windData);
+                geometry.vertices.emplace_back(
+                    centre + Vector3(0.0f, 0.0f, radius), baseColor, windData);
+                geometry.vertices.emplace_back(
+                    centre - Vector3(0.0f, 0.0f, radius), ShadeColor(baseColor, 0.88f), windData);
+                geometry.indices.insert(geometry.indices.end(), {
+                    base, static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    base, static_cast<std::uint16_t>(base + 4U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    base, static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    base, static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 4U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 5U),
+                    static_cast<std::uint16_t>(base + 3U),
+                    static_cast<std::uint16_t>(base + 1U),
+                    static_cast<std::uint16_t>(base + 2U),
+                    static_cast<std::uint16_t>(base + 5U)});
+            }
         }
 
         void AppendFronds(PalmGeometry& geometry, const int variant, const bool farMesh,
@@ -347,6 +424,9 @@ void main()
             float crownZ = 0.0f;
             AppendTrunk(geometry, variant, farMesh, crownX, crownY, crownZ);
             AppendFronds(geometry, variant, farMesh, crownX, crownY, crownZ);
+            if (!farMesh) {
+                AppendCoconuts(geometry, variant, crownX, crownY, crownZ);
+            }
             return geometry;
         }
 
@@ -421,6 +501,8 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: palm portable wind shader with near/far mesh LOD\n";
             std::cout << "island-simulator: palm near mesh segmented leaflet silhouettes\n";
+            std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
+                         "clusters\n";
         } else {
             std::cerr << "island-simulator: palm stock-effect fallback: " << fallbackReason_
                       << '\n';
@@ -594,7 +676,13 @@ void main()
         }
 
         for (std::size_t variant = 0; variant < nearMeshes_.size(); ++variant) {
+            if (customShaderReady_) {
+                customEffect_->SetUniformFloat("uMaterialDetail", 1.0f);
+            }
             DrawVariant(nearMeshes_[variant], visibleNearTransforms_[variant]);
+            if (customShaderReady_) {
+                customEffect_->SetUniformFloat("uMaterialDetail", 0.0f);
+            }
             DrawVariant(farMeshes_[variant], visibleFarTransforms_[variant]);
         }
         device_.SetVertexBuffers({});

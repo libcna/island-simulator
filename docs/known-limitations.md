@@ -26,7 +26,9 @@ been confirmed so far.
   calm wind, and nearby mesh grass now bends around the player's stationary body radius and expands
   with movement speed. Its curved near blades have directional two-sided daylight, root, fold, and
   restrained transmission cues. Near palms now use segmented tapered leaflets with widened ribbon
-  far silhouettes and staggered per-instance LOD thresholds. Grass collision/displacement does not
+  far silhouettes and staggered per-instance LOD thresholds; near trunks have subtle procedural
+  leaf-scar rings and two variants carry restrained faceted coconut clusters. Grass
+  collision/displacement does not
   persist after the player passes, and true LOD blending, richer biome variation, aliasing work,
   and physical-device density tuning remain.
   Contact shadows improve the main trunk/prop/animal classes, but small foliage is intentionally

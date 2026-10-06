@@ -253,7 +253,8 @@ if(ISLAND_BUILD_GAME)
         set_tests_properties(IslandGamePalmCapture PROPERTIES
             TIMEOUT 30
             LABELS display
-            PASS_REGULAR_EXPRESSION "palm near mesh segmented leaflet silhouettes")
+            PASS_REGULAR_EXPRESSION
+                "palm procedural bark scars and restrained coconut clusters")
         add_test(NAME IslandGameWaterViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
                     --viewpoint water)

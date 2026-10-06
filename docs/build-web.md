@@ -82,9 +82,10 @@ The test uses headless Chrome with SwiftShader to create a real WebGL 2 context.
 game with `--smoke-test` and requires a clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
-beach, grass interaction, segmented-palm detail, jungle, prop, driftwood, reef, near-surface water,
-offshore-current, fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a
-1280 x 720 viewport. Every scene asserts the layered-horizontal-wisp fixed-sky shader diagnostic.
+beach, grass interaction, segmented-palm and bark/coconut detail, jungle, prop, driftwood, reef,
+near-surface water, offshore-current, fallen-frond, distant-horizon, bird, fish, shark, and monkey
+instances at a 1280 x 720 viewport. Every scene asserts the layered-horizontal-wisp fixed-sky
+shader diagnostic.
 The
 captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`,
@@ -98,7 +99,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-shark.png`, and `build-probe/island-browser-monkeys.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
-palm view requires the segmented-leaflet diagnostic and nonzero near/far populations. The jungle
+palm view requires the segmented-leaflet and bark/coconut diagnostics plus nonzero near/far
+populations. The jungle
 view must report nonzero canopy, understory, low bushes,
 and forest-floor plants, the prop view must report visible fallen logs plus a nonzero one-draw
 contact-shadow batch, the driftwood view must
