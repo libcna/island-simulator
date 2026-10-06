@@ -347,8 +347,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   visible z-fighting. A 384-segment ribbon now follows the authoritative shore independently of
   the coarse ocean grid and adds a narrow broken animated crest plus restrained receding wash over
   the wet-sand pass. A subtle generated near-surface edge veil now fades with swimming state and
-  support depth, while depth/speed-responsive player ripples reuse the animated ocean submission;
-  full underwater transitions and final wash/material tuning remain open.
+  support depth, while depth/speed-responsive player ripples reuse the animated ocean submission.
+  The ocean now also reuses its existing two crossing-wave values for shallow-weighted subsurface
+  colour structure that fades before the horizon; full underwater transitions and final
+  wash/material tuning remain open.
 - [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
   stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated edge veil with
   one conditional `SpriteBatch` draw; waterline geometry, underwater fog, and refraction remain.
@@ -3278,6 +3280,31 @@ Work next, in order:
   bytes. The software AVD was not rerun for a material-only shader change after its current GLES 3
   first frame had already required about seven minutes; physical-device appearance and cost remain
   open. CNA and Sharp Runtime remain unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Reused crossing-wave ocean colour structure
+
+- The post-path sixteen-view audit found the surrounding ocean coherent but too uniform through
+  broad near/middle-distance areas. Promoted the two crossing-wave fields already evaluated for
+  broad foam into a restrained bright/dark subsurface colour term. It favours shallow,
+  non-reflective water and fades from 135 to 420 m, preserving the calm hazed horizon while making
+  animated surface movement easier to read from shore, swimming, fish, and reef views.
+- The accepted GLSL 330 / GLSL ES 300 path adds no sinusoid, texture, vertex, index, instance, CPU
+  update, allocation, or draw submission. It moves the existing crossing-wave calculation earlier,
+  reuses the already-required camera distance, and adds bounded colour arithmetic plus one
+  smoothstep. Two weaker amplitudes were inspected and rejected because their static result was
+  almost imperceptible.
+- Six fixed native OpenGL 3.3 ocean/wildlife captures and actual Chrome 152/SwiftShader WebGL 2
+  near-surface/current captures were inspected at 1280 by 720 and retain the same composition. The
+  Web harness requires the new diagnostic in lifecycle, overview, beach, water, and current stages
+  and passes all 22 stages. The final native suite passes 37/37 in 36.30 seconds, including 29 real
+  OpenGL scenes and isolated SDL/XTest input.
+- One shared-GPU six-view safety suite measured 1.0604--2.3070 ms mean / 1.3832--3.4943 ms p95.
+  Two ocean-dominant overview checks closely repeated at 1.2114--1.2183 ms mean /
+  1.4792--1.5122 ms p95. These results reject a gross regression but are not an isolated speedup
+  claim. The arm64 GLES 3 target builds and app lint passes; the v2-signed single-ABI APK is
+  18,701,412 bytes, its stripped `libmain.so` is 15,891,128 bytes, and WebAssembly is 8,471,519
+  bytes. The software AVD was not rerun; physical-device appearance/cost remain open. CNA and Sharp
+  Runtime remain unmodified, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

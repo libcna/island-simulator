@@ -138,13 +138,21 @@ void main()
     water += vec3(0.015, 0.070, 0.075) * max(dot(normal, toSun), 0.0);
     water = mix(water, reflectedSky, fresnel * 0.72);
 
+    float crossingWaves = 0.50
+        + 0.27 * sin(dot(vWorld.xz, vec2(0.48, 0.19)) - uTime * 0.82)
+        + 0.23 * sin(dot(vWorld.xz, vec2(-0.27, 0.57)) - uTime * 0.61 + 1.8);
+    float distanceToCamera = length(vWorld - uCameraPosition);
+    float waveDetailFade = 1.0 - smoothstep(135.0, 420.0, distanceToCamera);
+    float subsurfaceVisibility = (1.0 - fresnel)
+        * mix(0.42, 1.0, clamp(vShallow, 0.0, 1.0));
+    float subsurfaceWave = (crossingWaves - 0.50)
+        * waveDetailFade * subsurfaceVisibility;
+    water += vec3(0.045, 0.135, 0.114) * subsurfaceWave;
+
     float sunGlint = pow(max(dot(normal, halfwayDirection), 0.0), 210.0);
     sunGlint += pow(max(dot(normal, halfwayDirection), 0.0), 42.0) * 0.055;
     water += vec3(1.00, 0.91, 0.68) * sunGlint * 2.4;
 
-    float crossingWaves = 0.50
-        + 0.27 * sin(dot(vWorld.xz, vec2(0.48, 0.19)) - uTime * 0.82)
-        + 0.23 * sin(dot(vWorld.xz, vec2(-0.27, 0.57)) - uTime * 0.61 + 1.8);
     float foam = clamp(vShoreFoam, 0.0, 1.0)
         * smoothstep(0.47, 0.79, crossingWaves + length(slope) * 4.2);
     foam *= 0.68 + 0.32 * sin(dot(vWorld.xz, vec2(0.91, -0.43)) + uTime * 0.36);
@@ -165,7 +173,6 @@ void main()
     foam = clamp(foam, 0.0, 0.86);
     water = mix(water, vec3(0.82, 0.94, 0.91), foam);
 
-    float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(300.0, 760.0, distanceToCamera);
     water = mix(water, vec3(0.53, 0.78, 0.88), fog);
 
@@ -258,7 +265,8 @@ void main()
         CreateMesh(terrain);
         if (customShaderReady_) {
             std::cout << "island-simulator: ocean portable custom shader, " << vertexCount_
-                      << " vertices, " << primitiveCount_ << " triangles\n";
+                      << " vertices, " << primitiveCount_ << " triangles\n"
+                      << "island-simulator: ocean reused crossing-wave subsurface colour\n";
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

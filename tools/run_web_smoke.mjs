@@ -193,6 +193,8 @@ try {
       "island-simulator: terrain distinct authored east/west clearing materials")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes(
+      "island-simulator: ocean reused crossing-wave subsurface colour")
+    && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
@@ -371,6 +373,8 @@ try {
   const visualPassed = visualResult.output?.includes("island-simulator: renderer WEBGL2")
     && visualResult.output?.includes("island-simulator: ocean portable custom shader")
     && visualResult.output?.includes(
+      "island-simulator: ocean reused crossing-wave subsurface colour")
+    && visualResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
@@ -411,6 +415,8 @@ try {
   await writeFile(beachScreenshotPath, Buffer.from(beachScreenshot.data, "base64"));
   const beachPassed = beachResult.output?.includes("island-simulator: renderer WEBGL2")
     && beachResult.output?.includes("island-simulator: ocean portable custom shader")
+    && beachResult.output?.includes(
+      "island-simulator: ocean reused crossing-wave subsurface colour")
     && beachResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && beachResult.output?.includes("palm portable wind shader with near/far mesh LOD")
@@ -782,6 +788,8 @@ try {
   await writeFile(waterScreenshotPath, Buffer.from(waterScreenshot.data, "base64"));
   const waterPassed = waterResult.output?.includes("island-simulator: renderer WEBGL2")
     && waterResult.output?.includes(
+      "island-simulator: ocean reused crossing-wave subsurface colour")
+    && waterResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && waterResult.output?.includes(
       "island-simulator: near-surface swimming view procedural edge veil")
@@ -815,6 +823,8 @@ try {
   const currentScreenshotPath = path.join(buildDirectory, "island-browser-current.png");
   await writeFile(currentScreenshotPath, Buffer.from(currentScreenshot.data, "base64"));
   const currentPassed = currentResult.output?.includes("island-simulator: renderer WEBGL2")
+    && currentResult.output?.includes(
+      "island-simulator: ocean reused crossing-wave subsurface colour")
     && currentResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && currentResult.output?.includes(

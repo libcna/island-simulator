@@ -101,7 +101,9 @@ The test uses headless Chrome with SwiftShader to create a real WebGL 2 context.
 game with `--smoke-test`, requires finite timings for all first-draw startup phases, and requires a
 clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
-natural-prop shaders rather than their fallbacks. It then opens live fixed overview, first-person
+natural-prop shaders rather than their fallbacks. Lifecycle, overview, beach, near-surface-water,
+and offshore-current stages additionally require the distance-faded reused crossing-wave colour
+diagnostic. The harness then opens live fixed overview, first-person
 beach, grass interaction, folded-split-ground-plant, segmented-palm and bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
 fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a 1280 x 720 viewport.

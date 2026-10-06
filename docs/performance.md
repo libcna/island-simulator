@@ -767,6 +767,31 @@ preceding three-tier-grass traversal observations and are only a gross-regressio
 speedup claim. Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 path captures were inspected
 at 1280 by 720 and retain the same narrower treatment.
 
+### Reused crossing-wave ocean colour follow-up
+
+The ocean now applies its existing two broad crossing-wave values to a shallow-weighted
+bright/dark subsurface colour term. The field fades between 135 and 420 m and is attenuated by
+Fresnel so it does not add noisy detail to the reflective horizon. The accepted implementation
+moves the already-required crossing-wave calculation earlier in the fragment stage; it adds no
+sinusoid, texture, vertex, index, submission, CPU update, or allocation. The camera distance was
+also already required for fog. Remaining work is bounded arithmetic and one smoothstep.
+
+Six fixed native ocean/wildlife views and the actual Chrome/SwiftShader near-surface/current views
+were inspected at 1280 by 720. Two weaker colour amplitudes were rejected because their static
+result was almost imperceptible. The accepted restrained setting is clearest in motion and leaves
+the distant horizon calm. One shared-GPU six-view safety run produced the results below. A second
+ocean-dominant overview measured 1.2183 ms mean / 1.5122 ms p95, closely matching the first run;
+these observations guard against a gross regression but are not an isolated before/after claim.
+
+| View | Mean ms | p95 ms | p99 ms | Submissions |
+| --- | ---: | ---: | ---: | ---: |
+| Overview | 1.2114 | 1.4792 | 1.8500 | 77 |
+| Beach | 2.1186 | 2.8734 | 3.2868 | 131 |
+| Jungle | 1.7005 | 2.1999 | 2.6554 | 103 |
+| Driftwood | 1.0604 | 1.3832 | 1.7685 | 54 |
+| Monkeys | 1.8462 | 2.6229 | 3.2287 | 102 |
+| Traversal | 2.3070 | 3.4943 | 4.1055 | 12 final |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

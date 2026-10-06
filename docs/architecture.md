@@ -421,7 +421,11 @@ The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer`
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
 depth-driven tropical colour/transparency, moving foam, haze, and two thin movement-driven ripple
-bands centred on the player. The ripple state eases from authoritative depth/speed input, wraps
+bands centred on the player. The two crossing-wave values already used to break up broad foam also
+apply restrained bright/dark subsurface colour in the non-reflective surface component. The colour
+detail favours shallow water and fades from 135 to 420 m so it reads in exploration views without
+aliasing across the horizon or adding another trigonometric field. The ripple state eases from
+authoritative depth/speed input, wraps
 deterministically, uses subtle spatial breakup, and skips its fragment work while inactive; it
 shares the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
 a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
