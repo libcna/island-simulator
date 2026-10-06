@@ -59,13 +59,9 @@ environment.
   files or commits at campaign start.
 - [x] Read the workspace build policy in `../AGENTS.md`.
 - [x] Located CNA at `../cna` and inspected its repository instructions and current APIs.
-- [x] Qualified and locked CNA `next` at commit `f243c63a1dc5` (`fix(MSR-040): preserve Wayland
-  mouse recentering`, 2026-10-06). The earlier qualified export was `b0e97bb1bb87`.
-- [~] The read-only `../cna` worktree advanced externally during the 2026-10-06 polish campaign
-  and is now clean on local/origin `next` at `39e84add7777` (`refactor(PLAT-142): retire the direct
-  Win32, X11 and Wayland platforms`). Island-simulator still consumes the last fully qualified
-  project-owned export at `f243c63a1dc5`; deliberate review, lock advancement, and three-target
-  requalification are the next dependency task.
+- [x] Qualified and locked CNA `next` at commit `39e84add7777` (`refactor(PLAT-142): retire the
+  direct Win32, X11 and Wayland platforms`, 2026-10-06). The preceding qualified export was
+  `f243c63a1dc5`; the campaign started from `b0e97bb1bb87`.
 - [x] Confirmed no separate stale CNA worktree is being mistaken for the current `next` identity.
 - [x] Located Sharp Runtime at `../sharp-runtime`, read its repository instructions, and confirmed
   it is on local `next` at `21c06910f7cf` (`fix(MSR-030): repair Windows consumer portability`,
@@ -1007,19 +1003,15 @@ after the same experience remains available.
 
 Work next, in order:
 
-1. Review CNA `next` `39e84add7777` against the locked `f243c63a1dc5` baseline, recheck `BUGS.md`,
-   deliberately advance the project-owned export and `dependencies.lock`, then rerun native,
-   WebGL 2, and Android build/runtime gates. The upstream change removes 89,195 lines of retired
-   direct-platform code across 302 files, so it must not be consumed silently inside an art change.
-2. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
+1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
    Linux playback, and the six-source ceiling are verified; subjective masking and fatigue are not.
-3. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
+2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, and two call phrases are complete first passes. Keep bird,
    fish, and shark layers under subjective observation during play.
-4. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
+3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
    layer only where composition review needs it. The first low-bush silhouette follow-up now adds
    paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
    variants now include both an upright six-leaf form and a five-leaf folded split form. The
@@ -1046,25 +1038,25 @@ Work next, in order:
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
-5. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
+4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
    wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
    with individual culling/LOD/density fields only where they materially improve debugging. F1 now
    reports local static-collision candidates, nine terrain support samples, wildlife
    marker/target/home-range counts, bird route-family/spawn/target counts, and live audio sources
    against their complete populations/budgets.
-6. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
+5. Qualify touch traversal, audio focus, pause/resume, and performance on a physical Android device or a stable
    KVM-accelerated emulator; the current software AVD is evidence for rendering only.
-7. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
+6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
    background/foreground test; automated first-gesture audio initialization is complete.
-8. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
+7. Continue palm root-placement review and observe the segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal. The first silhouette and near material/coconut passes
    are measured; do not add more geometry without physical/mobile evidence.
-9. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
+8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. The first silhouette/LOD pass is measured; further canopy geometry should be
    justified by physical-mobile evidence or a clear close-view defect. The first fixed-sun
    geometric facet-light pass is visually matched on native OpenGL and actual WebGL 2; observe its
    readability and cost on physical mobile before extending the technique to more layers.
-10. Record two isolated debug and release startup reports after closing other GPU clients, then use
+9. Record two isolated debug and release startup reports after closing other GPU clients, then use
    the phase split to investigate only demonstrated world/content bottlenecks. Add browser cold-load
    and physical-Android launch evidence before assigning cross-target startup budgets.
 
@@ -2896,6 +2888,32 @@ Work next, in order:
   audit, the external CNA worktree had independently become clean on the newer `next` commit
   `39e84add777730969f58074fa1ffa010dc5c7d2c`; deliberate baseline review and requalification are
   recorded as the next task rather than silently mixed into this milestone.
+
+### 2026-10-06 — CNA next 39e84add dependency baseline qualification
+
+- Reviewed CNA `f243c63a1dc5..39e84add7777` read-only before consumption. The 302-file change retires
+  89,195 lines of direct Win32, X11, and Wayland platform code and makes SDL3 CNA's graphical
+  platform path. Island-simulator already selected SDL3 on all three required targets. The public
+  graphics contracts and EasyGL renderer implementation are unchanged; the touched runtime and
+  platform contract headers contain documentation-only changes relevant to this game.
+- Advanced `dependencies.lock` and regenerated only island-simulator's reproducible project-owned
+  CNA export at `39e84add777730969f58074fa1ffa010dc5c7d2c`. CNA and Sharp Runtime remained read-only;
+  Sharp Runtime stays locked at `21c06910f7cf887cceebb45200e07b43dd45fef4`.
+- Reconfigured and fully rebuilt the Linux/OpenGL 3.3, Web/WebGL 2, and arm64 Android/OpenGL ES 3
+  targets with at most two jobs per build and four aggregate compiler workers. Native validation
+  passes 37/37 in 51.01 seconds, including 29 real OpenGL scenes and real X11 input. The complete
+  Chrome 152/SwiftShader WebGL 2 harness passes all 22 lifecycle, deployment, renderer, scene, and
+  input stages. One immediately preceding run missed several synthetic key/mouse edges while all
+  21 non-input stages passed; an isolated repeat passed, so this is retained as harness-timing
+  evidence rather than misclassified as a framework defect.
+- The Android debug APK assembles and application lint passes. It is 33,582,192 bytes; its stripped
+  arm64 library is 15,849,816 bytes, and WebAssembly is 8,435,054 bytes. This does not upgrade the
+  existing Android claim: the software AVD has provided rendering evidence, but touch, audio-focus,
+  frame pacing, and thermals still require a physical device or stable KVM-accelerated emulator.
+- The deterministic world report remains valid with fingerprint `d83ecd714e10fc9f`. The CNA XNB
+  content-writer warnings observed on Android and Web are outside island-simulator's runtime asset
+  path and predate this update; they do not materially affect the game and are not a `BUGS.md`
+  entry. No confirmed CNA or Sharp Runtime defect was found during the advancement.
 
 ## Session-end checklist
 
