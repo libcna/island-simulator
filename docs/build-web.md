@@ -5,8 +5,9 @@
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
 overview/beach/jungle/prop/driftwood rendering, first-click pointer lock, canvas focus, WASD
-traversal, relative mouse look, F1 input, pointer release/reacquisition, and responsive 16:9
-presentation. F2 world-line rendering is also toggled through browser input. The first click opens
+traversal, relative mouse look, the B camera-motion opt-out, F1 input, pointer
+release/reacquisition, and responsive 16:9 presentation. F2 world-line rendering is also toggled
+through browser input. The first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
 and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. Audible
 output on a visible hardware browser, genuine tab background/foreground recovery,

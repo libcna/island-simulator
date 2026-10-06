@@ -9,7 +9,9 @@ debug variants build; the x86_64 APK has also installed and rendered the current
 35 emulator.
 
 The Android UI is fixed landscape/fullscreen and includes dual-zone touch movement/look controls
-with generated on-screen affordances. The available emulator has no KVM acceleration, so its first
+with generated on-screen affordances. It uses the same restrained walking/swimming camera-motion
+model as desktop, although an on-screen opt-out is not implemented yet. The available emulator has
+no KVM acceleration, so its first
 GLES3 render is valid renderer evidence but not touch, lifecycle, or performance qualification.
 Those claims still require a stable accelerated emulator or physical device.
 

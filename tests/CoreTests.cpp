@@ -1,5 +1,6 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/FishSchools.hpp"
+#include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -86,6 +87,63 @@ int main()
     }
     Check(rejectedInvalidFrameTime,
           "frame-time statistics reject non-finite sample durations");
+
+    island::FirstPersonCameraMotion cameraMotion;
+    CheckNear(cameraMotion.Offset().lateralMeters, 0.0f, 0.000001f,
+              "camera motion starts centred laterally");
+    CheckNear(cameraMotion.Offset().verticalMeters, 0.0f, 0.000001f,
+              "camera motion starts centred vertically");
+    float largestWalkingLateral = 0.0f;
+    float largestWalkingVertical = 0.0f;
+    for (int frame = 0; frame < 240; ++frame) {
+        const island::CameraMotionOffset offset = cameraMotion.Update(
+            island::PlayerMotion::WalkSpeed, island::LocomotionMode::Walking, 1.0f / 60.0f);
+        largestWalkingLateral = std::max(largestWalkingLateral,
+                                         std::abs(offset.lateralMeters));
+        largestWalkingVertical = std::max(largestWalkingVertical,
+                                          std::abs(offset.verticalMeters));
+        Check(std::abs(offset.lateralMeters)
+                  <= island::FirstPersonCameraMotion::MaximumLateralOffset + 0.000001f,
+              "walking camera motion stays inside its lateral comfort bound");
+        Check(std::abs(offset.verticalMeters)
+                  <= island::FirstPersonCameraMotion::MaximumVerticalOffset + 0.000001f,
+              "walking camera motion stays inside its vertical comfort bound");
+    }
+    Check(largestWalkingLateral > 0.005f && largestWalkingVertical > 0.009f,
+          "full-speed walking produces restrained but nonzero camera motion");
+    for (int frame = 0; frame < 180; ++frame) {
+        (void)cameraMotion.Update(island::PlayerMotion::SwimSpeed,
+                                  island::LocomotionMode::Swimming, 1.0f / 60.0f);
+    }
+    Check(cameraMotion.SwimBlend() > 0.99f,
+          "camera motion smoothly reaches its swimming style");
+    Check(std::abs(cameraMotion.Offset().lateralMeters)
+              <= island::FirstPersonCameraMotion::MaximumLateralOffset + 0.000001f
+              && std::abs(cameraMotion.Offset().verticalMeters)
+              <= island::FirstPersonCameraMotion::MaximumVerticalOffset + 0.000001f,
+          "swimming camera motion stays inside both comfort bounds");
+    cameraMotion.SetEnabled(false);
+    for (int frame = 0; frame < 180; ++frame) {
+        (void)cameraMotion.Update(island::PlayerMotion::WalkSpeed,
+                                  island::LocomotionMode::Walking, 1.0f / 60.0f);
+    }
+    Check(cameraMotion.MotionStrength() < 0.00001f
+              && std::abs(cameraMotion.Offset().lateralMeters) < 0.000001f
+              && std::abs(cameraMotion.Offset().verticalMeters) < 0.000001f,
+          "disabling camera motion smoothly returns to the physical eye point");
+    island::FirstPersonCameraMotion clampedCameraMotion;
+    island::FirstPersonCameraMotion referenceCameraMotion;
+    const island::CameraMotionOffset clampedOffset = clampedCameraMotion.Update(
+        island::PlayerMotion::WalkSpeed, island::LocomotionMode::Walking, 5.0f);
+    const island::CameraMotionOffset referenceOffset = referenceCameraMotion.Update(
+        island::PlayerMotion::WalkSpeed, island::LocomotionMode::Walking, 0.1f);
+    CheckNear(clampedOffset.lateralMeters, referenceOffset.lateralMeters, 0.000001f,
+              "camera motion clamps a long frame before phase integration");
+    CheckNear(clampedOffset.verticalMeters, referenceOffset.verticalMeters, 0.000001f,
+              "camera motion long-frame clamp is deterministic");
+    cameraMotion.Reset();
+    CheckNear(cameraMotion.MotionStrength(), 0.0f, 0.000001f,
+              "camera motion reset clears residual movement strength");
 
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();

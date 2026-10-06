@@ -28,6 +28,7 @@ All evidence below uses the dependency revisions in `dependencies.lock`.
 | Shark | One occasional non-hostile deep-water patrol, near/far meshes, CPU body/tail animation, one dynamic draw | Same simulation and `BasicEffect` batch; dedicated browser capture is visually inspected | Shark-inclusive arm64 APK builds; runtime remains unqualified |
 | Monkeys | Seven agents, three near/far silhouettes, four palettes, generated fourteen-bone rig, four clips, local-pose crossfades, CNA `SkinnedEffect` | Same mesh-selection/GPU-skinning/crossfade path; dedicated browser capture and all four live states are visually inspected | Monkey-inclusive arm64 APK builds and app lint passes; runtime remains unqualified |
 | Audio | CNA opened a 44.1 kHz stereo device, plays four procedural mono loops, prepared both wave/water accent variants, and accepted a scheduled stronger-wave one-shot | First click opened the CNA mixer and prepared every current effect; deterministic shoreline traversal played a selected water-transition variant in Chromium | Complete current audio layer builds into the arm64 APK; device playback/focus remains unqualified |
+| Camera feel | Speed-responsive, positional-only walking/swimming motion; B opt-out | Same renderer-independent model; B disable/restore is automated in Chromium | Same model compiles; touch feel and a runtime opt-out UI remain open |
 | Debug UI | Runtime-generated font/SpriteBatch panel plus F2 `BasicEffect` world lines | Same panel and F2 line path; automated F2 input validation | Compiles; F2 runtime remains unqualified |
 | Touch UI | Hidden until a touch is observed | Hidden until a touch is observed | Generated movement/look rings are enabled by default; post-HUD runtime capture remains open |
 | Presentation | 1280 by 720 preferred window | 1280 by 720 canvas with aspect-preserving CSS fit | Fixed landscape/fullscreen request; emulator surface was 2400 by 1080 |
@@ -38,7 +39,8 @@ after representative physical-device profiling.
 
 ## Input and lifecycle differences
 
-- Linux and Web use click-to-capture relative mouse input, WASD, F1/F2 diagnostics, M, and Escape.
+- Linux and Web use click-to-capture relative mouse input, WASD, B camera-motion opt-out, F1/F2
+  diagnostics, M, and Escape.
 - Browsers require a user gesture for pointer lock. The production shell requests it on the first
   click and handles release/reacquisition and responsive resizing.
 - Android uses a stable left movement pointer and right relative-look pointer. Display-size changes

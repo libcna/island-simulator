@@ -79,6 +79,7 @@ namespace island
           jungleLayout_(terrain_),
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
+          renderCameraPosition_(cameraPosition_),
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
           capturePath_(std::move(capturePath)),
@@ -371,6 +372,14 @@ namespace island
         }
         muteToggleWasDown_ = muteToggleDown;
 
+        const bool cameraMotionToggleDown = keyboard.IsKeyDown(Keys::B);
+        if (cameraMotionToggleDown && !cameraMotionToggleWasDown_) {
+            cameraMotion_.SetEnabled(!cameraMotion_.IsEnabled());
+            std::cout << "island-simulator: camera motion "
+                      << (cameraMotion_.IsEnabled() ? "enabled" : "disabled") << '\n';
+        }
+        cameraMotionToggleWasDown_ = cameraMotionToggleDown;
+
         if (touchInteracting && mouseCaptured_) {
             mouseCaptured_ = false;
             Mouse::setIsRelativeMouseModeEXTProperty(false);
@@ -449,6 +458,7 @@ namespace island
                     pitch_ = -0.08f;
                 }
                 playerMotion_.SetPosition(terrain_, x, z);
+                cameraMotion_.Reset();
                 const PlayerPosition& teleported = playerMotion_.Position();
                 cameraPosition_ = Vector3(teleported.x, teleported.y, teleported.z);
                 std::cout << "island-simulator: debug teleport "
@@ -497,9 +507,17 @@ namespace island
         wish = wish + forward * touchControlState_.moveForward
             + right * touchControlState_.moveRight;
 
+        const PlayerPosition positionBeforeMovement = playerMotion_.Position();
         playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldCollisionGrid_);
         const PlayerPosition& position = playerMotion_.Position();
         cameraPosition_ = Vector3(position.x, position.y, position.z);
+        const float travelledDistance = std::hypot(position.x - positionBeforeMovement.x,
+                                                   position.z - positionBeforeMovement.z);
+        const float physicalSpeed = deltaSeconds > 0.000001f
+            ? travelledDistance / deltaSeconds
+            : 0.0f;
+        (void)cameraMotion_.Update(physicalSpeed,
+                                   playerMotion_.Mode(), deltaSeconds);
         if (soundscape_) {
             const SoundscapeListenerState listener{
                 cameraPosition_.X,
@@ -528,7 +546,15 @@ namespace island
         const float cosPitch = std::cos(pitch_);
         const Vector3 forward(std::sin(yaw_) * cosPitch, std::sin(pitch_),
                               std::cos(yaw_) * cosPitch);
-        cameraView_ = Matrix::CreateLookAt(cameraPosition_, cameraPosition_ + forward,
+        renderCameraPosition_ = cameraPosition_;
+        if (viewpoint_ == FixedViewpoint::None && !smokeTest_) {
+            const CameraMotionOffset& motion = cameraMotion_.Offset();
+            const Vector3 right(std::cos(yaw_), 0.0f, -std::sin(yaw_));
+            renderCameraPosition_ = renderCameraPosition_
+                + right * motion.lateralMeters + Vector3::Up * motion.verticalMeters;
+        }
+        cameraView_ = Matrix::CreateLookAt(renderCameraPosition_,
+                                           renderCameraPosition_ + forward,
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
             std::numbers::pi_v<float> / 3.0f, aspect, 0.08f, 1200.0f);
@@ -663,44 +689,44 @@ namespace island
         debugOverlay_->UpdateFrameTiming();
         device.Clear(Color(136, 202, 224, 255), 1.0f);
         UpdateCameraMatrices();
-        skyRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_);
+        skyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
         device.setRasterizerStateProperty(RasterizerState::CullNone);
         device.setBlendStateProperty(BlendState::Opaque);
         device.setDepthStencilStateProperty(DepthStencilState::Default);
-        terrainRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_);
+        terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
 
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
-        naturalPropRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_);
+        naturalPropRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
 
-        jungleRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        jungleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                               timeSeconds);
 
-        grassRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        grassRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                              timeSeconds);
 
-        palmRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        palmRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             timeSeconds);
 
-        birdRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        birdRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             birdFlock_.Birds());
 
-        fishRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             fishSchools_.Fish());
 
-        sharkRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                              sharkPatrol_.State());
 
-        monkeyRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                               monkeyTroop_.Monkeys());
 
-        oceanRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        oceanRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                              timeSeconds);
-        shorelineRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+        shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                  timeSeconds);
 
         if (debugOverlayVisible_ && worldDebugVisible_) {
-            worldDebugRenderer_->Draw(cameraView_, cameraProjection_, cameraPosition_,
+            worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
                                       worldCollisionGrid_.Obstacles(), birdFlock_.Birds(),

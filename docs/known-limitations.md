@@ -31,8 +31,10 @@ been confirmed so far.
   functional. Static palm, broadleaf, rock, and log proxies use a 16 m spatial broad phase, but
   dynamic obstacles and depenetration are not implemented.
 - Substantial rocks and fallen logs have conservative collision; smaller rock dressing remains
-  non-solid. There is no geometric step-up, jump, camera bob, underwater presentation, or
-  visual water-entry feedback; restrained audio entry/exit accents are implemented.
+  non-solid. Walking and swimming now use very mild speed-responsive positional camera motion,
+  which can be smoothly disabled with B. There is no geometric step-up, jump, underwater
+  presentation, or visual water-entry feedback; restrained audio entry/exit accents are
+  implemented.
 - Desktop mouse sensitivity and mobile touch sensitivity are compile-time values. There is no
   settings UI, remapping, gamepad control scheme, or handed touch layout yet.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,

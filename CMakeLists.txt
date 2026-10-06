@@ -25,6 +25,7 @@ island_verify_dependencies()
 
 add_library(island_core STATIC
     game/src/BirdFlock.cpp
+    game/src/FirstPersonCameraMotion.cpp
     game/src/FishSchools.cpp
     game/src/GrassLayout.cpp
     game/src/IslandTerrain.cpp

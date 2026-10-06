@@ -263,14 +263,16 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [~] Capture/release relative mouse input on Linux. Focus, Web, and mobile differences remain open.
 - [~] Establish initial eye height, acceleration, deceleration, walking speed, and a 0.34 m capsule
   footprint. Full capsule-vs-prop collision and evidence-based tuning remain open.
-- [ ] Add optional mild head motion only if it improves presence and can be disabled.
+- [x] Add optional mild head motion only if it improves presence and can be disabled. A tested,
+  renderer-independent positional model uses at most 10 mm lateral and 18 mm vertical motion,
+  blends between walking and swimming rhythms, resets after QA teleports, and toggles with B.
 - [ ] Keep jumping absent unless traversal testing demonstrates a clear need.
 
 ### Swimming and ocean boundary
 
 - [x] Define depth-based water-entry/exit hysteresis.
-- [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. Visual
-  transition/bob remains open.
+- [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. A
+  restrained swimming camera rhythm is complete; underwater/waterline presentation remains open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. Lateral
   current variation and audiovisual feedback remain open.
@@ -1685,6 +1687,23 @@ Work next, in order:
   harness passes with an explicit shoreline-shader gate, and the arm64-v8a GLES 3 APK rebuilds with
   clean app lint. Android runtime appearance remains unqualified without suitable hardware; no CNA
   or Sharp Runtime source was modified and no dependency defect was found.
+
+### 2026-10-06 — Restrained locomotion camera motion
+
+- Added a renderer-independent first-person camera-motion model driven by actual horizontal travel
+  rather than requested velocity. Full-speed walking stays within 7 mm lateral / 12 mm vertical;
+  swimming smoothly blends to a slower rhythm bounded at 10 mm / 18 mm. Using physical travel
+  prevents false head movement while input is blocked by a trunk, rock, log, or steep slope.
+- Kept the displacement presentational: physics, wildlife simulation, and the positional-audio
+  listener retain the authoritative eye point, while every camera-dependent renderer receives one
+  matching displaced position. Fixed capture/benchmark viewpoints remain motionless, QA teleports
+  clear residual phase, long frames clamp at 100 ms, and B smoothly disables/restores the effect.
+- Added deterministic core coverage for walking and swimming bounds, style blending, opt-out
+  convergence, reset, and long-frame equivalence. All 14 native tests pass, including 13 private-
+  display OpenGL scenes. The actual Chrome 152/WebGL 2 harness passes and now verifies both B
+  transitions. The final arm64-v8a GLES 3 APK rebuilds with `libmain.so` and passes app lint;
+  Android touch feel remains unqualified without suitable hardware. CNA and Sharp Runtime remain
+  clean and unmodified, and no dependency defect was found.
 
 ## Session-end checklist
 

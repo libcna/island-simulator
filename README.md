@@ -72,13 +72,16 @@ rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-l
 enters swimming water with hysteresis. A static 16 m collision grid limits each capsule test to
 nearby proxies;
 geometric step-up and collision depenetration are not implemented yet.
+Walking and swimming apply restrained, speed-responsive positional camera motion; press B to
+smoothly disable or restore it.
 Press F1 to toggle the developer overlay with frame timing, player/water state, renderer identity,
 culling counts, vegetation draw statistics, ambient mix levels, player-water gain, wave/splash
 counts, and positional bird/monkey call activity.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, wildlife headings, simulation-tier colours, and the active inward-current vector.
-Press M to mute or unmute the soundscape. While the overlay is visible, F5 through F11 teleport
+Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
+overlay is visible, F5 through F11 teleport
 among seven fixed QA locations, including views toward the south fish shallows, offshore shark,
 and monkey troop.
 The overlay starts

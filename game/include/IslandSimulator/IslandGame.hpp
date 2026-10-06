@@ -13,6 +13,7 @@
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
 #include "IslandSimulator/FishSchools.hpp"
+#include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleRenderer.hpp"
@@ -109,6 +110,7 @@ namespace island
         NaturalPropLayout naturalPropLayout_;
         WorldCollisionGrid worldCollisionGrid_;
         PlayerMotion playerMotion_;
+        FirstPersonCameraMotion cameraMotion_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
@@ -130,6 +132,7 @@ namespace island
         Microsoft::Xna::Framework::Matrix cameraView_;
         Microsoft::Xna::Framework::Matrix cameraProjection_;
         Microsoft::Xna::Framework::Vector3 cameraPosition_;
+        Microsoft::Xna::Framework::Vector3 renderCameraPosition_;
         float yaw_ = 0.0f;
         float pitch_ = -0.03f;
         float touchDisplayWidth_ = 1.0f;
@@ -143,6 +146,7 @@ namespace island
         bool worldDebugVisible_ = false;
         bool worldDebugToggleWasDown_ = false;
         bool muteToggleWasDown_ = false;
+        bool cameraMotionToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
         std::array<bool, 7> debugTeleportWasDown_{};
         std::size_t monkeyTeleportIndex_ = 0U;

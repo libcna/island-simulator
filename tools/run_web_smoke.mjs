@@ -571,6 +571,18 @@ try {
     type: "keyUp", key: "w", code: "KeyW", windowsVirtualKeyCode: 87,
     nativeVirtualKeyCode: 87,
   }, visualSessionId);
+  for (let toggle = 0; toggle < 2; ++toggle) {
+    await call("Input.dispatchKeyEvent", {
+      type: "keyDown", key: "b", code: "KeyB", windowsVirtualKeyCode: 66,
+      nativeVirtualKeyCode: 66,
+    }, visualSessionId);
+    await delay(100);
+    await call("Input.dispatchKeyEvent", {
+      type: "keyUp", key: "b", code: "KeyB", windowsVirtualKeyCode: 66,
+      nativeVirtualKeyCode: 66,
+    }, visualSessionId);
+    await delay(100);
+  }
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "F5", code: "F5", windowsVirtualKeyCode: 116,
     nativeVirtualKeyCode: 116,
@@ -695,6 +707,9 @@ try {
       || Math.abs(finalSample.pitch - initialSample.pitch) > 0.005);
   const waterTransitionPlayed = inputResult.output?.includes(
     "island-simulator: first water-transition accent played");
+  const cameraMotionToggled = inputResult.output?.includes(
+    "island-simulator: camera motion disabled")
+    && inputResult.output?.includes("island-simulator: camera motion enabled");
   const backingAspect = resizedState.width / resizedState.height;
   const clientAspect = resizedState.clientWidth / resizedState.clientHeight;
   const viewportResized = finalSample?.viewportWidth === 1280
@@ -712,6 +727,7 @@ try {
     && lockedState.focused === true
     && samples.some(sample => sample.captured === 1 && sample.relative === 1)
     && keyboardMoved
+    && cameraMotionToggled
     && waterTransitionPlayed
     && mouseLookChanged
     && viewportResized
@@ -786,6 +802,7 @@ try {
       pointerLocked: lockedState.pointerLocked ?? false,
       focused: lockedState.focused ?? false,
       keyboardMoved: Boolean(keyboardMoved),
+      cameraMotionToggled: Boolean(cameraMotionToggled),
       waterTransitionPlayed: Boolean(waterTransitionPlayed),
       mouseLookChanged: Boolean(mouseLookChanged),
       viewportResized: Boolean(viewportResized),
