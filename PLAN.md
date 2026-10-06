@@ -317,14 +317,18 @@ Dependencies: stable terrain/shore queries and representative performance instru
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
   steeper interior ground exposes a muted soil tint, and a distance-bounded microvariation octave
   plus two sparse deterministic grids add curved pointed leaf litter to the interior. A restrained
-  fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition.
-  Authored biome masks, decals, rock strata, broader litter diversity, and final colour/scale
-  tuning remain.
+  fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition. The
+  same portable shader now draws a subdued broken-edge dry-earth footpath from the authoritative
+  vegetation-reserved corridor, with short grass retained over it. Authored biome masks, clearing
+  treatments, decals, broader litter diversity, and final colour/scale tuning remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
   Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
   unreachable haze-softened low islets with 11 simplified palm silhouettes now break up the
   open-ocean horizon in one static batch; grouped shallow banks remain.
-- [ ] Keep routes traversable and provide alternating enclosed/revealing views.
+- [~] Keep routes traversable and provide alternating enclosed/revealing views. The deterministic
+  south-to-north corridor and two clearings reserve vegetation/prop space; its first shared terrain
+  material cue improves first-person legibility without becoming a road or HUD marker. Whole-route
+  composition review, clearing identities, and stronger enclosed/revealing rhythm remain.
 
 ### Ocean and shoreline
 
@@ -789,7 +793,9 @@ Android is not project completion.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
   player ripples are functional; repeated whole-island composition tuning remains.
-- [ ] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation cues.
+- [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
+  cues. The existing open corridor now has a subtle authored footpath material tied to its exact
+  placement curve; distinct clearing/landmark treatment and whole-route density retuning remain.
 - [~] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
   coherent permanent sunny art direction. Terrain/ocean/sky share one sun, grass has two-sided
   blade lighting, the jungle now has derivative-based two-sided facet light, and a bounded contact
@@ -1011,8 +1017,9 @@ Work next, in order:
    first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
-   jungle-floor gaps; broader prop diversity,
-   contact cues, authored biome variation, and material tuning remain.
+   jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
+   dry-earth material cue under its short grass; distinct clearing materials and identities,
+   broader prop diversity, contact cues, authored biome variation, and material tuning remain.
    The first portable near-surface swimming veil and movement-driven surface ripples are also
    complete; defer waterline geometry, underwater fog, and refraction until a similarly portable
    design is justified.
@@ -2708,6 +2715,31 @@ Work next, in order:
   its stripped library is 15,823,344 bytes and the WebAssembly module is 8,407,981 bytes. Android
   runtime shader compilation/appearance remains unqualified without KVM or a physical device. CNA
   and Sharp Runtime remain clean and unmodified, and no dependency defect was found.
+
+### 2026-10-06 — Authored primary jungle footpath material
+
+- Promoted the established south-to-north corridor curve, range, and reserved half-width to one
+  authoritative `VegetationLayout` definition. Palm, jungle, prop, grass, QA-camera, and terrain
+  material code now consume those constants; deterministic core coverage locks the centre crossing,
+  ordered range, useful reserved width, and sampled route membership without changing the stable
+  world fingerprint `2e2cd5d73dba8a18`.
+- Added a portable terrain-shader treatment that reuses existing noise/detail fields to form a
+  narrow broken edge, lightly compacted centre, muted dry-earth colour, and endpoint, shoreline,
+  slope, and camera-distance fades. Existing short mesh grass remains over the surface, so the cue
+  reads as a lightly worn tropical footpath rather than a bare road or objective marker. It adds no
+  texture, geometry, CPU placement, instance, or draw submission.
+- Native OpenGL 3.3 and actual Chrome 152/SwiftShader WebGL 2 beach captures were inspected at 1280
+  by 720 and agree on the retained cue. The Web harness passes all 20 renderer, lifecycle, input,
+  audio-initialization, and scene stages with the new diagnostic required by lifecycle, approach,
+  and jungle views. The complete isolated native suite passes 35/35 in 41.58 seconds, including 27
+  actual OpenGL scenes and real X11 free-camera input.
+- Concurrent native safety measurements completed at 2.6113 ms mean / 3.3813 ms p95 for the jungle
+  view and 3.0229 ms mean / 3.8266 ms p95 over the 675.9635 m traversal. The operator's visible game
+  shared the GPU, so these are not isolated branch-cost baselines. The arm64 GLES 3 target builds,
+  the 33,557,200-byte APK assembles, and application lint passes; the stripped library is 15,824,824
+  bytes and WebAssembly is 8,409,554 bytes. Android runtime appearance and physical-mobile fragment
+  cost remain unqualified without a suitable device. CNA and Sharp Runtime remain clean and
+  unmodified, and no dependency defect was found.
 
 ## Session-end checklist
 

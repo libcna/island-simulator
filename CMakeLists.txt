@@ -343,7 +343,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "grass five-level near curvature with portable two-sided daylight shading")
+                "terrain authored primary footpath material")
         add_test(NAME IslandGameJungleCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-jungle-capture.ppm"
                     --viewpoint jungle)

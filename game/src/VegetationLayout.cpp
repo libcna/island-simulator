@@ -69,7 +69,8 @@ namespace island
 
     float VegetationLayout::PrimaryPathCenterX(const float z) noexcept
     {
-        return -5.0f + 21.0f * std::sin((z + 34.0f) * 0.018f);
+        return PrimaryPathBaseX + PrimaryPathAmplitude
+            * std::sin((z + PrimaryPathZOffset) * PrimaryPathFrequency);
     }
 
     bool VegetationLayout::IsReservedRoute(const float x, const float z) noexcept
@@ -77,7 +78,8 @@ namespace island
         // A broad south-to-north walking line makes dense vegetation readable and keeps the
         // initial beach approach open. Its gentle bend prevents it reading as a road.
         const float pathX = PrimaryPathCenterX(z);
-        if (z > -225.0f && z < 190.0f && std::abs(x - pathX) < 6.2f) {
+        if (z > PrimaryPathMinimumZ && z < PrimaryPathMaximumZ
+            && std::abs(x - pathX) < PrimaryPathReservedHalfWidth) {
             return true;
         }
 

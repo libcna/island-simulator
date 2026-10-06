@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
+#include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -64,6 +65,8 @@ in vec3 vBaseColor;
 in vec2 vTerrainData;
 
 uniform vec3 uCameraPosition;
+uniform vec4 uPrimaryPathShape;
+uniform vec2 uPrimaryPathZRange;
 
 out vec4 fragColor;
 
@@ -148,6 +151,26 @@ void main()
         * interior * detailFade;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
+
+    if (detailFade > 0.0 && signedShoreDistance > 20.0 && steep < 1.0) {
+        float pathCentre = uPrimaryPathShape.x + uPrimaryPathShape.y
+            * sin((p.y + uPrimaryPathShape.z) * uPrimaryPathShape.w);
+        float pathRange = smoothstep(uPrimaryPathZRange.x,
+                                     uPrimaryPathZRange.x + 16.0, p.y)
+            * (1.0 - smoothstep(uPrimaryPathZRange.y - 16.0,
+                                uPrimaryPathZRange.y, p.y));
+        float pathWidth = 2.05 + (broad + 0.5) * 0.72;
+        float brokenLateralDistance = abs(p.x - pathCentre)
+            + medium * 0.52 + fine * 0.035;
+        float pathMask = (1.0 - smoothstep(pathWidth - 0.42,
+                                           pathWidth + 0.68,
+                                           brokenLateralDistance))
+            * pathRange * smoothstep(20.0, 42.0, signedShoreDistance)
+            * (1.0 - steep) * detailFade;
+        float compactedCentre = 1.0 - smoothstep(0.25, 1.08, abs(p.x - pathCentre));
+        vec3 dryEarth = vec3(0.315, 0.220, 0.090);
+        color = mix(color, dryEarth, pathMask * (0.52 + compactedCentre * 0.12));
+    }
 
     if (detailFade > 0.0 && signedShoreDistance > 34.0 && steep < 1.0) {
         float canopyDappleMask = smoothstep(34.0, 68.0, signedShoreDistance)
@@ -293,7 +316,8 @@ void main()
                               << "island-simulator: terrain near-field microvariation and "
                                  "procedural interior leaf litter\n"
                               << "island-simulator: terrain fixed-sun interior dapple from "
-                                 "shared portable noise fields\n";
+                                 "shared portable noise fields\n"
+                              << "island-simulator: terrain authored primary footpath material\n";
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';
@@ -396,6 +420,14 @@ void main()
             materialEffect_->SetUniformMat4("uViewProjection", viewProjection);
             materialEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                             cameraPosition.Y, cameraPosition.Z);
+            materialEffect_->SetUniformVec4(
+                "uPrimaryPathShape", VegetationLayout::PrimaryPathBaseX,
+                VegetationLayout::PrimaryPathAmplitude,
+                VegetationLayout::PrimaryPathZOffset,
+                VegetationLayout::PrimaryPathFrequency);
+            materialEffect_->SetUniformVec2(
+                "uPrimaryPathZRange", VegetationLayout::PrimaryPathMinimumZ,
+                VegetationLayout::PrimaryPathMaximumZ);
         } else {
             fallbackEffect_->setWorldProperty(Matrix::getIdentityProperty());
             fallbackEffect_->setViewProperty(view);

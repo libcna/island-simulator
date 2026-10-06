@@ -135,6 +135,8 @@ try {
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && result.output?.includes(
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
+    && result.output?.includes(
+      "island-simulator: terrain authored primary footpath material")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
@@ -350,6 +352,8 @@ try {
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && beachResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
+    && beachResult.output?.includes(
+      "island-simulator: terrain authored primary footpath material")
     && beachResult.output?.includes("island-simulator: debug overlay active")
     && /grass [1-9][0-9]*\/[1-9][0-9]* patches/.test(beachResult.output ?? "")
     && !beachResult.error;
@@ -488,6 +492,8 @@ try {
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && jungleResult.output?.includes(
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
+    && jungleResult.output?.includes(
+      "island-simulator: terrain authored primary footpath material")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && jungleResult.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")

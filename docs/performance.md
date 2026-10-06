@@ -539,6 +539,21 @@ GPU, recorded 2.6643 ms mean / 3.3668 ms p95 for the 95-submission jungle view a
 before/after cost claim. Two isolated native repeats plus hardware-browser and physical-mobile
 fragment measurements remain required before extending the technique to additional dense layers.
 
+### Authored primary-footpath material follow-up
+
+The terrain fragment shader derives a narrow broken-edge dry-earth cue from the same sinusoidal
+centre line and range that reserve the primary vegetation corridor. It reuses the shader's existing
+broad, medium, and fine fields, retains short mesh grass over the route, and adds no texture,
+geometry, CPU placement, instance, or draw submission. Endpoint, shoreline, slope, and camera-
+distance fades bound the extra fragment work to relevant low-slope interior ground.
+
+The retained native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 beach captures were inspected
+at 1280 by 720 and show the same subdued route cue without reading as a road or objective marker.
+The concurrent native jungle benchmark completed at 2.6113 ms mean / 3.3813 ms p95, and the moving
+traversal at 3.0229 ms mean / 3.8266 ms p95. The operator's visible game shared the GPU, so these
+are functional safety checks rather than an isolated measurement of the shader branch. Hardware-
+browser and physical-Android fragment cost remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -118,7 +118,8 @@ quantized colour diversity, and coarse spatial contrast. It writes
 `build/island-capture-report.json`; this catches empty, truncated, flat, overwhelmingly dark, and
 overwhelmingly bright output without pretending to be a pixel-golden comparison. The parser and
 failure thresholds have separate `IslandCaptureValidatorTests` coverage.
-`IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm`.
+`IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm` and
+requires the authored primary-footpath terrain material.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm` and
 requires the folded pointed-leaf near-bush path; the same startup also reports the
 branch-supported/pointed-leaf near-canopy path.
@@ -126,7 +127,7 @@ branch-supported/pointed-leaf near-canopy path.
 `build/island-ground-capture.ppm` and requires the upright near-ground-plant path.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
-The beach capture also gates the five-level near curvature and portable two-sided daylight path.
+The grass startup also reports the five-level near curvature and portable two-sided daylight path.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
 `build/island-palm-capture.ppm` and requires the segmented near-leaflet plus procedural
 bark-scar/coconut path.

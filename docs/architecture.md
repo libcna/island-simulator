@@ -195,6 +195,15 @@ ground, and shares the existing 95--285 m detail fade. A coherent early branch a
 colour shaping on shore, distant, and fully steep fragments. The effect is static material
 breakup suited to the permanent daylight art direction, not a claim of geometric canopy shadowing.
 
+The primary south-to-north walking corridor has one renderer-independent sinusoidal centre line,
+range, and reserved half-width owned by `VegetationLayout`. Palm, jungle, prop, grass, QA-camera,
+and terrain-material code consume that same definition rather than duplicating path coordinates.
+The terrain shader receives the centre-line parameters as uniforms and reuses its
+existing noise/detail fields to form a narrow broken edge, compacted centre, inland/endpoint fades,
+and muted dry-earth colour. Short mesh grass remains on the route, so it reads as a lightly worn
+tropical footpath rather than a bare road or objective marker. The cue adds no geometry, texture,
+draw submission, or collision rule.
+
 `DistantSceneryLayout` places five low islets at least 570 m from the island centre, outside every
 player-accessible ocean boundary but within the 850 m ocean surface. `DistantSceneryRenderer`
 combines their irregular rock ridges and 11 simplified trunk/frond/crown silhouettes into one

@@ -28,6 +28,13 @@ namespace island
         static constexpr int PalmVariantCount = 4;
         static constexpr float PalmMinimumScale = 0.82f;
         static constexpr float PalmMaximumScale = 1.24f;
+        static constexpr float PrimaryPathBaseX = -5.0f;
+        static constexpr float PrimaryPathAmplitude = 21.0f;
+        static constexpr float PrimaryPathZOffset = 34.0f;
+        static constexpr float PrimaryPathFrequency = 0.018f;
+        static constexpr float PrimaryPathMinimumZ = -225.0f;
+        static constexpr float PrimaryPathMaximumZ = 190.0f;
+        static constexpr float PrimaryPathReservedHalfWidth = 6.2f;
 
         explicit VegetationLayout(const IslandTerrain& terrain,
                                   std::uint32_t seed = DefaultSeed);

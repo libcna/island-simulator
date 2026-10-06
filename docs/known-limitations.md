@@ -18,7 +18,9 @@ been confirmed so far.
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
   close substrate-microvariation, sparse pointed leaf litter, and restrained fixed-sun interior
-  dappling. The dapple is static material breakup rather than canopy-accurate shadow projection. A
+  dappling. The authored main corridor now has a subdued broken-edge dry-earth footpath under its
+  short grass, but neither clearing has a distinct material treatment. The dapple is static
+  material breakup rather than canopy-accurate shadow projection. A
   portable near-field contact layer now grounds palms, canopy trunks, land rocks, wood, and monkeys,
   and all instanced jungle foliage now receives two-sided fixed-sun geometric facet lighting, but
   there is still no authored biome texture blend, decals, broad substrate diversity, baked ambient

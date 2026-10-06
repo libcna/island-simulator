@@ -1584,6 +1584,14 @@ int main()
           "palm population is deterministic");
     Check(vegetation.Obstacles().size() == vegetation.Palms().size(),
           "every palm has exactly one trunk collision proxy");
+    CheckNear(island::VegetationLayout::PrimaryPathCenterX(
+                  -island::VegetationLayout::PrimaryPathZOffset),
+              island::VegetationLayout::PrimaryPathBaseX, 0.0001f,
+              "primary path shape constants identify the authored centre crossing");
+    Check(island::VegetationLayout::PrimaryPathMinimumZ
+                  < island::VegetationLayout::PrimaryPathMaximumZ
+              && island::VegetationLayout::PrimaryPathReservedHalfWidth > 4.0f,
+          "primary path material range remains ordered inside a walkable reserve");
     for (int z = -216; z <= 180; z += 18) {
         const float pathX = island::VegetationLayout::PrimaryPathCenterX(static_cast<float>(z));
         Check(island::VegetationLayout::IsReservedRoute(pathX, static_cast<float>(z)),
