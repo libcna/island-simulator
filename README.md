@@ -34,6 +34,8 @@ another low strap-leaf rosette; its compact far representation and batching rema
 Near land and reef rocks gain subtle texture-free strata and restrained lichen flecks from their
 portable material shader. The effect is deliberately limited to the near LOD so distant rock
 silhouettes remain calm and avoid unnecessary fragment work.
+Nearby fallen logs use the same portable material path for gently irregular cut-end growth rings
+and longitudinal bark fissures. Both rock and wood detail fade out before their LOD transition.
 Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling

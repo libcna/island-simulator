@@ -949,6 +949,8 @@ Work next, in order:
    ground-plant variant now adds an upright six-leaf form and a dedicated cross-renderer QA camera.
    Near land and reef rocks now add restrained, texture-free strata and lichen only in their near
    LOD, without new geometry, textures, instances, or submissions.
+   Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
+   rings through the same material path, also without new geometry, textures, or submissions.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
@@ -2205,6 +2207,29 @@ Work next, in order:
   and the APK is 33,462,376 bytes. Android runtime appearance and cost remain unqualified without
   KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified; no
   dependency defect was found.
+
+### 2026-10-06 — Near-log bark and growth-ring material
+
+- Added local-space longitudinal bark grooves/narrow fissures to near fallen-log sides and gently
+  irregular growth rings to their cut ends through the existing portable natural-prop shader.
+  Alpha remains a private material selector; moss/contact geometry and all far meshes keep the
+  plain path. Wood detail fades from 42--70 m before the 72 m mesh transition. The same revision
+  fades the preceding rock treatment from 58--90 m before its 92 m transition.
+- Rejected the first visually inspected cut-end pass because its frequent high-contrast rings
+  resembled a painted target. The retained lower-contrast, lower-frequency rings and bark fissures
+  are readable at first-person range. Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2
+  close-log captures agree; the browser lifecycle and prop gates require the explicit diagnostic.
+- Two isolated five-view repeats retain 77/124/95/26/97 tracked submissions and exact populations.
+  Mean frame time measured 1.1121--1.1313 ms overview, 1.7399--1.7865 ms beach,
+  1.4497--1.4644 ms jungle, 0.7623--0.7831 ms driftwood, and 1.5258--1.5775 ms monkeys. The
+  small upper shift in log-bearing views is retained for the visual improvement; no free-cost
+  claim is made.
+- All 22 native tests pass, including 21 real OpenGL 3.3 scenes. The complete Chrome 152/WebGL 2
+  renderer/lifecycle/input/audio-init harness passes all 20 stages. The arm64-v8a GLES 3 APK and
+  application lint pass; WebAssembly is 8,339,116 bytes, stripped `libmain.so` is 15,731,472 bytes,
+  and the APK is 33,463,848 bytes. Android runtime appearance and fragment cost remain unqualified
+  without KVM or a physical device. CNA and Sharp Runtime remain clean on `next` and unmodified;
+  no dependency defect was found.
 
 ## Session-end checklist
 

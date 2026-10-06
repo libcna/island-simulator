@@ -68,6 +68,7 @@ layout(location = 5) in vec4 aInstance3;
 uniform mat4 uViewProjection;
 
 out vec3 vColor;
+out vec3 vLocal;
 out vec3 vWorld;
 out float vMaterialDetail;
 
@@ -76,6 +77,7 @@ void main()
     mat4 instanceTransform = mat4(aInstance0, aInstance1, aInstance2, aInstance3);
     vec4 world = instanceTransform * vec4(aPosition, 1.0);
     vColor = aColor.rgb;
+    vLocal = aPosition;
     vWorld = world.xyz;
     vMaterialDetail = aColor.a;
     gl_Position = uViewProjection * world;
@@ -85,6 +87,7 @@ void main()
 
         constexpr const char* FragmentBody = R"(
 in vec3 vColor;
+in vec3 vLocal;
 in vec3 vWorld;
 in float vMaterialDetail;
 
@@ -97,16 +100,39 @@ void main()
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(235.0, 610.0, distanceToCamera);
     vec3 materialColor = vColor;
-    if (vMaterialDetail < 0.5) {
+    if (vMaterialDetail < 0.375) {
+        vec3 detailedColor = vColor;
         float strata = 0.5 + 0.5 * sin(vWorld.y * 10.5
             + vWorld.x * 1.7 - vWorld.z * 1.2);
         float grain = sin(dot(vWorld, vec3(3.1, 4.7, -2.3)))
             * sin(dot(vWorld, vec3(-5.3, 2.1, 4.1)) + 1.8);
-        materialColor *= 0.945 + 0.065 * strata;
+        detailedColor *= 0.945 + 0.065 * strata;
         float lichen = smoothstep(0.72, 0.96, grain);
-        materialColor = mix(materialColor,
-                            materialColor * vec3(0.84, 1.04, 0.82),
+        detailedColor = mix(detailedColor,
+                            detailedColor * vec3(0.84, 1.04, 0.82),
                             lichen * 0.16);
+        materialColor = mix(vColor, detailedColor,
+                            1.0 - smoothstep(58.0, 90.0, distanceToCamera));
+    } else if (vMaterialDetail < 0.625) {
+        float barkAngle = atan(vLocal.y, vLocal.z);
+        float coarseGroove = 0.5 + 0.5 * sin(
+            barkAngle * 8.0 + vLocal.x * 3.5 + sin(vLocal.x * 12.0) * 0.45);
+        float fissure = 1.0 - smoothstep(0.02, 0.24, abs(sin(
+            barkAngle * 11.0 + sin(vLocal.x * 13.0) * 0.55)));
+        vec3 detailedColor = vColor
+            * (0.94 + 0.09 * coarseGroove) * (1.0 - 0.15 * fissure);
+        materialColor = mix(vColor, detailedColor,
+                            1.0 - smoothstep(42.0, 70.0, distanceToCamera));
+    } else if (vMaterialDetail < 0.875) {
+        float cutRadius = length(vLocal.yz);
+        float cutAngle = atan(vLocal.y, vLocal.z);
+        float growthRing = 0.5 + 0.5 * sin(
+            cutRadius * 19.0 + sin(cutAngle * 3.0) * 0.38
+            + sin(cutAngle * 7.0) * 0.14);
+        vec3 detailedColor = materialColor
+            * (0.94 + 0.08 * smoothstep(0.18, 0.82, growthRing));
+        materialColor = mix(vColor, detailedColor,
+                            1.0 - smoothstep(42.0, 70.0, distanceToCamera));
     }
     vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
@@ -251,8 +277,10 @@ void main()
             const int sides = farMesh ? 6 : 9;
             geometry.vertices.reserve(static_cast<std::size_t>((sections + 1) * sides + sides * 2 + 5));
             geometry.indices.reserve(static_cast<std::size_t>(sections * sides * 6 + sides * 6 + 12));
-            const Color bark = variant == 0 ? Color(101, 69, 42, 255)
-                : (variant == 1 ? Color(87, 67, 45, 255) : Color(112, 77, 44, 255));
+            const int barkMaterial = farMesh ? 255 : 128;
+            const Color bark = variant == 0 ? Color(101, 69, 42, barkMaterial)
+                : (variant == 1 ? Color(87, 67, 45, barkMaterial)
+                                : Color(112, 77, 44, barkMaterial));
             const auto sideBase = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int section = 0; section <= sections; ++section) {
                 const float t = static_cast<float>(section) / static_cast<float>(sections);
@@ -285,7 +313,8 @@ void main()
                 }
             }
 
-            const Color cut(151 + variant * 4, 112 + variant * 3, 66, 255);
+            const Color cut(151 + variant * 4, 112 + variant * 3, 66,
+                            farMesh ? 255 : 192);
             for (int end = 0; end < 2; ++end) {
                 const float x = end == 0 ? -0.505f : 0.505f;
                 const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
@@ -677,6 +706,7 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
             std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
+            std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';

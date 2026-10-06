@@ -164,6 +164,8 @@ try {
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes(
       "island-simulator: near rocks use procedural strata and restrained lichen flecks")
+    && result.output?.includes(
+      "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
@@ -512,6 +514,8 @@ try {
     && propResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && propResult.output?.includes("natural-prop portable shader with near/far LOD")
+    && propResult.output?.includes(
+      "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && /props [0-9]+\/166 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/11 logs/.test(
       propResult.output ?? "")

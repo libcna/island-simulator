@@ -404,6 +404,29 @@ the preceding ground-plant baseline exactly, and the timing ranges show no integ
 | Driftwood/shore detail | 0.7637--0.8007 | 0.8520--0.9912 | 1.0729--1.3465 | 26 | 7 / 1 |
 | Monkeys | 1.5232--1.5473 | 1.9624--1.9899 | 2.1455--2.1841 | 97 | 41 / 2 |
 
+### Near-log material follow-up
+
+Near fallen-log sides now select local-space longitudinal bark grooves and narrow irregular
+fissures, while their cut ends select gently irregular growth rings. Both treatments fade before
+the 72 m log LOD transition. The same change also fades the preceding rock detail before its 92 m
+transition. Far meshes, moss/contact geometry, populations, instance data, and submissions remain
+unchanged. A first cut-end treatment was rejected because its high-contrast rings looked like a
+painted target; the retained pass uses fewer, softer rings. Native and actual Chrome/SwiftShader
+close-log captures were inspected and agree.
+
+Two isolated five-view repeats produced the ranges below. The views containing four or five logs
+show a small upper shift of a few hundredths of a millisecond, with wider normal p95 variation in
+the beach and first monkey samples. The presentation gain is retained, but no zero-cost claim is
+made. The log-free driftwood view remains unchanged.
+
+| View | Mean ms range | p95 ms range | p99 ms range | Submissions | Visible logs |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overview | 1.1121--1.1313 | 1.2062--1.2918 | 1.2647--1.8957 | 77 | 1 |
+| Beach | 1.7399--1.7865 | 2.0930--2.0980 | 2.4339--2.7728 | 124 | 2 |
+| Jungle | 1.4497--1.4644 | 1.6085--1.6288 | 2.0122--2.0430 | 95 | 4 |
+| Driftwood/shore detail | 0.7623--0.7831 | 0.8515--0.8769 | 0.9498--1.1295 | 26 | 0 |
+| Monkeys | 1.5258--1.5775 | 1.6939--2.0028 | 2.0933--2.3130 | 97 | 5 |
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio
