@@ -87,7 +87,8 @@ occasionally patrols deeper offshore water with matching dive pitch, turn bankin
 and restrained near eye/gill detail.
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,
 three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
-state-transition crossfades. Calm idle/observe animals gradually turn their existing head bone
+state-transition crossfades. Near animals add restrained crown/cheek fur tufts in the existing body
+draw. Calm idle/observe animals gradually turn their existing head bone
 toward a nearby player within a restrained angle, then relax or retreat without becoming hostile.
 The current audio pass adds original procedural shoreline surf, two
 varied occasional stronger waves, light canopy breeze, a subtle daytime-jungle texture,

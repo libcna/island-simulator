@@ -959,6 +959,19 @@ match; a KVM/gfxstream GLES 3 run reached a clean first frame and visibly retain
 These are gross-regression and portability checks, not an isolated speed comparison or a
 physical-mobile density budget.
 
+### Near-monkey fur-silhouette follow-up
+
+Three small tetrahedral tufts in the near body mesh break up the crown and cheek outline while
+remaining rigidly attached to the existing head bone. Each shared near variant gains 27 vertices
+and nine triangles; the fixed monkey camera currently draws two near agents and one far agent, so
+the scene adds 54 transformed vertices and 18 triangles without another mesh, material, draw,
+texture, allocation, animation palette, or far-LOD change.
+
+The complete Chrome/SwiftShader 22-stage suite passes and the inspected fixed frame shows a
+restrained rather than spiky outline. The revised arm64 GLES 3 package builds and passes app lint.
+No isolated benchmark or physical-mobile run was performed, so this is a bounded geometry account
+and portability check rather than a measured zero-cost claim.
+
 ### Logical backbuffer qualification
 
 The renderer identity alone was insufficient for interpreting mobile cost because Android's

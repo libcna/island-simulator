@@ -235,6 +235,8 @@ try {
       "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && result.output?.includes(
+      "island-simulator: near monkeys use restrained procedural crown and cheek fur tufts")
+    && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && result.output?.includes("3 silhouettes, 4 palettes")
     && result.output?.includes(
@@ -1073,6 +1075,8 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && monkeyResult.output?.includes("3 silhouettes, 4 palettes")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkeys use restrained procedural crown and cheek fur tufts")
     && monkeyResult.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")

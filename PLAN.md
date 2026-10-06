@@ -570,8 +570,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   fourteen-bone rig recorded in `ASSET_LICENSES.md`, so it has no external asset or
   disappearing-source dependency.
 - [~] Validate skeleton, clips, scale, axes, material fallback, and all three renderers. Native
-  OpenGL 3.3 and actual Chromium/WebGL 2 captures agree; the arm64 GLES 3 APK builds and lints, but
-  stable Android runtime remains unqualified.
+  OpenGL 3.3 and actual Chromium/WebGL 2 captures agree; a KVM/gfxstream GLES 3 fixed view matches
+  the preceding near silhouette, and the revised arm64 package builds/lints. The newest near fur
+  tufts still await a follow-up GLES 3 close capture and physical-device animation observation.
 - [x] Integrate CNA skeletal animation without framework modification. Project-generated bind and
   inverse-bind poses plus four clips drive one CNA `AnimationPlayer` per agent and the portable
   `SkinnedEffect`; no dependency source changed.
@@ -904,7 +905,8 @@ Android is not project completion.
   Bird paths now drift slowly around their authored radii and their CPU pose blends between wing
   strokes, glides, and banked turns. Fish and shark now pitch with vertical motion, bank through
   turns, and have clearer forked-tail/head silhouettes. Calm monkeys now use bounded player-aware
-  head posing on top of their existing clips; long subjective tuning remains open.
+  head posing on top of their existing clips, and three restrained near-only crown/cheek tufts
+  break up the smooth head outline without another draw; long subjective tuning remains open.
 - [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
 - [ ] Fix frame pacing, loading hitches, input focus issues, touch ergonomics, and platform-specific
   rendering differences found during real play.
@@ -4083,6 +4085,28 @@ Work next, in order:
   live-desktop four-frame overview smoke selected `OPENGL33`, compiled every current scene shader,
   reported the same 1280 by 720 logical backbuffer, and exited cleanly. CNA and Sharp Runtime
   stayed read-only and no dependency defect or workaround was involved.
+
+### 2026-10-07 — Near-monkey fur-silhouette polish
+
+- Review of the current fixed monkey frame found that the face was readable but the near head
+  retained an overly smooth toy-like outline. Added one small crown tuft and two cheek tufts to each
+  shared near body variant. The original procedural geometry is rigidly attached to the existing
+  head bone, follows every clip/crossfade/attention pose, and uses the existing fur material.
+- Each near variant gains 27 vertices and nine triangles. The fixed view currently shows two near
+  monkeys and one far monkey, adding only 54 transformed vertices and 18 triangles. Far geometry,
+  face/eye detail passes, animation palettes, culling, LOD thresholds, collision, behaviour,
+  textures, allocations, and draw counts remain unchanged. Procedural mesh validation still runs
+  before every upload.
+- The changed OpenGL 3.3 objects compile through `/rv/cnaccache` without relinking or interrupting
+  the currently visible operator game. The complete Chrome 152/SwiftShader 22-stage WebGL 2 suite
+  passes and requires the exact new diagnostic; its inspected fixed frame shows restrained crown
+  and cheek breakup while retaining face readability and the two-near/one-far population. Final
+  WebAssembly is 8,486,871 bytes.
+- The default arm64-only GLES 3 APK builds, passes application lint, verifies with signature scheme
+  v2, and is 18,699,724 bytes with a 15,889,440-byte stripped `libmain.so`. A new Android runtime
+  capture is intentionally deferred while the user plays the visible Linux build; the preceding
+  fixed-monkey GLES 3 evidence therefore does not claim the new tufts. CNA and Sharp Runtime remain
+  read-only, and no dependency defect or workaround was involved.
 
 ## Session-end checklist
 

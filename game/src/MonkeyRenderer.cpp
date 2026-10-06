@@ -469,6 +469,36 @@ namespace island
             }
         }
 
+        void AddFlatTriangle(MeshData& mesh, const Vector3& a, const Vector3& b,
+                             const Vector3& c, const Vector3& outward, const int bone)
+        {
+            Vector3 normal = Vector3::Normalize(Vector3::Cross(b - a, c - a));
+            if (Vector3::Dot(normal, outward) < 0.0f) {
+                normal *= -1.0f;
+            }
+            const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
+            AddVertex(mesh, a, normal, bone);
+            AddVertex(mesh, b, normal, bone);
+            AddVertex(mesh, c, normal, bone);
+            mesh.indices.insert(mesh.indices.end(), {base,
+                static_cast<std::uint16_t>(base + 1U),
+                static_cast<std::uint16_t>(base + 2U)});
+        }
+
+        void AddHeadTuft(MeshData& mesh, const Vector3& baseA, const Vector3& baseB,
+                         const Vector3& baseC, const Vector3& tip)
+        {
+            const Vector3 headCentre(0.0f, 1.30f, 0.035f);
+            const auto addSide = [&mesh, &headCentre](const Vector3& a, const Vector3& b,
+                                                      const Vector3& c) {
+                const Vector3 outward = (a + b + c) * (1.0f / 3.0f) - headCentre;
+                AddFlatTriangle(mesh, a, b, c, outward, Head);
+            };
+            addSide(baseA, baseB, tip);
+            addSide(baseB, baseC, tip);
+            addSide(baseC, baseA, tip);
+        }
+
         [[nodiscard]] MeshData CreateMonkeyMesh(const RigDefinition& rig, const bool near,
                                                 const std::size_t silhouetteIndex)
         {
@@ -489,6 +519,25 @@ namespace island
                          Vector3(0.085f, 0.105f, 0.055f), Head, 3, segments);
             AddEllipsoid(mesh, Vector3(0.215f, 1.32f, 0.015f),
                          Vector3(0.085f, 0.105f, 0.055f), Head, 3, segments);
+            if (near) {
+                const float tuftReach = 0.305f
+                    + 0.008f * static_cast<float>(silhouetteIndex);
+                AddHeadTuft(mesh,
+                    Vector3(-0.075f, 1.485f, -0.020f),
+                    Vector3(0.075f, 1.485f, -0.020f),
+                    Vector3(0.0f, 1.465f, 0.060f),
+                    Vector3(0.0f, 1.575f, 0.005f));
+                AddHeadTuft(mesh,
+                    Vector3(-0.185f, 1.365f, 0.015f),
+                    Vector3(-0.205f, 1.255f, 0.060f),
+                    Vector3(-0.165f, 1.315f, 0.135f),
+                    Vector3(-tuftReach, 1.315f, 0.095f));
+                AddHeadTuft(mesh,
+                    Vector3(0.185f, 1.365f, 0.015f),
+                    Vector3(0.165f, 1.315f, 0.135f),
+                    Vector3(0.205f, 1.255f, 0.060f),
+                    Vector3(tuftReach, 1.315f, 0.095f));
+            }
 
             AddTube(mesh, rig.heads[UpperArmLeft], rig.heads[ForearmLeft],
                     0.078f * silhouette.armThickness, UpperArmLeft, limbSegments);

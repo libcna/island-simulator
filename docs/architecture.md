@@ -458,8 +458,10 @@ distant decisions. `MonkeyRenderer` generates a fourteen-bone hierarchy, three p
 silhouette meshes, four coordinated body/face palettes, and idle, observe, walk, and run clips; one
 CNA `AnimationPlayer` per agent supplies palettes to the portable `SkinnedEffect`. Near monkeys add
 a light upper-face mask plus muzzle/ear detail in one pass and surface-visible eye/nose geometry in
-a second. Dark eyes use a restrained glossy response. The shared buffers add 86 vertices and 122
-triangles per visible near monkey, without another draw; far monkeys remain one draw each. Mesh
+a second. Dark eyes use a restrained glossy response. Three small tetrahedral crown/cheek tufts
+break up the near head silhouette in the existing body pass and follow the head bone. They add 27
+vertices and nine triangles to each shared near body variant; the shared face/eye buffers add 86
+vertices and 122 triangles per visible near monkey. No draw is added, and far monkeys remain one draw each. Mesh
 selection does not otherwise change the per-agent draw count. Calm idle/observe states derive a
 distance-faded horizontal look angle toward a player 7.5--30 m away, approach it at a bounded rate,
 and clamp it to 0.34 radians. The renderer composes that angle into the existing head-bone local
