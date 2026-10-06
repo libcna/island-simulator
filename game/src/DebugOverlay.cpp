@@ -185,19 +185,31 @@ namespace island
     {
         std::vector<std::string> lines;
         lines.reserve(19U);
+#ifndef NDEBUG
+        lines.emplace_back("F1 DEBUG  F2 WORLD  F3 FREECAM  F5-F12 TELEPORT  M MUTE");
+#else
         lines.emplace_back("F1 DEBUG  F2 WORLD  F5-F12 TELEPORT  M MUTE");
+#endif
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
         lines.push_back(timing.str());
 
         auto position = DiagnosticLine();
-        position << "POS X:" << state.playerPosition.X << " Y:" << state.playerPosition.Y
-                 << " Z:" << state.playerPosition.Z;
+        const Vector3& displayedPosition = state.freeCameraActive
+            ? state.cameraPosition : state.playerPosition;
+        position << (state.freeCameraActive ? "CAM" : "POS")
+                 << " X:" << displayedPosition.X << " Y:" << displayedPosition.Y
+                 << " Z:" << displayedPosition.Z;
+        if (state.freeCameraActive) {
+            position << "  PLAYER X:" << state.playerPosition.X
+                     << " Z:" << state.playerPosition.Z;
+        }
         lines.push_back(position.str());
 
         auto locomotion = DiagnosticLine();
         locomotion << "STATE " << (state.swimming ? "SWIMMING" : "WALKING")
+                   << (state.freeCameraActive ? "  FREE CAMERA" : "")
                    << "  GROUND " << state.groundHeight
                    << "  SLOPE " << state.groundSlopeDegrees << " DEG";
         lines.push_back(locomotion.str());

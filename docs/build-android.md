@@ -40,8 +40,8 @@ builds and passes application lint, but
 the existing emulator capture predates these layers; do not treat compilation as GLES3 runtime
 qualification for the new jungle, prop, distant-scenery, bird, fish, shark, monkey, sky,
 contact-shadow, revised-palm, grass-interaction, water-ripple, water-view, or audio systems.
-The latest arm64 debug qualification build produced a 33,492,008-byte APK with a
-15,759,632-byte stripped `libmain.so` and passed `:app:lintDebug`.
+The latest arm64 debug qualification build produced a 33,497,552-byte APK with a
+15,765,176-byte stripped `libmain.so` and passed `:app:lintDebug`.
 
 ## Requirements
 

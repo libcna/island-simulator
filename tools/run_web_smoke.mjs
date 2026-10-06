@@ -911,12 +911,14 @@ try {
       type: "keyDown", key: "b", code: "KeyB", windowsVirtualKeyCode: 66,
       nativeVirtualKeyCode: 66,
     }, visualSessionId);
-    await delay(100);
+    // Keep both edges across several SwiftShader frames. A 100 ms press can be consumed between
+    // fixed updates while Chrome is compiling or submitting a dense scene.
+    await delay(350);
     await call("Input.dispatchKeyEvent", {
       type: "keyUp", key: "b", code: "KeyB", windowsVirtualKeyCode: 66,
       nativeVirtualKeyCode: 66,
     }, visualSessionId);
-    await delay(100);
+    await delay(350);
   }
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "F5", code: "F5", windowsVirtualKeyCode: 116,
@@ -950,12 +952,12 @@ try {
     type: "keyDown", key: "F2", code: "F2", windowsVirtualKeyCode: 113,
     nativeVirtualKeyCode: 113,
   }, visualSessionId);
-  await delay(100);
+  await delay(350);
   await call("Input.dispatchKeyEvent", {
     type: "keyUp", key: "F2", code: "F2", windowsVirtualKeyCode: 113,
     nativeVirtualKeyCode: 113,
   }, visualSessionId);
-  await delay(300);
+  await delay(350);
 
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "F1", code: "F1", windowsVirtualKeyCode: 112,
@@ -1023,16 +1025,20 @@ try {
   }, visualSessionId);
   inputResult = JSON.parse(completedInputEvaluation.result.value ?? "{}");
   const samples = [...(inputResult.output ?? "").matchAll(
-    /input sample captured (\d) relative (\d) x ([-+0-9.eE]+) z ([-+0-9.eE]+) yaw ([-+0-9.eE]+) pitch ([-+0-9.eE]+) viewport (\d+) (\d+)/g)]
+    /input sample captured (\d) relative (\d) player ([-+0-9.eE]+) ([-+0-9.eE]+) camera ([-+0-9.eE]+) ([-+0-9.eE]+) ([-+0-9.eE]+) free (\d) yaw ([-+0-9.eE]+) pitch ([-+0-9.eE]+) viewport (\d+) (\d+)/g)]
     .map(match => ({
       captured: Number(match[1]),
       relative: Number(match[2]),
       x: Number(match[3]),
       z: Number(match[4]),
-      yaw: Number(match[5]),
-      pitch: Number(match[6]),
-      viewportWidth: Number(match[7]),
-      viewportHeight: Number(match[8]),
+      cameraX: Number(match[5]),
+      cameraY: Number(match[6]),
+      cameraZ: Number(match[7]),
+      freeCamera: Number(match[8]),
+      yaw: Number(match[9]),
+      pitch: Number(match[10]),
+      viewportWidth: Number(match[11]),
+      viewportHeight: Number(match[12]),
     }));
   const initialSample = samples[0];
   const finalSample = samples.at(-1);

@@ -49,6 +49,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── TerrainRenderer ──── terrain cells, culling, portable material, and stock fallback
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
+      ├── DebugFreeCamera ──── bounded renderer-independent inspection flight in debug builds
       ├── FirstPersonCameraMotion ─ bounded walking/swimming positional motion and opt-out
       ├── WaterRippleModel ──── depth/speed-responsive ocean-ripple intensity and phase
       ├── WaterViewModel ───── depth/current-responsive veil intensity and transition smoothing
@@ -60,7 +61,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       └── IslandGame ───────── CNA lifecycle, input, camera, and pass ordering
 ```
 
-`IslandTerrain`, `PlayerMotion`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
+`IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
 `NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `TouchControls`, and
@@ -121,6 +122,9 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 6. `FirstPersonCameraMotion` derives a bounded local right/up displacement from physical speed and
    locomotion mode. It eases between walking and swimming rhythms, clamps long frames, resets on
    debug teleports, and fades to the authoritative eye point when B disables it.
+   In debug builds, the F3 `DebugFreeCamera` instead advances a separately bounded yaw-relative
+   inspection position while `PlayerMotion` remains frozen; leaving F3 restores the unchanged
+   authoritative player eye.
 7. `WaterViewModel` converts swimming state, authoritative support depth, and normalized offshore
    current to a smoothed veil intensity. `WaterViewOverlay` later uses that value for one generated
    `SpriteBatch` draw, cools its tint slightly as current develops, and submits nothing while dry.

@@ -125,6 +125,9 @@ the last exact attempted/resolved player step with rejection classification,
 the active inward-current vector, all six ambient crossfade boundaries, the nearest bird/monkey
 audio candidates, and any active positional wildlife emitter. The panel also reports active audio
 sources against the six-source ceiling.
+In debug builds, F3 toggles a bounded inspection camera while F1 is visible. Mouse look remains
+unchanged; WASD flies horizontally, Q/E moves down/up, and Shift increases speed. The player stays
+fixed, and hiding F1 immediately restores the first-person camera.
 Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
 overlay is visible, F5 through F12 teleport among eight fixed QA locations, including views toward
 the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.

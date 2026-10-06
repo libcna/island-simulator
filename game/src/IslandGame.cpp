@@ -625,10 +625,13 @@ namespace island
                 std::cout << "island-simulator: input sample captured "
                           << (mouseCaptured_ ? 1 : 0) << " relative "
                           << (Mouse::getIsRelativeMouseModeEXTProperty() ? 1 : 0)
-                          << " x " << position.x << " z " << position.z
+                          << " player " << position.x << ' ' << position.z
+                          << " camera " << cameraPosition_.X << ' '
+                          << cameraPosition_.Y << ' ' << cameraPosition_.Z
+                          << " free " << (IsDebugFreeCameraActive() ? 1 : 0)
                           << " yaw " << yaw_ << " pitch " << pitch_
                           << " viewport " << viewport.getWidthProperty() << ' '
-                          << viewport.getHeightProperty() << '\n';
+                          << viewport.getHeightProperty() << '\n' << std::flush;
             }
         }
     }
@@ -728,6 +731,32 @@ namespace island
         }
         worldDebugToggleWasDown_ = worldDebugToggleDown;
 
+#ifndef NDEBUG
+        const bool debugFreeCameraToggleDown = keyboard.IsKeyDown(Keys::F3);
+        if (debugOverlayVisible_ && debugFreeCameraToggleDown
+            && !debugFreeCameraToggleWasDown_) {
+            if (debugFreeCamera_.IsActive()) {
+                debugFreeCamera_.Deactivate();
+                const PlayerPosition& player = playerMotion_.Position();
+                cameraPosition_ = Vector3(player.x, player.y, player.z);
+            } else {
+                debugFreeCamera_.Activate(
+                    cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+                cameraMotion_.Reset();
+            }
+            std::cout << "island-simulator: debug free camera "
+                      << (debugFreeCamera_.IsActive() ? "enabled" : "disabled")
+                      << '\n' << std::flush;
+        }
+        debugFreeCameraToggleWasDown_ = debugFreeCameraToggleDown;
+        if (!debugOverlayVisible_ && debugFreeCamera_.IsActive()) {
+            debugFreeCamera_.Deactivate();
+            const PlayerPosition& player = playerMotion_.Position();
+            cameraPosition_ = Vector3(player.x, player.y, player.z);
+            std::cout << "island-simulator: debug free camera disabled with overlay\n";
+        }
+#endif
+
         constexpr std::array<Keys, 8> teleportKeys = {
             Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::F11,
             Keys::F12};
@@ -790,6 +819,12 @@ namespace island
                 cameraMotion_.Reset();
                 const PlayerPosition& teleported = playerMotion_.Position();
                 cameraPosition_ = Vector3(teleported.x, teleported.y, teleported.z);
+#ifndef NDEBUG
+                if (debugFreeCamera_.IsActive()) {
+                    debugFreeCamera_.Activate(
+                        cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+                }
+#endif
                 std::cout << "island-simulator: debug teleport "
                           << teleportNames[index] << " x " << x << " z " << z << '\n';
             }
@@ -836,18 +871,37 @@ namespace island
         wish = wish + forward * touchControlState_.moveForward
             + right * touchControlState_.moveRight;
 
-        const PlayerPosition positionBeforeMovement = playerMotion_.Position();
-        playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldCollisionGrid_);
-        const PlayerPosition& position = playerMotion_.Position();
-        cameraPosition_ = Vector3(position.x, position.y, position.z);
-        const float travelledDistance = std::hypot(position.x - positionBeforeMovement.x,
-                                                   position.z - positionBeforeMovement.z);
-        const float physicalSpeed = deltaSeconds > 0.000001f
-            ? travelledDistance / deltaSeconds
-            : 0.0f;
-        (void)cameraMotion_.Update(physicalSpeed,
-                                   playerMotion_.Mode(), deltaSeconds);
+#ifndef NDEBUG
+        if (debugFreeCamera_.IsActive()) {
+            const float vertical = (keyboard.IsKeyDown(Keys::E) ? 1.0f : 0.0f)
+                - (keyboard.IsKeyDown(Keys::Q) ? 1.0f : 0.0f);
+            const bool fast = keyboard.IsKeyDown(Keys::LeftShift)
+                || keyboard.IsKeyDown(Keys::RightShift);
+            debugFreeCamera_.Update(
+                yaw_, DebugFreeCameraInput{Vector3::Dot(wish, forward),
+                                            Vector3::Dot(wish, right), vertical, fast},
+                deltaSeconds);
+            const DebugFreeCameraPosition& freePosition = debugFreeCamera_.Position();
+            cameraPosition_ = Vector3(freePosition.x, freePosition.y, freePosition.z);
+            cameraMotion_.Reset();
+        } else {
+#endif
+            const PlayerPosition positionBeforeMovement = playerMotion_.Position();
+            playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldCollisionGrid_);
+            const PlayerPosition& position = playerMotion_.Position();
+            cameraPosition_ = Vector3(position.x, position.y, position.z);
+            const float travelledDistance = std::hypot(position.x - positionBeforeMovement.x,
+                                                       position.z - positionBeforeMovement.z);
+            const float physicalSpeed = deltaSeconds > 0.000001f
+                ? travelledDistance / deltaSeconds
+                : 0.0f;
+            (void)cameraMotion_.Update(physicalSpeed,
+                                       playerMotion_.Mode(), deltaSeconds);
+#ifndef NDEBUG
+        }
+#endif
         if (soundscape_) {
+            const PlayerPosition& position = playerMotion_.Position();
             const SoundscapeListenerState listener{
                 cameraPosition_.X,
                 cameraPosition_.Y,
@@ -855,8 +909,8 @@ namespace island
                 forward.X * std::cos(pitch_),
                 std::sin(pitch_),
                 forward.Z * std::cos(pitch_),
-                playerMotion_.VelocityX(),
-                playerMotion_.VelocityZ(),
+                IsDebugFreeCameraActive() ? 0.0f : playerMotion_.VelocityX(),
+                IsDebugFreeCameraActive() ? 0.0f : playerMotion_.VelocityZ(),
             };
             soundscape_->Update(terrain_.SignedShoreDistance(position.x, position.z),
                                 playerMotion_.Mode() == LocomotionMode::Swimming,
@@ -868,6 +922,15 @@ namespace island
         }
     }
 
+    bool IslandGame::IsDebugFreeCameraActive() const noexcept
+    {
+#ifndef NDEBUG
+        return debugFreeCamera_.IsActive();
+#else
+        return false;
+#endif
+    }
+
     void IslandGame::UpdateCameraMatrices()
     {
         const auto& viewport = getGraphicsDeviceProperty().getViewportProperty();
@@ -877,7 +940,8 @@ namespace island
         const Vector3 forward(std::sin(yaw_) * cosPitch, std::sin(pitch_),
                               std::cos(yaw_) * cosPitch);
         renderCameraPosition_ = cameraPosition_;
-        if (viewpoint_ == FixedViewpoint::None && !smokeTest_) {
+        if (viewpoint_ == FixedViewpoint::None && !smokeTest_
+            && !IsDebugFreeCameraActive()) {
             const CameraMotionOffset& motion = cameraMotion_.Offset();
             const Vector3 right(std::cos(yaw_), 0.0f, -std::sin(yaw_));
             renderCameraPosition_ = renderCameraPosition_
@@ -1115,6 +1179,8 @@ namespace island
             const PlayerPosition& player = playerMotion_.Position();
             DebugOverlayState overlayState;
             overlayState.playerPosition = Vector3(player.x, player.y, player.z);
+            overlayState.cameraPosition = renderCameraPosition_;
+            overlayState.freeCameraActive = IsDebugFreeCameraActive();
             overlayState.renderer = device.GetGraphicsRendererName();
             overlayState.swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
             overlayState.groundHeight = playerMotion_.GroundHeight();

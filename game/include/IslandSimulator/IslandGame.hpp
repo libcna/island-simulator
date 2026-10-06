@@ -11,6 +11,9 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
+#ifndef NDEBUG
+#include "IslandSimulator/DebugFreeCamera.hpp"
+#endif
 #include "IslandSimulator/DebugOverlay.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
@@ -114,6 +117,7 @@ namespace island
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
         void UpdateCameraMatrices();
+        [[nodiscard]] bool IsDebugFreeCameraActive() const noexcept;
 
         Microsoft::Xna::Framework::GraphicsDeviceManager graphics_;
         IslandTerrain terrain_;
@@ -129,6 +133,9 @@ namespace island
         WorldCollisionGrid worldCollisionGrid_;
         PlayerMotion playerMotion_;
         FirstPersonCameraMotion cameraMotion_;
+#ifndef NDEBUG
+        DebugFreeCamera debugFreeCamera_;
+#endif
         GrassInteractionModel grassInteractionModel_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
@@ -169,6 +176,9 @@ namespace island
         bool debugOverlayToggleWasDown_ = false;
         bool worldDebugVisible_ = false;
         bool worldDebugToggleWasDown_ = false;
+#ifndef NDEBUG
+        bool debugFreeCameraToggleWasDown_ = false;
+#endif
         bool muteToggleWasDown_ = false;
         bool cameraMotionToggleWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;

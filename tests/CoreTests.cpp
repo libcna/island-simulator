@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
@@ -91,6 +92,52 @@ int main()
     }
     Check(rejectedInvalidFrameTime,
           "frame-time statistics reject non-finite sample durations");
+
+    island::DebugFreeCamera freeCamera;
+    freeCamera.Update(0.0f, island::DebugFreeCameraInput{1.0f, 0.0f, 0.0f, false}, 0.1f);
+    Check(!freeCamera.IsActive()
+              && freeCamera.Position().x == 0.0f
+              && freeCamera.Position().y == 0.0f
+              && freeCamera.Position().z == 0.0f,
+          "inactive debug free camera ignores movement input");
+    freeCamera.Activate(10.0f, 20.0f, 30.0f);
+    freeCamera.Update(0.0f, island::DebugFreeCameraInput{1.0f, 0.0f, 0.0f, false}, 1.0f);
+    CheckNear(freeCamera.Position().x, 10.0f, 0.0001f,
+              "debug free camera forward input follows yaw without lateral drift");
+    CheckNear(freeCamera.Position().z, 31.2f, 0.0001f,
+              "debug free camera clamps long frames before movement");
+    const island::DebugFreeCameraPosition beforeDiagonal = freeCamera.Position();
+    freeCamera.Update(
+        0.0f, island::DebugFreeCameraInput{1.0f, 1.0f, 1.0f, false}, 0.1f);
+    CheckNear(std::hypot(
+                  freeCamera.Position().y - beforeDiagonal.y,
+                  std::hypot(freeCamera.Position().x - beforeDiagonal.x,
+                             freeCamera.Position().z - beforeDiagonal.z)),
+              island::DebugFreeCamera::BaseSpeed * 0.1f, 0.0001f,
+              "debug free camera normalizes three-axis input");
+    const float beforeFastX = freeCamera.Position().x;
+    freeCamera.Update(
+        std::numbers::pi_v<float> * 0.5f,
+        island::DebugFreeCameraInput{1.0f, 0.0f, 0.0f, true}, 0.1f);
+    CheckNear(freeCamera.Position().x - beforeFastX,
+              island::DebugFreeCamera::BaseSpeed
+                  * island::DebugFreeCamera::FastMultiplier * 0.1f,
+              0.0001f, "debug free camera fast mode preserves yaw-relative motion");
+    freeCamera.Activate(900.0f, -90.0f, -900.0f);
+    CheckNear(freeCamera.Position().x, island::DebugFreeCamera::HorizontalExtent, 0.0001f,
+              "debug free camera activation clamps positive world extent");
+    CheckNear(freeCamera.Position().y, island::DebugFreeCamera::MinimumHeight, 0.0001f,
+              "debug free camera activation clamps minimum inspection height");
+    CheckNear(freeCamera.Position().z, -island::DebugFreeCamera::HorizontalExtent, 0.0001f,
+              "debug free camera activation clamps negative world extent");
+    freeCamera.Deactivate();
+    const island::DebugFreeCameraPosition retainedFreePosition = freeCamera.Position();
+    freeCamera.Update(0.0f, island::DebugFreeCameraInput{1.0f, 1.0f, 1.0f, true}, 0.1f);
+    Check(!freeCamera.IsActive()
+              && freeCamera.Position().x == retainedFreePosition.x
+              && freeCamera.Position().y == retainedFreePosition.y
+              && freeCamera.Position().z == retainedFreePosition.z,
+          "deactivated debug free camera retains its last bounded position");
 
     island::FirstPersonCameraMotion cameraMotion;
     CheckNear(cameraMotion.Offset().lateralMeters, 0.0f, 0.000001f,

@@ -687,9 +687,10 @@ Dependencies: representative complete scene on all targets.
   covers shoreline/current thresholds and vector, nearby collision/player footprints, shared
   cells, and tier/state-coloured wildlife headings. Per-layer toggles, spawn/target regions,
   detailed culling/LOD/density, terrain normals, and audio emitters remain.
-- [~] Add debug teleport locations and a debug-only free camera. Eight direct F5--F12 locations are
-  active only while the diagnostics overlay is visible, including the 62 m current field; a menu
-  and free camera remain open.
+- [x] Add debug teleport locations and a debug-only free camera. Eight direct F5--F12 locations are
+  active only while the diagnostics overlay is visible, including the 62 m current field. Debug
+  builds add bounded F3 inspection flight with real private-Xwayland input coverage; a richer
+  teleport menu remains an optional separate improvement.
 - [~] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
   per target rather than one desktop-only target. A first five-view 1280 by 720 debug-build Linux
   baseline records frame distributions and tracked scene submissions; release, browser, Android,
@@ -901,12 +902,13 @@ after the same experience remains available.
   following surf/breeze/jungle crossfade boundaries, nearest non-dormant bird/monkey candidates,
   and the exact active pooled emitter; F1 reports the active-source count against the six-source
   ceiling.
-- [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
+- [x] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
   beach-path, grass-interaction detail, ground-contact, movement-trace, close-palm, jungle-trail,
   natural-prop, driftwood, emergent-reef,
   near-surface-water, active-current, fallen-frond, distant-horizon, airborne bird-detail, and
   shallow-water fish views plus offshore-shark and GPU-skinned-monkey views are implemented and
-  used by native/browser captures; free camera and more landmark views remain open.
+  used by native/browser captures. Debug builds add bounded F3 flight with frozen player state,
+  12/36 m/s movement, automatic F1-visible lifetime, and real private-Xwayland key-input coverage.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
   warm-up and 600 sampled uncapped intervals with JSON mean/median/p95/p99 output, while
@@ -2405,6 +2407,29 @@ Work next, in order:
   suite passes 25/25 in 34.58 seconds, including 24 real OpenGL 3.3 scenes and the graphics-profile
   refusal audit. Web and Android products are unaffected because their runtime sources did not
   change. CNA and Sharp Runtime remain read-only; no dependency defect was found.
+
+### 2026-10-06 — Bounded debug inspection camera
+
+- Added a renderer-independent `DebugFreeCamera` with normalized yaw-relative three-axis flight,
+  0.1-second frame clamping, 12/36 m/s normal/Shift speeds, `+/-820 m` horizontal bounds, and
+  `-18..260 m` vertical bounds. In debug builds, F3 activates it only while F1 is visible; WASD
+  flies horizontally, Q/E vertically, the player and locomotion bob remain frozen, and F3 or
+  hiding F1 restores the unchanged authoritative player eye. Release builds omit the member,
+  activation, and flight branch at compile time.
+- Extended F1 with explicit camera/player positions and free-camera state. Input diagnostics now
+  distinguish player and camera coordinates. Added core coverage for inactivity, frame clamping,
+  normalized diagonal movement, yaw-relative fast travel, bounds, and deactivation retention.
+- Added `IslandGameFreeCameraInput`, which uses real X11 events on CNA's private Xwayland display
+  and proves both F3 edges, camera displacement, and zero player displacement. It runs serially so
+  concurrent capture windows cannot steal focus. Updated the Web harness for the explicit input
+  schema and made its B/F2 key edges span several SwiftShader frames, eliminating observed
+  input-test timing races rather than weakening any assertion.
+- The complete isolated native suite passes 26/26, including 25 display-backed OpenGL tests. The
+  complete Chrome 152/SwiftShader WebGL 2 renderer/lifecycle/input/audio-init harness passes all
+  20 stages. The arm64-v8a GLES 3 APK and application lint pass; WebAssembly is 8,367,853 bytes,
+  stripped `libmain.so` is 15,765,176 bytes, and the APK is 33,497,552 bytes. Android runtime
+  appearance remains unqualified without KVM or a physical device. CNA and Sharp Runtime remain
+  clean on `next` and unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

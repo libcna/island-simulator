@@ -108,6 +108,10 @@ visual review.
 view. It is a functional test, not a stable performance threshold. Run the five-view measurement
 suite and interpret its limitations as documented in `docs/performance.md`.
 
+When `xdotool` is available, Debug configurations also register `IslandGameFreeCameraInput`. It
+must run through the private display command above: it activates F3, supplies horizontal and
+vertical flight input, observes the active camera diagnostic, restores player control, and exits.
+
 ## Run interactively
 
 ```bash

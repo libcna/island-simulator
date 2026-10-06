@@ -21,7 +21,9 @@ namespace island
     struct DebugOverlayState
     {
         Microsoft::Xna::Framework::Vector3 playerPosition;
+        Microsoft::Xna::Framework::Vector3 cameraPosition;
         std::string renderer;
+        bool freeCameraActive = false;
         bool swimming = false;
         float groundHeight = 0.0f;
         float groundSlopeDegrees = 0.0f;

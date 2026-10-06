@@ -54,6 +54,19 @@ locations shorten traversal and wildlife/vegetation QA without exposing teleport
 ordinary presentation. Repeated F11 presses cycle through all seven monkeys for silhouette,
 animation, and obstacle-clearance inspection.
 
+In debug builds, press F3 while the F1 panel is visible to detach a bounded inspection camera at
+the current eye position. WASD moves relative to camera yaw, Q/E moves down/up, and either Shift
+key raises speed from 12 m/s to 36 m/s. Mouse look is unchanged. The player and locomotion camera
+motion remain frozen, while render culling and distance-scaled wildlife simulation follow the
+inspection camera. Press F3 again to return to the player; hiding F1 also exits this mode so it
+cannot remain active without an obvious developer presentation. The camera is limited to
+`+/-820 m` horizontally and `-18..260 m` vertically.
+
+`IslandGameFreeCameraInput` drives this path with real X11 input on the private Xwayland display.
+It verifies both F3 edges and an active diagnostic sample; renderer-independent core tests cover
+frame-time clamping, normalized three-axis movement, yaw-relative fast travel, bounds, and the
+inactive-state invariant. This does not qualify Wayland-native or Android touch input.
+
 Current fields are:
 
 - smoothed wall-clock frame duration and a half-second FPS sample;
@@ -162,5 +175,5 @@ The F2 pass covers the world geometry and audio diagnostics listed above. Bird r
 wildlife spawn regions, steering avoidance proposals, individual renderer culling volumes and LOD
 radii, and grass-density fields remain open. The movement trace retains the latest resolved frame;
 a longer history and geometric step-up/depenetration views are not implemented. So do a teleport
-menu, free camera, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
+menu, target-specific budget warnings, and renderer-specific CPU/GPU separation. All
 additions must remain opt-in and absent from the normal release presentation.

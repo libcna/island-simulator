@@ -9,6 +9,7 @@
 | W / A / S / D | Move with acceleration and deceleration |
 | F1 | Show or hide the developer diagnostics overlay |
 | F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, and audio-zone/emitter diagnostics; visible only with F1 |
+| F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |
 | F5 / F6 / F7 / F8 / F9 / F10 / F11 / F12 | With the overlay visible, teleport to eight QA locations; F9 faces the fish shallows, F10 the offshore shark, repeated F11 presses cycle through all seven monkeys, and F12 enters the active offshore current for feedback QA |
 | B | Smoothly disable or restore restrained walking/swimming camera motion |
 | M | Mute or unmute the ambient soundscape |
@@ -29,9 +30,14 @@ wall-clock frame timing, renderer identity, player and ocean-current state, visi
 terrain/vegetation cells, LOD populations, draw counts, and active audio sources against the
 six-source ceiling. See `docs/debugging.md` for interpretation and limitations.
 
+The F3 camera is compiled into debug builds only. It starts at the rendered player-eye position,
+keeps mouse look, moves at 12 m/s or 36 m/s with Shift, and is bounded to the island inspection
+volume. It freezes player movement and locomotion bob while wildlife visibility continues to use
+the inspection camera. Press F3 again, or hide F1, to return exactly to the stationary player.
+
 ## Web (current)
 
-The Web build uses the same WASD, mouse-look, F1, F2, B, M, and Escape controls. Its production page
+The Web release build uses the same WASD, mouse-look, F1, F2, B, M, and Escape controls. Its production page
 displays click-to-play instructions and requests pointer lock directly from the first left-button
 gesture, as required by browser security policy. The same gesture starts audio after browser
 activation. Escape releases pointer lock; clicking the canvas acquires it again. Automated

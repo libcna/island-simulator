@@ -25,6 +25,7 @@ island_verify_dependencies()
 
 add_library(island_core STATIC
     game/src/BirdFlock.cpp
+    game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
     game/src/FirstPersonCameraMotion.cpp
     game/src/FishSchools.cpp
@@ -386,5 +387,20 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 45
             LABELS display
             PASS_REGULAR_EXPRESSION "benchmark completed 600 samples")
+
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            find_program(ISLAND_XDOTOOL_EXECUTABLE xdotool)
+            if(ISLAND_XDOTOOL_EXECUTABLE)
+                add_test(NAME IslandGameFreeCameraInput
+                    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tools/run_native_free_camera_smoke.sh"
+                            "$<TARGET_FILE:island-simulator>"
+                            "${ISLAND_XDOTOOL_EXECUTABLE}")
+                set_tests_properties(IslandGameFreeCameraInput PROPERTIES
+                    TIMEOUT 20
+                    LABELS "display;input"
+                    RUN_SERIAL TRUE
+                    PASS_REGULAR_EXPRESSION "free-camera input smoke passed")
+            endif()
+        endif()
     endif()
 endif()
