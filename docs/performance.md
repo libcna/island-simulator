@@ -86,6 +86,15 @@ below 2.0 ms p95 in both repeats.
 | Driftwood/shore detail | 0.7914--0.7975 | 1.0853--1.0934 | 24 | 1 |
 | Monkeys | 1.4593--1.4856 | 1.6682--1.6773 | 95 | 2 |
 
+### Near-surface water-view follow-up
+
+Two repeats of the dedicated water viewpoint measure the complete swimming composition, including
+the one conditional full-screen `SpriteBatch` veil submission. Both runs tracked 110 scene
+submissions and held a 0.637 veil intensity. The result is 1.5405--1.5895 ms mean,
+1.6881--1.8650 ms p95, and 1.7982--2.3059 ms p99. This is a viewpoint-specific cost record, not a
+before/after attribution: the camera sees a different population than the five baseline views.
+Dry views submit no water-view draw.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

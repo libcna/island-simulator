@@ -15,6 +15,7 @@
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WaterViewModel.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WildlifeSimulation.hpp"
 
@@ -144,6 +145,37 @@ int main()
     cameraMotion.Reset();
     CheckNear(cameraMotion.MotionStrength(), 0.0f, 0.000001f,
               "camera motion reset clears residual movement strength");
+
+    CheckNear(island::WaterViewModel::TargetIntensity(false, -2.0f), 0.0f, 0.000001f,
+              "water view remains absent outside swimming mode");
+    const float shallowWaterView = island::WaterViewModel::TargetIntensity(true, -0.48f);
+    const float deepWaterView = island::WaterViewModel::TargetIntensity(true, -2.5f);
+    Check(shallowWaterView >= 0.60f && shallowWaterView < 0.70f,
+          "near-shore swimming receives a restrained minimum water-view cue");
+    Check(deepWaterView > shallowWaterView && deepWaterView <= 1.0f,
+          "deeper swimming strengthens but normalizes the water-view cue");
+    island::WaterViewModel waterView;
+    const float firstWaterViewStep = waterView.Update(true, -0.48f, 1.0f / 60.0f);
+    Check(firstWaterViewStep > 0.0f && firstWaterViewStep < shallowWaterView,
+          "water-view entry fades instead of appearing in one frame");
+    const float beforeLongWaterFrame = waterView.Intensity();
+    (void)waterView.Update(true, -2.5f, 5.0f);
+    Check(waterView.Intensity() - beforeLongWaterFrame
+              <= island::WaterViewModel::EntryRatePerSecond
+                    * island::WaterViewModel::MaximumStepSeconds + 0.000001f,
+          "water-view entry clamps long frames");
+    waterView.Reset(true, -2.5f);
+    CheckNear(waterView.Intensity(), deepWaterView, 0.000001f,
+              "water-view reset snaps deterministic QA placement to its target");
+    for (int frame = 0; frame < 180; ++frame) {
+        (void)waterView.Update(false, -2.5f, 1.0f / 60.0f);
+    }
+    CheckNear(waterView.Intensity(), 0.0f, 0.000001f,
+              "water-view exit fades fully back to a clear dry view");
+    const float beforeInvalidWaterDelta = waterView.Intensity();
+    (void)waterView.Update(true, -1.0f, std::numeric_limits<float>::quiet_NaN());
+    CheckNear(waterView.Intensity(), beforeInvalidWaterDelta, 0.000001f,
+              "water-view transition rejects a non-finite frame duration safely");
 
     const island::AmbientLoop surfLoop = island::GenerateSurfLoop();
     const island::AmbientLoop repeatedSurfLoop = island::GenerateSurfLoop();

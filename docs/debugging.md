@@ -44,6 +44,7 @@ Current fields are:
 - smoothed wall-clock frame duration and a half-second FPS sample;
 - player eye position, walking/swimming state, ground support height, and maximum footprint slope;
 - positive offshore distance and normalized ocean-current strength;
+- near-surface water-view intensity and its conditional draw count;
 - local collision broad-phase candidates versus the complete static obstacle population;
 - active renderer identity;
 - visible/total terrain cells;
@@ -94,6 +95,8 @@ build/island-simulator --capture /tmp/island-beach.ppm --viewpoint beach
 build/island-simulator --capture /tmp/island-jungle.ppm --viewpoint jungle
 build/island-simulator --capture /tmp/island-props.ppm --viewpoint props
 build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
+build/island-simulator --capture /tmp/island-reef.ppm --viewpoint reef
+build/island-simulator --capture /tmp/island-water.ppm --viewpoint water
 build/island-simulator --capture /tmp/island-birds.ppm --viewpoint birds
 build/island-simulator --capture /tmp/island-fish.ppm --viewpoint fish
 build/island-simulator --capture /tmp/island-shark.ppm --viewpoint shark
@@ -104,7 +107,7 @@ build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overvie
 
 These runs render four frames and exit, except the monkey capture waits 24 frames for the startup
 crossfades to settle. The WebGL 2 harness writes corresponding overview, beach,
-jungle, prop, driftwood, bird, fish, shark, and monkey PNG captures plus a JSON report under
+jungle, prop, driftwood, reef, water, frond, bird, fish, shark, and monkey PNG captures plus a JSON report under
 `build-probe/`. Captures prove
 initialization, shader selection, draw-path
 execution, and deterministic composition. A separate live harness section records browser input

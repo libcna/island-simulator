@@ -46,6 +46,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── DebugOverlay ─────── asset-free font, frame timing, and scene diagnostics
       ├── WorldDebugRenderer ─ portable boundaries, cells, collision, and wildlife lines
       ├── FirstPersonCameraMotion ─ bounded walking/swimming positional motion and opt-out
+      ├── WaterViewModel ───── depth-responsive near-surface veil intensity and transition smoothing
+      ├── WaterViewOverlay ─── generated premultiplied edge texture and one conditional draw
       ├── TouchControls ────── renderer-independent two-zone contact ownership and output
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
       ├── SoundscapeModel ──── deterministic PCM generation and shoreline-driven crossfades
@@ -53,7 +55,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       └── IslandGame ───────── CNA lifecycle, input, camera, and pass ordering
 ```
 
-`IslandTerrain`, `PlayerMotion`, `FirstPersonCameraMotion`, `VegetationLayout`, `GrassLayout`,
+`IslandTerrain`, `PlayerMotion`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
 `NaturalPropLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `TouchControls`, and
@@ -114,23 +116,27 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 6. `FirstPersonCameraMotion` derives a bounded local right/up displacement from physical speed and
    locomotion mode. It eases between walking and swimming rhythms, clamps long frames, resets on
    debug teleports, and fades to the authoritative eye point when B disables it.
-7. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
+7. `WaterViewModel` converts swimming state and authoritative support depth to a smoothed veil
+   intensity. `WaterViewOverlay` later uses that value for one generated `SpriteBatch` draw and
+   submits nothing while dry.
+8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch from authoritative
    shoreline, support-depth, locomotion, and velocity state; `Soundscape` applies smoothed changes
    to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
    positional bird/monkey call voice from nearby wildlife state.
-8. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
+9. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
-9. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
+10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain, natural props, broadleaf jungle, mesh grass, palms, the
    one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
    monkeys, and transparent ocean using one view/projection pair. Aquatic wildlife is submitted
-   before water so ocean transparency colours and reveals it.
-10. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
+   before water so ocean transparency colours and reveals it. The near-surface veil follows the
+   3D and shoreline passes so it colours their combined result.
+11. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins.
-11. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
+12. When explicitly enabled, `DebugOverlay` submits its translucent panel and bitmap text through
    CNA `SpriteBatch` after all 3D passes.
-12. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
+13. CNA presents once from `Game::EndDraw`; game code does not call `Present`.
 
 The normal game loop uses CNA's fixed-timestep mode. Core movement still clamps a long individual
 step to 100 ms so a debugger pause or loading stall cannot launch the player through the world.
@@ -387,8 +393,9 @@ testing remain open.
 - Collision uses a static 16 m spatial grid over every palm, canopy-trunk, solid-rock, and sampled
   log proxy. Exact narrow-phase circle checks preserve the original result; dynamic obstacles,
   geometric step-up, and depenetration remain absent.
-- Swimming camera height, restrained opt-out camera motion, and movement-responsive water audio are
-  functional, but underwater presentation and distinct visual water entry/exit details remain open.
+- Swimming camera height, restrained opt-out camera motion, movement-responsive water audio, and a
+  subtle depth-responsive near-surface edge veil are functional. Full underwater fog, waterline,
+  refraction, and splash presentation remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look,

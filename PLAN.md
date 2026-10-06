@@ -274,8 +274,9 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 
 - [x] Define depth-based water-entry/exit hysteresis.
 - [~] Implement near-surface camera height, reduced acceleration, swimming speed, and drag. A
-  restrained swimming camera rhythm and solid emergent-outcrop collision are complete;
-  underwater/waterline presentation remains open.
+  restrained swimming camera rhythm, solid emergent-outcrop collision, and subtle
+  depth-responsive near-surface edge veil are complete; a true geometric waterline and full
+  underwater presentation remain open.
 - [x] Define accessible shoreline distance from the authoritative island field, not world boxes.
 - [~] Add progressive outward resistance and inward correction from 42 to 72 m offshore. Lateral
   current variation and audiovisual feedback remain open.
@@ -325,8 +326,11 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Blend shoreline foam/readable moving wave edge and translucent water over the beach without
   visible z-fighting. A 384-segment ribbon now follows the authoritative shore independently of
   the coarse ocean grid and adds a narrow broken animated crest plus restrained receding wash over
-  the wet-sand pass. Close entry/underwater transitions and final wash/material tuning remain open.
-- [ ] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and stable.
+  the wet-sand pass. A subtle generated near-surface edge veil now fades with swimming state and
+  support depth; full underwater transitions and final wash/material tuning remain open.
+- [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
+  stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated edge veil with
+  one conditional `SpriteBatch` draw; waterline geometry, underwater fog, and refraction remain.
 - [~] Provide an actionable stock `BasicEffect` fallback when portable custom effects are
   unavailable or fail compilation. WebGL 2 uses the full shader successfully; Android GLES 3
   compiles and runs the scene, but the captured inland camera does not yet qualify the water path.
@@ -791,7 +795,7 @@ after the same experience remains available.
 | System | Automated evidence | Runtime evidence |
 |---|---|---|
 | Terrain | Query, normal, slope, deterministic generation tests | Walk every biome and boundary |
-| Player | Integration, collision, water transition tests | Feel/tuning sessions at varied frame rates |
+| Player | Integration, collision, water transition, water-view fade tests | Feel/tuning sessions at varied frame rates |
 | Ocean limit | Distance/current invariants and escape scenarios | Repeated outward swims from multiple shores |
 | Placement | Seed/golden counts, slope/biome validity | Pop-in, repetition, collision, composition review |
 | Wildlife | State, bounds, spawn, deterministic tests | Observe all species near/far for long loops |
@@ -821,7 +825,7 @@ after the same experience remains available.
 ## Debug and developer tooling backlog
 
 - [~] Runtime debug overlay and renderer identity. The F1/`--debug-overlay` panel reports actual
-  frame spacing, player/shore/current state, renderer, terrain/vegetation visibility, LOD counts,
+  frame spacing, player/shore/current/water-view state, renderer, terrain/vegetation visibility, LOD counts,
   draws, bird/fish/shark/monkey render LOD and simulation tiers, shark presence/activity, monkey
   state counts, plus audio mix/event counters. The F2 world view and deterministic capture now add
   boundary/collision/cell/wildlife markers; warning budgets and deeper views remain open.
@@ -840,8 +844,9 @@ after the same experience remains available.
   bounds, avoidance proposals, and spawn regions remain.
 - [ ] Audio zone/emitter/source-count visualization.
 - [~] Debug-only free camera and fixed screenshot viewpoints. Command-line overview, first-person
-  beach-path, jungle-trail, natural-prop, driftwood, airborne bird-detail, and shallow-water fish
-  views plus offshore-shark and GPU-skinned-monkey views are implemented and used by native/browser
+  beach-path, jungle-trail, natural-prop, driftwood, emergent-reef, near-surface-water,
+  fallen-frond, airborne bird-detail, and shallow-water fish views plus offshore-shark and
+  GPU-skinned-monkey views are implemented and used by native/browser
   captures; free camera and more landmark views remain open.
 - [ ] Asset validation command and deterministic world-statistics report.
 - [~] Frame-time capture and representative scene benchmark route. `--benchmark` now performs 120
@@ -896,6 +901,8 @@ Work next, in order:
    shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
    shallow-reef outcrops are complete; broader prop diversity, contact cues, and material tuning
    remain.
+   The first portable near-surface swimming veil is also complete; defer waterline geometry,
+   underwater fog, and refraction until a similarly portable design is justified.
 4. Extend the completed first F2 shoreline/current, nearby collision, shared-cell, and wildlife-
    heading visualization with terrain contacts, exact targets/spawn regions, individual culling/
    LOD/density fields, and audio emitters only where they materially improve debugging. F1 now
@@ -1756,6 +1763,28 @@ Work next, in order:
   1.6988--1.7015 ms mean and 1.8836--1.9754 ms p95 with five visible outcrops. Physical Android
   collision feel and appearance remain unqualified without KVM or a connected device. CNA and
   Sharp Runtime remain clean and unmodified.
+
+### 2026-10-06 — Near-surface swimming view
+
+- Added a renderer-independent water-view model that maps swimming state and authoritative support
+  depth to a restrained 0.60--1.00 target, fades in at 2.4/s and out at 1.8/s, and clamps long or
+  non-finite frame durations. Core coverage verifies dry suppression, shallow/deep ordering,
+  smoothing, deterministic reset, long-frame handling, and complete exit.
+- Added a runtime-generated 160 by 90 premultiplied turquoise edge veil, stretched through one
+  conditional CNA `SpriteBatch` draw after the 3D/shore passes and before touch/debug UI. It uses
+  no external asset and submits nothing while dry. F1 and capture diagnostics expose intensity and
+  draw count; `--viewpoint water` supplies a deterministic near-surface QA composition.
+- Rejected the first native capture because straight-alpha colour data was incorrect for CNA's
+  premultiplied blend path and visibly overexposed the whole frame. After premultiplying the
+  generated pixels and tint, native and actual Chrome 152/WebGL 2 captures match and retain the
+  intended subtle edge treatment.
+- All 17 native tests pass, including 16 isolated OpenGL 3.3 scenes. The complete WebGL 2
+  lifecycle/render/input/audio-init harness passes with the dedicated water scene. The arm64-v8a
+  GLES 3 APK builds and app lint passes; the stripped `libmain.so` is 15,635,824 bytes and the APK
+  is 33,368,200 bytes. Android runtime appearance remains unqualified without KVM or a connected
+  device. Two accelerated water-view benchmark repeats measured 1.5405--1.5895 ms mean,
+  1.6881--1.8650 ms p95, and 110 tracked submissions. CNA and Sharp Runtime remain clean and
+  unmodified; no dependency defect was found.
 
 ## Session-end checklist
 

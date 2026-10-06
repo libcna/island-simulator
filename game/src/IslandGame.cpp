@@ -53,6 +53,7 @@ namespace island
             case FixedViewpoint::Overview: return "overview";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
+            case FixedViewpoint::WaterlineDetail: return "water";
             case FixedViewpoint::PropDetail: return "props";
             case FixedViewpoint::DriftwoodDetail: return "driftwood";
             case FixedViewpoint::ReefDetail: return "reef";
@@ -126,6 +127,13 @@ namespace island
                                       pathZ);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.065f;
+        } else if (viewpoint_ == FixedViewpoint::WaterlineDetail) {
+            constexpr float angle = -std::numbers::pi_v<float> * 0.5f;
+            const float radius = terrain_.ShoreRadius(angle) + 18.0f;
+            cameraPosition_ = Vector3(std::cos(angle) * radius, 0.58f,
+                                      std::sin(angle) * radius);
+            yaw_ = std::atan2(-cameraPosition_.X, -cameraPosition_.Z);
+            pitch_ = -0.025f;
         } else if (viewpoint_ == FixedViewpoint::PropDetail
                    && !naturalPropLayout_.FallenLogs().empty()) {
             const FallenLogPlacement& log = naturalPropLayout_.FallenLogs().front();
@@ -276,8 +284,14 @@ namespace island
         skyRenderer_ = std::make_unique<SkyRenderer>(device);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);
         touchOverlay_ = std::make_unique<TouchOverlay>(device);
+        waterViewOverlay_ = std::make_unique<WaterViewOverlay>(device);
         worldDebugRenderer_ = std::make_unique<WorldDebugRenderer>(device, terrain_);
         playerMotion_.SetPosition(terrain_, cameraPosition_.X, cameraPosition_.Z);
+        const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
+            || viewpoint_ == FixedViewpoint::WaterlineDetail;
+        waterViewModel_.Reset(waterViewAllowed
+                                  && playerMotion_.Mode() == LocomotionMode::Swimming,
+                              playerMotion_.GroundHeight());
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
@@ -303,7 +317,8 @@ namespace island
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
-                  << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n";
+                  << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
+                  << "island-simulator: near-surface swimming view procedural edge veil\n";
         if (debugOverlayVisible_) {
             std::cout << "island-simulator: debug overlay active\n";
         }
@@ -341,6 +356,11 @@ namespace island
         if (!smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             UpdateCamera(deltaSeconds);
         }
+        const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
+            || viewpoint_ == FixedViewpoint::WaterlineDetail;
+        (void)waterViewModel_.Update(
+            waterViewAllowed && playerMotion_.Mode() == LocomotionMode::Swimming,
+            playerMotion_.GroundHeight(), deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -664,7 +684,7 @@ namespace island
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
-            + shorelineRenderer_->DrawCallCount();
+            + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
 
         std::ofstream output(benchmarkPath_);
         if (!output) {
@@ -774,6 +794,10 @@ namespace island
         shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                  timeSeconds);
 
+        const auto& viewport = device.getViewportProperty();
+        waterViewOverlay_->Draw(waterViewModel_.Intensity(), viewport.getWidthProperty(),
+                                viewport.getHeightProperty());
+
         if (debugOverlayVisible_ && worldDebugVisible_) {
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
@@ -800,6 +824,8 @@ namespace island
                 * 180.0f / std::numbers::pi_v<float>;
             overlayState.offshoreDistance = playerMotion_.OffshoreDistance(terrain_);
             overlayState.oceanCurrentStrength = playerMotion_.OceanCurrentStrength(terrain_);
+            overlayState.waterViewIntensity = waterViewModel_.Intensity();
+            overlayState.waterViewDraws = waterViewOverlay_->DrawCallCount();
             overlayState.visibleTerrainCells = terrainRenderer_->VisibleCellCount();
             overlayState.totalTerrainCells = terrainRenderer_->TotalCellCount();
             overlayState.visiblePalms = palmRenderer_->VisiblePalmCount();
@@ -981,7 +1007,9 @@ namespace island
                       << monkeyTroop_.Monkeys().size() << " visible, "
                       << monkeyRenderer_->DrawCallCount() << " draws, blends "
                       << monkeyRenderer_->ActiveCrossfadeCount() << '/'
-                      << monkeyRenderer_->CompletedCrossfadeCount() << " active/completed\n";
+                      << monkeyRenderer_->CompletedCrossfadeCount()
+                      << " active/completed; water view " << waterViewModel_.Intensity()
+                      << ", " << waterViewOverlay_->DrawCallCount() << " draw\n";
         }
         ++drawnFrames_;
         const std::uint32_t targetFrames = !capturePath_.empty()

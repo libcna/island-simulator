@@ -27,6 +27,8 @@ namespace island
         float groundSlopeDegrees = 0.0f;
         float offshoreDistance = 0.0f;
         float oceanCurrentStrength = 0.0f;
+        float waterViewIntensity = 0.0f;
+        int waterViewDraws = 0;
         int visibleTerrainCells = 0;
         int totalTerrainCells = 0;
         int visiblePalms = 0;

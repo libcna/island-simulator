@@ -15,9 +15,10 @@ been confirmed so far.
 - Terrain combines procedural vertex colour with a first texture-free sand/soil, wet-edge, and
   exposed-slope material shader. It still has no authored biome texture blend, decals, broad
   substrate diversity, or baked ambient/contact lighting.
-- The ocean has depth colour, analytic waves/specular response, a coarse broad foam mask, and a
-  new exact shore-following animated crest/wash ribbon. Close water entry lacks underwater tint,
-  refraction-like cues, splash particles, and final wash/material tuning.
+- The ocean has depth colour, analytic waves/specular response, a coarse broad foam mask, and an
+  exact shore-following animated crest/wash ribbon. Swimming now adds a deliberately subtle,
+  depth-responsive turquoise edge veil, but full underwater fog, a geometric waterline,
+  refraction-like cues, splash particles, and final wash/material tuning remain absent.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic variation, wind,
   culling, and LOD, but visible transition popping, close-up material simplicity, and weak
   grounding/contact cues remain.
@@ -33,8 +34,8 @@ been confirmed so far.
 - Substantial rocks and fallen logs have conservative collision; smaller rock dressing remains
   non-solid. Fourteen emergent reef outcrops remain solid while swimming. Walking and swimming now
   use very mild speed-responsive positional camera motion,
-  which can be smoothly disabled with B. There is no geometric step-up, jump, underwater
-  presentation, or visual water-entry feedback; restrained audio entry/exit accents are
+  which can be smoothly disabled with B. There is no geometric step-up, jump, or complete
+  underwater presentation; restrained visual near-surface and audio entry/exit feedback are
   implemented.
 - Desktop mouse sensitivity and mobile touch sensitivity are compile-time values. There is no
   settings UI, remapping, gamepad control scheme, or handed touch layout yet.

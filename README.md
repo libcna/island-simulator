@@ -13,7 +13,8 @@ clusters. Every visual layer has spatial culling and appropriate distance reduct
 vegetation uses a calm breeze.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, a soft ocean-current boundary,
-dual-zone touch input, and a fixed sunny gradient sky with a sun disc and calm high clouds. A first
+dual-zone touch input, a subtle depth-responsive near-surface water veil, and a fixed sunny gradient
+sky with a sun disc and calm high clouds. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
 wing strokes, terrain clearance, visibility culling, and distance-throttled simulation. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface. One
@@ -94,8 +95,8 @@ frame-time reports across five fixed scenes; methodology and the initial Linux b
 
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
-grass wind, four frames, clean shutdown, active overview/beach/jungle/prop/driftwood/bird/fish/
-shark/monkey screenshots, and portable overlay text rendering.
+grass wind, four frames, clean shutdown, active overview/beach/jungle/prop/driftwood/reef/water/
+frond/bird/fish/shark/monkey screenshots, and portable overlay text rendering.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, relative mouse
 look, a deterministic beach-to-water crossing with successful transition-audio playback, F2 world

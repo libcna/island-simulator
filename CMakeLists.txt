@@ -38,6 +38,7 @@ add_library(island_core STATIC
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
     game/src/VegetationLayout.cpp
+    game/src/WaterViewModel.cpp
     game/src/WorldCollisionGrid.cpp
     game/src/WildlifeSimulation.cpp)
 add_library(IslandSimulator::Core ALIAS island_core)
@@ -167,6 +168,7 @@ if(ISLAND_BUILD_GAME)
         game/src/Soundscape.cpp
         game/src/TerrainRenderer.cpp
         game/src/TouchOverlay.cpp
+        game/src/WaterViewOverlay.cpp
         game/src/WorldDebugRenderer.cpp)
 
     # SDLActivity loads an Android game as libmain.so. Keep the public CMake target name stable so
@@ -227,6 +229,13 @@ if(ISLAND_BUILD_GAME)
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-jungle-capture.ppm"
                     --viewpoint jungle)
         set_tests_properties(IslandGameJungleCapture PROPERTIES TIMEOUT 30 LABELS display)
+        add_test(NAME IslandGameWaterViewCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
+                    --viewpoint water)
+        set_tests_properties(IslandGameWaterViewCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION "water view 0[.][1-9][0-9]*, 1 draw")
         add_test(NAME IslandGamePropCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-prop-capture.ppm"
                     --viewpoint props)

@@ -35,6 +35,8 @@
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
+#include "IslandSimulator/WaterViewModel.hpp"
+#include "IslandSimulator/WaterViewOverlay.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WorldDebugRenderer.hpp"
 #include "Microsoft/Xna/Framework/Game.hpp"
@@ -52,6 +54,7 @@ namespace island
         Overview,
         BeachPath,
         JungleTrail,
+        WaterlineDetail,
         PropDetail,
         DriftwoodDetail,
         ReefDetail,
@@ -115,6 +118,7 @@ namespace island
         FirstPersonCameraMotion cameraMotion_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
+        WaterViewModel waterViewModel_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<FishRenderer> fishRenderer_;
@@ -130,6 +134,7 @@ namespace island
         std::unique_ptr<Soundscape> soundscape_;
         std::unique_ptr<TerrainRenderer> terrainRenderer_;
         std::unique_ptr<TouchOverlay> touchOverlay_;
+        std::unique_ptr<WaterViewOverlay> waterViewOverlay_;
         std::unique_ptr<WorldDebugRenderer> worldDebugRenderer_;
         Microsoft::Xna::Framework::Matrix cameraView_;
         Microsoft::Xna::Framework::Matrix cameraProjection_;

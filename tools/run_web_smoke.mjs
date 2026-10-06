@@ -143,6 +143,7 @@ try {
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && result.output?.includes("island-simulator: natural props 166 rocks, 14 reef outcrops, 11 fallen logs, 28 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
+    && result.output?.includes("island-simulator: near-surface swimming view procedural edge veil")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes("portable instanced wind shader")
@@ -439,6 +440,38 @@ try {
     && reefResult.output?.includes("natural-prop portable shader with near/far LOD")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
     && !reefResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=water`,
+  }, visualSessionId);
+  let waterResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    waterResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (waterResult.output?.includes("island-simulator: terrain")
+        || waterResult.error) break;
+  }
+  await delay(1000);
+  const completedWaterEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  waterResult = JSON.parse(completedWaterEvaluation.result.value ?? "{}");
+
+  const waterScreenshot = await call(
+    "Page.captureScreenshot", { format: "png" }, visualSessionId);
+  const waterScreenshotPath = path.join(buildDirectory, "island-browser-water.png");
+  await writeFile(waterScreenshotPath, Buffer.from(waterScreenshot.data, "base64"));
+  const waterPassed = waterResult.output?.includes("island-simulator: renderer WEBGL2")
+    && waterResult.output?.includes("island-simulator: fixed sunny sky portable shader")
+    && waterResult.output?.includes(
+      "island-simulator: near-surface swimming view procedural edge veil")
+    && /water view 0[.][1-9][0-9]*, 1 draw/.test(waterResult.output ?? "")
+    && !waterResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=fronds`,
@@ -799,7 +832,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed
-    && junglePassed && propPassed && driftwoodPassed && reefPassed && frondPassed
+    && junglePassed && propPassed && driftwoodPassed && reefPassed && waterPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
@@ -844,6 +877,11 @@ try {
       passed: reefPassed,
       output: reefResult.output ?? "",
       error: reefResult.error ?? "",
+    },
+    water: {
+      passed: waterPassed,
+      output: waterResult.output ?? "",
+      error: waterResult.error ?? "",
     },
     fronds: {
       passed: frondPassed,
@@ -896,6 +934,7 @@ try {
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
     reefScreenshot: path.basename(reefScreenshotPath),
+    waterScreenshot: path.basename(waterScreenshotPath),
     frondScreenshot: path.basename(frondScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),
