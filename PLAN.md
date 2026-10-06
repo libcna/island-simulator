@@ -318,8 +318,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions. Terrain vertices
   now carry authoritative shore distance and slope into a portable texture-free material shader;
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
-  steeper interior ground exposes a muted soil tint, and a distance-bounded microvariation octave
-  plus two sparse deterministic grids add curved pointed leaf litter to the interior. A restrained
+  a close-only octave adds dry-sand granulation, and a bounded signed-shore-distance term adds
+  broken raked crests parallel to the water edge. Steeper interior ground exposes a muted soil
+  tint, and a distance-bounded microvariation octave plus two sparse deterministic grids add
+  curved pointed leaf litter to the interior. A restrained
   fixed-sun dapple reuses those noise fields on low-slope ground beyond the beach transition. The
   same portable shader now draws a narrower, noise-mottled broken-edge dry-earth footpath from the
   authoritative vegetation-reserved corridor, with short grass retained over it and the wider
@@ -3373,6 +3375,23 @@ Work next, in order:
   loaded and the account is listed in the `kvm` group, but this shell has not inherited that group
   and `/dev/kvm` remains absent, so accelerated Android runtime qualification is still open. CNA
   and Sharp Runtime remain unmodified, and no qualifying dependency defect was found.
+
+### 2026-10-06 — Close sand granulation and shoreline-raked ripples
+
+- Added a close-only sand octave to the portable terrain material and a restrained broken-crest
+  term driven by the authoritative signed shore distance. The latter follows the irregular beach
+  instead of a world-axis pattern, fades by 92 m, and ends 14 m inland. It changes material colour
+  only: no texture, mesh, instance, draw, allocation, collision, or gameplay state was added.
+- Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 waterline and close-driftwood captures
+  agree on the retained subtle sand breakup. The Chrome suite passes all 22 stages and requires
+  the exact feature diagnostic. Two isolated 600-sample shore-detail safety runs retained 54
+  tracked submissions and measured 1.0062--1.0528 ms mean, 1.2434--1.4131 ms p95, and
+  1.5616--1.8055 ms p99; the ranges overlap the preceding integrated observation and are not an
+  isolated speedup claim.
+- The arm64 GLES 3 APK assembles through the shared `/rv/cnaccache`; it is 18,706,876 bytes, its
+  stripped `libmain.so` is 15,896,592 bytes, and WebAssembly is 8,474,383 bytes. Actual Android
+  appearance/cost remains open because `/dev/kvm` is still absent. CNA and Sharp Runtime remain
+  unmodified, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

@@ -820,6 +820,22 @@ Two shared-GPU debug-build safety checks measured 1.4463--1.4549 ms mean,
 1.9150--2.0607 ms p95, and 2.2383--2.3108 ms p99. These checks reject a gross regression but do
 not establish an isolated before/after speedup.
 
+### Close sand granulation and shoreline-raked ripple follow-up
+
+The portable terrain fragment shader evaluates one extra four-corner value-noise sample only on
+close sand and uses it for restrained warm-channel granulation. The ripple term reuses the existing
+broad/medium fields and authoritative signed shore distance; it fades by 92 m and stops 14 m inland,
+so it cannot become a distant full-island stripe pattern. The treatment adds no texture, vertex,
+index, instance, allocation, collision rule, or draw submission.
+
+Native OpenGL 3.3 and actual Chrome/SwiftShader WebGL 2 driftwood and waterline captures were
+inspected at 1280 by 720 and agree on the retained subtle breakup. Two isolated private-display
+driftwood runs retained the same 54 tracked submissions and measured 1.0062--1.0528 ms mean,
+1.2434--1.4131 ms p95, and 1.5616--1.8055 ms p99 across 600 samples. Those ranges overlap the
+immediately preceding 1.0604/1.3832/1.7685 ms integrated shore-detail observation; they guard
+against a gross regression rather than proving an isolated shader cost. Physical-Android and
+hardware-browser fragment measurements remain open.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

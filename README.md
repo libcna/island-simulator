@@ -4,9 +4,9 @@
 experience built in C++23 with CNA. The project is at the beginning of a long development campaign.
 The current slice renders a deterministic approximately 500 m island with portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
-microvariation, sparse curved leaf litter, restrained fixed-sun jungle-floor dappling, and a
-narrow noise-mottled, broken-edge earthen footpath that follows the same authored corridor reserved
-by vegetation. Two
+microvariation, sparse curved leaf litter, close dry-sand granulation, subtle shoreline-raked
+ripples, restrained fixed-sun jungle-floor dappling, and a narrow noise-mottled, broken-edge
+earthen footpath that follows the same authored corridor reserved by vegetation. Two
 authored clearings use distinct sunlit-dry and leaf-rich ground treatments. An animated tropical
 ocean adds distance-faded crossing-wave colour structure and an exact shore-following foam/wash
 ribbon,

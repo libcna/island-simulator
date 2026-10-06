@@ -162,6 +162,28 @@ void main()
                   1.0 + sandVariation * 0.43);
     color += vec3(0.043, 0.026, -0.011) * medium * sand * detailFade;
 
+    float closeSand = sand * (1.0 - smoothstep(28.0, 92.0, distanceToCamera));
+    if (closeSand > 0.0) {
+        float sandGranulation = valueNoise(p * 1.18 + vec2(4.7, -12.9));
+        float grain = (sandGranulation * 0.064 + fine * 0.012) * closeSand;
+        color *= vec3(1.0 + grain * 0.90,
+                      1.0 + grain * 0.72,
+                      1.0 + grain * 0.46);
+
+        float rippleMask = closeSand
+            * smoothstep(0.35, 1.40, signedShoreDistance)
+            * (1.0 - smoothstep(8.0, 14.0, signedShoreDistance));
+        float ripplePhase = signedShoreDistance * 3.80
+            + broad * 1.15 + medium * 0.55
+            + dot(p, vec2(0.016, -0.011));
+        float narrowCrest = 1.0 - abs(sin(ripplePhase));
+        float brokenCrest = (narrowCrest - 0.36)
+            * (0.68 + 0.32 * sin(signedShoreDistance * 1.37 + p.x * 0.045));
+        color *= vec3(1.0 + brokenCrest * rippleMask * 0.025,
+                      1.0 + brokenCrest * rippleMask * 0.021,
+                      1.0 + brokenCrest * rippleMask * 0.014);
+    }
+
     float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)
         * interior * detailFade;
     color *= vec3(1.0 + groundVariation * 0.55,
@@ -353,6 +375,8 @@ void main()
                     std::cout << "island-simulator: terrain portable sand/soil material shader\n"
                               << "island-simulator: terrain near-field microvariation and "
                                  "procedural interior leaf litter\n"
+                              << "island-simulator: terrain close sand granulation and "
+                                 "shoreline-raked ripples\n"
                               << "island-simulator: terrain fixed-sun interior dapple from "
                                  "shared portable noise fields\n"
                               << "island-simulator: terrain authored primary footpath material\n"

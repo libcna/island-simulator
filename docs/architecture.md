@@ -196,6 +196,12 @@ presence from one hash; pointed curved silhouettes replace the rejected first ov
 detail uses no texture, geometry, asset, or draw submission, does not alter authoritative terrain
 queries, and disappears before it can alias into mid-distance scenery.
 
+The beach branch adds one close-only value-noise octave to break up otherwise flat dry sand. A
+second bounded term follows the interpolated authoritative signed shore distance, so its broken
+crest lines remain approximately parallel to the irregular water edge instead of using world-axis
+stripes. Both terms fade with camera distance; the raked crests additionally stop 14 m inland.
+They change only material colour and add no texture, mesh, draw submission, or collision detail.
+
 The same material reuses its already-computed broad, medium, and fine fields for a restrained
 fixed-sun floor-dapple pass. It begins 34 m inland, fades in through 68 m, rejects fully steep
 ground, and shares the existing 95--285 m detail fade. A coherent early branch avoids the extra

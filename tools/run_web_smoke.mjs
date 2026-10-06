@@ -184,6 +184,8 @@ try {
     && result.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && result.output?.includes(
+      "island-simulator: terrain close sand granulation and shoreline-raked ripples")
+    && result.output?.includes(
       "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
     && result.output?.includes(
       "island-simulator: terrain authored primary footpath material")
