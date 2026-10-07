@@ -380,8 +380,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   colour structure that fades before the horizon. A restrained ridge-light cue reuses the
   already-computed five-wave analytic slope and the same distance/Fresnel/shallow bounds without a
   new sine, varying, texture, geometry, or draw. A narrow sun-facing window of that same slope now
-  adds short directional crests from 85 to 245 m without another wave field or resource; full
-  underwater transitions and final
+  adds short directional crests from 85 to 245 m without another wave field or resource. A
+  view-aligned signed projection of that slope now also adds shallow-weighted grazing reflection
+  bands inside the existing 135--420 m detail fade without a new wave, varying, texture, resource,
+  or draw; full underwater transitions and final
   wash/material tuning remain open.
 - [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
   stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated depth/edge veil
@@ -737,7 +739,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,789,541 bytes uncompressed and 2,492,117 bytes through
+  The current Release package is 8,790,279 bytes uncompressed and 2,493,211 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -799,7 +801,7 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
   requires renderer/first-frame/current-grass, near-seed-head, near-rock crown/facet, near-bird-
-  feather, and ocean-crest diagnostics, rejects fatal/shader errors, and records
+  feather, ocean-crest, and grazing-reflection diagnostics, rejects fatal/shader errors, and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
@@ -5157,6 +5159,36 @@ Work next, in order:
   the deterministic Web package is 8,789,541 bytes or 2,492,117 bytes through gzip. This is
   functional translated-host evidence, not physical-device performance qualification. All builds
   used two workers or fewer and the shared cache; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Reused-slope grazing ocean reflections
+
+- Original-resolution offshore-current, near-surface-water, and reef review found that the calm
+  broad surface still read too uniformly at low viewing angles. The ocean fragment shader now
+  projects its already-computed analytic slope toward the horizontal eye direction, smoothly
+  saturates that signed value, and adds a bounded cyan reflection variation only at grazing angles.
+  Existing 135--420 m detail fade and shallow weighting keep the horizon stable and the lagoon
+  restrained. A weaker first tuning was inspected and rejected before retaining the final result.
+- The change adds only fragment arithmetic. It introduces no sine, wave field, texture lookup,
+  varying, uniform, geometry, allocation, resource, or draw submission. The OpenGL 3.3 object
+  compiles through `/rv/cnaccache` with first-party warnings as errors but is deliberately not
+  relinked while the operator-visible prior executable remains open.
+- The complete Chrome 152/SwiftShader WebGL 2 suite passes 22/22 and requires the exact reflection
+  marker in lifecycle, water, and current gates. Before/after current, water, and reef frames were
+  inspected at original resolution. The thirteenth clean Firefox ESR 140.15 run independently
+  compiles the GLSL ES 300 path and retains pointer-lock/relock, persistent Shift, footstep/audio,
+  tab-resume, jungle, and water gates; first draw was 357 ms total.
+- A current fixed-current x86_64 APK passed the strict KVM 12/host-gfxstream GLES 3 plus audio gate.
+  Its inspected 2400 by 1080 frame reports `OPENGLES3`, the 1280 by 720 logical viewport, current
+  0.7 and drift 0.3/1.2, and visibly retains the low-angle surface breakup. First draw completed in
+  1677.445 ms without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is functional
+  translated-host evidence, not physical-device performance qualification.
+- The emulator was stopped cleanly. The restored arm64-only APK builds/lints through the shared
+  cache, contains only `arm64-v8a`, verifies with APK signature scheme v2, is 18,734,196 bytes, and
+  contains a 15,923,912-byte stripped `libmain.so`. WebAssembly is 8,525,401 bytes; the
+  deterministic Web package is 8,790,279 bytes or 2,493,211 bytes through gzip. Seven
+  renderer-independent/package gates pass. Build trees remain approximately 2.6 GiB native,
+  87 MiB Web, and 361 MiB Android with 374 GiB free; shared ccache is 3.7 GiB with 99.67 percent
+  cacheable calls. All builds used two workers or fewer; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

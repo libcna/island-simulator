@@ -50,7 +50,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,524,663 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,525,401 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -114,7 +114,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,789,541 bytes uncompressed and 2,492,117 bytes through gzip, a 71.6% transfer reduction. These
+8,790,279 bytes uncompressed and 2,493,211 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -160,7 +160,8 @@ clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. Lifecycle, overview, beach, near-surface-water,
 and offshore-current stages additionally require the distance-faded reused crossing-wave colour
-plus reused-slope shallow-ridge and sunward-crest diagnostics. The harness then opens live fixed
+plus reused-slope shallow-ridge, sunward-crest, and grazing-reflection diagnostics. The harness
+then opens live fixed
 overview, first-person
 beach, grass interaction, folded-split-ground-plant, segmented-palm and bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
@@ -292,7 +293,7 @@ ripple/splash state, and captures both frames. The tool writes four PNGs plus a 
 report under the ignored build directory and removes its profile and processes even on failure.
 
 The current Firefox ESR 140.15 run reports `WebGL 2.0` on a `Radeon R9 200 Series, or similar`
-backend and completed the first rendered frame in 289--401 ms total across twelve clean tool runs.
+backend and completed the first rendered frame in 289--401 ms total across thirteen clean tool runs.
 All four original-resolution frames were inspected; the input frame visibly retained the world
 and the warm-gold `RUN MODE  8.0 M/S` notice, while the jungle and water frames match the Chromium
 composition and expose their expected live state. These one-run startup values are not a network

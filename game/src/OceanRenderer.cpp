@@ -41,6 +41,8 @@ namespace island
 {
     namespace
     {
+        constexpr const char* GrazingReflectionDiagnostic =
+            "island-simulator: ocean grazing reflection bands reuse analytic slope field";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -164,6 +166,13 @@ void main()
         + 0.23 * sin(dot(vWorld.xz, vec2(-0.27, 0.57)) - uTime * 0.61 + 1.8);
     float distanceToCamera = length(vWorld - uCameraPosition);
     float waveDetailFade = 1.0 - smoothstep(135.0, 420.0, distanceToCamera);
+    vec2 planarEye = toEye.xz;
+    vec2 planarEyeDirection = planarEye / max(length(planarEye), 0.0001);
+    float glancingSlope = dot(slope, planarEyeDirection);
+    float reflectionRipple = glancingSlope / (0.010 + abs(glancingSlope));
+    float grazingWeight = smoothstep(0.16, 0.86, 1.0 - viewFacing)
+        * waveDetailFade * mix(0.58, 1.0, clamp(vShallow, 0.0, 1.0));
+    water += vec3(0.032, 0.076, 0.090) * reflectionRipple * grazingWeight;
     float subsurfaceVisibility = (1.0 - fresnel)
         * mix(0.42, 1.0, clamp(vShallow, 0.0, 1.0));
     float subsurfaceWave = (crossingWaves - 0.50)
@@ -313,9 +322,11 @@ void main()
                       << "island-simulator: ocean reused crossing-wave subsurface colour\n"
                       << "island-simulator: ocean shallow ridge light reuses animated slope field\n"
                       << "island-simulator: ocean sunward ripple crests reuse analytic slope field\n"
+                      << GrazingReflectionDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
+            MirrorRuntimeDiagnosticToPlatformLog(GrazingReflectionDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

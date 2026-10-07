@@ -569,16 +569,21 @@ to the non-reflective, shallow, near/middle-distance surface and therefore adds 
 texture, varying, geometry, or draw. A second narrow cue projects that same slope toward the fixed
 sun, windows only the sun-facing signed range, and fades from 85 to 245 m. This gives nearby calm
 water short directional crests while leaving the reflective horizon quiet, again without another
-wave field or resource. The ripple state eases from
+wave field or resource. A third cue projects the same slope toward the horizontal eye direction,
+smoothly saturates the signed result, and applies it only at grazing angles inside the existing
+135--420 m detail fade. The shallow-weighted cyan reflection bands break up broad low-angle water
+without another wave evaluation, texture, varying, geometry, resource, or draw. The ripple state
+eases from
 authoritative depth/speed input, wraps
 deterministically, uses subtle spatial breakup, and skips its fragment work while inactive. A
 separate finite transition phase expands and fades its broken double crest, then retires fully;
 both effects share the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
 a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
 ripple or transition burst.
-Native OpenGL 3.3, actual Chrome/WebGL 2, and a KVM-accelerated API 35 Android GLES3 surface
-visibly render the full transition-burst and sunward-crest paths. Physical mobile-GPU profiling
-remains open.
+Native OpenGL 3.3 compiles the current shader object, while actual Chrome/WebGL 2 and a
+KVM-accelerated API 35 Android GLES3 surface visibly render the full transition-burst,
+sunward-crest, and grazing-reflection paths. The operator-visible native process intentionally
+remains on its prior linked build until it closes. Physical mobile-GPU profiling remains open.
 
 `ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
 ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and

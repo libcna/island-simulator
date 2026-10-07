@@ -151,6 +151,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean sunward ripple crests reuse analytic slope field" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: ocean grazing reflection bands reuse analytic slope field" \
+            "$LOG_FILE" \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then
         QUALIFIED=1
         break

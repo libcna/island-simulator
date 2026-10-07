@@ -252,6 +252,7 @@ try {
     "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: near fallen logs use irregular broken end contours",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
+    "island-simulator: ocean grazing reflection bands reuse analytic slope field",
     "island-simulator: startup world ",
     "island-simulator: visible terrain cells ",
   ];
@@ -456,6 +457,7 @@ try {
     [
       "island-simulator: renderer WEBGL2",
       "island-simulator: ocean sunward ripple crests reuse analytic slope field",
+      "island-simulator: ocean grazing reflection bands reuse analytic slope field",
       "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw",
     ],
     waterStatePattern);

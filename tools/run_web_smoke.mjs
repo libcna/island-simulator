@@ -251,6 +251,8 @@ try {
     && result.output?.includes(
       "island-simulator: ocean sunward ripple crests reuse analytic slope field")
     && result.output?.includes(
+      "island-simulator: ocean grazing reflection bands reuse analytic slope field")
+    && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
@@ -918,6 +920,8 @@ try {
     && waterResult.output?.includes(
       "island-simulator: ocean sunward ripple crests reuse analytic slope field")
     && waterResult.output?.includes(
+      "island-simulator: ocean grazing reflection bands reuse analytic slope field")
+    && waterResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && waterResult.output?.includes(
       "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw")
@@ -953,6 +957,8 @@ try {
       "island-simulator: ocean reused crossing-wave subsurface colour")
     && currentResult.output?.includes(
       "island-simulator: ocean sunward ripple crests reuse analytic slope field")
+    && currentResult.output?.includes(
+      "island-simulator: ocean grazing reflection bands reuse analytic slope field")
     && currentResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && currentResult.output?.includes(

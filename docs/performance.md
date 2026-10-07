@@ -1354,13 +1354,32 @@ irregular contour and reached first draw in 1567.410 ms total. These are portabl
 composition checks, not physical-mobile cost evidence. The OpenGL 3.3 object compiles with
 warnings as errors but awaits runtime relinking after the operator-visible prior process closes.
 
+### Reused-slope grazing-reflection follow-up
+
+The low-angle ocean review found that broad calm water remained visually uniform after its
+directional sunward crest pass. The accepted fragment path projects the already-computed analytic
+slope toward the horizontal eye direction, smoothly saturates the signed response, and applies a
+bounded cyan variation only at grazing angles. It reuses the existing 135--420 m wave-detail fade
+and favours shallow water. The change adds one planar normalization, one dot product, a smooth step,
+and bounded scalar colour shaping. It adds no sine, wave field, texture lookup, varying, uniform,
+geometry, allocation, resource, CPU update, or draw submission.
+
+Original-resolution offshore-current, near-surface-water, and reef frames were compared before and
+after the retained tuning; a weaker first amplitude was rejected. The complete Chrome/WebGL 2
+suite passes 22/22, a thirteenth clean Firefox ESR run independently passes its production/input/
+audio/tab-resume/jungle/water gates, and a fixed-current x86_64 KVM/gfxstream GLES 3 launch passed
+the exact marker plus strict audio gate. The Android first draw completed in 1677.445 ms total, but
+that one translated-host startup figure is functional evidence rather than a sustained fragment-
+cost or physical-device result. The OpenGL 3.3 object compiles with warnings as errors; current
+native appearance awaits relinking after the operator-visible prior process closes.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,524,663 bytes (2,431,914
-gzip). The complete transfer payload therefore falls from 8,789,541 to 2,492,117 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,525,401 bytes (2,433,008
+gzip). The complete transfer payload therefore falls from 8,790,279 to 2,493,211 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
