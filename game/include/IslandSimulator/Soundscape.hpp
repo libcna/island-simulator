@@ -90,6 +90,10 @@ namespace island
         {
             return playedWaterTransitionCount_;
         }
+        [[nodiscard]] int PlayedFootstepCount() const noexcept
+        {
+            return playedFootstepCount_;
+        }
         [[nodiscard]] int PlayedBirdCallCount() const noexcept
         {
             return playedBirdCallCount_;
@@ -111,6 +115,7 @@ namespace island
             state.playingSourceCount = available_
                 ? PersistentSourceCount + static_cast<int>(waveInstance_ != nullptr)
                     + static_cast<int>(waterTransitionInstance_ != nullptr)
+                    + static_cast<int>(footstepInstance_ != nullptr)
                     + static_cast<int>(wildlifeInstance_ != nullptr)
                 : 0;
             state.sourceBudget = MaximumPlayingSourceCount;
@@ -125,6 +130,7 @@ namespace island
         WaterMovementModel waterMovementModel_;
         WaveAccentScheduler waveScheduler_;
         WaterTransitionScheduler waterTransitionScheduler_;
+        FootstepScheduler footstepScheduler_;
         WildlifeCallScheduler wildlifeScheduler_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
@@ -144,6 +150,14 @@ namespace island
             waterTransitionAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
             waterTransitionInstance_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> sandFootstepEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
+            sandFootstepAlternateEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> soilFootstepEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
+            soilFootstepAlternateEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
+            footstepInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> birdCallEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
             birdCallAlternateEffect_;
@@ -163,13 +177,17 @@ namespace island
         bool waveFailureReported_ = false;
         bool waterTransitionsEnabled_ = false;
         bool waterTransitionFailureReported_ = false;
+        bool footstepsEnabled_ = false;
+        bool footstepFailureReported_ = false;
         bool wildlifeCallsEnabled_ = false;
         bool wildlifeFailureReported_ = false;
         float waveSecondsRemaining_ = 0.0f;
         float waterTransitionSecondsRemaining_ = 0.0f;
+        float footstepSecondsRemaining_ = 0.0f;
         float wildlifeSecondsRemaining_ = 0.0f;
         int playedWaveAccentCount_ = 0;
         int playedWaterTransitionCount_ = 0;
+        int playedFootstepCount_ = 0;
         int playedBirdCallCount_ = 0;
         int playedMonkeyCallCount_ = 0;
     };

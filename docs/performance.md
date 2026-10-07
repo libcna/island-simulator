@@ -1117,16 +1117,16 @@ any value other than 1280 by 720.
 
 ### Sequential procedural-audio staging
 
-The first audio implementation generated all twelve sources, retained their complete 3,283,244
-PCM bytes, converted all twelve into another 3,283,244 bytes, and only then constructed CNA audio
+The first audio implementation generated all sixteen sources, retained their complete 3,336,164
+PCM bytes, converted all sixteen into another 3,336,164 bytes, and only then constructed CNA audio
 objects. Those source and conversion vectors remained alive together even though the backend
 copies each submitted buffer. The revised path generates, converts, uploads, and releases one
-source before beginning the next. The exact source PCM, effects, four persistent instances, eight
+source before beginning the next. The exact source PCM, effects, four persistent instances, twelve
 one-shot effects, and six-voice runtime ceiling are unchanged.
 
-This removes 6,566,488 bytes of simultaneously retained whole-set game staging. The largest
+This removes 6,672,328 bytes of simultaneously retained whole-set game staging. The largest
 remaining source-plus-conversion pair is the 29-second jungle bed at 2,557,800 bytes, a reduction
-of at least 4,008,688 bytes (about 3.82 MiB) in that specific staging component. These figures do
+of at least 4,114,528 bytes (about 3.92 MiB) in that specific staging component. These figures do
 not include the generator's short-lived filtering arrays or backend-owned decoded audio and are
 therefore not a claim about total process RSS. The complete Chrome/SwiftShader 22-stage suite
 passes and requires the new post-gesture staging diagnostic, proving that all sources still upload
@@ -1138,7 +1138,7 @@ runtime memory are not newly claimed while the operator-visible Linux build rema
 The four persistent procedural beds now subtract their generated floating-point mean before
 deriving peak normalization and PCM16 samples. This is one additional bounded read pass per loop
 during startup; it allocates no buffer, adds no PCM byte, source, voice, or per-frame work, and
-leaves the eight silent-ended one-shots unchanged. The measured normalized loop means fall from as
+leaves the twelve silent-ended one-shots unchanged. The measured normalized loop means fall from as
 much as 0.00646980 to at most approximately 0.00000002, while peak, RMS, seam, and zero-crossing
 checks remain valid.
 
@@ -1147,6 +1147,17 @@ requires the post-gesture DC-centering diagnostic, and the arm64 GLES 3 package 
 A current x86_64 KVM/gfxstream run additionally passes the strict GLES 3/audio gate with the same
 diagnostic mirrored through Android's platform log. The change is a numerical/source-quality
 improvement, not a substitute for the open subjective headphone and speaker fatigue pass.
+
+### Distance-scheduled land footsteps
+
+Four 0.3-second PCM16 clips add 52,920 bytes to generated source memory and no packaged binary
+asset. The scheduler performs one finite check, horizontal distance calculation, and small amount
+of scalar cadence logic per audio update; it searches no world population and allocates nothing.
+Only one reusable footstep instance can be live. Existing priority rules keep the complete mix at
+four persistent sources plus at most two transient sources, so the maximum mixer voice count stays
+six. Blocked movement and teleports do not fabricate cadence, and footsteps stop while swimming.
+Core/audio/WAV tests, the complete 22-stage Chrome/WebGL 2 suite, and an actual x86_64 KVM/GLES 3
+touch-traversal smoke test pass. Subjective material identity and balance remain open.
 
 ### Generated texture and transparency audit
 
@@ -1187,9 +1198,9 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,063 gzip), and WebAssembly is 8,499,873 bytes (2,424,453
-gzip). The complete transfer payload therefore falls from 8,764,716 to 2,484,634 bytes, a measured
-71.7% reduction.
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,512,564 bytes (2,428,405
+gzip). The complete transfer payload therefore falls from 8,777,407 to 2,488,587 bytes, a measured
+71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game

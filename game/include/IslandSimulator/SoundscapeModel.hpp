@@ -44,6 +44,18 @@ namespace island
     /** @brief Generates a second short water-boundary texture. */
     [[nodiscard]] AmbientLoop GenerateWaterTransitionAccentAlternate();
 
+    /** @brief Generates the first short dry-sand player footstep. */
+    [[nodiscard]] AmbientLoop GenerateSandFootstep();
+
+    /** @brief Generates a second dry-sand footstep for repetition control. */
+    [[nodiscard]] AmbientLoop GenerateSandFootstepAlternate();
+
+    /** @brief Generates the first short interior-soil player footstep. */
+    [[nodiscard]] AmbientLoop GenerateSoilFootstep();
+
+    /** @brief Generates a second interior-soil footstep for repetition control. */
+    [[nodiscard]] AmbientLoop GenerateSoilFootstepAlternate();
+
     /** @brief Generates one short, non-looping tropical bird contact call. */
     [[nodiscard]] AmbientLoop GenerateBirdCall();
 
@@ -140,6 +152,45 @@ namespace island
         std::uint32_t randomState_ = 0xc0145a7eU;
         float cooldownSeconds_ = 0.0f;
         bool inWater_ = false;
+    };
+
+    enum class FootstepSurface : std::uint8_t
+    {
+        None,
+        Sand,
+        Soil
+    };
+
+    /** @brief One distance-scheduled land footstep with bounded playback variation. */
+    struct FootstepRequest
+    {
+        FootstepSurface surface = FootstepSurface::None;
+        std::uint8_t variant = 0;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        float pan = 0.0f;
+    };
+
+    /** @brief Emits land footsteps from resolved player travel rather than frame cadence. */
+    class FootstepScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] FootstepRequest Update(float deltaSeconds, bool swimming,
+                                             float signedShoreDistance,
+                                             float horizontalSpeed,
+                                             float listenerX, float listenerZ) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+
+        std::uint32_t randomState_ = 0xf00757e9U;
+        float previousX_ = 0.0f;
+        float previousZ_ = 0.0f;
+        float distanceSinceStep_ = 0.0f;
+        bool hasPreviousPosition_ = false;
+        bool wasMoving_ = false;
+        bool leftFoot_ = false;
     };
 
     /** @brief Species associated with one optional positional wildlife call. */

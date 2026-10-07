@@ -654,14 +654,19 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   speed with asymmetric fade smoothing and wading/swimming pitch variation. The same source now
   gains a deeper 0.08-maximum undertow bed across the 42--72 m current field, with separate 650 ms
   cue smoothing and no dry-state leakage.
+- [x] Add land footsteps tied to authoritative resolved movement. Four original 0.3-second clips
+  provide paired dry-sand and interior-soil families; a distance scheduler varies 2.05--2.75 m
+  walk/run stride, pitch, pan, gain, and source variant while rejecting blocked movement,
+  swimming, non-finite input, and teleport discontinuities.
 - [x] Bound simultaneously active sources and virtualize/throttle inaudible emitters. The current
   system has exactly four persistent loops and at most two transient voices. Wildlife owns one
-  pooled voice, starts only with both transient slots idle, and is pre-empted when a water crossing
-  would otherwise exceed the ceiling. Inland waves and distant/dormant wildlife are virtualized.
+  pooled voice, footsteps own one reusable voice, and water crossings pre-empt lower-priority
+  wildlife/wave/footstep playback as needed. Inland waves, distant/dormant wildlife, and footsteps
+  requested while both other transient slots are occupied are virtualized.
 - [~] Normalize source material, remove clicks at loops, and test mono/stereo spatial assumptions.
   Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta,
   distinct source PCM, silent wildlife endpoints, and the mono-to-CNA positional output path. A
-  native report now measures all 12 exact sources for DC offset, peak/RMS, loop seam versus normal
+  native report now measures all 16 exact sources for DC offset, peak/RMS, loop seam versus normal
   internal steps, zero-crossing rate, duration, uniqueness, and PCM footprint. The four persistent
   beds now remove their generated mean before PCM quantization and enforce an absolute normalized
   mean no greater than 0.0001; the report can export standard PCM16 WAV previews. Headphone
@@ -703,13 +708,14 @@ Dependencies: portable baseline features and bounded initial asset size.
   Controlled Chromium input now proves focus, WASD/arrows, persistent Shift-toggled running and
   restoration of walking on the second press, captures the transient run confirmation, simultaneous
   forward movement/relative look, F1, actual-Escape pointer release, continued frames without
-  exit/error, delayed click reacquisition, aspect-preserving resize, and first-click CNA mixer plus
-  dual-track startup. Audible hardware-browser output and genuine tab background/foreground
+  exit/error, delayed click reacquisition, aspect-preserving resize, first-click CNA mixer plus
+  four-loop startup, and actual distance-scheduled footstep playback. Audible hardware-browser
+  output and genuine tab background/foreground
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,764,716 bytes uncompressed and 2,484,634 bytes through
-  deterministic gzip, a measured 71.7% transfer reduction with round-trip/hash/manifest coverage.
+  The current Release package is 8,777,407 bytes uncompressed and 2,488,587 bytes through
+  deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
@@ -770,7 +776,9 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   requires renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
-  Android's platform log rather than unavailable SDLActivity stdout. Debug builds now accept a
+  Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
+  injects sustained movement-zone touch input and requires actual land-footstep playback. Debug
+  builds now accept a
   release-disabled intent argument array
   for repeatable fixed-view capture; inspected beach, close-grass, jungle, water, monkey, and
   reef GLES3 frames match the corresponding WebGL 2 composition and material paths. Rotation
@@ -1162,7 +1170,8 @@ after the same experience remains available.
 Work next, in order:
 
 1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
-   and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
+   paired sand/soil footsteps, and the pooled positional bird/monkey voice through a 20-minute
+   headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
    Linux playback, finite-input fail-closed control state, the six-source ceiling, and a 6-hour,
    12-minute aggregate loop phase period and bounded sequential upload staging are verified;
@@ -4656,6 +4665,36 @@ Work next, in order:
   WebAssembly is 8,499,873 bytes and its deterministic package is 8,764,716 bytes uncompressed /
   2,484,634 bytes through gzip. Physical-mobile appearance, aliasing, and fragment cost remain
   open; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Distance-scheduled sand and soil footsteps
+
+- Added four original deterministic 0.3-second/6,615-sample PCM16 clips: paired dry-sand and
+  interior-soil footsteps. The renderer-independent scheduler measures actual resolved horizontal
+  player travel rather than requested input or elapsed-frame cadence, interpolates stride from
+  2.05 m walking to 2.75 m running, selects sand within the 18 m beach belt and soil inland, and
+  applies bounded variant/pitch/pan/gain variation. Swimming, blocked travel, invalid input, and
+  teleport-sized discontinuities cannot fabricate a step.
+- Reused one transient instance and preserved the hard four-persistent-plus-two-transient source
+  ceiling. Water crossings retain priority; footsteps defer under full transient load and cannot
+  grow the six-source budget. F1 now reports `STEPS`. The native audit validates 16 unique clips
+  and 3,336,164 PCM bytes. Sand A/B measure 0.1257/0.1292 RMS with 0.58 peaks; soil A/B measure
+  0.1232/0.1378 RMS with 0.62 peaks; all four have exact silent endpoints.
+- Core scheduler/signal regressions, the audio report, independently parsed WAV export, asset
+  provenance, and deterministic Web package tests pass 5/5. The final Chrome 152/SwiftShader
+  WebGL 2 suite passes all 22 stages and requires both footstep-resource initialization and actual
+  playback during real W/mouse traversal. The harness now explicitly focuses the input tab,
+  measures yaw during the simultaneous-input segment, and polls lifecycle recovery instead of
+  relying on fragile end-state or fixed-delay assumptions; no game requirement was weakened.
+- A current x86_64 APK passed the actual KVM/host-GPU GLES 3 plus strict audio/footstep gate. A
+  sustained 2400 by 1080 movement-zone gesture advanced the player and produced the first-footstep
+  platform-log diagnostic while 44.1 kHz stereo AAudio remained active. The inspected screenshot
+  is clean and no fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. The emulator was
+  stopped and the default arm64-only APK restored, built/linted through the required shared
+  `/rv/cnaccache`, and verified with APK signature scheme v2.
+- Final artifacts are 8,512,564 bytes WebAssembly, 8,777,407 bytes for the deterministic Web
+  payload, 2,488,587 bytes through gzip, 15,913,048 bytes for stripped arm64 `libmain.so`, and
+  18,723,332 bytes for the arm64 APK. Subjective sand/soil identity, balance, and long-session
+  fatigue remain open. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

@@ -361,6 +361,7 @@ try {
     if (deploymentState.status === "Ready"
         && deploymentState.output?.includes("island-simulator: renderer WEBGL2")) break;
   }
+  await call("Page.bringToFront", {}, deploymentSessionId);
   await call("Input.dispatchMouseEvent", {
     type: "mousePressed", x: 640, y: 360, button: "left", buttons: 1, clickCount: 1,
   }, deploymentSessionId);
@@ -399,6 +400,8 @@ try {
     "island-simulator: water-transition accents enabled");
   deploymentState.waterTransitionVariantsEnabled = deploymentState.output?.includes(
     "island-simulator: two water-transition variants enabled");
+  deploymentState.landFootstepsEnabled = deploymentState.output?.includes(
+    "island-simulator: distance-scheduled sand and soil footsteps enabled");
   deploymentState.jungleAmbienceEnabled = deploymentState.output?.includes(
     "island-simulator: subtle daytime-jungle layer enabled");
   deploymentState.waveVariantsEnabled = deploymentState.output?.includes(
@@ -421,6 +424,7 @@ try {
     && deploymentState.waterMovementEnabled === true
     && deploymentState.waterTransitionsEnabled === true
     && deploymentState.waterTransitionVariantsEnabled === true
+    && deploymentState.landFootstepsEnabled === true
     && deploymentState.jungleAmbienceEnabled === true
     && deploymentState.waveVariantsEnabled === true
     && deploymentState.positionalWildlifeCallsEnabled === true
@@ -1138,6 +1142,8 @@ try {
     if (inputResult.output?.includes("island-simulator: input sample") || inputResult.error) break;
   }
 
+  await call("Page.bringToFront", {}, visualSessionId);
+  await delay(250);
   await dispatchMouseClick(visualSessionId, 640, 360);
   const lockedEvaluation = await call("Runtime.evaluate", {
     expression: `JSON.stringify({
@@ -1182,6 +1188,14 @@ try {
   await delay(400);
   await call("Input.dispatchMouseEvent", {
     type: "mouseMoved", x: 620, y: 340, button: "none", buttons: 0,
+  }, visualSessionId);
+  await delay(400);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: 730, y: 390, button: "none", buttons: 0,
+  }, visualSessionId);
+  await delay(400);
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: 590, y: 320, button: "none", buttons: 0,
   }, visualSessionId);
   await delay(400);
   await call("Input.dispatchKeyEvent", {
@@ -1348,9 +1362,22 @@ try {
   await delay(500);
   await call("Page.setWebLifecycleState", { state: "active" }, visualSessionId);
   await call("Page.bringToFront", {}, visualSessionId);
-  // Allow several quarter-second game diagnostics even when the first resumed frames rebuild
-  // browser/SwiftShader state.
-  await delay(3000);
+  let lifecycleResumed = false;
+  // A resumed SwiftShader page can spend several seconds rebuilding browser/GPU state. Poll the
+  // authoritative game samples rather than assuming a fixed resume latency.
+  for (let attempt = 0; attempt < 20; ++attempt) {
+    await delay(500);
+    const resumedEvaluation = await call("Runtime.evaluate", {
+      expression: "globalThis.islandSmokeResult?.output ?? ''",
+      returnByValue: true,
+    }, visualSessionId);
+    const resumedSamples = (resumedEvaluation.result.value ?? "")
+      .match(/island-simulator: input sample/g)?.length ?? 0;
+    if (resumedSamples > samplesBeforeLifecycle) {
+      lifecycleResumed = true;
+      break;
+    }
+  }
 
   const completedInputEvaluation = await call("Runtime.evaluate", {
     expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
@@ -1360,14 +1387,13 @@ try {
   const samples = parseInputSamples(inputResult.output ?? "");
   const initialSample = samples[0];
   const finalSample = samples.at(-1);
-  const lifecycleResumed = samples.length > samplesBeforeLifecycle;
   const keyboardMoved = initialSample && finalSample
     && Math.hypot(finalSample.x - initialSample.x, finalSample.z - initialSample.z) > 0.5;
-  const mouseLookChanged = initialSample && finalSample
-    && (Math.abs(finalSample.yaw - initialSample.yaw) > 0.005
-      || Math.abs(finalSample.pitch - initialSample.pitch) > 0.005);
+  const mouseLookChanged = concurrentYawRange > 0.005;
   const waterTransitionPlayed = inputResult.output?.includes(
     "island-simulator: first water-transition accent played");
+  const landFootstepPlayed = inputResult.output?.includes(
+    "island-simulator: first distance-scheduled land footstep played");
   const cameraMotionToggled = inputResult.output?.includes(
     "island-simulator: camera motion disabled")
     && inputResult.output?.includes("island-simulator: camera motion enabled");
@@ -1400,6 +1426,7 @@ try {
     && rightArrowMovedRight
     && runToggleWorked
     && cameraMotionToggled
+    && landFootstepPlayed
     && waterTransitionPlayed
     && mouseLookChanged
     && viewportResized
@@ -1427,7 +1454,25 @@ try {
     },
     deployment: {
       passed: deploymentPassed,
-      ...deploymentState,
+      status: deploymentState.status ?? "",
+      width: deploymentState.width ?? 0,
+      height: deploymentState.height ?? 0,
+      hasWebGl2: deploymentState.hasWebGl2 === true,
+      pointerLocked: deploymentState.pointerLocked === true,
+      audioStarted: deploymentState.audioStarted === true,
+      audioStagingBounded: deploymentState.audioStagingBounded === true,
+      ambientPcmDcCentered: deploymentState.ambientPcmDcCentered === true,
+      ambientBedVariationEnabled: deploymentState.ambientBedVariationEnabled === true,
+      waveAccentsEnabled: deploymentState.waveAccentsEnabled === true,
+      waterMovementEnabled: deploymentState.waterMovementEnabled === true,
+      waterTransitionsEnabled: deploymentState.waterTransitionsEnabled === true,
+      waterTransitionVariantsEnabled: deploymentState.waterTransitionVariantsEnabled === true,
+      landFootstepsEnabled: deploymentState.landFootstepsEnabled === true,
+      jungleAmbienceEnabled: deploymentState.jungleAmbienceEnabled === true,
+      waveVariantsEnabled: deploymentState.waveVariantsEnabled === true,
+      positionalWildlifeCallsEnabled:
+        deploymentState.positionalWildlifeCallsEnabled === true,
+      output: deploymentState.output ?? "",
     },
     visual: {
       passed: visualPassed,

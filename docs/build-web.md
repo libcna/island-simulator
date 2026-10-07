@@ -11,7 +11,8 @@ mouse look, the B camera-motion opt-out, F1 input, pointer release/reacquisition
 through browser input, and F4 must execute its explicit confirmed/unavailable clipboard path. The
 first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
-and prepares both wave/splash pairs plus the pooled positional bird/monkey call resources. The F2
+and prepares both wave/splash and sand/soil footstep pairs plus the pooled positional bird/monkey
+call resources. The F2
 path includes the same nine terrain-contact samples/normals, attempted/resolved movement trace,
 fish-school/shark/monkey navigation guides, three bird route-family volumes, all 24 bird spawn
 headings, nearby live bird radial targets, six terrain-following ambient-zone contours, and
@@ -44,12 +45,15 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,499,873 bytes. The deployment gate additionally requires the exact persistent-
-ambient DC-centering diagnostic after browser-gesture audio startup. The monkey scene requires the
+WebAssembly is 8,512,564 bytes. The deployment gate additionally requires the exact persistent-
+ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
+The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
 the complete facial-detail/crossfade path. The input
 stage captures and visually validates the warm-gold `RUN MODE  8.0 M/S` confirmation while still
-proving that releasing Shift retains running and a second press restores walking. The first-frame
+proving that releasing Shift retains running and a second press restores walking. The input path
+also requires a successful distance-scheduled land-footstep playback diagnostic while
+the player actually traverses the beach. The first-frame
 gate also requires the reported 1280 by 720 logical
 backbuffer rather than inferring render resolution from the browser surface. This records the
 evidence environment; it is not a minimum-version or general browser-permission claim.
@@ -97,7 +101,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,764,716 bytes uncompressed and 2,484,634 bytes through gzip, a 71.7% transfer reduction. These
+8,777,407 bytes uncompressed and 2,488,587 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -206,14 +210,15 @@ qualifies the portable timing path, not hardware-browser cold-load performance o
 
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
 the canvas, assert pointer lock/focus, initialization of all four looping audio layers, preparation
-of both wave and both shoreline-transition variants, and preparation of positional bird/monkey
-calls. It also requires the slow non-amplifying ambient-gain path after the bounded sequential
-source upload, then holds W while applying two separated pointer movements. The same diagnostic
-segment
+of both wave variants, both shoreline-transition variants, all four sand/soil footsteps, and positional
+bird/monkey calls. It also requires the slow non-amplifying ambient-gain path after the bounded
+sequential source upload, then holds W while applying repeated pointer movements. The same
+diagnostic segment
 must show both player displacement and changing yaw. It resets to the deterministic south-beach QA
 location, proves that Right moves toward visible screen-right, proves that Shift+Up exceeds the
 walking ceiling after Shift has been released, proves that a second Shift press restores walking,
-captures the first toggle's transient HUD, and then walks backward into the ocean. The shoreline
+captures the first toggle's transient HUD, requires an actual land-footstep playback, and then
+walks backward into the ocean. The shoreline
 crossing must produce a successful water-transition
 one-shot diagnostic. The harness then enables the portable F2 world line view, toggles F1, resizes to a
 non-16:9 browser window, sends a real Escape key, proves that pointer lock is gone while new game

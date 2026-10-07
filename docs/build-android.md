@@ -65,7 +65,8 @@ five fogged distant islets with 11 simplified palm silhouettes,
 one bounded terrain-conforming contact-shadow batch for near palms, canopy trees, land rocks,
 wood, and monkeys,
 animated shore-following foam, and procedural surf/breeze/jungle, two sparse wave accents, player
-water-movement audio, two water entry/exit accents, movement-driven shader-integrated water
+water-movement audio, two water entry/exit accents, paired distance-scheduled sand/soil land
+footsteps, movement-driven shader-integrated water
 ripples, short hysteretic entry/exit surface bursts, a procedural near-surface swimming veil with
 depth haze, restrained surface scatter, and offshore-current modulation, a deeper
 current-responsive undertow mix in the existing water loop,
@@ -75,8 +76,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,713,604-byte APK with a
-15,903,320-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,723,332-byte APK with a
+15,913,048-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
@@ -126,6 +127,16 @@ and thumb from green to warm gold without restoring the former rectangular blend
 regressions prove the 92-percent engage and 78-percent release hysteresis; physical-device feel
 and threshold tuning remain open. The headless emulator was stopped and the arm64 package above
 was restored afterward.
+
+The current x86_64 KVM/gfxstream pass also enabled the land-footstep gate. After the qualified
+GLES 3 frame and all 16 procedural audio resources were reported through logcat, the smoke helper
+injected a sustained left-zone movement gesture. The player advanced into the jungle and emitted
+the exact first-footstep playback diagnostic while AAudio remained active. Startup measured
+919.172 ms world, 6.511 ms framework, 2065.384 ms content, 19.974 ms pre-draw, 73.976 ms first
+draw, and 3085.017 ms total. The inspected 2400 by 1080 screenshot retains the complete scene and
+clean touch HUD, with no fatal, shader, or `GL_INVALID_OPERATION` diagnostic. This proves control,
+scheduling, and mixer playback on the emulator; it does not qualify subjective audible quality or
+physical-device latency. The emulator was stopped and the arm64-only package restored afterward.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
@@ -331,13 +342,25 @@ performance, memory, or thermals. Override the deliberately generous software-em
 
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` for an audio-qualified run. In addition to the normal
 GLES 3 requirements, this waits for the exact sequential-generation/upload diagnostic emitted only
-after all twelve effects were created, the exact persistent-loop DC-centering diagnostic, and the
+after all sixteen effects were created, the exact persistent-loop DC-centering diagnostic, and the
 exact slow non-amplifying ambient-gain diagnostic. It proves that the current generation, staging,
 and runtime-mix paths reached CNA's audio objects; it does not prove audible balance, device
 latency, or total process-memory usage:
 
 ```bash
 ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Set `ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS=1` as well to require the land-footstep resources,
+inject a sustained movement-zone touch gesture after the first qualified frame, and wait for the
+exact first-playback diagnostic:
+
+```bash
+ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS=1 \
   tools/run_android_runtime_smoke.sh \
     "$ANDROID_SDK_ROOT/platform-tools/adb" \
     android/app/build/outputs/apk/debug/app-debug.apk

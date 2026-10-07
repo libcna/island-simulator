@@ -104,6 +104,8 @@ bed as the 42--72 m offshore current strengthens, without adding another persist
 bird phrases and two monkey contact phrases share one positional
 voice attached to actual nearby agents. All four persistent loops remove their measured mean
 before PCM quantization, avoiding long-lived DC bias without altering one-shot silent endpoints.
+Distance-scheduled player footsteps select paired dry-sand or interior-soil textures from actual
+resolved travel, vary pitch/pan/gain, and remain silent while swimming or blocked.
 All audio is generated without external sound files. The
 complete scene runs on Linux/OpenGL 3.3, in an actual Chromium/WebGL 2 context, and in a
 KVM-accelerated Android API 35 x86_64 emulator through OpenGL ES 3. The accelerated Android pass
@@ -222,7 +224,7 @@ variant, and requires a nonzero per-instance near-LOD population.
 The Chromium harness also drives first-click pointer lock and initialization of all ambient and
 positional-wildlife audio resources, WASD, arrow-key movement, Shift run/walk toggling,
 simultaneous forward movement and relative mouse look, a deterministic beach-to-water crossing with successful
-transition-audio playback, F2 world
+transition-audio playback, successful land-footstep playback, F2 world
 lines, F4 seed-copy execution with explicit clipboard status, F1,
 real-Escape pointer release, continued live frames, delayed click reacquisition, canvas focus, and
 responsive 16:9 sizing. A visible hardware-
@@ -231,7 +233,7 @@ browser engine remain open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,484,634 bytes, 71.7% below the 8,764,716-byte
+a SHA-256 manifest. The current gzip payload is 2,488,587 bytes, 71.6% below the 8,777,407-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

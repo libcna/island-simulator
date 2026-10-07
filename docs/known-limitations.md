@@ -126,11 +126,13 @@ been confirmed so far.
   limited.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
   light canopy breeze, a twenty-nine-second daytime-jungle texture with sixteen irregularly spaced
-  insect phrases, and speed/depth-responsive player movement through water. A single bounded
+  insect phrases, paired distance-scheduled sand/soil land footsteps, and speed/depth-responsive
+  player movement through water. A single bounded
   positional voice now places two bird phrases and two restrained
   monkey contact phrases at actual nearby agents. The soundscape remains incomplete: richer jungle
   variation, additional wave/water/wildlife phrases, and a long fatigue/listening pass remain
-  absent; call balance has only numerical and short native runtime validation so far.
+  absent; footstep material/balance and call balance have only numerical plus automated runtime
+  validation so far.
 
 ## Platform qualification
 
@@ -157,7 +159,8 @@ been confirmed so far.
   visibility, LOD populations, draw counts, bird/fish/shark/monkey render and simulation tiers,
   monkey behaviour counts, current
   surf/breeze/jungle/player-water levels, played
-  wave/splash counts, mute/availability state, and live source use against the six-source budget.
+  wave/splash/footstep counts, mute/availability state, and live source use against the six-source
+  budget.
   F2 adds world-space shoreline/current, collision, exact attempted/resolved player motion,
   shared-cell, wildlife heading/target/home-range, ambient-zone, nearest audio-candidate, active
   positional-emitter, exact nine-sample terrain-contact, and complete bird route-family/spawn views;

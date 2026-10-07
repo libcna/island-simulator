@@ -182,6 +182,57 @@ namespace island
                 samples[begin + offset] += amplitude * envelope * (voiced + texture);
             }
         }
+
+        [[nodiscard]] AmbientLoop GenerateFootstepClip(const std::uint32_t seed,
+                                                       const bool sand,
+                                                       const bool alternate)
+        {
+            constexpr std::size_t frameCount = static_cast<std::size_t>(
+                AmbientSampleRate * 3 / 10);
+            constexpr float durationSeconds = 0.30f;
+            const std::vector<float> noise = Noise(seed, frameCount);
+            const std::vector<float> grit = CircularSmooth(noise, sand ? 2U : 5U);
+            const std::vector<float> crunch = CircularSmooth(noise, sand ? 11U : 19U);
+            const std::vector<float> body = CircularSmooth(noise, sand ? 58U : 104U);
+            std::vector<float> samples(frameCount);
+            for (std::size_t index = 0; index < samples.size(); ++index) {
+                const float unit = static_cast<float>(index)
+                    / static_cast<float>(samples.size() - 1U);
+                const float seconds = static_cast<float>(index)
+                    / static_cast<float>(AmbientSampleRate);
+                const float attack = SmoothStep(0.0f, sand ? 0.045f : 0.035f, unit);
+                const float release = 1.0f - SmoothStep(sand ? 0.17f : 0.13f, 1.0f, unit);
+                const float startFrequency = sand ? 94.0f : 76.0f;
+                const float endFrequency = sand ? 54.0f : 42.0f;
+                const float sweep = endFrequency - startFrequency;
+                const float thumpPhase = 2.0f * std::numbers::pi_v<float>
+                    * (startFrequency * seconds
+                       + 0.5f * sweep * seconds * seconds / durationSeconds);
+                const float thump = std::sin(thumpPhase) * std::exp(-unit * 8.5f);
+                const float firstCrunch = std::exp(
+                    -std::pow((unit - (alternate ? 0.19f : 0.13f)) / 0.065f, 2.0f));
+                const float secondCrunch = std::exp(
+                    -std::pow((unit - (alternate ? 0.43f : 0.36f)) / 0.095f, 2.0f));
+                const float looseTexture = firstCrunch + secondCrunch * 0.58f;
+                const float texture = sand
+                    ? (noise[index] - grit[index]) * 0.34f
+                        + grit[index] * (0.48f + looseTexture * 0.22f)
+                        + crunch[index] * 0.42f + body[index] * 0.24f
+                        + thump * 0.17f
+                    : (noise[index] - grit[index]) * (0.20f + looseTexture * 0.25f)
+                        + grit[index] * 0.34f + crunch[index] * 0.52f
+                        + body[index] * 0.61f + thump * 0.34f;
+                samples[index] = attack * release * texture;
+            }
+            const float smoothing = sand ? 0.22f : 0.34f;
+            for (std::size_t index = 1U; index < samples.size(); ++index) {
+                samples[index] = samples[index] * (1.0f - smoothing)
+                    + samples[index - 1U] * smoothing;
+            }
+            samples.front() = 0.0f;
+            samples.back() = 0.0f;
+            return Quantize(samples, sand ? 0.58f : 0.62f);
+        }
     }
 
     AmbientLoop GenerateSurfLoop()
@@ -415,6 +466,26 @@ namespace island
         return Quantize(samples, 0.76f);
     }
 
+    AmbientLoop GenerateSandFootstep()
+    {
+        return GenerateFootstepClip(0x5a4d6c13U, true, false);
+    }
+
+    AmbientLoop GenerateSandFootstepAlternate()
+    {
+        return GenerateFootstepClip(0x1fd28b79U, true, true);
+    }
+
+    AmbientLoop GenerateSoilFootstep()
+    {
+        return GenerateFootstepClip(0x70a15eedU, false, false);
+    }
+
+    AmbientLoop GenerateSoilFootstepAlternate()
+    {
+        return GenerateFootstepClip(0xc4419a37U, false, true);
+    }
+
     AmbientLoop GenerateBirdCall()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(
@@ -617,6 +688,94 @@ namespace island
         request.pitch = (entering ? -0.055f : 0.025f) + NextUnit() * 0.05f;
         request.pan = -0.18f + NextUnit() * 0.36f;
         cooldownSeconds_ = 1.6f;
+        return request;
+    }
+
+    void FootstepScheduler::Reset() noexcept
+    {
+        randomState_ = 0xf00757e9U;
+        previousX_ = 0.0f;
+        previousZ_ = 0.0f;
+        distanceSinceStep_ = 0.0f;
+        hasPreviousPosition_ = false;
+        wasMoving_ = false;
+        leftFoot_ = false;
+    }
+
+    float FootstepScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    FootstepRequest FootstepScheduler::Update(
+        const float deltaSeconds, const bool swimming, const float signedShoreDistance,
+        const float horizontalSpeed, const float listenerX, const float listenerZ) noexcept
+    {
+        if (!std::isfinite(deltaSeconds) || deltaSeconds <= 0.0f
+            || !std::isfinite(signedShoreDistance) || !std::isfinite(horizontalSpeed)
+            || !std::isfinite(listenerX) || !std::isfinite(listenerZ)) {
+            return {};
+        }
+        const float safeDelta = SafeDeltaSeconds(deltaSeconds);
+        const float safeSpeed = std::max(0.0f, horizontalSpeed);
+        if (!hasPreviousPosition_) {
+            previousX_ = listenerX;
+            previousZ_ = listenerZ;
+            hasPreviousPosition_ = true;
+            return {};
+        }
+
+        const float travelled = std::hypot(listenerX - previousX_, listenerZ - previousZ_);
+        previousX_ = listenerX;
+        previousZ_ = listenerZ;
+        const float maximumContinuousTravel = std::max(1.25f, safeSpeed * safeDelta * 2.25f);
+        if (!std::isfinite(travelled) || travelled > maximumContinuousTravel) {
+            distanceSinceStep_ = 0.0f;
+            wasMoving_ = false;
+            return {};
+        }
+        if (swimming) {
+            distanceSinceStep_ = 0.0f;
+            wasMoving_ = false;
+            return {};
+        }
+        if (safeSpeed < 0.45f || travelled < 0.00001f) {
+            if (safeSpeed < 0.45f) {
+                wasMoving_ = false;
+            }
+            return {};
+        }
+
+        const float runBlend = std::clamp(
+            (safeSpeed - PlayerMotion::WalkSpeed)
+                / (PlayerMotion::RunSpeed - PlayerMotion::WalkSpeed),
+            0.0f, 1.0f);
+        const float strideDistance = 2.05f + runBlend * 0.70f;
+        if (!wasMoving_) {
+            distanceSinceStep_ = strideDistance * 0.52f;
+            wasMoving_ = true;
+        }
+        distanceSinceStep_ += travelled;
+        if (distanceSinceStep_ < strideDistance) {
+            return {};
+        }
+        distanceSinceStep_ = std::fmod(distanceSinceStep_, strideDistance);
+
+        FootstepRequest request;
+        request.surface = signedShoreDistance <= 18.0f
+            ? FootstepSurface::Sand : FootstepSurface::Soil;
+        request.variant = NextUnit() < 0.5f ? 0U : 1U;
+        request.volume = 0.12f + runBlend * 0.065f + NextUnit() * 0.018f;
+        request.pitch = request.surface == FootstepSurface::Sand
+            ? -0.015f + NextUnit() * 0.09f + runBlend * 0.025f
+            : -0.060f + NextUnit() * 0.08f + runBlend * 0.030f;
+        leftFoot_ = !leftFoot_;
+        request.pan = (leftFoot_ ? -0.055f : 0.055f)
+            + (NextUnit() - 0.5f) * 0.030f;
         return request;
     }
 

@@ -14,6 +14,7 @@ PACKAGE=com.libcna.islandsimulator
 COMPONENT="$PACKAGE/.IslandSimulatorActivity"
 TIMEOUT_SECONDS=${ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS:-600}
 REQUIRE_AUDIO=${ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO:-0}
+REQUIRE_FOOTSTEPS=${ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS:-0}
 DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
 
@@ -39,6 +40,13 @@ case "$REQUIRE_AUDIO" in
     0|1) ;;
     *)
         echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
+case "$REQUIRE_FOOTSTEPS" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS must be 0 or 1" >&2
         exit 2
         ;;
 esac
@@ -114,6 +122,11 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE"; then
         AUDIO_QUALIFIED=0
     fi
+    if [ "$REQUIRE_FOOTSTEPS" -eq 1 ] \
+        && ! grep -q "island-simulator: distance-scheduled sand and soil footsteps enabled" \
+            "$LOG_FILE"; then
+        AUDIO_QUALIFIED=0
+    fi
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
         && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
             "$LOG_FILE" \
@@ -137,6 +150,29 @@ if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|erro
     echo "android runtime smoke: fatal or shader error appeared in logcat" >&2
     tail -n 120 "$LOG_FILE" >&2
     exit 1
+fi
+
+if [ "$REQUIRE_FOOTSTEPS" -eq 1 ]; then
+    echo "android runtime smoke: exercising distance-scheduled land footsteps"
+    # The AVD presents the landscape surface at 2400 by 1080. This sustained gesture starts in
+    # its left movement zone and travels upward far enough to request forward motion and running.
+    "$ADB" shell input swipe 600 820 600 180 3000
+    FOOTSTEP_DEADLINE=$(( $(date +%s) + 15 ))
+    FOOTSTEP_QUALIFIED=0
+    while [ "$(date +%s)" -lt "$FOOTSTEP_DEADLINE" ]; do
+        "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
+        if grep -q "island-simulator: first distance-scheduled land footstep played" \
+            "$LOG_FILE"; then
+            FOOTSTEP_QUALIFIED=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$FOOTSTEP_QUALIFIED" -ne 1 ]; then
+        echo "android runtime smoke: touch traversal did not play a land footstep" >&2
+        tail -n 120 "$LOG_FILE" >&2
+        exit 1
+    fi
 fi
 
 "$ADB" exec-out screencap -p >"$SCREENSHOT"

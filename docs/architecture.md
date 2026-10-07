@@ -178,8 +178,9 @@ otherwise empty build-owned directory to protect the present contract.
    ocean shader consumes both states without another render submission.
 8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch/undertow from
    authoritative shoreline, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
-   to four persistent CNA loop instances and schedules bounded wave/water accents plus one pooled
-   positional bird/monkey call voice from nearby wildlife state.
+   to four persistent CNA loop instances and schedules bounded wave/water accents, resolved-travel
+   sand/soil footsteps, plus one pooled positional bird/monkey call voice from nearby wildlife
+   state.
 9. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
@@ -625,7 +626,7 @@ file under `assets/` is declared. Neither content-audit path enters WebAssembly 
 The native-only `island-audio-report` target likewise links only the core. `AudioAnalysis` scans
 the exact generated PCM without copying it and records normalized DC offset, RMS energy, peak,
 loop-seam and internal steps, zero-crossing rate, duration, and a deterministic payload
-fingerprint. The tool validates all 12 sources and can serialize them as ordinary mono PCM16 WAV
+fingerprint. The tool validates all 16 sources and can serialize them as ordinary mono PCM16 WAV
 files for disposable listening review. Neither the report nor those previews enter a game package.
 
 ## Audio baseline
@@ -668,10 +669,10 @@ bed capped at 0.08 gain, so the safety feedback does not consume a fifth persist
 persistent loop avoids the rapid repeated one-shot cadence common to footstep-style water effects,
 while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
 state-transition chatter. All current procedural
-PCM payloads total 3,283,244 bytes (about 3.13 MiB) before backend bookkeeping, including the
+PCM payloads total 3,336,164 bytes (about 3.18 MiB) before backend bookkeeping, including the
 wildlife phrases described below. `Soundscape::Start` generates, converts, uploads, and releases
-one source at a time. It therefore no longer retains all 3,283,244 PCM bytes and a second
-3,283,244-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
+one source at a time. It therefore no longer retains all 3,336,164 PCM bytes and a second
+3,336,164-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
 bed at 2,557,800 bytes. Backend-owned decoded audio remains unchanged.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water
@@ -680,6 +681,13 @@ changes, and applies a 1.6-second cooldown longer than either sample, so shoreli
 overlap or machine-gun the effect. Entry and exit select a source and apply different bounded
 pitch/pan/gain variation. A transition may overlap a stronger-wave accent, bounding the present mix
 to four persistent loops and at most two short one-shots.
+
+Four original 0.3-second mono footsteps form paired dry-sand and interior-soil families. A
+renderer-independent scheduler measures authoritative resolved listener travel, interpolates a
+2.05--2.75 m stride across walk/run speed, and rejects blocked motion, swimming, non-finite input,
+and teleport-sized discontinuities. Shore distance at the emitted step selects sand within the
+18 m beach belt and soil inland. Alternating pan plus bounded pitch/gain variation and two source
+variants reduce repetition without allocating or adding a persistent voice.
 
 Two original four-second PCM washes with different noise, filtering, envelope, and crest shapes
 supply occasional stronger waves. A deterministic 7--13 second initial delay and 14--32 second
@@ -696,22 +704,25 @@ the less frequent monkey phrases use 27--50 seconds. Swimming suppresses monkey 
 bird gain.
 
 Wildlife uses one explicitly owned voice rather than one source per animal. It only starts while
-the wave and water-transition slots are idle. A later wave may share the second transient slot; a
-water crossing pre-empts wildlife if both slots would otherwise be occupied. Four persistent loops
-plus at most two transients therefore remain the hard simultaneous-source ceiling. Muting stops the
-pooled voice, and a positional-call failure disables that optional layer without silencing the
-ambient beds.
+the wave and water-transition slots are idle and may share the transient budget with one footstep.
+A later wave may share the second transient slot; a water crossing pre-empts wildlife, wave, then
+footstep as needed to preserve its feedback. Footsteps defer when both other transient slots are
+occupied. Four persistent loops plus at most two transients therefore remain the hard
+simultaneous-source ceiling. Muting stops every transient voice, and a positional-call or footstep
+failure disables only that optional layer without silencing the ambient beds.
 
 `Soundscape` owns CNA `SoundEffect` plus every looping and transient `SoundEffectInstance`; M mute
-therefore silences the loops and immediately stops any active wave, splash, or wildlife call. It
+therefore silences the loops and immediately stops any active wave, splash, footstep, or wildlife
+call. It
 never calls SDL or a platform audio API. Linux and Android start after content initialization. Web defers PCM/audio
 device creation until the first mouse, touch, or movement-key gesture so browser activation and
 pointer-lock requests share one user action. Missing or disconnected audio degrades to a logged,
 visible `UNAVAILABLE` state rather than terminating rendering. Core tests cover deterministic PCM,
 length/rate, headroom, audible energy, loop-boundary discontinuity, zone ordering, crossfade,
 daytime-jungle gating, water depth/speed gating and smoothing, transition hysteresis/cooldown,
-wave-accent interval/virtualization bounds, wildlife PCM headroom/silent endpoints, habitat gates,
-voice-slot holding, sparse frequency, parameter bounds, and variant reachability. Tests also
+wave-accent interval/virtualization bounds, land-footstep signal/cadence/surface/discontinuity
+bounds, wildlife PCM headroom/silent endpoints, habitat gates, voice-slot holding, sparse
+frequency, parameter bounds, and variant reachability. Tests also
 require each source pair to contain different PCM. A 72,000-frame accelerated model regression
 cycles representative zones for a simulated twenty minutes while checking finite bounds, event
 budgets, crossings, and variant reachability.

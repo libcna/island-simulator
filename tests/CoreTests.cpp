@@ -614,6 +614,12 @@ int main()
     const island::AmbientLoop waterTransitionAccent = island::GenerateWaterTransitionAccent();
     const island::AmbientLoop waterTransitionAccentAlternate =
         island::GenerateWaterTransitionAccentAlternate();
+    const island::AmbientLoop sandFootstep = island::GenerateSandFootstep();
+    const island::AmbientLoop sandFootstepAlternate =
+        island::GenerateSandFootstepAlternate();
+    const island::AmbientLoop soilFootstep = island::GenerateSoilFootstep();
+    const island::AmbientLoop soilFootstepAlternate =
+        island::GenerateSoilFootstepAlternate();
     const island::AmbientLoop birdCall = island::GenerateBirdCall();
     const island::AmbientLoop birdCallAlternate = island::GenerateBirdCallAlternate();
     const island::AmbientLoop monkeyCall = island::GenerateMonkeyCall();
@@ -653,6 +659,13 @@ int main()
               && waterTransitionAccentAlternate.sampleRate == 22050
               && waterTransitionAccentAlternate.samples.size() == 33075U,
           "both water transitions have the intended one-and-a-half-second portable format");
+    Check(sandFootstep.sampleRate == 22050 && sandFootstep.samples.size() == 6615U
+              && sandFootstepAlternate.sampleRate == 22050
+              && sandFootstepAlternate.samples.size() == 6615U
+              && soilFootstep.sampleRate == 22050 && soilFootstep.samples.size() == 6615U
+              && soilFootstepAlternate.sampleRate == 22050
+              && soilFootstepAlternate.samples.size() == 6615U,
+          "all land footsteps have the intended 300-millisecond portable format");
     Check(birdCall.sampleRate == 22050 && birdCall.samples.size() == 26460U
               && birdCallAlternate.sampleRate == 22050
               && birdCallAlternate.samples.size() == 29767U,
@@ -671,6 +684,10 @@ int main()
           "stronger-wave variants contain genuinely different source PCM");
     Check(waterTransitionAccent.samples != waterTransitionAccentAlternate.samples,
           "water-transition variants contain genuinely different source PCM");
+    Check(sandFootstep.samples != sandFootstepAlternate.samples
+              && soilFootstep.samples != soilFootstepAlternate.samples
+              && sandFootstep.samples != soilFootstep.samples,
+          "footstep variants and terrain surfaces contain distinct source PCM");
     Check(birdCall.samples != birdCallAlternate.samples
               && monkeyCall.samples != monkeyCallAlternate.samples,
           "wildlife variants contain genuinely different source PCM");
@@ -723,6 +740,21 @@ int main()
               && waterTransitionAccentAlternate.samples.front() == 0
               && waterTransitionAccentAlternate.samples.back() == 0,
           "both water transition accents start and end at silence");
+    Check(peakMagnitude(sandFootstep) < 32767 && rootMeanSquare(sandFootstep) > 700.0
+              && peakMagnitude(sandFootstepAlternate) < 32767
+              && rootMeanSquare(sandFootstepAlternate) > 700.0
+              && peakMagnitude(soilFootstep) < 32767
+              && rootMeanSquare(soilFootstep) > 700.0
+              && peakMagnitude(soilFootstepAlternate) < 32767
+              && rootMeanSquare(soilFootstepAlternate) > 700.0,
+          "land footsteps are audible while retaining mixing headroom");
+    Check(sandFootstep.samples.front() == 0 && sandFootstep.samples.back() == 0
+              && sandFootstepAlternate.samples.front() == 0
+              && sandFootstepAlternate.samples.back() == 0
+              && soilFootstep.samples.front() == 0 && soilFootstep.samples.back() == 0
+              && soilFootstepAlternate.samples.front() == 0
+              && soilFootstepAlternate.samples.back() == 0,
+          "all land footsteps begin and end at exact silence");
     Check(peakMagnitude(birdCall) < 32767 && rootMeanSquare(birdCall) > 1500.0
               && peakMagnitude(birdCallAlternate) < 32767
               && rootMeanSquare(birdCallAlternate) > 1500.0,
@@ -997,6 +1029,83 @@ int main()
     Check(!transitionVariantOutOfRange
               && observedTransitionVariants[0] && observedTransitionVariants[1],
           "deterministic shoreline scheduling reaches both source variants");
+
+    island::FootstepScheduler footstepScheduler;
+    footstepScheduler.Reset();
+    Check(footstepScheduler.Update(1.0f / 60.0f, false, 6.0f,
+                                   island::PlayerMotion::WalkSpeed, 0.0f, 0.0f).surface
+              == island::FootstepSurface::None,
+          "footstep scheduling latches its first resolved player position silently");
+    int walkingFootsteps = 0;
+    std::array<bool, 2> sandFootstepVariants = {false, false};
+    bool footstepPlaybackBoundsValid = true;
+    float walkingPosition = 0.0f;
+    for (int frame = 0; frame < 20 * 60; ++frame) {
+        walkingPosition += island::PlayerMotion::WalkSpeed / 60.0f;
+        const island::FootstepRequest step = footstepScheduler.Update(
+            1.0f / 60.0f, false, 6.0f, island::PlayerMotion::WalkSpeed,
+            walkingPosition, 0.0f);
+        if (step.surface == island::FootstepSurface::None) {
+            continue;
+        }
+        ++walkingFootsteps;
+        if (step.variant < sandFootstepVariants.size()) {
+            sandFootstepVariants[step.variant] = true;
+        } else {
+            footstepPlaybackBoundsValid = false;
+        }
+        footstepPlaybackBoundsValid = footstepPlaybackBoundsValid
+            && step.surface == island::FootstepSurface::Sand
+            && step.volume >= 0.12f && step.volume <= 0.203f
+            && step.pitch >= -0.015f && step.pitch <= 0.10f
+            && step.pan >= -0.070f && step.pan <= 0.070f;
+    }
+    Check(walkingFootsteps >= 40 && walkingFootsteps <= 44
+              && sandFootstepVariants[0] && sandFootstepVariants[1]
+              && footstepPlaybackBoundsValid,
+          "walk footsteps follow resolved distance with bounded varied sand playback");
+
+    island::FootstepScheduler runningFootstepScheduler;
+    runningFootstepScheduler.Reset();
+    (void)runningFootstepScheduler.Update(
+        1.0f / 60.0f, false, 80.0f, island::PlayerMotion::RunSpeed, 0.0f, 0.0f);
+    int runningFootsteps = 0;
+    std::array<bool, 2> soilFootstepVariants = {false, false};
+    float runningPosition = 0.0f;
+    for (int frame = 0; frame < 20 * 60; ++frame) {
+        runningPosition += island::PlayerMotion::RunSpeed / 60.0f;
+        const island::FootstepRequest step = runningFootstepScheduler.Update(
+            1.0f / 60.0f, false, 80.0f, island::PlayerMotion::RunSpeed,
+            runningPosition, 0.0f);
+        if (step.surface == island::FootstepSurface::None) {
+            continue;
+        }
+        ++runningFootsteps;
+        Check(step.surface == island::FootstepSurface::Soil,
+              "interior travel selects the dry-soil footstep family");
+        if (step.variant < soilFootstepVariants.size()) {
+            soilFootstepVariants[step.variant] = true;
+        }
+    }
+    Check(runningFootsteps >= 57 && runningFootsteps <= 60
+              && runningFootsteps > walkingFootsteps
+              && soilFootstepVariants[0] && soilFootstepVariants[1],
+          "running increases cadence while retaining both interior footstep variants");
+
+    island::FootstepScheduler guardedFootstepScheduler;
+    guardedFootstepScheduler.Reset();
+    (void)guardedFootstepScheduler.Update(
+        1.0f / 60.0f, false, 50.0f, 3.0f, 0.0f, 0.0f);
+    const island::FootstepRequest invalidFootstep = guardedFootstepScheduler.Update(
+        std::numeric_limits<float>::quiet_NaN(), false, 50.0f, 3.0f, 0.1f, 0.0f);
+    const island::FootstepRequest teleportedFootstep = guardedFootstepScheduler.Update(
+        1.0f / 60.0f, false, 50.0f, 3.0f, 100.0f, 0.0f);
+    const island::FootstepRequest swimmingFootstep = guardedFootstepScheduler.Update(
+        1.0f / 60.0f, true, -5.0f, 2.0f, 100.02f, 0.0f);
+    Check(invalidFootstep.surface == island::FootstepSurface::None
+              && teleportedFootstep.surface == island::FootstepSurface::None
+              && swimmingFootstep.surface == island::FootstepSurface::None,
+          "invalid time, teleports, and swimming cannot fabricate land footsteps");
 
     island::WaveAccentScheduler waveScheduler;
     waveScheduler.Reset();

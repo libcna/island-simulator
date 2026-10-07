@@ -33,6 +33,10 @@ namespace island
             "island-simulator: persistent ambient PCM is DC-centered before quantization";
         constexpr std::string_view AmbientVariationDiagnostic =
             "island-simulator: ambient beds use slow non-amplifying gain drift";
+        constexpr std::string_view FootstepEnabledDiagnostic =
+            "island-simulator: distance-scheduled sand and soil footsteps enabled";
+        constexpr std::string_view FootstepPlaybackDiagnostic =
+            "island-simulator: first distance-scheduled land footstep played";
 
         [[nodiscard]] std::vector<SharpRuntime::bytecs> ToPcmBytes(const AmbientLoop& loop)
         {
@@ -136,8 +140,8 @@ namespace island
         waterMovementModel_.Reset(
             waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         try {
-            // Generate, upload, and release one source at a time. Retaining all twelve PCM
-            // vectors plus all twelve byte copies here raised transient startup memory for no
+            // Generate, upload, and release one source at a time. Retaining all sixteen PCM
+            // vectors plus all sixteen byte copies here raised transient startup memory for no
             // playback benefit, especially on Web and Android.
             surfEffect_ = CreateLoopedSoundEffect(GenerateSurfLoop());
             surfEffect_->setNameProperty("Procedural shoreline surf");
@@ -175,6 +179,19 @@ namespace island
             waterTransitionAlternateEffect_->setNameProperty(
                 "Procedural player water transition alternate");
 
+            sandFootstepEffect_ = CreateOneShotSoundEffect(GenerateSandFootstep());
+            sandFootstepEffect_->setNameProperty("Procedural dry-sand footstep");
+            sandFootstepAlternateEffect_ = CreateOneShotSoundEffect(
+                GenerateSandFootstepAlternate());
+            sandFootstepAlternateEffect_->setNameProperty(
+                "Procedural dry-sand footstep alternate");
+            soilFootstepEffect_ = CreateOneShotSoundEffect(GenerateSoilFootstep());
+            soilFootstepEffect_->setNameProperty("Procedural interior-soil footstep");
+            soilFootstepAlternateEffect_ = CreateOneShotSoundEffect(
+                GenerateSoilFootstepAlternate());
+            soilFootstepAlternateEffect_->setNameProperty(
+                "Procedural interior-soil footstep alternate");
+
             birdCallEffect_ = CreateOneShotSoundEffect(GenerateBirdCall());
             birdCallEffect_->setNameProperty("Procedural tropical bird call");
             birdCallAlternateEffect_ = CreateOneShotSoundEffect(GenerateBirdCallAlternate());
@@ -209,12 +226,15 @@ namespace island
             }
             waveScheduler_.Reset();
             waterTransitionScheduler_.Reset(waterDepth, swimming);
+            footstepScheduler_.Reset();
             wildlifeScheduler_.Reset();
             waveAccentsEnabled_ = true;
             waterTransitionsEnabled_ = true;
+            footstepsEnabled_ = true;
             wildlifeCallsEnabled_ = true;
             waveSecondsRemaining_ = 0.0f;
             waterTransitionSecondsRemaining_ = 0.0f;
+            footstepSecondsRemaining_ = 0.0f;
             wildlifeSecondsRemaining_ = 0.0f;
             std::cout << BoundedStagingDiagnostic << '\n';
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
@@ -224,6 +244,7 @@ namespace island
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
             std::cout << "island-simulator: two water-transition variants enabled\n";
+            std::cout << FootstepEnabledDiagnostic << '\n';
             std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
             std::cout << "island-simulator: two stronger-wave variants enabled\n";
             std::cout << "island-simulator: positional bird and monkey calls enabled "
@@ -234,6 +255,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog(BoundedStagingDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(DcCenteringDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(AmbientVariationDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(FootstepEnabledDiagnostic);
 #endif
             return true;
         } catch (const std::exception& exception) {
@@ -244,6 +266,11 @@ namespace island
             jungleEffect_.reset();
             waterMovementInstance_.reset();
             waterTransitionInstance_.reset();
+            footstepInstance_.reset();
+            soilFootstepAlternateEffect_.reset();
+            soilFootstepEffect_.reset();
+            sandFootstepAlternateEffect_.reset();
+            sandFootstepEffect_.reset();
             waterTransitionAlternateEffect_.reset();
             waterTransitionEffect_.reset();
             wildlifeInstance_.reset();
@@ -260,6 +287,7 @@ namespace island
             surfEffect_.reset();
             waveSecondsRemaining_ = 0.0f;
             waterTransitionSecondsRemaining_ = 0.0f;
+            footstepSecondsRemaining_ = 0.0f;
             wildlifeSecondsRemaining_ = 0.0f;
             activeWildlifeCall_ = {};
             std::cerr << "island-simulator: audio unavailable; continuing silently: "
@@ -281,6 +309,8 @@ namespace island
         waveSecondsRemaining_ = std::max(0.0f, waveSecondsRemaining_ - safeDelta);
         waterTransitionSecondsRemaining_ = std::max(
             0.0f, waterTransitionSecondsRemaining_ - safeDelta);
+        footstepSecondsRemaining_ = std::max(
+            0.0f, footstepSecondsRemaining_ - safeDelta);
         wildlifeSecondsRemaining_ = std::max(
             0.0f, wildlifeSecondsRemaining_ - safeDelta);
 
@@ -323,6 +353,27 @@ namespace island
                     waterTransitionFailureReported_ = true;
                     std::cerr << "island-simulator: water-transition accents disabled; "
                                  "continuous layers continue: " << exception.what() << '\n';
+                }
+            }
+        }
+        if (footstepInstance_) {
+            try {
+                if (footstepSecondsRemaining_ <= 0.0f
+                    || footstepInstance_->getStateProperty() == SoundState::Stopped) {
+                    if (footstepInstance_->getStateProperty() != SoundState::Stopped) {
+                        footstepInstance_->Stop();
+                    }
+                    footstepInstance_.reset();
+                    footstepSecondsRemaining_ = 0.0f;
+                }
+            } catch (const std::exception& exception) {
+                footstepInstance_.reset();
+                footstepSecondsRemaining_ = 0.0f;
+                footstepsEnabled_ = false;
+                if (!footstepFailureReported_) {
+                    footstepFailureReported_ = true;
+                    std::cerr << "island-simulator: land footsteps disabled; ambient beds "
+                                 "continue: " << exception.what() << '\n';
                 }
             }
         }
@@ -376,11 +427,31 @@ namespace island
         if (available_ && !muted_ && waterTransitionsEnabled_
             && waterTransition.type != WaterTransitionType::None && waterTransitionEffect) {
             try {
-                if (wildlifeInstance_ && waveInstance_) {
+                if (waterTransitionInstance_) {
+                    waterTransitionInstance_->Stop();
+                    waterTransitionInstance_.reset();
+                    waterTransitionSecondsRemaining_ = 0.0f;
+                }
+                int activeLowerPriorityVoices = static_cast<int>(waveInstance_ != nullptr)
+                    + static_cast<int>(footstepInstance_ != nullptr)
+                    + static_cast<int>(wildlifeInstance_ != nullptr);
+                if (activeLowerPriorityVoices >= 2 && wildlifeInstance_) {
                     wildlifeInstance_->Stop();
                     wildlifeInstance_.reset();
                     wildlifeSecondsRemaining_ = 0.0f;
                     activeWildlifeCall_ = {};
+                    --activeLowerPriorityVoices;
+                }
+                if (activeLowerPriorityVoices >= 2 && waveInstance_) {
+                    waveInstance_->Stop();
+                    waveInstance_.reset();
+                    waveSecondsRemaining_ = 0.0f;
+                    --activeLowerPriorityVoices;
+                }
+                if (activeLowerPriorityVoices >= 2 && footstepInstance_) {
+                    footstepInstance_->Stop();
+                    footstepInstance_.reset();
+                    footstepSecondsRemaining_ = 0.0f;
                 }
                 waterTransitionInstance_ = std::make_unique<SoundEffectInstance>(
                     waterTransitionEffect->CreateInstance());
@@ -410,11 +481,66 @@ namespace island
             }
         }
 
+        const FootstepRequest footstep = footstepScheduler_.Update(
+            safeDelta, swimming, signedShoreDistance,
+            std::hypot(listenerState.velocityX, listenerState.velocityZ),
+            listenerState.x, listenerState.z);
+        SoundEffect* footstepEffect = nullptr;
+        if (footstep.surface == FootstepSurface::Sand) {
+            footstepEffect = footstep.variant == 1U
+                ? sandFootstepAlternateEffect_.get() : sandFootstepEffect_.get();
+        } else if (footstep.surface == FootstepSurface::Soil) {
+            footstepEffect = footstep.variant == 1U
+                ? soilFootstepAlternateEffect_.get() : soilFootstepEffect_.get();
+        }
+        if (available_ && !muted_ && footstepsEnabled_ && footstepEffect) {
+            const int activeOtherTransientVoices =
+                static_cast<int>(waterTransitionInstance_ != nullptr)
+                + static_cast<int>(waveInstance_ != nullptr)
+                + static_cast<int>(wildlifeInstance_ != nullptr);
+            if (activeOtherTransientVoices < 2) {
+                try {
+                    if (footstepInstance_) {
+                        footstepInstance_->Stop();
+                        footstepInstance_.reset();
+                    }
+                    footstepInstance_ = std::make_unique<SoundEffectInstance>(
+                        footstepEffect->CreateInstance());
+                    footstepInstance_->setVolumeProperty(footstep.volume);
+                    footstepInstance_->setPitchProperty(footstep.pitch);
+                    footstepInstance_->setPanProperty(footstep.pan);
+                    footstepInstance_->Play();
+                    if (footstepInstance_->getStateProperty() != SoundState::Playing) {
+                        throw std::runtime_error(
+                            "CNA did not start the land-footstep playback instance");
+                    }
+                    footstepSecondsRemaining_ = 0.34f;
+                    ++playedFootstepCount_;
+                    if (playedFootstepCount_ == 1) {
+                        std::cout << FootstepPlaybackDiagnostic << '\n' << std::flush;
+#ifdef __ANDROID__
+                        MirrorRuntimeDiagnosticToPlatformLog(FootstepPlaybackDiagnostic);
+#endif
+                    }
+                } catch (const std::exception& exception) {
+                    footstepInstance_.reset();
+                    footstepSecondsRemaining_ = 0.0f;
+                    footstepsEnabled_ = false;
+                    if (!footstepFailureReported_) {
+                        footstepFailureReported_ = true;
+                        std::cerr << "island-simulator: land footsteps disabled; ambient beds "
+                                     "continue: " << exception.what() << '\n';
+                    }
+                }
+            }
+        }
+
         const WaveAccentRequest accent = waveScheduler_.Update(
             safeDelta, model_.Mix().surfVolume);
         SoundEffect* waveEffect = accent.variant == 1U
             ? waveAlternateEffect_.get() : waveEffect_.get();
         const int activeTransientVoices = (waterTransitionInstance_ ? 1 : 0)
+            + (footstepInstance_ ? 1 : 0)
             + (wildlifeInstance_ ? 1 : 0);
         if (available_ && !muted_ && waveAccentsEnabled_ && accent.trigger && waveEffect
             && activeTransientVoices < 2) {
@@ -526,9 +652,11 @@ namespace island
             };
             stopTransient(waveInstance_);
             stopTransient(waterTransitionInstance_);
+            stopTransient(footstepInstance_);
             stopTransient(wildlifeInstance_);
             waveSecondsRemaining_ = 0.0f;
             waterTransitionSecondsRemaining_ = 0.0f;
+            footstepSecondsRemaining_ = 0.0f;
             wildlifeSecondsRemaining_ = 0.0f;
             activeWildlifeCall_ = {};
         }
@@ -564,6 +692,11 @@ namespace island
         jungleEffect_.reset();
         waterMovementInstance_.reset();
         waterTransitionInstance_.reset();
+        footstepInstance_.reset();
+        soilFootstepAlternateEffect_.reset();
+        soilFootstepEffect_.reset();
+        sandFootstepAlternateEffect_.reset();
+        sandFootstepEffect_.reset();
         waterTransitionAlternateEffect_.reset();
         waterTransitionEffect_.reset();
         wildlifeInstance_.reset();
@@ -580,6 +713,7 @@ namespace island
         surfEffect_.reset();
         waveSecondsRemaining_ = 0.0f;
         waterTransitionSecondsRemaining_ = 0.0f;
+        footstepSecondsRemaining_ = 0.0f;
         wildlifeSecondsRemaining_ = 0.0f;
         activeWildlifeCall_ = {};
         std::cerr << "island-simulator: audio stopped after a runtime failure; "

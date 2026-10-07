@@ -144,6 +144,7 @@ namespace island
         float oceanCurrentAudioCue = 0.0f;
         int playedWaveAccents = 0;
         int playedWaterTransitions = 0;
+        int playedFootsteps = 0;
         int playedBirdCalls = 0;
         int playedMonkeyCalls = 0;
         bool wildlifeCallActive = false;

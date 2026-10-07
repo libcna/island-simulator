@@ -125,7 +125,7 @@ Current fields are:
   idle/observe/walk/run state counts, draw count, cumulative obstacle-avoidance deflections, and
   active/completed skeletal crossfades;
 - audio availability/mute state, current surf/breeze/jungle/player-water mix levels, smoothed
-  undertow cue strength, and played stronger-wave/water-transition counts;
+  undertow cue strength, and played stronger-wave/water-transition/land-footstep counts;
 - played positional bird/monkey call counts, pooled wildlife-voice active/idle state, and currently
   playing sources against the hard six-source ceiling;
 - F2 visibility plus nearby obstacle, shared-cell, wildlife marker/target/monkey-home-range

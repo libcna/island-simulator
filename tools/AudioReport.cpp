@@ -163,7 +163,7 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(12U);
+        clips.reserve(16U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
@@ -180,6 +180,14 @@ namespace
                          island::GenerateWaterTransitionAccent()});
         clips.push_back({"water transition B", "water-transition-b.wav", false, 33075U,
                          island::GenerateWaterTransitionAccentAlternate()});
+        clips.push_back({"sand footstep A", "sand-footstep-a.wav", false, 6615U,
+                         island::GenerateSandFootstep()});
+        clips.push_back({"sand footstep B", "sand-footstep-b.wav", false, 6615U,
+                         island::GenerateSandFootstepAlternate()});
+        clips.push_back({"soil footstep A", "soil-footstep-a.wav", false, 6615U,
+                         island::GenerateSoilFootstep()});
+        clips.push_back({"soil footstep B", "soil-footstep-b.wav", false, 6615U,
+                         island::GenerateSoilFootstepAlternate()});
         clips.push_back({"bird call A", "bird-call-a.wav", false, 26460U,
                          island::GenerateBirdCall()});
         clips.push_back({"bird call B", "bird-call-b.wav", false, 29767U,

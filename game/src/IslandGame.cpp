@@ -1748,6 +1748,7 @@ namespace island
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
                 overlayState.playedWaterTransitions =
                     soundscape_->PlayedWaterTransitionCount();
+                overlayState.playedFootsteps = soundscape_->PlayedFootstepCount();
                 overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
                 overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();

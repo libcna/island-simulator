@@ -26,7 +26,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 12 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 16 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -51,8 +51,8 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains four loop beds and eight one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 3.13 MiB plus headers. Delete the directory after review;
+The directory contains four loop beds and twelve one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. They total about 3.18 MiB plus headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -62,7 +62,10 @@ Listen first to each source alone:
    high-frequency noise, and low-frequency pressure.
 2. Compare both stronger-wave and water-transition variants at matched playback volume. They should
    read as related events without sounding like pitch-shifted copies.
-3. Compare both bird and monkey phrases. Confirm that calls remain atmospheric rather than alarm-
+3. Compare `sand-footstep-a.wav`, `sand-footstep-b.wav`, `soil-footstep-a.wav`, and
+   `soil-footstep-b.wav`. Sand should remain lighter and looser than soil, variants should reduce
+   repetition, and none should sound like a click or an exaggerated boot impact.
+4. Compare both bird and monkey phrases. Confirm that calls remain atmospheric rather than alarm-
    like, synthetic in an obtrusive way, or much louder than the beds.
 
 Then perform the authoritative in-game pass with headphones and ordinary speakers. Walk a complete
@@ -74,7 +77,7 @@ subjective task.
 
 ## Current measured baseline
 
-The current report validates 12 unique sources and 3,283,244 PCM payload bytes. Normalized peaks
+The current report validates 16 unique sources and 3,336,164 PCM payload bytes. Normalized peaks
 range from approximately 0.56 to 0.86. The four persistent loops subtract their generated mean
 before quantization; their measured normalized means are at or below approximately 0.00000002.
 One-shots retain exact silent endpoints and the largest absolute mean across all sources remains
@@ -83,15 +86,22 @@ own largest ordinary internal step. The persistent 10/11/29/7-second lengths ali
 pattern only every 22,330 seconds (6 hours, 12 minutes, 10 seconds); these figures establish
 regression bounds, not a claim
 of perceptual quality. Runtime initialization handles one source at a time, so it does not retain
-both complete 3,283,244-byte PCM and conversion sets as game-owned staging. The largest current
+both complete 3,336,164-byte PCM and conversion sets as game-owned staging. The largest current
 source pair is 2,557,800 bytes for the jungle bed; this is a staging-memory bound, not total mixer
 or process memory.
+
+Each land-footstep source is 6,615 samples / 0.3 seconds and has exact silent endpoints. Sand A/B
+measure RMS 0.1257/0.1292, peaks 0.58, and maximum internal steps 0.4476/0.4276. Soil A/B measure
+RMS 0.1232/0.1378, peaks 0.62, and maximum internal steps 0.5833/0.5835. Those bounds validate the
+generated signals; they are not a claim about perceptual material accuracy or mix balance.
 
 Renderer-independent regressions additionally inject non-finite time, shoreline distance, water
 depth, movement speed, current strength, and positional-audio coordinates. Those values must not
 enter a mix, advance an event scheduler, fabricate a shoreline crossing, or request a wildlife
 call; the next valid update must recover from finite state. This validates control-state safety,
-not audible quality. The generated PCM and source-count baseline above are unchanged.
+not audible quality. Footstep regressions additionally prove distance-based walk/run cadence,
+sand/soil selection, variant reachability, bounded playback parameters, teleport rejection, and
+silence during swimming.
 
 At runtime the three persistent environmental beds also receive deterministic, non-amplifying
 gain drift with mismatched roughly 44--131 second component periods. Maximum downward movement is
