@@ -15,7 +15,9 @@ been confirmed so far.
   lobes while the far tier stays compact. Near forest-floor variants now include an upright
   broadleaf form with visible petioles and a separate five-leaf folded split form. All jungle
   tiers now choose LOD and maximum distance from each instance after coarse cell rejection. The
-  third near driftwood variant adds a curved three-limb fork instead of another simple branch stub,
+  fallen fronds now curve their rachis and apply restrained asymmetric sweep, droop, and ageing to
+  their existing 28 leaflets. The third near driftwood variant adds a curved three-limb fork
+  instead of another simple branch stub,
   and three existing silhouettes form a first authored non-solid landmark in one cove. Rocks,
   logs, and driftwood now also choose range/LOD per instance. Bush
   material diversity, additional ground-plant material diversity, broader shell/wrack/branch/beach-prop

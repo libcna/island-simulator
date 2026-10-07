@@ -409,8 +409,10 @@ four low curved ribbons and two small holdfast forms for dry wrack instead of re
 shell/pebble composition. Opaque geometry grounds the
 layers without transparency overdraw. Driftwood variants 0 and 1 use an irregular bent tube plus
 one or two branch stubs; near variant 2 uses three curved, six-sided tapered fork limbs for a
-distinct 160-triangle silhouette while its far tier stays at 30 triangles. Fronds use a curved
-rachis with 28 tapered leaflets. Placement validates complete footprints
+distinct 160-triangle silhouette while its far tier stays at 30 triangles. Each frond remains a
+132-vertex/74-triangle opaque mesh with a curved rachis and 28 tapered leaflets. The leaf roots
+follow the rachis curve, while bounded pair/side variation changes span, forward sweep, tip droop,
+and ageing colour so the close silhouette is not a mirrored comb. Placement validates complete footprints
 against shore distance, route reservations, nearby trees, slope, and support-height variation.
 The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
 fragments for subtle world-space strata, sparse lichen, a low fixed-sea-level wet band, and

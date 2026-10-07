@@ -57,6 +57,8 @@ namespace island
         constexpr float FallenFrondMaximumDistance = 76.0f;
         constexpr std::string_view RockFacetDiagnostic =
             "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading";
+        constexpr std::string_view FallenFrondDiagnostic =
+            "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes";
 
         struct PropGeometry
         {
@@ -748,9 +750,11 @@ void main()
                 const float t = static_cast<float>(section)
                     / static_cast<float>(stemSections);
                 const float x = t - 0.5f;
-                const float curve = std::sin(t * std::numbers::pi_v<float>) * 0.032f;
+                const float arch = std::sin(t * std::numbers::pi_v<float>);
+                const float curve = arch * 0.032f;
                 const float sideways = std::sin(
-                    t * std::numbers::pi_v<float> * 2.0f + variant * 0.7f) * 0.012f;
+                    t * std::numbers::pi_v<float> * 2.0f + variant * 0.7f)
+                    * (0.012f + arch * 0.010f);
                 const float halfWidth = 0.014f - t * 0.006f;
                 geometry.vertices.emplace_back(
                     Vector3(x, 0.018f + curve, sideways - halfWidth),
@@ -778,26 +782,44 @@ void main()
                     + std::sin(t * std::numbers::pi_v<float>) * 0.155f;
                 const float centreHeight = 0.020f
                     + std::sin(t * std::numbers::pi_v<float>) * 0.032f;
+                const float centreSideways = std::sin(
+                    t * std::numbers::pi_v<float> * 2.0f + variant * 0.7f)
+                    * (0.012f
+                       + std::sin(t * std::numbers::pi_v<float>) * 0.010f);
                 for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
                     const float side = sideIndex == 0 ? -1.0f : 1.0f;
                     const float alternate = ((pair + sideIndex + variant) % 2 == 0)
                         ? 0.018f : -0.012f;
-                    const float sweep = 0.055f + 0.010f * static_cast<float>(variant);
+                    const float shapeVariation = std::sin(
+                        static_cast<float>(pair) * 1.71f
+                        + static_cast<float>(sideIndex) * 2.13f
+                        + static_cast<float>(variant) * 0.83f);
+                    const float sideScale = 0.91f + shapeVariation * 0.10f;
+                    const float sweep = 0.038f + t * 0.052f
+                        + 0.006f * static_cast<float>(variant)
+                        + shapeVariation * 0.009f;
+                    const float tipDrop = 0.008f
+                        + std::abs(shapeVariation) * 0.010f;
                     const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-                    const Color inner = ShadeColor(leaf, 0.80f + 0.020f * pair);
-                    const Color outer = ShadeColor(leaf, 0.92f + 0.014f * pair);
+                    const float ageVariation = 0.94f + shapeVariation * 0.07f;
+                    const Color inner = ShadeColor(
+                        leaf, (0.80f + 0.020f * pair) * ageVariation);
+                    const Color outer = ShadeColor(
+                        leaf, (0.92f + 0.014f * pair) * ageVariation);
                     geometry.vertices.emplace_back(
-                        Vector3(x, centreHeight, side * 0.010f), inner);
+                        Vector3(x, centreHeight, centreSideways + side * 0.010f), inner);
                     geometry.vertices.emplace_back(
                         Vector3(x - 0.028f, centreHeight + 0.002f,
-                                side * envelope * 0.23f),
+                                centreSideways + side * envelope * 0.23f),
                         ShadeColor(inner, 0.92f));
                     geometry.vertices.emplace_back(
-                        Vector3(x + sweep + alternate, centreHeight + 0.007f,
-                                side * envelope), ShadeColor(outer, 1.05f));
+                        Vector3(x + sweep + alternate,
+                                centreHeight + 0.006f - tipDrop,
+                                centreSideways + side * envelope * sideScale),
+                        ShadeColor(outer, 1.05f));
                     geometry.vertices.emplace_back(
                         Vector3(x + 0.040f, centreHeight + 0.003f,
-                                side * envelope * 0.24f), outer);
+                                centreSideways + side * envelope * 0.24f), outer);
                     geometry.indices.insert(
                         geometry.indices.end(),
                         {base, static_cast<std::uint16_t>(base + 1U),
@@ -906,6 +928,8 @@ void main()
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
+            std::cout << FallenFrondDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(FallenFrondDiagnostic);
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';

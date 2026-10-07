@@ -139,6 +139,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: near birds use layered trailing flight-feather silhouettes" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: ocean sunward ripple crests reuse analytic slope field" \
             "$LOG_FILE" \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then

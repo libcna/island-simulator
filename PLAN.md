@@ -943,7 +943,9 @@ Android is not project completion.
   showed skeletal gaps, without adding geometry. Near-only procedural trunk scars and coconut
   clusters on two variants add a first
   material/content pass without new draws. Five deterministic near-root wedges now vary in angle,
-  length, width, and height rather than reading as flat tabs or a radial stamp. Prop repetition,
+  length, width, and height rather than reading as flat tabs or a radial stamp. Fallen-frond
+  leaflet roots now follow their curved rachis; pair/side sweep, droop, and ageing variation break
+  the former mirrored-comb silhouette without changing its mesh count or batches. Prop repetition,
   broader palm variation, physical-device placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
@@ -1216,7 +1218,8 @@ Work next, in order:
    driftwood now enforce range and LOD from their actual positions after conservative cell bounds.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble/dry-wrack substrate layer, a first grove-associated fallen-frond
-   layer, and 14 emergent shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
+   layer with curved asymmetric leaflets, and 14 emergent shallow-reef outcrops are complete.
+   Texture-free near-field substrate microvariation and sparse
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
    dry-earth material cue under its short grass. The east/west clearings now share their placement,
@@ -4829,6 +4832,27 @@ Work next, in order:
   15,918,616 bytes for stripped arm64 `libmain.so`, and 18,728,900 bytes for the arm64 APK.
   Isolated native timing and physical-mobile animation cost remain open. CNA and Sharp Runtime
   stayed read-only.
+
+### 2026-10-07 — Curved asymmetric fallen-frond silhouettes
+
+- A current detail-matrix review identified the 63 grove-associated fallen fronds as overly flat
+  and mirror-regular at first-person distance. Their 28 leaflet roots now follow the existing
+  curved rachis. Bounded deterministic pair/side variation changes leaflet span, forward sweep,
+  tip droop, and vertex-colour ageing while retaining all three broad fresh/olive/dry palettes.
+- Every shared variant remains 132 vertices and 74 triangles. Population, placement, instance
+  matrices, three buffers, opaque material, 76 m culling, collision policy, and maximum three
+  submissions are unchanged. Original-resolution before/after inspection shows a less mechanical
+  silhouette without increasing geometry or transparency.
+- The complete private-display OpenGL 3.3 suite passes 41/41, including real simultaneous movement/
+  mouse input and persistent Shift run/walk toggling. The actual Chrome 152/SwiftShader WebGL 2
+  suite passes all 22 stages, requires the asymmetric-frond diagnostic, and its inspected frame
+  matches native. The arm64 GLES 3 APK builds/lints through `/rv/cnaccache`, contains only
+  `arm64-v8a`, and verifies with APK signature scheme v2. The revised fronds have not been inspected
+  on physical Android hardware, so mobile appearance and cost remain open.
+- Final artifacts are 8,521,483 bytes WebAssembly, 8,786,326 bytes for the deterministic Web
+  payload, 2,490,885 bytes through gzip, 15,919,256 bytes for stripped arm64 `libmain.so`, and
+  18,729,540 bytes for the arm64 APK. Build trees remain 2.6 GiB native, 84 MiB Web, and 360 MiB
+  Android with approximately 375 GiB free. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

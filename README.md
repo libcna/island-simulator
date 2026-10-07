@@ -15,7 +15,8 @@ sunward ripple crests from its existing slope field, and an exact shore-followin
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
 irregular land rocks, 14 emergent near-shore reef outcrops, 13 mossy fallen logs,
-31 pieces of sun-bleached beach driftwood, 63 fallen palm fronds, and 265 near-field
+31 pieces of sun-bleached beach driftwood, 63 curved fallen palm fronds with asymmetric leaflets,
+and 265 near-field
 shell/pebble/dry-wrack clusters. Three varied driftwood silhouettes form a non-solid landmark arc
 in one sheltered cove;
 five rocks and two fallen logs form natural orientation landmarks around the outer rings of the

@@ -197,8 +197,8 @@ depth/scatter/edge cue, exactly one overlay draw, and a
 nonzero player ripple plus a nonzero finite shoreline-transition burst integrated into the existing
 ocean submission, the
 current view must additionally report nonzero normalized current strength and undertow-audio
-target, the frond view must
-report visible grove-associated fallen fronds, the distant view must report all five unreachable
+target, the frond view must report visible grove-associated fallen fronds and require their curved
+asymmetric-leaflet diagnostic, the distant view must report all five unreachable
 islets in exactly one portable batch, and the bird/fish views must report nonzero
 visible populations from the 24-agent flock and 48-agent school population. The bird view also
 requires the layered near trailing-flight-feather diagnostic. The fish view also

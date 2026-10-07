@@ -467,7 +467,8 @@ if(ISLAND_BUILD_GAME)
         set_tests_properties(IslandGameFallenFrondCapture PROPERTIES
             TIMEOUT 30
             LABELS display
-            PASS_REGULAR_EXPRESSION "[1-9][0-9]*/63 fallen fronds")
+            PASS_REGULAR_EXPRESSION
+                "fallen fronds use curved asymmetric leaflet silhouettes.*[1-9][0-9]*/63 fallen fronds")
         add_test(NAME IslandGameReefCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-reef-capture.ppm"
                     --viewpoint reef)

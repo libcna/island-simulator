@@ -1270,14 +1270,29 @@ startup diagnostic, passes all 22 stages, and produces an inspected cove frame. 
 renderer object compiles without relinking the visible game. The arm64 GLES 3 package builds and
 lints, but the revised detail has not been inspected on a physical mobile GPU.
 
+### Fallen-frond silhouette follow-up
+
+The three existing frond meshes remain exactly 132 vertices and 74 triangles each. Leaflet roots
+now follow the already curved rachis, and bounded deterministic pair/side variation changes their
+span, forward sweep, tip droop, and vertex-colour ageing. Population (63), three variant buffers,
+76 m culling, opaque material, instance data, maximum three submissions, texture memory, collision,
+and per-frame work are unchanged.
+
+The complete isolated OpenGL 3.3 suite passes 41/41 and the before/after close frame was inspected
+at its original 1280 by 720 resolution. The actual Chrome 152/SwiftShader WebGL 2 suite passes all
+22 stages, requires the new diagnostic in its frond gate, and its original-resolution frame matches
+the native silhouette. The arm64 GLES 3 APK builds/lints through the shared cache, contains only
+`arm64-v8a`, and verifies with APK signature scheme v2; a physical-mobile frond inspection remains
+open, so no Android appearance or performance improvement is claimed.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,512,564 bytes (2,428,405
-gzip). The complete transfer payload therefore falls from 8,777,407 to 2,488,587 bytes, a measured
-71.6% reduction.
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,521,483 bytes (2,430,703
+gzip). The complete transfer payload therefore falls from 8,786,326 to 2,490,885 bytes, a measured
+71.7% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game

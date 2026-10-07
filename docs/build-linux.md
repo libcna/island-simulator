@@ -197,7 +197,8 @@ device disabled; normal runtime playback is qualified separately.
 `IslandGameDistantSceneryCapture` writes the south-horizon composition to
 `build/island-distant-capture.ppm` and requires five islets in one scenery draw.
 `IslandGameFallenFrondCapture` writes a close dry-beach/palm-grove transition view to
-`build/island-frond-capture.ppm`.
+`build/island-frond-capture.ppm` and requires the curved asymmetric-leaflet diagnostic plus a
+nonzero visible population.
 `IslandGameBirdCapture` writes a close airborne wildlife view to
 `build/island-bird-capture.ppm`; startup reports the layered near trailing-flight-feather path.
 `IslandGameFishCapture` writes a close shallow-water school view to
