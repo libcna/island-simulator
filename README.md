@@ -240,7 +240,9 @@ responsive 16:9 sizing. A narrower Firefox ESR 140.15 WebDriver BiDi gate indepe
 production shell's first frame, reported WebGL 2 Radeon backend, trusted-click pointer lock,
 44.1 kHz audio initialization, persistent Shift enable/disable edges, forward traversal with an
 actual footstep, Escape release, delayed pointer-lock reacquisition, and responsive 16:9 sizing.
-Its two 1280 by 720 frames were visually inspected. A visible interactive listening pass, genuine
+It also loads dedicated 1280 by 720 jungle and near-surface-water scenes, requires their live
+LOD/water state, and captures both. All four Firefox frames were visually inspected. A visible
+interactive listening pass, the remaining fixed-scene matrix, genuine
 tab background/foreground behaviour, and fullscreen remain open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates

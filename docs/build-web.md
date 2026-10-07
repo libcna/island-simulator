@@ -19,8 +19,9 @@ headings, nearby live bird radial targets, six terrain-following ambient-zone co
 positional-source markers.
 Audible output on a visible hardware browser, genuine tab background/foreground recovery,
 hardware-GPU performance, and extended play are not yet validated. Firefox ESR 140.15 now provides
-a narrower independent second-engine gate for the production first frame and essential input/audio
-contract; it does not duplicate the complete Chromium scene matrix.
+a narrower independent second-engine gate for the production first frame, essential input/audio
+contract, and dedicated live jungle plus near-surface-water scenes; it does not duplicate the
+complete Chromium scene matrix.
 The F1 panel exposes the same authoritative seed rows as desktop. F4 attempts to copy their stable
 text report, but browser clipboard permission and user-gesture policy can prevent immediate
 readback; the panel then reports `UNAVAILABLE` instead of claiming success.
@@ -282,13 +283,15 @@ resource path. The test then requires one released Shift press to select persist
 forward motion to play a real distance-scheduled footstep, a second Shift press to restore 4.3 m/s
 walking, and Escape to release pointer lock. A 1000 by 600 resize must retain an undistorted 16:9
 canvas; after Firefox's security cooldown, a delayed trusted click must reacquire pointer lock and
-a second Escape must release it again. The tool writes before/input PNGs plus a schema-1 JSON report
-under the ignored build directory and removes its profile and processes even on failure.
+a second Escape must release it again. It then loads the test-only fixed jungle and water cameras,
+requires nonzero near/far populations across all four jungle layers plus an active water-view/
+ripple/splash state, and captures both frames. The tool writes four PNGs plus a schema-1 JSON
+report under the ignored build directory and removes its profile and processes even on failure.
 
 The current Firefox ESR 140.15 run reports `WebGL 2.0` on a `Radeon R9 200 Series, or similar`
-backend and completed the first rendered frame in 299--360 ms total across six clean tool runs.
-Both original-resolution
-frames were inspected; the input frame visibly retained the world and the warm-gold
-`RUN MODE  8.0 M/S` notice. These one-run startup values are not a network cold-load or frame-time
-benchmark. The gate does not qualify the complete Chrome scene matrix, simultaneous mouse look,
-clipboard behaviour, fullscreen, tab lifecycle, or audible sound quality.
+backend and completed the first rendered frame in 289--360 ms total across eight clean tool runs.
+All four original-resolution frames were inspected; the input frame visibly retained the world
+and the warm-gold `RUN MODE  8.0 M/S` notice, while the jungle and water frames match the Chromium
+composition and expose their expected live state. These one-run startup values are not a network
+cold-load or frame-time benchmark. The gate does not qualify the remaining Chrome scene matrix,
+simultaneous mouse look, clipboard behaviour, fullscreen, tab lifecycle, or audible sound quality.

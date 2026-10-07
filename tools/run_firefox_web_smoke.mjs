@@ -26,6 +26,8 @@ await Promise.all([
   readFile(path.join(buildDirectory, "island-simulator.js")),
   readFile(path.join(buildDirectory, "island-simulator.wasm")),
 ]);
+const smokeTemplate = await readFile(path.join(toolsDirectory, "web_smoke.html.in"), "utf8");
+await writeFile(path.join(buildDirectory, "island-smoke.html"), smokeTemplate);
 
 const profile = await mkdtemp(path.join(tmpdir(), "island-firefox-smoke-"));
 const server = spawn("python3", [
@@ -171,6 +173,50 @@ try {
     }
     throw new Error(`Firefox output did not contain ${marker}:\n${output.slice(-5000)}`);
   };
+  const qualifyScene = async (context, mode, filename, requiredMarkers, populationPattern) => {
+    await bidiCommand("browsingContext.setViewport", {
+      context,
+      viewport: { width: 1280, height: 720 },
+      devicePixelRatio: 1,
+    });
+    await bidiCommand("browsingContext.navigate", {
+      context,
+      url: `http://127.0.0.1:${webPort}/island-smoke.html?mode=${mode}`,
+      wait: "complete",
+    });
+
+    let result = {};
+    for (let attempt = 0; attempt < 240; ++attempt) {
+      result = JSON.parse(await evaluate(
+        context, "JSON.stringify(globalThis.islandSmokeResult ?? {})"));
+      if (result.error) throw new Error(`Firefox ${mode} scene failed: ${result.error}`);
+      if (result.output?.includes("island-simulator: visible terrain cells ")) break;
+      await delay(100);
+    }
+    if (!result.output?.includes("island-simulator: visible terrain cells ")) {
+      throw new Error(`Firefox ${mode} scene did not render:\n${result.output?.slice(-5000) ?? ""}`);
+    }
+    await delay(1000);
+    result = JSON.parse(await evaluate(
+      context, "JSON.stringify(globalThis.islandSmokeResult ?? {})"));
+    for (const marker of requiredMarkers) {
+      if (!result.output?.includes(marker)) {
+        throw new Error(`Firefox ${mode} scene omitted: ${marker}`);
+      }
+    }
+    if (!populationPattern.test(result.output ?? "")) {
+      throw new Error(`Firefox ${mode} scene omitted its expected live population/state`);
+    }
+    if (result.error || /fatal error|shader.*(?:failed|error)/i.test(result.output ?? "")) {
+      throw new Error(`Firefox ${mode} scene emitted a fatal or shader diagnostic`);
+    }
+    await capture(context, filename);
+    return {
+      qualified: true,
+      visibleState: result.output.split("\n").find(
+        line => line.startsWith("island-simulator: visible terrain cells ")) ?? "",
+    };
+  };
 
   const session = await bidiCommand("session.new", { capabilities: { alwaysMatch: {} } });
   const created = await bidiCommand("browsingContext.create", { type: "tab" });
@@ -301,8 +347,38 @@ try {
   }
 
   output = await evaluate(context, "globalThis.islandDeploymentOutput || ''");
-  const fatalDiagnostic = /fatal error|shader.*(?:failed|error)/i.test(output);
+  const productionOutput = output;
+  const fatalDiagnostic = /fatal error|shader.*(?:failed|error)/i.test(productionOutput);
   if (fatalDiagnostic) throw new Error("Firefox emitted a fatal or shader diagnostic");
+  const junglePopulationPattern = new RegExp(
+    "jungle [1-9][0-9]*/281 canopy \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/1822 understory \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/565 bushes \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/2225 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
+  const waterStatePattern = new RegExp(
+    "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, "
+      + "phase [01](?:[.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+");
+  const jungleScene = await qualifyScene(
+    context,
+    "jungle",
+    "island-firefox-esr-jungle.png",
+    [
+      "island-simulator: renderer WEBGL2",
+      "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD",
+      "island-simulator: jungle per-instance foliage tint reuses existing transforms",
+      "island-simulator: jungle fixed-sun two-sided geometric facet lighting",
+    ],
+    junglePopulationPattern);
+  const waterScene = await qualifyScene(
+    context,
+    "water",
+    "island-firefox-esr-water.png",
+    [
+      "island-simulator: renderer WEBGL2",
+      "island-simulator: ocean sunward ripple crests reuse analytic slope field",
+      "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw",
+    ],
+    waterStatePattern);
   const report = {
     schema: 1,
     browser: "Firefox ESR",
@@ -319,8 +395,9 @@ try {
     runDisabled: true,
     footstepPlayed: true,
     fatalDiagnostic,
+    scenes: { jungle: jungleScene, water: waterScene },
     sessionId: session.sessionId,
-    outputTail: output.split("\n").slice(-28),
+    outputTail: productionOutput.split("\n").slice(-28),
   };
   await writeFile(
     path.join(buildDirectory, "island-firefox-esr-report.json"),

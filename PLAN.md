@@ -743,9 +743,10 @@ Dependencies: portable baseline features and bounded initial asset size.
   memory tiers remain open.
 - [~] Run the current terrain/ocean/palm/jungle scene in Chromium/SwiftShader with overview, beach,
   grass-detail, and jungle active-render captures; the grass view requires the full player-bend
-  strength on the custom shader. Firefox ESR now supplies an inspected second-engine production
-  first frame on its reported Radeon WebGL 2 backend. A visible interactive hardware-accelerated
-  pass and broader Firefox scene coverage remain open.
+  strength on the custom shader. Firefox ESR now supplies inspected second-engine production,
+  dedicated jungle, and near-surface-water frames on its reported Radeon WebGL 2 backend with
+  explicit live-state gates. A visible interactive hardware-accelerated pass and the remaining
+  Firefox scene matrix remain open.
 - [~] Capture browser console output, `WEBGL2` renderer identity, clean lifecycle, and an
   active-render screenshot. Startup time, memory, and representative frame-time evidence remain.
 - [~] Document browser requirements and verified versions without claiming untested browsers.
@@ -1280,9 +1281,10 @@ Work next, in order:
 6. Perform a visible hardware-accelerated Web listening/play pass, fullscreen pass, and genuine
    tab background/foreground test; automated first-gesture audio initialization is complete.
    Firefox ESR now independently passes the production first frame, essential input/audio path,
-   responsive 16:9 sizing, Escape release, and delayed pointer-lock reacquisition. The headless
-   Chrome freeze/active probe remains diagnostic-only because the latest passing input run did not
-   emit a post-resume game sample even after a three-second allowance.
+   responsive 16:9 sizing, Escape release, delayed pointer-lock reacquisition, and fixed jungle/
+   water live-scene gates. The headless Chrome freeze/active probe remains diagnostic-only because
+   the latest passing input run did not emit a post-resume game sample even after a three-second
+   allowance.
 7. Observe the irregular faceted palm roots and fuller segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal and on physical mobile hardware. Current close-palm
    evidence justified widening only the existing leaflet root chords; the close-root,
@@ -5065,6 +5067,27 @@ Work next, in order:
   compiles with first-party warnings as errors, but native runtime appearance remains deferred
   while the operator-visible earlier executable is open. All compilation used two workers or
   fewer and the shared cache; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Firefox jungle and water scene coverage
+
+- Extended the dependency-free Firefox/WebDriver BiDi gate beyond the production first-frame and
+  essential-input path. The tool now materializes the same ignored test-only shell as the Chrome
+  harness, navigates the existing context to deterministic jungle and near-surface-water cameras,
+  waits for their complete live visibility state, and writes two additional 1280 by 720 frames.
+- The jungle gate requires nonzero near/far populations for canopy, understory, bushes, and ground
+  plants plus the portable wind, facet-light, and transform-derived tint diagnostics. The water
+  gate requires the sunward-crest and generated near-surface-view paths plus simultaneous nonzero
+  view, ripple, and entry/exit-burst state. Both scenes reject test-shell-reported, fatal, and
+  shader errors.
+- Two consecutive expanded Firefox runs passed. The eighth clean Firefox ESR 140.15 run retained
+  the earlier production sizing, trusted pointer-lock/reacquisition, persistent Shift, traversal/
+  footstep, audio, and double-Escape checks before both new scene gates. Firefox again reported
+  `WebGL 2.0` on a `Radeon R9 200 Series, or similar` backend; first draw was 289 ms total (307 ms
+  in the first expanded run). The four original-resolution production/input/jungle/water frames
+  were inspected and match the established composition. The complete 22-stage Chrome suite
+  remains authoritative for the other fixed scenes, simultaneous mouse look, clipboard, and
+  shoreline audio. Fullscreen, genuine tab lifecycle, visible listening, and sustained hardware-
+  GPU frame pacing remain open.
 
 ## Session-end checklist
 

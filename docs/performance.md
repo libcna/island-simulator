@@ -730,7 +730,8 @@ Population, placement, geometry, instance stride, buffers, textures, culling, si
 submissions are unchanged. The retained 1280 by 720 Chrome/WebGL 2 before/after jungle, ground, and
 east-clearing pairs were compared at original resolution; the change breaks up repeated greens
 without tinting brown trunks or altering composition. The complete Chrome suite passes all 22
-stages, Firefox ESR passes its production first-frame/input/audio subset, and a current
+stages, Firefox ESR passes its production first-frame/input/audio subset plus dedicated jungle and
+near-surface-water live-scene gates, and a current
 KVM/gfxstream GLES 3 jungle launch compiles the GLSL ES 300 path and requires its exact platform
 diagnostic. These are functional results; isolated vertex cost on a physical mobile GPU remains
 unmeasured.
