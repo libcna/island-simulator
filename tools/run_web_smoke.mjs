@@ -222,6 +222,8 @@ try {
       result.output ?? "")
     && result.output?.includes("island-simulator: terrain portable sand/soil material shader")
     && result.output?.includes(
+      "island-simulator: terrain wet sand uses bounded view-dependent sun sheen")
+    && result.output?.includes(
       "island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers")
     && terrainBatchMatch !== null
     && Number(terrainBatchMatch[2]) < Number(terrainBatchMatch[1])

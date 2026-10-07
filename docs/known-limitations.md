@@ -21,7 +21,8 @@ been confirmed so far.
   material diversity, additional ground-plant material diversity, broader shell/branch/beach-prop
   variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
-- Terrain combines procedural vertex colour with a texture-free sand/soil, wet-edge, exposed-slope,
+- Terrain combines procedural vertex colour with a texture-free sand/soil, darkened wet-edge with
+  bounded view-dependent fixed-sun sheen, exposed-slope,
   close substrate-microvariation, sparse pointed leaf litter, close dry-sand pebble/shell flecks,
   and restrained fixed-sun interior
   dappling. The authored main corridor now has a narrower, noise-mottled broken-edge dry-earth

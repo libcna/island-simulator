@@ -279,6 +279,19 @@ fragment shaders. A complete actual-browser WebGL 2 suite and visual comparison 
 view pass. The arm64 GLES 3 package builds and lints, but no new Android runtime or physical-GPU
 performance claim is inferred.
 
+### Bounded wet-sand sheen follow-up
+
+The existing wet-edge terrain branch now derives a geometric normal from screen-space world-position
+derivatives and applies one narrow fixed-sun half-vector highlight plus a much weaker grazing term.
+The calculation runs only where the authoritative signed shoreline distance produces nonzero wet
+coverage. It adds no texture, varying, vertex/index data, allocation, geometry, or draw submission;
+the incremental fragment work is two derivatives, bounded normalization/dot operations, and two
+powers in the wet band. The complete actual-browser WebGL 2 suite compiles both GLSL ES 300 stages,
+requires the exact feature diagnostic, and passes all 22 stages. Fixed water, driftwood, and beach-
+ground captures were compared at original resolution and retain a restrained edge without a new
+uniform bright line. The arm64 GLES 3 package builds and lints, but physical-mobile fragment cost
+and runtime appearance remain unqualified.
+
 ### Speed-responsive player-grass follow-up
 
 The player bend is integrated into the existing instanced grass vertex shader and adds no mesh,

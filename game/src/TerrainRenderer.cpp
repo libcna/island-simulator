@@ -67,6 +67,7 @@ in vec3 vBaseColor;
 in vec2 vTerrainData;
 
 uniform vec3 uCameraPosition;
+uniform vec3 uToSun;
 uniform vec4 uPrimaryPathShape;
 uniform vec2 uPrimaryPathZRange;
 uniform vec3 uEastClearing;
@@ -297,6 +298,22 @@ void main()
     float wetEdge = (1.0 - smoothstep(0.0, 2.3, abs(signedShoreDistance)))
         * smoothstep(-1.3, 0.2, signedShoreDistance);
     color = mix(color, color * vec3(0.76, 0.81, 0.78), wetEdge * 0.42);
+    if (wetEdge > 0.001) {
+        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+        vec3 wetNormal = faceVector
+            * inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
+        if (wetNormal.y < 0.0) {
+            wetNormal = -wetNormal;
+        }
+        vec3 toView = normalize(uCameraPosition - vWorld);
+        vec3 halfVector = normalize(uToSun) + toView;
+        vec3 halfDirection = halfVector
+            * inversesqrt(max(dot(halfVector, halfVector), 0.00000001));
+        float sunSheen = pow(max(dot(wetNormal, halfDirection), 0.0), 28.0);
+        float grazingSheen = pow(1.0 - max(dot(wetNormal, toView), 0.0), 3.0);
+        float wetSheen = wetEdge * (sunSheen * 0.42 + grazingSheen * 0.035);
+        color += vec3(0.13, 0.17, 0.16) * wetSheen;
+    }
 
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
     color = mix(color, vec3(0.53, 0.78, 0.88), fog);
@@ -409,6 +426,8 @@ void main()
                                  "procedural interior leaf litter\n"
                               << "island-simulator: terrain close sand granulation and "
                                  "shoreline-raked ripples\n"
+                              << "island-simulator: terrain wet sand uses bounded "
+                                 "view-dependent sun sheen\n"
                               << "island-simulator: terrain sparse close sand pebbles and "
                                  "shell flecks\n"
                               << "island-simulator: terrain fixed-sun interior dapple from "
@@ -529,6 +548,9 @@ void main()
             materialEffect_->SetUniformMat4("uViewProjection", viewProjection);
             materialEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                             cameraPosition.Y, cameraPosition.Z);
+            materialEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
             materialEffect_->SetUniformVec4(
                 "uPrimaryPathShape", VegetationLayout::PrimaryPathBaseX,
                 VegetationLayout::PrimaryPathAmplitude,

@@ -325,7 +325,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [ ] Create biome/density masks with authored overrides and deterministic placement seeds.
 - [~] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions. Terrain vertices
   now carry authoritative shore distance and slope into a portable texture-free material shader;
-  two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently,
+  two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently
+  and adds a bounded view-dependent fixed-sun sheen,
   a close-only octave adds dry-sand granulation, and a bounded signed-shore-distance term adds
   broken raked crests parallel to the water edge. Two soft-edged deterministic close-only grids
   add sparse dark pebbles and pale shell flecks to otherwise exposed dry sand without geometry or
@@ -901,8 +902,9 @@ Android is not project completion.
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
   player ripples plus a bounded water-entry/exit surface burst are functional. The overlapping
   broad ocean foam and exact ribbon wash now share broken continuity shaping, removing the most
-  obvious uninterrupted bright waterline from the low water view; repeated whole-island
-  composition tuning remains.
+  obvious uninterrupted bright waterline from the low water view. A tightly shore-bounded
+  derivative-normal sun sheen now distinguishes wet sand from the still-matte dry beach without
+  another texture or pass; repeated whole-island composition tuning remains.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
   placement curve; its visible wear was narrowed and given local shaded/sun-dry variation while the
@@ -4339,6 +4341,25 @@ Work next, in order:
   the 18,706,996-byte package contains a 15,896,712-byte stripped library. Android runtime
   appearance is not newly claimed. The operator's visible Linux game remained uninterrupted, so
   it still runs the preceding linked executable; CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Bounded wet-sand sun sheen
+
+- The cross-renderer composition review found that the existing wet sand darkened correctly but
+  retained the same matte response as the dry beach. The terrain shader now derives a geometric
+  normal from world-position derivatives only inside the authoritative wet-edge band and adds a
+  narrow fixed-sun half-vector highlight plus a much weaker grazing response. Original-resolution
+  water, driftwood, and beach-ground comparisons retain a deliberately subtle edge and show no
+  new uninterrupted bright shoreline.
+- The sheen adds no texture, varying, vertex/index data, geometry, buffer, allocation, or draw.
+  Its extra fragment work is bounded to wet coverage. The OpenGL 3.3 consumer object compiles via
+  `/rv/cnaccache` without relinking the visible game. The complete Chrome 152/SwiftShader WebGL 2
+  22-stage suite requires the exact diagnostic, compiles the shared GLSL ES 300 shader, and passes;
+  WebAssembly is 8,492,140 bytes.
+- The two-worker arm64 GLES 3 build and lint pass, and the 18,707,956-byte APK verifies with
+  signature scheme v2 and contains a 15,897,672-byte stripped library. Android runtime appearance
+  and physical-device fragment cost are not newly claimed. The KVM host preflight separately
+  reports version 12 installed and usable, but no AVD was started beside the operator's visible
+  Linux game. CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 
