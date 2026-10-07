@@ -178,6 +178,7 @@ transitions.
 `build/island-palm-capture.ppm` and requires the fuller segmented near-leaflet plus procedural
 bark-scar/coconut path.
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm` and
+requires the restrained radial end-grain crack path. The broader Web prop gate additionally
 requires a nonzero one-draw terrain-contact-shadow batch.
 `IslandGameDriftwoodCapture` writes a close beach-composition view to
 `build/island-driftwood-capture.ppm`; its startup gate requires tapered three-dimensional branches

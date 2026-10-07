@@ -5575,6 +5575,34 @@ Work next, in order:
   palm passes rather than recreating about 1.1 GiB of temporary x86_64 intermediates. CNA and Sharp
   Runtime remained read-only; no build used more than two workers.
 
+### 2026-10-07 — Restrained fallen-log end-grain cracks
+
+- The latest original-resolution close-prop audit found that the irregular near-log outline and
+  softened growth rings still left the exposed wood unusually pristine. Added three thin,
+  slightly curved radial drying cracks in the existing cut-end fragment branch. Their strength
+  rises gently from the centre toward the perimeter and remains only 8.5 percent at full mask, so
+  the result preserves the rings instead of becoming a high-contrast starburst.
+- This is fragment arithmetic only. Geometry, vertex/index counts, material selectors, instance
+  data, buffers, uploads, textures, 72 m LOD, culling, collision proxies, population, and draw
+  submissions are unchanged. Native, Chrome, Firefox, Android, and the dedicated native prop gate
+  now carry the exact diagnostic.
+- The OpenGL 3.3 object compiles with first-party warnings as errors through `/rv/cnaccache`
+  without relinking the operator-visible process. The complete Chrome 152/SwiftShader WebGL 2
+  matrix passes 23/23; the original-resolution close-log frame and a nearest-neighbour detail crop
+  were inspected and show restrained readable cracks without a shader seam or artificial radial
+  star. Firefox ESR 140.0 independently passes its production-shell first-frame, lifecycle,
+  input/audio, jungle, and water gate while requiring the same diagnostic.
+- The deterministic Web package is 8,805,713 bytes or 2,497,211 bytes through gzip; WebAssembly is
+  8,540,835 bytes or 2,437,001 bytes through gzip. JavaScript remains 262,820 bytes (59,066 gzip)
+  and HTML remains 2,058 bytes (1,144 gzip).
+- Rebuilt/linted the default arm64-only APK through the shared cache; lint has zero issues, only
+  `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,747,212 bytes and its
+  stripped `libmain.so` is 15,936,928 bytes. GLES 3 runtime appearance remains batched with the
+  pending palm and fallen-frond passes. CNA and Sharp Runtime remained read-only; no build used
+  more than two workers. All seven renderer-independent tests pass; project build trees remain
+  bounded at 2.6 GiB native, 88 MiB Web, and 1.3 GiB Android, while the sole shared ccache remains
+  3.7 GiB and 99.69 percent cacheable.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

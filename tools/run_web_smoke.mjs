@@ -340,6 +340,8 @@ try {
     && result.output?.includes(
       "island-simulator: near fallen logs use irregular broken end contours")
     && result.output?.includes(
+      "island-simulator: near fallen-log end grain uses restrained radial cracks")
+    && result.output?.includes(
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && result.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
@@ -869,6 +871,8 @@ try {
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && propResult.output?.includes(
       "island-simulator: near fallen logs use irregular broken end contours")
+    && propResult.output?.includes(
+      "island-simulator: near fallen-log end grain uses restrained radial cracks")
     && propResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")

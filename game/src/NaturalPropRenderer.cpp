@@ -61,6 +61,8 @@ namespace island
             "island-simulator: rock per-instance tint reuses existing transforms";
         constexpr std::string_view FallenLogEndDiagnostic =
             "island-simulator: near fallen logs use irregular broken end contours";
+        constexpr std::string_view FallenLogCrackDiagnostic =
+            "island-simulator: near fallen-log end grain uses restrained radial cracks";
         constexpr std::string_view DriftwoodBranchDiagnostic =
             "island-simulator: all near driftwood variants use tapered three-dimensional branches";
         constexpr std::string_view DriftwoodEndDiagnostic =
@@ -174,6 +176,16 @@ void main()
             + sin(cutAngle * 7.0) * 0.14);
         vec3 detailedColor = materialColor
             * (0.94 + 0.08 * smoothstep(0.18, 0.82, growthRing));
+        float crackA = smoothstep(0.9970, 0.9996, cos(
+            cutAngle - 0.48 - sin(cutRadius * 7.0) * 0.040));
+        float crackB = smoothstep(0.9974, 0.9997, cos(
+            cutAngle + 1.16 - sin(cutRadius * 8.5) * 0.032));
+        float crackC = smoothstep(0.9977, 0.99975, cos(
+            cutAngle - 2.54 + sin(cutRadius * 6.2) * 0.028));
+        float crackReach = smoothstep(0.16, 0.34, cutRadius)
+            * (0.46 + 0.54 * smoothstep(0.38, 0.86, cutRadius));
+        float radialCrack = max(crackA, max(crackB, crackC)) * crackReach;
+        detailedColor *= 1.0 - 0.085 * radialCrack;
         materialColor = mix(vColor, detailedColor,
                             1.0 - smoothstep(42.0, 70.0, distanceToCamera));
     } else if (vMaterialDetail < 0.9375) {
@@ -993,6 +1005,8 @@ void main()
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             std::cout << FallenLogEndDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenLogEndDiagnostic);
+            std::cout << FallenLogCrackDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(FallenLogCrackDiagnostic);
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
             std::cout << DriftwoodBranchDiagnostic << '\n';

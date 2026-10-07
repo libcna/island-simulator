@@ -441,9 +441,10 @@ nearby trees, slope, and support-height variation.
 The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
 fragments for subtle world-space strata, sparse lichen, a low fixed-sea-level wet band, and
 derivative-based two-sided facet light from the shared fixed sun;
-near-log sides for local-space bark fissures; near cut ends for gently irregular growth rings; and
-near-driftwood sides/branches for softer sun-bleached longitudinal weathering. Driftwood cut ends
-remain plain. Distance fades remove all cues before their mesh transition. Contact geometry and
+near-log sides for local-space bark fissures; near cut ends for gently irregular growth rings and
+three thin, slightly curved radial drying cracks; and near-driftwood sides/branches for softer
+sun-bleached longitudinal weathering. Driftwood cut ends remain plain. Distance fades remove all
+cues before their mesh transition. Contact geometry and
 every far mesh retain the plain path; this keeps the material treatment texture-free and free of
 extra instance data or draws. Near fallen logs reuse their existing nine-sided end rings and cap
 vertices, matching their radii and applying bounded deterministic axial offsets so the former

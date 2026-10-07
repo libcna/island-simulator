@@ -118,7 +118,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,802,501 bytes uncompressed and 2,496,567 bytes through gzip, a 71.6% transfer reduction. These
+8,805,713 bytes uncompressed and 2,497,211 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -207,7 +207,8 @@ diagnostics plus nonzero near/far populations. The jungle
 view requires the branch-supported canopy, procedural-bark, and pointed-leaf near-bush diagnostics,
 nonzero near/far
 canopy populations, understory, low bushes, and forest-floor plants. The prop view must report
-visible fallen logs plus a nonzero one-draw contact-shadow batch. The driftwood view frames the
+visible fallen logs, restrained radial end-grain cracks, plus a nonzero one-draw contact-shadow
+batch. The driftwood view frames the
 authored cove group and must report its exact three-piece landmark diagnostic, the three-limb
 silhouette diagnostic, visible beach wood plus shell/pebble/dry-wrack clusters, and a nonzero
 per-instance near-LOD population. The reef view must report a visible emergent outcrop plus the

@@ -452,7 +452,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw")
+                "near fallen-log end grain uses restrained radial cracks")
         add_test(NAME IslandGameDriftwoodCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-driftwood-capture.ppm"
                     --viewpoint driftwood)

@@ -1445,13 +1445,32 @@ crease rather than a rigid ridge. The arm64 GLES 3 package builds/lints, contain
 and verifies with signature scheme v2. Android runtime appearance and physical-mobile fragment cost
 remain deferred to the next batched/physical validation.
 
+### Restrained fallen-log end-grain crack follow-up
+
+The latest close-prop audit found that the irregular near-log contour and softened growth rings
+still left the exposed end unusually pristine. Three thin directional masks now form slightly
+curved radial drying cracks in the existing cut-end fragment branch. Their response fades near the
+centre, strengthens gradually toward the perimeter, and darkens by at most 8.5 percent. This avoids
+the painted-star appearance rejected during the earlier ring pass.
+
+The change adds fragment arithmetic only: geometry, vertex/index counts, material selectors,
+instance data, buffers, textures, uploads, culling, collision, population, and submissions remain
+unchanged. The complete Chrome 152/SwiftShader WebGL 2 matrix passes 23/23 and requires the exact
+marker in lifecycle and prop gates. Its original-resolution close-log frame and an unfiltered
+detail crop were inspected; the cracks remain subordinate to the rings and have no centre seam.
+Firefox ESR 140.0 independently passes its first-frame, lifecycle, input, audio, jungle, and water
+gate while requiring the same marker. The OpenGL 3.3 object compiles with warnings as errors,
+while the default arm64 GLES 3 package
+builds/lints, contains only `arm64-v8a`, and verifies with signature scheme v2. Android runtime
+appearance remains deferred to the next batched prop/palm/frond session.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,066 gzip), and WebAssembly is 8,539,975 bytes (2,436,494
-gzip). The complete transfer payload therefore falls from 8,804,853 to 2,496,704 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,066 gzip), and WebAssembly is 8,540,835 bytes (2,437,001
+gzip). The complete transfer payload therefore falls from 8,805,713 to 2,497,211 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

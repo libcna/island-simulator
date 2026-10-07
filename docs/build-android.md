@@ -85,14 +85,15 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,735,780-byte APK with a
-15,925,496-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,747,212-byte APK with a
+15,936,928-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, irregular near-canopy buttress roots, transform-derived green-only
-jungle foliage variation, irregular near fallen-log broken-end contours, reused crossing-wave ocean
+jungle foliage variation, irregular near fallen-log broken-end contours with restrained radial
+end-grain cracks, reused crossing-wave ocean
 colour plus shallow-ridge light, short sunward crests, and view-aligned grazing reflection bands,
 and restrained near-monkey crown/cheek fur tufts with
 bone-following fingers/toes, the transient hardware-keyboard run/walk
@@ -138,6 +139,13 @@ reached first draw in 1567.410 ms total (503.696 ms world, 4.056 ms framework, 9
 `GL_INVALID_OPERATION` diagnostic. This is KVM/gfxstream functional evidence, not physical-device
 mesh cost or appearance qualification. The emulator was stopped cleanly and the arm64-only
 package above was restored, rebuilt, linted, ABI-checked, and signature-verified.
+
+The subsequent radial end-grain crack pass is required by the same strict Android gate and its
+default arm64-only package builds/lints cleanly. The 18,747,212-byte APK contains a
+15,936,928-byte stripped `libmain.so`, only `arm64-v8a`, and a valid v2 signature. Its dedicated
+GLES 3 appearance is deliberately deferred to the next batched x86_64 visual session together with
+the pending palm and folded-frond passes; the earlier broken-contour capture does not qualify the
+newer fragment treatment.
 
 An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow
@@ -464,13 +472,13 @@ temporary emulator intermediates for a vertex-position-only follow-up; the prece
 must not be read as evidence for this later silhouette.
 
 The following near-only fixed-sun palm shading pass also builds/lints for arm64 and is covered by
-the next runtime marker gate. The current arm64-only APK is 18,745,740 bytes with a
+the next runtime marker gate. That arm64-only APK was 18,745,740 bytes with a
 15,935,456-byte stripped `libmain.so`; lint reports zero issues and signature scheme v2 verifies.
 Its Android runtime appearance remains batched with the preceding leaflet change, so no GLES 3
 visual or physical-mobile cost claim is made yet.
 
 The subsequent folded fallen-frond pass also compiles/lints for arm64 and is now required by the
-next Android runtime marker gate. The current arm64-only APK is 18,746,380 bytes with a
+next Android runtime marker gate. That arm64-only APK was 18,746,380 bytes with a
 15,936,096-byte stripped `libmain.so`; lint remains clean and signature scheme v2 verifies. Its
 GLES 3 appearance is batched with the two pending palm refinements rather than recreating the
 temporary x86_64 tree for one 63-instance material/vertex-only follow-up.
