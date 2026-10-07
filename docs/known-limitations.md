@@ -98,12 +98,13 @@ been confirmed so far.
   terrain clearance, and distance-scaled simulation. It still lacks perching, landing, and long
   subjective behaviour tuning. Eight shallow-water schools add 48 fish with
   depth/shore constraints, depth-following pitch, banked turns, forked animated tails, near head
-  detail, fixed-sun faceted body colour, culled single-surface fins, culling, and distance-scaled
-  simulation; their schooling variation, water integration, and long subjective tuning remain
+  detail, fixed-sun faceted body colour, restrained depth/caustic colour response, culled
+  single-surface fins, culling, and distance-scaled simulation; their schooling variation, water
+  integration, and long subjective tuning remain
   first-pass quality. A
   first non-hostile shark alternates occasional offshore patrols with longer absences, stays out of
   the shallows, and has dive pitch, banked turns, body/forked-tail animation, near head detail, and
-  distance-scaled simulation; appearance timing and
+  depth-integrated colour plus distance-scaled simulation; appearance timing and
   underwater integration still need subjective tuning. Seven first-pass procedural monkeys use a
   real fourteen-bone CNA GPU-skinning path and idle/observe/walk/run animation driven by a compact
   autonomous state machine. They share the player's trunk, solid-rock, and fallen-log proxies and

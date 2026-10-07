@@ -159,8 +159,9 @@ target, the frond view must
 report visible grove-associated fallen fronds, the distant view must report all five unreachable
 islets in exactly one portable batch, and the bird/fish views must report nonzero
 visible populations from the 24-agent flock and 48-agent school population. The fish view also
-requires the exact 51/12-vertex, single-surface-fin, CPU-faceted daylight diagnostic. The shark view must
-report the active offshore patrol, and the monkey view must report a visible member of the
+requires the exact 51/12-vertex, single-surface-fin, CPU-faceted daylight diagnostic and the shared
+depth/sun-band lighting diagnostic. The shark view must report the active offshore patrol and the
+same lighting diagnostic, and the monkey view must report a visible member of the
 seven-agent GPU-skinned troop. The
 monkey startup diagnostics must also prove that the local-pose crossfade path is active. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2

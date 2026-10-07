@@ -429,7 +429,9 @@ mechanically level. School-level activation uses the same shared wildlife
 tiers, so only nearby water receives full-rate updates. `FishRenderer` selects near articulated
 body/fin geometry or a far silhouette, gives both tiers a forked tail, adds eyes and gill marks only
 to the near tier, and applies fixed-sun CPU face colours to the closed near body plus two-sided
-lighting to the flat far silhouette. Because the batch
+lighting to the flat far silhouette. One shared CPU sample per visible animal smoothly tints the
+palette with depth and adds two restrained moving shallow-sun bands before facet lighting. Because
+the batch
 uses `CullNone`, each thin fin/tail surface is emitted once instead of duplicating an exactly
 coincident reverse-winding triangle. Near/far geometry is therefore 51/12 vertices per fish rather
 than 66/24. The renderer frustum/distance-culls agents and streams all visible fish
@@ -444,7 +446,8 @@ system. A deterministic schedule alternates roughly 42--66 second visible patrol
 tail stroke, vertical-velocity pitch, and heading-error bank prevent rigid motion. The shared
 observer-distance policy reduces or suspends
 updates when appropriate. `SharkRenderer` uses a recognizable original low-poly silhouette,
-forked tail in both LODs, near eye/gill accents, fixed-sun CPU face colours, individual
+forked tail in both LODs, near eye/gill accents, fixed-sun CPU face colours, the same depth/sun-band
+profile as the fish, individual
 frustum/distance rejection, and one portable `BasicEffect` dynamic
 batch. The shared `WildlifeRenderLighting` helper keeps fish and shark facet treatment identical.
 Because culling is disabled for the thin fins, they are emitted once rather than as coincident

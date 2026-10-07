@@ -187,9 +187,9 @@ device disabled; normal runtime playback is qualified separately.
 `build/island-bird-capture.ppm`.
 `IslandGameFishCapture` writes a close shallow-water school view to
 `build/island-fish-capture.ppm` and requires the exact 51/12-vertex, single-surface-fin, CPU-faceted
-daylight path.
+daylight path plus the shared depth/sun-band lighting diagnostic.
 `IslandGameSharkCapture` writes a close offshore patrol view to
-`build/island-shark-capture.ppm`.
+`build/island-shark-capture.ppm` and requires the same water-column lighting diagnostic.
 `IslandGameMonkeyCapture` writes a close GPU-skinned jungle wildlife view to
 `build/island-monkey-capture.ppm`; it waits 24 frames so startup crossfades settle before capture.
 They are reproducible QA outputs and are ignored by Git. Convert or inspect them only during a

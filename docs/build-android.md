@@ -55,8 +55,8 @@ fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log auth
 landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
 with depth-following pitch, banked turns, forked tails, 51/12-vertex CPU-lit near/far geometry,
-single-surface fins, and near head detail, one occasional
-non-hostile offshore shark with matching pose and silhouette treatment, seven GPU-skinned
+single-surface fins, restrained depth/caustic colour response, and near head detail, one occasional
+non-hostile offshore shark with matching pose, silhouette, and water-column treatment, seven GPU-skinned
 procedural monkeys with bounded calm-state head attention, fixed sunny sky
 with layered horizontal high wisps,
 five fogged distant islets with 11 simplified palm silhouettes,
