@@ -899,8 +899,10 @@ Android is not project completion.
   broader palm variation, physical-device placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
-  player ripples plus a bounded water-entry/exit surface burst are functional; repeated
-  whole-island composition tuning remains.
+  player ripples plus a bounded water-entry/exit surface burst are functional. The overlapping
+  broad ocean foam and exact ribbon wash now share broken continuity shaping, removing the most
+  obvious uninterrupted bright waterline from the low water view; repeated whole-island
+  composition tuning remains.
 - [~] Refine jungle density versus traversability and strengthen landmarks/clearings/navigation
   cues. The existing open corridor now has a subtle authored footpath material tied to its exact
   placement curve; its visible wear was narrowed and given local shaded/sun-dry variation while the
@@ -4319,6 +4321,24 @@ Work next, in order:
   18,706,644 bytes with a 15,896,360-byte stripped library. Native graphical relinking, live
   listening, and the opt-in Android runtime audio gate remain deferred while the operator's game
   process stays open; CNA and Sharp Runtime remain read-only.
+
+### 2026-10-07 — Broken shoreline-foam continuity polish
+
+- An unobstructed fixed WebGL 2 water capture exposed a broad, nearly continuous bright line where
+  the ocean foam and exact ribbon wash overlapped. The ribbon wash now reuses its existing broken
+  crest mask at 28--100 percent strength, while the broad ocean foam reuses its existing spatial
+  sine through a squared 16--100 percent continuity mask. The centre still communicates an active
+  shore, but the line naturally weakens or disappears across the left and right portions of the
+  reviewed frame.
+- This reuses existing shader inputs and evaluations: there is no additional sine, texture,
+  geometry, buffer, allocation, or draw submission. Both OpenGL 3.3 renderer objects compile
+  through the shared cache. The complete Chrome 152/SwiftShader 22-stage WebGL 2 suite requires
+  both exact continuity diagnostics and passes; the accepted final fixed-water capture was
+  compared at original resolution against the baseline. WebAssembly is 8,491,085 bytes.
+- The two-worker arm64 GLES 3 build and lint pass, the APK verifies with signature scheme v2, and
+  the 18,706,996-byte package contains a 15,896,712-byte stripped library. Android runtime
+  appearance is not newly claimed. The operator's visible Linux game remained uninterrupted, so
+  it still runs the preceding linked executable; CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 

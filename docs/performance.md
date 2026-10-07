@@ -269,6 +269,16 @@ existing ocean fragments. Actual WebGL 2 and KVM/gfxstream GLES3 water captures 
 the effect. No new native or physical-mobile timing is assigned from those functional checks, so
 the existing active-water measurements remain context rather than a claimed isolated burst cost.
 
+### Broken shoreline-foam continuity follow-up
+
+The broad ocean foam reuses its existing spatial sine as a squared 16--100 percent continuity
+mask. The exact ribbon reuses its existing nested crest mask to modulate the trailing wash between
+28 and 100 percent. The change adds no trigonometric evaluation, texture, geometry, buffer,
+allocation, or draw submission; it adds only bounded scalar shaping inside the two existing
+fragment shaders. A complete actual-browser WebGL 2 suite and visual comparison of the fixed water
+view pass. The arm64 GLES 3 package builds and lints, but no new Android runtime or physical-GPU
+performance claim is inferred.
+
 ### Speed-responsive player-grass follow-up
 
 The player bend is integrated into the existing instanced grass vertex shader and adds no mesh,

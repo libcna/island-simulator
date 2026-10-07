@@ -98,11 +98,13 @@ void main()
     float brokenEdge = 0.68 + 0.32
         * sin(dot(vWorld.xz, vec2(0.72, -0.51)) + uTime * 0.43
               + sin(dot(vWorld.xz, vec2(0.17, 0.23))) * 1.7);
-    crest *= smoothstep(0.38, 0.78, brokenEdge);
+    float brokenMask = smoothstep(0.38, 0.78, brokenEdge);
+    crest *= brokenMask;
 
     float behindFront = 1.0 - smoothstep(front - 0.14, front + 0.01, vAcross);
     float wash = behindFront * (0.10 + 0.07
         * (0.5 + 0.5 * sin(dot(vWorld.xz, vec2(-0.31, 0.28)) - uTime * 0.27)));
+    wash *= mix(0.28, 1.0, brokenMask);
     float edgeMask = smoothstep(0.015, 0.16, vAcross)
         * (1.0 - smoothstep(0.80, 0.995, vAcross));
     float distanceToCamera = length(vWorld - uCameraPosition);
@@ -189,7 +191,9 @@ void main()
         CreateMesh(terrain);
         if (customShaderReady_) {
             std::cout << "island-simulator: shoreline portable animated foam ribbon, "
-                      << vertexCount_ << " vertices, " << primitiveCount_ << " triangles\n";
+                      << vertexCount_ << " vertices, " << primitiveCount_ << " triangles\n"
+                      << "island-simulator: shoreline broken crest mask modulates wash "
+                         "continuity\n";
         } else {
             std::cerr << "island-simulator: shoreline stock-effect fallback: "
                       << fallbackReason_ << '\n';

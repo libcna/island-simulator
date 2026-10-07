@@ -298,6 +298,8 @@ try {
     && result.output?.includes(
       "island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader")
     && result.output?.includes(
+      "island-simulator: ocean shoreline foam uses broken continuity mask")
+    && result.output?.includes(
       "island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes(
@@ -311,6 +313,8 @@ try {
     && result.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
+    && result.output?.includes(
+      "island-simulator: shoreline broken crest mask modulates wash continuity")
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")

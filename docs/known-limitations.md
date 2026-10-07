@@ -37,11 +37,12 @@ been confirmed so far.
   lighting, canopy-accurate occlusion, or full directional/self-shadowing.
 - The ocean has depth colour, distance-faded crossing-wave subsurface variation, analytic
   waves/specular response, a coarse broad foam mask, and an exact shore-following animated
-  crest/wash ribbon. Swimming now adds a deliberately subtle,
+  crest/wash ribbon. Both foam layers now use broken continuity masks so the bright waterline does
+  not read as one uniform ring. Swimming adds a deliberately subtle,
   depth-responsive turquoise edge veil with restrained upper-surface scatter that cools and
   strengthens with the offshore current, but
   full underwater fog, a geometric waterline, refraction-like cues, true splash particles, and
-  final wash/material tuning remain absent. Moving water entry/exit does produce a short
+  final wash/material tuning remain incomplete. Moving water entry/exit does produce a short
   speed-scaled pair of broken shader-integrated surface rings.
 - Palms, grass, canopy trees, understory, low bushes, and forest-floor plants have deterministic
   calm wind, and nearby mesh grass now bends around the player's stationary body radius and expands

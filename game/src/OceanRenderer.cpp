@@ -175,7 +175,9 @@ void main()
 
     float foam = clamp(vShoreFoam, 0.0, 1.0)
         * smoothstep(0.47, 0.79, crossingWaves + length(slope) * 4.2);
-    foam *= 0.68 + 0.32 * sin(dot(vWorld.xz, vec2(0.91, -0.43)) + uTime * 0.36);
+    float foamContinuity = 0.5 + 0.5
+        * sin(dot(vWorld.xz, vec2(0.91, -0.43)) + uTime * 0.36);
+    foam *= 0.16 + 0.84 * foamContinuity * foamContinuity;
     if (uPlayerRippleIntensity > 0.001) {
         vec2 playerOffset = vWorld.xz - uPlayerWaterPosition;
         float distanceToPlayer = length(playerOffset);
@@ -293,7 +295,8 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: ocean portable custom shader, " << vertexCount_
                       << " vertices, " << primitiveCount_ << " triangles\n"
-                      << "island-simulator: ocean reused crossing-wave subsurface colour\n";
+                      << "island-simulator: ocean reused crossing-wave subsurface colour\n"
+                      << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';
