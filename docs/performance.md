@@ -301,6 +301,25 @@ shallow surface gains subdued moving relief without a bright band or a material 
 The OpenGL 3.3 object compiles without relinking the visible game, while arm64 GLES 3 builds and
 lints. Physical-mobile appearance and isolated fragment cost remain unqualified.
 
+### Reused-slope sunward-crest follow-up
+
+The calm-water review still left broad near-field areas with little directional wave definition.
+A narrow crest window now projects the already-computed analytic slope onto the fixed sun's planar
+direction, retains only a small sun-facing signed range, and fades from 85 to 245 m. Fresnel and
+shallow-water bounds suppress it at the reflective horizon and in deeper water. The accepted path
+adds one planar normalization, one dot product, three smooth steps, and bounded colour shaping; it
+adds no sine, texture, varying, geometry, allocation, CPU update, or draw submission.
+
+The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages and requires the
+exact diagnostic in lifecycle, calm-water, and offshore-current gates. Both original-resolution
+captures were inspected and retain a quiet horizon without repeated bright bands. A current
+x86_64 KVM/gfxstream GLES 3 APK passed the same exact diagnostic gate; its inspected 2400 by 1080
+water frame retains the corresponding subtle relief and clean touch overlay without a fatal,
+shader, or `GL_INVALID_OPERATION` diagnostic. OpenGL 3.3 compiles the revised object, and the
+default arm64 package builds and lints. The current OpenGL 3.3 water capture also retains the
+subdued crest treatment without repeated bright bands. Physical-mobile appearance and isolated
+fragment cost remain unqualified.
+
 ### Bounded wet-sand sheen follow-up
 
 The existing wet-edge terrain branch now derives a geometric normal from screen-space world-position

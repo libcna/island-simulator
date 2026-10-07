@@ -541,16 +541,19 @@ detail favours shallow water and fades from 135 to 420 m so it reads in explorat
 aliasing across the horizon or adding another trigonometric field. A bounded shallow-ridge cue
 reuses the length of the same five-wave analytic slope already needed for normals. It is limited
 to the non-reflective, shallow, near/middle-distance surface and therefore adds no new sine,
-texture, varying, geometry, or draw. The ripple state eases from
+texture, varying, geometry, or draw. A second narrow cue projects that same slope toward the fixed
+sun, windows only the sun-facing signed range, and fades from 85 to 245 m. This gives nearby calm
+water short directional crests while leaving the reflective horizon quiet, again without another
+wave field or resource. The ripple state eases from
 authoritative depth/speed input, wraps
 deterministically, uses subtle spatial breakup, and skips its fragment work while inactive. A
 separate finite transition phase expands and fades its broken double crest, then retires fully;
 both effects share the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
 a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
 ripple or transition burst.
-Native OpenGL 3.3 has executed the preceding ripple path and compiles the revised game objects;
-actual Chrome/WebGL 2 and a KVM-accelerated API 35 Android GLES3 surface visibly render the full
-transition-burst path. Physical mobile-GPU profiling and a post-change desktop capture remain open.
+Native OpenGL 3.3, actual Chrome/WebGL 2, and a KVM-accelerated API 35 Android GLES3 surface
+visibly render the full transition-burst and sunward-crest paths. Physical mobile-GPU profiling
+remains open.
 
 `ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
 ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and

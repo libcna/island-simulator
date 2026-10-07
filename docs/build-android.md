@@ -76,13 +76,13 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,723,332-byte APK with a
-15,913,048-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,723,972-byte APK with a
+15,913,688-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, irregular near-canopy buttress roots, reused crossing-wave ocean
-colour plus shallow-ridge light, and restrained near-monkey crown/cheek fur tufts with
+colour plus shallow-ridge light and short sunward crests, and restrained near-monkey crown/cheek fur tufts with
 bone-following fingers/toes, the transient hardware-keyboard run/walk
 confirmation, reduced CPU-lit fish/shark
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
@@ -137,6 +137,14 @@ draw, and 3085.017 ms total. The inspected 2400 by 1080 screenshot retains the c
 clean touch HUD, with no fatal, shader, or `GL_INVALID_OPERATION` diagnostic. This proves control,
 scheduling, and mixer playback on the emulator; it does not qualify subjective audible quality or
 physical-device latency. The emulator was stopped and the arm64-only package restored afterward.
+
+A subsequent x86_64 KVM/gfxstream water-view pass requires the new sunward-crest diagnostic through
+Android's platform log rather than hidden SDLActivity stdout. The fixed 2400 by 1080 frame retains
+the subdued directional surface relief, calm horizon, 0.6-strength crossing burst, and clean
+translucent touch HUD. It reports `OPENGLES3` and the exact 1280 by 720 logical viewport, reaches
+first draw in 3997.896 ms total, and contains no fatal, shader, or `GL_INVALID_OPERATION`
+diagnostic. The emulator was stopped cleanly and the arm64-only package was rebuilt and linted.
+This is gfxstream functional evidence, not physical-mobile appearance or performance evidence.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
@@ -326,8 +334,8 @@ adb logcat -d
 Once the device reports `device` and `adb shell getprop sys.boot_completed` reports `1`, the
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
-logical viewport, first-draw timing, and biome-grass diagnostics, rejects fatal/shader errors, and
-saves both logcat and a device screenshot:
+logical viewport, first-draw timing, biome-grass, and sunward-ocean-crest diagnostics, rejects
+fatal/shader errors, and saves both logcat and a device screenshot:
 
 ```bash
 tools/run_android_runtime_smoke.sh \

@@ -101,7 +101,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,777,407 bytes uncompressed and 2,488,587 bytes through gzip, a 71.6% transfer reduction. These
+8,778,158 bytes uncompressed and 2,489,351 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -146,7 +146,8 @@ clean exit after four frames. It also requires the portable
 terrain-material, sky, and ocean shaders and the hardware-instanced palm, grass, jungle, and
 natural-prop shaders rather than their fallbacks. Lifecycle, overview, beach, near-surface-water,
 and offshore-current stages additionally require the distance-faded reused crossing-wave colour
-and reused-slope shallow-ridge diagnostics. The harness then opens live fixed overview, first-person
+plus reused-slope shallow-ridge and sunward-crest diagnostics. The harness then opens live fixed
+overview, first-person
 beach, grass interaction, folded-split-ground-plant, segmented-palm and bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
 fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a 1280 x 720 viewport.

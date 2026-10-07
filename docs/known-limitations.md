@@ -37,7 +37,8 @@ been confirmed so far.
   there is still no authored biome texture blend, decals, broad substrate diversity, baked ambient
   lighting, canopy-accurate occlusion, or full directional/self-shadowing.
 - The ocean has depth colour, distance-faded crossing-wave subsurface variation, restrained
-  shallow-ridge light from the existing analytic slope, waves/specular response, a coarse broad
+  shallow-ridge light and short sunward crests from the existing analytic slope, waves/specular
+  response, a coarse broad
   foam mask, and an exact shore-following animated
   crest/wash ribbon. Both foam layers now use broken continuity masks so the bright waterline does
   not read as one uniform ring. Swimming adds a deliberately subtle,

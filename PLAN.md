@@ -379,7 +379,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   The ocean now also reuses its existing two crossing-wave values for shallow-weighted subsurface
   colour structure that fades before the horizon. A restrained ridge-light cue reuses the
   already-computed five-wave analytic slope and the same distance/Fresnel/shallow bounds without a
-  new sine, varying, texture, geometry, or draw; full underwater transitions and final
+  new sine, varying, texture, geometry, or draw. A narrow sun-facing window of that same slope now
+  adds short directional crests from 85 to 245 m without another wave field or resource; full
+  underwater transitions and final
   wash/material tuning remain open.
 - [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
   stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated depth/edge veil
@@ -773,7 +775,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   The x86_64 debug APK installs and starts on the KVM-accelerated API 35 `Medium_Phone` AVD,
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
-  requires renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records
+  requires renderer/first-frame/current-grass and ocean-crest diagnostics, rejects fatal/shader
+  errors, and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
@@ -4695,6 +4698,38 @@ Work next, in order:
   payload, 2,488,587 bytes through gzip, 15,913,048 bytes for stripped arm64 `libmain.so`, and
   18,723,332 bytes for the arm64 APK. Subjective sand/soil identity, balance, and long-session
   fatigue remain open. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Reused-slope sunward ocean crests
+
+- Original-resolution calm-water review found that the broad near field still had little
+  directional definition. Added a narrow sun-facing window of the five-wave analytic slope already
+  calculated for the ocean normal. It fades from 85 to 245 m and is attenuated by Fresnel plus
+  shallow-water weighting, so nearby water gains short subdued crests while the horizon remains
+  quiet.
+- The accepted fragment path adds one planar normalization, one dot product, three smooth steps,
+  and bounded colour shaping. It adds no wave sine, texture, varying, vertex, index, allocation,
+  CPU update, or draw submission. OpenGL 3.3, GLSL ES 300/WebGL 2, and GLES 3 use the same bounded
+  design through explicit shader-language variants.
+- The exact-current Chrome 152/SwiftShader suite passes all 22 stages and requires the feature in
+  lifecycle, calm-water, and offshore-current gates. Its original-resolution water/current frames
+  were inspected without a repeated bright band. The current native OpenGL 3.3 water capture was
+  also inspected, and the complete isolated-X11 suite passes 41/41, including real simultaneous
+  movement/mouse input and persistent Shift run/walk toggling.
+- A current x86_64 APK passed a KVM/host-gfxstream GLES 3 water-view gate that requires the exact
+  platform-log diagnostic. Its inspected 2400 by 1080 frame retains the subdued crest, calm
+  horizon, broken transition ring, and clean touch HUD. It reports `OPENGLES3`, 1280 by 720 logical
+  rendering, and 3997.896 ms cold first draw total without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics. The emulator was stopped cleanly.
+- Full-suite execution exposed three stale CTest regexes rather than runtime failures: native
+  capture may validly observe a nonzero transition at phase zero, the current report includes the
+  intervening splash fields, and movement diagnostics now name the leading depenetration counter.
+  The gates now match the full emitted schemas while still requiring nonzero water effects,
+  current/undertow, obstacle resolution, and sliding.
+- The default arm64-only APK was restored, builds/lints through `/rv/cnaccache`, and verifies with
+  APK signature scheme v2. Final artifacts are 8,513,315 bytes WebAssembly, 8,778,158 bytes for the
+  deterministic Web payload, 2,489,351 bytes through gzip, 15,913,688 bytes for stripped arm64
+  `libmain.so`, and 18,723,972 bytes for the arm64 APK. Physical-mobile appearance and isolated
+  fragment cost remain open. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

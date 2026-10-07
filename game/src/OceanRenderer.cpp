@@ -5,6 +5,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -174,6 +175,15 @@ void main()
         * smoothstep(0.35, 0.92, clamp(vShallow, 0.0, 1.0));
     water += vec3(0.018, 0.064, 0.054) * shallowRidgeLight;
 
+    vec2 planarSunDirection = normalize(toSun.xz);
+    float sunwardSlope = dot(slope, planarSunDirection);
+    float directionalCrest = smoothstep(0.002, 0.009, sunwardSlope)
+        * (1.0 - smoothstep(0.012, 0.021, sunwardSlope));
+    directionalCrest *= (1.0 - smoothstep(85.0, 245.0, distanceToCamera))
+        * (1.0 - fresnel)
+        * mix(0.38, 1.0, clamp(vShallow, 0.0, 1.0));
+    water += vec3(0.030, 0.074, 0.061) * directionalCrest;
+
     float sunGlint = pow(max(dot(normal, halfwayDirection), 0.0), 210.0);
     sunGlint += pow(max(dot(normal, halfwayDirection), 0.0), 42.0) * 0.055;
     water += vec3(1.00, 0.91, 0.68) * sunGlint * 2.4;
@@ -302,7 +312,10 @@ void main()
                       << " vertices, " << primitiveCount_ << " triangles\n"
                       << "island-simulator: ocean reused crossing-wave subsurface colour\n"
                       << "island-simulator: ocean shallow ridge light reuses animated slope field\n"
+                      << "island-simulator: ocean sunward ripple crests reuse analytic slope field\n"
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: ocean sunward ripple crests reuse analytic slope field");
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

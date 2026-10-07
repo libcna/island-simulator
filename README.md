@@ -10,8 +10,8 @@ flecks, subtle shoreline-raked ripples, restrained fixed-sun jungle-floor dappli
 noise-mottled, broken-edge
 earthen footpath that follows the same authored corridor reserved by vegetation. Two
 authored clearings use distinct sunlit-dry and leaf-rich ground treatments. An animated tropical
-ocean adds distance-faded crossing-wave colour structure, restrained shallow-ridge light from its
-existing slope field, and an exact shore-following foam/wash ribbon,
+ocean adds distance-faded crossing-wave colour structure, restrained shallow-ridge light and
+sunward ripple crests from its existing slope field, and an exact shore-following foam/wash ribbon,
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
 bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
 irregular land rocks, 14 emergent near-shore reef outcrops, 13 mossy fallen logs,

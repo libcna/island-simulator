@@ -185,8 +185,8 @@ the mean water contact while leaving the upper rock dry.
 `build/island-water-capture.ppm` and requires the procedural depth/scatter/edge cue's nonzero
 intensity and
 single conditional draw plus a nonzero movement-driven player ripple and shoreline-transition
-burst in the ocean shader. Ocean startup also reports the reused crossing-wave subsurface-colour
-path.
+burst in the ocean shader. Ocean startup also reports the reused crossing-wave subsurface-colour,
+shallow-ridge, and sunward-crest paths.
 `IslandGameCurrentViewCapture` writes a 62 m offshore view to
 `build/island-current-capture.ppm` and requires nonzero current-modulated veil feedback plus a
 nonzero renderer-independent undertow-audio target. Capture mode intentionally leaves the audio
