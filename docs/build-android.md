@@ -14,8 +14,10 @@ model as desktop, although an on-screen opt-out is not implemented yet. The host
 `kvm_amd`, exposes `/dev/kvm` as device `10:232`, and grants the developer access through the
 `kvm` group. Android Emulator 36.5.11 now runs the API 35 x86_64 AVD with KVM and host-GPU
 gfxstream. The complete scene, independent movement/look gestures, same-process hot resume, and
-AAudio pause/resume are validated there. Physical-device ergonomics, driver coverage, thermals,
-and extended performance remain open.
+AAudio pause/resume are validated there. A deterministic touch traversal also walks from the
+south-beach spawn through the shallows, enters the authoritative swimming state, and plays the
+water-transition accent. Physical-device ergonomics, driver coverage, thermals, and extended
+performance remain open.
 
 If another host reports KVM at misc-device `10:232` but lacks the device node after its modules are
 loaded, recreate it through udev (preferred) or explicitly as root, then start a fresh shell so the
@@ -81,8 +83,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,735,316-byte APK with a
-15,925,032-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,735,780-byte APK with a
+15,925,496-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -172,6 +174,16 @@ draw, and 3085.017 ms total. The inspected 2400 by 1080 screenshot retains the c
 clean touch HUD, with no fatal, shader, or `GL_INVALID_OPERATION` diagnostic. This proves control,
 scheduling, and mixer playback on the emulator; it does not qualify subjective audible quality or
 physical-device latency. The emulator was stopped and the arm64-only package restored afterward.
+
+A later current-source x86_64 pass combined the strict GLES 3, audio, footstep, and swimming
+gates. After a forward movement-zone gesture produced a real land footstep, a nine-second reverse
+gesture crossed the same south beach and shallows. Logcat recorded the first water-transition
+accent and then the authoritative walking-to-swimming state change 1.224 seconds later. The
+inspected 2400 by 1080 screenshot visibly places the player in the ocean facing the complete beach
+and jungle, with the near-surface treatment and clean translucent touch controls. Startup completed
+in 1679.190 ms total (574.107 ms world, 2.586 ms framework, 1043.779 ms content, 20.960 ms
+pre-draw, and 37.759 ms first draw). This proves one deterministic touch shoreline crossing and
+audio event on KVM/gfxstream; it does not qualify physical-device finger feel or audible balance.
 
 A subsequent x86_64 KVM/gfxstream water-view pass requires the new sunward-crest diagnostic through
 Android's platform log rather than hidden SDLActivity stdout. The fixed 2400 by 1080 frame retains
@@ -453,6 +465,24 @@ ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS=1 \
   tools/run_android_runtime_smoke.sh \
     "$ANDROID_SDK_ROOT/platform-tools/adb" \
     android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Set `ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1` to continue from the interactive south-beach spawn
+through the shallows with a reverse movement-zone gesture and require an actual
+walking-to-swimming state transition. When the audio gate is also enabled, the same check requires
+the water-transition accent to have started. It can be combined with the footstep gate to validate
+both traversal directions in one process. Fixed `--viewpoint` arguments are rejected because they
+deliberately disable player movement; overview, capture, smoke, and benchmark modes are rejected
+for the same reason:
+
+```bash
+ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1 \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-swimming
 ```
 
 For a fixed debug QA camera, pass a comma-separated native argument array. The application ignores

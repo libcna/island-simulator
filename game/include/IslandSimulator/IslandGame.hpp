@@ -234,6 +234,7 @@ namespace island
         bool movementKeyWasDown_ = false;
         bool escapeWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
+        bool swimmingEntryDiagnosticReported_ = false;
         std::array<bool, 8> debugTeleportWasDown_{};
         std::size_t monkeyTeleportIndex_ = 0U;
         bool inputDiagnostics_ = false;

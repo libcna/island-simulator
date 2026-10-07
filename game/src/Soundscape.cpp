@@ -37,6 +37,8 @@ namespace island
             "island-simulator: distance-scheduled sand and soil footsteps enabled";
         constexpr std::string_view FootstepPlaybackDiagnostic =
             "island-simulator: first distance-scheduled land footstep played";
+        constexpr std::string_view WaterTransitionPlaybackDiagnostic =
+            "island-simulator: first water-transition accent played";
 
         [[nodiscard]] std::vector<SharpRuntime::bytecs> ToPcmBytes(const AmbientLoop& loop)
         {
@@ -466,8 +468,10 @@ namespace island
                 waterTransitionSecondsRemaining_ = 1.65f;
                 ++playedWaterTransitionCount_;
                 if (playedWaterTransitionCount_ == 1) {
-                    std::cout << "island-simulator: first water-transition accent played\n"
-                              << std::flush;
+                    std::cout << WaterTransitionPlaybackDiagnostic << '\n' << std::flush;
+#ifdef __ANDROID__
+                    MirrorRuntimeDiagnosticToPlatformLog(WaterTransitionPlaybackDiagnostic);
+#endif
                 }
             } catch (const std::exception& exception) {
                 waterTransitionInstance_.reset();

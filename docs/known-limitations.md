@@ -171,8 +171,10 @@ been confirmed so far.
   same-process hot resume, AAudio pause/resume, and fixed beach, close-grass, jungle, water,
   monkey, and reef views are validated. The six frames were visually compared with the matching
   WebGL 2 captures through the debug-only intent bridge; newer dedicated bird and palm frames
-  additionally qualify their current silhouette and frond-tint paths. Simultaneous real-finger ergonomics,
-  audio-focus interruption, process-death
+  additionally qualify their current silhouette and frond-tint paths. A deterministic reverse
+  movement-zone gesture also crosses the south shoreline, starts the water-transition accent, and
+  enters the authoritative swimming state. Simultaneous real-finger ergonomics, audio-focus
+  interruption, process-death
   recovery, physical mobile-GPU performance, thermal behaviour, and physical-device compatibility
   remain unverified.
 

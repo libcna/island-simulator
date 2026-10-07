@@ -1372,7 +1372,7 @@ try {
   for (let attempt = 0; attempt < 15; ++attempt) {
     await delay(1000);
     if ((await readSmokeOutput(visualSessionId)).includes(
-      "island-simulator: first water-transition accent played")) break;
+      "island-simulator: first traversal entered swimming state")) break;
   }
   await call("Input.dispatchKeyEvent", {
     type: "keyUp", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
@@ -1476,6 +1476,8 @@ try {
   const mouseLookChanged = concurrentYawRange > 0.005;
   const waterTransitionPlayed = inputResult.output?.includes(
     "island-simulator: first water-transition accent played");
+  const swimmingStateEntered = inputResult.output?.includes(
+    "island-simulator: first traversal entered swimming state");
   const landFootstepPlayed = inputResult.output?.includes(
     "island-simulator: first distance-scheduled land footstep played");
   const cameraMotionToggled = inputResult.output?.includes(
@@ -1512,6 +1514,7 @@ try {
     && cameraMotionToggled
     && landFootstepPlayed
     && waterTransitionPlayed
+    && swimmingStateEntered
     && mouseLookChanged
     && viewportResized
     && pointerUnlocked
@@ -1666,6 +1669,7 @@ try {
       restoredWalkWorked: Boolean(restoredWalkWorked),
       cameraMotionToggled: Boolean(cameraMotionToggled),
       waterTransitionPlayed: Boolean(waterTransitionPlayed),
+      swimmingStateEntered: Boolean(swimmingStateEntered),
       mouseLookChanged: Boolean(mouseLookChanged),
       viewportResized: Boolean(viewportResized),
       pointerUnlocked,

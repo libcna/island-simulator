@@ -1094,9 +1094,19 @@ namespace island
         } else {
 #endif
             const PlayerPosition positionBeforeMovement = playerMotion_.Position();
+            const LocomotionMode modeBeforeMovement = playerMotion_.Mode();
             playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldCollisionGrid_);
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
+            if (!swimmingEntryDiagnosticReported_
+                && modeBeforeMovement == LocomotionMode::Walking
+                && playerMotion_.Mode() == LocomotionMode::Swimming) {
+                constexpr std::string_view diagnostic =
+                    "island-simulator: first traversal entered swimming state";
+                swimmingEntryDiagnosticReported_ = true;
+                std::cout << diagnostic << '\n' << std::flush;
+                MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+            }
             const float travelledDistance = std::hypot(position.x - positionBeforeMovement.x,
                                                        position.z - positionBeforeMovement.z);
             const float physicalSpeed = deltaSeconds > 0.000001f

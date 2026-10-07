@@ -241,9 +241,9 @@ must show both player displacement and changing yaw. It resets to the determinis
 location, proves that Right moves toward visible screen-right, proves that Shift+Up exceeds the
 walking ceiling after Shift has been released, proves that a second Shift press restores walking,
 captures the first toggle's transient HUD, requires an actual land-footstep playback, and then
-walks backward into the ocean. The shoreline
-crossing must produce a successful water-transition
-one-shot diagnostic. The harness then enables the portable F2 world line view, toggles F1, resizes to a
+walks backward into the ocean. The shoreline crossing must produce a successful water-transition
+one-shot and then enter the authoritative swimming state. The harness then enables the portable F2
+world line view, toggles F1, resizes to a
 non-16:9 browser window, sends a real Escape key, proves that pointer lock is gone while new game
 frames continue without exit/error, waits through Chromium's immediate-relock security cooldown,
 and clicks to reacquire. It records the initial/final player and viewport samples plus the Escape
@@ -252,14 +252,15 @@ evidence in this environment, so the Chrome result does not infer tab recovery. 
 Firefox gate below now qualifies one short actual active-tab switch through WebDriver BiDi.
 
 Discrete input checks wait for the corresponding authoritative game diagnostic and retry a bounded
-number of times. The backward shoreline traversal likewise remains held until the first transition
-accent is reported, up to a bounded timeout. This keeps SwiftShader frame-time spikes from turning
+number of times. The backward shoreline traversal likewise remains held until the real
+walking-to-swimming transition is reported, up to a bounded timeout; the preceding water accent
+remains independently required. This keeps SwiftShader frame-time spikes from turning
 brief DevTools key edges into false failures while still requiring the game to observe every tested
 control and state transition.
 
 This smoke test proves browser/WebAssembly/WebGL execution, bounded one-source-at-a-time staging,
-first-gesture CNA mixer/track initialization, activation of the slow ambient-gain path, and
-acceptance of the shoreline transition one-shot,
+first-gesture CNA mixer/track initialization, activation of the slow ambient-gain path, acceptance
+of the shoreline transition one-shot, and a resolved transition into swimming,
 but it is not a substitute for
 a visible interactive listening pass using hardware acceleration. Do not infer audible quality,
 long tab suspension, frame pacing, thermal behaviour, or compatibility beyond the separately

@@ -809,7 +809,10 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
-  injects sustained movement-zone touch input and requires actual land-footstep playback. Debug
+  injects sustained movement-zone touch input and requires actual land-footstep playback. A
+  separate swimming mode reverses through the interactive south-beach shallows, requires the
+  authoritative walking-to-swimming transition, and also requires water-transition playback when
+  the audio gate is active. Debug
   builds now accept a
   release-disabled intent argument array
   for repeatable fixed-view capture; inspected beach, close-grass, jungle, water, monkey, and
@@ -1290,8 +1293,9 @@ Work next, in order:
    complete-scene GLES 3 rendering, independent movement/look gestures, translucent touch HUD,
    same-process surface restoration, AAudio pause/resume, startup/memory instrumentation, and a
    terrain-batching direction check. A debug-only fixed-view bridge now proves matched beach,
-   close-grass, jungle, water, monkey, bird, and wet-reef views on GLES3. Simultaneous real-finger
-   ergonomics, swimming, external audio focus, process
+   close-grass, jungle, water, monkey, bird, and wet-reef views on GLES3. An automated touch route
+   now crosses the south shoreline into the real swimming state and plays its transition accent.
+   Simultaneous real-finger ergonomics, external audio focus, process
    death, thermals, and physical mobile-GPU performance remain open.
 6. Perform a visible hardware-accelerated Web listening/play pass, fullscreen pass, and extended
    tab-suspension/audio-focus test; automated first-gesture audio initialization is complete.
@@ -5226,6 +5230,41 @@ Work next, in order:
   renderer-independent/package gates pass. Build trees remain approximately 2.6 GiB native,
   87 MiB Web, and 361 MiB Android with 374 GiB free; shared ccache is 3.7 GiB with 99.67 percent
   cacheable calls. All builds used two workers or fewer; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Android touch shoreline-to-swimming regression
+
+- Added a one-time game-owned diagnostic only when resolved player movement changes from walking
+  to swimming. Teleporting or merely entering shallow wading depth cannot satisfy it. Android also
+  mirrors the already-authoritative first water-transition playback diagnostic to platform log;
+  CNA and Sharp Runtime remain untouched.
+- Extended the Android runtime helper with opt-in `ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1`.
+  Fixed QA viewpoints plus smoke/capture/benchmark modes are rejected because they deliberately
+  suppress player movement. The interactive gate uses a reverse left-zone gesture from the
+  deterministic south-beach spawn,
+  requires the actual swimming-state transition, and additionally requires water-transition
+  playback whenever strict audio qualification is selected. It composes with the existing
+  forward footstep route in one process.
+- Built a temporary x86_64 APK with two workers and `/rv/cnaccache`, then booted the API 35
+  `Medium_Phone` AVD in 14.432 seconds using KVM 12 and host AMD Radeon 780M gfxstream. The combined
+  strict GLES 3/audio/footstep/swimming gate passed: a land footstep played, the water accent
+  appeared in logcat, and the real swimming transition followed 1.224 seconds later. Startup was
+  1679.190 ms total (574.107 ms world, 2.586 ms framework, 1043.779 ms content, 20.960 ms
+  pre-draw, 37.759 ms first draw). The inspected 2400 by 1080 screenshot visibly shows the player
+  in near-shore water facing the beach and jungle with clean translucent touch controls.
+- Stopped the emulator cleanly and restored the default arm64-only package. `:app:lintDebug`
+  reports no issues, the APK contains only `arm64-v8a`, and APK signature scheme v2 verifies. The
+  stripped `libmain.so` is 15,925,496 bytes and the APK is 18,735,780 bytes. The two changed native
+  objects compile with first-party warnings as errors; full native relink/runtime remains deferred
+  only because the operator-visible prior executable is still open. Project-owned build trees
+  remain approximately 2.6 GiB native, 87 MiB Web, and 361 MiB Android with 374 GiB free; shared
+  ccache remains 3.7 GiB and 99.67 percent cacheable.
+- Rebuilt the shared WebGL 2 source and tightened Chrome's existing shoreline input stage to hold
+  `S` until the same authoritative swimming diagnostic instead of stopping at shallow-water audio.
+  The complete Chrome 152/SwiftShader matrix passes 22/22 with both the water accent and swimming
+  state true; the final player sample rests at swimming eye height 0.58 m. Firefox ESR 140.15 also
+  passes its independent production input/audio, short tab-resume, jungle, and water gates with a
+  305 ms first draw. The deterministic Web package is 8,791,948 bytes or 2,493,751 bytes through
+  gzip; WebAssembly is 8,527,070 bytes or 2,433,547 bytes through gzip.
 
 ## Session-end checklist
 

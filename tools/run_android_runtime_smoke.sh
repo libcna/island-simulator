@@ -15,6 +15,7 @@ COMPONENT="$PACKAGE/.IslandSimulatorActivity"
 TIMEOUT_SECONDS=${ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS:-600}
 REQUIRE_AUDIO=${ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO:-0}
 REQUIRE_FOOTSTEPS=${ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS:-0}
+REQUIRE_SWIMMING=${ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING:-0}
 DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
 
@@ -50,6 +51,21 @@ case "$REQUIRE_FOOTSTEPS" in
         exit 2
         ;;
 esac
+case "$REQUIRE_SWIMMING" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
+if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
+    case ",$DEBUG_ARGUMENTS," in
+        *,--overview,*|*,--viewpoint,*|*,--smoke-test,*|*,--capture,*|*,--benchmark,*)
+            echo "android runtime smoke: swimming traversal requires the interactive south-beach spawn" >&2
+            exit 2
+            ;;
+    esac
+fi
 
 if ! "$ADB" get-state 2>/dev/null | grep -qx device; then
     echo "android runtime smoke: no selected ADB device is ready" >&2
@@ -195,6 +211,42 @@ if [ "$REQUIRE_FOOTSTEPS" -eq 1 ]; then
         tail -n 120 "$LOG_FILE" >&2
         exit 1
     fi
+fi
+
+if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
+    echo "android runtime smoke: exercising shoreline entry with touch traversal"
+    # The interactive spawn faces inland from the south beach. A long downward drag in the left
+    # movement zone therefore walks backward through the shallows and continues as swimming. When
+    # the footstep gate ran first, the extra duration also covers its short inland displacement.
+    "$ADB" shell input swipe 600 180 600 900 9000
+    SWIMMING_DEADLINE=$(( $(date +%s) + 20 ))
+    SWIMMING_QUALIFIED=0
+    while [ "$(date +%s)" -lt "$SWIMMING_DEADLINE" ]; do
+        "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
+        WATER_AUDIO_QUALIFIED=1
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && ! grep -q "island-simulator: first water-transition accent played" \
+                "$LOG_FILE"; then
+            WATER_AUDIO_QUALIFIED=0
+        fi
+        if grep -q "island-simulator: first traversal entered swimming state" "$LOG_FILE" \
+            && [ "$WATER_AUDIO_QUALIFIED" -eq 1 ]; then
+            SWIMMING_QUALIFIED=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$SWIMMING_QUALIFIED" -ne 1 ]; then
+        echo "android runtime smoke: touch traversal did not enter the swimming state" >&2
+        tail -n 120 "$LOG_FILE" >&2
+        exit 1
+    fi
+fi
+
+if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" "$LOG_FILE"; then
+    echo "android runtime smoke: fatal or shader error appeared after traversal" >&2
+    tail -n 120 "$LOG_FILE" >&2
+    exit 1
 fi
 
 "$ADB" exec-out screencap -p >"$SCREENSHOT"

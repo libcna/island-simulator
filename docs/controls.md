@@ -62,7 +62,8 @@ short security cooldown, clicking the canvas acquires it again. Automated Chromi
 coverage sends the actual Escape key and verifies unlock, continued frames, clean delayed
 reacquisition, audio-mixer/track initialization,
 correct screen-relative strafing, arrow parity, running, simultaneous movement/mouse look, focus,
-and responsive 16:9 sizing. The narrower Firefox ESR BiDi gate independently confirms trusted-click
+an actual walking-to-swimming shoreline transition, and responsive 16:9 sizing. The narrower
+Firefox ESR BiDi gate independently confirms trusted-click
 pointer lock, forward movement, both persistent Shift edges, first-gesture audio initialization,
 one land footstep, Escape release, delayed pointer-lock reacquisition, responsive 16:9 sizing, and
 one actual second-tab activation with resumed animation/input, followed by dedicated fixed jungle/
