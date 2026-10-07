@@ -51,8 +51,8 @@ staggered per-instance near/far LOD,
 157 land rocks and 14 emergent reef outcrops with near-only strata/lichen plus a low fixed-sea-level
 wet band, 12 fallen logs, 31 sparse beach-driftwood pieces with a three-limb forked near variant,
 an authored three-piece cove arc, and per-instance large-prop range/LOD, 63 fallen palm
-fronds, 265 near-field shell/pebble clusters, including a five-rock/one-log authored clearing-
-landmark composition, 24 simulated
+fronds, 265 near-field shell/pebble/dry-wrack clusters, including a five-rock/one-log authored
+clearing-landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
 with depth-following pitch, banked turns, forked tails, 51/12-vertex CPU-lit near/far geometry,
 single-surface fins, restrained depth/caustic colour response, and near head detail, one occasional

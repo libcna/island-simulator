@@ -377,11 +377,13 @@ compiles but has not been rerun on stable Android hardware.
 
 Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
 the 1.8--9.4 m offshore shelf, 12 mossy fallen logs in the low-slope interior, 31 small
-sun-bleached driftwood pieces, 63 fallen palm fronds around suitable groves, and 265 shell/pebble
-clusters in the dry beach belt. Four rock, three log, three driftwood,
+sun-bleached driftwood pieces, 63 fallen palm fronds around suitable groves, and 265
+shell/pebble/dry-wrack clusters in the dry beach belt. Four rock, three log, three driftwood,
 three frond, and four beach-detail variants use cell culling, variant batching, and a portable
 static GLSL 330 / GLSL ES 300 shader; the larger classes retain independent near/far meshes while
-tiny beach details disappear beyond 52 m and fronds beyond 76 m. Opaque geometry grounds the
+tiny beach details disappear beyond 52 m and fronds beyond 76 m. One beach-detail variant uses
+four low curved ribbons and two small holdfast forms for dry wrack instead of repeating another
+shell/pebble composition. Opaque geometry grounds the
 layers without transparency overdraw. Driftwood variants 0 and 1 use an irregular bent tube plus
 one or two branch stubs; near variant 2 uses three curved, six-sided tapered fork limbs for a
 distinct 160-triangle silhouette while its far tier stays at 30 triangles. Fronds use a curved

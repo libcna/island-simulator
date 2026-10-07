@@ -9,8 +9,8 @@ been confirmed so far.
 - The island has a strong terrain/ocean/palm/grass foundation and a first layered broadleaf jungle,
   but the jungle is not final. A first low-bush layer plus rocks, fallen logs, and sparse driftwood
   exist, while small rosette/forest-floor plants, grove-associated fallen palm fronds, and
-  near-field shell/pebble clusters improve close ground contact. Near broadleaf crowns now have
-  separated irregular lobes, visible support branches, pointed edge leaves, and staggered per-tree
+  near-field shell/pebble/dry-wrack clusters improve close ground contact. Near broadleaf crowns
+  now have separated irregular lobes, visible support branches, pointed edge leaves, and staggered per-tree
   LOD into a rounded far mesh. Near bushes now layer paired folded pointed leaves over smaller
   lobes while the far tier stays compact. Near forest-floor variants now include an upright
   broadleaf form with visible petioles and a separate five-leaf folded split form. All jungle
@@ -18,7 +18,7 @@ been confirmed so far.
   third near driftwood variant adds a curved three-limb fork instead of another simple branch stub,
   and three existing silhouettes form a first authored non-solid landmark in one cove. Rocks,
   logs, and driftwood now also choose range/LOD per instance. Bush
-  material diversity, additional ground-plant material diversity, broader shell/branch/beach-prop
+  material diversity, additional ground-plant material diversity, broader shell/wrack/branch/beach-prop
   variety, richer mid-distance scenery, wet
   shoreline detail, and final material richness remain limited.
 - Terrain combines procedural vertex colour with a texture-free sand/soil, darkened wet-edge with

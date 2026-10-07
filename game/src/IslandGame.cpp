@@ -1857,7 +1857,7 @@ namespace island
                       << naturalPropRenderer_->VisibleDriftwoodFarCount() << "), "
                       << naturalPropRenderer_->VisibleBeachDetailCount() << '/'
                       << naturalPropRenderer_->TotalBeachDetailCount()
-                      << " shell/pebble clusters, "
+                      << " shell/pebble/wrack clusters, "
                       << naturalPropRenderer_->VisibleFallenFrondCount() << '/'
                       << naturalPropRenderer_->TotalFallenFrondCount()
                       << " fallen fronds, "

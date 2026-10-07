@@ -1063,13 +1063,27 @@ only while its smoothed intensity is nonzero. Touch UI is conditional, the debug
 and the run/walk notice lasts 1.4 seconds. This bounds the known transparent layers, but it is not
 a physical-mobile fill-rate measurement; that remains part of device profiling.
 
+### Dry-wrack beach-detail follow-up
+
+A visual review of the fixed cove frame found that the four beach-detail variants were all similar
+shell/pebble compositions. Variant three now uses four low curved opaque strands plus two small
+holdfast forms in muted olive/brown colours. The replacement mesh is 80 vertices and 68 triangles
+instead of 64 vertices and 56 triangles; placement, the 265-instance population, 52 m culling
+distance, four variant buffers, and maximum four beach-detail submissions are unchanged. It adds
+no texture, transparency, collision, simulation, or per-frame procedural work.
+
+The complete actual Chrome/SwiftShader WebGL 2 suite compiles the shared shader, requires the new
+startup diagnostic, passes all 22 stages, and produces an inspected cove frame. The OpenGL 3.3
+renderer object compiles without relinking the visible game. The arm64 GLES 3 package builds and
+lints, but the revised detail has not been inspected on a physical mobile GPU.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,501 bytes (59,034 gzip), and WebAssembly is 8,492,253 bytes (2,422,594
-gzip). The complete transfer payload therefore falls from 8,756,777 to 2,482,746 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,493,389 bytes (2,423,310
+gzip). The complete transfer payload therefore falls from 8,758,232 to 2,483,492 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

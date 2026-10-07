@@ -399,8 +399,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
   forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 three-variant
   driftwood pieces including a three-piece authored cove arc, 63 grove-associated fallen palm
-  fronds, and 265 four-variant shell/pebble
-  clusters. Near canopy meshes now add tapered support branches, irregular separated lobes,
+  fronds, and 265 four-variant shell/pebble/dry-wrack
+  clusters. The fourth beach-detail variant now uses low curved dry-wrack strands instead of
+  repeating the other three shell/pebble compositions without changing population or draw budget.
+  Near canopy meshes now add tapered support branches, irregular separated lobes,
   pointed edge leaves, and four/five short irregular buttress roots. Near bushes now use smaller
   lobes with paired folded pointed leaves while retaining
   their compact far tier. Near forest-floor variants now include six upright broad leaves with
@@ -696,7 +698,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,756,777 bytes uncompressed and 2,482,746 bytes through
+  The current Release package is 8,758,232 bytes uncompressed and 2,483,492 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1174,8 +1176,8 @@ Work next, in order:
    dedicated native/WebGL QA camera proves a nonzero per-instance near LOD. Rocks, logs, and
    driftwood now enforce range and LOD from their actual positions after conservative cell bounds.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
-   first near-field shell/pebble substrate layer, a first grove-associated fallen-frond layer, and 14 emergent
-   shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
+   first near-field shell/pebble/dry-wrack substrate layer, a first grove-associated fallen-frond
+   layer, and 14 emergent shallow-reef outcrops are complete. Texture-free near-field substrate microvariation and sparse
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
    dry-earth material cue under its short grass. The east/west clearings now share their placement,
@@ -1190,8 +1192,10 @@ Work next, in order:
    composition audit then identified overly uniform exposed dry sand
    and low-contrast close forest soil; sparse soft-edged pebble/shell flecks and a restrained
    contrast increase now address those specific gaps without new geometry, textures, instances,
-   or submissions. Defer waterline geometry, underwater fog, and refraction until a similarly
-   portable design is justified.
+   or submissions. A subsequent cove review found all four small beach-detail variants too
+   similar, so the fourth now uses low dry-wrack strands while retaining the same 265 placements,
+   buffers, culling, and maximum four submissions. Defer waterline geometry, underwater fog, and
+   refraction until a similarly portable design is justified.
 4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
    wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
    with individual culling/LOD/density fields only where they materially improve debugging. F1 now
@@ -4425,6 +4429,28 @@ Work next, in order:
   explicitly open.
 - Reused the current `build-probe` Release outputs; no renderer source changed and no executable
   was rebuilt. The visible Linux game remained alive. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Dry-wrack beach-detail silhouette pass
+
+- An original-resolution cove review found that all four near-field beach-detail meshes repeated
+  similar shell/pebble silhouettes across otherwise open sand. Replaced the fourth existing mesh
+  with four low curved dry-wrack strands and two small holdfast forms in muted olive/brown tones.
+  The 265 deterministic placements, four variant buffers, 52 m culling distance, and maximum four
+  nearby beach-detail submissions are unchanged; no texture, transparency, collision proxy,
+  simulation, or extra draw class was added.
+- The new 80-vertex/68-triangle mesh replaces a 64-vertex/56-triangle composition. Core tests pass
+  in 16.74 seconds and still prove exact placement, support, route clearance, scale, and all four
+  variants. The OpenGL 3.3 renderer objects compile through `/rv/cnaccache` without relinking the
+  operator-visible game.
+- The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages, requires the
+  explicit dry-wrack startup diagnostic, and produces an inspected cove frame. A bounded wait for
+  the real overlay-ready message removes a discovered slow-frame race without weakening the gate.
+  WebAssembly is 8,493,389 bytes; the updated deterministic release package is 8,758,232 bytes
+  uncompressed and 2,483,492 bytes through gzip.
+- The two-worker arm64 GLES 3 build and lint pass through the shared ccache, and APK v2 signature
+  verification passes. The APK is 18,710,020 bytes with a 15,899,736-byte stripped `libmain.so`.
+  No new Android runtime or physical-device appearance claim is made. CNA and Sharp Runtime
+  remained read-only.
 
 ## Session-end checklist
 

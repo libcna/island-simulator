@@ -622,11 +622,72 @@ void main()
             }
         }
 
+        void AppendBeachWrackStrand(PropGeometry& geometry, const float angle,
+                                    const float length, const float phase,
+                                    const Color& baseColor)
+        {
+            constexpr int sections = 5;
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            const float forwardX = std::cos(angle);
+            const float forwardZ = std::sin(angle);
+            const float sideX = -forwardZ;
+            const float sideZ = forwardX;
+            for (int section = 0; section <= sections; ++section) {
+                const float t = static_cast<float>(section)
+                    / static_cast<float>(sections);
+                const float envelope = std::sin(t * std::numbers::pi_v<float>);
+                const float along = (t - 0.5f) * length;
+                const float bend = std::sin(t * std::numbers::pi_v<float> * 2.0f + phase)
+                    * (0.018f + envelope * 0.038f);
+                const float halfWidth = 0.012f + envelope * 0.016f;
+                const float centreX = forwardX * along + sideX * bend;
+                const float centreZ = forwardZ * along + sideZ * bend;
+                const float height = 0.016f + envelope * 0.014f;
+                geometry.vertices.emplace_back(
+                    Vector3(centreX - sideX * halfWidth, height,
+                            centreZ - sideZ * halfWidth),
+                    ShadeColor(baseColor, 0.78f + t * 0.12f));
+                geometry.vertices.emplace_back(
+                    Vector3(centreX + sideX * halfWidth, height + 0.003f,
+                            centreZ + sideZ * halfWidth),
+                    ShadeColor(baseColor, 1.04f - t * 0.08f));
+            }
+            for (int section = 0; section < sections; ++section) {
+                const auto left = static_cast<std::uint16_t>(base + section * 2);
+                const auto right = static_cast<std::uint16_t>(left + 1U);
+                const auto nextLeft = static_cast<std::uint16_t>(left + 2U);
+                const auto nextRight = static_cast<std::uint16_t>(left + 3U);
+                geometry.indices.insert(geometry.indices.end(),
+                                        {left, nextLeft, right,
+                                         right, nextLeft, nextRight});
+            }
+        }
+
         [[nodiscard]] PropGeometry CreateBeachDetailGeometry(const int variant)
         {
             PropGeometry geometry;
             geometry.vertices.reserve(64U);
             geometry.indices.reserve(168U);
+            if (variant == 3) {
+                const std::array<Color, 4> wrackColors = {
+                    Color(104, 92, 46, 255),
+                    Color(124, 104, 51, 255),
+                    Color(85, 91, 43, 255),
+                    Color(139, 111, 57, 255),
+                };
+                for (int strand = 0; strand < 4; ++strand) {
+                    const float strandPhase = 0.52f + static_cast<float>(strand) * 1.17f;
+                    AppendBeachWrackStrand(
+                        geometry, strandPhase, 0.46f + 0.065f * static_cast<float>(strand),
+                        0.41f + static_cast<float>(strand) * 0.83f,
+                        wrackColors[static_cast<std::size_t>(strand)]);
+                }
+                AppendBeachPebble(geometry, -0.10f, 0.05f, 0.026f, 0.022f,
+                                  0.024f, 0.3f, Color(118, 99, 48, 255), false);
+                AppendBeachPebble(geometry, 0.13f, -0.08f, 0.022f, 0.019f,
+                                  0.021f, -0.6f, Color(91, 89, 42, 255), false);
+                return geometry;
+            }
             const float phase = static_cast<float>(variant) * 0.73f;
             const std::array<Color, 4> colors = {
                 Color(216, 195, 153, 255),
@@ -813,7 +874,8 @@ void main()
         std::cout << "island-simulator: cove landmark " << coveDriftwoodCount
                   << " driftwood pieces, shared authored shoreline profile\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
-                  << " shell/pebble clusters, near-field culled\n";
+                  << " shell/pebble/wrack clusters, near-field culled\n";
+        std::cout << "island-simulator: dry wrack reuses one of four beach-detail variants\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
             std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";

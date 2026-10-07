@@ -43,7 +43,7 @@ Both clearing cameras also require the shared five-rock/one-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,492,253 bytes. The monkey scene additionally requires the near crown/cheek-tuft
+WebAssembly is 8,493,389 bytes. The monkey scene additionally requires the near crown/cheek-tuft
 diagnostic and its inspected frame retains the complete facial-detail/crossfade path. The input
 stage captures and visually validates the warm-gold `RUN MODE  8.0 M/S` confirmation while still
 proving that releasing Shift retains running and a second press restores walking. The first-frame
@@ -94,7 +94,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,756,777 bytes uncompressed and 2,482,746 bytes through gzip, a 71.6% transfer reduction. These
+8,758,232 bytes uncompressed and 2,483,492 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -175,8 +175,8 @@ view requires the branch-supported canopy and pointed-leaf near-bush diagnostics
 canopy populations, understory, low bushes, and forest-floor plants. The prop view must report
 visible fallen logs plus a nonzero one-draw contact-shadow batch. The driftwood view frames the
 authored cove group and must report its exact three-piece landmark diagnostic, the three-limb
-silhouette diagnostic, visible beach wood plus shell/pebble clusters, and a nonzero per-instance
-near-LOD population. The reef view must report a visible emergent outcrop and the near-rock
+silhouette diagnostic, visible beach wood plus shell/pebble/dry-wrack clusters, and a nonzero
+per-instance near-LOD population. The reef view must report a visible emergent outcrop and the near-rock
 fixed-sea-level wet-band diagnostic. The water view must report a nonzero generated
 depth/scatter/edge cue, exactly one overlay draw, and a
 nonzero player ripple plus a nonzero finite shoreline-transition burst integrated into the existing

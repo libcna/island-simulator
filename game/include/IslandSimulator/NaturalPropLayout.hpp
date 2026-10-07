@@ -53,7 +53,7 @@ namespace island
         bool coveLandmark = false;
     };
 
-    /** @brief One non-solid shell and pebble cluster scattered across dry sand. */
+    /** @brief One non-solid shell, pebble, or dry wrack cluster scattered across sand. */
     struct BeachDetailPlacement
     {
         float x = 0.0f;

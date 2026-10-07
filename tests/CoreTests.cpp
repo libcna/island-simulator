@@ -2437,7 +2437,7 @@ int main()
     Check(props.Driftwood().size() >= 12U && props.Driftwood().size() <= 100U,
           "driftwood population stays inside its sparse beach-composition budget");
     Check(props.BeachDetails().size() >= 120U && props.BeachDetails().size() <= 600U,
-          "shell/pebble clusters stay inside their near-field beach-detail budget");
+          "shell/pebble/wrack clusters stay inside their near-field beach-detail budget");
     Check(props.FallenFronds().size() >= 30U && props.FallenFronds().size() <= 180U,
           "fallen palm fronds stay inside their near-field composition budget");
     Check(props.Rocks().size() == repeatedProps.Rocks().size()
@@ -2647,28 +2647,28 @@ int main()
                   && detail.z == repeated.z
                   && detail.yawRadians == repeated.yawRadians
                   && detail.scale == repeated.scale && detail.variant == repeated.variant,
-              "shell/pebble placement is bitwise deterministic for one seed");
+              "shell/pebble/wrack placement is bitwise deterministic for one seed");
         Check(sample.signedShoreDistance >= 3.0f
                   && sample.signedShoreDistance <= 18.0f,
-              "shell/pebble clusters remain in the authored dry-sand belt");
+              "shell/pebble/wrack clusters remain in the authored dry-sand belt");
         Check(sample.height >= 0.22f && sample.slopeRadians <= 0.2617994f,
-              "shell/pebble clusters stay on dry low-slope support");
+              "shell/pebble/wrack clusters stay on dry low-slope support");
         CheckNear(detail.y, sample.height + 0.012f, 0.0001f,
-                  "shell/pebble clusters rest just above authoritative terrain");
+                  "shell/pebble/wrack clusters rest just above authoritative terrain");
         Check(!island::VegetationLayout::IsReservedRoute(detail.x, detail.z),
-              "shell/pebble clusters keep authored routes and spawn clear");
+              "shell/pebble/wrack clusters keep authored routes and spawn clear");
         Check(detail.variant < observedBeachDetailVariants.size(),
-              "shell/pebble cluster variant index remains in range");
+              "shell/pebble/wrack cluster variant index remains in range");
         if (detail.variant < observedBeachDetailVariants.size()) {
             observedBeachDetailVariants[detail.variant] = true;
         }
         Check(detail.scale >= island::NaturalPropLayout::BeachDetailMinimumScale
                   && detail.scale <= island::NaturalPropLayout::BeachDetailMaximumScale,
-              "shell/pebble cluster scale remains in the authored range");
+              "shell/pebble/wrack cluster scale remains in the authored range");
     }
     Check(std::ranges::all_of(observedBeachDetailVariants,
                               [](const bool value) { return value; }),
-          "shell/pebble population exercises all four mesh variants");
+          "shell/pebble/wrack population exercises all four mesh variants");
     std::array<bool, island::NaturalPropLayout::FallenFrondVariantCount>
         observedFallenFrondVariants{};
     for (std::size_t index = 0; index < props.FallenFronds().size(); ++index) {

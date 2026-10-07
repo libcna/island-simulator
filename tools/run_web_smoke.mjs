@@ -154,8 +154,8 @@ try {
   };
   const captureVisualFrame = async (sessionId, fileName, debugOverlayEnabled = false) => {
     if (debugOverlayEnabled) {
-      const output = await readSmokeOutput(sessionId);
-      if (!output.includes("island-simulator: debug overlay active")) {
+      if (!(await waitForOutput(
+        sessionId, "island-simulator: debug overlay active", 20))) {
         throw new Error(`Visual capture ${fileName} did not start with the debug overlay active`);
       }
       await call("Page.bringToFront", {}, sessionId);
@@ -294,7 +294,8 @@ try {
       "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
     && result.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
-    && result.output?.includes("island-simulator: beach detail 265 shell/pebble clusters, near-field culled")
+    && result.output?.includes("island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled")
+    && result.output?.includes("island-simulator: dry wrack reuses one of four beach-detail variants")
     && result.output?.includes(
       "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw")
     && result.output?.includes(
@@ -797,7 +798,7 @@ try {
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && driftwoodResult.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble clusters/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
