@@ -433,8 +433,11 @@ one or two branch stubs; near variant 2 uses three curved, six-sided tapered for
 distinct 160-triangle silhouette while its far tier stays at 30 triangles. Each frond remains a
 132-vertex/74-triangle opaque mesh with a curved rachis and 28 tapered leaflets. The leaf roots
 follow the rachis curve, while bounded pair/side variation changes span, forward sweep, tip droop,
-and ageing colour so the close silhouette is not a mirrored comb. Placement validates complete footprints
-against shore distance, route reservations, nearby trees, slope, and support-height variation.
+and ageing colour so the close silhouette is not a mirrored comb. Each existing root-to-tip
+diagonal is raised into a shallow central fold; a private material-selector value enables
+two-sided fixed-sun facet response only for these fronds without another vertex, normal stream, or
+submission. Placement validates complete footprints against shore distance, route reservations,
+nearby trees, slope, and support-height variation.
 The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
 fragments for subtle world-space strata, sparse lichen, a low fixed-sea-level wet band, and
 derivative-based two-sided facet light from the shared fixed sun;

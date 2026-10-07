@@ -1428,13 +1428,30 @@ frame retains restrained crown colour and more legible trunk/frond planes withou
 The arm64 GLES 3 package builds/lints, contains only `arm64-v8a`, and verifies with signature scheme
 v2. A later batched GLES view and physical-device fragment measurement remain required.
 
+### Folded fallen-frond leaflet follow-up
+
+The current dedicated frond view showed that the curved/asymmetric outline still left every
+leaflet reading as one flat card. Each existing four-vertex/two-triangle leaflet already shared a
+root-to-tip diagonal, so raising that edge by only 4--5 local millimetres creates a shallow
+geometric fold without adding geometry. A private alpha material selector enables a bounded
+0.86--1.06 two-sided fixed-sun facet multiplier for the 63 fronds; beach details remain on their
+plain path. Every variant stays exactly 132 vertices/74 triangles, with unchanged population,
+instance buffers, placement, 76 m culling, collision policy, and maximum three submissions.
+
+The OpenGL 3.3 object compiles with first-party warnings as errors without relinking the visible
+prior executable. The complete Chrome 152/SwiftShader WebGL 2 matrix passes 23/23, requires the
+fold marker in its frond gate, and the inspected original-resolution frame retains a subtle organic
+crease rather than a rigid ridge. The arm64 GLES 3 package builds/lints, contains only `arm64-v8a`,
+and verifies with signature scheme v2. Android runtime appearance and physical-mobile fragment cost
+remain deferred to the next batched/physical validation.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,539,267 bytes (2,436,331
-gzip). The complete transfer payload therefore falls from 8,804,145 to 2,496,534 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,066 gzip), and WebAssembly is 8,539,975 bytes (2,436,494
+gzip). The complete transfer payload therefore falls from 8,804,853 to 2,496,704 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

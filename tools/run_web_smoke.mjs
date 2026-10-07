@@ -1096,6 +1096,8 @@ try {
     && frondResult.output?.includes("natural-prop portable shader with near/far LOD")
     && frondResult.output?.includes(
       "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes")
+    && frondResult.output?.includes(
+      "island-simulator: fallen frond leaflets use geometric central folds")
     && /[1-9][0-9]*\/63 fallen fronds/.test(frondResult.output ?? "")
     && !frondResult.error;
 

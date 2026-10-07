@@ -469,6 +469,12 @@ the next runtime marker gate. The current arm64-only APK is 18,745,740 bytes wit
 Its Android runtime appearance remains batched with the preceding leaflet change, so no GLES 3
 visual or physical-mobile cost claim is made yet.
 
+The subsequent folded fallen-frond pass also compiles/lints for arm64 and is now required by the
+next Android runtime marker gate. The current arm64-only APK is 18,746,380 bytes with a
+15,936,096-byte stripped `libmain.so`; lint remains clean and signature scheme v2 verifies. Its
+GLES 3 appearance is batched with the two pending palm refinements rather than recreating the
+temporary x86_64 tree for one 63-instance material/vertex-only follow-up.
+
 Useful diagnostics for a connected test target are:
 
 ```bash

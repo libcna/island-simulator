@@ -67,6 +67,9 @@ namespace island
             "island-simulator: driftwood end caps match irregular body rings";
         constexpr std::string_view FallenFrondDiagnostic =
             "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes";
+        constexpr std::string_view FallenFrondFoldDiagnostic =
+            "island-simulator: fallen frond leaflets use geometric central folds";
+        constexpr int FallenFrondMaterialDetail = 248;
 
         struct PropGeometry
         {
@@ -183,6 +186,13 @@ void main()
             * (0.96 + 0.06 * weathering) * (1.0 - 0.07 * dryCrease);
         materialColor = mix(vColor, detailedColor,
                             1.0 - smoothstep(30.0, 56.0, distanceToCamera));
+    } else if (vMaterialDetail < 0.99) {
+        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+        float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
+        vec3 faceNormal = faceVector * inverseFaceLength;
+        float twoSidedDiffuse = abs(dot(faceNormal, uToSun));
+        float upwardFill = abs(faceNormal.y);
+        materialColor *= 0.86 + twoSidedDiffuse * 0.16 + upwardFill * 0.04;
     }
     vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
@@ -788,11 +798,14 @@ void main()
             PropGeometry geometry;
             geometry.vertices.reserve(136U);
             geometry.indices.reserve(228U);
-            const Color rachis = variant == 2 ? Color(105, 76, 39, 255)
-                : Color(102, 112, 48, 255);
-            const Color leaf = variant == 0 ? Color(52, 113, 55, 255)
-                : (variant == 1 ? Color(91, 112, 49, 255)
-                                : Color(133, 100, 48, 255));
+            const Color rachis = variant == 2
+                ? Color(105, 76, 39, FallenFrondMaterialDetail)
+                : Color(102, 112, 48, FallenFrondMaterialDetail);
+            const Color leaf = variant == 0
+                ? Color(52, 113, 55, FallenFrondMaterialDetail)
+                : (variant == 1
+                       ? Color(91, 112, 49, FallenFrondMaterialDetail)
+                       : Color(133, 100, 48, FallenFrondMaterialDetail));
             constexpr int stemSections = 9;
             const auto stemBase = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int section = 0; section <= stemSections; ++section) {
@@ -856,18 +869,19 @@ void main()
                     const Color outer = ShadeColor(
                         leaf, (0.92f + 0.014f * pair) * ageVariation);
                     geometry.vertices.emplace_back(
-                        Vector3(x, centreHeight, centreSideways + side * 0.010f), inner);
+                        Vector3(x, centreHeight + 0.006f,
+                                centreSideways + side * 0.010f), inner);
                     geometry.vertices.emplace_back(
-                        Vector3(x - 0.028f, centreHeight + 0.002f,
+                        Vector3(x - 0.028f, centreHeight + 0.001f,
                                 centreSideways + side * envelope * 0.23f),
                         ShadeColor(inner, 0.92f));
                     geometry.vertices.emplace_back(
                         Vector3(x + sweep + alternate,
-                                centreHeight + 0.006f - tipDrop,
+                                centreHeight + 0.010f - tipDrop,
                                 centreSideways + side * envelope * sideScale),
                         ShadeColor(outer, 1.05f));
                     geometry.vertices.emplace_back(
-                        Vector3(x + 0.040f, centreHeight + 0.003f,
+                        Vector3(x + 0.040f, centreHeight + 0.002f,
                                 centreSideways + side * envelope * 0.24f), outer);
                     geometry.indices.insert(
                         geometry.indices.end(),
@@ -987,6 +1001,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(DriftwoodEndDiagnostic);
             std::cout << FallenFrondDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondDiagnostic);
+            std::cout << FallenFrondFoldDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(FallenFrondFoldDiagnostic);
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';

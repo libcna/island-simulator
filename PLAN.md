@@ -1282,7 +1282,8 @@ Work next, in order:
    driftwood now enforce range and LOD from their actual positions after conservative cell bounds.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble/dry-wrack substrate layer, a first grove-associated fallen-frond
-   layer with curved asymmetric leaflets, and 14 emergent shallow-reef outcrops are complete.
+   layer with curved asymmetric leaflets, shallow geometric central folds, and restrained
+   two-sided fixed-sun response, and 14 emergent shallow-reef outcrops are complete.
    Texture-free near-field substrate microvariation and sparse
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
@@ -5547,6 +5548,32 @@ Work next, in order:
   bytes and stripped `libmain.so` is 15,935,456 bytes. Runtime appearance is batched with the
   preceding palm follow-up; physical-mobile fragment cost remains open. CNA and Sharp Runtime
   remained read-only and builds used at most two workers.
+
+### 2026-10-07 — Folded fallen-frond leaflets
+
+- The latest original-resolution natural-detail audit found that the 63 curved/asymmetric fallen
+  fronds retained a flat-card appearance at first-person distance. Reused every leaflet's existing
+  root-to-tip diagonal as a shallow raised central fold and assigned only this class a private
+  material selector for restrained 0.86--1.06 two-sided fixed-sun facet response.
+- All three variants remain exactly 132 vertices and 74 triangles. Population, placement, vertex
+  and index counts, variant/instance buffers, opaque rendering, 76 m culling, collision policy,
+  transforms, uploads, and maximum three submissions are unchanged. Beach detail and every other
+  natural-prop material remain outside the new shader branch.
+- The first build correctly rejected an ambiguous mixed integer/byte `Color` constructor call under
+  both GCC and Emscripten warnings-as-errors; the game-side material tag now follows the existing
+  integer selector convention. No dependency defect or `BUGS.md` entry was involved.
+- The corrected OpenGL 3.3 object compiles through `/rv/cnaccache` without relinking the
+  operator-visible process. The complete Chrome 152/SwiftShader WebGL 2 matrix passes 23/23; its
+  original-resolution frond frame was inspected and retains a subtle organic crease without a
+  rigid or over-bright ridge.
+- The deterministic Web package is 8,804,853 bytes or 2,496,704 bytes through gzip; WebAssembly is
+  8,539,975 bytes or 2,436,494 bytes through gzip. JavaScript remains 262,820 bytes (59,066 gzip)
+  and HTML remains 2,058 bytes (1,144 gzip).
+- Rebuilt/linted the default arm64-only APK through the shared cache; lint has zero issues, only
+  `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,746,380 bytes and its
+  stripped `libmain.so` is 15,936,096 bytes. GLES 3 runtime appearance is batched with the pending
+  palm passes rather than recreating about 1.1 GiB of temporary x86_64 intermediates. CNA and Sharp
+  Runtime remained read-only; no build used more than two workers.
 
 ## Session-end checklist
 
