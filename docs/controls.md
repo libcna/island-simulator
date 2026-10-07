@@ -57,8 +57,10 @@ The Web release build uses the same WASD/arrow movement, Shift run/walk toggle, 
 F2, F4, B, M, and Escape controls. Browser security still requires a click before pointer lock. Its production page
 displays click-to-play instructions and requests pointer lock directly from the first left-button
 gesture, as required by browser security policy. The same gesture starts audio after browser
-activation. Escape releases pointer lock; clicking the canvas acquires it again. Automated
-Chromium/SwiftShader coverage verifies those transitions, audio-mixer/track initialization,
+activation. Escape releases pointer lock without terminating the Web session; after the browser's
+short security cooldown, clicking the canvas acquires it again. Automated Chromium/SwiftShader
+coverage sends the actual Escape key and verifies unlock, continued frames, clean delayed
+reacquisition, audio-mixer/track initialization,
 correct screen-relative strafing, arrow parity, running, simultaneous movement/mouse look, focus,
 and responsive 16:9 sizing. Audible quality on a
 visible hardware-accelerated browser and a second browser engine remain to be checked manually.

@@ -1292,13 +1292,29 @@ try {
   }, visualSessionId);
   const resizedState = JSON.parse(resizedEvaluation.result.value ?? "{}");
 
-  await call("Runtime.evaluate", { expression: "document.exitPointerLock()" }, visualSessionId);
-  await delay(250);
+  const escapeOutputLengthBefore = (await readSmokeOutput(visualSessionId)).length;
+  await dispatchKeyPress(visualSessionId, "Escape", "Escape", 27, 250, 350);
   const unlockedEvaluation = await call("Runtime.evaluate", {
     expression: "document.pointerLockElement === null",
     returnByValue: true,
   }, visualSessionId);
   const pointerUnlocked = unlockedEvaluation.result.value === true;
+  const escapeStateEvaluation = await call("Runtime.evaluate", {
+    expression: `JSON.stringify({
+      exited: globalThis.islandSmokeResult?.exited === true,
+      error: globalThis.islandSmokeResult?.error ?? "",
+      outputLength: (globalThis.islandSmokeResult?.output ?? "").length
+    })`,
+    returnByValue: true,
+  }, visualSessionId);
+  const escapeState = JSON.parse(escapeStateEvaluation.result.value ?? "{}");
+  const escapeKeptSessionActive = pointerUnlocked
+    && escapeState.exited === false
+    && escapeState.error === ""
+    && escapeState.outputLength > escapeOutputLengthBefore;
+  // Chromium rejects a new request made immediately after Escape releases pointer lock.
+  // Model a deliberate follow-up click rather than racing that browser security cooldown.
+  await delay(1250);
   await dispatchMouseClick(visualSessionId, 480, 270);
   const relockedEvaluation = await call("Runtime.evaluate", {
     expression: "document.pointerLockElement === Module.canvas",
@@ -1372,6 +1388,7 @@ try {
     && mouseLookChanged
     && viewportResized
     && pointerUnlocked
+    && escapeKeptSessionActive
     && pointerRelocked
     && !inputResult.error;
 
@@ -1507,6 +1524,8 @@ try {
       mouseLookChanged: Boolean(mouseLookChanged),
       viewportResized: Boolean(viewportResized),
       pointerUnlocked,
+      escapeKeptSessionActive,
+      escapeState,
       pointerRelocked,
       lifecycleResumed,
       lockedState,

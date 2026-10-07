@@ -1021,6 +1021,15 @@ namespace island
         const bool escapePressed = escapeDown && !escapeWasDown_;
         escapeWasDown_ = escapeDown;
         if (escapePressed) {
+#if defined(__EMSCRIPTEN__)
+            // Browser Escape can release pointer lock before the game observes this key edge.
+            // Never turn that ordering difference into a request to terminate the Web session.
+            mouseCaptured_ = false;
+            Mouse::setIsRelativeMouseModeEXTProperty(false);
+            setIsMouseVisibleProperty(true);
+            std::cout << "island-simulator: Escape released browser pointer lock without exiting\n"
+                      << std::flush;
+#else
             if (mouseCaptured_) {
                 mouseCaptured_ = false;
                 Mouse::setIsRelativeMouseModeEXTProperty(false);
@@ -1028,6 +1037,7 @@ namespace island
             } else {
                 Exit();
             }
+#endif
             return;
         }
 

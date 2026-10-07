@@ -679,14 +679,15 @@ Dependencies: portable baseline features and bounded initial asset size.
   shaders, and LOD selection are verified; later wildlife and material variants remain open.
 - [~] Implement pointer-lock acquisition/release and clear click-to-focus/fullscreen instructions.
   The production shell provides click-to-play controls, first-gesture lock, Escape release, and
-  clean click reacquisition; fullscreen presentation remains open.
+  clean click reacquisition. Escape cannot terminate the Web session even if a browser forwards
+  the key after dropping pointer lock; fullscreen presentation remains open.
 - [~] Verify keyboard, mouse, focus loss, resize, audio unlock, and browser pause/resume behaviour.
   Controlled Chromium input now proves focus, WASD/arrows, persistent Shift-toggled running and
   restoration of walking on the second press, captures the transient run confirmation, simultaneous
-  forward movement/relative look, F1, pointer
-  release/reacquisition, aspect-preserving resize, and first-click CNA mixer plus dual-track
-  startup. Audible hardware-browser output and genuine tab background/foreground recovery remain
-  unverified; synthetic CDP freeze/thaw was inconclusive.
+  forward movement/relative look, F1, actual-Escape pointer release, continued frames without
+  exit/error, delayed click reacquisition, aspect-preserving resize, and first-click CNA mixer plus
+  dual-track startup. Audible hardware-browser output and genuine tab background/foreground
+  recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [ ] Reduce download/startup size through mesh/texture/audio choices and measured compression.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
@@ -4360,6 +4361,25 @@ Work next, in order:
   and physical-device fragment cost are not newly claimed. The KVM host preflight separately
   reports version 12 installed and usable, but no AVD was started beside the operator's visible
   Linux game. CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Browser Escape and pointer-lock recovery regression
+
+- Removed the remaining Web-only ambiguity between Escape-to-unlock and Escape-to-exit. An
+  Emscripten build now treats every delivered Escape edge as pointer-lock release only, so browser
+  event ordering cannot convert a release into game termination. Linux retains its established
+  first-Escape release and second-Escape exit behaviour; Android behaviour is unchanged.
+- Replaced the harness's JavaScript `document.exitPointerLock()` shortcut with a real Chrome Escape
+  key. Chrome consumes that key at browser level rather than forwarding it to SDL, so the portable
+  regression checks the observable contract: pointer lock is absent, new game output continues,
+  and `exited`/`error` remain clear. It then waits 1.25 seconds through Chrome's immediate-relock
+  security cooldown, clicks the canvas, and requires pointer lock again. An initial no-delay run
+  correctly exposed Chrome's `SecurityError`; the accepted complete 22-stage run passes without
+  relying on a game-side diagnostic that Chrome cannot emit.
+- The OpenGL 3.3 `IslandGame` object compiles through `/rv/cnaccache` without relinking the visible
+  game. WebAssembly is 8,492,253 bytes. The two-worker arm64 GLES 3 build/lint and APK v2-signature
+  check pass; because the Web branch is compiled out there, the APK remains 18,707,956 bytes with
+  a 15,897,672-byte stripped library. No new Android runtime claim is made, and CNA and Sharp
+  Runtime remained read-only.
 
 ## Session-end checklist
 

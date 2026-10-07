@@ -43,7 +43,7 @@ Both clearing cameras also require the shared five-rock/one-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,490,159 bytes. The monkey scene additionally requires the near crown/cheek-tuft
+WebAssembly is 8,492,253 bytes. The monkey scene additionally requires the near crown/cheek-tuft
 diagnostic and its inspected frame retains the complete facial-detail/crossfade path. The input
 stage captures and visually validates the warm-gold `RUN MODE  8.0 M/S` confirmation while still
 proving that releasing Shift retains running and a second press restores walking. The first-frame
@@ -96,7 +96,9 @@ Then open `http://127.0.0.1:8765/island-simulator.html`.
 The deployable HTML is produced from `tools/web_shell.html`. It supplies a 1280 by 720 render
 surface, preserves 16:9 while fitting different browser windows, displays the current controls,
 and requests pointer lock within the first mouse gesture instead of requiring a confusing second
-click. The C++ controller detects pointer-lock loss and permits clean reacquisition.
+click. The C++ controller detects pointer-lock loss and permits clean reacquisition. Web Escape
+never terminates the game loop, including on browsers that forward the key after releasing the
+lock; the tab remains under browser ownership.
 
 ## Automated browser smoke
 
@@ -184,8 +186,10 @@ walking ceiling after Shift has been released, proves that a second Shift press 
 captures the first toggle's transient HUD, and then walks backward into the ocean. The shoreline
 crossing must produce a successful water-transition
 one-shot diagnostic. The harness then enables the portable F2 world line view, toggles F1, resizes to a
-non-16:9 browser window, explicitly unlocks, and clicks to reacquire. It records the initial/final
-player and viewport samples in the JSON report. Chromium's
+non-16:9 browser window, sends a real Escape key, proves that pointer lock is gone while new game
+frames continue without exit/error, waits through Chromium's immediate-relock security cooldown,
+and clicks to reacquire. It records the initial/final player and viewport samples plus the Escape
+state in the JSON report. Chromium's
 synthetic page-freeze command did not yield reliable resume evidence in this environment, so real
 tab background/foreground behaviour remains unqualified rather than being inferred.
 

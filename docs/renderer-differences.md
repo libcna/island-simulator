@@ -49,7 +49,9 @@ after representative physical-device profiling.
   copy, M, and Escape. Automated native and browser tests cover simultaneous movement and mouse
   look.
 - Browsers require a user gesture for pointer lock. The production shell requests it on the first
-  click and handles release/reacquisition and responsive resizing.
+  click. Escape only releases browser pointer lock and never exits the Web session; the automated
+  path proves continued frames and clean click reacquisition after Chromium's short security
+  cooldown. Responsive resizing remains covered in the same input stage.
 - Android uses a stable left movement pointer and right relative-look pointer. Display-size changes
   and missing/released contacts cancel safely. Fixed landscape avoids an unsupported live rotation
   transition during play. Independent movement/look gestures are validated on the accelerated AVD;

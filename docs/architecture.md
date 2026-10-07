@@ -723,8 +723,9 @@ testing remain open.
   refraction, and particle splash presentation remain open.
 - WebGL 2 has run in Chromium/SwiftShader with the full sky, ocean, palm, jungle, prop, and grass
   shaders.
-  Automated browser input covers pointer lock, focus, keyboard traversal, relative look,
-  release/reacquisition, responsive 16:9 presentation, and first-gesture CNA audio startup. Audible
+  Automated browser input covers pointer lock, focus, keyboard traversal, relative look, actual
+  Escape release without session termination, delayed click reacquisition, responsive 16:9
+  presentation, and first-gesture CNA audio startup. Audible
   hardware-browser quality, genuine tab lifecycle, another browser engine, and visible
   hardware-GPU performance remain unverified.
 - Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. The API 35

@@ -146,8 +146,9 @@ Run `build/island-simulator`. Click inside the window or press a movement key to
 use WASD or the arrow keys to move, and press Shift to toggle between walking and running on land.
 Each keyboard toggle briefly confirms `WALK MODE  4.3 M/S` or `RUN MODE  8.0 M/S` near the bottom
 of the view; no key must remain held.
-Press Escape once to release the mouse and again to exit. Mouse look remains active while a
-movement key is held. The controller follows the terrain,
+On Linux, press Escape once to release the mouse and again to exit. In a browser, Escape only
+releases pointer lock; close the tab through the browser UI when finished. Mouse look remains
+active while a movement key is held. The controller follows the terrain,
 rejects overly steep uphill motion, slides along trunk, solid-rock, and fallen-log proxies, and
 enters swimming water with hysteresis. Swimming retains collision with solid emergent reef rocks.
 A static 16 m collision grid limits each capsule test to nearby proxies; bounded one-time recovery
@@ -214,7 +215,8 @@ positional-wildlife audio resources, WASD, arrow-key movement, Shift run/walk to
 simultaneous forward movement and relative mouse look, a deterministic beach-to-water crossing with successful
 transition-audio playback, F2 world
 lines, F4 seed-copy execution with explicit clipboard status, F1,
-pointer release/reacquisition, canvas focus, and responsive 16:9 sizing. A visible hardware-
+real-Escape pointer release, continued live frames, delayed click reacquisition, canvas focus, and
+responsive 16:9 sizing. A visible hardware-
 accelerated browser listening pass, genuine tab background/foreground behaviour, and another
 browser engine remain open.
 
