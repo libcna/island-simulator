@@ -425,9 +425,13 @@ void main()
                         std::sin(t * std::numbers::pi_v<float>), 0.56f);
                     const float lengthVariation = 0.94f + 0.06f
                         * static_cast<float>((station + frond + variant) % 3);
-                    const float leafletLength = 0.74f * envelope * lengthVariation;
+                    const float leafletLength = 0.84f * envelope * lengthVariation;
                     const float sweep = 0.16f + 0.17f * (1.0f - t);
                     const float droop = 0.06f + 0.18f * t;
+                    const float pairVariation = std::sin(
+                        static_cast<float>(station + 1) * 2.17f
+                        + static_cast<float>(frond + 1) * 1.43f
+                        + static_cast<float>(variant) * 0.79f);
                     const float rootWeight = t * t;
                     const float tipT = std::min(1.0f, t + 0.07f);
                     const Vector2 rootWind(rootWeight, windPhase);
@@ -435,13 +439,25 @@ void main()
 
                     for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
                         const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
+                        const float sideVariation = std::sin(
+                            static_cast<float>(station + 1) * 1.71f
+                            + static_cast<float>(frond + 1) * 2.37f
+                            + static_cast<float>(variant) * 0.83f
+                            + static_cast<float>(sideIndex) * 2.11f);
                         const Vector3 outward = side * sideSign;
-                        const Vector3 rootBack = centre - direction * 0.14f
+                        const float stagger = sideSign * (0.045f + pairVariation * 0.018f);
+                        const float sideLength = leafletLength * (0.97f + sideVariation * 0.075f);
+                        const Vector3 staggeredCentre = centre + direction * stagger;
+                        const Vector3 rootBack = staggeredCentre
+                            - direction * (0.145f + sideVariation * 0.012f)
                             + outward * 0.030f;
-                        const Vector3 rootFront = centre + direction * 0.13f
+                        const Vector3 rootFront = staggeredCentre
+                            + direction * (0.135f - sideVariation * 0.010f)
                             + outward * 0.043f;
-                        const Vector3 tip = centre + outward * leafletLength
-                            + direction * sweep - Vector3::Up * droop;
+                        const Vector3 tip = staggeredCentre + outward * sideLength
+                            + direction * (sweep + pairVariation * 0.045f
+                                           + sideVariation * 0.035f)
+                            - Vector3::Up * droop * (0.94f + sideVariation * 0.12f);
                         const float sideShade = sideIndex == 0 ? 0.90f : 1.02f;
                         const Color leafletColor = ShadeColor(
                             leafBase, frondShade * sideShade * (0.96f + 0.05f * t));
@@ -551,6 +567,10 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: palm portable wind shader with near/far mesh LOD\n";
             std::cout << "island-simulator: palm near mesh segmented fuller leaflet silhouettes\n";
+            constexpr const char* leafletDiagnostic =
+                "island-simulator: palm near leaflets use staggered asymmetric silhouettes";
+            std::cout << leafletDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(leafletDiagnostic);
             std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";

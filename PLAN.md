@@ -1334,9 +1334,10 @@ Work next, in order:
    even after a three-second allowance.
 7. Observe the irregular faceted palm roots and fuller segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal and on physical mobile hardware. Current close-palm
-   evidence justified widening only the existing leaflet root chords; the close-root,
-   crown-silhouette, and near material/coconut passes are measured. Do not add geometry without new
-   evidence.
+   evidence justified widening the existing leaflet root chords and then breaking the remaining
+   regular opposed-comb silhouette through vertex-only length/stagger/sweep/droop variation; the
+   close-root, crown-silhouette, and near material/coconut passes are measured. Do not add geometry
+   without new evidence.
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. A clear close-view cylindrical trunk-base defect justified a small near-only
    four/five-buttress pass; the far tier, culling, instances, and draws remain unchanged. Further
@@ -5497,6 +5498,30 @@ Work next, in order:
   zero issues. The restored 18,744,428-byte APK contains only `arm64-v8a`, verifies with signature
   scheme v2, and contains a 15,934,144-byte stripped `libmain.so`; about 1.1 GiB of reproducible
   x86_64 CMake/object intermediates were removed.
+
+### 2026-10-07 — Staggered asymmetric near-palm leaflets
+
+- A new original-resolution close-palm audit found that the existing fuller nine-station fronds
+  still read as mechanically opposed combs. Reused only their existing vertices to add bounded
+  deterministic per-frond/station/side length, longitudinal stagger, forward-sweep, and droop
+  variation. Maximum leaflet span rises from 0.74 to 0.84 local metres to match the unchanged far
+  crown envelope more closely, while retaining separated tapered silhouettes.
+- Near meshes remain 494--566 triangles and far meshes remain 102 triangles. Population, vertex
+  and index counts, variant buffers, transforms, wind data, 125--145 m LOD, culling, collision,
+  textures, uploads, and maximum eight mixed near/far submissions are unchanged. Added one exact
+  diagnostic to native, browser, and next Android gates.
+- The OpenGL 3.3 object compiles with first-party warnings as errors through `/rv/cnaccache`
+  without relinking the operator-visible process. The complete Chrome 152/SwiftShader WebGL 2
+  matrix passes 23/23; its original-resolution palm frame was inspected and retains distinct
+  leaflets with a fuller, less repeated crown silhouette.
+- The deterministic Web package is 8,803,353 bytes or 2,496,238 bytes through gzip; WebAssembly is
+  8,538,475 bytes or 2,436,034 bytes through gzip. JavaScript remains 262,820 bytes (59,060 gzip)
+  and HTML remains 2,058 bytes (1,144 gzip).
+- Rebuilt/linted the default arm64-only APK through the shared cache; lint has zero issues, only
+  `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,745,116 bytes and its
+  stripped `libmain.so` is 15,934,832 bytes. GLES 3 runtime appearance is deliberately batched
+  rather than recreating about 1.1 GiB of temporary x86_64 intermediates for this vertex-only pass.
+  CNA and Sharp Runtime remained read-only; no build used more than two workers.
 
 ## Session-end checklist
 

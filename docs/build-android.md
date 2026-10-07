@@ -456,6 +456,13 @@ stopped and the arm64-only package was restored, linted with zero issues, and v2
 verified. The APK is 18,744,428 bytes and its stripped `libmain.so` is 15,934,144 bytes. These are
 functional emulator checks rather than physical-mobile appearance or performance qualification.
 
+The later near-palm leaflet asymmetry pass builds and lints in the default arm64-only package,
+which is 18,745,116 bytes with a 15,934,832-byte stripped `libmain.so` and a valid v2 signature.
+The next Android runtime gate requires its exact staggered-leaflet marker. Its GLES 3 appearance is
+intentionally deferred to a later batched x86_64 session rather than recreating about 1.1 GiB of
+temporary emulator intermediates for a vertex-position-only follow-up; the preceding palm capture
+must not be read as evidence for this later silhouette.
+
 Useful diagnostics for a connected test target are:
 
 ```bash

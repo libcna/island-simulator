@@ -340,7 +340,10 @@ calm breeze. That vertex path also hashes four already-present scale/yaw transfo
 into a bounded per-instance colour seed. A vertex-colour green mask applies the tint only to
 fronds, preserving brown trunks, roots, and coconuts. Because both LOD tiers reuse the same
 transform, their colour identity cannot change at the threshold. This adds no instance attribute,
-buffer, texture, draw, placement state, or collision state.
+buffer, texture, draw, placement state, or collision state. Near fronds retain nine paired
+single-triangle leaflet stations, but deterministic per-frond/station phases modestly vary their
+length, longitudinal stagger, forward sweep, and droop. The broader silhouette and broken comb-like
+symmetry therefore reuse the existing 494--566-triangle near meshes.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
 visible anchor instances one shared 34-blade near, ten-blade middle, or five-blade far cluster. A

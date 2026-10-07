@@ -421,7 +421,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "palm per-instance frond tint reuses existing transforms")
+                "palm near leaflets use staggered asymmetric silhouettes")
         add_test(NAME IslandGameWaterViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
                     --viewpoint water)

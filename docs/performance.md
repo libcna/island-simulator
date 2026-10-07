@@ -1394,13 +1394,31 @@ strict audio gate; its inspected frame matches the WebGL result and reached firs
 physical-mobile GPU cost. The OpenGL 3.3 object compiles with warnings as errors; current native
 appearance awaits relinking after the operator-visible prior process closes.
 
+### Staggered near-palm leaflet follow-up
+
+The current close-palm review found that the fuller nine-station near fronds still formed visibly
+regular opposed combs. Their existing vertices now use deterministic frond/station/side phases to
+vary leaflet length, longitudinal stagger, forward sweep, and droop. Increasing the maximum
+leaflet span from 0.74 to 0.84 local metres brings the near crown envelope into closer agreement
+with the unchanged widened far ribbon. The four near meshes remain 494--566 triangles and the far
+meshes remain 102 triangles; no vertex, index, instance, buffer, texture, shader operation, wind
+update, LOD threshold, collision proxy, upload, or draw submission was added.
+
+The OpenGL 3.3 object compiles with first-party warnings as errors without relinking the
+operator-visible prior executable. The complete Chrome 152/SwiftShader WebGL 2 matrix passes
+23/23, requires the exact asymmetry marker in lifecycle and the palm gate, and its inspected
+original-resolution frame retains separate tapered leaflets with a fuller, less mechanical crown.
+The arm64 GLES 3 APK builds/lints with zero issues, contains only `arm64-v8a`, and verifies with APK
+signature scheme v2. Android runtime appearance and moving LOD-transition review remain deferred
+to later batched/physical testing, so no mobile appearance or cost improvement is claimed.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,537,623 bytes (2,436,359
-gzip). The complete transfer payload therefore falls from 8,802,501 to 2,496,567 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,060 gzip), and WebAssembly is 8,538,475 bytes (2,436,034
+gzip). The complete transfer payload therefore falls from 8,803,353 to 2,496,238 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
