@@ -255,6 +255,7 @@ try {
     "island-simulator: near fallen logs use irregular broken end contours",
     "island-simulator: near fallen-log end grain uses restrained radial cracks",
     "island-simulator: rock per-instance tint reuses existing transforms",
+    "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
     "island-simulator: ocean grazing reflection bands reuse analytic slope field",
     "island-simulator: startup world ",
@@ -468,6 +469,17 @@ try {
       "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw",
     ],
     waterStatePattern);
+  const shipwreckScene = await qualifyScene(
+    context,
+    "shipwreck",
+    "island-firefox-esr-shipwreck.png",
+    [
+      "island-simulator: renderer WEBGL2",
+      "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
+      "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast",
+      "island-simulator: shipwreck QA camera views the 20m wreck from the beach",
+    ],
+    /shipwreck visible, 12 debris, 1 draw/);
   const report = {
     schema: 1,
     browser: "Firefox ESR",
@@ -493,7 +505,7 @@ try {
     runDisabled: true,
     footstepPlayed: true,
     fatalDiagnostic,
-    scenes: { jungle: jungleScene, water: waterScene },
+    scenes: { jungle: jungleScene, water: waterScene, shipwreck: shipwreckScene },
     sessionId: session.sessionId,
     outputTail: productionOutput.split("\n").slice(-28),
   };

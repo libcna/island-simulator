@@ -28,6 +28,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── NaturalPropLayout ── land/reef rock and fallen-dressing placement plus solid proxies
       │       │
       │       └── NaturalPropRenderer ─ rock/log/frond meshes, LOD, culling, and instancing
+      ├── ShipwreckLayout ──── authored shore-relative hull, debris, and bounded solid proxies
+      │       │
+      │       └── ShipwreckRenderer ─ one portable culled static batch for the complete landmark
       ├── DistantSceneryLayout ─ deterministic unreachable horizon-islet composition
       │       │
       │       └── DistantSceneryRenderer ─ fogged low-poly rocks/palms in one static batch
@@ -71,7 +74,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 
 `IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonInput`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
-`NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `AquaticLightingModel`,
+`NaturalPropLayout`, `ShipwreckLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `AquaticLightingModel`,
 `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `ProceduralMeshValidation`, `RuntimeQualityProfile`, `TouchControls`,
 `SoundscapeModel`, `AudioAnalysis`, `WorldIdentity`, and `UserSettings` form
@@ -80,8 +83,8 @@ deliberately do not depend on CNA. They compile and test quickly without a graph
 `IslandGame` maps CNA keyboard snapshots into `FirstPersonDigitalInput`; the renderer-independent
 resolver combines them with touch axes and camera yaw using the screen-right basis required by the
 view convention. It converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
-consume the same palm, broadleaf, rock, and fallen-log placements; rendering never becomes a
-separate source of world truth.
+consume the same palm, broadleaf, rock, fallen-log, and major ship-hull placements; rendering
+never becomes a separate source of world truth.
 
 `UserSettingsStore` is the narrow persistence boundary. It uses CNA `StorageDevice` and
 `StorageContainer`, so Linux uses the app's XDG-backed data root, Web uses origin-scoped IDBFS, and
@@ -131,6 +134,14 @@ layer: an irregular radial shoreline, a shallow shelf, beaches, rolling interior
 viewpoint hill. Later biome masks, routes, coves, and landmarks must preserve the single-query rule:
 rendering, collision, vegetation, wildlife, water, and tests all consult the same authoritative
 field or a documented derived cache.
+
+The first large authored landmark is a 20.0 m by 5.2 m grounded wooden sailing-ship wreck. Its
+layout resolves the placement from a coast angle and signed distance through the authoritative
+shore field, samples terrain support for the heeled hull and twelve beachward debris pieces, and
+publishes only six conservative circular proxies for major structure. Small debris is intentionally
+non-solid. The renderer derives its complete broken hull, exposed frames, partial deck, cabin,
+snapped mast, bowsprit, rigging, and debris from that immutable layout in one 1,924-triangle static
+batch; it does not own an independent position or scale.
 
 The public terrain-query contract accepts horizontal coordinates whose absolute components are at
 most 1,000,000 m, vastly beyond every reachable or rendered position. Non-finite or larger input
@@ -202,8 +213,8 @@ otherwise empty build-owned directory to protect the present contract.
    explicit placement performs a bounded static-proxy depenetration pass, preventing a debug
    teleport or future spawn from leaving the capsule embedded.
 5. `PlayerMotion` asks the immutable 16 m `WorldCollisionGrid` for local candidates, then tests the
-   proposed capsule footprint exactly against nearby trunk, land/reef rock, and log circular
-   obstacles while retaining axis sliding when one component is valid.
+   proposed capsule footprint exactly against nearby trunk, land/reef rock, log, and major
+   ship-hull circular obstacles while retaining axis sliding when one component is valid.
 6. `FirstPersonCameraMotion` derives a bounded local right/up displacement from physical speed and
    locomotion mode. It eases between walking and swimming rhythms, clamps long frames, resets on
    debug teleports, and fades to the authoritative eye point when B disables it.
@@ -228,10 +239,11 @@ otherwise empty build-owned directory to protect the present contract.
    independently of their renderers.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain and distant scenery. `ContactShadowRenderer` overlays its
-   depth-read terrain grounding batch before natural props, broadleaf jungle, mesh grass, palms,
+   depth-read terrain grounding batch before natural props, the shipwreck, broadleaf jungle, mesh grass, palms,
    the one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
-   monkeys, and transparent ocean using one view/projection pair. Aquatic wildlife is submitted
-   before water so ocean transparency colours and reveals it. The near-surface veil follows the
+   monkeys, and transparent ocean using one view/projection pair. The shipwreck is submitted after
+   other opaque natural props and before water so ocean transparency colours and reveals its
+   submerged structure. Aquatic wildlife is also submitted before water. The near-surface veil follows the
    3D and shoreline passes so it colours their combined result.
 11. On Android, or after a touch interaction on another platform, `TouchOverlay` submits generated
    translucent control rings through CNA `SpriteBatch` with conservative edge margins. Both the

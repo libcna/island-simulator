@@ -369,16 +369,19 @@ Dependencies: stable terrain/shore queries and representative performance instru
   rooms now have distinct ground identities, first rock/log landmark groups, and dedicated cross-
   renderer QA views. Whole-route composition review, broader landmarks, and stronger enclosed/
   revealing rhythm remain.
-- [ ] Compose one approximately 20 m long, roughly 5 m beam wooden sailing-ship wreck in a chosen
+- [x] Compose one 20 m long, 5.2 m beam wooden sailing-ship wreck in a chosen
   beach shallows. The landmark must read as a large ship rather than a boat: retain a recognizable
   broken hull, exposed frames, partial deck, grounded heel, and snapped mast, with a separately
   composed debris trail of planks and substantial fragments leading toward the beach. Keep the
   player clear of sharp snag traps, use only bounded solid proxies for major hull sections, and
-  validate placement against the authoritative seabed/shore field.
-- [ ] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
+  validate placement against the authoritative seabed/shore field. The implemented original
+  wreck has a central break, cabin, bowsprit, rigging, six major-hull collision proxies, and a
+  12-piece beachward debris trail; the smaller debris remains intentionally non-solid.
+- [x] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
   response, wet/submerged colour treatment, a dedicated first-person QA viewpoint, F1/F2 counts,
   tests for dimensions/depth/debris bounds/collision, and matched OpenGL 3.3, WebGL 2, and GLES 3
-  runtime evidence. Keep it original/procedural and record provenance before release packaging.
+  runtime evidence. The 1,924-triangle one-draw batch is distance/frustum culled, provenance is
+  manifest-gated, and native, Chrome, Firefox, and accelerated-Android captures were inspected.
 
 ### Ocean and shoreline
 
@@ -1111,8 +1114,8 @@ Android is not project completion.
   repeat after future runtime or visual changes.
 - [~] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
   repository inspection. Shell/Node syntax, executable modes, tracked-file types, approved build
-  directories, local Markdown links, asset provenance, package determinism, full native 42/42, and
-  full Web 23-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
+  directories, local Markdown links, asset provenance, package determinism, full native 43/43, and
+  full Web 24-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
   gate at final packaging.
 
 Exit validation:
@@ -1138,9 +1141,11 @@ improves the requested experience rather than adding quests, combat, survival, o
 - [ ] Audit every fixed QA view at original resolution and rank defects by visual impact, first-
   person frequency, portability cost, and measurable performance risk. Record before/after evidence
   for changes rather than increasing polygons or shader layers blindly.
-- [ ] Establish consistent real-world scale for terrain features, vegetation, rocks, wildlife, and
+- [~] Establish consistent real-world scale for terrain features, vegetation, rocks, wildlife, and
   the approximately 20 m shipwreck. Correct visibly implausible thicknesses, floating roots,
-  intersections, horizon scale, and eye-height cues.
+  intersections, horizon scale, and eye-height cues. The wreck now has exact 20.0 m length,
+  5.2 m beam, 4.4 m hull height, shallow-water support sampling, and a first-person beach review;
+  the whole-island scale audit remains open.
 
 ### Materials and surface detail
 
@@ -1166,10 +1171,12 @@ improves the requested experience rather than adding quests, combat, survival, o
   gradients, seed heads, wind phase, terrain-normal seating, and near/middle/far transitions until
   first-person gaps and repeated tufts are no longer distracting. Profile overdraw and alpha-free
   geometry cost on all targets before increasing population.
-- [ ] Strengthen the island's authored composition with realistic erosion cues, beach-width
+- [~] Strengthen the island's authored composition with realistic erosion cues, beach-width
   variation, shallow sandbars, reef groupings, grove structure, denser/sparser jungle rooms,
   landmark sightlines, and controlled openings. Integrate the shipwreck and debris into one chosen
-  cove without damaging the existing main traversal loop.
+  cove without damaging the existing main traversal loop. The wreck and beachward debris now form
+  a dedicated coastal landmark outside the reserved primary corridor; broader erosion, grove, and
+  sightline refinement remains open.
 
 ### Lighting and atmosphere
 
@@ -1197,10 +1204,12 @@ improves the requested experience rather than adding quests, combat, survival, o
 
 ### Performance and acceptance
 
-- [ ] Preserve the current Linux 60 Hz p99 gate on representative scenes, define a shipwreck/wildlife
+- [~] Preserve the current Linux 60 Hz p99 gate on representative scenes, define a shipwreck/wildlife
   worst-case view, and compare draw calls, triangles, texture bytes, startup, and frame pacing
   before/after each major realism pass. Scale distance/LOD rather than removing core content on
-  Web or Android.
+  Web or Android. Two isolated Debug shipwreck runs measured 1.9153--1.9271 ms median,
+  4.5776--4.6285 ms p95, and 9.4118--10.4471 ms p99 with zero 60 Hz misses; the additional-wildlife
+  combined worst case remains to be defined.
 - [ ] Run matched native, Chrome, Firefox, and accelerated-Android captures for every new shader or
   renderer path. Validate physical Android hardware when available; otherwise keep thermals,
   driver diversity, and real-device ergonomics explicitly unverified.
@@ -1388,15 +1397,15 @@ Work next, in order:
 
 Immediate user-directed expansion:
 
-1. Build the approximately 20 m broken wooden ship landmark and its shallow-water/beach debris
-   field, then add a dedicated QA camera, collision/query tests, culling diagnostics, and the full
-   native/Web/Android renderer gate.
-2. Add beach crabs, clearing-edge butterflies, and a small near-shore sea-turtle population through
+1. Add beach crabs, clearing-edge butterflies, and a small near-shore sea-turtle population through
    the existing deterministic activation architecture, with long-run region/state tests and
    bounded batches.
-3. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
+2. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
+3. Revisit the completed 20 m shipwreck during those realism passes for aged-wood breakup,
+   waterline integration, beach clutter composition, and collision feel without changing its
+   established scale or turning it into an objective.
 
 Existing observation and qualification queue:
 
@@ -6029,6 +6038,44 @@ Existing observation and qualification queue:
   and debris landmark, beach crabs, clearing butterflies, near-shore sea turtles, and an additional
   evidence-driven visual-realism campaign of up to roughly 100 productive hours. No implementation
   or platform claim is recorded for those new items yet.
+
+### 2026-10-07 — Large shallow-water shipwreck landmark
+
+- Added a deterministic original wooden sailing-ship wreck at an authored shoreline-relative
+  location. It is exactly 20.0 m long, 5.2 m wide, and 4.4 m high: a grounded, heeled hull with a
+  central break, exposed ribs, partial deck, cabin, snapped mast, bowsprit, rail remnants, rigging,
+  and twelve planks/substantial fragments trailing toward the beach. It is deliberately a large
+  ship, not a small boat, and remains environmental scenery rather than an objective.
+- Added a renderer-independent layout and tested authoritative shore/seabed support, deterministic
+  reconstruction, debris type/bounds, and six conservative major-hull collision proxies. Those
+  proxies join the shared 16 m broad phase; the world report now validates 833 obstacles in 485
+  occupied cells and produces fingerprint `9b0c6d1b3b0f806a`. Smaller debris stays non-solid to
+  avoid snagging the player.
+- Added one portable static `VertexPositionColor`/`BasicEffect` batch with 1,924 triangles,
+  fixed-sun facet colour, wet/submerged darkening, fog, frustum rejection, and a 310 m distance
+  bound. The wreck renders before the transparent ocean so the same water colours its submerged
+  structure. A dedicated `--viewpoint shipwreck` camera and exact one-draw/12-debris diagnostics
+  make the landmark independently reviewable.
+- The native private-display OpenGL 3.3 matrix passes 43/43. The 24-stage Chrome/WebGL 2 matrix and
+  independent Firefox ESR gate both pass with dedicated original-resolution shipwreck captures.
+  Two accelerated API 35 x86_64 GLES 3 runs passed the strict shipwreck marker gate; the clean
+  2400 by 1080 frame was inspected and first draw completed in 6204.880 ms on the KVM/gfxstream
+  functional environment. This is not physical-mobile performance qualification.
+- Two isolated native Debug shipwreck benchmarks reported 2.3154--2.3745 ms mean,
+  1.9153--1.9271 ms median, 4.5776--4.6285 ms p95, and 9.4118--10.4471 ms p99 across the recorded
+  runs, with zero intervals above 16.667 ms and 46 tracked submissions. The new ship itself remains
+  one visible draw in the fixed view.
+- The current Web package is 8,941,239 bytes uncompressed or 2,537,582 bytes through deterministic
+  gzip. The default arm64 APK was restored, passes lint, contains a 16,086,656-byte stripped
+  `libmain.so`, is 18,896,940 bytes, and verifies with APK signature scheme v2. Five verified
+  reproducible x86_64 intermediate directories (about 1.1 GiB) were removed after the emulator
+  stopped.
+- Two unchanged Linux Release packaging runs produced byte-identical 5,024,595-byte archives with
+  SHA-256 `0ad6f6d50bcaacf147f7ea25c305839dca6ca2386545d707646adbb36bdd918d` and
+  12,071,978 installed bytes. An extracted package launched from an unrelated directory, selected
+  `OPENGL33`, rendered the shipwreck view, and exited cleanly. Asset validation passes 18
+  procedural records, 34 generator sources, two project files, and zero external files. CNA and
+  Sharp Runtime remained read-only and clean; no qualifying dependency defect was found.
 
 ## Session-end checklist
 

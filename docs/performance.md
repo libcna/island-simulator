@@ -1535,20 +1535,41 @@ or thermal claim.
 
 The runtime rejects invalid profiles and resource inventories exceeding the selected texture or
 audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the exact reduced
-mesh counts. Native smoke/capture output confirms the full profile, while the complete 23-stage
+mesh counts. Native smoke/capture output confirms the full profile, while the complete 24-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-18,757,052 bytes with a 15,946,768-byte stripped `libmain.so`; lint reports no issues and APK
+18,896,940 bytes with a 16,086,656-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
+
+### Shipwreck landmark baseline
+
+The complete 20.0 m broken ship is one static `BasicEffect` batch containing 1,924 triangles. It
+adds no texture or custom shader, performs frustum and 310 m distance rejection, and contributes
+exactly one tracked submission when visible. Six circular collision proxies represent only the
+major hull sections; the twelve beachward debris pieces add no collision-query workload.
+
+Two isolated Debug OpenGL 3.3 shipwreck runs at 1280 by 720 on the AMD Radeon 780M/Mesa 25.0.7
+reported 2.3154 and 2.3745 ms mean, 1.9271 and 1.9153 ms median, 4.6285 and 4.5776 ms p95, and
+9.4118 and 10.4471 ms p99. Their maximum intervals were 11.8383 and 10.6526 ms, so neither run had
+an interval above 16.667 ms. The fixed view reported 46 tracked submissions: nine visible terrain
+cells in three draws, 19 palms, eight canopy trees, 54 grass clusters, six fish, and the shipwreck
+in one draw. This is a repeatable landmark-specific Debug baseline, not a Release minimum-spec or
+future combined-wildlife worst case.
+
+The exact same batch and markers passed current Chrome/SwiftShader WebGL 2, Firefox ESR WebGL 2,
+and API 35 KVM/gfxstream GLES 3 scene gates. The Android first-draw total of 6204.880 ms includes
+2170.241 ms of world construction and 3916.735 ms of procedural/GPU content startup; it is useful
+functional translated-host evidence but not a physical-mobile frame-time, startup, thermal, or
+power result.
 
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,001 bytes (59,212 gzip), and WebAssembly is 8,621,912 bytes (2,464,390
-gzip). The complete transfer payload therefore falls from 8,887,971 to 2,524,746 bytes, a measured
+gzip), JavaScript is 264,850 bytes (59,288 gzip), and WebAssembly is 8,674,331 bytes (2,477,150
+gzip). The complete transfer payload therefore falls from 8,941,239 to 2,537,582 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

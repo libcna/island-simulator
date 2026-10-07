@@ -43,6 +43,7 @@
       ["props", ["--viewpoint", "props", "--debug-overlay"]],
       ["driftwood", ["--viewpoint", "driftwood", "--debug-overlay"]],
       ["reef", ["--viewpoint", "reef", "--debug-overlay"]],
+      ["shipwreck", ["--viewpoint", "shipwreck", "--debug-overlay"]],
       ["water", ["--viewpoint", "water", "--debug-overlay"]],
       ["current", ["--viewpoint", "current", "--debug-overlay"]],
       ["distant", ["--viewpoint", "distant", "--debug-overlay"]],

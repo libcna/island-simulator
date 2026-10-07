@@ -32,6 +32,13 @@ visual layer has spatial culling and appropriate distance
 reduction, while vegetation uses a calm breeze. Five unreachable, haze-softened low islets and 11
 simplified palm silhouettes break up the open-ocean horizon in one intentionally always-present
 portable static batch.
+One beach shallows now contains a large original wooden sailing-ship wreck rather than a small
+boat. Its exact 20 m hull is grounded and heeled in the water with a central break, exposed ribs,
+partial deck, cabin, snapped mast, bowsprit, and rigging. Twelve planks and substantial fragments
+form a separate trail toward the sand. Six conservative hull proxies keep the player out of the
+major structure while the smaller debris remains non-solid and traversal-friendly. The complete
+1,924-triangle landmark is frustum/distance culled and submitted as one portable batch before the
+transparent ocean colours its submerged portions; it introduces no quest, pickup, or objective.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.
 The 42-blade near mesh uses five curvature levels per blade, folded side colour, and portable
@@ -264,7 +271,7 @@ procedural source and export disposable PCM16 WAV previews for focused listening
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, a finite first-draw startup timing line, four frames, clean shutdown, active
-overview/beach/jungle/prop/driftwood/reef/water/
+overview/beach/jungle/prop/driftwood/reef/shipwreck/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, the transient run-mode confirmation,
 and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
@@ -280,8 +287,8 @@ responsive 16:9 sizing. A narrower Firefox ESR 140.15 WebDriver BiDi gate indepe
 production shell's first frame, reported WebGL 2 Radeon backend, trusted-click pointer lock,
 44.1 kHz audio initialization, persistent Shift enable/disable edges, forward traversal with an
 actual footstep, Escape release, delayed pointer-lock reacquisition, and responsive 16:9 sizing.
-It also loads dedicated 1280 by 720 jungle and near-surface-water scenes, requires their live
-LOD/water state, and captures both. All four Firefox frames were visually inspected. A visible
+It also loads dedicated 1280 by 720 jungle, near-surface-water, and 20 m shipwreck scenes, requires
+their live state, and captures each. All Firefox scene frames were visually inspected. A visible
 interactive listening pass, the remaining fixed-scene matrix, long tab suspension, audio-focus
 behaviour, and fullscreen remain open. The automated Firefox path now does one actual second-tab
 activation cycle and requires `visible` to `hidden` to `visible`, resumed animation frames, and
@@ -289,7 +296,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,524,746 bytes, 71.6% below the 8,887,971-byte
+a SHA-256 manifest. The current gzip payload is 2,537,582 bytes, 71.6% below the 8,941,239-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -304,7 +311,7 @@ Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-G
 The complete current scene, independent movement/look gestures, all sensitivity levels, a
 same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
 there. The persistence-qualified run also requires a touch sensitivity change to survive the cold
-relaunch. The default arm64-v8a APK is 18,861,028 bytes, contains a 16,050,744-byte stripped
+relaunch. The default arm64-v8a APK is 18,896,940 bytes, contains a 16,086,656-byte stripped
 `libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
 emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See

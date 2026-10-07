@@ -86,8 +86,18 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,757,052-byte APK with a
-15,946,768-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The current sources also include the original 20.0 m by 5.2 m broken wooden shipwreck, its twelve
+beachward debris pieces, and its single portable 1,924-triangle draw. Two dedicated x86_64
+shipwreck runs on the API 35 `Medium_Phone` AVD used KVM 12 and host AMD Radeon 780M gfxstream,
+required both exact shipwreck markers, and produced clean matching GLES 3 frames with and without
+the debug overlay. The inspected overlay-free 2400 by 1080 frame retains the complete broken hull,
+exposed ribs, partial deck, cabin, snapped mast, debris, ocean overlay, and translucent controls.
+The recorded startup split was 2170.241 ms world, 4.046 ms framework, 3916.735 ms content,
+31.262 ms pre-draw, and 82.595 ms first draw, for 6204.880 ms total. No fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic appeared. This qualifies functional translated-host rendering,
+not physical-device performance or thermal behaviour.
+The latest single-ABI arm64 debug qualification build produced an 18,896,940-byte APK with a
+16,086,656-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -545,7 +555,9 @@ clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3
 logical viewport, first-draw timing, biome-grass, near-seed-head, near-bird-feather, and sunward-
 ocean-crest plus grazing-reflection diagnostics, the selected near-grass geometric V-fold, the
 all-variants tapered driftwood branches, their body-ring-matched end caps, and the near-rock
-crown/facet plus stone-tint diagnostics, rejects
+crown/facet plus stone-tint diagnostics. Every strict run also requires the exact 20 m broken
+ship/12-debris construction marker and the renderer marker proving the exposed-rib/partial-deck/
+snapped-mast path. The helper rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 
 ```bash
@@ -671,11 +683,11 @@ For a fixed debug QA camera, pass a comma-separated native argument array. The a
 this extra in non-debuggable packages:
 
 ```bash
-ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,reef,--debug-overlay \
+ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,shipwreck,--debug-overlay \
   tools/run_android_runtime_smoke.sh \
   "$ANDROID_SDK_ROOT/platform-tools/adb" \
   android/app/build/outputs/apk/debug/app-debug.apk \
-  build/android-runtime-smoke-reef
+    build/android-runtime-smoke-shipwreck
 ```
 
 ## Dependency overrides

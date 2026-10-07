@@ -80,6 +80,7 @@ namespace island
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
+            case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
             }
@@ -112,6 +113,7 @@ namespace island
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
+          shipwreckLayout_(terrain_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
           renderCameraPosition_(cameraPosition_),
           smokeTest_(smokeTest),
@@ -127,13 +129,16 @@ namespace island
         std::vector<CircularObstacle> worldObstacles;
         worldObstacles.reserve(vegetationLayout_.Obstacles().size()
                                + jungleLayout_.Obstacles().size()
-                               + naturalPropLayout_.Obstacles().size());
+                               + naturalPropLayout_.Obstacles().size()
+                               + shipwreckLayout_.Obstacles().size());
         worldObstacles.insert(worldObstacles.end(), vegetationLayout_.Obstacles().begin(),
                               vegetationLayout_.Obstacles().end());
         worldObstacles.insert(worldObstacles.end(), jungleLayout_.Obstacles().begin(),
                               jungleLayout_.Obstacles().end());
         worldObstacles.insert(worldObstacles.end(), naturalPropLayout_.Obstacles().begin(),
                               naturalPropLayout_.Obstacles().end());
+        worldObstacles.insert(worldObstacles.end(), shipwreckLayout_.Obstacles().begin(),
+                              shipwreckLayout_.Obstacles().end());
         worldCollisionGrid_.Reset(worldObstacles);
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
@@ -520,6 +525,23 @@ namespace island
                 - cameraPosition_;
             yaw_ = std::atan2(toMonkey.X, toMonkey.Z);
             pitch_ = std::atan2(toMonkey.Y, std::hypot(toMonkey.X, toMonkey.Z));
+        } else if (viewpoint_ == FixedViewpoint::ShipwreckDetail) {
+            const ShipwreckPlacement& ship = shipwreckLayout_.Ship();
+            const float radius = std::hypot(ship.x, ship.z);
+            const float outwardX = ship.x / radius;
+            const float outwardZ = ship.z / radius;
+            const float tangentX = -outwardZ;
+            const float tangentZ = outwardX;
+            const float cameraX = ship.x - outwardX * 17.5f + tangentX * 4.8f;
+            const float cameraZ = ship.z - outwardZ * 17.5f + tangentZ * 4.8f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            const Vector3 toShip = Vector3(ship.x, 1.2f, ship.z) - cameraPosition_;
+            yaw_ = std::atan2(toShip.X, toShip.Z);
+            pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
+            std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
+                         "from the beach\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -651,6 +673,7 @@ namespace island
             device, terrain_, grassLayout_, qualityProfile_.grassMaximumDistance);
         jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
+        shipwreckRenderer_ = std::make_unique<ShipwreckRenderer>(device, shipwreckLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(
             device, terrain_, qualityProfile_.oceanQuadsPerAxis);
@@ -1352,6 +1375,7 @@ namespace island
         return 2 + terrainRenderer_->DrawCallCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
+            + shipwreckRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
             + contactShadowRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
@@ -1686,6 +1710,7 @@ namespace island
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         naturalPropRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        shipwreckRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
 
         jungleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                               timeSeconds);
@@ -2027,7 +2052,10 @@ namespace island
                       << naturalPropRenderer_->VisibleFallenFrondCount() << '/'
                       << naturalPropRenderer_->TotalFallenFrondCount()
                       << " fallen fronds, "
-                      << naturalPropRenderer_->DrawCallCount() << " draws; grass "
+                      << naturalPropRenderer_->DrawCallCount() << " draws; shipwreck "
+                      << (shipwreckRenderer_->IsVisible() ? "visible" : "culled") << ", "
+                      << shipwreckRenderer_->DebrisCount() << " debris, "
+                      << shipwreckRenderer_->DrawCallCount() << " draw; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "

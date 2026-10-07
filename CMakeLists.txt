@@ -48,6 +48,7 @@ add_library(island_core STATIC
     game/src/PlayerMotion.cpp
     game/src/ProceduralMeshValidation.cpp
     game/src/SharkPatrol.cpp
+    game/src/ShipwreckLayout.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
     game/src/UserSettings.cpp
@@ -261,6 +262,7 @@ if(ISLAND_BUILD_GAME)
         game/src/PalmRenderer.cpp
         game/src/RuntimeDiagnostics.cpp
         game/src/SharkRenderer.cpp
+        game/src/ShipwreckRenderer.cpp
         game/src/ShorelineRenderer.cpp
         game/src/SkyRenderer.cpp
         game/src/Soundscape.cpp
@@ -551,6 +553,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "calm monkeys use bounded skeletal head attention.*monkey crossfades 0/[1-9][0-9]* active/completed")
+        add_test(NAME IslandGameShipwreckCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-shipwreck-capture.ppm"
+                    --viewpoint shipwreck)
+        set_tests_properties(IslandGameShipwreckCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "shipwreck 20m broken hull, 12 debris pieces.*shipwreck visible, 12 debris, 1 draw")
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

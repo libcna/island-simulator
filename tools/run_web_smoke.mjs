@@ -1029,6 +1029,42 @@ try {
     && !reefResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=shipwreck`,
+  }, visualSessionId);
+  let shipwreckResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    shipwreckResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (shipwreckResult.output?.includes("island-simulator: terrain")
+        || shipwreckResult.error) break;
+  }
+  await delay(1000);
+  const completedShipwreckEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  shipwreckResult = JSON.parse(completedShipwreckEvaluation.result.value ?? "{}");
+
+  const shipwreckScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-shipwreck.png", true);
+  const shipwreckPassed = shipwreckResult.output?.includes(
+      "island-simulator: renderer WEBGL2")
+    && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch")
+    && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast")
+    && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck QA camera views the 20m wreck from the beach")
+    && shipwreckResult.output?.includes("shipwreck visible, 12 debris, 1 draw")
+    && shipwreckResult.output?.includes(
+      "island-simulator: ocean portable custom shader")
+    && !shipwreckResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=water`,
   }, visualSessionId);
   let waterResult = {};
@@ -1657,7 +1693,7 @@ try {
     && visualPassed && beachPassed && grassPassed
     && groundPassed && litterPassed
     && palmPassed && junglePassed && eastClearingPassed && westClearingPassed
-    && propPassed && driftwoodPassed && reefPassed
+    && propPassed && driftwoodPassed && reefPassed && shipwreckPassed
     && waterPassed && currentPassed
     && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
@@ -1759,6 +1795,11 @@ try {
       output: reefResult.output ?? "",
       error: reefResult.error ?? "",
     },
+    shipwreck: {
+      passed: shipwreckPassed,
+      output: shipwreckResult.output ?? "",
+      error: shipwreckResult.error ?? "",
+    },
     water: {
       passed: waterPassed,
       output: waterResult.output ?? "",
@@ -1840,6 +1881,7 @@ try {
     propScreenshot: path.basename(propScreenshotPath),
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
     reefScreenshot: path.basename(reefScreenshotPath),
+    shipwreckScreenshot: path.basename(shipwreckScreenshotPath),
     waterScreenshot: path.basename(waterScreenshotPath),
     currentScreenshot: path.basename(currentScreenshotPath),
     distantScreenshot: path.basename(distantScreenshotPath),

@@ -7,6 +7,7 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
@@ -92,19 +93,23 @@ namespace
         island::VegetationLayout palms{terrain};
         island::JungleLayout jungle{terrain};
         island::NaturalPropLayout props{terrain, palms, jungle};
+        island::ShipwreckLayout shipwreck{terrain};
         std::vector<island::CircularObstacle> worldObstacles;
         island::WorldCollisionGrid collisionGrid;
 
         WorldSnapshot()
         {
             worldObstacles.reserve(palms.Obstacles().size() + jungle.Obstacles().size()
-                                   + props.Obstacles().size());
+                                   + props.Obstacles().size()
+                                   + shipwreck.Obstacles().size());
             worldObstacles.insert(worldObstacles.end(), palms.Obstacles().begin(),
                                   palms.Obstacles().end());
             worldObstacles.insert(worldObstacles.end(), jungle.Obstacles().begin(),
                                   jungle.Obstacles().end());
             worldObstacles.insert(worldObstacles.end(), props.Obstacles().begin(),
                                   props.Obstacles().end());
+            worldObstacles.insert(worldObstacles.end(), shipwreck.Obstacles().begin(),
+                                  shipwreck.Obstacles().end());
             collisionGrid.Reset(worldObstacles);
             monkeys.SetObstacles(collisionGrid.Obstacles());
         }
@@ -220,6 +225,23 @@ namespace
         }
         HashScaledPlacements(hash, std::span(world.props.BeachDetails()));
         HashScaledPlacements(hash, std::span(world.props.FallenFronds()));
+
+        const island::ShipwreckPlacement& ship = world.shipwreck.Ship();
+        HashPosition(hash, ship.x, ship.y, ship.z);
+        hash.AddFloat(ship.yawRadians);
+        hash.AddFloat(ship.heelRadians);
+        hash.AddFloat(ship.pitchRadians);
+        hash.AddFloat(ship.length);
+        hash.AddFloat(ship.beam);
+        hash.AddFloat(ship.hullHeight);
+        hash.AddSize(world.shipwreck.Debris().size());
+        for (const island::ShipwreckDebrisPlacement& debris : world.shipwreck.Debris()) {
+            HashPosition(hash, debris.x, debris.y, debris.z);
+            hash.AddFloat(debris.yawRadians);
+            hash.AddFloat(debris.length);
+            hash.AddFloat(debris.width);
+            hash.AddEnum(debris.kind);
+        }
 
         hash.AddSize(world.distantScenery.Islets().size());
         for (const island::DistantIsletPlacement& islet : world.distantScenery.Islets()) {
@@ -370,6 +392,9 @@ namespace
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
             && world.monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount
+            && world.shipwreck.Debris().size() == island::ShipwreckLayout::DebrisCount
+            && world.shipwreck.Obstacles().size()
+                == island::ShipwreckLayout::CollisionProxyCount
             && world.distantScenery.Islets().size()
                 == island::DistantSceneryLayout::IsletCount;
         const bool finitePlacements = ScaledPlacementsAreFinite(
@@ -405,6 +430,21 @@ namespace
                 && AllFinite(wood.x, wood.y, wood.z, wood.yawRadians,
                              wood.length, wood.radius)
                 && wood.length > 0.0f && wood.radius > 0.0f;
+        }
+        const island::ShipwreckPlacement& ship = world.shipwreck.Ship();
+        finiteSpecializedData = finiteSpecializedData
+            && AllFinite(ship.x, ship.y, ship.z, ship.yawRadians, ship.heelRadians,
+                         ship.pitchRadians, ship.length, ship.beam, ship.hullHeight)
+            && ship.length == island::ShipwreckLayout::ShipLength
+            && ship.beam == island::ShipwreckLayout::ShipBeam
+            && ship.hullHeight == island::ShipwreckLayout::ShipHullHeight
+            && world.terrain.SignedShoreDistance(ship.x, ship.z) < -3.0f
+            && world.terrain.SignedShoreDistance(ship.x, ship.z) > -12.0f;
+        for (const island::ShipwreckDebrisPlacement& debris : world.shipwreck.Debris()) {
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(debris.x, debris.y, debris.z, debris.yawRadians,
+                             debris.length, debris.width)
+                && debris.length > 0.0f && debris.width > 0.0f;
         }
         for (const island::CircularObstacle& obstacle : world.worldObstacles) {
             finiteSpecializedData = finiteSpecializedData
@@ -514,7 +554,18 @@ namespace
                << "    \"beachDetailClusters\": "
                << world.props.BeachDetails().size() << ",\n"
                << "    \"fallenFronds\": " << world.props.FallenFronds().size() << ",\n"
-               << "    \"distantIslets\": " << world.distantScenery.Islets().size() << "\n"
+               << "    \"distantIslets\": " << world.distantScenery.Islets().size() << ",\n"
+               << "    \"shipwrecks\": 1,\n"
+               << "    \"shipwreckDebris\": " << world.shipwreck.Debris().size() << "\n"
+               << "  },\n"
+               << "  \"shipwreck\": {\n"
+               << "    \"lengthMeters\": " << world.shipwreck.Ship().length << ",\n"
+               << "    \"beamMeters\": " << world.shipwreck.Ship().beam << ",\n"
+               << "    \"signedShoreDistanceMeters\": "
+               << world.terrain.SignedShoreDistance(world.shipwreck.Ship().x,
+                                                     world.shipwreck.Ship().z) << ",\n"
+               << "    \"collisionProxies\": "
+               << world.shipwreck.Obstacles().size() << "\n"
                << "  },\n"
                << "  \"collision\": {\n"
                << "    \"staticObstacles\": " << world.worldObstacles.size() << ",\n"

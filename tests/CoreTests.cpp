@@ -22,6 +22,7 @@
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
@@ -2047,15 +2048,81 @@ int main()
     const island::VegetationLayout vegetation(terrain);
     const island::JungleLayout jungle(terrain);
     const island::NaturalPropLayout props(terrain, vegetation, jungle);
+    const island::ShipwreckLayout shipwreck(terrain);
+    const island::ShipwreckLayout repeatedShipwreck(terrain);
+    const island::ShipwreckPlacement& ship = shipwreck.Ship();
+    const island::ShipwreckPlacement& repeatedShip = repeatedShipwreck.Ship();
+    Check(ship.length == 20.0f && ship.beam == 5.2f && ship.hullHeight == 4.4f,
+          "shipwreck retains the authored large-ship dimensions");
+    Check(ship.x == repeatedShip.x && ship.y == repeatedShip.y
+              && ship.z == repeatedShip.z && ship.yawRadians == repeatedShip.yawRadians
+              && ship.heelRadians == repeatedShip.heelRadians
+              && ship.pitchRadians == repeatedShip.pitchRadians,
+          "shipwreck placement is bitwise deterministic");
+    Check(std::isfinite(ship.x) && std::isfinite(ship.y) && std::isfinite(ship.z)
+              && std::isfinite(ship.yawRadians) && std::isfinite(ship.heelRadians)
+              && std::isfinite(ship.pitchRadians),
+          "shipwreck placement remains finite");
+    const float shipShoreDistance = terrain.SignedShoreDistance(ship.x, ship.z);
+    Check(shipShoreDistance < -3.0f && shipShoreDistance > -12.0f,
+          "large shipwreck is grounded in accessible beach shallows");
+    Check(shipwreck.Debris().size() == island::ShipwreckLayout::DebrisCount
+              && shipwreck.Obstacles().size()
+                  == island::ShipwreckLayout::CollisionProxyCount,
+          "shipwreck exposes its complete bounded debris and collision inventory");
+    std::array<int, 3> shipwreckDebrisKinds{};
+    bool shipwreckDebrisReachesWater = false;
+    bool shipwreckDebrisReachesBeach = false;
+    for (std::size_t index = 0; index < shipwreck.Debris().size(); ++index) {
+        const island::ShipwreckDebrisPlacement& debris = shipwreck.Debris()[index];
+        const island::ShipwreckDebrisPlacement& repeated = repeatedShipwreck.Debris()[index];
+        Check(debris.x == repeated.x && debris.y == repeated.y && debris.z == repeated.z
+                  && debris.yawRadians == repeated.yawRadians
+                  && debris.length == repeated.length && debris.width == repeated.width
+                  && debris.kind == repeated.kind,
+              "shipwreck debris placement is bitwise deterministic");
+        Check(std::isfinite(debris.x) && std::isfinite(debris.y)
+                  && std::isfinite(debris.z) && std::isfinite(debris.yawRadians)
+                  && debris.length >= 2.0f && debris.length <= 5.6f
+                  && debris.width >= 0.20f && debris.width <= 0.50f,
+              "shipwreck debris remains finite and visibly substantial");
+        const auto kind = static_cast<std::size_t>(debris.kind);
+        Check(kind < shipwreckDebrisKinds.size(),
+              "shipwreck debris kind remains in renderer range");
+        if (kind < shipwreckDebrisKinds.size()) ++shipwreckDebrisKinds[kind];
+        const float shoreDistance = terrain.SignedShoreDistance(debris.x, debris.z);
+        shipwreckDebrisReachesWater = shipwreckDebrisReachesWater || shoreDistance < -1.0f;
+        shipwreckDebrisReachesBeach = shipwreckDebrisReachesBeach || shoreDistance > 2.0f;
+        Check(std::hypot(debris.x - ship.x, debris.z - ship.z) < 30.0f,
+              "shipwreck debris stays in a coherent beach-directed trail");
+    }
+    Check(shipwreckDebrisKinds[0] == 9 && shipwreckDebrisKinds[1] == 2
+              && shipwreckDebrisKinds[2] == 1,
+          "shipwreck debris mixes planks, major hull fragments, and one spar");
+    Check(shipwreckDebrisReachesWater && shipwreckDebrisReachesBeach,
+          "shipwreck debris trail connects the shallow wreck to the beach");
+    for (std::size_t index = 0; index < shipwreck.Obstacles().size(); ++index) {
+        const island::CircularObstacle& obstacle = shipwreck.Obstacles()[index];
+        const island::CircularObstacle& repeated = repeatedShipwreck.Obstacles()[index];
+        Check(obstacle.x == repeated.x && obstacle.z == repeated.z
+                  && obstacle.radius == repeated.radius,
+              "shipwreck collision proxies are bitwise deterministic");
+        Check(std::isfinite(obstacle.x) && std::isfinite(obstacle.z)
+                  && obstacle.radius >= 1.3f && obstacle.radius <= 1.8f
+                  && std::hypot(obstacle.x - ship.x, obstacle.z - ship.z) <= 8.1f,
+              "shipwreck collision proxies cover only the major grounded hull");
+    }
     std::vector<island::CircularObstacle> worldObstacles;
     worldObstacles.reserve(vegetation.Obstacles().size() + jungle.Obstacles().size()
-                           + props.Obstacles().size());
+                           + props.Obstacles().size() + shipwreck.Obstacles().size());
     worldObstacles.insert(worldObstacles.end(), vegetation.Obstacles().begin(),
                           vegetation.Obstacles().end());
     worldObstacles.insert(worldObstacles.end(), jungle.Obstacles().begin(),
                           jungle.Obstacles().end());
     worldObstacles.insert(worldObstacles.end(), props.Obstacles().begin(),
                           props.Obstacles().end());
+    worldObstacles.insert(worldObstacles.end(), shipwreck.Obstacles().begin(),
+                          shipwreck.Obstacles().end());
     const island::WorldCollisionGrid worldCollisionGrid(worldObstacles);
     Check(worldCollisionGrid.Obstacles().size() == worldObstacles.size()
               && worldCollisionGrid.CellCount() > 0U,

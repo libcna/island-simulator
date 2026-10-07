@@ -74,6 +74,14 @@
       ]
     },
     {
+      "name": "large-shipwreck",
+      "licenseRecord": "Procedural large shipwreck landmark",
+      "sources": [
+        "game/src/ShipwreckLayout.cpp",
+        "game/src/ShipwreckRenderer.cpp"
+      ]
+    },
+    {
       "name": "fixed-sky",
       "licenseRecord": "Procedural fixed sky",
       "sources": [

@@ -80,10 +80,11 @@ AddressSanitizer or UndefinedBehaviorSanitizer finding was emitted. The 47 MiB `
 was removed after the pass because it is fully reproducible from the preset.
 
 The 2026-10-07 `97783d1e090c` CNA `next` refresh compiles and links the selected OpenGL 3.3
-framework and game. The complete private-display suite passes 42/42, selects CNA `OPENGL33`,
+framework and game. The complete private-display suite passes 43/43, selects CNA `OPENGL33`,
 compiles every current scene shader, exercises all deterministic views, reports a 1280 by 720
 logical backbuffer, and includes actual simultaneous movement/mouse input plus persistent Shift
-run/walk toggling.
+run/walk toggling. The added test is a dedicated beach-side shipwreck capture that requires the
+exact 20 m broken hull, 12 debris pieces, and one visible draw.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 
@@ -115,10 +116,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 11,986,092 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,071,978 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-4,995,503-byte archive with SHA-256
-`f6009f1c9c0c5b0f7734c0a3430001a89eb3de55c482adb7f27ac63ee6752262`.
+5,024,595-byte archive with SHA-256
+`0ad6f6d50bcaacf147f7ea25c305839dca6ca2386545d707646adbb36bdd918d`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -141,6 +142,9 @@ compatibility with every Linux distribution or GPU driver.
 The current settings-enabled package repeated this extraction/launch gate, required the full Linux
 profile, retained the 25,921-vertex/51,200-triangle ocean, and completed first draw in 1058.594 ms
 total. This one-run value is functional evidence, not a startup-performance regression claim.
+The later shipwreck package repeated the unrelated-working-directory gate with
+`--viewpoint shipwreck`, selected `OPENGL33`, rendered four frames with the landmark visible, and
+exited cleanly in approximately 400 ms total.
 
 ## Tests
 

@@ -4,7 +4,7 @@
 
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer
+overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant/shipwreck rendering, first-click pointer
 lock, canvas focus, WASD/arrow traversal, Shift run/walk toggling, simultaneous movement/relative
 mouse look, the B camera-motion opt-out, F1 input, pointer release/reacquisition, and responsive
 16:9 presentation. The Chrome gate also restarts the production runtime on the same origin and
@@ -21,7 +21,7 @@ positional-source markers.
 Audible output on a visible hardware browser, long tab suspension/audio-focus recovery,
 hardware-GPU performance, and extended play are not yet validated. Firefox ESR 140.15 now provides
 a narrower independent second-engine gate for the production first frame, essential input/audio
-contract, and dedicated live jungle plus near-surface-water scenes; it does not duplicate the
+contract, and dedicated live jungle, near-surface-water, plus shipwreck scenes; it does not duplicate the
 complete Chromium scene matrix.
 The F1 panel exposes the same authoritative seed rows as desktop. F4 attempts to copy their stable
 text report, but browser clipboard permission and user-gesture policy can prevent immediate
@@ -54,9 +54,11 @@ also require the shared irregular-body/end-cap-ring diagnostic.
 Both clearing cameras also require the shared five-rock/two-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
-clipboard readback on its focused localhost canvas. All 23 reported lifecycle, deployment,
+clipboard readback on its focused localhost canvas. All 24 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,621,912 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,674,331 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+12-debris, one-draw diagnostics and its original-resolution frame was inspected. The independent
+Firefox ESR gate also requires and captures that live scene. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -120,7 +122,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,887,971 bytes uncompressed and 2,524,746 bytes through gzip, a 71.6% transfer reduction. These
+8,941,239 bytes uncompressed and 2,537,582 bytes through gzip, a 71.6% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,850 bytes (59,288 gzip), and WebAssembly is 8,674,331
+bytes (2,477,150 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

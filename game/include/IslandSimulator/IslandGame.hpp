@@ -38,6 +38,8 @@
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/SharkRenderer.hpp"
+#include "IslandSimulator/ShipwreckLayout.hpp"
+#include "IslandSimulator/ShipwreckRenderer.hpp"
 #include "IslandSimulator/ShorelineRenderer.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/Soundscape.hpp"
@@ -86,6 +88,7 @@ namespace island
         FishDetail,
         SharkDetail,
         MonkeyDetail,
+        ShipwreckDetail,
         BenchmarkTraversal
     };
 
@@ -181,6 +184,7 @@ namespace island
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
         NaturalPropLayout naturalPropLayout_;
+        ShipwreckLayout shipwreckLayout_;
         WorldCollisionGrid worldCollisionGrid_;
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
         PlayerMotion playerMotion_;
@@ -213,6 +217,7 @@ namespace island
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
+        std::unique_ptr<ShipwreckRenderer> shipwreckRenderer_;
         std::unique_ptr<ShorelineRenderer> shorelineRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;
