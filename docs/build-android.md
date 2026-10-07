@@ -80,13 +80,14 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,730,692-byte APK with a
-15,920,408-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,731,556-byte APK with a
+15,921,272-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
-faceted near-palm root wedges, irregular near-canopy buttress roots, reused crossing-wave ocean
+faceted near-palm root wedges, irregular near-canopy buttress roots, transform-derived green-only
+jungle foliage variation, reused crossing-wave ocean
 colour plus shallow-ridge light and short sunward crests, and restrained near-monkey crown/cheek fur tufts with
 bone-following fingers/toes, the transient hardware-keyboard run/walk
 confirmation, reduced CPU-lit fish/shark
@@ -351,6 +352,14 @@ draw completed in 1439.657 ms total. Both runtime gates now require exactly 1280
 accepting a missing or inferred logical resolution. No fatal, shader-compilation, or
 `GL_INVALID_OPERATION` diagnostic appeared. This validates resolution accounting and functional
 presentation on gfxstream, not sustained performance on a physical mobile GPU.
+
+A current fixed-jungle launch after adding transform-derived foliage tint passed the strict GLES
+3 plus audio gate and required the exact platform-log diagnostic. The inspected 2400 by 1080 frame
+retains all four jungle layers, unchanged brown trunks, the 1280 by 720 logical viewport, and clean
+translucent touch controls. It completed first draw in 1586.194 ms total (487.110 ms world, 1.601
+ms framework, 1035.035 ms content, 18.751 ms pre-draw, and 43.697 ms first draw) without a fatal,
+shader, or `GL_INVALID_OPERATION` diagnostic. The emulator was stopped cleanly and the default
+arm64-only package restored; this is functional gfxstream evidence, not a physical-GPU cost claim.
 
 SurfaceFlinger presentation samples at the same initial scene improved after terrain visible-cell
 run batching from 40.903 ms mean (24.45 frames/s, 71 of 126 intervals over 40 ms) to 34.163 and

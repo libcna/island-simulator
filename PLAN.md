@@ -419,18 +419,21 @@ Dependencies: stable terrain/shore queries and representative performance instru
   tiers. All four jungle layers now enforce range and near/far LOD per instance after conservative
   cell rejection. The shared portable shader now derives
   two-sided geometric facet light from the fixed sun for every jungle tier without another vertex
-  stream or draw. Near rocks now break their former flat crown line through bounded positions on
-  the existing rings/cap and derive matching fixed-sun facet light without another normal stream,
-  vertex, triangle, or draw; further floor-plant/bush material diversity and broader natural
-  beach-prop variety remain.
+  stream or draw. It also derives a stable green-only tint from each existing instance transform,
+  reducing repeated foliage colour while preserving bark and near/far LOD identity without a new
+  instance field, buffer, texture, or draw. Near rocks now break their former flat crown line
+  through bounded positions on the existing rings/cap and derive matching fixed-sun facet light
+  without another normal stream, vertex, triangle, or draw; further floor-plant/bush material
+  diversity and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
   placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
   weighted, and reserves a winding primary path, two clearings, and spawn; final biome masks and
   prop separation remain open.
 - [~] Add subtle coherent breeze phases without storm-scale motion. Palm fronds, grass, canopy
-  crowns, understory leaves, low bushes, and forest-floor plants use bounded weighted motion on OpenGL 3.3 and WebGL 2;
-  Android GLES 3 runtime validation of the expanded jungle shader remains open.
+  crowns, understory leaves, low bushes, and forest-floor plants use bounded weighted motion on
+  OpenGL 3.3 and WebGL 2; the current transform-tint-expanded shader also compiles and renders in a
+  KVM/gfxstream GLES 3 jungle launch. Physical-device wind appearance and cost remain open.
 - [~] Ensure collision is applied only where visually necessary; avoid a forest of snag hazards.
   One radius-matched circular proxy is active per palm and canopy trunk; substantial land rocks,
   emergent reef outcrops, and fallen logs are solid, while fronds, crowns, understory, ground
@@ -731,7 +734,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,787,605 bytes uncompressed and 2,491,600 bytes through
+  The current Release package is 8,788,640 bytes uncompressed and 2,491,885 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -4991,10 +4994,10 @@ Work next, in order:
   WebDriver BiDi endpoint; Firefox is capped to CPU cores 0--7. Bounded cleanup closes the session,
   terminates both child processes, and removes the profile on success or failure. `ISLAND_FIREFOX`
   supports installations named `firefox` rather than `firefox-esr`.
-- Five clean Firefox ESR 140.15 runs passed on current source. The gate requires `WEBGL2`, the 1280
+- Six clean Firefox ESR 140.15 runs passed on current source. The gate requires `WEBGL2`, the 1280
   by 720 logical viewport, first-draw/visible-scene diagnostics and current clearing/ocean shader
   paths. Firefox reported `WebGL 2.0` on a `Radeon R9 200 Series, or similar` backend; first draw
-  completed in 299--360 ms total across the five tool runs. These are functional local-load
+  completed in 299--360 ms total across the six tool runs. These are functional local-load
   values, not network, sustained-frame, or portable hardware benchmarks.
 - The trusted production-canvas click acquired pointer lock and initialized the full 44.1 kHz
   audio resource path. A released Shift edge selected persistent 8.0 m/s running, forward movement
@@ -5017,7 +5020,7 @@ Work next, in order:
   1000 by 600 browser viewport retains the 1280 by 720 render backing store and presents a 1000 by
   563 client canvas, preserving 16:9 without overflow or distortion.
 - Firefox released pointer lock on Escape, reacquired it from a delayed trusted click without a
-  reload, and released the reacquired lock on a second Escape. The fifth clean current-source run
+  reload, and released the reacquired lock on a second Escape. The sixth clean current-source run
   passes every earlier renderer, audio, persistent-Shift, traversal, footstep, and screenshot gate
   plus these new assertions. Fullscreen, real tab suspension/resume, visible listening, sustained
   frame pacing, and the complete second-engine scene matrix remain explicitly unqualified.
@@ -5033,6 +5036,35 @@ Work next, in order:
   original Android-only project file, and zero external files. The deterministic Web packaging
   test passes and still requires exactly the three deployable artifacts with integrity and gzip
   round-trip coverage. No runtime, dependency, or build output changed.
+
+### 2026-10-07 — Transform-derived jungle foliage tint
+
+- A current jungle/ground/clearing capture review found that the four geometry families still
+  shared overly uniform greens across repeated instances. The portable jungle vertex shader now
+  recombines four scale/yaw coefficients from each existing instance transform into a stable
+  bounded tint seed. A green-only mask preserves brown bark, while the shared transform preserves
+  colour identity across near/far LOD. Placement, collision, geometry, instance stride, buffers,
+  textures, culling, populations, and draw submissions are unchanged.
+- Original-resolution Chrome/WebGL 2 before/after jungle, ground, and east-clearing pairs were
+  inspected. The retained pass is deliberately restrained but visibly breaks up repeated foliage
+  colour without spatial striping, bark contamination, or composition changes. The complete
+  Chrome 152/SwiftShader suite passes all 22 stages and requires the new diagnostic in lifecycle
+  and jungle gates. The sixth Firefox ESR 140.15 run independently compiled and rendered the same
+  GLSL ES 300 path and passed production sizing, pointer-lock/reacquisition, persistent Shift,
+  traversal/footstep, audio, and double-Escape release checks.
+- A current x86_64 APK passed the strict KVM/host-gfxstream GLES 3 plus audio gate at the fixed
+  jungle camera. Its inspected 2400 by 1080 frame retains all four vegetation layers, unchanged
+  brown trunks, clean translucent touch controls, and the 1280 by 720 logical viewport. First draw
+  completed in 1586.194 ms total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics.
+  This is functional emulator evidence, not a physical-mobile vertex-cost baseline. The emulator
+  was stopped cleanly.
+- Restored the default arm64-only APK, built/linted it through `/rv/cnaccache`, confirmed only
+  `arm64-v8a`, and verified APK signature scheme v2. WebAssembly is 8,523,762 bytes; the
+  deterministic Web payload is 8,788,640 bytes or 2,491,885 bytes through gzip. The stripped arm64
+  `libmain.so` is 15,921,272 bytes and the APK is 18,731,556 bytes. The changed OpenGL 3.3 object
+  compiles with first-party warnings as errors, but native runtime appearance remains deferred
+  while the operator-visible earlier executable is open. All compilation used two workers or
+  fewer and the shared cache; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

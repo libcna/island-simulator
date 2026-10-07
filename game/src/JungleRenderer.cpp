@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -90,7 +91,17 @@ void main()
 
     mat4 instanceTransform = mat4(aInstance0, aInstance1, aInstance2, aInstance3);
     vec4 world = instanceTransform * vec4(local, 1.0);
-    vColor = aColor.rgb;
+    // Scale and yaw already vary deterministically per placement. Recombine their transform
+    // coefficients into a stable tint seed so neighbouring copies do not share one flat green,
+    // while near/far LODs retain exactly the same instance identity.
+    float tintSeed = fract(abs(aInstance0.x * 1.37 + aInstance0.z * 2.17
+        + aInstance2.x * 3.11 + aInstance2.z * 4.03));
+    float signedTint = tintSeed - 0.5;
+    float foliageMask = smoothstep(0.035, 0.12, aColor.g - aColor.r);
+    vec3 foliageTint = vec3(1.0 + signedTint * 0.10,
+                            1.0 + signedTint * 0.15,
+                            1.0 - signedTint * 0.06);
+    vColor = aColor.rgb * mix(vec3(1.0), foliageTint, foliageMask);
     vWorld = world.xyz;
     vLocal = aPosition;
     gl_Position = uViewProjection * world;
@@ -883,6 +894,10 @@ void main()
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
             std::cout << "island-simulator: jungle near ground plants include upright and split-leaf silhouettes\n";
             std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";
+            constexpr const char* tintDiagnostic =
+                "island-simulator: jungle per-instance foliage tint reuses existing transforms";
+            std::cout << tintDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(tintDiagnostic);
         } else {
             std::cerr << "island-simulator: jungle stock-effect fallback: "
                       << fallbackReason_ << '\n';

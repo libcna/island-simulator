@@ -263,6 +263,8 @@ try {
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
+    && result.output?.includes(
+      "island-simulator: jungle per-instance foliage tint reuses existing transforms")
     && result.output?.includes("island-simulator: birds 24 agents")
     && result.output?.includes(
       "island-simulator: bird flight uses slow radial drift, banking, and intermittent glide")
@@ -693,6 +695,8 @@ try {
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && jungleResult.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
+    && jungleResult.output?.includes(
+      "island-simulator: jungle per-instance foliage tint reuses existing transforms")
     && jungleResult.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && jungleResult.output?.includes(

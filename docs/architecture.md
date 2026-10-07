@@ -396,11 +396,15 @@ plants, 108 bushes, and 162 ground plants in 28 jungle submissions. A portable G
 geometric face normal from world-position derivatives, uses the absolute fixed-sun response for
 two-sided foliage, and adds a small upward fill. A brown-material mask adds local-space
 longitudinal grain and narrow fissures to nearby canopy bark, fading between 38 and 68 m before
-the far tier. This gives the deliberately low-poly crowns and
+the far tier. The vertex stage derives a stable bounded tint from each existing instance
+transform's scale/yaw coefficients and applies it only to green materials. Near/far batches reuse
+the same transform, so colour identity does not pop with LOD; no instance field, buffer, texture,
+placement value, or submission was added. These cues give the deliberately low-poly crowns and
 leaves coherent facet depth without a normal stream, texture, mesh change, or additional
-submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3 and actual
-Chromium/WebGL 2 execute and visually match on the full shader; the current arm64 GLES 3 package
-compiles but has not been rerun on stable Android hardware.
+submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3 compilation,
+actual Chromium/Firefox WebGL 2 execution, and a current KVM/gfxstream GLES 3 jungle launch qualify
+the full shader. A current native runtime image remains deferred while the operator-visible prior
+executable is open.
 
 Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
 the 1.8--9.4 m offshore shelf, 13 mossy fallen logs in the low-slope interior, 31 small

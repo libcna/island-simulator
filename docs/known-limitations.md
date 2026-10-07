@@ -14,7 +14,9 @@ been confirmed so far.
   LOD into a rounded far mesh. Near bushes now layer paired folded pointed leaves over smaller
   lobes while the far tier stays compact. Near forest-floor variants now include an upright
   broadleaf form with visible petioles and a separate five-leaf folded split form. All jungle
-  tiers now choose LOD and maximum distance from each instance after coarse cell rejection. The
+  tiers now choose LOD and maximum distance from each instance after coarse cell rejection. A
+  stable green-only per-instance tint derived from the existing transform adds restrained colour
+  variation across all four layers while retaining the same identity through near/far LOD. The
   fallen fronds now curve their rachis and apply restrained asymmetric sweep, droop, and ageing to
   their existing 28 leaflets. The third near driftwood variant adds a curved three-limb fork
   instead of another simple branch stub,

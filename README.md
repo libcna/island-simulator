@@ -51,6 +51,9 @@ transition to a rounded 208-triangle far mesh instead of switching complete scen
 The shared portable jungle shader reconstructs a two-sided geometric face normal from world-space
 derivatives, so canopy, understory, bush, and ground-plant facets respond coherently to the fixed
 sun without normal buffers, textures, or another draw.
+Its vertex stage also recombines each existing instance transform's scale/yaw coefficients into a
+stable restrained foliage tint. The green-only mask leaves bark unchanged, and the shared transform
+keeps the same tint identity across near/far LOD without another attribute, texture, or draw.
 Nearby low bushes replace their largest smooth lobes with smaller overlapping volume and paired
 folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
 One near forest-floor variant forms six upright broad leaves on visible petioles, while another
@@ -242,7 +245,7 @@ tab background/foreground behaviour, and fullscreen remain open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,491,600 bytes, 71.6% below the 8,787,605-byte
+a SHA-256 manifest. The current gzip payload is 2,491,885 bytes, 71.6% below the 8,788,640-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

@@ -381,7 +381,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "jungle fixed-sun two-sided geometric facet lighting")
+                "jungle per-instance foliage tint reuses existing transforms")
         add_test(NAME IslandGameEastClearingCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-east-clearing.ppm"
                     --viewpoint east)

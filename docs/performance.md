@@ -721,6 +721,20 @@ GPU, recorded 2.6643 ms mean / 3.3668 ms p95 for the 95-submission jungle view a
 before/after cost claim. Two isolated native repeats plus hardware-browser and physical-mobile
 fragment measurements remain required before extending the technique to additional dense layers.
 
+### Transform-derived jungle foliage tint
+
+The jungle vertex shader now recombines four existing scale/yaw matrix coefficients into one
+stable per-instance seed, then applies a bounded green-only colour multiplier. Near/far LODs share
+the same transform, so the tint needs no stored identity and cannot add an LOD colour discontinuity.
+Population, placement, geometry, instance stride, buffers, textures, culling, simulation, and draw
+submissions are unchanged. The retained 1280 by 720 Chrome/WebGL 2 before/after jungle, ground, and
+east-clearing pairs were compared at original resolution; the change breaks up repeated greens
+without tinting brown trunks or altering composition. The complete Chrome suite passes all 22
+stages, Firefox ESR passes its production first-frame/input/audio subset, and a current
+KVM/gfxstream GLES 3 jungle launch compiles the GLSL ES 300 path and requires its exact platform
+diagnostic. These are functional results; isolated vertex cost on a physical mobile GPU remains
+unmeasured.
+
 ### Authored primary-footpath material follow-up
 
 The terrain fragment shader derives a narrow broken-edge dry-earth cue from the same sinusoidal
@@ -1310,8 +1324,8 @@ remain open.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,065 gzip), and WebAssembly is 8,522,727 bytes (2,431,391
-gzip). The complete transfer payload therefore falls from 8,787,605 to 2,491,600 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,060 gzip), and WebAssembly is 8,523,762 bytes (2,431,681
+gzip). The complete transfer payload therefore falls from 8,788,640 to 2,491,885 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
