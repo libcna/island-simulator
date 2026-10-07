@@ -10,8 +10,9 @@ been confirmed so far.
   but the jungle is not final. A first low-bush layer plus rocks, fallen logs, and sparse driftwood
   exist, while small rosette/forest-floor plants, grove-associated fallen palm fronds, and
   near-field shell/pebble/dry-wrack clusters improve close ground contact. Near broadleaf crowns
-  now have separated irregular lobes, visible support branches, pointed edge leaves, and staggered per-tree
-  LOD into a rounded far mesh. Near bushes now layer paired folded pointed leaves over smaller
+  now have separated irregular lobes, visible support branches, pointed edge leaves, sparse leafy
+  hanging lianas on two near variants, and staggered per-tree LOD into a rounded far mesh. Near
+  bushes now layer paired folded pointed leaves over smaller
   lobes while the far tier stays compact. Near forest-floor variants now include an upright
   broadleaf form with visible petioles and a separate five-leaf folded split form. All jungle
   tiers now choose LOD and maximum distance from each instance after coarse cell rejection. A
@@ -172,8 +173,8 @@ been confirmed so far.
   complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a
   same-process hot resume, AAudio pause/resume, and fixed beach, close-grass, jungle, water,
   monkey, and reef views are validated. The six frames were visually compared with the matching
-  WebGL 2 captures through the debug-only intent bridge; newer dedicated bird and palm frames
-  additionally qualify their current silhouette and frond-tint paths. A deterministic reverse
+  WebGL 2 captures through the debug-only intent bridge; newer dedicated bird, palm, frond, prop,
+  and liana-inclusive jungle frames additionally qualify their current natural-detail paths. A deterministic reverse
   movement-zone gesture also crosses the south shoreline, starts the water-transition accent, and
   enters the authoritative swimming state. A combined lifecycle gate also validates same-process
   Home/resume and a force-stop/new-process cold relaunch, including fresh GLES 3 and audio-resource

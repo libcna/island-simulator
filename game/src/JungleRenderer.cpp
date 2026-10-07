@@ -55,6 +55,8 @@ namespace island
         constexpr float BushMaximumDistance = 102.0f;
         constexpr float GroundPlantNearDistance = 30.0f;
         constexpr float GroundPlantMaximumDistance = 72.0f;
+        constexpr const char* CanopyLianaDiagnostic =
+            "island-simulator: selected near canopy variants include hanging leafy lianas";
 
         struct PlantGeometry
         {
@@ -413,6 +415,69 @@ void main()
                 static_cast<std::uint16_t>(base + 3U)});
         }
 
+        void AppendCanopyLiana(PlantGeometry& geometry, const Vector3& anchor,
+                               const int variant, const float directionAngle,
+                               const float length, const float windPhase)
+        {
+            constexpr int Segments = 6;
+            constexpr int Sides = 3;
+            const Vector3 direction(std::cos(directionAngle), 0.0f,
+                                    std::sin(directionAngle));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const auto centreAt = [&](const float t) {
+                const float outward = std::sin(t * std::numbers::pi_v<float>) * 0.16f
+                    + t * t * 0.09f;
+                const float curl = std::sin(
+                    t * 2.0f * std::numbers::pi_v<float>
+                    + static_cast<float>(variant) * 0.71f) * 0.055f;
+                return anchor - Vector3::Up * (length * t)
+                    + direction * outward + side * curl;
+            };
+
+            const Color vineColor(57 + variant * 2, 78 + variant * 3, 34, 255);
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int segment = 0; segment <= Segments; ++segment) {
+                const float t = static_cast<float>(segment) / static_cast<float>(Segments);
+                const Vector3 centre = centreAt(t);
+                const float radius = 0.038f - t * 0.016f;
+                const float windWeight = 0.58f + t * 0.32f;
+                for (int sideIndex = 0; sideIndex < Sides; ++sideIndex) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(sideIndex) / static_cast<float>(Sides);
+                    const Vector3 outward(std::cos(angle) * radius, 0.0f,
+                                          std::sin(angle) * radius);
+                    geometry.vertices.emplace_back(
+                        centre + outward,
+                        ShadeColor(vineColor, 0.80f + 0.10f * static_cast<float>(sideIndex)),
+                        Vector2(windWeight, windPhase));
+                }
+            }
+            for (int segment = 0; segment < Segments; ++segment) {
+                for (int sideIndex = 0; sideIndex < Sides; ++sideIndex) {
+                    const int next = (sideIndex + 1) % Sides;
+                    const auto upper = static_cast<std::uint16_t>(
+                        base + segment * Sides + sideIndex);
+                    const auto upperNext = static_cast<std::uint16_t>(
+                        base + segment * Sides + next);
+                    const auto lower = static_cast<std::uint16_t>(
+                        base + (segment + 1) * Sides + sideIndex);
+                    const auto lowerNext = static_cast<std::uint16_t>(
+                        base + (segment + 1) * Sides + next);
+                    geometry.indices.insert(geometry.indices.end(),
+                                            {upper, lower, upperNext,
+                                             upperNext, lower, lowerNext});
+                }
+            }
+
+            const Color leafColor(42, 112 + variant * 4, 47, 255);
+            AppendPointedLeaf(
+                geometry, centreAt(0.43f), directionAngle + 1.06f,
+                0.58f, 0.16f, 0.25f, ShadeColor(leafColor, 1.04f), windPhase, 0.075f);
+            AppendPointedLeaf(
+                geometry, centreAt(0.70f), directionAngle - 1.18f,
+                0.49f, 0.14f, 0.30f, ShadeColor(leafColor, 0.91f), windPhase, 0.065f);
+        }
+
         [[nodiscard]] PlantGeometry CreateCanopyGeometry(const int variant, const bool farMesh)
         {
             PlantGeometry geometry;
@@ -478,6 +543,16 @@ void main()
                         cluster % 2 == 0 ? ShadeColor(leafBase, 1.03f)
                                          : ShadeColor(leafBase, 0.91f),
                         phase);
+                }
+                const int lianaCluster = variant == 1 ? 5 : 2;
+                if (!farMesh && (variant == 1 || variant == 3)
+                    && cluster == lianaCluster) {
+                    AppendCanopyLiana(
+                        geometry,
+                        centre - Vector3::Up
+                            * (1.04f + 0.08f * static_cast<float>(variant)),
+                        variant, angle + (variant == 1 ? 0.34f : -0.41f),
+                        2.45f + 0.24f * static_cast<float>(variant), phase);
                 }
             }
             return geometry;
@@ -942,6 +1017,8 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
+            std::cout << CanopyLianaDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(CanopyLianaDiagnostic);
             std::cout << "island-simulator: jungle near canopy irregular buttress roots ground trunk bases\n";
             std::cout << "island-simulator: jungle near canopy procedural bark fissures\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";

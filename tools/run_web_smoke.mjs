@@ -302,6 +302,8 @@ try {
     && result.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && result.output?.includes(
+      "island-simulator: selected near canopy variants include hanging leafy lianas")
+    && result.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && result.output?.includes(
       "island-simulator: jungle near canopy procedural bark fissures")
@@ -767,6 +769,8 @@ try {
       "island-simulator: jungle per-instance foliage tint reuses existing transforms")
     && jungleResult.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
+    && jungleResult.output?.includes(
+      "island-simulator: selected near canopy variants include hanging leafy lianas")
     && jungleResult.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
     && jungleResult.output?.includes(

@@ -45,7 +45,8 @@ can instead launch the emulator or validation command through `sg kvm`.
 The current arm64 package includes the portable procedural sand/soil terrain material with
 near-field interior microvariation, sparse curved leaf litter, and close dry-sand pebble/shell
 flecks, the broadleaf jungle with
-branch-supported near crowns, distance-faded procedural bark fissures, rounded far crowns,
+branch-supported near crowns, sparse hanging leafy lianas on two near variants, distance-faded
+procedural bark fissures, rounded far crowns,
 per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
 variants with per-instance LOD/range selection,
@@ -85,8 +86,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,747,212-byte APK with a
-15,936,928-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,750,124-byte APK with a
+15,939,840-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -143,9 +144,25 @@ package above was restored, rebuilt, linted, ABI-checked, and signature-verified
 The subsequent radial end-grain crack pass is required by the same strict Android gate and its
 default arm64-only package builds/lints cleanly. The 18,747,212-byte APK contains a
 15,936,928-byte stripped `libmain.so`, only `arm64-v8a`, and a valid v2 signature. Its dedicated
-GLES 3 appearance is deliberately deferred to the next batched x86_64 visual session together with
-the pending palm and folded-frond passes; the earlier broken-contour capture does not qualify the
-newer fragment treatment.
+GLES 3 appearance was deliberately deferred to a batched x86_64 visual session together with the
+palm and folded-frond passes; the newer batch described below now qualifies it.
+
+The later selected-canopy liana pass is also required by the strict Android platform-log gate. Its
+18,750,124-byte arm64-only APK contains a 15,939,840-byte stripped `libmain.so`, passes application
+lint with zero issues, and verifies with signature scheme v2. The established fixed-jungle capture
+predated this mesh detail, so the newer batch below supplies its dedicated GLES 3 evidence.
+
+The current batched KVM/gfxstream session closes all five deferred natural-detail gates. Fixed
+`palms`, `fronds`, `props`, and `jungle` runs used PIDs 3334, 3529, 3678, and 3826 and completed
+first draw in 1581.837, 1589.120, 1548.131, and 1571.279 ms total, respectively. Every run required
+the staggered palm leaflet, palm facet-light, folded frond, radial end-grain crack, and hanging
+liana markers, reported `OPENGLES3`, opened a running 44.1 kHz stereo AAudio stream, and reported
+the 1280 by 720 logical backbuffer. The four inspected 2400 by 1080 frames match the corresponding
+WebGL 2 compositions without a fatal, shader, or `GL_INVALID_OPERATION` diagnostic. These are
+functional translated-host visual checks, not sustained or physical-mobile performance evidence.
+The emulator was stopped cleanly, the arm64-only APK above was restored and revalidated, and about
+1.1 GiB of reproducible x86_64 CMake/object intermediates was removed while retaining the compact
+logs and screenshots.
 
 An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow
@@ -466,22 +483,21 @@ functional emulator checks rather than physical-mobile appearance or performance
 
 The later near-palm leaflet asymmetry pass builds and lints in the default arm64-only package,
 which is 18,745,116 bytes with a 15,934,832-byte stripped `libmain.so` and a valid v2 signature.
-The next Android runtime gate requires its exact staggered-leaflet marker. Its GLES 3 appearance is
-intentionally deferred to a later batched x86_64 session rather than recreating about 1.1 GiB of
-temporary emulator intermediates for a vertex-position-only follow-up; the preceding palm capture
-must not be read as evidence for this later silhouette.
+The Android runtime gate requires its exact staggered-leaflet marker. Its GLES 3 appearance was
+intentionally deferred rather than recreating about 1.1 GiB of temporary emulator intermediates
+for a vertex-position-only follow-up; the current batched palm capture now qualifies it.
 
 The following near-only fixed-sun palm shading pass also builds/lints for arm64 and is covered by
 the next runtime marker gate. That arm64-only APK was 18,745,740 bytes with a
 15,935,456-byte stripped `libmain.so`; lint reports zero issues and signature scheme v2 verifies.
-Its Android runtime appearance remains batched with the preceding leaflet change, so no GLES 3
-visual or physical-mobile cost claim is made yet.
+Its Android runtime appearance is qualified by the current batched palm capture; physical-mobile
+cost remains unmeasured.
 
 The subsequent folded fallen-frond pass also compiles/lints for arm64 and is now required by the
 next Android runtime marker gate. That arm64-only APK was 18,746,380 bytes with a
 15,936,096-byte stripped `libmain.so`; lint remains clean and signature scheme v2 verifies. Its
-GLES 3 appearance is batched with the two pending palm refinements rather than recreating the
-temporary x86_64 tree for one 63-instance material/vertex-only follow-up.
+GLES 3 appearance is qualified by the current batched frond capture together with both palm
+refinements; physical-mobile cost remains unmeasured.
 
 Useful diagnostics for a connected test target are:
 

@@ -1409,8 +1409,8 @@ operator-visible prior executable. The complete Chrome 152/SwiftShader WebGL 2 m
 23/23, requires the exact asymmetry marker in lifecycle and the palm gate, and its inspected
 original-resolution frame retains separate tapered leaflets with a fuller, less mechanical crown.
 The arm64 GLES 3 APK builds/lints with zero issues, contains only `arm64-v8a`, and verifies with APK
-signature scheme v2. Android runtime appearance and moving LOD-transition review remain deferred
-to later batched/physical testing, so no mobile appearance or cost improvement is claimed.
+signature scheme v2. The later batched fixed-palm GLES 3 capture now qualifies the close
+appearance; moving LOD-transition review and physical-mobile cost remain open.
 
 ### Near-palm fixed-sun facet-lighting follow-up
 
@@ -1442,8 +1442,8 @@ The OpenGL 3.3 object compiles with first-party warnings as errors without relin
 prior executable. The complete Chrome 152/SwiftShader WebGL 2 matrix passes 23/23, requires the
 fold marker in its frond gate, and the inspected original-resolution frame retains a subtle organic
 crease rather than a rigid ridge. The arm64 GLES 3 package builds/lints, contains only `arm64-v8a`,
-and verifies with signature scheme v2. Android runtime appearance and physical-mobile fragment cost
-remain deferred to the next batched/physical validation.
+and verifies with signature scheme v2. The later batched fixed-frond GLES 3 capture now qualifies
+appearance; physical-mobile fragment cost remains open.
 
 ### Restrained fallen-log end-grain crack follow-up
 
@@ -1462,15 +1462,51 @@ Firefox ESR 140.0 independently passes its first-frame, lifecycle, input, audio,
 gate while requiring the same marker. The OpenGL 3.3 object compiles with warnings as errors,
 while the default arm64 GLES 3 package
 builds/lints, contains only `arm64-v8a`, and verifies with signature scheme v2. Android runtime
-appearance remains deferred to the next batched prop/palm/frond session.
+appearance is qualified by the later batched fixed-prop capture; physical-mobile cost remains open.
+
+### Sparse near-canopy liana follow-up
+
+The latest interior critique found an underused vertical layer between broadleaf crowns and the
+otherwise dense ground vegetation. Near canopy variants one and three now each append one hanging
+liana: a six-section tapered three-sided strand plus two small folded pointed leaves. A shallow
+outward curve and a larger lower wind weight prevent a rigid plumb-line silhouette. Each selected
+shared mesh adds 31 vertices and 48 triangles; the other two near variants and every 208-triangle
+far mesh remain unchanged.
+
+The geometry is shared by existing instances, stays opaque, is non-solid, and uses the existing
+jungle wind/material buffer. It adds no population, placement, texture, instance field, buffer,
+upload cadence, culling rule, LOD threshold, collision proxy, shader operation, or draw submission.
+The complete Chrome 152/SwiftShader matrix passes 23/23; its original-resolution jungle frame and
+an unfiltered detail crop show sparse readable strands without dominating the trail composition.
+Firefox ESR 140.0 independently passes its first-frame, lifecycle, input/audio, jungle, and water
+gate while requiring the same liana marker. The OpenGL 3.3 object compiles with warnings as errors,
+and the default arm64 GLES 3 package builds/lints, contains only `arm64-v8a`, and verifies with
+signature scheme v2.
+
+### Batched Android natural-detail qualification
+
+One temporary x86_64 build qualified the accumulated palm leaflet asymmetry, palm near-facet
+lighting, folded fallen-frond leaflets, radial log-end cracks, and hanging canopy lianas rather
+than repeatedly recreating approximately 1.1 GiB of emulator intermediates. Fixed palm, frond,
+prop, and jungle runs used the API 35 `Medium_Phone` AVD with KVM 12 and host AMD Radeon 780M
+gfxstream. They completed first draw in 1581.837, 1589.120, 1548.131, and 1571.279 ms total.
+
+Every strict gate required all five exact markers, reported `OPENGLES3`, opened a running 44.1 kHz
+stereo AAudio stream, and retained the 1280 by 720 logical backbuffer. The four original 2400 by
+1080 captures were inspected and visibly match the corresponding WebGL 2 compositions without a
+fatal, shader, or `GL_INVALID_OPERATION` diagnostic. This qualifies translated-host function and
+composition, not sustained frame time, thermals, audible quality, or physical-mobile GPU cost.
+Afterward the emulator was stopped, the 18,750,124-byte arm64-only APK and its 15,939,840-byte
+stripped `libmain.so` were restored, linted, ABI/signature-checked, and the reproducible x86_64
+intermediates were removed. The compact logs and screenshots remain as qualification evidence.
 
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,066 gzip), and WebAssembly is 8,540,835 bytes (2,437,001
-gzip). The complete transfer payload therefore falls from 8,805,713 to 2,497,211 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,058 gzip), and WebAssembly is 8,547,692 bytes (2,438,710
+gzip). The complete transfer payload therefore falls from 8,812,570 to 2,498,912 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

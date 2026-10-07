@@ -5521,8 +5521,9 @@ Work next, in order:
   and HTML remains 2,058 bytes (1,144 gzip).
 - Rebuilt/linted the default arm64-only APK through the shared cache; lint has zero issues, only
   `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,745,116 bytes and its
-  stripped `libmain.so` is 15,934,832 bytes. GLES 3 runtime appearance is deliberately batched
-  rather than recreating about 1.1 GiB of temporary x86_64 intermediates for this vertex-only pass.
+  stripped `libmain.so` is 15,934,832 bytes. GLES 3 runtime appearance was deliberately batched
+  rather than recreating about 1.1 GiB of temporary x86_64 intermediates for this vertex-only pass
+  and is qualified by the later batch below.
   CNA and Sharp Runtime remained read-only; no build used more than two workers.
 
 ### 2026-10-07 — Near-palm fixed-sun facet lighting
@@ -5545,8 +5546,9 @@ Work next, in order:
   and HTML remains 2,058 bytes (1,144 gzip).
 - The default arm64-only GLES 3 APK rebuild and lint pass through `/rv/cnaccache`; lint has zero
   issues, only `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,745,740
-  bytes and stripped `libmain.so` is 15,935,456 bytes. Runtime appearance is batched with the
-  preceding palm follow-up; physical-mobile fragment cost remains open. CNA and Sharp Runtime
+  bytes and stripped `libmain.so` is 15,935,456 bytes. Runtime appearance was batched with the
+  preceding palm follow-up and is qualified by the later batch below; physical-mobile fragment
+  cost remains open. CNA and Sharp Runtime
   remained read-only and builds used at most two workers.
 
 ### 2026-10-07 — Folded fallen-frond leaflets
@@ -5571,8 +5573,9 @@ Work next, in order:
   and HTML remains 2,058 bytes (1,144 gzip).
 - Rebuilt/linted the default arm64-only APK through the shared cache; lint has zero issues, only
   `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,746,380 bytes and its
-  stripped `libmain.so` is 15,936,096 bytes. GLES 3 runtime appearance is batched with the pending
-  palm passes rather than recreating about 1.1 GiB of temporary x86_64 intermediates. CNA and Sharp
+  stripped `libmain.so` is 15,936,096 bytes. GLES 3 runtime appearance was batched with the palm
+  passes rather than recreating about 1.1 GiB of temporary x86_64 intermediates and is qualified
+  by the later batch below. CNA and Sharp
   Runtime remained read-only; no build used more than two workers.
 
 ### 2026-10-07 — Restrained fallen-log end-grain cracks
@@ -5597,11 +5600,59 @@ Work next, in order:
   and HTML remains 2,058 bytes (1,144 gzip).
 - Rebuilt/linted the default arm64-only APK through the shared cache; lint has zero issues, only
   `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,747,212 bytes and its
-  stripped `libmain.so` is 15,936,928 bytes. GLES 3 runtime appearance remains batched with the
-  pending palm and fallen-frond passes. CNA and Sharp Runtime remained read-only; no build used
+  stripped `libmain.so` is 15,936,928 bytes. GLES 3 runtime appearance was batched with the palm
+  and fallen-frond passes and is qualified by the later batch below. CNA and Sharp Runtime
+  remained read-only; no build used
   more than two workers. All seven renderer-independent tests pass; project build trees remain
   bounded at 2.6 GiB native, 88 MiB Web, and 1.3 GiB Android, while the sole shared ccache remains
   3.7 GiB and 99.69 percent cacheable.
+
+### 2026-10-07 — Sparse hanging near-canopy lianas
+
+- A fresh original-resolution jungle audit found that the ground and crown layers were strong but
+  the vertical space between them still read as a clean open grove. Near canopy variants one and
+  three now each include one hanging leafy liana: a gently curved six-section tapered triangular
+  strand with two small folded pointed leaves. The other two near variants remain unadorned, so the
+  repeated instanced trees do not all gain the same dangling silhouette.
+- Each selected shared mesh adds only 31 vertices/48 triangles. The geometry is opaque, uses the
+  existing jungle vertex format/material/wind shader, and is deliberately non-solid. Population,
+  placement, instance data, buffers, upload cadence, textures, culling, 105--129 m staggered LOD,
+  every far mesh, collision, shader work, and the 28 fixed-jungle submissions are unchanged.
+- The OpenGL 3.3 object compiles with warnings as errors through `/rv/cnaccache` without relinking
+  the operator-visible game. Chrome 152/SwiftShader passes the complete 23/23 WebGL 2 matrix; the
+  original-resolution jungle frame and a nearest-neighbour crop were inspected and show sparse
+  readable vertical accents without obvious repetition or sky-edge artifacts. Firefox ESR 140.0
+  independently passes first-frame, lifecycle, input/audio, jungle, and water gates while
+  requiring the same exact diagnostic.
+- The deterministic Web package is 8,812,570 bytes or 2,498,912 bytes through gzip; WebAssembly is
+  8,547,692 bytes or 2,438,710 bytes through gzip. JavaScript remains 262,820 bytes (59,058 gzip)
+  and HTML remains 2,058 bytes (1,144 gzip).
+- The default arm64-only APK builds/lints through the shared cache, contains only `arm64-v8a`, and
+  verifies with signature scheme v2. It is 18,750,124 bytes with a 15,939,840-byte stripped
+  `libmain.so`. CNA and Sharp Runtime remain read-only and no build used more than two workers. All seven
+  renderer-independent tests pass; the project-owned build trees remain bounded at 2.6 GiB native,
+  88 MiB Web, and 1.3 GiB Android, while the sole shared ccache remains 3.8 GiB and 99.71 percent
+  cacheable.
+
+### 2026-10-07 — Batched Android palm/frond/prop/liana qualification
+
+- Built one temporary x86_64 APK through `/rv/cnaccache` and used the API 35 `Medium_Phone` AVD
+  with KVM 12 plus host AMD Radeon 780M gfxstream to close five deliberately batched visual gates:
+  staggered palm leaflets, palm fixed-sun facets, folded fallen-frond leaflets, radial log-end
+  cracks, and hanging leafy lianas.
+- Fixed `palms`, `fronds`, `props`, and `jungle` runs used PIDs 3334, 3529, 3678, and 3826 and
+  completed first draw in 1581.837, 1589.120, 1548.131, and 1571.279 ms total. Every strict gate
+  required all five markers, reported `OPENGLES3`, opened a running 44.1 kHz stereo AAudio stream,
+  and reported the 1280 by 720 logical backbuffer.
+- Inspected every original 2400 by 1080 capture. The palms retain clean varied crowns and brown
+  structural material; the frond retains its shallow fold; the log end shows subordinate radial
+  cracks; and the jungle retains sparse vertical liana silhouettes. No fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostic occurred. This is translated-host functional/composition
+  evidence, not sustained or physical-mobile performance qualification.
+- Stopped the emulator cleanly, restored/linted the default 18,750,124-byte arm64-only APK,
+  reconfirmed its sole ABI and v2 signature plus the 15,939,840-byte stripped `libmain.so`, and
+  removed only five explicitly identified reproducible x86_64 directories totalling about 1.1 GiB.
+  Compact logs and screenshots remain as evidence; Android is again approximately 1.3 GiB.
 
 ## Session-end checklist
 

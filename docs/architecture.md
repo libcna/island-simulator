@@ -384,10 +384,13 @@ detail.
 
 The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
 2,225 small forest-floor plants. Four
-canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their
-800/806-triangle near meshes add four/five short irregular buttress roots, seven tapered support
-branches, and eight pointed perimeter leaves; rounded 208-triangle far meshes preserve the crown
-volume without the close silhouette detail.
+canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their near
+meshes add four/five short irregular buttress roots, seven tapered support branches, and eight
+pointed perimeter leaves; rounded 208-triangle far meshes preserve the crown
+volume without the close silhouette detail. Near variants one and three append one shared
+31-vertex/48-triangle tapered three-sided liana with two small pointed leaves. The top-to-bottom
+wind weight gives the strand a restrained flexible response; no liana exists in the far LOD and
+the thin decoration is intentionally non-solid.
 A stable yaw-derived 105--129 m threshold selects LOD per tree after cell rejection, avoiding the
 old 155 m whole-cell switch. Four understory variants
 build fern and broad-leaf silhouettes from curved opaque strips. Three bush variants combine
@@ -840,7 +843,8 @@ the game, and the uncompressed artifacts remain available for hosts that do not 
   validated. The game-owned activity can pass a string-array QA command line into SDL only for a
   debuggable package; release packages ignore it. This has produced a six-view beach, grass,
   jungle, water, monkey, and reef GLES3 comparison matrix against the matching WebGL 2 captures,
-  plus dedicated fixed bird and palm qualification frames.
+  plus dedicated fixed bird, updated palm, folded-frond, radial-log-end, and liana-inclusive jungle
+  qualification frames.
   Simultaneous-gesture ergonomics, audio-focus interruption, sustained performance,
   thermals, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers

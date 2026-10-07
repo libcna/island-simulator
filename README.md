@@ -47,7 +47,9 @@ frond tint from each existing instance transform, so neighbouring crowns no long
 literal green while trunks, roots, coconuts, near/far identity, buffers, and draw count remain
 unchanged.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
-and pointed perimeter leaves. Their near trunks now meet the forest floor through four or five
+and pointed perimeter leaves. Two of the four near variants also carry one sparse hanging liana
+with a curved tapered strand and two small leaves, adding vertical jungle detail without another
+instance or draw. Their near trunks now meet the forest floor through four or five
 short irregular buttress roots instead of a uniform cylinder, using the same instanced mesh and
 draw submissions. Close bark gains restrained procedural longitudinal grain and narrow fissures
 that fade before the far tier, without a texture or new pass. A deterministic per-tree 105--129 m
@@ -257,7 +259,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,497,211 bytes, 71.6% below the 8,805,713-byte
+a SHA-256 manifest. The current gzip payload is 2,498,912 bytes, 71.6% below the 8,812,570-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

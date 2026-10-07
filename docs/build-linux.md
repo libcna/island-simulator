@@ -152,7 +152,8 @@ failure thresholds have separate `IslandCaptureValidatorTests` coverage.
 `IslandGameBeachCapture` writes a first-person path view to `build/island-beach-capture.ppm` and
 requires both the authored primary-footpath material and its narrow irregular-wear path.
 `IslandGameJungleCapture` writes a side-on trail view to `build/island-jungle-capture.ppm` and
-requires the folded pointed-leaf near-bush path; the same startup also reports the
+requires sparse hanging leafy lianas on selected near-canopy variants; the same startup also
+reports the folded pointed-leaf near-bush path,
 branch-supported/pointed-leaf near-canopy path and distance-faded procedural bark fissures.
 `IslandGameEastClearingCapture` and `IslandGameWestClearingCapture` write player-eye views from the
 two authoritative clearing centres. The east view requires their shared reused-noise broad-patch

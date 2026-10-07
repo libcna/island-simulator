@@ -37,7 +37,8 @@ cameras also require the sparse near seed-head path. The lifecycle plus close gr
 cameras require the near-field
 terrain microvariation and procedural leaf-litter path. The lifecycle and dedicated jungle camera
 also require derivative-based, two-sided fixed-sun facet lighting on the instanced vegetation
-shader rather than accepting its unlit fallback. The lifecycle, beach approach, and jungle camera
+shader plus sparse hanging leafy lianas on selected near-canopy variants rather than accepting its
+unlit or less-layered fallback. The lifecycle, beach approach, and jungle camera
 also require the authored primary-footpath terrain material diagnostic. Dedicated east/west
 clearing cameras require their shared authored-material and reused-noise broad-patch diagnostics
 plus exact QA-camera identity.
@@ -118,7 +119,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,805,713 bytes uncompressed and 2,497,211 bytes through gzip, a 71.6% transfer reduction. These
+8,812,570 bytes uncompressed and 2,498,912 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -204,7 +205,8 @@ dedicated ground view requires the upright/split-leaf diagnostic, exact variant-
 nonzero per-instance near-LOD forest-floor population. The
 palm view requires the fuller segmented-leaflet, bark/coconut, and transform-derived frond-tint
 diagnostics plus nonzero near/far populations. The jungle
-view requires the branch-supported canopy, procedural-bark, and pointed-leaf near-bush diagnostics,
+view requires the branch-supported canopy, sparse hanging leafy lianas, procedural-bark, and
+pointed-leaf near-bush diagnostics,
 nonzero near/far
 canopy populations, understory, low bushes, and forest-floor plants. The prop view must report
 visible fallen logs, restrained radial end-grain cracks, plus a nonzero one-draw contact-shadow
