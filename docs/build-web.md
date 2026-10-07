@@ -35,7 +35,8 @@ terrain microvariation and procedural leaf-litter path. The lifecycle and dedica
 also require derivative-based, two-sided fixed-sun facet lighting on the instanced vegetation
 shader rather than accepting its unlit fallback. The lifecycle, beach approach, and jungle camera
 also require the authored primary-footpath terrain material diagnostic. Dedicated east/west
-clearing cameras require their shared authored-material diagnostic and exact QA-camera identity.
+clearing cameras require their shared authored-material and reused-noise broad-patch diagnostics
+plus exact QA-camera identity.
 The east camera additionally requires the explicit warm-dry ground-cue diagnostic.
 The lifecycle, beach approach, and jungle gates additionally require the narrow irregular-wear
 diagnostic, preventing a silent return to the former broad, uniformly coloured path treatment.
@@ -46,7 +47,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,521,483 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,522,600 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -102,7 +103,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,786,361 bytes uncompressed and 2,490,911 bytes through gzip, a 71.7% transfer reduction. These
+8,787,478 bytes uncompressed and 2,491,353 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

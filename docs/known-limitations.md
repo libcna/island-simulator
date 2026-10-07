@@ -29,7 +29,8 @@ been confirmed so far.
   and restrained fixed-sun interior
   dappling. The authored main corridor now has a narrower, noise-mottled broken-edge dry-earth
   footpath under its short grass while retaining a wider vegetation-free walking corridor. The two
-  clearings have distinct warm-dry and darker leaf-rich treatments, and their
+  clearings have distinct warm-dry and darker leaf-rich treatments plus broad irregular dry/cool
+  and leaf/moss patch breakup from already-computed terrain noise, and their
   outer rings now carry a five-rock/two-log natural-landmark composition without blocking
   their centres. Broader unique composition and bespoke landmark geometry remain limited. The
   dapple is static material breakup rather

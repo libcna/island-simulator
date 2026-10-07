@@ -389,7 +389,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "terrain distinct authored east/west clearing materials")
+                "clearing floors reuse existing noise fields for broad patch breakup")
         add_test(NAME IslandGameWestClearingCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-west-clearing.ppm"
                     --viewpoint west)

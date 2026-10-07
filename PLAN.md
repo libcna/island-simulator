@@ -959,7 +959,8 @@ Android is not project completion.
   placement curve; its visible wear was narrowed and given local shaded/sun-dry variation while the
   broader vegetation-free route remains walkable. The east/west clearing definitions drive
   distinct surface treatments plus a first natural landmark pass made from five rocks and one
-  fallen log around their outer rings.
+  fallen log around their outer rings. Their open floors now reuse the existing broad, medium, and
+  fine terrain fields for bounded dry/cool and leaf/moss patch breakup without another noise field.
   Broader landmark variety and whole-route density retuning remain.
 - [~] Refine fixed lighting, shadow/contact cues, sky, haze, exposure, and distant scenery as one
   coherent permanent sunny art direction. Terrain/ocean/sky share one sun, grass has two-sided
@@ -1230,9 +1231,10 @@ Work next, in order:
    curved interior leaf litter and a first fixed-sun floor-dapple treatment now break up exposed
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
    dry-earth material cue under its short grass. The east/west clearings now share their placement,
-   QA, and distinct warm-dry/leaf-rich terrain definitions. Five authored rocks and one fallen log
-   in each clearing now give their outer rings different natural silhouettes while preserving the
-   central walking room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
+   QA, and distinct warm-dry/leaf-rich terrain definitions. Their floors now reuse the same broad,
+   medium, and fine fields for larger irregular dry/cool and leaf/moss patches. Five authored rocks
+   and one fallen log in each clearing give their outer rings different natural silhouettes while
+   preserving the central walking room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
    arc in one sheltered cove; broader landmark variety, prop diversity, contact cues, authored
    biome variation, and material tuning remain.
    The portable near-surface swimming veil now adds depth haze and restrained upper-surface
@@ -4919,6 +4921,28 @@ Work next, in order:
   the KVM/API 35 gfxstream matrix visibly executes that full path, while physical-device appearance
   and cost remain explicitly unqualified. `BUGS.md` still has no confirmed CNA or Sharp Runtime
   defect, all game-side fallbacks retain diagnostics, and both dependencies remained read-only.
+
+### 2026-10-07 — Reused-noise clearing-floor patch breakup
+
+- A current first-person composition review found that the open east/west clearing floors still
+  read as broad uniform colour fields between grass clusters. The terrain shader now derives
+  complementary dry/cool and leaf/moss patch masks from its already-computed broad, medium, and
+  fine fields. Four bounded colour blends add no texture, new noise evaluation, varying, geometry,
+  allocation, collision rule, or draw submission.
+- Inspected three successive original-resolution east/west WebGL 2 pairs and rejected the first two
+  as too subtle. The retained pass remains softly irregular rather than becoming a hard decal. The
+  final actual Chrome 152/SwiftShader suite passes all 22 stages and requires the exact diagnostic
+  in lifecycle plus both clearing gates. WebAssembly is 8,522,600 bytes; the deterministic package
+  is 8,787,478 bytes uncompressed and 2,491,353 bytes through gzip.
+- The changed OpenGL 3.3 consumer object compiles through `/rv/cnaccache` with first-party warnings
+  as errors, without relinking or interrupting the operator-visible prior executable. Core, asset,
+  and Web-package gates pass 3/3. Native runtime appearance remains deferred until that process is
+  closed.
+- The default arm64-v8a OPENGLES3 APK builds and passes application lint through the shared cache,
+  contains only `arm64-v8a`, and verifies with APK signature scheme v2. It is 18,730,596 bytes with
+  a 15,920,312-byte stripped `libmain.so`. Android runtime appearance and physical-device fragment
+  cost remain unclaimed. All builds used no more than two workers; Chrome was capped to eight CPU
+  cores. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

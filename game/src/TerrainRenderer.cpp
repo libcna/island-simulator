@@ -233,6 +233,23 @@ void main()
     color = mix(color, leafRichClearingGround,
                 westClearingMask * (0.30 + broad * 0.045));
 
+    // Reuse the material's existing noise fields to break up the two broad clearing floors.
+    // This adds no texture lookup or extra procedural-noise evaluation.
+    float clearingPatchField = broad * 0.72 + medium * 0.46 + fine * 0.035;
+    float eastDryPatch = smoothstep(0.055, 0.29, clearingPatchField)
+        * eastClearingMask;
+    float eastCoolPatch = (1.0 - smoothstep(-0.27, -0.045, clearingPatchField))
+        * eastClearingMask;
+    color = mix(color, vec3(0.535, 0.450, 0.185), eastDryPatch * 0.38);
+    color = mix(color, color * vec3(0.82, 0.90, 0.78), eastCoolPatch * 0.24);
+
+    float westLeafPatch = smoothstep(0.035, 0.27, clearingPatchField)
+        * westClearingMask;
+    float westMossPatch = (1.0 - smoothstep(-0.26, -0.035, clearingPatchField))
+        * westClearingMask;
+    color = mix(color, vec3(0.105, 0.105, 0.032), westLeafPatch * 0.32);
+    color = mix(color, vec3(0.230, 0.315, 0.090), westMossPatch * 0.22);
+
     if (detailFade > 0.0 && signedShoreDistance > 20.0 && steep < 1.0) {
         float pathCentre = uPrimaryPathShape.x + uPrimaryPathShape.y
             * sin((p.y + uPrimaryPathShape.z) * uPrimaryPathShape.w);
@@ -436,7 +453,9 @@ void main()
                               << "island-simulator: terrain footpath narrow irregular wear\n"
                               << "island-simulator: terrain distinct authored east/west "
                                  "clearing materials\n"
-                              << "island-simulator: east clearing uses a warm dry ground cue\n";
+                              << "island-simulator: east clearing uses a warm dry ground cue\n"
+                              << "island-simulator: clearing floors reuse existing noise fields "
+                                 "for broad patch breakup\n";
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

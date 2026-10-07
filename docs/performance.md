@@ -1285,14 +1285,29 @@ the native silhouette. The arm64 GLES 3 APK builds/lints through the shared cach
 `arm64-v8a`, and verifies with APK signature scheme v2; a physical-mobile frond inspection remains
 open, so no Android appearance or performance improvement is claimed.
 
+### Broad clearing-floor patch breakup follow-up
+
+The east and west clearing floors now classify complementary dry/cool and leaf/moss patches from
+the broad, medium, and fine terrain fields already evaluated for their masks, edges, and local
+material variation. Four bounded colour blends add no texture lookup, noise evaluation, varying,
+geometry, allocation, or draw submission. Two deliberately weaker candidates were inspected and
+rejected before retaining a readable but non-decal-like blend.
+
+The final actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages and requires the exact
+patch-path diagnostic in lifecycle and both clearing gates. Original-resolution east/west frames
+were inspected after each tuning pass. The OpenGL 3.3 consumer object compiles with first-party
+warnings as errors without relinking the operator-visible game. The arm64 GLES 3 package builds,
+passes lint, contains only `arm64-v8a`, and verifies with APK signature scheme v2. Native runtime
+appearance, physical-mobile appearance, and isolated fragment cost remain open.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
-`web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,521,483 bytes (2,430,703
-gzip). The complete transfer payload therefore falls from 8,786,326 to 2,490,885 bytes, a measured
-71.7% reduction.
+`web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,522,600 bytes (2,431,145
+gzip). The complete transfer payload therefore falls from 8,787,478 to 2,491,353 bytes, a measured
+71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game
