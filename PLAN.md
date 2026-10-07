@@ -213,7 +213,11 @@ Dependencies: Phase 0 dependency/API baseline.
 - [x] Add Linux entry point and a `Game` subclass with actionable fatal diagnostics.
 - [x] Create a window, HiDef graphics device, depth-tested indexed terrain, ocean, and fixed sky.
 - [x] Use the live viewport aspect ratio and close/release pointer capture cleanly with Escape.
-- [ ] Add content-root discovery without absolute developer paths.
+- [x] Keep runtime content independent of the launch directory and absolute developer paths. All
+  current runtime shaders, meshes, textures, and audio are embedded or generated, so no content
+  root is required. `IslandGameRelocatableWorkingDirectory` launches the actual game from an
+  otherwise empty build-owned directory and guards that contract without adding a dormant content
+  locator.
 - [x] Add a core test executable that avoids graphics initialization.
 
 ### Foundational code quality
@@ -4494,6 +4498,18 @@ Work next, in order:
   deterministic release package is 8,762,601 bytes uncompressed and 2,484,224 bytes through gzip.
   Physical-device appearance and animation cost remain unqualified; CNA and Sharp Runtime stayed
   read-only.
+
+### 2026-10-07 — Launch-directory independence regression
+
+- Audited every current runtime-content path. Portable shader text is embedded in its owning
+  renderer; meshes, small textures, and PCM audio are generated at startup. The source asset
+  manifest and Web shell/package templates are development inputs and are not opened by the game.
+- Added `IslandGameRelocatableWorkingDirectory`, which starts the actual OpenGL game from an
+  otherwise empty build-owned working directory and requires a completed four-frame smoke run.
+  This protects relocatable launches without adding an unused content-root abstraction.
+- Reconfigured the pinned OpenGL 3.3 build with `/rv/cnaccache` active and ran the new test through
+  an isolated X11 display. It passes in 1.45 seconds. No executable relink was required, so the
+  operator-visible game remained open. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

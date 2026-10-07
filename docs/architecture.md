@@ -121,6 +121,19 @@ tree under `build/dependencies/cna-next`. It refuses a stale destination and nev
 repository. Developers may instead provide a separate read-only CNA `next` checkout through
 `CNA_ROOT_DIR`.
 
+## Runtime content location
+
+The current game has no runtime dependency on its process working directory or on an absolute
+developer path. Portable shader sources are embedded in their owning renderers, while meshes,
+small textures, and PCM audio are generated deterministically during startup. Source-side asset
+provenance files and Web packaging templates are development inputs rather than files opened by a
+running game.
+
+Adding an external runtime asset later requires an explicit cross-platform packaging and lookup
+design; the game must not silently assume that it starts in the repository root. The
+`IslandGameRelocatableWorkingDirectory` display test launches the actual executable from an
+otherwise empty build-owned directory to protect the present contract.
+
 ## Frame flow
 
 1. CNA polls platform events and publishes keyboard, mouse, and touch snapshots.

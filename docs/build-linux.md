@@ -132,6 +132,12 @@ build/island-simulator --smoke-test --overview \
 Run this through the private GPU runner when it must not open on the live desktop. The first-draw
 phase ends when game-owned draw submission returns; CNA presents afterward.
 
+`IslandGameRelocatableWorkingDirectory` runs the same real graphics startup from the empty
+`build/isolated-runtime-cwd/` directory. It guards the current asset model: runtime shaders are
+embedded and meshes, textures, and audio are generated, so launching the executable does not
+depend on the repository being the working directory. This test must be extended when an external
+runtime asset is introduced rather than weakening the working-directory contract.
+
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
 `IslandGameCaptureValidation` then checks its exact 1280 by 720 P6 payload, luminance spread,
 quantized colour diversity, and coarse spatial contrast. It writes

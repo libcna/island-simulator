@@ -148,6 +148,8 @@ Run `build/island-simulator`. Click inside the window or press a movement key to
 use WASD or the arrow keys to move, and press Shift to toggle between walking and running on land.
 Each keyboard toggle briefly confirms `WALK MODE  4.3 M/S` or `RUN MODE  8.0 M/S` near the bottom
 of the view; no key must remain held.
+The executable may be launched from any working directory; current runtime content is embedded or
+generated and does not depend on a repository-relative asset path.
 On Linux, press Escape once to release the mouse and again to exit. In a browser, Escape only
 releases pointer lock; close the tab through the browser UI when finished. Mouse look remains
 active while a movement key is held. The controller follows the terrain,

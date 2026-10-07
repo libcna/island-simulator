@@ -317,6 +317,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "fixed sunny sky with layered horizontal high wisps, portable shader")
+        file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/isolated-runtime-cwd")
+        add_test(NAME IslandGameRelocatableWorkingDirectory
+            COMMAND island-simulator --smoke-test --overview)
+        set_tests_properties(IslandGameRelocatableWorkingDirectory PROPERTIES
+            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/isolated-runtime-cwd"
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "island-simulator: smoke test rendered 4 frames")
         add_test(NAME IslandGameStartupReport
             COMMAND island-simulator --smoke-test --overview
                     --startup-report "${CMAKE_BINARY_DIR}/island-startup-report.json")
