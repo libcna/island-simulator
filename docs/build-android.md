@@ -463,6 +463,12 @@ intentionally deferred to a later batched x86_64 session rather than recreating 
 temporary emulator intermediates for a vertex-position-only follow-up; the preceding palm capture
 must not be read as evidence for this later silhouette.
 
+The following near-only fixed-sun palm shading pass also builds/lints for arm64 and is covered by
+the next runtime marker gate. The current arm64-only APK is 18,745,740 bytes with a
+15,935,456-byte stripped `libmain.so`; lint reports zero issues and signature scheme v2 verifies.
+Its Android runtime appearance remains batched with the preceding leaflet change, so no GLES 3
+visual or physical-mobile cost claim is made yet.
+
 Useful diagnostics for a connected test target are:
 
 ```bash

@@ -1412,13 +1412,29 @@ The arm64 GLES 3 APK builds/lints with zero issues, contains only `arm64-v8a`, a
 signature scheme v2. Android runtime appearance and moving LOD-transition review remain deferred
 to later batched/physical testing, so no mobile appearance or cost improvement is claimed.
 
+### Near-palm fixed-sun facet-lighting follow-up
+
+The same close-palm review found that the revised silhouette remained flatter than the grass,
+jungle, and natural props around it. The existing near-only material-detail branch now reconstructs
+a two-sided face normal from world-position derivatives and applies a bounded 0.88--1.08 fixed-sun
+diffuse/upward-fill multiplier before its bark-scar term. Far palms skip the derivative path. This
+adds one uniform and near-fragment arithmetic but no normal attribute, geometry, texture, instance
+data, buffer, upload, CPU update, LOD threshold, collision proxy, or draw submission.
+
+The OpenGL 3.3 object compiles with warnings as errors without relinking the operator-visible prior
+executable. The complete Chrome 152/SwiftShader WebGL 2 matrix passes 23/23 and requires the exact
+facet-shading marker in lifecycle and the dedicated palm gate; its inspected original-resolution
+frame retains restrained crown colour and more legible trunk/frond planes without blown highlights.
+The arm64 GLES 3 package builds/lints, contains only `arm64-v8a`, and verifies with signature scheme
+v2. A later batched GLES view and physical-device fragment measurement remain required.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,060 gzip), and WebAssembly is 8,538,475 bytes (2,436,034
-gzip). The complete transfer payload therefore falls from 8,803,353 to 2,496,238 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,539,267 bytes (2,436,331
+gzip). The complete transfer payload therefore falls from 8,804,145 to 2,496,534 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

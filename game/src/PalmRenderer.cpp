@@ -1,5 +1,6 @@
 #include "IslandSimulator/PalmRenderer.hpp"
 
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 
@@ -111,6 +112,7 @@ in float vWindWeight;
 in float vLocalHeight;
 
 uniform vec3 uCameraPosition;
+uniform vec3 uToSun;
 uniform float uMaterialDetail;
 
 out vec4 fragColor;
@@ -121,6 +123,12 @@ void main()
     float fog = smoothstep(230.0, 620.0, distanceToCamera);
     vec3 material = vColor;
     if (uMaterialDetail > 0.5) {
+        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+        float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
+        vec3 faceNormal = faceVector * inverseFaceLength;
+        float twoSidedDiffuse = abs(dot(faceNormal, uToSun));
+        float upwardFill = abs(faceNormal.y);
+        material *= 0.88 + twoSidedDiffuse * 0.16 + upwardFill * 0.04;
         float trunkMask = (1.0 - smoothstep(0.01, 0.055, vWindWeight))
             * smoothstep(0.28, 0.75, vLocalHeight);
         float ringPhase = fract(vLocalHeight * 1.18 + 0.17);
@@ -571,6 +579,10 @@ void main()
                 "island-simulator: palm near leaflets use staggered asymmetric silhouettes";
             std::cout << leafletDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(leafletDiagnostic);
+            constexpr const char* lightingDiagnostic =
+                "island-simulator: palm near geometry uses fixed-sun facet shading";
+            std::cout << lightingDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(lightingDiagnostic);
             std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";
@@ -749,6 +761,9 @@ void main()
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
+            customEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
         } else {
             effect_->setViewProperty(view);

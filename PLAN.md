@@ -1336,8 +1336,9 @@ Work next, in order:
    125--145 m transition during traversal and on physical mobile hardware. Current close-palm
    evidence justified widening the existing leaflet root chords and then breaking the remaining
    regular opposed-comb silhouette through vertex-only length/stagger/sweep/droop variation; the
-   close-root, crown-silhouette, and near material/coconut passes are measured. Do not add geometry
-   without new evidence.
+   close-root, crown-silhouette, and near material/coconut passes are measured. A restrained
+   near-only derivative-normal fixed-sun pass now gives the existing planes daylight response while
+   leaving far fragments unchanged. Do not add geometry without new evidence.
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. A clear close-view cylindrical trunk-base defect justified a small near-only
    four/five-buttress pass; the far tier, culling, instances, and draws remain unchanged. Further
@@ -5522,6 +5523,30 @@ Work next, in order:
   stripped `libmain.so` is 15,934,832 bytes. GLES 3 runtime appearance is deliberately batched
   rather than recreating about 1.1 GiB of temporary x86_64 intermediates for this vertex-only pass.
   CNA and Sharp Runtime remained read-only; no build used more than two workers.
+
+### 2026-10-07 — Near-palm fixed-sun facet lighting
+
+- The post-silhouette close-palm audit found that near crowns and trunks remained visually flatter
+  than surrounding grass, broadleaf vegetation, and rocks. The existing near material-detail branch
+  now reconstructs two-sided face normals from world-position derivatives and applies a restrained
+  0.88--1.08 fixed-sun diffuse/upward-fill multiplier before bark detail. Far palms skip the new
+  derivative path.
+- Added one fixed sun-direction uniform and fragment arithmetic only. Geometry, vertex format,
+  textures, instance data, buffers, uploads, wind/placement updates, 125--145 m LOD, culling,
+  collision, population, and draw submissions are unchanged. Native, browser, and next Android
+  gates require an exact diagnostic.
+- The OpenGL 3.3 object compiles with first-party warnings as errors through shared ccache without
+  relinking the operator-visible process. The complete Chrome 152/SwiftShader WebGL 2 matrix passes
+  23/23; the original-resolution close-palm frame retains restrained colours and gains legible
+  trunk/frond planes without blown highlights.
+- The deterministic Web package is 8,804,145 bytes or 2,496,534 bytes through gzip; WebAssembly is
+  8,539,267 bytes or 2,436,331 bytes through gzip. JavaScript remains 262,820 bytes (59,059 gzip)
+  and HTML remains 2,058 bytes (1,144 gzip).
+- The default arm64-only GLES 3 APK rebuild and lint pass through `/rv/cnaccache`; lint has zero
+  issues, only `arm64-v8a` is packaged, and signature scheme v2 verifies. The APK is 18,745,740
+  bytes and stripped `libmain.so` is 15,935,456 bytes. Runtime appearance is batched with the
+  preceding palm follow-up; physical-mobile fragment cost remains open. CNA and Sharp Runtime
+  remained read-only and builds used at most two workers.
 
 ## Session-end checklist
 

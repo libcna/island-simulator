@@ -343,7 +343,10 @@ transform, their colour identity cannot change at the threshold. This adds no in
 buffer, texture, draw, placement state, or collision state. Near fronds retain nine paired
 single-triangle leaflet stations, but deterministic per-frond/station phases modestly vary their
 length, longitudinal stagger, forward sweep, and droop. The broader silhouette and broken comb-like
-symmetry therefore reuse the existing 494--566-triangle near meshes.
+symmetry therefore reuse the existing 494--566-triangle near meshes. The near-only fragment path
+also reconstructs a two-sided geometric normal from world-position derivatives and applies a
+restrained fixed-sun diffuse/fill term before the existing bark detail. Far palms skip the added
+fragment work, while no normal attribute or buffer is required.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
 visible anchor instances one shared 34-blade near, ten-blade middle, or five-blade far cluster. A

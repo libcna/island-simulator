@@ -421,7 +421,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "palm near leaflets use staggered asymmetric silhouettes")
+                "palm near geometry uses fixed-sun facet shading")
         add_test(NAME IslandGameWaterViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
                     --viewpoint water)
