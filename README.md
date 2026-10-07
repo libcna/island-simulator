@@ -242,8 +242,10 @@ production shell's first frame, reported WebGL 2 Radeon backend, trusted-click p
 actual footstep, Escape release, delayed pointer-lock reacquisition, and responsive 16:9 sizing.
 It also loads dedicated 1280 by 720 jungle and near-surface-water scenes, requires their live
 LOD/water state, and captures both. All four Firefox frames were visually inspected. A visible
-interactive listening pass, the remaining fixed-scene matrix, genuine
-tab background/foreground behaviour, and fullscreen remain open.
+interactive listening pass, the remaining fixed-scene matrix, long tab suspension, audio-focus
+behaviour, and fullscreen remain open. The automated Firefox path now does one actual second-tab
+activation cycle and requires `visible` to `hidden` to `visible`, resumed animation frames, and
+fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and

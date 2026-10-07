@@ -17,7 +17,7 @@ comparison matrix remain runtime evidence from the preceding CNA pin where expli
 | Area | Linux / OpenGL 3.3 | Web / WebGL 2 | Android / OpenGL ES 3 |
 |---|---|---|---|
 | Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 for the complete matrix; Firefox ESR 140.15 reports WebGL 2 on a Radeon backend for the narrower second-engine gate | Android Emulator 36.5.11, API 35 x86_64 AVD, KVM, gfxstream host GPU on AMD Radeon 780M; the arm64 build/lint uses the same SDK/NDK toolchain |
-| Runtime state | Current `97783d1e090c` executable passes the complete private-display suite 41/41 with `OPENGL33`, all deterministic captures, actual simultaneous movement/mouse input, persistent Shift run/walk toggling, and a 1280 by 720 logical backbuffer | Chrome render and controlled input pass all 22 stages; Firefox independently passes production first-frame, pointer-lock release/reacquisition, responsive sizing, audio-start, persistent Shift, traversal/footstep, and dedicated live jungle/water scene gates on current `97783d1e090c` | Current `97783d1e090c` x86_64 APK passes the strict GLES 3/audio gate, touch traversal with footstep playback, and same-process Home/resume; the restored arm64-only package builds and passes lint |
+| Runtime state | Current `97783d1e090c` executable passes the complete private-display suite 41/41 with `OPENGL33`, all deterministic captures, actual simultaneous movement/mouse input, persistent Shift run/walk toggling, and a 1280 by 720 logical backbuffer | Chrome render and controlled input pass all 22 stages; Firefox independently passes production first-frame, pointer-lock release/reacquisition, responsive sizing, audio-start, persistent Shift, traversal/footstep, one hidden/visible tab activation with resumed animation/input, and dedicated live jungle/water scene gates on current `97783d1e090c` | Current `97783d1e090c` x86_64 APK passes the strict GLES 3/audio gate, touch traversal with footstep playback, and same-process Home/resume; the restored arm64-only package builds and passes lint |
 | Terrain | Portable procedural sand/soil shader with close dry-sand granulation, soft-edged pebble/shell flecks, shoreline-raked ripples, a darkened wet edge with bounded view-dependent fixed-sun sheen, interior microvariation, sparse curved leaf litter, fixed-sun inland dappling, a narrow noise-mottled authored footpath, and distinct warm-dry/leaf-rich clearing floors with broad reused-noise patch breakup; one 58,081-vertex/115,200-triangle shared mesh retains 64 cull cells and coalesces adjacent visible index ranges | Same GLSL ES 300 material/cell/detail/path/clearing/wet-sheen diagnostics required by the harness, including warm-dry and reused-noise patch cues; shared-buffer diagnostic reports 58 visible cells in three draws; dedicated dry-beach, shoreline, and clearing captures expose the close cues | Fixed beach, grass, and jungle captures visibly match the shared geometry and broad material transitions without seams; the current east-clearing capture also executes and visibly retains the reused-noise breakup, while physical-mobile fragment cost remains unqualified |
 | Sky | Full fixed gradient/sun shader with sparse layered horizontal high wisps selected | Same GLSL ES 300 shader required by every harness scene; browser captures show no former vertical streaks | The six fixed captures retain the same sunny gradient, haze, and horizontal-wisp presentation |
 | Distant scenery | Five fogged unreachable islets and 11 simplified palms in one 787-triangle `BasicEffect` batch | Same batch; dedicated browser capture visually matches native | Batch compiles into the arm64 APK; current runtime capture does not qualify it |
@@ -59,10 +59,11 @@ after representative physical-device profiling.
 - The 42--72 m offshore current and its mild coast-parallel circulation are renderer-independent
   player physics. Linux, Web, and Android compile the same bounded vector field; F1 exposes its
   exact world-space drift and F2 renders that same vector rather than a renderer-specific estimate.
-- Browser first-gesture mixer/track startup is automated in Chromium; audible hardware-browser
-  quality and genuine tab suspension/resume remain open. Android surface and AAudio restoration
-  survive one same-process Home/resume cycle; external audio-focus changes and process death remain
-  open.
+- Browser first-gesture mixer/track startup is automated in Chromium, and Firefox qualifies one
+  short actual hidden/visible tab cycle with resumed animation/input. Audible hardware-browser
+  quality, extended suspension, and audio-focus behaviour remain open. Android surface and AAudio
+  restoration survive one same-process Home/resume cycle; external audio-focus changes and process
+  death remain open.
 
 ## Performance interpretation
 

@@ -721,12 +721,13 @@ Dependencies: portable baseline features and bounded initial asset size.
   restoration of walking on the second press, captures the transient run confirmation, simultaneous
   forward movement/relative look, F1, actual-Escape pointer release, continued frames without
   exit/error, delayed click reacquisition, aspect-preserving resize, first-click CNA mixer plus
-  four-loop startup, and actual distance-scheduled footstep playback. Audible hardware-browser
-  output and genuine tab background/foreground
-  recovery remain unverified; synthetic CDP freeze/thaw was inconclusive. Firefox ESR 140.15 now
+  four-loop startup, and actual distance-scheduled footstep playback. Chromium's synthetic CDP
+  freeze/thaw remains inconclusive. Firefox ESR 140.15 now
   independently passes the production first frame, trusted-click pointer lock, 44.1 kHz audio
   initialization, both persistent Shift edges, forward traversal/footstep, Escape release,
-  delayed pointer-lock reacquisition, and responsive 16:9 sizing.
+  delayed pointer-lock reacquisition, responsive 16:9 sizing, and an actual second-tab activation
+  with hidden/visible, animation-resume, and fresh-game-input assertions. Audible hardware output,
+  extended suspension, and audio-focus recovery remain unverified.
 - [x] Package runtime assets for Web with useful missing-asset diagnostics. The current game has
   no file-backed runtime asset: geometry, shaders, small textures, font, animation, and PCM are
   generated from compiled project code. The deployable package therefore intentionally contains
@@ -1278,13 +1279,14 @@ Work next, in order:
    close-grass, jungle, water, monkey, bird, and wet-reef views on GLES3. Simultaneous real-finger
    ergonomics, swimming, external audio focus, process
    death, thermals, and physical mobile-GPU performance remain open.
-6. Perform a visible hardware-accelerated Web listening/play pass, fullscreen pass, and genuine
-   tab background/foreground test; automated first-gesture audio initialization is complete.
+6. Perform a visible hardware-accelerated Web listening/play pass, fullscreen pass, and extended
+   tab-suspension/audio-focus test; automated first-gesture audio initialization is complete.
    Firefox ESR now independently passes the production first frame, essential input/audio path,
    responsive 16:9 sizing, Escape release, delayed pointer-lock reacquisition, and fixed jungle/
-   water live-scene gates. The headless Chrome freeze/active probe remains diagnostic-only because
-   the latest passing input run did not emit a post-resume game sample even after a three-second
-   allowance.
+   water live-scene gates. It also passes one actual short second-tab activation with visibility,
+   animation-resume, and fresh-game-input evidence. The headless Chrome freeze/active probe remains
+   diagnostic-only because the latest passing input run did not emit a post-resume game sample
+   even after a three-second allowance.
 7. Observe the irregular faceted palm roots and fuller segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal and on physical mobile hardware. Current close-palm
    evidence justified widening only the existing leaflet root chords; the close-root,
@@ -5068,7 +5070,7 @@ Work next, in order:
   while the operator-visible earlier executable is open. All compilation used two workers or
   fewer and the shared cache; CNA and Sharp Runtime stayed read-only.
 
-### 2026-10-07 — Firefox jungle and water scene coverage
+### 2026-10-07 — Firefox jungle, water, and tab-resume coverage
 
 - Extended the dependency-free Firefox/WebDriver BiDi gate beyond the production first-frame and
   essential-input path. The tool now materializes the same ignored test-only shell as the Chrome
@@ -5079,15 +5081,19 @@ Work next, in order:
   gate requires the sunward-crest and generated near-surface-view paths plus simultaneous nonzero
   view, ripple, and entry/exit-burst state. Both scenes reject test-shell-reported, fatal, and
   shader errors.
-- Two consecutive expanded Firefox runs passed. The eighth clean Firefox ESR 140.15 run retained
-  the earlier production sizing, trusted pointer-lock/reacquisition, persistent Shift, traversal/
-  footstep, audio, and double-Escape checks before both new scene gates. Firefox again reported
-  `WebGL 2.0` on a `Radeon R9 200 Series, or similar` backend; first draw was 289 ms total (307 ms
-  in the first expanded run). The four original-resolution production/input/jungle/water frames
-  were inspected and match the established composition. The complete 22-stage Chrome suite
-  remains authoritative for the other fixed scenes, simultaneous mouse look, clipboard, and
-  shoreline audio. Fullscreen, genuine tab lifecycle, visible listening, and sustained hardware-
-  GPU frame pacing remain open.
+- Three consecutive expanded Firefox runs passed. In the ninth clean run, WebDriver BiDi activated
+  a real second tab: the game document reported `visible` to `hidden` to `visible`, its bounded
+  animation probe advanced from 12 frames before backgrounding to 38 after foregrounding, and two
+  fresh Shift edges proved that the game update/input path resumed. This qualifies one short tab
+  cycle, not long suspension or audio-focus recovery.
+- The final run retained the earlier production sizing, trusted pointer-lock/reacquisition,
+  traversal/footstep, audio, double-Escape, jungle, and water gates. Firefox again reported
+  `WebGL 2.0` on a `Radeon R9 200 Series, or similar` backend; first draw was 308 ms total, within
+  the retained 289--360 ms functional range. The four original-resolution production/input/
+  jungle/water frames were inspected and match the established composition. The complete 22-stage
+  Chrome suite remains authoritative for the other fixed scenes, simultaneous mouse look,
+  clipboard, and shoreline audio. Fullscreen, visible listening, extended tab suspension/audio
+  focus, and sustained hardware-GPU frame pacing remain open.
 
 ## Session-end checklist
 

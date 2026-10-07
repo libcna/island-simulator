@@ -42,6 +42,7 @@ let firefoxLog = "";
 let browserSocket;
 let bidiCommand;
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+const countMarker = (text, marker) => text.split(marker).length - 1;
 
 const stopProcess = async child => {
   if (!child || child.exitCode !== null || child.signalCode !== null) return;
@@ -172,6 +173,16 @@ try {
       await delay(100);
     }
     throw new Error(`Firefox output did not contain ${marker}:\n${output.slice(-5000)}`);
+  };
+  const waitForMarkerCount = async (context, marker, minimum, attempts = 120) => {
+    let output = "";
+    for (let attempt = 0; attempt < attempts; ++attempt) {
+      output = await evaluate(context, "globalThis.islandDeploymentOutput || ''");
+      if (countMarker(output, marker) >= minimum) return output;
+      await delay(100);
+    }
+    throw new Error(
+      `Firefox output did not contain ${minimum} occurrences of ${marker}:\n${output.slice(-5000)}`);
   };
   const qualifyScene = async (context, mode, filename, requiredMarkers, populationPattern) => {
     await bidiCommand("browsingContext.setViewport", {
@@ -346,6 +357,73 @@ try {
     throw new Error("Firefox Escape did not release reacquired pointer lock");
   }
 
+  await evaluate(context, `(() => {
+    globalThis.islandTabProbe = { frames: 0, states: [document.visibilityState] };
+    document.addEventListener("visibilitychange", () => {
+      globalThis.islandTabProbe.states.push(document.visibilityState);
+    });
+    const countFrame = () => {
+      ++globalThis.islandTabProbe.frames;
+      requestAnimationFrame(countFrame);
+    };
+    requestAnimationFrame(countFrame);
+    return true;
+  })()`);
+  await delay(200);
+  const tabProbeBefore = JSON.parse(await evaluate(
+    context, "JSON.stringify(globalThis.islandTabProbe)"));
+  const backgroundTab = await bidiCommand("browsingContext.create", { type: "tab" });
+  await bidiCommand("browsingContext.activate", { context: backgroundTab.context });
+  await delay(600);
+  const tabProbeBackground = JSON.parse(await evaluate(
+    context, "JSON.stringify(globalThis.islandTabProbe)"));
+  await bidiCommand("browsingContext.activate", { context });
+  await delay(350);
+  const tabProbeForeground = JSON.parse(await evaluate(
+    context, "JSON.stringify(globalThis.islandTabProbe)"));
+  await bidiCommand("browsingContext.close", { context: backgroundTab.context });
+
+  const tabVisibilityQualified = tabProbeBackground.states.includes("hidden")
+    && tabProbeForeground.states.at(-1) === "visible";
+  const animationResumed = tabProbeForeground.frames > tabProbeBefore.frames;
+  if (!tabVisibilityQualified || !animationResumed) {
+    throw new Error(`Firefox tab visibility/resume failed: ${JSON.stringify({
+      tabProbeBefore, tabProbeBackground, tabProbeForeground,
+    })}`);
+  }
+
+  const outputBeforeResumeInput = await evaluate(
+    context, "globalThis.islandDeploymentOutput || ''");
+  const enabledCountBefore = countMarker(
+    outputBeforeResumeInput, "island-simulator: run mode enabled (8.0 m/s)");
+  const disabledCountBefore = countMarker(
+    outputBeforeResumeInput, "island-simulator: run mode disabled (4.3 m/s)");
+  await performKeyActions(context, [
+    { type: "keyDown", value: "\uE008" },
+    { type: "pause", duration: 120 },
+    { type: "keyUp", value: "\uE008" },
+  ]);
+  output = await waitForMarkerCount(
+    context,
+    "island-simulator: run mode enabled (8.0 m/s)",
+    enabledCountBefore + 1);
+  await performKeyActions(context, [
+    { type: "keyDown", value: "\uE008" },
+    { type: "pause", duration: 120 },
+    { type: "keyUp", value: "\uE008" },
+  ]);
+  output = await waitForMarkerCount(
+    context,
+    "island-simulator: run mode disabled (4.3 m/s)",
+    disabledCountBefore + 1);
+  const gameInputResumed = countMarker(
+    output, "island-simulator: run mode enabled (8.0 m/s)") > enabledCountBefore
+    && countMarker(
+      output, "island-simulator: run mode disabled (4.3 m/s)") > disabledCountBefore;
+  if (!gameInputResumed) {
+    throw new Error("Firefox game input did not resume after tab foregrounding");
+  }
+
   output = await evaluate(context, "globalThis.islandDeploymentOutput || ''");
   const productionOutput = output;
   const fatalDiagnostic = /fatal error|shader.*(?:failed|error)/i.test(productionOutput);
@@ -388,6 +466,15 @@ try {
     pointerReleased,
     pointerRelocked,
     pointerReleasedAfterRelock,
+    tabLifecycle: {
+      hiddenObserved: tabProbeBackground.states.includes("hidden"),
+      visibleRestored: tabProbeForeground.states.at(-1) === "visible",
+      animationResumed,
+      gameInputResumed,
+      framesBefore: tabProbeBefore.frames,
+      framesWhileBackgrounded: tabProbeBackground.frames,
+      framesAfterForeground: tabProbeForeground.frames,
+    },
     responsiveSizing,
     resizedState,
     audioInitialized,

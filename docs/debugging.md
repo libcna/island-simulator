@@ -211,7 +211,9 @@ population and its single draw. A separate live harness section records browser 
 and pointer-lock evidence. The deployable-page pass also proves first-gesture CNA mixer/track
 startup for all four looping layers, and the deterministic live-input pass proves acceptance of
 one shoreline transition effect. These checks do not prove audible hardware-browser quality,
-hardware-GPU frame pacing, genuine tab lifecycle, or long-session stability.
+hardware-GPU frame pacing, extended tab suspension, or long-session stability. The separate
+Firefox gate now proves one short actual active-tab switch with visibility, animation-resume, and
+fresh-game-input assertions.
 
 ## Planned diagnostics
 

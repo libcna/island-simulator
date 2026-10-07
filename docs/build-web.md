@@ -17,7 +17,7 @@ path includes the same nine terrain-contact samples/normals, attempted/resolved 
 fish-school/shark/monkey navigation guides, three bird route-family volumes, all 24 bird spawn
 headings, nearby live bird radial targets, six terrain-following ambient-zone contours, and
 positional-source markers.
-Audible output on a visible hardware browser, genuine tab background/foreground recovery,
+Audible output on a visible hardware browser, long tab suspension/audio-focus recovery,
 hardware-GPU performance, and extended play are not yet validated. Firefox ESR 140.15 now provides
 a narrower independent second-engine gate for the production first frame, essential input/audio
 contract, and dedicated live jungle plus near-surface-water scenes; it does not duplicate the
@@ -245,9 +245,9 @@ one-shot diagnostic. The harness then enables the portable F2 world line view, t
 non-16:9 browser window, sends a real Escape key, proves that pointer lock is gone while new game
 frames continue without exit/error, waits through Chromium's immediate-relock security cooldown,
 and clicks to reacquire. It records the initial/final player and viewport samples plus the Escape
-state in the JSON report. Chromium's
-synthetic page-freeze command did not yield reliable resume evidence in this environment, so real
-tab background/foreground behaviour remains unqualified rather than being inferred.
+state in the JSON report. Chromium's synthetic page-freeze command did not yield reliable resume
+evidence in this environment, so the Chrome result does not infer tab recovery. The independent
+Firefox gate below now qualifies one short actual active-tab switch through WebDriver BiDi.
 
 Discrete input checks wait for the corresponding authoritative game diagnostic and retry a bounded
 number of times. The backward shoreline traversal likewise remains held until the first transition
@@ -260,7 +260,7 @@ first-gesture CNA mixer/track initialization, activation of the slow ambient-gai
 acceptance of the shoreline transition one-shot,
 but it is not a substitute for
 a visible interactive listening pass using hardware acceleration. Do not infer audible quality,
-real tab lifecycle, frame pacing, thermal behaviour, or compatibility beyond the separately
+long tab suspension, frame pacing, thermal behaviour, or compatibility beyond the separately
 qualified Firefox subset from it.
 
 ## Firefox ESR second-engine smoke
@@ -283,15 +283,19 @@ resource path. The test then requires one released Shift press to select persist
 forward motion to play a real distance-scheduled footstep, a second Shift press to restore 4.3 m/s
 walking, and Escape to release pointer lock. A 1000 by 600 resize must retain an undistorted 16:9
 canvas; after Firefox's security cooldown, a delayed trusted click must reacquire pointer lock and
-a second Escape must release it again. It then loads the test-only fixed jungle and water cameras,
+a second Escape must release it again. The gate installs a document-visibility/animation probe,
+activates a real second tab, requires the game tab to report `hidden`, reactivates it, requires
+`visible` plus resumed animation frames, and proves resumed game input with another complete pair
+of persistent Shift edges. It then loads the test-only fixed jungle and water cameras,
 requires nonzero near/far populations across all four jungle layers plus an active water-view/
 ripple/splash state, and captures both frames. The tool writes four PNGs plus a schema-1 JSON
 report under the ignored build directory and removes its profile and processes even on failure.
 
 The current Firefox ESR 140.15 run reports `WebGL 2.0` on a `Radeon R9 200 Series, or similar`
-backend and completed the first rendered frame in 289--360 ms total across eight clean tool runs.
+backend and completed the first rendered frame in 289--360 ms total across nine clean tool runs.
 All four original-resolution frames were inspected; the input frame visibly retained the world
 and the warm-gold `RUN MODE  8.0 M/S` notice, while the jungle and water frames match the Chromium
 composition and expose their expected live state. These one-run startup values are not a network
 cold-load or frame-time benchmark. The gate does not qualify the remaining Chrome scene matrix,
-simultaneous mouse look, clipboard behaviour, fullscreen, tab lifecycle, or audible sound quality.
+simultaneous mouse look, clipboard behaviour, fullscreen, extended tab suspension/audio focus, or
+audible sound quality.

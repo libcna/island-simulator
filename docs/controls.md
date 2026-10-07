@@ -65,7 +65,8 @@ correct screen-relative strafing, arrow parity, running, simultaneous movement/m
 and responsive 16:9 sizing. The narrower Firefox ESR BiDi gate independently confirms trusted-click
 pointer lock, forward movement, both persistent Shift edges, first-gesture audio initialization,
 one land footstep, Escape release, delayed pointer-lock reacquisition, responsive 16:9 sizing, and
-dedicated fixed jungle/water scenes after the production input session.
+one actual second-tab activation with resumed animation/input, followed by dedicated fixed jungle/
+water scenes after the production input session.
 Audible quality in a visible interactive browser remains to be checked manually.
 
 ## Android
