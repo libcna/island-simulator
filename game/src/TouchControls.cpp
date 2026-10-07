@@ -31,11 +31,26 @@ namespace island
         return nullptr;
     }
 
+    TouchSensitivitySelectorLayout TouchControls::SensitivitySelectorLayout(
+        const float displayWidth, const float displayHeight) noexcept
+    {
+        if (!std::isfinite(displayWidth) || !std::isfinite(displayHeight)
+            || displayWidth <= 0.0f || displayHeight <= 0.0f) {
+            return {};
+        }
+        const float radius = std::max(1.0f,
+                                      displayHeight * SensitivitySelectorRadiusFraction);
+        return {displayWidth - radius * 1.4f, radius * 1.4f, radius};
+    }
+
     void TouchControls::Reset() noexcept
     {
+        const TouchLookSensitivityLevel sensitivity = state_.lookSensitivity;
         state_ = {};
+        state_.lookSensitivity = sensitivity;
         movementId_ = -1;
         lookId_ = -1;
+        sensitivitySelectorId_ = -1;
         lastLookX_ = 0.0f;
         lastLookY_ = 0.0f;
     }
@@ -47,7 +62,7 @@ namespace island
         for (const TouchContact& contact : contacts) {
             if (!IsUsableContact(contact, displayWidth, displayHeight)
                 || contact.phase == TouchPhase::Released || contact.id == movementId_
-                || contact.id == lookId_) {
+                || contact.id == lookId_ || contact.id == sensitivitySelectorId_) {
                 continue;
             }
             if (contact.x < displayWidth * 0.5f && movementId_ < 0) {
@@ -65,6 +80,50 @@ namespace island
                 state_.lookTouchY = contact.y;
                 state_.lookActive = true;
             }
+        }
+    }
+
+    void TouchControls::UpdateSensitivitySelector(
+        const std::span<const TouchContact> contacts, const float displayWidth,
+        const float displayHeight) noexcept
+    {
+        state_.sensitivitySelectorActive = false;
+        const TouchContact* selectorContact = FindContact(contacts, sensitivitySelectorId_);
+        if (selectorContact == nullptr
+            || !IsUsableContact(*selectorContact, displayWidth, displayHeight)
+            || selectorContact->phase == TouchPhase::Released) {
+            sensitivitySelectorId_ = -1;
+        }
+        if (sensitivitySelectorId_ >= 0) {
+            state_.sensitivitySelectorActive = true;
+            return;
+        }
+
+        const TouchSensitivitySelectorLayout selector = SensitivitySelectorLayout(
+            displayWidth, displayHeight);
+        for (const TouchContact& contact : contacts) {
+            if (contact.phase != TouchPhase::Pressed
+                || contact.id == movementId_ || contact.id == lookId_
+                || !IsUsableContact(contact, displayWidth, displayHeight)
+                || std::hypot(contact.x - selector.x, contact.y - selector.y)
+                    > selector.radius) {
+                continue;
+            }
+            sensitivitySelectorId_ = contact.id;
+            switch (state_.lookSensitivity) {
+            case TouchLookSensitivityLevel::Low:
+                state_.lookSensitivity = TouchLookSensitivityLevel::Standard;
+                break;
+            case TouchLookSensitivityLevel::Standard:
+                state_.lookSensitivity = TouchLookSensitivityLevel::High;
+                break;
+            case TouchLookSensitivityLevel::High:
+                state_.lookSensitivity = TouchLookSensitivityLevel::Low;
+                break;
+            }
+            state_.sensitivitySelectorActive = true;
+            state_.lookSensitivityChanged = true;
+            return;
         }
     }
 
@@ -121,6 +180,7 @@ namespace island
 
         state_.lookDeltaX = 0.0f;
         state_.lookDeltaY = 0.0f;
+        state_.lookSensitivityChanged = false;
 
         const TouchContact* movement = FindContact(contacts, movementId_);
         if (movement == nullptr
@@ -139,6 +199,7 @@ namespace island
             state_.lookActive = false;
         }
 
+        UpdateSensitivitySelector(contacts, displayWidth, displayHeight);
         AssignNewContacts(contacts, displayWidth, displayHeight);
         movement = FindContact(contacts, movementId_);
         if (movement != nullptr && movement->phase != TouchPhase::Released) {

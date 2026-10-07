@@ -742,7 +742,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,791,455 bytes uncompressed and 2,493,652 bytes through
+  The current Release package is 8,794,948 bytes uncompressed and 2,495,383 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -782,7 +782,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
 - [~] Implement dual-zone touch controls: a floating movement stick, relative look region, stable
   contact ownership, and a minimal asset-free HUD. Deterministic interpreter tests pass; full
   movement travel selects the 8.0 m/s land pace through 92/78 percent hysteresis and a warm-gold
-  ring/thumb cue while partial travel retains analog walking. The
+  ring/thumb cue while partial travel retains analog walking. A top-right three-dot selector
+  cycles low/standard/high look response without consuming the look pointer. The
   premultiplied translucent HUD and independent movement/look gestures run on the accelerated
   GLES 3 AVD. Simultaneous real-finger and physical-device ergonomic validation remain open.
 - [~] Handle pointer IDs, safe display margins, fixed-landscape orientation, resize, and missing or
@@ -791,7 +792,10 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   lifecycle gate proves both same-process Home/resume surface/audio restoration and a
   force-stop/new-process qualified GLES 3/audio launch; longer suspends, OS-initiated eviction,
   and physical-device recovery remain open.
-- [ ] Add configurable sensitivity and left/right layout considerations where practical.
+- [~] Add configurable sensitivity and left/right layout considerations where practical. Runtime
+  touch look now offers bounded 0.72/1.00/1.35 multipliers, selection feedback, hold debouncing,
+  resize/hot-resume retention, and cold-process reset. Persistent settings and a handed layout
+  remain open.
 - [~] Verify audio focus/lifecycle and resource restoration after backgrounding. AAudio opened at
   44.1 kHz stereo, paused during Home, restarted after a same-process hot resume, and recreated
   all qualified game audio resources after a force-stop/new-process launch. External focus
@@ -1204,8 +1208,9 @@ after the same experience remains available.
 - [~] `docs/architecture.md`: current subsystem boundaries, ownership, update/render flow, and
   coordinates exist; extend as systems are added.
 - [~] `docs/controls.md`: desktop/Web and implemented Android dual-zone touch controls are
-  documented with functional accelerated-AVD gestures; configurable sensitivity/layout,
-  simultaneous real-finger use, and physical-device ergonomic notes remain open.
+  documented with functional accelerated-AVD gestures and three runtime touch-look response
+  levels; persistent selection, handed layout, simultaneous real-finger use, and physical-device
+  ergonomic notes remain open.
 - [x] `docs/asset-pipeline.md`: current generation model, versioned manifest schema, validation,
   world report, external intake, deterministic conversion requirements, and limitations.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
@@ -5299,6 +5304,47 @@ Work next, in order:
   build trees remain approximately 2.6 GiB native, 87 MiB Web, and 361 MiB Android with 374 GiB
   free; shared ccache remains 3.7 GiB and 99.67 percent cacheable. CNA and Sharp Runtime remained
   read-only. All seven renderer-independent core/report/asset/package tests pass.
+
+### 2026-10-07 — Runtime-selectable touch-look sensitivity
+
+- Added a small asset-free three-dot selector at the top right of the touch HUD. A bounded contact
+  cycles standard (1.00), high (1.35), and low (0.72) look response without acquiring the look
+  role; holding the selector cannot cycle repeatedly. Pointer cancellation/resize preserves the
+  current choice, same-process pause/resume retains it, and a new process deliberately starts at
+  standard until persistent game settings exist. The active dot is visibly brighter. Existing
+  generated ring/disc textures and the same `SpriteBatch` pass are reused, so this adds no texture,
+  buffer, shader, audio source, or render pass.
+- Renderer-independent tests cover selector placement, role isolation, hold debouncing, the
+  bounded high/low multipliers, a high-to-low cycle, synthetic-mouse suppression ownership, and
+  resize retention. The core suite passes,
+  and the OpenGL 3.3 `IslandGame`/`TouchOverlay` objects compile with first-party warnings as
+  errors through `/rv/cnaccache`; the live operator-visible older executable was not relinked.
+- Added opt-in `ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY=1`. The first attempt exposed a QA
+  coordinate error: ADB's physical 2400 by 1080 surface must be mapped through CNA's centred 1280
+  by 720 aspect-fit content region, and an instantaneous ADB tap can complete between game frames.
+  The helper now parses both dimensions, accounts for pillarbox/letterbox margins, holds a
+  stationary 500 ms contact, and requires the exact high/1.35 plus no-mouse-capture platform
+  diagnostics. This was test
+  automation, not a CNA/Sharp Runtime defect; no dependency change or `BUGS.md` entry was needed.
+- The combined KVM 12/host-gfxstream strict audio, sensitivity, footstep, swimming, hot-resume, and
+  cold-relaunch gate passed. PID 3654 selected high, entered swimming, and retained the rightmost
+  highlighted dot across Home/resume; PID 3867 started cold with the standard centre dot. All
+  three inspected frames are clean 2400 by 1080 landscapes. A follow-up actual input sequence
+  logged high, low, and standard in order. A final focused run on PID 3332 required both the high
+  selection and explicit retained-touch/no-mouse-capture diagnostics and produced another clean
+  inspected 2400 by 1080 frame. Initial/cold startup totals were 1605.987 and 2179.292 ms; these
+  are functional emulator observations, not physical-device performance claims.
+- The rebuilt WebGL 2 game passes the complete Chrome 152/SwiftShader suite and another clean
+  Firefox ESR 140.15 production/input/audio/tab-lifecycle/jungle/water gate (505 ms first draw).
+  All seven renderer-independent core/report/asset/package tests pass. The deterministic Web
+  package is 8,794,948 bytes or 2,495,383 bytes through gzip; WebAssembly is 8,530,070 bytes or
+  2,435,185 bytes through gzip.
+- Stopped the emulator cleanly and restored the default arm64-only APK. Android lint has zero
+  issues, the APK contains only `arm64-v8a`, signature scheme v2 verifies, the package is
+  18,739,740 bytes, and its stripped `libmain.so` is 15,929,456 bytes. Shared ccache is 3.7 GiB
+  with 99.66 percent cacheable calls; project build trees remain approximately 2.6 GiB native,
+  87 MiB Web, and 361 MiB Android with 374 GiB free. Every build used no more than two workers;
+  CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 

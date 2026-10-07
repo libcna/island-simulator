@@ -16,6 +16,7 @@ TIMEOUT_SECONDS=${ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS:-600}
 REQUIRE_AUDIO=${ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO:-0}
 REQUIRE_FOOTSTEPS=${ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS:-0}
 REQUIRE_SWIMMING=${ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING:-0}
+REQUIRE_TOUCH_SENSITIVITY=${ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY:-0}
 REQUIRE_LIFECYCLE=${ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE:-0}
 DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
@@ -56,6 +57,13 @@ case "$REQUIRE_SWIMMING" in
     0|1) ;;
     *)
         echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
+case "$REQUIRE_TOUCH_SENSITIVITY" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY must be 0 or 1" >&2
         exit 2
         ;;
 esac
@@ -210,6 +218,63 @@ if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|erro
     echo "android runtime smoke: fatal or shader error appeared in logcat" >&2
     tail -n 120 "$LOG_FILE" >&2
     exit 1
+fi
+
+if [ "$REQUIRE_TOUCH_SENSITIVITY" -eq 1 ]; then
+    echo "android runtime smoke: exercising touch look-sensitivity selector"
+    WINDOW_DIMENSIONS=$(sed -n \
+        's/.*Window size: \([1-9][0-9]*x[1-9][0-9]*\).*/\1/p' "$LOG_FILE" | tail -n 1)
+    LOGICAL_DIMENSIONS=$(sed -n \
+        's/.*viewport \([1-9][0-9]*x[1-9][0-9]*\) logical backbuffer.*/\1/p' \
+        "$LOG_FILE" | tail -n 1)
+    WINDOW_WIDTH=${WINDOW_DIMENSIONS%x*}
+    WINDOW_HEIGHT=${WINDOW_DIMENSIONS#*x}
+    LOGICAL_WIDTH=${LOGICAL_DIMENSIONS%x*}
+    LOGICAL_HEIGHT=${LOGICAL_DIMENSIONS#*x}
+    case "$WINDOW_WIDTH:$WINDOW_HEIGHT:$LOGICAL_WIDTH:$LOGICAL_HEIGHT" in
+        *[!0-9:]*|:*|*::*|*:)
+            echo "android runtime smoke: could not parse window/backbuffer sizes for sensitivity input" >&2
+            exit 1
+            ;;
+    esac
+    # CNA scales normalized SDL touch positions into the logical backbuffer. Map the logical HUD
+    # target back through the aspect-fit viewport, including Android's pillarbox/letterbox margin.
+    if [ $((WINDOW_WIDTH * LOGICAL_HEIGHT)) -le \
+         $((WINDOW_HEIGHT * LOGICAL_WIDTH)) ]; then
+        CONTENT_WIDTH=$WINDOW_WIDTH
+        CONTENT_HEIGHT=$((WINDOW_WIDTH * LOGICAL_HEIGHT / LOGICAL_WIDTH))
+    else
+        CONTENT_HEIGHT=$WINDOW_HEIGHT
+        CONTENT_WIDTH=$((WINDOW_HEIGHT * LOGICAL_WIDTH / LOGICAL_HEIGHT))
+    fi
+    CONTENT_X=$(((WINDOW_WIDTH - CONTENT_WIDTH) / 2))
+    CONTENT_Y=$(((WINDOW_HEIGHT - CONTENT_HEIGHT) / 2))
+    SELECTOR_RADIUS=$((LOGICAL_HEIGHT * 6 / 100))
+    SELECTOR_LOGICAL_X=$((LOGICAL_WIDTH - SELECTOR_RADIUS * 7 / 5))
+    SELECTOR_LOGICAL_Y=$((SELECTOR_RADIUS * 7 / 5))
+    SELECTOR_X=$((CONTENT_X + SELECTOR_LOGICAL_X * CONTENT_WIDTH / LOGICAL_WIDTH))
+    SELECTOR_Y=$((CONTENT_Y + SELECTOR_LOGICAL_Y * CONTENT_HEIGHT / LOGICAL_HEIGHT))
+    # ADB's instantaneous tap can press and release between game frames. A stationary bounded
+    # swipe keeps the contact down long enough to exercise the real Pressed ownership path.
+    "$ADB" shell input swipe "$SELECTOR_X" "$SELECTOR_Y" \
+        "$SELECTOR_X" "$SELECTOR_Y" 500
+    SENSITIVITY_DEADLINE=$(( $(date +%s) + 10 ))
+    SENSITIVITY_QUALIFIED=0
+    while [ "$(date +%s)" -lt "$SENSITIVITY_DEADLINE" ]; do
+        "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
+        if grep -q "island-simulator: touch look sensitivity high (1.35x)" "$LOG_FILE" \
+            && grep -q "island-simulator: touch sensitivity selector retained touch ownership without mouse capture" \
+                "$LOG_FILE"; then
+            SENSITIVITY_QUALIFIED=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$SENSITIVITY_QUALIFIED" -ne 1 ]; then
+        echo "android runtime smoke: touch sensitivity selector did not choose high" >&2
+        tail -n 120 "$LOG_FILE" >&2
+        exit 1
+    fi
 fi
 
 if [ "$REQUIRE_FOOTSTEPS" -eq 1 ]; then

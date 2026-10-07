@@ -50,7 +50,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,526,577 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,530,070 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -114,7 +114,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,791,455 bytes uncompressed and 2,493,652 bytes through gzip, a 71.6% transfer reduction. These
+8,794,948 bytes uncompressed and 2,495,383 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

@@ -1424,6 +1424,50 @@ int main()
     Check(!touchRunState.runRequested,
           "easing the stick inward restores touch walking");
 
+    island::TouchControls touchSensitivityControls;
+    const island::TouchSensitivitySelectorLayout sensitivitySelector =
+        island::TouchControls::SensitivitySelectorLayout(1280.0f, 720.0f);
+    std::array<island::TouchContact, 1> sensitivityContact = {{
+        {51, sensitivitySelector.x, sensitivitySelector.y, island::TouchPhase::Pressed},
+    }};
+    island::TouchControlState sensitivityState = touchSensitivityControls.Update(
+        sensitivityContact, 1280.0f, 720.0f);
+    Check(sensitivityState.lookSensitivity == island::TouchLookSensitivityLevel::High
+              && sensitivityState.lookSensitivityChanged
+              && sensitivityState.sensitivitySelectorActive
+              && !sensitivityState.lookActive,
+          "touch sensitivity selector chooses high without stealing the look role");
+    CheckNear(island::TouchControls::LookSensitivityScale(
+                  sensitivityState.lookSensitivity), 1.35f, 0.0001f,
+              "high touch sensitivity exposes the documented bounded multiplier");
+    sensitivityContact[0].phase = island::TouchPhase::Moved;
+    sensitivityState = touchSensitivityControls.Update(
+        sensitivityContact, 1280.0f, 720.0f);
+    Check(sensitivityState.lookSensitivity == island::TouchLookSensitivityLevel::High
+              && !sensitivityState.lookSensitivityChanged
+              && sensitivityState.sensitivitySelectorActive
+              && !sensitivityState.lookActive,
+          "holding the sensitivity selector cannot cycle repeatedly or rotate the camera");
+    sensitivityContact[0].phase = island::TouchPhase::Released;
+    sensitivityState = touchSensitivityControls.Update(
+        sensitivityContact, 1280.0f, 720.0f);
+    Check(!sensitivityState.sensitivitySelectorActive,
+          "releasing the sensitivity selector clears touch-interaction ownership");
+    sensitivityContact[0] = {52, sensitivitySelector.x, sensitivitySelector.y,
+                             island::TouchPhase::Pressed};
+    sensitivityState = touchSensitivityControls.Update(
+        sensitivityContact, 1280.0f, 720.0f);
+    Check(sensitivityState.lookSensitivity == island::TouchLookSensitivityLevel::Low
+              && sensitivityState.lookSensitivityChanged,
+          "a second sensitivity tap cycles from high to low");
+    (void)touchSensitivityControls.Update({}, 1000.0f, 600.0f);
+    Check(touchSensitivityControls.State().lookSensitivity
+              == island::TouchLookSensitivityLevel::Low,
+          "display resize releases touch ownership without losing sensitivity selection");
+    CheckNear(island::TouchControls::LookSensitivityScale(
+                  island::TouchLookSensitivityLevel::Low), 0.72f, 0.0001f,
+              "low touch sensitivity exposes the documented bounded multiplier");
+
     const std::array<island::TouchContact, 1> invalidTouch = {{
         {44, std::numeric_limits<float>::quiet_NaN(), 300.0f,
          island::TouchPhase::Pressed},

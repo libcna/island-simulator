@@ -3,6 +3,7 @@
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <memory>
@@ -105,6 +106,11 @@ namespace island
         const float idleY = static_cast<float>(viewportHeight) - radius - edgeInset;
         const float idleLeftX = radius * 1.35f;
         const float idleRightX = static_cast<float>(viewportWidth) - radius * 1.35f;
+        const TouchSensitivitySelectorLayout inputSelector =
+            TouchControls::SensitivitySelectorLayout(safeInputWidth, safeInputHeight);
+        const float selectorX = inputSelector.x * scaleX;
+        const float selectorY = inputSelector.y * scaleY;
+        const float selectorRadius = inputSelector.radius * scaleY * 0.72f;
 
         float movementCentreX = idleLeftX;
         float movementCentreY = idleY;
@@ -162,6 +168,26 @@ namespace island
                            state.lookActive
                                ? PremultipliedColor(225, 250, 255, 150)
                                : PremultipliedColor(235, 250, 255, 40));
+        spriteBatch_->Draw(*ringTexture_,
+                           CentredRectangle(selectorX, selectorY, selectorRadius),
+                           state.sensitivitySelectorActive || state.lookSensitivityChanged
+                               ? PremultipliedColor(255, 220, 130, 180)
+                               : PremultipliedColor(235, 250, 255, 62));
+        constexpr std::array<TouchLookSensitivityLevel, 3> levels = {
+            TouchLookSensitivityLevel::Low,
+            TouchLookSensitivityLevel::Standard,
+            TouchLookSensitivityLevel::High,
+        };
+        const float dotRadius = selectorRadius * 0.13f;
+        for (std::size_t index = 0; index < levels.size(); ++index) {
+            const float offset = (static_cast<float>(index) - 1.0f) * selectorRadius * 0.48f;
+            const bool selected = state.lookSensitivity == levels[index];
+            spriteBatch_->Draw(*discTexture_,
+                               CentredRectangle(selectorX + offset, selectorY, dotRadius),
+                               selected
+                                   ? PremultipliedColor(225, 250, 255, 205)
+                                   : PremultipliedColor(235, 250, 255, 58));
+        }
         spriteBatch_->End();
     }
 }

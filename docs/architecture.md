@@ -141,6 +141,9 @@ otherwise empty build-owned directory to protect the present contract.
    pointer roles, emits one-frame relative look deltas, and cancels invalid contacts explicitly.
    Non-finite or implausibly remote contact coordinates cannot acquire or retain a role, invalid
    display geometry releases both roles, and a one-frame look delta is capped to one display span.
+   A separate bounded top-right contact cycles the retained 0.72/1.00/1.35 touch-look response
+   without becoming a look pointer; its active ownership also suppresses SDL's synthetic mouse
+   path. Resize and ordinary ownership reset preserve the selection.
    Native desktop movement can acquire relative mouse mode on its first key edge; acquisition never
    consumes the pre-capture absolute cursor position as look input.
 3. `FirstPersonInput` gives WASD and arrows the same local axes, combines touch, and transforms the

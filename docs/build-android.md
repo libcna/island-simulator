@@ -14,7 +14,8 @@ model as desktop, although an on-screen opt-out is not implemented yet. The host
 `kvm_amd`, exposes `/dev/kvm` as device `10:232`, and grants the developer access through the
 `kvm` group. Android Emulator 36.5.11 now runs the API 35 x86_64 AVD with KVM and host-GPU
 gfxstream. The complete scene, independent movement/look gestures, same-process hot resume,
-AAudio pause/resume, and a force-stop/new-process cold relaunch are validated there. A
+three selectable touch-look response levels, AAudio pause/resume, and a force-stop/new-process
+cold relaunch are validated there. A
 deterministic touch traversal also walks from the
 south-beach spawn through the shallows, enters the authoritative swimming state, and plays the
 water-transition accent. Physical-device ergonomics, driver coverage, thermals, and extended
@@ -484,6 +485,27 @@ ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1 \
     "$ANDROID_SDK_ROOT/platform-tools/adb" \
     android/app/build/outputs/apk/debug/app-debug.apk \
     build/android-runtime-smoke-swimming
+```
+
+Set `ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY=1` to exercise the top-right three-dot
+selector. The helper parses both SDL's physical window and the logical backbuffer, maps the target
+through the same aspect-fit viewport (including pillarbox or letterbox margins), and holds a
+stationary contact long enough for the game to observe its Pressed state. It requires the exact
+high/1.35-times and no-mouse-capture platform diagnostics. Renderer-independent tests separately
+cover the complete standard-to-high-to-low cycle, hold debouncing, look-role isolation, bounded
+multipliers, and selection preservation across resize. It composes with traversal and lifecycle
+modes:
+
+```bash
+ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1 \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-touch-sensitivity
 ```
 
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1` to extend a qualified run with both lifecycle

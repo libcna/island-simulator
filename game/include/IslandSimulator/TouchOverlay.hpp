@@ -13,7 +13,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
-    /** @brief Asset-free, unobtrusive presentation for the two-zone touch controls. */
+    /** @brief Asset-free presentation for movement, look, and look-sensitivity touch controls. */
     class TouchOverlay final
     {
     public:

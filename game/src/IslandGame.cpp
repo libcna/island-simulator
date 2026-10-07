@@ -837,8 +837,24 @@ namespace island
         if (!touchContacts.empty()) {
             touchOverlayVisible_ = true;
         }
+        if (touchControlState_.lookSensitivityChanged) {
+            const std::string_view diagnostic = [this]() -> std::string_view {
+                switch (touchControlState_.lookSensitivity) {
+                case TouchLookSensitivityLevel::Low:
+                    return "island-simulator: touch look sensitivity low (0.72x)";
+                case TouchLookSensitivityLevel::Standard:
+                    return "island-simulator: touch look sensitivity standard (1.00x)";
+                case TouchLookSensitivityLevel::High:
+                    return "island-simulator: touch look sensitivity high (1.35x)";
+                }
+                return "island-simulator: touch look sensitivity standard (1.00x)";
+            }();
+            std::cout << diagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        }
         const bool touchInteracting = touchControlState_.movementActive
-            || touchControlState_.lookActive;
+            || touchControlState_.lookActive
+            || touchControlState_.sensitivitySelectorActive;
 
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
@@ -1057,6 +1073,13 @@ namespace island
             setIsMouseVisibleProperty(false);
             acquiredMouseThisFrame = true;
         }
+        if (touchControlState_.lookSensitivityChanged && !mouseCaptured_) {
+            constexpr std::string_view diagnostic =
+                "island-simulator: touch sensitivity selector retained touch ownership "
+                "without mouse capture";
+            std::cout << diagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        }
         if (mouseCaptured_ && !acquiredMouseThisFrame) {
             yaw_ -= static_cast<float>(mouse.getXProperty()) * MouseSensitivity;
             pitch_ = std::clamp(pitch_ - static_cast<float>(mouse.getYProperty()) * MouseSensitivity,
@@ -1064,9 +1087,13 @@ namespace island
         }
         if (touchControlState_.lookActive) {
             const float resolutionScale = 720.0f / std::max(1.0f, touchHeight);
-            yaw_ -= touchControlState_.lookDeltaX * TouchLookSensitivity * resolutionScale;
+            const float sensitivityScale = TouchControls::LookSensitivityScale(
+                touchControlState_.lookSensitivity);
+            yaw_ -= touchControlState_.lookDeltaX * TouchLookSensitivity
+                * sensitivityScale * resolutionScale;
             pitch_ = std::clamp(
-                pitch_ - touchControlState_.lookDeltaY * TouchLookSensitivity * resolutionScale,
+                pitch_ - touchControlState_.lookDeltaY * TouchLookSensitivity
+                    * sensitivityScale * resolutionScale,
                 -1.48f, 1.48f);
         }
 

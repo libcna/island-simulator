@@ -78,6 +78,7 @@ The current Android build uses two simultaneous touch zones:
 |---|---|
 | Touch and drag in the left half | Move with a floating analog stick anchored at the first contact |
 | Touch and drag in the right half | Look relative to the preceding touch position |
+| Tap the three-dot control at top right | Cycle standard, high, and low touch-look sensitivity |
 | Release a contact | Stop the role owned by that pointer without disturbing the other role |
 
 Subtle generated circles show the movement origin/thumb and the current look contact. The control
@@ -86,7 +87,11 @@ a unit vector, applies a dead zone, and cancels missing contacts or contacts inv
 display-size change. Non-finite or implausibly remote coordinates are treated as a missing contact,
 invalid display geometry releases both roles, and relative-look output is bounded to one display
 span per update. The next valid contact can immediately acquire the released role. The HUD remains
-inside conservative display-edge margins.
+inside conservative display-edge margins. The sensitivity selector highlights its low, standard,
+or high dot and applies a 0.72, 1.00, or 1.35 multiplier. Its contact cannot rotate the camera,
+holding it cannot cycle repeatedly, and the selection survives resize and same-process pause/resume.
+It deliberately resets to standard after a new process starts; persistent settings storage is not
+implemented yet.
 
 Pushing the movement stick through 92 percent of its usable range selects the 8.0 m/s land pace;
 easing it below 78 percent returns to walking. The gap prevents pace chatter near the threshold,
@@ -99,5 +104,6 @@ code runs on OpenGL 3.3, WebGL 2, and OpenGL ES 3. A KVM-accelerated API 35 emul
 validated the translucent HUD and separately injected left-zone movement and right-zone look
 gestures. The game also survived a same-process background/foreground cycle with its audio stream
 paused and resumed, followed by a force-stop and qualified new-process GLES 3/audio launch.
-Simultaneous real-finger feel, sensitivity, optional handedness, long suspension, external audio
+The same accelerated run selected all three sensitivity levels and visually retained high across
+Home/resume. Simultaneous real-finger feel, optional handedness, long suspension, external audio
 focus, and physical-device ergonomic tuning remain open.

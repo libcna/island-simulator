@@ -256,7 +256,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,493,652 bytes, 71.6% below the 8,791,455-byte
+a SHA-256 manifest. The current gzip payload is 2,495,383 bytes, 71.6% below the 8,794,948-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -265,11 +265,13 @@ The Android project produces arm64-v8a device and x86_64 emulator APKs with an e
 renderer. The left half of the screen supplies a floating movement stick and the right half uses
 relative drag-to-look, with subtle generated premultiplied-alpha control indicators. Near-full
 movement-stick travel selects the faster land pace with a warm-gold visual cue; easing inward
-returns to analog walking. Android
+returns to analog walking. A small three-dot control at top right cycles low, standard, and high
+look sensitivity (0.72/1.00/1.35 times); the highlighted dot shows the current choice. Android
 Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-GPU gfxstream.
-The complete current scene, independent movement/look gestures, a same-process hot resume, and
-AAudio pause/resume are validated there. This is meaningful emulator qualification, but it does
-not replace physical-device ergonomics, thermal, driver, and sustained-performance testing. See
+The complete current scene, independent movement/look gestures, all sensitivity levels, a
+same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
+there. This is meaningful emulator qualification, but it does not replace physical-device
+ergonomics, thermal, driver, and sustained-performance testing. See
 `docs/build-android.md` and `PLAN.md` for exact evidence and commands.
 
 ## Project records
