@@ -514,7 +514,10 @@ bands, and a speed-scaled pair of broken entry/exit rings centred on the player.
 crossing-wave values already used to break up broad foam also
 apply restrained bright/dark subsurface colour in the non-reflective surface component. The colour
 detail favours shallow water and fades from 135 to 420 m so it reads in exploration views without
-aliasing across the horizon or adding another trigonometric field. The ripple state eases from
+aliasing across the horizon or adding another trigonometric field. A bounded shallow-ridge cue
+reuses the length of the same five-wave analytic slope already needed for normals. It is limited
+to the non-reflective, shallow, near/middle-distance surface and therefore adds no new sine,
+texture, varying, geometry, or draw. The ripple state eases from
 authoritative depth/speed input, wraps
 deterministically, uses subtle spatial breakup, and skips its fragment work while inactive. A
 separate finite transition phase expands and fades its broken double crest, then retires fully;

@@ -169,6 +169,11 @@ void main()
         * waveDetailFade * subsurfaceVisibility;
     water += vec3(0.045, 0.135, 0.114) * subsurfaceWave;
 
+    float shallowRidgeLight = smoothstep(0.010, 0.023, length(slope))
+        * waveDetailFade * (1.0 - fresnel)
+        * smoothstep(0.35, 0.92, clamp(vShallow, 0.0, 1.0));
+    water += vec3(0.018, 0.064, 0.054) * shallowRidgeLight;
+
     float sunGlint = pow(max(dot(normal, halfwayDirection), 0.0), 210.0);
     sunGlint += pow(max(dot(normal, halfwayDirection), 0.0), 42.0) * 0.055;
     water += vec3(1.00, 0.91, 0.68) * sunGlint * 2.4;
@@ -296,6 +301,7 @@ void main()
             std::cout << "island-simulator: ocean portable custom shader, " << vertexCount_
                       << " vertices, " << primitiveCount_ << " triangles\n"
                       << "island-simulator: ocean reused crossing-wave subsurface colour\n"
+                      << "island-simulator: ocean shallow ridge light reuses animated slope field\n"
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_

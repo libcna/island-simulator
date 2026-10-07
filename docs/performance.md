@@ -279,6 +279,21 @@ fragment shaders. A complete actual-browser WebGL 2 suite and visual comparison 
 view pass. The arm64 GLES 3 package builds and lints, but no new Android runtime or physical-GPU
 performance claim is inferred.
 
+### Reused-slope shallow-ridge follow-up
+
+The near-shore water review showed that large calm shallow regions retained the intended colour
+but lacked readable local surface relief at low viewing angles. A bounded colour cue now reuses
+the length of the five-wave analytic slope already calculated for the normal and foam. It fades
+out with the existing 135--420 m detail range, Fresnel reflection, and deep-water interpolation.
+The change adds one length, two smooth steps, and scalar colour shaping to existing fragments; it
+adds no sine, texture, varying, geometry, allocation, or draw submission.
+
+The complete actual Chrome/SwiftShader WebGL 2 suite passes all 22 stages and requires the new
+diagnostic. Original-resolution calm-water and offshore-current captures were inspected: the
+shallow surface gains subdued moving relief without a bright band or a material change offshore.
+The OpenGL 3.3 object compiles without relinking the visible game, while arm64 GLES 3 builds and
+lints. Physical-mobile appearance and isolated fragment cost remain unqualified.
+
 ### Bounded wet-sand sheen follow-up
 
 The existing wet-edge terrain branch now derives a geometric normal from screen-space world-position
@@ -1082,8 +1097,8 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,493,389 bytes (2,423,310
-gzip). The complete transfer payload therefore falls from 8,758,232 to 2,483,492 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,056 gzip), and WebAssembly is 8,493,776 bytes (2,423,323
+gzip). The complete transfer payload therefore falls from 8,758,619 to 2,483,497 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

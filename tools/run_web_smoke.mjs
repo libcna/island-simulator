@@ -245,6 +245,8 @@ try {
     && result.output?.includes(
       "island-simulator: ocean reused crossing-wave subsurface colour")
     && result.output?.includes(
+      "island-simulator: ocean shallow ridge light reuses animated slope field")
+    && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")

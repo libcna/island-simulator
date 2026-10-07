@@ -373,7 +373,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   veil now fade with swimming state and support depth, while depth/speed-responsive player ripples
   and one short broken-ring burst on a moving wet/dry crossing reuse the animated ocean submission.
   The ocean now also reuses its existing two crossing-wave values for shallow-weighted subsurface
-  colour structure that fades before the horizon; full underwater transitions and final
+  colour structure that fades before the horizon. A restrained ridge-light cue reuses the
+  already-computed five-wave analytic slope and the same distance/Fresnel/shallow bounds without a
+  new sine, varying, texture, geometry, or draw; full underwater transitions and final
   wash/material tuning remain open.
 - [~] Add underwater/near-surface tint, fog, and refraction-like cues only when portable and
   stable. The first tint is a renderer-portable, premultiplied 160 by 90 generated depth/edge veil
@@ -698,7 +700,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,758,232 bytes uncompressed and 2,483,492 bytes through
+  The current Release package is 8,758,619 bytes uncompressed and 2,483,497 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -4451,6 +4453,24 @@ Work next, in order:
   verification passes. The APK is 18,710,020 bytes with a 15,899,736-byte stripped `libmain.so`.
   No new Android runtime or physical-device appearance claim is made. CNA and Sharp Runtime
   remained read-only.
+
+### 2026-10-07 — Reused-slope shallow-water relief
+
+- Original-resolution water and current frames showed that the tropical shallow colour and shore
+  transition were coherent, but large calm regions remained visually flat at low viewing angles.
+  Added a restrained shallow-ridge colour cue derived from the length of the analytic five-wave
+  slope already calculated for normals and foam.
+- The cue is bounded by existing 135--420 m detail fade, Fresnel reflection, and shallow-water
+  interpolation. It adds one length, two smooth steps, and scalar colour shaping to existing
+  ocean fragments, with no new sine, texture, varying, geometry, allocation, or draw submission.
+- The OpenGL 3.3 ocean object compiles through `/rv/cnaccache` without relinking the visible game.
+  The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages, requires the new
+  diagnostic, and produces inspected calm-water/current frames without a bright band or offshore
+  colour shift. WebAssembly is 8,493,776 bytes; the release package is 8,758,619 bytes
+  uncompressed and 2,483,497 bytes through deterministic gzip.
+- The two-worker arm64 GLES 3 build/lint and APK v2-signature verification pass. The APK is
+  18,710,388 bytes with a 15,900,104-byte stripped `libmain.so`. No new Android runtime or
+  physical-device cost claim is made. CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 
