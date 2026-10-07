@@ -329,6 +329,8 @@ try {
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
+    && result.output?.includes(
+      "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -573,6 +575,8 @@ try {
       "island-simulator: grass sparse sun-cured tip variation in shared vertex colours")
     && grassResult.output?.includes(
       "island-simulator: grass per-instance blade stature with near juvenile undergrowth")
+    && grassResult.output?.includes(
+      "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && grassResult.output?.includes(
       "island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres")
     && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
@@ -1253,7 +1257,22 @@ try {
   }, visualSessionId);
   await delay(350);
   const runStartLength = (await readSmokeOutput(visualSessionId)).length;
-  await dispatchKeyPress(visualSessionId, "ArrowUp", "ArrowUp", 38, 1300, 400);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
+    nativeVirtualKeyCode: 38,
+  }, visualSessionId);
+  for (let attempt = 0; attempt < 20; ++attempt) {
+    await delay(250);
+    const activeRunSamples = parseInputSamples(
+      (await readSmokeOutput(visualSessionId)).slice(runStartLength));
+    if (activeRunSamples.some(sample => sample.running === 1
+      && Math.hypot(sample.velocityX, sample.velocityZ) > 7.0)) break;
+  }
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
+    nativeVirtualKeyCode: 38,
+  }, visualSessionId);
+  await delay(400);
   const runSamples = parseInputSamples(
     (await readSmokeOutput(visualSessionId)).slice(runStartLength));
   const runFirst = runSamples[0];
@@ -1268,7 +1287,22 @@ try {
     "island-simulator: run mode disabled (4.3 m/s)");
   await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
   const walkStartLength = (await readSmokeOutput(visualSessionId)).length;
-  await dispatchKeyPress(visualSessionId, "ArrowUp", "ArrowUp", 38, 1000, 400);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
+    nativeVirtualKeyCode: 38,
+  }, visualSessionId);
+  for (let attempt = 0; attempt < 20; ++attempt) {
+    await delay(250);
+    const activeWalkSamples = parseInputSamples(
+      (await readSmokeOutput(visualSessionId)).slice(walkStartLength));
+    if (activeWalkSamples.some(sample => sample.running === 0
+      && Math.hypot(sample.velocityX, sample.velocityZ) > 3.5)) break;
+  }
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
+    nativeVirtualKeyCode: 38,
+  }, visualSessionId);
+  await delay(400);
   const walkSamples = parseInputSamples(
     (await readSmokeOutput(visualSessionId)).slice(walkStartLength));
   const walkFirst = walkSamples[0];

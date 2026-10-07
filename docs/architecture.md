@@ -340,10 +340,12 @@ cell binds adjacent-tier ranges of the same instance buffer through two draws. N
 instance upload is required. The vertex
 shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
 independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
-near mesh interleaves five shorter, narrower juvenile blades among 29 mature blades. The existing
-per-instance colour value also seeds a portable per-blade stature, colour, and wind-amplitude
-offset, so repeated shared geometry retains distinct silhouettes without another attribute or
-instance upload. The
+near mesh interleaves five shorter, narrower juvenile blades among 29 mature blades. Four mature
+blades carry small seed-bearing stems with six sparse spikelets each. They use the same opaque
+vertex format, packed facing, per-blade phase, wind shader, shared mesh, and instanced submission
+as the blades. The existing per-instance colour value also seeds a portable per-blade stature,
+colour, and wind-amplitude offset, so repeated shared geometry retains distinct silhouettes
+without another attribute or instance upload. The
 path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
 the far tier into the ground before culling. Each instance also carries one coherent cool-to-warm
 biome value derived from shore distance and the shared route/clearing definitions. It makes coastal
@@ -353,9 +355,10 @@ that identity in its far-ground merge; the extra four-byte attribute does not ch
 geometry, or placement counts. `GrassInteractionModel` eases a normalized envelope
 from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
-interaction shares every existing instance and draw. Near blades use five curved control levels
-and 272 triangles per cluster; middle clusters use three levels and 40 triangles, while the far
-tier uses three levels and 20 triangles. Blade
+interaction shares every existing instance and draw. Near blades use five curved control levels;
+their four sparse seed heads bring the shared cluster to 428 vertices and 304 triangles. Middle
+clusters use three levels and 40 triangles, while the far tier uses three levels and 20 triangles.
+Blade
 orientation is packed into the otherwise-unused vertex alpha channel, avoiding another buffer
 attribute while enabling two-sided fixed-sun diffuse, subtle view-edge transmission, folded side
 colour, and root darkening. Native OpenGL 3.3 and WebGL 2 use the portable instanced shader; a

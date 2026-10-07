@@ -91,6 +91,12 @@ namespace island
             Far
         };
 
+        [[nodiscard]] constexpr bool HasNearSeedHead(const GrassMeshTier tier,
+                                                     const int blade) noexcept
+        {
+            return tier == GrassMeshTier::Near && ((blade * 7 + 3) % 17) < 2;
+        }
+
         struct CellBuildEntry
         {
             GrassInstanceData instance;
@@ -272,6 +278,14 @@ void main()
             return static_cast<std::size_t>(row * GrassRenderer::CellsPerAxis + column);
         }
 
+        [[nodiscard]] std::uint8_t EncodedBladeFacing(const float facing)
+        {
+            const float turns = facing / (2.0f * std::numbers::pi_v<float>);
+            const float normalizedFacing = turns - std::floor(turns);
+            const int encodedFacing = static_cast<int>(std::lround(normalizedFacing * 255.0f));
+            return static_cast<std::uint8_t>(std::clamp(encodedFacing, 0, 255));
+        }
+
         [[nodiscard]] Color BladeColor(const int blade, const float heightFraction,
                                        const bool rightSide, const float facing)
         {
@@ -292,13 +306,61 @@ void main()
                 (124.0f + bladeShift * 19.0f) * light * greenCure));
             const int blue = static_cast<int>(std::lround(
                 (38.0f + bladeShift * 8.0f) * light * blueCure));
-            const float normalizedFacing = facing / (2.0f * std::numbers::pi_v<float>)
-                - std::floor(facing / (2.0f * std::numbers::pi_v<float>));
-            const int encodedFacing = static_cast<int>(std::lround(normalizedFacing * 255.0f));
             return Color(static_cast<std::uint8_t>(std::clamp(red, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(green, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(blue, 0, 255)),
-                         static_cast<std::uint8_t>(std::clamp(encodedFacing, 0, 255)));
+                         EncodedBladeFacing(facing));
+        }
+
+        [[nodiscard]] Color SeedHeadColor(const int blade, const float facing)
+        {
+            const bool sunCured = (blade & 1) != 0;
+            const int variation = (blade * 11) % 13 - 6;
+            const int red = (sunCured ? 116 : 72) + variation;
+            const int green = (sunCured ? 126 : 132) + variation;
+            const int blue = (sunCured ? 48 : 42) + variation / 2;
+            return Color(static_cast<std::uint8_t>(std::clamp(red, 0, 255)),
+                         static_cast<std::uint8_t>(std::clamp(green, 0, 255)),
+                         static_cast<std::uint8_t>(std::clamp(blue, 0, 255)),
+                         EncodedBladeFacing(facing));
+        }
+
+        void AppendNearSeedHead(ClusterGeometry& geometry, const int blade,
+                                const Vector3& tip, const Vector3& direction,
+                                const Vector3& side, const float phase, const float facing)
+        {
+            const Vector3 up(0.0f, 1.0f, 0.0f);
+            const Vector3 stemTop = tip + up * 0.082f + direction * 0.014f;
+            const Vector3 stemHalfWidth = side * 0.0036f;
+            const Vector2 windData(1.0f, phase);
+            const Color color = SeedHeadColor(blade, facing);
+            const auto stemBase = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(tip - stemHalfWidth, color, windData);
+            geometry.vertices.emplace_back(tip + stemHalfWidth, color, windData);
+            geometry.vertices.emplace_back(stemTop - stemHalfWidth * 0.55f, color, windData);
+            geometry.vertices.emplace_back(stemTop + stemHalfWidth * 0.55f, color, windData);
+            geometry.indices.insert(geometry.indices.end(),
+                                    {stemBase, static_cast<std::uint16_t>(stemBase + 2U),
+                                     static_cast<std::uint16_t>(stemBase + 1U),
+                                     static_cast<std::uint16_t>(stemBase + 1U),
+                                     static_cast<std::uint16_t>(stemBase + 2U),
+                                     static_cast<std::uint16_t>(stemBase + 3U)});
+
+            for (int spikelet = 0; spikelet < 6; ++spikelet) {
+                const float level = static_cast<float>(spikelet);
+                const float sign = (spikelet & 1) == 0 ? -1.0f : 1.0f;
+                const Vector3 root = tip + up * (0.026f + level * 0.009f)
+                    + direction * (level * 0.002f);
+                const float reach = 0.011f + 0.002f * static_cast<float>(spikelet % 3);
+                const Vector3 outer = root + side * (sign * reach) + up * 0.004f;
+                const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                geometry.vertices.emplace_back(root, color, windData);
+                geometry.vertices.emplace_back(outer - up * 0.0035f, color, windData);
+                geometry.vertices.emplace_back(outer + up * 0.0045f, color, windData);
+                geometry.indices.insert(geometry.indices.end(),
+                                        {base, static_cast<std::uint16_t>(base + 1U),
+                                         static_cast<std::uint16_t>(base + 2U)});
+            }
         }
 
         void AppendBlade(ClusterGeometry& geometry, const int blade, const int bladeCount,
@@ -362,6 +424,11 @@ void main()
                 geometry.indices.insert(geometry.indices.end(), {left, nextLeft, right,
                                                                  right, nextLeft, nextRight});
             }
+
+            if (HasNearSeedHead(tier, blade)) {
+                const Vector3 tip = Vector3(baseX, height, baseZ) + direction * lean;
+                AppendNearSeedHead(geometry, blade, tip, direction, side, phase, facing);
+            }
         }
 
         [[nodiscard]] ClusterGeometry CreateClusterGeometry(const int bladeCount,
@@ -369,9 +436,14 @@ void main()
                                                             const int bladeLevels)
         {
             ClusterGeometry geometry;
-            geometry.vertices.reserve(static_cast<std::size_t>(bladeCount * bladeLevels * 2));
-            geometry.indices.reserve(static_cast<std::size_t>(bladeCount
-                                                               * (bladeLevels - 1) * 6));
+            int seedHeadCount = 0;
+            for (int blade = 0; blade < bladeCount; ++blade) {
+                seedHeadCount += HasNearSeedHead(tier, blade) ? 1 : 0;
+            }
+            geometry.vertices.reserve(static_cast<std::size_t>(
+                bladeCount * bladeLevels * 2 + seedHeadCount * 22));
+            geometry.indices.reserve(static_cast<std::size_t>(
+                bladeCount * (bladeLevels - 1) * 6 + seedHeadCount * 24));
             for (int blade = 0; blade < bladeCount; ++blade) {
                 AppendBlade(geometry, blade, bladeCount, tier, bladeLevels);
             }
@@ -443,6 +515,8 @@ void main()
                          "vertex colours\n"
                       << "island-simulator: grass per-instance blade stature with near juvenile "
                          "undergrowth\n"
+                      << "island-simulator: grass sparse near seed heads share blade wind and "
+                         "instancing\n"
                       << "island-simulator: grass three-tier per-patch LOD transitions "
                       << GrassLod::NearOnlyDistance << '-'
                       << GrassLod::MiddleOnlyStartDistance << '/'
@@ -450,6 +524,8 @@ void main()
                       << GrassLod::FarOnlyDistance << " metres\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass biome tint follows coast, path, and authored clearings");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass sparse near seed heads share blade wind and instancing");
         } else {
             std::cerr << "island-simulator: grass " << totalPatchCount_
                       << " patches, stock-effect fallback: " << fallbackReason_ << '\n';

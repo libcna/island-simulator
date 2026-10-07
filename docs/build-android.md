@@ -46,7 +46,8 @@ per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
 variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading, per-instance blade
-stature, and a sparse juvenile underlayer in the instanced mesh grass,
+stature, a sparse juvenile underlayer, and four restrained seed-bearing stems in the instanced
+near-grass mesh,
 fuller segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
 157 land rocks and 14 emergent reef outcrops with near-only strata/lichen plus a low fixed-sea-level
@@ -76,8 +77,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,723,972-byte APK with a
-15,913,688-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,727,492-byte APK with a
+15,917,208-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
@@ -145,6 +146,14 @@ translucent touch HUD. It reports `OPENGLES3` and the exact 1280 by 720 logical 
 first draw in 3997.896 ms total, and contains no fatal, shader, or `GL_INVALID_OPERATION`
 diagnostic. The emulator was stopped cleanly and the arm64-only package was rebuilt and linted.
 This is gfxstream functional evidence, not physical-mobile appearance or performance evidence.
+
+A subsequent fixed close-grass x86_64 KVM/gfxstream run requires the sparse near seed-head
+diagnostic through Android's platform log. The inspected 2400 by 1080 frame visibly retains several
+restrained green/gold heads among the varied juvenile and mature blades, with clean touch-overlay
+blending. It reports `OPENGLES3`, the exact 1280 by 720 logical viewport, and a 7148.253 ms cold
+first draw total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The slower single
+emulator launch is functional evidence rather than a performance claim. The emulator was stopped
+cleanly and the arm64-only package was restored, rebuilt, linted, and signature-verified.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
@@ -334,7 +343,8 @@ adb logcat -d
 Once the device reports `device` and `adb shell getprop sys.boot_completed` reports `1`, the
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
-logical viewport, first-draw timing, biome-grass, and sunward-ocean-crest diagnostics, rejects
+logical viewport, first-draw timing, biome-grass, near-seed-head, and sunward-ocean-crest
+diagnostics, rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 
 ```bash

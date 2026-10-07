@@ -1076,6 +1076,26 @@ match; a KVM/gfxstream GLES 3 run reached a clean first frame and visibly retain
 These are gross-regression and portability checks, not an isolated speed comparison or a
 physical-mobile density budget.
 
+### Sparse near-grass seed-head follow-up
+
+Four of the 29 mature blades in the shared near cluster now carry a narrow stem and six small
+single-triangle spikelets. The addition is deliberately absent from the middle and far tiers. It
+adds 88 vertices and 32 triangles to the one shared near mesh, taking it from 340 vertices and 272
+triangles to 428 vertices and 304 triangles. It adds no texture, transparency, instance attribute,
+buffer, population, runtime allocation, culling change, or draw submission; the new vertices reuse
+the existing packed blade-facing value and wind data.
+
+The deterministic close-grass view still renders 957 near, 637 middle, and 1,233 far clusters in
+21 grass submissions. Its visible grass geometry rises from 310,444 to 341,068 triangles, a 9.86
+percent increase across the full visible grass population. The OpenGL 3.3 capture was inspected
+and the complete isolated-X11 suite passes 41/41. The exact Chrome 152/SwiftShader WebGL 2 suite
+passes all 22 stages, requires the seed-head diagnostic, and its original-resolution capture was
+inspected. A current x86_64 KVM/gfxstream GLES 3 run required the same platform-log diagnostic and
+its inspected 2400 by 1080 capture retained the sparse accents without a shader, fatal, or
+`GL_INVALID_OPERATION` report. The arm64 package builds and lints. These are functional
+portability and visual checks; physical-mobile density cost, sustained thermals, and isolated
+timing remain open.
+
 ### Near-monkey fur-silhouette follow-up
 
 Three small tetrahedral tufts in the near body mesh break up the crown and cheek outline while

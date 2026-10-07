@@ -133,6 +133,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: startup world" "$LOG_FILE" \
         && grep -q "island-simulator: grass biome tint follows coast, path, and authored clearings" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: grass sparse near seed heads share blade wind and instancing" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: ocean sunward ripple crests reuse analytic slope field" \
             "$LOG_FILE" \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then

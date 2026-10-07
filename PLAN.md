@@ -442,7 +442,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   A 34-blade, five-control-level near mesh and five-blade, three-level far mesh now run on OpenGL
   3.3, actual WebGL 2, and KVM/gfxstream GLES 3. Near blades have folded side colour, two-sided
   fixed-sun lighting, root darkening, restrained transmission, five shorter juvenile blades, and
-  per-instance blade stature/colour/wind variation. Measured physical-mobile overdraw remains.
+  per-instance blade stature/colour/wind variation. Four mature near blades now carry restrained
+  seed-bearing stems that share the existing opaque instanced wind path. Measured physical-mobile
+  overdraw remains.
 - [x] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The
   18,556-patch layout varies all five deterministically from terrain constraints and smooth cluster
   noise. A coherent cool-to-warm material field now differentiates coast, interior, short route
@@ -453,7 +455,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   value now varies individual blade stature, colour, and wind amplitude inside each shared cluster.
 - [x] Align clusters to authoritative terrain normals without flattening individual blade growth.
 - [~] Add vertex wind with bounded amplitude and coherent gust-free sunny-day motion. The portable
-  two-frequency wind path is verified on OpenGL 3.3 and WebGL 2; GLES 3 remains unqualified.
+  two-frequency wind path is verified on OpenGL 3.3, WebGL 2, and a current KVM/gfxstream GLES 3
+  close-grass capture; physical-mobile behaviour remains unqualified.
 - [x] Add bounded player interaction without a CPU per-patch update. Nearby blade tips now bend
   away from a 0.55 m stationary body radius, smoothly expand to 1.35 m at walking speed, and ease
   back after movement inside the existing portable instanced vertex shader.
@@ -775,8 +778,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   The x86_64 debug APK installs and starts on the KVM-accelerated API 35 `Medium_Phone` AVD,
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
-  requires renderer/first-frame/current-grass and ocean-crest diagnostics, rejects fatal/shader
-  errors, and records
+  requires renderer/first-frame/current-grass, near-seed-head, and ocean-crest diagnostics, rejects
+  fatal/shader errors, and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
@@ -926,7 +929,8 @@ Android is not project completion.
   first-person depth without textures or extra draws. Biome-aware instance colour and sparse
   height-weighted sun-cured tips now break up broad and blade-scale uniformity. Five near juvenile
   blades plus per-instance stature/colour/wind variation further reduce repeated tuft silhouettes.
-  The light middle
+  Four sparse seed-bearing stems add restrained near-field vertical accents while leaving the
+  middle/far meshes, population, buffers, and draw count unchanged. The light middle
   mesh and two adjacent-tier population splits remove the old whole-cell/direct-extreme swap;
   transition-motion review, aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
@@ -4730,6 +4734,36 @@ Work next, in order:
   deterministic Web payload, 2,489,351 bytes through gzip, 15,913,688 bytes for stripped arm64
   `libmain.so`, and 18,723,972 bytes for the arm64 APK. Physical-mobile appearance and isolated
   fragment cost remain open. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Sparse near-grass seed-head silhouettes
+
+- Original-resolution close-grass review found that the improved curved blades and juvenile
+  underlayer still ended in a mostly uniform fine silhouette. Four of the 29 mature blades in the
+  shared near cluster now carry a narrow stem and six sparse single-triangle spikelets. Their
+  restrained green/gold variation is deterministic and they inherit the existing packed facing,
+  per-blade phase, wind displacement, opaque material, and instanced draw.
+- The shared near mesh rises from 340 vertices/272 triangles to 428 vertices/304 triangles. Middle
+  and far meshes remain unchanged. The fixed close view still uses 21 grass submissions and adds
+  30,624 triangles across its 957 visible near clusters, taking total visible grass geometry from
+  310,444 to 341,068 triangles, or 9.86 percent. No texture, transparency, instance attribute,
+  buffer, population, allocation, culling distance, or draw submission was added.
+- The current OpenGL 3.3 grass frame was inspected and the complete isolated-X11 suite passes
+  41/41, including actual simultaneous movement/mouse input and persistent Shift run/walk toggling.
+  The exact Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages, requires the new diagnostic,
+  and its original-resolution grass frame was inspected. A loaded SwiftShader run exposed a fixed-
+  duration input-test assumption: the old key hold sometimes sampled acceleration before reaching
+  the target. The harness now polls observed run/walk samples while retaining strict persistent-
+  mode and 7.0/3.5 m/s speed requirements.
+- A current x86_64 APK passed the KVM/host-gfxstream GLES 3 grass-view gate with the exact platform-
+  log diagnostic. Its inspected 2400 by 1080 frame retains sparse heads, varied blades, and clean
+  touch controls; it reports `OPENGLES3`, 1280 by 720 logical rendering, and 7148.253 ms cold first
+  draw total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The slow one-run startup
+  is emulator functional evidence, not a performance baseline.
+- The default arm64-only APK was restored, builds/lints through `/rv/cnaccache`, and verifies with
+  APK signature scheme v2. Final artifacts are 8,518,672 bytes WebAssembly, 8,783,515 bytes for the
+  deterministic Web payload, 2,490,073 bytes through gzip, 15,917,208 bytes for stripped arm64
+  `libmain.so`, and 18,727,492 bytes for the arm64 APK. Physical-mobile density cost, thermals, and
+  sustained performance remain open. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

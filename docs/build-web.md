@@ -29,6 +29,7 @@ contact-shadow population in exactly one portable draw. The beach and grass came
 five-level near-blade curvature and portable two-sided daylight path rather than only accepting the
 older flat-colour shader. The lifecycle, overview, beach, and grass cameras also require the
 coherent coast/path/clearing grass biome-colour path. The lifecycle plus close grass and jungle
+cameras also require the sparse near seed-head path. The lifecycle plus close grass and jungle
 cameras require the near-field
 terrain microvariation and procedural leaf-litter path. The lifecycle and dedicated jungle camera
 also require derivative-based, two-sided fixed-sun facet lighting on the instanced vegetation
@@ -101,7 +102,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,778,158 bytes uncompressed and 2,489,351 bytes through gzip, a 71.6% transfer reduction. These
+8,783,515 bytes uncompressed and 2,490,073 bytes through gzip, a 71.7% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -172,6 +173,10 @@ view must report nonzero grass; the dedicated grass view must report full smooth
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
 grass view also requires the per-instance blade-stature and near juvenile-underlayer diagnostic,
 preventing the close tier from silently reverting to the more repetitive 28-blade cluster. The
+same stage requires the sparse near seed-head diagnostic, which proves that the restrained
+seed-bearing stems use the portable shared-mesh path. Run and walk speed sampling polls observed
+movement until the strict 7.0/3.5 m/s thresholds are reached, avoiding a fixed-duration
+SwiftShader scheduling assumption while preserving the speed and persistent-mode checks. The
 grass view also requires nonzero near, middle, and far populations in at least one mixed cell,
 proving that WebGL 2 honours the nonzero instance-buffer offsets used by the adjacent-tier
 62--78 m / 86--102 m LOD splits. The

@@ -27,9 +27,10 @@ portable static batch.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.
 The near mesh uses five curvature levels per blade, folded side colour, and portable two-sided
-daylight/root/transmission shading. A sparse juvenile underlayer and deterministic per-instance
-blade stature, colour, and wind variation keep neighbouring tufts from repeating the shared mesh
-literally; the cheaper far mesh uses three levels and still merges into the terrain before culling.
+daylight/root/transmission shading. A sparse juvenile underlayer, four restrained seed-bearing
+stems in the near cluster, and deterministic per-instance blade stature, colour, and wind variation
+keep neighbouring tufts from repeating the shared mesh literally; the cheaper far mesh uses three
+levels and still merges into the terrain before culling.
 Nearby palm crowns use nine paired, fuller tapered-leaflet stations on each of 10--12 curved fronds
 instead of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelope at
 distance,
