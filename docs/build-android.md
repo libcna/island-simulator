@@ -425,6 +425,16 @@ APK was restored, linted with zero issues, and v2-signature verified. The restor
 18,742,572 bytes and its stripped `libmain.so` is 15,932,288 bytes. This qualifies functional
 gfxstream composition, not sustained performance or a physical mobile GPU.
 
+A current fixed `grass` x86_64 KVM/gfxstream launch passed the strict GLES 3 and audio gate after
+12 of the 34 near blades gained a geometric V-fold ridge. The game reported the exact fold
+diagnostic, `OPENGLES3`, low-latency audio, a 1280 by 720 logical backbuffer, and a 1791.332 ms total
+cold first draw. The inspected 2400 by 1080 frame retains clean blade tips, restrained fold
+lighting, surrounding density, and translucent touch controls without a fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic. The emulator was stopped cleanly; the default arm64-only APK
+was restored, linted with zero issues, and v2-signature verified. It is 18,744,028 bytes and its
+stripped `libmain.so` is 15,933,744 bytes. This is functional gfxstream evidence, not a sustained
+performance or physical-mobile qualification.
+
 Useful diagnostics for a connected test target are:
 
 ```bash
@@ -438,7 +448,8 @@ Once the device reports `device` and `adb shell getprop sys.boot_completed` repo
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
 logical viewport, first-draw timing, biome-grass, near-seed-head, near-bird-feather, and sunward-
-ocean-crest plus grazing-reflection diagnostics and the near-rock crown/facet plus stone-tint
+ocean-crest plus grazing-reflection diagnostics, the selected near-grass geometric V-fold, and the
+near-rock crown/facet plus stone-tint
 diagnostics, rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 

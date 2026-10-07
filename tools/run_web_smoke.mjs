@@ -346,6 +346,8 @@ try {
     && result.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && result.output?.includes(
+      "island-simulator: selected near grass blades use a geometric V-fold ridge")
+    && result.output?.includes(
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && result.output?.includes(
       "island-simulator: near birds use layered trailing flight-feather silhouettes")
@@ -547,6 +549,8 @@ try {
     && beachResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
     && beachResult.output?.includes(
+      "island-simulator: selected near grass blades use a geometric V-fold ridge")
+    && beachResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && beachResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
@@ -591,6 +595,8 @@ try {
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && grassResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
+    && grassResult.output?.includes(
+      "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && grassResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && grassResult.output?.includes(

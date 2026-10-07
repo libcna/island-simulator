@@ -97,6 +97,12 @@ namespace island
             return tier == GrassMeshTier::Near && ((blade * 7 + 3) % 17) < 2;
         }
 
+        [[nodiscard]] constexpr bool HasNearVFold(const GrassMeshTier tier,
+                                                  const int blade) noexcept
+        {
+            return tier == GrassMeshTier::Near && blade % 3 == 0;
+        }
+
         struct CellBuildEntry
         {
             GrassInstanceData instance;
@@ -368,6 +374,7 @@ void main()
         {
             const bool middleMesh = tier == GrassMeshTier::Middle;
             const bool farMesh = tier == GrassMeshTier::Far;
+            const bool vFold = HasNearVFold(tier, blade);
             const bool juvenileBlade = tier == GrassMeshTier::Near && blade % 6 == 5;
             const float normalizedRadius = std::sqrt(
                 (static_cast<float>(blade) + 0.45f) / static_cast<float>(bladeCount));
@@ -410,19 +417,49 @@ void main()
                               * (blade % 3 == 0 ? -1.0f : 1.0f));
                 const Vector3 halfWidth = side * (width * taper);
                 const Vector2 windData(t, phase);
-                geometry.vertices.emplace_back(curved - halfWidth,
-                                               BladeColor(blade, t, false, facing), windData);
-                geometry.vertices.emplace_back(curved + halfWidth,
-                                               BladeColor(blade, t, true, facing), windData);
+                if (vFold) {
+                    const float foldAngle = 0.42f
+                        + 0.045f * static_cast<float>(blade % 4);
+                    const Vector3 ridge = curved + direction * (width * taper * 0.48f);
+                    geometry.vertices.emplace_back(
+                        curved - halfWidth,
+                        BladeColor(blade, t, false, facing - foldAngle), windData);
+                    geometry.vertices.emplace_back(
+                        ridge, BladeColor(blade, t, (blade & 1) != 0, facing), windData);
+                    geometry.vertices.emplace_back(
+                        curved + halfWidth,
+                        BladeColor(blade, t, true, facing + foldAngle), windData);
+                } else {
+                    geometry.vertices.emplace_back(
+                        curved - halfWidth,
+                        BladeColor(blade, t, false, facing), windData);
+                    geometry.vertices.emplace_back(
+                        curved + halfWidth,
+                        BladeColor(blade, t, true, facing), windData);
+                }
             }
 
-            for (int level = 0; level < bladeLevels - 1; ++level) {
-                const auto left = static_cast<std::uint16_t>(base + level * 2);
-                const auto right = static_cast<std::uint16_t>(left + 1U);
-                const auto nextLeft = static_cast<std::uint16_t>(left + 2U);
-                const auto nextRight = static_cast<std::uint16_t>(left + 3U);
-                geometry.indices.insert(geometry.indices.end(), {left, nextLeft, right,
-                                                                 right, nextLeft, nextRight});
+            if (vFold) {
+                for (int level = 0; level < bladeLevels - 1; ++level) {
+                    const auto left = static_cast<std::uint16_t>(base + level * 3);
+                    const auto ridge = static_cast<std::uint16_t>(left + 1U);
+                    const auto right = static_cast<std::uint16_t>(left + 2U);
+                    const auto nextLeft = static_cast<std::uint16_t>(left + 3U);
+                    const auto nextRidge = static_cast<std::uint16_t>(left + 4U);
+                    const auto nextRight = static_cast<std::uint16_t>(left + 5U);
+                    geometry.indices.insert(geometry.indices.end(), {
+                        left, nextLeft, ridge, ridge, nextLeft, nextRidge,
+                        ridge, nextRidge, right, right, nextRidge, nextRight});
+                }
+            } else {
+                for (int level = 0; level < bladeLevels - 1; ++level) {
+                    const auto left = static_cast<std::uint16_t>(base + level * 2);
+                    const auto right = static_cast<std::uint16_t>(left + 1U);
+                    const auto nextLeft = static_cast<std::uint16_t>(left + 2U);
+                    const auto nextRight = static_cast<std::uint16_t>(left + 3U);
+                    geometry.indices.insert(geometry.indices.end(), {
+                        left, nextLeft, right, right, nextLeft, nextRight});
+                }
             }
 
             if (HasNearSeedHead(tier, blade)) {
@@ -437,13 +474,17 @@ void main()
         {
             ClusterGeometry geometry;
             int seedHeadCount = 0;
+            int foldedBladeCount = 0;
             for (int blade = 0; blade < bladeCount; ++blade) {
                 seedHeadCount += HasNearSeedHead(tier, blade) ? 1 : 0;
+                foldedBladeCount += HasNearVFold(tier, blade) ? 1 : 0;
             }
             geometry.vertices.reserve(static_cast<std::size_t>(
-                bladeCount * bladeLevels * 2 + seedHeadCount * 22));
+                (bladeCount * 2 + foldedBladeCount) * bladeLevels
+                + seedHeadCount * 22));
             geometry.indices.reserve(static_cast<std::size_t>(
-                bladeCount * (bladeLevels - 1) * 6 + seedHeadCount * 24));
+                (bladeCount * 6 + foldedBladeCount * 6) * (bladeLevels - 1)
+                + seedHeadCount * 24));
             for (int blade = 0; blade < bladeCount; ++blade) {
                 AppendBlade(geometry, blade, bladeCount, tier, bladeLevels);
             }
@@ -509,6 +550,8 @@ void main()
                          "instanced vertex shader\n"
                       << "island-simulator: grass five-level near curvature with portable "
                          "two-sided daylight shading\n"
+                      << "island-simulator: selected near grass blades use a geometric V-fold "
+                         "ridge\n"
                       << "island-simulator: grass biome tint follows coast, path, and authored "
                          "clearings\n"
                       << "island-simulator: grass sparse sun-cured tip variation in shared "
@@ -524,6 +567,8 @@ void main()
                       << GrassLod::FarOnlyDistance << " metres\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass biome tint follows coast, path, and authored clearings");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: selected near grass blades use a geometric V-fold ridge");
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass sparse near seed heads share blade wind and instancing");
         } else {

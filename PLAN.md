@@ -744,7 +744,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,800,498 bytes uncompressed and 2,496,160 bytes through
+  The current Release package is 8,803,308 bytes uncompressed and 2,496,531 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -970,7 +970,11 @@ Android is not project completion.
   height-weighted sun-cured tips now break up broad and blade-scale uniformity. Five near juvenile
   blades plus per-instance stature/colour/wind variation further reduce repeated tuft silhouettes.
   Four sparse seed-bearing stems add restrained near-field vertical accents while leaving the
-  middle/far meshes, population, buffers, and draw count unchanged. The light middle
+  middle/far meshes, population, buffers, and draw count unchanged. Twelve of 34 near blades now
+  add a restrained geometric V-fold ridge with side-specific lighting; the selected one-third
+  treatment raises the shared near cluster only from 428 to 488 vertices and from 304 to 400
+  triangles, while leaving the middle/far meshes and all runtime resources/submissions unchanged.
+  The light middle
   mesh and two adjacent-tier population splits remove the old whole-cell/direct-extreme swap;
   transition-motion review, aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
@@ -1263,6 +1267,9 @@ Work next, in order:
    planes without changing vertex/triangle counts, textures, instances, buffers, or submissions.
    Their neutral stone tones now also use transform-derived per-instance warm/cool tint with stable
    near/far identity and no new instance data or submission.
+   The grass close-up pass now gives one-third of the near blades a real V-fold ridge while keeping
+   the remaining two-thirds broad and curved; continue reviewing aliasing and density transitions
+   rather than increasing the mobile-visible population blindly.
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
@@ -5381,6 +5388,34 @@ Work next, in order:
   is 15,932,288 bytes. Shared ccache remains 3.7 GiB and 99.66 percent cacheable; project build
   trees remain approximately 2.6 GiB native, 88 MiB Web, and 361 MiB Android with 374 GiB free.
   Every build used no more than two workers; CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Selected near-grass V-fold geometry
+
+- Added a restrained geometric centre ridge to 12 of the 34 blades in the shared near-grass mesh.
+  Each selected five-level blade uses left/ridge/right vertices and four triangles per segment;
+  side-specific encoded facing produces a visible fixed-sun fold while the other two-thirds retain
+  the established broad curved silhouette. The near cluster grows from 428 to 488 vertices and
+  from 304 to 400 triangles. Middle/far meshes, 18,556 instances, cell culling, transitions,
+  buffers, textures, shaders, collision, and draw submissions are unchanged.
+- The changed OpenGL 3.3 object compiles with first-party warnings as errors through the shared
+  cache without relinking the operator-visible running executable. The complete Chrome
+  152/SwiftShader WebGL 2 matrix passes 23/23 stages with an exact V-fold diagnostic, and the
+  original-resolution close-grass frame was inspected for clean tips, restrained facet response,
+  and preservation of the surrounding density.
+- A temporary x86_64 package built through `/rv/cnaccache` and passed the strict GLES 3/audio gate
+  at the fixed grass view on the API 35 KVM 12/host-gfxstream AVD. PID 3476 reported the exact
+  V-fold marker, `OPENGLES3`, a 1280 by 720 logical backbuffer, low-latency audio, and a 1791.332 ms
+  first-draw total. The inspected 2400 by 1080 frame matches the Web composition without fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostics; this is functional emulator evidence, not a
+  physical-mobile performance claim.
+- The deterministic Web package is now 8,803,308 bytes or 2,496,531 bytes through gzip;
+  WebAssembly is 8,538,430 bytes or 2,436,329 bytes through gzip. JavaScript remains 262,820 bytes
+  (59,058 gzip) and HTML remains 2,058 bytes (1,144 gzip).
+- Stopped the emulator cleanly and restored/linted the default arm64-only APK. Lint reports zero
+  issues, signature scheme v2 verifies, the APK is 18,744,028 bytes, and stripped `libmain.so` is
+  15,933,744 bytes. Removed only the reproducible temporary x86_64 CMake/object intermediates,
+  reducing the Android tree by about 1.1 GiB. Shared ccache remains 3.7 GiB and 99.66 percent
+  cacheable; all builds used no more than two workers, and CNA/Sharp Runtime remained read-only.
 
 ## Session-end checklist
 

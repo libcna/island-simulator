@@ -161,8 +161,9 @@ shader path, while the west view requires the shared five-rock/two-log landmark-
 `build/island-ground-capture.ppm` and requires a nonzero per-instance near-LOD population.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
-The grass startup also reports the five-level near curvature, portable two-sided daylight path, and
-coherent coast/path/clearing biome-colour field. Sparse deterministic sun-cured tips add restrained
+The grass startup also reports the five-level near curvature, portable two-sided daylight path,
+selected one-third near-blade geometric V-fold ridge, and coherent coast/path/clearing biome-colour
+field. Sparse deterministic sun-cured tips add restrained
 blade-scale age variation baked into the shared mesh vertex colours, without another texture,
 instance attribute, or draw. The near tier additionally carries a sparse juvenile underlayer, and
 one existing instance value produces deterministic per-blade stature and small colour/wind
