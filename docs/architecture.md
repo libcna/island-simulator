@@ -694,6 +694,12 @@ deterministic shoreline traversal from `(0, -225)` to `(0, -251.332)` successful
 transition effect; a visible hardware-browser listening pass and Android audio focus/lifecycle
 testing remain open.
 
+The Web release package remains a deployment concern rather than a runtime asset subsystem.
+`tools/package_web_release.sh` copies the Emscripten HTML, JavaScript, and WebAssembly outputs,
+produces deterministic gzip siblings, verifies decompression and SHA-256 identity, and writes a
+small manifest for host configuration. No packaging code or precompressed payload is linked into
+the game, and the uncompressed artifacts remain available for hosts that do not negotiate gzip.
+
 ## Current limitations
 
 - Terrain has shared-buffer cell culling and contiguous visible-run batching but no distance LOD,

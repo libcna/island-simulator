@@ -1063,6 +1063,21 @@ only while its smoothed intensity is nonzero. Touch UI is conditional, the debug
 and the run/walk notice lasts 1.4 seconds. This bounds the known transparent layers, but it is not
 a physical-mobile fill-rate measurement; that remains part of device profiling.
 
+### Web release transfer payload
+
+`tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
+`gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
+`web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
+gzip), JavaScript is 262,501 bytes (59,034 gzip), and WebAssembly is 8,492,253 bytes (2,422,594
+gzip). The complete transfer payload therefore falls from 8,756,777 to 2,482,746 bytes, a measured
+71.6% reduction.
+
+This result measures static transfer bytes only. It does not measure browser decompression,
+WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game
+generates its audio PCM and render textures at runtime, so they do not add separate downloads.
+Production-host header validation and repeated hardware-browser cold-load measurements remain
+required before assigning a startup budget.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -133,7 +133,9 @@ been confirmed so far.
   coverage. Release packaging and extended whole-island sessions remain open.
 - WebGL 2 runs in Chromium with automated rendering, pointer-lock, keyboard/mouse, actual-Escape
   release plus continued-session/delayed-reacquisition checks, overlay, resize, and first-gesture
-  audio-mixer/track initialization coverage. Audible hardware-browser quality,
+  audio-mixer/track initialization coverage. Deterministic gzip packaging is validated by local
+  hash/round-trip tests, but production CDN/server headers and hardware-browser cold-load time have
+  not been qualified. Audible hardware-browser quality,
   genuine tab suspend/resume, fullscreen, and a second browser engine remain unverified.
 - Android arm64-v8a and x86_64 APKs build, and a KVM-accelerated API 35 x86_64 AVD renders the
   complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a

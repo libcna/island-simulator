@@ -151,6 +151,12 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         add_test(NAME IslandCaptureValidatorTests
             COMMAND "${Python3_EXECUTABLE}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateCaptureTests.py")
+        add_test(NAME IslandWebPackageValidation
+            COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateWebPackageTests.py"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/package_web_release.sh")
+        set_tests_properties(IslandWebPackageValidation PROPERTIES
+            PASS_REGULAR_EXPRESSION "web package validation passed")
         if(TARGET island_audio_report)
             add_test(NAME IslandAudioPreviewExport
                 COMMAND "${Python3_EXECUTABLE}"

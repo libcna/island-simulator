@@ -695,7 +695,11 @@ Dependencies: portable baseline features and bounded initial asset size.
   dual-track startup. Audible hardware-browser output and genuine tab background/foreground
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
-- [ ] Reduce download/startup size through mesh/texture/audio choices and measured compression.
+- [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
+  The current Release package is 8,756,777 bytes uncompressed and 2,482,746 bytes through
+  deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
+  Procedural PCM and generated render textures add no separate downloads. Production-host header
+  validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
   a stable 1280 by 720 render surface with aspect-preserving CSS scaling; measured density and
   memory tiers remain open.
@@ -4403,6 +4407,24 @@ Work next, in order:
   working tree remained coherent and the visible game stayed active. A second disk review remains
   scheduled before final packaging, when the active build trees can be judged against their live
   use rather than removed prematurely.
+
+### 2026-10-07 — Deterministic precompressed Web release package
+
+- Added a project-owned release packager for the existing WebGL 2 Release outputs. It preflights
+  all three inputs before creating output, copies the HTML/JavaScript/WebAssembly artifacts into
+  `build-probe/web-release`, emits reproducible `gzip -9 -n` siblings, round-trips every stream,
+  and verifies source, copy, and decompressed SHA-256 identity.
+- The schema-1 manifest records exact content types, byte counts, hashes, gzip sizes, totals, and
+  reduction. The current HTML/JavaScript/WebAssembly package is 8,756,777 bytes uncompressed and
+  2,482,746 bytes through gzip, a 71.6% transfer reduction. Runtime-generated PCM and textures are
+  not shipped as separate payloads.
+- Added a focused CTest that validates content, MIME metadata, hashes, totals, deterministic repeat
+  output, and clean missing-input failure without leaving a partial package. It passes in 0.18
+  seconds. Documented the required production `Content-Encoding`, `Vary`, and MIME headers while
+  leaving CDN/server verification, decoded-memory cost, and repeated hardware cold-load timing
+  explicitly open.
+- Reused the current `build-probe` Release outputs; no renderer source changed and no executable
+  was rebuilt. The visible Linux game remained alive. CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

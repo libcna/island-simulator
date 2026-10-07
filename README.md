@@ -220,6 +220,13 @@ responsive 16:9 sizing. A visible hardware-
 accelerated browser listening pass, genuine tab background/foreground behaviour, and another
 browser engine remain open.
 
+After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
+`build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
+a SHA-256 manifest. The current gzip payload is 2,482,746 bytes, 71.6% below the 8,756,777-byte
+uncompressed package. See `docs/build-web.md` for required server content types and
+content-encoding headers; the quick Python development server does not exercise compressed
+delivery.
+
 The Android project produces arm64-v8a device and x86_64 emulator APKs with an explicit GLES 3
 renderer. The left half of the screen supplies a floating movement stick and the right half uses
 relative drag-to-look, with subtle generated premultiplied-alpha control indicators. Near-full

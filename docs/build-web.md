@@ -85,6 +85,31 @@ The deployable files are written to `build-probe/`:
 - `island-simulator.js`
 - `island-simulator.wasm`
 
+For a release host, create an integrity-checked package containing both the original files and
+deterministic gzip variants:
+
+```bash
+tools/package_web_release.sh build-probe
+```
+
+The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
+uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
+8,756,777 bytes uncompressed and 2,482,746 bytes through gzip, a 71.6% transfer reduction. These
+are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
+test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
+missing input before creating partial output, and proves that repeated packaging is byte-stable:
+
+```bash
+ctest --test-dir build -R '^IslandWebPackageValidation$' --output-on-failure
+```
+
+A production host should serve the matching `.gz` file when the request accepts gzip and add
+`Content-Encoding: gzip` plus `Vary: Accept-Encoding`. Preserve `text/html; charset=utf-8` for
+HTML, `text/javascript; charset=utf-8` for JavaScript, and `application/wasm` for WebAssembly.
+Never return a `.gz` file without its content-encoding header; clients without gzip support should
+receive the uncompressed file. The following development server deliberately serves the original
+files and does not qualify compressed production delivery.
+
 Serve the directory over HTTP; browsers do not support this package through `file://`:
 
 ```bash
