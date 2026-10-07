@@ -707,7 +707,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,763,750 bytes uncompressed and 2,484,733 bytes through
+  The current Release package is 8,763,726 bytes uncompressed and 2,484,599 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -767,7 +767,10 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
   requires renderer/first-frame/current-grass diagnostics, rejects fatal/shader errors, and records
-  logcat plus a device screenshot. Debug builds now accept a release-disabled intent argument array
+  logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
+  source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
+  Android's platform log rather than unavailable SDLActivity stdout. Debug builds now accept a
+  release-disabled intent argument array
   for repeatable fixed-view capture; inspected beach, close-grass, jungle, water, monkey, and
   reef GLES3 frames match the corresponding WebGL 2 composition and material paths. Rotation
   policy, process-death restoration, clean exit, and physical-device relaunch remain open.
@@ -4563,6 +4566,30 @@ Work next, in order:
   18,712,372 bytes with a 15,902,088-byte stripped library. The deterministic Web package is
   8,763,750 bytes uncompressed and 2,484,733 bytes through gzip. Subjective headphone/speaker
   balance remains open; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — KVM Android audio-gate requalification
+
+- Confirmed the operator's repaired `/dev/kvm` node is device `10:232`, the current non-root shell
+  belongs to group `kvm`, and Emulator 36.5.11 reports KVM version 12 usable. The first launch
+  exposed a stale Quick Boot snapshot crash (exit 139); a non-destructive retry with snapshot
+  loading disabled booted the API 35 `Medium_Phone` AVD in 14.908 seconds with host AMD Radeon 780M
+  gfxstream.
+- The first strict audio run exposed a game-side validation gap: SDLActivity does not place native
+  stdout in logcat, so the existing audio gate could not observe successful `Soundscape` startup.
+  `Soundscape` now mirrors the three bounded high-value success diagnostics through the existing
+  Android-only platform logger, while desktop and Web retain their unchanged stdout path. The gate
+  now also requires the DC-centering diagnostic. No CNA or Sharp Runtime defect is claimed.
+- A rebuilt x86_64 APK passed the actual GLES 3 plus audio runtime gate. Logcat proves 44.1 kHz
+  stereo AAudio startup, bounded sequential source staging, DC-centred persistent PCM, ambient gain
+  variation, `OPENGLES3`, and the exact 1280 by 720 logical viewport. Startup measured 515.618 ms
+  world, 1.996 ms framework, 1099.860 ms content, 19.109 ms pre-draw, 45.149 ms first draw, and
+  1681.732 ms total. The inspected 2400 by 1080 screenshot retains the complete scene and clean
+  translucent touch HUD with no fatal or shader diagnostic. The emulator was stopped cleanly and
+  the default arm64 package was restored afterward; it builds/lints, verifies with APK v2, and is
+  18,712,724 bytes with a 15,902,440-byte stripped library. The native OpenGL 3.3 object compiles,
+  and the complete actual Chrome/SwiftShader WebGL 2 suite passes all 22 stages. The final
+  8,498,883-byte WebAssembly package is 8,763,726 bytes uncompressed and 2,484,599 bytes through
+  deterministic gzip. Physical-device audio quality remains open.
 
 ## Session-end checklist
 

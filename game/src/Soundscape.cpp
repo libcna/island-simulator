@@ -7,8 +7,10 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <string_view>
 #include <vector>
 
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "Microsoft/Xna/Framework/Audio/AudioChannels.hpp"
 #include "Microsoft/Xna/Framework/Audio/AudioEmitter.hpp"
 #include "Microsoft/Xna/Framework/Audio/AudioListener.hpp"
@@ -24,6 +26,14 @@ namespace island
 {
     namespace
     {
+        constexpr std::string_view BoundedStagingDiagnostic =
+            "island-simulator: audio sources use sequential generation and upload with bounded "
+            "staging memory";
+        constexpr std::string_view DcCenteringDiagnostic =
+            "island-simulator: persistent ambient PCM is DC-centered before quantization";
+        constexpr std::string_view AmbientVariationDiagnostic =
+            "island-simulator: ambient beds use slow non-amplifying gain drift";
+
         [[nodiscard]] std::vector<SharpRuntime::bytecs> ToPcmBytes(const AmbientLoop& loop)
         {
             std::vector<SharpRuntime::bytecs> bytes;
@@ -206,12 +216,10 @@ namespace island
             waveSecondsRemaining_ = 0.0f;
             waterTransitionSecondsRemaining_ = 0.0f;
             wildlifeSecondsRemaining_ = 0.0f;
-            std::cout << "island-simulator: audio sources use sequential generation and upload "
-                         "with bounded staging memory\n";
+            std::cout << BoundedStagingDiagnostic << '\n';
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
-            std::cout << "island-simulator: persistent ambient PCM is DC-centered before "
-                         "quantization\n";
-            std::cout << "island-simulator: ambient beds use slow non-amplifying gain drift\n";
+            std::cout << DcCenteringDiagnostic << '\n';
+            std::cout << AmbientVariationDiagnostic << '\n';
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
@@ -220,6 +228,13 @@ namespace island
             std::cout << "island-simulator: two stronger-wave variants enabled\n";
             std::cout << "island-simulator: positional bird and monkey calls enabled "
                          "(one pooled wildlife voice)\n";
+#ifdef __ANDROID__
+            // SDLActivity does not expose stdout through logcat. Mirror only the bounded set
+            // consumed by Android runtime qualification without adding no-op calls elsewhere.
+            MirrorRuntimeDiagnosticToPlatformLog(BoundedStagingDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(DcCenteringDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(AmbientVariationDiagnostic);
+#endif
             return true;
         } catch (const std::exception& exception) {
             error_ = exception.what();

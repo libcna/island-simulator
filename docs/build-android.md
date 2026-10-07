@@ -74,8 +74,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,712,372-byte APK with a
-15,902,088-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,712,724-byte APK with a
+15,902,440-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
@@ -97,6 +97,17 @@ arm64 package was then restored. Public terrain queries additionally fail closed
 or out-of-domain values can reach procedural noise-cell conversion. The APK verifies with
 signature scheme v2, contains only the selected ABI, and remains the same size after an immediate
 no-change incremental assembly.
+
+The latest current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
+loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow
+non-amplifying ambient gain variation, a running 44.1 kHz stereo AAudio stream, `OPENGLES3`, and
+the exact 1280 by 720 logical viewport. It reached first draw in 1681.732 ms total (515.618 ms
+world, 1.996 ms framework, 1099.860 ms content, 19.109 ms pre-draw, and 45.149 ms first draw).
+The inspected 2400 by 1080 screenshot retains the complete scene and translucent touch HUD without
+a fatal or shader diagnostic. A stale Quick Boot snapshot crashed the emulator during the first
+attempt; preserving the AVD and restarting with `-no-snapshot-load -no-snapshot-save` produced a
+clean 14.908-second KVM boot. This is emulator audio-path evidence, not audible quality or latency
+qualification. The default arm64 package was restored afterward.
 
 A later x86_64 pass exercised the denser 34-blade near-grass geometry and its new GLSL ES 300
 per-blade variation on the same KVM/host-GPU configuration. The complete scene reached a clean
@@ -319,9 +330,10 @@ performance, memory, or thermals. Override the deliberately generous software-em
 
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` for an audio-qualified run. In addition to the normal
 GLES 3 requirements, this waits for the exact sequential-generation/upload diagnostic emitted only
-after all twelve effects were created and the exact slow non-amplifying ambient-gain diagnostic.
-It proves that the current staging and runtime-mix paths reached CNA's audio objects; it does not
-prove audible balance, device latency, or total process-memory usage:
+after all twelve effects were created, the exact persistent-loop DC-centering diagnostic, and the
+exact slow non-amplifying ambient-gain diagnostic. It proves that the current generation, staging,
+and runtime-mix paths reached CNA's audio objects; it does not prove audible balance, device
+latency, or total process-memory usage:
 
 ```bash
 ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \

@@ -85,6 +85,13 @@ Home/resume cycle are functional. A memory snapshot after the scene settled repo
 total PSS, 167.3 MiB RSS, and 0.5 MiB swap PSS. The hot resume took 77 ms application total /
 80 ms wait and paused then restarted the existing 44.1 kHz stereo AAudio stream.
 
+A later current-source strict-audio run completed first draw in 1681.732 ms total: 515.618 ms world
+generation, 1.996 ms framework initialization, 1099.860 ms content creation, 19.109 ms pre-draw,
+and 45.149 ms first draw. The gate observed bounded sequential upload, persistent-loop DC
+centering, and slow ambient variation through the Android platform log, and the inspected frame
+retained the complete scene and translucent touch HUD. This single run is functional evidence, not
+a startup budget or a measurement of audible quality.
+
 The terrain originally retained 64 independently culled cells but also owned 64 duplicated-edge
 vertex/index buffer pairs and issued one draw per visible cell. It now stores the 241 by 241 grid
 as one 58,081-vertex, 115,200-triangle 16-bit mesh, retains all 64 cell bounds and cell-ordered
@@ -1100,8 +1107,9 @@ checks remain valid.
 
 Core/audio/WAV tests pass 3/3, the complete Chrome/SwiftShader suite passes all 22 stages and
 requires the post-gesture DC-centering diagnostic, and the arm64 GLES 3 package builds and lints.
-The change is a numerical/source-quality improvement, not a substitute for the open subjective
-headphone and speaker fatigue pass.
+A current x86_64 KVM/gfxstream run additionally passes the strict GLES 3/audio gate with the same
+diagnostic mirrored through Android's platform log. The change is a numerical/source-quality
+improvement, not a substitute for the open subjective headphone and speaker fatigue pass.
 
 ### Generated texture and transparency audit
 
@@ -1142,8 +1150,8 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,062 gzip), and WebAssembly is 8,498,907 bytes (2,424,553
-gzip). The complete transfer payload therefore falls from 8,763,750 to 2,484,733 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,058 gzip), and WebAssembly is 8,498,883 bytes (2,424,423
+gzip). The complete transfer payload therefore falls from 8,763,726 to 2,484,599 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
