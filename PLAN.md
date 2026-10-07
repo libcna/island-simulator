@@ -4882,6 +4882,22 @@ Work next, in order:
   rerun in the emulator; physical-device performance also remains open. All build operations used
   no more than two workers, and Chrome was capped to eight CPU cores.
 
+### 2026-10-07 — Web control-discoverability follow-up
+
+- A release-documentation audit found that the browser's visible pre-pointer-lock help still named
+  only WASD and omitted the now-persistent Shift pace control. The English Web shell now advertises
+  `WASD / arrows move` and `Shift toggles walk/run` alongside the existing mouse, camera-motion,
+  diagnostics, mute, and Escape guidance. Runtime input semantics are unchanged.
+- Relinked only the WEBGL2 artifact through the shared `/rv/cnaccache` with two workers while the
+  operator's current native build remained open. The complete actual Chrome 152/SwiftShader suite
+  again passes all 22 stages, including pointer lock, both Shift edges, simultaneous forward motion
+  and relative mouse look, audio initialization, lifecycle, and all visual gates. The functional
+  first draw reached 337.700 ms total in this run; it is not a hardware-browser performance claim.
+- The package validation test and asset-provenance gate pass. WebAssembly remains 8,521,483 bytes;
+  the longer HTML hint makes the deterministic package 8,786,361 bytes uncompressed and 2,490,911
+  bytes through gzip, a 71.7 percent reduction. This Web-only presentation change does not require
+  a new native or Android build. CNA and Sharp Runtime remained read-only.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

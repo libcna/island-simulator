@@ -102,7 +102,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,785,789 bytes uncompressed and 2,490,886 bytes through gzip, a 71.6% transfer reduction. These
+8,786,361 bytes uncompressed and 2,490,911 bytes through gzip, a 71.7% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -127,7 +127,8 @@ python3 -m http.server 8765 --bind 127.0.0.1 --directory build-probe
 Then open `http://127.0.0.1:8765/island-simulator.html`.
 
 The deployable HTML is produced from `tools/web_shell.html`. It supplies a 1280 by 720 render
-surface, preserves 16:9 while fitting different browser windows, displays the current controls,
+surface, preserves 16:9 while fitting different browser windows, displays WASD/arrow movement and
+the persistent Shift walk/run toggle alongside the current diagnostic/audio controls,
 and requests pointer lock within the first mouse gesture instead of requiring a confusing second
 click. The C++ controller detects pointer-lock loss and permits clean reacquisition. Web Escape
 never terminates the game loop, including on browsers that forward the key after releasing the
