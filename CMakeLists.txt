@@ -567,7 +567,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "shipwreck portable aged wood, waterline, and salt-wear material.*shipwreck 20m broken hull, 12 debris pieces.*shipwreck visible, 12 debris, 1 draw")
+                "shipwreck portable aged wood, waterline, and salt-wear material.*shipwreck 20m broken hull, 12 debris pieces.*shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast.*shipwreck visible, 12 debris, 1 draw")
         add_test(NAME IslandGameCrabCapture
             COMMAND island-simulator
                     --capture "${CMAKE_BINARY_DIR}/island-crab-capture.ppm"

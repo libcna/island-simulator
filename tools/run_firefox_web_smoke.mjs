@@ -259,6 +259,7 @@ try {
     "island-simulator: rock per-instance tint reuses existing transforms",
     "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material",
     "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
+    "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast",
     "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
     "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
@@ -483,6 +484,7 @@ try {
       "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material",
       "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
       "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast",
+      "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast",
       "island-simulator: shipwreck QA camera views the 20m wreck from the beach",
     ],
     /shipwreck visible, 12 debris, 1 draw/);

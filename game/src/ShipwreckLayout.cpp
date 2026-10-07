@@ -22,18 +22,18 @@ namespace island
         };
 
         constexpr std::array<DebrisAuthoring, ShipwreckLayout::DebrisCount> DebrisAuthoringData = {{
-            {-7.6f, 4.0f, -0.18f, 3.8f, 0.42f, ShipwreckDebrisKind::HullFragment},
-            {6.9f, 3.1f, 0.22f, 4.6f, 0.48f, ShipwreckDebrisKind::HullFragment},
-            {-4.9f, 6.8f, 0.38f, 4.9f, 0.31f, ShipwreckDebrisKind::Plank},
-            {2.8f, 7.5f, -0.31f, 3.7f, 0.28f, ShipwreckDebrisKind::Plank},
-            {8.4f, 8.9f, 0.17f, 5.6f, 0.33f, ShipwreckDebrisKind::Spar},
+            {-7.6f, 4.0f, -0.48f, 3.8f, 0.42f, ShipwreckDebrisKind::HullFragment},
+            {6.9f, 3.1f, 0.68f, 4.6f, 0.48f, ShipwreckDebrisKind::HullFragment},
+            {-4.9f, 6.8f, 0.82f, 4.9f, 0.31f, ShipwreckDebrisKind::Plank},
+            {2.8f, 7.5f, -0.73f, 3.7f, 0.28f, ShipwreckDebrisKind::Plank},
+            {8.4f, 8.9f, 0.49f, 5.6f, 0.33f, ShipwreckDebrisKind::Spar},
             {-9.2f, 9.6f, -0.52f, 2.8f, 0.25f, ShipwreckDebrisKind::Plank},
             {-1.1f, 10.8f, 0.47f, 3.3f, 0.27f, ShipwreckDebrisKind::Plank},
             {5.4f, 12.0f, -0.26f, 2.5f, 0.24f, ShipwreckDebrisKind::Plank},
-            {-6.2f, 13.5f, 0.12f, 4.2f, 0.30f, ShipwreckDebrisKind::Plank},
+            {-6.2f, 13.5f, 0.61f, 4.2f, 0.30f, ShipwreckDebrisKind::Plank},
             {0.9f, 15.0f, -0.44f, 3.0f, 0.24f, ShipwreckDebrisKind::Plank},
             {7.2f, 16.6f, 0.33f, 2.3f, 0.22f, ShipwreckDebrisKind::Plank},
-            {-3.7f, 18.1f, -0.10f, 2.0f, 0.21f, ShipwreckDebrisKind::Plank},
+            {-3.7f, 18.1f, -0.66f, 2.0f, 0.21f, ShipwreckDebrisKind::Plank},
         }};
     }
 

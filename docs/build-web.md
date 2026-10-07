@@ -61,9 +61,10 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 27 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the current rebuilt
-WebAssembly is 8,792,828 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
-12-debris, one-draw diagnostics plus the portable aged-wood/waterline material marker; its refined
-curved-hull and irregular-debris frame was inspected. A separate crab
+WebAssembly is 8,801,515 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+12-debris, large-ship-detail, one-draw diagnostics plus the portable aged-wood/waterline material
+marker; its refined curved hull, broken rails/foremast, keel/rudder, side openings, and irregularly
+scattered debris frame was inspected. A separate crab
 stage requires the thirty-agent colony marker, a nonzero visible population, and exactly one draw;
 its original-resolution frame was also inspected. The butterfly stage likewise requires the
 eighteen-agent habitat marker, a visible near population, and exactly one draw. The turtle stage
@@ -133,9 +134,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-9,059,477 bytes uncompressed and 2,579,291 bytes through gzip, a 71.5% transfer reduction. HTML is
-2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,792,828
-bytes (2,518,894 gzip). These
+9,068,164 bytes uncompressed and 2,582,366 bytes through gzip, a 71.5% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,260 gzip), and WebAssembly is 8,801,515
+bytes (2,521,962 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

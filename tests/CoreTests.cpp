@@ -2365,6 +2365,9 @@ int main()
     std::array<int, 3> shipwreckDebrisKinds{};
     bool shipwreckDebrisReachesWater = false;
     bool shipwreckDebrisReachesBeach = false;
+    int stronglyAngledShipwreckDebris = 0;
+    bool shipwreckDebrisAnglesClockwise = false;
+    bool shipwreckDebrisAnglesCounterClockwise = false;
     for (std::size_t index = 0; index < shipwreck.Debris().size(); ++index) {
         const island::ShipwreckDebrisPlacement& debris = shipwreck.Debris()[index];
         const island::ShipwreckDebrisPlacement& repeated = repeatedShipwreck.Debris()[index];
@@ -2387,12 +2390,23 @@ int main()
         shipwreckDebrisReachesBeach = shipwreckDebrisReachesBeach || shoreDistance > 2.0f;
         Check(std::hypot(debris.x - ship.x, debris.z - ship.z) < 30.0f,
               "shipwreck debris stays in a coherent beach-directed trail");
+        const float debrisAngle = debris.yawRadians - ship.yawRadians;
+        Check(std::abs(debrisAngle) <= 0.85f,
+              "shipwreck debris remains plausibly aligned with the wreck event");
+        if (std::abs(debrisAngle) >= 0.40f) ++stronglyAngledShipwreckDebris;
+        shipwreckDebrisAnglesClockwise = shipwreckDebrisAnglesClockwise
+            || debrisAngle <= -0.40f;
+        shipwreckDebrisAnglesCounterClockwise = shipwreckDebrisAnglesCounterClockwise
+            || debrisAngle >= 0.40f;
     }
     Check(shipwreckDebrisKinds[0] == 9 && shipwreckDebrisKinds[1] == 2
               && shipwreckDebrisKinds[2] == 1,
           "shipwreck debris mixes planks, major hull fragments, and one spar");
     Check(shipwreckDebrisReachesWater && shipwreckDebrisReachesBeach,
           "shipwreck debris trail connects the shallow wreck to the beach");
+    Check(stronglyAngledShipwreckDebris >= 8 && shipwreckDebrisAnglesClockwise
+              && shipwreckDebrisAnglesCounterClockwise,
+          "shipwreck debris breaks parallel repetition in both directions");
     for (std::size_t index = 0; index < shipwreck.Obstacles().size(); ++index) {
         const island::CircularObstacle& obstacle = shipwreck.Obstacles()[index];
         const island::CircularObstacle& repeated = repeatedShipwreck.Obstacles()[index];

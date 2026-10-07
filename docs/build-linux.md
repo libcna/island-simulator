@@ -84,7 +84,7 @@ framework and game. The complete private-display suite passes 46/46, selects CNA
 compiles every current scene shader, exercises all deterministic views, reports a 1280 by 720
 logical backbuffer, and includes actual simultaneous movement/mouse input plus persistent Shift
 run/walk toggling. Dedicated beach-side shipwreck and crab captures require the exact 20 m broken
-hull/12 debris/one wreck draw, a nonzero thirty-agent crab population in one wildlife draw, and a
+hull/12 debris/large-ship detail/one wreck draw, a nonzero thirty-agent crab population in one wildlife draw, and a
 nonzero eighteen-agent butterfly population in one clearing-edge wildlife draw, and one near
 member of the five-agent sea-turtle population in one aquatic-wildlife draw.
 
@@ -118,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,192,773 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,195,138 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,069,785-byte archive with SHA-256
-`3cb1d12a739f3d2c612a4eba0ca1d7e029427e706a9b8ebd25cc0776a5756279`.
+5,071,543-byte archive with SHA-256
+`177e3498a85ce8b3bf55699f41c87158b0823adac155657160e9509a4102d3d0`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -166,6 +166,10 @@ grass camera. The exact `3cb1d12a` archive selected `OPENGL33`, required the asy
 marker, retained 2,827 visible clusters in 21 grass submissions, and completed first draw in
 446.534 ms. Its inspected 1280 by 720 frame passed capture validation with 124 colour bins, 19.68
 luminance deviation, and 42.29 spatial contrast.
+The later large-ship package repeated the gate with the shipwreck camera. The exact `177e3498`
+archive selected `OPENGL33`, required the large-ship marker, retained the 3,948-triangle wreck in
+one draw, and completed first draw in 408.252 ms. Its inspected 1280 by 720 frame passed capture
+validation with 183 colour bins, 36.34 luminance deviation, and 146.84 spatial contrast.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.

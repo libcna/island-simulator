@@ -380,7 +380,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
   response, wet/submerged colour treatment, a dedicated first-person QA viewpoint, F1/F2 counts,
   tests for dimensions/depth/debris bounds/collision, and matched OpenGL 3.3, WebGL 2, and GLES 3
-  runtime evidence. The 1,924-triangle one-draw batch is distance/frustum culled, provenance is
+  runtime evidence. The 3,948-triangle one-draw batch is distance/frustum culled, provenance is
   manifest-gated, and native, Chrome, Firefox, and accelerated-Android captures were inspected.
 
 ### Ocean and shoreline
@@ -1159,8 +1159,9 @@ improves the requested experience rather than adding quests, combat, survival, o
 - [~] Establish consistent real-world scale for terrain features, vegetation, rocks, wildlife, and
   the approximately 20 m shipwreck. Correct visibly implausible thicknesses, floating roots,
   intersections, horizon scale, and eye-height cues. The wreck now has exact 20.0 m length,
-  5.2 m beam, 4.4 m hull height, shallow-water support sampling, and a first-person beach review;
-  the whole-island scale audit remains open.
+  5.2 m beam, 4.4 m hull height, shallow-water support sampling, broken deck rails, hull openings,
+  keel/rudder, and two damaged-mast silhouettes reviewed from the first-person beach camera; the
+  whole-island scale audit remains open.
 
 ### Materials and surface detail
 
@@ -1200,8 +1201,9 @@ improves the requested experience rather than adding quests, combat, survival, o
   variation, shallow sandbars, reef groupings, grove structure, denser/sparser jungle rooms,
   landmark sightlines, and controlled openings. Integrate the shipwreck and debris into one chosen
   cove without damaging the existing main traversal loop. The wreck and beachward debris now form
-  a dedicated coastal landmark outside the reserved primary corridor; broader erosion, grove, and
-  sightline refinement remains open.
+  a dedicated coastal landmark outside the reserved primary corridor. Ten of twelve major
+  pieces now diverge at least 0.4 radians from the hull in both directions, removing the parallel-
+  bar composition; broader erosion, grove, and sightline refinement remains open.
 
 ### Lighting and atmosphere
 
@@ -1239,9 +1241,9 @@ improves the requested experience rather than adding quests, combat, survival, o
   4.5776--4.6285 ms p95, and 9.4118--10.4471 ms p99 with zero 60 Hz misses; the additional-wildlife
   combined worst case remains to be defined. The isolated Release turtle view records 2.1252 ms
   mean, 3.2192 ms p95, 9.5893 ms p99, two 60 Hz misses, and no 30 Hz miss across 600 intervals.
-  The refined 3,392-triangle/material-shader shipwreck Release view recorded 1.9559 ms mean,
-  5.5216 ms p95, 11.6363 ms p99, one 60 Hz miss, no 30 Hz miss, 46 tracked submissions, and one
-  wreck draw across 600 intervals.
+  The current 3,948-triangle/material-shader shipwreck Release view recorded 1.4082 ms mean,
+  1.8133 ms p95, 8.1463 ms p99, zero 60 Hz/30 Hz misses, 46 tracked submissions, and one wreck draw
+  across 600 intervals.
 - [ ] Run matched native, Chrome, Firefox, and accelerated-Android captures for every new shader or
   renderer path. Validate physical Android hardware when available; otherwise keep thermals,
   driver diversity, and real-device ergonomics explicitly unverified.
@@ -1436,9 +1438,10 @@ Immediate user-directed expansion:
    vegetation silhouette/composition improvements before adding more material cost.
 2. Continue the large 20 m sailing-ship wreck realism pass with beach-clutter composition and
    subjective collision feel without reducing it to a boat, changing its established scale, or
-   turning it into an objective. Its
-   aged-wood breakup, waterline material, curved lower hull, localized missing planks, and
-   irregular splintered debris are complete and portable.
+   turning it into an objective. Its aged-wood breakup, waterline material, curved lower hull,
+   localized missing planks, keel/rudder, broken rails, hull openings, second damaged mast, and
+   bidirectionally scattered splintered debris are complete and portable. Review traversal/collision
+   feel and add only restrained shore integration rather than accumulating props blindly.
 
 Existing observation and qualification queue:
 
@@ -6355,6 +6358,47 @@ Existing observation and qualification queue:
   selected `OPENGL33`, required the new marker, retained 2,827 visible grass clusters in 21 grass
   submissions, and completed first draw in 446.534 ms. Its inspected 1280 by 720 frame passed
   capture validation with 124 colour bins, 19.68 luminance deviation, and 42.29 spatial contrast.
+
+### 2026-10-08 — Large-ship scale cues and scattered wreckage
+
+- Confirmed and retained the exact 20.0 m length, 5.2 m beam, and 4.4 m hull height at the user's
+  direction; this landmark is a large grounded wooden sailing ship, never a small boat. Added a
+  split broken lower keel, sternpost/rudder silhouette, four paired broken rail spans, eight dark side
+  openings, and a splintered broken foremast. The main mast, cabin, bowsprit, rigging, exposed ribs,
+  partial deck, and central structural break remain recognizable.
+- Increased the one static batch from 3,392 to 3,948 triangles. The 556 added triangles require no
+  new draw, buffer, material, texture, collision proxy, update loop, or external asset. Reauthored
+  the twelve existing debris yaws so ten substantial pieces diverge by at least 0.4 radians in both
+  directions rather than reading as parallel bars. Added a deterministic core regression for
+  bounded bidirectional scatter while keeping all debris non-solid and traversal-friendly.
+- Added one exact large-ship diagnostic and required it in the native, Chrome, Firefox, and Android
+  gates. The complete 27-stage Chrome/WebGL 2 matrix, independent Firefox ESR/WebGL 2 gate, and
+  complete 46-test native private-display suite pass. The current native and browser 1280 by 720
+  frames were inspected and clearly retain the new scale cues and scattered wreckage.
+- A strict API 35 x86_64 KVM 12/host-gfxstream run selected `OPENGLES3`, required the large-ship
+  marker, booted the AVD in 18.752 seconds, retained one 3,948-triangle wreck draw, and reached
+  first draw in 2436.391 ms. Its clean
+  inspected 2400 by 1080 frame visibly preserves the same composition and touch controls without
+  fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is translated-host functional
+  evidence rather than physical-device performance qualification.
+- Stopped the emulator, restored/linted the default arm64-only APK through shared `/rv/cnaccache`,
+  verified its sole `arm64-v8a` ABI and v2 signature, and removed exactly five reproducible x86_64
+  intermediate directories (about 1.1 GiB). The APK is 19,075,204 bytes and its stripped
+  `libmain.so` is 16,264,920 bytes; the Android tree returned to approximately 1.3 GiB.
+- One isolated Linux Release shipwreck run retained 46 tracked submissions and one wreck draw. Its
+  600 intervals measured 1.4082 ms mean, 1.1270 ms median, 1.8133 ms p95, 8.1463 ms p99, and
+  16.2879 ms maximum; six exceeded 8.333 ms and none exceeded 16.667 or 33.333 ms.
+- The deterministic Web package is 9,068,164 bytes uncompressed or 2,582,366 bytes through gzip:
+  HTML is 2,058/1,144 bytes, JavaScript 264,591/59,260 bytes, and WebAssembly
+  8,801,515/2,521,962 bytes. Two unchanged Linux Release packaging runs produced the same
+  5,071,543-byte archive with SHA-256
+  `177e3498a85ce8b3bf55699f41c87158b0823adac155657160e9509a4102d3d0` and 12,195,138
+  installed bytes.
+- The exact archive launched from an unrelated `/tmp` working directory, selected `OPENGL33`,
+  required the large-ship marker, retained one wreck draw, and completed first draw in 408.252 ms.
+  Its inspected 1280 by 720 frame passed capture validation with 183 colour bins, 36.34 luminance
+  deviation, and 146.84 spatial contrast. CNA and Sharp Runtime remained read-only and clean; no
+  qualifying dependency defect was found.
 
 ## Session-end checklist
 

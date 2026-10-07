@@ -1555,7 +1555,7 @@ audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the
 mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-19,072,372 bytes with a 16,262,088-byte stripped `libmain.so`; lint reports no issues and APK
+19,075,204 bytes with a 16,264,920-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1584,12 +1584,13 @@ guard for the complete scene, not isolated attribution to a position-only mesh c
 
 ### Shipwreck landmark baseline
 
-The complete 20.0 m broken ship is one static batch containing 3,392 triangles. Its texture-free
+The complete 20.0 m broken ship is one static batch containing 3,948 triangles. Its texture-free
 portable shader adds longitudinal grain, broad weathering, restrained cracks, wet/submerged
 darkening, salt wear, and a bounded waterline sheen; prelit vertex colours provide the fallback.
-The denser cross-section, localized missing boards, and splintered debris preserve one draw,
-frustum rejection, and the 310 m distance limit. Six circular collision proxies represent only
-the major hull sections; the twelve beachward debris pieces add no collision-query workload.
+The denser cross-section, localized missing boards, split broken keel, rudder, broken rails, hull
+openings, and broken foremast preserve one draw, frustum rejection, and the 310 m distance limit.
+Six circular collision proxies represent only the major hull sections; the twelve beachward debris
+pieces add no collision-query workload and now vary substantially on both sides of the ship axis.
 
 Two isolated Debug OpenGL 3.3 shipwreck runs at 1280 by 720 on the AMD Radeon 780M/Mesa 25.0.7
 reported 2.3154 and 2.3745 ms mean, 1.9271 and 1.9153 ms median, 4.6285 and 4.5776 ms p95, and
@@ -1610,6 +1611,14 @@ median, 5.5216 ms p95, 11.6363 ms p99, and 17.4985 ms maximum across 600 interva
 exceeded 8.333 ms, one exceeded 16.667 ms, and none exceeded 33.333 ms. The view retained 46
 tracked submissions and exactly one wreck draw. This is an integrated scene baseline rather than
 isolated shader or geometry cost attribution.
+
+The subsequent large-ship scale pass added 556 triangles without adding a draw, buffer, material,
+texture, collision proxy, or runtime update. Its current isolated Release run retained the same 46
+tracked submissions and one wreck draw. Across 600 intervals it recorded 1.4082 ms mean, 1.1270 ms
+median, 1.8133 ms p95, 8.1463 ms p99, and 16.2879 ms maximum; six intervals exceeded 8.333 ms
+and none exceeded 16.667 or 33.333 ms. The before/after runs are not an isolated GPU geometry
+experiment, but the current view remains comfortably inside the established development-machine
+60 Hz p99 gate.
 
 ### Beach-crab baseline
 
@@ -1673,8 +1682,8 @@ qualify portable function and composition, not physical-mobile frame time, power
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,792,828 bytes (2,518,894
-gzip). The complete transfer payload therefore falls from 9,059,477 to 2,579,291 bytes, a measured
+gzip), JavaScript is 264,591 bytes (59,260 gzip), and WebAssembly is 8,801,515 bytes (2,521,962
+gzip). The complete transfer payload therefore falls from 9,068,164 to 2,582,366 bytes, a measured
 71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

@@ -1072,6 +1072,8 @@ try {
     && shipwreckResult.output?.includes(
       "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast")
     && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast")
+    && shipwreckResult.output?.includes(
       "island-simulator: shipwreck QA camera views the 20m wreck from the beach")
     && shipwreckResult.output?.includes("shipwreck visible, 12 debris, 1 draw")
     && shipwreckResult.output?.includes(

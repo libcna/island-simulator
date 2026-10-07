@@ -150,10 +150,12 @@ layout resolves the placement from a coast angle and signed distance through the
 shore field, samples terrain support for the heeled hull and twelve beachward debris pieces, and
 publishes only six conservative circular proxies for major structure. Small debris is intentionally
 non-solid. The renderer derives its complete broken hull, exposed frames, partial deck, cabin,
-snapped mast, bowsprit, rigging, and debris from that immutable layout in one 3,392-triangle static
-batch; it does not own an independent position or scale. A denser cross-section rounds the lower
-hull, two localized missing-board openings expose the break, and the beach debris uses irregular
-splintered prism outlines instead of plain boxes. Its portable GLSL 330 / GLSL ES 300 material
+snapped main mast, broken foremast, bowsprit, rigging, and debris from that immutable layout in one
+3,948-triangle static batch; it does not own an independent position or scale. A denser cross-
+section rounds the lower hull, two localized missing-board openings expose the break, and a keel,
+rudder, broken deck rails, plus dark side openings provide readable large-ship scale. The beach
+debris uses irregular splintered prism outlines and stable bidirectional angle variation instead
+of plain parallel boxes. Its portable GLSL 330 / GLSL ES 300 material
 projects longitudinal grain along the authored ship axis and adds bounded weathering, waterline
 darkening, salt wear, and wet sheen. Vertex-colour lighting remains an actionable fallback when
 custom effects are unavailable.

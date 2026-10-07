@@ -45,6 +45,9 @@ namespace island
         constexpr int BeamSegments = 8;
         constexpr std::string_view AgedWoodDiagnostic =
             "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material";
+        constexpr std::string_view LargeShipDetailDiagnostic =
+            "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, "
+            "keel, rudder, and a broken foremast";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -53,6 +56,7 @@ namespace island
         const Color InnerWood(137, 103, 66, InnerWoodMaterial);
         const Color FreshBreak(154, 121, 78, FreshBreakMaterial);
         const Color WetWood(63, 59, 47, AgedWoodMaterial);
+        const Color DeepWood(43, 31, 22, AgedWoodMaterial);
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
@@ -524,6 +528,18 @@ void main()
             AppendRib(vertices, ship, axes, 1.12f, -0.08f);
 
             AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, 0.0f, -1.42f, -9.55f),
+                ShipPoint(ship, axes, 0.0f, -1.45f, -1.05f), 0.14f, 0.11f, DarkWood);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, 0.0f, -1.45f, 1.15f),
+                ShipPoint(ship, axes, 0.0f, -1.45f, 9.45f), 0.12f, 0.10f, DarkWood);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, 0.0f, -1.36f, -9.92f),
+                ShipPoint(ship, axes, 0.0f, 1.26f, -9.92f), 0.15f, 0.11f, DarkWood);
+            AppendBox(vertices, ShipPoint(ship, axes, 0.0f, -0.46f, -10.28f), axes,
+                      0.46f, 0.74f, 0.075f, OuterWood);
+
+            AppendTaperedBeam(
                 vertices, ShipPoint(ship, axes, 0.0f, 1.18f, -3.25f),
                 ShipPoint(ship, axes, 1.65f, 7.15f, -1.75f), 0.34f, 0.20f, DarkWood);
             AppendTaperedBeam(
@@ -547,6 +563,43 @@ void main()
                               axes, 0.075f, 0.37f, 0.075f, DarkWood);
                 }
             }
+
+            constexpr std::array<std::array<float, 2>, 4> RailSections = {{
+                {-7.9f, -5.9f}, {-5.9f, -3.7f}, {3.4f, 5.8f}, {5.8f, 7.8f},
+            }};
+            for (const auto& section : RailSections) {
+                for (const float side : {-1.0f, 1.0f}) {
+                    const float firstX = HullHalfWidth(ship, section[0]) * 0.88f;
+                    const float secondX = HullHalfWidth(ship, section[1]) * 0.88f;
+                    AppendTaperedBeam(
+                        vertices, ShipPoint(ship, axes, side * firstX, 2.05f, section[0]),
+                        ShipPoint(ship, axes, side * secondX, 2.05f, section[1]),
+                        0.065f, 0.055f, DarkWood);
+                }
+            }
+
+            for (const float z : {-4.9f, -2.8f, 3.7f, 6.0f}) {
+                constexpr float openingY = 0.53f;
+                const float openingX = HullWidthAtHeight(ship, z, openingY) + 0.022f;
+                for (const float side : {-1.0f, 1.0f}) {
+                    AppendBox(vertices,
+                              ShipPoint(ship, axes, side * openingX, openingY, z), axes,
+                              0.035f, 0.21f, 0.29f, DeepWood);
+                }
+            }
+
+            const Vector3 foremastBreak = ShipPoint(ship, axes, -0.34f, 4.08f, 4.78f);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, 0.0f, 1.18f, 4.35f), foremastBreak,
+                0.25f, 0.15f, DarkWood);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, -0.28f, 3.98f, 4.73f),
+                ShipPoint(ship, axes, -0.58f, 4.48f, 4.92f),
+                0.08f, 0.025f, FreshBreak);
+            AppendTaperedBeam(
+                vertices, ShipPoint(ship, axes, -0.25f, 4.02f, 4.74f),
+                ShipPoint(ship, axes, 0.08f, 4.38f, 4.56f),
+                0.07f, 0.022f, FreshBreak);
 
             for (const float side : {-1.0f, 1.0f}) {
                 AppendTaperedBeam(
@@ -681,9 +734,11 @@ void main()
         std::cout << diagnostic << '\n';
         std::cout << "island-simulator: shipwreck broken hull exposes ribs, partial deck, "
                      "and snapped mast\n";
+        std::cout << LargeShipDetailDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
+        MirrorRuntimeDiagnosticToPlatformLog(LargeShipDetailDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

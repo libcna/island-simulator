@@ -225,6 +225,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies" \
             "$LOG_FILE" \
         && grep -q "island-simulator: beach crabs use articulated legs, claws, and one culled batch" \
