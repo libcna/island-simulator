@@ -18,7 +18,9 @@ fish-school/shark/monkey navigation guides, three bird route-family volumes, all
 headings, nearby live bird radial targets, six terrain-following ambient-zone contours, and
 positional-source markers.
 Audible output on a visible hardware browser, genuine tab background/foreground recovery,
-hardware-GPU performance, extended play, and a second browser engine are not yet validated.
+hardware-GPU performance, and extended play are not yet validated. Firefox ESR 140.15 now provides
+a narrower independent second-engine gate for the production first frame and essential input/audio
+contract; it does not duplicate the complete Chromium scene matrix.
 The F1 panel exposes the same authoritative seed rows as desktop. F4 attempts to copy their stable
 text report, but browser clipboard permission and user-gesture policy can prevent immediate
 readback; the panel then reports `UNAVAILABLE` instead of claiming success.
@@ -64,6 +66,7 @@ evidence environment; it is not a minimum-version or general browser-permission 
 
 - the Emscripten SDK at `/home/robertvokac/emsdk`, or another installation exposed through `EMSDK`;
 - Google Chrome or Chromium for the automated browser smoke test;
+- Firefox ESR with its built-in WebDriver BiDi endpoint for the optional second-engine smoke test;
 - the same exact read-only dependency revisions listed in `dependencies.lock`;
 - the CNA SDL submodule snapshots already populated in the source CNA worktree;
 - the shared compiler cache at `/rv/cnaccache` in this workspace.
@@ -249,4 +252,34 @@ first-gesture CNA mixer/track initialization, activation of the slow ambient-gai
 acceptance of the shoreline transition one-shot,
 but it is not a substitute for
 a visible interactive listening pass using hardware acceleration. Do not infer audible quality,
-real tab lifecycle, frame pacing, thermal behaviour, or non-Chromium compatibility from it.
+real tab lifecycle, frame pacing, thermal behaviour, or compatibility beyond the separately
+qualified Firefox subset from it.
+
+## Firefox ESR second-engine smoke
+
+Run the narrower production-shell gate with the same Node executable:
+
+```bash
+"${EMSDK_NODE}" tools/run_firefox_web_smoke.mjs build-probe
+```
+
+The Linux tool starts a local-only HTTP server and a clean Firefox ESR profile, caps Firefox to CPU
+cores 0--7 with `taskset`, and talks directly to Firefox's built-in WebDriver BiDi endpoint. No
+geckodriver, browser extension, npm package, or network service is required. Override the browser
+binary with `ISLAND_FIREFOX` when the installation is named `firefox` rather than `firefox-esr`.
+
+The gate requires the production page to create WebGL 2, emit the current renderer/viewport,
+first-draw, clearing-material, ocean-material, and visible-scene diagnostics, and render a 1280 by
+720 frame. A trusted click must acquire pointer lock and initialize the complete 44.1 kHz audio
+resource path. The test then requires one released Shift press to select persistent 8.0 m/s running,
+forward motion to play a real distance-scheduled footstep, a second Shift press to restore 4.3 m/s
+walking, and Escape to release pointer lock. It writes before/input PNGs plus a schema-1 JSON report
+under the ignored build directory and removes its profile and processes even on failure.
+
+The current Firefox ESR 140.15 run reports `WebGL 2.0` on a `Radeon R9 200 Series, or similar`
+backend and completed the first rendered frame in 310--360 ms total across three clean tool runs.
+Both original-resolution
+frames were inspected; the input frame visibly retained the world and the warm-gold
+`RUN MODE  8.0 M/S` notice. These one-run startup values are not a network cold-load or frame-time
+benchmark. The gate does not qualify the complete Chrome scene matrix, simultaneous mouse look,
+clipboard behaviour, resizing/fullscreen, tab lifecycle, or audible sound quality.

@@ -62,8 +62,10 @@ short security cooldown, clicking the canvas acquires it again. Automated Chromi
 coverage sends the actual Escape key and verifies unlock, continued frames, clean delayed
 reacquisition, audio-mixer/track initialization,
 correct screen-relative strafing, arrow parity, running, simultaneous movement/mouse look, focus,
-and responsive 16:9 sizing. Audible quality on a
-visible hardware-accelerated browser and a second browser engine remain to be checked manually.
+and responsive 16:9 sizing. The narrower Firefox ESR BiDi gate independently confirms trusted-click
+pointer lock, forward movement, both persistent Shift edges, first-gesture audio initialization,
+one land footstep, and Escape release. Audible quality in a visible interactive browser remains to
+be checked manually.
 
 ## Android
 

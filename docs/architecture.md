@@ -792,8 +792,10 @@ the game, and the uncompressed artifacts remain available for hosts that do not 
   Automated browser input covers pointer lock, focus, keyboard traversal, relative look, actual
   Escape release without session termination, delayed click reacquisition, responsive 16:9
   presentation, and first-gesture CNA audio startup. Audible
-  hardware-browser quality, genuine tab lifecycle, another browser engine, and visible
-  hardware-GPU performance remain unverified.
+  hardware-browser quality, genuine tab lifecycle, broader Firefox scene/input coverage, and
+  visible hardware-GPU performance remain unverified. Firefox ESR 140.15 now independently passes
+  the narrower production first-frame, pointer-lock, Shift, movement/footstep, audio-start, and
+  Escape-release contract through its built-in WebDriver BiDi endpoint.
 - Android arm64-v8a and x86_64 APKs build and application-owned Android lint passes. The API 35
   x86_64 AVD now runs with KVM and host-GPU gfxstream; the complete GLES3 scene, independent
   movement/look gestures, same-process background/foreground recovery, and AAudio pause/resume are

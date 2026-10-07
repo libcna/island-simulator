@@ -720,10 +720,12 @@ Dependencies: portable baseline features and bounded initial asset size.
   exit/error, delayed click reacquisition, aspect-preserving resize, first-click CNA mixer plus
   four-loop startup, and actual distance-scheduled footstep playback. Audible hardware-browser
   output and genuine tab background/foreground
-  recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
+  recovery remain unverified; synthetic CDP freeze/thaw was inconclusive. Firefox ESR 140.15 now
+  independently passes the production first frame, trusted-click pointer lock, 44.1 kHz audio
+  initialization, both persistent Shift edges, forward traversal/footstep, and Escape release.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,777,407 bytes uncompressed and 2,488,587 bytes through
+  The current Release package is 8,787,605 bytes uncompressed and 2,491,600 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -732,13 +734,14 @@ Dependencies: portable baseline features and bounded initial asset size.
   memory tiers remain open.
 - [~] Run the current terrain/ocean/palm/jungle scene in Chromium/SwiftShader with overview, beach,
   grass-detail, and jungle active-render captures; the grass view requires the full player-bend
-  strength on the custom shader. A visible hardware-accelerated interactive pass and another
-  browser engine remain open.
+  strength on the custom shader. Firefox ESR now supplies an inspected second-engine production
+  first frame on its reported Radeon WebGL 2 backend. A visible interactive hardware-accelerated
+  pass and broader Firefox scene coverage remain open.
 - [~] Capture browser console output, `WEBGL2` renderer identity, clean lifecycle, and an
   active-render screenshot. Startup time, memory, and representative frame-time evidence remain.
 - [~] Document browser requirements and verified versions without claiming untested browsers.
-  Chromium/SwiftShader evidence and explicit gaps are documented; record a visible hardware run
-  and a second browser engine before completing this item.
+  Chromium/SwiftShader and the narrower Firefox ESR 140.15 evidence plus explicit gaps are
+  documented; record a visible interactive hardware run before completing this item.
 
 Exit validation:
 
@@ -4972,6 +4975,32 @@ Work next, in order:
   of the retained clearing pass and physical-device Android qualification remain open. All builds
   used two workers or fewer, Chrome was limited to eight CPU cores, and both dependencies remained
   read-only.
+
+### 2026-10-07 — Firefox ESR second-engine qualification
+
+- Added `tools/run_firefox_web_smoke.mjs`, a dependency-free Linux gate for the generated production
+  page. It starts a local-only server, a disposable Firefox profile and the browser's built-in
+  WebDriver BiDi endpoint; Firefox is capped to CPU cores 0--7. Bounded cleanup closes the session,
+  terminates both child processes, and removes the profile on success or failure. `ISLAND_FIREFOX`
+  supports installations named `firefox` rather than `firefox-esr`.
+- Three clean Firefox ESR 140.15 runs passed on current source. The gate requires `WEBGL2`, the 1280
+  by 720 logical viewport, first-draw/visible-scene diagnostics and current clearing/ocean shader
+  paths. Firefox reported `WebGL 2.0` on a `Radeon R9 200 Series, or similar` backend; first draw
+  completed in 310--360 ms total across the three tool runs. These are functional local-load
+  values, not network, sustained-frame, or portable hardware benchmarks.
+- The trusted production-canvas click acquired pointer lock and initialized the full 44.1 kHz
+  audio resource path. A released Shift edge selected persistent 8.0 m/s running, forward movement
+  produced a real land footstep, a second Shift edge restored 4.3 m/s walking, and Escape released
+  pointer lock. The original-resolution before/input frames were inspected; the latter visibly
+  retains the world plus the warm-gold `RUN MODE  8.0 M/S` confirmation. No fatal or shader
+  diagnostic appeared.
+- The complete 22-stage Chrome/SwiftShader matrix remains authoritative for all fixed scenes,
+  simultaneous mouse look, resize, clipboard, shoreline audio, and pointer-lock reacquisition.
+  Firefox currently qualifies only the production first-frame and essential input/audio subset;
+  visible interactive listening, fullscreen, real tab lifecycle, and broader Firefox coverage stay
+  open. Added `/.aws` to `.gitignore` because the managed sandbox exposes that name as an
+  environment-owned read-only credential mount, preventing it from appearing as project content.
+  CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 

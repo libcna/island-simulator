@@ -2,6 +2,7 @@
 /.cache/
 /.idea/
 /.vscode/
+/.aws
 *.user
 *.swp
 __pycache__/

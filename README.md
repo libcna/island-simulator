@@ -233,9 +233,12 @@ simultaneous forward movement and relative mouse look, a deterministic beach-to-
 transition-audio playback, successful land-footstep playback, F2 world
 lines, F4 seed-copy execution with explicit clipboard status, F1,
 real-Escape pointer release, continued live frames, delayed click reacquisition, canvas focus, and
-responsive 16:9 sizing. A visible hardware-
-accelerated browser listening pass, genuine tab background/foreground behaviour, and another
-browser engine remain open.
+responsive 16:9 sizing. A narrower Firefox ESR 140.15 WebDriver BiDi gate independently checks the
+production shell's first frame, reported WebGL 2 Radeon backend, trusted-click pointer lock,
+44.1 kHz audio initialization, persistent Shift enable/disable edges, forward traversal with an
+actual footstep, and Escape release. Its two 1280 by 720 frames were visually inspected. A visible
+interactive listening pass, genuine tab background/foreground behaviour, and fullscreen remain
+open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
