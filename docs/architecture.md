@@ -433,7 +433,11 @@ near-log sides for local-space bark fissures; near cut ends for gently irregular
 near-driftwood sides/branches for softer sun-bleached longitudinal weathering. Driftwood cut ends
 remain plain. Distance fades remove all cues before their mesh transition. Contact geometry and
 every far mesh retain the plain path; this keeps the material treatment texture-free and free of
-extra instance data or draws. The near rock's existing seven crown rings keep the same topology,
+extra instance data or draws. Near fallen logs reuse their existing nine-sided end rings and cap
+vertices, matching their radii and applying bounded deterministic axial offsets so the former
+planar circular cuts become spatially closed irregular broken contours. Vertex/index counts,
+material selection, instances, collision proxies, far LOD, and submissions are unchanged. The near
+rock's existing seven crown rings keep the same topology,
 but bounded per-slice height offsets and a taller asymmetric cap break the former flat top line.
 Its 110 vertices and 192 triangles per shared variant remain unchanged.
 The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and

@@ -57,6 +57,8 @@ namespace island
         constexpr float FallenFrondMaximumDistance = 76.0f;
         constexpr std::string_view RockFacetDiagnostic =
             "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading";
+        constexpr std::string_view FallenLogEndDiagnostic =
+            "island-simulator: near fallen logs use irregular broken end contours";
         constexpr std::string_view FallenFrondDiagnostic =
             "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes";
 
@@ -318,6 +320,26 @@ void main()
             const Color bark = variant == 0 ? Color(101, 69, 42, barkMaterial)
                 : (variant == 1 ? Color(87, 67, 45, barkMaterial)
                                 : Color(112, 77, 44, barkMaterial));
+            const auto ringRadius = [variant](const int section, const int side,
+                                               const int sideCount) {
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(side) / static_cast<float>(sideCount);
+                return 0.92f + 0.07f
+                    * std::sin(angle * (2.0f + static_cast<float>(variant))
+                               + static_cast<float>(section) * 1.7f);
+            };
+            const auto brokenEndOffset = [farMesh, variant, sections, sides](
+                                             const int section, const int side) {
+                if (farMesh || (section != 0 && section != sections)) return 0.0f;
+                const float angle = 2.0f * std::numbers::pi_v<float>
+                    * static_cast<float>(side) / static_cast<float>(sides);
+                const float endPhase = section == 0 ? 0.73f : 2.19f;
+                const float broad = 0.5f + 0.5f * std::sin(
+                    angle * (2.0f + static_cast<float>(variant)) + endPhase);
+                const float splinter = 0.5f + 0.5f * std::sin(
+                    angle * 5.0f - static_cast<float>(variant) * 0.91f - endPhase);
+                return 0.012f + broad * 0.048f + splinter * 0.018f;
+            };
             const auto sideBase = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int section = 0; section <= sections; ++section) {
                 const float t = static_cast<float>(section) / static_cast<float>(sections);
@@ -327,12 +349,15 @@ void main()
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
-                    const float ring = 0.92f + 0.07f
-                        * std::sin(angle * (2.0f + variant) + section * 1.7f);
+                    const float ring = ringRadius(section, side, sides);
+                    const float endDirection = section == 0 ? -1.0f
+                        : (section == sections ? 1.0f : 0.0f);
+                    const float brokenX = x
+                        + endDirection * brokenEndOffset(section, side);
                     const float light = 0.60f + 0.36f
                         * std::max(0.0f, std::sin(angle) * 0.78f - std::cos(angle) * 0.22f);
                     geometry.vertices.emplace_back(
-                        Vector3(x, std::sin(angle) * ring + bend,
+                        Vector3(brokenX, std::sin(angle) * ring + bend,
                                 std::cos(angle) * ring),
                         ShadeColor(bark, light));
                 }
@@ -353,14 +378,22 @@ void main()
             const Color cut(151 + variant * 4, 112 + variant * 3, 66,
                             farMesh ? 255 : 192);
             for (int end = 0; end < 2; ++end) {
-                const float x = end == 0 ? -0.505f : 0.505f;
+                const int endSection = end == 0 ? 0 : sections;
+                const float endDirection = end == 0 ? -1.0f : 1.0f;
+                const float x = endDirection * (farMesh ? 0.505f : 0.53f);
                 const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
                 geometry.vertices.emplace_back(Vector3(x, 0.0f, 0.0f), cut);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
+                    const float cutX = farMesh ? x
+                        : endDirection * 0.5f
+                            + endDirection * brokenEndOffset(endSection, side);
+                    const float cutRadius = farMesh ? 0.86f
+                        : ringRadius(endSection, side, sides);
                     geometry.vertices.emplace_back(
-                        Vector3(x, std::sin(angle) * 0.86f, std::cos(angle) * 0.86f),
+                        Vector3(cutX, std::sin(angle) * cutRadius,
+                                std::cos(angle) * cutRadius),
                         ShadeColor(cut, 0.82f + 0.16f * std::max(0.0f, std::sin(angle))));
                 }
                 for (int side = 0; side < sides; ++side) {
@@ -926,6 +959,8 @@ void main()
             std::cout << RockFacetDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(RockFacetDiagnostic);
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
+            std::cout << FallenLogEndDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(FallenLogEndDiagnostic);
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
             std::cout << FallenFrondDiagnostic << '\n';

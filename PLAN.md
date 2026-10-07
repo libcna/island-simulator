@@ -423,7 +423,9 @@ Dependencies: stable terrain/shore queries and representative performance instru
   reducing repeated foliage colour while preserving bark and near/far LOD identity without a new
   instance field, buffer, texture, or draw. Near rocks now break their former flat crown line
   through bounded positions on the existing rings/cap and derive matching fixed-sun facet light
-  without another normal stream, vertex, triangle, or draw; further floor-plant/bush material
+  without another normal stream, vertex, triangle, or draw. Near fallen logs now reuse their
+  existing end-ring/cap vertices for irregular non-planar broken contours while retaining topology,
+  collision, far LOD, and draw count; further floor-plant/bush material
   diversity and broader natural beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
@@ -735,7 +737,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,789,665 bytes uncompressed and 2,491,968 bytes through
+  The current Release package is 8,789,541 bytes uncompressed and 2,492,117 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -961,7 +963,9 @@ Android is not project completion.
   leaflet roots now follow their curved rachis; pair/side sweep, droop, and ageing variation break
   the former mirrored-comb silhouette without changing its mesh count or batches. Existing palm
   transform coefficients now also seed restrained green-only crown tint while preserving brown
-  structural materials and near/far colour identity without a new resource or draw. Prop repetition,
+  structural materials and near/far colour identity without a new resource or draw. Fallen-log
+  near ends now replace the former planar circular cuts with deterministic irregular closed
+  contours by repositioning existing vertices only. Prop repetition,
   broader palm variation, physical-device placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
@@ -5126,6 +5130,33 @@ Work next, in order:
   executable remains deliberately unlinked while the operator-visible earlier build is open.
   All compilation used two workers or fewer and the shared cache; CNA and Sharp Runtime stayed
   read-only.
+
+### 2026-10-07 — Irregular fallen-log broken ends
+
+- An original-resolution close-prop review found that the three near fallen logs still ended in
+  visibly perfect planar circles, making the natural objects read as clean cylinders. Their
+  existing nine-sided side rings and duplicated cut-cap rims now share the same deterministic
+  radius and receive bounded variant/end/side axial offsets. This spatially closes each irregular
+  non-planar contour while retaining the established growth-ring material.
+- No vertex, index, material selector, instance data, buffer, texture, collision proxy, placement,
+  culling rule, population, upload, or draw submission was added; the far LOD remains unchanged.
+  The OpenGL 3.3 object compiles through `/rv/cnaccache` with first-party warnings as errors, but
+  the executable remains deliberately unlinked while the operator-visible prior build is open.
+- The complete Chrome 152/SwiftShader suite passes 22/22 and requires the new marker in lifecycle
+  and prop gates. Original-resolution before/after prop frames were inspected; the retained result
+  breaks the artificial circular silhouette without losing readable rings or the existing contact
+  shadow. The twelfth clean Firefox ESR 140.15 run independently compiled the GLSL ES 300 path and
+  retained all production input/audio, short tab-resume, jungle, and water gates; first draw was
+  401 ms total.
+- A current fixed-prop x86_64 APK passed the strict KVM/host-gfxstream GLES 3 plus audio gate. Its
+  inspected 2400 by 1080 frame reports `OPENGLES3`, the 1280 by 720 logical viewport, and visibly
+  matches the WebGL contour; first draw completed in 1567.410 ms without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics. The emulator was stopped cleanly. The restored arm64-only
+  APK builds/lints, contains only `arm64-v8a`, verifies with signature scheme v2, is 18,733,620
+  bytes, and contains a 15,923,336-byte stripped `libmain.so`. WebAssembly is 8,524,663 bytes;
+  the deterministic Web package is 8,789,541 bytes or 2,492,117 bytes through gzip. This is
+  functional translated-host evidence, not physical-device performance qualification. All builds
+  used two workers or fewer and the shared cache; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

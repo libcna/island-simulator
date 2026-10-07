@@ -1337,13 +1337,30 @@ and varied crowns. This qualifies portable function, not sustained or physical-m
 OpenGL 3.3 object compiles with warnings as errors, but its updated runtime appearance awaits
 relinking after the operator-visible prior executable closes.
 
+### Fallen-log broken-end contour follow-up
+
+The three near fallen-log variants now reuse their existing nine-sided end rings and duplicated
+cap-rim vertices at matching radii. Bounded variant/end/side phases move those vertices axially,
+turning the formerly planar circular saw cuts into spatially closed irregular broken contours.
+The far meshes remain unchanged. This adds no vertex, index, material selector, instance field,
+buffer, texture, collision proxy, upload, culling rule, population, or draw submission.
+
+Original-resolution before/after Chrome/WebGL 2 prop frames were inspected; the retained result
+breaks the artificial cylinder silhouette while preserving readable growth rings and contact
+shadows. The complete Chrome suite passes 22/22, and the twelfth clean Firefox ESR run requires
+the marker on its independently compiled GLSL ES 300 path. A fixed-prop x86_64 KVM/gfxstream GLES
+3 launch passed the same marker and strict audio gate; its inspected frame visibly matches the
+irregular contour and reached first draw in 1567.410 ms total. These are portable functional and
+composition checks, not physical-mobile cost evidence. The OpenGL 3.3 object compiles with
+warnings as errors but awaits runtime relinking after the operator-visible prior process closes.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,819 bytes (59,055 gzip), and WebAssembly is 8,524,788 bytes (2,431,760
-gzip). The complete transfer payload therefore falls from 8,789,665 to 2,491,968 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,524,663 bytes (2,431,914
+gzip). The complete transfer payload therefore falls from 8,789,541 to 2,492,117 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

@@ -80,14 +80,14 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,732,388-byte APK with a
-15,922,104-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,733,620-byte APK with a
+15,923,336-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, irregular near-canopy buttress roots, transform-derived green-only
-jungle foliage variation, reused crossing-wave ocean
+jungle foliage variation, irregular near fallen-log broken-end contours, reused crossing-wave ocean
 colour plus shallow-ridge light and short sunward crests, and restrained near-monkey crown/cheek fur tufts with
 bone-following fingers/toes, the transient hardware-keyboard run/walk
 confirmation, reduced CPU-lit fish/shark
@@ -122,6 +122,16 @@ clean translucent touch controls. The complete scene opened 44.1 kHz stereo AAud
 `GL_INVALID_OPERATION` diagnostic. This is KVM/gfxstream functional evidence, not a physical-device
 colour or vertex-cost qualification. The emulator was stopped cleanly and the arm64-only package
 above was restored, rebuilt, linted, ABI-checked, and signature-verified.
+
+The following current-source fixed-prop x86_64 run required the near fallen-log broken-end marker
+through Android's platform log. Its inspected 2400 by 1080 frame visibly matches the WebGL 2
+non-planar contour, growth-ring material, grass contact, 1280 by 720 logical viewport, and clean
+touch controls. The complete scene opened 44.1 kHz stereo AAudio, reported `OPENGLES3`, and
+reached first draw in 1567.410 ms total (503.696 ms world, 4.056 ms framework, 995.605 ms content,
+21.922 ms pre-draw, and 42.131 ms first draw) without a fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic. This is KVM/gfxstream functional evidence, not physical-device
+mesh cost or appearance qualification. The emulator was stopped cleanly and the arm64-only
+package above was restored, rebuilt, linted, ABI-checked, and signature-verified.
 
 An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow
