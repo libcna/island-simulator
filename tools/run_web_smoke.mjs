@@ -1054,6 +1054,8 @@ try {
   const shipwreckPassed = shipwreckResult.output?.includes(
       "island-simulator: renderer WEBGL2")
     && shipwreckResult.output?.includes(
+      "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material")
+    && shipwreckResult.output?.includes(
       "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch")
     && shipwreckResult.output?.includes(
       "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast")

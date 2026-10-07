@@ -10,6 +10,7 @@ namespace Microsoft::Xna::Framework::Graphics
 {
     class BasicEffect;
     class GraphicsDevice;
+    class ShaderEffect;
     class VertexBuffer;
 }
 
@@ -39,17 +40,25 @@ namespace island
         [[nodiscard]] int DebrisCount() const noexcept { return debrisCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
         [[nodiscard]] bool IsVisible() const noexcept { return visible_; }
+        [[nodiscard]] bool UsesAgedWoodShader() const noexcept
+        {
+            return agedWoodShaderReady_;
+        }
 
     private:
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
-        std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> agedWoodEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
         Microsoft::Xna::Framework::BoundingBox bounds_;
         Microsoft::Xna::Framework::Vector3 centre_;
+        Microsoft::Xna::Framework::Vector3 woodRight_;
+        Microsoft::Xna::Framework::Vector3 woodForward_;
         int vertexCount_ = 0;
         int primitiveCount_ = 0;
         int debrisCount_ = 0;
         int drawCallCount_ = 0;
         bool visible_ = false;
+        bool agedWoodShaderReady_ = false;
     };
 }

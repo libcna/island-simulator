@@ -255,6 +255,7 @@ try {
     "island-simulator: near fallen logs use irregular broken end contours",
     "island-simulator: near fallen-log end grain uses restrained radial cracks",
     "island-simulator: rock per-instance tint reuses existing transforms",
+    "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material",
     "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
     "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
     "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch",
@@ -477,6 +478,7 @@ try {
     "island-firefox-esr-shipwreck.png",
     [
       "island-simulator: renderer WEBGL2",
+      "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material",
       "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
       "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast",
       "island-simulator: shipwreck QA camera views the 20m wreck from the beach",

@@ -1538,16 +1538,18 @@ audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the
 mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-19,055,612 bytes with a 16,245,328-byte stripped `libmain.so`; lint reports no issues and APK
+19,070,196 bytes with a 16,259,912-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
 ### Shipwreck landmark baseline
 
-The complete 20.0 m broken ship is one static `BasicEffect` batch containing 1,924 triangles. It
-adds no texture or custom shader, performs frustum and 310 m distance rejection, and contributes
-exactly one tracked submission when visible. Six circular collision proxies represent only the
-major hull sections; the twelve beachward debris pieces add no collision-query workload.
+The complete 20.0 m broken ship is one static batch containing 3,392 triangles. Its texture-free
+portable shader adds longitudinal grain, broad weathering, restrained cracks, wet/submerged
+darkening, salt wear, and a bounded waterline sheen; prelit vertex colours provide the fallback.
+The denser cross-section, localized missing boards, and splintered debris preserve one draw,
+frustum rejection, and the 310 m distance limit. Six circular collision proxies represent only
+the major hull sections; the twelve beachward debris pieces add no collision-query workload.
 
 Two isolated Debug OpenGL 3.3 shipwreck runs at 1280 by 720 on the AMD Radeon 780M/Mesa 25.0.7
 reported 2.3154 and 2.3745 ms mean, 1.9271 and 1.9153 ms median, 4.6285 and 4.5776 ms p95, and
@@ -1557,11 +1559,17 @@ cells in three draws, 19 palms, eight canopy trees, 54 grass clusters, six fish,
 in one draw. This is a repeatable landmark-specific Debug baseline, not a Release minimum-spec or
 future combined-wildlife worst case.
 
-The exact same batch and markers passed current Chrome/SwiftShader WebGL 2, Firefox ESR WebGL 2,
-and API 35 KVM/gfxstream GLES 3 scene gates. The Android first-draw total of 6204.880 ms includes
-2170.241 ms of world construction and 3916.735 ms of procedural/GPU content startup; it is useful
-functional translated-host evidence but not a physical-mobile frame-time, startup, thermal, or
-power result.
+The refined batch and shader passed the complete Chrome/SwiftShader WebGL 2 matrix, independent
+Firefox ESR WebGL 2 scene gate, and an API 35 KVM/gfxstream GLES 3 scene gate. All three retained
+one visible wreck draw; the clean 2400 by 1080 Android frame was inspected. The Android result is
+useful functional translated-host evidence but not a physical-mobile frame-time, startup,
+thermal, colour, or power result.
+
+One isolated stripped-Release OpenGL 3.3 run after refinement recorded 1.9559 ms mean, 1.3566 ms
+median, 5.5216 ms p95, 11.6363 ms p99, and 17.4985 ms maximum across 600 intervals. Twenty frames
+exceeded 8.333 ms, one exceeded 16.667 ms, and none exceeded 33.333 ms. The view retained 46
+tracked submissions and exactly one wreck draw. This is an integrated scene baseline rather than
+isolated shader or geometry cost attribution.
 
 ### Beach-crab baseline
 
@@ -1625,9 +1633,9 @@ qualify portable function and composition, not physical-mobile frame time, power
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,850 bytes (59,281 gzip), and WebAssembly is 8,771,952 bytes (2,509,652
-gzip). The complete transfer payload therefore falls from 9,038,860 to 2,570,077 bytes, a measured
-71.6% reduction.
+gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,790,883 bytes (2,518,216
+gzip). The complete transfer payload therefore falls from 9,057,532 to 2,578,613 bytes, a measured
+71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game

@@ -8,11 +8,18 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <numbers>
+#include <string>
+#include <string_view>
 #include <vector>
 
+#include "CNA/Graphics/ShaderCodeEXT.hpp"
+#include "CNA/Graphics/ShaderPackageEXT.hpp"
+#include "CNA/GraphicsCapability.hpp"
+#include "CNA/ShaderLanguageEXT.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/Color.hpp"
 #include "Microsoft/Xna/Framework/ContainmentType.hpp"
@@ -23,6 +30,7 @@
 #include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
 #include "Microsoft/Xna/Framework/Graphics/PrimitiveType.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexPositionColor.hpp"
 
@@ -35,11 +43,139 @@ namespace island
     {
         constexpr float MaximumDrawDistance = 310.0f;
         constexpr int BeamSegments = 8;
-        const Color OuterWood(112, 79, 45, 255);
-        const Color DarkWood(77, 52, 33, 255);
-        const Color InnerWood(137, 103, 66, 255);
-        const Color FreshBreak(154, 121, 78, 255);
-        const Color WetWood(63, 59, 47, 255);
+        constexpr std::string_view AgedWoodDiagnostic =
+            "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material";
+        constexpr int AgedWoodMaterial = 48;
+        constexpr int InnerWoodMaterial = 80;
+        constexpr int FreshBreakMaterial = 176;
+        const Color OuterWood(112, 79, 45, AgedWoodMaterial);
+        const Color DarkWood(77, 52, 33, AgedWoodMaterial);
+        const Color InnerWood(137, 103, 66, InnerWoodMaterial);
+        const Color FreshBreak(154, 121, 78, FreshBreakMaterial);
+        const Color WetWood(63, 59, 47, AgedWoodMaterial);
+
+        constexpr const char* VertexBody = R"(
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec4 aColor;
+
+uniform mat4 uViewProjection;
+
+out vec3 vColor;
+out vec3 vWorld;
+out float vMaterial;
+
+void main()
+{
+    vColor = aColor.rgb;
+    vWorld = aPosition;
+    vMaterial = aColor.a;
+    gl_Position = uViewProjection * vec4(aPosition, 1.0);
+    gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
+}
+)";
+
+        constexpr const char* FragmentBody = R"(
+in vec3 vColor;
+in vec3 vWorld;
+in float vMaterial;
+
+uniform vec3 uCameraPosition;
+uniform vec3 uShipCentre;
+uniform vec3 uShipRight;
+uniform vec3 uShipForward;
+uniform vec3 uToSun;
+
+out vec4 fragColor;
+
+void main()
+{
+    float distanceToCamera = length(vWorld - uCameraPosition);
+    float detailFade = 1.0 - smoothstep(72.0, 132.0, distanceToCamera);
+    vec3 relative = vWorld - uShipCentre;
+    float along = dot(relative, uShipForward);
+    float across = dot(relative, uShipRight);
+
+    float longGrain = 0.5 + 0.5 * sin(along * 7.4
+        + sin(along * 1.31 + across * 0.73) * 0.82
+        + sin(vWorld.y * 5.7) * 0.28);
+    float fineGrain = 0.5 + 0.5 * sin(along * 18.3
+        + across * 2.1 + sin(vWorld.y * 11.0) * 0.32);
+    float broadWeather = sin(along * 0.71 + across * 1.37)
+        * sin(vWorld.y * 2.41 - across * 0.62);
+    float darkWeather = smoothstep(0.47, 0.91, broadWeather);
+    float split = 1.0 - smoothstep(0.028, 0.15,
+        abs(sin(along * 2.82 + sin(across * 1.71 + vWorld.y) * 0.44)));
+
+    float freshBreak = smoothstep(0.52, 0.72, vMaterial);
+    vec3 aged = vColor * (0.925 + 0.105 * longGrain + 0.035 * fineGrain);
+    aged *= 1.0 - darkWeather * 0.14 - split * 0.055;
+    aged = mix(aged, aged * vec3(0.78, 0.85, 0.82), darkWeather * 0.22);
+    vec3 broken = vColor * (0.95 + 0.075 * fineGrain);
+    broken = mix(broken, broken * vec3(1.07, 1.02, 0.90), 0.35 * longGrain);
+    vec3 materialColor = mix(aged, broken, freshBreak);
+    materialColor = mix(vColor, materialColor, detailFade);
+
+    float wetBand = (1.0 - smoothstep(-0.14, 0.38, vWorld.y))
+        * (1.0 - freshBreak * 0.25);
+    float submerged = 1.0 - smoothstep(-0.52, 0.05, vWorld.y);
+    vec3 wetColor = materialColor * vec3(0.59, 0.68, 0.67);
+    wetColor = mix(wetColor, vec3(dot(wetColor, vec3(0.30, 0.59, 0.11)))
+        * vec3(0.77, 0.91, 0.79), submerged * 0.24);
+    materialColor = mix(materialColor, wetColor, wetBand * (0.74 + 0.18 * detailFade));
+
+    float saltLine = exp(-abs(vWorld.y - 0.18) * 13.0) * detailFade
+        * (1.0 - freshBreak) * (0.68 + 0.32 * fineGrain);
+    materialColor = mix(materialColor,
+                        materialColor * vec3(1.13, 1.12, 1.05),
+                        saltLine * 0.24);
+
+    vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+    vec3 faceNormal = normalize(faceVector);
+    vec3 toViewer = normalize(uCameraPosition - vWorld);
+    if (dot(faceNormal, toViewer) < 0.0) faceNormal = -faceNormal;
+    vec3 reflectedSun = reflect(-normalize(uToSun), faceNormal);
+    float wetSheen = pow(max(dot(reflectedSun, toViewer), 0.0), 42.0)
+        * wetBand * (1.0 - submerged) * 0.12;
+    materialColor += vec3(1.00, 0.91, 0.70) * wetSheen;
+
+    float fog = smoothstep(190.0, 520.0, distanceToCamera);
+    vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
+    fragColor = vec4(color, 1.0);
+}
+)";
+
+        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
+        {
+            if (embedded) {
+                return std::string("#version 300 es\nprecision highp float;\n") + body;
+            }
+            return std::string("#version 330 core\n") + body;
+        }
+
+        [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
+        {
+            using CNA::Graphics::ShaderCodeEXT;
+            return CNA::Graphics::ShaderPackageEXT(
+                {
+                    ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
+                                  CNA::ShaderStageEXT::Vertex, "main",
+                                  "shipwreck/shipwreck.es.vert.glsl",
+                                  ShaderSource(true, VertexBody)),
+                    ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
+                                  CNA::ShaderStageEXT::Fragment, "main",
+                                  "shipwreck/shipwreck.es.frag.glsl",
+                                  ShaderSource(true, FragmentBody)),
+                    ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
+                                  CNA::ShaderStageEXT::Vertex, "main",
+                                  "shipwreck/shipwreck.desktop.vert.glsl",
+                                  ShaderSource(false, VertexBody)),
+                    ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
+                                  CNA::ShaderStageEXT::Fragment, "main",
+                                  "shipwreck/shipwreck.desktop.frag.glsl",
+                                  ShaderSource(false, FragmentBody)),
+                },
+                {CNA::ShaderStageEXT::Vertex, CNA::ShaderStageEXT::Fragment});
+        }
 
         struct Axes
         {
@@ -81,7 +217,8 @@ namespace island
                     static_cast<float>(value) * scale, 0.0f, 255.0f)));
             };
             return Color(channel(color.getRProperty()), channel(color.getGProperty()),
-                         channel(color.getBProperty()), 255);
+                         channel(color.getBProperty()),
+                         static_cast<int>(color.getAProperty()));
         }
 
         [[nodiscard]] Color LitColor(const Vector3& a, const Vector3& b, const Vector3& c,
@@ -104,7 +241,8 @@ namespace island
                 };
                 base = Color(blend(base.getRProperty(), WetWood.getRProperty()),
                              blend(base.getGProperty(), WetWood.getGProperty()),
-                             blend(base.getBProperty(), WetWood.getBProperty()), 255);
+                             blend(base.getBProperty(), WetWood.getBProperty()),
+                             static_cast<int>(source.getAProperty()));
             }
             return ScaleColor(base, 0.66f + direct * 0.34f + sky * 0.08f);
         }
@@ -148,6 +286,58 @@ namespace island
             AddQuad(vertices, point[4], point[5], point[1], point[0], color);
         }
 
+        void AppendBrokenPlank(std::vector<VertexPositionColor>& vertices,
+                               const Vector3& centre, const Axes& axes,
+                               const float halfWidth, const float halfHeight,
+                               const float halfLength, const Color& color,
+                               const std::size_t shapeSeed)
+        {
+            constexpr std::array<float, 5> Along = {-1.0f, -0.82f, -0.04f, 0.84f, 1.0f};
+            const float phase = static_cast<float>(shapeSeed % 7U);
+            const std::array<float, 5> widthScale = {
+                0.58f + 0.035f * phase,
+                0.94f,
+                0.91f + 0.012f * phase,
+                1.0f,
+                0.62f + 0.025f * static_cast<float>((shapeSeed + 3U) % 5U),
+            };
+            const std::array<float, 5> centreOffset = {
+                -0.15f + 0.025f * phase,
+                0.035f,
+                -0.045f,
+                0.02f,
+                0.13f - 0.021f * phase,
+            };
+            std::array<Vector3, 5> leftTop;
+            std::array<Vector3, 5> rightTop;
+            std::array<Vector3, 5> leftBottom;
+            std::array<Vector3, 5> rightBottom;
+            for (std::size_t point = 0; point < Along.size(); ++point) {
+                const Vector3 sectionCentre = centre
+                    + axes.forward * (Along[point] * halfLength)
+                    + axes.right * (centreOffset[point] * halfWidth);
+                const Vector3 halfSpan = axes.right * (widthScale[point] * halfWidth);
+                leftTop[point] = sectionCentre - halfSpan + axes.up * halfHeight;
+                rightTop[point] = sectionCentre + halfSpan + axes.up * halfHeight;
+                leftBottom[point] = sectionCentre - halfSpan - axes.up * halfHeight;
+                rightBottom[point] = sectionCentre + halfSpan - axes.up * halfHeight;
+            }
+            for (std::size_t section = 0; section + 1U < Along.size(); ++section) {
+                AddQuad(vertices, leftTop[section], rightTop[section],
+                        rightTop[section + 1U], leftTop[section + 1U], color);
+                AddQuad(vertices, rightBottom[section], leftBottom[section],
+                        leftBottom[section + 1U], rightBottom[section + 1U], color);
+                AddQuad(vertices, leftBottom[section], leftTop[section],
+                        leftTop[section + 1U], leftBottom[section + 1U], color);
+                AddQuad(vertices, rightTop[section], rightBottom[section],
+                        rightBottom[section + 1U], rightTop[section + 1U], color);
+            }
+            AddQuad(vertices, leftBottom.front(), rightBottom.front(), rightTop.front(),
+                    leftTop.front(), FreshBreak);
+            AddQuad(vertices, rightBottom.back(), leftBottom.back(), leftTop.back(),
+                    rightTop.back(), FreshBreak);
+        }
+
         void AppendTaperedBeam(std::vector<VertexPositionColor>& vertices,
                                const Vector3& start, const Vector3& end,
                                const float startRadius, const float endRadius,
@@ -185,19 +375,6 @@ namespace island
             return ship.beam * 0.5f * (curved * 0.78f + (1.0f - t) * 0.35f);
         }
 
-        [[nodiscard]] std::array<Vector3, 5> HullSection(
-            const ShipwreckPlacement& ship, const Axes& axes, const float z)
-        {
-            const float width = HullHalfWidth(ship, z);
-            return {
-                ShipPoint(ship, axes, -width * 0.91f, 1.33f, z),
-                ShipPoint(ship, axes, -width, -0.12f, z),
-                ShipPoint(ship, axes, 0.0f, -1.48f, z),
-                ShipPoint(ship, axes, width, -0.12f, z),
-                ShipPoint(ship, axes, width * 0.91f, 1.33f, z),
-            };
-        }
-
         [[nodiscard]] float HullWidthAtHeight(const ShipwreckPlacement& ship,
                                               const float z, const float y)
         {
@@ -207,6 +384,23 @@ namespace island
             }
             return fullWidth * (1.0f - 0.09f
                 * std::clamp((y + 0.12f) / 1.45f, 0.0f, 1.0f));
+        }
+
+        [[nodiscard]] std::array<Vector3, 11> HullSection(
+            const ShipwreckPlacement& ship, const Axes& axes, const float z)
+        {
+            constexpr std::array<float, 5> SideHeights = {
+                1.33f, 0.88f, 0.42f, -0.10f, -0.72f};
+            std::array<Vector3, 11> points;
+            for (std::size_t level = 0; level < SideHeights.size(); ++level) {
+                const float height = SideHeights[level];
+                const float width = HullWidthAtHeight(ship, z, height);
+                points[level] = ShipPoint(ship, axes, -width, height, z);
+                points[points.size() - 1U - level] =
+                    ShipPoint(ship, axes, width, height, z);
+            }
+            points[SideHeights.size()] = ShipPoint(ship, axes, 0.0f, -1.48f, z);
+            return points;
         }
 
         template<std::size_t SectionCount>
@@ -219,7 +413,16 @@ namespace island
                 const auto first = HullSection(ship, axes, sectionZ[section]);
                 const auto next = HullSection(ship, axes, sectionZ[section + 1U]);
                 for (std::size_t band = 0; band + 1U < first.size(); ++band) {
-                    const Color color = (section + band) % 3U == 0U ? DarkWood : OuterWood;
+                    const bool nearBrokenEnd = capFirst
+                        ? section + 2U >= sectionZ.size()
+                        : section < 2U;
+                    const bool missingBoard = nearBrokenEnd
+                        && ((capFirst && band == 2U && section % 2U == 0U)
+                            || (!capFirst && band == 7U && section % 2U == 1U));
+                    if (missingBoard) continue;
+                    const float tone = 0.89f + 0.035f
+                        * static_cast<float>((section * 3U + band * 2U) % 6U);
+                    const Color color = ScaleColor(OuterWood, tone);
                     AddQuad(vertices, first[band], next[band], next[band + 1U],
                             first[band + 1U], color);
                 }
@@ -309,8 +512,10 @@ namespace island
                         const ShipwreckPlacement& ship)
         {
             const Axes axes = ShipAxes(ship);
-            constexpr std::array aftSections = {-10.0f, -8.0f, -5.3f, -2.8f, -0.95f};
-            constexpr std::array bowSections = {1.15f, 3.4f, 6.1f, 8.4f, 10.0f};
+            constexpr std::array aftSections = {
+                -10.0f, -8.7f, -7.1f, -5.4f, -3.8f, -2.4f, -1.3f, -0.95f};
+            constexpr std::array bowSections = {
+                1.15f, 2.0f, 3.25f, 4.8f, 6.35f, 7.65f, 8.7f, 9.4f, 10.0f};
             AppendHullPiece(vertices, ship, axes, aftSections, true);
             AppendHullPiece(vertices, ship, axes, bowSections, false);
 
@@ -387,9 +592,9 @@ namespace island
             axes.right = Vector3::Normalize(Vector3::Cross(axes.up, axes.forward));
             const Vector3 centre(debris.x, debris.y + 0.08f, debris.z);
             if (debris.kind == ShipwreckDebrisKind::Plank) {
-                AppendBox(vertices, centre, axes, debris.width * 0.5f, 0.065f,
-                          debris.length * 0.5f,
-                          index % 2U == 0U ? OuterWood : InnerWood);
+                AppendBrokenPlank(vertices, centre, axes, debris.width * 0.5f, 0.065f,
+                                  debris.length * 0.5f,
+                                  index % 2U == 0U ? OuterWood : InnerWood, index);
             } else if (debris.kind == ShipwreckDebrisKind::Spar) {
                 AppendTaperedBeam(vertices,
                                   centre - axes.forward * (debris.length * 0.5f),
@@ -400,9 +605,11 @@ namespace island
                     const float spread = static_cast<float>(plank) * debris.width * 0.82f;
                     const Vector3 plankCentre = centre + axes.right * spread
                         + axes.up * (0.08f * static_cast<float>(plank + 1));
-                    AppendBox(vertices, plankCentre, axes, debris.width * 0.34f, 0.075f,
-                              debris.length * (0.40f + 0.035f * static_cast<float>(plank)),
-                              plank == 0 ? FreshBreak : OuterWood);
+                    AppendBrokenPlank(
+                        vertices, plankCentre, axes, debris.width * 0.34f, 0.075f,
+                        debris.length * (0.40f + 0.035f * static_cast<float>(plank)),
+                        plank == 0 ? FreshBreak : OuterWood,
+                        index * 3U + static_cast<std::size_t>(plank + 1));
                 }
             }
         }
@@ -410,9 +617,12 @@ namespace island
 
     ShipwreckRenderer::ShipwreckRenderer(GraphicsDevice& device,
                                          const ShipwreckLayout& layout)
-        : device_(device), effect_(std::make_unique<BasicEffect>(device)),
+        : device_(device), fallbackEffect_(std::make_unique<BasicEffect>(device)),
           centre_(layout.Ship().x, layout.Ship().y, layout.Ship().z)
     {
+        const Axes shipAxes = ShipAxes(layout.Ship());
+        woodRight_ = shipAxes.right;
+        woodForward_ = shipAxes.forward;
         std::vector<VertexPositionColor> vertices;
         vertices.reserve(4200U);
         AppendShip(vertices, layout.Ship());
@@ -436,12 +646,34 @@ namespace island
         }
         bounds_ = BoundingBox(minimum, maximum);
 
-        effect_->setVertexColorEnabledProperty(true);
-        effect_->setLightingEnabledProperty(false);
-        effect_->setFogEnabledProperty(true);
-        effect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
-        effect_->setFogStartProperty(190.0f);
-        effect_->setFogEndProperty(520.0f);
+        fallbackEffect_->setVertexColorEnabledProperty(true);
+        fallbackEffect_->setLightingEnabledProperty(false);
+        fallbackEffect_->setFogEnabledProperty(true);
+        fallbackEffect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        fallbackEffect_->setFogStartProperty(190.0f);
+        fallbackEffect_->setFogEndProperty(520.0f);
+
+        if (device_.SupportsCapability(CNA::GraphicsCapability::CustomEffects)) {
+            try {
+                agedWoodEffect_ = std::make_unique<ShaderEffect>(device_, CreateShaderPackage());
+                if (agedWoodEffect_->IsEffectValid()) {
+                    agedWoodShaderReady_ = true;
+                    std::cout << AgedWoodDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(AgedWoodDiagnostic);
+                } else {
+                    std::cerr << "island-simulator: shipwreck material fallback: "
+                              << agedWoodEffect_->GetCompileErrorEXT() << '\n';
+                    agedWoodEffect_.reset();
+                }
+            } catch (const std::exception& exception) {
+                std::cerr << "island-simulator: shipwreck material fallback: "
+                          << exception.what() << '\n';
+                agedWoodEffect_.reset();
+            }
+        } else {
+            std::cerr << "island-simulator: shipwreck material fallback: "
+                         "custom effects unavailable\n";
+        }
 
         const std::string diagnostic = "island-simulator: shipwreck 20m broken hull, "
             + std::to_string(debrisCount_) + " debris pieces, one portable culled batch, "
@@ -475,10 +707,27 @@ namespace island
         device_.setDepthStencilStateProperty(DepthStencilState::Default);
         device_.SetVertexBuffer(vertices_.get());
         device_.setIndicesProperty(nullptr);
-        effect_->setWorldProperty(Matrix::getIdentityProperty());
-        effect_->setViewProperty(view);
-        effect_->setProjectionProperty(projection);
-        effect_->Apply();
+        if (agedWoodShaderReady_) {
+            float viewProjection[16];
+            (view * projection).ToColumnMajor(viewProjection);
+            agedWoodEffect_->Apply();
+            agedWoodEffect_->SetUniformMat4("uViewProjection", viewProjection);
+            agedWoodEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
+                                            cameraPosition.Y, cameraPosition.Z);
+            agedWoodEffect_->SetUniformVec3("uShipCentre", centre_.X, centre_.Y, centre_.Z);
+            agedWoodEffect_->SetUniformVec3("uShipRight", woodRight_.X,
+                                            woodRight_.Y, woodRight_.Z);
+            agedWoodEffect_->SetUniformVec3("uShipForward", woodForward_.X,
+                                            woodForward_.Y, woodForward_.Z);
+            agedWoodEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
+        } else {
+            fallbackEffect_->setWorldProperty(Matrix::getIdentityProperty());
+            fallbackEffect_->setViewProperty(view);
+            fallbackEffect_->setProjectionProperty(projection);
+            fallbackEffect_->Apply();
+        }
         device_.DrawPrimitives(PrimitiveType::TriangleList, 0, primitiveCount_);
         drawCallCount_ = 1;
         visible_ = true;

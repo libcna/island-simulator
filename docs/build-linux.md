@@ -118,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,175,075 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,191,011 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,061,333-byte archive with SHA-256
-`aa3463ba268e22effa44e936620f1dd582dcee91e87131aec6e4b3bea97f61ae`.
+5,068,477-byte archive with SHA-256
+`c836cce25cc93ec7af0f82eec14447420305a1f55cc2427aff5db8b039094fd1`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -147,6 +147,15 @@ total. This one-run value is functional evidence, not a startup-performance regr
 The later shipwreck package repeated the unrelated-working-directory gate with
 `--viewpoint shipwreck`, selected `OPENGL33`, rendered four frames with the landmark visible, and
 exited cleanly in approximately 400 ms total.
+The refined-shipwreck package repeated that exact archive extraction gate after adding the
+portable aged-wood/waterline material, curved hull section, missing boards, and splintered debris.
+It selected `OPENGL33`, retained one wreck draw with 3,392 triangles, passed 1280 by 720 capture
+validation, and completed first draw in 402.776 ms total.
+The final documentation-synchronized archive was then launched from a second unrelated directory;
+it selected the same shader and one-draw scene and completed first draw in 437.103 ms total.
+After the final wet-material selector correction, the exact `c836cce2` archive repeated this gate
+and completed first draw in 629.566 ms total. These individual startup values are functional
+evidence, not a performance trend.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.

@@ -87,8 +87,10 @@ reported its biome-aware grass path, and completed a GLES 3 first draw under KVM
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
 The current sources also include the original 20.0 m by 5.2 m broken wooden shipwreck, its twelve
-beachward debris pieces, and its single portable 1,924-triangle draw. Two dedicated x86_64
-shipwreck runs on the API 35 `Medium_Phone` AVD used KVM 12 and host AMD Radeon 780M gfxstream,
+beachward debris pieces, and its single portable 3,392-triangle draw. The refined hull uses a
+denser curved cross-section, localized missing boards, irregular splintered debris, and a portable
+aged-wood/waterline GLSL ES 300 material. Two earlier dedicated x86_64 shipwreck runs on the API 35
+`Medium_Phone` AVD used KVM 12 and host AMD Radeon 780M gfxstream,
 required both exact shipwreck markers, and produced clean matching GLES 3 frames with and without
 the debug overlay. The inspected overlay-free 2400 by 1080 frame retains the complete broken hull,
 exposed ribs, partial deck, cabin, snapped mast, debris, ocean overlay, and translucent controls.
@@ -110,8 +112,15 @@ The inspected butterfly overlay reported 11/18 visible (seven near, four far) in
 clean turtle frame showed one near turtle beneath the transparent ocean in one draw; the repeated
 run completed first draw in 2527.896 ms. No fatal, shader, or `GL_INVALID_OPERATION` diagnostic
 appeared. This qualifies translated-host function and composition, not physical-mobile cost.
-The latest single-ABI arm64 debug qualification build produced a 19,055,612-byte APK with a
-16,245,328-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The refined shipwreck then passed a new strict x86_64 KVM/gfxstream run requiring its exact
+aged-wood/waterline shader marker. The inspected clean 2400 by 1080 GLES 3 frame retains the curved
+hull, missing boards, irregular debris, transparent water overlay, and touch controls with one
+wreck draw and no fatal, shader, or `GL_INVALID_OPERATION` diagnostic. The emulator booted in
+18.606 seconds and reached first draw in 3592.612 ms before a clean shutdown; this remains
+translated-host functional evidence rather than physical-device performance or colour
+qualification.
+The latest single-ABI arm64 debug qualification build produced a 19,070,196-byte APK with a
+16,259,912-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,

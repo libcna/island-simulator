@@ -1164,11 +1164,15 @@ improves the requested experience rather than adding quests, combat, survival, o
   roughness/specular cues, and bounded micro-normal or derivative detail for dry sand, wet sand,
   soil, leaf-rich floor, grass substrate, rock, and path wear. Prefer shared procedural fields or a
   small reproducible texture set with mipmaps; avoid shimmer and mobile-unfriendly texture cost.
-- [ ] Add physically coherent fixed-sun wetness to the shoreline, submerged stone, driftwood, and
+- [~] Add physically coherent fixed-sun wetness to the shoreline, submerged stone, driftwood, and
   shipwreck without making every surface glossy. Match foam, wet edge, shallow colour, and seabed
-  visibility across OpenGL 3.3, WebGL 2, and GLES 3.
-- [ ] Improve aged wood, bark, leaf, stone, shell, wrack, and shipwreck materials with readable
+  visibility across OpenGL 3.3, WebGL 2, and GLES 3. The shipwreck now has a bounded sea-level
+  wet/submerged band, salt line, and small view-dependent sheen on all three renderers; broader
+  shoreline/material unification remains open.
+- [~] Improve aged wood, bark, leaf, stone, shell, wrack, and shipwreck materials with readable
   scale, colour breakup, edge wear, and distance fade. Keep far LODs calmer than the near detail.
+  The wreck now has distance-faded longitudinal grain, broad grey/green weathering, restrained
+  cracks, differentiated fresh breaks, and calmer distant colour; other material families remain.
 
 ### Geometry, vegetation, and composition
 
@@ -1225,6 +1229,9 @@ improves the requested experience rather than adding quests, combat, survival, o
   4.5776--4.6285 ms p95, and 9.4118--10.4471 ms p99 with zero 60 Hz misses; the additional-wildlife
   combined worst case remains to be defined. The isolated Release turtle view records 2.1252 ms
   mean, 3.2192 ms p95, 9.5893 ms p99, two 60 Hz misses, and no 30 Hz miss across 600 intervals.
+  The refined 3,392-triangle/material-shader shipwreck Release view recorded 1.9559 ms mean,
+  5.5216 ms p95, 11.6363 ms p99, one 60 Hz miss, no 30 Hz miss, 46 tracked submissions, and one
+  wreck draw across 600 intervals.
 - [ ] Run matched native, Chrome, Firefox, and accelerated-Android captures for every new shader or
   renderer path. Validate physical Android hardware when available; otherwise keep thermals,
   driver diversity, and real-device ergonomics explicitly unverified.
@@ -1415,9 +1422,10 @@ Immediate user-directed expansion:
 1. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
-2. Revisit the completed 20 m shipwreck during those realism passes for aged-wood breakup,
-   waterline integration, beach clutter composition, and collision feel without changing its
-   established scale or turning it into an objective.
+2. Continue the 20 m shipwreck realism pass with beach-clutter composition and subjective
+   collision feel without changing its established scale or turning it into an objective. Its
+   aged-wood breakup, waterline material, curved lower hull, localized missing planks, and
+   irregular splintered debris are complete and portable.
 
 Existing observation and qualification queue:
 
@@ -6214,6 +6222,47 @@ Existing observation and qualification queue:
   `OPENGL33`, rendered one near turtle in one draw, passed capture validation, and reached first
   draw in 418.872 ms; the Release frame was inspected. CNA and Sharp Runtime remained read-only
   and clean, and no qualifying dependency defect was found.
+
+### 2026-10-07 — Refined shipwreck geometry and aged-waterline material
+
+- Replaced the wreck's broad five-point cross-section with eleven points and more longitudinal
+  sections, giving the lower hull a curved keel-to-gunwale transition without changing its exact
+  20.0 m by 5.2 m authored footprint. Two localized missing-board openings reinforce the central
+  break. All plank and major-fragment debris now uses deterministic five-section splintered prisms
+  with tapered, offset ends instead of regular boxes.
+- Added one texture-free portable GLSL 330 / GLSL ES 300 material. It projects distance-faded grain
+  along the authored ship axis, layers broad weathering and restrained cracks, distinguishes fresh
+  breaks, darkens/cools wet and submerged wood, adds a narrow salt-wear line, and limits waterline
+  sheen to a small sun/view response. Prelit vertex colour remains an actionable fallback. The
+  complete refined landmark grows from 1,924 to 3,392 triangles but remains one static draw.
+- Strengthened the native, Chrome, Firefox, and Android gates with the exact aged-wood/waterline
+  diagnostic. The OpenGL 3.3 capture passes at 1280 by 720. Both complete 27-stage Chrome/WebGL 2
+  and independent Firefox ESR/WebGL 2 runs pass, compile the GLSL ES path, retain one wreck draw,
+  and produced inspected matching shipwreck frames. The complete private-display native suite
+  passed 46/46; after the final wet-material selector correction, the targeted native capture and
+  both complete browser gates passed again.
+- Built a temporary x86_64 APK through shared `/rv/cnaccache` with two workers. The API 35
+  `Medium_Phone` AVD booted with KVM 12 and host AMD Radeon 780M gfxstream in 18.606 seconds. Its
+  strict clean `shipwreck` run passed the shader/construction markers, retained one draw, reached
+  first draw in 3592.612 ms, and produced an inspected 2400 by 1080 GLES 3 frame without fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostics. This is translated-host functional evidence, not
+  a physical-device performance or colour claim.
+- Restored and linted the arm64-only package. The APK is 19,070,196 bytes, contains a 16,259,912-
+  byte stripped `libmain.so`, packages only `arm64-v8a`, and verifies with APK signature scheme v2.
+  Removed exactly the five reproducible x86_64 intermediate directories after stopping the
+  emulator, returning the Android tree from 2.4 GiB to 1.3 GiB.
+- One isolated Linux Release benchmark recorded 1.9559 ms mean, 1.3566 ms median, 5.5216 ms p95,
+  11.6363 ms p99, and 17.4985 ms maximum across 600 intervals. Twenty exceeded 8.333 ms, one
+  exceeded 16.667 ms, and none exceeded 33.333 ms; the scene retained 46 tracked submissions and
+  one wreck draw.
+- The current Web package is 9,057,532 bytes uncompressed or 2,578,613 bytes through deterministic
+  gzip. Two Linux packaging runs produced the same 5,068,477-byte archive with SHA-256
+  `c836cce25cc93ec7af0f82eec14447420305a1f55cc2427aff5db8b039094fd1` and 12,191,011 installed
+  bytes. The exact archive launched from an unrelated `/tmp` directory, selected `OPENGL33`,
+  compiled the new shader, rendered the refined one-draw wreck, passed capture validation, and
+  completed first draw in 629.566 ms after the final wet-material selector correction. CNA and Sharp
+  Runtime remained read-only and clean; no
+  qualifying dependency defect was found.
 
 ## Session-end checklist
 
