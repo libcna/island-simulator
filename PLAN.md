@@ -1039,8 +1039,11 @@ Android is not project completion.
 
 - [~] Run Linux release build and multiple fresh-user smoke sessions. A clean two-worker release
   tree now builds directly against the read-only sibling dependencies, passes the core/tool gates,
-  starts four times on isolated OpenGL 3.3, and produces a visually inspected overview. A longer
-  subjective release traversal from a fresh user environment remains open.
+  starts four times on isolated OpenGL 3.3, and produces a visually inspected overview. A dedicated
+  release preset now installs a stripped game plus `libcna.so` with a relative runpath, complete
+  linked-dependency notices, an integrity manifest, and a deterministic archive. That archive also
+  passes a private-display smoke run after extraction under `/tmp`; a longer subjective release
+  traversal from a fresh user environment remains open.
 - [ ] Run actual-browser release build, cold load, focus/pointer-lock, audio, resize/fullscreen, and
   extended-play tests.
 - [ ] Run Android release-like package install, cold/warm launch, lifecycle, touch, audio, thermal,
@@ -5673,6 +5676,25 @@ Work next, in order:
   vertical liana accents without turning every crown into a repeated curtain; the close fallen log
   keeps readable rings and an irregular outline while the restrained cracks remain subordinate.
   No shader failure, graphics-profile refusal, or test skip occurred.
+
+### 2026-10-07 — Relocatable deterministic Linux release package
+
+- Added a dedicated `linux-release` CMake configure/build preset with the locked OpenGL 3.3
+  renderer, Release optimization, project tools/tests excluded from the distributable build, the
+  mandatory shared `/rv/cnaccache`, and a hard two-worker build ceiling. The clean first build
+  completed all 626 steps against the unchanged read-only dependency revisions.
+- Added native component-install rules plus `tools/package_linux_release.sh`. The installed game
+  uses `$ORIGIN/lib`, carries the exact stripped `libcna.so`, project attribution/dependency pins,
+  CNA's Ms-PL/notice, and the Sharp Runtime/EasyGL/MetaGL MIT licences. SDL 3, SDL_mixer 3, glibc,
+  libstdc++, and the OpenGL driver remain honest host requirements rather than copied system files.
+- The fixed-file schema-1 manifest records 11,534,787 installed bytes and each file's size/SHA-256.
+  Two unchanged packaging runs produced byte-identical 4,570,069-byte archives with SHA-256
+  `92b294cfe37ec15d58862c50d28572c403466d3ba6b9e8a3c5753b83f47eb89e`.
+- Extracted the archive beneath `/tmp`, launched it from that unrelated working directory on the
+  private Weston/Xwayland display, selected `OPENGL33`, compiled the complete current shader set,
+  rendered four overview frames, and exited cleanly. The optimized first-draw report in that run
+  was 394.213 ms total. A deliberate attempt to package the Debug tree failed before creating any
+  output with the expected actionable diagnostic.
 
 ## Session-end checklist
 

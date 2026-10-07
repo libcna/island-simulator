@@ -156,7 +156,9 @@ been confirmed so far.
 ## Platform qualification
 
 - Linux/OpenGL 3.3 is the primary playable path and has repeated real-GPU and isolated capture
-  coverage. Release packaging and extended whole-island sessions remain open.
+  coverage. A stripped relocatable release archive includes its pinned CNA runtime, dependency
+  notices, and an integrity manifest and passes an extracted `/tmp` smoke run. Compatibility across
+  Linux distributions/driver families and extended whole-island release sessions remain open.
 - WebGL 2 runs in Chromium with automated rendering, pointer-lock, keyboard/mouse, actual-Escape
   release plus continued-session/delayed-reacquisition checks, overlay, resize, and first-gesture
   audio-mixer/track initialization coverage. Deterministic gzip packaging is validated by local

@@ -170,6 +170,24 @@ ctest --preset linux-core
 The graphical tests need an isolated display; use the command in `docs/build-linux.md` rather than
 running the full CTest set on the owner's live desktop.
 
+For a stripped, relocatable Linux release bundle, use the dedicated two-worker preset and
+packager:
+
+```bash
+export CCACHE_DIR=/rv/cnaccache
+export CCACHE_BASEDIR=/rv
+cmake --preset linux-release
+cmake --build --preset linux-release
+tools/package_linux_release.sh build-release
+```
+
+This produces `build-release/island-simulator-linux-x86_64.tar.gz`. The archive contains the game,
+the exact built `libcna.so`, dependency licences/notices, attribution, dependency pins, and a
+SHA-256 manifest. The executable resolves CNA through `$ORIGIN/lib`, so the extracted directory
+can be moved and launched from an unrelated working directory. Compatible system SDL 3,
+SDL_mixer 3, glibc, libstdc++, and an OpenGL 3.3 driver remain explicit host dependencies rather
+than silently copied distribution-specific libraries.
+
 Run `build/island-simulator`. Click inside the window or press a movement key to capture the mouse,
 use WASD or the arrow keys to move, and press Shift to toggle between walking and running on land.
 Each keyboard toggle briefly confirms `WALK MODE  4.3 M/S` or `RUN MODE  8.0 M/S` near the bottom

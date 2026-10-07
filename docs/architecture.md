@@ -823,6 +823,14 @@ produces deterministic gzip siblings, verifies decompression and SHA-256 identit
 small manifest for host configuration. No packaging code or precompressed payload is linked into
 the game, and the uncompressed artifacts remain available for hosts that do not negotiate gzip.
 
+The native Linux release follows the same separation. The `linux-release` preset creates an
+optimized OpenGL 3.3 build, while `tools/package_linux_release.sh` performs a component install
+into a staging directory, strips the game and `libcna.so`, verifies the `$ORIGIN/lib` runpath,
+records fixed-file SHA-256/size metadata, and creates a deterministic archive. The bundle includes
+the licences and notices for the CNA, Sharp Runtime, EasyGL, and MetaGL code linked into the CNA
+runtime. SDL 3, SDL_mixer 3, the C/C++ runtimes, and the graphics driver remain declared host
+dependencies; the project does not copy distribution-specific system libraries into the archive.
+
 ## Current limitations
 
 - Terrain has shared-buffer cell culling and contiguous visible-run batching but no distance LOD,

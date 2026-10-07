@@ -67,6 +67,21 @@
       }
     },
     {
+      "name": "linux-release",
+      "displayName": "Linux OpenGL 3.3 Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CNA_GRAPHICS_RENDERER": "OPENGL33",
+        "ISLAND_BUILD_GAME": "ON",
+        "ISLAND_BUILD_TESTS": "OFF",
+        "ISLAND_BUILD_TOOLS": "OFF"
+      }
+    },
+    {
       "name": "web-webgl2",
       "displayName": "Web WebGL 2 Release",
       "inherits": "web-base",
@@ -103,6 +118,14 @@
         "island_audio_report",
         "island_core_tests",
         "island_world_report"
+      ]
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release",
+      "jobs": 2,
+      "targets": [
+        "island-simulator"
       ]
     },
     {

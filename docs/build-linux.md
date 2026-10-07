@@ -95,6 +95,39 @@ CMake fails if a Git dependency is on the wrong branch or differs from `dependen
 `ISLAND_STRICT_DEPENDENCY_REVISIONS=OFF` exists for deliberate update investigation only; do not
 use it for release evidence.
 
+## Relocatable release bundle
+
+Configure and build the optimized OpenGL 3.3 target with the same shared cache and two-worker
+ceiling:
+
+```bash
+export CCACHE_DIR=/rv/cnaccache
+export CCACHE_BASEDIR=/rv
+cmake --preset linux-release
+cmake --build --preset linux-release
+tools/package_linux_release.sh build-release
+```
+
+The packager refuses a non-Release or non-OpenGL 3.3 tree. It installs and strips the executable
+and CNA shared runtime into `build-release/linux-release/`, sets the executable runpath to
+`$ORIGIN/lib`, copies the project attribution and exact dependency pins, and includes the CNA,
+Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/size manifest and a
+deterministic `build-release/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
+produce byte-identical archives.
+
+The archive deliberately does not copy arbitrary libraries from the build host. A compatible
+Linux system still needs glibc, libstdc++, SDL 3, SDL_mixer 3, and an OpenGL 3.3-capable driver.
+After extraction, run:
+
+```bash
+./linux-release/island-simulator
+```
+
+The 2026-10-07 qualification extracted the archive under `/tmp`, launched it from that unrelated
+working directory on a private Weston/Xwayland display, selected CNA `OPENGL33`, compiled every
+current scene shader, rendered four overview frames, and exited cleanly. This validates relocation
+and first rendering, not compatibility with every Linux distribution or GPU driver.
+
 ## Tests
 
 Core tests require no display:
@@ -248,8 +281,9 @@ For repeatable frame-time reports on a private accelerated display:
   --exec ./tools/run_native_benchmarks.sh /tmp/island-benchmarks
 ```
 
-The executable dynamically loads `build/CNA/libcna.so` through its generated build-tree runtime
-path. Packaging rules will be added before a release build is claimed reproducible.
+The development executable dynamically loads `build/CNA/libcna.so` through its generated
+build-tree runtime path. Use the release bundle above for a movable executable with its own pinned
+CNA runtime.
 
 ## Troubleshooting
 

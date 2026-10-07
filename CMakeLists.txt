@@ -310,6 +310,43 @@ if(ISLAND_BUILD_GAME)
             -sMAX_WEBGL_VERSION=2)
     endif()
 
+    # Keep the native release install self-contained with respect to the selected CNA runtime.
+    # SDL 3 and SDL_mixer remain documented host runtime dependencies; copying arbitrary system
+    # libraries would make the archive distribution-specific and obscure their own licences.
+    if(NOT EMSCRIPTEN AND NOT ANDROID)
+        set_target_properties(island-simulator PROPERTIES
+            INSTALL_RPATH "$ORIGIN/lib")
+        install(TARGETS island-simulator
+            RUNTIME DESTINATION .
+            COMPONENT Runtime)
+        if(TARGET cna_shared)
+            install(TARGETS cna_shared
+                LIBRARY DESTINATION lib
+                COMPONENT Runtime)
+        endif()
+        install(FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+            "${CMAKE_CURRENT_SOURCE_DIR}/ASSET_LICENSES.md"
+            "${CMAKE_CURRENT_SOURCE_DIR}/dependencies.lock"
+            DESTINATION share/island-simulator
+            COMPONENT Runtime)
+        install(FILES "${CNA_ROOT_DIR}/LICENSE"
+            DESTINATION share/island-simulator/licenses/CNA
+            COMPONENT Runtime)
+        install(FILES "${CNA_ROOT_DIR}/NOTICE.md"
+            DESTINATION share/island-simulator/licenses/CNA
+            COMPONENT Runtime)
+        install(FILES "${ISLAND_SHARP_RUNTIME_ROOT}/LICENSE"
+            DESTINATION share/island-simulator/licenses/Sharp-Runtime
+            COMPONENT Runtime)
+        install(FILES "${ISLAND_EASY_GL_ROOT}/LICENSE"
+            DESTINATION share/island-simulator/licenses/EasyGL
+            COMPONENT Runtime)
+        install(FILES "${ISLAND_META_GL_ROOT}/LICENSE"
+            DESTINATION share/island-simulator/licenses/MetaGL
+            COMPONENT Runtime)
+    endif()
+
     if(ISLAND_BUILD_TESTS AND NOT ANDROID AND NOT EMSCRIPTEN AND NOT CMAKE_CROSSCOMPILING)
         add_test(NAME IslandGameSmoke COMMAND island-simulator --smoke-test)
         set_tests_properties(IslandGameSmoke PROPERTIES
