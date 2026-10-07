@@ -4531,6 +4531,19 @@ Work next, in order:
   bytes uncompressed and 2,484,397 bytes through gzip. Physical-device appearance and cost remain
   unqualified; CNA and Sharp Runtime stayed read-only.
 
+### 2026-10-07 — Current-source ASan/UBSan requalification
+
+- Recreated the host-only `linux-sanitize` preset against the current source while keeping the
+  graphical application and all dependency targets out of the instrumented build. Configuration
+  and the two-worker build used the required shared `/rv/cnaccache`.
+- All seven registered tests pass in 50.51 seconds: core simulation/invariants, deterministic
+  world and audio reports, asset provenance, capture-validator unit cases, deterministic Web
+  package round-trip/integrity, and independently parsed WAV preview export. AddressSanitizer and
+  UndefinedBehaviorSanitizer reported no finding.
+- LeakSanitizer remains intentionally disabled under the managed process tracer and retains its
+  separately documented ordinary-terminal command. The 45 MB reproducible `build-asan/` tree was
+  removed after qualification. CNA and Sharp Runtime stayed read-only.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

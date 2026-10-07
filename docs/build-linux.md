@@ -73,6 +73,12 @@ the independently parsed WAV preview export. No AddressSanitizer or UndefinedBeh
 finding was emitted; the legacy 44 MB nonstandard tree was removed afterward and the preset was
 corrected to the approved shared name.
 
+The 2026-10-07 current-source requalification passed all seven registered tests in 50.51 seconds.
+It additionally includes deterministic Web-release packaging validation and covers the current
+terrain, wildlife, input, soundscape, and natural-prop core code. No AddressSanitizer or
+UndefinedBehaviorSanitizer finding was emitted. The 45 MB `build-asan/` tree was removed after the
+pass because it is fully reproducible from the preset.
+
 The 2026-10-07 `9fbe34468c69` CNA `next` refresh compiles the selected OpenGL 3.3 framework and
 game objects, and all six non-display gates pass. After the operator closed the preceding play
 session, the complete current executable linked successfully and a live-desktop four-frame
