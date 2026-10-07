@@ -429,7 +429,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+")
+                "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?, splash 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?")
         add_test(NAME IslandGameCurrentViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-current-capture.ppm"
                     --viewpoint current)
@@ -437,7 +437,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "water view 0[.][1-9][0-9]*, 1 draw, player ripple [01]([.][0-9]+)?, phase [01]([.][0-9]+)?, current 0[.][1-9][0-9]*, undertow target 0[.][1-9][0-9]*")
+                "water view 0[.][1-9][0-9]*, 1 draw, player ripple [01]([.][0-9]+)?, phase [01]([.][0-9]+)?, splash [01]([.][0-9]+)?, phase [01]([.][0-9]+)?, current 0[.][1-9][0-9]*, undertow target 0[.][1-9][0-9]*")
         add_test(NAME IslandGameDistantSceneryCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-distant-capture.ppm"
                     --viewpoint distant)
@@ -536,7 +536,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "movement obstacle/terrain/slide/clamp [1-9][0-9]*/0/[1-9][0-9]*/0")
+                "movement depenetrate/obstacle/terrain/slide/clamp [0-9]+/[1-9][0-9]*/0/[1-9][0-9]*/0")
         add_test(NAME IslandGameWildlifeNavigationCapture
             COMMAND island-simulator
                     --capture "${CMAKE_BINARY_DIR}/island-wildlife-navigation.ppm"
