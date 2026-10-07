@@ -2,8 +2,9 @@
 
 ## Document purpose
 
-This is the living execution ledger for a roughly 300-hour development campaign. It is not a
-feature wish list: checked items require the validation named by their phase, and platform claims
+This is the living execution ledger for the original roughly 300-hour development campaign plus a
+user-directed visual-realism extension of up to roughly 100 additional productive hours. It is not
+a feature wish list: checked items require the validation named by their phase, and platform claims
 must be supported by actual runtime evidence. New discoveries, regressions, framework workarounds,
 asset provenance work, and deferred polish belong here as soon as they become material.
 
@@ -368,6 +369,16 @@ Dependencies: stable terrain/shore queries and representative performance instru
   rooms now have distinct ground identities, first rock/log landmark groups, and dedicated cross-
   renderer QA views. Whole-route composition review, broader landmarks, and stronger enclosed/
   revealing rhythm remain.
+- [ ] Compose one approximately 20 m long, roughly 5 m beam wooden sailing-ship wreck in a chosen
+  beach shallows. The landmark must read as a large ship rather than a boat: retain a recognizable
+  broken hull, exposed frames, partial deck, grounded heel, and snapped mast, with a separately
+  composed debris trail of planks and substantial fragments leading toward the beach. Keep the
+  player clear of sharp snag traps, use only bounded solid proxies for major hull sections, and
+  validate placement against the authoritative seabed/shore field.
+- [ ] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
+  response, wet/submerged colour treatment, a dedicated first-person QA viewpoint, F1/F2 counts,
+  tests for dimensions/depth/debris bounds/collision, and matched OpenGL 3.3, WebGL 2, and GLES 3
+  runtime evidence. Keep it original/procedural and record provenance before release packaging.
 
 ### Ocean and shoreline
 
@@ -608,6 +619,24 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
   It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
   layer for roughly 92--160 seconds before the next appearance.
+
+### Additional peaceful wildlife
+
+- [ ] Add a small deterministic population of beach crabs that scuttle laterally across suitable
+  dry/wet sand, pause, and retreat from a nearby player without entering deep water or the jungle.
+  Use a compact shared state machine, distance-throttled updates, near/far procedural silhouettes,
+  batching, and no per-animal audio voice.
+- [ ] Add butterflies around selected sunny clearings and jungle edges. Their bounded wandering
+  should vary height, turn, and rest/glide timing without looking like miniature birds; cull and
+  throttle them aggressively and preserve clear walking routes.
+- [ ] Add a few non-hostile sea turtles to suitable near-shore water. Constrain them between seabed
+  and surface, keep them out of land and the offshore-current limit, give them slow flipper/body
+  animation and occasional surfacing, and avoid duplicating the fish/shark steering code where the
+  shared wildlife activation policy is sufficient.
+- [ ] Test deterministic populations, biome/depth bounds, state reachability, player response,
+  finite long-run motion, activation tiers, and land/water exclusion for all new species. Add
+  dedicated debug counts and at least one fixed QA view that proves readable silhouettes without
+  inflating invisible populations or the mobile draw-call budget.
 
 ### Monkeys and skeletal animation
 
@@ -1094,6 +1123,103 @@ Exit validation:
 - No documentation claims a platform, renderer, effect, control, or asset that was not actually
   validated.
 
+## Phase 10 — Extended visual-realism campaign (up to 100 h)
+
+Dependencies: stable feature-complete scene, current cross-renderer captures, representative
+frame-time baselines, and the user-directed shipwreck/additional-wildlife scope above. This phase
+improves the requested experience rather than adding quests, combat, survival, or progression.
+
+### Realism target and art direction
+
+- [ ] Define a restrained tropical realism target that preserves the current bright permanent-day
+  identity while replacing toy-like flatness. Use matched first-person reference boards for sand,
+  wet shore, shallow water, palms, broadleaf jungle, grass, stone, aged wood, and atmospheric
+  depth; do not copy copyrighted game assets.
+- [ ] Audit every fixed QA view at original resolution and rank defects by visual impact, first-
+  person frequency, portability cost, and measurable performance risk. Record before/after evidence
+  for changes rather than increasing polygons or shader layers blindly.
+- [ ] Establish consistent real-world scale for terrain features, vegetation, rocks, wildlife, and
+  the approximately 20 m shipwreck. Correct visibly implausible thicknesses, floating roots,
+  intersections, horizon scale, and eye-height cues.
+
+### Materials and surface detail
+
+- [ ] Upgrade terrain response with portable multi-scale albedo variation, material-specific
+  roughness/specular cues, and bounded micro-normal or derivative detail for dry sand, wet sand,
+  soil, leaf-rich floor, grass substrate, rock, and path wear. Prefer shared procedural fields or a
+  small reproducible texture set with mipmaps; avoid shimmer and mobile-unfriendly texture cost.
+- [ ] Add physically coherent fixed-sun wetness to the shoreline, submerged stone, driftwood, and
+  shipwreck without making every surface glossy. Match foam, wet edge, shallow colour, and seabed
+  visibility across OpenGL 3.3, WebGL 2, and GLES 3.
+- [ ] Improve aged wood, bark, leaf, stone, shell, wrack, and shipwreck materials with readable
+  scale, colour breakup, edge wear, and distance fade. Keep far LODs calmer than the near detail.
+
+### Geometry, vegetation, and composition
+
+- [ ] Improve close palm trunks, roots, crowns, frond curvature, leaflet density, dead-frond/coconut
+  variation, and transitions while breaking obvious clones. Preserve a cheaper distant silhouette
+  and validate wind/aliasing on mobile.
+- [ ] Improve broadleaf crown layering, branch hierarchy, trunk taper, buttress integration,
+  understory leaf forms, vines, fallen leaves, and forest-floor occlusion. Keep the jungle dense but
+  navigable and avoid replacing one repeated silhouette with another.
+- [ ] Rework grass blade width/taper/curvature, cluster footprints, height/density fields, colour
+  gradients, seed heads, wind phase, terrain-normal seating, and near/middle/far transitions until
+  first-person gaps and repeated tufts are no longer distracting. Profile overdraw and alpha-free
+  geometry cost on all targets before increasing population.
+- [ ] Strengthen the island's authored composition with realistic erosion cues, beach-width
+  variation, shallow sandbars, reef groupings, grove structure, denser/sparser jungle rooms,
+  landmark sightlines, and controlled openings. Integrate the shipwreck and debris into one chosen
+  cove without damaging the existing main traversal loop.
+
+### Lighting and atmosphere
+
+- [ ] Unify fixed-sun direct light, sky fill, material response, contact grounding, haze, water
+  reflection, and exposure. Evaluate a baked/static sun-occlusion or tightly bounded portable
+  shadow solution; accept it only if it improves first-person depth on WebGL 2 and GLES 3 within
+  measured budgets.
+- [ ] Improve sky colour gradient, sun/halo, cloud scale, horizon haze, distant-islet integration,
+  and aerial perspective while retaining permanent pleasant sunny weather and no time-of-day
+  system.
+- [ ] Reduce visible aliasing, overbright edges, flat silhouettes, abrupt LOD changes, vegetation
+  pop, depth-order artefacts, and colour discontinuities in motion, not only in fixed screenshots.
+
+### Life, motion, and atmosphere polish
+
+- [ ] Integrate crabs, butterflies, sea turtles, existing birds/fish/shark/monkeys, vegetation wind,
+  ocean motion, and positional sound into believable local activity rhythms. Avoid synchronized
+  loops, clutter, and constant attention-seeking behaviour.
+- [ ] Add only subtle shipwreck ambience that can reuse the bounded soundscape budget, such as
+  wave wash/wood creak scheduling from existing water layers; do not create a permanently loud
+  global loop or imply a quest.
+- [ ] Tune camera motion, movement acceleration, slope response, swimming, shoreline transitions,
+  and collision against the improved scale/detail so the player remains grounded rather than
+  moving through a static diorama.
+
+### Performance and acceptance
+
+- [ ] Preserve the current Linux 60 Hz p99 gate on representative scenes, define a shipwreck/wildlife
+  worst-case view, and compare draw calls, triangles, texture bytes, startup, and frame pacing
+  before/after each major realism pass. Scale distance/LOD rather than removing core content on
+  Web or Android.
+- [ ] Run matched native, Chrome, Firefox, and accelerated-Android captures for every new shader or
+  renderer path. Validate physical Android hardware when available; otherwise keep thermals,
+  driver diversity, and real-device ergonomics explicitly unverified.
+- [ ] Complete three recorded whole-island critique passes after the realism work: traversal/scale,
+  material/lighting/composition, and wildlife/sound/motion. Fix high-impact defects found in those
+  passes before declaring the extended campaign complete.
+
+Exit validation:
+
+- First-person beach, jungle, clearing, hill, water, wildlife, and shipwreck views form one
+  coherent sunny tropical scene and no longer rely on flat colour or repeated silhouettes for
+  their primary read.
+- The approximately 20 m wreck is clearly a large broken ship with water-integrated debris, remains
+  safely explorable, and does not become an objective or combat/story system.
+- Additional wildlife reads naturally at intended distances and remains inside valid terrain/water
+  regions without compromising the established platform budgets.
+- Linux, WebGL 2, and GLES 3 still present the same complete island experience with documented,
+  measured quality scaling only where necessary.
+
 ## Cross-platform rendering contract
 
 Portable baseline:
@@ -1221,8 +1347,9 @@ after the same experience remains available.
 
 ## Documentation deliverables
 
-- [~] `README.md`: concept, controls, quick start, and honest status exist; representative
-  screenshots and release-facing presentation remain.
+- [~] `README.md`: concept, controls, quick start, and honest status exist. A current hash-gated
+  native overview now provides the first actual release-facing screenshot and is packaged beside
+  the README; a restrained first-person gallery and final release copy-edit remain.
 - [x] `PLAN.md`: this living ledger.
 - [x] `BUGS.md`: defect schema and current no-confirmed-defects record exist; update whenever
   evidence qualifies a dependency defect.
@@ -1258,6 +1385,20 @@ after the same experience remains available.
 ## Current execution queue
 
 Work next, in order:
+
+Immediate user-directed expansion:
+
+1. Build the approximately 20 m broken wooden ship landmark and its shallow-water/beach debris
+   field, then add a dedicated QA camera, collision/query tests, culling diagnostics, and the full
+   native/Web/Android renderer gate.
+2. Add beach crabs, clearing-edge butterflies, and a small near-shore sea-turtle population through
+   the existing deterministic activation architecture, with long-run region/state tests and
+   bounded batches.
+3. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
+   lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
+   Preserve current performance evidence and complete matched renderer reviews after each pass.
+
+Existing observation and qualification queue:
 
 1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    paired sand/soil footsteps, and the pooled positional bird/monkey voice through a 20-minute
@@ -1369,9 +1510,11 @@ Work next, in order:
    fixed-sun facet-light and close distance-faded bark-fissure passes are visually matched on native
    OpenGL and actual WebGL 2; observe their readability, aliasing, and cost on physical mobile
    before extending the technique to more layers.
-9. Record two isolated debug and release startup reports after closing other GPU clients, then use
-   the phase split to investigate only demonstrated world/content bottlenecks. Add browser cold-load
-   and physical-Android launch evidence before assigning cross-target startup budgets.
+9. Add browser cold-load and physical-Android launch evidence before assigning cross-target startup
+   budgets. Two isolated current-source Linux Debug and stripped Release repetitions are now
+   recorded: Release reaches the first game-owned draw in 426--506 ms, with world construction at
+   161--202 ms and GPU/procedural content at 203--234 ms. Debug reaches it in 1.76--1.98 seconds.
+   The Release split shows no demonstrated bottleneck that justifies speculative restructuring.
 
 ## Validation ledger
 
@@ -5863,6 +6006,29 @@ Work next, in order:
   (`build-consumer`), and 1.3 GiB (`android`). CNA `next` remains at `97783d1e090c`, Sharp Runtime
   `next` at `21c06910f7cf`, and their worktrees remain read-only and clean. No dependency defect was
   found, so `BUGS.md` requires no new entry.
+
+### 2026-10-07 — Release presentation and isolated startup baseline
+
+- Added one unmodified, losslessly converted 1280 by 720 native OpenGL 3.3 overview to the top of
+  the README. The 399,673-byte original project image is tracked at
+  `assets/presentation/island-overview.png`, hash-gated in manifest schema 2, attributed in
+  `ASSET_LICENSES.md`, installed beside the packaged README, and visually inspected at original
+  resolution. Asset validation now passes 17 procedural records, 32 generator sources, two
+  project files, and zero external files.
+- Extended the fixed-file Linux packager to require the presentation image, preventing a broken
+  relative README link. Two unchanged packaging runs produced identical 11,986,092-byte installed
+  payloads and 4,995,503-byte archives with SHA-256
+  `f6009f1c9c0c5b0f7734c0a3430001a89eb3de55c482adb7f27ac63ee6752262`.
+- Recorded two isolated Debug and two isolated stripped-Release startup reports on the private
+  OpenGL 3.3 Radeon/Mesa display after closing other GPU clients. Release completed its first
+  game-owned draw in 426.087--506.104 ms: world construction was 161.497--202.003 ms and GPU/
+  procedural content was 202.621--233.506 ms. Debug completed in 1762.530--1981.890 ms. The
+  current Release split shows no demonstrated loading bottleneck worth a speculative rewrite;
+  hardware-browser cold load and physical-Android launch budgets remain open.
+- Expanded this living plan at the user's direction with an approximately 20 m broken wooden ship
+  and debris landmark, beach crabs, clearing butterflies, near-shore sea turtles, and an additional
+  evidence-driven visual-realism campaign of up to roughly 100 productive hours. No implementation
+  or platform claim is recorded for those new items yet.
 
 ## Session-end checklist
 

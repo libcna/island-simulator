@@ -75,8 +75,21 @@ KVM, and host-GPU gfxstream reported 487.895 ms world generation, 3.421 ms frame
 initialization, 1107.472 ms content creation, 20.058 ms pre-draw, 47.937 ms first draw, and
 1666.782 ms total at its restored 2400 by 1080 landscape surface. This is an emulator startup
 qualification point, not a physical-device budget.
-Two isolated release and debug repetitions per target remain required before setting startup
-budgets.
+
+Two isolated current-source Linux repetitions were recorded after all other game/browser/emulator
+clients were closed. The stripped relocatable Release package reached the first completed game
+draw in 506.104 and 426.087 ms. Its world phase measured 202.003/161.497 ms, GPU-content phase
+233.506/202.621 ms, framework phase 28.868/26.489 ms, pre-draw phase 40.071/31.486 ms, and first-
+draw body 1.656/3.995 ms. Matching unoptimized Debug runs completed in 1762.530 and 1981.890 ms;
+their world phase was 901.304/917.923 ms and content phase 798.467/993.909 ms. All four used the
+same 1280 by 720 overview, full quality profile, OpenGL 3.3 path, AMD Radeon 780M/Mesa 25.0.7, and
+private Weston/Xwayland environment, with smoke-mode audio deliberately skipped.
+
+The two Release results put both major application-owned construction phases near 0.2 seconds and
+the complete first-draw boundary below 0.51 seconds on this machine. Their observed variability
+does not justify a speculative generator rewrite or a target-specific loading path. No broad
+startup budget is assigned: repeated hardware-browser cold-load measurements, interactive native
+audio startup, and physical-Android launch evidence remain required.
 
 ## KVM Android emulator qualification
 

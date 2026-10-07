@@ -42,6 +42,7 @@ readonly packaged_files=(
     share/island-simulator/README.md
     share/island-simulator/ASSET_LICENSES.md
     share/island-simulator/dependencies.lock
+    share/island-simulator/assets/presentation/island-overview.png
     share/island-simulator/licenses/CNA/LICENSE
     share/island-simulator/licenses/CNA/NOTICE.md
     share/island-simulator/licenses/Sharp-Runtime/LICENSE

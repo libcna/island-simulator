@@ -332,6 +332,10 @@ if(ISLAND_BUILD_GAME)
             "${CMAKE_CURRENT_SOURCE_DIR}/dependencies.lock"
             DESTINATION share/island-simulator
             COMPONENT Runtime)
+        install(FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/assets/presentation/island-overview.png"
+            DESTINATION share/island-simulator/assets/presentation
+            COMPONENT Runtime)
         install(FILES "${CNA_ROOT_DIR}/LICENSE"
             DESTINATION share/island-simulator/licenses/CNA
             COMPONENT Runtime)

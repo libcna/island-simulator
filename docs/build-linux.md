@@ -115,9 +115,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 11,585,955 installed bytes. Two unchanged invocations produced the
-same 4,594,448-byte archive with SHA-256
-`6b8ad11a9ead9d9414c472255aae7d6e91a7478605f951b1dfc51eb1fdcc0b07`.
+The current package contains 11,986,092 installed bytes, including the hash-gated 1280 by 720
+overview image referenced by its README. Two unchanged invocations produced the same
+4,995,503-byte archive with SHA-256
+`f6009f1c9c0c5b0f7734c0a3430001a89eb3de55c482adb7f27ac63ee6752262`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when

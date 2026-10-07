@@ -7,6 +7,12 @@
       "path": "android/app/src/main/res/drawable/ic_launcher.xml",
       "sha256": "e0435e5572f4c6f425b9999b28f2c6bcd52741b74eee7bea07faf90d5a0df6e1",
       "licenseRecord": "Original Android launcher icon"
+    },
+    {
+      "name": "native-island-overview-screenshot",
+      "path": "assets/presentation/island-overview.png",
+      "sha256": "3d96b5697d7d80b7b0c1fe65d2fcb1e7d668a5429286e46dfcaf0dd409851f05",
+      "licenseRecord": "Native island overview screenshot"
     }
   ],
   "proceduralGenerators": [

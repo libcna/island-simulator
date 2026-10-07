@@ -1,8 +1,12 @@
 # island-simulator
 
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming
-experience built in C++23 with CNA. The project remains under an active long-form development and
-polish campaign. The current playable slice renders a deterministic approximately 500 m island with
+experience built in C++23 with CNA.
+
+![A sunny overview of the complete procedural tropical island](assets/presentation/island-overview.png)
+
+The project remains under an active long-form development and polish campaign. The current
+playable slice renders a deterministic approximately 500 m island with
 portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
 microvariation, sparse curved leaf litter, close dry-sand granulation, soft-edged pebble/shell
