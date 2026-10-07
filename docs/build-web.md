@@ -39,6 +39,8 @@ coherent coast/path/clearing grass biome-colour path. The lifecycle plus close g
 cameras also require the sparse near seed-head path. The lifecycle plus close grass and jungle
 cameras require the near-field
 terrain microvariation and procedural leaf-litter path. The lifecycle and dedicated jungle camera
+also require the inland humus/moss material diagnostic, preventing a silent return to the former
+uniform green interior substrate. The lifecycle and dedicated jungle camera
 also require derivative-based, two-sided fixed-sun facet lighting on the instanced vegetation
 shader plus sparse hanging leafy lianas on selected near-canopy variants rather than accepting its
 unlit or less-layered fallback. The lifecycle, beach approach, and jungle camera
@@ -58,7 +60,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 27 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the current rebuilt
-WebAssembly is 8,790,883 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+WebAssembly is 8,792,064 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
 12-debris, one-draw diagnostics plus the portable aged-wood/waterline material marker; its refined
 curved-hull and irregular-debris frame was inspected. A separate crab
 stage requires the thirty-agent colony marker, a nonzero visible population, and exactly one draw;
@@ -130,9 +132,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-9,057,532 bytes uncompressed and 2,578,613 bytes through gzip, a 71.5% transfer reduction. HTML is
-2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,790,883
-bytes (2,518,216 gzip). These
+9,058,713 bytes uncompressed and 2,578,728 bytes through gzip, a 71.5% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,792,064
+bytes (2,518,333 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

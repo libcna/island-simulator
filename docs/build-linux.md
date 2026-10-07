@@ -118,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,191,011 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,192,120 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,068,477-byte archive with SHA-256
-`c836cce25cc93ec7af0f82eec14447420305a1f55cc2427aff5db8b039094fd1`.
+5,069,942-byte archive with SHA-256
+`363f2df11859c51c485f76694546cb255b38f82421887f1d6a03eeb4f4451f68`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -156,6 +156,11 @@ it selected the same shader and one-draw scene and completed first draw in 437.1
 After the final wet-material selector correction, the exact `c836cce2` archive repeated this gate
 and completed first draw in 629.566 ms total. These individual startup values are functional
 evidence, not a performance trend.
+The later inland-floor package repeated the unrelated-working-directory gate with the jungle
+camera. The exact `363f2df1` archive selected `OPENGL33`, required the humus/moss material marker,
+captured four frames, and completed first draw in 372.093 ms total. Its 1280 by 720 output passed
+capture validation with 165 colour bins, 35.91 luminance deviation, and 185.13 spatial contrast;
+the original-resolution frame was inspected.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.

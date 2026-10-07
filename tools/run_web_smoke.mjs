@@ -245,6 +245,8 @@ try {
       "island-simulator: terrain distinct authored east/west clearing materials")
     && result.output?.includes(
       "island-simulator: clearing floors reuse existing noise fields for broad patch breakup")
+    && result.output?.includes(
+      "island-simulator: terrain interior humus and moss reuse portable material fields")
     && result.output?.includes("island-simulator: ocean portable custom shader")
     && result.output?.includes(
       "island-simulator: ocean reused crossing-wave subsurface colour")
@@ -884,6 +886,8 @@ try {
     && eastClearingResult.output?.includes(
       "island-simulator: clearing floors reuse existing noise fields for broad patch breakup")
     && eastClearingResult.output?.includes(
+      "island-simulator: terrain interior humus and moss reuse portable material fields")
+    && eastClearingResult.output?.includes(
       "island-simulator: east clearing QA camera at authored centre")
     && eastClearingResult.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
@@ -899,6 +903,8 @@ try {
       "island-simulator: terrain distinct authored east/west clearing materials")
     && westClearingResult.output?.includes(
       "island-simulator: clearing floors reuse existing noise fields for broad patch breakup")
+    && westClearingResult.output?.includes(
+      "island-simulator: terrain interior humus and moss reuse portable material fields")
     && westClearingResult.output?.includes(
       "island-simulator: west clearing QA camera at authored centre")
     && westClearingResult.output?.includes(

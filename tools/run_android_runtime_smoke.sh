@@ -237,6 +237,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: clearing floors reuse existing noise fields for broad patch breakup" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: terrain interior humus and moss reuse portable material fields" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: jungle per-instance foliage tint reuses existing transforms" \
             "$LOG_FILE" \
         && grep -q "island-simulator: selected near canopy variants include hanging leafy lianas" \

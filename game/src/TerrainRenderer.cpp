@@ -44,6 +44,8 @@ namespace island
     {
         constexpr std::string_view ClearingFloorDiagnostic =
             "island-simulator: clearing floors reuse existing noise fields for broad patch breakup";
+        constexpr std::string_view ForestFloorDiagnostic =
+            "island-simulator: terrain interior humus and moss reuse portable material fields";
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
@@ -231,6 +233,23 @@ void main()
         * interior * detailFade;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
+
+    // Break up the broad green inland floor with restrained, material-specific
+    // humus and moss fields. Reusing the already evaluated terrain noise keeps
+    // the same fragment cost class on desktop, WebGL 2, and OpenGL ES 3.
+    float forestFloorMask = smoothstep(24.0, 54.0, signedShoreDistance)
+        * (1.0 - steep) * detailFade
+        * (1.0 - max(eastClearingMask, westClearingMask) * 0.72);
+    float forestMaterialField = broad * 0.70 + medium * 0.45 + fine * 0.035;
+    color = mix(color, color * vec3(0.88, 0.91, 0.75),
+                forestFloorMask * 0.20);
+    float leafHumus = smoothstep(-0.015, 0.245, forestMaterialField)
+        * forestFloorMask;
+    float coolMoss = (1.0 - smoothstep(-0.245, 0.005, forestMaterialField))
+        * forestFloorMask;
+    color = mix(color, vec3(0.185, 0.150, 0.052), leafHumus * 0.27);
+    color = mix(color, vec3(0.205, 0.315, 0.105), coolMoss * 0.18);
+
     vec3 sunlitClearingGround = vec3(0.475, 0.395, 0.125);
     vec3 leafRichClearingGround = vec3(0.170, 0.225, 0.072);
     color = mix(color, sunlitClearingGround,
@@ -459,8 +478,10 @@ void main()
                               << "island-simulator: terrain distinct authored east/west "
                                  "clearing materials\n"
                               << "island-simulator: east clearing uses a warm dry ground cue\n"
-                              << ClearingFloorDiagnostic << '\n';
+                              << ClearingFloorDiagnostic << '\n'
+                              << ForestFloorDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(ClearingFloorDiagnostic);
+                    MirrorRuntimeDiagnosticToPlatformLog(ForestFloorDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

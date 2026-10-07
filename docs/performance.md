@@ -1334,6 +1334,23 @@ GLES 3 package builds, passes lint, contains only `arm64-v8a`, and verifies with
 scheme v2. Native runtime appearance, physical-mobile appearance, and isolated fragment cost
 remain open.
 
+### Inland forest-floor material breakup
+
+The terrain fragment path now reuses its already-evaluated broad, medium, and fine fields to warm-
+desaturate the deeper grass substrate and classify restrained leaf-humus and cool-moss patches.
+Slope, clearing, signed-shore-distance, and existing camera-detail masks bound the work. It adds no
+noise evaluation, texture lookup, varying, geometry, allocation, or draw submission. Native
+OpenGL 3.3 and actual Chrome plus Firefox WebGL 2 jungle frames were inspected at original
+resolution; the Chrome 27-stage matrix and independent Firefox gate require the exact path marker.
+An API 35 x86_64 KVM/gfxstream GLES 3 run passed the same marker and produced an inspected clean
+2400 by 1080 fixed-jungle frame.
+
+One isolated Release OpenGL 3.3 fixed-jungle run recorded 2.8044 ms mean, 2.0553 ms median,
+7.8039 ms p95, 12.4736 ms p99, and 24.0792 ms maximum across 600 intervals. Twenty-five exceeded
+8.333 ms, one exceeded 16.667 ms, and none exceeded 33.333 ms; the fixed composition retained 89
+tracked submissions. This is a current integrated scene baseline, not an isolated shader-cost or
+before/after attribution. Physical-mobile fragment cost remains open.
+
 ### Transform-derived palm-frond tint follow-up
 
 The palm vertex shader now hashes four scale/yaw coefficients already present in every instance
@@ -1538,7 +1555,7 @@ audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the
 mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-19,070,196 bytes with a 16,259,912-byte stripped `libmain.so`; lint reports no issues and APK
+19,071,332 bytes with a 16,261,048-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1633,8 +1650,8 @@ qualify portable function and composition, not physical-mobile frame time, power
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,790,883 bytes (2,518,216
-gzip). The complete transfer payload therefore falls from 9,057,532 to 2,578,613 bytes, a measured
+gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,792,064 bytes (2,518,333
+gzip). The complete transfer payload therefore falls from 9,058,713 to 2,578,728 bytes, a measured
 71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

@@ -43,8 +43,8 @@ Do not run the emulator or game as root. Verify access with
 can instead launch the emulator or validation command through `sg kvm`.
 
 The current arm64 package includes the portable procedural sand/soil terrain material with
-near-field interior microvariation, sparse curved leaf litter, and close dry-sand pebble/shell
-flecks, the broadleaf jungle with
+near-field interior microvariation, broad reused-field leaf-humus/cool-moss breakup, sparse curved
+leaf litter, and close dry-sand pebble/shell flecks, the broadleaf jungle with
 branch-supported near crowns, sparse hanging leafy lianas on two near variants, distance-faded
 procedural bark fissures, rounded far crowns,
 per-tree LOD, pointed-leaf near bushes with a
@@ -119,11 +119,20 @@ wreck draw and no fatal, shader, or `GL_INVALID_OPERATION` diagnostic. The emula
 18.606 seconds and reached first draw in 3592.612 ms before a clean shutdown; this remains
 translated-host functional evidence rather than physical-device performance or colour
 qualification.
-The latest single-ABI arm64 debug qualification build produced a 19,070,196-byte APK with a
-16,259,912-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The subsequent fixed-jungle qualification requires the new inland humus/moss material marker.
+Its API 35 x86_64 KVM 12/host-gfxstream run selected `OPENGLES3`, reached first draw in
+2755.377 ms, and produced a clean inspected 2400 by 1080 scene matching the desktop and browser
+composition. An unrelated Pixel Launcher ANR dialog covered the helper's first screenshot after
+the game had already qualified; selecting the system `Wait` action and recapturing the still-
+focused game produced the retained unobstructed frame. No game fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic appeared. This remains translated-host functional evidence,
+not a physical-device fragment-cost result.
+The latest single-ABI arm64 debug qualification build produced a 19,071,332-byte APK with a
+16,261,048-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
-noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
-granulation, sparse soft-edged pebble/shell flecks,
+noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, inland
+leaf-humus/cool-moss substrate breakup, close sand granulation, sparse soft-edged pebble/shell
+flecks,
 and shoreline-raked ripples, irregular
 faceted near-palm root wedges, irregular near-canopy buttress roots, transform-derived green-only
 jungle foliage variation, irregular near fallen-log broken-end contours with restrained radial

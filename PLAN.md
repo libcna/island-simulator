@@ -1145,13 +1145,17 @@ improves the requested experience rather than adding quests, combat, survival, o
 
 ### Realism target and art direction
 
-- [ ] Define a restrained tropical realism target that preserves the current bright permanent-day
+- [~] Define a restrained tropical realism target that preserves the current bright permanent-day
   identity while replacing toy-like flatness. Use matched first-person reference boards for sand,
   wet shore, shallow water, palms, broadleaf jungle, grass, stone, aged wood, and atmospheric
-  depth; do not copy copyrighted game assets.
-- [ ] Audit every fixed QA view at original resolution and rank defects by visual impact, first-
+  depth; do not copy copyrighted game assets. The first 12-view audit retained the bright fixed-
+  daylight identity and ranked uniform interior ground above adding more features; broader
+  reference and colour-script work remains open.
+- [~] Audit every fixed QA view at original resolution and rank defects by visual impact, first-
   person frequency, portability cost, and measurable performance risk. Record before/after evidence
-  for changes rather than increasing polygons or shader layers blindly.
+  for changes rather than increasing polygons or shader layers blindly. Beach, jungle, grass,
+  palm, ground-plant, prop, driftwood, reef, water, distant, butterfly, and turtle frames were
+  reviewed together; remaining fixed views and repeated in-motion review remain open.
 - [~] Establish consistent real-world scale for terrain features, vegetation, rocks, wildlife, and
   the approximately 20 m shipwreck. Correct visibly implausible thicknesses, floating roots,
   intersections, horizon scale, and eye-height cues. The wreck now has exact 20.0 m length,
@@ -1160,10 +1164,13 @@ improves the requested experience rather than adding quests, combat, survival, o
 
 ### Materials and surface detail
 
-- [ ] Upgrade terrain response with portable multi-scale albedo variation, material-specific
+- [~] Upgrade terrain response with portable multi-scale albedo variation, material-specific
   roughness/specular cues, and bounded micro-normal or derivative detail for dry sand, wet sand,
   soil, leaf-rich floor, grass substrate, rock, and path wear. Prefer shared procedural fields or a
   small reproducible texture set with mipmaps; avoid shimmer and mobile-unfriendly texture cost.
+  The inland floor now desaturates its broad green substrate and classifies irregular humus/moss
+  areas from already-evaluated portable fields with clearing, slope, and distance masks; broader
+  roughness and micro-normal work remains open.
 - [~] Add physically coherent fixed-sun wetness to the shoreline, submerged stone, driftwood, and
   shipwreck without making every surface glossy. Match foam, wet edge, shallow colour, and seabed
   visibility across OpenGL 3.3, WebGL 2, and GLES 3. The shipwreck now has a bounded sea-level
@@ -1422,6 +1429,8 @@ Immediate user-directed expansion:
 1. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
+   The first ranked terrain pass is complete on all three renderers; continue with close grass and
+   vegetation silhouette/composition improvements before adding more material cost.
 2. Continue the 20 m shipwreck realism pass with beach-clutter composition and subjective
    collision feel without changing its established scale or turning it into an objective. Its
    aged-wood breakup, waterline material, curved lower hull, localized missing planks, and
@@ -6263,6 +6272,48 @@ Existing observation and qualification queue:
   completed first draw in 629.566 ms after the final wet-material selector correction. CNA and Sharp
   Runtime remained read-only and clean; no
   qualifying dependency defect was found.
+
+### 2026-10-08 — Portable inland humus and moss material breakup
+
+- Reviewed twelve current fixed native views together at original resolution. The most frequent
+  high-impact defect was the broad, uniformly saturated green substrate beneath otherwise layered
+  interior vegetation. Terrain/material work ranked above adding another feature or increasing
+  geometry blindly; the bright permanent-day art direction remains unchanged.
+- Extended the existing portable terrain shader with a warm-desaturated inland base plus separate
+  leaf-humus and cool-moss classifications. The pass reuses the already-evaluated broad, medium,
+  and fine fields and is bounded by signed shore distance, slope, clearing suppression, and the
+  existing camera-detail fade. It adds no noise lookup, texture, varying, geometry, allocation,
+  collision rule, or draw submission. Two strength passes were inspected; the weaker first pass
+  was rejected because it was effectively invisible at first-person height.
+- Added one exact runtime diagnostic and required it in the complete Chrome, independent Firefox,
+  and strict Android gates. Targeted OpenGL 3.3 jungle/east/west/ground captures pass and were
+  inspected. The complete 27-stage Chrome/WebGL 2 matrix and Firefox ESR WebGL 2 gate both pass;
+  their current jungle frames retain the restrained breakup without seams or shader fallback.
+  The complete native suite then passed as seven non-display plus 39 private-display tests,
+  covering all 46 current tests without a failure.
+- One isolated Release OpenGL 3.3 jungle run recorded 2.8044 ms mean, 2.0553 ms median, 7.8039 ms
+  p95, 12.4736 ms p99, and 24.0792 ms maximum over 600 intervals. Twenty-five exceeded 8.333 ms,
+  one exceeded 16.667 ms, and none exceeded 33.333 ms. This is an integrated 89-submission scene
+  baseline rather than isolated fragment-cost attribution.
+- Built a temporary x86_64 APK through shared `/rv/cnaccache` with two workers. KVM 12 and host AMD
+  Radeon 780M gfxstream were active. The strict fixed-jungle GLES 3 run passed, reached first draw
+  in 2755.377 ms, and retained an inspected clean 2400 by 1080 frame. An unrelated Pixel Launcher
+  ANR dialog covered the helper's first screenshot after game qualification; selecting `Wait` and
+  recapturing the still-focused game produced the retained unobstructed evidence. No game fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostic appeared.
+- Stopped the emulator cleanly, restored and linted the arm64-only package, and verified APK
+  signature scheme v2. The APK is 19,071,332 bytes with a 16,261,048-byte stripped `libmain.so`.
+  Removed exactly five inactive reproducible x86_64 intermediate directories, returning the
+  Android tree to approximately 1.3 GiB while retaining the log and screenshot evidence.
+- The current deterministic Web package is 9,058,713 bytes uncompressed or 2,578,728 bytes through
+  gzip: HTML is 2,058/1,144 bytes, JavaScript 264,591/59,251 bytes, and WebAssembly
+  8,792,064/2,518,333 bytes. CNA and Sharp Runtime remain on their pinned `next` revisions,
+  read-only and clean; no qualifying dependency defect was found.
+- Two unchanged Linux Release packaging runs produced the same 5,069,942-byte archive with
+  SHA-256 `363f2df11859c51c485f76694546cb255b38f82421887f1d6a03eeb4f4451f68` and
+  12,192,120 installed bytes. The exact archive launched from an unrelated `/tmp` directory,
+  selected `OPENGL33`, required the new material marker, captured the jungle view, and completed
+  first draw in 372.093 ms. Its inspected 1280 by 720 frame passed capture validation.
 
 ## Session-end checklist
 

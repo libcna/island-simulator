@@ -331,6 +331,14 @@ ground, and shares the existing 95--285 m detail fade. A coherent early branch a
 colour shaping on shore, distant, and fully steep fragments. The effect is static material
 breakup suited to the permanent daylight art direction, not a claim of geometric canopy shadowing.
 
+Deeper inland, the shader also reuses those three fields to prevent the grass substrate from
+remaining one uniform saturated green. A 24--54 m shoreline-distance transition, slope rejection,
+the existing camera-detail fade, and clearing suppression bound a modest dry leaf-humus tint and a
+separate cool-moss tint. The base substrate receives a restrained warm desaturation first, so the
+two irregular classifications remain readable without looking like decals. This pass adds no
+noise evaluation, texture, varying, mesh, allocation, collision rule, or draw submission, and the
+same source compiles as GLSL 330 and GLSL ES 300.
+
 The primary south-to-north walking corridor has one renderer-independent sinusoidal centre line,
 range, and reserved half-width owned by `VegetationLayout`. Palm, jungle, prop, grass, QA-camera,
 and terrain-material code consume that same definition rather than duplicating path coordinates.

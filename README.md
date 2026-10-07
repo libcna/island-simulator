@@ -9,7 +9,8 @@ The project remains under an active long-form development and polish campaign. T
 playable slice renders a deterministic approximately 500 m island with
 portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
-microvariation, sparse curved leaf litter, close dry-sand granulation, soft-edged pebble/shell
+microvariation, broad leaf-humus and cool-moss floor breakup, sparse curved leaf litter, close
+dry-sand granulation, soft-edged pebble/shell
 flecks, subtle shoreline-raked ripples, restrained fixed-sun jungle-floor dappling, and a narrow
 noise-mottled, broken-edge
 earthen footpath that follows the same authored corridor reserved by vegetation. Two
@@ -311,7 +312,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,578,613 bytes, 71.5% below the 9,057,532-byte
+a SHA-256 manifest. The current gzip payload is 2,578,728 bytes, 71.5% below the 9,058,713-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -325,10 +326,11 @@ look sensitivity (0.72/1.00/1.35 times); the highlighted dot shows the current c
 Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-GPU gfxstream.
 The complete current scene, independent movement/look gestures, all sensitivity levels, a
 same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
-there. Dedicated current-source GLES 3 views also validate the clearing butterflies and a
-near-shore sea turtle through the mobile quality profile. The persistence-qualified run also
+there. Dedicated current-source GLES 3 views also validate the inland humus/moss floor material,
+the clearing butterflies, and a near-shore sea turtle through the mobile quality profile. The
+persistence-qualified run also
 requires a touch sensitivity change to survive the cold relaunch. The default arm64-v8a APK is
-19,070,196 bytes, contains a 16,259,912-byte stripped
+19,071,332 bytes, contains a 16,261,048-byte stripped
 `libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
 emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See
