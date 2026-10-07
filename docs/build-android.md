@@ -445,12 +445,16 @@ linted with zero issues, and v2-signature verified. It is 18,743,708 bytes and i
 `libmain.so` is 15,933,424 bytes. This remains functional emulator evidence rather than physical-
 mobile performance qualification.
 
-The subsequent topology-preserving driftwood end-cap correction has rebuilt and linted the
-arm64-only package, which is 18,744,428 bytes with a 15,934,144-byte stripped `libmain.so` and a
-valid v2 signature. The Android runtime gate now requires its exact irregular-ring marker, but a
-new x86_64 runtime capture is intentionally deferred to the next batched GLES qualification; the
-same arm64 package also contains the later constant-only east-clearing contrast retune. The
-preceding branch capture must not be read as runtime evidence for either later visual change.
+The subsequent topology-preserving driftwood end-cap correction and constant-only east-clearing
+contrast retune passed one batched x86_64 KVM/gfxstream qualification. The fixed `driftwood` run
+reported the exact irregular-ring marker and completed first draw in 1522.465 ms total; its
+inspected 2400 by 1080 frame retains three clean closed silhouettes. A separate fixed `east` run
+completed in 1521.558 ms total, and its inspected frame retains a restrained but clearly warmer
+olive-gold clearing floor. Both runs reported `OPENGLES3`, low-latency audio, and the 1280 by 720
+logical backbuffer without a fatal, shader, or `GL_INVALID_OPERATION` diagnostic. The emulator was
+stopped and the arm64-only package was restored, linted with zero issues, and v2-signature
+verified. The APK is 18,744,428 bytes and its stripped `libmain.so` is 15,934,144 bytes. These are
+functional emulator checks rather than physical-mobile appearance or performance qualification.
 
 Useful diagnostics for a connected test target are:
 

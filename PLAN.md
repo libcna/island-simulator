@@ -5462,11 +5462,12 @@ Work next, in order:
   without relinking the operator-visible process. The complete Chrome 152/SwiftShader WebGL 2
   matrix passes 23/23 and the original-resolution cove frame was inspected without cap cracks,
   inverted silhouettes, or composition regressions.
-- Rebuilt the default arm64-only APK and passed application lint with zero issues; it contains only
-  arm64-v8a and verifies with signature scheme v2. The APK is 18,744,428 bytes and stripped
-  `libmain.so` is 15,934,144 bytes. The new end-cap marker is required by the next x86_64 runtime
-  run, but that runtime requalification is deliberately batched rather than recreating about
-  1.1 GiB of temporary emulator intermediates for this topology-preserving follow-up alone.
+- A batched temporary x86_64 build passed the strict GLES 3/audio gate at the fixed driftwood view
+  on the API 35 KVM/host-gfxstream AVD. PID 3602 reported the exact end-cap marker, `OPENGLES3`,
+  low-latency audio, a 1280 by 720 logical backbuffer, and a 1522.465 ms first-draw total. The
+  inspected 2400 by 1080 frame retains three distinct closed silhouettes without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics; this is emulator functional evidence, not physical-mobile
+  performance qualification.
 - The deterministic Web package is 8,802,501 bytes or 2,496,562 bytes through gzip; WebAssembly is
   8,537,623 bytes or 2,436,354 bytes through gzip. JavaScript is 262,820 bytes (59,064 gzip) and
   HTML is 2,058 bytes (1,144 gzip). CNA and Sharp Runtime remained read-only; builds used no more
@@ -5483,14 +5484,19 @@ Work next, in order:
   without relinking the operator-visible game. The complete Chrome 152/SwiftShader WebGL 2 matrix
   passes 23/23; original-resolution east/west frames were reviewed together, and the east floor now
   reads as a restrained warm dry opening instead of blending into the surrounding green substrate.
-- Rebuilt and linted the default arm64-only GLES 3 APK; lint has zero issues, only arm64-v8a is
-  packaged, and signature scheme v2 verifies. The APK remains 18,744,428 bytes and stripped
-  `libmain.so` remains 15,934,144 bytes. A new Android runtime capture is batched with the pending
-  end-cap gate rather than recreating temporary x86_64 intermediates for constant-only shader work.
+- The same batched x86_64 qualification passed the strict GLES 3/audio gate at the fixed east
+  clearing. PID 5305 reported `OPENGLES3`, low-latency audio, a 1280 by 720 logical backbuffer, and
+  a 1521.558 ms first-draw total. Its inspected 2400 by 1080 frame retains a restrained but clearly
+  warmer olive-gold floor without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is
+  translated-host functional evidence, not a physical-mobile fragment benchmark.
 - The deterministic Web package remains 8,802,501 bytes uncompressed and is 2,496,567 bytes through
   gzip; WebAssembly remains 8,537,623 bytes and is 2,436,359 bytes through gzip. JavaScript remains
   262,820 bytes (59,064 gzip) and HTML remains 2,058 bytes (1,144 gzip). CNA and Sharp Runtime
-  remained read-only, and no build used more than two workers.
+  remained read-only, and no build used more than two workers. After both Android views passed, the
+  emulator was stopped, the default arm64-only APK was restored, and application lint again found
+  zero issues. The restored 18,744,428-byte APK contains only `arm64-v8a`, verifies with signature
+  scheme v2, and contains a 15,934,144-byte stripped `libmain.so`; about 1.1 GiB of reproducible
+  x86_64 CMake/object intermediates were removed.
 
 ## Session-end checklist
 
