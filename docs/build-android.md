@@ -56,7 +56,8 @@ driftwood pieces with a three-limb forked near variant,
 an authored three-piece cove arc, and per-instance large-prop range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble/dry-wrack clusters, including a five-rock/two-log authored
 clearing-landmark composition, 24 simulated
-procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
+procedural birds with slow radial route drift, banked turns, intermittent glides, and layered near
+trailing feathers, eight fish schools,
 with depth-following pitch, banked turns, forked tails, 51/12-vertex CPU-lit near/far geometry,
 single-surface fins, restrained depth/caustic colour response, and near head detail, one occasional
 non-hostile offshore shark with matching pose, silhouette, and water-column treatment, seven GPU-skinned
@@ -78,8 +79,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,728,436-byte APK with a
-15,918,152-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,728,900-byte APK with a
+15,918,616-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
@@ -164,6 +165,14 @@ total (526.585 ms world, 2.472 ms framework, 1085.335 ms content, 19.863 ms pre-
 first draw) without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is gfxstream
 functional evidence, not a physical-mobile fragment-cost claim. The emulator was stopped cleanly
 and the arm64-only package was restored, rebuilt, linted, and signature-verified.
+
+The current fixed-bird x86_64 KVM/gfxstream run requires the layered near trailing-flight-feather
+diagnostic through Android's platform log. Its clean inspected 2400 by 1080 frame visibly retains
+the broader light/dark near-wing silhouette against the sky and matches the WebGL 2 composition.
+It reports `OPENGLES3`, the exact 1280 by 720 logical viewport, and a 2192.963 ms cold first draw
+total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is gfxstream functional
+evidence, not a physical-mobile animation-cost claim. The emulator was stopped cleanly and the
+arm64-only package was restored, rebuilt, linted, and signature-verified.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
@@ -353,8 +362,8 @@ adb logcat -d
 Once the device reports `device` and `adb shell getprop sys.boot_completed` reports `1`, the
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
-logical viewport, first-draw timing, biome-grass, near-seed-head, and sunward-ocean-crest
-diagnostics plus the near-rock crown/facet diagnostic, rejects
+logical viewport, first-draw timing, biome-grass, near-seed-head, near-bird-feather, and sunward-
+ocean-crest diagnostics plus the near-rock crown/facet diagnostic, rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 
 ```bash

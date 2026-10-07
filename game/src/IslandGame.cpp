@@ -465,7 +465,7 @@ namespace island
                                         std::sin(bird.headingRadians));
             const Vector3 flightRight(-flightForward.Z, 0.0f, flightForward.X);
             cameraPosition_ = Vector3(bird.x, bird.y, bird.z)
-                - flightForward * 17.0f + flightRight * 4.5f - Vector3::Up * 3.5f;
+                - flightForward * 12.0f + flightRight * 3.2f - Vector3::Up * 2.5f;
             const Vector3 toBird = Vector3(bird.x, bird.y, bird.z) - cameraPosition_;
             yaw_ = std::atan2(toBird.X, toBird.Z);
             pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));

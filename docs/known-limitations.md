@@ -106,9 +106,9 @@ been confirmed so far.
 ## Wildlife and audio
 
 - A first 24-bird procedural flock has varied shore/canopy/high paths, animated wing strokes,
-  slow per-agent radial drift, banked turns, intermittent glides, positional calls, culling,
-  terrain clearance, and distance-scaled simulation. It still lacks perching, landing, and long
-  subjective behaviour tuning. Eight shallow-water schools add 48 fish with
+  layered near trailing feathers, slow per-agent radial drift, banked turns, intermittent glides,
+  positional calls, culling, terrain clearance, and distance-scaled simulation. It still lacks
+  perching, landing, and long subjective behaviour tuning. Eight shallow-water schools add 48 fish with
   depth/shore constraints, depth-following pitch, banked turns, forked animated tails, near head
   detail, fixed-sun faceted body colour, restrained depth/caustic colour response, culled
   single-surface fins, culling, and distance-scaled simulation; their schooling variation, water

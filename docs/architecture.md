@@ -445,11 +445,12 @@ incommensurate wander terms, individual speeds, vertical oscillation, flap phase
 entered intermittent glide windows, banked turns, and terrain-derived minimum clearance.
 Observer distance selects full, quarter-rate, or one-thirtieth-rate simulation while accumulated
 time preserves average motion. `BirdRenderer` frustum/distance-culls individual agents, selects a
-closed near mesh or double-sided far silhouette, applies CPU wing and bank poses, and streams all visible
-triangles through one CNA `DynamicVertexBuffer` draw. The portable `BasicEffect` path has no custom
-shader or modern-only feature. Native OpenGL 3.3 and actual Chromium/WebGL 2 execute and visually
-match the dedicated bird capture; the bird-inclusive arm64 GLES 3 APK builds, with runtime still
-awaiting a stable Android target.
+closed near mesh or double-sided far silhouette, applies CPU wing and bank poses, and streams all
+visible triangles through one CNA `DynamicVertexBuffer` draw. The near mesh uses its complete
+preallocated 54-vertex budget: paired double-sided trailing-feather triangles extend the existing
+wing roots/tips and share the same flap pose, while the 12-vertex far silhouette is unchanged. The
+portable `BasicEffect` path has no custom shader or modern-only feature. Native OpenGL 3.3, actual
+Chromium/WebGL 2, and KVM/gfxstream GLES 3 execute and visually match the dedicated bird capture.
 
 Eight deterministic shallow-water schools contain six fish each. Their route centres follow the
 authoritative irregular shoreline instead of a circular approximation; each route searches outward

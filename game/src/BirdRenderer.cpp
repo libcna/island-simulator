@@ -1,8 +1,12 @@
 #include "IslandSimulator/BirdRenderer.hpp"
 
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iostream>
+#include <string_view>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -30,6 +34,8 @@ namespace island
         constexpr int MaximumVerticesPerBird = 54;
         constexpr int MaximumVertexCount = static_cast<int>(BirdFlock::BirdCount)
             * MaximumVerticesPerBird;
+        constexpr std::string_view NearBirdFeatherDiagnostic =
+            "island-simulator: near birds use layered trailing flight-feather silhouettes";
 
         struct BirdPalette
         {
@@ -125,6 +131,16 @@ namespace island
                 centre, right, up, forward, 1.04f, wingLift, -0.06f, scale);
             AddDoubleSidedTriangle(vertices, leftFront, leftTip, leftBack, palette.upperWing);
             AddDoubleSidedTriangle(vertices, rightFront, rightBack, rightTip, palette.upperWing);
+            const Vector3 leftFeather = LocalPoint(
+                centre, right, up, forward, -0.54f, wingLift * 0.55f - 0.015f,
+                -0.43f, scale);
+            const Vector3 rightFeather = LocalPoint(
+                centre, right, up, forward, 0.54f, wingLift * 0.55f - 0.015f,
+                -0.43f, scale);
+            AddDoubleSidedTriangle(
+                vertices, leftBack, leftTip, leftFeather, palette.lowerWing);
+            AddDoubleSidedTriangle(
+                vertices, rightBack, rightFeather, rightTip, palette.lowerWing);
 
             const Vector3 tailRoot = LocalPoint(
                 centre, right, up, forward, 0.0f, 0.0f, -0.40f, scale);
@@ -176,6 +192,8 @@ namespace island
         effect_->setFogStartProperty(310.0f);
         effect_->setFogEndProperty(700.0f);
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
+        std::cout << NearBirdFeatherDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(NearBirdFeatherDiagnostic);
     }
 
     BirdRenderer::~BirdRenderer() = default;

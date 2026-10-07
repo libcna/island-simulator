@@ -559,7 +559,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   bounded nondegenerate motion, while subjective whole-island observation remains a polish task.
 - [x] Add occasional near and distant appearances with bounded active counts. The fixed 24-agent
   budget uses individual frustum/distance culling, near/far procedural meshes, distance-throttled
-  updates, and one dynamic-buffer draw submission.
+  updates, and one dynamic-buffer draw submission. The near mesh now uses the complete existing
+  54-vertex allocation for 18 triangles, adding paired trailing-flight-feather surfaces behind the
+  wings; the 12-vertex/4-triangle far silhouette, buffer capacity, and draw count remain unchanged.
 - [x] Add sparse positional calls without attaching a sound to every visible bird. Two original
   short phrases share one voice with monkey calls, select the nearest non-dormant bird within
   110 m, and use CNA listener/emitter placement with 13--30 second scheduling.
@@ -780,8 +782,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   The x86_64 debug APK installs and starts on the KVM-accelerated API 35 `Medium_Phone` AVD,
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
-  requires renderer/first-frame/current-grass, near-seed-head, near-rock crown/facet, and ocean-
-  crest diagnostics, rejects fatal/shader errors, and records
+  requires renderer/first-frame/current-grass, near-seed-head, near-rock crown/facet, near-bird-
+  feather, and ocean-crest diagnostics, rejects fatal/shader errors, and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
@@ -964,11 +966,13 @@ Android is not project completion.
   response remain.
 - [~] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
   Bird paths now drift slowly around their authored radii and their CPU pose blends between wing
-  strokes, glides, and banked turns. Fish and shark now pitch with vertical motion, bank through
-  turns, have clearer forked-tail/head silhouettes, and receive a shared depth/caustic colour
-  profile that visually seats them in the water column. Calm monkeys now use bounded player-aware
-  head posing on top of their existing clips, and three restrained near-only crown/cheek tufts
-  break up the smooth head outline without another draw; long subjective tuning remains open.
+  strokes, glides, and banked turns; paired near trailing-feather surfaces broaden the close wing
+  silhouette without another buffer or draw. Fish and shark now pitch with vertical motion, bank
+  through turns, have clearer forked-tail/head silhouettes, and receive a shared depth/caustic
+  colour profile that visually seats them in the water column. Calm monkeys now use bounded
+  player-aware head posing on top of their existing clips, and three restrained near-only crown/
+  cheek tufts break up the smooth head outline without another draw; long subjective tuning remains
+  open.
 - [~] Improve soundscape variation, spatial placement, transitions, balance, and long-session
   fatigue. The 10/11/29/7-second persistent beds already avoid whole-set realignment for more than
   six hours; three mismatched 44--131-second deterministic gain fields now add restrained,
@@ -1189,9 +1193,9 @@ Work next, in order:
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, a surface-visible near face/eye/nose pass,
    bone-following near fingers/toes, and restrained calm-state player-aware head posing are
-   complete first passes. Bird flight now
-   adds slow per-agent radial drift, banked turns, and
-   intermittent smooth glides without another draw. Fish and shark movement now follows depth with
+   complete first passes. Bird flight now adds slow per-agent radial drift, banked turns,
+   intermittent smooth glides, and layered trailing feathers on the near wing silhouette without
+   another buffer or draw. Fish and shark movement now follows depth with
    pitch, banks through turns, and uses clearer forked-tail/near-head silhouettes without another
    draw; keep all four wildlife layers under subjective observation during play.
 3. Improve ground/contact variation and enrich the forest-floor silhouettes and sparse driftwood
@@ -1246,7 +1250,7 @@ Work next, in order:
    complete-scene GLES 3 rendering, independent movement/look gestures, translucent touch HUD,
    same-process surface restoration, AAudio pause/resume, startup/memory instrumentation, and a
    terrain-batching direction check. A debug-only fixed-view bridge now proves matched beach,
-   close-grass, jungle, water, monkey, and wet-reef views on GLES3. Simultaneous real-finger
+   close-grass, jungle, water, monkey, bird, and wet-reef views on GLES3. Simultaneous real-finger
    ergonomics, swimming, external audio focus, process
    death, thermals, and physical mobile-GPU performance remain open.
 6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
@@ -4795,6 +4799,35 @@ Work next, in order:
   WebAssembly, 8,784,451 bytes for the deterministic Web payload, 2,490,426 bytes through gzip,
   15,918,152 bytes for stripped arm64 `libmain.so`, and 18,728,436 bytes for the arm64 APK.
   Isolated native timing and physical-mobile fragment cost remain open. CNA and Sharp Runtime
+  stayed read-only.
+
+### 2026-10-07 — Layered near-bird trailing feathers
+
+- A current monkey/bird/fish/shark capture audit found the monkey and aquatic silhouettes readable,
+  while the bird view still reduced most agents to points and gave its target a very thin single-
+  triangle wing outline. Added one double-sided trailing-flight-feather surface behind each near
+  wing and moved only the deterministic QA camera from 17 m to 12 m for meaningful inspection.
+  Runtime routes, actual bird scale, and player-facing camera behaviour are unchanged.
+- The near bird grows from 42 vertices/14 triangles to 54 vertices/18 triangles. The renderer
+  already reserved exactly 54 vertices per agent, so the maximum dynamic buffer and staging
+  reservation do not grow. The 12-vertex/4-triangle far silhouette, population, 255 m near-LOD
+  threshold, simulation tiers, culling, allocations, and one dynamic draw remain unchanged. Four
+  near overview birds add only 48 streamed vertices and 16 triangles.
+- The current OpenGL 3.3 bird capture was inspected and visibly retains the broader light/dark wing
+  silhouette. The complete isolated-X11 suite passes 41/41, including actual simultaneous movement/
+  mouse input and persistent Shift run/walk toggling. The exact Chrome 152/SwiftShader WebGL 2
+  suite passes all 22 stages, requires the new diagnostic in lifecycle and bird gates, and its
+  original-resolution bird frame was inspected.
+- A current x86_64 APK passed the KVM/host-gfxstream GLES 3 bird-view gate with the exact platform-
+  log diagnostic. Its clean inspected 2400 by 1080 frame matches native/WebGL, reports `OPENGLES3`
+  and 1280 by 720 logical rendering, and reached cold first draw in 2192.963 ms total without fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostics. This is functional emulator evidence, not a
+  physical-mobile animation-cost baseline. The emulator was stopped cleanly.
+- The default arm64-only APK was restored, builds/lints through `/rv/cnaccache`, contains only
+  `arm64-v8a`, and verifies with APK signature scheme v2. Final artifacts are 8,520,946 bytes
+  WebAssembly, 8,785,789 bytes for the deterministic Web payload, 2,490,886 bytes through gzip,
+  15,918,616 bytes for stripped arm64 `libmain.so`, and 18,728,900 bytes for the arm64 APK.
+  Isolated native timing and physical-mobile animation cost remain open. CNA and Sharp Runtime
   stayed read-only.
 
 ## Session-end checklist

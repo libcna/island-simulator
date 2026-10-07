@@ -333,6 +333,8 @@ try {
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && result.output?.includes(
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
+    && result.output?.includes(
+      "island-simulator: near birds use layered trailing flight-feather silhouettes")
     && /birds [1-9][0-9]*\/24 visible/.test(result.output ?? "")
     && result.output?.includes("island-simulator: smoke test rendered 4 frames")
     && !result.error;
@@ -1031,6 +1033,8 @@ try {
     && birdResult.output?.includes("island-simulator: birds 24 agents")
     && birdResult.output?.includes(
       "island-simulator: bird flight uses slow radial drift, banking, and intermittent glide")
+    && birdResult.output?.includes(
+      "island-simulator: near birds use layered trailing flight-feather silhouettes")
     && /birds [1-9][0-9]*\/24 visible/.test(birdResult.output ?? "")
     && !birdResult.error;
 

@@ -102,7 +102,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,784,451 bytes uncompressed and 2,490,426 bytes through gzip, a 71.6% transfer reduction. These
+8,785,789 bytes uncompressed and 2,490,886 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -200,7 +200,8 @@ current view must additionally report nonzero normalized current strength and un
 target, the frond view must
 report visible grove-associated fallen fronds, the distant view must report all five unreachable
 islets in exactly one portable batch, and the bird/fish views must report nonzero
-visible populations from the 24-agent flock and 48-agent school population. The fish view also
+visible populations from the 24-agent flock and 48-agent school population. The bird view also
+requires the layered near trailing-flight-feather diagnostic. The fish view also
 requires the exact 51/12-vertex, single-surface-fin, CPU-faceted daylight diagnostic and the shared
 depth/sun-band lighting diagnostic. The shark view must report the active offshore patrol and the
 same lighting diagnostic, and the monkey view must report a visible member of the

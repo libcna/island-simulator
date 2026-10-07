@@ -85,8 +85,9 @@ short speed-scaled pair of broken surface rings, with depth hysteresis and a coo
 shoreline chatter. A fixed sunny gradient sky adds a sun disc
 and sparse, layered horizontal high-cloud wisps without a weather simulation. A first
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
-wing strokes, intermittent glides, banked turns, slow radial route drift, terrain clearance,
-visibility culling, and distance-throttled simulation. Eight
+wing strokes, layered trailing flight feathers on the near silhouette, intermittent glides, banked
+turns, slow radial route drift, terrain clearance, visibility culling, and distance-throttled
+simulation. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface, with
 depth-following pitch, banked turns, forked tails, CPU-lit body facets, restrained depth/caustic
 colour response, and readable near heads.

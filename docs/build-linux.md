@@ -199,7 +199,7 @@ device disabled; normal runtime playback is qualified separately.
 `IslandGameFallenFrondCapture` writes a close dry-beach/palm-grove transition view to
 `build/island-frond-capture.ppm`.
 `IslandGameBirdCapture` writes a close airborne wildlife view to
-`build/island-bird-capture.ppm`.
+`build/island-bird-capture.ppm`; startup reports the layered near trailing-flight-feather path.
 `IslandGameFishCapture` writes a close shallow-water school view to
 `build/island-fish-capture.ppm` and requires the exact 51/12-vertex, single-surface-fin, CPU-faceted
 daylight path plus the shared depth/sun-band lighting diagnostic.

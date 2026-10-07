@@ -1007,6 +1007,25 @@ these observations guard against a gross regression but are not an isolated befo
 | Monkeys | 1.8462 | 2.6229 | 3.2287 | 102 |
 | Traversal | 2.3070 | 3.4943 | 4.1055 | 12 final |
 
+### Layered near-bird flight-feather follow-up
+
+Each near bird adds one double-sided trailing-feather triangle behind each existing wing, growing
+from 42 vertices/14 triangles to 54 vertices/18 triangles. The renderer had already reserved 54
+vertices per agent, so the maximum dynamic buffer, staging reservation, population, CPU update,
+culling, 255 m near-LOD threshold, 12-vertex/4-triangle far silhouette, allocation pattern, and
+single dynamic draw remain unchanged. In the overview's four-near-bird case this is 48 additional
+streamed vertices and 16 triangles; the absolute 24-agent worst case is 288 vertices and 96
+triangles.
+
+The exact Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages, requires the trailing-feather
+diagnostic in lifecycle and bird gates, and its closer original-resolution bird frame was inspected.
+The matching OpenGL 3.3 frame was inspected and the complete isolated-X11 suite passes 41/41. A
+current x86_64 KVM/gfxstream GLES 3 fixed-bird run required the same platform-log diagnostic,
+reported `OPENGLES3` at a 1280 by 720 logical viewport, and produced an inspected matching 2400 by
+1080 frame without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The arm64 package builds
+and lints. These are functional and visual checks; isolated native timing and physical-mobile
+animation cost remain open.
+
 ### Single-surface and CPU-faceted fish follow-up
 
 `FishRenderer` already sets `RasterizerState::CullNone`, so every thin fin and tail triangle is
