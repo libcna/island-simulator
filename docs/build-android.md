@@ -415,6 +415,16 @@ useful same-AVD before/after evidence, but it includes compositor/emulator effec
 mobile GPU frame-time claim. Physical-device input latency, touch ergonomics, audio-focus
 interruption, sustained memory, thermals, and lifecycle recovery remain open on real hardware.
 
+A current fixed `litter` x86_64 KVM/gfxstream launch passed the strict GLES 3 and audio gate after
+the near forest-floor mesh gained three sparse folded fallen leaves. The game reported the exact
+reuse diagnostic, `OPENGLES3`, a 1280 by 720 logical backbuffer, and a 1699.166 ms total cold first
+draw. The inspected 2400 by 1080 frame retains the subtle brown leaf silhouette below its source
+plant, surrounding vegetation, and clean translucent touch controls without a fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic. The emulator was stopped cleanly and the default arm64-only
+APK was restored, linted with zero issues, and v2-signature verified. The restored package is
+18,742,572 bytes and its stripped `libmain.so` is 15,932,288 bytes. This qualifies functional
+gfxstream composition, not sustained performance or a physical mobile GPU.
+
 Useful diagnostics for a connected test target are:
 
 ```bash

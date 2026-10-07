@@ -35,6 +35,7 @@
       ["beach", ["--viewpoint", "beach", "--debug-overlay"]],
       ["grass", ["--viewpoint", "grass", "--debug-overlay"]],
       ["ground", ["--viewpoint", "ground", "--debug-overlay"]],
+      ["litter", ["--viewpoint", "litter", "--debug-overlay"]],
       ["palms", ["--viewpoint", "palms", "--debug-overlay"]],
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
       ["east", ["--viewpoint", "east", "--debug-overlay"]],

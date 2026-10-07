@@ -174,6 +174,7 @@ build/island-simulator --capture /tmp/island-beach.ppm --viewpoint beach
 build/island-simulator --capture /tmp/island-palms.ppm --viewpoint palms
 build/island-simulator --capture /tmp/island-jungle.ppm --viewpoint jungle
 build/island-simulator --capture /tmp/island-ground.ppm --viewpoint ground
+build/island-simulator --capture /tmp/island-litter.ppm --viewpoint litter
 build/island-simulator --capture /tmp/island-props.ppm --viewpoint props
 build/island-simulator --capture /tmp/island-driftwood.ppm --viewpoint driftwood
 build/island-simulator --capture /tmp/island-reef.ppm --viewpoint reef

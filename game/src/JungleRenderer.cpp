@@ -764,6 +764,40 @@ void main()
             }
         }
 
+        void AppendFallenGroundLeaf(PlantGeometry& geometry, const float angle,
+                                    const float radialOffset, const float length,
+                                    const float width, const Color& baseColor,
+                                    const float foldDirection)
+        {
+            const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const Vector3 root = direction * radialOffset + Vector3::Up * 0.021f;
+            const Vector3 shoulder = root + direction * (length * 0.47f);
+            const Vector3 ridge = shoulder + side * (width * foldDirection * 0.10f)
+                + Vector3::Up * 0.031f;
+            const Vector3 tip = root + direction * length + Vector3::Up * 0.008f;
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            const Vector2 still(0.0f, 0.0f);
+            geometry.vertices.emplace_back(root, ShadeColor(baseColor, 0.72f), still);
+            geometry.vertices.emplace_back(shoulder - side * width,
+                                           ShadeColor(baseColor, 0.83f), still);
+            geometry.vertices.emplace_back(ridge, ShadeColor(baseColor, 1.08f), still);
+            geometry.vertices.emplace_back(shoulder + side * width,
+                                           ShadeColor(baseColor, 0.67f), still);
+            geometry.vertices.emplace_back(tip, ShadeColor(baseColor, 0.78f), still);
+            geometry.indices.insert(geometry.indices.end(), {
+                base, static_cast<std::uint16_t>(base + 1U),
+                static_cast<std::uint16_t>(base + 2U),
+                base, static_cast<std::uint16_t>(base + 2U),
+                static_cast<std::uint16_t>(base + 3U),
+                static_cast<std::uint16_t>(base + 1U),
+                static_cast<std::uint16_t>(base + 4U),
+                static_cast<std::uint16_t>(base + 2U),
+                static_cast<std::uint16_t>(base + 2U),
+                static_cast<std::uint16_t>(base + 4U),
+                static_cast<std::uint16_t>(base + 3U)});
+        }
+
         [[nodiscard]] PlantGeometry CreateGroundPlantGeometry(const int variant,
                                                               const bool farMesh)
         {
@@ -811,6 +845,25 @@ void main()
                 } else {
                     AppendFrond(geometry, angle, length, width, lift,
                                 leafColor, phase, segments);
+                }
+            }
+            if (!farMesh && variant == 0) {
+                // Keep the extra forest-floor breakup sparse by attaching it to only one of the
+                // three deterministic ground-plant variants. It rides the existing instance,
+                // buffer, culling, and draw path instead of adding a separate litter batch.
+                constexpr int fallenLeafCount = 3;
+                for (int leaf = 0; leaf < fallenLeafCount; ++leaf) {
+                    const float angle = 0.38f + static_cast<float>(leaf) * 2.17f;
+                    const float length = 0.31f
+                        + 0.045f * static_cast<float>((leaf * 2 + 1) % 3);
+                    const float width = 0.082f
+                        + 0.012f * static_cast<float>((leaf + 2) % 3);
+                    const Color litterColor = leaf == 1
+                        ? Color(103, 72, 29, 255)
+                        : Color(128, 87 + leaf * 7, 31, 255);
+                    AppendFallenGroundLeaf(
+                        geometry, angle, 0.18f + static_cast<float>(leaf) * 0.075f,
+                        length, width, litterColor, leaf % 2 == 0 ? -1.0f : 1.0f);
                 }
             }
             return geometry;
@@ -893,6 +946,10 @@ void main()
             std::cout << "island-simulator: jungle near canopy procedural bark fissures\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
             std::cout << "island-simulator: jungle near ground plants include upright and split-leaf silhouettes\n";
+            constexpr const char* litterDiagnostic =
+                "island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes";
+            std::cout << litterDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(litterDiagnostic);
             std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";
             constexpr const char* tintDiagnostic =
                 "island-simulator: jungle per-instance foliage tint reuses existing transforms";

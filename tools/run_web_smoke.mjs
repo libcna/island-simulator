@@ -305,6 +305,8 @@ try {
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
+    && result.output?.includes(
+      "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
@@ -629,11 +631,45 @@ try {
     && groundResult.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
     && groundResult.output?.includes(
+      "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
+    && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
     && /[1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
+
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=litter`,
+  }, visualSessionId);
+  let litterResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    litterResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (litterResult.output?.includes("island-simulator: terrain") || litterResult.error) break;
+  }
+  await delay(1000);
+  const completedLitterEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  litterResult = JSON.parse(completedLitterEvaluation.result.value ?? "{}");
+
+  const litterScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-litter.png", true);
+  const litterPassed = litterResult.output?.includes("island-simulator: renderer WEBGL2")
+    && litterResult.output?.includes(
+      "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
+    && litterResult.output?.includes(
+      "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
+    && /[1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+      litterResult.output ?? "")
+    && litterResult.output?.includes("island-simulator: debug overlay active")
+    && !litterResult.error;
 
   await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=palms`,
@@ -719,6 +755,8 @@ try {
       "jungle near bushes with pointed leaf edge breakup")
     && jungleResult.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
+    && jungleResult.output?.includes(
+      "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/565 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
@@ -1523,7 +1561,7 @@ try {
     && !inputResult.error;
 
   const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && grassPassed
-    && groundPassed
+    && groundPassed && litterPassed
     && palmPassed && junglePassed && eastClearingPassed && westClearingPassed
     && propPassed && driftwoodPassed && reefPassed
     && waterPassed && currentPassed
@@ -1580,6 +1618,11 @@ try {
       passed: groundPassed,
       output: groundResult.output ?? "",
       error: groundResult.error ?? "",
+    },
+    litter: {
+      passed: litterPassed,
+      output: litterResult.output ?? "",
+      error: litterResult.error ?? "",
     },
     palms: {
       passed: palmPassed,
@@ -1689,6 +1732,7 @@ try {
     beachScreenshot: path.basename(beachScreenshotPath),
     grassScreenshot: path.basename(grassScreenshotPath),
     groundScreenshot: path.basename(groundScreenshotPath),
+    litterScreenshot: path.basename(litterScreenshotPath),
     palmScreenshot: path.basename(palmScreenshotPath),
     jungleScreenshot: path.basename(jungleScreenshotPath),
     eastClearingScreenshot: path.basename(eastClearingCapture.screenshotPath),

@@ -418,8 +418,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   lobes with paired folded pointed leaves while retaining
   their compact far tier. Near forest-floor variants now include six upright broad leaves with
   visible petioles and a separate five-leaf folded split form while retaining compact far
-  tiers. All four jungle layers now enforce range and near/far LOD per instance after conservative
-  cell rejection. The shared portable shader now derives
+  tiers. One existing near ground-plant variant also carries three sparse folded fallen leaves,
+  reusing its instance, buffer, culling, and draw submission instead of adding a litter batch.
+  All four jungle layers now enforce range and near/far LOD per instance after conservative cell
+  rejection. The shared portable shader now derives
   two-sided geometric facet light from the fixed sun for every jungle tier without another vertex
   stream or draw. It also derives a stable green-only tint from each existing instance transform,
   reducing repeated foliage colour while preserving bark and near/far LOD identity without a new
@@ -742,7 +744,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,794,948 bytes uncompressed and 2,495,383 bytes through
+  The current Release package is 8,800,498 bytes uncompressed and 2,496,160 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1214,7 +1216,7 @@ after the same experience remains available.
 - [x] `docs/asset-pipeline.md`: current generation model, versioned manifest schema, validation,
   world report, external intake, deterministic conversion requirements, and limitations.
 - [~] `docs/renderer-differences.md`: current visual/input/runtime evidence and explicit gaps are
-  documented; six KVM Android fixed views are matched against WebGL 2 and the established native
+  documented; seven KVM Android fixed views are matched against WebGL 2 and the established native
   suite, while representative physical-device measurements remain open.
 - [~] `docs/debugging.md`: overlay fields, direct QA teleports, deterministic captures, and the
   native performance-report workflow are documented. Android debug packages can now receive the
@@ -1252,7 +1254,9 @@ Work next, in order:
    paired folded leaves over smaller near lobes without touching its far tier; near ground-plant
    variants now include both an upright six-leaf form and a five-leaf folded split form. The
    dedicated cross-renderer QA camera targets the latter and verifies a nonzero per-instance near
-   LOD population.
+   LOD population. One existing near variant now also carries three restrained folded fallen
+   leaves in its existing mesh/draw, with a second dedicated cross-renderer camera for direct
+   composition review.
    Near land and reef rocks now add restrained, texture-free strata, lichen, and a low
    fixed-sea-level wet band only in their near LOD. Bounded upper-ring height offsets plus a taller
    asymmetric cap break the former flat crown, and derivative fixed-sun light reveals the existing
@@ -5345,6 +5349,38 @@ Work next, in order:
   with 99.66 percent cacheable calls; project build trees remain approximately 2.6 GiB native,
   87 MiB Web, and 361 MiB Android with 374 GiB free. Every build used no more than two workers;
   CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Sparse geometric forest-floor litter
+
+- Added three small folded fallen leaves to only ground-plant variant 0's near mesh. Brown material
+  colours remain outside the shader's foliage-tint mask and zero wind weights keep the litter on
+  the floor. The leaves reuse the plant's existing instance transform, cell/range culling, vertex/
+  index buffers, and draw submission, so the 2,225-instance population, collision, resources, and
+  draw-call ceiling are unchanged. The other two ground-plant silhouettes and all far LODs remain
+  untouched.
+- Preserved the established split-leaf diagnostic contract after the first Chrome run correctly
+  rejected a renamed marker, then added a separate exact fallen-leaf marker. A new `litter` fixed
+  viewpoint deterministically selects variant 0 at player-eye detail distance without replacing
+  the existing variant-2 `ground` view. Native CLI, Emscripten smoke shell, debugging documentation,
+  result JSON, and screenshot naming expose the same camera.
+- The changed OpenGL 3.3 objects compile with first-party warnings as errors through the shared
+  cache without relinking the operator-visible running executable. The core suite and final seven
+  renderer-independent core/report/asset/package tests pass. The complete Chrome 152/SwiftShader
+  WebGL 2 matrix now passes 23/23 stages; original-resolution `ground`, `litter`, and jungle frames
+  were inspected, and the new leaf remains a restrained contact cue rather than a repeated carpet.
+- The final deterministic Web package is 8,800,498 bytes or 2,496,160 bytes through gzip;
+  WebAssembly is 8,535,620 bytes or 2,435,957 bytes through gzip. JavaScript remains 262,820 bytes
+  (59,059 gzip) and HTML remains 2,058 bytes (1,144 gzip).
+- A temporary x86_64 package built through `/rv/cnaccache` and passed the strict GLES 3/audio gate
+  at the new fixed view on the API 35 KVM 12/host-gfxstream AVD. PID 3305 reported the exact reuse
+  marker, `OPENGLES3`, 1280 by 720 logical rendering, and a 1699.166 ms first-draw total. The
+  inspected 2400 by 1080 frame visibly retains the subtle leaf, surrounding vegetation, and clean
+  touch HUD without fatal, shader, or `GL_INVALID_OPERATION` diagnostics.
+- Stopped the emulator cleanly and restored/linted the default arm64-only APK. Lint reports zero
+  issues, signature scheme v2 verifies, the APK is 18,742,572 bytes, and its stripped `libmain.so`
+  is 15,932,288 bytes. Shared ccache remains 3.7 GiB and 99.66 percent cacheable; project build
+  trees remain approximately 2.6 GiB native, 88 MiB Web, and 361 MiB Android with 374 GiB free.
+  Every build used no more than two workers; CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 

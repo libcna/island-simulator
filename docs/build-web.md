@@ -48,9 +48,9 @@ driftwood and fallen-frond captures expose that material at first-person scale.
 Both clearing cameras also require the shared five-rock/two-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
-clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
+clipboard readback on its focused localhost canvas. All 23 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,530,070 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,535,620 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -114,7 +114,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,794,948 bytes uncompressed and 2,495,383 bytes through gzip, a 71.6% transfer reduction. These
+8,800,498 bytes uncompressed and 2,496,160 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -163,7 +163,8 @@ and offshore-current stages additionally require the distance-faded reused cross
 plus reused-slope shallow-ridge, sunward-crest, and grazing-reflection diagnostics. The harness
 then opens live fixed
 overview, first-person
-beach, grass interaction, folded-split-ground-plant, segmented-palm and bark/coconut detail, jungle,
+beach, grass interaction, folded-split-ground-plant, sparse fallen-leaf detail, segmented-palm and
+bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
 fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a 1280 x 720 viewport.
 Every scene asserts the
@@ -173,6 +174,7 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-beach.png`, `build-probe/island-browser-jungle.png`,
 `build-probe/island-browser-grass.png`,
 `build-probe/island-browser-ground.png`,
+`build-probe/island-browser-litter.png`,
 `build-probe/island-browser-palms.png`,
 `build-probe/island-browser-east-clearing.png`,
 `build-probe/island-browser-west-clearing.png`,

@@ -64,6 +64,7 @@ namespace island
             case FixedViewpoint::WestClearingDetail: return "west";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
+            case FixedViewpoint::FallenLeafDetail: return "litter";
             case FixedViewpoint::GroundContactDetail: return "contact";
             case FixedViewpoint::MovementTraceDetail: return "movement";
             case FixedViewpoint::PalmDetail: return "palms";
@@ -192,12 +193,15 @@ namespace island
             const Vector3 toTarget = target - cameraPosition_;
             yaw_ = std::atan2(toTarget.X, toTarget.Z);
             pitch_ = std::atan2(toTarget.Y, std::hypot(toTarget.X, toTarget.Z));
-        } else if (viewpoint_ == FixedViewpoint::GroundPlantDetail
+        } else if ((viewpoint_ == FixedViewpoint::GroundPlantDetail
+                    || viewpoint_ == FixedViewpoint::FallenLeafDetail)
                    && !jungleLayout_.GroundPlants().empty()) {
+            const std::uint8_t targetVariant = viewpoint_ == FixedViewpoint::FallenLeafDetail
+                ? 0U : 2U;
             const GroundPlantPlacement* selected = nullptr;
             float bestScore = std::numeric_limits<float>::max();
             for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
-                if (plant.variant != 2U) continue;
+                if (plant.variant != targetVariant) continue;
                 const float pathX = VegetationLayout::PrimaryPathCenterX(plant.z);
                 const float pathDistance = std::fabs(plant.x - pathX);
                 if (pathDistance < 3.2f || pathDistance > 6.5f) continue;
@@ -241,7 +245,7 @@ namespace island
             }
             if (selected == nullptr) {
                 for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
-                    if (plant.variant == 2U) {
+                    if (plant.variant == targetVariant) {
                         selected = &plant;
                         break;
                     }
@@ -260,7 +264,10 @@ namespace island
             const Vector3 toPlant = target - cameraPosition_;
             yaw_ = std::atan2(toPlant.X, toPlant.Z);
             pitch_ = std::atan2(toPlant.Y, std::hypot(toPlant.X, toPlant.Z));
-            std::cout << "island-simulator: ground QA target variant "
+            std::cout << "island-simulator: "
+                      << (viewpoint_ == FixedViewpoint::FallenLeafDetail
+                              ? "ground-litter" : "ground")
+                      << " QA target variant "
                       << static_cast<int>(selected->variant)
                       << " at player-eye detail distance\n";
         } else if (viewpoint_ == FixedViewpoint::PalmDetail

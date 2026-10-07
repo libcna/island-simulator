@@ -68,6 +68,7 @@ namespace island
         WestClearingDetail,
         GrassDetail,
         GroundPlantDetail,
+        FallenLeafDetail,
         GroundContactDetail,
         MovementTraceDetail,
         PalmDetail,

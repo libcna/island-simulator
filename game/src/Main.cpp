@@ -34,7 +34,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, beach, jungle, "
-                             "east, west, grass, ground, contact, movement, palms, water, "
+                             "east, west, grass, ground, litter, contact, movement, palms, water, "
                              "current, distant, props, driftwood, reef, fronds, birds, fish, "
                              "shark, monkeys, or traversal\n";
                 return 2;
@@ -54,6 +54,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::GrassDetail;
             } else if (name == "ground") {
                 viewpoint = island::FixedViewpoint::GroundPlantDetail;
+            } else if (name == "litter") {
+                viewpoint = island::FixedViewpoint::FallenLeafDetail;
             } else if (name == "contact") {
                 viewpoint = island::FixedViewpoint::GroundContactDetail;
             } else if (name == "movement") {
