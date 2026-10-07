@@ -50,6 +50,7 @@ add_library(island_core STATIC
     game/src/SharkPatrol.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
+    game/src/UserSettings.cpp
     game/src/VegetationLayout.cpp
     game/src/WaterRippleModel.cpp
     game/src/WaterViewModel.cpp
@@ -265,6 +266,7 @@ if(ISLAND_BUILD_GAME)
         game/src/Soundscape.cpp
         game/src/TerrainRenderer.cpp
         game/src/TouchOverlay.cpp
+        game/src/UserSettingsStore.cpp
         game/src/WaterViewOverlay.cpp
         game/src/WorldDebugRenderer.cpp)
 
@@ -623,6 +625,16 @@ if(ISLAND_BUILD_GAME)
                     LABELS "display;input"
                     RUN_SERIAL TRUE
                     PASS_REGULAR_EXPRESSION "player input smoke passed")
+
+                add_test(NAME IslandGameSettingsPersistence
+                    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tools/run_native_settings_smoke.sh"
+                            "$<TARGET_FILE:island-simulator>"
+                            "${ISLAND_XDOTOOL_EXECUTABLE}")
+                set_tests_properties(IslandGameSettingsPersistence PROPERTIES
+                    TIMEOUT 40
+                    LABELS "display;input;storage"
+                    RUN_SERIAL TRUE
+                    PASS_REGULAR_EXPRESSION "settings persistence smoke passed")
             endif()
         endif()
     endif()

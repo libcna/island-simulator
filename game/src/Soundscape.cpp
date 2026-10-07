@@ -642,7 +642,12 @@ namespace island
 
     void Soundscape::ToggleMuted() noexcept
     {
-        muted_ = !muted_;
+        SetMuted(!muted_);
+    }
+
+    void Soundscape::SetMuted(const bool muted) noexcept
+    {
+        muted_ = muted;
         if (muted_) {
             const auto stopTransient = [](auto& instance) noexcept {
                 if (instance) {

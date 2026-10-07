@@ -277,7 +277,8 @@ Dependencies: Phase 1 graphics/input shell and authoritative terrain query inter
 - [~] Implement keyboard movement and mouse look with pitch limits. WASD/arrows, correct
   screen-relative strafing, Shift-toggled 4.3/8.0 m/s walk/run, and simultaneous forward/mouse turns
   are qualified on native Linux and Chromium. A 1.4-second normal-play notice now confirms each
-  persistent keyboard mode without becoming a permanent HUD; runtime configuration remains open.
+  retained keyboard mode without becoming a permanent HUD. Walk/run, camera-motion, audio-mute,
+  and touch-look preferences now persist portably; a general settings UI and remapping remain open.
 - [x] Capture/release relative mouse input on Linux. Click and first-movement-key acquisition avoid
   pre-capture absolute cursor deltas; one Escape edge releases and a second exits. A real isolated
   SDL/XTest regression covers the complete sequence.
@@ -802,8 +803,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   and physical-device recovery remain open.
 - [~] Add configurable sensitivity and left/right layout considerations where practical. Runtime
   touch look now offers bounded 0.72/1.00/1.35 multipliers, selection feedback, hold debouncing,
-  resize/hot-resume retention, and cold-process reset. Persistent settings and a handed layout
-  remain open.
+  resize/hot-resume retention, and CNA-backed cold-process persistence. A handed layout remains
+  open.
 - [~] Verify audio focus/lifecycle and resource restoration after backgrounding. AAudio opened at
   44.1 kHz stereo, paused during Home, restarted after a same-process hot resume, and recreated
   all qualified game audio resources after a force-stop/new-process launch. External focus
@@ -933,7 +934,9 @@ Dependencies: representative complete scene on all targets.
 - [~] Test malformed/missing terrain, configuration, model, texture, animation, shader, and audio
   inputs for actionable failure diagnostics. `IslandCommandLineValidation` now launches the real
   executable for eight invalid option/value/conflict cases and requires exit code 2, specific
-  stderr guidance, and no stdout before graphics initialization. Malformed content cases remain.
+  stderr guidance, and no stdout before graphics initialization. The settings parser rejects
+  oversize, embedded-NUL, duplicate, missing-schema, unsupported-schema, and invalid-value inputs;
+  an actual native launch test also proves valid-backup recovery. Malformed content cases remain.
 - [x] Add assertions for finite transforms, valid indices, terrain query domains, animation palette
   sizes, and impossible player/wildlife states in development builds. Player and all four wildlife
   simulations now reject non-finite frame/input values before they can poison persistent state and
@@ -1079,8 +1082,9 @@ Android is not project completion.
   repeat after future runtime or visual changes.
 - [~] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
   repository inspection. Shell/Node syntax, executable modes, tracked-file types, approved build
-  directories, local Markdown links, asset provenance, package determinism, full native 41/41, and
-  full Web 22/22 currently pass; repeat the aggregate gate at final packaging.
+  directories, local Markdown links, asset provenance, package determinism, full native 42/42, and
+  full Web 23-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
+  gate at final packaging.
 
 Exit validation:
 
@@ -5813,6 +5817,52 @@ Work next, in order:
   sizing, audio, both pre- and post-lifecycle Shift edges, footstep, tab lifecycle, resumed game
   input, and dedicated jungle/water scenes. The final native private-display matrix passes 41/41
   in 80.97 seconds without a graphics-profile refusal.
+
+### 2026-10-07 — Portable persistent player preferences
+
+- Added schema-1 `UserSettings` parsing/serialization and a CNA `StorageDevice`-backed
+  `UserSettingsStore`. Ordinary launches now restore the selected Shift walk/run pace, B camera-
+  motion state, M mute state, and Android low/standard/high touch-look response. The parser is
+  deliberately bounded and rejects oversize or NUL-containing input, duplicate or missing current
+  keys, unsupported schemas, and invalid values while ignoring documented future keys.
+- Settings use the platform-native CNA container (`settings.ini`, a last-valid backup, and a
+  temporary replacement): XDG user storage on Linux, IDBFS with automatic persistence on Web, and
+  app-private storage on Android. Smoke, capture, benchmark, and fixed-view QA launches are
+  isolated automatically; `--no-user-settings` provides explicit isolation. Load/save diagnostics
+  are mirrored to Android logcat. The implementation is entirely game-owned and no dependency
+  source was changed.
+- Added core round-trip/malformed-input tests plus `IslandGameSettingsPersistence`, which launches
+  three real native sessions under an isolated XDG root: the first writes exact toggles, the second
+  restores them, and the third corrupts the primary file and recovers the valid backup. Increased
+  synthetic key dwell times for slow frames and taught native input tests to reuse CNA's private
+  rootful Xwayland when available instead of nesting a software Xvfb server on a Wayland host.
+- An initial parallel full-suite run exposed only shared-display starvation: four frame-driven
+  tests timed out but passed independently. The final serial private-display OpenGL 3.3 suite
+  passes 42/42 in 153.44 seconds, including real simultaneous movement/look and the three-process
+  persistence scenario. The Linux QA guide now makes serial aggregate GPU qualification explicit.
+  All seven first-party AddressSanitizer/UndefinedBehaviorSanitizer tests pass in 78.99 seconds
+  with no finding; the reproducible 47 MiB sanitizer tree was removed afterward.
+- The exact Web release passes the complete Chrome 23-stage WebGL 2 gate, including an IDBFS-backed
+  close/relaunch persistence check, and independently passes the Firefox ESR production-shell
+  lifecycle, pointer-lock, input/audio, jungle, and water gate. HTML is 2,058 bytes (1,144 gzip),
+  JavaScript is 264,001 bytes (59,212 gzip), and WebAssembly is 8,621,912 bytes (2,464,390 gzip),
+  for 8,887,971 bytes uncompressed or 2,524,746 bytes through deterministic gzip.
+- A temporary x86_64 APK passed the API 35 KVM 12/host-gfxstream GLES 3 settings gate across hot
+  resume and a force-stop/new-process launch; exact logcat evidence shows high touch response
+  restored in the new process. Both clean 2400 by 1080 frames were inspected. The emulator was
+  stopped and the default arm64-only APK restored: it passes lint, verifies with APK signature
+  scheme v2, is 18,861,028 bytes, and contains a 16,050,744-byte stripped `libmain.so`.
+- Rebuilt the stripped Linux Release target through the mandatory shared `/rv/cnaccache`. The
+  final package contains 11,585,955 installed bytes; two unchanged packaging runs produced
+  byte-identical 4,594,448-byte archives with SHA-256
+  `6b8ad11a9ead9d9414c472255aae7d6e91a7478605f951b1dfc51eb1fdcc0b07`. The unchanged game binary
+  had already been extracted beneath `/tmp`, launched from an unrelated working directory,
+  selected `OPENGL33`, rendered four frames, and exited cleanly with settings enabled.
+- Removed verified temporary x86_64 Android intermediates and the sanitizer tree. The retained
+  reproducible trees are approximately 2.5 GiB (`build`), 88 MiB (`build-probe`), 107 MiB
+  (`build-consumer`), and 1.3 GiB (`android`). CNA `next` remains at `97783d1e090c`, Sharp Runtime
+  `next` at `21c06910f7cf`, and their worktrees remain read-only and clean. No dependency defect was
+  found, so `BUGS.md` requires no new entry.
 
 ## Session-end checklist
 

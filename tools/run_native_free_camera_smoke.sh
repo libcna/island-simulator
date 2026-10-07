@@ -10,7 +10,9 @@ fi
 GAME=$1
 XDOTOOL=$2
 
-if [ "${XDG_SESSION_TYPE:-}" = "wayland" ] && [ -z "${ISLAND_INPUT_SMOKE_XVFB:-}" ]; then
+if [ "${XDG_SESSION_TYPE:-}" = "wayland" ] \
+    && [ -z "${CNA_WAYLAND_TEST_DISPLAY:-}" ] \
+    && [ -z "${ISLAND_INPUT_SMOKE_XVFB:-}" ]; then
     XVFB_RUN=$(command -v xvfb-run || true)
     if [ -z "$XVFB_RUN" ]; then
         echo "free-camera input smoke requires xvfb-run under a Wayland session" >&2

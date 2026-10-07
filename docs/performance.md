@@ -1534,8 +1534,8 @@ Android tree from 2.4 GiB to 1.3 GiB.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 263,453 bytes (59,114 gzip), and WebAssembly is 8,556,884 bytes (2,442,705
-gzip). The complete transfer payload therefore falls from 8,822,395 to 2,502,963 bytes, a measured
+gzip), JavaScript is 264,001 bytes (59,212 gzip), and WebAssembly is 8,621,912 bytes (2,464,390
+gzip). The complete transfer payload therefore falls from 8,887,971 to 2,524,746 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

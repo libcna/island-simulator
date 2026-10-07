@@ -62,8 +62,10 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── TouchOverlay ─────── generated movement/look affordances through SpriteBatch
       ├── SoundscapeModel ──── deterministic PCM generation and shoreline-driven crossfades
       ├── AudioAnalysis ────── deterministic PCM measurements for host-only quality reports
-      ├── WorldIdentity ────── shared procedural-layout seeds and stable diagnostic text
-      ├── Soundscape ───────── CNA loop ownership, volume application, mute, and failure fallback
+      ├── WorldIdentity ───── shared procedural-layout seeds and stable diagnostic text
+      ├── UserSettings ───── bounded schema-1 preference model and strict text parser
+      ├── UserSettingsStore ─ CNA storage adapter with primary/backup recovery
+      ├── Soundscape ──────── CNA loop ownership, volume application, mute, and failure fallback
       └── IslandGame ───────── CNA lifecycle, input, camera, and pass ordering
 ```
 
@@ -71,14 +73,24 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 `JungleLayout`,
 `NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `AquaticLightingModel`,
 `SharkPatrol`, `MonkeyTroop`,
-`WildlifeActivationPolicy`, `ProceduralMeshValidation`, `RuntimeQualityProfile`, `TouchControls`, and
-`SoundscapeModel`, `AudioAnalysis`, and `WorldIdentity` form `IslandSimulator::Core` and
+`WildlifeActivationPolicy`, `ProceduralMeshValidation`, `RuntimeQualityProfile`, `TouchControls`,
+`SoundscapeModel`, `AudioAnalysis`, `WorldIdentity`, and `UserSettings` form
+`IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` maps CNA keyboard snapshots into `FirstPersonDigitalInput`; the renderer-independent
 resolver combines them with touch axes and camera yaw using the screen-right basis required by the
 view convention. It converts the core player position back to CNA `Vector3` for the camera. Collision and rendering
 consume the same palm, broadleaf, rock, and fallen-log placements; rendering never becomes a
 separate source of world truth.
+
+`UserSettingsStore` is the narrow persistence boundary. It uses CNA `StorageDevice` and
+`StorageContainer`, so Linux uses the app's XDG-backed data root, Web uses origin-scoped IDBFS, and
+Android uses app-private storage without platform paths leaking into gameplay code. Writes first
+create a temporary record, retain the previous valid primary as `settings.ini.bak`, then replace
+the primary `settings.ini`. The parser has a 4 KiB limit, rejects duplicate known keys and invalid
+schema values, and ignores unknown keys for forward compatibility. Ordinary interactive launches
+apply settings before content startup; isolated QA modes and `--no-user-settings` deliberately do
+not touch them.
 
 ## Codebase conventions
 

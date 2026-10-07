@@ -196,6 +196,10 @@ Run `build/island-simulator`. Click inside the window or press a movement key to
 use WASD or the arrow keys to move, and press Shift to toggle between walking and running on land.
 Each keyboard toggle briefly confirms `WALK MODE  4.3 M/S` or `RUN MODE  8.0 M/S` near the bottom
 of the view; no key must remain held.
+The selected walk/run mode, camera-motion toggle, audio mute state, and Android touch-look
+sensitivity are saved automatically through CNA's platform storage and restored on the next
+ordinary launch. Isolated smoke/capture/benchmark runs do not read or change player preferences;
+`--no-user-settings` provides the same isolation for an explicit diagnostic launch.
 The executable may be launched from any working directory; current runtime content is embedded or
 generated and does not depend on a repository-relative asset path.
 On Linux, press Escape once to release the mouse and again to exit. In a browser, Escape only
@@ -281,7 +285,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,502,963 bytes, 71.6% below the 8,822,395-byte
+a SHA-256 manifest. The current gzip payload is 2,524,746 bytes, 71.6% below the 8,887,971-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -295,7 +299,10 @@ look sensitivity (0.72/1.00/1.35 times); the highlighted dot shows the current c
 Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-GPU gfxstream.
 The complete current scene, independent movement/look gestures, all sensitivity levels, a
 same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
-there. This is meaningful emulator qualification, but it does not replace physical-device
+there. The persistence-qualified run also requires a touch sensitivity change to survive the cold
+relaunch. The default arm64-v8a APK is 18,861,028 bytes, contains a 16,050,744-byte stripped
+`libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
+emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See
 `docs/build-android.md` and `PLAN.md` for exact evidence and commands.
 

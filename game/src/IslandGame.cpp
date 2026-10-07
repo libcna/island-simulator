@@ -85,12 +85,24 @@ namespace island
             }
             return "unknown";
         }
+
+        [[nodiscard]] const char* TouchSensitivityName(
+            const TouchLookSensitivityLevel sensitivity) noexcept
+        {
+            switch (sensitivity) {
+            case TouchLookSensitivityLevel::Low: return "low";
+            case TouchLookSensitivityLevel::Standard: return "standard";
+            case TouchLookSensitivityLevel::High: return "high";
+            }
+            return "standard";
+        }
     }
 
     IslandGame::IslandGame(const bool smokeTest, std::string capturePath,
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
                            const bool inputDiagnostics, const bool showWorldDebug,
-                           std::string benchmarkPath, std::string startupReportPath)
+                           std::string benchmarkPath, std::string startupReportPath,
+                           const bool userSettingsEnabled)
         : graphics_(this),
           birdFlock_(terrain_),
           fishSchools_(terrain_),
@@ -107,6 +119,7 @@ namespace island
           capturePath_(std::move(capturePath)),
           debugOverlayVisible_(showDebugOverlay),
           worldDebugVisible_(showWorldDebug),
+          userSettingsEnabled_(userSettingsEnabled),
           inputDiagnostics_(inputDiagnostics),
           benchmarkPath_(std::move(benchmarkPath)),
           startupReportPath_(std::move(startupReportPath))
@@ -521,12 +534,71 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         setIsFixedTimeStepProperty(benchmarkPath_.empty());
+        InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
 #endif
         constructionFinished_ = std::chrono::steady_clock::now();
         worldGenerationMilliseconds_ = std::chrono::duration<double, std::milli>(
             constructionFinished_ - constructionStarted_).count();
+    }
+
+    void IslandGame::InitializeUserSettings()
+    {
+        if (!userSettingsEnabled_) {
+            std::cout << "island-simulator: user settings disabled for isolated QA run\n";
+            return;
+        }
+
+        std::string error;
+        userSettingsStore_ = UserSettingsStore::Open(error);
+        if (!userSettingsStore_) {
+            const std::string diagnostic =
+                "island-simulator: user settings unavailable; using defaults: " + error;
+            std::cerr << diagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+            return;
+        }
+
+        const UserSettingsLoadResult loaded = userSettingsStore_->Load();
+        userSettings_ = loaded.settings;
+        locomotionPaceToggle_.SetRunningSelected(userSettings_.runningSelected);
+        cameraMotion_.SetEnabled(userSettings_.cameraMotionEnabled);
+        touchControls_.SetLookSensitivity(userSettings_.touchLookSensitivity);
+        if (!loaded.warning.empty()) {
+            const std::string warning = "island-simulator: " + loaded.warning
+                + "; using " + (loaded.usedBackup ? "backup" : "defaults");
+            std::cerr << warning << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(warning);
+        }
+        std::ostringstream diagnostic;
+        diagnostic << "island-simulator: user settings "
+                   << (loaded.loaded ? (loaded.usedBackup ? "recovered" : "loaded")
+                                     : "defaults")
+                   << " run " << (userSettings_.runningSelected ? "enabled" : "disabled")
+                   << " camera motion "
+                   << (userSettings_.cameraMotionEnabled ? "enabled" : "disabled")
+                   << " audio " << (userSettings_.audioMuted ? "muted" : "enabled")
+                   << " touch " << TouchSensitivityName(userSettings_.touchLookSensitivity)
+                   << " at " << userSettingsStore_->Location();
+        const std::string diagnosticText = diagnostic.str();
+        std::cout << diagnosticText << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(diagnosticText);
+    }
+
+    void IslandGame::PersistUserSettings()
+    {
+        if (!userSettingsStore_) return;
+        std::string error;
+        if (!userSettingsStore_->Save(userSettings_, error)) {
+            const std::string diagnostic =
+                "island-simulator: user settings could not be saved: " + error;
+            std::cerr << diagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        } else {
+            std::cout << "island-simulator: user settings saved\n";
+            MirrorRuntimeDiagnosticToPlatformLog("island-simulator: user settings saved");
+        }
     }
 
     void IslandGame::LoadContent()
@@ -629,6 +701,7 @@ namespace island
             cameraPosition_ = Vector3(position.x, position.y, position.z);
         }
         soundscape_ = std::make_unique<Soundscape>();
+        if (userSettings_.audioMuted) soundscape_->SetMuted(true);
         if (!smokeTest_ && !soundscapeNeedsGesture_) {
             TryStartSoundscape();
         }
@@ -879,6 +952,8 @@ namespace island
             touchOverlayVisible_ = true;
         }
         if (touchControlState_.lookSensitivityChanged) {
+            userSettings_.touchLookSensitivity = touchControlState_.lookSensitivity;
+            PersistUserSettings();
             const std::string_view diagnostic = [this]() -> std::string_view {
                 switch (touchControlState_.lookSensitivity) {
                 case TouchLookSensitivityLevel::Low:
@@ -900,6 +975,8 @@ namespace island
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
         if (locomotionPaceToggle_.Update(runToggleDown, !IsDebugFreeCameraActive())) {
+            userSettings_.runningSelected = locomotionPaceToggle_.IsRunningSelected();
+            PersistUserSettings();
             locomotionModeNoticeSeconds_ = LocomotionModeNoticeDuration;
             const std::string_view diagnostic = locomotionPaceToggle_.IsRunningSelected()
                 ? "island-simulator: run mode enabled (8.0 m/s)"
@@ -928,12 +1005,16 @@ namespace island
         const bool muteToggleDown = keyboard.IsKeyDown(Keys::M);
         if (muteToggleDown && !muteToggleWasDown_ && soundscape_) {
             soundscape_->ToggleMuted();
+            userSettings_.audioMuted = soundscape_->IsMuted();
+            PersistUserSettings();
         }
         muteToggleWasDown_ = muteToggleDown;
 
         const bool cameraMotionToggleDown = keyboard.IsKeyDown(Keys::B);
         if (cameraMotionToggleDown && !cameraMotionToggleWasDown_) {
             cameraMotion_.SetEnabled(!cameraMotion_.IsEnabled());
+            userSettings_.cameraMotionEnabled = cameraMotion_.IsEnabled();
+            PersistUserSettings();
             std::cout << "island-simulator: camera motion "
                       << (cameraMotion_.IsEnabled() ? "enabled" : "disabled") << '\n';
         }

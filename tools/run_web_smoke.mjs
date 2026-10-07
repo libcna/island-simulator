@@ -469,7 +469,62 @@ try {
     && deploymentState.waveVariantsEnabled === true
     && deploymentState.positionalWildlifeCallsEnabled === true
     && deploymentState.pointerLocked === true;
+
+  // Exercise CNA StorageDevice's browser IDBFS path with a real preference change and a fresh
+  // runtime in the same origin/profile. QA scene pages disable settings explicitly, so this is
+  // isolated from their deterministic input assumptions while still testing the production shell.
+  let settingsWriteOutput = "";
+  for (let keyAttempt = 0; keyAttempt < 3; ++keyAttempt) {
+    await dispatchKeyPress(deploymentSessionId, "b", "KeyB", 66, 650, 350);
+    for (let outputAttempt = 0; outputAttempt < 12; ++outputAttempt) {
+      const evaluation = await call("Runtime.evaluate", {
+        expression: "globalThis.islandDeploymentOutput ?? ''",
+        returnByValue: true,
+      }, deploymentSessionId);
+      settingsWriteOutput = evaluation.result.value ?? "";
+      if (settingsWriteOutput.includes("island-simulator: camera motion disabled")
+          && settingsWriteOutput.includes("island-simulator: user settings saved")) break;
+      await delay(250);
+    }
+    if (settingsWriteOutput.includes("island-simulator: camera motion disabled")
+        && settingsWriteOutput.includes("island-simulator: user settings saved")) break;
+  }
+  const webSettingsWritten = settingsWriteOutput.includes(
+    "island-simulator: camera motion disabled")
+    && settingsWriteOutput.includes("island-simulator: user settings saved");
+  await delay(700);
   await call("Target.closeTarget", { targetId: deploymentTargetId });
+
+  const { targetId: settingsTargetId } = await call(
+    "Target.createTarget", { url: "about:blank" });
+  const { sessionId: settingsSessionId } = await call(
+    "Target.attachToTarget", { targetId: settingsTargetId, flatten: true });
+  await call("Runtime.enable", {}, settingsSessionId);
+  await call("Page.enable", {}, settingsSessionId);
+  await call("Emulation.setDeviceMetricsOverride", {
+    width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
+  }, settingsSessionId);
+  await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-simulator.html`,
+  }, settingsSessionId);
+  let settingsReloadOutput = "";
+  for (let attempt = 0; attempt < 240; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "globalThis.islandDeploymentOutput ?? ''",
+      returnByValue: true,
+    }, settingsSessionId);
+    settingsReloadOutput = evaluation.result.value ?? "";
+    if (settingsReloadOutput.includes(
+      "island-simulator: user settings loaded run disabled camera motion disabled"
+        + " audio enabled touch standard")) break;
+  }
+  const webSettingsPersistencePassed = webSettingsWritten
+    && settingsReloadOutput.includes(
+      "island-simulator: user settings loaded run disabled camera motion disabled"
+        + " audio enabled touch standard")
+    && !/settings unavailable|settings could not be (?:read|saved)/i.test(settingsReloadOutput);
+  await call("Target.closeTarget", { targetId: settingsTargetId });
 
   const { targetId: visualTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: visualSessionId } = await call(
@@ -1598,7 +1653,8 @@ try {
     && pointerRelocked
     && !inputResult.error;
 
-  const passed = smokePassed && deploymentPassed && visualPassed && beachPassed && grassPassed
+  const passed = smokePassed && deploymentPassed && webSettingsPersistencePassed
+    && visualPassed && beachPassed && grassPassed
     && groundPassed && litterPassed
     && palmPassed && junglePassed && eastClearingPassed && westClearingPassed
     && propPassed && driftwoodPassed && reefPassed
@@ -1636,6 +1692,12 @@ try {
       positionalWildlifeCallsEnabled:
         deploymentState.positionalWildlifeCallsEnabled === true,
       output: deploymentState.output ?? "",
+    },
+    settingsPersistence: {
+      passed: webSettingsPersistencePassed,
+      written: webSettingsWritten,
+      writeOutput: settingsWriteOutput,
+      reloadOutput: settingsReloadOutput,
     },
     visual: {
       passed: visualPassed,

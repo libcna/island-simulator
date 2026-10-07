@@ -7,7 +7,8 @@ renderer. Automated evidence covers renderer initialization, clean short-run lif
 overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant rendering, first-click pointer
 lock, canvas focus, WASD/arrow traversal, Shift run/walk toggling, simultaneous movement/relative
 mouse look, the B camera-motion opt-out, F1 input, pointer release/reacquisition, and responsive
-16:9 presentation. F2 world-line rendering is also toggled
+16:9 presentation. The Chrome gate also restarts the production runtime on the same origin and
+profile and requires the B selection to survive through CNA's IDBFS storage. F2 world-line rendering is also toggled
 through browser input, and F4 must execute its explicit confirmed/unavailable clipboard path. The
 first click opens
 CNA's 44.1 kHz mixer, starts all four procedural loops,
@@ -55,7 +56,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 23 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,537,623 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,621,912 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -119,7 +120,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,822,395 bytes uncompressed and 2,502,963 bytes through gzip, a 71.6% transfer reduction. These
+8,887,971 bytes uncompressed and 2,524,746 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -198,7 +199,12 @@ same stage requires the sparse near seed-head diagnostic, which proves that the 
 seed-bearing stems use the portable shared-mesh path. Run and walk speed sampling polls observed
 movement until the strict 7.0/3.5 m/s thresholds are reached, avoiding a fixed-duration
 SwiftShader scheduling assumption while preserving the speed and persistent-mode checks. The
-grass view also requires nonzero near, middle, and far populations in at least one mixed cell,
+production input stage then disables camera motion, waits for the settings write, closes that
+runtime, and opens a second instance on the same origin and browser profile. The second instance
+must report the stored disabled state, proving an actual IDBFS-backed cross-runtime round trip
+rather than same-process state retention. Fixed-view and short-run QA pages pass
+`--no-user-settings`, so scene validation cannot overwrite player preferences. The grass view
+also requires nonzero near, middle, and far populations in at least one mixed cell,
 proving that WebGL 2 honours the nonzero instance-buffer offsets used by the adjacent-tier
 62--78 m / 86--102 m LOD splits. The
 dedicated ground view requires the upright/split-leaf diagnostic, exact variant-2 QA target, and a

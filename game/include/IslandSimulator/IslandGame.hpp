@@ -44,6 +44,8 @@
 #include "IslandSimulator/TerrainRenderer.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/TouchOverlay.hpp"
+#include "IslandSimulator/UserSettings.hpp"
+#include "IslandSimulator/UserSettingsStore.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WaterRippleModel.hpp"
 #include "IslandSimulator/WaterViewModel.hpp"
@@ -105,7 +107,8 @@ namespace island
                             bool inputDiagnostics = false,
                             bool showWorldDebug = false,
                             std::string benchmarkPath = {},
-                            std::string startupReportPath = {});
+                            std::string startupReportPath = {},
+                            bool userSettingsEnabled = true);
 
         GetTypeNameHPP()
 
@@ -129,6 +132,8 @@ namespace island
         void UpdateBenchmarkTraversal();
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
+        void InitializeUserSettings();
+        void PersistUserSettings();
         void UpdateCameraMatrices();
         [[nodiscard]] int TrackedSceneDrawCount() const noexcept;
         [[nodiscard]] bool IsDebugFreeCameraActive() const noexcept;
@@ -187,6 +192,8 @@ namespace island
         GrassInteractionModel grassInteractionModel_;
         TouchControls touchControls_;
         TouchControlState touchControlState_;
+        UserSettings userSettings_;
+        std::unique_ptr<UserSettingsStore> userSettingsStore_;
         WaterRippleModel waterRippleModel_;
         WaterViewModel waterViewModel_;
 #if defined(__ANDROID__)
@@ -241,6 +248,7 @@ namespace island
         bool movementKeyWasDown_ = false;
         bool escapeWasDown_ = false;
         bool soundscapeNeedsGesture_ = false;
+        bool userSettingsEnabled_ = true;
         bool swimmingEntryDiagnosticReported_ = false;
         std::array<bool, 8> debugTeleportWasDown_{};
         std::size_t monkeyTeleportIndex_ = 0U;

@@ -26,6 +26,7 @@
 #include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
+#include "IslandSimulator/UserSettings.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WaterRippleModel.hpp"
 #include "IslandSimulator/WaterViewModel.hpp"
@@ -66,6 +67,46 @@ namespace
 
 int main()
 {
+    const island::UserSettings defaultSettings;
+    Check(defaultSettings.IsValid(), "default user settings are valid");
+    Check(defaultSettings.ToText()
+              == "schema=1\nrun_mode=walk\ncamera_motion=enabled\n"
+                 "audio=enabled\ntouch_look=standard\n",
+          "default user settings use a stable human-readable representation");
+    const island::UserSettingsParseResult parsedSettings = island::UserSettings::Parse(
+        "# portable preferences\n"
+        "schema = 1\nunknown_future_key = retained_elsewhere\n"
+        "touch_look=high\naudio=muted\ncamera_motion=disabled\nrun_mode=run\n");
+    Check(parsedSettings.IsValid()
+              && parsedSettings.settings.runningSelected
+              && !parsedSettings.settings.cameraMotionEnabled
+              && parsedSettings.settings.audioMuted
+              && parsedSettings.settings.touchLookSensitivity
+                  == island::TouchLookSensitivityLevel::High,
+          "settings parser accepts reordered values and ignores forward-compatible keys");
+    Check(island::UserSettings::Parse(parsedSettings.settings.ToText()).settings
+              == parsedSettings.settings,
+          "settings serialization round-trips every current preference");
+    Check(!island::UserSettings::Parse("run_mode=run\n").IsValid(),
+          "settings parser requires an explicit schema");
+    Check(!island::UserSettings::Parse("schema=2\n").IsValid(),
+          "settings parser rejects unsupported schemas");
+    Check(!island::UserSettings::Parse(
+              "schema=1\nrun_mode=walk\ncamera_motion=enabled\naudio=enabled\n").IsValid(),
+          "settings parser rejects truncated records with missing required keys");
+    Check(!island::UserSettings::Parse(
+              "schema=1\nrun_mode=walk\nrun_mode=run\n").IsValid(),
+          "settings parser rejects duplicate known keys");
+    Check(!island::UserSettings::Parse("schema=1\naudio=loud\n").IsValid(),
+          "settings parser rejects invalid preference values");
+    Check(!island::UserSettings::Parse(std::string(
+              island::UserSettings::MaximumSerializedBytes + 1U, 'x')).IsValid(),
+          "settings parser rejects oversized input before scanning it");
+    std::string settingsWithNul = "schema=1\n";
+    settingsWithNul.push_back('\0');
+    Check(!island::UserSettings::Parse(settingsWithNul).IsValid(),
+          "settings parser rejects embedded NUL bytes");
+
     Check(island::GeneratedTextureBudget::TotalPixelCount == 35906U,
           "generated texture inventory retains its exact base-level pixel count");
     Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 143624U,
@@ -348,6 +389,11 @@ int main()
           "releasing the debug-camera Shift rearms the player toggle");
     Check(paceToggle.Update(true, true) && paceToggle.IsRunningSelected(),
           "a fresh Shift edge works after leaving the debug camera");
+    island::LocomotionPaceToggle restoredPaceToggle;
+    restoredPaceToggle.SetRunningSelected(true);
+    Check(restoredPaceToggle.IsRunningSelected()
+              && !restoredPaceToggle.Update(false),
+          "persisted run selection restores without synthesizing a Shift edge");
 
     island::DebugFreeCamera freeCamera;
     freeCamera.Update(0.0f, island::DebugFreeCameraInput{1.0f, 0.0f, 0.0f, false}, 0.1f);
@@ -1495,6 +1541,14 @@ int main()
     CheckNear(island::TouchControls::LookSensitivityScale(
                   island::TouchLookSensitivityLevel::Low), 0.72f, 0.0001f,
               "low touch sensitivity exposes the documented bounded multiplier");
+    island::TouchControls restoredTouchControls;
+    restoredTouchControls.SetLookSensitivity(
+        island::TouchLookSensitivityLevel::High);
+    Check(restoredTouchControls.State().lookSensitivity
+              == island::TouchLookSensitivityLevel::High
+              && !restoredTouchControls.State().movementActive
+              && !restoredTouchControls.State().lookActive,
+          "persisted touch sensitivity restores without retaining pointer ownership");
 
     const std::array<island::TouchContact, 1> invalidTouch = {{
         {44, std::numeric_limits<float>::quiet_NaN(), 300.0f,

@@ -73,14 +73,14 @@ the independently parsed WAV preview export. No AddressSanitizer or UndefinedBeh
 finding was emitted; the legacy 44 MB nonstandard tree was removed afterward and the preset was
 corrected to the approved shared name.
 
-The 2026-10-07 current-source requalification passed all seven registered tests in 50.51 seconds.
+The 2026-10-07 current-source requalification passed all seven registered tests in 78.99 seconds.
 It additionally includes deterministic Web-release packaging validation and covers the current
-terrain, wildlife, input, soundscape, and natural-prop core code. No AddressSanitizer or
-UndefinedBehaviorSanitizer finding was emitted. The 45 MB `build-asan/` tree was removed after the
-pass because it is fully reproducible from the preset.
+terrain, wildlife, input, soundscape, natural-prop, and persistent-settings core code. No
+AddressSanitizer or UndefinedBehaviorSanitizer finding was emitted. The 47 MiB `build-asan/` tree
+was removed after the pass because it is fully reproducible from the preset.
 
 The 2026-10-07 `97783d1e090c` CNA `next` refresh compiles and links the selected OpenGL 3.3
-framework and game. The complete private-display suite passes 41/41, selects CNA `OPENGL33`,
+framework and game. The complete private-display suite passes 42/42, selects CNA `OPENGL33`,
 compiles every current scene shader, exercises all deterministic views, reports a 1280 by 720
 logical backbuffer, and includes actual simultaneous movement/mouse input plus persistent Shift
 run/walk toggling.
@@ -115,9 +115,9 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 11,541,525 installed bytes. Two unchanged invocations produced the
-same 4,573,055-byte archive with SHA-256
-`952dbe5aab1409ff98638e62d4a509e2391c28a79f1255a10823d73ce5527ee4`.
+The current package contains 11,585,955 installed bytes. Two unchanged invocations produced the
+same 4,594,448-byte archive with SHA-256
+`6b8ad11a9ead9d9414c472255aae7d6e91a7478605f951b1dfc51eb1fdcc0b07`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -137,9 +137,9 @@ it from that unrelated working directory on a private Weston/Xwayland display, s
 `OPENGL33`, compiled every current scene shader, rendered four overview frames, and exited cleanly.
 Its first-draw report was 497.137 ms total. This validates relocation and first rendering, not
 compatibility with every Linux distribution or GPU driver.
-The later mobile-quality-policy package repeated this extraction/launch gate, required the full
-Linux profile, retained the 25,921-vertex/51,200-triangle ocean, and completed first draw in
-623.924 ms total.
+The current settings-enabled package repeated this extraction/launch gate, required the full Linux
+profile, retained the 25,921-vertex/51,200-triangle ocean, and completed first draw in 1058.594 ms
+total. This one-run value is functional evidence, not a startup-performance regression claim.
 
 ## Tests
 
@@ -164,8 +164,13 @@ Xwayland runner:
 
 ```bash
 ../cna/tools/platform/run_gpu_tests_private.sh \
-  build --output-on-failure -j2
+  build --output-on-failure -j1
 ```
+
+Run the aggregate graphics qualification serially. Its tests intentionally share one private GPU,
+compositor, and display; parallel CTest scheduling can starve frame-driven input automation and
+produce timeout failures that do not reproduce in isolation. Independent CPU-only tests may still
+use the documented two-worker ceiling.
 
 `IslandGameSmoke` requires the layered-horizontal-wisp sky diagnostic in addition to renderer
 startup and a clean four-frame exit.

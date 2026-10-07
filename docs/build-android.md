@@ -518,6 +518,18 @@ next Android runtime marker gate. That arm64-only APK was 18,746,380 bytes with 
 GLES 3 appearance is qualified by the current batched frond capture together with both palm
 refinements; physical-mobile cost remains unmeasured.
 
+The current persistence-qualified x86_64 run booted the API 35 `Medium_Phone` AVD with KVM 12 and
+host-GPU gfxstream in 31.843 seconds. PID 3937 selected high touch-look sensitivity, wrote the
+schema-1 settings record, retained the same process across Home/resume, and restored its surface
+and AAudio stream. After force-stop, PID 4112 loaded `touch high` from app-private CNA storage and
+requalified `OPENGLES3`, 1280 by 720 logical rendering, and all strict audio diagnostics. Initial
+and cold-relaunch first-draw totals were 2500.229 and 2454.681 ms. All three inspected captures are
+clean 2400 by 1080 frames. The emulator was stopped, the default arm64-only APK was restored, lint
+reported no issues, and signature scheme v2 verified. The APK is 18,861,028 bytes and contains a
+16,050,744-byte stripped `libmain.so`; the temporary x86_64 intermediates were then removed. This
+qualifies functional persistence and lifecycle recovery on the emulator, not physical-device
+storage durability, ergonomics, audio focus, thermals, or driver coverage.
+
 Useful diagnostics for a connected test target are:
 
 ```bash
@@ -610,6 +622,25 @@ ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1 \
     "$ANDROID_SDK_ROOT/platform-tools/adb" \
     android/app/build/outputs/apk/debug/app-debug.apk \
     build/android-runtime-smoke-touch-sensitivity
+```
+
+The smoke helper disables user settings by default so fixed cameras and input automation cannot
+contaminate a player's preferences. Set `ISLAND_ANDROID_SMOKE_DISABLE_USER_SETTINGS=0` and
+`ISLAND_ANDROID_SMOKE_REQUIRE_SETTINGS_PERSISTENCE=1` to qualify storage explicitly. Persistence
+mode also requires the touch-sensitivity and lifecycle gates: it selects high, requires the save
+diagnostic, force-stops the app, and requires a new process to load high from Android app-private
+storage. It can be combined with the strict audio gate:
+
+```bash
+ISLAND_ANDROID_SMOKE_DISABLE_USER_SETTINGS=0 \
+ISLAND_ANDROID_SMOKE_REQUIRE_SETTINGS_PERSISTENCE=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-settings
 ```
 
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1` to extend a qualified run with both lifecycle

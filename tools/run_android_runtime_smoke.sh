@@ -18,7 +18,14 @@ REQUIRE_FOOTSTEPS=${ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS:-0}
 REQUIRE_SWIMMING=${ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING:-0}
 REQUIRE_TOUCH_SENSITIVITY=${ISLAND_ANDROID_SMOKE_REQUIRE_TOUCH_SENSITIVITY:-0}
 REQUIRE_LIFECYCLE=${ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE:-0}
-DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
+REQUIRE_SETTINGS_PERSISTENCE=${ISLAND_ANDROID_SMOKE_REQUIRE_SETTINGS_PERSISTENCE:-0}
+DISABLE_USER_SETTINGS=${ISLAND_ANDROID_SMOKE_DISABLE_USER_SETTINGS:-1}
+REQUESTED_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
+if [ "$DISABLE_USER_SETTINGS" = 1 ]; then
+    DEBUG_ARGUMENTS="--no-user-settings${REQUESTED_ARGUMENTS:+,$REQUESTED_ARGUMENTS}"
+else
+    DEBUG_ARGUMENTS=$REQUESTED_ARGUMENTS
+fi
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
 
 if [ ! -x "$ADB" ]; then
@@ -74,6 +81,27 @@ case "$REQUIRE_LIFECYCLE" in
         exit 2
         ;;
 esac
+case "$REQUIRE_SETTINGS_PERSISTENCE" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_SETTINGS_PERSISTENCE must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
+case "$DISABLE_USER_SETTINGS" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_DISABLE_USER_SETTINGS must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
+if [ "$REQUIRE_SETTINGS_PERSISTENCE" -eq 1 ] \
+    && { [ "$DISABLE_USER_SETTINGS" -ne 0 ] \
+         || [ "$REQUIRE_TOUCH_SENSITIVITY" -ne 1 ] \
+         || [ "$REQUIRE_LIFECYCLE" -ne 1 ]; }; then
+    echo "android runtime smoke: settings persistence requires enabled user settings, touch sensitivity, and lifecycle gates" >&2
+    exit 2
+fi
 if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
     case ",$DEBUG_ARGUMENTS," in
         *,--overview,*|*,--viewpoint,*|*,--smoke-test,*|*,--capture,*|*,--benchmark,*)
@@ -276,19 +304,28 @@ if [ "$REQUIRE_TOUCH_SENSITIVITY" -eq 1 ]; then
     SELECTOR_Y=$((CONTENT_Y + SELECTOR_LOGICAL_Y * CONTENT_HEIGHT / LOGICAL_HEIGHT))
     # ADB's instantaneous tap can press and release between game frames. A stationary bounded
     # swipe keeps the contact down long enough to exercise the real Pressed ownership path.
-    "$ADB" shell input swipe "$SELECTOR_X" "$SELECTOR_Y" \
-        "$SELECTOR_X" "$SELECTOR_Y" 500
-    SENSITIVITY_DEADLINE=$(( $(date +%s) + 10 ))
     SENSITIVITY_QUALIFIED=0
-    while [ "$(date +%s)" -lt "$SENSITIVITY_DEADLINE" ]; do
-        "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
-        if grep -q "island-simulator: touch look sensitivity high (1.35x)" "$LOG_FILE" \
-            && grep -q "island-simulator: touch sensitivity selector retained touch ownership without mouse capture" \
-                "$LOG_FILE"; then
-            SENSITIVITY_QUALIFIED=1
-            break
-        fi
-        sleep 1
+    for _sensitivity_attempt in 1 2 3; do
+        "$ADB" shell input swipe "$SELECTOR_X" "$SELECTOR_Y" \
+            "$SELECTOR_X" "$SELECTOR_Y" 500
+        SENSITIVITY_DEADLINE=$(( $(date +%s) + 10 ))
+        while [ "$(date +%s)" -lt "$SENSITIVITY_DEADLINE" ]; do
+            "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
+            SETTINGS_WRITE_QUALIFIED=1
+            if [ "$REQUIRE_SETTINGS_PERSISTENCE" -eq 1 ] \
+                && ! grep -q "island-simulator: user settings saved" "$LOG_FILE"; then
+                SETTINGS_WRITE_QUALIFIED=0
+            fi
+            if grep -q "island-simulator: touch look sensitivity high (1.35x)" "$LOG_FILE" \
+                && grep -q "island-simulator: touch sensitivity selector retained touch ownership without mouse capture" \
+                    "$LOG_FILE" \
+                && [ "$SETTINGS_WRITE_QUALIFIED" -eq 1 ]; then
+                SENSITIVITY_QUALIFIED=1
+                break
+            fi
+            sleep 1
+        done
+        [ "$SENSITIVITY_QUALIFIED" -eq 1 ] && break
     done
     if [ "$SENSITIVITY_QUALIFIED" -ne 1 ]; then
         echo "android runtime smoke: touch sensitivity selector did not choose high" >&2
@@ -448,10 +485,16 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         fi
         "$ADB" logcat --pid="$COLD_PID" -d -v threadtime >"$COLD_RELAUNCH_LOG_FILE"
         COLD_AUDIO_QUALIFIED=1
+        COLD_SETTINGS_QUALIFIED=1
         if [ "$REQUIRE_AUDIO" -eq 1 ] \
             && ! grep -q "island-simulator: audio sources use sequential generation and upload with bounded staging memory" \
                 "$COLD_RELAUNCH_LOG_FILE"; then
             COLD_AUDIO_QUALIFIED=0
+        fi
+        if [ "$REQUIRE_SETTINGS_PERSISTENCE" -eq 1 ] \
+            && ! grep -q "island-simulator: user settings loaded run disabled camera motion enabled audio enabled touch high" \
+                "$COLD_RELAUNCH_LOG_FILE"; then
+            COLD_SETTINGS_QUALIFIED=0
         fi
         if [ "$REQUIRE_AUDIO" -eq 1 ] \
             && ! grep -q "island-simulator: ambient beds use slow non-amplifying gain drift" \
@@ -467,7 +510,8 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
             && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
                 "$COLD_RELAUNCH_LOG_FILE" \
             && grep -q "island-simulator: startup world" "$COLD_RELAUNCH_LOG_FILE" \
-            && [ "$COLD_AUDIO_QUALIFIED" -eq 1 ]; then
+            && [ "$COLD_AUDIO_QUALIFIED" -eq 1 ] \
+            && [ "$COLD_SETTINGS_QUALIFIED" -eq 1 ]; then
             COLD_RELAUNCH_QUALIFIED=1
             break
         fi

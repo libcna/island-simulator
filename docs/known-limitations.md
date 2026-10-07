@@ -109,8 +109,9 @@ been confirmed so far.
   headphone/speaker tuning remains open.
 - Desktop mouse sensitivity, 4.3/8.0 m/s walk/run speeds, and the 92/78-percent touch-run
   thresholds are compile-time values. Mobile look offers low/standard/high runtime multipliers,
-  but the selection does not persist across process restart. WASD and arrows are supported, but
-  there is no general settings UI, remapping, gamepad control scheme, or handed touch layout yet.
+  and that selection now persists across process restart with the walk/run, camera-motion, and
+  audio-mute preferences. WASD and arrows are supported, but there is no general settings UI,
+  remapping, gamepad control scheme, or handed touch layout yet.
   Keyboard Shift selection receives a short normal-play confirmation; the touch stick deliberately
   remains a direct hold-style request rather than changing that persistent mode.
 - The game intentionally has no objectives, quests, combat, inventory, crafting, survival meters,

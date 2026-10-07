@@ -53,7 +53,7 @@
       ["monkeys", ["--viewpoint", "monkeys"]],
     ]);
     var Module = {
-      arguments: modeArguments.get(mode) ?? ["--smoke-test"],
+      arguments: ["--no-user-settings", ...(modeArguments.get(mode) ?? ["--smoke-test"])],
       canvas: document.getElementById("canvas"),
       print: (...values) => record("", values),
       printErr: (...values) => record("ERR: ", values),

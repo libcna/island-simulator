@@ -73,6 +73,9 @@ namespace island
         /** @brief Toggles user-requested silence without destroying the active loops. */
         void ToggleMuted() noexcept;
 
+        /** @brief Applies a persisted mute preference without relying on a synthetic toggle. */
+        void SetMuted(bool muted) noexcept;
+
         [[nodiscard]] bool IsAvailable() const noexcept { return available_; }
         [[nodiscard]] bool IsMuted() const noexcept { return muted_; }
         [[nodiscard]] bool WasStartAttempted() const noexcept { return startAttempted_; }

@@ -18,6 +18,9 @@ namespace island
         /** @brief Returns whether the persistent running pace is selected. */
         [[nodiscard]] bool IsRunningSelected() const noexcept { return runningSelected_; }
 
+        /** @brief Restores a persisted pace without synthesizing a key edge. */
+        void SetRunningSelected(bool running) noexcept { runningSelected_ = running; }
+
     private:
         bool shiftWasDown_ = false;
         bool runningSelected_ = false;

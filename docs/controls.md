@@ -7,14 +7,14 @@
 | Left click or first movement-key press | Capture the mouse for first-person look |
 | Mouse | Look around while captured |
 | W / A / S / D or arrow keys | Move with acceleration and deceleration |
-| Press either Shift | Toggle the 4.3 m/s walk and 8.0 m/s run modes; a 1.4-second notice confirms the persistent selection, and swimming remains unchanged |
+| Press either Shift | Toggle the 4.3 m/s walk and 8.0 m/s run modes; a 1.4-second notice confirms the selection, it is saved across ordinary launches, and swimming remains unchanged |
 | F1 | Show or hide the developer diagnostics overlay |
 | F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, bird route/spawn, and audio-zone/emitter diagnostics; visible only with F1 |
 | F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |
 | F4 | With F1 visible, copy the four authoritative procedural-layout seeds and show whether clipboard readback confirmed the copy |
 | F5 / F6 / F7 / F8 / F9 / F10 / F11 / F12 | With the overlay visible, teleport to eight QA locations; F9 faces the fish shallows, F10 the offshore shark, repeated F11 presses cycle through all seven monkeys, and F12 enters the active offshore current for feedback QA |
-| B | Smoothly disable or restore restrained walking/swimming camera motion |
-| M | Mute or unmute the ambient soundscape |
+| B | Smoothly disable or restore restrained walking/swimming camera motion; the selection is saved |
+| M | Mute or unmute the ambient soundscape; the selection is saved |
 | Escape | Release captured mouse; press again to exit |
 
 Movement follows terrain, refuses uphill motion steeper than 38 degrees, and switches to swimming
@@ -30,6 +30,10 @@ Horizontal acceleration and braking have the same response in cardinal and diago
 so changing direction does not create a faster diagonal surge.
 The keyboard mode notice is the only normal-play HUD text. It fades away completely, incurs no
 normal steady-state draw, and does not appear for the Android stick's hold-style outer travel.
+Walk/run selection, camera motion, audio mute, and touch-look sensitivity use the same schema-1
+settings record. The game writes each accepted change immediately, keeps the last valid record as
+a backup, and falls back to defaults or that backup with a diagnostic if the primary record is
+missing or malformed. QA modes disable storage; `--no-user-settings` does so explicitly.
 
 Jumping is intentionally absent. The game is not a platformer.
 
@@ -68,6 +72,9 @@ pointer lock, forward movement, both persistent Shift edges, first-gesture audio
 one land footstep, Escape release, delayed pointer-lock reacquisition, responsive 16:9 sizing, and
 one actual second-tab activation with resumed animation/input, followed by dedicated fixed jungle/
 water scenes after the production input session.
+Normal Web launches persist the four preferences in CNA's origin-scoped IDBFS storage. The Chrome
+gate changes camera motion, closes the first runtime, and requires a second runtime on the same
+origin and browser profile to restore that setting.
 Audible quality in a visible interactive browser remains to be checked manually.
 
 ## Android
@@ -90,8 +97,8 @@ span per update. The next valid contact can immediately acquire the released rol
 inside conservative display-edge margins. The sensitivity selector highlights its low, standard,
 or high dot and applies a 0.72, 1.00, or 1.35 multiplier. Its contact cannot rotate the camera,
 holding it cannot cycle repeatedly, and the selection survives resize and same-process pause/resume.
-It deliberately resets to standard after a new process starts; persistent settings storage is not
-implemented yet.
+It is saved immediately and restored after a cold process restart together with keyboard
+walk/run selection, camera motion, and audio mute.
 
 Pushing the movement stick through 92 percent of its usable range selects the 8.0 m/s land pace;
 easing it below 78 percent returns to walking. The gap prevents pace chatter near the threshold,
@@ -105,5 +112,7 @@ validated the translucent HUD and separately injected left-zone movement and rig
 gestures. The game also survived a same-process background/foreground cycle with its audio stream
 paused and resumed, followed by a force-stop and qualified new-process GLES 3/audio launch.
 The same accelerated run selected all three sensitivity levels and visually retained high across
-Home/resume. Simultaneous real-finger feel, optional handedness, long suspension, external audio
+Home/resume. A later persistence-qualified run selected high, then required a force-stopped new
+process to reload high from the app-private settings container. Simultaneous real-finger feel,
+optional handedness, long suspension, external audio
 focus, and physical-device ergonomic tuning remain open.

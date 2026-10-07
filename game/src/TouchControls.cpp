@@ -55,6 +55,19 @@ namespace island
         lastLookY_ = 0.0f;
     }
 
+    void TouchControls::SetLookSensitivity(
+        const TouchLookSensitivityLevel sensitivity) noexcept
+    {
+        Reset();
+        switch (sensitivity) {
+        case TouchLookSensitivityLevel::Low:
+        case TouchLookSensitivityLevel::Standard:
+        case TouchLookSensitivityLevel::High:
+            state_.lookSensitivity = sensitivity;
+            break;
+        }
+    }
+
     void TouchControls::AssignNewContacts(const std::span<const TouchContact> contacts,
                                           const float displayWidth,
                                           const float displayHeight) noexcept

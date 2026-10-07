@@ -96,6 +96,12 @@ edges and an active diagnostic sample; renderer-independent core tests cover
 frame-time clamping, normalized three-axis movement, yaw-relative fast travel, bounds, and the
 inactive-state invariant. This does not qualify Wayland-native or Android touch input.
 
+When these synthetic-input tests run inside CNA's private Weston/Xwayland runner, they reuse its
+rootful private Xwayland instead of nesting Xvfb. `CNA_WAYLAND_TEST_DISPLAY` identifies that safe
+environment; this preserves hardware OpenGL and avoids software-renderer frame stalls while still
+keeping all generated input away from the operator's desktop. Direct Wayland-session invocations
+continue to use isolated Xvfb.
+
 Current fields are:
 
 - smoothed wall-clock frame duration and a half-second FPS sample;

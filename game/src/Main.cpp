@@ -14,6 +14,7 @@ int main(const int argc, char* argv[])
     bool showDebugOverlay = false;
     bool showWorldDebug = false;
     bool inputDiagnostics = false;
+    bool noUserSettings = false;
     island::FixedViewpoint viewpoint = island::FixedViewpoint::None;
     std::string capturePath;
     std::string benchmarkPath;
@@ -29,6 +30,8 @@ int main(const int argc, char* argv[])
             showWorldDebug = true;
         } else if (argument == "--input-diagnostics") {
             inputDiagnostics = true;
+        } else if (argument == "--no-user-settings") {
+            noUserSettings = true;
         } else if (argument == "--overview") {
             viewpoint = island::FixedViewpoint::Overview;
         } else if (argument == "--viewpoint") {
@@ -127,7 +130,9 @@ int main(const int argc, char* argv[])
     try {
         island::IslandGame game(smokeTest, std::move(capturePath), viewpoint, showDebugOverlay,
                                 inputDiagnostics, showWorldDebug, std::move(benchmarkPath),
-                                std::move(startupReportPath));
+                                std::move(startupReportPath),
+                                !noUserSettings && !smokeTest && !inputDiagnostics
+                                    && viewpoint == island::FixedViewpoint::None);
         game.Run();
         return 0;
     } catch (const std::exception& error) {

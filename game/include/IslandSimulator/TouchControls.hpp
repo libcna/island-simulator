@@ -102,6 +102,9 @@ namespace island
         /** @brief Returns the most recent output without advancing input. */
         [[nodiscard]] const TouchControlState& State() const noexcept { return state_; }
 
+        /** @brief Restores a persisted look-response level and releases active contacts. */
+        void SetLookSensitivity(TouchLookSensitivityLevel sensitivity) noexcept;
+
     private:
         [[nodiscard]] static const TouchContact* FindContact(
             std::span<const TouchContact> contacts, int id) noexcept;
