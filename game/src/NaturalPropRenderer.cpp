@@ -63,6 +63,8 @@ namespace island
             "island-simulator: near fallen logs use irregular broken end contours";
         constexpr std::string_view DriftwoodBranchDiagnostic =
             "island-simulator: all near driftwood variants use tapered three-dimensional branches";
+        constexpr std::string_view DriftwoodEndDiagnostic =
+            "island-simulator: driftwood end caps match irregular body rings";
         constexpr std::string_view FallenFrondDiagnostic =
             "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes";
 
@@ -463,26 +465,34 @@ void main()
                              static_cast<int>(woodBase.getGProperty()),
                              static_cast<int>(woodBase.getBProperty()),
                              farMesh ? 255 : 224);
+            const auto bendOffset = [variant](const float t) {
+                return Vector3(
+                    0.0f,
+                    std::sin(t * std::numbers::pi_v<float>)
+                        * (0.08f + 0.025f * static_cast<float>(variant)),
+                    std::sin(t * 2.0f * std::numbers::pi_v<float>
+                             + static_cast<float>(variant)) * 0.055f);
+            };
+            const auto ringRadius = [variant](const float angle, const int section) {
+                return 0.82f + 0.12f
+                    * std::sin(angle * (2.0f + static_cast<float>(variant))
+                               + static_cast<float>(section) * 1.9f);
+            };
             const auto sideBase = static_cast<std::uint16_t>(geometry.vertices.size());
             for (int section = 0; section <= sections; ++section) {
                 const float t = static_cast<float>(section) / static_cast<float>(sections);
                 const float x = t - 0.5f;
-                const float bendY = std::sin(t * std::numbers::pi_v<float>)
-                    * (0.08f + 0.025f * static_cast<float>(variant));
-                const float bendZ = std::sin(t * 2.0f * std::numbers::pi_v<float>
-                                             + static_cast<float>(variant)) * 0.055f;
+                const Vector3 bend = bendOffset(t);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
-                    const float ring = 0.82f + 0.12f
-                        * std::sin(angle * (2.0f + static_cast<float>(variant))
-                                   + static_cast<float>(section) * 1.9f);
+                    const float ring = ringRadius(angle, section);
                     const float light = 0.72f + 0.27f
                         * std::max(0.0f, std::sin(angle) * 0.86f
                                             - std::cos(angle) * 0.18f);
                     geometry.vertices.emplace_back(
-                        Vector3(x, std::sin(angle) * ring + bendY,
-                                std::cos(angle) * ring + bendZ),
+                        Vector3(x, std::sin(angle) * ring + bend.Y,
+                                std::cos(angle) * ring + bend.Z),
                         ShadeColor(wood, light));
                 }
             }
@@ -505,15 +515,19 @@ void main()
 
             const Color endColor = ShadeColor(woodBase, 1.08f);
             for (int end = 0; end < 2; ++end) {
-                const float x = end == 0 ? -0.505f : 0.505f;
+                const int section = end == 0 ? 0 : sections;
+                const float t = static_cast<float>(section) / static_cast<float>(sections);
+                const float x = t - 0.5f;
+                const Vector3 bend = bendOffset(t);
                 const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
-                geometry.vertices.emplace_back(Vector3(x, 0.0f, 0.0f), endColor);
+                geometry.vertices.emplace_back(Vector3(x, bend.Y, bend.Z), endColor);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
+                    const float ring = ringRadius(angle, section);
                     geometry.vertices.emplace_back(
-                        Vector3(x, std::sin(angle) * 0.76f,
-                                std::cos(angle) * 0.76f), endColor);
+                        Vector3(x, std::sin(angle) * ring + bend.Y,
+                                std::cos(angle) * ring + bend.Z), endColor);
                 }
                 for (int side = 0; side < sides; ++side) {
                     const auto first = static_cast<std::uint16_t>(centre + 1U + side);
@@ -969,6 +983,8 @@ void main()
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
             std::cout << DriftwoodBranchDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(DriftwoodBranchDiagnostic);
+            std::cout << DriftwoodEndDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(DriftwoodEndDiagnostic);
             std::cout << FallenFrondDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondDiagnostic);
         } else {

@@ -47,13 +47,14 @@ diagnostic, preventing a silent return to the former broad, uniformly coloured p
 The lifecycle and beach gates also require the sparse close sand pebble/shell diagnostic; dedicated
 driftwood and fallen-frond captures expose that material at first-person scale.
 The lifecycle and dedicated driftwood gates also require tapered three-dimensional branches on all
-three near driftwood variants while retaining the established three-limb-fork diagnostic.
+three near driftwood variants while retaining the established three-limb-fork diagnostic. They
+also require the shared irregular-body/end-cap-ring diagnostic.
 Both clearing cameras also require the shared five-rock/two-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 23 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,536,953 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,537,623 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -117,7 +118,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,801,831 bytes uncompressed and 2,496,370 bytes through gzip, a 71.6% transfer reduction. These
+8,802,501 bytes uncompressed and 2,496,562 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

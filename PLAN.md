@@ -744,7 +744,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,801,831 bytes uncompressed and 2,496,370 bytes through
+  The current Release package is 8,802,501 bytes uncompressed and 2,496,562 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1275,7 +1275,9 @@ Work next, in order:
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
    and far meshes plain. Its third near variant uses a curved three-limb fork; the former flat
    branch fins on variants zero and one are now tapered, bent three-dimensional limbs through the
-   same near meshes. The dedicated native/WebGL QA camera proves a nonzero per-instance near LOD.
+   same near meshes. Both end caps now reuse the exact irregular outer body rings rather than
+   leaving smaller circular seams. The dedicated native/WebGL QA camera proves a nonzero per-
+   instance near LOD.
    Rocks, logs, and
    driftwood now enforce range and LOD from their actual positions after conservative cell bounds.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
@@ -5445,6 +5447,28 @@ Work next, in order:
   Removed only the reproducible x86_64 CMake/object intermediates again, leaving the Android tree
   at approximately 1.3 GiB. Shared ccache remains the only compiler cache; CNA and Sharp Runtime
   stayed read-only and every build used no more than two workers.
+
+### 2026-10-07 — Closed irregular driftwood ends
+
+- Reused one local bend-offset and ring-radius definition for both every driftwood body ring and
+  both end caps. The cap centres now follow the bent body axis and their perimeter vertices exactly
+  match the first/last irregular rings, removing the former smaller 0.76-radius circular seam.
+  Vertex/triangle counts, branch silhouettes, buffers, transforms, materials, instances, LOD,
+  culling, collision, and draw submissions are unchanged for all near and far variants.
+- Added an exact diagnostic to Chrome lifecycle/driftwood gates and the next Android runtime gate.
+  The OpenGL 3.3 object compiles with first-party warnings as errors through `/rv/cnaccache`
+  without relinking the operator-visible process. The complete Chrome 152/SwiftShader WebGL 2
+  matrix passes 23/23 and the original-resolution cove frame was inspected without cap cracks,
+  inverted silhouettes, or composition regressions.
+- Rebuilt the default arm64-only APK and passed application lint with zero issues; it contains only
+  arm64-v8a and verifies with signature scheme v2. The APK is 18,744,428 bytes and stripped
+  `libmain.so` is 15,934,144 bytes. The new end-cap marker is required by the next x86_64 runtime
+  run, but that runtime requalification is deliberately batched rather than recreating about
+  1.1 GiB of temporary emulator intermediates for this topology-preserving follow-up alone.
+- The deterministic Web package is 8,802,501 bytes or 2,496,562 bytes through gzip; WebAssembly is
+  8,537,623 bytes or 2,436,354 bytes through gzip. JavaScript is 262,820 bytes (59,064 gzip) and
+  HTML is 2,058 bytes (1,144 gzip). CNA and Sharp Runtime remained read-only; builds used no more
+  than two workers.
 
 ## Session-end checklist
 

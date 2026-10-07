@@ -180,7 +180,8 @@ bark-scar/coconut path.
 requires a nonzero one-draw terrain-contact-shadow batch.
 `IslandGameDriftwoodCapture` writes a close beach-composition view to
 `build/island-driftwood-capture.ppm`; its startup gate requires tapered three-dimensional branches
-on every near silhouette rather than accepting the former flat branch fins.
+on every near silhouette rather than accepting the former flat branch fins, plus end caps whose
+perimeters exactly match the irregular bent-body rings.
 `IslandGameReefCapture` writes a close emergent shallow-water outcrop view to
 `build/island-reef-capture.ppm`; the current material should show a restrained dark/cool band at
 the mean water contact while leaving the upper rock dry. Startup also reports the irregular near-

@@ -445,6 +445,12 @@ linted with zero issues, and v2-signature verified. It is 18,743,708 bytes and i
 `libmain.so` is 15,933,424 bytes. This remains functional emulator evidence rather than physical-
 mobile performance qualification.
 
+The subsequent topology-preserving driftwood end-cap correction has rebuilt and linted the
+arm64-only package, which is 18,744,428 bytes with a 15,934,144-byte stripped `libmain.so` and a
+valid v2 signature. The Android runtime gate now requires its exact irregular-ring marker, but a
+new x86_64 runtime capture is intentionally deferred to the next batched GLES qualification; the
+preceding branch capture must not be read as runtime evidence for this later cap-only change.
+
 Useful diagnostics for a connected test target are:
 
 ```bash
@@ -459,8 +465,8 @@ repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
 logical viewport, first-draw timing, biome-grass, near-seed-head, near-bird-feather, and sunward-
 ocean-crest plus grazing-reflection diagnostics, the selected near-grass geometric V-fold, the
-all-variants tapered driftwood branches, and the near-rock crown/facet plus stone-tint
-diagnostics, rejects
+all-variants tapered driftwood branches, their body-ring-matched end caps, and the near-rock
+crown/facet plus stone-tint diagnostics, rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 
 ```bash

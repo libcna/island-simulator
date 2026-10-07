@@ -183,6 +183,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: all near driftwood variants use tapered three-dimensional branches" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: driftwood end caps match irregular body rings" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: clearing floors reuse existing noise fields for broad patch breakup" \
             "$LOG_FILE" \
         && grep -q "island-simulator: jungle per-instance foliage tint reuses existing transforms" \

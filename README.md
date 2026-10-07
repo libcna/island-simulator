@@ -256,7 +256,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,496,370 bytes, 71.6% below the 8,801,831-byte
+a SHA-256 manifest. The current gzip payload is 2,496,562 bytes, 71.6% below the 8,802,501-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
