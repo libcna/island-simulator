@@ -602,14 +602,16 @@ falls to a quiet distant bed inland. Light canopy breeze increases toward the in
 second exponential crossfade prevents zone snaps, and M applies a reversible zero-gain mute without
 restarting the tracks.
 
-The four persistent beds use 10, 11, 12, and 7 second loop lengths. Their combined sample-aligned
-pattern therefore does not recur for 4,620 seconds (77 minutes), instead of the earlier 60-second
-aggregate cycle, while adding only two seconds of mono PCM memory.
+The four persistent beds use 10, 11, 29, and 7 second loop lengths. Their combined sample-aligned
+pattern therefore does not recur for 22,330 seconds (6 hours, 12 minutes, 10 seconds). The longer
+jungle source deliberately spends a modest additional 749,700 PCM bytes on reducing the most
+recognizable local repetition rather than adding another simultaneous source.
 
-A twelve-second daytime-jungle loop adds broad filtered forest texture and eight short, low-level
-insect phrases placed away from the loop boundary. It is silent through the beach belt, reaches a
-conservative 0.078 gain deep inland, falls to eight percent of that target while swimming, and uses
-a slower 2.6-second fade so the biome does not sound like an audio trigger volume.
+A twenty-nine-second daytime-jungle loop adds broad filtered forest texture and sixteen short,
+low-level insect phrases in irregular singles and pairs placed away from the loop boundary. It is
+silent through the beach belt, reaches a conservative 0.078 gain deep inland, falls to eight
+percent of that target while swimming, and uses a slower 2.6-second fade so the biome does not
+sound like an audio trigger volume.
 
 A seven-second water-motion loop follows the player's authoritative support depth, locomotion mode,
 horizontal velocity, and normalized offshore-current strength. Dry movement and calm stationary
@@ -619,7 +621,7 @@ bed capped at 0.08 gain, so the safety feedback does not consume a fifth persist
 persistent loop avoids the rapid repeated one-shot cadence common to footstep-style water effects,
 while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
 state-transition chatter. All current procedural
-PCM payloads total 2,533,544 bytes (about 2.42 MiB) before backend bookkeeping, including the
+PCM payloads total 3,283,244 bytes (about 3.13 MiB) before backend bookkeeping, including the
 wildlife phrases described below.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water

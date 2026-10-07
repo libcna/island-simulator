@@ -117,8 +117,9 @@ been confirmed so far.
   procedural repetition; detailed surface treatment and long subjective behaviour tuning remain
   limited.
 - Original procedural layers supply shoreline-distance-blended surf, sparse stronger-wave accents,
-  light canopy breeze, subtle daytime-jungle texture, and speed/depth-responsive player movement
-  through water. A single bounded positional voice now places two bird phrases and two restrained
+  light canopy breeze, a twenty-nine-second daytime-jungle texture with sixteen irregularly spaced
+  insect phrases, and speed/depth-responsive player movement through water. A single bounded
+  positional voice now places two bird phrases and two restrained
   monkey contact phrases at actual nearby agents. The soundscape remains incomplete: richer jungle
   variation, additional wave/water/wildlife phrases, and a long fatigue/listening pass remain
   absent; call balance has only numerical and short native runtime validation so far.

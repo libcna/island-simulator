@@ -205,7 +205,7 @@ namespace island
 
     AmbientLoop GenerateJungleLoop()
     {
-        constexpr int loopSeconds = 12;
+        constexpr int loopSeconds = 29;
         constexpr std::size_t frameCount = static_cast<std::size_t>(
             AmbientSampleRate * loopSeconds);
         const std::vector<float> noise = Noise(0x1a65ec7dU, frameCount);
@@ -237,12 +237,20 @@ namespace island
         constexpr std::array chirps = {
             Chirp{0.72f, 0.32f, 3740.0f, 410.0f, 0.070f, 23.0f},
             Chirp{1.18f, 0.24f, 4210.0f, -260.0f, 0.052f, 27.0f},
-            Chirp{2.86f, 0.46f, 3380.0f, 520.0f, 0.061f, 19.0f},
-            Chirp{4.43f, 0.28f, 4870.0f, -330.0f, 0.049f, 31.0f},
-            Chirp{6.08f, 0.38f, 3920.0f, 290.0f, 0.057f, 21.0f},
-            Chirp{7.62f, 0.22f, 4520.0f, 180.0f, 0.046f, 29.0f},
-            Chirp{9.14f, 0.51f, 3260.0f, 470.0f, 0.064f, 18.0f},
-            Chirp{10.71f, 0.30f, 4160.0f, -210.0f, 0.051f, 25.0f},
+            Chirp{3.04f, 0.46f, 3380.0f, 520.0f, 0.061f, 19.0f},
+            Chirp{5.16f, 0.28f, 4870.0f, -330.0f, 0.049f, 31.0f},
+            Chirp{6.82f, 0.38f, 3920.0f, 290.0f, 0.057f, 21.0f},
+            Chirp{7.30f, 0.22f, 4520.0f, 180.0f, 0.046f, 29.0f},
+            Chirp{9.74f, 0.51f, 3260.0f, 470.0f, 0.064f, 18.0f},
+            Chirp{12.06f, 0.30f, 4160.0f, -210.0f, 0.051f, 25.0f},
+            Chirp{14.44f, 0.34f, 3650.0f, 360.0f, 0.055f, 22.0f},
+            Chirp{15.02f, 0.18f, 4940.0f, -430.0f, 0.043f, 33.0f},
+            Chirp{17.83f, 0.43f, 3470.0f, 610.0f, 0.060f, 20.0f},
+            Chirp{20.24f, 0.25f, 4380.0f, -190.0f, 0.047f, 28.0f},
+            Chirp{22.11f, 0.47f, 3180.0f, 540.0f, 0.063f, 17.0f},
+            Chirp{24.67f, 0.29f, 4720.0f, -380.0f, 0.050f, 30.0f},
+            Chirp{26.48f, 0.36f, 3860.0f, 330.0f, 0.056f, 21.0f},
+            Chirp{27.35f, 0.52f, 3290.0f, 450.0f, 0.062f, 18.0f},
         };
         for (const Chirp& chirp : chirps) {
             const std::size_t begin = static_cast<std::size_t>(

@@ -561,8 +561,8 @@ int main()
           "procedural ambience uses the intended portable sample rate");
     Check(surfLoop.samples.size() == 220500U && breezeLoop.samples.size() == 242550U,
           "procedural ambient loops have their intended staggered portable lengths");
-    Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 264600U,
-          "daytime-jungle ambience has its intended twelve-second portable format");
+    Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 639450U,
+          "daytime-jungle ambience has its intended twenty-nine-second portable format");
     Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U
               && waveAccentAlternate.sampleRate == 22050
               && waveAccentAlternate.samples.size() == 88200U,
@@ -581,8 +581,8 @@ int main()
         [](const std::size_t left, const std::size_t right) {
             return std::lcm(left, right);
         });
-    Check(combinedLoopPeriod == 4620U,
-          "persistent ambience avoids a complete repeated phase alignment for 77 minutes");
+    Check(combinedLoopPeriod == 22330U,
+          "persistent ambience avoids a complete repeated phase alignment for over six hours");
     Check(waterTransitionAccent.sampleRate == 22050
               && waterTransitionAccent.samples.size() == 33075U
               && waterTransitionAccentAlternate.sampleRate == 22050

@@ -73,11 +73,12 @@ subjective task.
 
 ## Current measured baseline
 
-The current report validates 12 unique sources and 2,533,544 PCM payload bytes. Normalized peaks
+The current report validates 12 unique sources and 3,283,244 PCM payload bytes. Normalized peaks
 range from approximately 0.56 to 0.86. Absolute DC offset remains below 0.0069. The four loop seams
-range from approximately 0.0036 to 0.0271 and remain below their own largest ordinary internal
-step. The persistent 10/11/12/7-second lengths align as a complete pattern only every 77 minutes;
-these figures establish regression bounds, not a claim of perceptual quality.
+range from approximately 0.0055 to 0.0271 and remain below their own largest ordinary internal
+step. The persistent 10/11/29/7-second lengths align as a complete pattern only every 22,330
+seconds (6 hours, 12 minutes, 10 seconds); these figures establish regression bounds, not a claim
+of perceptual quality.
 
 Renderer-independent regressions additionally inject non-finite time, shoreline distance, water
 depth, movement speed, current strength, and positional-audio coordinates. Those values must not

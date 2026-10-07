@@ -26,7 +26,7 @@ namespace island
     /** @brief Generates a seamless eleven-second light-canopy-breeze bed. */
     [[nodiscard]] AmbientLoop GenerateBreezeLoop();
 
-    /** @brief Generates a seamless twelve-second subtle daytime-jungle bed. */
+    /** @brief Generates a seamless twenty-nine-second subtle daytime-jungle bed. */
     [[nodiscard]] AmbientLoop GenerateJungleLoop();
 
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */

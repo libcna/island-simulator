@@ -167,7 +167,7 @@ namespace
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
                          island::GenerateBreezeLoop()});
-        clips.push_back({"daytime jungle", "jungle.wav", true, 264600U,
+        clips.push_back({"daytime jungle", "jungle.wav", true, 639450U,
                          island::GenerateJungleLoop()});
         clips.push_back({"player water movement", "water-movement.wav", true, 154350U,
                          island::GenerateWaterMovementLoop()});

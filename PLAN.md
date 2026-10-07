@@ -620,14 +620,14 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
 - [~] Add non-repetitive surf beds and occasional stronger waves tied to shoreline proximity. A
   deterministic ten-second filtered-noise bed now follows shoreline distance, and two distinct
   four-second washes are selected at varied 14--32 second intervals near audible surf. The four
-  persistent beds now use 10/11/12/7-second lengths, delaying their complete shared phase
-  recurrence from one minute to 77 minutes. Subjective balance and long-session fatigue tuning
-  remain.
+  persistent beds now use 10/11/29/7-second lengths, delaying their complete shared phase
+  recurrence to 6 hours, 12 minutes, and 10 seconds. Subjective balance and long-session fatigue
+  tuning remain.
 - [~] Add wind-through-vegetation, jungle beds, birds, insects where tasteful, monkey calls, distant
   wildlife, and sparse water splashes. An eleven-second light-canopy-breeze loop and subtle
-  twelve-second daytime-jungle bed increase inland, two cooldown-protected water entry/exit
-  textures are active, and two bird plus two monkey phrases now play sparsely from real nearby
-  agents; additional insect/accent variation and richer biome layers remain.
+  twenty-nine-second daytime-jungle bed with sixteen irregularly spaced insect phrases increase
+  inland, two cooldown-protected water entry/exit textures are active, and two bird plus two monkey
+  phrases now play sparsely from real nearby agents; richer biome layers remain.
 - [x] Add positional one-shots/emitters where direction and distance improve presence. One pooled
   mono wildlife voice uses CNA `AudioListener`/`AudioEmitter`/`Apply3D`, camera orientation, agent
   positions, 24 m reference falloff, distance gates, and species habitat gates.
@@ -1113,8 +1113,8 @@ Work next, in order:
 1. Tune the complete four-layer soundscape, current-responsive undertow mix, both accent pairs,
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
-   Linux playback, finite-input fail-closed control state, the six-source ceiling, and a 77-minute
-   aggregate loop phase period are verified; subjective masking and fatigue are not.
+   Linux playback, finite-input fail-closed control state, the six-source ceiling, and a 6-hour,
+   12-minute aggregate loop phase period are verified; subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
@@ -4157,6 +4157,31 @@ Work next, in order:
   scheme v2, and is 18,702,516 bytes with a 15,892,232-byte stripped `libmain.so`. No new Android
   runtime claim is made. CNA and Sharp Runtime remain read-only, and no dependency defect or
   workaround was involved.
+
+### 2026-10-07 — Long-period daytime-jungle bed
+
+- Audio-source review found that the four persistent beds did not realign for 77 minutes, but the
+  recognizable daytime-jungle insect sequence itself still repeated every 12 seconds. Extended
+  that existing source to 29 seconds and authored sixteen low-level chirps as irregular singles and
+  pairs with varied frequency, sweep, duration, pulse, and amplitude. The same source, interior
+  gain, fade, mute, and swimming attenuation remain; the persistent-source count stays four and the
+  complete six-source ceiling is unchanged.
+- The 10/11/29/7-second bed lengths now realign after 22,330 seconds: 6 hours, 12 minutes, and 10
+  seconds. The change adds 749,700 bytes of generated mono PCM, taking all twelve procedural
+  sources from 2,533,544 to 3,283,244 bytes (about 3.13 MiB) before backend bookkeeping. No binary
+  audio asset or external license was added.
+- Renderer-independent core tests, the exact-source signal report, WAV export validation, asset
+  provenance validation, and deterministic regeneration pass. The new source is exactly 639,450
+  frames at 22.05 kHz, with RMS 0.11069326, peak 0.55999756, mean -0.00293074, seam step
+  0.01110840, maximum internal step 0.22473145, and fingerprint `f459687300acca64`.
+- The complete Chrome 152/SwiftShader 22-stage WebGL 2 suite passes, including first-gesture
+  creation and start of every persistent source. First-draw content time in that run was 235.0 ms
+  and final WebAssembly is 8,492,625 bytes. The default arm64-only GLES 3 APK builds with two
+  workers, passes application lint, verifies with signature scheme v2, and is 18,702,612 bytes with
+  a 15,892,328-byte stripped `libmain.so`. Android runtime playback and the required long
+  headphone/speaker fatigue pass remain unclaimed. The native core/report tools are current, while
+  the graphical executable is intentionally not relinked beneath the operator's visible process.
+  CNA and Sharp Runtime remain read-only, and no dependency defect or workaround was involved.
 
 ## Session-end checklist
 
