@@ -41,6 +41,7 @@ add_library(island_core STATIC
     game/src/GrassLod.cpp
     game/src/IslandTerrain.cpp
     game/src/JungleLayout.cpp
+    game/src/LocomotionPaceToggle.cpp
     game/src/MonkeyTroop.cpp
     game/src/NaturalPropLayout.cpp
     game/src/PerformanceStatistics.cpp

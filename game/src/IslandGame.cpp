@@ -841,23 +841,21 @@ namespace island
 
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
-        if (!IsDebugFreeCameraActive() && runToggleDown && !runToggleWasDown_) {
-            runModeEnabled_ = !runModeEnabled_;
+        if (locomotionPaceToggle_.Update(runToggleDown, !IsDebugFreeCameraActive())) {
             locomotionModeNoticeSeconds_ = LocomotionModeNoticeDuration;
-            const std::string_view diagnostic = runModeEnabled_
+            const std::string_view diagnostic = locomotionPaceToggle_.IsRunningSelected()
                 ? "island-simulator: run mode enabled (8.0 m/s)"
                 : "island-simulator: run mode disabled (4.3 m/s)";
             std::cout << diagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         }
-        runToggleWasDown_ = runToggleDown;
 
         const FirstPersonDigitalInput digitalInput{
             keyboard.IsKeyDown(Keys::W) || keyboard.IsKeyDown(Keys::Up),
             keyboard.IsKeyDown(Keys::S) || keyboard.IsKeyDown(Keys::Down),
             keyboard.IsKeyDown(Keys::A) || keyboard.IsKeyDown(Keys::Left),
             keyboard.IsKeyDown(Keys::D) || keyboard.IsKeyDown(Keys::Right),
-            runModeEnabled_ || touchControlState_.runRequested,
+            locomotionPaceToggle_.IsRunningSelected() || touchControlState_.runRequested,
         };
         const bool movementKeyDown = digitalInput.forward || digitalInput.backward
             || digitalInput.left || digitalInput.right;
@@ -1556,7 +1554,7 @@ namespace island
             const float opacity = std::clamp(
                 locomotionModeNoticeSeconds_ / 0.32f, 0.0f, 1.0f);
             debugOverlay_->DrawLocomotionModeNotice(
-                runModeEnabled_, opacity,
+                locomotionPaceToggle_.IsRunningSelected(), opacity,
                 viewport.getWidthProperty(), viewport.getHeightProperty());
         }
 

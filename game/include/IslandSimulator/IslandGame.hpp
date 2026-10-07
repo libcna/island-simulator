@@ -25,6 +25,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleRenderer.hpp"
+#include "IslandSimulator/LocomotionPaceToggle.hpp"
 #include "IslandSimulator/MonkeyRenderer.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -177,6 +178,7 @@ namespace island
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
         PlayerMotion playerMotion_;
         FirstPersonCameraMotion cameraMotion_;
+        LocomotionPaceToggle locomotionPaceToggle_;
 #ifndef NDEBUG
         DebugFreeCamera debugFreeCamera_;
 #endif
@@ -228,8 +230,6 @@ namespace island
 #endif
         bool muteToggleWasDown_ = false;
         bool cameraMotionToggleWasDown_ = false;
-        bool runToggleWasDown_ = false;
-        bool runModeEnabled_ = false;
         float locomotionModeNoticeSeconds_ = 0.0f;
         bool movementKeyWasDown_ = false;
         bool escapeWasDown_ = false;

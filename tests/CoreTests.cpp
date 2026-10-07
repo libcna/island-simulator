@@ -12,6 +12,7 @@
 #include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/LocomotionPaceToggle.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
@@ -291,6 +292,28 @@ int main()
               "first-person input rejects non-finite lateral values");
     CheckNear(invalidAnalogIntent.worldZ, 0.0f, 0.0001f,
               "first-person input rejects non-finite forward values");
+
+    island::LocomotionPaceToggle paceToggle;
+    Check(!paceToggle.IsRunningSelected(),
+          "locomotion pace begins in walking mode");
+    Check(paceToggle.Update(true) && paceToggle.IsRunningSelected(),
+          "first Shift edge selects persistent running mode");
+    Check(!paceToggle.Update(true) && paceToggle.IsRunningSelected(),
+          "holding Shift does not repeatedly toggle the selected pace");
+    Check(!paceToggle.Update(false) && paceToggle.IsRunningSelected(),
+          "releasing Shift retains the selected running mode");
+    Check(paceToggle.Update(true) && !paceToggle.IsRunningSelected(),
+          "second Shift edge restores persistent walking mode");
+    Check(!paceToggle.Update(false) && !paceToggle.IsRunningSelected(),
+          "walking mode remains selected after the second release");
+    Check(!paceToggle.Update(true, false) && !paceToggle.IsRunningSelected(),
+          "debug free-camera Shift does not change player pace");
+    Check(!paceToggle.Update(true, true) && !paceToggle.IsRunningSelected(),
+          "a held debug-camera Shift cannot leak into player pace selection");
+    Check(!paceToggle.Update(false, true) && !paceToggle.IsRunningSelected(),
+          "releasing the debug-camera Shift rearms the player toggle");
+    Check(paceToggle.Update(true, true) && paceToggle.IsRunningSelected(),
+          "a fresh Shift edge works after leaving the debug camera");
 
     island::DebugFreeCamera freeCamera;
     freeCamera.Update(0.0f, island::DebugFreeCameraInput{1.0f, 0.0f, 0.0f, false}, 0.1f);

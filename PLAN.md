@@ -4242,6 +4242,30 @@ Work next, in order:
   rejection pass, while the opt-in device path remains deliberately unclaimed. CNA and Sharp
   Runtime remain read-only and unchanged; no dependency defect or workaround was involved.
 
+### 2026-10-07 — Isolated persistent-pace regression model
+
+- Moved the keyboard walk/run edge state into the renderer- and platform-independent
+  `LocomotionPaceToggle`. One Shift edge selects the persistent 8.0 m/s run pace, holding and
+  releasing the key retain it, and a second edge returns to the 4.3 m/s walking pace. The player
+  update, normal-play confirmation, and touch combination consume that single authoritative
+  selection; movement speeds and presentation are otherwise unchanged.
+- The model always observes the physical Shift state even while player toggling is disabled. This
+  preserves the debug free camera's hold-Shift fast flight and prevents a key pressed there from
+  becoming a delayed player toggle if the camera is closed before the key is released.
+- Added deterministic core coverage for initial walking, first edge, held key, release, second
+  edge, disabled/debug-camera input, held-key re-entry, rearming, and the next valid edge. The
+  complete renderer-independent core test passes in 16.99 seconds, and the changed OpenGL 3.3
+  consumer object compiles through the required shared `/rv/cnaccache` without relinking or
+  interrupting the operator's live game.
+- The complete Chrome 152/SwiftShader WebGL 2 22-stage suite passes with the extracted model. Its
+  real input report independently confirms run selection, 8.0 m/s movement after Shift release,
+  second-edge deselection, restored 4.3 m/s walking, correct right-arrow direction, and concurrent
+  forward movement/mouse look. Final WebAssembly is 8,490,180 bytes. The arm64-only GLES 3 APK
+  builds with two workers, passes application lint, contains the expected arm64 `libmain.so`, and
+  verifies with APK signature scheme v2; it is 18,705,876 bytes with a 15,895,592-byte stripped
+  library. Android runtime behaviour is not newly claimed while the operator's visible Linux game
+  remains active. No dependency modification or workaround is involved.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

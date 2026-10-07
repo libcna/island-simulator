@@ -135,8 +135,10 @@ repository. Developers may instead provide a separate read-only CNA `next` check
    turns during the same update. Its right basis matches visible screen-right rather than world +X.
    Full touch-stick travel requests the faster land pace through a hysteretic threshold, while
    partial travel remains analog walking.
-4. `IslandGame` edge-detects either Shift key, retains the selected 4.3/8.0 m/s walk/run mode, and
-   starts a 1.4-second normal-play confirmation; debug free-camera Shift is deliberately excluded;
+4. `LocomotionPaceToggle` edge-detects either Shift key and retains the selected 4.3/8.0 m/s
+   walk/run mode. It still consumes physical key state while player toggling is disabled, so a
+   Shift press used by the debug free camera cannot leak into player pace after leaving that
+   camera. `IslandGame` starts a 1.4-second normal-play confirmation on each accepted change;
    `PlayerMotion` applies frame-time clamping, direction-independent vector acceleration,
    slope checks, swimming speed, the island-relative current field, the remote safety boundary,
    and horizontal solid-prop collision in both locomotion modes. The current velocity eases from
