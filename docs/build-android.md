@@ -435,6 +435,16 @@ was restored, linted with zero issues, and v2-signature verified. It is 18,744,0
 stripped `libmain.so` is 15,933,744 bytes. This is functional gfxstream evidence, not a sustained
 performance or physical-mobile qualification.
 
+A current fixed `driftwood` x86_64 KVM/gfxstream launch passed the strict GLES 3 and audio gate
+after variants zero and one replaced their flat branch fins with tapered three-dimensional limbs.
+The game reported the exact all-variants diagnostic, `OPENGLES3`, low-latency audio, a 1280 by 720
+logical backbuffer, and a 1549.511 ms total cold first draw. The inspected 2400 by 1080 cove frame
+retains all three distinct silhouettes and clean touch controls without a fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic. The emulator was stopped; the arm64-only APK was restored,
+linted with zero issues, and v2-signature verified. It is 18,743,708 bytes and its stripped
+`libmain.so` is 15,933,424 bytes. This remains functional emulator evidence rather than physical-
+mobile performance qualification.
+
 Useful diagnostics for a connected test target are:
 
 ```bash
@@ -448,8 +458,8 @@ Once the device reports `device` and `adb shell getprop sys.boot_completed` repo
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
 logical viewport, first-draw timing, biome-grass, near-seed-head, near-bird-feather, and sunward-
-ocean-crest plus grazing-reflection diagnostics, the selected near-grass geometric V-fold, and the
-near-rock crown/facet plus stone-tint
+ocean-crest plus grazing-reflection diagnostics, the selected near-grass geometric V-fold, the
+all-variants tapered driftwood branches, and the near-rock crown/facet plus stone-tint
 diagnostics, rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 

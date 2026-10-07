@@ -61,6 +61,8 @@ namespace island
             "island-simulator: rock per-instance tint reuses existing transforms";
         constexpr std::string_view FallenLogEndDiagnostic =
             "island-simulator: near fallen logs use irregular broken end contours";
+        constexpr std::string_view DriftwoodBranchDiagnostic =
+            "island-simulator: all near driftwood variants use tapered three-dimensional branches";
         constexpr std::string_view FallenFrondDiagnostic =
             "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes";
 
@@ -525,7 +527,7 @@ void main()
                 }
             }
 
-            if (!farMesh && variant == 2) {
+            if (!farMesh) {
                 const auto appendTaperedLimb = [&geometry, &wood](
                     const std::array<Vector3, 3>& path, const float baseHalfWidth,
                     const float baseRadius, const float brightness) {
@@ -588,52 +590,37 @@ void main()
                     }
                 };
 
-                appendTaperedLimb(
-                    {Vector3(-0.20f, 0.35f, 0.28f),
-                     Vector3(-0.28f, 1.78f, 0.42f),
-                     Vector3(-0.42f, 3.34f, 0.62f)},
-                    0.026f, 0.30f, 0.96f);
-                appendTaperedLimb(
-                    {Vector3(0.16f, 0.32f, -0.26f),
-                     Vector3(0.25f, 1.54f, -0.40f),
-                     Vector3(0.42f, 2.84f, -0.58f)},
-                    0.023f, 0.28f, 0.90f);
-                appendTaperedLimb(
-                    {Vector3(-0.29f, 1.68f, 0.41f),
-                     Vector3(-0.13f, 2.55f, 0.54f),
-                     Vector3(0.02f, 3.36f, 0.72f)},
-                    0.018f, 0.22f, 1.02f);
-            } else if (!farMesh) {
-                const int branchCount = 1 + variant % 2;
-                for (int branch = 0; branch < branchCount; ++branch) {
-                    const float branchX = branch == 0
-                        ? -0.18f + 0.04f * static_cast<float>(variant)
-                        : 0.21f;
-                    const float branchSide = branch == 0 ? 1.0f : -1.0f;
-                    const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-                    const Color branchColor = ShadeColor(wood, 0.88f);
-                    geometry.vertices.emplace_back(
-                        Vector3(branchX - 0.035f, 0.42f, branchSide * 0.38f), branchColor);
-                    geometry.vertices.emplace_back(
-                        Vector3(branchX + 0.035f, 0.42f, branchSide * 0.38f), branchColor);
-                    geometry.vertices.emplace_back(
-                        Vector3(branchX + 0.035f, 0.72f, branchSide * 0.58f), branchColor);
-                    geometry.vertices.emplace_back(
-                        Vector3(branchX - 0.035f, 0.72f, branchSide * 0.58f), branchColor);
-                    geometry.vertices.emplace_back(
-                        Vector3(branchX + (branch == 0 ? 0.10f : -0.11f),
-                                1.85f + 0.18f * static_cast<float>(variant),
-                                branchSide * 1.45f),
-                        ShadeColor(wood, 1.02f));
-                    const auto tip = static_cast<std::uint16_t>(base + 4U);
-                    geometry.indices.insert(
-                        geometry.indices.end(),
-                        {base, static_cast<std::uint16_t>(base + 1U), tip,
-                         static_cast<std::uint16_t>(base + 1U),
-                         static_cast<std::uint16_t>(base + 2U), tip,
-                         static_cast<std::uint16_t>(base + 2U),
-                         static_cast<std::uint16_t>(base + 3U), tip,
-                         static_cast<std::uint16_t>(base + 3U), base, tip});
+                if (variant == 2) {
+                    appendTaperedLimb(
+                        {Vector3(-0.20f, 0.35f, 0.28f),
+                         Vector3(-0.28f, 1.78f, 0.42f),
+                         Vector3(-0.42f, 3.34f, 0.62f)},
+                        0.026f, 0.30f, 0.96f);
+                    appendTaperedLimb(
+                        {Vector3(0.16f, 0.32f, -0.26f),
+                         Vector3(0.25f, 1.54f, -0.40f),
+                         Vector3(0.42f, 2.84f, -0.58f)},
+                        0.023f, 0.28f, 0.90f);
+                    appendTaperedLimb(
+                        {Vector3(-0.29f, 1.68f, 0.41f),
+                         Vector3(-0.13f, 2.55f, 0.54f),
+                         Vector3(0.02f, 3.36f, 0.72f)},
+                        0.018f, 0.22f, 1.02f);
+                } else {
+                    appendTaperedLimb(
+                        {Vector3(-0.18f + 0.04f * static_cast<float>(variant),
+                                 0.36f, 0.34f),
+                         Vector3(-0.13f, 1.06f, 0.91f),
+                         Vector3(-0.06f, 1.90f + 0.15f * static_cast<float>(variant),
+                                 1.47f)},
+                        0.020f, 0.23f, 0.95f);
+                    if (variant == 1) {
+                        appendTaperedLimb(
+                            {Vector3(0.21f, 0.34f, -0.31f),
+                             Vector3(0.18f, 1.03f, -0.84f),
+                             Vector3(0.09f, 2.18f, -1.49f)},
+                            0.018f, 0.21f, 0.90f);
+                    }
                 }
             }
             return geometry;
@@ -980,6 +967,8 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(FallenLogEndDiagnostic);
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
+            std::cout << DriftwoodBranchDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(DriftwoodBranchDiagnostic);
             std::cout << FallenFrondDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondDiagnostic);
         } else {

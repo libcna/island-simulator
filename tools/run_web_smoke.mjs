@@ -339,6 +339,8 @@ try {
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && result.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
+    && result.output?.includes(
+      "island-simulator: all near driftwood variants use tapered three-dimensional branches")
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes(
       "island-simulator: shoreline broken crest mask modulates wash continuity")
@@ -897,6 +899,8 @@ try {
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && driftwoodResult.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
+    && driftwoodResult.output?.includes(
+      "island-simulator: all near driftwood variants use tapered three-dimensional branches")
     && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/13 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(

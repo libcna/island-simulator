@@ -744,7 +744,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,803,308 bytes uncompressed and 2,496,531 bytes through
+  The current Release package is 8,801,831 bytes uncompressed and 2,496,370 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1273,8 +1273,10 @@ Work next, in order:
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
-   and far meshes plain. Its third near variant now uses a curved three-limb fork, while the
-   dedicated native/WebGL QA camera proves a nonzero per-instance near LOD. Rocks, logs, and
+   and far meshes plain. Its third near variant uses a curved three-limb fork; the former flat
+   branch fins on variants zero and one are now tapered, bent three-dimensional limbs through the
+   same near meshes. The dedicated native/WebGL QA camera proves a nonzero per-instance near LOD.
+   Rocks, logs, and
    driftwood now enforce range and LOD from their actual positions after conservative cell bounds.
    The portable sand/soil, wet-edge, and slope-material pass, the initial small-plant layer, a
    first near-field shell/pebble/dry-wrack substrate layer, a first grove-associated fallen-frond
@@ -5416,6 +5418,33 @@ Work next, in order:
   15,933,744 bytes. Removed only the reproducible temporary x86_64 CMake/object intermediates,
   reducing the Android tree by about 1.1 GiB. Shared ccache remains 3.7 GiB and 99.66 percent
   cacheable; all builds used no more than two workers, and CNA/Sharp Runtime remained read-only.
+
+### 2026-10-07 — Three-dimensional driftwood branches
+
+- Replaced the flat branch fins on near driftwood variants zero and one with the same bounded
+  three-ring tapered construction already proven on variant two. Variant zero now has one bent
+  limb, variant one has two opposing limbs, and variant two retains its larger three-limb fork.
+  Near meshes are respectively 70/100, 89/130, and 108/160 vertices/triangles; far meshes remain
+  27 vertices/30 triangles. The 31 placements, authored three-piece cove, transforms, shader,
+  materials, LOD distances, culling, buffers, collision, and draw submissions are unchanged.
+- Added an exact shared diagnostic to the Chrome lifecycle/driftwood gates and Android first-frame
+  gate while preserving the established variant-two marker. The OpenGL 3.3 object compiles with
+  first-party warnings as errors through the shared cache without relinking the operator-visible
+  running executable. The full Chrome 152/SwiftShader WebGL 2 matrix passes 23/23; its original-
+  resolution cove frame was inspected and retains three distinct restrained silhouettes.
+- A temporary x86_64 build passed the strict GLES 3/audio gate at the fixed driftwood view on the
+  API 35 KVM 12/host-gfxstream AVD. PID 3524 reported the exact all-variants diagnostic,
+  `OPENGLES3`, low-latency audio, a 1280 by 720 logical backbuffer, and a 1549.511 ms first-draw
+  total. The inspected 2400 by 1080 cove frame shows all three branches without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics; this remains emulator functional evidence only.
+- The deterministic Web package is 8,801,831 bytes or 2,496,370 bytes through gzip; WebAssembly is
+  8,536,953 bytes or 2,436,167 bytes through gzip. JavaScript remains 262,820 bytes (59,059 gzip)
+  and HTML remains 2,058 bytes (1,144 gzip).
+- Stopped the emulator, restored/linted the default arm64-only APK, and verified its sole ABI plus
+  signature scheme v2. The APK is 18,743,708 bytes and stripped `libmain.so` is 15,933,424 bytes.
+  Removed only the reproducible x86_64 CMake/object intermediates again, leaving the Android tree
+  at approximately 1.3 GiB. Shared ccache remains the only compiler cache; CNA and Sharp Runtime
+  stayed read-only and every build used no more than two workers.
 
 ## Session-end checklist
 

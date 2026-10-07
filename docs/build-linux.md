@@ -179,7 +179,8 @@ bark-scar/coconut path.
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm` and
 requires a nonzero one-draw terrain-contact-shadow batch.
 `IslandGameDriftwoodCapture` writes a close beach-composition view to
-`build/island-driftwood-capture.ppm`.
+`build/island-driftwood-capture.ppm`; its startup gate requires tapered three-dimensional branches
+on every near silhouette rather than accepting the former flat branch fins.
 `IslandGameReefCapture` writes a close emergent shallow-water outcrop view to
 `build/island-reef-capture.ppm`; the current material should show a restrained dark/cool band at
 the mean water contact while leaving the upper rock dry. Startup also reports the irregular near-
