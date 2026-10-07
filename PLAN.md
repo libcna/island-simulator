@@ -723,7 +723,12 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive. Firefox ESR 140.15 now
   independently passes the production first frame, trusted-click pointer lock, 44.1 kHz audio
   initialization, both persistent Shift edges, forward traversal/footstep, and Escape release.
-- [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
+- [x] Package runtime assets for Web with useful missing-asset diagnostics. The current game has
+  no file-backed runtime asset: geometry, shaders, small textures, font, animation, and PCM are
+  generated from compiled project code. The deployable package therefore intentionally contains
+  only HTML, JavaScript, and WebAssembly rather than an empty Emscripten `.data`/VFS payload.
+  Schema-2 provenance validation rejects undeclared future files, and any future external runtime
+  asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
   The current Release package is 8,787,605 bytes uncompressed and 2,491,600 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
@@ -5001,6 +5006,18 @@ Work next, in order:
   open. Added `/.aws` to `.gitignore` because the managed sandbox exposes that name as an
   environment-owned read-only credential mount, preventing it from appearing as project content.
   CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Web runtime-asset packaging closure
+
+- Resolved the stale virtual-filesystem task against the actual source model: all current runtime
+  content is generated from compiled project code, so the complete Web product is the existing
+  HTML, JavaScript, and WebAssembly trio. Shipping an empty Emscripten `.data` file would add a
+  request and failure mode without packaging content. The Web instructions now make this boundary
+  and the required future file-backed-asset path explicit.
+- The schema-2 provenance gate passes with 17 procedural records, 32 generator sources, one hashed
+  original Android-only project file, and zero external files. The deterministic Web packaging
+  test passes and still requires exactly the three deployable artifacts with integrity and gzip
+  round-trip coverage. No runtime, dependency, or build output changed.
 
 ## Session-end checklist
 

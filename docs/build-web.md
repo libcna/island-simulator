@@ -97,6 +97,13 @@ The deployable files are written to `build-probe/`:
 - `island-simulator.js`
 - `island-simulator.wasm`
 
+There is intentionally no Emscripten `.data` or virtual-filesystem payload. All current runtime
+geometry, shaders, small textures, animation, font, and PCM are generated from compiled project
+code; the original Android launcher vector is not part of the Web product. The schema-2 asset
+manifest rejects undeclared source assets. If a future file-backed runtime asset is introduced, it
+must add explicit Web packaging and an actionable load-failure diagnostic rather than relying on a
+developer's local filesystem.
+
 For a release host, create an integrity-checked package containing both the original files and
 deterministic gzip variants:
 
