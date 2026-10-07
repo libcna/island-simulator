@@ -247,6 +247,7 @@ try {
     context, "island-simulator: viewport 1280x720 logical backbuffer", 240);
   const requiredFirstFrameMarkers = [
     "island-simulator: renderer WEBGL2",
+    "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources",
     "island-simulator: clearing floors reuse existing noise fields for broad patch breakup",
     "island-simulator: jungle per-instance foliage tint reuses existing transforms",
     "island-simulator: selected near canopy variants include hanging leafy lianas",
@@ -408,6 +409,8 @@ try {
     { type: "keyDown", value: "\uE008" },
     { type: "pause", duration: 120 },
     { type: "keyUp", value: "\uE008" },
+    // Let several resumed game frames observe the release before the next toggle edge.
+    { type: "pause", duration: 250 },
   ]);
   output = await waitForMarkerCount(
     context,
@@ -417,6 +420,7 @@ try {
     { type: "keyDown", value: "\uE008" },
     { type: "pause", duration: 120 },
     { type: "keyUp", value: "\uE008" },
+    { type: "pause", duration: 250 },
   ]);
   output = await waitForMarkerCount(
     context,

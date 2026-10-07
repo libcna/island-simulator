@@ -38,7 +38,8 @@ namespace island
         ContactShadowRenderer(
             Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
             const IslandTerrain& terrain, const VegetationLayout& vegetation,
-            const JungleLayout& jungle, const NaturalPropLayout& naturalProps);
+            const JungleLayout& jungle, const NaturalPropLayout& naturalProps,
+            float maximumDistanceScale = 1.0f);
         ~ContactShadowRenderer();
 
         ContactShadowRenderer(const ContactShadowRenderer&) = delete;
@@ -114,5 +115,6 @@ namespace island
         int visibleMonkeyShadowCount_ = 0;
         int primitiveCount_ = 0;
         int drawCallCount_ = 0;
+        float monkeyMaximumDistance_ = 105.0f;
     };
 }

@@ -33,7 +33,8 @@ namespace island
         static constexpr std::size_t CellCount = CellsPerAxis * CellsPerAxis;
 
         GrassRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                      const IslandTerrain& terrain, const GrassLayout& layout);
+                      const IslandTerrain& terrain, const GrassLayout& layout,
+                      float maximumDrawDistance = 135.0f);
         ~GrassRenderer();
 
         GrassRenderer(const GrassRenderer&) = delete;
@@ -105,6 +106,7 @@ namespace island
         int mixedLodCellCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
+        float maximumDrawDistance_ = 135.0f;
         bool customShaderReady_ = false;
     };
 }

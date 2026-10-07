@@ -25,7 +25,8 @@ namespace island
         static constexpr int NearVertexCount = 51;
         static constexpr int FarVertexCount = 12;
 
-        explicit FishRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device);
+        explicit FishRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                              float maximumDistance = 215.0f);
         ~FishRenderer();
 
         FishRenderer(const FishRenderer&) = delete;
@@ -52,5 +53,6 @@ namespace island
         int visibleNearFishCount_ = 0;
         int visibleFarFishCount_ = 0;
         int drawCallCount_ = 0;
+        float maximumDistance_ = 215.0f;
     };
 }

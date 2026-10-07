@@ -29,7 +29,8 @@ namespace island
     public:
         static constexpr std::size_t SilhouetteCount = 3U;
 
-        explicit MonkeyRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device);
+        explicit MonkeyRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                                float maximumDistance = 235.0f);
         ~MonkeyRenderer();
 
         MonkeyRenderer(const MonkeyRenderer&) = delete;
@@ -91,5 +92,6 @@ namespace island
         int drawCallCount_ = 0;
         int activeCrossfadeCount_ = 0;
         std::uint64_t completedCrossfadeCount_ = 0U;
+        float maximumDistance_ = 235.0f;
     };
 }

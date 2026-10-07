@@ -20,6 +20,7 @@
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeQualityProfile.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
@@ -69,6 +70,27 @@ int main()
           "generated texture inventory retains its exact base-level pixel count");
     Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 143624U,
           "generated texture inventory stays below its audited RGBA8 payload");
+    constexpr island::RuntimeQualityProfile fullQuality =
+        island::RuntimeQualityProfile::Full();
+    constexpr island::RuntimeQualityProfile mobileQuality =
+        island::RuntimeQualityProfile::Mobile();
+    Check(fullQuality.IsValid() && mobileQuality.IsValid(),
+          "runtime quality profiles expose valid renderer settings");
+    Check(fullQuality.name == "full" && mobileQuality.name == "mobile",
+          "runtime quality profiles retain stable diagnostic names");
+    CheckNear(fullQuality.grassMaximumDistance, 135.0f, 0.0f,
+              "full quality retains the authored grass distance");
+    CheckNear(mobileQuality.grassMaximumDistance, 112.0f, 0.0f,
+              "mobile quality reduces only distant grass work");
+    Check(mobileQuality.contactShadowDistanceScale < fullQuality.contactShadowDistanceScale
+              && mobileQuality.wildlifeMaximumDistanceScale
+                  < fullQuality.wildlifeMaximumDistanceScale,
+          "mobile quality bounds distant shadows and wildlife");
+    Check(mobileQuality.generatedTextureByteBudget
+              >= island::GeneratedTextureBudget::TotalRgba8Bytes,
+          "mobile quality admits the compact generated texture inventory");
+    Check(mobileQuality.maximumPlayingAudioSources == 6,
+          "mobile quality preserves the bounded full soundscape");
 
     const island::AquaticLightProfile shallowLight = island::AquaticLightAt(
         7.0f, -0.35f, -4.0f, 2.0f);
@@ -2183,6 +2205,22 @@ int main()
           "ocean grid remains within the portable 16-bit vertex budget");
     Check(island::OceanMeshLayout::TriangleCount == 51200U,
           "ocean grid triangle count is deterministic");
+    Check(island::OceanMeshLayout::IsPortable(fullQuality.oceanQuadsPerAxis)
+              && island::OceanMeshLayout::IsPortable(mobileQuality.oceanQuadsPerAxis),
+          "both runtime ocean grids fit portable 16-bit indices");
+    Check(!island::OceanMeshLayout::IsPortable(0)
+              && island::OceanMeshLayout::IsPortable(255)
+              && !island::OceanMeshLayout::IsPortable(256)
+              && !island::OceanMeshLayout::IsPortable(std::numeric_limits<int>::max()),
+          "runtime ocean validation accepts the exact 16-bit grid boundary");
+    Check(island::OceanMeshLayout::VertexCountFor(mobileQuality.oceanQuadsPerAxis) == 16641U
+              && island::OceanMeshLayout::TriangleCountFor(
+                     mobileQuality.oceanQuadsPerAxis) == 32768U,
+          "mobile ocean grid has the audited reduced geometry budget");
+    CheckNear(island::OceanMeshLayout::Coordinate(
+                  mobileQuality.oceanQuadsPerAxis, mobileQuality.oceanQuadsPerAxis),
+              island::OceanMeshLayout::Extent, 0.0001f,
+              "mobile ocean grid reaches the shared outer extent");
     CheckNear(island::OceanMeshLayout::Coordinate(0), -island::OceanMeshLayout::Extent,
               0.0001f, "ocean grid begins at its documented extent");
     CheckNear(island::OceanMeshLayout::Coordinate(island::OceanMeshLayout::QuadsPerAxis),

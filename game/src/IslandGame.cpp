@@ -1,6 +1,7 @@
 #include "IslandSimulator/IslandGame.hpp"
 
 #include "IslandSimulator/FirstPersonInput.hpp"
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
@@ -533,21 +534,54 @@ namespace island
         const auto contentStarted = std::chrono::steady_clock::now();
         frameworkInitializationMilliseconds_ = std::chrono::duration<double, std::milli>(
             contentStarted - constructionFinished_).count();
+        if (!qualityProfile_.IsValid()) {
+            throw std::logic_error("The selected runtime quality profile is invalid");
+        }
+        if (GeneratedTextureBudget::TotalRgba8Bytes
+                > qualityProfile_.generatedTextureByteBudget
+            || Soundscape::MaximumPlayingSourceCount
+                > qualityProfile_.maximumPlayingAudioSources) {
+            throw std::logic_error(
+                "Runtime texture or audio inventory exceeds the selected quality profile");
+        }
+        std::ostringstream qualityDiagnostic;
+        qualityDiagnostic << "island-simulator: quality profile " << qualityProfile_.name
+                          << " grass "
+                          << static_cast<int>(qualityProfile_.grassMaximumDistance)
+                          << "m shadows "
+                          << static_cast<int>(qualityProfile_.contactShadowDistanceScale * 100.0f)
+                          << "% wildlife "
+                          << static_cast<int>(qualityProfile_.wildlifeMaximumDistanceScale * 100.0f)
+                          << "% ocean " << qualityProfile_.oceanQuadsPerAxis << 'x'
+                          << qualityProfile_.oceanQuadsPerAxis << " textures "
+                          << GeneratedTextureBudget::TotalRgba8Bytes << '/'
+                          << qualityProfile_.generatedTextureByteBudget << " bytes audio "
+                          << Soundscape::MaximumPlayingSourceCount << '/'
+                          << qualityProfile_.maximumPlayingAudioSources << " sources";
+        std::cout << qualityDiagnostic.str() << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(qualityDiagnostic.str());
         auto& device = getGraphicsDeviceProperty();
         terrainRenderer_ = std::make_unique<TerrainRenderer>(device, terrain_);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
             device, distantSceneryLayout_);
         contactShadowRenderer_ = std::make_unique<ContactShadowRenderer>(
-            device, terrain_, vegetationLayout_, jungleLayout_, naturalPropLayout_);
-        birdRenderer_ = std::make_unique<BirdRenderer>(device);
-        fishRenderer_ = std::make_unique<FishRenderer>(device);
-        sharkRenderer_ = std::make_unique<SharkRenderer>(device);
-        monkeyRenderer_ = std::make_unique<MonkeyRenderer>(device);
-        grassRenderer_ = std::make_unique<GrassRenderer>(device, terrain_, grassLayout_);
+            device, terrain_, vegetationLayout_, jungleLayout_, naturalPropLayout_,
+            qualityProfile_.contactShadowDistanceScale);
+        birdRenderer_ = std::make_unique<BirdRenderer>(
+            device, 690.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        fishRenderer_ = std::make_unique<FishRenderer>(
+            device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        sharkRenderer_ = std::make_unique<SharkRenderer>(
+            device, 710.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        monkeyRenderer_ = std::make_unique<MonkeyRenderer>(
+            device, 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        grassRenderer_ = std::make_unique<GrassRenderer>(
+            device, terrain_, grassLayout_, qualityProfile_.grassMaximumDistance);
         jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
-        oceanRenderer_ = std::make_unique<OceanRenderer>(device, terrain_);
+        oceanRenderer_ = std::make_unique<OceanRenderer>(
+            device, terrain_, qualityProfile_.oceanQuadsPerAxis);
         shorelineRenderer_ = std::make_unique<ShorelineRenderer>(device, terrain_);
         skyRenderer_ = std::make_unique<SkyRenderer>(device);
         debugOverlay_ = std::make_unique<DebugOverlay>(device);

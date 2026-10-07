@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -284,9 +285,14 @@ void main()
         }
     }
 
-    OceanRenderer::OceanRenderer(GraphicsDevice& device, const IslandTerrain& terrain)
-        : device_(device)
+    OceanRenderer::OceanRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
+                                 const int quadsPerAxis)
+        : device_(device), quadsPerAxis_(quadsPerAxis)
     {
+        if (!OceanMeshLayout::IsPortable(quadsPerAxis_)) {
+            throw std::invalid_argument(
+                "Ocean grid must be positive and addressable by unsigned 16-bit indices");
+        }
         fallbackEffect_ = std::make_unique<BasicEffect>(device_);
         fallbackEffect_->setVertexColorEnabledProperty(true);
         fallbackEffect_->setLightingEnabledProperty(false);
@@ -339,13 +345,14 @@ void main()
     {
         std::vector<VertexPositionColorTexture> vertices;
         std::vector<std::uint16_t> indices;
-        vertices.reserve(OceanMeshLayout::VertexCount);
-        indices.reserve(OceanMeshLayout::TriangleCount * 3U);
+        vertices.reserve(OceanMeshLayout::VertexCountFor(quadsPerAxis_));
+        indices.reserve(OceanMeshLayout::TriangleCountFor(quadsPerAxis_) * 3U);
 
-        for (int row = 0; row < OceanMeshLayout::VerticesPerAxis; ++row) {
-            const float z = OceanMeshLayout::Coordinate(row);
-            for (int column = 0; column < OceanMeshLayout::VerticesPerAxis; ++column) {
-                const float x = OceanMeshLayout::Coordinate(column);
+        const int verticesPerAxis = quadsPerAxis_ + 1;
+        for (int row = 0; row < verticesPerAxis; ++row) {
+            const float z = OceanMeshLayout::Coordinate(row, quadsPerAxis_);
+            for (int column = 0; column < verticesPerAxis; ++column) {
+                const float x = OceanMeshLayout::Coordinate(column, quadsPerAxis_);
                 const TerrainSample sample = terrain.Sample(x, z);
                 const float shallow = SmoothStep(-8.0f, -0.05f, sample.height);
                 const float shoreFoam = std::exp(-std::abs(sample.signedShoreDistance) / 10.0f);
@@ -354,13 +361,13 @@ void main()
             }
         }
 
-        for (int row = 0; row < OceanMeshLayout::QuadsPerAxis; ++row) {
-            for (int column = 0; column < OceanMeshLayout::QuadsPerAxis; ++column) {
+        for (int row = 0; row < quadsPerAxis_; ++row) {
+            for (int column = 0; column < quadsPerAxis_; ++column) {
                 const auto topLeft = static_cast<std::uint16_t>(
-                    row * OceanMeshLayout::VerticesPerAxis + column);
+                    row * verticesPerAxis + column);
                 const auto topRight = static_cast<std::uint16_t>(topLeft + 1U);
                 const auto bottomLeft = static_cast<std::uint16_t>(
-                    topLeft + OceanMeshLayout::VerticesPerAxis);
+                    topLeft + verticesPerAxis);
                 const auto bottomRight = static_cast<std::uint16_t>(bottomLeft + 1U);
                 indices.insert(indices.end(), {topLeft, bottomLeft, topRight,
                                                topRight, bottomLeft, bottomRight});

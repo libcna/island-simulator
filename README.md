@@ -130,6 +130,9 @@ All audio is generated without external sound files. The
 complete scene runs on Linux/OpenGL 3.3, in an actual Chromium/WebGL 2 context, and in a
 KVM-accelerated Android API 35 x86_64 emulator through OpenGL ES 3. The accelerated Android pass
 also exercises movement and look gestures, AAudio startup, and background/foreground recovery.
+Android uses a centralized mobile quality default that retains all content and close detail while
+reducing only distant grass/shadow/wildlife work and the ocean grid; Linux and Web retain the full
+portable profile.
 Physical-device touch ergonomics, thermals, and sustained mobile-GPU performance are not yet
 qualified.
 
@@ -278,7 +281,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,499,452 bytes, 71.6% below the 8,814,075-byte
+a SHA-256 manifest. The current gzip payload is 2,502,963 bytes, 71.6% below the 8,822,395-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

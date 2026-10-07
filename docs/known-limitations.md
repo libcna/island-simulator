@@ -183,6 +183,9 @@ been confirmed so far.
   qualification. Simultaneous real-finger ergonomics, audio-focus interruption, OS-initiated
   process eviction, long suspension, physical mobile-GPU performance, thermal behaviour, and
   physical-device compatibility remain unverified.
+  The Android mobile quality profile is now functional and visually inspected on gfxstream, but
+  its 112 m grass, 72% shadow, 82% wildlife, and 128-grid ocean choices remain conservative
+  defaults rather than device-tier thresholds established from physical hardware measurements.
 
 ## Development tooling
 

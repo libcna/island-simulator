@@ -24,7 +24,7 @@ namespace island
     {
     public:
         OceanRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                      const IslandTerrain& terrain);
+                      const IslandTerrain& terrain, int quadsPerAxis = 160);
         ~OceanRenderer();
 
         OceanRenderer(const OceanRenderer&) = delete;
@@ -57,6 +57,7 @@ namespace island
         std::string fallbackReason_;
         int vertexCount_ = 0;
         int primitiveCount_ = 0;
+        int quadsPerAxis_ = 160;
         bool customShaderReady_ = false;
     };
 }

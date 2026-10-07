@@ -809,7 +809,13 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   all qualified game audio resources after a force-stop/new-process launch. External focus
   interruption, long suspension, OS-initiated eviction, and audible physical-device quality
   remain open.
-- [ ] Add mobile quality defaults for grass, shadows, wildlife distance, water, textures, and audio.
+- [x] Add mobile quality defaults for grass, shadows, wildlife distance, water, textures, and audio.
+  Android now selects one validated game-owned profile: 112 m distant-grass cutoff, 72% contact-
+  shadow range, 82% wildlife draw range, and a 128 by 128 ocean grid while retaining identical
+  close meshes/shaders, all populations, the 143,624-byte texture inventory under a 160 KiB gate,
+  and the six-source soundscape. Linux/Web retain the full profile. Core tests validate both
+  profiles, native runtime output confirms the full selection, and Chrome/GLES3 gates require the
+  corresponding diagnostics; physical-device tuning remains open.
 - [~] Profile CPU/GPU frame time, memory, thermal behaviour, and loading on a real device when
   available; use emulator evidence only for claims it can support. The KVM/gfxstream AVD now has
   startup, memory, and SurfaceFlinger before/after samples; no physical GPU, thermal, or power
@@ -1101,11 +1107,11 @@ Expected scalable differences:
 
 | Feature | Linux OpenGL 3.3 | WebGL 2 | Android GLES 3 |
 |---|---|---|---|
-| Grass density/distance | High | Medium | Device-tiered medium/low |
-| Dynamic shadows | Best supported portable tier | Reduced resolution/distance | Reduced or baked/contact fallback |
-| Ocean detail | Full portable layers | Fewer layers if measured | Fewer layers and lower mesh density |
-| Wildlife range/count | Full | Reduced if CPU-bound | Reduced with stronger update throttling |
-| Texture/audio sizes | Full budget | Download-conscious | Memory/device-conscious |
+| Grass density/distance | Full, 135 m | Full, 135 m | Same density/near mesh, 112 m maximum |
+| Dynamic shadows | Portable contact batch, full range | Same full range | Same batch, 72% range |
+| Ocean detail | Full layers, 160 by 160 grid | Same layers/grid | Same layers, 128 by 128 grid |
+| Wildlife range/count | Full | Full | Same counts/simulation, 82% draw range |
+| Texture/audio sizes | 143,624 bytes / six sources | Same bounded inventory | Same bounded inventory |
 
 Any larger difference must be added to the renderer-differences documentation and accepted only
 after the same experience remains available.
@@ -5763,6 +5769,50 @@ Work next, in order:
   profile refusal. Removed the five identified reproducible x86_64 Android intermediate trees,
   returning Android from 2.3 GiB to 1.3 GiB, and removed the documented temporary comparison/
   benchmark copies and superseded archives. The compact GLES logs/screenshots remain as evidence.
+
+### 2026-10-07 — Centralized Android mobile quality default
+
+- Added renderer-independent `RuntimeQualityProfile` policy with validated full and mobile values.
+  Linux/Web keep 135 m grass, full contact-shadow/wildlife distances, and the 160 by 160 ocean
+  grid. Android retains every population, simulation, shader, 42-blade near-grass mesh, the full
+  143,624-byte generated texture inventory, and six-source soundscape while selecting 112 m grass,
+  72% shadow range, 82% wildlife draw range, and a 128 by 128 ocean grid.
+- Passed values explicitly into the grass, contact-shadow, bird, fish, shark, monkey, and ocean
+  renderers. Runtime guards reject invalid distances/grids and texture/audio inventory overruns.
+  Extended the ocean layout with tested dynamic counts and exact unsigned 16-bit capacity limits;
+  Android ocean geometry is 16,641 vertices/32,768 triangles instead of 25,921/51,200.
+- Core tests pass and the native `IslandGameSmoke` plus fixed grass capture pass on the private
+  OpenGL display. Their exact full-profile diagnostic and unchanged 160-grid counts confirm that
+  desktop quality did not regress. The complete 23-stage Chrome/WebGL 2 gate passes and now
+  requires the same full-profile marker.
+- Built the temporary x86_64 APK through the shared ccache with two Gradle/native workers. KVM 12
+  and host AMD Radeon 780M gfxstream booted the API 35 `Medium_Phone` AVD in 19.235 seconds. Two
+  fixed-grass GLES 3 gates required the mobile marker and passed without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics. The clean 2400 by 1080 frame retains dense close grass and
+  translucent controls; first draw completed in 2703.072 ms at the 1280 by 720 logical backbuffer.
+- The mobile debug view reported 2,222 visible grass clusters and 16 shadows versus 2,827 and 27 in
+  the full fixed view, while preserving all 957 near clusters. This is bounded workload evidence,
+  not a physical-device performance claim. Stopped the emulator cleanly, restored the arm64-only
+  APK, passed lint with no issues, and verified its v2 signature. It is 18,757,052 bytes with a
+  15,946,768-byte stripped `libmain.so`. Removed the verified x86_64 intermediates, reducing the
+  Android tree from 2.4 GiB to 1.3 GiB. No dependency bug was found or added to `BUGS.md`.
+- The final Web relink/package validation passes. HTML is 2,058 bytes (1,144 gzip), JavaScript is
+  263,453 bytes (59,114 gzip), and WebAssembly is 8,556,884 bytes (2,442,705 gzip), for a total
+  8,822,395-byte payload or 2,502,963 bytes through deterministic gzip (71.6% reduction).
+- The stripped Linux Release package contains 11,541,525 installed bytes. Two unchanged packaging
+  runs produced identical 4,573,055-byte archives with SHA-256
+  `952dbe5aab1409ff98638e62d4a509e2391c28a79f1255a10823d73ce5527ee4`. An extraction beneath
+  `/tmp` launched from that unrelated working directory, selected `OPENGL33`, required the full
+  quality profile, rendered four overview frames, and exited cleanly in 623.924 ms total.
+- The exact final Web artifacts pass the complete Chrome matrix. A repeated Firefox run exposed a
+  harness race after tab foregrounding: the next synthetic Shift press could arrive before a
+  resumed game frame observed the previous key release, so a valid running state never received a
+  second edge. Added a 250 ms WebDriver action pause after each resumed Shift release, matching the
+  already stable pre-lifecycle input sequence; this changes only QA automation, not game input.
+  The exact final Firefox artifact then passed first frame, pointer lock/release/relock, responsive
+  sizing, audio, both pre- and post-lifecycle Shift edges, footstep, tab lifecycle, resumed game
+  input, and dedicated jungle/water scenes. The final native private-display matrix passes 41/41
+  in 80.97 seconds without a graphics-profile refusal.
 
 ## Session-end checklist
 

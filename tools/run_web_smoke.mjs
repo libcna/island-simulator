@@ -215,6 +215,8 @@ try {
   const smokePassed = result.exited === true
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
+    && result.output?.includes(
+      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources")
     && viewportMatch !== null
     && Number(viewportMatch[1]) === 1280
     && Number(viewportMatch[2]) === 720

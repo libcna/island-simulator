@@ -49,7 +49,6 @@ namespace island
         using SkinnedVertex = VertexPositionNormalTextureSkinned;
 
         constexpr float NearLodDistance = 92.0f;
-        constexpr float MaximumDistance = 235.0f;
         constexpr std::size_t BoneCount = 14U;
 
         enum Bone : std::uint8_t
@@ -788,13 +787,17 @@ namespace island
         std::vector<Matrix> attentiveSkinTransforms;
     };
 
-    MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device)
+    MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device, const float maximumDistance)
         : device_(device),
           whiteTexture_(std::make_unique<Texture2D>(
               device, GeneratedTextureBudget::SolidWhiteTextureSize,
               GeneratedTextureBudget::SolidWhiteTextureSize)),
-          effect_(std::make_unique<SkinnedEffect>(device))
+          effect_(std::make_unique<SkinnedEffect>(device)),
+          maximumDistance_(maximumDistance)
     {
+        if (!std::isfinite(maximumDistance_) || maximumDistance_ <= 0.0f) {
+            throw std::invalid_argument("Monkey maximum draw distance must be finite and positive");
+        }
         const Color whitePixel = Color::White;
         whiteTexture_->SetData(&whitePixel, 1);
         const RigDefinition rig = CreateRig();
@@ -977,7 +980,7 @@ namespace island
 
             const Vector3 centre(monkey.x, monkey.y + 0.72f * monkey.scale, monkey.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
-            if (distanceSquared > MaximumDistance * MaximumDistance
+            if (distanceSquared > maximumDistance_ * maximumDistance_
                 || !frustum.Intersects(BoundingSphere(centre, 1.2f * monkey.scale))) {
                 continue;
             }

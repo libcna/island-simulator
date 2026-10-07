@@ -115,6 +115,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
+The current package contains 11,541,525 installed bytes. Two unchanged invocations produced the
+same 4,573,055-byte archive with SHA-256
+`952dbe5aab1409ff98638e62d4a509e2391c28a79f1255a10823d73ce5527ee4`.
+
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
 switching between those two qualifications. Normal Android Gradle builds use Gradle's managed
@@ -133,6 +137,9 @@ it from that unrelated working directory on a private Weston/Xwayland display, s
 `OPENGL33`, compiled every current scene shader, rendered four overview frames, and exited cleanly.
 Its first-draw report was 497.137 ms total. This validates relocation and first rendering, not
 compatibility with every Linux distribution or GPU driver.
+The later mobile-quality-policy package repeated this extraction/launch gate, required the full
+Linux profile, retained the 25,921-vertex/51,200-triangle ocean, and completed first draw in
+623.924 ms total.
 
 ## Tests
 

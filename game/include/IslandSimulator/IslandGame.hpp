@@ -35,6 +35,7 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/RuntimeQualityProfile.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/SharkRenderer.hpp"
 #include "IslandSimulator/ShorelineRenderer.hpp"
@@ -188,6 +189,11 @@ namespace island
         TouchControlState touchControlState_;
         WaterRippleModel waterRippleModel_;
         WaterViewModel waterViewModel_;
+#if defined(__ANDROID__)
+        RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::Mobile();
+#else
+        RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::Full();
+#endif
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;

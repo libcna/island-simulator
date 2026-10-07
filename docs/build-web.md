@@ -119,7 +119,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,814,075 bytes uncompressed and 2,499,452 bytes through gzip, a 71.6% transfer reduction. These
+8,822,395 bytes uncompressed and 2,502,963 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

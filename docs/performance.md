@@ -1501,13 +1501,41 @@ Afterward the emulator was stopped, the 18,750,124-byte arm64-only APK and its 1
 stripped `libmain.so` were restored, linted, ABI/signature-checked, and the reproducible x86_64
 intermediates were removed. The compact logs and screenshots remain as qualification evidence.
 
+### Android mobile quality default
+
+`RuntimeQualityProfile` now makes the Android default explicit and testable instead of relying on
+the full desktop distances by accident. It preserves all populations, simulations, shaders,
+42-blade near-grass geometry, the 143,624-byte generated texture inventory, and the complete
+six-source audio ceiling. It reduces grass maximum range from 135 to 112 m, contact-shadow ranges
+to 72%, wildlife maximum draw ranges to 82%, and the ocean grid from 160 to 128 quads per axis.
+The latter changes the one ocean mesh from 25,921 vertices/51,200 triangles to 16,641/32,768, a
+36% triangle reduction with the same world extent, shader, shoreline ribbon, and interactions.
+
+The full-profile fixed grass view reports 2,827 visible clusters and 27 contact shadows. The
+mobile-profile version on the API 35 `Medium_Phone` KVM/gfxstream AVD reports 2,222 clusters and
+16 shadows while retaining 957 near clusters, the exact same 42-blade mesh, and clean translucent
+touch controls. The overlay-free 2400 by 1080 capture was visually inspected. Its logical
+backbuffer remained 1280 by 720, `OPENGLES3` reached first draw in 2703.072 ms, and no fatal,
+shader, or `GL_INVALID_OPERATION` diagnostic appeared. These counts demonstrate bounded work;
+the timing remains functional translated-host evidence rather than a physical-device performance
+or thermal claim.
+
+The runtime rejects invalid profiles and resource inventories exceeding the selected texture or
+audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the exact reduced
+mesh counts. Native smoke/capture output confirms the full profile, while the complete 23-stage
+Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
+restored arm64-only APK is
+18,757,052 bytes with a 15,946,768-byte stripped `libmain.so`; lint reports no issues and APK
+signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
+Android tree from 2.4 GiB to 1.3 GiB.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,549,197 bytes (2,439,244
-gzip). The complete transfer payload therefore falls from 8,814,075 to 2,499,452 bytes, a measured
+gzip), JavaScript is 263,453 bytes (59,114 gzip), and WebAssembly is 8,556,884 bytes (2,442,705
+gzip). The complete transfer payload therefore falls from 8,822,395 to 2,502,963 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

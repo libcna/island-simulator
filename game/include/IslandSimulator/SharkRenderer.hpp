@@ -24,7 +24,8 @@ namespace island
         static constexpr int NearVertexCount = 51;
         static constexpr int FarVertexCount = 15;
 
-        explicit SharkRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device);
+        explicit SharkRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                               float maximumDistance = 710.0f);
         ~SharkRenderer();
 
         SharkRenderer(const SharkRenderer&) = delete;
@@ -49,5 +50,6 @@ namespace island
         bool visible_ = false;
         bool nearLod_ = false;
         int drawCallCount_ = 0;
+        float maximumDistance_ = 710.0f;
     };
 }

@@ -46,6 +46,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       │       └── MonkeyRenderer ─ generated rig/mesh/clips and portable CNA GPU skinning
       ├── WildlifeActivationPolicy ─ shared full/reduced/dormant update cadence
       ├── ProceduralMeshValidation ─ renderer-independent 16-bit triangle upload gate
+      ├── RuntimeQualityProfile ── centralized full/mobile distance and resource policy
       ├── SkyRenderer ──────── fixed gradient, sun disc, high clouds, and stock-effect fallback
       ├── OceanRenderer ────── portable animated water shader and stock-effect fallback
       ├── ShorelineRenderer ── exact-coast foam/wash ribbon and stock-effect fallback
@@ -70,7 +71,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 `JungleLayout`,
 `NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `AquaticLightingModel`,
 `SharkPatrol`, `MonkeyTroop`,
-`WildlifeActivationPolicy`, `ProceduralMeshValidation`, `TouchControls`, and
+`WildlifeActivationPolicy`, `ProceduralMeshValidation`, `RuntimeQualityProfile`, `TouchControls`, and
 `SoundscapeModel`, `AudioAnalysis`, and `WorldIdentity` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.
 `IslandGame` maps CNA keyboard snapshots into `FirstPersonDigitalInput`; the renderer-independent
@@ -602,7 +603,9 @@ vertex array with a subsystem-labelled exception. This covers terrain, water, sk
 jungle plants, natural props, and every monkey mesh. It runs once during content construction, not
 in the frame loop, and its valid and malformed boundaries are host-tested without a graphics device.
 
-The ocean is a 160 by 160 quad grid drawn after opaque geometry. `OceanRenderer` supplies explicit
+The ocean uses a runtime-selected regular grid drawn after opaque geometry: 160 by 160 quads for
+Linux/Web and 128 by 128 quads for the Android mobile profile. Both grids cover the same 850 m
+half-extent and pass the shared unsigned 16-bit index validation. `OceanRenderer` supplies explicit
 GLSL 330 and GLSL ES 300 variants through CNA's public portable shader-package extension. The
 shader combines vertex waves, analytic fragment normals, Fresnel sky response, sun glint,
 depth-driven tropical colour/transparency, moving foam, haze, two thin movement-driven ripple
@@ -631,6 +634,16 @@ Native OpenGL 3.3 compiles the current shader object, while actual Chrome/WebGL 
 KVM-accelerated API 35 Android GLES3 surface visibly render the full transition-burst,
 sunward-crest, and grazing-reflection paths. The operator-visible native process intentionally
 remains on its prior linked build until it closes. Physical mobile-GPU profiling remains open.
+
+`RuntimeQualityProfile` is the single game-owned quality-policy boundary. Linux and Web select the
+full profile; Android selects the mobile profile at compile time. Renderer constructors receive
+explicit values rather than consulting platform macros: grass culls beyond 112 m instead of
+135 m, contact-shadow distances scale to 72%, wildlife maximum draw distances scale to 82%, and
+the ocean uses 128 rather than 160 quads per axis. Near grass remains the same 42-blade mesh,
+wildlife populations and simulations remain intact, and every visual shader path is shared. The
+profile also enforces the existing 143,624-byte generated-texture inventory against a 160 KiB
+ceiling and preserves the bounded six-source soundscape. Invalid profiles or resource-budget
+overruns fail during content creation with actionable diagnostics.
 
 `ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
 ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and

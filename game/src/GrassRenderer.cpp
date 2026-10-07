@@ -15,6 +15,7 @@
 #include <exception>
 #include <iostream>
 #include <numbers>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -52,7 +53,6 @@ namespace island
     namespace
     {
         constexpr float LayoutExtent = 300.0f;
-        constexpr float FarDistance = 135.0f;
         constexpr int NearBladeCount = 42;
         constexpr int MiddleBladeCount = 10;
         constexpr int FarBladeCount = 5;
@@ -507,9 +507,13 @@ void main()
     }
 
     GrassRenderer::GrassRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
-                                 const GrassLayout& layout)
-        : device_(device)
+                                 const GrassLayout& layout,
+                                 const float maximumDrawDistance)
+        : device_(device), maximumDrawDistance_(maximumDrawDistance)
     {
+        if (!std::isfinite(maximumDrawDistance_) || maximumDrawDistance_ <= 0.0f) {
+            throw std::invalid_argument("Grass maximum draw distance must be finite and positive");
+        }
         fallbackEffect_ = std::make_unique<BasicEffect>(device_);
         fallbackEffect_->setVertexColorEnabledProperty(true);
         fallbackEffect_->setLightingEnabledProperty(false);
@@ -741,7 +745,7 @@ void main()
             const float deltaX = centre.X - cameraPosition.X;
             const float deltaZ = centre.Z - cameraPosition.Z;
             const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
-            if (distanceSquared > FarDistance * FarDistance) {
+            if (distanceSquared > maximumDrawDistance_ * maximumDrawDistance_) {
                 continue;
             }
             ++visibleCellCount_;

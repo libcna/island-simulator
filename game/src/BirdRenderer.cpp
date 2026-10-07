@@ -6,6 +6,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 #include <string_view>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -30,7 +31,6 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 255.0f;
-        constexpr float MaximumDistance = 690.0f;
         constexpr int MaximumVerticesPerBird = 54;
         constexpr int MaximumVertexCount = static_cast<int>(BirdFlock::BirdCount)
             * MaximumVerticesPerBird;
@@ -178,13 +178,17 @@ namespace island
         }
     }
 
-    BirdRenderer::BirdRenderer(GraphicsDevice& device)
+    BirdRenderer::BirdRenderer(GraphicsDevice& device, const float maximumDistance)
         : device_(device),
           effect_(std::make_unique<BasicEffect>(device)),
           vertices_(std::make_unique<DynamicVertexBuffer>(
               device, VertexPositionColor::getVertexDeclarationStatic(), MaximumVertexCount,
-              BufferUsage::WriteOnly))
+              BufferUsage::WriteOnly)),
+          maximumDistance_(maximumDistance)
     {
+        if (!std::isfinite(maximumDistance_) || maximumDistance_ <= 0.0f) {
+            throw std::invalid_argument("Bird maximum draw distance must be finite and positive");
+        }
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(true);
@@ -212,7 +216,7 @@ namespace island
         for (const BirdState& bird : birds) {
             const Vector3 centre(bird.x, bird.y, bird.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
-            if (distanceSquared > MaximumDistance * MaximumDistance
+            if (distanceSquared > maximumDistance_ * maximumDistance_
                 || !frustum.Intersects(BoundingSphere(centre, bird.scale * 1.25f))) {
                 continue;
             }

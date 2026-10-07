@@ -86,8 +86,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,751,796-byte APK with a
-15,941,512-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The latest single-ABI arm64 debug qualification build produced an 18,757,052-byte APK with a
+15,946,768-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -265,6 +265,15 @@ reported `OPENGLES3`, the 1280 by 720 logical backbuffer, and 2937.204 ms total 
 first draw). No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. The emulator was
 stopped cleanly and the arm64-only package above was restored and linted. This proves translated
 GLES 3 composition, not physical-device cost or ergonomics.
+
+The current Android default selects the centralized `mobile` quality profile. Its platform-log
+marker records 112 m grass range, 72% contact-shadow range, 82% wildlife draw range, a 128 by 128
+ocean grid, 143,624/163,840 generated-texture bytes, and 6/6 permitted audio sources. A fixed
+close-grass KVM/gfxstream run passed the strict marker gate twice, reported `OPENGLES3` at the
+1280 by 720 logical backbuffer, and produced an inspected clean 2400 by 1080 capture. The second
+launch reached first draw in 2703.072 ms. The profile changes distant work only: the 42-blade near
+mesh, every wildlife population, every shader layer, textures, and complete soundscape remain.
+This is functional translated-host evidence, not a physical-device frame-time or thermal claim.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks

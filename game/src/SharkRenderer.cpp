@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -27,7 +28,6 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 240.0f;
-        constexpr float MaximumDistance = 710.0f;
         constexpr int MaximumVertexCount = SharkRenderer::NearVertexCount;
 
         struct PoseAxes
@@ -208,13 +208,17 @@ namespace island
         }
     }
 
-    SharkRenderer::SharkRenderer(GraphicsDevice& device)
+    SharkRenderer::SharkRenderer(GraphicsDevice& device, const float maximumDistance)
         : device_(device),
           effect_(std::make_unique<BasicEffect>(device)),
           vertices_(std::make_unique<DynamicVertexBuffer>(
               device, VertexPositionColor::getVertexDeclarationStatic(), MaximumVertexCount,
-              BufferUsage::WriteOnly))
+              BufferUsage::WriteOnly)),
+          maximumDistance_(maximumDistance)
     {
+        if (!std::isfinite(maximumDistance_) || maximumDistance_ <= 0.0f) {
+            throw std::invalid_argument("Shark maximum draw distance must be finite and positive");
+        }
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(true);
@@ -241,7 +245,7 @@ namespace island
         const Vector3 centre(shark.x, shark.y, shark.z);
         const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
         const BoundingFrustum frustum(view * projection);
-        if (distanceSquared > MaximumDistance * MaximumDistance
+        if (distanceSquared > maximumDistance_ * maximumDistance_
             || !frustum.Intersects(BoundingSphere(centre, shark.scale * 1.15f))) {
             return;
         }

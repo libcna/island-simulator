@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <numbers>
+#include <stdexcept>
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -134,7 +135,7 @@ namespace island
     ContactShadowRenderer::ContactShadowRenderer(
         GraphicsDevice& device, const IslandTerrain& terrain,
         const VegetationLayout& vegetation, const JungleLayout& jungle,
-        const NaturalPropLayout& naturalProps)
+        const NaturalPropLayout& naturalProps, const float maximumDistanceScale)
         : device_(device),
           terrain_(terrain),
           effect_(std::make_unique<BasicEffect>(device)),
@@ -142,8 +143,14 @@ namespace island
               device, VertexPositionColor::getVertexDeclarationStatic(),
               static_cast<int>(MaximumShadowCount(vegetation, jungle, naturalProps)
                                * static_cast<std::size_t>(VerticesPerShadow)),
-              BufferUsage::WriteOnly))
+              BufferUsage::WriteOnly)),
+          monkeyMaximumDistance_(MonkeyMaximumDistance * maximumDistanceScale)
     {
+        if (!std::isfinite(maximumDistanceScale) || maximumDistanceScale <= 0.0f
+            || maximumDistanceScale > 1.0f) {
+            throw std::invalid_argument(
+                "Contact-shadow distance scale must be finite and in (0, 1]");
+        }
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(false);
@@ -176,14 +183,14 @@ namespace island
 
         for (const PalmPlacement& palm : vegetation.Palms()) {
             cacheShadow(StaticShadowKind::Palm, palm.x, palm.y, palm.z,
-                        1.2f * palm.scale, PalmMaximumDistance,
+                        1.2f * palm.scale, PalmMaximumDistance * maximumDistanceScale,
                         shadowDirectionX, shadowDirectionZ,
                         0.95f * palm.scale, 0.48f * palm.scale,
                         0.20f * palm.scale, 44U);
         }
         for (const CanopyPlacement& tree : jungle.Canopy()) {
             cacheShadow(StaticShadowKind::Canopy, tree.x, tree.y, tree.z,
-                        1.5f * tree.scale, CanopyMaximumDistance,
+                        1.5f * tree.scale, CanopyMaximumDistance * maximumDistanceScale,
                         shadowDirectionX, shadowDirectionZ,
                         1.18f * tree.scale, 0.72f * tree.scale,
                         0.24f * tree.scale, 40U);
@@ -194,20 +201,20 @@ namespace island
             }
             const float footprint = std::max(rock.scaleX, rock.scaleZ);
             cacheShadow(StaticShadowKind::Rock, rock.x, rock.y, rock.z,
-                        footprint, PropMaximumDistance,
+                        footprint, PropMaximumDistance * maximumDistanceScale,
                         std::cos(rock.yawRadians), std::sin(rock.yawRadians),
                         0.78f * rock.scaleX, 0.68f * rock.scaleZ,
                         0.08f * footprint, 52U);
         }
         for (const FallenLogPlacement& log : naturalProps.FallenLogs()) {
             cacheShadow(StaticShadowKind::Wood, log.x, log.y, log.z,
-                        log.length * 0.55f, PropMaximumDistance,
+                        log.length * 0.55f, PropMaximumDistance * maximumDistanceScale,
                         std::cos(log.yawRadians), std::sin(log.yawRadians),
                         log.length * 0.52f, log.radius * 1.45f, 0.0f, 45U);
         }
         for (const DriftwoodPlacement& wood : naturalProps.Driftwood()) {
             cacheShadow(StaticShadowKind::Wood, wood.x, wood.y, wood.z,
-                        wood.length * 0.55f, PropMaximumDistance,
+                        wood.length * 0.55f, PropMaximumDistance * maximumDistanceScale,
                         std::cos(wood.yawRadians), std::sin(wood.yawRadians),
                         wood.length * 0.52f, wood.radius * 1.70f, 0.0f, 30U);
         }
@@ -303,7 +310,7 @@ namespace island
             for (const MonkeyState& monkey : monkeys) {
                 float fade = 0.0f;
                 if (!IsVisible(frustum, cameraPosition, monkey.x, monkey.y, monkey.z,
-                               0.85f * monkey.scale, MonkeyMaximumDistance, fade)) {
+                               0.85f * monkey.scale, monkeyMaximumDistance_, fade)) {
                     continue;
                 }
                 AppendTerrainEllipse(stagingVertices_, terrain_, monkey.x, monkey.z,

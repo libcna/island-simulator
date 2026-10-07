@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cmath>
+#include <stdexcept>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -27,7 +28,6 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 72.0f;
-        constexpr float MaximumDistance = 215.0f;
         constexpr int MaximumVerticesPerFish = FishRenderer::NearVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(FishSchools::FishCount)
             * MaximumVerticesPerFish;
@@ -211,13 +211,17 @@ namespace island
         }
     }
 
-    FishRenderer::FishRenderer(GraphicsDevice& device)
+    FishRenderer::FishRenderer(GraphicsDevice& device, const float maximumDistance)
         : device_(device),
           effect_(std::make_unique<BasicEffect>(device)),
           vertices_(std::make_unique<DynamicVertexBuffer>(
               device, VertexPositionColor::getVertexDeclarationStatic(), MaximumVertexCount,
-              BufferUsage::WriteOnly))
+              BufferUsage::WriteOnly)),
+          maximumDistance_(maximumDistance)
     {
+        if (!std::isfinite(maximumDistance_) || maximumDistance_ <= 0.0f) {
+            throw std::invalid_argument("Fish maximum draw distance must be finite and positive");
+        }
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(true);
@@ -244,7 +248,7 @@ namespace island
         for (const FishState& state : fish) {
             const Vector3 centre(state.x, state.y, state.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
-            if (distanceSquared > MaximumDistance * MaximumDistance
+            if (distanceSquared > maximumDistance_ * maximumDistance_
                 || !frustum.Intersects(BoundingSphere(centre, state.scale * 0.85f))) {
                 continue;
             }

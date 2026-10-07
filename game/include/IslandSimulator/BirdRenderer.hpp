@@ -22,7 +22,8 @@ namespace island
     class BirdRenderer final
     {
     public:
-        explicit BirdRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device);
+        explicit BirdRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                              float maximumDistance = 690.0f);
         ~BirdRenderer();
 
         BirdRenderer(const BirdRenderer&) = delete;
@@ -49,5 +50,6 @@ namespace island
         int visibleNearBirdCount_ = 0;
         int visibleFarBirdCount_ = 0;
         int drawCallCount_ = 0;
+        float maximumDistance_ = 690.0f;
     };
 }
