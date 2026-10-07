@@ -251,6 +251,7 @@ try {
     "island-simulator: jungle per-instance foliage tint reuses existing transforms",
     "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: near fallen logs use irregular broken end contours",
+    "island-simulator: rock per-instance tint reuses existing transforms",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
     "island-simulator: ocean grazing reflection bands reuse analytic slope field",
     "island-simulator: startup world ",

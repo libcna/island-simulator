@@ -72,7 +72,9 @@ silhouettes remain calm and avoid unnecessary fragment work. A fixed mean-sea-le
 darkens and cools their lowest near fragments so emergent outcrops no longer read as uniformly dry
 where they meet the water. Near-rock crown heights and asymmetric caps now break the former flat
 top line, while derivative-based fixed-sun facet shading makes the deliberately low-poly planes
-read clearly without another normal stream or draw.
+read clearly without another normal stream or draw. A restrained warm/cool tint derived from each
+existing instance transform varies neutral stone tones while preserving one identity across the
+near/far LOD and leaving wood and foliage colours unchanged.
 Nearby fallen logs use the same portable material path for gently irregular cut-end growth rings
 and longitudinal bark fissures. Both rock and wood detail fade out before their LOD transition.
 Sun-bleached driftwood adds a still softer near-only longitudinal weathering treatment. Its third
@@ -254,7 +256,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,493,211 bytes, 71.6% below the 8,790,279-byte
+a SHA-256 manifest. The current gzip payload is 2,493,652 bytes, 71.6% below the 8,791,455-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

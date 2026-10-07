@@ -328,6 +328,8 @@ try {
     && result.output?.includes(
       "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading")
     && result.output?.includes(
+      "island-simulator: rock per-instance tint reuses existing transforms")
+    && result.output?.includes(
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && result.output?.includes(
       "island-simulator: near fallen logs use irregular broken end contours")
@@ -499,6 +501,8 @@ try {
       "island-simulator: near low rocks use a fixed-sea-level wet material band")
     && visualResult.output?.includes(
       "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading")
+    && visualResult.output?.includes(
+      "island-simulator: rock per-instance tint reuses existing transforms")
     && visualResult.output?.includes("portable instanced wind shader")
     && visualResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
@@ -809,6 +813,8 @@ try {
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && propResult.output?.includes(
       "island-simulator: near fallen logs use irregular broken end contours")
+    && propResult.output?.includes(
+      "island-simulator: rock per-instance tint reuses existing transforms")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/13 logs/.test(
       propResult.output ?? "")
@@ -888,6 +894,8 @@ try {
       "island-simulator: near low rocks use a fixed-sea-level wet material band")
     && reefResult.output?.includes(
       "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading")
+    && reefResult.output?.includes(
+      "island-simulator: rock per-instance tint reuses existing transforms")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
     && !reefResult.error;
 

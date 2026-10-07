@@ -425,7 +425,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   reducing repeated foliage colour while preserving bark and near/far LOD identity without a new
   instance field, buffer, texture, or draw. Near rocks now break their former flat crown line
   through bounded positions on the existing rings/cap and derive matching fixed-sun facet light
-  without another normal stream, vertex, triangle, or draw. Near fallen logs now reuse their
+  without another normal stream, vertex, triangle, or draw. Their neutral stone-family colours
+  now also receive restrained warm/cool per-instance tint derived from existing scale/yaw
+  transform coefficients, preserving near/far LOD identity without another attribute, buffer,
+  texture, geometry, upload, or draw. Near fallen logs now reuse their
   existing end-ring/cap vertices for irregular non-planar broken contours while retaining topology,
   collision, far LOD, and draw count; further floor-plant/bush material
   diversity and broader natural beach-prop variety remain.
@@ -739,7 +742,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,790,279 bytes uncompressed and 2,493,211 bytes through
+  The current Release package is 8,791,455 bytes uncompressed and 2,493,652 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -801,7 +804,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
   requires renderer/first-frame/current-grass, near-seed-head, near-rock crown/facet, near-bird-
-  feather, ocean-crest, and grazing-reflection diagnostics, rejects fatal/shader errors, and records
+  feather, ocean-crest, grazing-reflection, and rock-tint diagnostics, rejects fatal/shader errors,
+  and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
@@ -1240,6 +1244,8 @@ Work next, in order:
    fixed-sea-level wet band only in their near LOD. Bounded upper-ring height offsets plus a taller
    asymmetric cap break the former flat crown, and derivative fixed-sun light reveals the existing
    planes without changing vertex/triangle counts, textures, instances, buffers, or submissions.
+   Their neutral stone tones now also use transform-derived per-instance warm/cool tint with stable
+   near/far identity and no new instance data or submission.
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
@@ -5186,6 +5192,37 @@ Work next, in order:
   cache, contains only `arm64-v8a`, verifies with APK signature scheme v2, is 18,734,196 bytes, and
   contains a 15,923,912-byte stripped `libmain.so`. WebAssembly is 8,525,401 bytes; the
   deterministic Web package is 8,790,279 bytes or 2,493,211 bytes through gzip. Seven
+  renderer-independent/package gates pass. Build trees remain approximately 2.6 GiB native,
+  87 MiB Web, and 361 MiB Android with 374 GiB free; shared ccache is 3.7 GiB with 99.67 percent
+  cacheable calls. All builds used two workers or fewer; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Transform-derived per-instance rock tint
+
+- Current clearing and reef review found that repeated copies of each shared rock variant retained
+  one literal palette. The natural-prop vertex shader now selects neutral stone-family colours by
+  their existing relative RGB channel span and recombines four existing scale/yaw transform coefficients
+  into a bounded signed warm/cool tint. Red-dominant wood and green foliage remain outside the
+  mask, and the shared transform preserves one tint identity through near/far LOD.
+- The change adds only vertex arithmetic. It adds no attribute, instance stride, buffer, texture,
+  geometry, population, collision proxy, upload, culling rule, or draw submission. The OpenGL 3.3
+  object compiles through `/rv/cnaccache` with first-party warnings as errors but remains
+  deliberately unlinked while the operator-visible prior executable is open.
+- The complete Chrome 152/SwiftShader WebGL 2 suite passes 22/22 with the exact marker required in
+  lifecycle, overview, prop, and reef gates. Original-resolution before/after prop and reef frames
+  were inspected; the retained result adds a restrained warm/olive stone identity without changing
+  the fixed log material. The fifteenth clean Firefox ESR 140.15 run independently compiles the
+  GLSL ES 300 path and retains production input/audio, tab-resume, jungle, and water gates; first
+  draw was 304 ms total.
+- A fixed-reef x86_64 APK passed the strict KVM 12/host-gfxstream GLES 3 plus audio gate with the
+  exact tint marker. Its inspected 2400 by 1080 frame reports `OPENGLES3`, the 1280 by 720 logical
+  viewport, and visibly retains the warm/olive rock tone, facet light, wet band, and translucent
+  touch controls. First draw completed in 1604.367 ms without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics. This is functional translated-host evidence, not physical-
+  device performance qualification.
+- The emulator was stopped cleanly. The restored arm64-only APK builds/lints through the shared
+  cache, contains only `arm64-v8a`, verifies with APK signature scheme v2, is 18,735,316 bytes, and
+  contains a 15,925,032-byte stripped `libmain.so`. WebAssembly is 8,526,577 bytes; the
+  deterministic Web package is 8,791,455 bytes or 2,493,652 bytes through gzip. Seven
   renderer-independent/package gates pass. Build trees remain approximately 2.6 GiB native,
   87 MiB Web, and 361 MiB Android with 374 GiB free; shared ccache is 3.7 GiB with 99.67 percent
   cacheable calls. All builds used two workers or fewer; CNA and Sharp Runtime stayed read-only.

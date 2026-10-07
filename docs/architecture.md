@@ -439,7 +439,11 @@ planar circular cuts become spatially closed irregular broken contours. Vertex/i
 material selection, instances, collision proxies, far LOD, and submissions are unchanged. The near
 rock's existing seven crown rings keep the same topology,
 but bounded per-slice height offsets and a taller asymmetric cap break the former flat top line.
-Its 110 vertices and 192 triangles per shared variant remain unchanged.
+Its 110 vertices and 192 triangles per shared variant remain unchanged. The vertex shader also
+uses the existing relative neutral colour span to select stone-family vertices and recombines four existing
+scale/yaw transform coefficients into a stable bounded warm/cool tint. This applies consistently
+to near and far rock meshes without another attribute, buffer, texture, geometry, upload, or draw;
+the colour-span mask leaves red-dominant wood and green foliage unchanged.
 The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and
 driftwood then enforce maximum range and select near/far geometry from their actual instance
 position, preventing early switches at cell boundaries. Three non-solid driftwood pieces use the

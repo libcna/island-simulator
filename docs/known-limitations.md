@@ -21,7 +21,9 @@ been confirmed so far.
   their existing 28 leaflets. The third near driftwood variant adds a curved three-limb fork
   instead of another simple branch stub; near fallen-log end rings now form irregular non-planar
   broken contours instead of perfectly circular planar cuts without changing topology or the far
-  LOD; and three existing silhouettes form a first authored non-solid landmark in one cove. Rocks,
+  LOD; neutral stone tones now receive restrained transform-derived warm/cool per-instance
+  variation with stable near/far identity; and three existing silhouettes form a first authored
+  non-solid landmark in one cove. Rocks,
   logs, and driftwood now also choose range/LOD per instance. Bush
   material diversity, additional ground-plant material diversity, broader shell/wrack/branch/beach-prop
   variety, richer mid-distance scenery, wet

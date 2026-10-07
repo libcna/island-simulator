@@ -1373,13 +1373,34 @@ that one translated-host startup figure is functional evidence rather than a sus
 cost or physical-device result. The OpenGL 3.3 object compiles with warnings as errors; current
 native appearance awaits relinking after the operator-visible prior process closes.
 
+### Transform-derived rock-tint follow-up
+
+The current clearing and reef review found that repeated copies of each shared rock variant still
+used one literal vertex palette. The natural-prop vertex shader now identifies neutral stone-family
+colours by their existing relative RGB channel span and hashes four scale/yaw coefficients already present
+in every instance transform. A bounded signed tint shifts red/blue in opposite directions with a
+smaller green change, producing restrained warm/cool variation. The same transform preserves tint
+identity across near/far LOD, while red-dominant wood and green foliage remain outside the mask.
+This adds only vertex arithmetic: no attribute, instance stride, buffer, texture, geometry,
+population, collision proxy, upload, culling rule, or draw submission changes.
+
+Original-resolution before/after reef and prop frames were inspected; the accepted result adds a
+subtle warm/olive rock identity without contaminating the fixed log view. The complete Chrome
+suite passes 22/22 with exact lifecycle/overview/prop/reef gates, and a fifteenth clean Firefox
+ESR run independently compiles the path while retaining its production input/audio/tab-resume/
+jungle/water checks. A fixed-reef x86_64 KVM/gfxstream GLES 3 launch passed the same marker and
+strict audio gate; its inspected frame matches the WebGL result and reached first draw in
+1604.367 ms total. These checks qualify portable function and composition, not sustained or
+physical-mobile GPU cost. The OpenGL 3.3 object compiles with warnings as errors; current native
+appearance awaits relinking after the operator-visible prior process closes.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,525,401 bytes (2,433,008
-gzip). The complete transfer payload therefore falls from 8,790,279 to 2,493,211 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,526,577 bytes (2,433,447
+gzip). The complete transfer payload therefore falls from 8,791,455 to 2,493,652 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

@@ -57,6 +57,8 @@ namespace island
         constexpr float FallenFrondMaximumDistance = 76.0f;
         constexpr std::string_view RockFacetDiagnostic =
             "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading";
+        constexpr std::string_view RockTintDiagnostic =
+            "island-simulator: rock per-instance tint reuses existing transforms";
         constexpr std::string_view FallenLogEndDiagnostic =
             "island-simulator: near fallen logs use irregular broken end contours";
         constexpr std::string_view FallenFrondDiagnostic =
@@ -87,7 +89,20 @@ void main()
 {
     mat4 instanceTransform = mat4(aInstance0, aInstance1, aInstance2, aInstance3);
     vec4 world = instanceTransform * vec4(aPosition, 1.0);
-    vColor = aColor.rgb;
+    // Neutral stone is identifiable from the existing vertex colour, including the far LOD.
+    // Reuse scale/yaw coefficients as a stable per-placement seed so copies of one rock mesh
+    // gain restrained warm/cool variation without another instance attribute or draw.
+    float tintSeed = fract(abs(aInstance0.x * 1.73 + aInstance0.z * 2.41
+        + aInstance2.x * 3.29 + aInstance2.z * 4.17));
+    float signedTint = tintSeed - 0.5;
+    float colorMaximum = max(aColor.r, max(aColor.g, aColor.b));
+    float colorMinimum = min(aColor.r, min(aColor.g, aColor.b));
+    float relativeChroma = (colorMaximum - colorMinimum) / max(colorMaximum, 0.0001);
+    float stoneMask = 1.0 - smoothstep(0.28, 0.34, relativeChroma);
+    vec3 stoneTint = vec3(1.0 + signedTint * 0.12,
+                          1.0 + signedTint * 0.055,
+                          1.0 - signedTint * 0.10);
+    vColor = aColor.rgb * mix(vec3(1.0), stoneTint, stoneMask);
     vLocal = aPosition;
     vWorld = world.xyz;
     vMaterialDetail = aColor.a;
@@ -958,6 +973,8 @@ void main()
             std::cout << "island-simulator: near low rocks use a fixed-sea-level wet material band\n";
             std::cout << RockFacetDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(RockFacetDiagnostic);
+            std::cout << RockTintDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(RockTintDiagnostic);
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             std::cout << FallenLogEndDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenLogEndDiagnostic);
