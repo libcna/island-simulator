@@ -722,7 +722,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   output and genuine tab background/foreground
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive. Firefox ESR 140.15 now
   independently passes the production first frame, trusted-click pointer lock, 44.1 kHz audio
-  initialization, both persistent Shift edges, forward traversal/footstep, and Escape release.
+  initialization, both persistent Shift edges, forward traversal/footstep, Escape release,
+  delayed pointer-lock reacquisition, and responsive 16:9 sizing.
 - [x] Package runtime assets for Web with useful missing-asset diagnostics. The current game has
   no file-backed runtime asset: geometry, shaders, small textures, font, animation, and PCM are
   generated from compiled project code. The deployable package therefore intentionally contains
@@ -1273,10 +1274,12 @@ Work next, in order:
    close-grass, jungle, water, monkey, bird, and wet-reef views on GLES3. Simultaneous real-finger
    ergonomics, swimming, external audio focus, process
    death, thermals, and physical mobile-GPU performance remain open.
-6. Perform a visible hardware-accelerated Web listening/play pass and genuine tab
-   background/foreground test; automated first-gesture audio initialization is complete. The
-   headless Chrome freeze/active probe remains diagnostic-only because the latest passing input
-   run did not emit a post-resume game sample even after a three-second allowance.
+6. Perform a visible hardware-accelerated Web listening/play pass, fullscreen pass, and genuine
+   tab background/foreground test; automated first-gesture audio initialization is complete.
+   Firefox ESR now independently passes the production first frame, essential input/audio path,
+   responsive 16:9 sizing, Escape release, and delayed pointer-lock reacquisition. The headless
+   Chrome freeze/active probe remains diagnostic-only because the latest passing input run did not
+   emit a post-resume game sample even after a three-second allowance.
 7. Observe the irregular faceted palm roots and fuller segmented-leaflet versus widened-ribbon
    125--145 m transition during traversal and on physical mobile hardware. Current close-palm
    evidence justified widening only the existing leaflet root chords; the close-root,
@@ -4988,10 +4991,10 @@ Work next, in order:
   WebDriver BiDi endpoint; Firefox is capped to CPU cores 0--7. Bounded cleanup closes the session,
   terminates both child processes, and removes the profile on success or failure. `ISLAND_FIREFOX`
   supports installations named `firefox` rather than `firefox-esr`.
-- Three clean Firefox ESR 140.15 runs passed on current source. The gate requires `WEBGL2`, the 1280
+- Five clean Firefox ESR 140.15 runs passed on current source. The gate requires `WEBGL2`, the 1280
   by 720 logical viewport, first-draw/visible-scene diagnostics and current clearing/ocean shader
   paths. Firefox reported `WebGL 2.0` on a `Radeon R9 200 Series, or similar` backend; first draw
-  completed in 310--360 ms total across the three tool runs. These are functional local-load
+  completed in 299--360 ms total across the five tool runs. These are functional local-load
   values, not network, sustained-frame, or portable hardware benchmarks.
 - The trusted production-canvas click acquired pointer lock and initialized the full 44.1 kHz
   audio resource path. A released Shift edge selected persistent 8.0 m/s running, forward movement
@@ -5000,12 +5003,24 @@ Work next, in order:
   retains the world plus the warm-gold `RUN MODE  8.0 M/S` confirmation. No fatal or shader
   diagnostic appeared.
 - The complete 22-stage Chrome/SwiftShader matrix remains authoritative for all fixed scenes,
-  simultaneous mouse look, resize, clipboard, shoreline audio, and pointer-lock reacquisition.
-  Firefox currently qualifies only the production first-frame and essential input/audio subset;
-  visible interactive listening, fullscreen, real tab lifecycle, and broader Firefox coverage stay
-  open. Added `/.aws` to `.gitignore` because the managed sandbox exposes that name as an
+  simultaneous mouse look, clipboard, and shoreline audio. Firefox qualifies the production
+  first-frame and essential input/audio subset plus responsive sizing and pointer-lock
+  reacquisition; visible interactive listening, fullscreen, real tab lifecycle, simultaneous
+  mouse look, and broader Firefox scene coverage stay open. Added `/.aws` to `.gitignore` because
+  the managed sandbox exposes that name as an
   environment-owned read-only credential mount, preventing it from appearing as project content.
   CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Firefox responsive-shell and pointer reacquisition follow-up
+
+- Extended the dependency-free Firefox gate through the production page's responsive shell. A
+  1000 by 600 browser viewport retains the 1280 by 720 render backing store and presents a 1000 by
+  563 client canvas, preserving 16:9 without overflow or distortion.
+- Firefox released pointer lock on Escape, reacquired it from a delayed trusted click without a
+  reload, and released the reacquired lock on a second Escape. The fifth clean current-source run
+  passes every earlier renderer, audio, persistent-Shift, traversal, footstep, and screenshot gate
+  plus these new assertions. Fullscreen, real tab suspension/resume, visible listening, sustained
+  frame pacing, and the complete second-engine scene matrix remain explicitly unqualified.
 
 ### 2026-10-07 — Web runtime-asset packaging closure
 

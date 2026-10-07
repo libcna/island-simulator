@@ -152,9 +152,10 @@ been confirmed so far.
   audio-mixer/track initialization coverage. Deterministic gzip packaging is validated by local
   hash/round-trip tests, but production CDN/server headers and hardware-browser cold-load time have
   not been qualified. Firefox ESR 140.15 separately passes a production-shell first-frame,
-  pointer-lock, Shift toggle, traversal/footstep, audio-start, and Escape-release gate through its
-  built-in WebDriver BiDi endpoint. Audible hardware-browser quality, genuine tab suspend/resume,
-  fullscreen, and broader Firefox interaction/scene coverage remain unverified.
+  pointer-lock/reacquisition, Shift toggle, traversal/footstep, audio-start, Escape-release, and
+  responsive-sizing gate through its built-in WebDriver BiDi endpoint. Audible hardware-browser
+  quality, genuine tab suspend/resume, fullscreen, and broader Firefox interaction/scene coverage
+  remain unverified.
 - Android arm64-v8a and x86_64 APKs build, and a KVM-accelerated API 35 x86_64 AVD renders the
   complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a
   same-process hot resume, AAudio pause/resume, and fixed beach, close-grass, jungle, water,

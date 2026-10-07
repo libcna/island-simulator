@@ -146,6 +146,22 @@ try {
   const performKeyActions = async (context, actions) => bidiCommand(
     "input.performActions",
     { context, actions: [{ type: "key", id: "keyboard", actions }] });
+  const performPointerClick = async (context, x, y) => bidiCommand(
+    "input.performActions",
+    {
+      context,
+      actions: [{
+        type: "pointer",
+        id: "mouse",
+        parameters: { pointerType: "mouse" },
+        actions: [
+          { type: "pointerMove", x, y, duration: 0 },
+          { type: "pointerDown", button: 0 },
+          { type: "pause", duration: 80 },
+          { type: "pointerUp", button: 0 },
+        ],
+      }],
+    });
   const waitForOutput = async (context, marker, attempts = 120) => {
     let output = "";
     for (let attempt = 0; attempt < attempts; ++attempt) {
@@ -196,20 +212,7 @@ try {
   }
   await capture(context, "island-firefox-esr.png");
 
-  await bidiCommand("input.performActions", {
-    context,
-    actions: [{
-      type: "pointer",
-      id: "mouse",
-      parameters: { pointerType: "mouse" },
-      actions: [
-        { type: "pointerMove", x: 640, y: 360, duration: 0 },
-        { type: "pointerDown", button: 0 },
-        { type: "pause", duration: 80 },
-        { type: "pointerUp", button: 0 },
-      ],
-    }],
-  });
+  await performPointerClick(context, 640, 360);
   await delay(300);
   const pointerLocked = await evaluate(
     context, "document.pointerLockElement === document.getElementById('canvas')");
@@ -248,6 +251,55 @@ try {
     context, "document.pointerLockElement === document.getElementById('canvas')");
   if (!pointerReleased) throw new Error("Firefox Escape did not release pointer lock");
 
+  await bidiCommand("browsingContext.setViewport", {
+    context,
+    viewport: { width: 1000, height: 600 },
+    devicePixelRatio: 1,
+  });
+  await delay(300);
+  const resizedState = JSON.parse(await evaluate(context, `JSON.stringify((() => {
+    const canvas = document.getElementById("canvas");
+    return {
+      width: canvas.width,
+      height: canvas.height,
+      clientWidth: canvas.clientWidth,
+      clientHeight: canvas.clientHeight
+    };
+  })())`));
+  const backingAspect = resizedState.width / resizedState.height;
+  const clientAspect = resizedState.clientWidth / resizedState.clientHeight;
+  const responsiveSizing = Math.abs(backingAspect - 16 / 9) < 0.01
+    && Math.abs(clientAspect - 16 / 9) < 0.01
+    && resizedState.clientWidth <= 1000
+    && resizedState.clientHeight <= 600
+    && (resizedState.clientWidth === 1000 || resizedState.clientHeight === 600);
+  if (!responsiveSizing) {
+    throw new Error(`Firefox production canvas lost 16:9 sizing: ${JSON.stringify(resizedState)}`);
+  }
+
+  // Firefox applies a short pointer-lock cooldown after Escape. A delayed real click must still
+  // reacquire control without reloading the production page.
+  await delay(700);
+  await performPointerClick(context, 500, 281);
+  await delay(300);
+  const pointerRelocked = await evaluate(
+    context, "document.pointerLockElement === document.getElementById('canvas')");
+  if (!pointerRelocked) {
+    throw new Error("Firefox did not reacquire pointer lock after Escape and a delayed click");
+  }
+  await performKeyActions(context, [
+    { type: "keyDown", value: "\uE00C" },
+    { type: "pause", duration: 80 },
+    { type: "keyUp", value: "\uE00C" },
+  ]);
+  await delay(150);
+  const pointerReleasedAfterRelock = !await evaluate(
+    context, "document.pointerLockElement === document.getElementById('canvas')");
+  if (!pointerReleasedAfterRelock) {
+    throw new Error("Firefox Escape did not release reacquired pointer lock");
+  }
+
+  output = await evaluate(context, "globalThis.islandDeploymentOutput || ''");
   const fatalDiagnostic = /fatal error|shader.*(?:failed|error)/i.test(output);
   if (fatalDiagnostic) throw new Error("Firefox emitted a fatal or shader diagnostic");
   const report = {
@@ -257,6 +309,10 @@ try {
     firstFrameQualified: true,
     pointerLocked,
     pointerReleased,
+    pointerRelocked,
+    pointerReleasedAfterRelock,
+    responsiveSizing,
+    resizedState,
     audioInitialized,
     runEnabled,
     runDisabled: true,
