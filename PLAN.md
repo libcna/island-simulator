@@ -348,8 +348,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   authoritative vegetation-reserved corridor, with short grass retained over it and the wider
   walking reservation left unchanged. The two shared authored clearing
   definitions now drive distinct warm-dry and darker leaf-rich surface treatments. Five authored
-  rocks and one fallen log add a first natural landmark composition around their outer rings while
-  retaining open centres. Authored biome masks, richer landmarks, decals, broader litter diversity,
+  rocks and one fallen log in each clearing add a natural landmark composition around their outer
+  rings while retaining open centres. Authored biome masks, richer landmarks, decals, broader litter diversity,
   and final colour/scale tuning remain.
 - [~] Break the island silhouette with rocks, palms, shallow banks, and small offshore features.
   Fourteen deterministic emergent outcrops now interrupt the shallow-water perimeter. Five
@@ -403,7 +403,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
   sparse natural beach props. The first layer now provides 281 four-variant canopy trees and 1,822
   four-variant fern/large-leaf plants, 565 three-variant low bushes, 2,225 three-variant
-  forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 12 fallen logs, 31 three-variant
+  forest-floor plants, 157 land rocks, 14 emergent reef outcrops, 13 fallen logs, 31 three-variant
   driftwood pieces including a three-piece authored cove arc, 63 grove-associated fallen palm
   fronds, and 265 four-variant shell/pebble/dry-wrack
   clusters. The fourth beach-detail variant now uses low curved dry-wrack strands instead of
@@ -705,8 +705,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,762,601 bytes uncompressed and 2,484,224 bytes through
-  deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
+  The current Release package is 8,763,458 bytes uncompressed and 2,484,397 bytes through
+  deterministic gzip, a measured 71.7% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
@@ -1190,8 +1190,8 @@ Work next, in order:
    jungle-floor gaps. The vegetation-reserved primary corridor now has a subtle shared broken-edge
    dry-earth material cue under its short grass. The east/west clearings now share their placement,
    QA, and distinct warm-dry/leaf-rich terrain definitions. Five authored rocks and one fallen log
-   now give their outer rings different natural silhouettes while preserving the central walking
-   room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
+   in each clearing now give their outer rings different natural silhouettes while preserving the
+   central walking room. Three spaced non-solid driftwood pieces now use all existing silhouettes as a landmark
    arc in one sheltered cove; broader landmark variety, prop diversity, contact cues, authored
    biome variation, and material tuning remain.
    The portable near-surface swimming veil now adds depth haze and restrained upper-surface
@@ -4510,6 +4510,26 @@ Work next, in order:
 - Reconfigured the pinned OpenGL 3.3 build with `/rv/cnaccache` active and ran the new test through
   an isolated X11 display. It passes in 1.45 seconds. No executable relink was required, so the
   operator-visible game remained open. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — East-clearing fallen-log landmark
+
+- Original-resolution clearing review showed that the east room was visually sparse relative to
+  the west room. Added one 7.1 m cut-ended log to the east clearing's outer ring, reusing an
+  existing mesh variant, shader, LOD, culling, instancing, contact-shadow, and collision path.
+- The first actual WebGL 2 capture placed the log nearly broadside and made it read as a horizontal
+  beam. Rotated it into the view depth while retaining a visible cut end. The final east frame is
+  compositionally balanced, and the central walking room remains open.
+- The deterministic world now has 13 fallen logs, 827 static proxies, 482 occupied collision
+  cells, and fingerprint `56f46a1dd86ebf89`. Core tests prove both authored log footprints remain
+  in their respective clearings and outside the central room. No mesh, texture, shader, allocation
+  class, render pass, or draw submission was added.
+- The actual Chrome 152/SwiftShader suite passes all 22 stages and the east/west frames were
+  inspected. A bounded overlay-ready wait was raised from 5 to 20 seconds after one slow reef
+  startup exposed a harness race; the required diagnostic was not weakened. The two-worker arm64
+  GLES 3 build/lint and APK v2 verification pass. WebAssembly is 8,498,615 bytes; the APK is
+  18,712,004 bytes with a 15,901,720-byte stripped library. The verified Web package is 8,763,458
+  bytes uncompressed and 2,484,397 bytes through gzip. Physical-device appearance and cost remain
+  unqualified; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

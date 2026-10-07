@@ -86,7 +86,7 @@ namespace island
         static constexpr int BeachDetailVariantCount = 4;
         static constexpr int FallenFrondVariantCount = 3;
         static constexpr int AuthoredClearingRockCount = 5;
-        static constexpr int AuthoredClearingLogCount = 1;
+        static constexpr int AuthoredClearingLogCount = 2;
         static constexpr int AuthoredCoveDriftwoodCount = 3;
         static constexpr float AuthoredCoveAngle = -2.35f;
         static constexpr float RockMinimumScale = 0.48f;

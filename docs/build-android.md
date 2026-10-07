@@ -49,9 +49,9 @@ stature, and a sparse juvenile underlayer in the instanced mesh grass,
 segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
 157 land rocks and 14 emergent reef outcrops with near-only strata/lichen plus a low fixed-sea-level
-wet band, 12 fallen logs, 31 sparse beach-driftwood pieces with a three-limb forked near variant,
+wet band, 13 fallen logs, 31 sparse beach-driftwood pieces with a three-limb forked near variant,
 an authored three-piece cove arc, and per-instance large-prop range/LOD, 63 fallen palm
-fronds, 265 near-field shell/pebble/dry-wrack clusters, including a five-rock/one-log authored
+fronds, 265 near-field shell/pebble/dry-wrack clusters, including a five-rock/two-log authored
 clearing-landmark composition, 24 simulated
 procedural birds with slow radial route drift, banked turns, and intermittent glides, eight fish schools,
 with depth-following pitch, banked turns, forked tails, 51/12-vertex CPU-lit near/far geometry,
@@ -74,8 +74,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,711,460-byte APK with a
-15,901,176-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,712,004-byte APK with a
+15,901,720-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular

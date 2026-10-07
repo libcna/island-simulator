@@ -308,32 +308,48 @@ namespace island
             }
         }
 
-        FallenLogPlacement clearingLog;
-        clearingLog.x = VegetationLayout::WestClearing.x + 12.0f;
-        clearingLog.z = VegetationLayout::WestClearing.z + 13.0f;
-        clearingLog.yawRadians = 2.38f;
-        clearingLog.length = 6.6f;
-        clearingLog.radius = 0.38f;
-        clearingLog.variant = 2U;
-        clearingLog.clearingLandmark = true;
-        const float clearingLogDirectionX = std::cos(clearingLog.yawRadians);
-        const float clearingLogDirectionZ = std::sin(clearingLog.yawRadians);
-        float clearingLogSupportHeight = terrain.Height(clearingLog.x, clearingLog.z);
-        for (int sampleIndex = 0; sampleIndex < LogCollisionSamples; ++sampleIndex) {
-            const float t = static_cast<float>(sampleIndex)
-                / static_cast<float>(LogCollisionSamples - 1) - 0.5f;
-            const float sampleX = clearingLog.x
-                + clearingLogDirectionX * clearingLog.length * t;
-            const float sampleZ = clearingLog.z
-                + clearingLogDirectionZ * clearingLog.length * t;
-            clearingLogSupportHeight = std::max(
-                clearingLogSupportHeight, terrain.Height(sampleX, sampleZ));
-            obstacles_.push_back(CircularObstacle{
-                sampleX, sampleZ, clearingLog.radius * 0.92f});
+        struct AuthoredClearingLog
+        {
+            const ClearingDefinition* clearing;
+            float offsetX;
+            float offsetZ;
+            float yawRadians;
+            float length;
+            float radius;
+            std::uint8_t variant;
+        };
+        constexpr std::array clearingLogs{
+            AuthoredClearingLog{&VegetationLayout::WestClearing,
+                                12.0f, 13.0f, 2.38f, 6.6f, 0.38f, 2U},
+            AuthoredClearingLog{&VegetationLayout::EastClearing,
+                                -22.0f, -7.0f, 2.55f, 7.1f, 0.42f, 1U},
+        };
+        static_assert(clearingLogs.size() == AuthoredClearingLogCount);
+        for (const AuthoredClearingLog& authored : clearingLogs) {
+            FallenLogPlacement log;
+            log.x = authored.clearing->x + authored.offsetX;
+            log.z = authored.clearing->z + authored.offsetZ;
+            log.yawRadians = authored.yawRadians;
+            log.length = authored.length;
+            log.radius = authored.radius;
+            log.variant = authored.variant;
+            log.clearingLandmark = true;
+            const float directionX = std::cos(log.yawRadians);
+            const float directionZ = std::sin(log.yawRadians);
+            float maximumSupportHeight = terrain.Height(log.x, log.z);
+            for (int sampleIndex = 0; sampleIndex < LogCollisionSamples; ++sampleIndex) {
+                const float t = static_cast<float>(sampleIndex)
+                    / static_cast<float>(LogCollisionSamples - 1) - 0.5f;
+                const float sampleX = log.x + directionX * log.length * t;
+                const float sampleZ = log.z + directionZ * log.length * t;
+                maximumSupportHeight = std::max(
+                    maximumSupportHeight, terrain.Height(sampleX, sampleZ));
+                obstacles_.push_back(CircularObstacle{
+                    sampleX, sampleZ, log.radius * 0.92f});
+            }
+            log.y = maximumSupportHeight + log.radius * 0.68f;
+            fallenLogs_.push_back(log);
         }
-        clearingLog.y = clearingLogSupportHeight + clearingLog.radius * 0.68f;
-        fallenLogs_.push_back(clearingLog);
-        static_assert(AuthoredClearingLogCount == 1);
 
         driftwood_.reserve(72U);
         for (int gridZ = -DriftwoodRadius; gridZ <= DriftwoodRadius; ++gridZ) {

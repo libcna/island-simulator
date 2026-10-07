@@ -697,6 +697,22 @@ view and 2.7827 ms mean / 3.4859 ms p95 over the 675.9635 m traversal. The opera
 shared the GPU, so these guard against a gross regression rather than establishing a new isolated
 baseline. Hardware-browser and physical-Android cost remain open.
 
+### East-clearing fallen-log landmark follow-up
+
+The east clearing now adds one 7.1 m fallen-log instance to its outer ring, using an existing log
+mesh, material, cell, LOD, culling, instancing, contact-shadow, and collision path. It adds seven
+sampled collision proxies but no mesh, texture, shader, allocation class, render pass, or draw
+submission. The deterministic world now contains 13 fallen logs and 827 static proxies in 482
+occupied 16 m cells; core invariants prove that both authored log footprints remain inside their
+respective clearings and outside the central walking rooms.
+
+An initial actual WebGL 2 frame placed the new log broadside to the camera and read as an overly
+straight horizontal beam. Its yaw was changed from the tangential first pass to 2.55 radians,
+revealing the cut end and depth while preserving clearance. The final Chrome/SwiftShader suite
+passes all 22 stages and its original-resolution east/west frames were inspected. The arm64 GLES 3
+package builds and lints; it is 18,712,004 bytes with a 15,901,720-byte stripped library and a
+valid APK v2 signature. Physical-device appearance and cost remain unqualified.
+
 ### Split-leaf ground plant and instance-accurate jungle LOD follow-up
 
 Near ground-plant variant 2 now uses five low leaves with visible petioles, solid midribs, and three
@@ -1112,9 +1128,9 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,063 gzip), and WebAssembly is 8,497,758 bytes (2,424,043
-gzip). The complete transfer payload therefore falls from 8,762,601 to 2,484,224 bytes, a measured
-71.6% reduction.
+gzip), JavaScript is 262,820 bytes (59,058 gzip), and WebAssembly is 8,498,615 bytes (2,424,221
+gzip). The complete transfer payload therefore falls from 8,763,458 to 2,484,397 bytes, a measured
+71.7% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game

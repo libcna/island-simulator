@@ -2521,6 +2521,8 @@ int main()
                   island::NaturalPropLayout::AuthoredClearingRockCount),
           "both clearing landmark rock groups remain complete");
     std::size_t clearingLandmarkLogCount = 0U;
+    bool eastClearingLogObserved = false;
+    bool westClearingLogObserved = false;
     for (std::size_t index = 0; index < props.FallenLogs().size(); ++index) {
         const island::FallenLogPlacement& log = props.FallenLogs()[index];
         const island::FallenLogPlacement& repeated = repeatedProps.FallenLogs()[index];
@@ -2545,11 +2547,21 @@ int main()
             if (log.clearingLandmark) {
                 Check(island::VegetationLayout::IsInsideAuthoredClearing(sampleX, sampleZ),
                       "the complete landmark-log footprint stays inside its clearing");
-                const island::ClearingDefinition& clearing =
-                    island::VegetationLayout::WestClearing;
+                const float eastDistance = std::hypot(
+                    log.x - island::VegetationLayout::EastClearing.x,
+                    log.z - island::VegetationLayout::EastClearing.z);
+                const float westDistance = std::hypot(
+                    log.x - island::VegetationLayout::WestClearing.x,
+                    log.z - island::VegetationLayout::WestClearing.z);
+                const bool usesEastClearing = eastDistance < westDistance;
+                const island::ClearingDefinition& clearing = usesEastClearing
+                    ? island::VegetationLayout::EastClearing
+                    : island::VegetationLayout::WestClearing;
                 Check(std::hypot(sampleX - clearing.x, sampleZ - clearing.z)
                           > clearing.radius * 0.56f,
                       "the landmark log preserves the clearing's central walking room");
+                eastClearingLogObserved = eastClearingLogObserved || usesEastClearing;
+                westClearingLogObserved = westClearingLogObserved || !usesEastClearing;
             } else {
                 Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
                       "procedural fallen logs stay outside authored routes");
@@ -2562,7 +2574,9 @@ int main()
     Check(clearingLandmarkLogCount
               == static_cast<std::size_t>(
                   island::NaturalPropLayout::AuthoredClearingLogCount),
-          "the west-clearing fallen-log landmark remains present");
+          "both clearing fallen-log landmarks remain present");
+    Check(eastClearingLogObserved && westClearingLogObserved,
+          "each authored clearing retains one fallen-log landmark");
     std::array<bool, island::NaturalPropLayout::DriftwoodVariantCount>
         observedDriftwoodVariants{};
     std::size_t coveLandmarkDriftwoodCount = 0U;

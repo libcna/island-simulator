@@ -38,12 +38,12 @@ The lifecycle, beach approach, and jungle gates additionally require the narrow 
 diagnostic, preventing a silent return to the former broad, uniformly coloured path treatment.
 The lifecycle and beach gates also require the sparse close sand pebble/shell diagnostic; dedicated
 driftwood and fallen-frond captures expose that material at first-person scale.
-Both clearing cameras also require the shared five-rock/one-log authored-landmark diagnostic.
+Both clearing cameras also require the shared five-rock/two-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,497,758 bytes. The monkey scene additionally requires the near crown/cheek-tuft
+WebAssembly is 8,498,615 bytes. The monkey scene additionally requires the near crown/cheek-tuft
 and bone-following finger/toe diagnostics, and its inspected frame retains the complete
 facial-detail/crossfade path. The input
 stage captures and visually validates the warm-gold `RUN MODE  8.0 M/S` confirmation while still
@@ -95,7 +95,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,762,601 bytes uncompressed and 2,484,224 bytes through gzip, a 71.6% transfer reduction. These
+8,763,458 bytes uncompressed and 2,484,397 bytes through gzip, a 71.7% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

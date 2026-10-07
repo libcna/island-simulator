@@ -870,7 +870,8 @@ void main()
                   << (instancingSupported_ ? "hardware instancing" : "per-prop fallback") << '\n';
         std::cout << "island-simulator: clearing landmarks " << clearingRockCount
                   << " rocks and " << clearingLogCount
-                  << " fallen log, shared authored placement\n";
+                  << (clearingLogCount == 1 ? " fallen log" : " fallen logs")
+                  << ", shared authored placement\n";
         std::cout << "island-simulator: cove landmark " << coveDriftwoodCount
                   << " driftwood pieces, shared authored shoreline profile\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_

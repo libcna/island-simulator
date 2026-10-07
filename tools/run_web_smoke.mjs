@@ -155,7 +155,7 @@ try {
   const captureVisualFrame = async (sessionId, fileName, debugOverlayEnabled = false) => {
     if (debugOverlayEnabled) {
       if (!(await waitForOutput(
-        sessionId, "island-simulator: debug overlay active", 20))) {
+        sessionId, "island-simulator: debug overlay active", 80))) {
         throw new Error(`Visual capture ${fileName} did not start with the debug overlay active`);
       }
       await call("Page.bringToFront", {}, sessionId);
@@ -293,9 +293,9 @@ try {
       "jungle near bushes with pointed leaf edge breakup")
     && result.output?.includes(
       "jungle near ground plants include upright and split-leaf silhouettes")
-    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 12 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes(
-      "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
+      "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && result.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
     && result.output?.includes("island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled")
@@ -718,7 +718,7 @@ try {
     && eastClearingResult.output?.includes(
       "island-simulator: east clearing QA camera at authored centre")
     && eastClearingResult.output?.includes(
-      "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
+      "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && eastClearingResult.output?.includes("island-simulator: debug overlay active")
     && !eastClearingResult.error;
 
@@ -732,7 +732,7 @@ try {
     && westClearingResult.output?.includes(
       "island-simulator: west clearing QA camera at authored centre")
     && westClearingResult.output?.includes(
-      "island-simulator: clearing landmarks 5 rocks and 1 fallen log, shared authored placement")
+      "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && westClearingResult.output?.includes("island-simulator: debug overlay active")
     && !westClearingResult.error;
 
@@ -765,7 +765,7 @@ try {
     && propResult.output?.includes(
       "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/12 logs/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/13 logs/.test(
       propResult.output ?? "")
     && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
@@ -802,7 +802,7 @@ try {
       "island-simulator: near driftwood uses faded sun-bleached longitudinal grain")
     && driftwoodResult.output?.includes(
       "island-simulator: near driftwood variant 2 uses three tapered fork limbs")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/13 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")

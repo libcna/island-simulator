@@ -151,7 +151,7 @@ requires the folded pointed-leaf near-bush path; the same startup also reports t
 branch-supported/pointed-leaf near-canopy path.
 `IslandGameEastClearingCapture` and `IslandGameWestClearingCapture` write player-eye views from the
 two authoritative clearing centres. The east view requires their shared distinct-material shader
-path, while the west view requires the shared five-rock/one-log landmark-layout diagnostic.
+path, while the west view requires the shared five-rock/two-log landmark-layout diagnostic.
 `IslandGameGroundPlantCapture` writes a cleared first-person folded split-leaf detail to
 `build/island-ground-capture.ppm` and requires a nonzero per-instance near-LOD population.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to

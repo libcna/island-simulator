@@ -28,7 +28,7 @@ been confirmed so far.
   dappling. The authored main corridor now has a narrower, noise-mottled broken-edge dry-earth
   footpath under its short grass while retaining a wider vegetation-free walking corridor. The two
   clearings have distinct warm-dry and darker leaf-rich treatments, and their
-  outer rings now carry a first five-rock/one-log natural-landmark composition without blocking
+  outer rings now carry a five-rock/two-log natural-landmark composition without blocking
   their centres. Broader unique composition and bespoke landmark geometry remain limited. The
   dapple is static material breakup rather
   than canopy-accurate shadow projection. A
