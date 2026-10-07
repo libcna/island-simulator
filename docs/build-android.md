@@ -74,8 +74,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,712,724-byte APK with a
-15,902,440-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,712,820-byte APK with a
+15,902,536-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular

@@ -34,6 +34,7 @@ also require derivative-based, two-sided fixed-sun facet lighting on the instanc
 shader rather than accepting its unlit fallback. The lifecycle, beach approach, and jungle camera
 also require the authored primary-footpath terrain material diagnostic. Dedicated east/west
 clearing cameras require their shared authored-material diagnostic and exact QA-camera identity.
+The east camera additionally requires the explicit warm-dry ground-cue diagnostic.
 The lifecycle, beach approach, and jungle gates additionally require the narrow irregular-wear
 diagnostic, preventing a silent return to the former broad, uniformly coloured path treatment.
 The lifecycle and beach gates also require the sparse close sand pebble/shell diagnostic; dedicated
@@ -43,7 +44,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,498,883 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,499,046 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering diagnostic after browser-gesture audio startup. The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
 the complete facial-detail/crossfade path. The input
@@ -96,7 +97,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,763,726 bytes uncompressed and 2,484,599 bytes through gzip, a 71.6% transfer reduction. These
+8,763,889 bytes uncompressed and 2,484,496 bytes through gzip, a 71.7% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

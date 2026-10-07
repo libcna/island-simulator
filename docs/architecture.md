@@ -276,7 +276,9 @@ squared distance plus existing noise to avoid a per-fragment square root while r
 irregular edge. The larger east room receives a restrained warm, dry tint and reduced litter; the
 smaller west room receives a darker leaf-rich tint and increased litter. Both suppress the static
 canopy dapple inside their open centres and retain short grass. No texture, geometry, placement,
-collision, instance, or draw submission is added.
+collision, instance, or draw submission is added. A later composition pass strengthened the east
+blend and reuses both already-computed broad and medium fields so its warm olive identity remains
+legible against surrounding forest soil without becoming a hard circular or sand-coloured patch.
 
 `DistantSceneryLayout` places five low islets at least 570 m from the island centre, outside every
 player-accessible ocean boundary but within the 850 m ocean surface. `DistantSceneryRenderer`

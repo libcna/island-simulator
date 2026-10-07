@@ -687,6 +687,15 @@ traversal. The visible game shared the GPU, so these results qualify function an
 gross regression; they are not an isolated fragment-cost baseline. Hardware-browser and physical-
 Android cost remain open.
 
+A later original-resolution pair showed that the east room remained too close to surrounding
+forest soil. Its existing blend now leans further toward warm olive and reuses both already-
+computed broad and medium fields for restrained mottling. A fixed 500 by 260 review crop moved from
+normalized mean RGB 0.2482/0.3774/0.1687 to 0.2794/0.3817/0.1654. The mask, noise evaluations,
+geometry, textures, instances, collision, and submissions are unchanged; the expression adds only
+one scalar multiply and add over the preceding material. The complete Chrome suite passes all 22
+stages and the arm64 package builds/lints, but physical-mobile appearance and fragment cost remain
+open.
+
 ### Authored natural clearing-landmark follow-up
 
 The first natural landmark pass reuses the existing rock and fallen-log meshes, material shader,
@@ -1150,9 +1159,9 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,058 gzip), and WebAssembly is 8,498,883 bytes (2,424,423
-gzip). The complete transfer payload therefore falls from 8,763,726 to 2,484,599 bytes, a measured
-71.6% reduction.
+gzip), JavaScript is 262,820 bytes (59,060 gzip), and WebAssembly is 8,499,046 bytes (2,424,318
+gzip). The complete transfer payload therefore falls from 8,763,889 to 2,484,496 bytes, a measured
+71.7% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game

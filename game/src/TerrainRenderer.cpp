@@ -226,10 +226,10 @@ void main()
         * interior * detailFade;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
-    vec3 sunlitClearingGround = vec3(0.400, 0.385, 0.145);
+    vec3 sunlitClearingGround = vec3(0.430, 0.395, 0.150);
     vec3 leafRichClearingGround = vec3(0.170, 0.225, 0.072);
     color = mix(color, sunlitClearingGround,
-                eastClearingMask * (0.34 + medium * 0.040));
+                eastClearingMask * (0.46 + broad * 0.055 + medium * 0.035));
     color = mix(color, leafRichClearingGround,
                 westClearingMask * (0.30 + broad * 0.045));
 
@@ -435,7 +435,8 @@ void main()
                               << "island-simulator: terrain authored primary footpath material\n"
                               << "island-simulator: terrain footpath narrow irregular wear\n"
                               << "island-simulator: terrain distinct authored east/west "
-                                 "clearing materials\n";
+                                 "clearing materials\n"
+                              << "island-simulator: east clearing uses a warm dry ground cue\n";
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

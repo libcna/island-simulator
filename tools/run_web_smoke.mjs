@@ -719,6 +719,8 @@ try {
     && eastClearingResult.output?.includes(
       "island-simulator: terrain distinct authored east/west clearing materials")
     && eastClearingResult.output?.includes(
+      "island-simulator: east clearing uses a warm dry ground cue")
+    && eastClearingResult.output?.includes(
       "island-simulator: east clearing QA camera at authored centre")
     && eastClearingResult.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")

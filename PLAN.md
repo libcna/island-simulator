@@ -707,8 +707,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,763,726 bytes uncompressed and 2,484,599 bytes through
-  deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
+  The current Release package is 8,763,889 bytes uncompressed and 2,484,496 bytes through
+  deterministic gzip, a measured 71.7% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
@@ -1207,7 +1207,10 @@ Work next, in order:
    contrast increase now address those specific gaps without new geometry, textures, instances,
    or submissions. A subsequent cove review found all four small beach-detail variants too
    similar, so the fourth now uses low dry-wrack strands while retaining the same 265 placements,
-   buffers, culling, and maximum four submissions. Defer waterline geometry, underwater fog, and
+   buffers, culling, and maximum four submissions. The latest east-clearing composition review
+   found its intended sunny/dry identity too close to surrounding forest soil, so the existing
+   shared material now gives that mask a clearer warm olive cue without changing its geometry or
+   walkable centre. Defer waterline geometry, underwater fog, and
    refraction until a similarly portable design is justified.
 4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
    wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
@@ -4590,6 +4593,25 @@ Work next, in order:
   and the complete actual Chrome/SwiftShader WebGL 2 suite passes all 22 stages. The final
   8,498,883-byte WebAssembly package is 8,763,726 bytes uncompressed and 2,484,599 bytes through
   deterministic gzip. Physical-device audio quality remains open.
+
+### 2026-10-07 — East-clearing warm-ground distinction
+
+- The current original-resolution clearing pair showed that the east room's intended sunny/dry
+  ground still read nearly as dark and green as surrounding forest soil, while the west room's
+  leaf-rich identity was already clear. Strengthened only the existing east-clearing colour blend
+  and reused both already-computed broad and medium noise fields for restrained mottling. The mask,
+  shared clearing definition, soft edge, dapple suppression, litter reduction, short grass,
+  walkable centre, geometry, textures, collision, instances, and draw submissions are unchanged.
+- The same 500 by 260 review crop changed from normalized mean RGB 0.2482/0.3774/0.1687 to
+  0.2794/0.3817/0.1654. Original-resolution before/after inspection shows a clearer warm olive room
+  without a hard circular decal or sand-like yellow cast; the west room remains visibly cooler and
+  leaf-richer.
+- The OpenGL 3.3 terrain object compiles through `/rv/cnaccache`. The complete actual Chrome 152/
+  SwiftShader suite passes all 22 stages, and its east gate requires the new exact warm-dry cue
+  diagnostic. The two-worker arm64 GLES 3 package builds/lints and verifies with APK v2. The APK is
+  18,712,820 bytes with a 15,902,536-byte stripped library; WebAssembly is 8,499,046 bytes and its
+  deterministic package is 8,763,889 bytes uncompressed / 2,484,496 bytes through gzip. Physical-
+  mobile appearance/cost remain open; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 
