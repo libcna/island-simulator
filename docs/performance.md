@@ -1555,9 +1555,32 @@ audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the
 mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-19,071,332 bytes with a 16,261,048-byte stripped `libmain.so`; lint reports no issues and APK
+19,072,372 bytes with a 16,262,088-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
+
+### Natural near-grass blade silhouette follow-up
+
+The shared near mesh keeps its 42 blades, 622 vertices, and 496 triangles, but narrows the mature
+blade profile and derives a small lateral bow plus unequal left/right edge widths from each stable
+blade index. A minority of blades also bends sideways and drops slightly through the upper two
+control levels. The middle/far meshes, vertex format, packed wind data, shader arithmetic,
+instance population, buffers, culling, LOD transitions, and submissions are unchanged. This is a
+silhouette correction rather than a density or runtime-work increase.
+
+Native OpenGL 3.3, Chrome/WebGL 2, Firefox/WebGL 2, and API 35 KVM/gfxstream GLES 3 all required
+the exact natural-blade diagnostic. Their fixed close-grass frames were inspected; the mobile
+capture retained the complete grass layer and translucent controls without a fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic. Its cold first draw completed in 2943.958 ms, which is
+translated-host functional evidence rather than a physical-device frame-time result. The restored
+arm64-only APK is 19,072,372 bytes with a 16,262,088-byte stripped `libmain.so`; lint passed and
+signature scheme v2 verifies.
+
+One isolated Linux Release fixed-grass run retained 2,827 visible clusters, 957 near instances,
+21 grass submissions, and 99 total tracked submissions. Across 600 intervals it measured 2.6461
+ms mean, 2.1421 ms median, 6.3492 ms p95, 11.7514 ms p99, and 16.8790 ms maximum. Twelve intervals
+exceeded 8.333 ms, one exceeded 16.667 ms, and none exceeded 33.333 ms. This is a gross-regression
+guard for the complete scene, not isolated attribution to a position-only mesh change.
 
 ### Shipwreck landmark baseline
 
@@ -1650,8 +1673,8 @@ qualify portable function and composition, not physical-mobile frame time, power
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,792,064 bytes (2,518,333
-gzip). The complete transfer payload therefore falls from 9,058,713 to 2,578,728 bytes, a measured
+gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,792,828 bytes (2,518,894
+gzip). The complete transfer payload therefore falls from 9,059,477 to 2,579,291 bytes, a measured
 71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
@@ -1687,7 +1710,10 @@ The later 42-blade close-grass Release gate deliberately uses a heavier fixed vi
 visible clusters, including 957 near instances, and 99 tracked submissions. Its 600 intervals
 measured 3.1653 ms mean, 6.3239 ms p95, and 13.9728 ms p99; 15 exceeded 8.333 ms, four exceeded
 16.667 ms, and none exceeded 33.333 ms. This keeps the denser first-person tier inside the same
-current-GPU gate without presenting the result as physical-mobile evidence.
+current-GPU gate without presenting the result as physical-mobile evidence. The subsequent
+position-only natural-silhouette pass retained the same populations/submissions and measured
+2.6461 ms mean, 6.3492 ms p95, and 11.7514 ms p99; one of 600 intervals exceeded 16.667 ms and none
+exceeded 33.333 ms.
 
 ## Measurement rules
 

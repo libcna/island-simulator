@@ -1189,10 +1189,13 @@ improves the requested experience rather than adding quests, combat, survival, o
 - [ ] Improve broadleaf crown layering, branch hierarchy, trunk taper, buttress integration,
   understory leaf forms, vines, fallen leaves, and forest-floor occlusion. Keep the jungle dense but
   navigable and avoid replacing one repeated silhouette with another.
-- [ ] Rework grass blade width/taper/curvature, cluster footprints, height/density fields, colour
+- [~] Rework grass blade width/taper/curvature, cluster footprints, height/density fields, colour
   gradients, seed heads, wind phase, terrain-normal seating, and near/middle/far transitions until
-  first-person gaps and repeated tufts are no longer distracting. Profile overdraw and alpha-free
-  geometry cost on all targets before increasing population.
+  first-person gaps and repeated tufts are no longer distracting. The first realism pass narrows
+  the shared near blades, adds stable edge/bow asymmetry, and bends a minority of tips without
+  changing counts, LOD, shader work, or submissions; its matched OpenGL 3.3, WebGL 2, and GLES 3
+  views pass. Profile overdraw and alpha-free geometry cost on all targets before increasing
+  population; cluster-footprint and transition composition remain open.
 - [~] Strengthen the island's authored composition with realistic erosion cues, beach-width
   variation, shallow sandbars, reef groupings, grove structure, denser/sparser jungle rooms,
   landmark sightlines, and controlled openings. Integrate the shipwreck and debris into one chosen
@@ -1431,8 +1434,9 @@ Immediate user-directed expansion:
    Preserve current performance evidence and complete matched renderer reviews after each pass.
    The first ranked terrain pass is complete on all three renderers; continue with close grass and
    vegetation silhouette/composition improvements before adding more material cost.
-2. Continue the 20 m shipwreck realism pass with beach-clutter composition and subjective
-   collision feel without changing its established scale or turning it into an objective. Its
+2. Continue the large 20 m sailing-ship wreck realism pass with beach-clutter composition and
+   subjective collision feel without reducing it to a boat, changing its established scale, or
+   turning it into an objective. Its
    aged-wood breakup, waterline material, curved lower hull, localized missing planks, and
    irregular splintered debris are complete and portable.
 
@@ -6314,6 +6318,43 @@ Existing observation and qualification queue:
   12,192,120 installed bytes. The exact archive launched from an unrelated `/tmp` directory,
   selected `OPENGL33`, required the new material marker, captured the jungle view, and completed
   first draw in 372.093 ms. Its inspected 1280 by 720 frame passed capture validation.
+
+### 2026-10-08 — Natural near-grass blade silhouettes
+
+- Reviewed the deterministic close-grass view before and after the change. The former mature
+  blades were broad, highly symmetric ribbons at first-person range. Narrowed only the shared near
+  profile, derived bounded lateral bow and unequal left/right edges from the stable blade index,
+  and gave a minority of tips a small sideways bend plus drop. The shared mesh remains 42 blades,
+  622 vertices, and 496 triangles; middle/far geometry, instance records, shader arithmetic,
+  buffers, population, culling, LOD transitions, and submissions remain unchanged.
+- Added one exact diagnostic and required it in the Chrome, Firefox, and Android runtime gates.
+  The complete 27-stage Chrome/WebGL 2 matrix and independent Firefox ESR WebGL 2 gate pass. Their
+  current close-grass frame and the native OpenGL 3.3 before/after pair were inspected; the result
+  retains cover while replacing the most conspicuous repeated ribbon silhouette.
+- KVM 12 and the host AMD Radeon 780M gfxstream path were active for a strict API 35 x86_64 fixed-
+  grass run. It selected `OPENGLES3`, required the new marker, reached first draw in 2943.958 ms,
+  and produced an inspected 2400 by 1080 frame without fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostics. This is translated-host functional evidence, not physical-
+  device performance qualification.
+- Stopped the emulator, restored/linted the default arm64-only APK through shared `/rv/cnaccache`,
+  verified its v2 signature and sole `arm64-v8a` ABI, and removed exactly five reproducible x86_64
+  intermediate directories (about 1.1 GiB). The APK is 19,072,372 bytes and its stripped
+  `libmain.so` is 16,262,088 bytes; the Android tree returned to approximately 1.3 GiB.
+- The complete current native private-display suite passes 46/46. One isolated Linux Release
+  close-grass benchmark retained 2,827 clusters, 957 near instances, 21 grass submissions, and 99
+  tracked submissions. Its 600 intervals measured 2.6461 ms mean, 2.1421 ms median, 6.3492 ms p95,
+  11.7514 ms p99, and 16.8790 ms maximum; twelve exceeded 8.333 ms, one exceeded 16.667 ms, and
+  none exceeded 33.333 ms.
+- The deterministic Web package is 9,059,477 bytes uncompressed or 2,579,291 bytes through gzip:
+  HTML is 2,058/1,144 bytes, JavaScript 264,591/59,253 bytes, and WebAssembly
+  8,792,828/2,518,894 bytes. CNA and Sharp Runtime remain on their pinned `next` revisions,
+  read-only and clean; no qualifying dependency defect was found.
+- Two unchanged Linux Release packaging runs produced the same 5,069,785-byte archive with
+  SHA-256 `3cb1d12a739f3d2c612a4eba0ca1d7e029427e706a9b8ebd25cc0776a5756279` and
+  12,192,773 installed bytes. The exact archive launched from an unrelated `/tmp` directory,
+  selected `OPENGL33`, required the new marker, retained 2,827 visible grass clusters in 21 grass
+  submissions, and completed first draw in 446.534 ms. Its inspected 1280 by 720 frame passed
+  capture validation with 124 colour bins, 19.68 luminance deviation, and 42.29 spatial contrast.
 
 ## Session-end checklist
 

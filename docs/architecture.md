@@ -451,8 +451,11 @@ from horizontal player speed. The vertex shader retains a small 0.55 m stationar
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
 interaction shares every existing instance and draw. Near blades use five curved control levels;
 their six sparse seed heads and 14 selected V-fold ridges bring the shared cluster to 622 vertices
-and 496 triangles. Middle clusters use three levels and 40 triangles, while the far tier uses three
-levels and 20 triangles.
+and 496 triangles. The near profile is narrower than the middle tier, offsets its two edges by a
+small deterministic asymmetric amount, varies its lateral bow, and gives a minority of blades a
+bent, slightly dropped tip. These are shared-mesh position changes: counts, instance data, wind
+work, LOD thresholds, and submissions remain unchanged. Middle clusters use three levels and 40
+triangles, while the far tier uses three levels and 20 triangles.
 Blade
 orientation is packed into the otherwise-unused vertex alpha channel, avoiding another buffer
 attribute while enabling two-sided fixed-sun diffuse, subtle view-edge transmission, folded side

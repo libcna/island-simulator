@@ -118,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,192,120 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,192,773 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,069,942-byte archive with SHA-256
-`363f2df11859c51c485f76694546cb255b38f82421887f1d6a03eeb4f4451f68`.
+5,069,785-byte archive with SHA-256
+`3cb1d12a739f3d2c612a4eba0ca1d7e029427e706a9b8ebd25cc0776a5756279`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -161,6 +161,11 @@ camera. The exact `363f2df1` archive selected `OPENGL33`, required the humus/mos
 captured four frames, and completed first draw in 372.093 ms total. Its 1280 by 720 output passed
 capture validation with 165 colour bins, 35.91 luminance deviation, and 185.13 spatial contrast;
 the original-resolution frame was inspected.
+The subsequent natural-grass package repeated the unrelated-working-directory gate with the close
+grass camera. The exact `3cb1d12a` archive selected `OPENGL33`, required the asymmetric/bent-tip
+marker, retained 2,827 visible clusters in 21 grass submissions, and completed first draw in
+446.534 ms. Its inspected 1280 by 720 frame passed capture validation with 124 colour bins, 19.68
+luminance deviation, and 42.29 spatial contrast.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.
@@ -242,8 +247,8 @@ five-rock/two-log landmark-layout diagnostic.
 `IslandGameGrassCapture` writes a close first-person grass-interaction view to
 `build/island-grass-capture.ppm` and requires full movement strength on the custom instanced shader.
 The grass startup also reports the five-level near curvature, portable two-sided daylight path,
-selected one-third near-blade geometric V-fold ridge, and coherent coast/path/clearing biome-colour
-field. Sparse deterministic sun-cured tips add restrained
+selected one-third near-blade geometric V-fold ridge, narrower asymmetric edges with occasional
+bent tips, and coherent coast/path/clearing biome-colour field. Sparse deterministic sun-cured tips add restrained
 blade-scale age variation baked into the shared mesh vertex colours, without another texture,
 instance attribute, or draw. The near tier additionally carries a sparse juvenile underlayer, and
 one existing instance value produces deterministic per-blade stature and small colour/wind
@@ -253,6 +258,10 @@ wind path; the capture requires their exact diagnostic. The dedicated view
 must also contain nonzero near,
 middle, and far populations plus a mixed cell from the adjacent-tier 62--78 m / 86--102 m LOD
 transitions.
+The current natural-silhouette qualification passed all 46 tests on the private accelerated
+display. Its Release fixed-grass benchmark retained 2,827 clusters, 21 grass submissions, and 99
+total tracked submissions while recording 2.6461 ms mean, 6.3492 ms p95, and 11.7514 ms p99 across
+600 intervals; one interval exceeded 16.667 ms and none exceeded 33.333 ms.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
 `build/island-palm-capture.ppm` and requires the fuller segmented near-leaflet plus procedural
 bark-scar/coconut path.

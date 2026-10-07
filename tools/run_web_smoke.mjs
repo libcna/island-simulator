@@ -366,6 +366,8 @@ try {
     && result.output?.includes(
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && result.output?.includes(
+      "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
+    && result.output?.includes(
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && result.output?.includes(
       "island-simulator: near birds use layered trailing flight-feather silhouettes")
@@ -624,6 +626,8 @@ try {
     && beachResult.output?.includes(
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && beachResult.output?.includes(
+      "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
+    && beachResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && beachResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
@@ -672,6 +676,8 @@ try {
       "island-simulator: grass near clusters use 42 blades for denser first-person cover")
     && grassResult.output?.includes(
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
+    && grassResult.output?.includes(
+      "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
     && grassResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && grassResult.output?.includes(

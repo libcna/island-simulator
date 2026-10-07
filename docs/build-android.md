@@ -127,8 +127,13 @@ the game had already qualified; selecting the system `Wait` action and recapturi
 focused game produced the retained unobstructed frame. No game fatal, shader, or
 `GL_INVALID_OPERATION` diagnostic appeared. This remains translated-host functional evidence,
 not a physical-device fragment-cost result.
-The latest single-ABI arm64 debug qualification build produced a 19,071,332-byte APK with a
-16,261,048-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The subsequent fixed-grass run required the narrower asymmetric/occasional bent-tip diagnostic.
+The same KVM 12/host-gfxstream AVD selected `OPENGLES3`, reached first draw in 2943.958 ms, and
+produced an inspected 2400 by 1080 scene with the intended thinner varied silhouettes and clean
+touch-control blending. No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. This is
+functional translated-host evidence rather than sustained physical-mobile performance evidence.
+The latest single-ABI arm64 debug qualification build produced a 19,072,372-byte APK with a
+16,262,088-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, inland
 leaf-humus/cool-moss substrate breakup, close sand granulation, sparse soft-edged pebble/shell
@@ -586,6 +591,7 @@ repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
 logical viewport, first-draw timing, biome-grass, near-seed-head, near-bird-feather, and sunward-
 ocean-crest plus grazing-reflection diagnostics, the selected near-grass geometric V-fold, the
+narrower asymmetric/occasional bent-tip close-blade path, the
 all-variants tapered driftwood branches, their body-ring-matched end caps, and the near-rock
 crown/facet plus stone-tint diagnostics. Every strict run also requires the exact 20 m broken
 ship/12-debris construction marker and the renderer marker proving the exposed-rib/partial-deck/

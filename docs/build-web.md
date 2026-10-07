@@ -32,8 +32,9 @@ readback; the panel then reports `UNAVAILABLE` instead of claiming success.
 The renderer gate also requires the exact shore-following animated foam ribbon rather than its
 stock-effect fallback. The close prop camera additionally requires a nonzero terrain-conforming
 contact-shadow population in exactly one portable draw. The beach and grass cameras require the
-five-level near-blade curvature, portable two-sided daylight path, and selected near-blade
-geometric V-fold ridge rather than only accepting the older flat-colour shader. The lifecycle,
+five-level near-blade curvature, portable two-sided daylight path, selected near-blade geometric
+V-fold ridge, and narrower asymmetric/occasional bent-tip close-blade geometry rather than only
+accepting the older flat-colour shader. The lifecycle,
 overview, beach, and grass cameras also require the
 coherent coast/path/clearing grass biome-colour path. The lifecycle plus close grass and jungle
 cameras also require the sparse near seed-head path. The lifecycle plus close grass and jungle
@@ -60,7 +61,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 27 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the current rebuilt
-WebAssembly is 8,792,064 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+WebAssembly is 8,792,828 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
 12-debris, one-draw diagnostics plus the portable aged-wood/waterline material marker; its refined
 curved-hull and irregular-debris frame was inspected. A separate crab
 stage requires the thirty-agent colony marker, a nonzero visible population, and exactly one draw;
@@ -132,9 +133,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-9,058,713 bytes uncompressed and 2,578,728 bytes through gzip, a 71.5% transfer reduction. HTML is
-2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,792,064
-bytes (2,518,333 gzip). These
+9,059,477 bytes uncompressed and 2,579,291 bytes through gzip, a 71.5% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,792,828
+bytes (2,518,894 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:

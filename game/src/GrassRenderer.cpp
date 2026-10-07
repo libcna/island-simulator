@@ -60,6 +60,8 @@ namespace island
         constexpr int MiddleBladeLevels = 3;
         constexpr int FarBladeLevels = 3;
         constexpr float GoldenAngle = 2.39996323f;
+        constexpr const char* NaturalBladeDiagnostic =
+            "island-simulator: grass near blades use asymmetric edges and occasional bent tips";
 
         struct GrassInstanceData
         {
@@ -372,6 +374,7 @@ void main()
         void AppendBlade(ClusterGeometry& geometry, const int blade, const int bladeCount,
                          const GrassMeshTier tier, const int bladeLevels)
         {
+            const bool nearMesh = tier == GrassMeshTier::Near;
             const bool middleMesh = tier == GrassMeshTier::Middle;
             const bool farMesh = tier == GrassMeshTier::Far;
             const bool vFold = HasNearVFold(tier, blade);
@@ -396,13 +399,18 @@ void main()
                 * individual * juvenileHeight;
             const float width = (farMesh ? 0.11f
                 : (middleMesh ? 0.055f + 0.005f * static_cast<float>(blade % 4)
-                              : 0.023f + 0.004f * static_cast<float>(blade % 5)))
+                              : 0.018f + 0.0035f * static_cast<float>(blade % 5)))
                 * (juvenileBlade ? 0.74f : 1.0f);
             const float lean = (farMesh ? 0.12f
                 : (middleMesh ? 0.09f + 0.012f * static_cast<float>(blade % 5)
                               : 0.07f + 0.018f * static_cast<float>(blade % 6)))
                 * (juvenileBlade ? 0.62f : 1.0f);
             const float phase = std::fmod(static_cast<float>(blade) * 0.173f, 1.0f);
+            const float bowVariation = static_cast<float>((blade * 11 + 3) % 9 - 4) / 4.0f;
+            const float edgeAsymmetry = static_cast<float>((blade * 13 + 5) % 11 - 5)
+                / 5.0f;
+            const bool bentTip = nearMesh && ((blade * 5 + 1) % 13) < 3;
+            const float bentTipDirection = (blade & 1) == 0 ? -1.0f : 1.0f;
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
 
             for (int level = 0; level < bladeLevels; ++level) {
@@ -410,31 +418,48 @@ void main()
                 const float taper = level == bladeLevels - 1
                     ? 0.018f
                     : 0.58f + 0.42f * std::sin(t * std::numbers::pi_v<float>);
+                const float tipWeight = std::clamp((t - 0.52f) / 0.48f, 0.0f, 1.0f);
+                const float tipCurve = tipWeight * tipWeight;
+                const float tipKink = bentTip ? bentTipDirection * 0.030f * tipCurve : 0.0f;
+                const float tipDrop = bentTip ? 0.018f * tipCurve : 0.0f;
                 const Vector3 centre(baseX, 0.0f, baseZ);
-                const Vector3 curved = centre + Vector3(0.0f, 1.0f, 0.0f) * (height * t)
-                    + direction * (lean * t * t)
+                const Vector3 curved = centre
+                    + Vector3(0.0f, 1.0f, 0.0f) * (height * t - tipDrop)
+                    + direction * (lean * t * t
+                                   + (nearMesh ? std::abs(bowVariation) * 0.010f
+                                                   * std::sin(t * std::numbers::pi_v<float>)
+                                               : 0.0f))
                     + side * (0.012f * std::sin(t * std::numbers::pi_v<float>)
-                              * (blade % 3 == 0 ? -1.0f : 1.0f));
-                const Vector3 halfWidth = side * (width * taper);
+                              * (blade % 3 == 0 ? -1.0f : 1.0f)
+                              + (nearMesh ? bowVariation * 0.016f * t * t : 0.0f)
+                              + tipKink);
+                const float asymmetricProfile = nearMesh
+                    ? edgeAsymmetry * 0.14f
+                        * std::sin(t * std::numbers::pi_v<float>)
+                    : 0.0f;
+                const Vector3 leftHalfWidth = side
+                    * (width * taper * (1.0f + asymmetricProfile));
+                const Vector3 rightHalfWidth = side
+                    * (width * taper * (1.0f - asymmetricProfile));
                 const Vector2 windData(t, phase);
                 if (vFold) {
                     const float foldAngle = 0.42f
                         + 0.045f * static_cast<float>(blade % 4);
                     const Vector3 ridge = curved + direction * (width * taper * 0.48f);
                     geometry.vertices.emplace_back(
-                        curved - halfWidth,
+                        curved - leftHalfWidth,
                         BladeColor(blade, t, false, facing - foldAngle), windData);
                     geometry.vertices.emplace_back(
                         ridge, BladeColor(blade, t, (blade & 1) != 0, facing), windData);
                     geometry.vertices.emplace_back(
-                        curved + halfWidth,
+                        curved + rightHalfWidth,
                         BladeColor(blade, t, true, facing + foldAngle), windData);
                 } else {
                     geometry.vertices.emplace_back(
-                        curved - halfWidth,
+                        curved - leftHalfWidth,
                         BladeColor(blade, t, false, facing), windData);
                     geometry.vertices.emplace_back(
-                        curved + halfWidth,
+                        curved + rightHalfWidth,
                         BladeColor(blade, t, true, facing), windData);
                 }
             }
@@ -558,6 +583,7 @@ void main()
                          "first-person cover\n"
                       << "island-simulator: selected near grass blades use a geometric V-fold "
                          "ridge\n"
+                      << NaturalBladeDiagnostic << '\n'
                       << "island-simulator: grass biome tint follows coast, path, and authored "
                          "clearings\n"
                       << "island-simulator: grass sparse sun-cured tip variation in shared "
@@ -577,6 +603,7 @@ void main()
                 "island-simulator: grass near clusters use 42 blades for denser first-person cover");
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: selected near grass blades use a geometric V-fold ridge");
+            MirrorRuntimeDiagnosticToPlatformLog(NaturalBladeDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass sparse near seed heads share blade wind and instancing");
         } else {

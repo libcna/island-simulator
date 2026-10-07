@@ -46,7 +46,9 @@ transparent ocean colours its submerged portions; it introduces no quest, pickup
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.
 The 42-blade near mesh uses five curvature levels per blade, folded side colour, and portable
-two-sided daylight/root/transmission shading. A sparse juvenile underlayer, six restrained
+two-sided daylight/root/transmission shading. Its close blades are deliberately narrower than the
+middle tier, use small deterministic left/right edge asymmetry, and occasionally bend and droop at
+the tip instead of repeating broad symmetric ribbons. A sparse juvenile underlayer, six restrained
 seed-bearing stems in the near cluster, and deterministic per-instance blade stature, colour, and
 wind variation
 keep neighbouring tufts from repeating the shared mesh literally; the cheaper far mesh uses three
@@ -312,7 +314,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,578,728 bytes, 71.5% below the 9,058,713-byte
+a SHA-256 manifest. The current gzip payload is 2,579,291 bytes, 71.5% below the 9,059,477-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -330,7 +332,7 @@ there. Dedicated current-source GLES 3 views also validate the inland humus/moss
 the clearing butterflies, and a near-shore sea turtle through the mobile quality profile. The
 persistence-qualified run also
 requires a touch sensitivity change to survive the cold relaunch. The default arm64-v8a APK is
-19,071,332 bytes, contains a 16,261,048-byte stripped
+19,072,372 bytes, contains a 16,262,088-byte stripped
 `libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
 emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See

@@ -213,6 +213,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: selected near grass blades use a geometric V-fold ridge" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: grass near blades use asymmetric edges and occasional bent tips" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: all near driftwood variants use tapered three-dimensional branches" \
             "$LOG_FILE" \
         && grep -q "island-simulator: driftwood end caps match irregular body rings" \
