@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
@@ -13,6 +14,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -40,6 +42,9 @@ namespace island
 {
     namespace
     {
+        constexpr std::string_view ClearingFloorDiagnostic =
+            "island-simulator: clearing floors reuse existing noise fields for broad patch breakup";
+
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -454,8 +459,8 @@ void main()
                               << "island-simulator: terrain distinct authored east/west "
                                  "clearing materials\n"
                               << "island-simulator: east clearing uses a warm dry ground cue\n"
-                              << "island-simulator: clearing floors reuse existing noise fields "
-                                 "for broad patch breakup\n";
+                              << ClearingFloorDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(ClearingFloorDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

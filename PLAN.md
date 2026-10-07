@@ -4944,6 +4944,35 @@ Work next, in order:
   cost remain unclaimed. All builds used no more than two workers; Chrome was capped to eight CPU
   cores. CNA and Sharp Runtime stayed read-only.
 
+### 2026-10-07 — Current-pin Android clearing, touch, and lifecycle qualification
+
+- Rebuilt the current `97783d1e090c` source as x86_64 through `/rv/cnaccache`, cold-booted the API
+  35 `Medium_Phone` AVD in 14.457 seconds with KVM and host-GPU gfxstream, and passed the strict
+  GLES 3/audio gate at the fixed east clearing. The inspected 2400 by 1080 frame reports
+  `OPENGLES3`, the 1280 by 720 logical viewport, 33.6 FPS at capture, clean translucent touch
+  controls, and the retained non-decal-like clearing treatment. First draw completed in 1594.265
+  ms total; this is functional emulator evidence, not a physical-device performance result.
+- The first attempt exposed a game-owned validation gap: ordinary C++ stdout reaches desktop/Web
+  tests but is not an authoritative Android platform log. The clearing marker now uses the
+  existing `MirrorRuntimeDiagnosticToPlatformLog` game-side abstraction, matching the established
+  ocean, grass, prop, bird, audio, renderer, and viewport gates. The repeated Android run passed;
+  no CNA or Sharp Runtime change, workaround, or `BUGS.md` entry was required.
+- A second ordinary launch passed the strict audio/footstep gate. Its injected full-travel touch
+  moved the player to `z=-204.9`, reached interaction strength 1.0, and played eight footsteps.
+  A subsequent Home/resume retained PID 4218, recreated the GLES surface in a 35 ms hot launch,
+  and moved the same AAudio stream from started to paused and back to started without a fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostic.
+- Stopped the emulator cleanly and restored the default arm64-only APK. The package builds/lints,
+  contains only `arm64-v8a`, verifies with APK signature scheme v2, is 18,730,692 bytes, and
+  contains a 15,920,408-byte stripped `libmain.so`. The complete current Chrome 152/SwiftShader
+  suite also passes 22/22 after the portable diagnostic call; WebAssembly is 8,522,727 bytes and
+  the deterministic package is 8,787,605 bytes uncompressed or 2,491,600 bytes through gzip.
+  The OpenGL 3.3 object compiles with first-party warnings as errors, but the native executable was
+  deliberately not relinked while the operator-visible game remained open. Native runtime review
+  of the retained clearing pass and physical-device Android qualification remain open. All builds
+  used two workers or fewer, Chrome was limited to eight CPU cores, and both dependencies remained
+  read-only.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.

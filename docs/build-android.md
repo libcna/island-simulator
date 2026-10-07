@@ -80,8 +80,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,730,596-byte APK with a
-15,920,312-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,730,692-byte APK with a
+15,920,408-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -100,14 +100,19 @@ frame gates. The ordinary overview completed in 2179.350 ms, while the fixed off
 completed in 1555.412 ms and visibly reported normalized current 0.7 with exact `DRIFT 0.3/1.2`.
 Both inspected 2400 by 1080 captures retain the complete scene and clean translucent touch
 controls; no fatal, shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared. The default
-arm64 package was then restored. The current `97783d1e090c` arm64 package separately builds and
-passes lint; its framework-only pin refresh has not been rerun in the emulator. Public terrain
-queries additionally fail closed before non-finite
+arm64 package was then restored. The current `97783d1e090c` x86_64 package subsequently passed the
+strict KVM/gfxstream GLES 3 and audio gate at the fixed east clearing. Its inspected 2400 by 1080
+frame includes the broad reused-noise clearing treatment and clean touch controls; first draw
+completed in 1594.265 ms total. A second ordinary launch injected a sustained movement-zone touch,
+moved the player to `z=-204.9`, and played eight distance-scheduled footsteps. Pressing Home then
+resuming retained PID 4218, recreated the surface in a 35 ms hot launch, and paused/restarted the
+same AAudio stream. The emulator was stopped cleanly and the default arm64-only package above was
+restored. Public terrain queries additionally fail closed before non-finite
 or out-of-domain values can reach procedural noise-cell conversion. The APK verifies with
 signature scheme v2, contains only the selected ABI, and remains the same size after an immediate
 no-change incremental assembly.
 
-The latest current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
+An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow
 non-amplifying ambient gain variation, a running 44.1 kHz stereo AAudio stream, `OPENGLES3`, and
 the exact 1280 by 720 logical viewport. It reached first draw in 1681.732 ms total (515.618 ms
