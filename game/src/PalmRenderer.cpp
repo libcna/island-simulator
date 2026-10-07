@@ -1,6 +1,7 @@
 #include "IslandSimulator/PalmRenderer.hpp"
 
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -84,7 +85,17 @@ void main()
 
     mat4 instanceTransform = mat4(aInstance0, aInstance1, aInstance2, aInstance3);
     vec4 world = instanceTransform * vec4(local, 1.0);
-    vColor = aColor.rgb;
+    // Reuse deterministic scale/yaw coefficients as a stable per-palm colour seed. The
+    // green-only mask leaves trunk, root, and coconut materials unchanged, while near/far
+    // meshes preserve one tint identity without another instance attribute.
+    float tintSeed = fract(abs(aInstance0.x * 1.91 + aInstance0.z * 2.83
+        + aInstance2.x * 3.47 + aInstance2.z * 4.29));
+    float signedTint = tintSeed - 0.5;
+    float foliageMask = smoothstep(0.14, 0.24, aColor.g - aColor.r);
+    vec3 frondTint = vec3(1.0 + signedTint * 0.14,
+                          1.0 + signedTint * 0.20,
+                          1.0 - signedTint * 0.08);
+    vColor = aColor.rgb * mix(vec3(1.0), frondTint, foliageMask);
     vWorld = world.xyz;
     vWindWeight = aWindData.x;
     vLocalHeight = aPosition.y;
@@ -543,6 +554,10 @@ void main()
             std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";
+            constexpr const char* tintDiagnostic =
+                "island-simulator: palm per-instance frond tint reuses existing transforms";
+            std::cout << tintDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(tintDiagnostic);
         } else {
             std::cerr << "island-simulator: palm stock-effect fallback: " << fallbackReason_
                       << '\n';

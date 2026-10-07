@@ -259,6 +259,8 @@ try {
     && result.output?.includes("palm near mesh segmented fuller leaflet silhouettes")
     && result.output?.includes("palm near root wedges ground trunk bases")
     && result.output?.includes("palm procedural bark scars and restrained coconut clusters")
+    && result.output?.includes(
+      "island-simulator: palm per-instance frond tint reuses existing transforms")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
     && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
     && result.output?.includes(
@@ -655,6 +657,8 @@ try {
     && palmResult.output?.includes("palm near root wedges ground trunk bases")
     && palmResult.output?.includes(
       "palm procedural bark scars and restrained coconut clusters")
+    && palmResult.output?.includes(
+      "island-simulator: palm per-instance frond tint reuses existing transforms")
     && /palms [1-9][0-9]*\/330 \(near [1-9][0-9]*, far [0-9]+\)/.test(
       palmResult.output ?? "")
     && !palmResult.error;

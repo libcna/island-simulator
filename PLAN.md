@@ -398,8 +398,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   rotation, frond arrangement, scale, and clustering. Four curved tapered trunk variants, 330
   varied instances, fuller segmented near leaflets, widened-ribbon far crowns, irregular faceted
   near-root wedges, staggered per-instance near/far thresholds, near-only procedural leaf scars,
-  two restrained coconut-bearing variants, and portable shader wind now run on native OpenGL 3.3
-  and WebGL 2;
+  two restrained coconut-bearing variants, transform-derived green-only per-instance frond tint,
+  and portable shader wind now run on native OpenGL 3.3 and WebGL 2;
   broader bark/fruit variation, true LOD blending, and instrumented Android wind/LOD qualification
   remain open despite the first visible GLES3 scene.
 - [~] Add broadleaf canopy, medium plants, bushes, ferns, ground plants, rocks, fallen wood, and
@@ -735,7 +735,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,788,640 bytes uncompressed and 2,491,885 bytes through
+  The current Release package is 8,789,665 bytes uncompressed and 2,491,968 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -959,7 +959,9 @@ Android is not project completion.
   material/content pass without new draws. Five deterministic near-root wedges now vary in angle,
   length, width, and height rather than reading as flat tabs or a radial stamp. Fallen-frond
   leaflet roots now follow their curved rachis; pair/side sweep, droop, and ageing variation break
-  the former mirrored-comb silhouette without changing its mesh count or batches. Prop repetition,
+  the former mirrored-comb silhouette without changing its mesh count or batches. Existing palm
+  transform coefficients now also seed restrained green-only crown tint while preserving brown
+  structural materials and near/far colour identity without a new resource or draw. Prop repetition,
   broader palm variation, physical-device placement review, and true LOD blending remain.
 - [~] Refine shoreline contours, wet edge, shallow colour, foam, wave scale, and water/terrain
   seams. The exact foam ribbon, wet terrain edge, tropical depth colour, and subtle movement-driven
@@ -5094,6 +5096,36 @@ Work next, in order:
   Chrome suite remains authoritative for the other fixed scenes, simultaneous mouse look,
   clipboard, and shoreline audio. Fullscreen, visible listening, extended tab suspension/audio
   focus, and sustained hardware-GPU frame pacing remain open.
+
+### 2026-10-07 — Transform-derived palm-frond tint
+
+- A close-palm capture review found that four geometry variants still shared one literal crown
+  green. The portable palm vertex shader now recombines four existing scale/yaw transform
+  coefficients into a stable bounded tint seed. A green-dominance mask preserves brown trunks,
+  roots, and coconuts; the shared transform preserves one tint identity through near/far LOD.
+  Instance stride, buffers, textures, geometry, placement, collision, culling, populations, and
+  draw submissions are unchanged.
+- Rejected the first weaker amplitude after an original-resolution before/after WebGL 2 review.
+  The retained restrained pass visibly reduces cloned crown colour without overpowering the four
+  silhouettes or contaminating structural material. The complete Chrome 152/SwiftShader suite
+  passes 22/22 and requires the exact tint diagnostic in lifecycle and palm gates. The eleventh
+  clean Firefox ESR 140.15 run independently compiled and rendered the current GLSL ES 300 path
+  while
+  retaining production pointer-lock/reacquisition, persistent Shift, traversal/footstep, audio,
+  short tab hidden/visible/resumed-input, jungle, and water gates; first draw was 302 ms total.
+- A current x86_64 APK passed the strict fixed-palm KVM/host-gfxstream GLES 3 and audio gate. The
+  inspected 2400 by 1080 frame reports `OPENGLES3`, the 1280 by 720 logical viewport, varied green
+  crowns, unchanged brown structural material, and clean touch controls. First draw completed in
+  1605.876 ms total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is portable
+  functional evidence, not physical-device appearance or cost qualification.
+- Restored and linted the default arm64-only APK through `/rv/cnaccache`, confirmed only
+  `arm64-v8a`, and verified APK signature scheme v2. The stripped `libmain.so` is 15,922,104 bytes
+  and the APK is 18,732,388 bytes. WebAssembly is 8,524,788 bytes; the deterministic Web payload
+  is 8,789,665 bytes or 2,491,968 bytes through gzip. Seven renderer-independent/package gates
+  pass. The changed OpenGL 3.3 object compiles with first-party warnings as errors, but the native
+  executable remains deliberately unlinked while the operator-visible earlier build is open.
+  All compilation used two workers or fewer and the shared cache; CNA and Sharp Runtime stayed
+  read-only.
 
 ## Session-end checklist
 

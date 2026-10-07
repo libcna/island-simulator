@@ -48,8 +48,8 @@ variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading, per-instance blade
 stature, a sparse juvenile underlayer, and four restrained seed-bearing stems in the instanced
 near-grass mesh,
-fuller segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
-staggered per-instance near/far LOD,
+fuller segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters,
+transform-derived green-only per-instance frond tint, and staggered per-instance near/far LOD,
 157 land rocks and 14 emergent reef outcrops with irregular near crowns, fixed-sun facet shading,
 near-only strata/lichen, and a low fixed-sea-level wet band, 13 fallen logs, 31 sparse beach-
 driftwood pieces with a three-limb forked near variant,
@@ -80,8 +80,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,731,556-byte APK with a
-15,921,272-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,732,388-byte APK with a
+15,922,104-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -112,6 +112,16 @@ restored. Public terrain queries additionally fail closed before non-finite
 or out-of-domain values can reach procedural noise-cell conversion. The APK verifies with
 signature scheme v2, contains only the selected ABI, and remains the same size after an immediate
 no-change incremental assembly.
+
+A later current-source fixed-palm x86_64 run required the transform-derived frond-tint diagnostic
+through Android's platform log. Its inspected 2400 by 1080 frame retains the four palm silhouettes,
+varied green crowns, unchanged brown trunks/roots/coconuts, the 1280 by 720 logical viewport, and
+clean translucent touch controls. The complete scene opened 44.1 kHz stereo AAudio, reported
+`OPENGLES3`, and reached first draw in 1605.876 ms total (499.728 ms world, 1.544 ms framework,
+1039.218 ms content, 20.983 ms pre-draw, and 44.402 ms first draw) without a fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic. This is KVM/gfxstream functional evidence, not a physical-device
+colour or vertex-cost qualification. The emulator was stopped cleanly and the arm64-only package
+above was restored, rebuilt, linted, ABI-checked, and signature-verified.
 
 An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow

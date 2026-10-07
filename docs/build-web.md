@@ -50,7 +50,7 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,523,762 bytes. The deployment gate additionally requires the exact persistent-
+WebAssembly is 8,524,788 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -114,7 +114,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,788,640 bytes uncompressed and 2,491,885 bytes through gzip, a 71.6% transfer reduction. These
+8,789,665 bytes uncompressed and 2,491,968 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -195,8 +195,8 @@ proving that WebGL 2 honours the nonzero instance-buffer offsets used by the adj
 62--78 m / 86--102 m LOD splits. The
 dedicated ground view requires the upright/split-leaf diagnostic, exact variant-2 QA target, and a
 nonzero per-instance near-LOD forest-floor population. The
-palm view requires the fuller segmented-leaflet and bark/coconut diagnostics plus nonzero near/far
-populations. The jungle
+palm view requires the fuller segmented-leaflet, bark/coconut, and transform-derived frond-tint
+diagnostics plus nonzero near/far populations. The jungle
 view requires the branch-supported canopy, procedural-bark, and pointed-leaf near-bush diagnostics,
 nonzero near/far
 canopy populations, understory, low bushes, and forest-floor plants. The prop view must report
@@ -292,7 +292,7 @@ ripple/splash state, and captures both frames. The tool writes four PNGs plus a 
 report under the ignored build directory and removes its profile and processes even on failure.
 
 The current Firefox ESR 140.15 run reports `WebGL 2.0` on a `Radeon R9 200 Series, or similar`
-backend and completed the first rendered frame in 289--360 ms total across nine clean tool runs.
+backend and completed the first rendered frame in 289--360 ms total across eleven clean tool runs.
 All four original-resolution frames were inspected; the input frame visibly retained the world
 and the warm-gold `RUN MODE  8.0 M/S` notice, while the jungle and water frames match the Chromium
 composition and expose their expected live state. These one-run startup values are not a network

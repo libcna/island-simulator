@@ -1320,13 +1320,30 @@ GLES 3 package builds, passes lint, contains only `arm64-v8a`, and verifies with
 scheme v2. Native runtime appearance, physical-mobile appearance, and isolated fragment cost
 remain open.
 
+### Transform-derived palm-frond tint follow-up
+
+The palm vertex shader now hashes four scale/yaw coefficients already present in every instance
+transform into a stable signed colour offset. A green-dominance mask keeps the bounded tint on
+fronds and leaves trunks, roots, and coconuts unchanged. Near and far meshes consume the same
+transform, so LOD changes retain one colour identity. The change adds only vertex arithmetic: no
+attribute, instance stride, buffer, texture, geometry, population, culling, collision, upload, or
+draw count changes.
+
+Original-resolution before/after close-palm Chrome/WebGL 2 frames were inspected after rejecting a
+weaker first tuning. The complete Chrome suite passes 22/22 and an eleventh clean Firefox ESR run
+independently compiles the GLSL ES 300 path. A fixed-palm x86_64 KVM/gfxstream GLES 3 launch passed
+the same platform-log marker and audio gate; its inspected frame retains brown structural material
+and varied crowns. This qualifies portable function, not sustained or physical-mobile cost. The
+OpenGL 3.3 object compiles with warnings as errors, but its updated runtime appearance awaits
+relinking after the operator-visible prior executable closes.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,060 gzip), and WebAssembly is 8,523,762 bytes (2,431,681
-gzip). The complete transfer payload therefore falls from 8,788,640 to 2,491,885 bytes, a measured
+gzip), JavaScript is 262,819 bytes (59,055 gzip), and WebAssembly is 8,524,788 bytes (2,431,760
+gzip). The complete transfer payload therefore falls from 8,789,665 to 2,491,968 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

@@ -333,7 +333,11 @@ its LOD against a deterministic 125--145 m threshold derived from placement yaw.
 old whole-cell 210 m switch and staggers visible changes around the player. Capability-checked
 per-palm drawing remains the functional fallback. The portable GLSL 330 / GLSL ES 300 shader bends
 only frond-weighted vertices with per-frond phase variation, leaving roots and trunks stable in a
-calm breeze.
+calm breeze. That vertex path also hashes four already-present scale/yaw transform coefficients
+into a bounded per-instance colour seed. A vertex-colour green mask applies the tint only to
+fronds, preserving brown trunks, roots, and coconuts. Because both LOD tiers reuse the same
+transform, their colour identity cannot change at the threshold. This adds no instance attribute,
+buffer, texture, draw, placement state, or collision state.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
 visible anchor instances one shared 34-blade near, ten-blade middle, or five-blade far cluster. A
@@ -770,7 +774,8 @@ the game, and the uncompressed artifacts remain available for hosts that do not 
   authored material textures, or final biome masks.
 - Palms have four geometry variants, segmented near leaflets, widened far crown silhouettes,
   staggered per-instance LOD, placement clustering, cell culling, subtle shader wind, trunk
-  collision, irregular faceted root wedges, and a near-field terrain contact shadow. True LOD
+  collision, irregular faceted root wedges, transform-derived green-only per-instance frond tint,
+  and a near-field terrain contact shadow. True LOD
   blending, richer bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
   grounding, and near bushes now replace their largest smooth lobes with folded pointed leaves,
@@ -808,7 +813,8 @@ the game, and the uncompressed artifacts remain available for hosts that do not 
   movement/look gestures, same-process background/foreground recovery, and AAudio pause/resume are
   validated. The game-owned activity can pass a string-array QA command line into SDL only for a
   debuggable package; release packages ignore it. This has produced a six-view beach, grass,
-  jungle, water, monkey, and reef GLES3 comparison matrix against the matching WebGL 2 captures.
+  jungle, water, monkey, and reef GLES3 comparison matrix against the matching WebGL 2 captures,
+  plus dedicated fixed bird and palm qualification frames.
   Simultaneous-gesture ergonomics, audio-focus interruption, sustained performance,
   thermals, and physical-device behaviour remain unverified.
 - First flying-bird, shallow-water fish, occasional offshore-shark, and GPU-skinned monkey layers

@@ -249,6 +249,7 @@ try {
     "island-simulator: renderer WEBGL2",
     "island-simulator: clearing floors reuse existing noise fields for broad patch breakup",
     "island-simulator: jungle per-instance foliage tint reuses existing transforms",
+    "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
     "island-simulator: startup world ",
     "island-simulator: visible terrain cells ",

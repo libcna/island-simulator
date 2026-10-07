@@ -61,7 +61,9 @@ been confirmed so far.
   count. Near palms now use
   fuller segmented tapered leaflets with widened ribbon
   far silhouettes and staggered per-instance LOD thresholds; near trunks have subtle procedural
-  leaf-scar rings and two variants carry restrained faceted coconut clusters. Grass
+  leaf-scar rings, two variants carry restrained faceted coconut clusters, and transform-derived
+  green-only per-instance tint varies fronds without altering brown trunk/root/coconut materials
+  or near/far identity. Grass
   collision/displacement does not
   persist after the player passes, and true LOD blending, richer biome variation, aliasing work,
   and physical-device density tuning remain.
@@ -165,7 +167,8 @@ been confirmed so far.
   complete GLES3 scene. Independent movement/look gestures, translucent touch controls, a
   same-process hot resume, AAudio pause/resume, and fixed beach, close-grass, jungle, water,
   monkey, and reef views are validated. The six frames were visually compared with the matching
-  WebGL 2 captures through the debug-only intent bridge. Simultaneous real-finger ergonomics,
+  WebGL 2 captures through the debug-only intent bridge; newer dedicated bird and palm frames
+  additionally qualify their current silhouette and frond-tint paths. Simultaneous real-finger ergonomics,
   audio-focus interruption, process-death
   recovery, physical mobile-GPU performance, thermal behaviour, and physical-device compatibility
   remain unverified.

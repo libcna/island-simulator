@@ -40,7 +40,10 @@ while per-palm 125--145 m thresholds stagger the transition and avoid switching 
 The near tier also adds texture-free leaf-scar rings to the trunks and restrained faceted coconut
 clusters to two of the four variants without another draw submission. Five irregular faceted root
 wedges vary in angle, length, width, and height around each near trunk instead of ending it in a
-flat cylinder or a regular stamped star.
+flat cylinder or a regular stamped star. The palm shader also derives a restrained green-only
+frond tint from each existing instance transform, so neighbouring crowns no longer share one
+literal green while trunks, roots, coconuts, near/far identity, buffers, and draw count remain
+unchanged.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
 and pointed perimeter leaves. Their near trunks now meet the forest floor through four or five
 short irregular buttress roots instead of a uniform cylinder, using the same instanced mesh and
@@ -249,7 +252,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,491,885 bytes, 71.6% below the 8,788,640-byte
+a SHA-256 manifest. The current gzip payload is 2,491,968 bytes, 71.6% below the 8,789,665-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
