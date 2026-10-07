@@ -231,10 +231,10 @@ void main()
         * interior * detailFade;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
     color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
-    vec3 sunlitClearingGround = vec3(0.430, 0.395, 0.150);
+    vec3 sunlitClearingGround = vec3(0.475, 0.395, 0.125);
     vec3 leafRichClearingGround = vec3(0.170, 0.225, 0.072);
     color = mix(color, sunlitClearingGround,
-                eastClearingMask * (0.46 + broad * 0.055 + medium * 0.035));
+                eastClearingMask * (0.58 + broad * 0.055 + medium * 0.035));
     color = mix(color, leafRichClearingGround,
                 westClearingMask * (0.30 + broad * 0.045));
 
@@ -245,8 +245,8 @@ void main()
         * eastClearingMask;
     float eastCoolPatch = (1.0 - smoothstep(-0.27, -0.045, clearingPatchField))
         * eastClearingMask;
-    color = mix(color, vec3(0.535, 0.450, 0.185), eastDryPatch * 0.38);
-    color = mix(color, color * vec3(0.82, 0.90, 0.78), eastCoolPatch * 0.24);
+    color = mix(color, vec3(0.560, 0.455, 0.160), eastDryPatch * 0.40);
+    color = mix(color, color * vec3(0.84, 0.89, 0.76), eastCoolPatch * 0.18);
 
     float westLeafPatch = smoothstep(0.035, 0.27, clearingPatchField)
         * westClearingMask;

@@ -744,7 +744,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   Schema-2 provenance validation rejects undeclared future files, and any future external runtime
   asset must add both target packaging and an actionable load failure before this decision changes.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,802,501 bytes uncompressed and 2,496,562 bytes through
+  The current Release package is 8,802,501 bytes uncompressed and 2,496,567 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1304,7 +1304,9 @@ Work next, in order:
    buffers, culling, and maximum four submissions. The latest east-clearing composition review
    found its intended sunny/dry identity too close to surrounding forest soil, so the existing
    shared material now gives that mask a clearer warm olive cue without changing its geometry or
-   walkable centre. Defer waterline geometry, underwater fog, and
+   walkable centre. A later side-by-side audit strengthened only that same existing warm/dry blend
+   and restrained its competing cool patch; the east room now reads separately from the unchanged
+   west floor without new shader inputs. Defer waterline geometry, underwater fog, and
    refraction until a similarly portable design is justified.
 4. Extend the completed F2 shoreline/current, terrain-contact, nearby collision, shared-cell,
    wildlife-heading/navigation, bird route/spawn/live-target, and audio-zone/emitter visualization
@@ -5469,6 +5471,26 @@ Work next, in order:
   8,537,623 bytes or 2,436,354 bytes through gzip. JavaScript is 262,820 bytes (59,064 gzip) and
   HTML is 2,058 bytes (1,144 gzip). CNA and Sharp Runtime remained read-only; builds used no more
   than two workers.
+
+### 2026-10-07 — Stronger sun-dry east-clearing identity
+
+- Retuned only the east clearing's existing portable terrain-material constants: its warm ground
+  blend rises from 0.46 to 0.58, dry patches are modestly warmer/stronger, and the competing cool
+  patch is restrained. The existing irregular clearing mask and already-computed broad/medium/fine
+  fields remain the sole inputs, so no texture lookup, noise evaluation, uniform, geometry,
+  resource, draw, collision, or world-layout cost was added. The west clearing is unchanged.
+- The OpenGL 3.3 terrain object compiles with first-party warnings as errors through shared ccache
+  without relinking the operator-visible game. The complete Chrome 152/SwiftShader WebGL 2 matrix
+  passes 23/23; original-resolution east/west frames were reviewed together, and the east floor now
+  reads as a restrained warm dry opening instead of blending into the surrounding green substrate.
+- Rebuilt and linted the default arm64-only GLES 3 APK; lint has zero issues, only arm64-v8a is
+  packaged, and signature scheme v2 verifies. The APK remains 18,744,428 bytes and stripped
+  `libmain.so` remains 15,934,144 bytes. A new Android runtime capture is batched with the pending
+  end-cap gate rather than recreating temporary x86_64 intermediates for constant-only shader work.
+- The deterministic Web package remains 8,802,501 bytes uncompressed and is 2,496,567 bytes through
+  gzip; WebAssembly remains 8,537,623 bytes and is 2,436,359 bytes through gzip. JavaScript remains
+  262,820 bytes (59,064 gzip) and HTML remains 2,058 bytes (1,144 gzip). CNA and Sharp Runtime
+  remained read-only, and no build used more than two workers.
 
 ## Session-end checklist
 

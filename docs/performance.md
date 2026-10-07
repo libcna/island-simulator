@@ -1399,8 +1399,8 @@ appearance awaits relinking after the operator-visible prior process closes.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,537,623 bytes (2,436,354
-gzip). The complete transfer payload therefore falls from 8,802,501 to 2,496,562 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,537,623 bytes (2,436,359
+gzip). The complete transfer payload therefore falls from 8,802,501 to 2,496,567 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

@@ -449,7 +449,8 @@ The subsequent topology-preserving driftwood end-cap correction has rebuilt and 
 arm64-only package, which is 18,744,428 bytes with a 15,934,144-byte stripped `libmain.so` and a
 valid v2 signature. The Android runtime gate now requires its exact irregular-ring marker, but a
 new x86_64 runtime capture is intentionally deferred to the next batched GLES qualification; the
-preceding branch capture must not be read as runtime evidence for this later cap-only change.
+same arm64 package also contains the later constant-only east-clearing contrast retune. The
+preceding branch capture must not be read as runtime evidence for either later visual change.
 
 Useful diagnostics for a connected test target are:
 
