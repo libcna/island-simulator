@@ -1010,6 +1010,21 @@ restrained rather than spiky outline. The revised arm64 GLES 3 package builds an
 No isolated benchmark or physical-mobile run was performed, so this is a bounded geometry account
 and portability check rather than a measured zero-cost claim.
 
+### Near-monkey finger and toe silhouette follow-up
+
+Each shared near body variant now adds three short rounded fingers per hand and three toes per
+foot, weighted to the existing forearm and shin bones. The addition is 216 vertices and 240
+triangles in the selected near body mesh. It adds no bone, animation palette, material, texture,
+allocation, draw submission, or far-LOD geometry; the fixed monkey view still renders two near
+agents and one far agent through the established main/face/eye paths.
+
+An initial WebGL 2 capture exposed fingers that read as overly long thin claws, so their reach was
+reduced and cross-section widened before acceptance. The final complete Chrome/SwiftShader suite
+passes all 22 stages, requires the exact diagnostic in lifecycle and monkey checks, and its
+original-resolution fixed frame shows a restrained bone-following silhouette. The OpenGL 3.3
+objects compile without relinking the visible game. The arm64 GLES 3 package builds/lints, while
+physical-device appearance and animation cost remain unqualified.
+
 ### Transient keyboard locomotion confirmation
 
 A keyboard Shift edge now reuses the already resident generated debug font and one-pixel texture
@@ -1097,8 +1112,8 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,056 gzip), and WebAssembly is 8,493,776 bytes (2,423,323
-gzip). The complete transfer payload therefore falls from 8,758,619 to 2,483,497 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,063 gzip), and WebAssembly is 8,497,758 bytes (2,424,043
+gzip). The complete transfer payload therefore falls from 8,762,601 to 2,484,224 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

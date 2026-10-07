@@ -585,7 +585,8 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 - [~] Validate skeleton, clips, scale, axes, material fallback, and all three renderers. Native
   OpenGL 3.3 and actual Chromium/WebGL 2 captures agree; a KVM/gfxstream GLES 3 fixed view matches
   the preceding near silhouette, and the revised arm64 package builds/lints. The newest near fur
-  tufts still await a follow-up GLES 3 close capture and physical-device animation observation.
+  tufts plus bone-following finger/toe silhouettes still await a follow-up GLES 3 close capture
+  and physical-device animation observation.
 - [x] Integrate CNA skeletal animation without framework modification. Project-generated bind and
   inverse-bind poses plus four clips drive one CNA `AnimationPlayer` per agent and the portable
   `SkinnedEffect`; no dependency source changed.
@@ -700,7 +701,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,758,619 bytes uncompressed and 2,483,497 bytes through
+  The current Release package is 8,762,601 bytes uncompressed and 2,484,224 bytes through
   deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1156,8 +1157,9 @@ Work next, in order:
    subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
-   shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
-   plus restrained calm-state player-aware head posing are complete first passes. Bird flight now
+   shared trunk/rock/log avoidance, two call phrases, a surface-visible near face/eye/nose pass,
+   bone-following near fingers/toes, and restrained calm-state player-aware head posing are
+   complete first passes. Bird flight now
    adds slow per-agent radial drift, banked turns, and
    intermittent smooth glides without another draw. Fish and shark movement now follows depth with
    pitch, banks through turns, and uses clearer forked-tail/near-head silhouettes without another
@@ -4471,6 +4473,27 @@ Work next, in order:
 - The two-worker arm64 GLES 3 build/lint and APK v2-signature verification pass. The APK is
   18,710,388 bytes with a 15,900,104-byte stripped `libmain.so`. No new Android runtime or
   physical-device cost claim is made. CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Bone-following near-monkey digits
+
+- Close monkey review found that the established face, fur tufts, and animation read clearly, but
+  the hand and foot ends remained undifferentiated ellipsoids. Added three short rounded fingers
+  per hand and three toes per foot only to each shared near body variant, weighted to the existing
+  forearm and shin bones.
+- The selected near mesh gains 216 vertices and 240 triangles. No bone, animation clip/palette,
+  material, texture, allocation, draw submission, behaviour, collision, or far-LOD geometry was
+  added. The fixed view continues to render two near agents and one far agent through the existing
+  main/face/eye paths.
+- The first actual WebGL 2 frame exposed overly long thin fingers, so their reach was reduced and
+  cross-section widened before acceptance. The final Chrome 152/SwiftShader 22-stage suite passes,
+  requires the exact diagnostic in lifecycle and monkey gates, and produces an inspected frame
+  with restrained digits following the skinned limbs. OpenGL 3.3 objects compile through the
+  shared cache without relinking the visible game.
+- The two-worker arm64 GLES 3 build/lint and APK v2-signature verification pass. WebAssembly is
+  8,497,758 bytes; the APK is 18,711,460 bytes with a 15,901,176-byte stripped library. The
+  deterministic release package is 8,762,601 bytes uncompressed and 2,484,224 bytes through gzip.
+  Physical-device appearance and animation cost remain unqualified; CNA and Sharp Runtime stayed
+  read-only.
 
 ## Session-end checklist
 

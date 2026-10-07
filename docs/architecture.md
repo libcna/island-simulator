@@ -473,7 +473,10 @@ a light upper-face mask plus muzzle/ear detail in one pass and surface-visible e
 a second. Dark eyes use a restrained glossy response. Three small tetrahedral crown/cheek tufts
 break up the near head silhouette in the existing body pass and follow the head bone. They add 27
 vertices and nine triangles to each shared near body variant; the shared face/eye buffers add 86
-vertices and 122 triangles per visible near monkey. No draw is added, and far monkeys remain one draw each. Mesh
+vertices and 122 triangles per visible near monkey. Each near body variant also adds three short
+rounded fingers per hand and three toes per foot, rigidly following the existing forearm and shin
+bones. This adds 216 vertices and 240 triangles to the selected near body mesh. No bone, palette,
+material, draw, or far-LOD geometry is added, and far monkeys remain one draw each. Mesh
 selection does not otherwise change the per-agent draw count. Calm idle/observe states derive a
 distance-faded horizontal look angle toward a player 7.5--30 m away, approach it at a bounded rate,
 and clamp it to 0.34 radians. The renderer composes that angle into the existing head-bone local

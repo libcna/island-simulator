@@ -558,6 +558,27 @@ namespace island
                          Vector3(silhouette.armReach, silhouette.armEndHeight - 0.04f, 0.12f),
                          Vector3(0.075f, 0.10f, 0.065f) * silhouette.armThickness,
                          ForearmRight, 3, segments);
+            if (near) {
+                constexpr int digitRings = 2;
+                constexpr int digitSegments = 5;
+                for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
+                    const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
+                    const int bone = sideIndex == 0 ? ForearmLeft : ForearmRight;
+                    for (int digit = -1; digit <= 1; ++digit) {
+                        const float spread = static_cast<float>(digit)
+                            * 0.031f * silhouette.armThickness;
+                        const float reach = digit == 0 ? 0.059f : 0.052f;
+                        AddEllipsoid(
+                            mesh,
+                            Vector3(sideSign * silhouette.armReach + spread,
+                                    silhouette.armEndHeight - 0.148f
+                                        - 0.004f * std::abs(digit),
+                                    0.142f + 0.006f * static_cast<float>(digit)),
+                            Vector3(0.019f, reach, 0.019f) * silhouette.armThickness,
+                            bone, digitRings, digitSegments);
+                    }
+                }
+            }
 
             AddTube(mesh, rig.heads[ThighLeft], rig.heads[ShinLeft],
                     0.105f * silhouette.legThickness, ThighLeft, limbSegments);
@@ -573,6 +594,27 @@ namespace island
             AddEllipsoid(mesh, Vector3(silhouette.legWidth, 0.055f, 0.135f),
                          Vector3(0.10f, 0.055f, 0.16f) * silhouette.legThickness,
                          ShinRight, 3, segments);
+            if (near) {
+                constexpr int digitRings = 2;
+                constexpr int digitSegments = 5;
+                for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
+                    const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
+                    const int bone = sideIndex == 0 ? ShinLeft : ShinRight;
+                    for (int digit = -1; digit <= 1; ++digit) {
+                        const float spread = static_cast<float>(digit)
+                            * 0.038f * silhouette.legThickness;
+                        AddEllipsoid(
+                            mesh,
+                            Vector3(sideSign * silhouette.legWidth + spread,
+                                    0.050f + 0.003f * std::abs(digit),
+                                    0.320f - 0.008f * std::abs(digit)),
+                            Vector3(0.018f, 0.017f,
+                                    digit == 0 ? 0.078f : 0.068f)
+                                * silhouette.legThickness,
+                            bone, digitRings, digitSegments);
+                    }
+                }
+            }
 
             AddTube(mesh, rig.heads[TailBase], rig.heads[TailMiddle],
                     0.062f * silhouette.tailThickness, TailBase, limbSegments);

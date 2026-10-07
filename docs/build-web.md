@@ -43,8 +43,9 @@ Both clearing cameras also require the shared five-rock/one-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,493,776 bytes. The monkey scene additionally requires the near crown/cheek-tuft
-diagnostic and its inspected frame retains the complete facial-detail/crossfade path. The input
+WebAssembly is 8,497,758 bytes. The monkey scene additionally requires the near crown/cheek-tuft
+and bone-following finger/toe diagnostics, and its inspected frame retains the complete
+facial-detail/crossfade path. The input
 stage captures and visually validates the warm-gold `RUN MODE  8.0 M/S` confirmation while still
 proving that releasing Shift retains running and a second press restores walking. The first-frame
 gate also requires the reported 1280 by 720 logical
@@ -94,7 +95,7 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,758,619 bytes uncompressed and 2,483,497 bytes through gzip, a 71.6% transfer reduction. These
+8,762,601 bytes uncompressed and 2,484,224 bytes through gzip, a 71.6% transfer reduction. These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -190,7 +191,8 @@ requires the exact 51/12-vertex, single-surface-fin, CPU-faceted daylight diagno
 depth/sun-band lighting diagnostic. The shark view must report the active offshore patrol and the
 same lighting diagnostic, and the monkey view must report a visible member of the
 seven-agent GPU-skinned troop. The
-monkey startup diagnostics must also prove that the local-pose crossfade path is active. The
+monkey startup diagnostics must also prove that the local-pose crossfade path and both near-only
+silhouette details are active. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
 `SpriteBatch` composition path; the input-stage image records the short normal-play confirmation.
 The machine-readable result is `build-probe/island-browser-smoke.json`.

@@ -89,8 +89,9 @@ occasionally patrols deeper offshore water with matching dive pitch, turn bankin
 depth-integrated colour, and restrained near eye/gill detail.
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,
 three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
-state-transition crossfades. Near animals add restrained crown/cheek fur tufts in the existing body
-draw. Calm idle/observe animals gradually turn their existing head bone
+state-transition crossfades. Near animals add restrained crown/cheek fur tufts plus bone-following
+finger and toe silhouettes in the existing body draw. Calm idle/observe animals gradually turn
+their existing head bone
 toward a nearby player within a restrained angle, then relax or retreat without becoming hostile.
 The current audio pass adds original procedural shoreline surf, two
 varied occasional stronger waves, light canopy breeze, a subtle daytime-jungle texture,
@@ -223,7 +224,7 @@ browser engine remain open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,483,497 bytes, 71.6% below the 8,758,619-byte
+a SHA-256 manifest. The current gzip payload is 2,484,224 bytes, 71.6% below the 8,762,601-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

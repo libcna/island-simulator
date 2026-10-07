@@ -628,6 +628,7 @@ namespace island
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
                   << "island-simulator: near monkeys use restrained procedural crown and cheek "
                      "fur tufts\n"
+                  << "island-simulator: near monkeys use bone-following finger and toe silhouettes\n"
                   << "island-simulator: calm monkeys use bounded skeletal head attention\n"
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"
