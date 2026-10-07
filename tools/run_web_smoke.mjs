@@ -1099,6 +1099,41 @@ try {
     && !crabResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=butterflies`,
+  }, visualSessionId);
+  let butterflyResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    butterflyResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (butterflyResult.output?.includes("island-simulator: terrain")
+        || butterflyResult.error) break;
+  }
+  await delay(1000);
+  const completedButterflyEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  butterflyResult = JSON.parse(completedButterflyEvaluation.result.value ?? "{}");
+
+  const butterflyScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-butterflies.png", true);
+  const butterflyPassed = butterflyResult.output?.includes(
+      "island-simulator: renderer WEBGL2")
+    && butterflyResult.output?.includes(
+      "island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats")
+    && butterflyResult.output?.includes(
+      "island-simulator: clearing butterflies use hinged patterned wings in one culled batch")
+    && butterflyResult.output?.includes(
+      "island-simulator: butterfly QA camera views a sunny clearing group")
+    && /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
+      butterflyResult.output ?? "")
+    && !butterflyResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=water`,
   }, visualSessionId);
   let waterResult = {};
@@ -1728,6 +1763,7 @@ try {
     && groundPassed && litterPassed
     && palmPassed && junglePassed && eastClearingPassed && westClearingPassed
     && propPassed && driftwoodPassed && reefPassed && shipwreckPassed && crabPassed
+    && butterflyPassed
     && waterPassed && currentPassed
     && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
@@ -1839,6 +1875,11 @@ try {
       output: crabResult.output ?? "",
       error: crabResult.error ?? "",
     },
+    butterflies: {
+      passed: butterflyPassed,
+      output: butterflyResult.output ?? "",
+      error: butterflyResult.error ?? "",
+    },
     water: {
       passed: waterPassed,
       output: waterResult.output ?? "",
@@ -1922,6 +1963,7 @@ try {
     reefScreenshot: path.basename(reefScreenshotPath),
     shipwreckScreenshot: path.basename(shipwreckScreenshotPath),
     crabScreenshot: path.basename(crabScreenshotPath),
+    butterflyScreenshot: path.basename(butterflyScreenshotPath),
     waterScreenshot: path.basename(waterScreenshotPath),
     currentScreenshot: path.basename(currentScreenshotPath),
     distantScreenshot: path.basename(distantScreenshotPath),

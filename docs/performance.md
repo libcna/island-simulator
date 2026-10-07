@@ -1535,10 +1535,10 @@ or thermal claim.
 
 The runtime rejects invalid profiles and resource inventories exceeding the selected texture or
 audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the exact reduced
-mesh counts. Native smoke/capture output confirms the full profile, while the complete 25-stage
+mesh counts. Native smoke/capture output confirms the full profile, while the complete 26-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-18,947,852 bytes with a 16,137,568-byte stripped `libmain.so`; lint reports no issues and APK
+18,999,812 bytes with a 16,189,528-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1580,15 +1580,34 @@ Debug baseline, not an isolated cost attribution or a physical-mobile budget.
 The dedicated composition also passed Chrome/SwiftShader and Firefox ESR WebGL 2 plus the strict
 API 35 KVM/gfxstream GLES 3 gate. The Android run completed first draw in 2336.217 ms and retained
 five visible crabs in one draw. These cross-renderer checks qualify function and composition only;
-the remaining butterfly/turtle layers and a combined additional-wildlife worst case are open.
+the remaining turtle layer and a combined additional-wildlife worst case are open.
+
+### Clearing-butterfly baseline
+
+Eighteen deterministic butterflies occupy three bounded sunny-clearing habitats and share the
+observer-relative activation policy. The near tier uses hinged patterned wings and a small body;
+the far tier retains a compact moving silhouette. All visible agents share one dynamic
+`VertexPositionColor` batch, so the complete layer adds one tracked submission when visible and
+none when culled. It adds no texture, custom shader, or audio source.
+
+One isolated Debug OpenGL 3.3 run of the 1280 by 720 butterfly view on the AMD Radeon 780M/Mesa
+25.0.7 recorded 3.5798 ms mean, 2.8551 ms median, 7.6164 ms p95, 10.5271 ms p99, and 13.1143 ms
+maximum. Twenty-nine of 600 intervals exceeded 8.333 ms; none exceeded 16.667 or 33.333 ms. The
+view reported 85 tracked submissions and 10--11 visible butterflies, with one butterfly draw.
+This is an integrated Debug scene baseline, not an isolated species-cost attribution.
+
+The dedicated composition also passed Chrome/SwiftShader and Firefox ESR WebGL 2; Firefox reported
+11 visible agents, seven near and four far, in one draw. The current arm64 APK compiles and lints
+the complete layer, but accelerated GLES 3 runtime appearance is intentionally deferred to the
+combined butterfly/sea-turtle pass. A combined additional-wildlife worst-case view remains open.
 
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,850 bytes (59,281 gzip), and WebAssembly is 8,705,921 bytes (2,488,675
-gzip). The complete transfer payload therefore falls from 8,972,829 to 2,549,100 bytes, a measured
+gzip), JavaScript is 264,849 bytes (59,282 gzip), and WebAssembly is 8,733,207 bytes (2,496,301
+gzip). The complete transfer payload therefore falls from 9,000,114 to 2,556,727 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

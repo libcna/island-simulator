@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
@@ -87,6 +88,7 @@ namespace
         island::IslandTerrain terrain;
         island::DistantSceneryLayout distantScenery;
         island::BirdFlock birds{terrain};
+        island::ButterflyMeadow butterflies{terrain};
         island::CrabColony crabs{terrain};
         island::FishSchools fish{terrain};
         island::SharkPatrol shark{terrain};
@@ -273,6 +275,23 @@ namespace
             hash.AddByte(bird.colorVariant);
         }
 
+        hash.AddSize(world.butterflies.Butterflies().size());
+        for (std::size_t index = 0;
+             index < world.butterflies.Butterflies().size(); ++index) {
+            const island::ButterflyState& butterfly =
+                world.butterflies.Butterflies()[index];
+            const island::ButterflyHomeRange& home = world.butterflies.Homes()[index];
+            HashPosition(hash, butterfly.x, butterfly.y, butterfly.z);
+            hash.AddFloat(butterfly.headingRadians);
+            hash.AddFloat(butterfly.wingFold);
+            hash.AddFloat(butterfly.scale);
+            hash.AddEnum(butterfly.behavior);
+            hash.AddByte(butterfly.colorVariant);
+            hash.AddFloat(home.x);
+            hash.AddFloat(home.z);
+            hash.AddFloat(home.radius);
+        }
+
         hash.AddSize(world.crabs.Crabs().size());
         for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
             const island::CrabState& crab = world.crabs.Crabs()[index];
@@ -406,6 +425,10 @@ namespace
             && world.jungle.Obstacles().size() == world.jungle.Canopy().size()
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
             && world.birds.Birds().size() == island::BirdFlock::BirdCount
+            && world.butterflies.Butterflies().size()
+                == island::ButterflyMeadow::ButterflyCount
+            && world.butterflies.Homes().size()
+                == island::ButterflyMeadow::ButterflyCount
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
@@ -480,6 +503,22 @@ namespace
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(bird.x, bird.y, bird.z, bird.headingRadians,
                              bird.speed, bird.scale);
+        }
+        for (std::size_t index = 0;
+             index < world.butterflies.Butterflies().size(); ++index) {
+            const island::ButterflyState& butterfly =
+                world.butterflies.Butterflies()[index];
+            const island::ButterflyHomeRange& home = world.butterflies.Homes()[index];
+            const island::TerrainSample sample =
+                world.terrain.Sample(butterfly.x, butterfly.z);
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(butterfly.x, butterfly.y, butterfly.z,
+                             butterfly.headingRadians, butterfly.speed,
+                             butterfly.wingFold, butterfly.scale,
+                             home.x, home.z, home.radius)
+                && butterfly.scale > 0.0f && home.radius > 0.0f
+                && sample.signedShoreDistance
+                    >= island::ButterflyMeadow::MinimumInlandDistance;
         }
         for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
             const island::CrabState& crab = world.crabs.Crabs()[index];
@@ -605,6 +644,8 @@ namespace
                << "  },\n"
                << "  \"wildlife\": {\n"
                << "    \"birds\": " << world.birds.Birds().size() << ",\n"
+               << "    \"butterflies\": "
+               << world.butterflies.Butterflies().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"

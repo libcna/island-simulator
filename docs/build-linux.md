@@ -80,11 +80,12 @@ AddressSanitizer or UndefinedBehaviorSanitizer finding was emitted. The 47 MiB `
 was removed after the pass because it is fully reproducible from the preset.
 
 The 2026-10-07 `97783d1e090c` CNA `next` refresh compiles and links the selected OpenGL 3.3
-framework and game. The complete private-display suite passes 44/44, selects CNA `OPENGL33`,
+framework and game. The complete private-display suite passes 45/45, selects CNA `OPENGL33`,
 compiles every current scene shader, exercises all deterministic views, reports a 1280 by 720
 logical backbuffer, and includes actual simultaneous movement/mouse input plus persistent Shift
 run/walk toggling. Dedicated beach-side shipwreck and crab captures require the exact 20 m broken
-hull/12 debris/one wreck draw plus a nonzero thirty-agent crab population in one wildlife draw.
+hull/12 debris/one wreck draw, a nonzero thirty-agent crab population in one wildlife draw, and a
+nonzero eighteen-agent butterfly population in one clearing-edge wildlife draw.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 
@@ -116,10 +117,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,105,759 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,131,223 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,035,707-byte archive with SHA-256
-`b5a17bd4e84f481597ee5db62c8aed66ed7aa6c6f6f7bab94e87086f30f918e2`.
+5,046,860-byte archive with SHA-256
+`815a1fe1b62b42ec8ab2731ba05a220bbba0589523be4a93f1eec2bea7a6cb67`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -148,6 +149,9 @@ exited cleanly in approximately 400 ms total.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.
+The butterfly package repeated the unrelated-working-directory gate with `--viewpoint
+butterflies`, selected `OPENGL33`, rendered eleven of eighteen agents (seven near, four far) in one
+draw, and exited cleanly after an 823.393 ms first-draw total. Its Release frame was inspected.
 
 ## Tests
 
@@ -265,6 +269,9 @@ device disabled; normal runtime playback is qualified separately.
 nonzero visible population.
 `IslandGameBirdCapture` writes a close airborne wildlife view to
 `build/island-bird-capture.ppm`; startup reports the layered near trailing-flight-feather path.
+`IslandGameButterflyCapture` writes a low first-person clearing view to
+`build/island-butterfly-capture.ppm` and requires a visible population from all eighteen agents,
+nonzero near detail, and exactly one culled wildlife draw.
 `IslandGameFishCapture` writes a close shallow-water school view to
 `build/island-fish-capture.ppm` and requires the exact 51/12-vertex, single-surface-fin, CPU-faceted
 daylight path plus the shared depth/sun-band lighting diagnostic.

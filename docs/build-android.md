@@ -101,8 +101,13 @@ five visible near silhouettes in one draw, the mobile quality marker, and a clea
 by 1080 frame. Startup measured 776.182 ms world, 1.782 ms framework, 1512.457 ms content,
 24.508 ms pre-draw, and 21.288 ms first draw, for 2336.217 ms total. The default arm64 package was
 then restored and the reproducible x86_64 intermediates removed.
-The latest single-ABI arm64 debug qualification build produced an 18,947,852-byte APK with a
-16,137,568-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The current sources additionally include eighteen deterministic clearing-edge butterflies with
+terrain-relative altitude bounds, five palettes, and one near/far culled batch. The arm64 package
+compiles and lints that complete path. A matching accelerated GLES 3 butterfly appearance run is
+not yet claimed; it will be combined with the next sea-turtle qualification so the approximately
+1.1 GiB x86_64 native intermediates are generated once rather than twice.
+The latest single-ABI arm64 debug qualification build produced an 18,999,812-byte APK with a
+16,189,528-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,

@@ -82,6 +82,7 @@ namespace island
             case FixedViewpoint::MonkeyDetail: return "monkeys";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::CrabDetail: return "crabs";
+            case FixedViewpoint::ButterflyDetail: return "butterflies";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
             }
@@ -107,6 +108,7 @@ namespace island
                            const bool userSettingsEnabled)
         : graphics_(this),
           birdFlock_(terrain_),
+          butterflyMeadow_(terrain_),
           crabColony_(terrain_),
           fishSchools_(terrain_),
           sharkPatrol_(terrain_),
@@ -562,6 +564,19 @@ namespace island
             yaw_ = std::atan2(toCrab.X, toCrab.Z);
             pitch_ = std::atan2(toCrab.Y, std::hypot(toCrab.X, toCrab.Z));
             std::cout << "island-simulator: crab QA camera views an active beach colony\n";
+        } else if (viewpoint_ == FixedViewpoint::ButterflyDetail
+                   && butterflyMeadow_.Butterflies().size() > 2U) {
+            const ButterflyHomeRange& home = butterflyMeadow_.Homes()[2U];
+            const float cameraX = home.x - 3.0f;
+            const float cameraZ = home.z - 2.2f;
+            cameraPosition_ = Vector3(
+                cameraX, terrain_.Height(cameraX, cameraZ) + 1.18f, cameraZ);
+            const Vector3 toGroup = Vector3(
+                home.x, terrain_.Height(home.x, home.z) + 0.72f, home.z) - cameraPosition_;
+            yaw_ = std::atan2(toGroup.X, toGroup.Z);
+            pitch_ = std::atan2(
+                toGroup.Y, std::hypot(toGroup.X, toGroup.Z));
+            std::cout << "island-simulator: butterfly QA camera views a sunny clearing group\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -683,6 +698,8 @@ namespace island
             qualityProfile_.contactShadowDistanceScale);
         birdRenderer_ = std::make_unique<BirdRenderer>(
             device, 690.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        butterflyRenderer_ = std::make_unique<ButterflyRenderer>(
+            device, 72.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         crabRenderer_ = std::make_unique<CrabRenderer>(
             device, 92.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         fishRenderer_ = std::make_unique<FishRenderer>(
@@ -768,6 +785,9 @@ namespace island
                   << " agents in a distance-throttled one-batch simulation\n"
                   << "island-simulator: bird flight uses slow radial drift, banking, and "
                      "intermittent glide\n"
+                  << "island-simulator: clearing butterflies "
+                  << butterflyMeadow_.Butterflies().size()
+                  << " agents in deterministic low-altitude habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
                   << " agents in deterministic sand-constrained colonies\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
@@ -823,6 +843,11 @@ namespace island
         }
         std::cout.flush();
         MirrorRuntimeDiagnosticToPlatformLog(rendererDiagnostic);
+        std::ostringstream butterflyPopulationDiagnostic;
+        butterflyPopulationDiagnostic << "island-simulator: clearing butterflies "
+                                      << butterflyMeadow_.Butterflies().size()
+                                      << " agents in deterministic low-altitude habitats";
+        MirrorRuntimeDiagnosticToPlatformLog(butterflyPopulationDiagnostic.str());
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
@@ -896,6 +921,8 @@ namespace island
                    : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()));
         (void)grassInteractionModel_.Update(grassInteractionSpeed, deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        butterflyMeadow_.Update(
+            deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -1408,7 +1435,8 @@ namespace island
             + shipwreckRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
             + contactShadowRenderer_->DrawCallCount()
-            + birdRenderer_->DrawCallCount() + crabRenderer_->DrawCallCount()
+            + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
+            + crabRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
             + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
@@ -1424,6 +1452,7 @@ namespace island
         const int canopy = jungleRenderer_->VisibleCanopyCount();
         const int grass = grassRenderer_->VisiblePatchCount();
         const int crabs = crabRenderer_->VisibleCrabCount();
+        const int butterflies = butterflyRenderer_->VisibleButterflyCount();
         const float shoreDistance = terrain_.SignedShoreDistance(
             cameraPosition_.X, cameraPosition_.Z);
         BenchmarkSceneRanges& ranges = benchmarkSceneRanges_;
@@ -1436,6 +1465,7 @@ namespace island
             ranges.minimumCanopy = ranges.maximumCanopy = canopy;
             ranges.minimumGrass = ranges.maximumGrass = grass;
             ranges.minimumCrabs = ranges.maximumCrabs = crabs;
+            ranges.minimumButterflies = ranges.maximumButterflies = butterflies;
             ranges.minimumShoreDistance = ranges.maximumShoreDistance = shoreDistance;
             ranges.firstCameraPosition = cameraPosition_;
         } else {
@@ -1457,6 +1487,10 @@ namespace island
             ranges.maximumGrass = std::max(ranges.maximumGrass, grass);
             ranges.minimumCrabs = std::min(ranges.minimumCrabs, crabs);
             ranges.maximumCrabs = std::max(ranges.maximumCrabs, crabs);
+            ranges.minimumButterflies = std::min(
+                ranges.minimumButterflies, butterflies);
+            ranges.maximumButterflies = std::max(
+                ranges.maximumButterflies, butterflies);
             ranges.minimumShoreDistance = std::min(
                 ranges.minimumShoreDistance, shoreDistance);
             ranges.maximumShoreDistance = std::max(
@@ -1470,6 +1504,7 @@ namespace island
         ranges.totalCanopy += static_cast<std::uint64_t>(canopy);
         ranges.totalGrass += static_cast<std::uint64_t>(grass);
         ranges.totalCrabs += static_cast<std::uint64_t>(crabs);
+        ranges.totalButterflies += static_cast<std::uint64_t>(butterflies);
         ranges.lastCameraPosition = cameraPosition_;
         ++ranges.sampleCount;
     }
@@ -1594,7 +1629,11 @@ namespace island
                << meanCount(ranges.totalGrass) << "},\n"
                << "    \"crabs\": {\"min\": " << ranges.minimumCrabs
                << ", \"max\": " << ranges.maximumCrabs << ", \"mean\": "
-               << meanCount(ranges.totalCrabs) << "}\n"
+               << meanCount(ranges.totalCrabs) << "},\n"
+               << "    \"butterflies\": {\"min\": "
+               << ranges.minimumButterflies << ", \"max\": "
+               << ranges.maximumButterflies << ", \"mean\": "
+               << meanCount(ranges.totalButterflies) << "}\n"
                << "  },\n"
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
@@ -1633,6 +1672,8 @@ namespace island
                << "    \"beach_details\": "
                << naturalPropRenderer_->VisibleBeachDetailCount() << ",\n"
                << "    \"birds\": " << birdRenderer_->VisibleBirdCount() << ",\n"
+               << "    \"butterflies\": "
+               << butterflyRenderer_->VisibleButterflyCount() << ",\n"
                << "    \"crabs\": " << crabRenderer_->VisibleCrabCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"shark\": " << (sharkRenderer_->IsVisible() ? 1 : 0) << ",\n"
@@ -1763,6 +1804,9 @@ namespace island
 
         palmRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             timeSeconds);
+
+        butterflyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                 butterflyMeadow_.Butterflies());
 
         crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             crabColony_.Crabs());
@@ -1924,6 +1968,28 @@ namespace island
             overlayState.reducedSimulationBirds = birdFlock_.ReducedSimulationCount();
             overlayState.dormantSimulationBirds = birdFlock_.DormantSimulationCount();
             overlayState.birdDraws = birdRenderer_->DrawCallCount();
+            overlayState.visibleButterflies =
+                butterflyRenderer_->VisibleButterflyCount();
+            overlayState.totalButterflies = static_cast<int>(
+                butterflyMeadow_.Butterflies().size());
+            overlayState.nearButterflies =
+                butterflyRenderer_->VisibleNearButterflyCount();
+            overlayState.farButterflies =
+                butterflyRenderer_->VisibleFarButterflyCount();
+            overlayState.fullSimulationButterflies =
+                butterflyMeadow_.FullSimulationCount();
+            overlayState.reducedSimulationButterflies =
+                butterflyMeadow_.ReducedSimulationCount();
+            overlayState.dormantSimulationButterflies =
+                butterflyMeadow_.DormantSimulationCount();
+            for (const ButterflyState& butterfly : butterflyMeadow_.Butterflies()) {
+                switch (butterfly.behavior) {
+                case ButterflyBehavior::Rest: ++overlayState.restingButterflies; break;
+                case ButterflyBehavior::NectarHover: ++overlayState.hoveringButterflies; break;
+                case ButterflyBehavior::Flutter: ++overlayState.flutteringButterflies; break;
+                }
+            }
+            overlayState.butterflyDraws = butterflyRenderer_->DrawCallCount();
             overlayState.visibleCrabs = crabRenderer_->VisibleCrabCount();
             overlayState.totalCrabs = static_cast<int>(crabColony_.Crabs().size());
             overlayState.nearCrabs = crabRenderer_->VisibleNearCrabCount();
@@ -2122,7 +2188,12 @@ namespace island
                       << birdFlock_.Birds().size() << " visible (near "
                       << birdRenderer_->VisibleNearBirdCount() << ", far "
                       << birdRenderer_->VisibleFarBirdCount() << "), "
-                      << birdRenderer_->DrawCallCount() << " draw; crabs "
+                      << birdRenderer_->DrawCallCount() << " draw; butterflies "
+                      << butterflyRenderer_->VisibleButterflyCount() << '/'
+                      << butterflyMeadow_.Butterflies().size() << " visible (near "
+                      << butterflyRenderer_->VisibleNearButterflyCount() << ", far "
+                      << butterflyRenderer_->VisibleFarButterflyCount() << "), "
+                      << butterflyRenderer_->DrawCallCount() << " draw; crabs "
                       << crabRenderer_->VisibleCrabCount() << '/'
                       << crabColony_.Crabs().size() << " visible (near "
                       << crabRenderer_->VisibleNearCrabCount() << ", far "

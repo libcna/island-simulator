@@ -237,7 +237,7 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(24U);
+        lines.reserve(26U);
 #ifndef NDEBUG
         lines.emplace_back(
             "F1 DEBUG  F2 WORLD  F3 FREECAM  F4 COPY SEEDS  F5-F12 TELEPORT  M MUTE");
@@ -387,6 +387,19 @@ namespace island
               << state.reducedSimulationBirds << '/' << state.dormantSimulationBirds
               << "  DRAWS " << state.birdDraws;
         lines.push_back(birds.str());
+
+        auto butterflies = DiagnosticLine();
+        butterflies << "BUTTERFLIES " << state.visibleButterflies << '/'
+                    << state.totalButterflies
+                    << "  NEAR " << state.nearButterflies
+                    << " FAR " << state.farButterflies
+                    << "  SIM " << state.fullSimulationButterflies << '/'
+                    << state.reducedSimulationButterflies << '/'
+                    << state.dormantSimulationButterflies
+                    << "  ST " << state.restingButterflies << '/'
+                    << state.hoveringButterflies << '/' << state.flutteringButterflies
+                    << "  DRAWS " << state.butterflyDraws;
+        lines.push_back(butterflies.str());
 
         auto crabs = DiagnosticLine();
         crabs << "CRABS " << state.visibleCrabs << '/' << state.totalCrabs

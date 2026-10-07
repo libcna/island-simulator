@@ -2,6 +2,7 @@
 #include "IslandSimulator/AquaticLightingModel.hpp"
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -1811,6 +1812,107 @@ int main()
     Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
               + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
           "bird simulation tiers account for the complete flock");
+
+    island::ButterflyMeadow butterflies(terrain);
+    island::ButterflyMeadow repeatedButterflies(terrain);
+    island::ButterflyMeadow invalidInputButterflies(terrain);
+    Check(butterflies.Butterflies().size() == island::ButterflyMeadow::ButterflyCount
+              && butterflies.Homes().size() == island::ButterflyMeadow::ButterflyCount,
+          "butterfly simulation exposes the intended bounded population and habitats");
+    for (std::size_t index = 0; index < butterflies.Butterflies().size(); ++index) {
+        const island::ButterflyState& butterfly = butterflies.Butterflies()[index];
+        const island::ButterflyState& repeated = repeatedButterflies.Butterflies()[index];
+        const island::ButterflyHomeRange& home = butterflies.Homes()[index];
+        const island::TerrainSample sample = terrain.Sample(butterfly.x, butterfly.z);
+        Check(butterfly.x == repeated.x && butterfly.y == repeated.y
+                  && butterfly.z == repeated.z
+                  && butterfly.headingRadians == repeated.headingRadians
+                  && butterfly.behavior == repeated.behavior
+                  && butterfly.colorVariant == repeated.colorVariant,
+              "butterfly construction is deterministic");
+        Check(std::hypot(butterfly.x - home.x, butterfly.z - home.z) <= home.radius
+                  && home.radius >= 7.5f && home.radius <= 11.5f,
+              "each butterfly begins inside one bounded clearing habitat");
+        Check(sample.signedShoreDistance
+                      >= island::ButterflyMeadow::MinimumInlandDistance
+                  && sample.slopeRadians < 0.48f
+                  && (sample.surface == island::TerrainSurface::CoastalGround
+                      || sample.surface == island::TerrainSurface::InteriorGround),
+              "each butterfly begins above suitable non-beach vegetation ground");
+        Check(butterfly.y >= sample.height + 0.14f
+                  && butterfly.y <= sample.height + 1.8f,
+              "each butterfly begins inside the low-altitude presentation envelope");
+    }
+    invalidInputButterflies.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputButterflies.DormantSimulationCount()
+              == static_cast<int>(island::ButterflyMeadow::ButterflyCount)
+              && std::ranges::all_of(
+                  invalidInputButterflies.Butterflies(), [](const auto& butterfly) {
+                      return std::isfinite(butterfly.x) && std::isfinite(butterfly.y)
+                          && std::isfinite(butterfly.z)
+                          && std::isfinite(butterfly.headingRadians);
+                  }),
+          "butterflies reject non-finite frame and observer input without state poisoning");
+    bool observedButterflyRest = false;
+    bool observedButterflyFlutter = false;
+    bool observedButterflyHover = false;
+    for (int frame = 0; frame < 12000; ++frame) {
+        butterflies.Update(1.0f / 30.0f, 0.0f, 100.0f, 0.0f);
+        repeatedButterflies.Update(1.0f / 30.0f, 0.0f, 100.0f, 0.0f);
+        for (std::size_t index = 0; index < butterflies.Butterflies().size(); ++index) {
+            const island::ButterflyState& butterfly = butterflies.Butterflies()[index];
+            const island::ButterflyState& repeated =
+                repeatedButterflies.Butterflies()[index];
+            const island::ButterflyHomeRange& home = butterflies.Homes()[index];
+            const island::TerrainSample sample = terrain.Sample(butterfly.x, butterfly.z);
+            Check(butterfly.x == repeated.x && butterfly.y == repeated.y
+                      && butterfly.z == repeated.z
+                      && butterfly.headingRadians == repeated.headingRadians
+                      && butterfly.wingFold == repeated.wingFold
+                      && butterfly.behavior == repeated.behavior,
+                  "butterfly simulation remains deterministic over a long session");
+            Check(std::hypot(butterfly.x - home.x, butterfly.z - home.z)
+                          <= home.radius + 0.01f
+                      && sample.signedShoreDistance
+                          >= island::ButterflyMeadow::MinimumInlandDistance - 0.01f
+                      && sample.slopeRadians < 0.481f
+                      && butterfly.y >= sample.height + 0.13f
+                      && butterfly.y <= sample.height + 1.81f,
+                  "butterflies remain in bounded low-altitude clearing habitats");
+            Check(std::isfinite(butterfly.speed) && butterfly.speed >= 0.0f
+                      && std::isfinite(butterfly.wingFold)
+                      && butterfly.wingFold >= 0.0f && butterfly.wingFold <= 1.0f,
+                  "butterfly movement and wing pose remain finite and bounded");
+            observedButterflyRest = observedButterflyRest
+                || butterfly.behavior == island::ButterflyBehavior::Rest;
+            observedButterflyFlutter = observedButterflyFlutter
+                || butterfly.behavior == island::ButterflyBehavior::Flutter;
+            observedButterflyHover = observedButterflyHover
+                || butterfly.behavior == island::ButterflyBehavior::NectarHover;
+        }
+    }
+    Check(observedButterflyRest && observedButterflyFlutter && observedButterflyHover,
+          "butterfly habitats reach rest, flutter, and nectar-hover activity states");
+    Check(butterflies.FullSimulationCount() + butterflies.ReducedSimulationCount()
+              + butterflies.DormantSimulationCount()
+              == static_cast<int>(island::ButterflyMeadow::ButterflyCount),
+          "butterfly simulation tiers account for the complete population");
+    island::ButterflyMeadow reactiveButterflies(terrain);
+    const island::ButterflyState initialReactiveButterfly =
+        reactiveButterflies.Butterflies().front();
+    for (int frame = 0; frame < 120; ++frame) {
+        reactiveButterflies.Update(
+            1.0f / 60.0f, initialReactiveButterfly.x, initialReactiveButterfly.y,
+            initialReactiveButterfly.z);
+    }
+    const island::ButterflyState& escapedButterfly =
+        reactiveButterflies.Butterflies().front();
+    Check(escapedButterfly.behavior == island::ButterflyBehavior::Flutter
+              && std::hypot(escapedButterfly.x - initialReactiveButterfly.x,
+                            escapedButterfly.z - initialReactiveButterfly.z) > 0.25f
+              && escapedButterfly.y > terrain.Height(
+                     escapedButterfly.x, escapedButterfly.z) + 0.35f,
+          "a nearby observer prompts a mild airborne butterfly retreat");
 
     island::CrabColony crabs(terrain);
     island::CrabColony repeatedCrabs(terrain);

@@ -11,6 +11,8 @@
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
+#include "IslandSimulator/ButterflyMeadow.hpp"
+#include "IslandSimulator/ButterflyRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CrabRenderer.hpp"
@@ -92,6 +94,7 @@ namespace island
         MonkeyDetail,
         ShipwreckDetail,
         CrabDetail,
+        ButterflyDetail,
         BenchmarkTraversal
     };
 
@@ -171,6 +174,9 @@ namespace island
             int minimumCrabs = 0;
             int maximumCrabs = 0;
             std::uint64_t totalCrabs = 0U;
+            int minimumButterflies = 0;
+            int maximumButterflies = 0;
+            std::uint64_t totalButterflies = 0U;
             float minimumShoreDistance = 0.0f;
             float maximumShoreDistance = 0.0f;
             Microsoft::Xna::Framework::Vector3 firstCameraPosition{0.0f, 0.0f, 0.0f};
@@ -183,6 +189,7 @@ namespace island
         IslandTerrain terrain_;
         DistantSceneryLayout distantSceneryLayout_;
         BirdFlock birdFlock_;
+        ButterflyMeadow butterflyMeadow_;
         CrabColony crabColony_;
         FishSchools fishSchools_;
         SharkPatrol sharkPatrol_;
@@ -213,6 +220,7 @@ namespace island
         RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::Full();
 #endif
         std::unique_ptr<BirdRenderer> birdRenderer_;
+        std::unique_ptr<ButterflyRenderer> butterflyRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<CrabRenderer> crabRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;

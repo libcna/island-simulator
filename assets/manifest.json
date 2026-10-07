@@ -112,6 +112,14 @@
       ]
     },
     {
+      "name": "clearing-butterflies",
+      "licenseRecord": "Procedural clearing butterflies",
+      "sources": [
+        "game/src/ButterflyMeadow.cpp",
+        "game/src/ButterflyRenderer.cpp"
+      ]
+    },
+    {
       "name": "beach-crabs",
       "licenseRecord": "Procedural beach crabs",
       "sources": [

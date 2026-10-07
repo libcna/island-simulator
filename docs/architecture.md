@@ -41,6 +41,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── CrabColony ──────── sand/home-range state machine and simulation tiers
       │       │
       │       └── CrabRenderer ─ articulated near/far poses, culling, one dynamic batch
+      ├── ButterflyMeadow ─── clearing habitat state machine and simulation tiers
+      │       │
+      │       └── ButterflyRenderer ─ hinged near/far wings, culling, one dynamic batch
       ├── FishSchools ─────── deterministic depth-bounded schools and simulation tiers
       │       │
       │       └── FishRenderer ─ CPU tail pose, near/far meshes, culling, one dynamic batch
@@ -238,14 +241,14 @@ otherwise empty build-owned directory to protect the present contract.
    to four persistent CNA loop instances and schedules bounded wave/water accents, resolved-travel
    sand/soil footsteps, plus one pooled positional bird/monkey call voice from nearby wildlife
    state.
-9. `BirdFlock`, `CrabColony`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering,
-   terrain/depth
+9. `BirdFlock`, `CrabColony`, `ButterflyMeadow`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop`
+   update steering, terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain and distant scenery. `ContactShadowRenderer` overlays its
    depth-read terrain grounding batch before natural props, the shipwreck, broadleaf jungle, mesh grass, palms,
-   the one-batch beach crabs and procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
+   the one-batch beach crabs, clearing butterflies, and procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
    monkeys, and transparent ocean using one view/projection pair. The shipwreck is submitted after
    other opaque natural props and before water so ocean transparency colours and reveals its
    submerged structure. Aquatic wildlife is also submitted before water. The near-surface veil follows the
@@ -546,6 +549,19 @@ preallocated 54-vertex budget: paired double-sided trailing-feather triangles ex
 wing roots/tips and share the same flap pose, while the 12-vertex far silhouette is unchanged. The
 portable `BasicEffect` path has no custom shader or modern-only feature. Native OpenGL 3.3, actual
 Chromium/WebGL 2, and KVM/gfxstream GLES 3 execute and visually match the dedicated bird capture.
+
+Eighteen deterministic butterflies occupy three sunny clearing and jungle-edge habitats.
+`ButterflyMeadow` alternates asynchronous `Rest`, `Flutter`, and `NectarHover` states, combines
+bounded turn wander with slow altitude variation, and applies only a mild lift/retreat response to
+a nearby observer. Every candidate pose is revalidated against authoritative coastal/interior
+ground, a minimum 28 m signed-shore distance, maximum slope, individual home radius, and a narrow
+terrain-relative altitude envelope. The shared wildlife activation policy reduces or suspends
+distant updates without changing the population. `ButterflyRenderer` frustum/distance-culls each
+agent, chooses a hinged patterned near model or compact far silhouette, and streams all visible
+double-sided opaque triangles through one `DynamicVertexBuffer`/`BasicEffect` draw. Five palettes
+and individual phase/scale variation break repetition; the largest procedural wingspan is roughly
+0.27 m. Native OpenGL 3.3 and Chrome/Firefox WebGL 2 dedicated captures pass. The complete arm64
+GLES 3 package compiles and lints, while close Android runtime appearance remains unqualified.
 
 Eight deterministic shallow-water schools contain six fish each. Their route centres follow the
 authoritative irregular shoreline instead of a circular approximation; each route searches outward

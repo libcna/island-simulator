@@ -630,9 +630,10 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   Thirty crabs occupy six bounded colonies, share pause/forage/scuttle behaviour and the existing
   full/reduced/dormant activation policy, and render as articulated near/far silhouettes in one
   culled dynamic batch with no per-animal audio voice.
-- [ ] Add butterflies around selected sunny clearings and jungle edges. Their bounded wandering
-  should vary height, turn, and rest/glide timing without looking like miniature birds; cull and
-  throttle them aggressively and preserve clear walking routes.
+- [x] Add butterflies around selected sunny clearings and jungle edges. Eighteen butterflies use
+  three terrain-validated low-altitude habitats, asynchronous rest/flutter/nectar-hover timing,
+  mild player lift/retreat, five palettes, and hinged patterned near wings. They share the
+  full/reduced/dormant activation policy and render through one culled near/far dynamic batch.
 - [ ] Add a few non-hostile sea turtles to suitable near-shore water. Constrain them between seabed
   and surface, keep them out of land and the offshore-current limit, give them slow flipper/body
   animation and occasional surfacing, and avoid duplicating the fish/shark steering code where the
@@ -642,7 +643,9 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   dedicated debug counts and at least one fixed QA view that proves readable silhouettes without
   inflating invisible populations or the mobile draw-call budget. Crab determinism, habitat,
   12,000-frame finite motion, behaviour reachability, player response, activation tiers, F1 counts,
-  benchmark ranges, and a matched `crabs` QA view are covered; butterflies and turtles remain.
+  benchmark ranges, and a matched `crabs` QA view are covered. Butterfly determinism, habitat and
+  altitude bounds, 12,000-frame finite motion, all three states, observer tiers, player response,
+  F1/benchmark counts, and a matched `butterflies` QA view are also covered; turtles remain.
 
 ### Monkeys and skeletal animation
 
@@ -1117,8 +1120,8 @@ Android is not project completion.
   repeat after future runtime or visual changes.
 - [~] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
   repository inspection. Shell/Node syntax, executable modes, tracked-file types, approved build
-  directories, local Markdown links, asset provenance, package determinism, full native 44/44, and
-  full Web 25-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
+  directories, local Markdown links, asset provenance, package determinism, full native 45/45, and
+  full Web 26-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
   gate at final packaging.
 
 Exit validation:
@@ -1197,9 +1200,9 @@ improves the requested experience rather than adding quests, combat, survival, o
 
 - [~] Integrate crabs, butterflies, sea turtles, existing birds/fish/shark/monkeys, vegetation wind,
   ocean motion, and positional sound into believable local activity rhythms. Avoid synchronized
-  loops, clutter, and constant attention-seeking behaviour. Six sparse crab colonies now provide
-  localized beach motion with asynchronous state timing; butterflies, turtles, and whole-scene
-  activity-rhythm critique remain.
+  loops, clutter, and constant attention-seeking behaviour. Six sparse crab colonies and three
+  small clearing-edge butterfly habitats now provide localized motion with asynchronous state
+  timing; turtles and whole-scene activity-rhythm critique remain.
 - [ ] Add only subtle shipwreck ambience that can reuse the bounded soundscape budget, such as
   wave wash/wood creak scheduling from existing water layers; do not create a permanently loud
   global loop or imply a quest.
@@ -1402,9 +1405,9 @@ Work next, in order:
 
 Immediate user-directed expansion:
 
-1. Add clearing-edge butterflies and a small near-shore sea-turtle population through the existing
-   deterministic activation architecture, with long-run region/state tests and bounded batches.
-   The beach-crab portion is complete and provides the pattern for both remaining species.
+1. Add a small near-shore sea-turtle population through the existing deterministic activation
+   architecture, with long-run depth/region/state tests and a bounded batch. The beach-crab and
+   clearing-edge-butterfly portions are complete and provide terrestrial implementation patterns.
 2. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
@@ -6115,6 +6118,48 @@ Existing observation and qualification queue:
   `b5a17bd4e84f481597ee5db62c8aed66ed7aa6c6f6f7bab94e87086f30f918e2` and 12,105,759
   installed bytes. The installed executable launched from `/tmp` on the private OpenGL 3.3
   display, rendered the five-crab view in one draw, and exited cleanly; the frame was inspected.
+
+### 2026-10-07 — Clearing-edge butterflies
+
+- Added eighteen original procedural butterflies across three sunny-clearing and jungle-edge
+  habitats. Their renderer-independent state machine alternates asynchronous rest, flutter, and
+  nectar-hover behaviour, varies height and turning without reusing bird flight, and applies a
+  mild non-hostile lift/retreat response to a nearby player.
+- Every proposed pose is constrained to authoritative coastal/interior ground, at least 28 m
+  inland, below the configured slope limit, within its individual home range, and inside a narrow
+  terrain-relative altitude envelope. Tests cover deterministic reconstruction, invalid inputs,
+  initial habitat validity, all three states, observer-distance tiers, player response, and 12,000
+  update frames without non-finite or out-of-habitat motion.
+- Added one culled dynamic `BasicEffect` batch with five natural palettes, hinged patterned wings,
+  small bodies, double-sided opaque near geometry, and a reduced far silhouette. The dedicated
+  `--viewpoint butterflies` composition shows 10--11 of 18 agents, normally seven near and four
+  far, in one draw. F1 and schema-3 benchmark output expose render LOD, simulation tiers, draw
+  count, and observed population ranges.
+- The complete private-display OpenGL 3.3 suite passes 45/45. The final inspected native 1280 by
+  720 capture retains readable clearing motion after reducing maximum wingspan to approximately
+  0.27 m. The 26-stage Chrome/SwiftShader WebGL 2 matrix passes, and Firefox ESR independently
+  reports 11 visible butterflies (seven near, four far) in one draw. One earlier Chrome attempt
+  encountered a transient page-navigation readiness miss at the unrelated fish stage; the full
+  unchanged rerun passed.
+- An isolated native Debug butterfly-view benchmark recorded 3.5798 ms mean, 2.8551 ms median,
+  7.6164 ms p95, 10.5271 ms p99, 13.1143 ms maximum, 29 intervals above 8.333 ms, and zero above
+  16.667 ms. It reported 85 tracked submissions and a 10--11 visible-butterfly range. This is an
+  integrated Debug baseline rather than isolated species cost attribution.
+- Asset validation now covers 20 procedural records, 38 generator sources, two project files, and
+  zero external files; the deterministic world fingerprint is `db257bb9333e17ad`. The final Web
+  package is 9,000,114 bytes uncompressed or 2,556,727 bytes through deterministic gzip: HTML is
+  2,058/1,144 bytes, JavaScript 264,849/59,282 bytes, and WebAssembly 8,733,207/2,496,301 bytes.
+- The arm64-only Android package rebuild and lint pass. The APK is 18,999,812 bytes, contains a
+  16,189,528-byte stripped `libmain.so`, and verifies with APK signature scheme v2. Butterfly
+  runtime appearance on GLES 3 remains explicitly unqualified; its accelerated x86_64 runtime pass
+  is intentionally combined with the next sea-turtle milestone to avoid regenerating roughly
+  1.1 GiB of temporary native intermediates twice. CNA and Sharp Runtime remained read-only.
+- The stripped Linux Release package was rebuilt through shared ccache. Two packaging runs produced
+  the same 5,046,860-byte archive with SHA-256
+  `815a1fe1b62b42ec8ab2731ba05a220bbba0589523be4a93f1eec2bea7a6cb67` and 12,131,223
+  installed bytes. From `/tmp`, the packaged executable selected `OPENGL33`, rendered eleven
+  butterflies (seven near, four far) in one draw, and reached its first completed game draw in
+  823.393 ms; the Release frame was inspected.
 
 ## Session-end checklist
 

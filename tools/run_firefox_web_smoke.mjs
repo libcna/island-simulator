@@ -256,6 +256,7 @@ try {
     "island-simulator: near fallen-log end grain uses restrained radial cracks",
     "island-simulator: rock per-instance tint reuses existing transforms",
     "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
+    "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
     "island-simulator: ocean grazing reflection bands reuse analytic slope field",
     "island-simulator: startup world ",
@@ -491,6 +492,17 @@ try {
       "island-simulator: crab QA camera views an active beach colony",
     ],
     /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
+  const butterflyScene = await qualifyScene(
+    context,
+    "butterflies",
+    "island-firefox-esr-butterflies.png",
+    [
+      "island-simulator: renderer WEBGL2",
+      "island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats",
+      "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
+      "island-simulator: butterfly QA camera views a sunny clearing group",
+    ],
+    /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
   const report = {
     schema: 1,
     browser: "Firefox ESR",
@@ -521,6 +533,7 @@ try {
       water: waterScene,
       shipwreck: shipwreckScene,
       crabs: crabScene,
+      butterflies: butterflyScene,
     },
     sessionId: session.sessionId,
     outputTail: productionOutput.split("\n").slice(-28),

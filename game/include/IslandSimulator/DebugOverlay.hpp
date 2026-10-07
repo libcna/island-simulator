@@ -105,6 +105,17 @@ namespace island
         int reducedSimulationBirds = 0;
         int dormantSimulationBirds = 0;
         int birdDraws = 0;
+        int visibleButterflies = 0;
+        int totalButterflies = 0;
+        int nearButterflies = 0;
+        int farButterflies = 0;
+        int fullSimulationButterflies = 0;
+        int reducedSimulationButterflies = 0;
+        int dormantSimulationButterflies = 0;
+        int restingButterflies = 0;
+        int hoveringButterflies = 0;
+        int flutteringButterflies = 0;
+        int butterflyDraws = 0;
         int visibleCrabs = 0;
         int totalCrabs = 0;
         int nearCrabs = 0;
