@@ -322,7 +322,13 @@ Dependencies: stable terrain/shore queries and representative performance instru
   readable paths without an implausible mountain. The deterministic shoreline spans 209.7--252.1 m
   in radius and the first authored three-silhouette driftwood arc gives the `-2.35` radian cove a
   recognizable non-solid landmark; broader whole-route composition remains open.
-- [ ] Create biome/density masks with authored overrides and deterministic placement seeds.
+- [~] Create biome/density masks with authored overrides and deterministic placement seeds. The
+  authoritative shore distance, slope, height, and independent multi-scale cluster fields already
+  form coast/interior density masks for palms, four jungle layers, grass, and each prop family.
+  The shared primary corridor, two clearing rooms, spawn space, clearing landmarks, and cove
+  driftwood provide authored overrides; fixed seeds and population/placement tests lock the result.
+  A separately stored mask asset is not justified for this procedural source, while broader
+  authored biome pockets and whole-route composition tuning remain open.
 - [~] Add sand, wet-sand, soil, grass/jungle-floor, and rock material transitions. Terrain vertices
   now carry authoritative shore distance and slope into a portable texture-free material shader;
   two-scale value noise and fine breakup vary sand/interior soil, the wet edge darkens coherently
