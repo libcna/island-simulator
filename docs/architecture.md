@@ -38,6 +38,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── BirdFlock ───────── deterministic shore/canopy/high flight and simulation tiers
       │       │
       │       └── BirdRenderer ─ CPU wing pose, near/far meshes, culling, one dynamic batch
+      ├── CrabColony ──────── sand/home-range state machine and simulation tiers
+      │       │
+      │       └── CrabRenderer ─ articulated near/far poses, culling, one dynamic batch
       ├── FishSchools ─────── deterministic depth-bounded schools and simulation tiers
       │       │
       │       └── FishRenderer ─ CPU tail pose, near/far meshes, culling, one dynamic batch
@@ -74,7 +77,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 
 `IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonInput`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
-`NaturalPropLayout`, `ShipwreckLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `AquaticLightingModel`,
+`NaturalPropLayout`, `ShipwreckLayout`, `DistantSceneryLayout`, `BirdFlock`, `CrabColony`,
+`FishSchools`, `AquaticLightingModel`,
 `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `ProceduralMeshValidation`, `RuntimeQualityProfile`, `TouchControls`,
 `SoundscapeModel`, `AudioAnalysis`, `WorldIdentity`, and `UserSettings` form
@@ -234,13 +238,14 @@ otherwise empty build-owned directory to protect the present contract.
    to four persistent CNA loop instances and schedules bounded wave/water accents, resolved-travel
    sand/soil footsteps, plus one pooled positional bird/monkey call voice from nearby wildlife
    state.
-9. `BirdFlock`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering, terrain/depth
+9. `BirdFlock`, `CrabColony`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop` update steering,
+   terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain and distant scenery. `ContactShadowRenderer` overlays its
    depth-read terrain grounding batch before natural props, the shipwreck, broadleaf jungle, mesh grass, palms,
-   the one-batch procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
+   the one-batch beach crabs and procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
    monkeys, and transparent ocean using one view/projection pair. The shipwreck is submitted after
    other opaque natural props and before water so ocean transparency colours and reveals its
    submerged structure. Aquatic wildlife is also submitted before water. The near-surface veil follows the

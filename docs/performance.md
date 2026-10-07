@@ -28,7 +28,7 @@ identity, sampling settings, mean/median/p95/p99 frame duration, minimum/maximum
 FPS, exact sample counts above 8.333/16.667/33.333 ms, the final scene snapshot, and min/max/mean
 ranges for tracked submissions, terrain cells,
 coalesced terrain draw submissions,
-contact shadows, palms, canopy, and grass. These generated reports belong under `build/` or
+contact shadows, palms, canopy, grass, and visible beach crabs. These generated reports belong under `build/` or
 `/tmp`; they are evidence, not source artifacts.
 
 The benchmark intentionally rejects smoke, capture, overlay, world-debug, and input-diagnostic
@@ -1535,10 +1535,10 @@ or thermal claim.
 
 The runtime rejects invalid profiles and resource inventories exceeding the selected texture or
 audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the exact reduced
-mesh counts. Native smoke/capture output confirms the full profile, while the complete 24-stage
+mesh counts. Native smoke/capture output confirms the full profile, while the complete 25-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-18,896,940 bytes with a 16,086,656-byte stripped `libmain.so`; lint reports no issues and APK
+18,947,852 bytes with a 16,137,568-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1563,13 +1563,32 @@ and API 35 KVM/gfxstream GLES 3 scene gates. The Android first-draw total of 620
 functional translated-host evidence but not a physical-mobile frame-time, startup, thermal, or
 power result.
 
+### Beach-crab baseline
+
+Thirty deterministic crabs share the existing observer-relative activation policy and occupy six
+bounded sand colonies. Near crabs use faceted shells, articulated bent legs, claws, and eye stalks;
+the far tier retains a compact moving silhouette. All visible agents are rebuilt into one dynamic
+`VertexPositionColor` batch, so the layer contributes exactly one tracked submission when present
+and none when culled. No texture, custom shader, or audio source is added.
+
+One isolated Debug OpenGL 3.3 run of the 1280 by 720 crab view on the AMD Radeon 780M/Mesa 25.0.7
+reported 2.4998 ms mean, 2.0381 ms median, 4.8406 ms p95, 11.0887 ms p99, and 13.4104 ms maximum.
+Twelve of 600 intervals exceeded 8.333 ms; none exceeded 16.667 or 33.333 ms. The fixed view
+reported 26 tracked submissions and five visible crabs in one draw. This is a first integrated
+Debug baseline, not an isolated cost attribution or a physical-mobile budget.
+
+The dedicated composition also passed Chrome/SwiftShader and Firefox ESR WebGL 2 plus the strict
+API 35 KVM/gfxstream GLES 3 gate. The Android run completed first draw in 2336.217 ms and retained
+five visible crabs in one draw. These cross-renderer checks qualify function and composition only;
+the remaining butterfly/turtle layers and a combined additional-wildlife worst case are open.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,850 bytes (59,288 gzip), and WebAssembly is 8,674,331 bytes (2,477,150
-gzip). The complete transfer payload therefore falls from 8,941,239 to 2,537,582 bytes, a measured
+gzip), JavaScript is 264,850 bytes (59,281 gzip), and WebAssembly is 8,705,921 bytes (2,488,675
+gzip). The complete transfer payload therefore falls from 8,972,829 to 2,549,100 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

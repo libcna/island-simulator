@@ -2,6 +2,7 @@
 #include "IslandSimulator/AquaticLightingModel.hpp"
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
@@ -1810,6 +1811,89 @@ int main()
     Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
               + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
           "bird simulation tiers account for the complete flock");
+
+    island::CrabColony crabs(terrain);
+    island::CrabColony repeatedCrabs(terrain);
+    island::CrabColony invalidInputCrabs(terrain);
+    Check(crabs.Crabs().size() == island::CrabColony::CrabCount
+              && crabs.Homes().size() == island::CrabColony::CrabCount,
+          "beach-crab simulation exposes the intended bounded population and homes");
+    for (std::size_t index = 0; index < crabs.Crabs().size(); ++index) {
+        const island::CrabState& crab = crabs.Crabs()[index];
+        const island::CrabState& repeated = repeatedCrabs.Crabs()[index];
+        const island::CrabHomeRange& home = crabs.Homes()[index];
+        const island::TerrainSample sample = terrain.Sample(crab.x, crab.z);
+        Check(crab.x == repeated.x && crab.y == repeated.y && crab.z == repeated.z
+                  && crab.bodyYawRadians == repeated.bodyYawRadians
+                  && crab.colorVariant == repeated.colorVariant,
+              "beach-crab construction is deterministic");
+        Check(std::hypot(crab.x - home.x, crab.z - home.z) < 0.001f
+                  && home.radius >= 5.8f && home.radius <= 8.0f,
+              "each beach crab begins inside its bounded home range");
+        Check(sample.signedShoreDistance >= island::CrabColony::MinimumShoreDistance
+                  && sample.signedShoreDistance <= island::CrabColony::MaximumShoreDistance
+                  && sample.height >= -0.02f && sample.slopeRadians < 0.38f,
+              "each beach crab begins in suitable shoreline habitat");
+    }
+    invalidInputCrabs.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputCrabs.DormantSimulationCount()
+              == static_cast<int>(island::CrabColony::CrabCount)
+              && std::ranges::all_of(invalidInputCrabs.Crabs(), [](const auto& crab) {
+                     return std::isfinite(crab.x) && std::isfinite(crab.y)
+                         && std::isfinite(crab.z) && std::isfinite(crab.bodyYawRadians);
+                 }),
+          "beach crabs reject non-finite frame and observer input without state poisoning");
+    bool observedPause = false;
+    bool observedForage = false;
+    for (int frame = 0; frame < 12000; ++frame) {
+        crabs.Update(1.0f / 30.0f, 0.0f, 100.0f, 0.0f);
+        repeatedCrabs.Update(1.0f / 30.0f, 0.0f, 100.0f, 0.0f);
+        const auto states = crabs.Crabs();
+        const auto repeatedStates = repeatedCrabs.Crabs();
+        for (std::size_t index = 0; index < states.size(); ++index) {
+            const island::CrabState& crab = states[index];
+            const island::CrabState& repeated = repeatedStates[index];
+            const island::CrabHomeRange& home = crabs.Homes()[index];
+            const island::TerrainSample sample = terrain.Sample(crab.x, crab.z);
+            Check(crab.x == repeated.x && crab.y == repeated.y && crab.z == repeated.z
+                      && crab.bodyYawRadians == repeated.bodyYawRadians
+                      && crab.travelHeadingRadians == repeated.travelHeadingRadians
+                      && crab.behavior == repeated.behavior,
+                  "beach-crab simulation remains deterministic over a long session");
+            Check(std::hypot(crab.x - home.x, crab.z - home.z) <= home.radius + 0.01f
+                      && sample.signedShoreDistance
+                          >= island::CrabColony::MinimumShoreDistance - 0.01f
+                      && sample.signedShoreDistance
+                          <= island::CrabColony::MaximumShoreDistance + 0.01f
+                      && sample.height >= -0.021f && sample.slopeRadians < 0.381f,
+                  "beach crabs remain inside bounded dry shoreline habitat");
+            Check(std::isfinite(crab.speed) && std::isfinite(crab.legPhase)
+                      && std::isfinite(crab.clawPose)
+                      && crab.speed >= 0.0f && std::fabs(crab.legPhase) <= 1.001f
+                      && crab.clawPose >= 0.0f && crab.clawPose <= 1.0f,
+                  "beach-crab animation remains finite and bounded");
+            observedPause = observedPause || crab.behavior == island::CrabBehavior::Pause;
+            observedForage = observedForage || crab.behavior == island::CrabBehavior::Forage;
+        }
+    }
+    Check(observedPause && observedForage,
+          "beach-crab colonies alternate between quiet and foraging behaviour");
+    Check(crabs.FullSimulationCount() + crabs.ReducedSimulationCount()
+              + crabs.DormantSimulationCount()
+              == static_cast<int>(island::CrabColony::CrabCount),
+          "beach-crab simulation tiers account for the complete population");
+    island::CrabColony reactiveCrabs(terrain);
+    const island::CrabState initialReactiveCrab = reactiveCrabs.Crabs().front();
+    for (int frame = 0; frame < 90; ++frame) {
+        reactiveCrabs.Update(1.0f / 60.0f,
+                             initialReactiveCrab.x, initialReactiveCrab.y,
+                             initialReactiveCrab.z);
+    }
+    const island::CrabState& escapedCrab = reactiveCrabs.Crabs().front();
+    Check(escapedCrab.behavior == island::CrabBehavior::Scuttle
+              && std::hypot(escapedCrab.x - initialReactiveCrab.x,
+                            escapedCrab.z - initialReactiveCrab.z) > 0.5f,
+          "a nearby observer provokes a visible non-hostile crab scuttle response");
 
     island::FishSchools fishSchools(terrain);
     island::FishSchools repeatedFishSchools(terrain);

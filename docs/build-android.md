@@ -96,8 +96,13 @@ The recorded startup split was 2170.241 ms world, 4.046 ms framework, 3916.735 m
 31.262 ms pre-draw, and 82.595 ms first draw, for 6204.880 ms total. No fatal, shader, or
 `GL_INVALID_OPERATION` diagnostic appeared. This qualifies functional translated-host rendering,
 not physical-device performance or thermal behaviour.
-The latest single-ABI arm64 debug qualification build produced an 18,896,940-byte APK with a
-16,086,656-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The same accelerated environment passed a strict `--viewpoint crabs` run with all thirty agents,
+five visible near silhouettes in one draw, the mobile quality marker, and a clean inspected 2400
+by 1080 frame. Startup measured 776.182 ms world, 1.782 ms framework, 1512.457 ms content,
+24.508 ms pre-draw, and 21.288 ms first draw, for 2336.217 ms total. The default arm64 package was
+then restored and the reproducible x86_64 intermediates removed.
+The latest single-ABI arm64 debug qualification build produced an 18,947,852-byte APK with a
+16,137,568-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -688,7 +693,17 @@ ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,shipwreck,--debug-overlay \
   "$ANDROID_SDK_ROOT/platform-tools/adb" \
   android/app/build/outputs/apk/debug/app-debug.apk \
     build/android-runtime-smoke-shipwreck
+
+ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,crabs,--debug-overlay \
+  tools/run_android_runtime_smoke.sh \
+  "$ANDROID_SDK_ROOT/platform-tools/adb" \
+  android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-crabs
 ```
+
+Every strict run also requires the thirty-agent beach-crab population marker. The crab camera
+additionally exposes a nonzero visible population and the one-draw batch in the retained platform
+log and screenshot.
 
 ## Dependency overrides
 

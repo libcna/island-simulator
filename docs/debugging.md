@@ -124,6 +124,8 @@ Current fields are:
 - visible/total grass clusters, near/middle/far populations, mixed-LOD cell count, cells, draw
   submissions, and smoothed player-interaction strength;
 - visible/total birds, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
+- visible/total beach crabs, near/far render LOD, full/reduced/dormant simulation tiers, and draw
+  count;
 - visible/total fish, near/far render LOD, full/reduced/dormant simulation tiers, and draw count;
 - shark presence, visibility, activity, near/far render LOD, simulation tier, patrol cycles, and
   draw count;
@@ -188,9 +190,11 @@ build/island-simulator --capture /tmp/island-water.ppm --viewpoint water
 build/island-simulator --capture /tmp/island-current.ppm --viewpoint current
 build/island-simulator --capture /tmp/island-distant.ppm --viewpoint distant
 build/island-simulator --capture /tmp/island-birds.ppm --viewpoint birds
+build/island-simulator --capture /tmp/island-crabs.ppm --viewpoint crabs
 build/island-simulator --capture /tmp/island-fish.ppm --viewpoint fish
 build/island-simulator --capture /tmp/island-shark.ppm --viewpoint shark
 build/island-simulator --capture /tmp/island-monkeys.ppm --viewpoint monkeys
+build/island-simulator --capture /tmp/island-shipwreck.ppm --viewpoint shipwreck
 build/island-simulator --capture /tmp/island-debug.ppm --viewpoint beach --debug-overlay
 build/island-simulator --capture /tmp/island-world-debug.ppm --viewpoint overview --world-debug
 build/island-simulator --capture /tmp/island-contact.ppm --viewpoint contact --world-debug
@@ -209,7 +213,8 @@ complete 1280 by 720 P6 payload and broad luminance, colour-diversity, and spati
 then writes `island-capture-report.json`. This is a deterministic non-degeneracy gate, not a
 pixel-golden or native-versus-Web image comparator. The WebGL 2 harness writes corresponding
 overview, beach, grass, ground, palm,
-jungle, prop, driftwood, reef, water, current, frond, distant, bird, fish, shark, and monkey PNG
+jungle, prop, driftwood, reef, shipwreck, crabs, water, current, frond, distant, bird, fish, shark,
+and monkey PNG
 captures plus a JSON report under
 `build-probe/`. Captures prove
 initialization, shader selection, draw-path

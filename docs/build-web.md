@@ -4,7 +4,7 @@
 
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant/shipwreck rendering, first-click pointer
+overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant/shipwreck/crabs rendering, first-click pointer
 lock, canvas focus, WASD/arrow traversal, Shift run/walk toggling, simultaneous movement/relative
 mouse look, the B camera-motion opt-out, F1 input, pointer release/reacquisition, and responsive
 16:9 presentation. The Chrome gate also restarts the production runtime on the same origin and
@@ -21,7 +21,7 @@ positional-source markers.
 Audible output on a visible hardware browser, long tab suspension/audio-focus recovery,
 hardware-GPU performance, and extended play are not yet validated. Firefox ESR 140.15 now provides
 a narrower independent second-engine gate for the production first frame, essential input/audio
-contract, and dedicated live jungle, near-surface-water, plus shipwreck scenes; it does not duplicate the
+contract, and dedicated live jungle, near-surface-water, shipwreck, plus beach-crab scenes; it does not duplicate the
 complete Chromium scene matrix.
 The F1 panel exposes the same authoritative seed rows as desktop. F4 attempts to copy their stable
 text report, but browser clipboard permission and user-gesture policy can prevent immediate
@@ -54,11 +54,13 @@ also require the shared irregular-body/end-cap-ring diagnostic.
 Both clearing cameras also require the shared five-rock/two-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
-clipboard readback on its focused localhost canvas. All 24 reported lifecycle, deployment,
-renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
-WebAssembly is 8,674,331 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
-12-debris, one-draw diagnostics and its original-resolution frame was inspected. The independent
-Firefox ESR gate also requires and captures that live scene. The deployment gate additionally requires the exact persistent-
+clipboard readback on its focused localhost canvas. All 25 reported lifecycle, deployment,
+renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the current rebuilt
+WebAssembly is 8,705,921 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+12-debris, one-draw diagnostics and its original-resolution frame was inspected. A separate crab
+stage requires the thirty-agent colony marker, a nonzero visible population, and exactly one draw;
+its original-resolution frame was also inspected. The independent Firefox ESR gate requires and
+captures both live scenes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains
@@ -122,9 +124,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-8,941,239 bytes uncompressed and 2,537,582 bytes through gzip, a 71.6% transfer reduction. HTML is
-2,058 bytes (1,144 gzip), JavaScript is 264,850 bytes (59,288 gzip), and WebAssembly is 8,674,331
-bytes (2,477,150 gzip). These
+8,972,829 bytes uncompressed and 2,549,100 bytes through gzip, a 71.6% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,850 bytes (59,281 gzip), and WebAssembly is 8,705,921
+bytes (2,488,675 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -176,7 +178,8 @@ overview, first-person
 beach, grass interaction, folded-split-ground-plant, sparse fallen-leaf detail, segmented-palm and
 bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
-fallen-frond, distant-horizon, bird, fish, shark, and monkey instances at a 1280 x 720 viewport.
+fallen-frond, distant-horizon, bird, fish, shark, monkey, 20 m shipwreck, and beach-crab instances
+at a 1280 x 720 viewport.
 Every scene asserts the
 layered-horizontal-wisp fixed-sky shader diagnostic.
 The
@@ -193,7 +196,8 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-current.png`, `build-probe/island-browser-fronds.png`,
 `build-probe/island-browser-distant.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
-`build-probe/island-browser-shark.png`, `build-probe/island-browser-monkeys.png`, and
+`build-probe/island-browser-shark.png`, `build-probe/island-browser-monkeys.png`,
+`build-probe/island-browser-shipwreck.png`, `build-probe/island-browser-crabs.png`, and
 `build-probe/island-browser-run-mode.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
@@ -239,7 +243,9 @@ requires the layered near trailing-flight-feather diagnostic. The fish view also
 requires the exact 51/12-vertex, single-surface-fin, CPU-faceted daylight diagnostic and the shared
 depth/sun-band lighting diagnostic. The shark view must report the active offshore patrol and the
 same lighting diagnostic, and the monkey view must report a visible member of the
-seven-agent GPU-skinned troop. The
+seven-agent GPU-skinned troop. The shipwreck view requires the exact 20 m hull, twelve-piece debris
+trail, and one visible draw; the crab view requires a nonzero population from all thirty agents in
+one draw. The
 monkey startup diagnostics must also prove that the local-pose crossfade path and both near-only
 silhouette details are active. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2

@@ -81,6 +81,7 @@ namespace island
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
+            case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
             }
@@ -106,6 +107,7 @@ namespace island
                            const bool userSettingsEnabled)
         : graphics_(this),
           birdFlock_(terrain_),
+          crabColony_(terrain_),
           fishSchools_(terrain_),
           sharkPatrol_(terrain_),
           monkeyTroop_(terrain_),
@@ -542,6 +544,24 @@ namespace island
             pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
             std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
                          "from the beach\n";
+        } else if (viewpoint_ == FixedViewpoint::CrabDetail
+                   && crabColony_.Crabs().size() > 2U) {
+            const CrabState& crab = crabColony_.Crabs()[2U];
+            const float radius = std::hypot(crab.x, crab.z);
+            const float outwardX = crab.x / radius;
+            const float outwardZ = crab.z / radius;
+            const float tangentX = -outwardZ;
+            const float tangentZ = outwardX;
+            const float cameraX = crab.x - outwardX * 6.0f + tangentX * 1.5f;
+            const float cameraZ = crab.z - outwardZ * 6.0f + tangentZ * 1.5f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
+                                                   + PlayerMotion::EyeHeight,
+                                      cameraZ);
+            const Vector3 toCrab = Vector3(crab.x, crab.y + 0.16f, crab.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(toCrab.X, toCrab.Z);
+            pitch_ = std::atan2(toCrab.Y, std::hypot(toCrab.X, toCrab.Z));
+            std::cout << "island-simulator: crab QA camera views an active beach colony\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(1280);
@@ -663,6 +683,8 @@ namespace island
             qualityProfile_.contactShadowDistanceScale);
         birdRenderer_ = std::make_unique<BirdRenderer>(
             device, 690.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        crabRenderer_ = std::make_unique<CrabRenderer>(
+            device, 92.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         sharkRenderer_ = std::make_unique<SharkRenderer>(
@@ -746,6 +768,8 @@ namespace island
                   << " agents in a distance-throttled one-batch simulation\n"
                   << "island-simulator: bird flight uses slow radial drift, banking, and "
                      "intermittent glide\n"
+                  << "island-simulator: beach crabs " << crabColony_.Crabs().size()
+                  << " agents in deterministic sand-constrained colonies\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
@@ -799,6 +823,11 @@ namespace island
         }
         std::cout.flush();
         MirrorRuntimeDiagnosticToPlatformLog(rendererDiagnostic);
+        std::ostringstream crabPopulationDiagnostic;
+        crabPopulationDiagnostic << "island-simulator: beach crabs "
+                                 << crabColony_.Crabs().size()
+                                 << " agents in deterministic sand-constrained colonies";
+        MirrorRuntimeDiagnosticToPlatformLog(crabPopulationDiagnostic.str());
     }
 
     void IslandGame::TryStartSoundscape() noexcept
@@ -867,6 +896,7 @@ namespace island
                    : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()));
         (void)grassInteractionModel_.Update(grassInteractionSpeed, deltaSeconds);
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         Vector3 monkeyObserver = cameraPosition_;
@@ -1378,7 +1408,8 @@ namespace island
             + shipwreckRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
             + contactShadowRenderer_->DrawCallCount()
-            + birdRenderer_->DrawCallCount() + fishRenderer_->DrawCallCount()
+            + birdRenderer_->DrawCallCount() + crabRenderer_->DrawCallCount()
+            + fishRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
             + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
     }
@@ -1392,6 +1423,7 @@ namespace island
         const int palms = palmRenderer_->VisiblePalmCount();
         const int canopy = jungleRenderer_->VisibleCanopyCount();
         const int grass = grassRenderer_->VisiblePatchCount();
+        const int crabs = crabRenderer_->VisibleCrabCount();
         const float shoreDistance = terrain_.SignedShoreDistance(
             cameraPosition_.X, cameraPosition_.Z);
         BenchmarkSceneRanges& ranges = benchmarkSceneRanges_;
@@ -1403,6 +1435,7 @@ namespace island
             ranges.minimumPalms = ranges.maximumPalms = palms;
             ranges.minimumCanopy = ranges.maximumCanopy = canopy;
             ranges.minimumGrass = ranges.maximumGrass = grass;
+            ranges.minimumCrabs = ranges.maximumCrabs = crabs;
             ranges.minimumShoreDistance = ranges.maximumShoreDistance = shoreDistance;
             ranges.firstCameraPosition = cameraPosition_;
         } else {
@@ -1422,6 +1455,8 @@ namespace island
             ranges.maximumCanopy = std::max(ranges.maximumCanopy, canopy);
             ranges.minimumGrass = std::min(ranges.minimumGrass, grass);
             ranges.maximumGrass = std::max(ranges.maximumGrass, grass);
+            ranges.minimumCrabs = std::min(ranges.minimumCrabs, crabs);
+            ranges.maximumCrabs = std::max(ranges.maximumCrabs, crabs);
             ranges.minimumShoreDistance = std::min(
                 ranges.minimumShoreDistance, shoreDistance);
             ranges.maximumShoreDistance = std::max(
@@ -1434,6 +1469,7 @@ namespace island
         ranges.totalPalms += static_cast<std::uint64_t>(palms);
         ranges.totalCanopy += static_cast<std::uint64_t>(canopy);
         ranges.totalGrass += static_cast<std::uint64_t>(grass);
+        ranges.totalCrabs += static_cast<std::uint64_t>(crabs);
         ranges.lastCameraPosition = cameraPosition_;
         ++ranges.sampleCount;
     }
@@ -1555,7 +1591,10 @@ namespace island
                << "    \"grass_clusters\": {\"min\": "
                << ranges.minimumGrass << ", \"max\": "
                << ranges.maximumGrass << ", \"mean\": "
-               << meanCount(ranges.totalGrass) << "}\n"
+               << meanCount(ranges.totalGrass) << "},\n"
+               << "    \"crabs\": {\"min\": " << ranges.minimumCrabs
+               << ", \"max\": " << ranges.maximumCrabs << ", \"mean\": "
+               << meanCount(ranges.totalCrabs) << "}\n"
                << "  },\n"
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
@@ -1594,6 +1633,7 @@ namespace island
                << "    \"beach_details\": "
                << naturalPropRenderer_->VisibleBeachDetailCount() << ",\n"
                << "    \"birds\": " << birdRenderer_->VisibleBirdCount() << ",\n"
+               << "    \"crabs\": " << crabRenderer_->VisibleCrabCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"shark\": " << (sharkRenderer_->IsVisible() ? 1 : 0) << ",\n"
                << "    \"player_water_ripple\": "
@@ -1723,6 +1763,9 @@ namespace island
 
         palmRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             timeSeconds);
+
+        crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                            crabColony_.Crabs());
 
         birdRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             birdFlock_.Birds());
@@ -1881,6 +1924,14 @@ namespace island
             overlayState.reducedSimulationBirds = birdFlock_.ReducedSimulationCount();
             overlayState.dormantSimulationBirds = birdFlock_.DormantSimulationCount();
             overlayState.birdDraws = birdRenderer_->DrawCallCount();
+            overlayState.visibleCrabs = crabRenderer_->VisibleCrabCount();
+            overlayState.totalCrabs = static_cast<int>(crabColony_.Crabs().size());
+            overlayState.nearCrabs = crabRenderer_->VisibleNearCrabCount();
+            overlayState.farCrabs = crabRenderer_->VisibleFarCrabCount();
+            overlayState.fullSimulationCrabs = crabColony_.FullSimulationCount();
+            overlayState.reducedSimulationCrabs = crabColony_.ReducedSimulationCount();
+            overlayState.dormantSimulationCrabs = crabColony_.DormantSimulationCount();
+            overlayState.crabDraws = crabRenderer_->DrawCallCount();
             overlayState.visibleFish = fishRenderer_->VisibleFishCount();
             overlayState.totalFish = static_cast<int>(fishSchools_.Fish().size());
             overlayState.nearFish = fishRenderer_->VisibleNearFishCount();
@@ -2071,7 +2122,12 @@ namespace island
                       << birdFlock_.Birds().size() << " visible (near "
                       << birdRenderer_->VisibleNearBirdCount() << ", far "
                       << birdRenderer_->VisibleFarBirdCount() << "), "
-                      << birdRenderer_->DrawCallCount() << " draw; fish "
+                      << birdRenderer_->DrawCallCount() << " draw; crabs "
+                      << crabRenderer_->VisibleCrabCount() << '/'
+                      << crabColony_.Crabs().size() << " visible (near "
+                      << crabRenderer_->VisibleNearCrabCount() << ", far "
+                      << crabRenderer_->VisibleFarCrabCount() << "), "
+                      << crabRenderer_->DrawCallCount() << " draw; fish "
                       << fishRenderer_->VisibleFishCount() << '/'
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "

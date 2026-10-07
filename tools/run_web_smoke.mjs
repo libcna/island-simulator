@@ -1065,6 +1065,40 @@ try {
     && !shipwreckResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=crabs`,
+  }, visualSessionId);
+  let crabResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    crabResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (crabResult.output?.includes("island-simulator: terrain")
+        || crabResult.error) break;
+  }
+  await delay(1000);
+  const completedCrabEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  crabResult = JSON.parse(completedCrabEvaluation.result.value ?? "{}");
+
+  const crabScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-crabs.png", true);
+  const crabPassed = crabResult.output?.includes("island-simulator: renderer WEBGL2")
+    && crabResult.output?.includes(
+      "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies")
+    && crabResult.output?.includes(
+      "island-simulator: beach crabs use articulated legs, claws, and one culled batch")
+    && crabResult.output?.includes(
+      "island-simulator: crab QA camera views an active beach colony")
+    && /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/.test(
+      crabResult.output ?? "")
+    && !crabResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=water`,
   }, visualSessionId);
   let waterResult = {};
@@ -1693,7 +1727,7 @@ try {
     && visualPassed && beachPassed && grassPassed
     && groundPassed && litterPassed
     && palmPassed && junglePassed && eastClearingPassed && westClearingPassed
-    && propPassed && driftwoodPassed && reefPassed && shipwreckPassed
+    && propPassed && driftwoodPassed && reefPassed && shipwreckPassed && crabPassed
     && waterPassed && currentPassed
     && distantPassed && frondPassed
     && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
@@ -1800,6 +1834,11 @@ try {
       output: shipwreckResult.output ?? "",
       error: shipwreckResult.error ?? "",
     },
+    crabs: {
+      passed: crabPassed,
+      output: crabResult.output ?? "",
+      error: crabResult.error ?? "",
+    },
     water: {
       passed: waterPassed,
       output: waterResult.output ?? "",
@@ -1882,6 +1921,7 @@ try {
     driftwoodScreenshot: path.basename(driftwoodScreenshotPath),
     reefScreenshot: path.basename(reefScreenshotPath),
     shipwreckScreenshot: path.basename(shipwreckScreenshotPath),
+    crabScreenshot: path.basename(crabScreenshotPath),
     waterScreenshot: path.basename(waterScreenshotPath),
     currentScreenshot: path.basename(currentScreenshotPath),
     distantScreenshot: path.basename(distantScreenshotPath),

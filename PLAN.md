@@ -625,10 +625,11 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
 
 ### Additional peaceful wildlife
 
-- [ ] Add a small deterministic population of beach crabs that scuttle laterally across suitable
+- [x] Add a small deterministic population of beach crabs that scuttle laterally across suitable
   dry/wet sand, pause, and retreat from a nearby player without entering deep water or the jungle.
-  Use a compact shared state machine, distance-throttled updates, near/far procedural silhouettes,
-  batching, and no per-animal audio voice.
+  Thirty crabs occupy six bounded colonies, share pause/forage/scuttle behaviour and the existing
+  full/reduced/dormant activation policy, and render as articulated near/far silhouettes in one
+  culled dynamic batch with no per-animal audio voice.
 - [ ] Add butterflies around selected sunny clearings and jungle edges. Their bounded wandering
   should vary height, turn, and rest/glide timing without looking like miniature birds; cull and
   throttle them aggressively and preserve clear walking routes.
@@ -636,10 +637,12 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   and surface, keep them out of land and the offshore-current limit, give them slow flipper/body
   animation and occasional surfacing, and avoid duplicating the fish/shark steering code where the
   shared wildlife activation policy is sufficient.
-- [ ] Test deterministic populations, biome/depth bounds, state reachability, player response,
+- [~] Test deterministic populations, biome/depth bounds, state reachability, player response,
   finite long-run motion, activation tiers, and land/water exclusion for all new species. Add
   dedicated debug counts and at least one fixed QA view that proves readable silhouettes without
-  inflating invisible populations or the mobile draw-call budget.
+  inflating invisible populations or the mobile draw-call budget. Crab determinism, habitat,
+  12,000-frame finite motion, behaviour reachability, player response, activation tiers, F1 counts,
+  benchmark ranges, and a matched `crabs` QA view are covered; butterflies and turtles remain.
 
 ### Monkeys and skeletal animation
 
@@ -1114,8 +1117,8 @@ Android is not project completion.
   repeat after future runtime or visual changes.
 - [~] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
   repository inspection. Shell/Node syntax, executable modes, tracked-file types, approved build
-  directories, local Markdown links, asset provenance, package determinism, full native 43/43, and
-  full Web 24-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
+  directories, local Markdown links, asset provenance, package determinism, full native 44/44, and
+  full Web 25-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
   gate at final packaging.
 
 Exit validation:
@@ -1192,9 +1195,11 @@ improves the requested experience rather than adding quests, combat, survival, o
 
 ### Life, motion, and atmosphere polish
 
-- [ ] Integrate crabs, butterflies, sea turtles, existing birds/fish/shark/monkeys, vegetation wind,
+- [~] Integrate crabs, butterflies, sea turtles, existing birds/fish/shark/monkeys, vegetation wind,
   ocean motion, and positional sound into believable local activity rhythms. Avoid synchronized
-  loops, clutter, and constant attention-seeking behaviour.
+  loops, clutter, and constant attention-seeking behaviour. Six sparse crab colonies now provide
+  localized beach motion with asynchronous state timing; butterflies, turtles, and whole-scene
+  activity-rhythm critique remain.
 - [ ] Add only subtle shipwreck ambience that can reuse the bounded soundscape budget, such as
   wave wash/wood creak scheduling from existing water layers; do not create a permanently loud
   global loop or imply a quest.
@@ -1397,9 +1402,9 @@ Work next, in order:
 
 Immediate user-directed expansion:
 
-1. Add beach crabs, clearing-edge butterflies, and a small near-shore sea-turtle population through
-   the existing deterministic activation architecture, with long-run region/state tests and
-   bounded batches.
+1. Add clearing-edge butterflies and a small near-shore sea-turtle population through the existing
+   deterministic activation architecture, with long-run region/state tests and bounded batches.
+   The beach-crab portion is complete and provides the pattern for both remaining species.
 2. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
@@ -6076,6 +6081,40 @@ Existing observation and qualification queue:
   `OPENGL33`, rendered the shipwreck view, and exited cleanly. Asset validation passes 18
   procedural records, 34 generator sources, two project files, and zero external files. CNA and
   Sharp Runtime remained read-only and clean; no qualifying dependency defect was found.
+
+### 2026-10-07 — Deterministic beach-crab colonies
+
+- Added thirty original procedural beach crabs in six authored-procedural colonies. Their compact
+  renderer-independent state machine alternates asynchronous pause, forage, and lateral scuttle
+  behaviour, responds non-hostilely to a player within 5.2 m, and shares the established
+  full/reduced/dormant wildlife activation policy.
+- Crab habitat is constrained by the authoritative terrain to a 1.4--17.0 m signed shore band,
+  walkable sand, and a bounded individual home range. Core coverage proves deterministic
+  construction, initial validity, non-finite-input safety, behaviour reachability, observer-tier
+  transitions, player response, and 12,000 update frames without leaving valid habitat.
+- Added a single culled dynamic `BasicEffect` batch with near/far models, four natural palettes,
+  faceted shells, articulated bent legs, small claws, eye stalks, and asynchronous gait/claw pose.
+  The dedicated `--viewpoint crabs` composition shows five animals at first-person beach scale;
+  F1 and schema-3 benchmark output expose visible/near/far, simulation-tier, draw, and range counts.
+- The native OpenGL 3.3 crab capture, 25-stage Chrome/WebGL 2 matrix, independent Firefox ESR crab
+  scene, and strict API 35 KVM/gfxstream GLES 3 crab run all pass. The inspected 1280 by 720 native
+  and browser frames and centred 2400 by 1080 Android frame agree on the five-crab composition and
+  retain one wildlife draw. Android first draw completed in 2336.217 ms in that emulator run;
+  physical-device performance and ergonomics remain unqualified.
+- An isolated native Debug crab-view benchmark recorded 2.4998 ms mean, 4.8406 ms p95,
+  11.0887 ms p99, zero 60 Hz misses, 26 tracked submissions, and five visible crabs in one draw.
+  Asset validation now covers 19 procedural records, 36 generator sources, two project files, and
+  zero external files; the deterministic world fingerprint is `9b80b94634506ebb`. The final Web
+  package is 8,972,829 bytes uncompressed or 2,549,100 bytes through deterministic gzip.
+- The temporary x86_64 Android build products were removed after the emulator stopped and the
+  default arm64-only package was restored, rebuilt, linted, and signature-verified. It is
+  18,947,852 bytes and contains a 16,137,568-byte stripped `libmain.so`. CNA and Sharp Runtime
+  remained read-only and clean; no qualifying dependency defect was found.
+- The stripped Linux Release package was rebuilt through shared ccache. Two packaging runs produced
+  the same 5,035,707-byte archive with SHA-256
+  `b5a17bd4e84f481597ee5db62c8aed66ed7aa6c6f6f7bab94e87086f30f918e2` and 12,105,759
+  installed bytes. The installed executable launched from `/tmp` on the private OpenGL 3.3
+  display, rendered the five-crab view in one draw, and exited cleanly; the frame was inspected.
 
 ## Session-end checklist
 

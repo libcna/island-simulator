@@ -114,7 +114,9 @@ and sparse, layered horizontal high-cloud wisps without a weather simulation. A 
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
 wing strokes, layered trailing flight feathers on the near silhouette, intermittent glides, banked
 turns, slow radial route drift, terrain clearance, visibility culling, and distance-throttled
-simulation. Eight
+simulation. Thirty small beach crabs occupy six dry/wet-sand colonies and alternate asynchronous
+pause, forage, and lateral scuttle states. They stay inside terrain-validated home ranges, retreat
+briefly from a nearby player, and use articulated near/far silhouettes in one culled batch. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface, with
 depth-following pitch, banked turns, forked tails, CPU-lit body facets, restrained depth/caustic
 colour response, and readable near heads.
@@ -271,7 +273,7 @@ procedural source and export disposable PCM16 WAV previews for focused listening
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, a finite first-draw startup timing line, four frames, clean shutdown, active
-overview/beach/jungle/prop/driftwood/reef/shipwreck/water/
+overview/beach/jungle/prop/driftwood/reef/shipwreck/crabs/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, the transient run-mode confirmation,
 and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
@@ -287,7 +289,8 @@ responsive 16:9 sizing. A narrower Firefox ESR 140.15 WebDriver BiDi gate indepe
 production shell's first frame, reported WebGL 2 Radeon backend, trusted-click pointer lock,
 44.1 kHz audio initialization, persistent Shift enable/disable edges, forward traversal with an
 actual footstep, Escape release, delayed pointer-lock reacquisition, and responsive 16:9 sizing.
-It also loads dedicated 1280 by 720 jungle, near-surface-water, and 20 m shipwreck scenes, requires
+It also loads dedicated 1280 by 720 jungle, near-surface-water, 20 m shipwreck, and beach-crab
+scenes, requires
 their live state, and captures each. All Firefox scene frames were visually inspected. A visible
 interactive listening pass, the remaining fixed-scene matrix, long tab suspension, audio-focus
 behaviour, and fullscreen remain open. The automated Firefox path now does one actual second-tab
@@ -296,7 +299,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,537,582 bytes, 71.6% below the 8,941,239-byte
+a SHA-256 manifest. The current gzip payload is 2,549,100 bytes, 71.6% below the 8,972,829-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -311,7 +314,7 @@ Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-G
 The complete current scene, independent movement/look gestures, all sensitivity levels, a
 same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
 there. The persistence-qualified run also requires a touch sensitivity change to survive the cold
-relaunch. The default arm64-v8a APK is 18,896,940 bytes, contains a 16,086,656-byte stripped
+relaunch. The default arm64-v8a APK is 18,947,852 bytes, contains a 16,137,568-byte stripped
 `libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
 emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See

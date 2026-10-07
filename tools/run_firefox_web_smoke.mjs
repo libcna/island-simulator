@@ -480,6 +480,17 @@ try {
       "island-simulator: shipwreck QA camera views the 20m wreck from the beach",
     ],
     /shipwreck visible, 12 debris, 1 draw/);
+  const crabScene = await qualifyScene(
+    context,
+    "crabs",
+    "island-firefox-esr-crabs.png",
+    [
+      "island-simulator: renderer WEBGL2",
+      "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies",
+      "island-simulator: beach crabs use articulated legs, claws, and one culled batch",
+      "island-simulator: crab QA camera views an active beach colony",
+    ],
+    /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
   const report = {
     schema: 1,
     browser: "Firefox ESR",
@@ -505,7 +516,12 @@ try {
     runDisabled: true,
     footstepPlayed: true,
     fatalDiagnostic,
-    scenes: { jungle: jungleScene, water: waterScene, shipwreck: shipwreckScene },
+    scenes: {
+      jungle: jungleScene,
+      water: waterScene,
+      shipwreck: shipwreckScene,
+      crabs: crabScene,
+    },
     sessionId: session.sessionId,
     outputTail: productionOutput.split("\n").slice(-28),
   };

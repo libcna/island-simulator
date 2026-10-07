@@ -112,6 +112,14 @@
       ]
     },
     {
+      "name": "beach-crabs",
+      "licenseRecord": "Procedural beach crabs",
+      "sources": [
+        "game/src/CrabColony.cpp",
+        "game/src/CrabRenderer.cpp"
+      ]
+    },
+    {
       "name": "fish-schools",
       "licenseRecord": "Procedural fish schools",
       "sources": [

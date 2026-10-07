@@ -12,6 +12,8 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
+#include "IslandSimulator/CrabColony.hpp"
+#include "IslandSimulator/CrabRenderer.hpp"
 #ifndef NDEBUG
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #endif
@@ -89,6 +91,7 @@ namespace island
         SharkDetail,
         MonkeyDetail,
         ShipwreckDetail,
+        CrabDetail,
         BenchmarkTraversal
     };
 
@@ -165,6 +168,9 @@ namespace island
             int minimumGrass = 0;
             int maximumGrass = 0;
             std::uint64_t totalGrass = 0U;
+            int minimumCrabs = 0;
+            int maximumCrabs = 0;
+            std::uint64_t totalCrabs = 0U;
             float minimumShoreDistance = 0.0f;
             float maximumShoreDistance = 0.0f;
             Microsoft::Xna::Framework::Vector3 firstCameraPosition{0.0f, 0.0f, 0.0f};
@@ -177,6 +183,7 @@ namespace island
         IslandTerrain terrain_;
         DistantSceneryLayout distantSceneryLayout_;
         BirdFlock birdFlock_;
+        CrabColony crabColony_;
         FishSchools fishSchools_;
         SharkPatrol sharkPatrol_;
         MonkeyTroop monkeyTroop_;
@@ -207,6 +214,7 @@ namespace island
 #endif
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
+        std::unique_ptr<CrabRenderer> crabRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
         std::unique_ptr<FishRenderer> fishRenderer_;

@@ -9,8 +9,8 @@ portable baseline, not permission to add untracked files later. The original And
 vector is a hash-gated project file rather than an external asset or runtime generator.
 
 `ASSET_LICENSES.md` is the human-readable provenance authority. `assets/manifest.json` is its
-machine-readable gate. The manifest currently maps 18 documented procedural content systems to
-34 source files, hashes two original project-owned files, and declares an empty
+machine-readable gate. The manifest currently maps 19 documented procedural content systems to
+36 source files, hashes two original project-owned files, and declares an empty
 external-file set.
 
 Generated build outputs, captures, APK contents, WebAssembly, shader compiler intermediates, and
@@ -66,7 +66,8 @@ It records:
 - every current environment placement population, including exact shipwreck dimensions, signed
   shore distance, 12 debris pieces, and six collision proxies;
 - combined obstacle and occupied-cell counts;
-- initial wildlife populations;
+- initial wildlife populations, including all thirty beach crabs and their six bounded colony
+  regions;
 - a 64-bit fingerprint over sampled terrain and ordered generated world data.
 
 The fingerprint is a change detector for the qualified host/toolchain, not a promise that different

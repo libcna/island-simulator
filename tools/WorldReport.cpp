@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
@@ -86,6 +87,7 @@ namespace
         island::IslandTerrain terrain;
         island::DistantSceneryLayout distantScenery;
         island::BirdFlock birds{terrain};
+        island::CrabColony crabs{terrain};
         island::FishSchools fish{terrain};
         island::SharkPatrol shark{terrain};
         island::MonkeyTroop monkeys{terrain};
@@ -271,6 +273,21 @@ namespace
             hash.AddByte(bird.colorVariant);
         }
 
+        hash.AddSize(world.crabs.Crabs().size());
+        for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
+            const island::CrabState& crab = world.crabs.Crabs()[index];
+            const island::CrabHomeRange& home = world.crabs.Homes()[index];
+            HashPosition(hash, crab.x, crab.y, crab.z);
+            hash.AddFloat(crab.bodyYawRadians);
+            hash.AddFloat(crab.travelHeadingRadians);
+            hash.AddFloat(crab.scale);
+            hash.AddEnum(crab.behavior);
+            hash.AddByte(crab.colorVariant);
+            hash.AddFloat(home.x);
+            hash.AddFloat(home.z);
+            hash.AddFloat(home.radius);
+        }
+
         hash.AddSize(world.fish.Fish().size());
         for (const island::FishState& fish : world.fish.Fish()) {
             HashPosition(hash, fish.x, fish.y, fish.z);
@@ -389,6 +406,8 @@ namespace
             && world.jungle.Obstacles().size() == world.jungle.Canopy().size()
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
             && world.birds.Birds().size() == island::BirdFlock::BirdCount
+            && world.crabs.Crabs().size() == island::CrabColony::CrabCount
+            && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
             && world.monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount
@@ -461,6 +480,18 @@ namespace
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(bird.x, bird.y, bird.z, bird.headingRadians,
                              bird.speed, bird.scale);
+        }
+        for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
+            const island::CrabState& crab = world.crabs.Crabs()[index];
+            const island::CrabHomeRange& home = world.crabs.Homes()[index];
+            const island::TerrainSample sample = world.terrain.Sample(crab.x, crab.z);
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(crab.x, crab.y, crab.z, crab.bodyYawRadians,
+                             crab.travelHeadingRadians, crab.speed, crab.legPhase,
+                             crab.clawPose, crab.scale, home.x, home.z, home.radius)
+                && crab.scale > 0.0f && home.radius > 0.0f
+                && sample.signedShoreDistance >= island::CrabColony::MinimumShoreDistance
+                && sample.signedShoreDistance <= island::CrabColony::MaximumShoreDistance;
         }
         for (const island::FishState& fish : world.fish.Fish()) {
             finiteSpecializedData = finiteSpecializedData
@@ -574,6 +605,7 @@ namespace
                << "  },\n"
                << "  \"wildlife\": {\n"
                << "    \"birds\": " << world.birds.Birds().size() << ",\n"
+               << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"sharks\": 1,\n"

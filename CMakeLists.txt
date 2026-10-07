@@ -31,6 +31,7 @@ add_library(island_core STATIC
     game/src/AudioAnalysis.cpp
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp
+    game/src/CrabColony.cpp
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
     game/src/FirstPersonCameraMotion.cpp
@@ -249,6 +250,7 @@ if(ISLAND_BUILD_GAME)
     set(_island_game_sources
         game/src/BirdRenderer.cpp
         game/src/ContactShadowRenderer.cpp
+        game/src/CrabRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp
@@ -562,6 +564,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "shipwreck 20m broken hull, 12 debris pieces.*shipwreck visible, 12 debris, 1 draw")
+        add_test(NAME IslandGameCrabCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-crab-capture.ppm"
+                    --viewpoint crabs)
+        set_tests_properties(IslandGameCrabCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "beach crabs use articulated legs, claws, and one culled batch.*beach crabs 30 agents.*crabs [1-9][0-9]*/30 visible.*1 draw")
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)
