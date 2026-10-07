@@ -425,10 +425,10 @@ void main()
                     for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
                         const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
                         const Vector3 outward = side * sideSign;
-                        const Vector3 rootBack = centre - direction * 0.10f
-                            + outward * 0.025f;
-                        const Vector3 rootFront = centre + direction * 0.09f
-                            + outward * 0.035f;
+                        const Vector3 rootBack = centre - direction * 0.14f
+                            + outward * 0.030f;
+                        const Vector3 rootFront = centre + direction * 0.13f
+                            + outward * 0.043f;
                         const Vector3 tip = centre + outward * leafletLength
                             + direction * sweep - Vector3::Up * droop;
                         const float sideShade = sideIndex == 0 ? 0.90f : 1.02f;
@@ -539,7 +539,7 @@ void main()
                   << '\n';
         if (customShaderReady_) {
             std::cout << "island-simulator: palm portable wind shader with near/far mesh LOD\n";
-            std::cout << "island-simulator: palm near mesh segmented leaflet silhouettes\n";
+            std::cout << "island-simulator: palm near mesh segmented fuller leaflet silhouettes\n";
             std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";

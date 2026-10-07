@@ -46,7 +46,7 @@ compact far tier, and forest-floor plants including upright-broadleaf and folded
 variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading, per-instance blade
 stature, and a sparse juvenile underlayer in the instanced mesh grass,
-segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
+fuller segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
 157 land rocks and 14 emergent reef outcrops with near-only strata/lichen plus a low fixed-sea-level
 wet band, 13 fallen logs, 31 sparse beach-driftwood pieces with a three-limb forked near variant,

@@ -172,7 +172,7 @@ must also contain nonzero near,
 middle, and far populations plus a mixed cell from the adjacent-tier 62--78 m / 86--102 m LOD
 transitions.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
-`build/island-palm-capture.ppm` and requires the segmented near-leaflet plus procedural
+`build/island-palm-capture.ppm` and requires the fuller segmented near-leaflet plus procedural
 bark-scar/coconut path.
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm` and
 requires a nonzero one-draw terrain-contact-shadow batch.

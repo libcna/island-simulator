@@ -447,6 +447,20 @@ The dedicated close-palm native and actual Chrome/SwiftShader WebGL 2 captures v
 The arm64 GLES 3 package builds with the revised geometry; physical-device aliasing, transition,
 and fragment/vertex cost remain unqualified.
 
+### Fuller near-palm leaflet silhouette follow-up
+
+Original-resolution close-palm review showed excessive sky gaps between the segmented near
+leaflets. Their two existing root vertices now extend modestly farther along the rachis and outward,
+while every tip remains unchanged. This preserves the individually tapered, separated silhouette
+and the 494--566-triangle near-variant range established after the root pass. It adds no vertex,
+index, instance, buffer, draw, LOD, collision, shader, or far-mesh cost.
+
+The before/after native frames and the final actual Chrome/SwiftShader WebGL 2 frame were inspected
+at original resolution. The crowns read fuller without returning to a solid paddle-shaped ribbon.
+The complete 22-stage browser suite requires the exact fuller-leaflet diagnostic and passes; the
+OpenGL 3.3 object and arm64 GLES 3 package build through the shared compiler cache. Physical-device
+appearance and the moving 125--145 m transition remain unqualified.
+
 ### Near-palm bark and coconut material follow-up
 
 The two coconut-bearing near variants add four or five six-vertex faceted fruits, respectively,
@@ -1159,8 +1173,8 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,060 gzip), and WebAssembly is 8,499,046 bytes (2,424,318
-gzip). The complete transfer payload therefore falls from 8,763,889 to 2,484,496 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,499,057 bytes (2,424,179
+gzip). The complete transfer payload therefore falls from 8,763,900 to 2,484,361 bytes, a measured
 71.7% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

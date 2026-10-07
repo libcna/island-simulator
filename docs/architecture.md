@@ -312,7 +312,9 @@ supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the c
 Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near tier, with five
 faceted root wedges around the trunk base as a low-cost contact cue. Their deterministic angle,
 length, width, and ridge-height variation avoids a regular radial stamp. Each near frond combines a
-thin curved rachis with nine pairs of independently tapered leaflets; the lower-segment far tier uses seven
+thin curved rachis with nine pairs of independently tapered leaflets. Their modestly widened roots
+close the skeletal gaps visible from first-person height without adding vertices or merging the
+individual silhouettes; the lower-segment far tier uses seven
 widened ribbon fronds that preserve the feathered crown envelope without retaining sub-pixel
 leaflet geometry. Two near variants add four or five small faceted coconuts beneath the crown; the
 near draw also enables texture-free leaf-scar rings on trunks, while the far draw disables that

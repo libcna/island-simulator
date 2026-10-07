@@ -30,8 +30,9 @@ The near mesh uses five curvature levels per blade, folded side colour, and port
 daylight/root/transmission shading. A sparse juvenile underlayer and deterministic per-instance
 blade stature, colour, and wind variation keep neighbouring tufts from repeating the shared mesh
 literally; the cheaper far mesh uses three levels and still merges into the terrain before culling.
-Nearby palm crowns use nine paired tapered-leaflet stations on each of 10--12 curved fronds instead
-of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelope at distance,
+Nearby palm crowns use nine paired, fuller tapered-leaflet stations on each of 10--12 curved fronds
+instead of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelope at
+distance,
 while per-palm 125--145 m thresholds stagger the transition and avoid switching whole cells at once.
 The near tier also adds texture-free leaf-scar rings to the trunks and restrained faceted coconut
 clusters to two of the four variants without another draw submission. Five irregular faceted root
@@ -228,7 +229,7 @@ browser engine remain open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,484,496 bytes, 71.7% below the 8,763,889-byte
+a SHA-256 manifest. The current gzip payload is 2,484,361 bytes, 71.7% below the 8,763,900-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

@@ -50,7 +50,8 @@ been confirmed so far.
   calm wind, and nearby mesh grass now bends around the player's stationary body radius and expands
   with movement speed. Its curved near blades have directional two-sided daylight, root, fold, and
   restrained transmission cues; a sparse juvenile underlayer plus deterministic per-instance
-  blade stature, colour, and wind variation reduce repeated close silhouettes. Near palms now use segmented tapered leaflets with widened ribbon
+  blade stature, colour, and wind variation reduce repeated close silhouettes. Near palms now use
+  fuller segmented tapered leaflets with widened ribbon
   far silhouettes and staggered per-instance LOD thresholds; near trunks have subtle procedural
   leaf-scar rings and two variants carry restrained faceted coconut clusters. Grass
   collision/displacement does not

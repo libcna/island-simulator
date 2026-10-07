@@ -394,7 +394,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 
 - [~] Build multiple procedural palm variants with different height, lean, curvature, crown
   rotation, frond arrangement, scale, and clustering. Four curved tapered trunk variants, 330
-  varied instances, segmented near leaflets, widened-ribbon far crowns, irregular faceted
+  varied instances, fuller segmented near leaflets, widened-ribbon far crowns, irregular faceted
   near-root wedges, staggered per-instance near/far thresholds, near-only procedural leaf scars,
   two restrained coconut-bearing variants, and portable shader wind now run on native OpenGL 3.3
   and WebGL 2;
@@ -707,7 +707,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,763,889 bytes uncompressed and 2,484,496 bytes through
+  The current Release package is 8,763,900 bytes uncompressed and 2,484,361 bytes through
   deterministic gzip, a measured 71.7% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -919,7 +919,9 @@ Android is not project completion.
   transition-motion review, aliasing, and physical-device tuning remain.
 - [~] Break repeated palm/prop silhouettes and correct floating/sunken placements. Nine paired
   tapered-leaflet stations now replace each near-palm ribbon while widened far crowns preserve the
-  envelope; near-only procedural trunk scars and coconut clusters on two variants add a first
+  envelope; the existing leaflet root chords are widened modestly after original-resolution review
+  showed skeletal gaps, without adding geometry. Near-only procedural trunk scars and coconut
+  clusters on two variants add a first
   material/content pass without new draws. Five deterministic near-root wedges now vary in angle,
   length, width, and height rather than reading as flat tabs or a radial stamp. Prop repetition,
   broader palm variation, physical-device placement review, and true LOD blending remain.
@@ -1231,9 +1233,11 @@ Work next, in order:
    background/foreground test; automated first-gesture audio initialization is complete. The
    headless Chrome freeze/active probe remains diagnostic-only because the latest passing input
    run did not emit a post-resume game sample even after a three-second allowance.
-7. Observe the irregular faceted palm roots and segmented-leaflet versus widened-ribbon 125--145 m
-   transition during traversal and on physical mobile hardware. The close-root, crown-silhouette,
-   and near material/coconut passes are measured; do not add more geometry without new evidence.
+7. Observe the irregular faceted palm roots and fuller segmented-leaflet versus widened-ribbon
+   125--145 m transition during traversal and on physical mobile hardware. Current close-palm
+   evidence justified widening only the existing leaflet root chords; the close-root,
+   crown-silhouette, and near material/coconut passes are measured. Do not add geometry without new
+   evidence.
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. A clear close-view cylindrical trunk-base defect justified a small near-only
    four/five-buttress pass; the far tier, culling, instances, and draws remain unchanged. Further
@@ -4612,6 +4616,24 @@ Work next, in order:
   18,712,820 bytes with a 15,902,536-byte stripped library; WebAssembly is 8,499,046 bytes and its
   deterministic package is 8,763,889 bytes uncompressed / 2,484,496 bytes through gzip. Physical-
   mobile appearance/cost remain open; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Fuller near-palm leaflet silhouettes
+
+- Original-resolution close-palm review showed that the segmented near crowns remained too
+  skeletal from first-person height. Extended only each existing leaflet's two root vertices
+  modestly along the rachis and outward; tips, wind, colours, placement, collision, and the far
+  widened-ribbon tier are unchanged.
+- Before/after frames were inspected at original resolution. The retained crown has smaller empty
+  gaps and a fuller feathered silhouette while every tapered leaflet remains visibly separate; it
+  does not return to the former solid paddle-shaped ribbon. The 494--566-triangle near variants,
+  instance data, buffers, draws, culling, and 125--145 m per-palm LOD policy are unchanged.
+- The OpenGL 3.3 palm object compiles through `/rv/cnaccache` without relinking the operator-visible
+  game. The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages and requires
+  the exact fuller-leaflet diagnostic. The two-worker arm64 GLES 3 package builds/lints and verifies
+  with APK signature scheme v2. The APK remains 18,712,820 bytes with a 15,902,536-byte stripped
+  library; WebAssembly is 8,499,057 bytes and its deterministic package is 8,763,900 bytes
+  uncompressed / 2,484,361 bytes through gzip. Physical-mobile appearance and moving LOD review
+  remain open; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 
