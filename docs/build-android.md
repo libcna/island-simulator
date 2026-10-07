@@ -94,12 +94,14 @@ terrain cell batching. Its four persistent audio beds remove their generated mea
 quantization without adding another source or payload. It also validates every indexed procedural
 mesh plus the monkey fourteen-bone hierarchy/palette, clips, tracks, and key transforms before GPU
 upload. A fresh x86_64 build
-of the same sources and current `9fbe34468c69` CNA pin passed two KVM/host-GPU GLES 3 first-frame
-gates. The ordinary overview completed in 2179.350 ms, while the fixed offshore-current view
+of the same sources and then-current `9fbe34468c69` CNA pin passed two KVM/host-GPU GLES 3 first-
+frame gates. The ordinary overview completed in 2179.350 ms, while the fixed offshore-current view
 completed in 1555.412 ms and visibly reported normalized current 0.7 with exact `DRIFT 0.3/1.2`.
 Both inspected 2400 by 1080 captures retain the complete scene and clean translucent touch
 controls; no fatal, shader-compilation, or `GL_INVALID_OPERATION` diagnostic appeared. The default
-arm64 package was then restored. Public terrain queries additionally fail closed before non-finite
+arm64 package was then restored. The current `97783d1e090c` arm64 package separately builds and
+passes lint; its framework-only pin refresh has not been rerun in the emulator. Public terrain
+queries additionally fail closed before non-finite
 or out-of-domain values can reach procedural noise-cell conversion. The APK verifies with
 signature scheme v2, contains only the selected ABI, and remains the same size after an immediate
 no-change incremental assembly.
@@ -333,7 +335,7 @@ version 12 and host-GPU gfxstream, completed a cold GLES 3 first frame in 2003.1
 an inspected clean overview. This proves that the current 31-driftwood complete scene starts with
 the qualified dependency baseline; the overview is not a close-view qualification of the cove
 landmark itself, and the one-run timing is not a performance comparison. It describes the
-then-qualified baseline rather than the current `9fbe34468c69` build-only qualification.
+then-qualified baseline rather than the newer `97783d1e090c` build/lint qualification.
 
 The current-pin viewport qualification adds the authoritative logical backbuffer to both the F1
 panel and the first-frame platform log. A fixed monkey launch on the same API 35 KVM/host-GPU AVD

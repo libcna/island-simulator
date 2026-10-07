@@ -59,9 +59,9 @@ environment.
   files or commits at campaign start.
 - [x] Read the workspace build policy in `../AGENTS.md`.
 - [x] Located CNA at `../cna` and inspected its repository instructions and current APIs.
-- [x] Qualified and locked CNA `next` at commit `9fbe34468c69` (`docs(Task RRC-019): one retirement
-  record for DIRECTX12, CANVAS, OPENGLES2 and WEBGL1`, 2026-10-07). The preceding qualified export
-  was `fe20e3e9c23b`; the campaign started from `b0e97bb1bb87`.
+- [x] Qualified and locked CNA `next` at commit `97783d1e090c` (`fix(Task RRC-029): name the
+  renderer the benchmark ran, not the compile-time default`, 2026-10-07). The preceding qualified
+  exports were `9fbe34468c69` and `fe20e3e9c23b`; the campaign started from `b0e97bb1bb87`.
 - [x] Confirmed no separate stale CNA worktree is being mistaken for the current `next` identity.
 - [x] Located Sharp Runtime at `../sharp-runtime`, read its repository instructions, and confirmed
   it is on local `next` at `21c06910f7cf` (`fix(MSR-030): repair Windows consumer portability`,
@@ -4853,6 +4853,34 @@ Work next, in order:
   payload, 2,490,885 bytes through gzip, 15,919,256 bytes for stripped arm64 `libmain.so`, and
   18,729,540 bytes for the arm64 APK. Build trees remain 2.6 GiB native, 84 MiB Web, and 360 MiB
   Android with approximately 375 GiB free. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — CNA `next` 97783d1e baseline refresh
+
+- Advanced the reproducible CNA pin from `9fbe34468c69872204536bfe3dd6f106404d9403` to the
+  workspace's clean current `next` commit `97783d1e090c6d84f4b6a6d7746516e65184569e` after reviewing
+  all 11 intervening commits. The changes extend CNA's multi-renderer CMake, examples, tests, C API,
+  and benchmark renderer identity; they do not change island-simulator's exercised public/runtime
+  API. Sharp Runtime remains clean and locked to `next` at
+  `21c06910f7cf887cceebb45200e07b43dd45fef4`. The active `BUGS.md` review found no dependency
+  defect or workaround requiring re-evaluation.
+- Confirmed that no process held the obsolete reproducible 321 MiB CNA export, removed only that
+  generated copy, and materialized the replacement at the same `build/dependencies/cna-next` path.
+  CNA, Sharp Runtime, EasyGL, and MetaGL remained read-only; no dependency source was modified.
+- Reconfigured the existing `build/` tree for explicit OPENGL33, rebuilt with two workers and the
+  shared `/rv/cnaccache`, and passed the complete private-display OpenGL 3.3 suite 41/41 in 51.37
+  seconds. This includes actual simultaneous movement/mouse input, persistent Shift run/walk
+  toggling, all deterministic captures, and renderer-independent gates.
+- Reconfigured the existing `build-probe/` tree for explicit WEBGL2, rebuilt and repackaged it,
+  then passed the complete actual Chrome 152/SwiftShader renderer, lifecycle, scene, audio, and
+  input suite 22/22. WebAssembly is 8,521,483 bytes; the deterministic Web payload is 8,786,326
+  bytes and 2,490,885 bytes through gzip. The functional SwiftShader first draw reached 443.200 ms
+  total in this run; it is not a hardware-GPU or network cold-load benchmark.
+- Rebuilt and linted the default arm64-v8a OPENGLES3 Android package through the same shared cache.
+  It contains only `arm64-v8a`, verifies with APK signature scheme v2, and remains 18,729,540 bytes
+  with a 15,919,256-byte stripped `libmain.so`. The latest Android runtime evidence remains the
+  preceding `9fbe34468c69` KVM/gfxstream matrix because the current framework-only refresh was not
+  rerun in the emulator; physical-device performance also remains open. All build operations used
+  no more than two workers, and Chrome was capped to eight CPU cores.
 
 ## Session-end checklist
 

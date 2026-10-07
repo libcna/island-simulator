@@ -79,12 +79,11 @@ terrain, wildlife, input, soundscape, and natural-prop core code. No AddressSani
 UndefinedBehaviorSanitizer finding was emitted. The 45 MB `build-asan/` tree was removed after the
 pass because it is fully reproducible from the preset.
 
-The 2026-10-07 `9fbe34468c69` CNA `next` refresh compiles the selected OpenGL 3.3 framework and
-game objects, and all six non-display gates pass. After the operator closed the preceding play
-session, the complete current executable linked successfully and a live-desktop four-frame
-overview smoke selected CNA `OPENGL33`, compiled every current scene shader, reported a 1280 by 720
-logical backbuffer, and exited cleanly. The full 33-capture/input/benchmark display suite remains a
-separate private-display qualification rather than being inferred from that short smoke.
+The 2026-10-07 `97783d1e090c` CNA `next` refresh compiles and links the selected OpenGL 3.3
+framework and game. The complete private-display suite passes 41/41, selects CNA `OPENGL33`,
+compiles every current scene shader, exercises all deterministic views, reports a 1280 by 720
+logical backbuffer, and includes actual simultaneous movement/mouse input plus persistent Shift
+run/walk toggling.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 

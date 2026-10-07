@@ -45,8 +45,8 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 22 reported lifecycle, deployment,
-renderer, scene, and input stages passed against CNA `next` `9fbe34468c69`; the resulting
-WebAssembly is 8,512,564 bytes. The deployment gate additionally requires the exact persistent-
+renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the resulting
+WebAssembly is 8,521,483 bytes. The deployment gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
 near crown/cheek-tuft and bone-following finger/toe diagnostics, and its inspected frame retains

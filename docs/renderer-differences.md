@@ -8,16 +8,16 @@ Game code uses CNA abstractions, portable 16-bit index buffers, and explicit GLS
 platform may reduce density or distance after measurement, but it must not remove core terrain,
 ocean, vegetation, traversal, wildlife, or soundscape systems.
 
-Current build, Web runtime, and Android overview/current-view evidence use the dependency revisions
-in `dependencies.lock`. The broader six-view Android comparison matrix and lifecycle/touch
-observations predate the latest CNA-only renderer-retirement refresh where explicitly stated.
+Current Linux/Web build and runtime evidence plus current Android build/lint evidence use the
+dependency revisions in `dependencies.lock`. Android overview/current-view and the broader
+comparison matrix remain runtime evidence from the preceding CNA pin where explicitly stated.
 
 ## Current evidence
 
 | Area | Linux / OpenGL 3.3 | Web / WebGL 2 | Android / OpenGL ES 3 |
 |---|---|---|---|
 | Environment | Mesa OpenGL 4.6 Core through CNA `OPENGL33` on the development GPU | Chrome 152.0.7977.82 with SwiftShader WebGL 2 | Android Emulator 36.5.11, API 35 x86_64 AVD, KVM, gfxstream host GPU on AMD Radeon 780M; current-pin arm64 build/lint uses the same SDK/NDK toolchain |
-| Runtime state | Current `9fbe34468c69` executable links and passes a live-desktop four-frame overview smoke with `OPENGL33`, every current shader diagnostic, and a 1280 by 720 logical backbuffer; broader fixed captures predate the latest CNA-only refresh | Automated real-browser render and controlled input on current `9fbe34468c69` | Current `9fbe34468c69` overview, offshore-current, water-haze, buttress-root, and logical-viewport views render successfully; independent movement/look gestures and same-process background/foreground recovery remain evidence from preceding `fe20e3e9c` |
+| Runtime state | Current `97783d1e090c` executable passes the complete private-display suite 41/41 with `OPENGL33`, all deterministic captures, actual simultaneous movement/mouse input, persistent Shift run/walk toggling, and a 1280 by 720 logical backbuffer | Automated real-browser render and controlled input pass all 22 stages on current `97783d1e090c` | Current `97783d1e090c` arm64 package builds and passes lint; the latest overview, offshore-current, water-haze, buttress-root, logical-viewport, and input runtime evidence remains on preceding `9fbe34468c69` |
 | Terrain | Portable procedural sand/soil shader with close dry-sand granulation, soft-edged pebble/shell flecks, shoreline-raked ripples, a darkened wet edge with bounded view-dependent fixed-sun sheen, interior microvariation, sparse curved leaf litter, fixed-sun inland dappling, a narrow noise-mottled authored footpath, a clearer warm-dry east clearing, and a leaf-rich west clearing; one 58,081-vertex/115,200-triangle shared mesh retains 64 cull cells and coalesces adjacent visible index ranges | Same GLSL ES 300 material/cell/detail/path/clearing/wet-sheen diagnostics required by the harness, including the east warm-dry cue; shared-buffer diagnostic reports 58 visible cells in three draws; dedicated dry-beach, shoreline, and clearing captures expose the close cues | Fixed beach, grass, and jungle captures visibly match the shared geometry and broad material transitions without seams; the revised east-clearing colour and wet sheen have build/lint coverage but no new Android runtime capture, and physical-mobile fragment cost remains unqualified |
 | Sky | Full fixed gradient/sun shader with sparse layered horizontal high wisps selected | Same GLSL ES 300 shader required by every harness scene; browser captures show no former vertical streaks | The six fixed captures retain the same sunny gradient, haze, and horizontal-wisp presentation |
 | Distant scenery | Five fogged unreachable islets and 11 simplified palms in one 787-triangle `BasicEffect` batch | Same batch; dedicated browser capture visually matches native | Batch compiles into the arm64 APK; current runtime capture does not qualify it |
