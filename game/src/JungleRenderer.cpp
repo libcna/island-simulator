@@ -75,6 +75,7 @@ uniform float uTime;
 
 out vec3 vColor;
 out vec3 vWorld;
+out vec3 vLocal;
 
 void main()
 {
@@ -91,6 +92,7 @@ void main()
     vec4 world = instanceTransform * vec4(local, 1.0);
     vColor = aColor.rgb;
     vWorld = world.xyz;
+    vLocal = aPosition;
     gl_Position = uViewProjection * world;
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -99,6 +101,7 @@ void main()
         constexpr const char* FragmentBody = R"(
 in vec3 vColor;
 in vec3 vWorld;
+in vec3 vLocal;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -116,6 +119,17 @@ void main()
     float upwardFill = abs(faceNormal.y);
     float daylight = 0.78 + twoSidedDiffuse * 0.24 + upwardFill * 0.05;
     vec3 litColor = vColor * daylight;
+    float barkColorMask = smoothstep(0.025, 0.095, vColor.r - vColor.g)
+        * smoothstep(0.025, 0.105, vColor.g - vColor.b);
+    float barkDetailFade = barkColorMask
+        * (1.0 - smoothstep(38.0, 68.0, distanceToCamera));
+    float barkAngle = atan(vLocal.z, vLocal.x);
+    float broadGrain = sin(barkAngle * 5.0 + vLocal.y * 0.42
+        + sin(vLocal.y * 1.31) * 0.32);
+    float fissureWave = abs(sin(barkAngle * 9.0 + vLocal.y * 0.19
+        + sin(vLocal.y * 0.77) * 0.55));
+    float fissure = smoothstep(0.82, 0.97, fissureWave);
+    litColor *= 1.0 + barkDetailFade * (broadGrain * 0.035 - fissure * 0.09);
     vec3 color = mix(litColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
 }
@@ -865,6 +879,7 @@ void main()
             std::cout << "island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD\n";
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
             std::cout << "island-simulator: jungle near canopy irregular buttress roots ground trunk bases\n";
+            std::cout << "island-simulator: jungle near canopy procedural bark fissures\n";
             std::cout << "island-simulator: jungle near bushes with pointed leaf edge breakup\n";
             std::cout << "island-simulator: jungle near ground plants include upright and split-leaf silhouettes\n";
             std::cout << "island-simulator: jungle fixed-sun two-sided geometric facet lighting\n";

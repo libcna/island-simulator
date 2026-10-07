@@ -409,7 +409,8 @@ Dependencies: stable terrain/shore queries and representative performance instru
   clusters. The fourth beach-detail variant now uses low curved dry-wrack strands instead of
   repeating the other three shell/pebble compositions without changing population or draw budget.
   Near canopy meshes now add tapered support branches, irregular separated lobes,
-  pointed edge leaves, and four/five short irregular buttress roots. Near bushes now use smaller
+  pointed edge leaves, four/five short irregular buttress roots, and distance-faded procedural
+  bark grain/fissures without a texture or draw. Near bushes now use smaller
   lobes with paired folded pointed leaves while retaining
   their compact far tier. Near forest-floor variants now include six upright broad leaves with
   visible petioles and a separate five-leaf folded split form while retaining compact far
@@ -707,7 +708,7 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,763,900 bytes uncompressed and 2,484,361 bytes through
+  The current Release package is 8,764,716 bytes uncompressed and 2,484,634 bytes through
   deterministic gzip, a measured 71.7% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
@@ -1241,9 +1242,10 @@ Work next, in order:
 8. Observe the retained branch-supported broadleaf crowns and staggered 105--129 m transition
    during traversal. A clear close-view cylindrical trunk-base defect justified a small near-only
    four/five-buttress pass; the far tier, culling, instances, and draws remain unchanged. Further
-   canopy geometry should be justified by physical-mobile evidence or another clear defect. The first fixed-sun
-   geometric facet-light pass is visually matched on native OpenGL and actual WebGL 2; observe its
-   readability and cost on physical mobile before extending the technique to more layers.
+   canopy geometry should be justified by physical-mobile evidence or another clear defect. The
+   fixed-sun facet-light and close distance-faded bark-fissure passes are visually matched on native
+   OpenGL and actual WebGL 2; observe their readability, aliasing, and cost on physical mobile
+   before extending the technique to more layers.
 9. Record two isolated debug and release startup reports after closing other GPU clients, then use
    the phase split to investigate only demonstrated world/content bottlenecks. Add browser cold-load
    and physical-Android launch evidence before assigning cross-target startup budgets.
@@ -4634,6 +4636,26 @@ Work next, in order:
   library; WebAssembly is 8,499,057 bytes and its deterministic package is 8,763,900 bytes
   uncompressed / 2,484,361 bytes through gzip. Physical-mobile appearance and moving LOD review
   remain open; CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Near-canopy procedural bark fissures
+
+- Original-resolution jungle review showed that the closest broadleaf trunks remained uniformly
+  brown and repeated despite their varied geometry. Added restrained local-space longitudinal
+  grain and narrow winding fissures to the existing shared jungle fragment shader. An existing
+  colour relationship isolates brown bark, and a 38--68 m fade removes the detail before it can
+  alias at the far tier.
+- The pass adds one interpolated local position and bounded fragment math. It adds no texture,
+  vertex, index, instance, buffer, CPU update, collision change, draw submission, or change to the
+  105--129 m canopy LOD policy. Original-resolution full-frame and close-crop review shows readable
+  variation on the nearest trunk without a strong repeated stripe pattern; distant trunks remain
+  calm.
+- The OpenGL 3.3 jungle object compiles through `/rv/cnaccache` without relinking the operator-
+  visible game. The complete actual Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages and
+  requires the exact bark diagnostic. The two-worker arm64 GLES 3 package builds/lints and verifies
+  with APK signature scheme v2. The APK is 18,713,604 bytes with a 15,903,320-byte stripped library;
+  WebAssembly is 8,499,873 bytes and its deterministic package is 8,764,716 bytes uncompressed /
+  2,484,634 bytes through gzip. Physical-mobile appearance, aliasing, and fragment cost remain
+  open; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

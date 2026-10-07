@@ -386,7 +386,9 @@ batches. The deterministic jungle camera renders 63 near and 46 far canopy trees
 plants, 108 bushes, and 162 ground plants in 28 jungle submissions. A portable GLSL
 330 / GLSL ES 300 shader applies weighted calm wind. Its fragment stage reconstructs a safe
 geometric face normal from world-position derivatives, uses the absolute fixed-sun response for
-two-sided foliage, and adds a small upward fill. This gives the deliberately low-poly crowns and
+two-sided foliage, and adds a small upward fill. A brown-material mask adds local-space
+longitudinal grain and narrow fissures to nearby canopy bark, fading between 38 and 68 m before
+the far tier. This gives the deliberately low-poly crowns and
 leaves coherent facet depth without a normal stream, texture, mesh change, or additional
 submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3 and actual
 Chromium/WebGL 2 execute and visually match on the full shader; the current arm64 GLES 3 package

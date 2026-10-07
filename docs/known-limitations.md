@@ -57,6 +57,8 @@ been confirmed so far.
   collision/displacement does not
   persist after the player passes, and true LOD blending, richer biome variation, aliasing work,
   and physical-device density tuning remain.
+  Nearby broadleaf trunks use restrained texture-free longitudinal grain and fissures with a
+  bounded distance fade; physical-mobile aliasing and fragment cost remain unqualified.
   Contact shadows improve the main trunk/prop/animal classes, but small foliage is intentionally
   unshadowed; visible transition popping and close-up material simplicity remain.
 - A portable permanent-daylight sky now supplies a tropical gradient, sun disc/halo, and sparse

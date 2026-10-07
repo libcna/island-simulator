@@ -518,6 +518,20 @@ An earlier benchmark overlapping the WebAssembly link was discarded as contamina
 two isolated repeats. The arm64 GLES 3 package builds and lints; physical-device appearance,
 transition behaviour, and cost remain unqualified.
 
+### Near-canopy procedural bark follow-up
+
+The shared jungle fragment shader identifies the existing brown canopy material and applies
+local-space longitudinal grain plus narrow winding fissures only within a 38--68 m fade. It reuses
+the existing local position and fixed-sun path, adding one interpolant and bounded fragment math
+without textures, vertices, indices, instances, buffers, CPU work, draws, or changes to the far
+mesh and 105--129 m LOD policy.
+
+The complete actual Chrome/SwiftShader WebGL 2 suite requires the exact bark diagnostic and passes
+all 22 stages. Original-resolution full-frame and close-crop review shows readable variation on the
+nearest trunks without a strong repeating stripe pattern; distant trunks remain calm. The OpenGL
+3.3 object compiles and the arm64 GLES 3 package builds/lints, but isolated GPU cost, physical-
+mobile aliasing, and appearance remain unqualified.
+
 ### Pointed-leaf near-bush follow-up
 
 The three near-bush variants now use smaller volume lobes with two folded pointed leaves per lobe,
@@ -1173,8 +1187,8 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,499,057 bytes (2,424,179
-gzip). The complete transfer payload therefore falls from 8,763,900 to 2,484,361 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,063 gzip), and WebAssembly is 8,499,873 bytes (2,424,453
+gzip). The complete transfer payload therefore falls from 8,764,716 to 2,484,634 bytes, a measured
 71.7% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

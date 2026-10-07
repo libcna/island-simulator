@@ -41,7 +41,8 @@ can instead launch the emulator or validation command through `sg kvm`.
 The current arm64 package includes the portable procedural sand/soil terrain material with
 near-field interior microvariation, sparse curved leaf litter, and close dry-sand pebble/shell
 flecks, the broadleaf jungle with
-branch-supported near crowns, rounded far crowns, per-tree LOD, pointed-leaf near bushes with a
+branch-supported near crowns, distance-faded procedural bark fissures, rounded far crowns,
+per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
 variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading, per-instance blade
@@ -74,8 +75,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,712,820-byte APK with a
-15,902,536-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,713,604-byte APK with a
+15,903,320-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular

@@ -41,7 +41,9 @@ flat cylinder or a regular stamped star.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
 and pointed perimeter leaves. Their near trunks now meet the forest floor through four or five
 short irregular buttress roots instead of a uniform cylinder, using the same instanced mesh and
-draw submissions. A deterministic per-tree 105--129 m threshold staggers their
+draw submissions. Close bark gains restrained procedural longitudinal grain and narrow fissures
+that fade before the far tier, without a texture or new pass. A deterministic per-tree 105--129 m
+threshold staggers their
 transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
 The shared portable jungle shader reconstructs a two-sided geometric face normal from world-space
 derivatives, so canopy, understory, bush, and ground-plant facets respond coherently to the fixed
@@ -229,7 +231,7 @@ browser engine remain open.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,484,361 bytes, 71.7% below the 8,763,900-byte
+a SHA-256 manifest. The current gzip payload is 2,484,634 bytes, 71.7% below the 8,764,716-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
