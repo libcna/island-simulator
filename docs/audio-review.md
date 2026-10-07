@@ -88,3 +88,9 @@ depth, movement speed, current strength, and positional-audio coordinates. Those
 enter a mix, advance an event scheduler, fabricate a shoreline crossing, or request a wildlife
 call; the next valid update must recover from finite state. This validates control-state safety,
 not audible quality. The generated PCM and source-count baseline above are unchanged.
+
+At runtime the three persistent environmental beds also receive deterministic, non-amplifying
+gain drift with mismatched roughly 44--131 second component periods. Maximum downward movement is
+3.5 percent for surf, 7.5 percent for breeze, and 5.5 percent for jungle. Tests prove bounded
+movement, deterministic reset, and the unchanged twenty-minute mix ceilings. This reduces static
+gain fatigue but does not replace the required in-game headphone and speaker review.

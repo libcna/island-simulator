@@ -220,5 +220,6 @@ namespace island
 
     private:
         SoundscapeMix mix_;
+        double variationSeconds_ = 0.0;
     };
 }

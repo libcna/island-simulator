@@ -314,8 +314,9 @@ performance, memory, or thermals. Override the deliberately generous software-em
 
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` for an audio-qualified run. In addition to the normal
 GLES 3 requirements, this waits for the exact sequential-generation/upload diagnostic emitted only
-after all twelve effects were created. It proves that the current staging path reached CNA's audio
-objects; it does not prove audible balance, device latency, or total process-memory usage:
+after all twelve effects were created and the exact slow non-amplifying ambient-gain diagnostic.
+It proves that the current staging and runtime-mix paths reached CNA's audio objects; it does not
+prove audible balance, device latency, or total process-memory usage:
 
 ```bash
 ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \

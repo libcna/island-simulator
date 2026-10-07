@@ -106,6 +106,16 @@ namespace island
             return t * t * (3.0f - 2.0f * t);
         }
 
+        [[nodiscard]] float SlowBedGain(const double seconds, const float depth,
+                                        const double slowAngularFrequency,
+                                        const double fastAngularFrequency) noexcept
+        {
+            const double slow = std::sin(seconds * slowAngularFrequency);
+            const double fast = std::sin(seconds * fastAngularFrequency);
+            const double movement = slow * slow * 0.65 + fast * fast * 0.35;
+            return 1.0f - depth * static_cast<float>(movement);
+        }
+
         void AddBirdChirp(std::vector<float>& samples, const float startSeconds,
                           const float durationSeconds, const float startFrequency,
                           const float endFrequency, const float amplitude,
@@ -692,13 +702,20 @@ namespace island
     void SoundscapeModel::Reset(const float signedShoreDistance, const bool swimming) noexcept
     {
         mix_ = TargetMix(signedShoreDistance, swimming);
+        variationSeconds_ = 0.0;
     }
 
     SoundscapeMix SoundscapeModel::Update(const float signedShoreDistance, const bool swimming,
                                           const float deltaSeconds) noexcept
     {
-        const SoundscapeMix target = TargetMix(signedShoreDistance, swimming);
+        SoundscapeMix target = TargetMix(signedShoreDistance, swimming);
         const float safeDelta = SafeDeltaSeconds(deltaSeconds);
+        variationSeconds_ += static_cast<double>(safeDelta);
+        // Long, mismatched periods keep stationary ambience from becoming a fixed wall of sound.
+        // Gains only dip below the authored zone mix, preserving the existing volume ceilings.
+        target.surfVolume *= SlowBedGain(variationSeconds_, 0.035f, 0.033, 0.071);
+        target.breezeVolume *= SlowBedGain(variationSeconds_, 0.075f, 0.024, 0.055);
+        target.jungleVolume *= SlowBedGain(variationSeconds_, 0.055f, 0.029, 0.063);
         const float blend = 1.0f - std::exp(-safeDelta / 1.8f);
         const float jungleBlend = 1.0f - std::exp(-safeDelta / 2.6f);
         mix_.surfVolume += (target.surfVolume - mix_.surfVolume) * blend;

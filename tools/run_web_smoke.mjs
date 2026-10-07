@@ -374,6 +374,8 @@ try {
     "island-simulator: soundscape started (procedural surf and breeze)");
   deploymentState.audioStagingBounded = deploymentState.output?.includes(
     "island-simulator: audio sources use sequential generation and upload with bounded staging memory");
+  deploymentState.ambientBedVariationEnabled = deploymentState.output?.includes(
+    "island-simulator: ambient beds use slow non-amplifying gain drift");
   deploymentState.waveAccentsEnabled = deploymentState.output?.includes(
     "island-simulator: sparse stronger-wave accents enabled");
   deploymentState.waterMovementEnabled = deploymentState.output?.includes(
@@ -398,6 +400,7 @@ try {
     && deploymentState.output?.includes("island-simulator: terrain")
     && deploymentState.audioStarted === true
     && deploymentState.audioStagingBounded === true
+    && deploymentState.ambientBedVariationEnabled === true
     && deploymentState.waveAccentsEnabled === true
     && deploymentState.waterMovementEnabled === true
     && deploymentState.waterTransitionsEnabled === true

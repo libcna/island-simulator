@@ -609,6 +609,13 @@ falls to a quiet distant bed inland. Light canopy breeze increases toward the in
 second exponential crossfade prevents zone snaps, and M applies a reversible zero-gain mute without
 restarting the tracks.
 
+Three deterministic pairs of mismatched slow oscillations apply only downward gain drift to surf,
+breeze, and jungle after the authored zone target. Their roughly 44--131 second component periods
+keep a stationary mix from becoming a fixed wall of sound without adding PCM, voices, allocations,
+or startup work. The drift depths are capped at 3.5, 7.5, and 5.5 percent respectively and reset
+to unity, so existing maximum volume budgets remain unchanged and zone crossfades still prevent
+hard edges.
+
 The four persistent beds use 10, 11, 29, and 7 second loop lengths. Their combined sample-aligned
 pattern therefore does not recur for 22,330 seconds (6 hours, 12 minutes, 10 seconds). The longer
 jungle source deliberately spends a modest additional 749,700 PCM bytes on reducing the most

@@ -920,7 +920,12 @@ Android is not project completion.
   profile that visually seats them in the water column. Calm monkeys now use bounded player-aware
   head posing on top of their existing clips, and three restrained near-only crown/cheek tufts
   break up the smooth head outline without another draw; long subjective tuning remains open.
-- [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
+- [~] Improve soundscape variation, spatial placement, transitions, balance, and long-session
+  fatigue. The 10/11/29/7-second persistent beds already avoid whole-set realignment for more than
+  six hours; three mismatched 44--131-second deterministic gain fields now add restrained,
+  non-amplifying surf/breeze/jungle movement without new PCM or voices. Positional bird/monkey
+  calls and two variants per transient class are active; subjective headphone/speaker fatigue and
+  balance review remains open.
 - [ ] Fix frame pacing, loading hitches, input focus issues, touch ergonomics, and platform-specific
   rendering differences found during real play.
 
@@ -4293,6 +4298,27 @@ Work next, in order:
   18,705,980 bytes with a 15,895,696-byte stripped library. These are inventory and compilation
   checks; no new visual/runtime claim is made because all generated pixel dimensions and content
   remain unchanged. Every build used `/rv/cnaccache`; CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Slow non-amplifying ambient-bed variation
+
+- Added deterministic long-period gain movement after the authored shoreline/interior zone mix.
+  Surf combines two components with about 44/95-second periods and can dip at most 3.5 percent;
+  breeze uses about 57/131 seconds at 7.5 percent; jungle uses about 50/108 seconds at 5.5 percent.
+  All gains start at unity, only move downward, and pass through the existing 1.8/2.6-second
+  smoothing, preserving established volume ceilings and avoiding hard changes.
+- The change adds no PCM, effect, playback instance, allocation, generator work, download payload,
+  or source overlap. All twelve fingerprints and the 3,283,244-byte PCM total remain unchanged, as
+  do the four persistent and six-maximum-live-source budgets. Core tests now prove bounded drift,
+  deterministic reset, invalid-time stability, and the existing accelerated twenty-minute mix
+  ceilings; exact audio report, WAV export, and provenance gates pass.
+- Added an exact startup diagnostic to the browser deployment gate and the opt-in Android audio
+  runtime gate. The complete Chrome 152/SwiftShader 22-stage suite passes; its post-gesture state
+  reports audio start, bounded staging, and ambient-bed variation enabled while the input suite
+  still proves persistent running, walk restore, and simultaneous movement/look. WebAssembly is
+  8,490,627 bytes. The two-worker arm64 GLES 3 build/lint passes, and its v2-signed APK is
+  18,706,644 bytes with a 15,896,360-byte stripped library. Native graphical relinking, live
+  listening, and the opt-in Android runtime audio gate remain deferred while the operator's game
+  process stays open; CNA and Sharp Runtime remain read-only.
 
 ## Session-end checklist
 

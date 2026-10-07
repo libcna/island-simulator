@@ -798,6 +798,38 @@ int main()
               && soundscapeModel.Mix().jungleVolume < jungleMix.jungleVolume,
           "the slower jungle layer fades in without a hard biome boundary");
 
+    constexpr float ambientVariationDistance = 70.0f;
+    const island::SoundscapeMix ambientVariationBase =
+        island::SoundscapeModel::TargetMix(ambientVariationDistance, false);
+    island::SoundscapeModel ambientVariationModel;
+    ambientVariationModel.Reset(ambientVariationDistance, false);
+    for (int step = 0; step < 240; ++step) {
+        (void)ambientVariationModel.Update(
+            ambientVariationDistance, false, 0.25f);
+    }
+    const island::SoundscapeMix variedAmbient = ambientVariationModel.Mix();
+    Check(variedAmbient.surfVolume < ambientVariationBase.surfVolume
+              && variedAmbient.surfVolume >= ambientVariationBase.surfVolume * 0.965f,
+          "slow surf-bed variation remains a restrained downward gain drift");
+    Check(variedAmbient.breezeVolume < ambientVariationBase.breezeVolume
+              && variedAmbient.breezeVolume >= ambientVariationBase.breezeVolume * 0.925f,
+          "slow canopy-bed variation remains inside its authored gain depth");
+    Check(variedAmbient.jungleVolume < ambientVariationBase.jungleVolume
+              && variedAmbient.jungleVolume >= ambientVariationBase.jungleVolume * 0.945f,
+          "slow jungle-bed variation remains inside its authored gain depth");
+    island::SoundscapeModel repeatedAmbientVariationModel;
+    repeatedAmbientVariationModel.Reset(ambientVariationDistance, false);
+    for (int step = 0; step < 240; ++step) {
+        (void)repeatedAmbientVariationModel.Update(
+            ambientVariationDistance, false, 0.25f);
+    }
+    Check(variedAmbient.surfVolume == repeatedAmbientVariationModel.Mix().surfVolume
+              && variedAmbient.breezeVolume
+                  == repeatedAmbientVariationModel.Mix().breezeVolume
+              && variedAmbient.jungleVolume
+                  == repeatedAmbientVariationModel.Mix().jungleVolume,
+          "slow ambient-bed variation is deterministic after reset");
+
     const island::WaterMovementMix dryMovement =
         island::WaterMovementModel::TargetMix(0.0f, false, 4.3f);
     const island::WaterMovementMix idleWater =

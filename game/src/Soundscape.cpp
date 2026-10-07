@@ -209,6 +209,7 @@ namespace island
             std::cout << "island-simulator: audio sources use sequential generation and upload "
                          "with bounded staging memory\n";
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
+            std::cout << "island-simulator: ambient beds use slow non-amplifying gain drift\n";
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";

@@ -175,7 +175,9 @@ qualifies the portable timing path, not hardware-browser cold-load performance o
 The harness then opens a live controllable instance and uses Chromium's input protocol to click
 the canvas, assert pointer lock/focus, initialization of all four looping audio layers, preparation
 of both wave and both shoreline-transition variants, and preparation of positional bird/monkey
-calls, then holds W while applying two separated pointer movements. The same diagnostic segment
+calls. It also requires the slow non-amplifying ambient-gain path after the bounded sequential
+source upload, then holds W while applying two separated pointer movements. The same diagnostic
+segment
 must show both player displacement and changing yaw. It resets to the deterministic south-beach QA
 location, proves that Right moves toward visible screen-right, proves that Shift+Up exceeds the
 walking ceiling after Shift has been released, proves that a second Shift press restores walking,
@@ -194,7 +196,8 @@ brief DevTools key edges into false failures while still requiring the game to o
 control and state transition.
 
 This smoke test proves browser/WebAssembly/WebGL execution, bounded one-source-at-a-time staging,
-first-gesture CNA mixer/track initialization, and acceptance of the shoreline transition one-shot,
+first-gesture CNA mixer/track initialization, activation of the slow ambient-gain path, and
+acceptance of the shoreline transition one-shot,
 but it is not a substitute for
 a visible interactive listening pass using hardware acceleration. Do not infer audible quality,
 real tab lifecycle, frame pacing, thermal behaviour, or non-Chromium compatibility from it.

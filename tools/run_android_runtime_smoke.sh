@@ -104,6 +104,11 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE"; then
         AUDIO_QUALIFIED=0
     fi
+    if [ "$REQUIRE_AUDIO" -eq 1 ] \
+        && ! grep -q "island-simulator: ambient beds use slow non-amplifying gain drift" \
+            "$LOG_FILE"; then
+        AUDIO_QUALIFIED=0
+    fi
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
         && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
             "$LOG_FILE" \
