@@ -308,7 +308,8 @@ input by design. Depth writes and
 testing are disabled only for this pass and restored immediately afterward. A vertex-coloured
 `BasicEffect` gradient remains available with an explicit diagnostic if custom effects are not
 supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the current arm64 GLES
-3 package compiles its GLSL ES path, but stable Android runtime validation remains open.
+3 package compiles its GLSL ES path, and the KVM/API 35 gfxstream matrix visibly executes the same
+full sunny-sky path. Physical-device appearance and fragment cost remain open.
 
 Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near tier, with five
 faceted root wedges around the trunk base as a low-cost contact cue. Their deterministic angle,

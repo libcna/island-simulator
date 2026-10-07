@@ -1002,15 +1002,22 @@ Android is not project completion.
   redistribution requirements. The tracked source tree has no external binary/content files; its
   one non-generated visual asset is the original Android vector launcher icon, now hash-gated by
   manifest schema 2 with a matching attribution row.
-- [ ] Review `BUGS.md`, known limitations, disabled fallbacks, warnings, and unverified claims.
+- [x] Review `BUGS.md`, known limitations, disabled fallbacks, warnings, and unverified claims. The
+  latest source-only audit after the `97783d1e090c` baseline refresh found no qualifying dependency
+  bug, retained explicit stock-effect/audio degradation diagnostics, corrected one stale Android
+  sky-runtime claim, and preserved physical-device/browser gaps as unverified.
 - [~] Review repository size and remove only project-owned obsolete artifacts after checking for
   live users/processes. The first maintenance pass removed a stale 1.1 GiB one-off arm64 consumer
   tree while preserving the live native tree, current Web/Android outputs, reusable SDL caches,
   and retained runtime evidence; repeat before final packaging.
-- [ ] Synchronize README, architecture, controls, Linux/Web/Android instructions, renderer
-  differences, debugging, asset pipeline, performance notes, and known limitations.
-- [ ] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
-  repository inspection.
+- [~] Synchronize README, architecture, controls, Linux/Web/Android instructions, renderer
+  differences, debugging, asset pipeline, performance notes, and known limitations. Current CNA
+  identity, artifact sizes, Shift semantics, and Web control discoverability are synchronized;
+  repeat after future runtime or visual changes.
+- [~] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
+  repository inspection. Shell/Node syntax, executable modes, tracked-file types, approved build
+  directories, local Markdown links, asset provenance, package determinism, full native 41/41, and
+  full Web 22/22 currently pass; repeat the aggregate gate at final packaging.
 
 Exit validation:
 
@@ -4897,6 +4904,21 @@ Work next, in order:
   the longer HTML hint makes the deterministic package 8,786,361 bytes uncompressed and 2,490,911
   bytes through gzip, a 71.7 percent reduction. This Web-only presentation change does not require
   a new native or Android build. CNA and Sharp Runtime remained read-only.
+
+### 2026-10-07 — Source-only release consistency audit
+
+- Audited all current control descriptions, dependency-pin claims, fallback/unverified statements,
+  TODO-style markers, absolute paths, CMake build-directory names, tracked file types and modes,
+  and repository-local Markdown links while leaving the operator-visible native process running.
+  Historical validation-ledger evidence remains historical rather than being rewritten as current.
+- All project shell scripts pass `bash -n`; the Web harness passes Node syntax validation. No
+  unexpected tracked binary, invalid local Markdown target, forbidden build directory, disabled
+  shared-cache instruction, or source TODO/FIXME/HACK marker was found. The apparent temporary and
+  placeholder matches are test-owned temporary directories or explicit limitation/history text.
+- Corrected the current architecture text that still described Android sunny-sky runtime as open:
+  the KVM/API 35 gfxstream matrix visibly executes that full path, while physical-device appearance
+  and cost remain explicitly unqualified. `BUGS.md` still has no confirmed CNA or Sharp Runtime
+  defect, all game-side fallbacks retain diagnostics, and both dependencies remained read-only.
 
 ## Session-end checklist
 
