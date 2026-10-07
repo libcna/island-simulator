@@ -312,6 +312,18 @@ GLES 3 frame and process; it does not by itself qualify touch ergonomics, audio,
 performance, memory, or thermals. Override the deliberately generous software-emulator timeout with
 `ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS` when testing faster hardware.
 
+Set `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` for an audio-qualified run. In addition to the normal
+GLES 3 requirements, this waits for the exact sequential-generation/upload diagnostic emitted only
+after all twelve effects were created. It proves that the current staging path reached CNA's audio
+objects; it does not prove audible balance, device latency, or total process-memory usage:
+
+```bash
+ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk
+```
+
 For a fixed debug QA camera, pass a comma-separated native argument array. The application ignores
 this extra in non-debuggable packages:
 

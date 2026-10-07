@@ -4237,8 +4237,10 @@ Work next, in order:
 - The default arm64-only GLES 3 APK builds with two workers, passes application lint, verifies with
   signature scheme v2, and is 18,705,180 bytes with a 15,894,896-byte stripped `libmain.so`. A new
   Android runtime-memory claim is intentionally deferred while the visible Linux game remains
-  active. CNA and Sharp Runtime remain read-only and unchanged; no dependency defect or workaround
-  was involved.
+  active. The Android runtime helper now accepts `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` to require
+  the same post-upload diagnostic on the next emulator/device run; shell syntax and invalid-value
+  rejection pass, while the opt-in device path remains deliberately unclaimed. CNA and Sharp
+  Runtime remain read-only and unchanged; no dependency defect or workaround was involved.
 
 ## Session-end checklist
 

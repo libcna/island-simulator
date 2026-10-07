@@ -13,6 +13,7 @@ OUTPUT_DIR=${3:-build/android-runtime-smoke}
 PACKAGE=com.libcna.islandsimulator
 COMPONENT="$PACKAGE/.IslandSimulatorActivity"
 TIMEOUT_SECONDS=${ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS:-600}
+REQUIRE_AUDIO=${ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO:-0}
 DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
 
@@ -34,6 +35,13 @@ if [ "$TIMEOUT_SECONDS" -eq 0 ]; then
     echo "android runtime smoke: timeout must be greater than zero" >&2
     exit 2
 fi
+case "$REQUIRE_AUDIO" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
 
 if ! "$ADB" get-state 2>/dev/null | grep -qx device; then
     echo "android runtime smoke: no selected ADB device is ready" >&2
@@ -90,12 +98,19 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
 
     # Filtering at the device avoids transferring the entire system log from slow software AVDs.
     "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
+    AUDIO_QUALIFIED=1
+    if [ "$REQUIRE_AUDIO" -eq 1 ] \
+        && ! grep -q "island-simulator: audio sources use sequential generation and upload with bounded staging memory" \
+            "$LOG_FILE"; then
+        AUDIO_QUALIFIED=0
+    fi
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
         && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
             "$LOG_FILE" \
         && grep -q "island-simulator: startup world" "$LOG_FILE" \
         && grep -q "island-simulator: grass biome tint follows coast, path, and authored clearings" \
-            "$LOG_FILE"; then
+            "$LOG_FILE" \
+        && [ "$AUDIO_QUALIFIED" -eq 1 ]; then
         QUALIFIED=1
         break
     fi
@@ -103,7 +118,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
 done
 
 if [ "$QUALIFIED" -ne 1 ]; then
-    echo "android runtime smoke: timed out after $TIMEOUT_SECONDS seconds waiting for the qualified GLES 3 frame" >&2
+    echo "android runtime smoke: timed out after $TIMEOUT_SECONDS seconds waiting for the qualified GLES 3 frame/audio state" >&2
     tail -n 120 "$LOG_FILE" >&2
     exit 1
 fi
