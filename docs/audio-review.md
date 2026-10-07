@@ -51,7 +51,7 @@ build/island-audio-report \
 ```
 
 The directory contains four loop beds and eight one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 2.42 MiB plus headers. Delete the directory after review;
+22.05 kHz PCM16 WAV files. They total about 3.13 MiB plus headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -78,7 +78,10 @@ range from approximately 0.56 to 0.86. Absolute DC offset remains below 0.0069. 
 range from approximately 0.0055 to 0.0271 and remain below their own largest ordinary internal
 step. The persistent 10/11/29/7-second lengths align as a complete pattern only every 22,330
 seconds (6 hours, 12 minutes, 10 seconds); these figures establish regression bounds, not a claim
-of perceptual quality.
+of perceptual quality. Runtime initialization handles one source at a time, so it does not retain
+both complete 3,283,244-byte PCM and conversion sets as game-owned staging. The largest current
+source pair is 2,557,800 bytes for the jungle bed; this is a staging-memory bound, not total mixer
+or process memory.
 
 Renderer-independent regressions additionally inject non-finite time, shoreline distance, water
 depth, movement speed, current strength, and positional-audio coordinates. Those values must not

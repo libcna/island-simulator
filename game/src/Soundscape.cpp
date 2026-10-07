@@ -36,6 +36,24 @@ namespace island
             return bytes;
         }
 
+        [[nodiscard]] std::unique_ptr<SoundEffect> CreateLoopedSoundEffect(
+            const AmbientLoop& loop)
+        {
+            const std::vector<SharpRuntime::bytecs> bytes = ToPcmBytes(loop);
+            return std::make_unique<SoundEffect>(
+                bytes, 0, static_cast<SharpRuntime::intcs>(bytes.size()), loop.sampleRate,
+                AudioChannels::Mono, 0,
+                static_cast<SharpRuntime::intcs>(loop.samples.size()));
+        }
+
+        [[nodiscard]] std::unique_ptr<SoundEffect> CreateOneShotSoundEffect(
+            const AmbientLoop& loop)
+        {
+            const std::vector<SharpRuntime::bytecs> bytes = ToPcmBytes(loop);
+            return std::make_unique<SoundEffect>(
+                bytes, loop.sampleRate, AudioChannels::Mono);
+        }
+
         [[nodiscard]] WildlifeAudioSource NearestBirdSource(
             const std::span<const BirdState> birds, const float listenerX,
             const float listenerY, const float listenerZ) noexcept
@@ -108,101 +126,54 @@ namespace island
         waterMovementModel_.Reset(
             waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         try {
-            const AmbientLoop surf = GenerateSurfLoop();
-            const AmbientLoop breeze = GenerateBreezeLoop();
-            const AmbientLoop jungle = GenerateJungleLoop();
-            const AmbientLoop wave = GenerateWaveAccent();
-            const AmbientLoop waveAlternate = GenerateWaveAccentAlternate();
-            const AmbientLoop waterMovement = GenerateWaterMovementLoop();
-            const AmbientLoop waterTransition = GenerateWaterTransitionAccent();
-            const AmbientLoop waterTransitionAlternate =
-                GenerateWaterTransitionAccentAlternate();
-            const AmbientLoop birdCall = GenerateBirdCall();
-            const AmbientLoop birdCallAlternate = GenerateBirdCallAlternate();
-            const AmbientLoop monkeyCall = GenerateMonkeyCall();
-            const AmbientLoop monkeyCallAlternate = GenerateMonkeyCallAlternate();
-            const std::vector<SharpRuntime::bytecs> surfBytes = ToPcmBytes(surf);
-            const std::vector<SharpRuntime::bytecs> breezeBytes = ToPcmBytes(breeze);
-            const std::vector<SharpRuntime::bytecs> jungleBytes = ToPcmBytes(jungle);
-            const std::vector<SharpRuntime::bytecs> waveBytes = ToPcmBytes(wave);
-            const std::vector<SharpRuntime::bytecs> waveAlternateBytes =
-                ToPcmBytes(waveAlternate);
-            const std::vector<SharpRuntime::bytecs> waterMovementBytes = ToPcmBytes(waterMovement);
-            const std::vector<SharpRuntime::bytecs> waterTransitionBytes =
-                ToPcmBytes(waterTransition);
-            const std::vector<SharpRuntime::bytecs> waterTransitionAlternateBytes =
-                ToPcmBytes(waterTransitionAlternate);
-            const std::vector<SharpRuntime::bytecs> birdCallBytes = ToPcmBytes(birdCall);
-            const std::vector<SharpRuntime::bytecs> birdCallAlternateBytes =
-                ToPcmBytes(birdCallAlternate);
-            const std::vector<SharpRuntime::bytecs> monkeyCallBytes = ToPcmBytes(monkeyCall);
-            const std::vector<SharpRuntime::bytecs> monkeyCallAlternateBytes =
-                ToPcmBytes(monkeyCallAlternate);
-
-            surfEffect_ = std::make_unique<SoundEffect>(
-                surfBytes, 0, static_cast<SharpRuntime::intcs>(surfBytes.size()), surf.sampleRate,
-                AudioChannels::Mono, 0, static_cast<SharpRuntime::intcs>(surf.samples.size()));
+            // Generate, upload, and release one source at a time. Retaining all twelve PCM
+            // vectors plus all twelve byte copies here raised transient startup memory for no
+            // playback benefit, especially on Web and Android.
+            surfEffect_ = CreateLoopedSoundEffect(GenerateSurfLoop());
             surfEffect_->setNameProperty("Procedural shoreline surf");
             surfInstance_ = std::make_unique<SoundEffectInstance>(surfEffect_->CreateInstance());
             surfInstance_->setIsLoopedProperty(true);
 
-            breezeEffect_ = std::make_unique<SoundEffect>(
-                breezeBytes, 0, static_cast<SharpRuntime::intcs>(breezeBytes.size()),
-                breeze.sampleRate, AudioChannels::Mono, 0,
-                static_cast<SharpRuntime::intcs>(breeze.samples.size()));
+            breezeEffect_ = CreateLoopedSoundEffect(GenerateBreezeLoop());
             breezeEffect_->setNameProperty("Procedural canopy breeze");
             breezeInstance_ = std::make_unique<SoundEffectInstance>(
                 breezeEffect_->CreateInstance());
             breezeInstance_->setIsLoopedProperty(true);
 
-            jungleEffect_ = std::make_unique<SoundEffect>(
-                jungleBytes, 0, static_cast<SharpRuntime::intcs>(jungleBytes.size()),
-                jungle.sampleRate, AudioChannels::Mono, 0,
-                static_cast<SharpRuntime::intcs>(jungle.samples.size()));
+            jungleEffect_ = CreateLoopedSoundEffect(GenerateJungleLoop());
             jungleEffect_->setNameProperty("Procedural daytime jungle");
             jungleInstance_ = std::make_unique<SoundEffectInstance>(
                 jungleEffect_->CreateInstance());
             jungleInstance_->setIsLoopedProperty(true);
 
-            waveEffect_ = std::make_unique<SoundEffect>(
-                waveBytes, wave.sampleRate, AudioChannels::Mono);
+            waveEffect_ = CreateOneShotSoundEffect(GenerateWaveAccent());
             waveEffect_->setNameProperty("Procedural stronger wave");
-            waveAlternateEffect_ = std::make_unique<SoundEffect>(
-                waveAlternateBytes, waveAlternate.sampleRate, AudioChannels::Mono);
+            waveAlternateEffect_ = CreateOneShotSoundEffect(GenerateWaveAccentAlternate());
             waveAlternateEffect_->setNameProperty("Procedural stronger wave alternate");
 
-            waterMovementEffect_ = std::make_unique<SoundEffect>(
-                waterMovementBytes, 0,
-                static_cast<SharpRuntime::intcs>(waterMovementBytes.size()),
-                waterMovement.sampleRate, AudioChannels::Mono, 0,
-                static_cast<SharpRuntime::intcs>(waterMovement.samples.size()));
+            waterMovementEffect_ = CreateLoopedSoundEffect(GenerateWaterMovementLoop());
             waterMovementEffect_->setNameProperty("Procedural player water movement");
             waterMovementInstance_ = std::make_unique<SoundEffectInstance>(
                 waterMovementEffect_->CreateInstance());
             waterMovementInstance_->setIsLoopedProperty(true);
 
-            waterTransitionEffect_ = std::make_unique<SoundEffect>(
-                waterTransitionBytes, waterTransition.sampleRate, AudioChannels::Mono);
+            waterTransitionEffect_ = CreateOneShotSoundEffect(
+                GenerateWaterTransitionAccent());
             waterTransitionEffect_->setNameProperty("Procedural player water transition");
-            waterTransitionAlternateEffect_ = std::make_unique<SoundEffect>(
-                waterTransitionAlternateBytes, waterTransitionAlternate.sampleRate,
-                AudioChannels::Mono);
+            waterTransitionAlternateEffect_ = CreateOneShotSoundEffect(
+                GenerateWaterTransitionAccentAlternate());
             waterTransitionAlternateEffect_->setNameProperty(
                 "Procedural player water transition alternate");
 
-            birdCallEffect_ = std::make_unique<SoundEffect>(
-                birdCallBytes, birdCall.sampleRate, AudioChannels::Mono);
+            birdCallEffect_ = CreateOneShotSoundEffect(GenerateBirdCall());
             birdCallEffect_->setNameProperty("Procedural tropical bird call");
-            birdCallAlternateEffect_ = std::make_unique<SoundEffect>(
-                birdCallAlternateBytes, birdCallAlternate.sampleRate, AudioChannels::Mono);
+            birdCallAlternateEffect_ = CreateOneShotSoundEffect(GenerateBirdCallAlternate());
             birdCallAlternateEffect_->setNameProperty(
                 "Procedural tropical bird call alternate");
-            monkeyCallEffect_ = std::make_unique<SoundEffect>(
-                monkeyCallBytes, monkeyCall.sampleRate, AudioChannels::Mono);
+            monkeyCallEffect_ = CreateOneShotSoundEffect(GenerateMonkeyCall());
             monkeyCallEffect_->setNameProperty("Procedural monkey contact call");
-            monkeyCallAlternateEffect_ = std::make_unique<SoundEffect>(
-                monkeyCallAlternateBytes, monkeyCallAlternate.sampleRate,
-                AudioChannels::Mono);
+            monkeyCallAlternateEffect_ = CreateOneShotSoundEffect(
+                GenerateMonkeyCallAlternate());
             monkeyCallAlternateEffect_->setNameProperty(
                 "Procedural monkey contact call alternate");
 
@@ -235,6 +206,8 @@ namespace island
             waveSecondsRemaining_ = 0.0f;
             waterTransitionSecondsRemaining_ = 0.0f;
             wildlifeSecondsRemaining_ = 0.0f;
+            std::cout << "island-simulator: audio sources use sequential generation and upload "
+                         "with bounded staging memory\n";
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";

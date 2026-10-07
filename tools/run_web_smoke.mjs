@@ -372,6 +372,8 @@ try {
   deploymentState.output = postGestureState.output ?? deploymentState.output;
   deploymentState.audioStarted = deploymentState.output?.includes(
     "island-simulator: soundscape started (procedural surf and breeze)");
+  deploymentState.audioStagingBounded = deploymentState.output?.includes(
+    "island-simulator: audio sources use sequential generation and upload with bounded staging memory");
   deploymentState.waveAccentsEnabled = deploymentState.output?.includes(
     "island-simulator: sparse stronger-wave accents enabled");
   deploymentState.waterMovementEnabled = deploymentState.output?.includes(
@@ -395,6 +397,7 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && deploymentState.output?.includes("island-simulator: terrain")
     && deploymentState.audioStarted === true
+    && deploymentState.audioStagingBounded === true
     && deploymentState.waveAccentsEnabled === true
     && deploymentState.waterMovementEnabled === true
     && deploymentState.waterTransitionsEnabled === true

@@ -819,8 +819,10 @@ Dependencies: representative complete scene on all targets.
 - [ ] Audit texture formats/sizes/mipmaps and create smaller variants only when justified.
 - [~] Measure loading and remove redundant runtime generation/conversion. Game-owned wall-clock
   phases now identify deterministic world construction and GPU/content creation separately through
-  first draw. Repeat isolated release measurements and profile the dominant generators before
-  changing the reproducible runtime-generation architecture.
+  first draw. Procedural audio now generates, converts, uploads, and releases one source at a time,
+  eliminating at least 4,008,688 bytes of simultaneous game-owned staging without changing source
+  PCM. Repeat isolated release measurements and profile the dominant generators before changing
+  the reproducible runtime-generation architecture further.
 
 ### Reliability and automated coverage
 
@@ -1116,7 +1118,8 @@ Work next, in order:
    and the pooled positional bird/monkey voice through a 20-minute headphone/speaker route.
    Numerical headroom, exact-source signal reports, disposable validated WAV previews, actual
    Linux playback, finite-input fail-closed control state, the six-source ceiling, and a 6-hour,
-   12-minute aggregate loop phase period are verified; subjective masking and fatigue are not.
+   12-minute aggregate loop phase period and bounded sequential upload staging are verified;
+   subjective masking and fatigue are not.
 2. Continue long subjective observation of the GPU-skinned monkey troop and its restrained
    27--50 second positional call cadence. Three silhouettes, four palettes, short clip crossfades,
    shared trunk/rock/log avoidance, two call phrases, and a surface-visible near face/eye/nose pass
@@ -4214,6 +4217,28 @@ Work next, in order:
   OpenGL 3.3 renderer objects compile, WebGL 2 links at 8,495,452 bytes, and the two-worker Android
   build/lint passes at 18,705,644 bytes with a 15,895,360-byte stripped library. The visible result
   is unchanged from the already inspected browser frames, so no duplicate runtime claim is made.
+
+### 2026-10-07 — Bounded procedural-audio startup staging
+
+- Refactored game-side `Soundscape::Start` to generate, convert, upload, and release each of its
+  twelve deterministic sources before beginning the next. Previously all 3,283,244 PCM bytes and
+  all 3,283,244 converted byte copies remained live together while effects were created. The
+  largest remaining source/conversion pair is the 29-second jungle bed at 2,557,800 bytes, removing
+  at least 4,008,688 bytes (about 3.82 MiB) of simultaneous game-owned staging. This is not a total
+  RSS claim because generator filter arrays and backend-owned decoded audio are separate.
+- Source generation code, PCM fingerprints, loop points, four persistent instances, eight one-shot
+  effects, event timing, gains, and the six-live-source ceiling are unchanged. Core, exact audio
+  report, independent WAV export, and asset provenance gates pass. The OpenGL 3.3 audio consumer
+  object compiles through `/rv/cnaccache` without relinking the operator's live executable.
+- The complete real Chrome 152/SwiftShader 22-stage WebGL 2 suite passes. Its first-gesture
+  deployment gate now requires an explicit bounded-staging diagnostic in addition to proving Web
+  Audio creation, every persistent bed, both wave/splash variant pairs, and the pooled wildlife
+  voice. Final WebAssembly is 8,490,148 bytes.
+- The default arm64-only GLES 3 APK builds with two workers, passes application lint, verifies with
+  signature scheme v2, and is 18,705,180 bytes with a 15,894,896-byte stripped `libmain.so`. A new
+  Android runtime-memory claim is intentionally deferred while the visible Linux game remains
+  active. CNA and Sharp Runtime remain read-only and unchanged; no dependency defect or workaround
+  was involved.
 
 ## Session-end checklist
 

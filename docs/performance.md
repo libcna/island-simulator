@@ -1002,6 +1002,24 @@ mobile density decisions must be based on 921,600 shaded logical pixels rather t
 surface dimensions. Both Web and Android smoke gates now reject a missing viewport diagnostic or
 any value other than 1280 by 720.
 
+### Sequential procedural-audio staging
+
+The first audio implementation generated all twelve sources, retained their complete 3,283,244
+PCM bytes, converted all twelve into another 3,283,244 bytes, and only then constructed CNA audio
+objects. Those source and conversion vectors remained alive together even though the backend
+copies each submitted buffer. The revised path generates, converts, uploads, and releases one
+source before beginning the next. The exact source PCM, effects, four persistent instances, eight
+one-shot effects, and six-voice runtime ceiling are unchanged.
+
+This removes 6,566,488 bytes of simultaneously retained whole-set game staging. The largest
+remaining source-plus-conversion pair is the 29-second jungle bed at 2,557,800 bytes, a reduction
+of at least 4,008,688 bytes (about 3.82 MiB) in that specific staging component. These figures do
+not include the generator's short-lived filtering arrays or backend-owned decoded audio and are
+therefore not a claim about total process RSS. The complete Chrome/SwiftShader 22-stage suite
+passes and requires the new post-gesture staging diagnostic, proving that all sources still upload
+and start through Web Audio. The arm64 GLES 3 package builds and lints; native playback and Android
+runtime memory are not newly claimed while the operator-visible Linux build remains active.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

@@ -193,7 +193,8 @@ accent is reported, up to a bounded timeout. This keeps SwiftShader frame-time s
 brief DevTools key edges into false failures while still requiring the game to observe every tested
 control and state transition.
 
-This smoke test proves browser/WebAssembly/WebGL execution, first-gesture CNA mixer/track
-initialization, and acceptance of the shoreline transition one-shot, but it is not a substitute for
+This smoke test proves browser/WebAssembly/WebGL execution, bounded one-source-at-a-time staging,
+first-gesture CNA mixer/track initialization, and acceptance of the shoreline transition one-shot,
+but it is not a substitute for
 a visible interactive listening pass using hardware acceleration. Do not infer audible quality,
 real tab lifecycle, frame pacing, thermal behaviour, or non-Chromium compatibility from it.

@@ -627,7 +627,10 @@ persistent loop avoids the rapid repeated one-shot cadence common to footstep-st
 while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
 state-transition chatter. All current procedural
 PCM payloads total 3,283,244 bytes (about 3.13 MiB) before backend bookkeeping, including the
-wildlife phrases described below.
+wildlife phrases described below. `Soundscape::Start` generates, converts, uploads, and releases
+one source at a time. It therefore no longer retains all 3,283,244 PCM bytes and a second
+3,283,244-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
+bed at 2,557,800 bytes. Backend-owned decoded audio remains unchanged.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water
 states. The detector uses 7.5 cm entry and 2.5 cm exit thresholds, ignores stationary state
