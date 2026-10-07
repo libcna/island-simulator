@@ -7,6 +7,7 @@
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/FirstPersonInput.hpp"
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassLod.hpp"
@@ -64,6 +65,11 @@ namespace
 
 int main()
 {
+    Check(island::GeneratedTextureBudget::TotalPixelCount == 35906U,
+          "generated texture inventory retains its exact base-level pixel count");
+    Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 143624U,
+          "generated texture inventory stays below its audited RGBA8 payload");
+
     const island::AquaticLightProfile shallowLight = island::AquaticLightAt(
         7.0f, -0.35f, -4.0f, 2.0f);
     const island::AquaticLightProfile middleLight = island::AquaticLightAt(

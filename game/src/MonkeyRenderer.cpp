@@ -1,6 +1,7 @@
 #include "IslandSimulator/MonkeyRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 
 #include <algorithm>
@@ -747,7 +748,9 @@ namespace island
 
     MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device)
         : device_(device),
-          whiteTexture_(std::make_unique<Texture2D>(device, 1, 1)),
+          whiteTexture_(std::make_unique<Texture2D>(
+              device, GeneratedTextureBudget::SolidWhiteTextureSize,
+              GeneratedTextureBudget::SolidWhiteTextureSize)),
           effect_(std::make_unique<SkinnedEffect>(device))
     {
         const Color whitePixel = Color::White;

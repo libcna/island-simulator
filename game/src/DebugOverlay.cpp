@@ -1,5 +1,7 @@
 #include "IslandSimulator/DebugOverlay.hpp"
 
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -94,6 +96,8 @@ namespace island
             constexpr int atlasRows = (characterCount + AtlasColumns - 1) / AtlasColumns;
             constexpr int atlasWidth = AtlasColumns * GlyphCellWidth;
             constexpr int atlasHeight = atlasRows * GlyphCellHeight;
+            static_assert(atlasWidth == GeneratedTextureBudget::DebugAtlasWidth);
+            static_assert(atlasHeight == GeneratedTextureBudget::DebugAtlasHeight);
             std::vector<Color> pixels(static_cast<std::size_t>(atlasWidth * atlasHeight),
                                       Color(0, 0, 0, 0));
             std::vector<Rectangle> glyphBounds;
@@ -146,7 +150,9 @@ namespace island
     DebugOverlay::DebugOverlay(GraphicsDevice& device)
         : spriteBatch_(std::make_unique<SpriteBatch>(device)),
           font_(CreateDebugFont(device)),
-          whitePixel_(std::make_unique<Texture2D>(device, 1, 1))
+          whitePixel_(std::make_unique<Texture2D>(
+              device, GeneratedTextureBudget::SolidWhiteTextureSize,
+              GeneratedTextureBudget::SolidWhiteTextureSize))
     {
         const Color pixel = Color::White;
         whitePixel_->SetData(&pixel, 1);

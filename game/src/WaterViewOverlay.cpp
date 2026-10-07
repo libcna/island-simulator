@@ -1,5 +1,7 @@
 #include "IslandSimulator/WaterViewOverlay.hpp"
 
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -19,8 +21,8 @@ namespace island
 {
     namespace
     {
-        constexpr int TextureWidth = 160;
-        constexpr int TextureHeight = 90;
+        constexpr int TextureWidth = GeneratedTextureBudget::WaterViewWidth;
+        constexpr int TextureHeight = GeneratedTextureBudget::WaterViewHeight;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {

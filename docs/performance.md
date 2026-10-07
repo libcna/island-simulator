@@ -1020,6 +1020,26 @@ passes and requires the new post-gesture staging diagnostic, proving that all so
 and start through Web Audio. The arm64 GLES 3 package builds and lints; native playback and Android
 runtime memory are not newly claimed while the operator-visible Linux build remains active.
 
+### Generated texture and transparency audit
+
+The game currently owns six generated `Color`/RGBA8 textures and no imported texture assets. The
+debug font atlas is 96 by 32, the touch HUD uses two 96 by 96 circles, the conditional swimming
+view uses one 160 by 90 veil, and the debug/monkey renderers each own one white pixel. CNA's
+two-dimension texture constructor creates one base level, so the exact upload inventory is 35,906
+pixels or 143,624 bytes. `GeneratedTextureBudget` is shared by the generators and core tests; a
+compile-time assertion requires this audit to be updated if the dimensions change. This is an
+RGBA8 base-level payload figure, not total driver allocation or process RSS. At roughly 140.3 KiB,
+smaller Web/mobile texture variants or compression would add complexity without a meaningful
+memory/download benefit.
+
+The associated overdraw audit found no transparent billboard vegetation: grass, palms, jungle,
+props, terrain, sky, and wildlife are opaque meshes. The required transparent world passes are the
+depth-tested ocean; one 8 m-wide, 4,608-triangle shoreline ribbon; and a single near-field contact
+shadow batch already protected by frustum and distance culling. The full-screen water veil draws
+only while its smoothed intensity is nonzero. Touch UI is conditional, the debug panel is opt-in,
+and the run/walk notice lasts 1.4 seconds. This bounds the known transparent layers, but it is not
+a physical-mobile fill-rate measurement; that remains part of device profiling.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio

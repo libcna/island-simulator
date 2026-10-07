@@ -1,5 +1,7 @@
 #include "IslandSimulator/TouchOverlay.hpp"
 
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -19,7 +21,7 @@ namespace island
 {
     namespace
     {
-        constexpr int TextureSize = 96;
+        constexpr int TextureSize = GeneratedTextureBudget::TouchCircleSize;
 
         [[nodiscard]] Color PremultipliedColor(const int red, const int green,
                                                const int blue, const int alpha) noexcept

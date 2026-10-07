@@ -815,8 +815,16 @@ Dependencies: representative complete scene on all targets.
 - [x] Throttle distant wildlife and audio updates without visible popping. Shared
   full/reduced/dormant simulation tiers bound agent work; positional calls select only nearby
   non-dormant sources, use one voice, and are held while transient slots are occupied.
-- [ ] Reduce transparency/overdraw hotspots, especially grass and layered shoreline effects.
-- [ ] Audit texture formats/sizes/mipmaps and create smaller variants only when justified.
+- [~] Reduce transparency/overdraw hotspots, especially grass and layered shoreline effects. The
+  complete pass audit confirms that grass and every vegetation/prop/wildlife mesh use opaque
+  geometry. Transparency is limited to the depth-tested ocean, one 8 m shoreline ribbon, one
+  frustum/distance-culled contact-shadow batch, conditional water/touch overlays, the opt-in debug
+  panel, and the 1.4-second pace notice. Physical-mobile fill-rate profiling remains open.
+- [x] Audit texture formats/sizes/mipmaps and create smaller variants only when justified. The game
+  owns only six generated single-level `Color`/RGBA8 textures: a 96 by 32 debug atlas, two 96 by 96
+  touch circles, one 160 by 90 water-view veil, and two one-pixel white textures. Their exact
+  base-level payload is 35,906 pixels / 143,624 bytes, guarded by a compile-time inventory and core
+  test. With no external texture asset or mip chain, separate Web/mobile variants are unjustified.
 - [~] Measure loading and remove redundant runtime generation/conversion. Game-owned wall-clock
   phases now identify deterministic world construction and GPU/content creation separately through
   first draw. Procedural audio now generates, converts, uploads, and releases one source at a time,
@@ -4265,6 +4273,26 @@ Work next, in order:
   verifies with APK signature scheme v2; it is 18,705,876 bytes with a 15,895,592-byte stripped
   library. Android runtime behaviour is not newly claimed while the operator's visible Linux game
   remains active. No dependency modification or workaround is involved.
+
+### 2026-10-07 — Generated texture and transparency budget audit
+
+- Inventoried all game-side texture creation and exposed one shared compile-time budget for the
+  exact dimensions used by the debug atlas, touch controls, swimming veil, and two solid-white
+  helper textures. The six generated, single-level `Color`/RGBA8 textures total 35,906 pixels or
+  143,624 base-level bytes. A static assertion and renderer-independent core checks prevent this
+  accounting from silently drifting as dimensions change.
+- Confirmed there are no imported texture assets or mip chains and no alpha-card vegetation.
+  Grass, palms, jungle, props, terrain, sky, and wildlife are opaque geometry. The remaining
+  transparent work is bounded to the required ocean, one narrow shoreline ribbon, one culled
+  contact-shadow batch, conditional water/touch overlays, opt-in diagnostics, and a transient pace
+  notice. Separate mobile/web textures are not justified at roughly 140.3 KiB; physical-device
+  fill-rate profiling remains open rather than being inferred from code inspection.
+- The complete native core test passes in 17.44 seconds, all four OpenGL 3.3 consumer objects
+  compile without relinking the live game, and WebGL 2 links at 8,490,180 bytes. The arm64 GLES 3
+  APK builds and passes lint with two workers, verifies with signature scheme v2, and is
+  18,705,980 bytes with a 15,895,696-byte stripped library. These are inventory and compilation
+  checks; no new visual/runtime claim is made because all generated pixel dimensions and content
+  remain unchanged. Every build used `/rv/cnaccache`; CNA and Sharp Runtime remained read-only.
 
 ## Session-end checklist
 
