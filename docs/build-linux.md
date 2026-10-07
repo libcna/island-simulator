@@ -208,7 +208,7 @@ field. Sparse deterministic sun-cured tips add restrained
 blade-scale age variation baked into the shared mesh vertex colours, without another texture,
 instance attribute, or draw. The near tier additionally carries a sparse juvenile underlayer, and
 one existing instance value produces deterministic per-blade stature and small colour/wind
-variation so neighbouring clusters do not repeat the shared mesh literally. Four mature near
+variation so neighbouring clusters do not repeat the shared mesh literally. Six mature near
 blades additionally carry restrained seed-bearing stems that share the opaque instanced mesh and
 wind path; the capture requires their exact diagnostic. The dedicated view
 must also contain nonzero near,

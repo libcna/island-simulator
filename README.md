@@ -30,9 +30,10 @@ simplified palm silhouettes break up the open-ocean horizon in one intentionally
 portable static batch.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.
-The near mesh uses five curvature levels per blade, folded side colour, and portable two-sided
-daylight/root/transmission shading. A sparse juvenile underlayer, four restrained seed-bearing
-stems in the near cluster, and deterministic per-instance blade stature, colour, and wind variation
+The 42-blade near mesh uses five curvature levels per blade, folded side colour, and portable
+two-sided daylight/root/transmission shading. A sparse juvenile underlayer, six restrained
+seed-bearing stems in the near cluster, and deterministic per-instance blade stature, colour, and
+wind variation
 keep neighbouring tufts from repeating the shared mesh literally; the cheaper far mesh uses three
 levels and still merges into the terrain before culling.
 Nearby palm crowns use nine paired, fuller tapered-leaflet stations on each of 10--12 curved fronds
@@ -277,7 +278,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,499,637 bytes, 71.6% below the 8,813,802-byte
+a SHA-256 manifest. The current gzip payload is 2,499,452 bytes, 71.6% below the 8,814,075-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

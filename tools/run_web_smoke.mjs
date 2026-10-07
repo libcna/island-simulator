@@ -358,6 +358,8 @@ try {
     && result.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && result.output?.includes(
+      "island-simulator: grass near clusters use 42 blades for denser first-person cover")
+    && result.output?.includes(
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && result.output?.includes(
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
@@ -607,6 +609,8 @@ try {
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && grassResult.output?.includes(
       "island-simulator: grass five-level near curvature with portable two-sided daylight shading")
+    && grassResult.output?.includes(
+      "island-simulator: grass near clusters use 42 blades for denser first-person cover")
     && grassResult.output?.includes(
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && grassResult.output?.includes(

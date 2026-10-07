@@ -459,10 +459,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
 ### Grass quality campaign
 
 - [~] Prototype clustered mesh blades and evaluate first-person silhouette/overdraw on all backends.
-  A 34-blade, five-control-level near mesh and five-blade, three-level far mesh now run on OpenGL
+  A 42-blade, five-control-level near mesh and five-blade, three-level far mesh now run on OpenGL
   3.3, actual WebGL 2, and KVM/gfxstream GLES 3. Near blades have folded side colour, two-sided
-  fixed-sun lighting, root darkening, restrained transmission, five shorter juvenile blades, and
-  per-instance blade stature/colour/wind variation. Four mature near blades now carry restrained
+  fixed-sun lighting, root darkening, restrained transmission, seven shorter juvenile blades, and
+  per-instance blade stature/colour/wind variation. Six mature near blades now carry restrained
   seed-bearing stems that share the existing opaque instanced wind path. Measured physical-mobile
   overdraw remains.
 - [x] Use density, colour, height, lean, and phase variation tied to terrain/biome data. The
@@ -481,7 +481,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
   away from a 0.55 m stationary body radius, smoothly expand to 1.35 m at walking speed, and ease
   back after movement inside the existing portable instanced vertex shader.
 - [~] Implement near/middle/far density and mesh LOD with dither/fade or masked transitions. Near
-  (34-blade), middle (10-blade), and far (five-blade) meshes plus ground-colour distance merging
+  (42-blade), middle (10-blade), and far (five-blade) meshes plus ground-colour distance merging
   exist. Deterministic adjacent-tier smoothstep splits stagger individual replacements across
   62--78 m and 86--102 m instead of switching an entire 37.5 m cell or jumping directly between
   the extreme meshes. OpenGL 3.3 and WebGL 2 validate the same mixed-cell populations. Masked
@@ -899,7 +899,7 @@ Dependencies: representative complete scene on all targets.
   representative revised-geometry cost still requires real-hardware profiling.
 - [~] Add mesh/material/animation LOD only where profiles show a worthwhile return. Palms select
   reduced trunk/frond geometry per instance with deterministic transition staggering, broadleaf
-  trees select 776/208-triangle meshes per instance, and grass selects 34/10/5-blade
+  trees select 776/208-triangle meshes per instance, and grass selects 42/10/5-blade
   clusters; the initial native scene baseline is recorded, while target budgets and true blended
   transitions remain open.
 - [x] Throttle distant wildlife and audio updates without visible popping. Shared
@@ -976,13 +976,13 @@ Android is not project completion.
   aliasing until it holds up at first-person height. Five-level near curvature, folded blade-side
   colour, shared-sun two-sided lighting, root darkening, and restrained transmission now add
   first-person depth without textures or extra draws. Biome-aware instance colour and sparse
-  height-weighted sun-cured tips now break up broad and blade-scale uniformity. Five near juvenile
+  height-weighted sun-cured tips now break up broad and blade-scale uniformity. Seven near juvenile
   blades plus per-instance stature/colour/wind variation further reduce repeated tuft silhouettes.
-  Four sparse seed-bearing stems add restrained near-field vertical accents while leaving the
-  middle/far meshes, population, buffers, and draw count unchanged. Twelve of 34 near blades now
-  add a restrained geometric V-fold ridge with side-specific lighting; the selected one-third
-  treatment raises the shared near cluster only from 428 to 488 vertices and from 304 to 400
-  triangles, while leaving the middle/far meshes and all runtime resources/submissions unchanged.
+  Six sparse seed-bearing stems add restrained near-field vertical accents while leaving the
+  middle/far meshes, population, buffers, and draw count unchanged. The near tier now uses 42
+  blades, including 14 restrained geometric V-fold ridges with side-specific lighting. The shared
+  near cluster is 622 vertices/496 triangles, while the middle/far meshes and all runtime
+  resources/submissions remain unchanged.
   The light middle
   mesh and two adjacent-tier population splits remove the old whole-cell/direct-extreme swap;
   transition-motion review, aliasing, and physical-device tuning remain.
@@ -5717,17 +5717,52 @@ Work next, in order:
   repeated 30 Hz miss across the representative matrix. It is not a minimum hardware claim;
   hardware-browser and physical-Android budgets remain open. The isolated compositor intentionally
   lacked audio, so these timings exclude active mixer-device cost.
-- The current source passes the full native 41/41 private-display matrix in 72.54 seconds, the
+- The current source passes the full native 41/41 private-display matrix in 77.00 seconds, the
   complete Chrome
   WebGL 2 interaction/render suite, and the independent Firefox ESR production-shell lifecycle,
-  pointer-lock, input/audio, jungle, and water gate. The Web release is 8,813,802 bytes or
-  2,499,637 bytes through deterministic gzip; WebAssembly is 8,548,924 bytes or 2,439,434 through
-  gzip, JavaScript is 262,820 bytes (59,059 gzip), and HTML is 2,058 bytes (1,144 gzip).
+  pointer-lock, input/audio, jungle, and water gate. The later 42-blade Web release is 8,814,075
+  bytes or 2,499,452 bytes through deterministic gzip; WebAssembly is 8,549,197 bytes or 2,439,244
+  through gzip, JavaScript is 262,820 bytes (59,064 gzip), and HTML is 2,058 bytes (1,144 gzip).
 - The default arm64-v8a GLES 3 APK builds through the shared cache with two workers, passes
-  application lint with no errors or warnings, contains only the 15,941,304-byte `libmain.so`, and
-  verifies with APK signature scheme v2. The APK is 18,751,588 bytes. Because benchmark mode is
+  application lint with no errors or warnings, contains only the 15,941,512-byte `libmain.so`, and
+  verifies with APK signature scheme v2. The APK is 18,751,796 bytes. Because benchmark mode is
   host QA and normal presentation is unchanged, the prior current GLES 3 runtime matrix remains
   the relevant device-side functional evidence.
+
+### 2026-10-07 — Denser first-person near-grass tier
+
+- Original-resolution native beach/jungle/grass/water review found that the curved near blades
+  still exposed too much bare floor at first-person height. Increased only the shared near cluster
+  from 34 to 42 blades. It now contains seven shorter juvenile blades, six sparse seed-bearing
+  stems, and 14 selected V-fold ridges in 622 vertices/496 triangles. The 10/5-blade middle/far
+  meshes, 18,556 placements, instance buffers, culling, transition distances, opacity, collision,
+  textures, and draw submissions are unchanged.
+- Side-by-side native before/after review shows visibly more continuous near cover while retaining
+  individually separated silhouettes. The native detail capture passes. A stripped Release run of
+  the deliberately heavy 2,827-cluster/99-submission grass view measured 3.1653 ms mean, 6.3239 ms
+  p95, and 13.9728 ms p99 across 600 intervals; only four exceeded 16.667 ms and none exceeded
+  33.333 ms.
+- Added an exact 42-blade runtime marker to the Chrome and Android gates. The complete Chrome
+  WebGL 2 matrix passes and its original-resolution frame is clean. Firefox ESR 140 independently
+  passes production first frame, WebGL 2, pointer lock/relock, resize, tab lifecycle, resumed
+  animation/input, audio, run toggling, footsteps, and dedicated jungle/water scenes. The Web package
+  is 8,814,075 bytes or 2,499,452 bytes through gzip; WebAssembly is 8,549,197 bytes (2,439,244
+  gzip), JavaScript is 262,820 bytes (59,064 gzip), and HTML is 2,058 bytes (1,144 gzip).
+- Built a temporary x86_64 APK and booted the API 35 `Medium_Phone` AVD with KVM 12 and host AMD
+  Radeon 780M gfxstream. Two fixed close-grass GLES 3 gates passed; the overlay-free 2400 by 1080
+  frame visibly retains clean denser blades and translucent touch controls. The second run reported
+  `OPENGLES3`, 1280 by 720 logical rendering, and 2937.204 ms total to first draw, with no fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostic. This is functional translated-GPU evidence, not a
+  physical-device performance claim.
+- Stopped the emulator cleanly and restored the default arm64-only APK. It is 18,751,796 bytes,
+  contains a 15,941,512-byte `libmain.so`, passes app lint with no issues, and verifies with APK
+  signature scheme v2. The optimized relocatable Linux payload is 11,535,670 bytes; two unchanged
+  packaging runs produced byte-identical 4,570,530-byte archives with SHA-256
+  `01376a7326c56418009e2890ad21fa49d78f06e5cda790984a04361901c98443`.
+- The complete current native private-display suite passes 41/41 in 77.00 seconds with no graphics-
+  profile refusal. Removed the five identified reproducible x86_64 Android intermediate trees,
+  returning Android from 2.3 GiB to 1.3 GiB, and removed the documented temporary comparison/
+  benchmark copies and superseded archives. The compact GLES logs/screenshots remain as evidence.
 
 ## Session-end checklist
 

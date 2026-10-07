@@ -53,7 +53,7 @@ namespace island
     {
         constexpr float LayoutExtent = 300.0f;
         constexpr float FarDistance = 135.0f;
-        constexpr int NearBladeCount = 34;
+        constexpr int NearBladeCount = 42;
         constexpr int MiddleBladeCount = 10;
         constexpr int FarBladeCount = 5;
         constexpr int NearBladeLevels = 5;
@@ -550,6 +550,8 @@ void main()
                          "instanced vertex shader\n"
                       << "island-simulator: grass five-level near curvature with portable "
                          "two-sided daylight shading\n"
+                      << "island-simulator: grass near clusters use 42 blades for denser "
+                         "first-person cover\n"
                       << "island-simulator: selected near grass blades use a geometric V-fold "
                          "ridge\n"
                       << "island-simulator: grass biome tint follows coast, path, and authored "
@@ -567,6 +569,8 @@ void main()
                       << GrassLod::FarOnlyDistance << " metres\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass biome tint follows coast, path, and authored clearings");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass near clusters use 42 blades for denser first-person cover");
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: selected near grass blades use a geometric V-fold ridge");
             MirrorRuntimeDiagnosticToPlatformLog(

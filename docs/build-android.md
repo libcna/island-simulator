@@ -86,8 +86,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,751,588-byte APK with a
-15,941,304-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The latest single-ABI arm64 debug qualification build produced an 18,751,796-byte APK with a
+15,941,512-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -255,6 +255,16 @@ It reports `OPENGLES3`, the exact 1280 by 720 logical viewport, and a 2192.963 m
 total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is gfxstream functional
 evidence, not a physical-mobile animation-cost claim. The emulator was stopped cleanly and the
 arm64-only package was restored, rebuilt, linted, and signature-verified.
+
+The subsequent 42-blade close-grass pass used the same accelerated GLES 3 path. Two fixed `grass`
+runs required the exact density marker in Android's platform log; the clean overlay-free 2400 by
+1080 capture visibly retains separated curved blades, the sparse seed heads, and denser near-field
+cover without opaque touch-control backgrounds or obvious mesh corruption. The second cold launch
+reported `OPENGLES3`, the 1280 by 720 logical backbuffer, and 2937.204 ms total to first draw
+(1024.182 ms world, 3.649 ms framework, 1818.057 ms content, 19.443 ms pre-draw, and 71.873 ms
+first draw). No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. The emulator was
+stopped cleanly and the arm64-only package above was restored and linted. This proves translated
+GLES 3 composition, not physical-device cost or ergonomics.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks

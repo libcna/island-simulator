@@ -1506,8 +1506,8 @@ intermediates were removed. The compact logs and screenshots remain as qualifica
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,548,924 bytes (2,439,434
-gzip). The complete transfer payload therefore falls from 8,813,802 to 2,499,637 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,064 gzip), and WebAssembly is 8,549,197 bytes (2,439,244
+gzip). The complete transfer payload therefore falls from 8,814,075 to 2,499,452 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
@@ -1538,6 +1538,12 @@ Linux release gate: on the current development GPU, every representative view sh
 below 16.667 ms and should not show repeated 33.333 ms misses. It is not a broad minimum-spec claim
 and does not replace VSync-on interactive pacing, active-audio, driver-family, or lower-end-hardware
 testing.
+
+The later 42-blade close-grass Release gate deliberately uses a heavier fixed view with 2,827
+visible clusters, including 957 near instances, and 99 tracked submissions. Its 600 intervals
+measured 3.1653 ms mean, 6.3239 ms p95, and 13.9728 ms p99; 15 exceeded 8.333 ms, four exceeded
+16.667 ms, and none exceeded 33.333 ms. This keeps the denser first-person tier inside the same
+current-GPU gate without presenting the result as physical-mobile evidence.
 
 ## Measurement rules
 
