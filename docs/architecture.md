@@ -31,6 +31,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── DistantSceneryLayout ─ deterministic unreachable horizon-islet composition
       │       │
       │       └── DistantSceneryRenderer ─ fogged low-poly rocks/palms in one static batch
+      ├── AquaticLightingModel ─ portable shared depth/sun-band colour profile
       ├── BirdFlock ───────── deterministic shore/canopy/high flight and simulation tiers
       │       │
       │       └── BirdRenderer ─ CPU wing pose, near/far meshes, culling, one dynamic batch
@@ -67,7 +68,8 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 
 `IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonInput`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
-`NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `SharkPatrol`, `MonkeyTroop`,
+`NaturalPropLayout`, `DistantSceneryLayout`, `BirdFlock`, `FishSchools`, `AquaticLightingModel`,
+`SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `ProceduralMeshValidation`, `TouchControls`, and
 `SoundscapeModel`, `AudioAnalysis`, and `WorldIdentity` form `IslandSimulator::Core` and
 deliberately do not depend on CNA. They compile and test quickly without a graphics device.

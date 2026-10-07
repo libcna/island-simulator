@@ -106,8 +106,8 @@ namespace island
         {
             const Vector3 centre(fish.x, fish.y, fish.z);
             const FishPalette& sourcePalette = Palettes[fish.colorVariant % Palettes.size()];
-            const wildlife_render::UnderwaterLightProfile waterLight =
-                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const AquaticLightProfile waterLight = AquaticLightAt(
+                centre.X, centre.Y, centre.Z, timeSeconds);
             const FishPalette palette{
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.body, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.belly, waterLight),
@@ -184,8 +184,8 @@ namespace island
         {
             const Vector3 centre(fish.x, fish.y, fish.z);
             const FishPalette& sourcePalette = Palettes[fish.colorVariant % Palettes.size()];
-            const wildlife_render::UnderwaterLightProfile waterLight =
-                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const AquaticLightProfile waterLight = AquaticLightAt(
+                centre.X, centre.Y, centre.Z, timeSeconds);
             const FishPalette palette{
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.body, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.belly, waterLight),

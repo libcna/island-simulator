@@ -4207,6 +4207,13 @@ Work next, in order:
   Android runtime appearance claim is intentionally deferred while the operator plays the visible
   Linux build. CNA and Sharp Runtime remain read-only, and no dependency defect or workaround was
   involved.
+- Follow-up regression work moved the numeric profile into renderer-independent
+  `AquaticLightingModel` while leaving CNA colour conversion in the renderer helper. Core tests now
+  cover the shallow/deep tint bounds, monotonic depth response, suppressed deep caustics, bounded
+  moving shallow light, and neutral fail-closed handling for non-finite input. The test passes,
+  OpenGL 3.3 renderer objects compile, WebGL 2 links at 8,495,452 bytes, and the two-worker Android
+  build/lint passes at 18,705,644 bytes with a 15,895,360-byte stripped library. The visible result
+  is unchanged from the already inspected browser frames, so no duplicate runtime claim is made.
 
 ## Session-end checklist
 

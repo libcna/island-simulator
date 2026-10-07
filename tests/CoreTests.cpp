@@ -1,4 +1,5 @@
 #include "IslandSimulator/AudioAnalysis.hpp"
+#include "IslandSimulator/AquaticLightingModel.hpp"
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
@@ -62,6 +63,41 @@ namespace
 
 int main()
 {
+    const island::AquaticLightProfile shallowLight = island::AquaticLightAt(
+        7.0f, -0.35f, -4.0f, 2.0f);
+    const island::AquaticLightProfile middleLight = island::AquaticLightAt(
+        7.0f, -4.0f, -4.0f, 2.0f);
+    const island::AquaticLightProfile deepLight = island::AquaticLightAt(
+        7.0f, -8.0f, -4.0f, 2.0f);
+    CheckNear(shallowLight.waterTint, 0.04f, 0.0001f,
+              "shallow aquatic lighting retains only the minimum water tint");
+    Check(middleLight.waterTint > shallowLight.waterTint
+              && deepLight.waterTint > middleLight.waterTint,
+          "aquatic water tint increases smoothly with depth");
+    CheckNear(deepLight.waterTint, 0.26f, 0.0001f,
+              "deep aquatic lighting reaches its bounded water tint");
+    CheckNear(deepLight.brightness, 0.88f, 0.0001f,
+              "deep aquatic lighting suppresses shallow sunlight bands");
+    const island::AquaticLightProfile movingShallowLight = island::AquaticLightAt(
+        7.0f, -0.35f, -4.0f, 8.0f);
+    Check(std::abs(movingShallowLight.brightness - shallowLight.brightness) > 0.001f,
+          "shallow aquatic sunlight changes over time");
+    Check(shallowLight.brightness >= 0.88f && shallowLight.brightness <= 1.12f
+              && middleLight.brightness >= 0.88f && middleLight.brightness <= 1.12f,
+          "aquatic sunlight brightness remains inside its renderer colour budget");
+    const island::AquaticLightProfile invalidLight = island::AquaticLightAt(
+        std::numeric_limits<float>::quiet_NaN(), -1.0f, 0.0f, 1.0f);
+    CheckNear(invalidLight.waterTint, 0.0f, 0.0f,
+              "non-finite aquatic position fails closed to neutral tint");
+    CheckNear(invalidLight.brightness, 1.0f, 0.0f,
+              "non-finite aquatic position fails closed to neutral brightness");
+    const island::AquaticLightProfile invalidTimeLight = island::AquaticLightAt(
+        0.0f, -1.0f, 0.0f, std::numeric_limits<float>::infinity());
+    CheckNear(invalidTimeLight.waterTint, 0.0f, 0.0f,
+              "non-finite aquatic clock fails closed to neutral tint");
+    CheckNear(invalidTimeLight.brightness, 1.0f, 0.0f,
+              "non-finite aquatic clock fails closed to neutral brightness");
+
     island::AmbientLoop knownSignal;
     knownSignal.sampleRate = 4;
     knownSignal.samples = {0, 16384, -16384, 0};

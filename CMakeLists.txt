@@ -27,6 +27,7 @@ include(cmake/VerifyDependencies.cmake)
 island_verify_dependencies()
 
 add_library(island_core STATIC
+    game/src/AquaticLightingModel.cpp
     game/src/AudioAnalysis.cpp
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp

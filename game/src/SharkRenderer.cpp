@@ -100,8 +100,8 @@ namespace island
                              const SharkState& shark, const float timeSeconds)
         {
             const Vector3 centre(shark.x, shark.y, shark.z);
-            const wildlife_render::UnderwaterLightProfile waterLight =
-                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const AquaticLightProfile waterLight = AquaticLightAt(
+                centre.X, centre.Y, centre.Z, timeSeconds);
             const Color body = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(72, 91, 99, 255), shark.activity), waterLight);
             const Color belly = wildlife_render::ApplyUnderwaterLight(
@@ -177,8 +177,8 @@ namespace island
                             const SharkState& shark, const float timeSeconds)
         {
             const Vector3 centre(shark.x, shark.y, shark.z);
-            const wildlife_render::UnderwaterLightProfile waterLight =
-                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const AquaticLightProfile waterLight = AquaticLightAt(
+                centre.X, centre.Y, centre.Z, timeSeconds);
             const Color body = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(67, 88, 97, 255), shark.activity), waterLight);
             const Color belly = wildlife_render::ApplyUnderwaterLight(
