@@ -552,14 +552,15 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   culling, near/far meshes, and one dynamic-buffer draw submission. Smoothed depth pitch and turn
   banking now drive the existing portable CPU pose; both LODs have forked tails and the near tier
   adds restrained eye/gill detail without another draw. CPU face colours give the body fixed-sun
-  faceting, while the existing cull-none batch lets thin fins use one surface; near/far geometry is
+  faceting plus one depth-dependent tropical-water tint and moving shallow sunlight sample per
+  animal, while the existing cull-none batch lets thin fins use one surface; near/far geometry is
   reduced from 66/24 to 51/12 vertices per fish.
 - [x] Add one occasional offshore shark with credible silhouette, patrol variation, swimming
   animation, and no hostile behaviour. A single original procedural model uses near/far geometry,
   CPU body/tail motion plus smoothed dive pitch and turn banking, frustum/distance culling, and one
   portable dynamic-buffer draw. Both LODs have a forked tail and the near tier adds eye/gill detail.
-  Shared fixed-sun CPU facet lighting and cull-none single-surface fins reduce near/far geometry
-  from 66/30 to 51/15 vertices without another draw.
+  Shared fixed-sun CPU facet lighting, restrained depth tint/moving shallow sunlight, and cull-none
+  single-surface fins reduce near/far geometry from 66/30 to 51/15 vertices without another draw.
 - [x] Keep the shark out of immediate beach shallows and tune rarity for atmosphere, not tension.
   It patrols 34--88 m offshore for roughly 42--66 seconds, then remains below the presentation
   layer for roughly 92--160 seconds before the next appearance.
@@ -905,7 +906,8 @@ Android is not project completion.
 - [~] Improve bird/fish/shark/monkey timing, animation transitions, path variation, and clipping.
   Bird paths now drift slowly around their authored radii and their CPU pose blends between wing
   strokes, glides, and banked turns. Fish and shark now pitch with vertical motion, bank through
-  turns, and have clearer forked-tail/head silhouettes. Calm monkeys now use bounded player-aware
+  turns, have clearer forked-tail/head silhouettes, and receive a shared depth/caustic colour
+  profile that visually seats them in the water column. Calm monkeys now use bounded player-aware
   head posing on top of their existing clips, and three restrained near-only crown/cheek tufts
   break up the smooth head outline without another draw; long subjective tuning remains open.
 - [ ] Improve soundscape variation, spatial placement, transitions, balance, and long-session fatigue.
@@ -4182,6 +4184,29 @@ Work next, in order:
   headphone/speaker fatigue pass remain unclaimed. The native core/report tools are current, while
   the graphical executable is intentionally not relinked beneath the operator's visible process.
   CNA and Sharp Runtime remain read-only, and no dependency defect or workaround was involved.
+
+### 2026-10-07 — Depth-integrated aquatic wildlife colour
+
+- Added one shared CPU lighting sample per visible fish or shark. It combines a smooth
+  0.35--8.0 m depth response with two low-frequency moving sunlight bands, then applies a
+  restrained tropical-water tint to the existing body, belly, and fin palettes before their
+  fixed-sun facet lighting. Non-finite inputs fall back to an unchanged neutral profile. Eye and
+  gill accents remain unmodified so near silhouettes retain their small identifying details.
+- The change adds no texture, shader, vertex, buffer, draw submission, transparency, or new asset;
+  it only adds two sine evaluations for each animal that was already accepted by distance/frustum
+  culling and already rebuilt in the dynamic CPU batch. Fish retain 51/12 near/far vertices and
+  one draw, while the single shark retains 51/15 vertices and one draw.
+- Changed OpenGL 3.3 objects compile through `/rv/cnaccache` without relinking or interrupting the
+  operator's visible game, and all six renderer-independent native gates pass. The complete real
+  Chrome 152/SwiftShader 22-stage WebGL 2 suite passes and now requires the exact feature diagnostic
+  in its lifecycle, fish, and shark gates. Direct before/after inspection of both regenerated fixed
+  views found the animals still readable while the deeper shark is less detached from the water
+  column. Final WebAssembly is 8,496,414 bytes.
+- The default arm64-only GLES 3 APK builds with two workers, passes application lint, verifies with
+  signature scheme v2, and is 18,705,692 bytes with a 15,895,408-byte stripped `libmain.so`. A new
+  Android runtime appearance claim is intentionally deferred while the operator plays the visible
+  Linux build. CNA and Sharp Runtime remain read-only, and no dependency defect or workaround was
+  involved.
 
 ## Session-end checklist
 

@@ -97,12 +97,17 @@ namespace island
         }
 
         void AppendNearShark(std::vector<VertexPositionColor>& vertices,
-                             const SharkState& shark)
+                             const SharkState& shark, const float timeSeconds)
         {
-            const Color body = ActivityColor(Color(72, 91, 99, 255), shark.activity);
-            const Color belly = ActivityColor(Color(147, 159, 156, 255), shark.activity);
-            const Color fin = ActivityColor(Color(58, 76, 84, 255), shark.activity);
             const Vector3 centre(shark.x, shark.y, shark.z);
+            const wildlife_render::UnderwaterLightProfile waterLight =
+                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const Color body = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(72, 91, 99, 255), shark.activity), waterLight);
+            const Color belly = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(147, 159, 156, 255), shark.activity), waterLight);
+            const Color fin = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(58, 76, 84, 255), shark.activity), waterLight);
             const PoseAxes axes = MakePoseAxes(shark);
             const float scale = shark.scale;
             const float bend = shark.bodyWave * 0.075f;
@@ -169,12 +174,17 @@ namespace island
         }
 
         void AppendFarShark(std::vector<VertexPositionColor>& vertices,
-                            const SharkState& shark)
+                            const SharkState& shark, const float timeSeconds)
         {
-            const Color body = ActivityColor(Color(67, 88, 97, 255), shark.activity);
-            const Color belly = ActivityColor(Color(139, 154, 153, 255), shark.activity);
-            const Color fin = ActivityColor(Color(54, 72, 81, 255), shark.activity);
             const Vector3 centre(shark.x, shark.y, shark.z);
+            const wildlife_render::UnderwaterLightProfile waterLight =
+                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const Color body = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(67, 88, 97, 255), shark.activity), waterLight);
+            const Color belly = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(139, 154, 153, 255), shark.activity), waterLight);
+            const Color fin = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(54, 72, 81, 255), shark.activity), waterLight);
             const PoseAxes axes = MakePoseAxes(shark);
             const float scale = shark.scale;
             const float bend = shark.bodyWave * 0.12f;
@@ -217,7 +227,8 @@ namespace island
     SharkRenderer::~SharkRenderer() = default;
 
     void SharkRenderer::Draw(const Matrix& view, const Matrix& projection,
-                             const Vector3& cameraPosition, const SharkState& shark)
+                             const Vector3& cameraPosition, const SharkState& shark,
+                             const float timeSeconds)
     {
         stagingVertices_.clear();
         visible_ = false;
@@ -236,9 +247,9 @@ namespace island
         }
         nearLod_ = distanceSquared <= NearLodDistance * NearLodDistance;
         if (nearLod_) {
-            AppendNearShark(stagingVertices_, shark);
+            AppendNearShark(stagingVertices_, shark, timeSeconds);
         } else {
-            AppendFarShark(stagingVertices_, shark);
+            AppendFarShark(stagingVertices_, shark, timeSeconds);
         }
         visible_ = true;
 

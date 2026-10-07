@@ -102,10 +102,17 @@ namespace island
         }
 
         void AppendNearFish(std::vector<VertexPositionColor>& vertices,
-                            const FishState& fish)
+                            const FishState& fish, const float timeSeconds)
         {
-            const FishPalette& palette = Palettes[fish.colorVariant % Palettes.size()];
             const Vector3 centre(fish.x, fish.y, fish.z);
+            const FishPalette& sourcePalette = Palettes[fish.colorVariant % Palettes.size()];
+            const wildlife_render::UnderwaterLightProfile waterLight =
+                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const FishPalette palette{
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.body, waterLight),
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.belly, waterLight),
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.fin, waterLight),
+            };
             const PoseAxes axes = MakePoseAxes(fish);
             const float scale = fish.scale;
             const float bend = fish.bodyWave * 0.075f;
@@ -173,10 +180,17 @@ namespace island
         }
 
         void AppendFarFish(std::vector<VertexPositionColor>& vertices,
-                           const FishState& fish)
+                           const FishState& fish, const float timeSeconds)
         {
-            const FishPalette& palette = Palettes[fish.colorVariant % Palettes.size()];
             const Vector3 centre(fish.x, fish.y, fish.z);
+            const FishPalette& sourcePalette = Palettes[fish.colorVariant % Palettes.size()];
+            const wildlife_render::UnderwaterLightProfile waterLight =
+                wildlife_render::UnderwaterLightAt(centre, timeSeconds);
+            const FishPalette palette{
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.body, waterLight),
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.belly, waterLight),
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.fin, waterLight),
+            };
             const PoseAxes axes = MakePoseAxes(fish);
             const float scale = fish.scale;
             const float bend = fish.bodyWave * 0.12f;
@@ -217,7 +231,8 @@ namespace island
 
     void FishRenderer::Draw(const Matrix& view, const Matrix& projection,
                             const Vector3& cameraPosition,
-                            const std::span<const FishState> fish)
+                            const std::span<const FishState> fish,
+                            const float timeSeconds)
     {
         stagingVertices_.clear();
         visibleFishCount_ = 0;
@@ -234,10 +249,10 @@ namespace island
                 continue;
             }
             if (distanceSquared <= NearLodDistance * NearLodDistance) {
-                AppendNearFish(stagingVertices_, state);
+                AppendNearFish(stagingVertices_, state, timeSeconds);
                 ++visibleNearFishCount_;
             } else {
-                AppendFarFish(stagingVertices_, state);
+                AppendFarFish(stagingVertices_, state, timeSeconds);
                 ++visibleFarFishCount_;
             }
             ++visibleFishCount_;

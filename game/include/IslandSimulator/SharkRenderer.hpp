@@ -35,7 +35,7 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  const SharkState& shark);
+                  const SharkState& shark, float timeSeconds);
 
         [[nodiscard]] bool IsVisible() const noexcept { return visible_; }
         [[nodiscard]] bool UsesNearLod() const noexcept { return nearLod_; }

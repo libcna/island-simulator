@@ -36,7 +36,7 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  std::span<const FishState> fish);
+                  std::span<const FishState> fish, float timeSeconds);
 
         [[nodiscard]] int VisibleFishCount() const noexcept { return visibleFishCount_; }
         [[nodiscard]] int VisibleNearFishCount() const noexcept { return visibleNearFishCount_; }

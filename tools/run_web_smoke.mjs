@@ -263,6 +263,8 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && result.output?.includes(
+      "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
+    && result.output?.includes(
       "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes(
       "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
@@ -1015,6 +1017,8 @@ try {
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
     && fishResult.output?.includes(
+      "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
+    && fishResult.output?.includes(
       "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
@@ -1047,6 +1051,8 @@ try {
     && sharkResult.output?.includes("island-simulator: one occasional non-hostile offshore shark patrol")
     && sharkResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail")
+    && sharkResult.output?.includes(
+      "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && sharkResult.output?.includes(
       "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
     && /shark visible activity/.test(sharkResult.output ?? "")

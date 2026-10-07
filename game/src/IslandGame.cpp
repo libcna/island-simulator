@@ -615,6 +615,8 @@ namespace island
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"
+                  << "island-simulator: aquatic wildlife uses depth tint and restrained moving "
+                     "sunlight bands in CPU vertex colours\n"
                   << "island-simulator: fish near/far geometry "
                   << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"
@@ -1528,10 +1530,10 @@ namespace island
                             birdFlock_.Birds());
 
         fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                            fishSchools_.Fish());
+                            fishSchools_.Fish(), timeSeconds);
 
         sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                             sharkPatrol_.State());
+                             sharkPatrol_.State(), timeSeconds);
 
         monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                               monkeyTroop_.Monkeys());
