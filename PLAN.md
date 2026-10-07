@@ -953,8 +953,10 @@ Android is not project completion.
   one non-generated visual asset is the original Android vector launcher icon, now hash-gated by
   manifest schema 2 with a matching attribution row.
 - [ ] Review `BUGS.md`, known limitations, disabled fallbacks, warnings, and unverified claims.
-- [ ] Review repository size and remove only project-owned obsolete artifacts after checking for
-  live users/processes.
+- [~] Review repository size and remove only project-owned obsolete artifacts after checking for
+  live users/processes. The first maintenance pass removed a stale 1.1 GiB one-off arm64 consumer
+  tree while preserving the live native tree, current Web/Android outputs, reusable SDL caches,
+  and retained runtime evidence; repeat before final packaging.
 - [ ] Synchronize README, architecture, controls, Linux/Web/Android instructions, renderer
   differences, debugging, asset pipeline, performance notes, and known limitations.
 - [ ] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
@@ -4380,6 +4382,21 @@ Work next, in order:
   check pass; because the Web branch is compiled out there, the APK remains 18,707,956 bytes with
   a 15,897,672-byte stripped library. No new Android runtime claim is made, and CNA and Sharp
   Runtime remained read-only.
+
+### 2026-10-07 — Project-owned disk maintenance pass
+
+- Audited the project-owned build trees after confirming the operator-visible game remained alive.
+  The 1.1 GiB `build-consumer` directory was a stale, unused, reproducible one-off arm64 consumer
+  check last built on 2026-10-06; it contained no source or current deliverable and no process used
+  it. Removed that directory only, reducing the workspace total from 6.1 GiB to 5.0 GiB.
+- Preserved the 2.6 GiB native tree that owns the running executable and shared CNA objects, the
+  72 MiB current Web tree, the current Android package/intermediates, project-owned reusable SDL
+  cross-build caches, and the small retained Android runtime evidence directories. No dependency,
+  user data, licensed asset, cache outside the project, or uncertain artifact was deleted.
+- Re-ran the renderer-independent core preset after cleanup; it passes 1/1 in 18.15 seconds. The
+  working tree remained coherent and the visible game stayed active. A second disk review remains
+  scheduled before final packaging, when the active build trees can be judged against their live
+  use rather than removed prematurely.
 
 ## Session-end checklist
 
