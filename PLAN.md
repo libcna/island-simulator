@@ -5660,6 +5660,20 @@ Work next, in order:
   removed only five explicitly identified reproducible x86_64 directories totalling about 1.1 GiB.
   Compact logs and screenshots remain as evidence; Android is again approximately 1.3 GiB.
 
+### 2026-10-07 — Current native relink and full OpenGL 3.3 requalification
+
+- After the operator-visible older process exited normally, relinked the current Linux executable
+  through the required shared `/rv/cnaccache` with two build workers. This closes the deferred
+  native integration gate for the folded fallen frond, radial log-end cracks, and sparse hanging
+  canopy lianas without editing CNA, Sharp Runtime, EasyGL, or MetaGL.
+- The renderer-independent core test passes in 16.84 seconds. The complete private Weston/Xwayland
+  OpenGL 3.3 suite then passes 41/41 in 57.15 seconds, including every deterministic scene,
+  startup/package validation, both real-input scenarios, and the current visual diagnostics.
+- Inspected the new original-resolution native jungle and prop captures. The jungle retains sparse
+  vertical liana accents without turning every crown into a repeated curtain; the close fallen log
+  keeps readable rings and an irregular outline while the restrained cracks remain subordinate.
+  No shader failure, graphics-profile refusal, or test skip occurred.
+
 ## Session-end checklist
 
 - [ ] Keep source and docs coherent and in English.
