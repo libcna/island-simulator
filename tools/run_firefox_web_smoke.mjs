@@ -257,6 +257,7 @@ try {
     "island-simulator: rock per-instance tint reuses existing transforms",
     "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch",
     "island-simulator: clearing butterflies use hinged patterned wings in one culled batch",
+    "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch",
     "island-simulator: ocean sunward ripple crests reuse analytic slope field",
     "island-simulator: ocean grazing reflection bands reuse analytic slope field",
     "island-simulator: startup world ",
@@ -503,6 +504,17 @@ try {
       "island-simulator: butterfly QA camera views a sunny clearing group",
     ],
     /butterflies [1-9][0-9]*\/18 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);
+  const turtleScene = await qualifyScene(
+    context,
+    "turtles",
+    "island-firefox-esr-turtles.png",
+    [
+      "island-simulator: renderer WEBGL2",
+      "island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes",
+      "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch",
+      "island-simulator: sea-turtle QA camera views a surfacing route",
+    ],
+    /turtles [1-9]\/5 visible \(near [1-9], far [0-9]\), 1 draw/);
   const report = {
     schema: 1,
     browser: "Firefox ESR",
@@ -534,6 +546,7 @@ try {
       shipwreck: shipwreckScene,
       crabs: crabScene,
       butterflies: butterflyScene,
+      turtles: turtleScene,
     },
     sessionId: session.sessionId,
     outputTail: productionOutput.split("\n").slice(-28),

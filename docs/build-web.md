@@ -4,7 +4,7 @@
 
 The terrain/traversal/jungle scene builds with Emscripten and runs in Chromium using CNA's `WEBGL2`
 renderer. Automated evidence covers renderer initialization, clean short-run lifecycle, live
-overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant/shipwreck/crabs/butterflies rendering, first-click pointer
+overview/beach/grass/jungle/prop/driftwood/reef/water/current/distant/shipwreck/crabs/butterflies/turtles rendering, first-click pointer
 lock, canvas focus, WASD/arrow traversal, Shift run/walk toggling, simultaneous movement/relative
 mouse look, the B camera-motion opt-out, F1 input, pointer release/reacquisition, and responsive
 16:9 presentation. The Chrome gate also restarts the production runtime on the same origin and
@@ -21,7 +21,8 @@ positional-source markers.
 Audible output on a visible hardware browser, long tab suspension/audio-focus recovery,
 hardware-GPU performance, and extended play are not yet validated. Firefox ESR 140.15 now provides
 a narrower independent second-engine gate for the production first frame, essential input/audio
-contract, and dedicated live jungle, near-surface-water, shipwreck, beach-crab, plus butterfly
+contract, and dedicated live jungle, near-surface-water, shipwreck, beach-crab, butterfly, plus
+sea-turtle
 scenes; it does not duplicate the
 complete Chromium scene matrix.
 The F1 panel exposes the same authoritative seed rows as desktop. F4 attempts to copy their stable
@@ -55,14 +56,15 @@ also require the shared irregular-body/end-cap-ring diagnostic.
 Both clearing cameras also require the shared five-rock/two-log authored-landmark diagnostic.
 
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
-clipboard readback on its focused localhost canvas. All 26 reported lifecycle, deployment,
+clipboard readback on its focused localhost canvas. All 27 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the current rebuilt
-WebAssembly is 8,733,207 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+WebAssembly is 8,771,952 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
 12-debris, one-draw diagnostics and its original-resolution frame was inspected. A separate crab
 stage requires the thirty-agent colony marker, a nonzero visible population, and exactly one draw;
 its original-resolution frame was also inspected. The butterfly stage likewise requires the
-eighteen-agent habitat marker, a visible near population, and exactly one draw. The independent
-Firefox ESR gate requires and captures all three live wildlife/landmark scenes. The deployment
+eighteen-agent habitat marker, a visible near population, and exactly one draw. The turtle stage
+requires all five agents, a visible near turtle, and exactly one draw. The independent Firefox ESR
+gate requires and captures all four live wildlife/landmark scenes. The deployment
 gate additionally requires the exact persistent-
 ambient DC-centering and land-footstep resource diagnostics after browser-gesture audio startup.
 The monkey scene requires the
@@ -127,9 +129,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-9,000,114 bytes uncompressed and 2,556,727 bytes through gzip, a 71.6% transfer reduction. HTML is
-2,058 bytes (1,144 gzip), JavaScript is 264,849 bytes (59,282 gzip), and WebAssembly is 8,733,207
-bytes (2,496,301 gzip). These
+9,038,860 bytes uncompressed and 2,570,077 bytes through gzip, a 71.6% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,850 bytes (59,281 gzip), and WebAssembly is 8,771,952
+bytes (2,509,652 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -181,7 +183,8 @@ overview, first-person
 beach, grass interaction, folded-split-ground-plant, sparse fallen-leaf detail, segmented-palm and
 bark/coconut detail, jungle,
 east clearing, west clearing, prop, driftwood, reef, near-surface water, offshore-current,
-fallen-frond, distant-horizon, bird, fish, shark, monkey, 20 m shipwreck, beach-crab, and butterfly
+fallen-frond, distant-horizon, bird, fish, shark, monkey, 20 m shipwreck, beach-crab, butterfly,
+and sea-turtle
 instances
 at a 1280 x 720 viewport.
 Every scene asserts the
@@ -202,7 +205,7 @@ captures are saved as `build-probe/island-browser-smoke.png`,
 `build-probe/island-browser-birds.png`, `build-probe/island-browser-fish.png`,
 `build-probe/island-browser-shark.png`, `build-probe/island-browser-monkeys.png`,
 `build-probe/island-browser-shipwreck.png`, `build-probe/island-browser-crabs.png`,
-`build-probe/island-browser-butterflies.png`, and
+`build-probe/island-browser-butterflies.png`, `build-probe/island-browser-turtles.png`, and
 `build-probe/island-browser-run-mode.png`. The beach
 view must report nonzero grass; the dedicated grass view must report full smoothed player
 interaction on the custom shader, and both views require its curved two-sided daylight path. The
@@ -251,7 +254,8 @@ same lighting diagnostic, and the monkey view must report a visible member of th
 seven-agent GPU-skinned troop. The shipwreck view requires the exact 20 m hull, twelve-piece debris
 trail, and one visible draw; the crab view requires a nonzero population from all thirty agents in
 one draw. The butterfly view requires a nonzero population from all eighteen agents, nonzero near
-hinged-wing detail, and one draw. The
+hinged-wing detail, and one draw. The turtle view requires the five-agent near-shore route marker,
+a visible near turtle, and one draw. The
 monkey startup diagnostics must also prove that the local-pose crossfade path and both near-only
 silhouette details are active. The
 first-person runs enable the runtime-generated debug font and overlay, covering the WebGL 2
@@ -322,7 +326,8 @@ activates a real second tab, requires the game tab to report `hidden`, reactivat
 `visible` plus resumed animation frames, and proves resumed game input with another complete pair
 of persistent Shift edges. It then loads the test-only fixed jungle and water cameras,
 requires nonzero near/far populations across all four jungle layers plus an active water-view/
-ripple/splash state, and captures both frames. The tool writes four PNGs plus a schema-1 JSON
+ripple/splash state. It also loads the fixed shipwreck, crab, butterfly, and turtle cameras and
+requires their exact live population/draw diagnostics. The tool writes eight PNGs plus a schema-1 JSON
 report under the ignored build directory and removes its profile and processes even on failure.
 
 The current Firefox ESR 140.15 run reports `WebGL 2.0` on a `Radeon R9 200 Series, or similar`

@@ -136,6 +136,14 @@
       ]
     },
     {
+      "name": "sea-turtles",
+      "licenseRecord": "Procedural sea turtles",
+      "sources": [
+        "game/src/SeaTurtleGroup.cpp",
+        "game/src/SeaTurtleRenderer.cpp"
+      ]
+    },
+    {
       "name": "offshore-shark",
       "licenseRecord": "Procedural offshore shark",
       "sources": [

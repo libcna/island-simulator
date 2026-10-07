@@ -132,6 +132,17 @@ namespace island
         int reducedSimulationFish = 0;
         int dormantSimulationFish = 0;
         int fishDraws = 0;
+        int visibleSeaTurtles = 0;
+        int totalSeaTurtles = 0;
+        int nearSeaTurtles = 0;
+        int farSeaTurtles = 0;
+        int fullSimulationSeaTurtles = 0;
+        int reducedSimulationSeaTurtles = 0;
+        int dormantSimulationSeaTurtles = 0;
+        int cruisingSeaTurtles = 0;
+        int foragingSeaTurtles = 0;
+        int surfacingSeaTurtles = 0;
+        int seaTurtleDraws = 0;
         bool sharkVisible = false;
         bool sharkPresent = false;
         bool sharkNear = false;

@@ -1344,6 +1344,42 @@ try {
     && !fishResult.error;
 
   await call("Page.navigate", {
+    url: `http://127.0.0.1:${port}/island-smoke.html?mode=turtles`,
+  }, visualSessionId);
+  let turtleResult = {};
+  for (let attempt = 0; attempt < 200; ++attempt) {
+    await delay(100);
+    const evaluation = await call("Runtime.evaluate", {
+      expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+      returnByValue: true,
+    }, visualSessionId);
+    turtleResult = JSON.parse(evaluation.result.value ?? "{}");
+    if (turtleResult.output?.includes("island-simulator: terrain")
+        || turtleResult.error) break;
+  }
+  await delay(1000);
+  const completedTurtleEvaluation = await call("Runtime.evaluate", {
+    expression: "JSON.stringify(globalThis.islandSmokeResult ?? {})",
+    returnByValue: true,
+  }, visualSessionId);
+  turtleResult = JSON.parse(completedTurtleEvaluation.result.value ?? "{}");
+
+  const turtleScreenshotPath = await captureVisualFrame(
+    visualSessionId, "island-browser-turtles.png", true);
+  const turtlePassed = turtleResult.output?.includes("island-simulator: renderer WEBGL2")
+    && turtleResult.output?.includes(
+      "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
+    && turtleResult.output?.includes(
+      "island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes")
+    && turtleResult.output?.includes(
+      "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch")
+    && turtleResult.output?.includes(
+      "island-simulator: sea-turtle QA camera views a surfacing route")
+    && /turtles [1-9]\/5 visible \(near [1-9], far [0-9]\), 1 draw/.test(
+      turtleResult.output ?? "")
+    && !turtleResult.error;
+
+  await call("Page.navigate", {
     url: `http://127.0.0.1:${port}/island-smoke.html?mode=shark`,
   }, visualSessionId);
   let sharkResult = {};
@@ -1766,7 +1802,7 @@ try {
     && butterflyPassed
     && waterPassed && currentPassed
     && distantPassed && frondPassed
-    && birdPassed && fishPassed && sharkPassed && monkeyPassed && inputPassed;
+    && birdPassed && fishPassed && turtlePassed && sharkPassed && monkeyPassed && inputPassed;
   const report = {
     passed,
     browser: version.Browser ?? "unknown",
@@ -1910,6 +1946,11 @@ try {
       output: fishResult.output ?? "",
       error: fishResult.error ?? "",
     },
+    turtles: {
+      passed: turtlePassed,
+      output: turtleResult.output ?? "",
+      error: turtleResult.error ?? "",
+    },
     shark: {
       passed: sharkPassed,
       output: sharkResult.output ?? "",
@@ -1970,6 +2011,7 @@ try {
     frondScreenshot: path.basename(frondScreenshotPath),
     birdScreenshot: path.basename(birdScreenshotPath),
     fishScreenshot: path.basename(fishScreenshotPath),
+    turtleScreenshot: path.basename(turtleScreenshotPath),
     sharkScreenshot: path.basename(sharkScreenshotPath),
     monkeyScreenshot: path.basename(monkeyScreenshotPath),
     runModeScreenshot: path.basename(runModeScreenshotPath),

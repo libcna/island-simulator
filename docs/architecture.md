@@ -44,6 +44,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── ButterflyMeadow ─── clearing habitat state machine and simulation tiers
       │       │
       │       └── ButterflyRenderer ─ hinged near/far wings, culling, one dynamic batch
+      ├── SeaTurtleGroup ─── bounded near-shore depth/state model and simulation tiers
+      │       │
+      │       └── SeaTurtleRenderer ─ articulated near/far poses, culling, one dynamic batch
       ├── FishSchools ─────── deterministic depth-bounded schools and simulation tiers
       │       │
       │       └── FishRenderer ─ CPU tail pose, near/far meshes, culling, one dynamic batch
@@ -81,7 +84,7 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
 `IslandTerrain`, `PlayerMotion`, `DebugFreeCamera`, `FirstPersonInput`, `FirstPersonCameraMotion`, `WaterViewModel`, `VegetationLayout`, `GrassLayout`,
 `JungleLayout`,
 `NaturalPropLayout`, `ShipwreckLayout`, `DistantSceneryLayout`, `BirdFlock`, `CrabColony`,
-`FishSchools`, `AquaticLightingModel`,
+`ButterflyMeadow`, `SeaTurtleGroup`, `FishSchools`, `AquaticLightingModel`,
 `SharkPatrol`, `MonkeyTroop`,
 `WildlifeActivationPolicy`, `ProceduralMeshValidation`, `RuntimeQualityProfile`, `TouchControls`,
 `SoundscapeModel`, `AudioAnalysis`, `WorldIdentity`, and `UserSettings` form
@@ -241,14 +244,16 @@ otherwise empty build-owned directory to protect the present contract.
    to four persistent CNA loop instances and schedules bounded wave/water accents, resolved-travel
    sand/soil footsteps, plus one pooled positional bird/monkey call voice from nearby wildlife
    state.
-9. `BirdFlock`, `CrabColony`, `ButterflyMeadow`, `FishSchools`, `SharkPatrol`, and `MonkeyTroop`
+9. `BirdFlock`, `CrabColony`, `ButterflyMeadow`, `SeaTurtleGroup`, `FishSchools`, `SharkPatrol`,
+   and `MonkeyTroop`
    update steering, terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
    independently of their renderers.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain and distant scenery. `ContactShadowRenderer` overlays its
    depth-read terrain grounding batch before natural props, the shipwreck, broadleaf jungle, mesh grass, palms,
-   the one-batch beach crabs, clearing butterflies, and procedural birds, shallow-water fish, the occasional offshore shark, GPU-skinned
+   the one-batch beach crabs, clearing butterflies, and procedural birds, shallow-water fish,
+   near-shore sea turtles, the occasional offshore shark, GPU-skinned
    monkeys, and transparent ocean using one view/projection pair. The shipwreck is submitted after
    other opaque natural props and before water so ocean transparency colours and reveals its
    submerged structure. Aquatic wildlife is also submitted before water. The near-surface veil follows the
@@ -560,8 +565,21 @@ distant updates without changing the population. `ButterflyRenderer` frustum/dis
 agent, chooses a hinged patterned near model or compact far silhouette, and streams all visible
 double-sided opaque triangles through one `DynamicVertexBuffer`/`BasicEffect` draw. Five palettes
 and individual phase/scale variation break repetition; the largest procedural wingspan is roughly
-0.27 m. Native OpenGL 3.3 and Chrome/Firefox WebGL 2 dedicated captures pass. The complete arm64
-GLES 3 package compiles and lints, while close Android runtime appearance remains unqualified.
+0.27 m. Native OpenGL 3.3, Chrome/Firefox WebGL 2, and KVM/gfxstream GLES 3 dedicated captures
+pass; the Android view reports eleven visible agents, seven near and four far, in one draw.
+
+Five deterministic sea turtles occupy separate bounded near-shore route regions. `SeaTurtleGroup`
+alternates asynchronous `Cruise`, `Forage`, and `Surface` states, steers slowly within each home
+range, and applies mild separation from a nearby player. Every proposed pose uses the authoritative
+shore and seabed fields: the route remains 7--38 m offshore, requires at least 0.72 m water depth,
+and clamps each animal between seabed clearance and the surface. This keeps turtles out of land,
+the immediate breaking edge, and the player's 42 m offshore-current onset. The shared wildlife
+activation policy reduces or suspends distant updates without changing the five-agent population.
+`SeaTurtleRenderer` selects a 204-vertex near model with a faceted scute shell, head, eyes, tail,
+and four articulated flippers or a 24-vertex far silhouette. Three palettes reuse the aquatic
+depth/sun-band colour model, and every visible animal streams through one portable
+`DynamicVertexBuffer`/`BasicEffect` batch before the transparent ocean. Dedicated OpenGL 3.3,
+Chrome/Firefox WebGL 2, and KVM/gfxstream GLES 3 captures pass with one near turtle in one draw.
 
 Eight deterministic shallow-water schools contain six fish each. Their route centres follow the
 authoritative irregular shoreline instead of a circular approximation; each route searches outward

@@ -634,18 +634,23 @@ Dependencies: terrain/water/spawn queries, culling, and content/animation pipeli
   three terrain-validated low-altitude habitats, asynchronous rest/flutter/nectar-hover timing,
   mild player lift/retreat, five palettes, and hinged patterned near wings. They share the
   full/reduced/dormant activation policy and render through one culled near/far dynamic batch.
-- [ ] Add a few non-hostile sea turtles to suitable near-shore water. Constrain them between seabed
+- [x] Add a few non-hostile sea turtles to suitable near-shore water. Constrain them between seabed
   and surface, keep them out of land and the offshore-current limit, give them slow flipper/body
   animation and occasional surfacing, and avoid duplicating the fish/shark steering code where the
-  shared wildlife activation policy is sufficient.
-- [~] Test deterministic populations, biome/depth bounds, state reachability, player response,
+  shared wildlife activation policy is sufficient. Five agents now occupy separate authoritative
+  7--38 m offshore routes, alternate cruise/forage/surface states, and render articulated near/far
+  silhouettes through one culled batch.
+- [x] Test deterministic populations, biome/depth bounds, state reachability, player response,
   finite long-run motion, activation tiers, and land/water exclusion for all new species. Add
   dedicated debug counts and at least one fixed QA view that proves readable silhouettes without
   inflating invisible populations or the mobile draw-call budget. Crab determinism, habitat,
   12,000-frame finite motion, behaviour reachability, player response, activation tiers, F1 counts,
   benchmark ranges, and a matched `crabs` QA view are covered. Butterfly determinism, habitat and
   altitude bounds, 12,000-frame finite motion, all three states, observer tiers, player response,
-  F1/benchmark counts, and a matched `butterflies` QA view are also covered; turtles remain.
+  F1/benchmark counts, and a matched `butterflies` QA view are also covered. Turtle tests cover
+  deterministic reconstruction, initial/12,000-frame habitat and finite-motion invariants, all
+  three states including surfacing, activation tiers, mild player separation, F1/benchmark counts,
+  and a matched `turtles` QA view on all three renderers.
 
 ### Monkeys and skeletal animation
 
@@ -1120,8 +1125,8 @@ Android is not project completion.
   repeat after future runtime or visual changes.
 - [~] Run formatting/static checks, unit tests, smoke tests, `git diff --check`, and a source-only
   repository inspection. Shell/Node syntax, executable modes, tracked-file types, approved build
-  directories, local Markdown links, asset provenance, package determinism, full native 45/45, and
-  full Web 26-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
+  directories, local Markdown links, asset provenance, package determinism, full native 46/46, and
+  full Web 27-stage Chrome plus Firefox second-engine gates currently pass; repeat the aggregate
   gate at final packaging.
 
 Exit validation:
@@ -1202,7 +1207,8 @@ improves the requested experience rather than adding quests, combat, survival, o
   ocean motion, and positional sound into believable local activity rhythms. Avoid synchronized
   loops, clutter, and constant attention-seeking behaviour. Six sparse crab colonies and three
   small clearing-edge butterfly habitats now provide localized motion with asynchronous state
-  timing; turtles and whole-scene activity-rhythm critique remain.
+  timing. Five sparse near-shore turtles now add asynchronous cruise/forage/surface motion without
+  entering the current region; whole-scene activity-rhythm critique remains.
 - [ ] Add only subtle shipwreck ambience that can reuse the bounded soundscape budget, such as
   wave wash/wood creak scheduling from existing water layers; do not create a permanently loud
   global loop or imply a quest.
@@ -1217,7 +1223,8 @@ improves the requested experience rather than adding quests, combat, survival, o
   before/after each major realism pass. Scale distance/LOD rather than removing core content on
   Web or Android. Two isolated Debug shipwreck runs measured 1.9153--1.9271 ms median,
   4.5776--4.6285 ms p95, and 9.4118--10.4471 ms p99 with zero 60 Hz misses; the additional-wildlife
-  combined worst case remains to be defined.
+  combined worst case remains to be defined. The isolated Release turtle view records 2.1252 ms
+  mean, 3.2192 ms p95, 9.5893 ms p99, two 60 Hz misses, and no 30 Hz miss across 600 intervals.
 - [ ] Run matched native, Chrome, Firefox, and accelerated-Android captures for every new shader or
   renderer path. Validate physical Android hardware when available; otherwise keep thermals,
   driver diversity, and real-device ergonomics explicitly unverified.
@@ -1405,13 +1412,10 @@ Work next, in order:
 
 Immediate user-directed expansion:
 
-1. Add a small near-shore sea-turtle population through the existing deterministic activation
-   architecture, with long-run depth/region/state tests and a bounded batch. The beach-crab and
-   clearing-edge-butterfly portions are complete and provide terrestrial implementation patterns.
-2. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
+1. Execute the extended visual-realism campaign above in evidence-driven passes: materials and
    lighting first, then vegetation/grass geometry and composition, then atmosphere/motion polish.
    Preserve current performance evidence and complete matched renderer reviews after each pass.
-3. Revisit the completed 20 m shipwreck during those realism passes for aged-wood breakup,
+2. Revisit the completed 20 m shipwreck during those realism passes for aged-wood breakup,
    waterline integration, beach clutter composition, and collision feel without changing its
    established scale or turning it into an objective.
 
@@ -6160,6 +6164,56 @@ Existing observation and qualification queue:
   installed bytes. From `/tmp`, the packaged executable selected `OPENGL33`, rendered eleven
   butterflies (seven near, four far) in one draw, and reached its first completed game draw in
   823.393 ms; the Release frame was inspected.
+
+### 2026-10-07 — Bounded near-shore sea turtles
+
+- Added five original procedural sea turtles in separate deterministic near-shore route regions.
+  Their renderer-independent state machine alternates asynchronous cruise, seabed-forage, and
+  occasional surface behaviour, mildly separates from a nearby player, and shares the established
+  full/reduced/dormant activation policy.
+- Every candidate pose is constrained by authoritative shore and seabed queries to 7--38 m
+  offshore, at least 0.72 m water depth, the animal's individual home range, seabed clearance, and
+  the water surface. This keeps the complete population out of land and inside the player's 42 m
+  offshore-current onset. Core tests cover deterministic reconstruction, invalid input, initial
+  validity, all three states including surfacing, player response, activation tiers, and 12,000
+  update frames without non-finite or out-of-habitat motion.
+- Added one culled dynamic `BasicEffect` batch with three palettes and shared aquatic depth/sun-band
+  colour response. The 204-vertex near model has a faceted scute-patterned shell, head, eyes, tail,
+  and four articulated flippers; a 24-vertex far model keeps a complete silhouette. The dedicated
+  `--viewpoint turtles` camera exposes one near animal in one draw, while F1 and schema-3 benchmark
+  output expose render LOD, simulation tiers, behaviour states, draws, and observed ranges.
+- The complete private-display OpenGL 3.3 suite passes 46/46. The 27-stage Chrome/SwiftShader
+  WebGL 2 matrix and independent Firefox ESR gate both pass with dedicated original-resolution
+  turtle captures. The inspected frames retain a clear shell/flipper silhouette beneath the
+  transparent ocean. One initial unchanged Chrome run received an external termination during the
+  long matrix; the complete immediate rerun passed without a game or JavaScript error.
+- An isolated stripped-Release turtle benchmark recorded 2.1252 ms mean, 1.7856 ms median,
+  3.2192 ms p95, 9.5893 ms p99, and 19.3897 ms maximum across 600 intervals. Eleven exceeded
+  8.333 ms, two exceeded 16.667 ms, and none exceeded 33.333 ms. The fixed view held 75 tracked
+  submissions and one turtle draw, so this is an integrated scene baseline rather than isolated
+  species cost.
+- Built one temporary x86_64 APK through `/rv/cnaccache` with two workers. The API 35
+  `Medium_Phone` AVD booted in 21.494 seconds with KVM 12 and host AMD Radeon 780M gfxstream. Strict
+  turtle and butterfly gates passed; the clean 2400 by 1080 turtle frame shows one near animal in
+  one draw, and the butterfly overlay reports 11/18 visible (seven near, four far) in one draw.
+  The repeated turtle run completed first draw in 2527.896 ms with no fatal, shader, or
+  `GL_INVALID_OPERATION` diagnostic. This is translated-host functional evidence, not a
+  physical-device performance claim.
+- Stopped the emulator cleanly and restored/linted the default arm64-only APK through the shared
+  cache. It is 19,055,612 bytes, contains a 16,245,328-byte stripped `libmain.so`, packages only
+  `arm64-v8a`, and verifies with signature scheme v2. Removed only the five identified reproducible
+  x86_64 intermediate directories (about 1.1 GiB), returning the Android tree to approximately
+  1.3 GiB.
+- Asset validation now covers 21 procedural records, 40 generator sources, two project files, and
+  zero external files. The deterministic world fingerprint is `cff48b815e501c4f`. The final Web
+  payload is 9,038,860 bytes uncompressed or 2,570,077 bytes through deterministic gzip; its
+  WebAssembly is 8,771,952 bytes or 2,509,652 bytes through gzip.
+- Two unchanged Linux Release packaging runs produced the same 5,061,333-byte archive with SHA-256
+  `aa3463ba268e22effa44e936620f1dd582dcee91e87131aec6e4b3bea97f61ae` and 12,175,075 installed
+  bytes. An extraction beneath `/tmp` launched from that unrelated working directory, selected
+  `OPENGL33`, rendered one near turtle in one draw, passed capture validation, and reached first
+  draw in 418.872 ms; the Release frame was inspected. CNA and Sharp Runtime remained read-only
+  and clean, and no qualifying dependency defect was found.
 
 ## Session-end checklist
 

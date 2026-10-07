@@ -8,6 +8,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
+#include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -91,6 +92,7 @@ namespace
         island::ButterflyMeadow butterflies{terrain};
         island::CrabColony crabs{terrain};
         island::FishSchools fish{terrain};
+        island::SeaTurtleGroup seaTurtles{terrain};
         island::SharkPatrol shark{terrain};
         island::MonkeyTroop monkeys{terrain};
         island::GrassLayout grass{terrain};
@@ -317,6 +319,24 @@ namespace
             hash.AddByte(fish.colorVariant);
         }
 
+        hash.AddSize(world.seaTurtles.Turtles().size());
+        for (std::size_t index = 0;
+             index < world.seaTurtles.Turtles().size(); ++index) {
+            const island::SeaTurtleState& turtle = world.seaTurtles.Turtles()[index];
+            const island::SeaTurtleHomeRange& home = world.seaTurtles.Homes()[index];
+            HashPosition(hash, turtle.x, turtle.y, turtle.z);
+            hash.AddFloat(turtle.headingRadians);
+            hash.AddFloat(turtle.pitchRadians);
+            hash.AddFloat(turtle.bankRadians);
+            hash.AddFloat(turtle.flipperStroke);
+            hash.AddFloat(turtle.scale);
+            hash.AddEnum(turtle.behavior);
+            hash.AddByte(turtle.colorVariant);
+            hash.AddFloat(home.x);
+            hash.AddFloat(home.z);
+            hash.AddFloat(home.radius);
+        }
+
         const island::SharkState& shark = world.shark.State();
         HashPosition(hash, shark.x, shark.y, shark.z);
         hash.AddFloat(shark.headingRadians);
@@ -433,6 +453,10 @@ namespace
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
+            && world.seaTurtles.Turtles().size()
+                == island::SeaTurtleGroup::TurtleCount
+            && world.seaTurtles.Homes().size()
+                == island::SeaTurtleGroup::TurtleCount
             && world.monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount
             && world.shipwreck.Debris().size() == island::ShipwreckLayout::DebrisCount
             && world.shipwreck.Obstacles().size()
@@ -536,6 +560,24 @@ namespace
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(fish.x, fish.y, fish.z, fish.headingRadians,
                              fish.speed, fish.scale);
+        }
+        for (std::size_t index = 0;
+             index < world.seaTurtles.Turtles().size(); ++index) {
+            const island::SeaTurtleState& turtle = world.seaTurtles.Turtles()[index];
+            const island::SeaTurtleHomeRange& home = world.seaTurtles.Homes()[index];
+            const island::TerrainSample sample = world.terrain.Sample(turtle.x, turtle.z);
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(turtle.x, turtle.y, turtle.z,
+                             turtle.headingRadians, turtle.pitchRadians,
+                             turtle.bankRadians, turtle.speed,
+                             turtle.flipperStroke, turtle.scale,
+                             home.x, home.z, home.radius)
+                && turtle.scale > 0.0f && home.radius > 0.0f
+                && sample.signedShoreDistance
+                    >= island::SeaTurtleGroup::MinimumShoreDistance
+                && sample.signedShoreDistance
+                    <= island::SeaTurtleGroup::MaximumShoreDistance
+                && sample.height <= -0.72f;
         }
         const island::SharkState& shark = world.shark.State();
         finiteSpecializedData = finiteSpecializedData
@@ -649,6 +691,7 @@ namespace
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
+               << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
                << "    \"sharks\": 1,\n"
                << "    \"monkeys\": " << world.monkeys.Monkeys().size() << "\n"
                << "  }\n"

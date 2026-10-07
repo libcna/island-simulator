@@ -49,6 +49,7 @@ add_library(island_core STATIC
     game/src/PerformanceStatistics.cpp
     game/src/PlayerMotion.cpp
     game/src/ProceduralMeshValidation.cpp
+    game/src/SeaTurtleGroup.cpp
     game/src/SharkPatrol.cpp
     game/src/ShipwreckLayout.cpp
     game/src/SoundscapeModel.cpp
@@ -265,6 +266,7 @@ if(ISLAND_BUILD_GAME)
         game/src/OceanRenderer.cpp
         game/src/PalmRenderer.cpp
         game/src/RuntimeDiagnostics.cpp
+        game/src/SeaTurtleRenderer.cpp
         game/src/SharkRenderer.cpp
         game/src/ShipwreckRenderer.cpp
         game/src/ShorelineRenderer.cpp
@@ -584,6 +586,15 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "clearing butterflies use hinged patterned wings in one culled batch.*clearing butterflies 18 agents.*butterflies [1-9][0-9]*/18 visible.*1 draw")
+        add_test(NAME IslandGameSeaTurtleCapture
+            COMMAND island-simulator
+                    --capture "${CMAKE_BINARY_DIR}/island-turtle-capture.ppm"
+                    --viewpoint turtles)
+        set_tests_properties(IslandGameSeaTurtleCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "sea turtles use faceted shells and articulated flippers in one culled batch.*sea turtles 5 agents.*turtles [1-9]/5 visible.*1 draw")
         add_test(NAME IslandGameDebugOverlayCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-debug-overlay.ppm"
                     --viewpoint beach --debug-overlay)

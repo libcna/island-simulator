@@ -237,7 +237,7 @@ namespace island
     void DebugOverlay::Draw(const DebugOverlayState& state)
     {
         std::vector<std::string> lines;
-        lines.reserve(26U);
+        lines.reserve(27U);
 #ifndef NDEBUG
         lines.emplace_back(
             "F1 DEBUG  F2 WORLD  F3 FREECAM  F4 COPY SEEDS  F5-F12 TELEPORT  M MUTE");
@@ -416,6 +416,17 @@ namespace island
              << state.reducedSimulationFish << '/' << state.dormantSimulationFish
              << "  DRAWS " << state.fishDraws;
         lines.push_back(fish.str());
+
+        auto turtles = DiagnosticLine();
+        turtles << "TURTLES " << state.visibleSeaTurtles << '/' << state.totalSeaTurtles
+                << "  NEAR " << state.nearSeaTurtles << " FAR " << state.farSeaTurtles
+                << "  SIM " << state.fullSimulationSeaTurtles << '/'
+                << state.reducedSimulationSeaTurtles << '/'
+                << state.dormantSimulationSeaTurtles
+                << "  ST " << state.cruisingSeaTurtles << '/'
+                << state.foragingSeaTurtles << '/' << state.surfacingSeaTurtles
+                << "  DRAWS " << state.seaTurtleDraws;
+        lines.push_back(turtles.str());
 
         const char* sharkSimulation = state.sharkSimulationTier == 0
             ? "FULL" : (state.sharkSimulationTier == 1 ? "REDUCED" : "DORMANT");

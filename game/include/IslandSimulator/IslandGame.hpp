@@ -40,6 +40,8 @@
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
+#include "IslandSimulator/SeaTurtleGroup.hpp"
+#include "IslandSimulator/SeaTurtleRenderer.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/SharkRenderer.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
@@ -95,6 +97,7 @@ namespace island
         ShipwreckDetail,
         CrabDetail,
         ButterflyDetail,
+        SeaTurtleDetail,
         BenchmarkTraversal
     };
 
@@ -177,6 +180,9 @@ namespace island
             int minimumButterflies = 0;
             int maximumButterflies = 0;
             std::uint64_t totalButterflies = 0U;
+            int minimumSeaTurtles = 0;
+            int maximumSeaTurtles = 0;
+            std::uint64_t totalSeaTurtles = 0U;
             float minimumShoreDistance = 0.0f;
             float maximumShoreDistance = 0.0f;
             Microsoft::Xna::Framework::Vector3 firstCameraPosition{0.0f, 0.0f, 0.0f};
@@ -192,6 +198,7 @@ namespace island
         ButterflyMeadow butterflyMeadow_;
         CrabColony crabColony_;
         FishSchools fishSchools_;
+        SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
         MonkeyTroop monkeyTroop_;
         GrassLayout grassLayout_;
@@ -232,6 +239,7 @@ namespace island
         std::unique_ptr<NaturalPropRenderer> naturalPropRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
+        std::unique_ptr<SeaTurtleRenderer> seaTurtleRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
         std::unique_ptr<ShipwreckRenderer> shipwreckRenderer_;
         std::unique_ptr<ShorelineRenderer> shorelineRenderer_;

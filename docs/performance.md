@@ -1535,10 +1535,10 @@ or thermal claim.
 
 The runtime rejects invalid profiles and resource inventories exceeding the selected texture or
 audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the exact reduced
-mesh counts. Native smoke/capture output confirms the full profile, while the complete 26-stage
+mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-18,999,812 bytes with a 16,189,528-byte stripped `libmain.so`; lint reports no issues and APK
+19,055,612 bytes with a 16,245,328-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1580,7 +1580,7 @@ Debug baseline, not an isolated cost attribution or a physical-mobile budget.
 The dedicated composition also passed Chrome/SwiftShader and Firefox ESR WebGL 2 plus the strict
 API 35 KVM/gfxstream GLES 3 gate. The Android run completed first draw in 2336.217 ms and retained
 five visible crabs in one draw. These cross-renderer checks qualify function and composition only;
-the remaining turtle layer and a combined additional-wildlife worst case are open.
+a combined additional-wildlife worst-case view remains open.
 
 ### Clearing-butterfly baseline
 
@@ -1597,17 +1597,36 @@ view reported 85 tracked submissions and 10--11 visible butterflies, with one bu
 This is an integrated Debug scene baseline, not an isolated species-cost attribution.
 
 The dedicated composition also passed Chrome/SwiftShader and Firefox ESR WebGL 2; Firefox reported
-11 visible agents, seven near and four far, in one draw. The current arm64 APK compiles and lints
-the complete layer, but accelerated GLES 3 runtime appearance is intentionally deferred to the
-combined butterfly/sea-turtle pass. A combined additional-wildlife worst-case view remains open.
+11 visible agents, seven near and four far, in one draw. The strict KVM/gfxstream GLES 3 view
+reported the same 11/18, seven-near/four-far composition in one draw. A combined
+additional-wildlife worst-case view remains open.
+
+### Near-shore sea-turtle baseline
+
+Five deterministic sea turtles occupy separate 7--38 m offshore routes, share the observer-relative
+activation policy, and remain between authoritative seabed clearance and the water surface. The
+near tier uses a 204-vertex faceted shell, scute pattern, head, eyes, tail, and four articulated
+flippers; the 24-vertex far tier retains a complete silhouette. All visible animals share one
+dynamic `VertexPositionColor`/`BasicEffect` draw and add no texture, custom shader, or audio source.
+
+One isolated Release OpenGL 3.3 run of the 1280 by 720 turtle view on the AMD Radeon 780M/Mesa
+25.0.7 recorded 2.1252 ms mean, 1.7856 ms median, 3.2192 ms p95, 9.5893 ms p99, and 19.3897 ms
+maximum. Eleven of 600 intervals exceeded 8.333 ms, two exceeded 16.667 ms, and none exceeded
+33.333 ms. The fixed view held 75 tracked submissions and one visible near turtle in one draw.
+This is an integrated Release scene baseline, not isolated species cost attribution.
+
+The same composition passed Chrome/SwiftShader and Firefox ESR WebGL 2. A strict API 35
+KVM/gfxstream GLES 3 run retained one near turtle in one draw beneath the transparent ocean; its
+clean 2400 by 1080 frame was inspected and first draw completed in 2527.896 ms. These checks
+qualify portable function and composition, not physical-mobile frame time, power, or thermals.
 
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,849 bytes (59,282 gzip), and WebAssembly is 8,733,207 bytes (2,496,301
-gzip). The complete transfer payload therefore falls from 9,000,114 to 2,556,727 bytes, a measured
+gzip), JavaScript is 264,850 bytes (59,281 gzip), and WebAssembly is 8,771,952 bytes (2,509,652
+gzip). The complete transfer payload therefore falls from 9,038,860 to 2,570,077 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

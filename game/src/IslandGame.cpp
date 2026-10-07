@@ -83,6 +83,7 @@ namespace island
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
+            case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
             case FixedViewpoint::None: return "interactive";
             }
@@ -111,6 +112,7 @@ namespace island
           butterflyMeadow_(terrain_),
           crabColony_(terrain_),
           fishSchools_(terrain_),
+          seaTurtleGroup_(terrain_),
           sharkPatrol_(terrain_),
           monkeyTroop_(terrain_),
           grassLayout_(terrain_),
@@ -509,6 +511,17 @@ namespace island
             const Vector3 toFish = Vector3(fish.x, fish.y, fish.z) - cameraPosition_;
             yaw_ = std::atan2(toFish.X, toFish.Z);
             pitch_ = std::atan2(toFish.Y, std::hypot(toFish.X, toFish.Z));
+        } else if (viewpoint_ == FixedViewpoint::SeaTurtleDetail
+                   && !seaTurtleGroup_.Turtles().empty()) {
+            const SeaTurtleState& turtle = seaTurtleGroup_.Turtles()[2U];
+            const Vector3 radial = Vector3::Normalize(Vector3(turtle.x, 0.0f, turtle.z));
+            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            cameraPosition_ = Vector3(turtle.x, turtle.y, turtle.z)
+                + radial * 4.1f + tangent * 1.1f + Vector3::Up * 1.75f;
+            const Vector3 toTurtle = Vector3(turtle.x, turtle.y, turtle.z) - cameraPosition_;
+            yaw_ = std::atan2(toTurtle.X, toTurtle.Z);
+            pitch_ = std::atan2(toTurtle.Y, std::hypot(toTurtle.X, toTurtle.Z));
+            std::cout << "island-simulator: sea-turtle QA camera views a surfacing route\n";
         } else if (viewpoint_ == FixedViewpoint::SharkDetail) {
             const SharkState& shark = sharkPatrol_.State();
             const Vector3 radial = Vector3::Normalize(Vector3(shark.x, 0.0f, shark.z));
@@ -704,6 +717,8 @@ namespace island
             device, 92.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
+            device, 190.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         sharkRenderer_ = std::make_unique<SharkRenderer>(
             device, 710.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         monkeyRenderer_ = std::make_unique<MonkeyRenderer>(
@@ -793,6 +808,8 @@ namespace island
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
+                  << "island-simulator: sea turtles " << seaTurtleGroup_.Turtles().size()
+                  << " agents in bounded near-shore cruise, forage, and surface routes\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"
@@ -853,6 +870,11 @@ namespace island
                                  << crabColony_.Crabs().size()
                                  << " agents in deterministic sand-constrained colonies";
         MirrorRuntimeDiagnosticToPlatformLog(crabPopulationDiagnostic.str());
+        std::ostringstream seaTurtlePopulationDiagnostic;
+        seaTurtlePopulationDiagnostic << "island-simulator: sea turtles "
+                                      << seaTurtleGroup_.Turtles().size()
+                                      << " agents in bounded near-shore cruise, forage, and surface routes";
+        MirrorRuntimeDiagnosticToPlatformLog(seaTurtlePopulationDiagnostic.str());
     }
 
     void IslandGame::TryStartSoundscape() noexcept
@@ -925,6 +947,8 @@ namespace island
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        seaTurtleGroup_.Update(
+            deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         Vector3 monkeyObserver = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
@@ -1438,6 +1462,7 @@ namespace island
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
             + crabRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
+            + seaTurtleRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
             + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
     }
@@ -1453,6 +1478,7 @@ namespace island
         const int grass = grassRenderer_->VisiblePatchCount();
         const int crabs = crabRenderer_->VisibleCrabCount();
         const int butterflies = butterflyRenderer_->VisibleButterflyCount();
+        const int seaTurtles = seaTurtleRenderer_->VisibleTurtleCount();
         const float shoreDistance = terrain_.SignedShoreDistance(
             cameraPosition_.X, cameraPosition_.Z);
         BenchmarkSceneRanges& ranges = benchmarkSceneRanges_;
@@ -1466,6 +1492,7 @@ namespace island
             ranges.minimumGrass = ranges.maximumGrass = grass;
             ranges.minimumCrabs = ranges.maximumCrabs = crabs;
             ranges.minimumButterflies = ranges.maximumButterflies = butterflies;
+            ranges.minimumSeaTurtles = ranges.maximumSeaTurtles = seaTurtles;
             ranges.minimumShoreDistance = ranges.maximumShoreDistance = shoreDistance;
             ranges.firstCameraPosition = cameraPosition_;
         } else {
@@ -1491,6 +1518,10 @@ namespace island
                 ranges.minimumButterflies, butterflies);
             ranges.maximumButterflies = std::max(
                 ranges.maximumButterflies, butterflies);
+            ranges.minimumSeaTurtles = std::min(
+                ranges.minimumSeaTurtles, seaTurtles);
+            ranges.maximumSeaTurtles = std::max(
+                ranges.maximumSeaTurtles, seaTurtles);
             ranges.minimumShoreDistance = std::min(
                 ranges.minimumShoreDistance, shoreDistance);
             ranges.maximumShoreDistance = std::max(
@@ -1505,6 +1536,7 @@ namespace island
         ranges.totalGrass += static_cast<std::uint64_t>(grass);
         ranges.totalCrabs += static_cast<std::uint64_t>(crabs);
         ranges.totalButterflies += static_cast<std::uint64_t>(butterflies);
+        ranges.totalSeaTurtles += static_cast<std::uint64_t>(seaTurtles);
         ranges.lastCameraPosition = cameraPosition_;
         ++ranges.sampleCount;
     }
@@ -1633,7 +1665,11 @@ namespace island
                << "    \"butterflies\": {\"min\": "
                << ranges.minimumButterflies << ", \"max\": "
                << ranges.maximumButterflies << ", \"mean\": "
-               << meanCount(ranges.totalButterflies) << "}\n"
+               << meanCount(ranges.totalButterflies) << "},\n"
+               << "    \"sea_turtles\": {\"min\": "
+               << ranges.minimumSeaTurtles << ", \"max\": "
+               << ranges.maximumSeaTurtles << ", \"mean\": "
+               << meanCount(ranges.totalSeaTurtles) << "}\n"
                << "  },\n"
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
@@ -1676,6 +1712,8 @@ namespace island
                << butterflyRenderer_->VisibleButterflyCount() << ",\n"
                << "    \"crabs\": " << crabRenderer_->VisibleCrabCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
+               << "    \"sea_turtles\": "
+               << seaTurtleRenderer_->VisibleTurtleCount() << ",\n"
                << "    \"shark\": " << (sharkRenderer_->IsVisible() ? 1 : 0) << ",\n"
                << "    \"player_water_ripple\": "
                << waterRippleModel_.Intensity() << ",\n"
@@ -1816,6 +1854,9 @@ namespace island
 
         fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                             fishSchools_.Fish(), timeSeconds);
+
+        seaTurtleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                 seaTurtleGroup_.Turtles(), timeSeconds);
 
         sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                              sharkPatrol_.State(), timeSeconds);
@@ -2006,6 +2047,21 @@ namespace island
             overlayState.reducedSimulationFish = fishSchools_.ReducedSimulationCount();
             overlayState.dormantSimulationFish = fishSchools_.DormantSimulationCount();
             overlayState.fishDraws = fishRenderer_->DrawCallCount();
+            overlayState.visibleSeaTurtles = seaTurtleRenderer_->VisibleTurtleCount();
+            overlayState.totalSeaTurtles = static_cast<int>(seaTurtleGroup_.Turtles().size());
+            overlayState.nearSeaTurtles = seaTurtleRenderer_->VisibleNearTurtleCount();
+            overlayState.farSeaTurtles = seaTurtleRenderer_->VisibleFarTurtleCount();
+            overlayState.fullSimulationSeaTurtles = seaTurtleGroup_.FullSimulationCount();
+            overlayState.reducedSimulationSeaTurtles = seaTurtleGroup_.ReducedSimulationCount();
+            overlayState.dormantSimulationSeaTurtles = seaTurtleGroup_.DormantSimulationCount();
+            for (const SeaTurtleState& turtle : seaTurtleGroup_.Turtles()) {
+                switch (turtle.behavior) {
+                case SeaTurtleBehavior::Cruise: ++overlayState.cruisingSeaTurtles; break;
+                case SeaTurtleBehavior::Forage: ++overlayState.foragingSeaTurtles; break;
+                case SeaTurtleBehavior::Surface: ++overlayState.surfacingSeaTurtles; break;
+                }
+            }
+            overlayState.seaTurtleDraws = seaTurtleRenderer_->DrawCallCount();
             overlayState.sharkVisible = sharkRenderer_->IsVisible();
             overlayState.sharkPresent = sharkPatrol_.State().present;
             overlayState.sharkNear = sharkRenderer_->UsesNearLod();
@@ -2203,7 +2259,12 @@ namespace island
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "
                       << fishRenderer_->VisibleFarFishCount() << "), "
-                      << fishRenderer_->DrawCallCount() << " draw; shark "
+                      << fishRenderer_->DrawCallCount() << " draw; turtles "
+                      << seaTurtleRenderer_->VisibleTurtleCount() << '/'
+                      << seaTurtleGroup_.Turtles().size() << " visible (near "
+                      << seaTurtleRenderer_->VisibleNearTurtleCount() << ", far "
+                      << seaTurtleRenderer_->VisibleFarTurtleCount() << "), "
+                      << seaTurtleRenderer_->DrawCallCount() << " draw; shark "
                       << (sharkRenderer_->IsVisible() ? "visible" : "culled")
                       << " activity " << sharkPatrol_.State().activity << ", "
                       << sharkRenderer_->DrawCallCount() << " draw; monkeys "

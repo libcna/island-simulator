@@ -101,13 +101,17 @@ five visible near silhouettes in one draw, the mobile quality marker, and a clea
 by 1080 frame. Startup measured 776.182 ms world, 1.782 ms framework, 1512.457 ms content,
 24.508 ms pre-draw, and 21.288 ms first draw, for 2336.217 ms total. The default arm64 package was
 then restored and the reproducible x86_64 intermediates removed.
-The current sources additionally include eighteen deterministic clearing-edge butterflies with
-terrain-relative altitude bounds, five palettes, and one near/far culled batch. The arm64 package
-compiles and lints that complete path. A matching accelerated GLES 3 butterfly appearance run is
-not yet claimed; it will be combined with the next sea-turtle qualification so the approximately
-1.1 GiB x86_64 native intermediates are generated once rather than twice.
-The latest single-ABI arm64 debug qualification build produced an 18,999,812-byte APK with a
-16,189,528-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The current sources additionally include eighteen deterministic clearing-edge butterflies and
+five deterministic near-shore sea turtles. The butterflies retain terrain-relative altitude
+bounds, five palettes, and one near/far batch; the turtles retain seabed/surface/shore bounds,
+cruise/forage/surface states, articulated flippers, and a separate one-draw near/far batch. On the
+same KVM 12/host-gfxstream boot, strict current-source `butterflies` and `turtles` views passed.
+The inspected butterfly overlay reported 11/18 visible (seven near, four far) in one draw. The
+clean turtle frame showed one near turtle beneath the transparent ocean in one draw; the repeated
+run completed first draw in 2527.896 ms. No fatal, shader, or `GL_INVALID_OPERATION` diagnostic
+appeared. This qualifies translated-host function and composition, not physical-mobile cost.
+The latest single-ABI arm64 debug qualification build produced a 19,055,612-byte APK with a
+16,245,328-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, close sand
 granulation, sparse soft-edged pebble/shell flecks,
@@ -702,13 +706,25 @@ ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,shipwreck,--debug-overlay \
 ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,crabs,--debug-overlay \
   tools/run_android_runtime_smoke.sh \
   "$ANDROID_SDK_ROOT/platform-tools/adb" \
-  android/app/build/outputs/apk/debug/app-debug.apk \
+    android/app/build/outputs/apk/debug/app-debug.apk \
     build/android-runtime-smoke-crabs
+
+ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,butterflies,--debug-overlay \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-butterflies
+
+ISLAND_ANDROID_SMOKE_ARGUMENTS=--viewpoint,turtles,--debug-overlay \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-turtles
 ```
 
-Every strict run also requires the thirty-agent beach-crab population marker. The crab camera
-additionally exposes a nonzero visible population and the one-draw batch in the retained platform
-log and screenshot.
+Every strict run also requires the thirty-agent crab, eighteen-agent butterfly, and five-agent
+sea-turtle population/renderer markers. The species cameras expose nonzero visible populations
+and their single-draw batches in the retained platform logs or F1 captures.
 
 ## Dependency overrides
 

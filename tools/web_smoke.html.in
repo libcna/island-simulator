@@ -52,6 +52,7 @@
       ["fronds", ["--viewpoint", "fronds", "--debug-overlay"]],
       ["birds", ["--viewpoint", "birds", "--debug-overlay"]],
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],
+      ["turtles", ["--viewpoint", "turtles", "--debug-overlay"]],
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
     ]);

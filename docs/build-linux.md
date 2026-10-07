@@ -80,12 +80,13 @@ AddressSanitizer or UndefinedBehaviorSanitizer finding was emitted. The 47 MiB `
 was removed after the pass because it is fully reproducible from the preset.
 
 The 2026-10-07 `97783d1e090c` CNA `next` refresh compiles and links the selected OpenGL 3.3
-framework and game. The complete private-display suite passes 45/45, selects CNA `OPENGL33`,
+framework and game. The complete private-display suite passes 46/46, selects CNA `OPENGL33`,
 compiles every current scene shader, exercises all deterministic views, reports a 1280 by 720
 logical backbuffer, and includes actual simultaneous movement/mouse input plus persistent Shift
 run/walk toggling. Dedicated beach-side shipwreck and crab captures require the exact 20 m broken
 hull/12 debris/one wreck draw, a nonzero thirty-agent crab population in one wildlife draw, and a
-nonzero eighteen-agent butterfly population in one clearing-edge wildlife draw.
+nonzero eighteen-agent butterfly population in one clearing-edge wildlife draw, and one near
+member of the five-agent sea-turtle population in one aquatic-wildlife draw.
 
 To use a separate read-only CNA `next` checkout instead of the generated export:
 
@@ -117,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,131,223 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,175,075 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,046,860-byte archive with SHA-256
-`815a1fe1b62b42ec8ab2731ba05a220bbba0589523be4a93f1eec2bea7a6cb67`.
+5,061,333-byte archive with SHA-256
+`aa3463ba268e22effa44e936620f1dd582dcee91e87131aec6e4b3bea97f61ae`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -272,6 +273,9 @@ nonzero visible population.
 `IslandGameButterflyCapture` writes a low first-person clearing view to
 `build/island-butterfly-capture.ppm` and requires a visible population from all eighteen agents,
 nonzero near detail, and exactly one culled wildlife draw.
+`IslandGameSeaTurtleCapture` writes a close near-surface-water view to
+`build/island-turtle-capture.ppm` and requires the five-agent population marker, one visible near
+turtle, and exactly one culled aquatic-wildlife draw.
 `IslandGameFishCapture` writes a close shallow-water school view to
 `build/island-fish-capture.ppm` and requires the exact 51/12-vertex, single-surface-fin, CPU-faceted
 daylight path plus the shared depth/sun-band lighting diagnostic.

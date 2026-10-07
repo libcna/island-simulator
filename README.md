@@ -124,6 +124,11 @@ motion readable without filling every clearing. Eight
 near-shore schools add 48 animated fish constrained between the seabed and water surface, with
 depth-following pitch, banked turns, forked tails, CPU-lit body facets, restrained depth/caustic
 colour response, and readable near heads.
+Five non-hostile sea turtles follow separate bounded near-shore routes between the seabed and
+surface. They alternate slow cruising, seabed foraging, and occasional surfacing, remain outside
+land and the outer-current region, and respond mildly to a nearby swimmer. Faceted scute-patterned
+shells, articulated flippers, three natural palettes, near/far geometry, and one culled dynamic
+batch keep them readable through the water without making them a constant attraction.
 One non-hostile shark
 occasionally patrols deeper offshore water with matching dive pitch, turn banking, a forked tail,
 depth-integrated colour, and restrained near eye/gill detail.
@@ -277,7 +282,7 @@ procedural source and export disposable PCM16 WAV previews for focused listening
 The automated browser smoke test verifies renderer initialization, the portable terrain-material,
 animated-ocean, and fixed-sky shaders, hardware-instanced palm/jungle/prop LOD, portable instanced
 grass wind, a finite first-draw startup timing line, four frames, clean shutdown, active
-overview/beach/jungle/prop/driftwood/reef/shipwreck/crabs/butterflies/water/
+overview/beach/jungle/prop/driftwood/reef/shipwreck/crabs/butterflies/turtles/water/
 current/grass/frond/distant/bird/fish/shark/monkey screenshots, the transient run-mode confirmation,
 and portable overlay text rendering.
 The close prop view additionally requires a nonzero one-draw contact-shadow batch.
@@ -293,8 +298,8 @@ responsive 16:9 sizing. A narrower Firefox ESR 140.15 WebDriver BiDi gate indepe
 production shell's first frame, reported WebGL 2 Radeon backend, trusted-click pointer lock,
 44.1 kHz audio initialization, persistent Shift enable/disable edges, forward traversal with an
 actual footstep, Escape release, delayed pointer-lock reacquisition, and responsive 16:9 sizing.
-It also loads dedicated 1280 by 720 jungle, near-surface-water, 20 m shipwreck, beach-crab, and
-butterfly scenes, requires
+It also loads dedicated 1280 by 720 jungle, near-surface-water, 20 m shipwreck, beach-crab,
+butterfly, and sea-turtle scenes, requires
 their live state, and captures each. All Firefox scene frames were visually inspected. A visible
 interactive listening pass, the remaining fixed-scene matrix, long tab suspension, audio-focus
 behaviour, and fullscreen remain open. The automated Firefox path now does one actual second-tab
@@ -303,7 +308,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,556,727 bytes, 71.6% below the 9,000,114-byte
+a SHA-256 manifest. The current gzip payload is 2,570,077 bytes, 71.6% below the 9,038,860-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -317,8 +322,10 @@ look sensitivity (0.72/1.00/1.35 times); the highlighted dot shows the current c
 Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-GPU gfxstream.
 The complete current scene, independent movement/look gestures, all sensitivity levels, a
 same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
-there. The persistence-qualified run also requires a touch sensitivity change to survive the cold
-relaunch. The default arm64-v8a APK is 18,999,812 bytes, contains a 16,189,528-byte stripped
+there. Dedicated current-source GLES 3 views also validate the clearing butterflies and a
+near-shore sea turtle through the mobile quality profile. The persistence-qualified run also
+requires a touch sensitivity change to survive the cold relaunch. The default arm64-v8a APK is
+19,055,612 bytes, contains a 16,245,328-byte stripped
 `libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
 emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See

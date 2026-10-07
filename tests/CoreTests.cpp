@@ -23,6 +23,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
+#include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
@@ -1913,6 +1914,111 @@ int main()
               && escapedButterfly.y > terrain.Height(
                      escapedButterfly.x, escapedButterfly.z) + 0.35f,
           "a nearby observer prompts a mild airborne butterfly retreat");
+
+    island::SeaTurtleGroup seaTurtles(terrain);
+    island::SeaTurtleGroup repeatedSeaTurtles(terrain);
+    island::SeaTurtleGroup invalidInputSeaTurtles(terrain);
+    Check(seaTurtles.Turtles().size() == island::SeaTurtleGroup::TurtleCount
+              && seaTurtles.Homes().size() == island::SeaTurtleGroup::TurtleCount,
+          "sea-turtle simulation exposes the intended small bounded population");
+    for (std::size_t index = 0; index < seaTurtles.Turtles().size(); ++index) {
+        const island::SeaTurtleState& turtle = seaTurtles.Turtles()[index];
+        const island::SeaTurtleState& repeated = repeatedSeaTurtles.Turtles()[index];
+        const island::SeaTurtleHomeRange& home = seaTurtles.Homes()[index];
+        const island::TerrainSample sample = terrain.Sample(turtle.x, turtle.z);
+        Check(turtle.x == repeated.x && turtle.y == repeated.y
+                  && turtle.z == repeated.z
+                  && turtle.headingRadians == repeated.headingRadians
+                  && turtle.behavior == repeated.behavior
+                  && turtle.colorVariant == repeated.colorVariant,
+              "sea-turtle construction is deterministic");
+        Check(std::hypot(turtle.x - home.x, turtle.z - home.z) <= home.radius
+                  && home.radius >= 11.5f && home.radius <= 15.1f,
+              "each sea turtle begins inside one bounded near-shore range");
+        Check(sample.signedShoreDistance
+                      >= island::SeaTurtleGroup::MinimumShoreDistance
+                  && sample.signedShoreDistance
+                      <= island::SeaTurtleGroup::MaximumShoreDistance
+                  && sample.height <= -0.72f,
+              "each sea turtle begins in submerged water inside the current limit");
+        Check(turtle.y >= sample.height + 0.39f && turtle.y <= -0.09f,
+              "each sea turtle begins between seabed clearance and the water surface");
+    }
+    invalidInputSeaTurtles.Update(quietNan, quietNan, quietNan, quietNan);
+    Check(invalidInputSeaTurtles.DormantSimulationCount()
+              == static_cast<int>(island::SeaTurtleGroup::TurtleCount)
+              && std::ranges::all_of(
+                  invalidInputSeaTurtles.Turtles(), [](const auto& turtle) {
+                      return std::isfinite(turtle.x) && std::isfinite(turtle.y)
+                          && std::isfinite(turtle.z)
+                          && std::isfinite(turtle.headingRadians);
+                  }),
+          "sea turtles reject non-finite frame and observer input without state poisoning");
+    bool observedTurtleCruise = false;
+    bool observedTurtleForage = false;
+    bool observedTurtleSurface = false;
+    bool observedNearSurfaceTurtle = false;
+    for (int frame = 0; frame < 12000; ++frame) {
+        seaTurtles.Update(1.0f / 30.0f, 0.0f, 20.0f, 0.0f);
+        repeatedSeaTurtles.Update(1.0f / 30.0f, 0.0f, 20.0f, 0.0f);
+        for (std::size_t index = 0; index < seaTurtles.Turtles().size(); ++index) {
+            const island::SeaTurtleState& turtle = seaTurtles.Turtles()[index];
+            const island::SeaTurtleState& repeated = repeatedSeaTurtles.Turtles()[index];
+            const island::SeaTurtleHomeRange& home = seaTurtles.Homes()[index];
+            const island::TerrainSample sample = terrain.Sample(turtle.x, turtle.z);
+            Check(turtle.x == repeated.x && turtle.y == repeated.y
+                      && turtle.z == repeated.z
+                      && turtle.headingRadians == repeated.headingRadians
+                      && turtle.pitchRadians == repeated.pitchRadians
+                      && turtle.bankRadians == repeated.bankRadians
+                      && turtle.flipperStroke == repeated.flipperStroke
+                      && turtle.behavior == repeated.behavior,
+                  "sea-turtle simulation remains deterministic over a long session");
+            Check(std::hypot(turtle.x - home.x, turtle.z - home.z)
+                          <= home.radius + 0.01f
+                      && sample.signedShoreDistance
+                          >= island::SeaTurtleGroup::MinimumShoreDistance - 0.01f
+                      && sample.signedShoreDistance
+                          <= island::SeaTurtleGroup::MaximumShoreDistance + 0.01f
+                      && sample.height <= -0.719f
+                      && turtle.y >= sample.height + 0.38f
+                      && turtle.y <= -0.09f,
+                  "sea turtles remain between seabed and surface inside near-shore ranges");
+            Check(std::isfinite(turtle.speed) && turtle.speed >= 0.0f
+                      && std::isfinite(turtle.flipperStroke)
+                      && std::fabs(turtle.flipperStroke) <= 1.001f
+                      && std::fabs(turtle.pitchRadians) <= 0.241f
+                      && std::fabs(turtle.bankRadians) <= 0.221f,
+                  "sea-turtle motion and articulated flipper pose remain finite and bounded");
+            observedTurtleCruise = observedTurtleCruise
+                || turtle.behavior == island::SeaTurtleBehavior::Cruise;
+            observedTurtleForage = observedTurtleForage
+                || turtle.behavior == island::SeaTurtleBehavior::Forage;
+            observedTurtleSurface = observedTurtleSurface
+                || turtle.behavior == island::SeaTurtleBehavior::Surface;
+            observedNearSurfaceTurtle = observedNearSurfaceTurtle
+                || (turtle.behavior == island::SeaTurtleBehavior::Surface
+                    && turtle.y > -0.18f);
+        }
+    }
+    Check(observedTurtleCruise && observedTurtleForage && observedTurtleSurface
+              && observedNearSurfaceTurtle,
+          "sea turtles reach cruise, forage, and visibly near-surface states");
+    Check(seaTurtles.FullSimulationCount() + seaTurtles.ReducedSimulationCount()
+              + seaTurtles.DormantSimulationCount()
+              == static_cast<int>(island::SeaTurtleGroup::TurtleCount),
+          "sea-turtle simulation tiers account for the complete population");
+    island::SeaTurtleGroup reactiveSeaTurtles(terrain);
+    const island::SeaTurtleState initialReactiveTurtle = reactiveSeaTurtles.Turtles().front();
+    for (int frame = 0; frame < 240; ++frame) {
+        reactiveSeaTurtles.Update(
+            1.0f / 60.0f, initialReactiveTurtle.x, initialReactiveTurtle.y,
+            initialReactiveTurtle.z);
+    }
+    const island::SeaTurtleState& retreatingTurtle = reactiveSeaTurtles.Turtles().front();
+    Check(std::hypot(retreatingTurtle.x - initialReactiveTurtle.x,
+                     retreatingTurtle.z - initialReactiveTurtle.z) > 0.25f,
+          "a nearby observer produces mild sea-turtle separation without hostility");
 
     island::CrabColony crabs(terrain);
     island::CrabColony repeatedCrabs(terrain);
