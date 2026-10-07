@@ -98,5 +98,6 @@ The implementation and deterministic multi-touch tests are complete, and the sam
 code runs on OpenGL 3.3, WebGL 2, and OpenGL ES 3. A KVM-accelerated API 35 emulator visibly
 validated the translucent HUD and separately injected left-zone movement and right-zone look
 gestures. The game also survived a same-process background/foreground cycle with its audio stream
-paused and resumed. Simultaneous real-finger feel, sensitivity, optional handedness, and
-physical-device ergonomic tuning remain open.
+paused and resumed, followed by a force-stop and qualified new-process GLES 3/audio launch.
+Simultaneous real-finger feel, sensitivity, optional handedness, long suspension, external audio
+focus, and physical-device ergonomic tuning remain open.

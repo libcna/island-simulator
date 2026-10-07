@@ -16,6 +16,7 @@ TIMEOUT_SECONDS=${ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS:-600}
 REQUIRE_AUDIO=${ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO:-0}
 REQUIRE_FOOTSTEPS=${ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS:-0}
 REQUIRE_SWIMMING=${ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING:-0}
+REQUIRE_LIFECYCLE=${ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE:-0}
 DEBUG_ARGUMENTS=${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
 
@@ -58,6 +59,13 @@ case "$REQUIRE_SWIMMING" in
         exit 2
         ;;
 esac
+case "$REQUIRE_LIFECYCLE" in
+    0|1) ;;
+    *)
+        echo "android runtime smoke: ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE must be 0 or 1" >&2
+        exit 2
+        ;;
+esac
 if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
     case ",$DEBUG_ARGUMENTS," in
         *,--overview,*|*,--viewpoint,*|*,--smoke-test,*|*,--capture,*|*,--benchmark,*)
@@ -81,7 +89,24 @@ mkdir -p "$OUTPUT_DIR"
 LOG_FILE="$OUTPUT_DIR/island-android-logcat.txt"
 LAUNCH_FILE="$OUTPUT_DIR/island-android-launch.txt"
 SCREENSHOT="$OUTPUT_DIR/island-android.png"
+HOT_RESUME_LOG_FILE="$OUTPUT_DIR/island-android-hot-resume-logcat.txt"
+HOT_RESUME_LAUNCH_FILE="$OUTPUT_DIR/island-android-hot-resume-launch.txt"
+HOT_RESUME_SCREENSHOT="$OUTPUT_DIR/island-android-hot-resume.png"
+COLD_RELAUNCH_LOG_FILE="$OUTPUT_DIR/island-android-cold-relaunch-logcat.txt"
+COLD_RELAUNCH_LAUNCH_FILE="$OUTPUT_DIR/island-android-cold-relaunch-launch.txt"
+COLD_RELAUNCH_SCREENSHOT="$OUTPUT_DIR/island-android-cold-relaunch.png"
 : >"$LOG_FILE"
+
+launch_game()
+{
+    launch_output=$1
+    if [ -n "$DEBUG_ARGUMENTS" ]; then
+        "$ADB" shell am start -W -n "$COMPONENT" \
+            --esa "$DEBUG_ARGUMENTS_EXTRA" "$DEBUG_ARGUMENTS" >"$launch_output"
+    else
+        "$ADB" shell am start -W -n "$COMPONENT" >"$launch_output"
+    fi
+}
 
 echo "android runtime smoke: installing $APK"
 "$ADB" install -r "$APK"
@@ -90,11 +115,8 @@ echo "android runtime smoke: installing $APK"
 echo "android runtime smoke: launching $COMPONENT"
 if [ -n "$DEBUG_ARGUMENTS" ]; then
     echo "android runtime smoke: debug arguments $DEBUG_ARGUMENTS"
-    "$ADB" shell am start -W -n "$COMPONENT" \
-        --esa "$DEBUG_ARGUMENTS_EXTRA" "$DEBUG_ARGUMENTS" >"$LAUNCH_FILE"
-else
-    "$ADB" shell am start -W -n "$COMPONENT" >"$LAUNCH_FILE"
 fi
+launch_game "$LAUNCH_FILE"
 
 DEADLINE=$(( $(date +%s) + TIMEOUT_SECONDS ))
 GAME_PID=
@@ -253,6 +275,138 @@ fi
 if [ ! -s "$SCREENSHOT" ]; then
     echo "android runtime smoke: device screenshot is empty" >&2
     exit 1
+fi
+
+if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
+    echo "android runtime smoke: exercising same-process Home/resume"
+    LIFECYCLE_PID=$GAME_PID
+    "$ADB" logcat -c
+    "$ADB" shell input keyevent KEYCODE_HOME
+    sleep 2
+    launch_game "$HOT_RESUME_LAUNCH_FILE"
+    HOT_RESUME_DEADLINE=$(( $(date +%s) + 20 ))
+    HOT_RESUME_QUALIFIED=0
+    while [ "$(date +%s)" -lt "$HOT_RESUME_DEADLINE" ]; do
+        HOT_PID=$("$ADB" shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r' | cut -d ' ' -f 1)
+        "$ADB" logcat --pid="$LIFECYCLE_PID" -d -v threadtime >"$HOT_RESUME_LOG_FILE"
+        HOT_AUDIO_QUALIFIED=1
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && { ! grep -q "AAudioStream_requestPause" "$HOT_RESUME_LOG_FILE" \
+                 || ! grep -q "AAudioStream_requestStart" "$HOT_RESUME_LOG_FILE"; }; then
+            HOT_AUDIO_QUALIFIED=0
+        fi
+        if [ "$HOT_PID" = "$LIFECYCLE_PID" ] \
+            && grep -q "onPause()" "$HOT_RESUME_LOG_FILE" \
+            && grep -q "surfaceDestroyed()" "$HOT_RESUME_LOG_FILE" \
+            && grep -q "onResume()" "$HOT_RESUME_LOG_FILE" \
+            && grep -q "surfaceCreated()" "$HOT_RESUME_LOG_FILE" \
+            && grep -Eq "Window size: [1-9][0-9]*x[1-9][0-9]*" "$HOT_RESUME_LOG_FILE" \
+            && grep -q "onWindowFocusChanged(): true" "$HOT_RESUME_LOG_FILE" \
+            && [ "$HOT_AUDIO_QUALIFIED" -eq 1 ]; then
+            HOT_RESUME_QUALIFIED=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$HOT_RESUME_QUALIFIED" -ne 1 ]; then
+        echo "android runtime smoke: same-process Home/resume did not restore surface and focus" >&2
+        tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
+        exit 1
+    fi
+    # Android can report the recreated landscape surface before system screenshot orientation has
+    # caught up. Allow presentation to settle, then confirm the resumed process is still alive.
+    sleep 2
+    HOT_PID=$("$ADB" shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r' | cut -d ' ' -f 1)
+    "$ADB" logcat --pid="$LIFECYCLE_PID" -d -v threadtime >"$HOT_RESUME_LOG_FILE"
+    if [ "$HOT_PID" != "$LIFECYCLE_PID" ]; then
+        echo "android runtime smoke: process changed while the resumed surface was settling" >&2
+        tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
+        exit 1
+    fi
+    if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" \
+        "$HOT_RESUME_LOG_FILE"; then
+        echo "android runtime smoke: fatal or shader error appeared during hot resume" >&2
+        tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
+        exit 1
+    fi
+    "$ADB" exec-out screencap -p >"$HOT_RESUME_SCREENSHOT"
+    if [ ! -s "$HOT_RESUME_SCREENSHOT" ]; then
+        echo "android runtime smoke: hot-resume screenshot is empty" >&2
+        exit 1
+    fi
+
+    echo "android runtime smoke: exercising force-stop/cold relaunch"
+    "$ADB" logcat -c
+    "$ADB" shell am force-stop "$PACKAGE"
+    PROCESS_STOPPED=0
+    for _attempt in 1 2 3 4 5 6 7 8 9 10; do
+        STOPPED_PID=$("$ADB" shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r' | cut -d ' ' -f 1)
+        if [ -z "$STOPPED_PID" ]; then
+            PROCESS_STOPPED=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$PROCESS_STOPPED" -ne 1 ]; then
+        echo "android runtime smoke: force-stop did not terminate the original process" >&2
+        exit 1
+    fi
+    launch_game "$COLD_RELAUNCH_LAUNCH_FILE"
+    COLD_RELAUNCH_DEADLINE=$(( $(date +%s) + TIMEOUT_SECONDS ))
+    COLD_RELAUNCH_QUALIFIED=0
+    COLD_PID=
+    while [ "$(date +%s)" -lt "$COLD_RELAUNCH_DEADLINE" ]; do
+        COLD_PID=$("$ADB" shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r' | cut -d ' ' -f 1)
+        if [ -z "$COLD_PID" ] || [ "$COLD_PID" = "$LIFECYCLE_PID" ]; then
+            sleep 1
+            continue
+        fi
+        "$ADB" logcat --pid="$COLD_PID" -d -v threadtime >"$COLD_RELAUNCH_LOG_FILE"
+        COLD_AUDIO_QUALIFIED=1
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && ! grep -q "island-simulator: audio sources use sequential generation and upload with bounded staging memory" \
+                "$COLD_RELAUNCH_LOG_FILE"; then
+            COLD_AUDIO_QUALIFIED=0
+        fi
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && ! grep -q "island-simulator: ambient beds use slow non-amplifying gain drift" \
+                "$COLD_RELAUNCH_LOG_FILE"; then
+            COLD_AUDIO_QUALIFIED=0
+        fi
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && ! grep -q "island-simulator: persistent ambient PCM is DC-centered before quantization" \
+                "$COLD_RELAUNCH_LOG_FILE"; then
+            COLD_AUDIO_QUALIFIED=0
+        fi
+        if grep -q "island-simulator: renderer OPENGLES3" "$COLD_RELAUNCH_LOG_FILE" \
+            && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
+                "$COLD_RELAUNCH_LOG_FILE" \
+            && grep -q "island-simulator: startup world" "$COLD_RELAUNCH_LOG_FILE" \
+            && [ "$COLD_AUDIO_QUALIFIED" -eq 1 ]; then
+            COLD_RELAUNCH_QUALIFIED=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$COLD_RELAUNCH_QUALIFIED" -ne 1 ]; then
+        echo "android runtime smoke: cold relaunch did not reach a new qualified GLES 3 frame" >&2
+        tail -n 120 "$COLD_RELAUNCH_LOG_FILE" >&2
+        exit 1
+    fi
+    if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" \
+        "$COLD_RELAUNCH_LOG_FILE"; then
+        echo "android runtime smoke: fatal or shader error appeared during cold relaunch" >&2
+        tail -n 120 "$COLD_RELAUNCH_LOG_FILE" >&2
+        exit 1
+    fi
+    "$ADB" exec-out screencap -p >"$COLD_RELAUNCH_SCREENSHOT"
+    if [ ! -s "$COLD_RELAUNCH_SCREENSHOT" ]; then
+        echo "android runtime smoke: cold-relaunch screenshot is empty" >&2
+        exit 1
+    fi
+    echo "android runtime smoke: lifecycle passed (hot PID $LIFECYCLE_PID, cold PID $COLD_PID)"
+    echo "android runtime smoke: hot-resume artifacts (log: $HOT_RESUME_LOG_FILE, screenshot: $HOT_RESUME_SCREENSHOT)"
+    echo "android runtime smoke: cold-relaunch artifacts (log: $COLD_RELAUNCH_LOG_FILE, screenshot: $COLD_RELAUNCH_SCREENSHOT)"
 fi
 
 echo "android runtime smoke passed (log: $LOG_FILE, screenshot: $SCREENSHOT)"

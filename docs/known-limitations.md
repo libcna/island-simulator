@@ -173,10 +173,11 @@ been confirmed so far.
   WebGL 2 captures through the debug-only intent bridge; newer dedicated bird and palm frames
   additionally qualify their current silhouette and frond-tint paths. A deterministic reverse
   movement-zone gesture also crosses the south shoreline, starts the water-transition accent, and
-  enters the authoritative swimming state. Simultaneous real-finger ergonomics, audio-focus
-  interruption, process-death
-  recovery, physical mobile-GPU performance, thermal behaviour, and physical-device compatibility
-  remain unverified.
+  enters the authoritative swimming state. A combined lifecycle gate also validates same-process
+  Home/resume and a force-stop/new-process cold relaunch, including fresh GLES 3 and audio-resource
+  qualification. Simultaneous real-finger ergonomics, audio-focus interruption, OS-initiated
+  process eviction, long suspension, physical mobile-GPU performance, thermal behaviour, and
+  physical-device compatibility remain unverified.
 
 ## Development tooling
 

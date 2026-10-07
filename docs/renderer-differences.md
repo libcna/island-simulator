@@ -62,8 +62,9 @@ after representative physical-device profiling.
 - Browser first-gesture mixer/track startup is automated in Chromium, and Firefox qualifies one
   short actual hidden/visible tab cycle with resumed animation/input. Audible hardware-browser
   quality, extended suspension, and audio-focus behaviour remain open. Android surface and AAudio
-  restoration survive one same-process Home/resume cycle; external audio-focus changes and process
-  death remain open.
+  restoration survive a same-process Home/resume cycle, and a force-stop/new-process launch
+  recreates a qualified GLES 3 frame plus audio resources. External audio-focus changes, long
+  suspension, OS-initiated eviction, and physical-device lifecycle coverage remain open.
 
 ## Performance interpretation
 
@@ -83,8 +84,9 @@ physical-device budgets remain separate.
 
 - Extend the matched Android matrix with dedicated birds, fish, shark, swimming-veil, distant-scenery,
   contact-shadow, and LOD-transition views where those checks provide useful additional evidence.
-- Exercise simultaneous real-finger movement/look, shoreline-crossing feel, cancellation, audio-focus changes,
-  process death, and long pause/resume on a physical Android target.
+- Exercise simultaneous real-finger movement/look, shoreline-crossing feel, cancellation,
+  audio-focus changes, process death, and long pause/resume on a physical Android target; the
+  deterministic force-stop/new-process path is already qualified on the KVM AVD.
 - Run a visible interactive hardware-accelerated Web session; extend the qualified Firefox subset
   beyond its current first-frame, essential-input/audio, jungle, and water gates where useful.
 - Measure representative beach, jungle, hill, waterline, and active-current views on every target.

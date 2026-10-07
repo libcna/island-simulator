@@ -787,13 +787,16 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   GLES 3 AVD. Simultaneous real-finger and physical-device ergonomic validation remain open.
 - [~] Handle pointer IDs, safe display margins, fixed-landscape orientation, resize, and missing or
   released contact cancellation. Core tests cover ownership/cancellation/resize plus non-finite,
-  implausibly remote, and invalid-display inputs with immediate valid-contact recovery. One same-process
-  Home/resume cycle recreated the GLES surface and resumed AAudio without changing PID; longer
-  suspends and process-death restoration remain open.
+  implausibly remote, and invalid-display inputs with immediate valid-contact recovery. The
+  lifecycle gate proves both same-process Home/resume surface/audio restoration and a
+  force-stop/new-process qualified GLES 3/audio launch; longer suspends, OS-initiated eviction,
+  and physical-device recovery remain open.
 - [ ] Add configurable sensitivity and left/right layout considerations where practical.
 - [~] Verify audio focus/lifecycle and resource restoration after backgrounding. AAudio opened at
-  44.1 kHz stereo, paused during Home, and restarted after a same-process hot resume. External
-  focus interruption, process death, and audible physical-device quality remain open.
+  44.1 kHz stereo, paused during Home, restarted after a same-process hot resume, and recreated
+  all qualified game audio resources after a force-stop/new-process launch. External focus
+  interruption, long suspension, OS-initiated eviction, and audible physical-device quality
+  remain open.
 - [ ] Add mobile quality defaults for grass, shadows, wildlife distance, water, textures, and audio.
 - [~] Profile CPU/GPU frame time, memory, thermal behaviour, and loading on a real device when
   available; use emulator evidence only for claims it can support. The KVM/gfxstream AVD now has
@@ -817,7 +820,9 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   release-disabled intent argument array
   for repeatable fixed-view capture; inspected beach, close-grass, jungle, water, monkey, and
   reef GLES3 frames match the corresponding WebGL 2 composition and material paths. Rotation
-  policy, process-death restoration, clean exit, and physical-device relaunch remain open.
+  lifecycle mode now validates same-process Home/resume and force-stop/new-process relaunch with
+  dedicated logs and screenshots. Rotation policy, long suspension, clean exit, OS-initiated
+  eviction, and physical-device relaunch remain open.
 - [x] Recheck the software AVD's 27 gfxstream `GL_INVALID_OPERATION` uniform-query reports on a
   stable KVM emulator before assigning them to the driver, framework, or game. They did not recur
   in the accelerated run, and no shader/fatal error appeared; no dependency bug is claimed.
@@ -5265,6 +5270,35 @@ Work next, in order:
   passes its independent production input/audio, short tab-resume, jungle, and water gates with a
   305 ms first draw. The deterministic Web package is 8,791,948 bytes or 2,493,751 bytes through
   gzip; WebAssembly is 8,527,070 bytes or 2,433,547 bytes through gzip.
+
+### 2026-10-07 — Android hot-resume and cold-relaunch regression gate
+
+- Extended the Android runtime helper with opt-in
+  `ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1`. After its qualified initial frame and optional
+  traversal, the gate sends Home, requires SDL pause/surface destruction followed by resume,
+  surface recreation, nonzero window dimensions, focus reacquisition, the unchanged PID, and
+  AAudio pause/start when strict audio is enabled. It allows presentation to settle before taking
+  the hot-resume screenshot because Android can expose the recreated landscape surface one frame
+  before system screenshot orientation catches up.
+- The same gate then force-stops the package, requires the original process to disappear, launches
+  a new PID, and requires a fresh `OPENGLES3` frame, 1280 by 720 logical viewport, startup report,
+  and all three qualified audio generation/mix diagnostics. Hot and cold phases retain separate
+  launch reports, logs, and screenshots. Invalid lifecycle configuration fails closed, and shell
+  syntax validation passes.
+- Rebuilt the temporary x86_64 package through `/rv/cnaccache` and passed the combined strict
+  audio, footstep, shoreline-to-swimming, hot-resume, and cold-relaunch test on the API 35 KVM
+  12/host-gfxstream AVD. PID 4073 survived Home/resume with surface and AAudio restoration; the
+  force-stop relaunch used PID 4269. The initial and cold first draws completed in 1998.424 ms and
+  1665.509 ms respectively. All three inspected captures are 2400 by 1080, retain the rendered
+  world and translucent touch controls, and show no fatal, shader, or `GL_INVALID_OPERATION`
+  diagnostic. This is deterministic emulator recovery evidence, not qualification of long
+  suspension, OS-initiated eviction, external audio focus, or a physical Android device.
+- Stopped the emulator cleanly and restored the default arm64-only APK. The package builds/lints
+  with two workers through the shared cache, contains only `arm64-v8a`, verifies with APK signature
+  scheme v2, is 18,735,780 bytes, and contains a 15,925,496-byte stripped `libmain.so`. Project
+  build trees remain approximately 2.6 GiB native, 87 MiB Web, and 361 MiB Android with 374 GiB
+  free; shared ccache remains 3.7 GiB and 99.67 percent cacheable. CNA and Sharp Runtime remained
+  read-only. All seven renderer-independent core/report/asset/package tests pass.
 
 ## Session-end checklist
 

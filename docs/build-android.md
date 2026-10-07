@@ -13,8 +13,9 @@ with generated on-screen affordances. It uses the same restrained walking/swimmi
 model as desktop, although an on-screen opt-out is not implemented yet. The host loads `kvm` and
 `kvm_amd`, exposes `/dev/kvm` as device `10:232`, and grants the developer access through the
 `kvm` group. Android Emulator 36.5.11 now runs the API 35 x86_64 AVD with KVM and host-GPU
-gfxstream. The complete scene, independent movement/look gestures, same-process hot resume, and
-AAudio pause/resume are validated there. A deterministic touch traversal also walks from the
+gfxstream. The complete scene, independent movement/look gestures, same-process hot resume,
+AAudio pause/resume, and a force-stop/new-process cold relaunch are validated there. A
+deterministic touch traversal also walks from the
 south-beach spawn through the shallows, enters the authoritative swimming state, and plays the
 water-transition accent. Physical-device ergonomics, driver coverage, thermals, and extended
 performance remain open.
@@ -411,7 +412,7 @@ run batching from 40.903 ms mean (24.45 frames/s, 71 of 126 intervals over 40 ms
 32.590 ms mean (29.27 and 30.68 frames/s, respectively, with 6 and 1 intervals over 40 ms). This is
 useful same-AVD before/after evidence, but it includes compositor/emulator effects and is not a
 mobile GPU frame-time claim. Physical-device input latency, touch ergonomics, audio-focus
-interruption, sustained memory, thermals, and clean process-death restoration remain open.
+interruption, sustained memory, thermals, and lifecycle recovery remain open on real hardware.
 
 Useful diagnostics for a connected test target are:
 
@@ -484,6 +485,30 @@ ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1 \
     android/app/build/outputs/apk/debug/app-debug.apk \
     build/android-runtime-smoke-swimming
 ```
+
+Set `ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1` to extend a qualified run with both lifecycle
+paths. The helper sends Home and brings the activity forward, requires the original PID plus SDL
+pause, surface destruction/recreation, nonzero window dimensions, resumed focus, and (under the
+audio gate) AAudio pause/start. It then waits for presentation to settle before capturing the
+resumed frame. Finally it force-stops the package, requires the original PID to disappear, starts
+a new process, and requires a fresh qualified GLES 3 frame. The cold audio gate repeats all three
+resource/mix diagnostics. Separate logs, launch timings, and screenshots are retained for the hot
+resume and cold relaunch. All traversal and lifecycle checks can run together:
+
+```bash
+ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_FOOTSTEPS=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_SWIMMING=1 \
+ISLAND_ANDROID_SMOKE_REQUIRE_LIFECYCLE=1 \
+  tools/run_android_runtime_smoke.sh \
+    "$ANDROID_SDK_ROOT/platform-tools/adb" \
+    android/app/build/outputs/apk/debug/app-debug.apk \
+    build/android-runtime-smoke-lifecycle
+```
+
+This verifies deterministic functional recovery on the identified emulator. It does not qualify
+long suspension, OS-initiated process eviction, external audio-focus interruption, or lifecycle
+behaviour across the physical Android device/driver matrix.
 
 For a fixed debug QA camera, pass a comma-separated native argument array. The application ignores
 this extra in non-debuggable packages:
