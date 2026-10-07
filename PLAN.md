@@ -222,9 +222,15 @@ Dependencies: Phase 0 dependency/API baseline.
 
 ### Foundational code quality
 
-- [ ] Establish namespace, include, ownership, units, coordinate, handedness, and naming rules.
+- [x] Establish namespace, include, ownership, units, coordinate, handedness, and naming rules.
+  `docs/architecture.md` now records the existing `island`/anonymous-namespace boundary, include
+  order, RAII ownership policy, metre/second/radian units, right-handed +X/+Y/+Z world basis,
+  transform order, identifier/file language rules, and the threshold for adding math helpers.
 - [x] Add deterministic noise/terrain helpers with repeatability and scale tests.
-- [ ] Add small math/geometry helpers only where CNA's existing types do not already suffice.
+- [x] Add small math/geometry helpers only where CNA's existing types do not already suffice.
+  The core keeps CNA/XNA vector, matrix, frustum, colour, and bounding primitives; project helpers
+  are limited to tested island-domain rules such as deterministic terrain/noise queries, aquatic
+  lighting, and procedural triangle-mesh validation rather than a parallel math layer.
 - [~] Add startup/render statistics and fatal exception diagnostics. A schema-1 first-draw report
   now separates world construction, framework initialization, GPU/content creation, pre-draw, and
   game-owned draw submission on the portable game path; structured subsystem logging and

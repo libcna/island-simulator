@@ -79,6 +79,32 @@ view convention. It converts the core player position back to CNA `Vector3` for 
 consume the same palm, broadleaf, rock, and fallen-log placements; rendering never becomes a
 separate source of world truth.
 
+## Codebase conventions
+
+- Production code lives in the `island` namespace. The platform entry point is the only intended
+  global-scope boundary; anonymous namespaces hold translation-unit implementation details.
+- A source file includes its matching project header first, then other island headers, C++ standard
+  library headers, and finally CNA/XNA headers. Headers include what they use and do not depend on a
+  source file's transitive includes.
+- `IslandGame` owns the application lifetime and high-level subsystems. Renderers own their GPU
+  resources through values or `std::unique_ptr`; core world data prefers values and standard
+  containers. References and raw pointers are non-owning and must not outlive the owner that
+  supplied them. Cleanup remains RAII-driven rather than ordered manual shutdown code.
+- One world unit is one metre, durations passed to simulation are seconds, speeds are metres per
+  second, and internal angles are radians. Degrees are limited to diagnostics or user-facing
+  configuration. Names that cross a unit boundary include the unit or make the conversion local.
+- The world basis is right-handed: positive `X` is camera-right at yaw zero, positive `Y` is up,
+  and positive `Z` is the initial inland/forward direction. Camera construction uses explicit eye
+  and target points through CNA/XNA; code must not silently substitute a negative-`Z` convention.
+  CPU transforms keep the established scale-then-rotation-then-translation order.
+- Types and public/member functions use `UpperCamelCase`; local variables and data members use
+  `lowerCamelCase`, with a trailing underscore for members; compile-time constants use
+  `UpperCamelCase`. Files that define a primary type use that type's English name. Diagnostics,
+  comments, tests, documentation, asset metadata, and in-game text remain English.
+- Project-specific math helpers belong in the renderer-independent core only when they encode a
+  tested island rule or remove repeated error-prone work. CNA/XNA vector, matrix, frustum, colour,
+  and bounding primitives remain the default rather than being wrapped for stylistic reasons.
+
 ## Coordinates and scale
 
 - One world unit is one metre.
