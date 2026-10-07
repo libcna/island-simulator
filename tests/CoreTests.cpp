@@ -750,6 +750,11 @@ int main()
     Check(std::abs(static_cast<int>(waterMovementLoop.samples.front())
                    - static_cast<int>(waterMovementLoop.samples.back())) < 8000,
           "player water movement loop has no large boundary discontinuity");
+    for (const island::AmbientLoop* loop : {
+             &surfLoop, &breezeLoop, &jungleLoop, &waterMovementLoop}) {
+        Check(std::abs(island::AnalyzeAudioSignal(*loop).mean) <= 0.0001,
+              "persistent ambience removes material DC before PCM quantization");
+    }
 
     const island::SoundscapeMix beachMix = island::SoundscapeModel::TargetMix(2.0f, false);
     const island::SoundscapeMix jungleMix = island::SoundscapeModel::TargetMix(140.0f, false);

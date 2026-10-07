@@ -74,8 +74,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,712,004-byte APK with a
-15,901,720-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,712,372-byte APK with a
+15,902,088-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
@@ -84,8 +84,10 @@ colour plus shallow-ridge light, and restrained near-monkey crown/cheek fur tuft
 bone-following fingers/toes, the transient hardware-keyboard run/walk
 confirmation, reduced CPU-lit fish/shark
 geometry, the shared run-capable input resolver used by hardware keyboards, and shared-buffer
-terrain cell batching. It also validates every indexed procedural mesh plus the monkey fourteen-
-bone hierarchy/palette, clips, tracks, and key transforms before GPU upload. A fresh x86_64 build
+terrain cell batching. Its four persistent audio beds remove their generated mean before PCM16
+quantization without adding another source or payload. It also validates every indexed procedural
+mesh plus the monkey fourteen-bone hierarchy/palette, clips, tracks, and key transforms before GPU
+upload. A fresh x86_64 build
 of the same sources and current `9fbe34468c69` CNA pin passed two KVM/host-GPU GLES 3 first-frame
 gates. The ordinary overview completed in 2179.350 ms, while the fixed offshore-current view
 completed in 1555.412 ms and visibly reported normalized current 0.7 with exact `DRIFT 0.3/1.2`.

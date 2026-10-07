@@ -81,18 +81,28 @@ namespace island
         }
 
         [[nodiscard]] AmbientLoop Quantize(const std::vector<float>& source,
-                                           const float targetPeak)
+                                           const float targetPeak,
+                                           const bool removeMean = false)
         {
+            double sum = 0.0;
+            if (removeMean) {
+                for (const float sample : source) {
+                    sum += static_cast<double>(sample);
+                }
+            }
+            const float mean = removeMean && !source.empty()
+                ? static_cast<float>(sum / static_cast<double>(source.size())) : 0.0f;
             float peak = 0.0f;
             for (const float sample : source) {
-                peak = std::max(peak, std::abs(sample));
+                peak = std::max(peak, std::abs(sample - mean));
             }
             const float scale = peak > 0.000001f ? targetPeak / peak : 0.0f;
             AmbientLoop loop;
             loop.sampleRate = AmbientSampleRate;
             loop.samples.reserve(source.size());
             for (const float sample : source) {
-                const float normalized = std::clamp(sample * scale, -0.98f, 0.98f);
+                const float normalized = std::clamp(
+                    (sample - mean) * scale, -0.98f, 0.98f);
                 loop.samples.push_back(static_cast<std::int16_t>(
                     std::lround(normalized * 32767.0f)));
             }
@@ -189,7 +199,7 @@ namespace island
             samples[index] = (foam[index] - wash[index] * 0.38f) * swell
                 + wash[index] * 0.46f + body[index] * 0.30f;
         }
-        return Quantize(samples, 0.82f);
+        return Quantize(samples, 0.82f, true);
     }
 
     AmbientLoop GenerateBreezeLoop()
@@ -210,7 +220,7 @@ namespace island
             samples[index] = (leaves[index] * 0.64f + canopy[index] * 0.48f) * movement
                 + gust[index] * 0.58f;
         }
-        return Quantize(samples, 0.64f);
+        return Quantize(samples, 0.64f, true);
     }
 
     AmbientLoop GenerateJungleLoop()
@@ -283,7 +293,7 @@ namespace island
                     * pulse * std::sin(phase);
             }
         }
-        return Quantize(samples, 0.56f);
+        return Quantize(samples, 0.56f, true);
     }
 
     AmbientLoop GenerateWaveAccent()
@@ -356,7 +366,7 @@ namespace island
             samples[index] = (droplets[index] * 0.54f + wash[index] * 0.62f) * stroke
                 + body[index] * 0.38f;
         }
-        return Quantize(samples, 0.68f);
+        return Quantize(samples, 0.68f, true);
     }
 
     AmbientLoop GenerateWaterTransitionAccent()

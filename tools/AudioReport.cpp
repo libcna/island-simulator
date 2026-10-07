@@ -108,7 +108,8 @@ namespace
             return false;
         }
         if (clip.looped) {
-            return statistics.seamStep < 0.25
+            return std::abs(statistics.mean) <= 0.0001
+                && statistics.seamStep < 0.25
                 && statistics.seamStep
                     <= statistics.maximumInternalStep * 1.25 + 1.0 / 32768.0;
         }

@@ -29,7 +29,8 @@ The JSON records every source's:
 The gate requires all 12 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
-step. The gate also rejects a full-scale adjacent jump and an implausible zero-crossing rate. Every
+step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
+gate also rejects a full-scale adjacent jump and an implausible zero-crossing rate. Every
 non-looping accent or wildlife phrase must begin and end at exact silence. Fingerprints must be
 unique within the set; they are change detectors for the qualified host/toolchain rather than
 cross-platform golden promises.
@@ -74,10 +75,13 @@ subjective task.
 ## Current measured baseline
 
 The current report validates 12 unique sources and 3,283,244 PCM payload bytes. Normalized peaks
-range from approximately 0.56 to 0.86. Absolute DC offset remains below 0.0069. The four loop seams
-range from approximately 0.0055 to 0.0271 and remain below their own largest ordinary internal
-step. The persistent 10/11/29/7-second lengths align as a complete pattern only every 22,330
-seconds (6 hours, 12 minutes, 10 seconds); these figures establish regression bounds, not a claim
+range from approximately 0.56 to 0.86. The four persistent loops subtract their generated mean
+before quantization; their measured normalized means are at or below approximately 0.00000002.
+One-shots retain exact silent endpoints and the largest absolute mean across all sources remains
+below 0.0069. The four loop seams range from approximately 0.0055 to 0.0268 and remain below their
+own largest ordinary internal step. The persistent 10/11/29/7-second lengths align as a complete
+pattern only every 22,330 seconds (6 hours, 12 minutes, 10 seconds); these figures establish
+regression bounds, not a claim
 of perceptual quality. Runtime initialization handles one source at a time, so it does not retain
 both complete 3,283,244-byte PCM and conversion sets as game-owned staging. The largest current
 source pair is 2,557,800 bytes for the jungle bed; this is a staging-memory bound, not total mixer

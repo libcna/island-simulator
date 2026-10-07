@@ -661,8 +661,10 @@ Dependencies: stable zones, wildlife emitters, and representative locations.
   Core tests cover deterministic duration/rate, peak headroom, RMS energy, loop-boundary delta,
   distinct source PCM, silent wildlife endpoints, and the mono-to-CNA positional output path. A
   native report now measures all 12 exact sources for DC offset, peak/RMS, loop seam versus normal
-  internal steps, zero-crossing rate, duration, uniqueness, and PCM footprint, and can export
-  standard PCM16 WAV previews; headphone listening remains.
+  internal steps, zero-crossing rate, duration, uniqueness, and PCM footprint. The four persistent
+  beds now remove their generated mean before PCM quantization and enforce an absolute normalized
+  mean no greater than 0.0001; the report can export standard PCM16 WAV previews. Headphone
+  listening remains.
 - [x] Add an accelerated long-session numerical regression. A deterministic 72,000-frame/
   twenty-minute route cycles beach, jungle, swimming/current, and wading/dry transitions while
   checking finite bounded mixes, undertow strength, bounded wave activity, exact crossing events,
@@ -705,8 +707,8 @@ Dependencies: portable baseline features and bounded initial asset size.
   recovery remain unverified; synthetic CDP freeze/thaw was inconclusive.
 - [ ] Package assets into the virtual filesystem with useful missing-asset diagnostics.
 - [~] Reduce download/startup size through mesh/texture/audio choices and measured compression.
-  The current Release package is 8,763,458 bytes uncompressed and 2,484,397 bytes through
-  deterministic gzip, a measured 71.7% transfer reduction with round-trip/hash/manifest coverage.
+  The current Release package is 8,763,750 bytes uncompressed and 2,484,733 bytes through
+  deterministic gzip, a measured 71.6% transfer reduction with round-trip/hash/manifest coverage.
   Procedural PCM and generated render textures add no separate downloads. Production-host header
   validation, hardware-browser cold-load timing, and decoded-memory measurement remain open.
 - [~] Add quality defaults appropriate to browser GPU/memory limits. The first browser policy uses
@@ -4543,6 +4545,24 @@ Work next, in order:
 - LeakSanitizer remains intentionally disabled under the managed process tracer and retains its
   separately documented ordinary-terminal command. The 45 MB reproducible `build-asan/` tree was
   removed after qualification. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Persistent ambient-loop DC centering
+
+- The exact-source report showed that all four long-lived beds had small nonzero means, with the
+  canopy breeze reaching 0.00646980. Added an allocation-free mean measurement/subtraction before
+  peak normalization and PCM16 quantization only for persistent loops. Silent-ended one-shots keep
+  their existing path and bit-identical PCM.
+- The normalized loop means are now at most approximately 0.00000002. Peak magnitudes remain
+  0.56--0.82 for the persistent sources, RMS energy remains valid, and seam steps remain
+  0.0055--0.0268. The report and core test independently enforce an absolute loop mean no greater
+  than 0.0001. PCM footprint, source count, voice ceiling, allocations, and per-frame work are
+  unchanged.
+- Core/audio/report/WAV validation passes 3/3. The complete actual Chrome 152/SwiftShader suite
+  passes all 22 stages and requires the exact post-gesture DC-centering diagnostic. The two-worker
+  arm64 GLES 3 build/lint and APK v2 verification pass. WebAssembly is 8,498,907 bytes; the APK is
+  18,712,372 bytes with a 15,902,088-byte stripped library. The deterministic Web package is
+  8,763,750 bytes uncompressed and 2,484,733 bytes through gzip. Subjective headphone/speaker
+  balance remains open; CNA and Sharp Runtime stayed read-only.
 
 ## Session-end checklist
 

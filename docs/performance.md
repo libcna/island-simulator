@@ -1089,6 +1089,20 @@ passes and requires the new post-gesture staging diagnostic, proving that all so
 and start through Web Audio. The arm64 GLES 3 package builds and lints; native playback and Android
 runtime memory are not newly claimed while the operator-visible Linux build remains active.
 
+### Persistent-loop DC centering
+
+The four persistent procedural beds now subtract their generated floating-point mean before
+deriving peak normalization and PCM16 samples. This is one additional bounded read pass per loop
+during startup; it allocates no buffer, adds no PCM byte, source, voice, or per-frame work, and
+leaves the eight silent-ended one-shots unchanged. The measured normalized loop means fall from as
+much as 0.00646980 to at most approximately 0.00000002, while peak, RMS, seam, and zero-crossing
+checks remain valid.
+
+Core/audio/WAV tests pass 3/3, the complete Chrome/SwiftShader suite passes all 22 stages and
+requires the post-gesture DC-centering diagnostic, and the arm64 GLES 3 package builds and lints.
+The change is a numerical/source-quality improvement, not a substitute for the open subjective
+headphone and speaker fatigue pass.
+
 ### Generated texture and transparency audit
 
 The game currently owns six generated `Color`/RGBA8 textures and no imported texture assets. The
@@ -1128,9 +1142,9 @@ lints, but the revised detail has not been inspected on a physical mobile GPU.
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,023 bytes (1,118
-gzip), JavaScript is 262,820 bytes (59,058 gzip), and WebAssembly is 8,498,615 bytes (2,424,221
-gzip). The complete transfer payload therefore falls from 8,763,458 to 2,484,397 bytes, a measured
-71.7% reduction.
+gzip), JavaScript is 262,820 bytes (59,062 gzip), and WebAssembly is 8,498,907 bytes (2,424,553
+gzip). The complete transfer payload therefore falls from 8,763,750 to 2,484,733 bytes, a measured
+71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
 WebAssembly compilation, decoded runtime memory, cache behaviour, or cold-load latency. The game

@@ -643,6 +643,11 @@ pattern therefore does not recur for 22,330 seconds (6 hours, 12 minutes, 10 sec
 jungle source deliberately spends a modest additional 749,700 PCM bytes on reducing the most
 recognizable local repetition rather than adding another simultaneous source.
 
+Before PCM16 quantization, each persistent bed measures and subtracts its generated floating-point
+mean. The quantizer then derives peak normalization from the centred samples in a second bounded
+pass, adding no intermediate allocation or PCM payload. One-shots deliberately retain their
+separate path so their explicitly silent first and last samples cannot be shifted away from zero.
+
 A twenty-nine-second daytime-jungle loop adds broad filtered forest texture and sixteen short,
 low-level insect phrases in irregular singles and pairs placed away from the loop boundary. It is
 silent through the beach belt, reaches a conservative 0.078 gain deep inland, falls to eight
