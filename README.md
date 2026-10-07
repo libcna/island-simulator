@@ -60,7 +60,9 @@ Near land and reef rocks gain subtle texture-free strata and restrained lichen f
 portable material shader. The effect is deliberately limited to the near LOD so distant rock
 silhouettes remain calm and avoid unnecessary fragment work. A fixed mean-sea-level band subtly
 darkens and cools their lowest near fragments so emergent outcrops no longer read as uniformly dry
-where they meet the water.
+where they meet the water. Near-rock crown heights and asymmetric caps now break the former flat
+top line, while derivative-based fixed-sun facet shading makes the deliberately low-poly planes
+read clearly without another normal stream or draw.
 Nearby fallen logs use the same portable material path for gently irregular cut-end growth rings
 and longitudinal bark fissures. Both rock and wood detail fade out before their LOD transition.
 Sun-bleached driftwood adds a still softer near-only longitudinal weathering treatment. Its third

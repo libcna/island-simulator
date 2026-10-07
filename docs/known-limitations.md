@@ -80,7 +80,10 @@ been confirmed so far.
   recovery from overlapping static proxies; dynamic obstacles and continuous depenetration are not
   implemented.
 - Substantial rocks and fallen logs have conservative collision; smaller rock dressing remains
-  non-solid. Fourteen emergent reef outcrops remain solid while swimming. Walking and swimming now
+  non-solid. Fourteen emergent reef outcrops remain solid while swimming. Their near geometry now
+  breaks up flat crown lines and uses portable fixed-sun facet shading, but still deliberately
+  retains a low-poly material vocabulary without normal maps or high-frequency textures. Walking
+  and swimming now
   use very mild speed-responsive positional camera motion,
   which can be smoothly disabled with B. There is no geometric step-up, jump, or complete
   underwater presentation; restrained visual near-surface/current and audio entry/exit feedback

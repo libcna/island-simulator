@@ -1,6 +1,8 @@
 #include "IslandSimulator/NaturalPropRenderer.hpp"
 
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <algorithm>
 #include <array>
@@ -10,6 +12,7 @@
 #include <iostream>
 #include <numbers>
 #include <string>
+#include <string_view>
 
 #include "CNA/Graphics/ShaderCodeEXT.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
@@ -52,6 +55,8 @@ namespace island
         constexpr float DriftwoodMaximumDistance = 145.0f;
         constexpr float BeachDetailMaximumDistance = 52.0f;
         constexpr float FallenFrondMaximumDistance = 76.0f;
+        constexpr std::string_view RockFacetDiagnostic =
+            "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading";
 
         struct PropGeometry
         {
@@ -94,6 +99,7 @@ in vec3 vWorld;
 in float vMaterialDetail;
 
 uniform vec3 uCameraPosition;
+uniform vec3 uToSun;
 
 out vec4 fragColor;
 
@@ -104,6 +110,12 @@ void main()
     vec3 materialColor = vColor;
     if (vMaterialDetail < 0.375) {
         vec3 detailedColor = vColor;
+        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+        float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
+        vec3 faceNormal = faceVector * inverseFaceLength;
+        float facetDiffuse = abs(dot(faceNormal, normalize(uToSun)));
+        float upwardFill = abs(faceNormal.y);
+        detailedColor *= 0.84 + facetDiffuse * 0.20 + upwardFill * 0.05;
         float strata = 0.5 + 0.5 * sin(vWorld.y * 10.5
             + vWorld.x * 1.7 - vWorld.z * 1.2);
         float grain = sin(dot(vWorld, vec3(3.1, 4.7, -2.3)))
@@ -230,15 +242,23 @@ void main()
                 : (variant == 1 ? Color(126, 115, 92, materialDetail)
                    : (variant == 2 ? Color(98, 116, 104, materialDetail)
                                    : Color(124, 128, 116, materialDetail)));
+            const float rockHeight = 0.98f + 0.045f * static_cast<float>(variant);
             for (int ring = 0; ring <= rings; ++ring) {
                 const float t = static_cast<float>(ring) / static_cast<float>(rings);
                 const float radialBase = (0.72f
                     + 0.38f * std::sin(t * std::numbers::pi_v<float>))
                     * (1.0f - 0.55f * t);
-                const float y = t * (0.98f + 0.045f * variant);
                 for (int slice = 0; slice < slices; ++slice) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(slice) / static_cast<float>(slices);
+                    const float crownWeight = farMesh ? 0.0f : t * t * t * t;
+                    const float crownBreakup = crownWeight
+                        * (0.035f * std::sin(
+                               angle * (2.0f + static_cast<float>(variant))
+                               + static_cast<float>(variant) * 0.7f)
+                           + 0.018f * std::sin(
+                               angle * 5.0f - static_cast<float>(variant) * 0.9f));
+                    const float y = t * rockHeight + crownBreakup;
                     const float roughness = 0.88f + 0.11f
                         * std::sin(angle * (2.0f + variant) + t * 7.0f + variant * 1.3f);
                     const float radial = radialBase * roughness;
@@ -271,9 +291,9 @@ void main()
             }
             const auto cap = static_cast<std::uint16_t>(geometry.vertices.size());
             geometry.vertices.emplace_back(
-                Vector3((static_cast<float>(variant) - 1.5f) * 0.035f,
-                        1.035f + 0.04f * static_cast<float>(variant),
-                        std::sin(static_cast<float>(variant) * 1.7f) * 0.035f),
+                Vector3((static_cast<float>(variant) - 1.5f) * 0.065f,
+                        rockHeight + (farMesh ? 0.045f : 0.105f),
+                        std::sin(static_cast<float>(variant) * 1.7f) * 0.065f),
                 ShadeColor(rockBase, 0.91f));
             const auto topRing = static_cast<std::uint16_t>(base + rings * slices);
             for (int slice = 0; slice < slices; ++slice) {
@@ -881,6 +901,8 @@ void main()
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
             std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
             std::cout << "island-simulator: near low rocks use a fixed-sea-level wet material band\n";
+            std::cout << RockFacetDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(RockFacetDiagnostic);
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
             std::cout << "island-simulator: near driftwood uses faded sun-bleached longitudinal grain\n";
             std::cout << "island-simulator: near driftwood variant 2 uses three tapered fork limbs\n";
@@ -1196,6 +1218,9 @@ void main()
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
+            customEffect_->SetUniformVec3(
+                "uToSun", environment::SunDirectionX, environment::SunDirectionY,
+                environment::SunDirectionZ);
         } else {
             fallbackEffect_->setViewProperty(view);
             fallbackEffect_->setProjectionProperty(projection);

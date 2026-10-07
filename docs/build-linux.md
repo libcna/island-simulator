@@ -182,7 +182,8 @@ requires a nonzero one-draw terrain-contact-shadow batch.
 `build/island-driftwood-capture.ppm`.
 `IslandGameReefCapture` writes a close emergent shallow-water outcrop view to
 `build/island-reef-capture.ppm`; the current material should show a restrained dark/cool band at
-the mean water contact while leaving the upper rock dry.
+the mean water contact while leaving the upper rock dry. Startup also reports the irregular near-
+crown and derivative fixed-sun facet-light diagnostic.
 `IslandGameWaterViewCapture` writes a near-surface swimming view to
 `build/island-water-capture.ppm` and requires the procedural depth/scatter/edge cue's nonzero
 intensity and

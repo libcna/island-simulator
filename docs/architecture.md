@@ -413,12 +413,15 @@ distinct 160-triangle silhouette while its far tier stays at 30 triangles. Frond
 rachis with 28 tapered leaflets. Placement validates complete footprints
 against shore distance, route reservations, nearby trees, slope, and support-height variation.
 The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
-fragments for subtle world-space strata, sparse lichen, and a low fixed-sea-level wet band;
+fragments for subtle world-space strata, sparse lichen, a low fixed-sea-level wet band, and
+derivative-based two-sided facet light from the shared fixed sun;
 near-log sides for local-space bark fissures; near cut ends for gently irregular growth rings; and
 near-driftwood sides/branches for softer sun-bleached longitudinal weathering. Driftwood cut ends
 remain plain. Distance fades remove all cues before their mesh transition. Contact geometry and
 every far mesh retain the plain path; this keeps the material treatment texture-free and free of
-extra geometry, instance data, or draws.
+extra instance data or draws. The near rock's existing seven crown rings keep the same topology,
+but bounded per-slice height offsets and a taller asymmetric cap break the former flat top line.
+Its 110 vertices and 192 triangles per shared variant remain unchanged.
 The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and
 driftwood then enforce maximum range and select near/far geometry from their actual instance
 position, preventing early switches at cell boundaries. Three non-solid driftwood pieces use the

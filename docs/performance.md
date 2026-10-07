@@ -620,6 +620,25 @@ the preceding ground-plant baseline exactly, and the timing ranges show no integ
 | Driftwood/shore detail | 0.7637--0.8007 | 0.8520--0.9912 | 1.0729--1.3465 | 26 | 7 / 1 |
 | Monkeys | 1.5232--1.5473 | 1.9624--1.9899 | 2.1455--2.1841 | 97 | 41 / 2 |
 
+### Near-rock crown and facet-light follow-up
+
+The existing seven near-rock rings now receive bounded upper-ring height offsets and the existing
+cap is raised and shifted per variant. Vertex and index counts remain 110 and 192 triangles for
+each shared near variant; far rocks, contact disks, placements, instances, buffers, LOD distances,
+collision proxies, and submissions are unchanged. The near-only material branch additionally
+derives a face normal from position derivatives and applies restrained two-sided light from the
+shared fixed sun. This adds fragment work only to near-rock pixels and its visible contribution
+uses the existing full-strength-to-58 m, faded-to-90 m detail envelope, with no normal stream,
+texture, varying, or additional draw.
+
+The exact Chrome 152/SwiftShader WebGL 2 suite passes all 22 stages and requires the new diagnostic
+in lifecycle, overview, and reef gates. Its original-resolution reef frame was inspected and shows
+the broken crown line and readable planes without changing the calm distant silhouettes. A current
+x86_64 KVM/gfxstream GLES 3 fixed reef run required the same platform-log diagnostic, reported
+`OPENGLES3` at a 1280 by 720 logical viewport, and produced an inspected matching 2400 by 1080
+frame without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The arm64 package builds and
+lints. Isolated native timing and physical-mobile fragment cost remain open.
+
 ### Near-log material follow-up
 
 Near fallen-log sides now select local-space longitudinal bark grooves and narrow irregular

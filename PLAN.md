@@ -419,8 +419,10 @@ Dependencies: stable terrain/shore queries and representative performance instru
   tiers. All four jungle layers now enforce range and near/far LOD per instance after conservative
   cell rejection. The shared portable shader now derives
   two-sided geometric facet light from the fixed sun for every jungle tier without another vertex
-  stream or draw; further floor-plant/bush material diversity and broader natural beach-prop
-  variety remain.
+  stream or draw. Near rocks now break their former flat crown line through bounded positions on
+  the existing rings/cap and derive matching fixed-sun facet light without another normal stream,
+  vertex, triangle, or draw; further floor-plant/bush material diversity and broader natural
+  beach-prop variety remain.
 - [~] Keep placement biome-aware, slope-aware, collision-aware, clustered, and reproducible. Palm,
   canopy, understory, bush, forest-floor, rock, log, driftwood, fallen-frond, and beach-detail
   placement is deterministic, shore-distance/slope/height constrained, multi-scale cluster-noise
@@ -778,8 +780,8 @@ Dependencies: stable input abstraction, scalable UI/debug display, mobile qualit
   The x86_64 debug APK installs and starts on the KVM-accelerated API 35 `Medium_Phone` AVD,
   produces a 2400 by 1080 GLES3 surface, accepts movement/look gestures, and survives a same-process
   background/foreground cycle. The repeatable runtime gate installs, launches from cleared logcat,
-  requires renderer/first-frame/current-grass, near-seed-head, and ocean-crest diagnostics, rejects
-  fatal/shader errors, and records
+  requires renderer/first-frame/current-grass, near-seed-head, near-rock crown/facet, and ocean-
+  crest diagnostics, rejects fatal/shader errors, and records
   logcat plus a device screenshot. Its opt-in audio mode additionally requires bounded sequential
   source staging, persistent-loop DC centering, and slow non-amplifying gain variation through
   Android's platform log rather than unavailable SDLActivity stdout. Its separate footstep mode
@@ -1199,8 +1201,9 @@ Work next, in order:
    dedicated cross-renderer QA camera targets the latter and verifies a nonzero per-instance near
    LOD population.
    Near land and reef rocks now add restrained, texture-free strata, lichen, and a low
-   fixed-sea-level wet band only in their near LOD, without new geometry, textures, instances, or
-   submissions.
+   fixed-sea-level wet band only in their near LOD. Bounded upper-ring height offsets plus a taller
+   asymmetric cap break the former flat crown, and derivative fixed-sun light reveals the existing
+   planes without changing vertex/triangle counts, textures, instances, buffers, or submissions.
    Near fallen logs now add distance-faded local-space bark fissures and subtle irregular growth
    rings through the same material path, also without new geometry, textures, or submissions.
    Near sun-bleached driftwood now adds a softer faded longitudinal grain while leaving cut ends
@@ -4764,6 +4767,35 @@ Work next, in order:
   deterministic Web payload, 2,490,073 bytes through gzip, 15,917,208 bytes for stripped arm64
   `libmain.so`, and 18,727,492 bytes for the arm64 APK. Physical-mobile density cost, thermals, and
   sustained performance remain open. CNA and Sharp Runtime stayed read-only.
+
+### 2026-10-07 — Irregular near-rock crowns and portable facet light
+
+- A current twelve-view composition audit identified the close reef outcrop as a clear weak point:
+  its constant-height upper ring read as a clipped plateau, and its broad planes were too uniform
+  beside the more developed water and vegetation. Added bounded height variation to the existing
+  upper ring plus a taller asymmetric cap. Each shared near variant remains exactly 110 vertices
+  and 192 triangles; far meshes, contact disks, placement, collision, buffers, LOD, and draws are
+  unchanged.
+- The near-rock material branch now derives a two-sided face normal from world-position
+  derivatives and applies restrained light from the same fixed environment sun. The visible
+  contribution uses the existing full-strength-to-58 m, faded-to-90 m detail envelope. No normal
+  stream, texture, varying, instance field, allocation, or submission was added.
+- The current OpenGL 3.3 reef capture was inspected and matches the intended broken crown/readable
+  planar treatment. The complete isolated-X11 suite passes 41/41, including actual simultaneous
+  movement/mouse input and persistent Shift run/walk toggling. The exact Chrome 152/SwiftShader
+  WebGL 2 suite passes all 22 stages, requires the crown/facet diagnostic in lifecycle, overview,
+  and reef gates, and its original-resolution reef frame was inspected.
+- A current x86_64 APK passed the KVM/host-gfxstream GLES 3 reef-view gate with the exact platform-
+  log diagnostic. Its clean inspected 2400 by 1080 frame matches native/WebGL, reports `OPENGLES3`
+  and 1280 by 720 logical rendering, and reached cold first draw in 1648.283 ms total without fatal,
+  shader, or `GL_INVALID_OPERATION` diagnostics. This is functional emulator evidence, not a
+  physical-mobile fragment-cost baseline. The emulator was stopped cleanly.
+- The default arm64-only APK was restored, builds/lints through `/rv/cnaccache`, contains only
+  `arm64-v8a`, and verifies with APK signature scheme v2. Final artifacts are 8,519,608 bytes
+  WebAssembly, 8,784,451 bytes for the deterministic Web payload, 2,490,426 bytes through gzip,
+  15,918,152 bytes for stripped arm64 `libmain.so`, and 18,728,436 bytes for the arm64 APK.
+  Isolated native timing and physical-mobile fragment cost remain open. CNA and Sharp Runtime
+  stayed read-only.
 
 ## Session-end checklist
 

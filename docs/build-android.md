@@ -50,8 +50,9 @@ stature, a sparse juvenile underlayer, and four restrained seed-bearing stems in
 near-grass mesh,
 fuller segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters, and
 staggered per-instance near/far LOD,
-157 land rocks and 14 emergent reef outcrops with near-only strata/lichen plus a low fixed-sea-level
-wet band, 13 fallen logs, 31 sparse beach-driftwood pieces with a three-limb forked near variant,
+157 land rocks and 14 emergent reef outcrops with irregular near crowns, fixed-sun facet shading,
+near-only strata/lichen, and a low fixed-sea-level wet band, 13 fallen logs, 31 sparse beach-
+driftwood pieces with a three-limb forked near variant,
 an authored three-piece cove arc, and per-instance large-prop range/LOD, 63 fallen palm
 fronds, 265 near-field shell/pebble/dry-wrack clusters, including a five-rock/two-log authored
 clearing-landmark composition, 24 simulated
@@ -77,8 +78,8 @@ builds and passes application lint. The current x86_64 runtime gate constructed 
 reported its biome-aware grass path, and completed a GLES 3 first draw under KVM. The inspected
 overview establishes integrated rendering, including the corrected translucent touch HUD, but is
 not detailed enough to qualify every layer's close appearance.
-The latest single-ABI arm64 debug qualification build produced an 18,727,492-byte APK with a
-15,917,208-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
+The latest single-ABI arm64 debug qualification build produced an 18,728,436-byte APK with a
+15,918,152-byte stripped `libmain.so`, passed `:app:lintDebug`, and verifies with APK signature
 scheme v2. It includes the narrowed,
 noise-mottled portable footpath, close sand granulation, sparse soft-edged pebble/shell flecks,
 and shoreline-raked ripples, irregular
@@ -154,6 +155,15 @@ blending. It reports `OPENGLES3`, the exact 1280 by 720 logical viewport, and a 
 first draw total without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The slower single
 emulator launch is functional evidence rather than a performance claim. The emulator was stopped
 cleanly and the arm64-only package was restored, rebuilt, linted, and signature-verified.
+
+The current fixed reef x86_64 KVM/gfxstream run requires the irregular near-rock crown and
+fixed-sun facet-light diagnostic through Android's platform log. Its clean inspected 2400 by 1080
+frame matches the WebGL 2 crown silhouette, readable low-poly planes, and dark/cool sea-level band.
+It reports `OPENGLES3`, the exact 1280 by 720 logical viewport, and a 1648.283 ms cold first draw
+total (526.585 ms world, 2.472 ms framework, 1085.335 ms content, 19.863 ms pre-draw, and 14.028 ms
+first draw) without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This is gfxstream
+functional evidence, not a physical-mobile fragment-cost claim. The emulator was stopped cleanly
+and the arm64-only package was restored, rebuilt, linted, and signature-verified.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
@@ -344,7 +354,7 @@ Once the device reports `device` and `adb shell getprop sys.boot_completed` repo
 repeatable first-frame gate installs the selected APK,
 clears logcat, launches the activity, waits up to ten minutes for the `OPENGLES3` renderer,
 logical viewport, first-draw timing, biome-grass, near-seed-head, and sunward-ocean-crest
-diagnostics, rejects
+diagnostics plus the near-rock crown/facet diagnostic, rejects
 fatal/shader errors, and saves both logcat and a device screenshot:
 
 ```bash
