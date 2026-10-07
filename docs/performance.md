@@ -23,9 +23,10 @@ Run the six-report suite without placing a window on the owner's desktop:
 ```
 
 The suite covers overview, beach, dense jungle, shoreline detail, and close monkey fixed views,
-then a 676 m moving camera rail. The generated schema-2 JSON files contain resolution, renderer
+then a 676 m moving camera rail. The generated schema-3 JSON files contain resolution, renderer
 identity, sampling settings, mean/median/p95/p99 frame duration, minimum/maximum duration, mean
-FPS, the final scene snapshot, and min/max/mean ranges for tracked submissions, terrain cells,
+FPS, exact sample counts above 8.333/16.667/33.333 ms, the final scene snapshot, and min/max/mean
+ranges for tracked submissions, terrain cells,
 coalesced terrain draw submissions,
 contact shadows, palms, canopy, and grass. These generated reports belong under `build/` or
 `/tmp`; they are evidence, not source artifacts.
@@ -1505,8 +1506,8 @@ intermediates were removed. The compact logs and screenshots remain as qualifica
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 262,820 bytes (59,058 gzip), and WebAssembly is 8,547,692 bytes (2,438,710
-gzip). The complete transfer payload therefore falls from 8,812,570 to 2,498,912 bytes, a measured
+gzip), JavaScript is 262,820 bytes (59,059 gzip), and WebAssembly is 8,548,924 bytes (2,439,434
+gzip). The complete transfer payload therefore falls from 8,813,802 to 2,499,637 bytes, a measured
 71.6% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,
@@ -1515,6 +1516,29 @@ generates its audio PCM and render textures at runtime, so they do not add separ
 Production-host header validation and repeated hardware-browser cold-load measurements remain
 required before assigning a startup budget.
 
+### Current Linux Release frame-pacing baseline
+
+Three isolated suites were run from the stripped relocatable Release package on 2026-10-07 at
+1280 by 720. The renderer was CNA `OPENGL33` on the AMD Radeon 780M with Mesa 25.0.7; the private
+compositor had no audio device. Each range covers three independent 600-interval runs. The final
+column is the exact 120/60/30 Hz miss count from the schema-3 run only.
+
+| View | Mean ms range | p95 ms range | p99 ms range | >8.333 / >16.667 / >33.333 ms |
+| --- | ---: | ---: | ---: | ---: |
+| Overview | 1.6153--1.7101 | 2.4641--2.6501 | 8.3193--9.0752 | 6 / 1 / 0 |
+| Beach | 2.4599--2.6794 | 3.8566--4.9502 | 9.2330--13.4599 | 20 / 5 / 0 |
+| Jungle | 2.3109--2.5070 | 3.8703--4.6773 | 8.8886--11.2815 | 17 / 0 / 0 |
+| Driftwood | 1.5310--1.6385 | 2.2126--2.5154 | 5.4131--10.1251 | 8 / 0 / 0 |
+| Monkeys | 2.3531--2.6451 | 3.4242--4.9259 | 10.7130--11.4121 | 19 / 1 / 0 |
+| Moving traversal | 2.2811--2.5136 | 4.6850--5.7565 | 9.9770--12.8821 | 22 / 3 / 0 |
+
+All p99 values remain below the 16.667 ms 60 Hz interval. In the instrumented suite, only 10 of
+3,600 aggregate intervals exceeded it and none exceeded 33.333 ms. This is the first qualified
+Linux release gate: on the current development GPU, every representative view should keep p99
+below 16.667 ms and should not show repeated 33.333 ms misses. It is not a broad minimum-spec claim
+and does not replace VSync-on interactive pacing, active-audio, driver-family, or lower-end-hardware
+testing.
+
 ## Measurement rules
 
 - Record the game commit, dependency revisions, build type, resolution, GPU, driver, and audio
@@ -1522,6 +1546,8 @@ required before assigning a startup budget.
 - Compare identical viewpoints and settings. A faster number from a different visible population
   is not evidence of an optimization.
 - Prefer p95 and p99 duration when judging frame stability; mean FPS can hide hitches.
+- Use the schema-3 120/60/30 Hz miss counts to distinguish an isolated maximum from repeated
+  frame-budget failures; each report contains exactly 600 measured intervals.
 - Run at least two suites after a surprising change and retain the raw JSON until the conclusion
   is documented.
 - Never use the unaccelerated Android AVD for performance claims. Android budgets require a
@@ -1530,7 +1556,6 @@ required before assigning a startup budget.
 
 ## Budgets still to establish
 
-Final per-target frame-time, draw-call, triangle, memory, startup, audio-source, and thermal
-budgets remain open. Startup phases and report validation now exist, but release-mode Linux
-repetitions, browser cold-load instrumentation, Android device measurements, memory timing, and
-sustained whole-island routes are required before those limits can be set responsibly.
+A first current-GPU Linux Release frame-time gate now exists above. Cross-hardware Linux draw-call,
+triangle, memory, startup, and active-audio budgets remain open, as do browser cold-load/frame-time
+instrumentation and physical-Android frame-time, memory, power, and thermal limits.

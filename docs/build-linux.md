@@ -105,15 +105,20 @@ export CCACHE_DIR=/rv/cnaccache
 export CCACHE_BASEDIR=/rv
 cmake --preset linux-release
 cmake --build --preset linux-release
-tools/package_linux_release.sh build-release
+tools/package_linux_release.sh build-consumer
 ```
 
 The packager refuses a non-Release or non-OpenGL 3.3 tree. It installs and strips the executable
-and CNA shared runtime into `build-release/linux-release/`, sets the executable runpath to
+and CNA shared runtime into `build-consumer/linux-release/`, sets the executable runpath to
 `$ORIGIN/lib`, copies the project attribution and exact dependency pins, and includes the CNA,
 Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/size manifest and a
-deterministic `build-release/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
+deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
+
+The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
+standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
+switching between those two qualifications. Normal Android Gradle builds use Gradle's managed
+native intermediates instead.
 
 The archive deliberately does not copy arbitrary libraries from the build host. A compatible
 Linux system still needs glibc, libstdc++, SDL 3, SDL_mixer 3, and an OpenGL 3.3-capable driver.
@@ -123,10 +128,11 @@ After extraction, run:
 ./linux-release/island-simulator
 ```
 
-The 2026-10-07 qualification extracted the archive under `/tmp`, launched it from that unrelated
-working directory on a private Weston/Xwayland display, selected CNA `OPENGL33`, compiled every
-current scene shader, rendered four overview frames, and exited cleanly. This validates relocation
-and first rendering, not compatibility with every Linux distribution or GPU driver.
+The 2026-10-07 qualification extracted the final `build-consumer/` archive under `/tmp`, launched
+it from that unrelated working directory on a private Weston/Xwayland display, selected CNA
+`OPENGL33`, compiled every current scene shader, rendered four overview frames, and exited cleanly.
+Its first-draw report was 497.137 ms total. This validates relocation and first rendering, not
+compatibility with every Linux distribution or GPU driver.
 
 ## Tests
 

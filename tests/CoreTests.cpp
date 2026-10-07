@@ -239,6 +239,12 @@ int main()
               "frame-time statistics report the interpolated 99th percentile");
     CheckNear(static_cast<float>(frameSummary.meanFramesPerSecond), 33.3333f, 0.001f,
               "frame-time statistics derive mean frames per second");
+    Check(frameSummary.framesOver120HzBudget == 5U,
+          "frame-time statistics count samples outside a 120 Hz budget");
+    Check(frameSummary.framesOver60HzBudget == 4U,
+          "frame-time statistics count samples outside a 60 Hz budget");
+    Check(frameSummary.framesOver30HzBudget == 2U,
+          "frame-time statistics count samples outside a 30 Hz budget");
     bool rejectedEmptyFrameTimes = false;
     try {
         (void)island::CalculateFrameTimeSummary(std::span<const double>());

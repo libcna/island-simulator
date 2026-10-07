@@ -178,10 +178,10 @@ export CCACHE_DIR=/rv/cnaccache
 export CCACHE_BASEDIR=/rv
 cmake --preset linux-release
 cmake --build --preset linux-release
-tools/package_linux_release.sh build-release
+tools/package_linux_release.sh build-consumer
 ```
 
-This produces `build-release/island-simulator-linux-x86_64.tar.gz`. The archive contains the game,
+This produces `build-consumer/island-simulator-linux-x86_64.tar.gz`. The archive contains the game,
 the exact built `libcna.so`, dependency licences/notices, attribution, dependency pins, and a
 SHA-256 manifest. The executable resolves CNA through `$ORIGIN/lib`, so the extracted directory
 can be moved and launched from an unrelated working directory. Compatible system SDL 3,
@@ -232,8 +232,8 @@ hidden in a normal run and can be enabled at launch with `--debug-overlay` for a
 Use `--world-debug` to enable both the panel and world visualization at launch.
 Use `tools/run_native_benchmarks.sh` through the private GPU runner for warm, uncapped JSON
 frame-time reports across five fixed scenes plus a 676 m moving traversal. Reports include
-min/max/mean scene-population ranges as well as timing distributions; methodology and the initial
-Linux baseline are in `docs/performance.md`.
+min/max/mean scene-population ranges, timing distributions, and exact 120/60/30 Hz budget-miss
+counts; methodology and the current Linux release baseline are in `docs/performance.md`.
 Use `--startup-report <path>` to write a machine-readable first-draw report. It separates
 deterministic world construction, framework initialization, GPU/content creation, the interval
 before the first draw, and the first submitted draw. Combine it with `--smoke-test --overview` for
@@ -277,7 +277,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,498,912 bytes, 71.6% below the 8,812,570-byte
+a SHA-256 manifest. The current gzip payload is 2,499,637 bytes, 71.6% below the 8,813,802-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.

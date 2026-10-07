@@ -679,7 +679,8 @@ repeatable navigation-guide capture in addition to the overview.
 The opt-in benchmark path remains game-owned and does not add renderer hooks. `IslandGame` records
 wall-clock intervals between consecutive `Draw` entries after a fixed warm-up, while the
 renderer-independent `PerformanceStatistics` component validates samples and calculates stable
-interpolated percentiles. Fixed benchmarks select an existing QA camera. The traversal benchmark
+interpolated percentiles plus exact 120/60/30 Hz frame-budget miss counts. Fixed benchmarks select
+an existing QA camera. The traversal benchmark
 samples a renderer-independent, open Catmull-Rom rail at one deterministic position per measured
 frame, resolves camera height through `PlayerMotion`, and crosses shallow water, beach, the main
 trail, both clearings, dense jungle, and the opposite coast. All benchmarks disable VSync and the
@@ -823,7 +824,8 @@ produces deterministic gzip siblings, verifies decompression and SHA-256 identit
 small manifest for host configuration. No packaging code or precompressed payload is linked into
 the game, and the uncompressed artifacts remain available for hosts that do not negotiate gzip.
 
-The native Linux release follows the same separation. The `linux-release` preset creates an
+The native Linux release follows the same separation. The `linux-release` preset reuses the
+workspace-approved `build-consumer/` tree and creates an
 optimized OpenGL 3.3 build, while `tools/package_linux_release.sh` performs a component install
 into a staging directory, strips the game and `libcna.so`, verifies the `$ORIGIN/lib` runpath,
 records fixed-file SHA-256/size metadata, and creates a deterministic archive. The bundle includes

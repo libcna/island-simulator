@@ -1342,7 +1342,7 @@ namespace island
         output.imbue(std::locale::classic());
         output << std::fixed << std::setprecision(4)
                << "{\n"
-               << "  \"schema_version\": 2,\n"
+               << "  \"schema_version\": 3,\n"
                << "  \"renderer\": \""
                << getGraphicsDeviceProperty().GetGraphicsRendererName() << "\",\n"
                << "  \"viewpoint\": \"" << ViewpointName(viewpoint_) << "\",\n"
@@ -1359,7 +1359,12 @@ namespace island
                << "    \"p99_ms\": " << summary.percentile99Milliseconds << ",\n"
                << "    \"min_ms\": " << summary.minimumMilliseconds << ",\n"
                << "    \"max_ms\": " << summary.maximumMilliseconds << ",\n"
-               << "    \"mean_fps\": " << summary.meanFramesPerSecond << "\n"
+               << "    \"mean_fps\": " << summary.meanFramesPerSecond << ",\n"
+               << "    \"budget_misses\": {\"frames_over_8_333_ms\": "
+               << summary.framesOver120HzBudget
+               << ", \"frames_over_16_667_ms\": " << summary.framesOver60HzBudget
+               << ", \"frames_over_33_333_ms\": " << summary.framesOver30HzBudget
+               << "}\n"
                << "  },\n"
                << "  \"route\": ";
         if (viewpoint_ == FixedViewpoint::BenchmarkTraversal) {

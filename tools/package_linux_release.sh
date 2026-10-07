@@ -2,7 +2,7 @@
 set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-build_directory=${1:-"${project_root}/build-release"}
+build_directory=${1:-"${project_root}/build-consumer"}
 build_directory=$(cd "${build_directory}" && pwd)
 output_directory="${build_directory}/linux-release"
 archive_path="${build_directory}/island-simulator-linux-x86_64.tar.gz"

@@ -860,7 +860,8 @@ Dependencies: representative complete scene on all targets.
   bird/fish/shark/monkey render/simulation statistics plus the five-islet/one-draw distant-scenery
   status and grass-interaction envelope on OpenGL 3.3 and WebGL 2. F2 also reports world-line, nearby
   obstacle, shared-cell, and wildlife-marker counts. A separate uncapped native benchmark records
-  warm mean/median/p95/p99 frame intervals and scene counts; a total backend voice counter remains.
+  warm mean/median/p95/p99 frame intervals, exact 120/60/30 Hz miss counts, and scene counts; a
+  total backend voice counter remains.
 - [~] Add toggles for collision, shoreline/current field, vegetation cells, spawn regions, wildlife
   states, LOD, and culling; keep them disabled in normal release presentation. One F2 toggle now
   covers shoreline/current thresholds and vector, nearby collision/player footprints, shared
@@ -872,18 +873,20 @@ Dependencies: representative complete scene on all targets.
   teleport menu remains an optional separate improvement.
 - [~] Establish measured frame-time, draw-call, triangle, texture, mesh, audio, and startup budgets
   per target rather than one desktop-only target. A first five-view 1280 by 720 debug-build Linux
-  baseline records frame distributions and tracked scene submissions. A schema-2 moving-route
-  report adds population ranges. A schema-1 first-draw report now exposes five startup phases and
-  is gated on actual OpenGL 3.3 plus the WebGL 2 timing-log path, but clean repeated route/startup
-  timing, release, browser cold-load, Android, memory, audio, and thermal budgets remain open.
+  baseline records frame distributions and tracked scene submissions. The schema-3 moving-route
+  report adds population ranges and exact 120/60/30 Hz misses. Three isolated optimized-release
+  suites now establish a first current-GPU Linux gate: every fixed and moving view retains p99
+  below 16.667 ms and the instrumented run has no interval above 33.333 ms. A schema-1 first-draw
+  report exposes five startup phases and is gated on actual OpenGL 3.3 plus the WebGL 2 timing-log
+  path, but browser cold-load, Android hardware, memory, audio, and thermal budgets remain open.
 
 ### Optimization
 
 - [~] Profile representative beach, dense jungle, hill vista, waterline, and wildlife scenes. The
   first fixed-view native suite covers overview, beach, dense jungle, shore detail, and monkeys;
   a deterministic 676 m native route now forces culling/LOD/contact-shadow refreshes across
-  shallows, both coasts, trail, clearings, and dense jungle. Clean repeated traversal timing,
-  release configuration, WebGL 2, and physical Android profiles remain open.
+  shallows, both coasts, trail, clearings, and dense jungle. Three clean optimized-release suites
+  now cover the full matrix; hardware WebGL 2 and physical Android profiles remain open.
 - [~] Implement terrain/vegetation cell frustum and distance culling. Terrain and palms share a
   64-cell partition; grass uses 256 finer cells. All are frustum culled, palms/grass have distance
   cutoffs, palms choose staggered 125--145 m LOD per instance after cell rejection, broadleaf
@@ -5679,7 +5682,8 @@ Work next, in order:
 
 ### 2026-10-07 — Relocatable deterministic Linux release package
 
-- Added a dedicated `linux-release` CMake configure/build preset with the locked OpenGL 3.3
+- Added a dedicated `linux-release` CMake configure/build preset using the workspace-approved
+  reusable `build-consumer/` tree with the locked OpenGL 3.3
   renderer, Release optimization, project tools/tests excluded from the distributable build, the
   mandatory shared `/rv/cnaccache`, and a hard two-worker build ceiling. The clean first build
   completed all 626 steps against the unchanged read-only dependency revisions.
@@ -5687,14 +5691,43 @@ Work next, in order:
   uses `$ORIGIN/lib`, carries the exact stripped `libcna.so`, project attribution/dependency pins,
   CNA's Ms-PL/notice, and the Sharp Runtime/EasyGL/MetaGL MIT licences. SDL 3, SDL_mixer 3, glibc,
   libstdc++, and the OpenGL driver remain honest host requirements rather than copied system files.
-- The fixed-file schema-1 manifest records 11,534,787 installed bytes and each file's size/SHA-256.
-  Two unchanged packaging runs produced byte-identical 4,570,069-byte archives with SHA-256
-  `92b294cfe37ec15d58862c50d28572c403466d3ba6b9e8a3c5753b83f47eb89e`.
+- After adding the frame-budget instrumentation below, the fixed-file schema-1 manifest records
+  11,535,534 installed bytes and each file's size/SHA-256. Two unchanged packaging runs produced
+  byte-identical 4,570,422-byte archives with SHA-256
+  `a729334d189905caaa779fd27cabf7dbae4304fcf0288bf4fd65206c5388a8c4`.
 - Extracted the archive beneath `/tmp`, launched it from that unrelated working directory on the
   private Weston/Xwayland display, selected `OPENGL33`, compiled the complete current shader set,
-  rendered four overview frames, and exited cleanly. The optimized first-draw report in that run
-  was 394.213 ms total. A deliberate attempt to package the Debug tree failed before creating any
-  output with the expected actionable diagnostic.
+  rendered four overview frames, and exited cleanly. After moving the reusable release tree from
+  the non-approved `build-release/` name to `build-consumer/`, the final archive repeated that gate
+  at 497.137 ms total and the obsolete tree was removed. A deliberate attempt to package the Debug
+  tree failed before creating any output with the expected actionable diagnostic.
+
+### 2026-10-07 — Release frame-pacing baseline and budget-miss instrumentation
+
+- Ran three isolated six-view suites from the stripped relocatable Release package on the AMD
+  Radeon 780M/Mesa 25.0.7 OpenGL path. Across 1,800 samples per view, fixed-scene means remained
+  1.5310--2.6794 ms, p95 remained 2.2126--4.9502 ms, and p99 remained 5.4131--13.4599 ms. The
+  675.9635 m traversal remained 2.2811--2.5136 ms mean, 4.6850--5.7565 ms p95, and
+  9.9770--12.8821 ms p99.
+- Extended renderer-independent `FrameTimeSummary` and benchmark schema 3 with exact sample counts
+  above 8.333, 16.667, and 33.333 ms. Unit tests lock the strict-greater-than thresholds. In the
+  instrumented 600-sample suite, the six views had 6/20/17/8/19/22 intervals above the 120 Hz
+  budget, only 1/5/0/0/1/3 above the 60 Hz budget, and zero above the 30 Hz budget.
+- This establishes a current-machine Linux release gate of p99 below the 60 Hz interval and no
+  repeated 30 Hz miss across the representative matrix. It is not a minimum hardware claim;
+  hardware-browser and physical-Android budgets remain open. The isolated compositor intentionally
+  lacked audio, so these timings exclude active mixer-device cost.
+- The current source passes the full native 41/41 private-display matrix in 72.54 seconds, the
+  complete Chrome
+  WebGL 2 interaction/render suite, and the independent Firefox ESR production-shell lifecycle,
+  pointer-lock, input/audio, jungle, and water gate. The Web release is 8,813,802 bytes or
+  2,499,637 bytes through deterministic gzip; WebAssembly is 8,548,924 bytes or 2,439,434 through
+  gzip, JavaScript is 262,820 bytes (59,059 gzip), and HTML is 2,058 bytes (1,144 gzip).
+- The default arm64-v8a GLES 3 APK builds through the shared cache with two workers, passes
+  application lint with no errors or warnings, contains only the 15,941,304-byte `libmain.so`, and
+  verifies with APK signature scheme v2. The APK is 18,751,588 bytes. Because benchmark mode is
+  host QA and normal presentation is unchanged, the prior current GLES 3 runtime matrix remains
+  the relevant device-side functional evidence.
 
 ## Session-end checklist
 

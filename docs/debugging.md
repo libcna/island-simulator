@@ -144,8 +144,8 @@ performance conclusions.
 
 `--benchmark <report.json>` selects an uncapped, variable-timestep run, discards 120 warm-up
 intervals, records 600 intervals, writes interpolated median/p95/p99 statistics plus
-min/max/mean scene-population ranges, and exits. It cannot be combined with capture or debug
-modes. A fixed-view example is:
+exact counts above the 120/60/30 Hz frame budgets and min/max/mean scene-population ranges, and
+exits. It cannot be combined with capture or debug modes. A fixed-view example is:
 
 ```bash
 build/island-simulator --benchmark /tmp/island-jungle.json --viewpoint jungle

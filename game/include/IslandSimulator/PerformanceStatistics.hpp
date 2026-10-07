@@ -16,6 +16,9 @@ namespace island
         double percentile95Milliseconds = 0.0;
         double percentile99Milliseconds = 0.0;
         double meanFramesPerSecond = 0.0;
+        std::size_t framesOver120HzBudget = 0U;
+        std::size_t framesOver60HzBudget = 0U;
+        std::size_t framesOver30HzBudget = 0U;
     };
 
     /**

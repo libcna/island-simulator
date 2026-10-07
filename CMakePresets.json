@@ -70,7 +70,7 @@
       "name": "linux-release",
       "displayName": "Linux OpenGL 3.3 Release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-release",
+      "binaryDir": "${sourceDir}/build-consumer",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache",

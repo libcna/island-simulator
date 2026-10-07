@@ -39,6 +39,13 @@ namespace island
         std::ranges::sort(sortedSamples);
         const double mean = std::accumulate(sortedSamples.begin(), sortedSamples.end(), 0.0)
             / static_cast<double>(sortedSamples.size());
+        const auto countOverBudget = [&sortedSamples](const double budgetMilliseconds) {
+            return static_cast<std::size_t>(std::ranges::count_if(
+                sortedSamples,
+                [budgetMilliseconds](const double sample) {
+                    return sample > budgetMilliseconds;
+                }));
+        };
         return {
             .sampleCount = sortedSamples.size(),
             .minimumMilliseconds = sortedSamples.front(),
@@ -48,6 +55,9 @@ namespace island
             .percentile95Milliseconds = Percentile(sortedSamples, 0.95),
             .percentile99Milliseconds = Percentile(sortedSamples, 0.99),
             .meanFramesPerSecond = 1000.0 / mean,
+            .framesOver120HzBudget = countOverBudget(1000.0 / 120.0),
+            .framesOver60HzBudget = countOverBudget(1000.0 / 60.0),
+            .framesOver30HzBudget = countOverBudget(1000.0 / 30.0),
         };
     }
 }
