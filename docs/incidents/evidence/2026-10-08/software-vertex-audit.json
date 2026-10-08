@@ -1,0 +1,8 @@
+{
+  "trace": "build/gpu-incident-evidence/software-jungle-trace/jungle.trace",
+  "draws": 64169,
+  "frames": 721,
+  "attribute_fetch_ranges": 389340,
+  "errors": [],
+  "scope": "CPU audit of enabled vertex/index fetch bounds only; no GL execution"
+}

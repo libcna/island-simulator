@@ -4,13 +4,66 @@
 
 **Open, critical.** The parent launch is reconstructed exactly. The jungle benchmark is the
 strongest candidate for PID 3497873, but its PID-to-command mapping is not directly recorded in
-the retained evidence. The first GPUVM
-fault has not yet been reproduced under the required fail-closed kernel-log protocol, so the
-userspace operation that generated the invalid GPU access is not yet proven. This document must
+the retained evidence. A serial jungle benchmark reproduced GPUVM faults under the required
+kernel-log protocol at 18:31 CEST. The userspace operation that generated the invalid GPU access
+is not yet proven. This document must
 not be read as a root-cause closure.
 
-No CNA or Sharp Runtime file was changed during this investigation. No new hardware-GPU workload
-has been launched since the incident was reported.
+No CNA or Sharp Runtime file was changed during this investigation. After journal access was
+granted, a serial hardware reproduction triggered another GPUVM fault; see the update below.
+
+## Serial reproduction at 18:31 CEST
+
+The operator added `robertvokac` to `systemd-journal`. Although the running session retained its old
+groups, `sg systemd-journal -c ...` granted read-only journal access without logging out. The
+original incident's complete kernel output is now preserved as `evidence/2026-10-08/original-kernel.txt`.
+Searching journal entries with `_PID=3497873` yielded no record, so the historical PID mapping
+remains unproven.
+
+Three workloads were run individually with the supervisor:
+
+| Start (CEST) | Workload | PID | Result |
+|---|---|---:|---|
+| 18:31:05 | `smoke` | 3592624 | Four frames, zero new kernel records, no GL errors |
+| 18:31:26 | `capture-jungle` | 3592878 | Completed, zero new kernel records, no GL errors |
+| 18:31:41 | `benchmark-jungle` | 3593099 | GPUVM fault, supervisor stopped its process group |
+
+The exact failing parent command was:
+
+```sh
+sg systemd-journal -c 'tools/run_gpu_incident_qualification.sh build benchmark-jungle'
+```
+
+Its evidence directory is
+`build/gpu-incident-evidence/20261008T163141.853965Z-3593014-benchmark-jungle/`.
+The per-PID log proves this time that the faulting process ran `--benchmark` with `--viewpoint
+jungle`, using OPENGL33/EasyGL/SDL3/X11/GLX, Mesa 25.0.7 radeonsi on Radeon 780M. At
+18:31:47.174644 the kernel reported a GFXHUB fault, PASID 16000, PID 3593099, submission TID
+3593107. The first address was `0x17000`; the first protection status was `0x00101031`, client
+TCP. The application completed CPU submission through frame 448 before termination; no GL error
+or high-severity KHR_debug diagnostic preceded the fault. These asynchronous CPU markers do not
+identify the exact GPU draw that faulted.
+
+The supervisor finished at 18:31:48.334 and latched `QUALIFICATION_STOP.json`. Both wrapper and
+game processes are confirmed absent. At 18:31:57.214690 the kernel nevertheless reported
+`ring gfx_0.0.0 timeout, but soft recovered`. The preserved kernel interval through 18:33:00 has
+no MODE2 reset or VRAM-loss message. Killing a process cannot cancel already-submitted GPU work.
+No further hardware workload was launched after this fault. Multi-client concurrency is therefore
+not necessary to reproduce the invalid workload, though its effect on full recovery is unresolved.
+
+The kernel produced `/sys/class/devcoredump/devcd3/data`, readable only by root and subject to
+automatic expiry. The operator's root read at approximately 18:36 returned `No such device`, but
+it copied **3,436,544 bytes** before expiry. The file is ASCII text and ends mid-record; it is a
+partial dump, not an empty or complete one. The retained prefix contains hardware/firmware
+identity, the `0x17000` fault, protection status `0x101031`, graphics registers, and the complete
+2,048-dword `gfx_0.0.0` ring before ending partway through the much larger MES ring. Register and
+ring snapshots expose command-buffer addresses, but do not include the pointed-to userspace
+indirect-buffer contents or prove which high-level draw generated the bad access.
+
+The original partial file remains at `build/gpu-incident-evidence/amdgpu-devcd3.bin`. A lossless
+compressed copy and the complete supervisor/runtime evidence are versioned in the incident
+evidence directory, with hashes and provenance in its README. No new GPU execution was needed
+to inspect or archive them.
 
 ## Impact
 
@@ -182,7 +235,7 @@ because they constrain reproducibility, but they had no before/after kernel-jour
   sampled intervals, at 17:11:49 and 17:12:04 CEST. Both rendered the same stable scene counts as
   PID 3497873: 89 submissions, 120 palms (37 near), 109 canopy trees, and 2,932 grass clusters.
 
-No further hardware-GPU workload has been launched since the incident report arrived. The two
+Before journal access was granted, no further hardware-GPU workload was launched. The two
 isolated completions and the `-j2` completion show that neither the fixed jungle scene nor the palm
 geometry fails on every run. The source also evolved after the incident, so these runs are not an
 exact historical-binary reproduction; they do not show that the kernel recorded no silent GPUVM fault.
@@ -253,6 +306,46 @@ the fault. That is a negative finding, not proof that the application is correct
   capped at eight threads. These runs did not access the AMD GPU and are not hardware
   qualification.
 
+### Full software benchmark and offline GL bounds audit
+
+After the serial hardware failure, one full jungle benchmark was traced on **CPU-only llvmpipe**,
+with `LIBGL_ALWAYS_SOFTWARE=1`, `GALLIUM_DRIVER=llvmpipe`, `LP_NUM_THREADS=8`, and a private Weston
+pixman compositor. The per-process implementation string confirms llvmpipe. No further AMD
+hardware workload was submitted. The run completed 600 measured frames after warm-up (721 swaps
+in the trace including startup) and emitted no GL-error or warning-or-higher KHR_debug message.
+The kernel interval after this software run contained no entries.
+
+The trace is retained at `build/gpu-incident-evidence/software-jungle-trace/jungle.trace`, SHA-256
+`044785478efbf2b3b01df138676b01ef717f3a03debe67b51c83e11ca14ebf55`. The complete software evidence
+directory occupies approximately 83 MB. This trace is useful unique incident evidence and must
+not be removed as an obsolete build artifact. Its smaller logs/report are archived in the
+versioned evidence directory.
+
+`tools/audit_gl_vertex_trace.py` decodes the trace without executing GL. It tracks uploaded buffer
+sizes, actual index values, VAO bindings, attribute strides/offsets, instance divisors, and base
+vertices, and checks every enabled attribute's maximum fetch address. It refuses unsupported draw
+or buffer-mutation APIs and missing index contents instead of silently certifying them. Eight
+CPU-only regression tests exercise valid boundaries, bad indices, index/attribute overruns,
+nonzero instance offsets/divisors, updated index contents, and unsupported draws.
+
+The audit found zero out-of-range fetches in **64,169 draws and 389,340 attribute ranges**. This
+narrows the straightforward application-buffer-overrun hypothesis for the software trace. It does
+not validate shader semantics, textures, GL object lifetime, GPU synchronization, or radeonsi's
+hardware descriptors, and is not proof that the hardware workload was valid.
+
+Re-run only the offline analysis with:
+
+```sh
+python3 tools/audit_gl_vertex_trace.py \
+  build/gpu-incident-evidence/software-jungle-trace/jungle.trace \
+  --output build/gpu-incident-evidence/software-jungle-trace/vertex-audit.json
+```
+
+The next investigation is to examine texture/program bindings and resource lifetime in the same
+trace, correlate available ring state with Mesa 25.0.7 source, and identify a concrete defect or
+an upstream-ready driver reproducer before proposing another hardware run. Keep the hardware
+qualification failure latch in place.
+
 ### Native EasyGL context-loss recovery audit
 
 This recovery path is separate from the first fault. Current CNA EasyGL cannot reliably detect and
@@ -284,9 +377,10 @@ CNA remains read-only under this project's dependency boundary.
 The evidence supports at least two distinct problems:
 
 1. **Primary invalid GPU access — unresolved.** PID 3497873 submitted an AMD GFX command stream
-   that accessed low unmapped GPU addresses. Serial reproduction with pass markers and kernel-log
-   correlation is required to decide between application/CNA state and Mesa/radeonsi/AMDGPU VM
-   behaviour.
+   that accessed low unmapped GPU addresses. The serial reproduction establishes that concurrent
+   game clients are not required. Pass markers and a partial kernel device dump are now preserved;
+   neither yet identifies the exact draw or decides between application/CNA state and
+   Mesa/radeonsi/AMDGPU VM behaviour.
 2. **Kernel/driver recovery failure — independently real.** The per-queue reset failed through
    MES, forcing a MODE2 reset and VRAM loss. Other innocent GL clients and GNOME then lost their
    contexts. A userspace client should not be able to end the entire desktop session this way,
@@ -328,25 +422,21 @@ Runtime remain read-only.
 
 ## Required safe qualification sequence
 
-The current account cannot read kernel journal entries: `journalctl -k` returns no kernel record,
-and membership in `systemd-journal`/`adm` is absent. Hardware-GPU qualification remains blocked
-until read-only access is granted and a new login session picks up the group membership.
-This was also checked outside the sandbox; the host account lacks these groups, and a
-non-interactive `sudo -n journalctl` attempt reports that a password is required.
-
-On this Debian host the required group exists. The operator can grant the narrow read-only access
-with:
+Journal access initially blocked qualification. The operator has now granted membership with:
 
 ```sh
 sudo usermod -aG systemd-journal robertvokac
 ```
 
-A complete logout/login (or a new development-agent session created after group membership takes
-effect) is required. The qualification harness will continue to refuse hardware work until it can
-read an actual `_TRANSPORT=kernel` record and obtain a journal cursor; a successful but empty
-`journalctl` invocation is deliberately insufficient.
+A new login picks up this group. The existing session can already use
+`sg systemd-journal -c '<qualification command>'`, as verified during the serial reproduction.
+The supervisor still requires an actual kernel record and cursor, not just a successful empty
+`journalctl` invocation.
 
-Once access exists, run each step separately and inspect its preserved evidence before proceeding:
+**Hardware qualification is currently stopped by the reproduced fault and its persistent latch.**
+Do not clear the latch or repeat the workload unchanged to collect more failures. The remaining
+sequence below is pending diagnosis and a justified correction; the first three steps have been
+attempted and the third failed:
 
 ```sh
 tools/run_gpu_incident_qualification.sh build smoke

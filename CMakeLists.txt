@@ -163,6 +163,9 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
                 COMMAND "${Python3_EXECUTABLE}"
                         "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateGpuQualificationTests.py")
             set_tests_properties(IslandGpuQualificationSupervisorTests PROPERTIES TIMEOUT 30)
+            add_test(NAME IslandGlVertexTraceAuditTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/AuditGlVertexTraceTests.py")
         endif()
         add_test(NAME IslandWebPackageValidation
             COMMAND "${Python3_EXECUTABLE}"

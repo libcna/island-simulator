@@ -1,0 +1,133 @@
+Oct 08 01:12:47.158428 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.159619 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.160235 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x0000000000007000 from client 10
+Oct 08 01:12:47.160847 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00401031
+Oct 08 01:12:47.161445 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: TCP (0x8)
+Oct 08 01:12:47.162042 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x1
+Oct 08 01:12:47.162681 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.163267 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x3
+Oct 08 01:12:47.163847 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.164417 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.164991 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.165557 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.166105 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x000000000000f000 from client 10
+Oct 08 01:12:47.166688 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.167244 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.167804 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.168352 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.168909 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.169482 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.170027 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.170601 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.171149 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.171691 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x000000000002b000 from client 10
+Oct 08 01:12:47.172245 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.172780 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.173336 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.173896 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.174480 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.175051 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.175615 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.176161 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.176715 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.177273 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x0000000000027000 from client 10
+Oct 08 01:12:47.177826 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.178391 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.178962 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.179506 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.180048 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.180614 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.181183 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.181738 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.182292 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.182871 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x000000000002f000 from client 10
+Oct 08 01:12:47.183446 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.183998 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.184561 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.185132 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.185712 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.186266 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.186849 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.187423 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.188042 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.188627 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x0000000000033000 from client 10
+Oct 08 01:12:47.189196 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.189763 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.190326 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.190911 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.191483 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.192034 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.192584 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.193135 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.193696 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.194244 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x0000000000037000 from client 10
+Oct 08 01:12:47.194813 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.195355 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.195920 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.196457 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.196995 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.197551 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.198104 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.198682 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.199220 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.199759 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x000000000000b000 from client 10
+Oct 08 01:12:47.200321 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.200867 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.201431 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.201991 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.202558 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.203125 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.203687 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.204242 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.204808 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.205370 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x000000000005f000 from client 10
+Oct 08 01:12:47.205924 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.206633 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.207218 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.207785 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.208348 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.208900 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.209446 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:47.210014 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:4 pasid:15068)
+Oct 08 01:12:47.210596 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:  in process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891)
+Oct 08 01:12:47.211197 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:   in page starting at address 0x0000000000063000 from client 10
+Oct 08 01:12:47.211773 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GCVM_L2_PROTECTION_FAULT_STATUS:0x00000000
+Oct 08 01:12:47.212347 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          Faulty UTCL2 client ID: CB/DB (0x0)
+Oct 08 01:12:47.212894 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MORE_FAULTS: 0x0
+Oct 08 01:12:47.213447 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          WALKER_ERROR: 0x0
+Oct 08 01:12:47.213999 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          PERMISSION_FAULTS: 0x0
+Oct 08 01:12:47.214649 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          MAPPING_ERROR: 0x0
+Oct 08 01:12:47.215213 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu:          RW: 0x0
+Oct 08 01:12:57.374435 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: Dumping IP State
+Oct 08 01:12:57.375258 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: Dumping IP State Completed
+Oct 08 01:12:57.386407 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring gfx_0.0.0 timeout, signaled seq=21870371, emitted seq=21870373
+Oct 08 01:12:57.387211 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: Process information: process island-simulato pid 3497873 thread island-sim:cs0 pid 3497891
+Oct 08 01:12:59.390413 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: MES failed to respond to msg=RESET
+Oct 08 01:12:59.391821 thinkpadt14 kernel: [drm:amdgpu_mes_reset_legacy_queue [amdgpu]] *ERROR* failed to reset legacy queue
+Oct 08 01:12:59.391884 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GPU reset begin!
+Oct 08 01:13:01.402427 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: MES failed to respond to msg=REMOVE_QUEUE
+Oct 08 01:13:01.403721 thinkpadt14 kernel: [drm:amdgpu_mes_unmap_legacy_queue [amdgpu]] *ERROR* failed to unmap legacy queue
+Oct 08 01:13:01.702418 thinkpadt14 kernel: [drm:gfx_v11_0_hw_fini [amdgpu]] *ERROR* failed to halt cp gfx
+Oct 08 01:13:01.706401 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: MODE2 reset
+Oct 08 01:13:01.746445 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GPU reset succeeded, trying to resume
+Oct 08 01:13:01.747619 thinkpadt14 kernel: [drm] PCIE GART of 512M enabled (table at 0x0000008000900000).
+Oct 08 01:13:01.747682 thinkpadt14 kernel: [drm] VRAM is lost due to GPU reset!
+Oct 08 01:13:01.747755 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: SMU is resuming...
+Oct 08 01:13:01.748353 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: SMU is resumed successfully!
+Oct 08 01:13:01.754416 thinkpadt14 kernel: [drm] DMUB hardware initialized: version=0x08004E00
+Oct 08 01:13:01.754572 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring gfx_0.0.0 uses VM inv eng 0 on hub 0
+Oct 08 01:13:01.755417 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.0.0 uses VM inv eng 1 on hub 0
+Oct 08 01:13:01.755972 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.1.0 uses VM inv eng 4 on hub 0
+Oct 08 01:13:01.756522 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.2.0 uses VM inv eng 6 on hub 0
+Oct 08 01:13:01.757067 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.3.0 uses VM inv eng 7 on hub 0
+Oct 08 01:13:01.757611 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.0.1 uses VM inv eng 8 on hub 0
+Oct 08 01:13:01.758132 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.1.1 uses VM inv eng 9 on hub 0
+Oct 08 01:13:01.758730 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.2.1 uses VM inv eng 10 on hub 0
+Oct 08 01:13:01.759186 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring comp_1.3.1 uses VM inv eng 11 on hub 0
+Oct 08 01:13:01.759629 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring sdma0 uses VM inv eng 12 on hub 0
+Oct 08 01:13:01.760076 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring vcn_unified_0 uses VM inv eng 0 on hub 8
+Oct 08 01:13:01.760508 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring jpeg_dec uses VM inv eng 1 on hub 8
+Oct 08 01:13:01.760947 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: ring mes_kiq_3.1.0 uses VM inv eng 13 on hub 0
+Oct 08 01:13:01.761415 thinkpadt14 kernel: amdgpu 0000:c3:00.0: amdgpu: GPU reset(2) succeeded!
+Oct 08 01:13:32.082405 thinkpadt14 kernel: rfkill: input handler enabled
+Oct 08 01:13:34.498416 thinkpadt14 kernel: rfkill: input handler disabled

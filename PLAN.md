@@ -108,8 +108,24 @@ historical evidence, not post-incident qualification.
 - [x] Rebuild the current incident instrumentation and range guards for native OpenGL 3.3, WebGL 2,
   and Android arm64/OpenGL ES 3. The ten non-display CTests pass; Web and Android results are
   compile/package evidence only, not runtime GPU qualification.
-- [!] Obtain read-only kernel-journal visibility for the development account. Current
-  `journalctl -k` returns no kernel record, so the safety harness correctly refuses to launch.
+- [x] Obtain read-only kernel-journal visibility: the operator granted group membership;
+  `sg systemd-journal -c ...` works without ending the existing session.
+- [x] Reproduce a GPUVM fault in one serial jungle benchmark (PID 3593099) after clean smoke and
+  jungle capture runs. Supervisor terminated the process group and latched further launches.
+  Kernel later soft-recovered a GFX timeout; the monitored interval has no MODE2 reset/VRAM loss.
+- [x] Preserve the available 3,436,544-byte prefix of the root-only device dump. The operator's
+  read was interrupted by expiry, but the prefix includes the complete 2,048-dword graphics ring.
+  Archive it losslessly with explicit truncation status and the runtime/kernel reproduction logs.
+- [ ] Analyze the retained GPU register/ring state and investigate API state on software rendering
+  before any proposed hardware retest. Do not launch another hardware workload merely to obtain
+  a complete dump; the failure latch remains active.
+- [x] Complete a CPU-only llvmpipe jungle benchmark with an apitrace capture and eight workers.
+  Preserve the 83 MB evidence directory. Offline bounds audit checks 64,169 draws and 389,340
+  enabled-attribute ranges with zero overruns; eight focused CPU regression tests validate the
+  auditor. No GL diagnostic or new kernel entry occurred during the software workload.
+- [ ] Extend the offline investigation to texture/program state and object lifetime, and inspect
+  the available GPU ring against the installed Mesa source. Buffer bounds alone do not prove
+  correctness or identify the GPUVM root cause.
 - [ ] Run smoke, jungle capture, jungle benchmark, traversal benchmark, and the ground/frond/grass
   captures individually and serially, stopping on the first new GPUVM fault.
 - [ ] If serial runs are clean, repeat the offending jungle workload enough times to cover a
