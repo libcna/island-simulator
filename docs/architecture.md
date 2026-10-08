@@ -405,8 +405,13 @@ individual silhouettes; the lower-segment far tier uses seven
 widened ribbon fronds that preserve the feathered crown envelope without retaining sub-pixel
 leaflet geometry. Two near variants add four or five small faceted coconuts beneath the crown; the
 near draw also enables texture-free leaf-scar rings on trunks, while the far draw disables that
-fragment detail to avoid distant aliasing and unnecessary work. These details reuse the existing
-geometry, shader, and draw batches. A deterministic 330-instance layout is grouped into the same
+fragment detail to avoid distant aliasing and unnecessary work. Two different near variants also
+add two or three downward-curving dry rachises with incomplete ochre-brown leaflet remnants. This
+keeps age variation sparse and asymmetric instead of placing an identical dead skirt on all four
+shared silhouettes. The dry geometry adds 156 vertices and 82 triangles across the four stored
+near meshes; it creates no buffer object, material, texture, instance field, or submission, and the
+far meshes stay unchanged. These details reuse the existing shader and draw batches. A
+deterministic 330-instance layout is grouped into the same
 8 by 8 spatial grid as terrain. CNA hardware instancing reduces a typical overview from hundreds
 of palm submissions to four far-variant draws; mixed first-person scenes remain bounded to eight
 near/far variant draws.
@@ -422,7 +427,8 @@ transform, their colour identity cannot change at the threshold. This adds no in
 buffer, texture, draw, placement state, or collision state. Near fronds retain nine paired
 single-triangle leaflet stations, but deterministic per-frond/station phases modestly vary their
 length, longitudinal stagger, forward sweep, and droop. The broader silhouette and broken comb-like
-symmetry therefore reuse the existing 494--566-triangle near meshes. The near-only fragment path
+symmetry therefore uses 526--607-triangle near meshes after the selected dry-frond additions. The
+near-only fragment path
 also reconstructs a two-sided geometric normal from world-position derivatives and applies a
 restrained fixed-sun diffuse/fill term before the existing bark detail. Far palms skip the added
 fragment work, while no normal attribute or buffer is required.

@@ -1555,7 +1555,7 @@ audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the
 mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-19,075,204 bytes with a 16,264,920-byte stripped `libmain.so`; lint reports no issues and APK
+19,079,172 bytes with a 16,268,888-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1677,13 +1677,38 @@ KVM/gfxstream GLES 3 run retained one near turtle in one draw beneath the transp
 clean 2400 by 1080 frame was inspected and first draw completed in 2527.896 ms. These checks
 qualify portable function and composition, not physical-mobile frame time, power, or thermals.
 
+### Sparse hanging near-palm dry-frond follow-up
+
+Palm variants zero and two now add two or three incomplete dry fronds only to their stored near
+meshes. Five short rachis segments, four potential leaflet stations, deterministic gaps, unequal
+leaflet length, and brown/ochre shading keep them subordinate to the living crown. Across all four
+near variant meshes, the pass adds 156 vertices and 82 triangles; it adds no buffer object,
+instance field, material, texture, simulation, population, culling rule, far-LOD work, or draw
+submission.
+
+The complete OpenGL 3.3 private-display suite passed 46/46 with two workers after a one-off host
+Xwayland/AMD context reset under an eight-worker display load; the lower-concurrency rerun is the
+authoritative game result. The complete 27-stage Chrome/SwiftShader WebGL 2 matrix and independent
+Firefox ESR gate passed and required the exact dry-frond marker. Native, Chrome, and Android palm
+frames were inspected at their original resolutions. A strict API 35 x86_64 KVM/gfxstream GLES 3
+run reached first draw in 2413.984 ms and retained the selected dry silhouettes without a fatal,
+shader, or `GL_INVALID_OPERATION` diagnostic. The restored arm64-only package is 19,079,172 bytes
+with a 16,268,888-byte stripped `libmain.so`; lint passed, signature scheme v2 verifies, and the
+temporary x86_64 intermediates were removed.
+
+One isolated Linux Release palm run retained 293 visible palms (47 near and 246 far) in eight palm
+submissions and 78 total tracked submissions. Across 600 intervals it measured 1.0120 ms mean,
+0.9467 ms median, 1.4861 ms p95, 1.6594 ms p99, and 2.1476 ms maximum; no interval exceeded 8.333,
+16.667, or 33.333 ms. This is a gross-regression guard for the complete fixed scene, not an
+isolated triangle-cost attribution or a mobile result.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,591 bytes (59,260 gzip), and WebAssembly is 8,801,515 bytes (2,521,962
-gzip). The complete transfer payload therefore falls from 9,068,164 to 2,582,366 bytes, a measured
+gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,809,020 bytes (2,523,521
+gzip). The complete transfer payload therefore falls from 9,075,669 to 2,583,916 bytes, a measured
 71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

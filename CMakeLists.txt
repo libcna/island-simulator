@@ -472,7 +472,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "palm near geometry uses fixed-sun facet shading")
+                "palm near geometry uses fixed-sun facet shading.*selected palm near crowns include sparse hanging dry fronds")
         add_test(NAME IslandGameWaterViewCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-water-capture.ppm"
                     --viewpoint water)

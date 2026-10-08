@@ -1184,9 +1184,13 @@ improves the requested experience rather than adding quests, combat, survival, o
 
 ### Geometry, vegetation, and composition
 
-- [ ] Improve close palm trunks, roots, crowns, frond curvature, leaflet density, dead-frond/coconut
+- [~] Improve close palm trunks, roots, crowns, frond curvature, leaflet density, dead-frond/coconut
   variation, and transitions while breaking obvious clones. Preserve a cheaper distant silhouette
-  and validate wind/aliasing on mobile.
+  and validate wind/aliasing on mobile. The current pass adds sparse hanging dry-frond remnants to
+  selected near variants inside the existing instanced mesh. Matched OpenGL 3.3, Chrome/WebGL 2,
+  Firefox/WebGL 2, and KVM/gfxstream GLES 3 views pass and were inspected; the fixed Release palm
+  scene retained eight palm submissions and no frame-budget misses. Moving LOD/wind review and a
+  physical-mobile pass remain open.
 - [ ] Improve broadleaf crown layering, branch hierarchy, trunk taper, buttress integration,
   understory leaf forms, vines, fallen leaves, and forest-floor occlusion. Keep the jungle dense but
   navigable and avoid replacing one repeated silhouette with another.
@@ -6399,6 +6403,44 @@ Existing observation and qualification queue:
   Its inspected 1280 by 720 frame passed capture validation with 183 colour bins, 36.34 luminance
   deviation, and 146.84 spatial contrast. CNA and Sharp Runtime remained read-only and clean; no
   qualifying dependency defect was found.
+
+### 2026-10-08 — Sparse hanging palm dry-frond variation
+
+- Added two downward-curving dry fronds to near palm variant zero and three to variant two. Four
+  potential leaflet stations use deterministic omissions, unequal lengths, droop, and subdued
+  ochre-brown shading, so only selected crowns show incomplete aged remnants rather than every
+  shared silhouette receiving a regular skirt.
+- The four stored near meshes gain 156 vertices and 82 triangles in total. The additions reuse the
+  existing per-variant vertex/index buffer objects, wind shader, instance transforms, cells,
+  culling, and near draw. No new material, texture, buffer object, instance field, collision proxy,
+  population, far-LOD work, or submission was introduced. The current near variants span 526--607
+  triangles; far variants are byte-for-byte unchanged.
+- Added one exact startup diagnostic and required it in the native close-palm capture, both browser
+  gates, and strict Android runtime gate. The complete native private-display suite passed 46/46
+  with two workers. The complete 27-stage Chrome/SwiftShader WebGL 2 matrix and independent Firefox
+  ESR/WebGL 2 gate passed; native and both browser close-palm frames were inspected.
+- A strict API 35 x86_64 KVM 12/host-gfxstream fixed-palm run selected `OPENGLES3`, required the new
+  marker, and reached first draw in 2413.984 ms. Its clean inspected 2400 by 1080 frame retains the
+  sparse dry silhouettes and touch controls without fatal, shader, or `GL_INVALID_OPERATION`
+  diagnostics. This is translated-host functional evidence, not physical-device performance.
+- Restored and linted the arm64-only Android package through shared `/rv/cnaccache`, verified its
+  sole `arm64-v8a` ABI and v2 signature, and removed the five reproducible x86_64 intermediate
+  directories (about 1.1 GiB). The APK is 19,079,172 bytes and its stripped `libmain.so` is
+  16,268,888 bytes; the Android tree returned to approximately 1.3 GiB.
+- One isolated Linux Release palm benchmark retained 293 visible palms (47 near, 246 far), eight
+  palm submissions, and 78 total tracked submissions. Its 600 intervals measured 1.0120 ms mean,
+  0.9467 ms median, 1.4861 ms p95, 1.6594 ms p99, and 2.1476 ms maximum with zero 120/60/30 Hz
+  budget misses.
+- The deterministic Web package is 9,075,669 bytes uncompressed or 2,583,916 bytes through gzip:
+  HTML is 2,058/1,144 bytes, JavaScript 264,591/59,251 bytes, and WebAssembly
+  8,809,020/2,523,521 bytes. Its round-trip/hash/repeatability validation test passes.
+- Two unchanged Linux packaging runs produced the same 5,075,420-byte archive with SHA-256
+  `08cbaddf82e48bc20fb2cd429439d6bf96c91b60cee2d239e96a6b84988b0365` and 12,202,500 installed
+  bytes. The exact archive launched from an unrelated `/tmp` working directory, selected
+  `OPENGL33`, required the new marker, retained 293 palms in eight submissions, and completed first
+  draw in 321.558 ms. Its inspected 1280 by 720 frame passed capture validation with 199 colour
+  bins, 34.84 luminance deviation, and 146.03 spatial contrast. CNA and Sharp Runtime remained
+  read-only and clean; no qualifying dependency defect was found.
 
 ## Session-end checklist
 

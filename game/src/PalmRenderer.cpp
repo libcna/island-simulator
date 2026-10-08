@@ -485,11 +485,116 @@ void main()
             }
         }
 
+        void AppendDryFronds(PalmGeometry& geometry, const int variant,
+                             const float crownX, const float crownY, const float crownZ)
+        {
+            if (variant != 0 && variant != 2) {
+                return;
+            }
+
+            const int frondCount = variant == 0 ? 2 : 3;
+            constexpr int Segments = 5;
+            constexpr int LeafletStations = 4;
+            for (int frond = 0; frond < frondCount; ++frond) {
+                const float angle = static_cast<float>(variant) * 0.83f
+                    + static_cast<float>(frond) * 2.21f + 0.34f;
+                const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+                const Vector3 side(-direction.Z, 0.0f, direction.X);
+                const float length = 2.15f
+                    + 0.24f * static_cast<float>((frond + variant) % 3);
+                const float drop = 2.35f
+                    + 0.28f * static_cast<float>((2 * frond + variant) % 3);
+                const float phase = std::fmod(
+                    0.19f + static_cast<float>(variant) * 0.17f
+                        + static_cast<float>(frond) * 0.29f,
+                    1.0f);
+                const Color dryBase = variant == 0
+                    ? Color(137, 98, 43, 255)
+                    : Color(112, 77, 36, 255);
+                const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+
+                for (int segment = 0; segment <= Segments; ++segment) {
+                    const float t = static_cast<float>(segment)
+                        / static_cast<float>(Segments);
+                    const float radial = 0.16f + length * t;
+                    const float lateral = 0.10f
+                        * std::sin(t * std::numbers::pi_v<float> * 1.35f
+                                   + static_cast<float>(frond));
+                    const Vector3 centre(crownX + direction.X * radial + side.X * lateral,
+                                         crownY - 0.10f - drop * std::pow(t, 1.32f),
+                                         crownZ + direction.Z * radial + side.Z * lateral);
+                    const float width = 0.022f + 0.11f * (1.0f - t);
+                    const Color color = ShadeColor(
+                        dryBase, 1.04f - 0.20f * t
+                            + 0.04f * static_cast<float>((segment + frond) % 2));
+                    const Vector2 windData(0.12f + 0.30f * t * t, phase);
+                    geometry.vertices.emplace_back(
+                        centre - side * width, ShadeColor(color, 0.86f), windData);
+                    geometry.vertices.emplace_back(
+                        centre + side * width, color, windData);
+                }
+
+                for (int segment = 0; segment < Segments; ++segment) {
+                    const auto left = static_cast<std::uint16_t>(base + segment * 2);
+                    const auto right = static_cast<std::uint16_t>(left + 1U);
+                    const auto nextLeft = static_cast<std::uint16_t>(left + 2U);
+                    const auto nextRight = static_cast<std::uint16_t>(left + 3U);
+                    geometry.indices.insert(geometry.indices.end(),
+                                            {left, nextLeft, right,
+                                             right, nextLeft, nextRight});
+                }
+
+                for (int station = 0; station < LeafletStations; ++station) {
+                    const float t = 0.20f + static_cast<float>(station) * 0.19f;
+                    const float radial = 0.16f + length * t;
+                    const float lateral = 0.10f
+                        * std::sin(t * std::numbers::pi_v<float> * 1.35f
+                                   + static_cast<float>(frond));
+                    const Vector3 centre(crownX + direction.X * radial + side.X * lateral,
+                                         crownY - 0.10f - drop * std::pow(t, 1.32f),
+                                         crownZ + direction.Z * radial + side.Z * lateral);
+                    const float remnantLength = 0.14f + 0.38f * (1.0f - t);
+                    const float rootWindWeight = 0.12f + 0.30f * t * t;
+                    for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
+                        if ((station * 2 + sideIndex + frond + variant) % 5 == 0) {
+                            continue;
+                        }
+                        const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
+                        const Vector3 outward = side * sideSign;
+                        const float irregularity = 0.88f + 0.08f
+                            * static_cast<float>((station + sideIndex + frond) % 3);
+                        const Vector3 rootBack = centre - direction * 0.095f
+                            + outward * 0.025f;
+                        const Vector3 rootFront = centre + direction * 0.085f
+                            + outward * 0.040f;
+                        const Vector3 tip = centre + outward * remnantLength * irregularity
+                            + direction * (0.05f + 0.035f * sideSign)
+                            - Vector3::Up * (0.15f + 0.18f * t);
+                        const Color color = ShadeColor(
+                            dryBase, (sideIndex == 0 ? 0.82f : 0.96f) - 0.10f * t);
+                        const Vector2 rootWind(rootWindWeight, phase);
+                        const Vector2 tipWind(rootWindWeight + 0.08f, phase);
+                        const auto leafletBase = static_cast<std::uint16_t>(
+                            geometry.vertices.size());
+                        geometry.vertices.emplace_back(rootBack, color, rootWind);
+                        geometry.vertices.emplace_back(
+                            tip, ShadeColor(color, 0.91f), tipWind);
+                        geometry.vertices.emplace_back(
+                            rootFront, ShadeColor(color, 1.05f), rootWind);
+                        geometry.indices.insert(geometry.indices.end(), {
+                            leafletBase,
+                            static_cast<std::uint16_t>(leafletBase + 1U),
+                            static_cast<std::uint16_t>(leafletBase + 2U)});
+                    }
+                }
+            }
+        }
+
         [[nodiscard]] PalmGeometry CreatePalmGeometry(const int variant, const bool farMesh)
         {
             PalmGeometry geometry;
-            geometry.vertices.reserve(farMesh ? 160U : 400U);
-            geometry.indices.reserve(farMesh ? 480U : 1100U);
+            geometry.vertices.reserve(farMesh ? 160U : 1200U);
+            geometry.indices.reserve(farMesh ? 480U : 3000U);
             if (!farMesh) {
                 AppendRoots(geometry, variant);
             }
@@ -499,6 +604,7 @@ void main()
             AppendTrunk(geometry, variant, farMesh, crownX, crownY, crownZ);
             AppendFronds(geometry, variant, farMesh, crownX, crownY, crownZ);
             if (!farMesh) {
+                AppendDryFronds(geometry, variant, crownX, crownY, crownZ);
                 AppendCoconuts(geometry, variant, crownX, crownY, crownZ);
             }
             return geometry;
@@ -586,6 +692,10 @@ void main()
             std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";
+            constexpr const char* dryFrondDiagnostic =
+                "island-simulator: selected palm near crowns include sparse hanging dry fronds";
+            std::cout << dryFrondDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(dryFrondDiagnostic);
             constexpr const char* tintDiagnostic =
                 "island-simulator: palm per-instance frond tint reuses existing transforms";
             std::cout << tintDiagnostic << '\n';

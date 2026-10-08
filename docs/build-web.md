@@ -61,7 +61,8 @@ Both clearing cameras also require the shared five-rock/two-log authored-landmar
 The latest automated run used Chrome 152.0.7977.82 with SwiftShader and confirmed exact F4
 clipboard readback on its focused localhost canvas. All 27 reported lifecycle, deployment,
 renderer, scene, and input stages passed against CNA `next` `97783d1e090c`; the current rebuilt
-WebAssembly is 8,801,515 bytes. The dedicated shipwreck stage requires the exact 20 m broken-hull,
+WebAssembly is 8,809,020 bytes. The close-palm stage also requires the sparse hanging dry-frond
+diagnostic. The dedicated shipwreck stage requires the exact 20 m broken-hull,
 12-debris, large-ship-detail, one-draw diagnostics plus the portable aged-wood/waterline material
 marker; its refined curved hull, broken rails/foremast, keel/rudder, side openings, and irregularly
 scattered debris frame was inspected. A separate crab
@@ -134,9 +135,9 @@ tools/package_web_release.sh build-probe
 
 The package is written to `build-probe/web-release/`. Its `manifest.json` records the MIME type,
 uncompressed size, SHA-256 digest, and gzip size of every artifact. The current package is
-9,068,164 bytes uncompressed and 2,582,366 bytes through gzip, a 71.5% transfer reduction. HTML is
-2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,260 gzip), and WebAssembly is 8,801,515
-bytes (2,521,962 gzip). These
+9,075,669 bytes uncompressed and 2,583,916 bytes through gzip, a 71.5% transfer reduction. HTML is
+2,058 bytes (1,144 gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,809,020
+bytes (2,523,521 gzip). These
 are payload sizes, not browser decoded-memory or cold-load timing measurements. The validation
 test round-trips every compressed artifact, verifies the hashes and manifest totals, rejects a
 missing input before creating partial output, and proves that repeated packaging is byte-stable:
@@ -230,8 +231,8 @@ proving that WebGL 2 honours the nonzero instance-buffer offsets used by the adj
 62--78 m / 86--102 m LOD splits. The
 dedicated ground view requires the upright/split-leaf diagnostic, exact variant-2 QA target, and a
 nonzero per-instance near-LOD forest-floor population. The
-palm view requires the fuller segmented-leaflet, bark/coconut, and transform-derived frond-tint
-diagnostics plus nonzero near/far populations. The jungle
+palm view requires the fuller segmented-leaflet, bark/coconut, sparse hanging dry-frond, and
+transform-derived frond-tint diagnostics plus nonzero near/far populations. The jungle
 view requires the branch-supported canopy, sparse hanging leafy lianas, procedural-bark, and
 pointed-leaf near-bush diagnostics,
 nonzero near/far

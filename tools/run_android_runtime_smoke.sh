@@ -253,6 +253,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: palm near geometry uses fixed-sun facet shading" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: selected palm near crowns include sparse hanging dry fronds" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: near fallen logs use irregular broken end contours" \
             "$LOG_FILE" \
         && grep -q "island-simulator: near fallen-log end grain uses restrained radial cracks" \

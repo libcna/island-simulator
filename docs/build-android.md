@@ -51,10 +51,11 @@ per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
 variants with per-instance LOD/range selection,
 speed-responsive player bending plus curved, two-sided daylight shading, per-instance blade
-stature, a sparse juvenile underlayer, and four restrained seed-bearing stems in the instanced
+stature, a sparse juvenile underlayer, and six restrained seed-bearing stems in the instanced
 near-grass mesh,
 fuller segmented near-palm leaflets, procedural near-trunk scars, restrained coconut clusters,
-transform-derived green-only per-instance frond tint, and staggered per-instance near/far LOD,
+transform-derived green-only per-instance frond tint, sparse hanging dry fronds on two near
+variants, and staggered per-instance near/far LOD,
 157 land rocks and 14 emergent reef outcrops with transform-derived per-instance tint, irregular
 near crowns, fixed-sun facet shading,
 near-only strata/lichen, and a low fixed-sea-level wet band, 13 fallen logs, 31 sparse beach-
@@ -140,8 +141,8 @@ The same KVM 12/host-gfxstream AVD selected `OPENGLES3`, reached first draw in 2
 produced an inspected 2400 by 1080 scene with the intended thinner varied silhouettes and clean
 touch-control blending. No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. This is
 functional translated-host evidence rather than sustained physical-mobile performance evidence.
-The latest single-ABI arm64 debug qualification build produced a 19,075,204-byte APK with a
-16,264,920-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The latest single-ABI arm64 debug qualification build produced a 19,079,172-byte APK with a
+16,268,888-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, inland
 leaf-humus/cool-moss substrate breakup, close sand granulation, sparse soft-edged pebble/shell
@@ -218,6 +219,18 @@ functional translated-host visual checks, not sustained or physical-mobile perfo
 The emulator was stopped cleanly, the arm64-only APK above was restored and revalidated, and about
 1.1 GiB of reproducible x86_64 CMake/object intermediates was removed while retaining the compact
 logs and screenshots.
+
+The later sparse dry-frond pass used another strict fixed-`palms` run on the same API 35
+`Medium_Phone` KVM/gfxstream path. It required the exact hanging-dry-frond marker, reported
+`OPENGLES3`, opened the complete scene, and reached first draw in 2413.984 ms total (755.250 ms
+world, 2.066 ms framework, 1541.921 ms content, 21.782 ms pre-draw, and 92.965 ms first draw). The
+inspected clean 2400 by 1080 frame preserves irregular brown remnants only beneath selected crowns
+alongside the existing living leaflets and translucent touch controls. No fatal, shader, or
+`GL_INVALID_OPERATION` diagnostic appeared. The emulator was stopped; the current 19,079,172-byte
+arm64-only APK and 16,268,888-byte stripped `libmain.so` were restored through the shared cache,
+lint passed, only `arm64-v8a` is packaged, signature scheme v2 verifies, and the five reproducible
+x86_64 intermediate directories were removed. This is functional translated-host visual evidence,
+not sustained or physical-mobile performance qualification.
 
 An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow

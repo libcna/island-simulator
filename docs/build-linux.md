@@ -118,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,195,138 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,202,500 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,071,543-byte archive with SHA-256
-`177e3498a85ce8b3bf55699f41c87158b0823adac155657160e9509a4102d3d0`.
+5,075,420-byte archive with SHA-256
+`08cbaddf82e48bc20fb2cd429439d6bf96c91b60cee2d239e96a6b84988b0365`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -170,6 +170,11 @@ The later large-ship package repeated the gate with the shipwreck camera. The ex
 archive selected `OPENGL33`, required the large-ship marker, retained the 3,948-triangle wreck in
 one draw, and completed first draw in 408.252 ms. Its inspected 1280 by 720 frame passed capture
 validation with 183 colour bins, 36.34 luminance deviation, and 146.84 spatial contrast.
+The subsequent palm-detail package repeated the unrelated-working-directory gate with the close
+palm camera. The exact `08cbaddf` archive selected `OPENGL33`, required the sparse hanging dry-
+frond marker, retained 293 palms in eight submissions, and completed first draw in 321.558 ms. Its
+inspected 1280 by 720 frame passed capture validation with 199 colour bins, 34.84 luminance
+deviation, and 146.03 spatial contrast.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.
@@ -268,7 +273,7 @@ total tracked submissions while recording 2.6461 ms mean, 6.3492 ms p95, and 11.
 600 intervals; one interval exceeded 16.667 ms and none exceeded 33.333 ms.
 `IslandGamePalmCapture` writes an isolated near/far crown-composition view to
 `build/island-palm-capture.ppm` and requires the fuller segmented near-leaflet plus procedural
-bark-scar/coconut path.
+bark-scar/coconut path, fixed-sun facet response, and sparse hanging dry-frond variation.
 `IslandGamePropCapture` writes a close fallen-log view to `build/island-prop-capture.ppm` and
 requires the restrained radial end-grain crack path. The broader Web prop gate additionally
 requires a nonzero one-draw terrain-contact-shadow batch.
