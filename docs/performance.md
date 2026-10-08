@@ -1555,7 +1555,7 @@ audio ceiling. Core tests lock both profiles, the 16-bit ocean boundary, and the
 mesh counts. Native smoke/capture output confirms the full profile, while the complete 27-stage
 Chrome WebGL 2 matrix and Android gate require the appropriate full/mobile diagnostic. The
 restored arm64-only APK is
-19,079,172 bytes with a 16,268,888-byte stripped `libmain.so`; lint reports no issues and APK
+19,080,676 bytes with a 16,270,392-byte stripped `libmain.so`; lint reports no issues and APK
 signature scheme v2 verifies. The temporary x86_64 intermediates were removed, returning the
 Android tree from 2.4 GiB to 1.3 GiB.
 
@@ -1702,13 +1702,35 @@ submissions and 78 total tracked submissions. Across 600 intervals it measured 1
 16.667, or 33.333 ms. This is a gross-regression guard for the complete fixed scene, not an
 isolated triangle-cost attribution or a mobile result.
 
+### Layered irregular near-canopy edge follow-up
+
+Each of the four stored near-canopy variants now offsets the existing lobe-shell rings by a small
+phase and modulates contour by ring plus azimuth. Four alternating lobes add one smaller, more
+strongly drooping pointed lower-edge leaf apiece. The additions total 80 vertices and 64 triangles
+across all four stored near meshes. They add no buffer object, material, texture, instance field,
+population, simulation, culling rule, far-LOD work, or draw submission.
+
+The complete OpenGL 3.3 private-display suite passed 46/46 with two workers. The complete 27-stage
+Chrome/SwiftShader WebGL 2 matrix and independent Firefox ESR gate passed while requiring the exact
+layered-edge marker, and their original-resolution jungle frames were inspected. A strict API 35
+x86_64 KVM/gfxstream GLES 3 run selected `OPENGLES3`, reached first draw in 3070.691 ms, and
+retained the same composition without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The
+restored arm64-only package is 19,080,676 bytes with a 16,270,392-byte stripped `libmain.so`; lint
+passed, signature scheme v2 verifies, and the temporary x86_64 intermediates were removed.
+
+One isolated Linux Release jungle run retained 109 visible canopy trees (63 near and 46 far), 28
+jungle submissions, and 89 total tracked submissions. Across 600 intervals it measured 2.1422 ms
+mean, 2.0077 ms median, 2.9928 ms p95, 5.4067 ms p99, and 6.2373 ms maximum; no interval exceeded
+8.333, 16.667, or 33.333 ms. This is a gross-regression guard for the complete fixed scene, not
+isolated geometry attribution or a physical-mobile result.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,591 bytes (59,251 gzip), and WebAssembly is 8,809,020 bytes (2,523,521
-gzip). The complete transfer payload therefore falls from 9,075,669 to 2,583,916 bytes, a measured
+gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,815,141 bytes (2,526,079
+gzip). The complete transfer payload therefore falls from 9,081,790 to 2,586,476 bytes, a measured
 71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

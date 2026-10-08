@@ -432,7 +432,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "selected near canopy variants include hanging leafy lianas")
+                "jungle near canopy uses irregular layered lower-crown edges.*selected near canopy variants include hanging leafy lianas")
         add_test(NAME IslandGameEastClearingCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-east-clearing.ppm"
                     --viewpoint east)

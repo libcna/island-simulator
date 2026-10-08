@@ -70,7 +70,10 @@ remnants beneath the living crown. Their broken ochre-brown leaflets add sparse 
 without turning every palm into a uniform dead skirt; the far silhouettes and submission count
 remain unchanged.
 Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
-and pointed perimeter leaves. Two of the four near variants also carry one sparse hanging liana
+and pointed perimeter leaves. Their near-only lobe rings now shift sideways and vary contour by
+height, while alternating lobes add a smaller, more strongly drooping lower-edge leaf. This breaks
+the most obvious rounded-shell/skirt line without changing the cheaper far crowns or draw count.
+Two of the four near variants also carry one sparse hanging liana
 with a curved tapered strand and two small leaves, adding vertical jungle detail without another
 instance or draw. Their near trunks now meet the forest floor through four or five
 short irregular buttress roots instead of a uniform cylinder, using the same instanced mesh and
@@ -319,7 +322,7 @@ fresh game input after foregrounding.
 
 After the WebGL 2 release build, `tools/package_web_release.sh build-probe` creates
 `build-probe/web-release/` with verified uncompressed artifacts, deterministic gzip variants, and
-a SHA-256 manifest. The current gzip payload is 2,583,916 bytes, 71.5% below the 9,075,669-byte
+a SHA-256 manifest. The current gzip payload is 2,586,476 bytes, 71.5% below the 9,081,790-byte
 uncompressed package. See `docs/build-web.md` for required server content types and
 content-encoding headers; the quick Python development server does not exercise compressed
 delivery.
@@ -334,11 +337,11 @@ Emulator 36.5.11 runs the API 35 x86_64 AVD with KVM CPU acceleration and host-G
 The complete current scene, independent movement/look gestures, all sensitivity levels, a
 same-process hot resume, force-stop/new-process relaunch, and AAudio pause/resume are validated
 there. Dedicated current-source GLES 3 views also validate the inland humus/moss floor material,
-the clearing butterflies, a near-shore sea turtle, and sparse hanging dry-frond variation through
-the mobile quality profile. The
+the layered near-canopy edge, clearing butterflies, a near-shore sea turtle, and sparse hanging
+dry-frond variation through the mobile quality profile. The
 persistence-qualified run also
 requires a touch sensitivity change to survive the cold relaunch. The default arm64-v8a APK is
-19,079,172 bytes, contains a 16,268,888-byte stripped
+19,080,676 bytes, contains a 16,270,392-byte stripped
 `libmain.so`, passes app lint, and verifies with APK signature scheme v2. This is meaningful
 emulator qualification, but it does not replace physical-device
 ergonomics, thermal, driver, and sustained-performance testing. See

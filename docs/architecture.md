@@ -475,7 +475,11 @@ The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 l
 2,225 small forest-floor plants. Four
 canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their near
 meshes add four/five short irregular buttress roots, seven tapered support branches, and eight
-pointed perimeter leaves; rounded 208-triangle far meshes preserve the crown
+pointed perimeter leaves. Each near cluster also offsets successive shell rings sideways and
+modulates their contour by ring and azimuth. Four alternating clusters append one smaller pointed
+leaf below the existing perimeter leaf with stronger droop, adding 20 vertices and 16 triangles
+per stored near variant. This breaks the former regular lower-crown line without adding a buffer,
+instance field, material, or submission; rounded 208-triangle far meshes preserve the crown
 volume without the close silhouette detail. Near variants one and three append one shared
 31-vertex/48-triangle tapered three-sided liana with two small pointed leaves. The top-to-bottom
 wind weight gives the strand a restrained flexible response; no liana exists in the far LOD and
@@ -508,8 +512,8 @@ placement value, or submission was added. These cues give the deliberately low-p
 leaves coherent facet depth without a normal stream, texture, mesh change, or additional
 submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3 compilation,
 actual Chromium/Firefox WebGL 2 execution, and a current KVM/gfxstream GLES 3 jungle launch qualify
-the full shader. A current native runtime image remains deferred while the operator-visible prior
-executable is open.
+the full shader and layered near-crown geometry. Current native, Chrome, Firefox, and Android fixed
+jungle frames were inspected; moving LOD/wind behaviour and physical-mobile cost remain open.
 
 Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
 the 1.8--9.4 m offshore shelf, 13 mossy fallen logs in the low-slope interior, 31 small

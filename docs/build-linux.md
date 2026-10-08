@@ -118,10 +118,10 @@ Sharp Runtime, EasyGL, and MetaGL licences plus CNA notice. It emits a SHA-256/s
 deterministic `build-consumer/island-simulator-linux-x86_64.tar.gz`; two unchanged invocations must
 produce byte-identical archives.
 
-The current package contains 12,202,500 installed bytes, including the hash-gated 1280 by 720
+The current package contains 12,204,004 installed bytes, including the hash-gated 1280 by 720
 overview image referenced by its README. Two unchanged invocations produced the same
-5,075,420-byte archive with SHA-256
-`08cbaddf82e48bc20fb2cd429439d6bf96c91b60cee2d239e96a6b84988b0365`.
+5,074,648-byte archive with SHA-256
+`c14e5ab64b8a6c058ef90acd3fa12a68e2f36d12d60991bb89c134d2b06825a3`.
 
 The release preset deliberately reuses the workspace-approved `build-consumer/` tree. The optional
 standalone Android CMake probe uses that same tree, so reconfigure it with the desired preset when
@@ -175,6 +175,11 @@ palm camera. The exact `08cbaddf` archive selected `OPENGL33`, required the spar
 frond marker, retained 293 palms in eight submissions, and completed first draw in 321.558 ms. Its
 inspected 1280 by 720 frame passed capture validation with 199 colour bins, 34.84 luminance
 deviation, and 146.03 spatial contrast.
+The following near-canopy package repeated the gate with the jungle camera. The exact `c14e5ab6`
+archive selected `OPENGL33`, required the irregular layered lower-crown marker, retained 109 canopy
+trees (63 near and 46 far) in the unchanged 28 jungle submissions, and completed first draw in
+506.911 ms. Its inspected 1280 by 720 frame passed capture validation with 166 colour bins, 35.88
+luminance deviation, and 185.39 spatial contrast.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.

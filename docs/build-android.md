@@ -45,7 +45,8 @@ can instead launch the emulator or validation command through `sg kvm`.
 The current arm64 package includes the portable procedural sand/soil terrain material with
 near-field interior microvariation, broad reused-field leaf-humus/cool-moss breakup, sparse curved
 leaf litter, and close dry-sand pebble/shell flecks, the broadleaf jungle with
-branch-supported near crowns, sparse hanging leafy lianas on two near variants, distance-faded
+branch-supported near crowns, ring-varying lobe contours, secondary drooping lower-edge leaves,
+sparse hanging leafy lianas on two near variants, distance-faded
 procedural bark fissures, rounded far crowns,
 per-tree LOD, pointed-leaf near bushes with a
 compact far tier, and forest-floor plants including upright-broadleaf and folded split-leaf near
@@ -141,8 +142,8 @@ The same KVM 12/host-gfxstream AVD selected `OPENGLES3`, reached first draw in 2
 produced an inspected 2400 by 1080 scene with the intended thinner varied silhouettes and clean
 touch-control blending. No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. This is
 functional translated-host evidence rather than sustained physical-mobile performance evidence.
-The latest single-ABI arm64 debug qualification build produced a 19,079,172-byte APK with a
-16,268,888-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
+The latest single-ABI arm64 debug qualification build produced a 19,080,676-byte APK with a
+16,270,392-byte stripped `libmain.so`, passed `:app:lintDebug` with no issues, and verifies with APK
 signature scheme v2. It includes the narrowed,
 noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup, inland
 leaf-humus/cool-moss substrate breakup, close sand granulation, sparse soft-edged pebble/shell
@@ -226,11 +227,22 @@ The later sparse dry-frond pass used another strict fixed-`palms` run on the sam
 world, 2.066 ms framework, 1541.921 ms content, 21.782 ms pre-draw, and 92.965 ms first draw). The
 inspected clean 2400 by 1080 frame preserves irregular brown remnants only beneath selected crowns
 alongside the existing living leaflets and translucent touch controls. No fatal, shader, or
-`GL_INVALID_OPERATION` diagnostic appeared. The emulator was stopped; the current 19,079,172-byte
+`GL_INVALID_OPERATION` diagnostic appeared. The emulator was stopped; the then-current 19,079,172-byte
 arm64-only APK and 16,268,888-byte stripped `libmain.so` were restored through the shared cache,
 lint passed, only `arm64-v8a` is packaged, signature scheme v2 verifies, and the five reproducible
 x86_64 intermediate directories were removed. This is functional translated-host visual evidence,
 not sustained or physical-mobile performance qualification.
+
+The subsequent near-canopy layering pass used a strict fixed-`jungle` run on the same API 35
+KVM/gfxstream target. It required the exact irregular layered lower-crown marker, selected
+`OPENGLES3`, and reached first draw in 3070.691 ms total (1205.416 ms world, 4.393 ms framework,
+1785.833 ms content, 19.900 ms pre-draw, and 55.149 ms first draw). The inspected clean 2400 by
+1080 frame retains varied lower crown edges, secondary drooping leaves, the complete ground layers,
+and translucent touch controls without fatal, shader, or `GL_INVALID_OPERATION` diagnostics. The
+emulator was stopped; the 19,080,676-byte arm64-only APK and 16,270,392-byte stripped `libmain.so`
+were restored through the shared cache, lint passed, only `arm64-v8a` is packaged, signature scheme
+v2 verifies, and the five reproducible x86_64 intermediate directories were removed. This is
+functional translated-host visual evidence, not sustained or physical-mobile performance.
 
 An earlier current-source x86_64 pass explicitly enabled the strict audio gate after persistent-
 loop DC centering. Logcat proves bounded sequential source staging, the DC-centering path, slow
