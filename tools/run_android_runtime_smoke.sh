@@ -247,6 +247,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: jungle near canopy uses irregular layered lower-crown edges" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: jungle near canopy uses irregular trunks and bent support branches" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: selected near canopy variants include hanging leafy lianas" \
             "$LOG_FILE" \
         && grep -q "island-simulator: palm per-instance frond tint reuses existing transforms" \

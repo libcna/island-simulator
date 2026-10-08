@@ -1724,13 +1724,37 @@ mean, 2.0077 ms median, 2.9928 ms p95, 5.4067 ms p99, and 6.2373 ms maximum; no 
 8.333, 16.667, or 33.333 ms. This is a gross-regression guard for the complete fixed scene, not
 isolated geometry attribution or a physical-mobile result.
 
+### Irregular near-trunk and bent-branch follow-up
+
+The same four near-canopy meshes now retain the original root/crown endpoints while varying trunk
+growth laterally and modulating ring/azimuth girth. Each of the seven support branches per variant
+now tapers through an off-axis middle ring. The change adds 112 vertices and 224 triangles across
+the four stored meshes, but no buffer object, material, instance field, far-LOD work, collision
+proxy, population, culling rule, update, or draw submission.
+
+The complete OpenGL 3.3 private-display suite passed 46/46 with two workers. The complete 27-stage
+Chrome/SwiftShader WebGL 2 matrix and independent Firefox ESR gate passed while requiring the new
+exact marker; their fixed jungle frames match the native composition. A strict API 35 x86_64
+KVM/gfxstream GLES 3 run selected `OPENGLES3`, reached first draw in 2255.331 ms, and produced an
+inspected clean 2400 by 1080 frame. The restored arm64-only package is 19,082,004 bytes with a
+16,271,720-byte stripped `libmain.so`; lint passes, signature scheme v2 verifies, and the temporary
+x86_64 intermediates were removed.
+
+Two isolated Linux Release jungle runs retained 109 visible canopy trees (63 near and 46 far), 28
+jungle submissions, and 89 total tracked submissions. The first measured 2.3036 ms mean, 2.0550 ms
+median, 3.4578 ms p95, 7.0479 ms p99, and 10.9335 ms maximum, with two of 600 intervals over
+8.333 ms and none over 16.667 or 33.333 ms. The repeat measured 2.2655 ms mean, 1.9760 ms median,
+3.9955 ms p95, 6.4305 ms p99, and 7.3328 ms maximum with no budget misses. Both are complete-scene
+gross-regression checks; the first run is retained as the conservative outlier record rather than
+discarded.
+
 ### Web release transfer payload
 
 `tools/package_web_release.sh build-probe` copies the three release artifacts, emits deterministic
 `gzip -9 -n` variants, and records SHA-256 integrity data and MIME types in
 `web-release/manifest.json`. For the current Release/WebGL 2 build, HTML is 2,058 bytes (1,144
-gzip), JavaScript is 264,591 bytes (59,253 gzip), and WebAssembly is 8,815,141 bytes (2,526,079
-gzip). The complete transfer payload therefore falls from 9,081,790 to 2,586,476 bytes, a measured
+gzip), JavaScript is 264,591 bytes (59,252 gzip), and WebAssembly is 8,818,462 bytes (2,527,464
+gzip). The complete transfer payload therefore falls from 9,085,111 to 2,587,860 bytes, a measured
 71.5% reduction.
 
 This result measures static transfer bytes only. It does not measure browser decompression,

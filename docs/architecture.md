@@ -475,7 +475,13 @@ The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 l
 2,225 small forest-floor plants. Four
 canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their near
 meshes add four/five short irregular buttress roots, seven tapered support branches, and eight
-pointed perimeter leaves. Each near cluster also offsets successive shell rings sideways and
+pointed perimeter leaves. Near trunks retain their root/crown anchors while adding a bounded
+secondary growth bend, five-percent ring girth variation, and six-and-a-half-percent azimuthal
+variation. Each support branch now tapers through an off-axis middle ring, producing two visibly
+connected segments instead of one straight tube. This adds 28 vertices and 56 triangles per
+stored near variant (112 vertices and 224 triangles total), without changing the trunk vertex
+count, collision proxy, far mesh, buffer-object count, or submission count. Each near cluster also
+offsets successive shell rings sideways and
 modulates their contour by ring and azimuth. Four alternating clusters append one smaller pointed
 leaf below the existing perimeter leaf with stronger droop, adding 20 vertices and 16 triangles
 per stored near variant. This breaks the former regular lower-crown line without adding a buffer,

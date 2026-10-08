@@ -59,6 +59,8 @@ namespace island
             "island-simulator: selected near canopy variants include hanging leafy lianas";
         constexpr const char* CanopyLayeringDiagnostic =
             "island-simulator: jungle near canopy uses irregular layered lower-crown edges";
+        constexpr const char* CanopyBranchDiagnostic =
+            "island-simulator: jungle near canopy uses irregular trunks and bent support branches";
 
         struct PlantGeometry
         {
@@ -266,18 +268,32 @@ void main()
             for (int ring = 0; ring <= rings; ++ring) {
                 const float t = static_cast<float>(ring) / static_cast<float>(rings);
                 const float bend = lean * t * t;
-                const float centreX = std::cos(leanAngle) * bend;
-                const float centreZ = std::sin(leanAngle) * bend;
-                const float radius = 0.43f + (0.23f - 0.43f) * t;
+                const float secondaryBend = farMesh ? 0.0f
+                    : std::sin(t * std::numbers::pi_v<float>)
+                        * (0.070f + 0.020f * static_cast<float>(variant % 3));
+                const float centreX = std::cos(leanAngle) * bend
+                    - std::sin(leanAngle) * secondaryBend;
+                const float centreZ = std::sin(leanAngle) * bend
+                    + std::cos(leanAngle) * secondaryBend;
+                const float ringVariation = farMesh ? 1.0f
+                    : 1.0f + 0.050f * std::sin(
+                        static_cast<float>(ring) * 1.91f
+                        + static_cast<float>(variant) * 0.83f);
+                const float radius = (0.43f + (0.23f - 0.43f) * t) * ringVariation;
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
+                    const float radialVariation = farMesh ? 1.0f
+                        : 1.0f + 0.065f * std::sin(
+                            angle * 2.0f + static_cast<float>(variant) * 0.71f
+                            + static_cast<float>(ring) * 0.47f);
                     const float directional = 0.68f + 0.30f
                         * std::max(0.0f, std::cos(angle) * 0.74f + std::sin(angle) * 0.28f);
                     const Color bark(104 + variant * 4, 79 + variant * 2, 48, 255);
                     geometry.vertices.emplace_back(
-                        Vector3(centreX + std::cos(angle) * radius, height * t,
-                                centreZ + std::sin(angle) * radius),
+                        Vector3(centreX + std::cos(angle) * radius * radialVariation,
+                                height * t,
+                                centreZ + std::sin(angle) * radius * radialVariation),
                         ShadeColor(bark, directional * (ring % 2 == 0 ? 1.04f : 0.94f)),
                         Vector2(t * t * 0.08f, static_cast<float>(variant) * 0.17f));
                 }
@@ -363,11 +379,16 @@ void main()
                 ? Vector3::Up : Vector3::Right;
             const Vector3 right = Vector3::Normalize(Vector3::Cross(reference, axis));
             const Vector3 up = Vector3::Normalize(Vector3::Cross(axis, right));
+            const float phaseAngle = windPhase * 2.0f * std::numbers::pi_v<float>;
+            const Vector3 bendCentre = start + (end - start) * 0.56f
+                + right * (0.14f + 0.075f * std::sin(phaseAngle))
+                + up * (0.065f * std::cos(phaseAngle * 1.31f));
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-            for (int endpoint = 0; endpoint < 2; ++endpoint) {
-                const Vector3 centre = endpoint == 0 ? start : end;
-                const float radius = endpoint == 0 ? 0.17f : 0.085f;
-                const float windWeight = endpoint == 0 ? 0.12f : 0.58f;
+            constexpr int Rings = 3;
+            for (int ring = 0; ring < Rings; ++ring) {
+                const Vector3 centre = ring == 0 ? start : (ring == 1 ? bendCentre : end);
+                const float radius = ring == 0 ? 0.17f : (ring == 1 ? 0.115f : 0.070f);
+                const float windWeight = ring == 0 ? 0.12f : (ring == 1 ? 0.34f : 0.58f);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
@@ -378,15 +399,21 @@ void main()
                         Vector2(windWeight, windPhase));
                 }
             }
-            for (int side = 0; side < sides; ++side) {
-                const int next = (side + 1) % sides;
-                const auto lower = static_cast<std::uint16_t>(base + side);
-                const auto lowerNext = static_cast<std::uint16_t>(base + next);
-                const auto upper = static_cast<std::uint16_t>(base + sides + side);
-                const auto upperNext = static_cast<std::uint16_t>(base + sides + next);
-                geometry.indices.insert(geometry.indices.end(),
-                                        {lower, upper, lowerNext,
-                                         lowerNext, upper, upperNext});
+            for (int segment = 0; segment < Rings - 1; ++segment) {
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto lower = static_cast<std::uint16_t>(
+                        base + segment * sides + side);
+                    const auto lowerNext = static_cast<std::uint16_t>(
+                        base + segment * sides + next);
+                    const auto upper = static_cast<std::uint16_t>(
+                        base + (segment + 1) * sides + side);
+                    const auto upperNext = static_cast<std::uint16_t>(
+                        base + (segment + 1) * sides + next);
+                    geometry.indices.insert(geometry.indices.end(),
+                                            {lower, upper, lowerNext,
+                                             lowerNext, upper, upperNext});
+                }
             }
         }
 
@@ -1052,6 +1079,8 @@ void main()
             std::cout << "island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes\n";
             std::cout << CanopyLayeringDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(CanopyLayeringDiagnostic);
+            std::cout << CanopyBranchDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(CanopyBranchDiagnostic);
             std::cout << CanopyLianaDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(CanopyLianaDiagnostic);
             std::cout << "island-simulator: jungle near canopy irregular buttress roots ground trunk bases\n";

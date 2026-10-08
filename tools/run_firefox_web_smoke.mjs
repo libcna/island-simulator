@@ -253,6 +253,7 @@ try {
     "island-simulator: grass near blades use asymmetric edges and occasional bent tips",
     "island-simulator: jungle per-instance foliage tint reuses existing transforms",
     "island-simulator: jungle near canopy uses irregular layered lower-crown edges",
+    "island-simulator: jungle near canopy uses irregular trunks and bent support branches",
     "island-simulator: selected near canopy variants include hanging leafy lianas",
     "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: selected palm near crowns include sparse hanging dry fronds",

@@ -310,6 +310,8 @@ try {
     && result.output?.includes(
       "island-simulator: jungle near canopy uses irregular layered lower-crown edges")
     && result.output?.includes(
+      "island-simulator: jungle near canopy uses irregular trunks and bent support branches")
+    && result.output?.includes(
       "island-simulator: selected near canopy variants include hanging leafy lianas")
     && result.output?.includes(
       "island-simulator: jungle near canopy irregular buttress roots ground trunk bases")
@@ -846,6 +848,8 @@ try {
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && jungleResult.output?.includes(
       "island-simulator: jungle near canopy uses irregular layered lower-crown edges")
+    && jungleResult.output?.includes(
+      "island-simulator: jungle near canopy uses irregular trunks and bent support branches")
     && jungleResult.output?.includes(
       "island-simulator: selected near canopy variants include hanging leafy lianas")
     && jungleResult.output?.includes(

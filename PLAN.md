@@ -1198,7 +1198,11 @@ improves the requested experience rather than adding quests, combat, survival, o
   edge leaves while preserving far LODs and instanced draw counts. Matched OpenGL 3.3,
   Chrome/WebGL 2, Firefox/WebGL 2, and KVM/gfxstream GLES 3 views pass and were inspected; the
   fixed Release jungle scene has no frame-budget misses. Branch hierarchy, broader understory
-  variation, moving-wind inspection, and physical-mobile review remain open.
+  variation, moving-wind inspection, and physical-mobile review remain open. A second pass adds
+  near-only trunk growth irregularity and tapered bent two-segment support branches while
+  preserving far meshes, collision proxies, and submissions; native, both browser engines, and
+  KVM/gfxstream GLES 3 validation pass. Broader understory variation, moving-wind inspection, and
+  physical-mobile review remain open.
 - [~] Rework grass blade width/taper/curvature, cluster footprints, height/density fields, colour
   gradients, seed heads, wind phase, terrain-normal seating, and near/middle/far transitions until
   first-person gaps and repeated tufts are no longer distracting. The first realism pass narrows
@@ -6485,6 +6489,51 @@ Existing observation and qualification queue:
   first draw in 506.911 ms. Its inspected 1280 by 720 frame passed capture validation with 166
   colour bins, 35.88 luminance deviation, and 185.39 spatial contrast. CNA and Sharp Runtime
   remained read-only and clean; no qualifying dependency defect was found.
+
+### 2026-10-08 — Irregular near trunks and bent support branches
+
+- Refined only the four stored near-canopy meshes after the layered-crown review showed that the
+  supporting structure still read as regular cylinders. Each trunk retains the same ground and
+  crown anchors while receiving a restrained secondary growth bend, small ring-to-ring girth
+  variation, and asymmetric radial variation. Each of seven support branches now tapers through a
+  deterministic off-axis middle ring, yielding two connected segments instead of one straight
+  tube.
+- The branch change adds 28 vertices and 56 triangles per stored variant, or 112 vertices and 224
+  triangles total; trunk vertex counts do not change. Existing per-variant buffers, the portable
+  wind/facet/bark shader, transforms, cells, culling, and near draw are reused. No material,
+  texture, buffer object, instance field, collision proxy, population, far-LOD work, simulation,
+  or submission was introduced; every far mesh remains byte-for-byte unchanged.
+- Added one exact runtime marker and required it in the native jungle capture, both WebGL 2 gates,
+  and strict Android runtime gate. The complete OpenGL 3.3 private-display suite passed 46/46 with
+  two workers. The complete 27-stage Chrome/SwiftShader matrix and independent Firefox ESR gate
+  passed; native and both browser jungle frames were inspected at 1280 by 720 and preserve the
+  same composition.
+- A strict API 35 x86_64 KVM 12/host-gfxstream fixed-jungle run selected `OPENGLES3`, required the
+  new marker, and reached first draw in 2255.331 ms (694.128 ms world, 2.885 ms framework,
+  1484.222 ms content, 20.835 ms pre-draw, and 53.261 ms first draw). Its clean inspected 2400 by
+  1080 frame retains the restrained structure, vegetation layers, and touch controls without
+  fatal, shader, or `GL_INVALID_OPERATION` diagnostics. This remains translated-host functional
+  evidence, not physical-device performance.
+- Restored and linted the arm64-only Android package through shared `/rv/cnaccache`, verified its
+  sole `arm64-v8a` ABI and v2 signature, and removed the five reproducible x86_64 intermediate
+  directories (about 1.1 GiB). The APK is 19,082,004 bytes and its stripped `libmain.so` is
+  16,271,720 bytes; the Android tree returned to approximately 1.3 GiB.
+- Two isolated Linux Release jungle runs retained 109 visible canopy trees (63 near, 46 far), 28
+  jungle submissions, and 89 total tracked submissions. The first measured 2.3036 ms mean,
+  2.0550 ms median, 3.4578 ms p95, 7.0479 ms p99, and 10.9335 ms maximum with two 120 Hz misses;
+  the repeat measured 2.2655/1.9760/3.9955/6.4305/7.3328 ms with zero misses. Neither run missed
+  the 60 or 30 Hz budgets; both results are retained rather than discarding the noisier run.
+- The deterministic Web package is 9,085,111 bytes uncompressed or 2,587,860 bytes through gzip:
+  HTML is 2,058/1,144 bytes, JavaScript 264,591/59,252 bytes, and WebAssembly
+  8,818,462/2,527,464 bytes. Its round-trip/hash/repeatability validation test passes.
+- Two unchanged Linux packaging runs produced the same 5,075,520-byte archive with SHA-256
+  `ccbfb6a7ea40189bcbde20d264dd20579232348653715af29ac280b4225f2489` and 12,204,685 installed
+  bytes. The exact archive launched from an unrelated `/tmp` working directory, selected
+  `OPENGL33`, required the new marker, retained the unchanged 28 jungle submissions, and completed
+  first draw in 298.290 ms. Its inspected 1280 by 720 frame passed capture validation with 165
+  colour bins, 35.87 luminance deviation, and 185.38 spatial contrast. CNA and Sharp Runtime
+  remained on their required `next` revisions, read-only and clean; no qualifying dependency
+  defect was found.
 
 ## Session-end checklist
 

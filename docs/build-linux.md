@@ -180,6 +180,13 @@ archive selected `OPENGL33`, required the irregular layered lower-crown marker, 
 trees (63 near and 46 far) in the unchanged 28 jungle submissions, and completed first draw in
 506.911 ms. Its inspected 1280 by 720 frame passed capture validation with 166 colour bins, 35.88
 luminance deviation, and 185.39 spatial contrast.
+The subsequent trunk/branch package repeated the unrelated-working-directory gate with the same
+jungle camera. Two packaging runs produced the identical 5,075,520-byte archive with SHA-256
+`ccbfb6a7ea40189bcbde20d264dd20579232348653715af29ac280b4225f2489` and 12,204,685 installed
+bytes. The exact archive selected `OPENGL33`, required the irregular-trunk/bent-support-branch
+marker, retained the same 109 canopy trees and 28 jungle submissions, and completed first draw in
+298.290 ms. Its inspected 1280 by 720 frame passed capture validation with 165 colour bins, 35.87
+luminance deviation, and 185.38 spatial contrast.
 The subsequent crab package repeated the gate from `/tmp` with `--viewpoint crabs`, selected
 `OPENGL33`, rendered five of thirty agents in one draw, produced an inspected 1280 by 720 frame,
 and exited cleanly after 456.854 ms to the first completed game draw.
