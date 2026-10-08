@@ -212,18 +212,27 @@ invalid invocations and requires exit code 2, an actionable stderr diagnostic, a
 graphics initialization. The cases cover an unknown option, missing option values, an unknown
 viewpoint, a benchmark/debug conflict, and traversal without a benchmark destination.
 
-GPU tests must not run on the owner's live desktop. In this workspace use CNA's private Weston and
-Xwayland runner:
+GPU tests must not run on the owner's live desktop. The 2026-10-08 AMDGPU GPUVM incident also means
+that a private compositor is not, by itself, a sufficient safety boundary: it still uses the same
+physical GPU as GNOME. Until the critical incident is closed, do not invoke the aggregate CNA
+runner directly. Obtain read-only kernel-journal access and qualify one workload at a time with:
 
 ```bash
-../cna/tools/platform/run_gpu_tests_private.sh \
-  build --output-on-failure -j1
+tools/run_gpu_incident_qualification.sh build smoke
+tools/run_gpu_incident_qualification.sh build capture-jungle
+tools/run_gpu_incident_qualification.sh build benchmark-jungle
 ```
 
-Run the aggregate graphics qualification serially. Its tests intentionally share one private GPU,
-compositor, and display; parallel CTest scheduling can starve frame-driven input automation and
-produce timeout failures that do not reproduce in isolation. Independent CPU-only tests may still
-use the documented two-worker ceiling.
+The harness refuses to launch unless it can read a real kernel record and acquire a journal cursor.
+It preserves the command output, per-PID runtime log, private-compositor log, benchmark/capture
+output, and post-run kernel delta. Any new GPUVM fault, GFX ring timeout, VRAM loss, or reset stops
+qualification immediately. See `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md` for the exact
+sequence and acceptance criteria.
+
+Ordinary CTest display tests now share the `island_gpu_display` resource lock even under
+`ctest -j8`; independent CPU-only tests can still run in parallel. The
+`ISLAND_ALLOW_PARALLEL_GPU_TESTS=ON` CMake option exists only for the final controlled incident
+stress stage after every serial gate is clean. It is not a normal developer setting.
 
 `IslandGameSmoke` requires the layered-horizontal-wisp sky diagnostic in addition to renderer
 startup and a clean four-frame exit.
@@ -355,11 +364,11 @@ independently locks the camera-basis signs and 4.3/8.0 m/s land pace limits.
 build/island-simulator
 ```
 
-For repeatable frame-time reports on a private accelerated display:
+For repeatable frame-time reports during the current GPU incident qualification:
 
 ```bash
-../cna/tools/platform/run_gpu_tests_private.sh \
-  --exec ./tools/run_native_benchmarks.sh /tmp/island-benchmarks
+tools/run_gpu_incident_qualification.sh build benchmark-jungle
+tools/run_gpu_incident_qualification.sh build benchmark-traversal
 ```
 
 The development executable dynamically loads `build/CNA/libcna.so` through its generated

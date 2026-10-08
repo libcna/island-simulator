@@ -54,6 +54,72 @@ environment.
 - Keep simulation and placement deterministic when this improves tests, debugging, and captures.
 - Preserve a playable build at meaningful milestones; do not accumulate large untested batches.
 
+## Critical incident response — 2026-10-08 AMDGPU GPUVM reset
+
+The normal realism campaign is paused behind the critical GPU incident documented in
+`docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md`. At 01:12:47 CEST an eight-client native CTest
+run produced GPUVM faults attributed to the jungle benchmark, followed by a GFX ring timeout,
+MODE2 reset, VRAM loss, and termination of the GNOME session. Previous native GPU claims are
+historical evidence, not post-incident qualification.
+
+- [x] Reconstruct the exact parent command, CTest scheduling, private Weston/Xwayland environment,
+  renderer/backend, primary PID/workload, and collateral PIDs from the agent rollout, CTest
+  definitions, coredump metadata, and retained artifacts.
+- [x] Establish that PID 3497873 was the uncapped fixed-jungle benchmark on
+  `OPENGL33`/EasyGL/SDL3/X11-GLX/Mesa radeonsi and that `island-sim:cs0` was Mesa's AMD command-
+  submission worker, not a game or CNA thread.
+- [x] Correct the contemporaneous unsupported “infrastructure reset / not geometry” conclusion and
+  record the unsafe `-j2` retry that began immediately after the reset.
+- [x] Preserve the coredump and rollout locations and distinguish the post-reset
+  `/tmp/cna-wl-sfF758` compositor log from the removed primary-run log.
+- [x] Audit game-side render threading, EasyGL lease use, procedural index validation, dynamic
+  upload capacities, instance-buffer growth, binding cleanup, and fixed-benchmark resource
+  lifetime. No explanatory application UB or lifetime race has yet been demonstrated.
+- [x] Audit all four game-side instancing paths and add CPU-side capacity/offset/count guards plus
+  regression tests. EasyGL deliberately forwards these ranges without managed validation; the
+  incident's audited ranges are valid, so this is containment rather than a claimed root-cause fix.
+- [x] Reconstruct the immediately preceding GPU work: Android was already stopped; Chrome/WebGL 2
+  and Firefox/WebGL 2 completed just before native `-j8`. Record the later, pre-report `-j2` pass
+  and two isolated jungle passes as useful but unmonitored evidence, not qualification.
+- [x] Add flushed per-PID startup/workload/backend/API/device/environment/thread diagnostics.
+- [x] Add opt-in KHR_debug, GL-error checks, and high-level render-pass attribution without sleeps,
+  fences, `glFinish`, or a normal-path synchronization change.
+- [x] Add a fail-closed, one-workload qualification harness that preserves runtime, compositor,
+  output, and kernel-log evidence and refuses to launch without an actual kernel-journal cursor.
+- [x] Prevent accidental multi-client display stress in ordinary `ctest -jN` while retaining an
+  explicit `ISLAND_ALLOW_PARALLEL_GPU_TESTS` switch for the final controlled stress stage.
+- [x] Rebuild the instrumented application with the mandatory shared ccache and pass the complete
+  non-display CTest set except for one diagnostics-induced command-line expectation, then correct
+  it and pass the focused command-line regression. No hardware GPU was used.
+- [x] Pass the fixed-jungle smoke workload twice on forced Mesa llvmpipe software rendering with
+  KHR_debug/pass markers; observe zero GL errors and zero warning-or-higher debug messages. Cap the
+  final llvmpipe run at eight workers. This validates instrumentation, not AMD hardware safety.
+- [x] Pass the first-party core tests under ASan/UBSan and complete Cppcheck over all first-party
+  translation units without an explanatory lifetime, bounds, ownership, or concurrency finding.
+- [x] Rebuild the current incident instrumentation and range guards for native OpenGL 3.3, WebGL 2,
+  and Android arm64/OpenGL ES 3. The ten non-display CTests pass; Web and Android results are
+  compile/package evidence only, not runtime GPU qualification.
+- [!] Obtain read-only kernel-journal visibility for the development account. Current
+  `journalctl -k` returns no kernel record, so the safety harness correctly refuses to launch.
+- [ ] Run smoke, jungle capture, jungle benchmark, traversal benchmark, and the ground/frond/grass
+  captures individually and serially, stopping on the first new GPUVM fault.
+- [ ] If serial runs are clean, repeat the offending jungle workload enough times to cover a
+  timing-sensitive failure and run all fixed viewpoints plus relevant EasyGL tests serially.
+- [ ] Isolate the first pre-fault pass/resource operation using persistent markers, GL diagnostics,
+  Mesa diagnostics, and kernel timestamps. Do not infer it from post-reset `SwapBuffers` or
+  `MakeCurrent` aborts.
+- [ ] Fix the proven primary cause inside island-simulator, or document a proven upstream defect
+  and use only a narrow, technically justified game-side compatibility path. Dependencies remain
+  read-only.
+- [x] Audit unrecoverable EasyGL context loss separately: native contexts are not requested robust,
+  production native loss does not notify MetaGL, and post-reset Mesa abort can occur before an SDL
+  error return. Record this as an unsupported recovery capability, not the primary cause or a
+  confirmed CNA bug; no `BUGS.md` entry is warranted yet.
+- [ ] Increase controlled concurrency from one to two and finally eight clients only after serial
+  qualification; require zero new GPUVM faults, ring timeouts, resets, or process crashes.
+- [ ] Produce the final incident report and restore Linux hardware-GPU release confidence before
+  resuming subjective GPU visual-polish runs.
+
 ## Verified workspace baseline (refreshed 2026-10-07)
 
 - [x] Confirmed `island-simulator` is a new repository on unborn branch `develop`, with no source

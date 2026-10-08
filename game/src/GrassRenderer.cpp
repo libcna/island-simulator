@@ -700,6 +700,8 @@ void main()
         if (instanceCount <= 0) {
             return;
         }
+        ValidateInstancedDrawRangeOrThrow(
+            cell.patchCount, instanceOffset, instanceCount, "grass instance");
         device_.SetVertexBuffers({VertexBufferBinding(mesh.vertices.get(), 0, 0),
                                   VertexBufferBinding(cell.instances.get(), instanceOffset, 1)});
         device_.setIndicesProperty(mesh.indices.get());

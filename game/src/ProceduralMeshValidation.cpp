@@ -43,4 +43,23 @@ namespace island
             }
         }
     }
+
+    void ValidateInstancedDrawRangeOrThrow(
+        const int instanceCapacity, const int instanceOffset, const int instanceCount,
+        const std::string_view label)
+    {
+        if (instanceCapacity < 0) {
+            throw MeshError(label, "has a negative instance-buffer capacity");
+        }
+        if (instanceOffset < 0) {
+            throw MeshError(label, "has a negative instance-buffer offset");
+        }
+        if (instanceCount <= 0) {
+            throw MeshError(label, "has a non-positive instance count");
+        }
+        if (instanceOffset > instanceCapacity
+            || instanceCount > instanceCapacity - instanceOffset) {
+            throw MeshError(label, "reads beyond the instance buffer");
+        }
+    }
 }

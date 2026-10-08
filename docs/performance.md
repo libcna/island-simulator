@@ -9,18 +9,24 @@ end-to-end frame intervals and matching scene-population samples, and exits. Tim
 between consecutive `Draw` entries, so it includes the preceding update, draw submission,
 presentation, and game-loop work. It does not separate CPU and GPU cost.
 
-One fixed view can be measured with:
+One fixed view can ordinarily be measured with the game command below. Following the 2026-10-08
+AMDGPU GPUVM reset, do not launch it directly on the hardware GPU:
 
 ```bash
 build/island-simulator --benchmark /tmp/island-jungle.json --viewpoint jungle
 ```
 
-Run the six-report suite without placing a window on the owner's desktop:
+During incident qualification, use the fail-closed serial harness instead:
 
 ```bash
-../cna/tools/platform/run_gpu_tests_private.sh \
-  --exec ./tools/run_native_benchmarks.sh /tmp/island-benchmarks
+tools/run_gpu_incident_qualification.sh build benchmark-jungle
+tools/run_gpu_incident_qualification.sh build benchmark-traversal
 ```
+
+It requires kernel-journal visibility and stops on the first new GPUVM fault, ring timeout, or GPU
+reset. The six-report `tools/run_native_benchmarks.sh` suite remains useful only after the incident
+is closed; a private compositor still shares the physical GPU with the desktop. See the incident
+document for the staged concurrency protocol.
 
 The suite covers overview, beach, dense jungle, shoreline detail, and close monkey fixed views,
 then a 676 m moving camera rail. The generated schema-3 JSON files contain resolution, renderer

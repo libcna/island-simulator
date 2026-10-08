@@ -1,6 +1,7 @@
 #include "CNA/Platform/Entrypoint.hpp"
 
 #include "IslandSimulator/IslandGame.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <exception>
 #include <iostream>
@@ -8,8 +9,48 @@
 #include <string_view>
 #include <utility>
 
+namespace
+{
+    [[nodiscard]] const char* ViewpointName(const island::FixedViewpoint viewpoint) noexcept
+    {
+        using island::FixedViewpoint;
+        switch (viewpoint) {
+        case FixedViewpoint::None: return "interactive";
+        case FixedViewpoint::Overview: return "overview";
+        case FixedViewpoint::BeachPath: return "beach";
+        case FixedViewpoint::JungleTrail: return "jungle";
+        case FixedViewpoint::EastClearingDetail: return "east";
+        case FixedViewpoint::WestClearingDetail: return "west";
+        case FixedViewpoint::GrassDetail: return "grass";
+        case FixedViewpoint::GroundPlantDetail: return "ground";
+        case FixedViewpoint::FallenLeafDetail: return "litter";
+        case FixedViewpoint::GroundContactDetail: return "contact";
+        case FixedViewpoint::MovementTraceDetail: return "movement";
+        case FixedViewpoint::PalmDetail: return "palms";
+        case FixedViewpoint::WaterlineDetail: return "water";
+        case FixedViewpoint::CurrentBoundaryDetail: return "current";
+        case FixedViewpoint::DistantSceneryDetail: return "distant";
+        case FixedViewpoint::PropDetail: return "props";
+        case FixedViewpoint::DriftwoodDetail: return "driftwood";
+        case FixedViewpoint::ReefDetail: return "reef";
+        case FixedViewpoint::FallenFrondDetail: return "fronds";
+        case FixedViewpoint::BirdDetail: return "birds";
+        case FixedViewpoint::FishDetail: return "fish";
+        case FixedViewpoint::SharkDetail: return "shark";
+        case FixedViewpoint::MonkeyDetail: return "monkeys";
+        case FixedViewpoint::ShipwreckDetail: return "shipwreck";
+        case FixedViewpoint::CrabDetail: return "crabs";
+        case FixedViewpoint::ButterflyDetail: return "butterflies";
+        case FixedViewpoint::SeaTurtleDetail: return "turtles";
+        case FixedViewpoint::BenchmarkTraversal: return "traversal";
+        }
+        return "unknown";
+    }
+}
+
 int main(const int argc, char* argv[])
 {
+    island::InitializeRuntimeDiagnostics(argc, argv);
     bool smokeTest = false;
     bool showDebugOverlay = false;
     bool showWorldDebug = false;
@@ -135,6 +176,14 @@ int main(const int argc, char* argv[])
         std::cerr << "island-simulator: the traversal viewpoint requires --benchmark\n";
         return 2;
     }
+    const std::string_view mode = !benchmarkPath.empty() ? "benchmark"
+        : !capturePath.empty() ? "capture"
+        : !startupReportPath.empty() ? "startup-report"
+        : inputDiagnostics ? "input-diagnostics"
+        : smokeTest ? "smoke-test"
+        : "interactive";
+    island::RecordRuntimeWorkload(mode, ViewpointName(viewpoint), capturePath,
+                                  benchmarkPath, startupReportPath);
     try {
         island::IslandGame game(smokeTest, std::move(capturePath), viewpoint, showDebugOverlay,
                                 inputDiagnostics, showWorldDebug, std::move(benchmarkPath),
@@ -144,7 +193,16 @@ int main(const int argc, char* argv[])
         game.Run();
         return 0;
     } catch (const std::exception& error) {
-        std::cerr << "island-simulator: fatal error: " << error.what() << '\n';
+        const std::string diagnostic =
+            std::string("island-simulator: fatal error: ") + error.what();
+        std::cerr << diagnostic << '\n';
+        island::MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        return 1;
+    } catch (...) {
+        constexpr std::string_view diagnostic =
+            "island-simulator: fatal error: unknown non-standard exception";
+        std::cerr << diagnostic << '\n';
+        island::MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         return 1;
     }
 }

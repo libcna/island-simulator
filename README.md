@@ -278,8 +278,10 @@ the south fish shallows, offshore shark, monkey troop, and the active offshore-c
 The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 Use `--world-debug` to enable both the panel and world visualization at launch.
-Use `tools/run_native_benchmarks.sh` through the private GPU runner for warm, uncapped JSON
-frame-time reports across five fixed scenes plus a 676 m moving traversal. Reports include
+The 2026-10-08 AMDGPU GPUVM incident currently requires the fail-closed serial procedure in
+`docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md`; a private compositor still shares the physical
+GPU with the desktop. After that incident is closed, `tools/run_native_benchmarks.sh` provides
+warm, uncapped JSON frame-time reports across five fixed scenes plus a 676 m moving traversal. Reports include
 min/max/mean scene-population ranges, timing distributions, and exact 120/60/30 Hz budget-miss
 counts; methodology and the current Linux release baseline are in `docs/performance.md`.
 Use `--startup-report <path>` to write a machine-readable first-draw report. It separates

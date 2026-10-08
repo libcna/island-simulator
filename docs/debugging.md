@@ -1,5 +1,34 @@
 # Debugging and Runtime Diagnostics
 
+## Persistent process and GPU-incident diagnostics
+
+Every native launch records the PID, main TID, exact command line, working directory, parsed workload and viewpoint,
+CNA renderer, SDL platform/video backend, OpenGL vendor/renderer/version/GLSL strings, graphics
+adapter identity, relevant Mesa/AMD/display environment, and the Linux thread inventory observed
+after first present. The default Linux location is:
+
+```text
+$XDG_STATE_HOME/island-simulator/runtime/island-runtime-<pid>.log
+```
+
+When `XDG_STATE_HOME` is unset, the fallback is
+`$HOME/.local/state/island-simulator/runtime/`. Display CTests override this with
+`build/runtime-logs/`. Each record is flushed immediately so a kernel line naming a PID can be
+mapped to its renderer and workload even after a process or desktop-session failure.
+
+Set `ISLAND_RUNTIME_LOG_DIRECTORY` to an explicit evidence directory when running a focused
+diagnostic. `ISLAND_GPU_DIAGNOSTICS=1` additionally enables KHR_debug where available, GL-error
+checkpoints, and flushed begin/end markers for each high-level render pass. It does not introduce
+`sleep`, fences, or `glFinish`, and normal launches do not enable it.
+
+The Linux task name `island-sim:cs0` is Mesa/radeonsi's asynchronous AMD command-submission worker,
+not a game-created worker. island-simulator owns update, rendering, content creation, and resource
+destruction on its main thread.
+
+For the fail-closed hardware protocol and the current prohibition on unmonitored aggregate GPU
+runs, see `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md` and
+`tools/run_gpu_incident_qualification.sh`.
+
 ## Overlay
 
 Press F1 during an interactive desktop or browser run to toggle the diagnostics overlay. It starts

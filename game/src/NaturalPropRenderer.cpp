@@ -1181,6 +1181,8 @@ void main()
                     device_, InstanceDeclaration(), capacity, BufferUsage::WriteOnly);
                 mesh.instanceCapacity = capacity;
             }
+            ValidateInstancedDrawRangeOrThrow(
+                mesh.instanceCapacity, 0, count, "natural-prop instance");
             mesh.instances->SetDataRaw(transforms.data(), count, static_cast<int>(sizeof(Matrix)));
             device_.SetVertexBuffers({VertexBufferBinding(mesh.vertices.get(), 0, 0),
                                       VertexBufferBinding(mesh.instances.get(), 0, 1)});

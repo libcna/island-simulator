@@ -793,6 +793,8 @@ void main()
                     device_, InstanceDeclaration(), newCapacity, BufferUsage::WriteOnly);
                 mesh.instanceCapacity = newCapacity;
             }
+            ValidateInstancedDrawRangeOrThrow(
+                mesh.instanceCapacity, 0, count, "palm instance");
             mesh.instances->SetDataRaw(transforms.data(), count, static_cast<int>(sizeof(Matrix)));
             device_.SetVertexBuffers({VertexBufferBinding(mesh.vertices.get(), 0, 0),
                                       VertexBufferBinding(mesh.instances.get(), 0, 1)});

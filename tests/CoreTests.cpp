@@ -244,6 +244,35 @@ int main()
               && rejectsProceduralMesh(65'537U, validTriangle, "16-bit vertex limit"),
           "procedural mesh validation rejects every malformed portable index boundary");
 
+    bool validInstanceRangesAccepted = true;
+    try {
+        island::ValidateInstancedDrawRangeOrThrow(8, 0, 8, "test-full-instance");
+        island::ValidateInstancedDrawRangeOrThrow(8, 3, 5, "test-sliced-instance");
+    } catch (const std::runtime_error&) {
+        validInstanceRangesAccepted = false;
+    }
+    Check(validInstanceRangesAccepted,
+          "instanced draw validation accepts complete and sliced in-range buffers");
+
+    const auto rejectsInstanceRange = [](const int capacity, const int offset,
+                                         const int count,
+                                         const std::string_view expectedDiagnostic) {
+        try {
+            island::ValidateInstancedDrawRangeOrThrow(
+                capacity, offset, count, "test-invalid-instance");
+        } catch (const std::runtime_error& exception) {
+            return std::string_view(exception.what()).find(expectedDiagnostic)
+                != std::string_view::npos;
+        }
+        return false;
+    };
+    Check(rejectsInstanceRange(-1, 0, 1, "negative instance-buffer capacity")
+              && rejectsInstanceRange(8, -1, 1, "negative instance-buffer offset")
+              && rejectsInstanceRange(8, 0, 0, "non-positive instance count")
+              && rejectsInstanceRange(8, 7, 2, "beyond the instance buffer")
+              && rejectsInstanceRange(8, 9, 1, "beyond the instance buffer"),
+          "instanced draw validation rejects every out-of-buffer range shape");
+
     const island::BenchmarkTraversalRoute benchmarkRoute;
     const island::BenchmarkRouteSample routeStart = benchmarkRoute.Sample(0.0f);
     const island::BenchmarkRouteSample routeEnd = benchmarkRoute.Sample(1.0f);

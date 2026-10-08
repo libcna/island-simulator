@@ -13,6 +13,8 @@ option(ISLAND_STRICT_DEPENDENCY_REVISIONS
        "Require the dependency revisions recorded in dependencies.lock" ON)
 option(ISLAND_ENABLE_SANITIZERS
        "Instrument first-party island-simulator targets with AddressSanitizer and UBSan" OFF)
+option(ISLAND_ALLOW_PARALLEL_GPU_TESTS
+       "Permit display tests to share a GPU (incident qualification only)" OFF)
 
 set(CNA_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build/dependencies/cna-next" CACHE PATH
     "Read-only CNA next source tree")
@@ -257,6 +259,7 @@ if(ISLAND_BUILD_GAME)
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp
+        game/src/GpuDiagnostics.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
         game/src/JungleRenderer.cpp
@@ -685,5 +688,27 @@ if(ISLAND_BUILD_GAME)
                     PASS_REGULAR_EXPRESSION "settings persistence smoke passed")
             endif()
         endif()
+
+        # The 2026-10-08 GPUVM incident occurred while CTest launched eight independent GL
+        # clients against one private Xwayland/Weston compositor. Keep ordinary `ctest -jN`
+        # useful for CPU tests while making GPU concurrency an explicit incident-qualification
+        # choice. This is scheduling containment, not the root-cause fix; controlled stress runs
+        # re-enable concurrency after serial kernel-log qualification.
+        file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/runtime-logs")
+        get_property(_island_configured_tests DIRECTORY PROPERTY TESTS)
+        foreach(_island_test IN LISTS _island_configured_tests)
+            get_test_property("${_island_test}" LABELS _island_test_labels)
+            if("display" IN_LIST _island_test_labels)
+                set_property(TEST "${_island_test}" APPEND PROPERTY ENVIRONMENT
+                    "ISLAND_RUNTIME_LOG_DIRECTORY=${CMAKE_BINARY_DIR}/runtime-logs")
+                if(NOT ISLAND_ALLOW_PARALLEL_GPU_TESTS)
+                    get_test_property("${_island_test}" RUN_SERIAL _island_run_serial)
+                    if(NOT _island_run_serial)
+                        set_tests_properties("${_island_test}" PROPERTIES
+                            RESOURCE_LOCK island_gpu_display)
+                    endif()
+                endif()
+            endif()
+        endforeach()
     endif()
 endif()

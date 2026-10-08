@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
+#include "IslandSimulator/GpuDiagnostics.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
@@ -703,6 +704,8 @@ namespace island
         std::cout << qualityDiagnostic.str() << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(qualityDiagnostic.str());
         auto& device = getGraphicsDeviceProperty();
+        RecordGraphicsRuntimeDiagnostics(device);
+        InitializeGpuDiagnostics();
         terrainRenderer_ = std::make_unique<TerrainRenderer>(device, terrain_);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
             device, distantSceneryLayout_);
@@ -1811,76 +1814,139 @@ namespace island
     {
         const auto drawStarted = std::chrono::steady_clock::now();
         auto& device = getGraphicsDeviceProperty();
+        BeginGpuDiagnosticFrame(drawnFrames_);
+        if (drawnFrames_ == 1U) RecordRuntimeThreadInventory();
         if (!benchmarkPath_.empty() && !benchmarkReportPending_) {
             RecordBenchmarkFrame();
         }
         debugOverlay_->UpdateFrameTiming();
-        device.Clear(Color(136, 202, 224, 255), 1.0f);
+        {
+            GpuDiagnosticScope gpuPass("clear");
+            device.Clear(Color(136, 202, 224, 255), 1.0f);
+        }
         UpdateCameraMatrices();
-        skyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        {
+            GpuDiagnosticScope gpuPass("sky");
+            skyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        }
         device.setRasterizerStateProperty(RasterizerState::CullNone);
         device.setBlendStateProperty(BlendState::Opaque);
         device.setDepthStencilStateProperty(DepthStencilState::Default);
-        terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
-        distantSceneryRenderer_->Draw(cameraView_, cameraProjection_);
-        contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                     monkeyTroop_.Monkeys());
+        {
+            GpuDiagnosticScope gpuPass("terrain");
+            terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        }
+        {
+            GpuDiagnosticScope gpuPass("distant-scenery");
+            distantSceneryRenderer_->Draw(cameraView_, cameraProjection_);
+        }
+        {
+            GpuDiagnosticScope gpuPass("contact-shadows");
+            contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                         monkeyTroop_.Monkeys());
+        }
 
         const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
-        naturalPropRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
-        shipwreckRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        {
+            GpuDiagnosticScope gpuPass("natural-props");
+            naturalPropRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        }
+        {
+            GpuDiagnosticScope gpuPass("shipwreck");
+            shipwreckRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        }
 
-        jungleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                              timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("jungle");
+            jungleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                  timeSeconds);
+        }
 
         const PlayerPosition& grassPlayer = playerMotion_.Position();
-        grassRenderer_->Draw(
-            cameraView_, cameraProjection_, renderCameraPosition_,
-            Vector3(grassPlayer.x, grassPlayer.y, grassPlayer.z),
-            grassInteractionModel_.Strength(), timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("grass");
+            grassRenderer_->Draw(
+                cameraView_, cameraProjection_, renderCameraPosition_,
+                Vector3(grassPlayer.x, grassPlayer.y, grassPlayer.z),
+                grassInteractionModel_.Strength(), timeSeconds);
+        }
 
-        palmRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                            timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("palms");
+            palmRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                timeSeconds);
+        }
 
-        butterflyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                 butterflyMeadow_.Butterflies());
+        {
+            GpuDiagnosticScope gpuPass("butterflies");
+            butterflyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                     butterflyMeadow_.Butterflies());
+        }
 
-        crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                            crabColony_.Crabs());
+        {
+            GpuDiagnosticScope gpuPass("crabs");
+            crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                crabColony_.Crabs());
+        }
 
-        birdRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                            birdFlock_.Birds());
+        {
+            GpuDiagnosticScope gpuPass("birds");
+            birdRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                birdFlock_.Birds());
+        }
 
-        fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                            fishSchools_.Fish(), timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("fish");
+            fishRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                fishSchools_.Fish(), timeSeconds);
+        }
 
-        seaTurtleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                 seaTurtleGroup_.Turtles(), timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("sea-turtles");
+            seaTurtleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                     seaTurtleGroup_.Turtles(), timeSeconds);
+        }
 
-        sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                             sharkPatrol_.State(), timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("shark");
+            sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                 sharkPatrol_.State(), timeSeconds);
+        }
 
-        monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                              monkeyTroop_.Monkeys());
+        {
+            GpuDiagnosticScope gpuPass("monkeys");
+            monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                  monkeyTroop_.Monkeys());
+        }
 
         const PlayerPosition& oceanPlayer = playerMotion_.Position();
-        oceanRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                             timeSeconds, oceanPlayer.x, oceanPlayer.z,
-                             waterRippleModel_.Intensity(), waterRippleModel_.Phase(),
-                             waterRippleModel_.SplashIntensity(),
-                             waterRippleModel_.SplashPhase());
-        shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                 timeSeconds);
+        {
+            GpuDiagnosticScope gpuPass("ocean");
+            oceanRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                 timeSeconds, oceanPlayer.x, oceanPlayer.z,
+                                 waterRippleModel_.Intensity(), waterRippleModel_.Phase(),
+                                 waterRippleModel_.SplashIntensity(),
+                                 waterRippleModel_.SplashPhase());
+        }
+        {
+            GpuDiagnosticScope gpuPass("shoreline");
+            shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
+                                     timeSeconds);
+        }
 
         const auto& viewport = device.getViewportProperty();
-        waterViewOverlay_->Draw(waterViewModel_.Intensity(),
-                                playerMotion_.OceanCurrentStrength(terrain_),
-                                viewport.getWidthProperty(), viewport.getHeightProperty());
+        {
+            GpuDiagnosticScope gpuPass("water-view-overlay");
+            waterViewOverlay_->Draw(waterViewModel_.Intensity(),
+                                    playerMotion_.OceanCurrentStrength(terrain_),
+                                    viewport.getWidthProperty(), viewport.getHeightProperty());
+        }
 
         if (locomotionModeNoticeSeconds_ > 0.0f) {
             const float opacity = std::clamp(
                 locomotionModeNoticeSeconds_ / 0.32f, 0.0f, 1.0f);
+            GpuDiagnosticScope gpuPass("locomotion-overlay");
             debugOverlay_->DrawLocomotionModeNotice(
                 locomotionPaceToggle_.IsRunningSelected(), opacity,
                 viewport.getWidthProperty(), viewport.getHeightProperty());
@@ -1891,6 +1957,7 @@ namespace island
                 ? soundscape_->DebugState() : SoundscapeDebugState{};
             const OceanCurrentDrift oceanCurrent =
                 playerMotion_.OceanCurrentVelocity(terrain_);
+            GpuDiagnosticScope gpuPass("world-debug");
             worldDebugRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                       playerMotion_.Position(), playerMotion_.GroundHeight(),
                                       playerMotion_.Mode() == LocomotionMode::Swimming,
@@ -1905,6 +1972,7 @@ namespace island
 
         if (touchOverlayVisible_) {
             const auto& viewport = device.getViewportProperty();
+            GpuDiagnosticScope gpuPass("touch-overlay");
             touchOverlay_->Draw(touchControlState_, touchDisplayWidth_, touchDisplayHeight_,
                                 viewport.getWidthProperty(), viewport.getHeightProperty(), true);
         }
@@ -2159,6 +2227,7 @@ namespace island
                 overlayState.worldDebugLines = worldDebugRenderer_->LineCount();
                 overlayState.worldDebugDraws = worldDebugRenderer_->DrawCallCount();
             }
+            GpuDiagnosticScope gpuPass("debug-overlay");
             debugOverlay_->Draw(overlayState);
         }
 
@@ -2327,7 +2396,10 @@ namespace island
                 && viewpoint_ == FixedViewpoint::MonkeyDetail
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {
-            CaptureFrame(capturePath_);
+            {
+                GpuDiagnosticScope gpuPass("capture-readback");
+                CaptureFrame(capturePath_);
+            }
             if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
                 std::cout << "island-simulator: monkey crossfades "
                           << monkeyRenderer_->ActiveCrossfadeCount() << '/'
@@ -2348,6 +2420,7 @@ namespace island
             benchmarkReportPending_ = false;
             Exit();
         }
+        EndGpuDiagnosticFrame();
     }
 
     GetTypeNameCPP(IslandGame, "IslandSimulator.IslandGame")
