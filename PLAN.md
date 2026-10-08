@@ -58,16 +58,18 @@ environment.
 
 The normal realism campaign is paused behind the critical GPU incident documented in
 `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md`. At 01:12:47 CEST an eight-client native CTest
-run produced GPUVM faults attributed to the jungle benchmark, followed by a GFX ring timeout,
+run produced GPUVM faults attributed to PID 3497873 (most likely the jungle benchmark), followed by a GFX ring timeout,
 MODE2 reset, VRAM loss, and termination of the GNOME session. Previous native GPU claims are
 historical evidence, not post-incident qualification.
 
 - [x] Reconstruct the exact parent command, CTest scheduling, private Weston/Xwayland environment,
-  renderer/backend, primary PID/workload, and collateral PIDs from the agent rollout, CTest
+  renderer/backend, and collateral PIDs from the agent rollout, CTest
   definitions, coredump metadata, and retained artifacts.
-- [x] Establish that PID 3497873 was the uncapped fixed-jungle benchmark on
-  `OPENGL33`/EasyGL/SDL3/X11-GLX/Mesa radeonsi and that `island-sim:cs0` was Mesa's AMD command-
-  submission worker, not a game or CNA thread.
+- [ ] Obtain direct evidence mapping PID 3497873 to its command line. The uncapped jungle
+  benchmark is the strongest timing/PID-order candidate, but the retained CTest output has no
+  primary PID. Correct the earlier unsupported claim that this association was exact.
+- [x] Establish the suite's `OPENGL33`/EasyGL/SDL3/X11-GLX/Mesa radeonsi path and identify
+  `island-sim:cs0` as Mesa's AMD command-submission worker, not a game or CNA thread.
 - [x] Correct the contemporaneous unsupported “infrastructure reset / not geometry” conclusion and
   record the unsafe `-j2` retry that began immediately after the reset.
 - [x] Preserve the coredump and rollout locations and distinguish the post-reset
@@ -86,6 +88,13 @@ historical evidence, not post-incident qualification.
   fences, `glFinish`, or a normal-path synchronization change.
 - [x] Add a fail-closed, one-workload qualification harness that preserves runtime, compositor,
   output, and kernel-log evidence and refuses to launch without an actual kernel-journal cursor.
+- [x] Validate the supervisor itself using 15 CPU-only regressions. Replace the initial dash-
+  incompatible process-group kill and swallowed journal failures with bounded Python process-group
+  supervision, JSON cursor/boot checks, a persistent failure latch, and a concurrent-invocation
+  lock. Verify parent/child termination, interruptions, lost monitoring, workload failures,
+  timeouts, and high-severity GL diagnostics. No hardware GPU was exercised.
+- [x] Preserve verbatim primary CTest output and post-reset retry compositor output in versioned
+  incident evidence, with source locations and hashes; retain their temporary originals.
 - [x] Prevent accidental multi-client display stress in ordinary `ctest -jN` while retaining an
   explicit `ISLAND_ALLOW_PARALLEL_GPU_TESTS` switch for the final controlled stress stage.
 - [x] Rebuild the instrumented application with the mandatory shared ccache and pass the complete

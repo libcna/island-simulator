@@ -1,0 +1,2 @@
+# Preserve forensic captures byte-for-byte, including their original trailing whitespace.
+docs/incidents/evidence/2026-10-08/*.txt -text -whitespace

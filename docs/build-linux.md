@@ -229,6 +229,13 @@ output, and post-run kernel delta. Any new GPUVM fault, GFX ring timeout, VRAM l
 qualification immediately. See `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md` for the exact
 sequence and acceptance criteria.
 
+The supervisor also fails on lost journal visibility, GL errors, high-severity KHR_debug messages,
+interruption, and a 120-second workload deadline. It terminates its own process group and writes
+`build/gpu-incident-evidence/QUALIFICATION_STOP.json`, which blocks subsequent launches. Review
+the referenced evidence before deliberately archiving that stop file; never clear it in a retry
+loop. `IslandGpuQualificationSupervisorTests` exercises these controls with synthetic journal
+data and CPU-only processes, without creating a GL context.
+
 Ordinary CTest display tests now share the `island_gpu_display` resource lock even under
 `ctest -j8`; independent CPU-only tests can still run in parallel. The
 `ISLAND_ALLOW_PARALLEL_GPU_TESTS=ON` CMake option exists only for the final controlled incident

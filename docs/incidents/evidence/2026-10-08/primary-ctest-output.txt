@@ -1,0 +1,790 @@
+run_gpu_tests_private: DISPLAY=:2 (private Xwayland), WAYLAND_DISPLAY=cna-weston-3497623 (private Weston)
+Internal ctest changing into directory: /rv/data/development/github.com/libcna/island-simulator/build
+Test project /rv/data/development/github.com/libcna/island-simulator/build
+      Start 10: IslandGameStartupReport
+      Start 13: IslandGameCapture
+      Start 35: IslandGameButterflyCapture
+      Start 36: IslandGameSeaTurtleCapture
+      Start 34: IslandGameCrabCapture
+      Start 33: IslandGameShipwreckCapture
+      Start  1: IslandCoreTests
+      Start  9: IslandGameRelocatableWorkingDirectory
+ 1/46 Test  #9: IslandGameRelocatableWorkingDirectory ...   Passed    3.54 sec
+      Start 43: IslandGameTraversalBenchmark
+ 2/46 Test #13: IslandGameCapture .......................   Passed    3.93 sec
+      Start 42: IslandGameBenchmark
+ 3/46 Test #34: IslandGameCrabCapture ...................   Passed    3.93 sec
+      Start 41: IslandGameWildlifeNavigationCapture
+ 4/46 Test #35: IslandGameButterflyCapture ..............   Passed    4.02 sec
+      Start 18: IslandGameWestClearingCapture
+ 5/46 Test #33: IslandGameShipwreckCapture ..............   Passed    4.03 sec
+      Start 17: IslandGameEastClearingCapture
+ 6/46 Test #10: IslandGameStartupReport .................   Passed    4.04 sec
+      Start 14: IslandGameCaptureValidation
+ 7/46 Test #36: IslandGameSeaTurtleCapture ..............   Passed    4.25 sec
+      Start 40: IslandGameMovementTraceCapture
+ 8/46 Test #14: IslandGameCaptureValidation .............   Passed    1.91 sec
+      Start 39: IslandGameGroundContactCapture
+ 9/46 Test #18: IslandGameWestClearingCapture ...........   Passed    4.23 sec
+      Start  2: IslandWorldReport
+10/46 Test #17: IslandGameEastClearingCapture ...........   Passed    4.29 sec
+      Start 19: IslandGameGroundPlantCapture
+11/46 Test #41: IslandGameWildlifeNavigationCapture .....   Passed    5.05 sec
+      Start 27: IslandGameFallenFrondCapture
+12/46 Test #40: IslandGameMovementTraceCapture ..........   Passed    4.84 sec
+      Start 20: IslandGameGrassCapture
+13/46 Test  #2: IslandWorldReport .......................   Passed    4.30 sec
+      Start 23: IslandGameCurrentViewCapture
+14/46 Test #23: IslandGameCurrentViewCapture ............***Failed  Required regular expression not found. Regex=[water view 0[.][1-9][0-9]*, 1 draw, player ripple [01]([.][0-9]+)?, phase [01]([.][0-9]+)?, splash [01]([.][0-9]+)?, phase [01]([.][0-9]+)?, current 0[.][1-9][0-9]*, undertow target 0[.][1-9][0-9]*
+] 13.45 sec
+X connection to :2 broken (explicit kill or server shutdown).
+
+      Start 22: IslandGameWaterViewCapture
+15/46 Test #39: IslandGameGroundContactCapture ..........   Passed   20.12 sec
+      Start 28: IslandGameReefCapture
+16/46 Test #42: IslandGameBenchmark .....................***Failed  Required regular expression not found. Regex=[benchmark completed 600 samples
+] 22.14 sec
+[INFO][RENDER] EasyGLRenderer initialized with OpenGL 4.6 (Core Profile) Mesa 25.0.7-2+deb13u1
+[INFO][RENDER] CNA: EasyGL capabilities -- MSAA up to 8x; MRT up to 4 targets (GL draw buffers=8, color attachments=8, CNA/FNA cap=4); indexed color masks: supported; anisotropic filtering: supported (Task 918, up to 16x); texture SurfaceFormat: Color + NormalizedByte4/2 (RGBA8_SNORM) + Bgr565/Bgra5551/Bgra4444 + Rgba1010102 + Alpha8 + Single/Vector2/Vector4 + HalfSingle/HalfVector2/HalfVector4/HdrBlendable + Rg32/Rgba64 + Dxt1/Dxt3/Dxt5 (S3TC blocks); render-target SurfaceFormat: Color + Rgba1010102 (RGB10_A2) + Rg32 (RG16 UNORM) + Rgba64 (RGBA16 UNORM) + half-float (RGBA16F) + float (RGBA32F)
+[INFO][RENDER] CNA: graphics renderer: OPENGL33
+island-simulator: user settings disabled for isolated QA run
+island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources
+island-simulator: terrain portable sand/soil material shader
+island-simulator: terrain near-field microvariation and procedural interior leaf litter
+island-simulator: terrain close sand granulation and shoreline-raked ripples
+island-simulator: terrain wet sand uses bounded view-dependent sun sheen
+island-simulator: terrain sparse close sand pebbles and shell flecks
+island-simulator: terrain fixed-sun interior dapple from shared portable noise fields
+island-simulator: terrain authored primary footpath material
+island-simulator: terrain footpath narrow irregular wear
+island-simulator: terrain distinct authored east/west clearing materials
+island-simulator: east clearing uses a warm dry ground cue
+island-simulator: clearing floors reuse existing noise fields for broad patch breakup
+island-simulator: terrain interior humus and moss reuse portable material fields
+island-simulator: distant scenery 5 unreachable low islets, one portable batch, 787 triangles
+island-simulator: near birds use layered trailing flight-feather silhouettes
+island-simulator: clearing butterflies use hinged patterned wings in one culled batch
+island-simulator: beach crabs use articulated legs, claws, and one culled batch
+island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch
+island-simulator: grass 18556 patches in 256 cells, portable instanced wind shader
+island-simulator: grass player interaction integrated into the instanced vertex shader
+island-simulator: grass five-level near curvature with portable two-sided daylight shading
+island-simulator: grass near clusters use 42 blades for denser first-person cover
+island-simulator: selected near grass blades use a geometric V-fold ridge
+island-simulator: grass near blades use asymmetric edges and occasional bent tips
+island-simulator: grass biome tint follows coast, path, and authored clearings
+island-simulator: grass sparse sun-cured tip variation in shared vertex colours
+island-simulator: grass per-instance blade stature with near juvenile undergrowth
+island-simulator: grass sparse near seed heads share blade wind and instancing
+island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres
+island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing
+island-simulator: jungle ground layer 2225 small plants
+island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD
+island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes
+island-simulator: selected near canopy variants include hanging leafy lianas
+island-simulator: jungle near canopy irregular buttress roots ground trunk bases
+island-simulator: jungle near canopy procedural bark fissures
+island-simulator: jungle near bushes with pointed leaf edge breakup
+island-simulator: jungle near ground plants include upright and split-leaf silhouettes
+island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes
+island-simulator: jungle fixed-sun two-sided geometric facet lighting
+island-simulator: jungle per-instance foliage tint reuses existing transforms
+island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing
+island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement
+island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile
+island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled
+island-simulator: dry wrack reuses one of four beach-detail variants
+island-simulator: natural-prop portable shader with near/far LOD
+island-simulator: near rocks use procedural strata and restrained lichen flecks
+island-simulator: near low rocks use a fixed-sea-level wet material band
+island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading
+island-simulator: rock per-instance tint reuses existing transforms
+island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings
+island-simulator: near fallen logs use irregular broken end contours
+island-simulator: near fallen-log end grain uses restrained radial cracks
+island-simulator: near driftwood uses faded sun-bleached longitudinal grain
+island-simulator: near driftwood variant 2 uses three tapered fork limbs
+island-simulator: all near driftwood variants use tapered three-dimensional branches
+island-simulator: driftwood end caps match irregular body rings
+island-simulator: fallen fronds use curved asymmetric leaflet silhouettes
+island-simulator: fallen frond leaflets use geometric central folds
+island-simulator: shipwreck portable aged wood, waterline, and salt-wear material
+island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 3948 triangles
+island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast
+island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast
+island-simulator: palms 330 in 64 cells, hardware instancing
+island-simulator: palm portable wind shader with near/far mesh LOD
+island-simulator: palm near mesh segmented fuller leaflet silhouettes
+island-simulator: palm near leaflets use staggered asymmetric silhouettes
+island-simulator: palm near geometry uses fixed-sun facet shading
+island-simulator: palm near root wedges ground trunk bases
+island-simulator: palm procedural bark scars and restrained coconut clusters
+island-simulator: selected palm near crowns include sparse hanging dry fronds
+island-simulator: palm per-instance frond tint reuses existing transforms
+island-simulator: ocean portable custom shader, 25921 vertices, 51200 triangles
+island-simulator: ocean reused crossing-wave subsurface colour
+island-simulator: ocean shallow ridge light reuses animated slope field
+island-simulator: ocean sunward ripple crests reuse analytic slope field
+island-simulator: ocean grazing reflection bands reuse analytic slope field
+island-simulator: ocean shoreline foam uses broken continuity mask
+island-simulator: shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles
+island-simulator: shoreline broken crest mask modulates wash continuity
+island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader
+island-simulator: audio unavailable; continuing silently: SDL_OpenAudioDeviceStream failed: ALSA: Couldn't open audio device: Host is down
+island-simulator: renderer OPENGL33
+island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers
+island-simulator: collision grid 833 static obstacles in 485 occupied cells
+island-simulator: birds 24 agents in a distance-throttled one-batch simulation
+island-simulator: bird flight uses slow radial drift, banking, and intermittent glide
+island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats
+island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies
+island-simulator: fish 48 agents in 8 distance-throttled shallow-water schools
+island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes
+island-simulator: one occasional non-hostile offshore shark patrol
+island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail
+island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours
+island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight
+island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight
+island-simulator: monkeys 7 agents with portable GPU skeletal animation, 3 silhouettes, 4 palettes
+island-simulator: near monkeys use restrained procedural crown and cheek fur tufts
+island-simulator: near monkeys use bone-following finger and toe silhouettes
+island-simulator: calm monkeys use bounded skeletal head attention
+island-simulator: terrain-conforming contact shadows in one portable near-field batch
+island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw
+island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader
+island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation
+island-simulator: keyboard run/walk toggle uses a transient mode confirmation
+island-simulator: benchmark jungle warming 120 intervals, sampling 600 intervals with VSync disabled
+island-simulator: startup world 1342.350 ms, framework 59.431 ms, content 1722.700 ms, pre-draw 25.033 ms, first draw 12.958 ms, total 3162.473 ms
+island-simulator: viewport 1280x720 logical backbuffer
+X connection to :2 broken (explicit kill or server shutdown).
+island-simulator: visible terrain cells 23/64 in 8 shared-buffer draws, collision candidates 6/833, palms 120/330 (near 37, far 83) in 9 cells, 8 draws; jungle 109/281 canopy (near 63, far 46), 462/1822 understory (near 102, far 360), 108/565 bushes (near 21, far 87), 162/2225 ground plants (near 33, far 129), 28 draws; props 56/171 rocks, 2/14 reef outcrops, 5/13 logs, 1/31 driftwood (near 0, far 1), 0/265 shell/pebble/wrack clusters, 2/63 fallen fronds, 15 draws; shipwreck culled, 12 debris, 0 draw; grass 2932/18556 patches in 16 cells, 20 draws, interaction 0, custom shader 1, biome tint 1, LOD near 857, middle 656, far 1419, mixed cells 4; birds 4/24 visible (near 4, far 0), 1 draw; butterflies 0/18 visible (near 0, far 0), 0 draw; crabs 0/30 visible (near 0, far 0), 0 draw; fish 0/48 visible (near 0, far 0), 0 draw; turtles 0/5 visible (near 0, far 0), 0 draw; shark culled activity 1, 0 draw; monkeys 2/7 visible, 4 draws, blends 4/0 active/completed; distant 5 islets, 1 draw; contact shadows 28, 336 triangles, 1 draw; water view 0, 0 draw, player ripple 0, phase 0, splash 0, phase 1, current 0, undertow target 0
+
+      Start 24: IslandGameDistantSceneryCapture
+17/46 Test #27: IslandGameFallenFrondCapture ............Subprocess aborted***Exception:  17.32 sec
+[INFO][RENDER] EasyGLRenderer initialized with OpenGL 4.6 (Core Profile) Mesa 25.0.7-2+deb13u1
+[INFO][RENDER] CNA: EasyGL capabilities -- MSAA up to 8x; MRT up to 4 targets (GL draw buffers=8, color attachments=8, CNA/FNA cap=4); indexed color masks: supported; anisotropic filtering: supported (Task 918, up to 16x); texture SurfaceFormat: Color + NormalizedByte4/2 (RGBA8_SNORM) + Bgr565/Bgra5551/Bgra4444 + Rgba1010102 + Alpha8 + Single/Vector2/Vector4 + HalfSingle/HalfVector2/HalfVector4/HdrBlendable + Rg32/Rgba64 + Dxt1/Dxt3/Dxt5 (S3TC blocks); render-target SurfaceFormat: Color + Rgba1010102 (RGB10_A2) + Rg32 (RG16 UNORM) + Rgba64 (RGBA16 UNORM) + half-float (RGBA16F) + float (RGBA32F)
+[INFO][RENDER] CNA: graphics renderer: OPENGL33
+island-simulator: user settings disabled for isolated QA run
+island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources
+island-simulator: terrain portable sand/soil material shader
+island-simulator: terrain near-field microvariation and procedural interior leaf litter
+island-simulator: terrain close sand granulation and shoreline-raked ripples
+island-simulator: terrain wet sand uses bounded view-dependent sun sheen
+island-simulator: terrain sparse close sand pebbles and shell flecks
+island-simulator: terrain fixed-sun interior dapple from shared portable noise fields
+island-simulator: terrain authored primary footpath material
+island-simulator: terrain footpath narrow irregular wear
+island-simulator: terrain distinct authored east/west clearing materials
+island-simulator: east clearing uses a warm dry ground cue
+island-simulator: clearing floors reuse existing noise fields for broad patch breakup
+island-simulator: terrain interior humus and moss reuse portable material fields
+island-simulator: distant scenery 5 unreachable low islets, one portable batch, 787 triangles
+island-simulator: near birds use layered trailing flight-feather silhouettes
+island-simulator: clearing butterflies use hinged patterned wings in one culled batch
+island-simulator: beach crabs use articulated legs, claws, and one culled batch
+island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch
+island-simulator: grass 18556 patches in 256 cells, portable instanced wind shader
+island-simulator: grass player interaction integrated into the instanced vertex shader
+island-simulator: grass five-level near curvature with portable two-sided daylight shading
+island-simulator: grass near clusters use 42 blades for denser first-person cover
+island-simulator: selected near grass blades use a geometric V-fold ridge
+island-simulator: grass near blades use asymmetric edges and occasional bent tips
+island-simulator: grass biome tint follows coast, path, and authored clearings
+island-simulator: grass sparse sun-cured tip variation in shared vertex colours
+island-simulator: grass per-instance blade stature with near juvenile undergrowth
+island-simulator: grass sparse near seed heads share blade wind and instancing
+island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres
+island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing
+island-simulator: jungle ground layer 2225 small plants
+island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD
+island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes
+island-simulator: selected near canopy variants include hanging leafy lianas
+island-simulator: jungle near canopy irregular buttress roots ground trunk bases
+island-simulator: jungle near canopy procedural bark fissures
+island-simulator: jungle near bushes with pointed leaf edge breakup
+island-simulator: jungle near ground plants include upright and split-leaf silhouettes
+island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes
+island-simulator: jungle fixed-sun two-sided geometric facet lighting
+island-simulator: jungle per-instance foliage tint reuses existing transforms
+island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing
+island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement
+island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile
+island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled
+island-simulator: dry wrack reuses one of four beach-detail variants
+island-simulator: natural-prop portable shader with near/far LOD
+island-simulator: near rocks use procedural strata and restrained lichen flecks
+island-simulator: near low rocks use a fixed-sea-level wet material band
+island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading
+island-simulator: rock per-instance tint reuses existing transforms
+island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings
+island-simulator: near fallen logs use irregular broken end contours
+island-simulator: near fallen-log end grain uses restrained radial cracks
+island-simulator: near driftwood uses faded sun-bleached longitudinal grain
+island-simulator: near driftwood variant 2 uses three tapered fork limbs
+island-simulator: all near driftwood variants use tapered three-dimensional branches
+island-simulator: driftwood end caps match irregular body rings
+island-simulator: fallen fronds use curved asymmetric leaflet silhouettes
+island-simulator: fallen frond leaflets use geometric central folds
+island-simulator: shipwreck portable aged wood, waterline, and salt-wear material
+island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 3948 triangles
+island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast
+island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast
+island-simulator: palms 330 in 64 cells, hardware instancing
+island-simulator: palm portable wind shader with near/far mesh LOD
+island-simulator: palm near mesh segmented fuller leaflet silhouettes
+island-simulator: palm near leaflets use staggered asymmetric silhouettes
+island-simulator: palm near geometry uses fixed-sun facet shading
+island-simulator: palm near root wedges ground trunk bases
+island-simulator: palm procedural bark scars and restrained coconut clusters
+island-simulator: selected palm near crowns include sparse hanging dry fronds
+island-simulator: palm per-instance frond tint reuses existing transforms
+island-simulator: ocean portable custom shader, 25921 vertices, 51200 triangles
+island-simulator: ocean reused crossing-wave subsurface colour
+island-simulator: ocean shallow ridge light reuses animated slope field
+island-simulator: ocean sunward ripple crests reuse analytic slope field
+island-simulator: ocean grazing reflection bands reuse analytic slope field
+island-simulator: ocean shoreline foam uses broken continuity mask
+island-simulator: shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles
+island-simulator: shoreline broken crest mask modulates wash continuity
+island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader
+island-simulator: renderer OPENGL33
+island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers
+island-simulator: collision grid 833 static obstacles in 485 occupied cells
+island-simulator: birds 24 agents in a distance-throttled one-batch simulation
+island-simulator: bird flight uses slow radial drift, banking, and intermittent glide
+island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats
+island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies
+island-simulator: fish 48 agents in 8 distance-throttled shallow-water schools
+island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes
+island-simulator: one occasional non-hostile offshore shark patrol
+island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail
+island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours
+island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight
+island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight
+island-simulator: monkeys 7 agents with portable GPU skeletal animation, 3 silhouettes, 4 palettes
+island-simulator: near monkeys use restrained procedural crown and cheek fur tufts
+island-simulator: near monkeys use bone-following finger and toe silhouettes
+island-simulator: calm monkeys use bounded skeletal head attention
+island-simulator: terrain-conforming contact shadows in one portable near-field batch
+island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw
+island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader
+island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation
+island-simulator: keyboard run/walk toggle uses a transient mode confirmation
+amdgpu: The CS has cancelled because the context is lost. This context is innocent.
+
+      Start 38: IslandGameWorldDebugCapture
+18/46 Test #19: IslandGameGroundPlantCapture ............Subprocess aborted***Exception:  18.12 sec
+[INFO][RENDER] EasyGLRenderer initialized with OpenGL 4.6 (Core Profile) Mesa 25.0.7-2+deb13u1
+[INFO][RENDER] CNA: EasyGL capabilities -- MSAA up to 8x; MRT up to 4 targets (GL draw buffers=8, color attachments=8, CNA/FNA cap=4); indexed color masks: supported; anisotropic filtering: supported (Task 918, up to 16x); texture SurfaceFormat: Color + NormalizedByte4/2 (RGBA8_SNORM) + Bgr565/Bgra5551/Bgra4444 + Rgba1010102 + Alpha8 + Single/Vector2/Vector4 + HalfSingle/HalfVector2/HalfVector4/HdrBlendable + Rg32/Rgba64 + Dxt1/Dxt3/Dxt5 (S3TC blocks); render-target SurfaceFormat: Color + Rgba1010102 (RGB10_A2) + Rg32 (RG16 UNORM) + Rgba64 (RGBA16 UNORM) + half-float (RGBA16F) + float (RGBA32F)
+[INFO][RENDER] CNA: graphics renderer: OPENGL33
+island-simulator: ground QA target variant 2 at player-eye detail distance
+island-simulator: user settings disabled for isolated QA run
+island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources
+island-simulator: terrain portable sand/soil material shader
+island-simulator: terrain near-field microvariation and procedural interior leaf litter
+island-simulator: terrain close sand granulation and shoreline-raked ripples
+island-simulator: terrain wet sand uses bounded view-dependent sun sheen
+island-simulator: terrain sparse close sand pebbles and shell flecks
+island-simulator: terrain fixed-sun interior dapple from shared portable noise fields
+island-simulator: terrain authored primary footpath material
+island-simulator: terrain footpath narrow irregular wear
+island-simulator: terrain distinct authored east/west clearing materials
+island-simulator: east clearing uses a warm dry ground cue
+island-simulator: clearing floors reuse existing noise fields for broad patch breakup
+island-simulator: terrain interior humus and moss reuse portable material fields
+island-simulator: distant scenery 5 unreachable low islets, one portable batch, 787 triangles
+island-simulator: near birds use layered trailing flight-feather silhouettes
+island-simulator: clearing butterflies use hinged patterned wings in one culled batch
+island-simulator: beach crabs use articulated legs, claws, and one culled batch
+island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch
+island-simulator: grass 18556 patches in 256 cells, portable instanced wind shader
+island-simulator: grass player interaction integrated into the instanced vertex shader
+island-simulator: grass five-level near curvature with portable two-sided daylight shading
+island-simulator: grass near clusters use 42 blades for denser first-person cover
+island-simulator: selected near grass blades use a geometric V-fold ridge
+island-simulator: grass near blades use asymmetric edges and occasional bent tips
+island-simulator: grass biome tint follows coast, path, and authored clearings
+island-simulator: grass sparse sun-cured tip variation in shared vertex colours
+island-simulator: grass per-instance blade stature with near juvenile undergrowth
+island-simulator: grass sparse near seed heads share blade wind and instancing
+island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres
+island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing
+island-simulator: jungle ground layer 2225 small plants
+island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD
+island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes
+island-simulator: selected near canopy variants include hanging leafy lianas
+island-simulator: jungle near canopy irregular buttress roots ground trunk bases
+island-simulator: jungle near canopy procedural bark fissures
+island-simulator: jungle near bushes with pointed leaf edge breakup
+island-simulator: jungle near ground plants include upright and split-leaf silhouettes
+island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes
+island-simulator: jungle fixed-sun two-sided geometric facet lighting
+island-simulator: jungle per-instance foliage tint reuses existing transforms
+island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing
+island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement
+island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile
+island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled
+island-simulator: dry wrack reuses one of four beach-detail variants
+island-simulator: natural-prop portable shader with near/far LOD
+island-simulator: near rocks use procedural strata and restrained lichen flecks
+island-simulator: near low rocks use a fixed-sea-level wet material band
+island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading
+island-simulator: rock per-instance tint reuses existing transforms
+island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings
+island-simulator: near fallen logs use irregular broken end contours
+island-simulator: near fallen-log end grain uses restrained radial cracks
+island-simulator: near driftwood uses faded sun-bleached longitudinal grain
+island-simulator: near driftwood variant 2 uses three tapered fork limbs
+island-simulator: all near driftwood variants use tapered three-dimensional branches
+island-simulator: driftwood end caps match irregular body rings
+island-simulator: fallen fronds use curved asymmetric leaflet silhouettes
+island-simulator: fallen frond leaflets use geometric central folds
+island-simulator: shipwreck portable aged wood, waterline, and salt-wear material
+island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 3948 triangles
+island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast
+island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast
+island-simulator: palms 330 in 64 cells, hardware instancing
+island-simulator: palm portable wind shader with near/far mesh LOD
+island-simulator: palm near mesh segmented fuller leaflet silhouettes
+island-simulator: palm near leaflets use staggered asymmetric silhouettes
+island-simulator: palm near geometry uses fixed-sun facet shading
+island-simulator: palm near root wedges ground trunk bases
+island-simulator: palm procedural bark scars and restrained coconut clusters
+island-simulator: selected palm near crowns include sparse hanging dry fronds
+island-simulator: palm per-instance frond tint reuses existing transforms
+island-simulator: ocean portable custom shader, 25921 vertices, 51200 triangles
+island-simulator: ocean reused crossing-wave subsurface colour
+island-simulator: ocean shallow ridge light reuses animated slope field
+island-simulator: ocean sunward ripple crests reuse analytic slope field
+island-simulator: ocean grazing reflection bands reuse analytic slope field
+island-simulator: ocean shoreline foam uses broken continuity mask
+island-simulator: shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles
+island-simulator: shoreline broken crest mask modulates wash continuity
+island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader
+island-simulator: renderer OPENGL33
+island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers
+island-simulator: collision grid 833 static obstacles in 485 occupied cells
+island-simulator: birds 24 agents in a distance-throttled one-batch simulation
+island-simulator: bird flight uses slow radial drift, banking, and intermittent glide
+island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats
+island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies
+island-simulator: fish 48 agents in 8 distance-throttled shallow-water schools
+island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes
+island-simulator: one occasional non-hostile offshore shark patrol
+island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail
+island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours
+island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight
+island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight
+island-simulator: monkeys 7 agents with portable GPU skeletal animation, 3 silhouettes, 4 palettes
+island-simulator: near monkeys use restrained procedural crown and cheek fur tufts
+island-simulator: near monkeys use bone-following finger and toe silhouettes
+island-simulator: calm monkeys use bounded skeletal head attention
+island-simulator: terrain-conforming contact shadows in one portable near-field batch
+island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw
+island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader
+island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation
+island-simulator: keyboard run/walk toggle uses a transient mode confirmation
+amdgpu: The CS has cancelled because the context is lost. This context is innocent.
+
+      Start 32: IslandGameMonkeyCapture
+19/46 Test #20: IslandGameGrassCapture ..................Subprocess aborted***Exception:  17.38 sec
+[INFO][RENDER] EasyGLRenderer initialized with OpenGL 4.6 (Core Profile) Mesa 25.0.7-2+deb13u1
+[INFO][RENDER] CNA: EasyGL capabilities -- MSAA up to 8x; MRT up to 4 targets (GL draw buffers=8, color attachments=8, CNA/FNA cap=4); indexed color masks: supported; anisotropic filtering: supported (Task 918, up to 16x); texture SurfaceFormat: Color + NormalizedByte4/2 (RGBA8_SNORM) + Bgr565/Bgra5551/Bgra4444 + Rgba1010102 + Alpha8 + Single/Vector2/Vector4 + HalfSingle/HalfVector2/HalfVector4/HdrBlendable + Rg32/Rgba64 + Dxt1/Dxt3/Dxt5 (S3TC blocks); render-target SurfaceFormat: Color + Rgba1010102 (RGB10_A2) + Rg32 (RG16 UNORM) + Rgba64 (RGBA16 UNORM) + half-float (RGBA16F) + float (RGBA32F)
+[INFO][RENDER] CNA: graphics renderer: OPENGL33
+island-simulator: user settings disabled for isolated QA run
+island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources
+island-simulator: terrain portable sand/soil material shader
+island-simulator: terrain near-field microvariation and procedural interior leaf litter
+island-simulator: terrain close sand granulation and shoreline-raked ripples
+island-simulator: terrain wet sand uses bounded view-dependent sun sheen
+island-simulator: terrain sparse close sand pebbles and shell flecks
+island-simulator: terrain fixed-sun interior dapple from shared portable noise fields
+island-simulator: terrain authored primary footpath material
+island-simulator: terrain footpath narrow irregular wear
+island-simulator: terrain distinct authored east/west clearing materials
+island-simulator: east clearing uses a warm dry ground cue
+island-simulator: clearing floors reuse existing noise fields for broad patch breakup
+island-simulator: terrain interior humus and moss reuse portable material fields
+island-simulator: distant scenery 5 unreachable low islets, one portable batch, 787 triangles
+island-simulator: near birds use layered trailing flight-feather silhouettes
+island-simulator: clearing butterflies use hinged patterned wings in one culled batch
+island-simulator: beach crabs use articulated legs, claws, and one culled batch
+island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch
+island-simulator: grass 18556 patches in 256 cells, portable instanced wind shader
+island-simulator: grass player interaction integrated into the instanced vertex shader
+island-simulator: grass five-level near curvature with portable two-sided daylight shading
+island-simulator: grass near clusters use 42 blades for denser first-person cover
+island-simulator: selected near grass blades use a geometric V-fold ridge
+island-simulator: grass near blades use asymmetric edges and occasional bent tips
+island-simulator: grass biome tint follows coast, path, and authored clearings
+island-simulator: grass sparse sun-cured tip variation in shared vertex colours
+island-simulator: grass per-instance blade stature with near juvenile undergrowth
+island-simulator: grass sparse near seed heads share blade wind and instancing
+island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres
+island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing
+island-simulator: jungle ground layer 2225 small plants
+island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD
+island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes
+island-simulator: selected near canopy variants include hanging leafy lianas
+island-simulator: jungle near canopy irregular buttress roots ground trunk bases
+island-simulator: jungle near canopy procedural bark fissures
+island-simulator: jungle near bushes with pointed leaf edge breakup
+island-simulator: jungle near ground plants include upright and split-leaf silhouettes
+island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes
+island-simulator: jungle fixed-sun two-sided geometric facet lighting
+island-simulator: jungle per-instance foliage tint reuses existing transforms
+island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing
+island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement
+island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile
+island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled
+island-simulator: dry wrack reuses one of four beach-detail variants
+island-simulator: natural-prop portable shader with near/far LOD
+island-simulator: near rocks use procedural strata and restrained lichen flecks
+island-simulator: near low rocks use a fixed-sea-level wet material band
+island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading
+island-simulator: rock per-instance tint reuses existing transforms
+island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings
+island-simulator: near fallen logs use irregular broken end contours
+island-simulator: near fallen-log end grain uses restrained radial cracks
+island-simulator: near driftwood uses faded sun-bleached longitudinal grain
+island-simulator: near driftwood variant 2 uses three tapered fork limbs
+island-simulator: all near driftwood variants use tapered three-dimensional branches
+island-simulator: driftwood end caps match irregular body rings
+island-simulator: fallen fronds use curved asymmetric leaflet silhouettes
+island-simulator: fallen frond leaflets use geometric central folds
+island-simulator: shipwreck portable aged wood, waterline, and salt-wear material
+island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 3948 triangles
+island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast
+island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast
+island-simulator: palms 330 in 64 cells, hardware instancing
+island-simulator: palm portable wind shader with near/far mesh LOD
+island-simulator: palm near mesh segmented fuller leaflet silhouettes
+island-simulator: palm near leaflets use staggered asymmetric silhouettes
+island-simulator: palm near geometry uses fixed-sun facet shading
+island-simulator: palm near root wedges ground trunk bases
+island-simulator: palm procedural bark scars and restrained coconut clusters
+island-simulator: selected palm near crowns include sparse hanging dry fronds
+island-simulator: palm per-instance frond tint reuses existing transforms
+island-simulator: ocean portable custom shader, 25921 vertices, 51200 triangles
+island-simulator: ocean reused crossing-wave subsurface colour
+island-simulator: ocean shallow ridge light reuses animated slope field
+island-simulator: ocean sunward ripple crests reuse analytic slope field
+island-simulator: ocean grazing reflection bands reuse analytic slope field
+island-simulator: ocean shoreline foam uses broken continuity mask
+island-simulator: shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles
+island-simulator: shoreline broken crest mask modulates wash continuity
+island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader
+island-simulator: renderer OPENGL33
+island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers
+island-simulator: collision grid 833 static obstacles in 485 occupied cells
+island-simulator: birds 24 agents in a distance-throttled one-batch simulation
+island-simulator: bird flight uses slow radial drift, banking, and intermittent glide
+island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats
+island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies
+island-simulator: fish 48 agents in 8 distance-throttled shallow-water schools
+island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes
+island-simulator: one occasional non-hostile offshore shark patrol
+island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail
+island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours
+island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight
+island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight
+island-simulator: monkeys 7 agents with portable GPU skeletal animation, 3 silhouettes, 4 palettes
+island-simulator: near monkeys use restrained procedural crown and cheek fur tufts
+island-simulator: near monkeys use bone-following finger and toe silhouettes
+island-simulator: calm monkeys use bounded skeletal head attention
+island-simulator: terrain-conforming contact shadows in one portable near-field batch
+island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw
+island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader
+island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation
+island-simulator: keyboard run/walk toggle uses a transient mode confirmation
+amdgpu: The CS has cancelled because the context is lost. This context is innocent.
+
+      Start 29: IslandGameBirdCapture
+20/46 Test #43: IslandGameTraversalBenchmark ............Subprocess aborted***Exception:  23.18 sec
+[INFO][RENDER] EasyGLRenderer initialized with OpenGL 4.6 (Core Profile) Mesa 25.0.7-2+deb13u1
+[INFO][RENDER] CNA: EasyGL capabilities -- MSAA up to 8x; MRT up to 4 targets (GL draw buffers=8, color attachments=8, CNA/FNA cap=4); indexed color masks: supported; anisotropic filtering: supported (Task 918, up to 16x); texture SurfaceFormat: Color + NormalizedByte4/2 (RGBA8_SNORM) + Bgr565/Bgra5551/Bgra4444 + Rgba1010102 + Alpha8 + Single/Vector2/Vector4 + HalfSingle/HalfVector2/HalfVector4/HdrBlendable + Rg32/Rgba64 + Dxt1/Dxt3/Dxt5 (S3TC blocks); render-target SurfaceFormat: Color + Rgba1010102 (RGB10_A2) + Rg32 (RG16 UNORM) + Rgba64 (RGBA16 UNORM) + half-float (RGBA16F) + float (RGBA32F)
+[INFO][RENDER] CNA: graphics renderer: OPENGL33
+island-simulator: user settings disabled for isolated QA run
+island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources
+island-simulator: terrain portable sand/soil material shader
+island-simulator: terrain near-field microvariation and procedural interior leaf litter
+island-simulator: terrain close sand granulation and shoreline-raked ripples
+island-simulator: terrain wet sand uses bounded view-dependent sun sheen
+island-simulator: terrain sparse close sand pebbles and shell flecks
+island-simulator: terrain fixed-sun interior dapple from shared portable noise fields
+island-simulator: terrain authored primary footpath material
+island-simulator: terrain footpath narrow irregular wear
+island-simulator: terrain distinct authored east/west clearing materials
+island-simulator: east clearing uses a warm dry ground cue
+island-simulator: clearing floors reuse existing noise fields for broad patch breakup
+island-simulator: terrain interior humus and moss reuse portable material fields
+island-simulator: distant scenery 5 unreachable low islets, one portable batch, 787 triangles
+island-simulator: near birds use layered trailing flight-feather silhouettes
+island-simulator: clearing butterflies use hinged patterned wings in one culled batch
+island-simulator: beach crabs use articulated legs, claws, and one culled batch
+island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch
+island-simulator: grass 18556 patches in 256 cells, portable instanced wind shader
+island-simulator: grass player interaction integrated into the instanced vertex shader
+island-simulator: grass five-level near curvature with portable two-sided daylight shading
+island-simulator: grass near clusters use 42 blades for denser first-person cover
+island-simulator: selected near grass blades use a geometric V-fold ridge
+island-simulator: grass near blades use asymmetric edges and occasional bent tips
+island-simulator: grass biome tint follows coast, path, and authored clearings
+island-simulator: grass sparse sun-cured tip variation in shared vertex colours
+island-simulator: grass per-instance blade stature with near juvenile undergrowth
+island-simulator: grass sparse near seed heads share blade wind and instancing
+island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres
+island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing
+island-simulator: jungle ground layer 2225 small plants
+island-simulator: jungle portable wind shader with canopy/understory/bush/ground LOD
+island-simulator: jungle near canopy tapered support branches and pointed leaf silhouettes
+island-simulator: selected near canopy variants include hanging leafy lianas
+island-simulator: jungle near canopy irregular buttress roots ground trunk bases
+island-simulator: jungle near canopy procedural bark fissures
+island-simulator: jungle near bushes with pointed leaf edge breakup
+island-simulator: jungle near ground plants include upright and split-leaf silhouettes
+island-simulator: jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes
+island-simulator: jungle fixed-sun two-sided geometric facet lighting
+island-simulator: jungle per-instance foliage tint reuses existing transforms
+island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing
+island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement
+island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile
+island-simulator: beach detail 265 shell/pebble/wrack clusters, near-field culled
+island-simulator: dry wrack reuses one of four beach-detail variants
+island-simulator: natural-prop portable shader with near/far LOD
+island-simulator: near rocks use procedural strata and restrained lichen flecks
+island-simulator: near low rocks use a fixed-sea-level wet material band
+island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading
+island-simulator: rock per-instance tint reuses existing transforms
+island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings
+island-simulator: near fallen logs use irregular broken end contours
+island-simulator: near fallen-log end grain uses restrained radial cracks
+island-simulator: near driftwood uses faded sun-bleached longitudinal grain
+island-simulator: near driftwood variant 2 uses three tapered fork limbs
+island-simulator: all near driftwood variants use tapered three-dimensional branches
+island-simulator: driftwood end caps match irregular body rings
+island-simulator: fallen fronds use curved asymmetric leaflet silhouettes
+island-simulator: fallen frond leaflets use geometric central folds
+island-simulator: shipwreck portable aged wood, waterline, and salt-wear material
+island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 3948 triangles
+island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast
+island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, keel, rudder, and a broken foremast
+island-simulator: palms 330 in 64 cells, hardware instancing
+island-simulator: palm portable wind shader with near/far mesh LOD
+island-simulator: palm near mesh segmented fuller leaflet silhouettes
+island-simulator: palm near leaflets use staggered asymmetric silhouettes
+island-simulator: palm near geometry uses fixed-sun facet shading
+island-simulator: palm near root wedges ground trunk bases
+island-simulator: palm procedural bark scars and restrained coconut clusters
+island-simulator: selected palm near crowns include sparse hanging dry fronds
+island-simulator: palm per-instance frond tint reuses existing transforms
+island-simulator: ocean portable custom shader, 25921 vertices, 51200 triangles
+island-simulator: ocean reused crossing-wave subsurface colour
+island-simulator: ocean shallow ridge light reuses animated slope field
+island-simulator: ocean sunward ripple crests reuse analytic slope field
+island-simulator: ocean grazing reflection bands reuse analytic slope field
+island-simulator: ocean shoreline foam uses broken continuity mask
+island-simulator: shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles
+island-simulator: shoreline broken crest mask modulates wash continuity
+island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader
+island-simulator: audio unavailable; continuing silently: SDL_OpenAudioDeviceStream failed: ALSA: Couldn't open audio device: Host is down
+island-simulator: renderer OPENGL33
+island-simulator: terrain 58081 vertices, 115200 triangles in 64 cull cells with shared buffers
+island-simulator: collision grid 833 static obstacles in 485 occupied cells
+island-simulator: birds 24 agents in a distance-throttled one-batch simulation
+island-simulator: bird flight uses slow radial drift, banking, and intermittent glide
+island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats
+island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies
+island-simulator: fish 48 agents in 8 distance-throttled shallow-water schools
+island-simulator: sea turtles 5 agents in bounded near-shore cruise, forage, and surface routes
+island-simulator: one occasional non-hostile offshore shark patrol
+island-simulator: aquatic wildlife uses depth pitch, banked turns, forked tails, and near head detail
+island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours
+island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight
+island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight
+island-simulator: monkeys 7 agents with portable GPU skeletal animation, 3 silhouettes, 4 palettes
+island-simulator: near monkeys use restrained procedural crown and cheek fur tufts
+island-simulator: near monkeys use bone-following finger and toe silhouettes
+island-simulator: calm monkeys use bounded skeletal head attention
+island-simulator: terrain-conforming contact shadows in one portable near-field batch
+island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw
+island-simulator: movement ripples and shoreline-transition bursts integrated into the portable ocean shader
+island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation
+island-simulator: keyboard run/walk toggle uses a transient mode confirmation
+island-simulator: benchmark traversal warming 120 intervals, sampling 600 intervals with VSync disabled
+island-simulator: benchmark traversal rail 675.964 m across 11 authored waypoints
+island-simulator: startup world 1250.256 ms, framework 23.732 ms, content 1698.922 ms, pre-draw 16.712 ms, first draw 8.769 ms, total 2998.391 ms
+island-simulator: viewport 1280x720 logical backbuffer
+amdgpu: The CS has cancelled because the context is lost. This context is innocent.
+
+      Start 31: IslandGameSharkCapture
+21/46 Test #29: IslandGameBirdCapture ...................***Failed  Required regular expression not found. Regex=[bird flight uses slow radial drift, banking, and intermittent glide
+]  0.57 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start 30: IslandGameFishCapture
+22/46 Test #22: IslandGameWaterViewCapture ..............***Failed  Required regular expression not found. Regex=[water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?, splash 0[.][1-9][0-9]*, phase [01]([.][0-9]+)?
+]  1.03 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+23/46 Test #24: IslandGameDistantSceneryCapture .........***Failed  Required regular expression not found. Regex=[distant 5 islets, 1 draw
+]  0.97 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start 25: IslandGamePropCapture
+      Start 37: IslandGameDebugOverlayCapture
+24/46 Test #32: IslandGameMonkeyCapture .................***Failed  Required regular expression not found. Regex=[calm monkeys use bounded skeletal head attention.*monkey crossfades 0/[1-9][0-9]* active/completed
+]  0.61 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+25/46 Test #28: IslandGameReefCapture ...................***Failed  Required regular expression not found. Regex=[[1-9][0-9]*/[1-9][0-9]* reef outcrops
+]  0.98 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+26/46 Test #38: IslandGameWorldDebugCapture .............***Failed  Required regular expression not found. Regex=[world debug frame ground samples 9, supports [1-9].*audio zones 6, candidates [1-2]
+]  0.75 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+27/46 Test #31: IslandGameSharkCapture ..................***Failed  Required regular expression not found. Regex=[shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight
+]  0.32 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start 26: IslandGameDriftwoodCapture
+      Start  8: IslandGameSmoke
+      Start 16: IslandGameJungleCapture
+      Start 15: IslandGameBeachCapture
+28/46 Test #30: IslandGameFishCapture ...................***Failed  Required regular expression not found. Regex=[fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight
+]  0.08 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start 21: IslandGamePalmCapture
+29/46 Test #26: IslandGameDriftwoodCapture ..............***Failed  Required regular expression not found. Regex=[driftwood QA per-instance near LOD [1-9][0-9]* pieces
+]  0.08 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start  7: IslandAudioPreviewExport
+30/46 Test #37: IslandGameDebugOverlayCapture ...........***Failed    0.09 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start  5: IslandCaptureValidatorTests
+31/46 Test #25: IslandGamePropCapture ...................***Failed  Required regular expression not found. Regex=[near fallen-log end grain uses restrained radial cracks
+]  0.10 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start  3: IslandAudioReport
+32/46 Test  #8: IslandGameSmoke .........................***Failed  Required regular expression not found. Regex=[fixed sunny sky with layered horizontal high wisps, portable shader
+]  0.09 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start 11: IslandCommandLineValidation
+33/46 Test #15: IslandGameBeachCapture ..................***Failed  Required regular expression not found. Regex=[terrain authored primary footpath material
+]  0.09 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start  6: IslandWebPackageValidation
+34/46 Test #16: IslandGameJungleCapture .................***Failed  Required regular expression not found. Regex=[selected near canopy variants include hanging leafy lianas
+]  0.11 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+      Start 12: IslandGameStartupReportValidation
+35/46 Test #12: IslandGameStartupReportValidation .......   Passed    0.05 sec
+      Start  4: IslandAssetValidation
+36/46 Test #21: IslandGamePalmCapture ...................***Failed  Required regular expression not found. Regex=[palm near geometry uses fixed-sun facet shading.*selected palm near crowns include sparse hanging dry fronds
+]  0.10 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: No available video device; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+
+37/46 Test  #4: IslandAssetValidation ...................   Passed    0.08 sec
+38/46 Test #11: IslandCommandLineValidation .............   Passed    0.17 sec
+39/46 Test  #6: IslandWebPackageValidation ..............   Passed    0.30 sec
+40/46 Test  #5: IslandCaptureValidatorTests .............   Passed    0.52 sec
+41/46 Test  #3: IslandAudioReport .......................   Passed    0.52 sec
+42/46 Test  #7: IslandAudioPreviewExport ................   Passed    0.64 sec
+43/46 Test  #1: IslandCoreTests .........................   Passed   49.51 sec
+      Start 46: IslandGameSettingsPersistence
+44/46 Test #46: IslandGameSettingsPersistence ...........***Failed  Required regular expression not found. Regex=[settings persistence smoke passed
+]  0.24 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: x11 not available; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+settings smoke: game exited before creating its window
+
+      Start 45: IslandGamePlayerInput
+45/46 Test #45: IslandGamePlayerInput ...................***Failed  Required regular expression not found. Regex=[player input smoke passed
+]  0.12 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: x11 not available; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+player input smoke: game exited before creating its window
+
+      Start 44: IslandGameFreeCameraInput
+46/46 Test #44: IslandGameFreeCameraInput ...............***Failed  Required regular expression not found. Regex=[free-camera input smoke passed
+]  0.07 sec
+island-simulator: fatal error: Unable to create the graphics device. CNA::Platform: AcquireSubsystem(Video) failed: x11 not available; this SDL build contains these video drivers: wayland, x11, offscreen, dummy, evdev
+free-camera input smoke: game exited before creating its window
+
+
+48% tests passed, 24 tests failed out of 46
+
+Label Time Summary:
+display    = 184.26 sec*proc (36 tests)
+input      =   0.43 sec*proc (3 tests)
+storage    =   0.24 sec*proc (1 test)
+
+Total Test time (real) =  49.96 sec
+
+The following tests FAILED:
+	  8 - IslandGameSmoke (Failed)                          display
+	 15 - IslandGameBeachCapture (Failed)                   display
+	 16 - IslandGameJungleCapture (Failed)                  display
+	 19 - IslandGameGroundPlantCapture (Subprocess aborted) display
+	 20 - IslandGameGrassCapture (Subprocess aborted)       display
+	 21 - IslandGamePalmCapture (Failed)                    display
+	 22 - IslandGameWaterViewCapture (Failed)               display
+	 23 - IslandGameCurrentViewCapture (Failed)             display
+	 24 - IslandGameDistantSceneryCapture (Failed)          display
+	 25 - IslandGamePropCapture (Failed)                    display
+	 26 - IslandGameDriftwoodCapture (Failed)               display
+	 27 - IslandGameFallenFrondCapture (Subprocess aborted) display
+	 28 - IslandGameReefCapture (Failed)                    display
+	 29 - IslandGameBirdCapture (Failed)                    display
+	 30 - IslandGameFishCapture (Failed)                    display
+	 31 - IslandGameSharkCapture (Failed)                   display
+	 32 - IslandGameMonkeyCapture (Failed)                  display
+	 37 - IslandGameDebugOverlayCapture (Failed)            display
+	 38 - IslandGameWorldDebugCapture (Failed)              display
+	 42 - IslandGameBenchmark (Failed)                      display
+	 43 - IslandGameTraversalBenchmark (Subprocess aborted) display
+	 44 - IslandGameFreeCameraInput (Failed)                display input
+	 45 - IslandGamePlayerInput (Failed)                    display input
+	 46 - IslandGameSettingsPersistence (Failed)            display input storage
+Errors while running CTest
+profile_dead_tests: no test died on, or skipped because of, a graphics-profile refusal
+--- weston log (last 30 lines) ---
+               read-back format: ARGB8888
+               glReadPixels supports y-flip: yes
+               glReadPixels supports PBO: yes
+               wl_shm 10 bpc formats: yes
+               wl_shm 16 bpc formats: yes
+               wl_shm half-float formats: yes
+               internal R and RG formats: yes
+               OES_EGL_image_external: yes
+[01:12:36.293] Using GL renderer
+[01:12:36.293] Registered plugin API 'weston_windowed_output_api_headless_v2' of size 16
+[01:12:36.294] Color manager: no-op
+                 protocol support: no
+[01:12:36.294] Output 'headless' attempts EOTF mode SDR and colorimetry mode default.
+[01:12:36.294] Output 'headless' using color profile: stock sRGB color profile
+[01:12:36.300] Output 'headless' enabled with head(s) headless
+[01:12:36.300] Compositor capabilities:
+               arbitrary surface rotation: yes
+               screen capture uses y-flip: yes
+               cursor planes: no
+               arbitrary resolutions: no
+               view mask clipping: yes
+               explicit sync: yes
+               color operations: yes
+               presentation clock: CLOCK_MONOTONIC_RAW, id 4
+               presentation clock resolution: 0.000000001 s
+[01:12:36.300] Loading module '/home/robertvokac/deps/weston/usr/lib/x86_64-linux-gnu/weston/desktop-shell.so'
+[01:12:36.300] launching '/home/robertvokac/deps/weston/usr/libexec/weston-desktop-shell'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+amdgpu: The CS has cancelled because the context is lost. This context is innocent.
+

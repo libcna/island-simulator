@@ -2,7 +2,9 @@
 
 ## Status
 
-**Open, critical.** The initiating workload and process are reconstructed exactly. The first GPUVM
+**Open, critical.** The parent launch is reconstructed exactly. The jungle benchmark is the
+strongest candidate for PID 3497873, but its PID-to-command mapping is not directly recorded in
+the retained evidence. The first GPUVM
 fault has not yet been reproduced under the required fail-closed kernel-log protocol, so the
 userspace operation that generated the invalid GPU access is not yet proven. This document must
 not be read as a root-cause closure.
@@ -54,22 +56,22 @@ CTest intentionally launched eight processes at once. Its first scheduled tests 
 
 As slots became available, it launched `IslandGameTraversalBenchmark`, then
 `IslandGameBenchmark`, followed by further capture processes. The first kernel fault occurred
-approximately 12.5 seconds after the wrapper launch and approximately 6.5 seconds after the jungle
-benchmark started.
+approximately 12.5 seconds after the wrapper launch. CTest's per-test durations do not establish
+the exact wall-clock start time of each child after private-display startup.
 
-The preserved CTest output further constrains the primary process timeline. Test 42 started after
-`IslandGameCapture` completed at 3.93 seconds. PID 3497873 completed framework and GPU-content
+The preserved CTest output further constrains the candidate workload timeline. Test 42 started after
+`IslandGameCapture` completed in 3.93 seconds. The jungle benchmark completed framework and GPU-content
 initialization, announced `benchmark jungle warming 120 intervals, sampling 600 intervals with
 VSync disabled`, completed its first draw, and reported a 1280x720 backbuffer. It never printed the
 required `benchmark completed 600 samples` marker. CTest eventually failed it at 22.14 seconds,
-after the private X server had already disconnected. The primary process was therefore executing
-benchmark frames when the fault occurred; there is no evidence that it had entered normal
-renderer/resource teardown. The later `X connection to :2 broken` line is a consequence of the
+after the private X server had already disconnected. This is consistent with a fault during
+benchmark frames, but cannot establish PID 3497873's exact operation without a direct PID mapping.
+The later `X connection to :2 broken` line is a consequence of the
 GPU reset/private-display failure, not the initiating operation.
 
-The same `-j8` suite had completed successfully once at approximately 00:55 CEST. Therefore the
-failure is load- or timing-sensitive; eight-way concurrency is an important condition but is not,
-by itself, proof of the faulty component.
+The same `-j8` suite had completed successfully once at approximately 00:55 CEST, before the
+dry-frond source change discussed below. Concurrency, timing, and that source change remain
+isolation variables; the earlier pass alone does not prove a race or identify the faulty component.
 
 ### Immediately preceding GPU work
 
@@ -102,17 +104,24 @@ source state.
 
 | PID | Exact workload | Disposition |
 |---:|---|---|
-| 3497873 | `island-simulator --benchmark build/island-benchmark-jungle.json --viewpoint jungle` | Primary process named by the first AMDGPU GPUVM fault; no userspace coredump |
+| 3497873 | Most likely `island-simulator --benchmark build/island-benchmark-jungle.json --viewpoint jungle`; direct command-line record missing | Primary process named by the first AMDGPU GPUVM fault; no userspace coredump |
 | 3497856 | `island-simulator --benchmark build/island-benchmark-traversal.json --viewpoint traversal` | SIGABRT at 01:13:01 in present/swap after the reset began |
 | 3498035 | `island-simulator --capture build/island-ground-capture.ppm --viewpoint ground` | SIGABRT at 01:13:01 during GL context lease restoration after reset |
 | 3498052 | `island-simulator --capture build/island-frond-capture.ppm --viewpoint fronds` | SIGABRT at 01:13:01 during GL context handling after reset |
 | 3498053 | `island-simulator --capture build/island-grass-capture.ppm --viewpoint grass` | SIGABRT at 01:13:01 during GL context handling after reset |
 
-PID 3497873 was CTest test 42, `IslandGameBenchmark`. It rendered the fixed jungle viewpoint,
-disabled vertical synchronization, warmed up for 120 frame intervals, and was collecting 600
-benchmark samples. It used the `OPENGL33` CNA renderer implemented by EasyGL, the SDL3 platform,
-X11/GLX through the private Xwayland server, and Mesa/radeonsi on the AMD Radeon 780M. Its own
-startup output identified OpenGL 4.6 Core Profile, Mesa `25.0.7-2+deb13u1`. The build cache records
+CTest test 42, `IslandGameBenchmark`, is the leading candidate for PID 3497873. The scheduling
+order and its position between the known traversal and later capture PIDs support this inference.
+However, PID ordering is not a process-to-command record; the original application did not print
+its PID, the CTest output does not contain 3497873, and its core is absent. Earlier revisions of
+this report and progress messages stated this mapping as exact; that certainty was unsupported.
+Kernel/audit/process-accounting evidence is still required to prove or correct the association.
+
+Test 42 rendered the fixed jungle viewpoint, disabled vertical synchronization, warmed up for 120
+frame intervals, and requested 600 benchmark samples. The suite used the `OPENGL33` CNA renderer
+implemented by EasyGL, the SDL3 platform, X11/GLX through private Xwayland, and Mesa/radeonsi on the
+AMD Radeon 780M. The benchmark startup output identified OpenGL 4.6 Core Profile, Mesa
+`25.0.7-2+deb13u1`. The build cache records
 `CNA_GRAPHICS_RENDERER=OPENGL33` and `CNA_PLATFORM=SDL3`.
 
 The launch command did not set Mesa, Gallium, or AMD debug/driver overrides. The wrapper changed
@@ -136,6 +145,10 @@ attribution proves that this process submitted the faulting command stream; it d
 the high-level game draw that produced it.
 
 ## Evidence and reconstruction sources
+
+The extracted primary CTest output and the post-reset retry's compositor log are also preserved
+verbatim in `evidence/2026-10-08/`, with provenance and SHA-256 hashes. Their original temporary
+copies were left intact.
 
 Evidence retained outside the repository:
 
@@ -171,7 +184,8 @@ because they constrain reproducibility, but they had no before/after kernel-jour
 
 No further hardware-GPU workload has been launched since the incident report arrived. The two
 isolated completions and the `-j2` completion show that neither the fixed jungle scene nor the palm
-geometry fails deterministically; they do not show that the kernel recorded no silent GPUVM fault.
+geometry fails on every run. The source also evolved after the incident, so these runs are not an
+exact historical-binary reproduction; they do not show that the kernel recorded no silent GPUVM fault.
 
 ## Unsafe post-fault action
 
@@ -212,8 +226,9 @@ was in place. It must not be treated as validation.
   incident ranges are valid, so it is not presented as the root-cause fix.
 - The benchmark scene uses deterministic placement and a fixed camera, so visible instance counts
   stabilize rather than continually reallocating resources.
-- The primary process did not reach its benchmark-completion marker, which rules out normal
-  end-of-benchmark destruction as the operation immediately preceding the first fault.
+- The jungle benchmark did not print its completion marker. This supports investigation of
+  steady-state frame operations, but neither missing buffered output nor the inferred PID mapping
+  rules out a resource teardown fault in the actual primary process.
 - CNA EasyGL's frame lease is acquired by `GraphicsDeviceManager::BeginDraw` and released after
   `Present` by `EndDraw`; no game-side cross-thread lease use was found.
 
@@ -294,15 +309,30 @@ Runtime remain read-only.
   `ISLAND_ALLOW_PARALLEL_GPU_TESTS=ON` only after serial qualification is clean.
 - `tools/run_gpu_incident_qualification.sh` launches exactly one named workload, preserves its
   runtime/compositor/kernel evidence, and refuses to start unless the invoking account can read an
-  actual kernel journal record and acquire a cursor. A live 200 ms journal poll terminates only the
-  harness-owned process group on the first new AMDGPU GPUVM fault, GFX ring timeout, VRAM loss, or
-  GPU reset; a final cursor scan closes startup/exit races and stops the campaign.
+  actual kernel journal record and acquire a cursor. Its Python supervisor parses JSON journal
+  records, preserving their cursors, boot identity, and timestamps. A live poll every 200 ms (plus
+  journal command time) terminates the harness-owned process group on the first GPU fault, loss of
+  journal access/continuity, operator interruption, or the 120-second workload deadline. Journal
+  reads themselves have a three-second deadline. A final scan preserves the complete delta.
+- The initial shell implementation was found to use `kill -TERM -- -PGID`, which Debian's dash
+  rejects as `Illegal number: -`. Its polling path also swallowed journal errors. Both defects
+  were discovered before hardware qualification and replaced with `os.killpg` supervision, bounded
+  TERM/KILL cleanup, explicit monitoring-failure handling, and 15 CPU-only regression cases. Those
+  tests verify termination of parent and child processes, including clients left behind by an
+  exited wrapper, and retention of a live fault even when the final synthetic delta is empty.
+- Failed qualification writes `gpu-incident-evidence/QUALIFICATION_STOP.json`; subsequent runs
+  refuse to launch until the evidence is reviewed and the stop file is deliberately archived out
+  of that location. An advisory build lock rejects concurrent supervisor invocations. GL errors
+  and high-severity KHR_debug messages also fail qualification. This containment does not identify
+  or fix the original GPUVM defect.
 
 ## Required safe qualification sequence
 
 The current account cannot read kernel journal entries: `journalctl -k` returns no kernel record,
 and membership in `systemd-journal`/`adm` is absent. Hardware-GPU qualification remains blocked
 until read-only access is granted and a new login session picks up the group membership.
+This was also checked outside the sandbox; the host account lacks these groups, and a
+non-interactive `sudo -n journalctl` attempt reports that a password is required.
 
 On this Debian host the required group exists. The operator can grant the narrow read-only access
 with:
