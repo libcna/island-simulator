@@ -9,11 +9,13 @@ readonly artifact_names=(
     island-simulator.html
     island-simulator.js
     island-simulator.wasm
+    island-simulator.data
 )
 readonly content_types=(
     'text/html; charset=utf-8'
     'text/javascript; charset=utf-8'
     'application/wasm'
+    'application/octet-stream'
 )
 
 for command_name in gzip install sha256sum stat awk; do

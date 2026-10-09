@@ -4,6 +4,7 @@
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include <exception>
+#include <charconv>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -20,9 +21,13 @@ namespace
         case FixedViewpoint::BeachPath: return "beach";
         case FixedViewpoint::JungleTrail: return "jungle";
         case FixedViewpoint::EastClearingDetail: return "east";
+        case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
+        case FixedViewpoint::CanopyInspection: return "canopy";
         case FixedViewpoint::WestClearingDetail: return "west";
         case FixedViewpoint::GrassDetail: return "grass";
         case FixedViewpoint::GroundPlantDetail: return "ground";
+        case FixedViewpoint::GroundBroadleafDetail: return "ground-broadleaf";
+        case FixedViewpoint::BushDetail: return "bush";
         case FixedViewpoint::FallenLeafDetail: return "litter";
         case FixedViewpoint::GroundContactDetail: return "contact";
         case FixedViewpoint::MovementTraceDetail: return "movement";
@@ -40,6 +45,7 @@ namespace
         case FixedViewpoint::MonkeyDetail: return "monkeys";
         case FixedViewpoint::ShipwreckDetail: return "shipwreck";
         case FixedViewpoint::CrabDetail: return "crabs";
+        case FixedViewpoint::BoarDetail: return "boars";
         case FixedViewpoint::ButterflyDetail: return "butterflies";
         case FixedViewpoint::SeaTurtleDetail: return "turtles";
         case FixedViewpoint::BenchmarkTraversal: return "traversal";
@@ -60,9 +66,29 @@ int main(const int argc, char* argv[])
     std::string capturePath;
     std::string benchmarkPath;
     std::string startupReportPath;
+    std::optional<island::CanopyLodInspection> canopyLodInspection;
     for (int index = 1; index < argc; ++index) {
         const std::string_view argument(argv[index]);
-        if (argument == "--smoke-test") {
+        if (argument == "--canopy-lod-inspection") {
+            island::CanopyLodInspection inspection{};
+            const auto coordinate = [](const std::string_view text, int& value) {
+                const auto result = std::from_chars(text.data(), text.data() + text.size(), value);
+                return result.ec == std::errc{} && result.ptr == text.data() + text.size()
+                    && value >= -500000 && value <= 500000;
+            };
+            if (canopyLodInspection || index + 3 >= argc
+                || !coordinate(argv[index + 1], inspection.xMillimetres)
+                || !coordinate(argv[index + 2], inspection.zMillimetres)
+                || (std::string_view(argv[index + 3]) != "near"
+                    && std::string_view(argv[index + 3]) != "far")) {
+                std::cerr << "island-simulator: --canopy-lod-inspection requires unique "
+                             "X_MM Z_MM near|far (integer coordinates within +/-500000)\n";
+                return 2;
+            }
+            inspection.near = std::string_view(argv[index + 3]) == "near";
+            canopyLodInspection = inspection;
+            index += 3;
+        } else if (argument == "--smoke-test") {
             smokeTest = true;
         } else if (argument == "--debug-overlay") {
             showDebugOverlay = true;
@@ -78,9 +104,9 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, beach, jungle, "
-                             "east, west, grass, ground, litter, contact, movement, palms, water, "
+                             "east, clearing-edge, canopy (inspection only), west, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "current, distant, props, driftwood, reef, fronds, birds, fish, "
-                             "shark, monkeys, shipwreck, crabs, butterflies, turtles, or traversal\n";
+                             "shark, monkeys, shipwreck, crabs, boars, butterflies, turtles, or traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -92,12 +118,20 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::JungleTrail;
             } else if (name == "east") {
                 viewpoint = island::FixedViewpoint::EastClearingDetail;
+            } else if (name == "clearing-edge") {
+                viewpoint = island::FixedViewpoint::ClearingEdgeDetail;
+            } else if (name == "canopy") {
+                viewpoint = island::FixedViewpoint::CanopyInspection;
             } else if (name == "west") {
                 viewpoint = island::FixedViewpoint::WestClearingDetail;
             } else if (name == "grass") {
                 viewpoint = island::FixedViewpoint::GrassDetail;
             } else if (name == "ground") {
                 viewpoint = island::FixedViewpoint::GroundPlantDetail;
+            } else if (name == "ground-broadleaf") {
+                viewpoint = island::FixedViewpoint::GroundBroadleafDetail;
+            } else if (name == "bush") {
+                viewpoint = island::FixedViewpoint::BushDetail;
             } else if (name == "litter") {
                 viewpoint = island::FixedViewpoint::FallenLeafDetail;
             } else if (name == "contact") {
@@ -132,6 +166,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::ShipwreckDetail;
             } else if (name == "crabs") {
                 viewpoint = island::FixedViewpoint::CrabDetail;
+            } else if (name == "boars") {
+                viewpoint = island::FixedViewpoint::BoarDetail;
             } else if (name == "butterflies") {
                 viewpoint = island::FixedViewpoint::ButterflyDetail;
             } else if (name == "turtles") {
@@ -166,6 +202,24 @@ int main(const int argc, char* argv[])
             return 2;
         }
     }
+    if (viewpoint == island::FixedViewpoint::CanopyInspection && !canopyLodInspection) {
+        std::cerr << "island-simulator: canopy viewpoint requires --canopy-lod-inspection\n";
+        return 2;
+    }
+    if (canopyLodInspection && (capturePath.empty() || viewpoint == island::FixedViewpoint::None
+        || viewpoint == island::FixedViewpoint::BenchmarkTraversal || !benchmarkPath.empty()
+        || !startupReportPath.empty() || showDebugOverlay || showWorldDebug || inputDiagnostics)) {
+        std::cerr << "island-simulator: canopy LOD inspection requires --capture and a fixed "
+                     "viewpoint, without benchmark, startup report or debug modes\n";
+        return 2;
+    }
+    const std::string_view mode = canopyLodInspection ? "canopy-lod-inspection"
+        : !benchmarkPath.empty() ? "benchmark"
+        : !capturePath.empty() ? "capture"
+        : !startupReportPath.empty() ? "startup-report"
+        : inputDiagnostics ? "input-diagnostics"
+        : smokeTest ? "smoke-test"
+        : "interactive";
     if (!benchmarkPath.empty()
         && (smokeTest || showDebugOverlay || showWorldDebug || inputDiagnostics)) {
         std::cerr << "island-simulator: --benchmark cannot be combined with smoke, capture, "
@@ -176,12 +230,6 @@ int main(const int argc, char* argv[])
         std::cerr << "island-simulator: the traversal viewpoint requires --benchmark\n";
         return 2;
     }
-    const std::string_view mode = !benchmarkPath.empty() ? "benchmark"
-        : !capturePath.empty() ? "capture"
-        : !startupReportPath.empty() ? "startup-report"
-        : inputDiagnostics ? "input-diagnostics"
-        : smokeTest ? "smoke-test"
-        : "interactive";
     island::RecordRuntimeWorkload(mode, ViewpointName(viewpoint), capturePath,
                                   benchmarkPath, startupReportPath);
     try {
@@ -189,7 +237,8 @@ int main(const int argc, char* argv[])
                                 inputDiagnostics, showWorldDebug, std::move(benchmarkPath),
                                 std::move(startupReportPath),
                                 !noUserSettings && !smokeTest && !inputDiagnostics
-                                    && viewpoint == island::FixedViewpoint::None);
+                                    && viewpoint == island::FixedViewpoint::None,
+                                canopyLodInspection);
         game.Run();
         return 0;
     } catch (const std::exception& error) {

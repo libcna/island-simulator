@@ -56,11 +56,3280 @@ environment.
 
 ## Critical incident response — 2026-10-08 AMDGPU GPUVM reset
 
-The normal realism campaign is paused behind the critical GPU incident documented in
+The hardware qualification campaign is paused behind the critical GPU incident documented in
 `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md`. At 01:12:47 CEST an eight-client native CTest
 run produced GPUVM faults attributed to PID 3497873 (most likely the jungle benchmark), followed by a GFX ring timeout,
 MODE2 reset, VRAM loss, and termination of the GNOME session. Previous native GPU claims are
 historical evidence, not post-incident qualification.
+
+### Updated operator direction: bounded diagnosis and safe feature development
+
+#### 2026-10-09 — operator-requested handoff and stop
+
+- [x] Complete only the nearest task: contained real-input Web grass walk.
+  `20261009T131053.908704Z-chrome-grass-motion` passes: 19.0084 m outward,
+  0.7167 m return error, 94 samples, 47 grass LOD states, 20 canopy transitions,
+  98 distinct recorded frames without truncation, GL error zero/context live and
+  empty kernel deltas. Stages 0/3/6 and frames 25/26/27/75 inspected. Sparse cover
+  remains obvious; compressed sampling does not prove no fine shimmer or LOD pop.
+- [x] Prepare English root `handoff.md` with safety boundaries, actual state,
+  decisions, build/test commands, evidence locations, limitations and next tasks.
+- [x] Confirm no owned graphics processes remain, unchanged AMD stop latch and
+  359 GiB free. Preserve all incident evidence and source assets.
+- [x] Final non-display regression suite passes 33/33 groups (22.23 s).
+
+Final delivery follows writing this ledger: commit and push all accumulated
+project source/documentation changes to `origin/develop`, then stop as explicitly
+requested. Git's commit/remote refs, not a prewritten checkbox, confirm delivery.
+No additional feature work or automatic continuation after push; the overall
+campaign remains incomplete.
+
+#### 2026-10-09 — grass surface material
+
+- [x] Separate fixed baked side lighting from custom-shader pigment. Keep the
+  unlit stock-effect fallback unchanged; give short turf and tall blades the same
+  normalized basal occlusion profile, independent of wind amplitude.
+- [x] Add restrained, footprint-filtered longitudinal grain and midrib response
+  without textures, new draws or geometry changes. Keep seed heads unaffected.
+- [x] Test finite input domains, response bounds and unresolved-detail convergence;
+  inspect serial device-isolated before/after captures and portable shader runs.
+  This is visual work, not a fix or qualification for the AMDGPU incident.
+- [x] Native build and 33/33 CPU groups pass (22.61 s). Isolated llvmpipe grass
+  `20261009T130135.460537Z-grass` passes; before/after images inspected, unchanged
+  mesh counts and empty kernel delta. Detail is restrained; sparse/stylized
+  coverage remains a limitation. See `docs/grass-surface-material.md`.
+- [x] Web builds and isolated Chrome/SwiftShader
+  `20261009T130317.675153Z-chrome-litter` passes both views / 60 intervals each,
+  GL error zero, no context loss, empty kernel deltas. Grass image inspected;
+  package 10,263,469 raw / 3,498,026 gzip bytes. Moving-camera review still pending.
+- [x] Android x86_64 assembly/lint passes (2 s), KVM/SwiftShader
+  `20261009T130636.434000Z-grass` passes, app PID 1770 / entry TID 1868. Image
+  inspected, kernel deltas empty, owned emulator exits zero. ARM64 assembly/lint
+  restored (2 s), three native libraries and both materials verified; ARM64
+  runtime remains untested. Rolling APK identities recorded in the material document.
+- [x] Final 33/33 non-display groups pass (22.97 s). No owned graphics process
+  remains, hardware stop-latch hash unchanged, 359 GiB free. Only rolling generated
+  APK/Web packages replaced; no source artwork or incident evidence removed.
+- [x] Review the updated grass during an isolated real-input Web walk, with the
+  sampling limitations documented in the handoff entry above.
+- [ ] After a new operator instruction, improve nonuniform ground cover
+  and tree-trunk/lighting presentation based on actual first-person images, without
+  claiming the current stylized island meets the realism target. The hardware
+  recorder/maintainer-sharing approval gates remain separate and unchanged.
+
+#### 2026-10-09 — missing-leaf material qualification
+
+- [x] Hide only the prepared leaf directory inside the private-device software
+  namespace. Never move/delete host assets; record original asset identity and
+  verify it after both successful and failed runs.
+- [x] Require the specific procedural-vein fallback diagnostic, a completed
+  rendered frame and no GL/kernel errors. Normal qualification must still reject
+  every fallback; unrelated degraded paths must fail the injected test too.
+- [x] Add CPU regression checks for isolation and strict diagnostics, then run
+  the missing-asset view and an ordinary view serially. Record actual images and
+  resource/error behaviour before the next grass appearance pass.
+- [x] Four focused CPU groups pass (1.60 s). Missing-leaf native llvmpipe capture
+  `20261009T124801.964528Z-ground-broadleaf` passes and its image was inspected;
+  exact original leaf SHA-256, size, inode, device and modification time unchanged.
+  Ordinary grass `20261009T124913.245139Z-grass` passes with the loaded leaf marker.
+  Both kernel deltas are empty. See `docs/live-leaf-material.md`.
+
+#### 2026-10-09 — compact reproducible material packaging
+
+- [x] Produce floor (512-square) and leaf (256-square) PNGs on the host using the
+  existing RGB-code-value area-filter convention. Preserve original images and
+  provenance; require bounded decoding, atomic outputs and actionable failures.
+- [x] Compare every output pixel with the independent C++ runtime filter, including
+  actual artwork and noninteger scales; verify complete mip-chain equivalence.
+- [x] Integrate incremental generation into native/Web CMake and Android Gradle,
+  document host-only Python/Pillow requirements and avoid target-side tool builds.
+- [x] Rebuild and validate packages, compare actual isolated software captures,
+  record transfer/startup savings and platform limits. Never run AMD hardware.
+- [x] Native build and 33/33 CPU groups pass (23.10 s); final bounds-guard focused
+  material tests pass (3.98 s). Both real assets are pixel-identical to the C++
+  reference. Native second build is a no-op. Combined PNG size 7,431,342 -> 766,261
+  bytes (89.69% less); originals unchanged. See `docs/prepared-materials.md`.
+- [x] Native isolated llvmpipe `20261009T122627.472020Z-ground-broadleaf` passes,
+  image inspected and empty kernel delta. Floor load 39.3618 versus 175.26 ms in
+  the original-source capture; one uncontrolled observation, not a benchmark.
+  Animated full images are not pixel-identical; CPU source-pixel equivalence is
+  separately proven. Subsequent platform evidence follows.
+- [x] Web builds; payload is 10,257,711 raw / 3,496,805 gzip bytes, both prepared
+  hashes match native. Initial focused run `20261009T122907.762729Z-chrome-litter`
+  passes litter but fails grass overlay control; kernel deltas empty. Replaced
+  fixed F1 pulses with a bounded acknowledged gesture and preserved failed-page
+  state; helper's ten CPU fixtures pass. Exact original missed-input cause remains
+  unproven; subsequent runtime evidence follows.
+- [x] Corrected focused Web run `20261009T123357.811353Z-chrome-litter` passes both
+  views / 60 intervals each, GL error zero, no context loss, empty kernel deltas.
+  Litter image inspected; F1 acknowledgement takes 1,043/2,183 ms with recorded
+  focused canvas state. No full input/lifecycle or eight-view suite repeated.
+- [x] Android x86_64 assembly/lint passes (4 s), both prepared PNG hashes match.
+  Updated the pre-install gate from original-source comparison to exact prepared
+  bytes for both textures; missing/duplicate/size/hash CPU fixtures pass. The old
+  gate refused the first request before launch. Subsequent runtime evidence follows.
+- [x] Android KVM/SwiftShader `20261009T123933.093621Z-ground-broadleaf` passes,
+  app PID 1835 / entry TID 1922, total 11,274.129 ms; image inspected, empty kernel
+  deltas and owned emulator exit zero. ARM64 build/lint restored (2 s), preparation
+  tasks UP-TO-DATE; ARM64 runtime untested. Rolling APKs 20,345,947 / 20,437,764 bytes;
+  hashes and remaining limits in `docs/prepared-materials.md`.
+- [x] Final 33/33 non-display groups pass (22.64 s). No owned graphics process
+  remains; stop latch unchanged; 359 GiB free. Only rolling generated packages
+  were replaced. No source artwork, failed-run evidence or incident data removed.
+- [x] Follow-up missing-leaf validation and grass surface pass are recorded above.
+  Hardware diagnosis and maintainer publication still require their separate
+  approval gates.
+
+#### 2026-10-09 — live-leaf material study
+
+- [x] Use the imagegen skill to create an original, evenly lit leaf-lamina colour
+  study, with a central midrib and restrained irregular venation. Inspect suitability
+  for existing along/across UVs before integrating; preserve prompt and provenance.
+- [x] If suitable, integrate a bounded mipmapped material through existing CNA APIs,
+  with explicit load diagnostics, asset packaging/licensing and portable fallback.
+- [x] Compare actual close foliage views, test loading/math where practical, and
+  qualify changed software platform builds without touching the AMD stop latch.
+- [x] Native build succeeds. Initial non-display suite: 31/32 pass; asset gate
+  correctly rejects the unlisted generation prompt. Added its SHA-256 inventory
+  entry; all five targeted material/asset/software preflight groups then pass.
+- [x] Native broadleaf capture `20261009T120122.533676Z-ground-broadleaf` passes;
+  before/after images inspected, loaded marker and empty kernel delta confirmed.
+  Veins are less uniform; silhouette remains stylized. See `docs/live-leaf-material.md`.
+- [x] Native shrub `20261009T120211.824931Z-bush` passes; image inspected, empty
+  kernel delta. WebGL 2 builds and Chrome/SwiftShader vegetation suite
+  `20261009T120431.860640Z-chrome-vegetation` passes all eight views / 60 intervals
+  each, GL error zero, no context loss, empty kernel deltas. Jungle and broadleaf
+  post-simulation images inspected. Not a new full input/lifecycle qualification.
+- [x] Updated web package: 16,922,796 raw / 9,919,804 gzip bytes. Source image cost
+  is explicit, not confused with the GPU mip-chain payload. Android x86_64 assembly
+  and lint pass (9 s). KVM/SwiftShader `20261009T121438.315511Z-ground-broadleaf`
+  passes, app PID 1860 / entry TID 1915, first-draw total 12,245.743 ms; image
+  inspected, empty live/final kernel deltas and owned emulator exit zero. Default
+  ARM64 assembly/lint restored (6 s); APK contents verified, ARM64 runtime untested.
+  Rolling package hashes and remaining visual limitations are in the material document.
+- [x] Found native software capture still exposed host `/dev` despite forcing
+  llvmpipe. Default software monitoring now creates private `/dev`, verified in
+  launch metadata and CPU regressions. Android explicitly preserves its outer
+  device bind for the inner sandbox's KVM-only policy. No AMD fault cause claimed.
+- [x] After appearance validation, reduce packaged image payload reproducibly at
+  build time (currently a 3,003,277-byte source for a 256-square runtime material),
+  preserving original artwork and matching the established area-filter convention.
+  Completed in the compact-material pass above; this bullet's byte count is historical.
+- [x] Final 32/32 non-display CTest groups pass (22.87 s), including asset hashes,
+  material math and stricter software-device containment. No owned game/emulator/
+  compositor or recorded browser PID remains. Stop-latch hash is unchanged; 359 GiB
+  remains free. No obsolete large artifact or incident evidence was removed.
+- [ ] Next: controlled software-only missing-leaf fallback test, then grass/vegetation
+  form polish (compact packaging is complete above). Keep GPU diagnosis
+  separate: obtain approval before sharing `docs/incidents/maintainer-sharing-summary.md`;
+  no hardware retry without a qualified capture method and explicit risk approval.
+
+#### 2026-10-09 — fallen-leaf slope contact
+
+- [x] Extract the existing three folded litter leaves into a renderer-independent
+  profile and measure vertex/interior gaps on actual ground-plant placements.
+- [x] If warranted, conform litter to rendered terrain without altering upright
+  plants or duplicating the existing grass height texture. Keep resource ownership
+  explicit, bounds conservative and stock fallback limitations documented.
+- [x] Validate geometry, terrain contact, shader portability and actual software
+  images; keep hardware incident qualification separate.
+- [x] Across three seeds / 607,320 sampled points, old gaps range -0.186663 to
+  +0.229299 m (126,987 buried samples); packed-height draping gives 0.0103827 to
+  0.0634251 m folded clearances with zero sampled penetration. All 32 non-display
+  groups pass (24.71 s), including profile/input/bounds regressions. Native litter
+  before `112732.839300Z` / after `113215.353315Z` pass; images inspected, empty
+  kernel deltas. Shared map remains 232,324 GPU bytes, no new draw/geometry, but
+  tagged vertices add three fetches. See `docs/fallen-leaf-contact.md`.
+- [x] Contained Chrome/SwiftShader `113543.634482Z-chrome-litter` passes both
+  litter and shared-height grass / 60 intervals each, zero GL errors/context loss,
+  empty kernel deltas. Both images inspected; no post-simulation screenshots in
+  this focused scope. No renewed full input/lifecycle/moving-camera qualification.
+- [x] Android x86_64/restored ARM64 assembly/lint pass (5 s each; existing CNA GLES3
+  platform warning retained). Isolated KVM/SwiftShader `113904.058650Z-litter` passes,
+  app PID 1958 / entry TID 2035, first-draw total 10,925.940 ms. Image inspected,
+  required marker, empty kernel deltas and emulator exit zero. Only rolling APKs
+  replaced; hashes recorded. ARM64 runtime and full lifecycle remain unverified.
+- [x] Final incremental native build and all 32 non-display groups pass (22.25 s),
+  including regenerated Web package (13,910,123 raw / 6,973,507 gzip bytes).
+  Script syntax and diff checks pass. No owned graphics survivors; final kernel
+  interval since 13:25 CEST is empty and stop-latch hash unchanged. 359 GiB free;
+  browser evidence 228 MiB, native captures 589 MiB, Android software 1.7 GiB.
+- [ ] Next visual priority: improve the flat/repeated live-leaf surface appearance
+  observed in native, Web and Android images; compare actual close views and retain
+  restrained fixed-daylight shading, portable budgets and clear asset provenance.
+- [ ] Next: reduce retained uniform litter base clearance only with finer contact
+  checks; improve coarse repeated leaf surfaces and near/far continuity. Inspect
+  multi-shoot and broad root footprints separately; do not claim these are draped.
+
+#### 2026-10-09 — jungle root contact audit
+
+- [x] Measure analytic placement heights against the exact rendered terrain
+  triangles for canopy, understory, shrubs and ground plants. Do not assume an
+  offset is visually significant before measuring it.
+- [x] Correct material root-contact discrepancies in game-side instance placement,
+  keeping culling bounds consistent and preserving collision/layout identities.
+- [x] Add deterministic regression coverage and inspect a software-rendered close
+  view. Record platform verification limits and measured residual errors.
+- [x] Default small-plant origin gaps reach +0.122392 m; all four layers now use
+  exact rendered height through a shared rendering-only placement copy. Instance
+  bounds follow the same copy. No new GPU resource or changed layout fingerprint.
+  Three seeds / 17,232 roots pass independent triangle-plane and identity checks;
+  all 32 non-display groups pass (21.19 s). Native before/after ground-broadleaf
+  captures pass with empty kernel deltas; inspected images show a modest change.
+  Details and full-footprint limitations are in `docs/jungle-root-contact.md`.
+- [x] Validate the changed Web and Android builds serially with contained software
+  renderers. Earlier runs are not qualification of this build; AMD hardware stays
+  locked and the incident is unresolved.
+- [x] Contained Chrome/SwiftShader `111538.624402Z-chrome-terrain` passes four
+  views / 60 intervals each, zero GL errors/context loss, empty live/final kernel
+  deltas and matching root-contact markers. East/jungle images inspected. No
+  renewed full input/lifecycle or eight-view vegetation qualification.
+- [x] Android x86_64/restored ARM64 assembly/lint pass (3 s / 4 s). Isolated
+  KVM/SwiftShader `112028.208485Z-ground-broadleaf` passes, app PID 1844 / entry
+  TID 1901, first-draw total 12,042.214 ms. Inspected image, required marker, empty
+  kernel deltas and emulator exit zero. Only rolling generated APKs replaced;
+  hashes recorded. No ARM64 runtime or renewed touch/lifecycle/traversal claim.
+- [x] Final 32 non-display groups pass (21.91 s), including refreshed Web package
+  (13,906,356 raw / 6,970,946 gzip bytes). Script syntax and whitespace checks pass.
+  No owned graphics survivors; final kernel interval since 13:09 CEST is empty and
+  hardware latch hash unchanged. 359 GiB free; browser evidence 225 MiB, native
+  captures 584 MiB, Android software 1.7 GiB. Original incident evidence preserved.
+- [ ] Next: close off-path colony/full-footprint inspection, especially multi-shoot
+  bases and detached litter on slopes; then leaf surface character and sparse grass
+  continuity. Exact root origins alone do not establish natural-looking vegetation.
+
+#### 2026-10-09 — operator next-step clarification
+
+- [x] Re-read the reconstruction, recorder audit and evidence inventory before
+  considering another run. The serial fault already disproves concurrency as a
+  necessary condition. Root cause remains unresolved; no repeat fault for a dump.
+- [x] Prepare `docs/incidents/maintainer-sharing-summary.md`, a standalone unsent
+  summary without local account/host names or absolute workspace paths. Keep
+  technical identifiers and uncertainty explicit. This does not sanitize or
+  authorize the original attachments; external submission needs operator review.
+- [x] Four CPU-only supervisor/software-preflight CTest groups pass (1.53 s).
+  Diff whitespace validation passes; sharing text has no known local account,
+  hostname or absolute workspace-path tokens. Hardware stop-latch SHA-256 remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  No graphics process, driver installation, build or evidence rewrite was needed;
+  these tests do not establish GPU fault resolution. Disk has 359 GiB free.
+- [ ] Obtain a qualified bounded diagnostic proposal before requesting approval
+  for any residual-risk hardware experiment. Do not clear the stop latch or ask
+  the operator to read an expired sysfs dump again. No root command is currently
+  required. Safe device-isolated software development remains separate.
+
+#### 2026-10-09 — forest-floor recruitment colonies
+
+- [x] Audit sparse floor placement and capture the existing jungle view. Island-wide
+  ground plants currently use independent jittered 4.7 m sites; only the two clearing
+  edges have small related colonies. Preserve existing placements and open routes.
+- [x] Add bounded, deterministic, irregular small-plant colonies associated with
+  canopy trees, using existing meshes/materials/batches. Vary group shape, species
+  composition and stature; retain gaps, reject route footprints and trunk overlap.
+- [x] Test deterministic identity, bounds, separation, parent association, full route
+  clearance, seeded layouts and count budgets. Record actual added populations and
+  render cost; do not raise validation limits just to accept excessive density.
+- [x] All 32 non-display groups pass (22.31 s), including three seeded colony layouts.
+  Default adds 866 plants / 199 groups, total ground plants 3,148; all 13 clearing
+  shrubs / 57 companions and original island-wide populations remain unchanged.
+  Native before `103813.830248Z-jungle` / after `104357.002910Z-jungle` both pass
+  with empty kernel deltas; images inspected. Submitted ground plants 173 -> 235,
+  near 35 -> 48, far 138 -> 187; jungle draws remain 35 and static meshes unchanged.
+  Visual effect from the trail is modest/partly occluded, not completed realism.
+- [x] Compare actual software jungle/clearing images, then validate Web and Android
+  serially. Adjust placement if it becomes repetitive, blocks views or overwhelms
+  ground materials. Preserve GPU stop latch and incident evidence.
+- [x] Contained Web `104814.928788Z-chrome-vegetation` passes all eight views,
+  60 intervals each, zero GL errors/context loss and empty kernel deltas. All logs
+  agree on groups/plants/triangle counts; jungle and ground-broadleaf images inspected.
+  No renewed full browser input/lifecycle or moving-camera qualification.
+- [x] Android x86_64/restored ARM64 assembly/lint pass (4 s each). Isolated
+  KVM/SwiftShader `105740.149768Z-jungle` passes, PID 1755 / entry TID 1894,
+  first-draw total 9,830.804 ms. Inspected image, matching group counts, empty kernel
+  deltas, emulator exit zero. Only rolling generated APKs replaced; hashes recorded.
+  ARM64 runtime and full input/lifecycle remain unverified by this pass.
+- [x] Final 32 non-display groups pass (22.17 s), including refreshed Web package
+  (13,902,136 raw / 6,970,160 gzip bytes). Script syntax and diff checks pass. No owned
+  graphics survivors, empty final kernel interval since 12:37 CEST and unchanged
+  hardware latch hash. 359 GiB free; browser evidence 217 MiB, native 579 MiB,
+  Android software 1.7 GiB. Original incident evidence and read-only dependencies preserved.
+- [ ] Next: inspect close off-path colonies and foliage/prop intersections before
+  increasing density. Improve leaf surfaces and root/terrain contact; repeated
+  silhouettes and sparse cover remain visible. Discrete ground LOD still needs work.
+
+#### 2026-10-09 — measured shrub LOD traversal
+
+- [x] Extend opt-in walking telemetry with actual submitted shrub identities and
+  detail tiers, distinguish visibility changes from switches, and add parser/gate
+  regression tests. Preserve existing canopy and real-input traversal checks.
+- [x] Incremental native/Web builds and parser gates pass. Contained SwiftShader
+  `102134.869003Z-chrome-grass-motion` passes: 18.3634 m outward, 1.0033 m return
+  error, 94 samples, 47 grass populations, 29 shrub identities changing detail and
+  97 distinct moving frames. Empty live/final kernel deltas, browser host PID 4029491.
+  Inspect full step 3 and frames 9/11/12 around switch `-8881:-18933`: small/occluded
+  foliage prevents reliable attribution of a visible pop. Submission is not visibility.
+- [x] Correct a separately measurable shape loss: old diamond far leaves retain
+  only 76.31% of near planform area. Keep all seven outline rows; remove the inner
+  rib instead. Far leaves now 12 vertices/10 triangles vs near 17/20; add actual
+  topology/area/boundary-identity tests. Targeted leaf/parser groups pass (0.45 s).
+  Native `102650.266107Z-bush` passes; image inspected, empty kernel deltas. All 32
+  non-display groups pass (20.42 s). Shared vertices +58,968 bytes, indices +5,832;
+  no new draw/texture. Costs and limitations in `docs/shrub-lod-continuity.md`.
+- [x] Record measured coverage, visual limitations and the geometric correction.
+  No AMD hardware run, dependency edit or claim of physical GPU performance.
+- [x] Final Web `102949.809142Z-chrome-grass-motion` passes: 18.1906 m outward,
+  0.2444 m return error, 106 samples, 50 grass populations, 28 shrub identities / 61
+  detail transitions, 108 distinct moving frames. Sampled montage inspected; GL
+  error zero, context live and live/final kernel deltas empty. Not an isolated
+  before/after pixel metric or renewed full browser input/lifecycle matrix.
+- [x] Android x86_64/restored ARM64 assembly/lint pass (3 s / 4 s). Isolated
+  KVM/SwiftShader `103304.055335Z-bush` passes, PID 1845 / entry TID 1906,
+  first-draw total 10,688.124 ms. Image inspected, empty kernel deltas and emulator
+  exit zero. APK hashes/sizes recorded; only rolling generated packages replaced.
+  No renewed Android touch/lifecycle gate or ARM64 runtime claim.
+- [x] Final 32 non-display groups pass (20.86 s), including the refreshed Web package
+  (13,895,553 raw / 6,968,513 gzip bytes) and extended parser regressions. Script
+  syntax and diff checks pass. No owned graphics survivors, empty final kernel
+  interval since 12:16 CEST and unchanged stop-latch hash. 359 GiB free; browser
+  evidence 199 MiB, native 573 MiB, Android software 1.7 GiB. Original evidence retained.
+- [ ] Next: targeted unobstructed near/far image pairs and ground-layer transitions;
+  then improve sparse floor cover and repeated plant arrangements without blocking
+  paths. Geometry-area equality is not a screen-space smoothness guarantee.
+
+#### 2026-10-09 — operator follow-up and capture evidence gate, 12:17 CEST
+
+- [x] Recheck host journal access, absent devcoredump, no game/emulator/private
+  compositor survivors and unchanged hardware stop latch. Journal since 11:42 CEST
+  is empty; no graphics workload was launched, so this is not hardware qualification.
+- [x] Verify all 15 archived attachment hashes against their provenance table.
+  Four CPU-only supervisor/software-preflight CTest groups pass in 1.55 s.
+  No build or dependency edit; 359 GiB free and original evidence preserved.
+- [x] Create `docs/incidents/capture-evidence-inventory.md`: distinguish retained
+  ring/API evidence from missing faulting IB/descriptor payloads and define the
+  bounded, durable recorder acceptance gate before any future hardware proposal.
+- [ ] Incident next step: operator-reviewed upstream triage for a supported recorder;
+  no external submission, root command, expired dump reread or unchanged hardware
+  rerun. Root cause and hardware acceptance remain unresolved. Safe feature work
+  can continue with measured shrub LOD traversal using software-only launchers.
+
+#### 2026-10-09 — shrub structure and individual foliage
+
+- [x] Inspect bush geometry: near models combine four to six faceted solid clusters
+  with oversized pointed leaves; far retains only two cluster volumes. This is a
+  distinct source of artificial silhouettes after the ground-leaf improvements.
+- [x] Add a species-targeted bush camera and capture the current model before edits.
+  The first empty-circle selector had no valid target and failed explicitly; replace
+  it with eight obstacle/understory-tested sightlines without altering the scene.
+  Baseline `094855.171292Z-bush` inspected; preserves the old faceted clusters.
+- [x] Replace solid near clusters with supported woody shoots and smaller curved leaves;
+  far retains every shoot/leaf identity. Three forms, 45/54/63 leaves each. Remove
+  redundant closed-end vertices/triangles and avoid shoot-frame reference switching.
+  Existing populations, footprints, batches, shaders and dependencies are unchanged.
+- [x] Test 37,422 profile samples, attachment/wind equality, finite bounds/normals,
+  exact shared LOD samples and every actual blade triangle's nonzero area. Native
+  build and all 32 non-display groups pass (20.41 s), including 26 invalid CLI cases.
+  First individual-leaf image `095133.346097Z-bush` inspected; visibly supported
+  foliage replaces stone-like volumes.
+- [x] Final compact mesh `095617.826626Z-bush` passes and matched image is inspected;
+  kernel deltas empty. Near meshes 915/1,098/1,281 vertices, far 315/378/441; total
+  jungle vertex payload 2,834,780 bytes (+181,740), indices +23,904. See
+  `shrub-structure.md` for triangle cost and closed-end savings, not hardware timing.
+- [x] Web `095827.308359Z-chrome-vegetation` passes eight scenes, 60 intervals each,
+  including the shrub target. Zero GL errors/context loss, empty live/final kernel
+  deltas. Target and jungle post-simulation frames inspected; final compact mesh
+  inventory matches native. Package validates: 13,893,639 raw / 6,968,980 gzip bytes.
+- [x] Android x86_64/restored ARM64 assembly and lint pass (4 s / 5 s). Contained
+  KVM/SwiftShader `100800.243131Z-bush` passes, app PID 1865 / entry TID 1968,
+  first-draw total 10,910.550 ms. Target image inspected, kernel deltas empty,
+  emulator exit zero. APK hashes/sizes recorded; only rolling generated packages
+  replaced. Full input/lifecycle gates not repeated; ARM64 runtime unverified.
+- [x] Final 32 non-display groups pass (20.30 s), including updated package/assets/CLI.
+  Script syntax and `git diff --check` pass. No owned graphics survivors, empty final
+  kernel interval since 11:42 CEST, unchanged hardware stop-latch hash. 359 GiB free;
+  evidence sizes: browser 173 MiB, native 570 MiB, Android software 1.7 GiB. Original
+  incident evidence preserved; no hardware qualification or dependency edit.
+- [ ] Next: inspect shrub/ground LOD changes during actual walking, especially
+  reduced oval coverage at the 44 m shrub transition; measure before introducing
+  a blend or more far geometry. Review shoot-pattern repetition and floor density.
+  Hardware stop remains active; physical GPU performance is not qualified.
+
+#### 2026-10-09 — operator follow-up and safe validation at 11:26 CEST
+
+- [x] Re-read the incident reconstruction, recorder audit and unsent upstream draft.
+  Journal access through `sg systemd-journal` succeeds; the query since 10:32 CEST
+  returns no kernel entries. No graphics workload was launched during this check.
+  This quiet interval is not post-fix hardware qualification.
+- [x] Confirm no remaining devcoredump entry and the unchanged hardware stop-latch
+  SHA-256 `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  Do not request another root read of expired `devcd3`, or induce a fault to replace it.
+- [x] Validate the pending split-leaf implementation with the direct leaf test and
+  all 32 non-display CTest groups (20.38 s). Split-leaf coverage includes 21,105
+  sampled points, connected topology and shared LOD knots. Visual inspection and
+  portable renderer validation remain pending; CPU success does not establish them.
+- [x] Inspect the matching published Debian revision's complete nine-patch series and
+  build rules; verify its 112,628-byte archive against the source manifest's SHA-256.
+  No patch changes the reviewed ddebug/radeonsi recorder/descriptor paths. See
+  `docs/incidents/debian-mesa-patch-audit.md`; full orig-source/binary equivalence
+  remains unverified. No driver installation, framework edit or hardware execution.
+- [ ] Next incident step: resolve pre-fault IB/uploaded-descriptor retention gaps. If no
+  supported bounded recorder is available, use the existing upstream triage draft
+  for operator-reviewed escalation rather than repeat the unchanged hardware run.
+  Root cause remains unresolved; no CNA/Sharp modification or upstream submission.
+
+#### 2026-10-09 — continuous lobed ground leaves
+
+- [x] Audit ground variant 2: near lobes are disconnected patches with different wind
+  weights from the coarse central strip; its centre formula ends below the plant origin.
+  Far substitutes unrelated fronds. The existing `ground` camera explicitly targets this species.
+- [x] Replace the patch assembly with one continuous curved, lobed surface; share core outline
+  knots and retained leaf identities across LOD, anchor root wind, and keep the blade above its
+  local ground plane. Reuse existing material/instance/culling systems and preserve populations.
+- [x] Test 21,105 profile samples, topology, normals, height and LOD identity. Matched
+  native ground captures expose overly pointed shoulders in the first 17-row mesh;
+  quarter-interval sampling (33 rows) and a generated-mesh regression now retain the
+  actual rounded outline. Final `092938.961460Z-ground` inspected and passed with
+  empty kernel deltas. Near 825 vertices/1,280 triangles, far 108/128; jungle vertex
+  payload 2,653,040 bytes (+35,828), indices +7,512. See `split-ground-leaves.md`.
+- [x] Web `093110.666658Z-chrome-vegetation` passes seven scenes, 60 intervals each,
+  zero GL errors/context loss and empty kernel deltas. Target and jungle post-simulation
+  images inspected. Package validates: 13,877,911 raw / 6,962,710 gzip bytes. Full
+  input/lifecycle matrix not repeated; software timing is not hardware performance.
+- [x] Android x86_64 and restored ARM64 assembly/lint pass (3 s / 4 s). Contained
+  KVM/SwiftShader `093932.612353Z-ground` passes, app PID 1813 / entry TID 1886,
+  first-draw total 10,536.045 ms; image inspected, empty kernel deltas, emulator exit
+  zero. Current APK hashes in `build-android.md`; only rolling generated APKs replaced.
+  ARM64 runtime unverified. No dependency source change or hardware incident rerun.
+- [x] Final 32 non-display groups pass (25.35 s); script syntax and `git diff --check`
+  are clean. Host process-name/exact-browser-PID check finds no graphics survivors;
+  final kernel interval since 11:26 CEST is empty and hardware stop-latch hash is
+  unchanged. 360 GiB free; evidence totals browser 155 MiB, native captures 562 MiB,
+  Android software 1.7 GiB. Original incident artifacts are preserved.
+- [ ] Review distant silhouette changes during travel and near shrub construction.
+  Preserve limitations of terrain-relative placement, reduced tessellation and omitted far leaves.
+
+#### 2026-10-09 — juvenile ground broadleaf shape and identity
+
+- [x] Audit ground-plant variant 1: six near upright leaves use four lamina triangles
+  each with untagged flat material; far substitutes four unrelated fronds with different
+  direction/shape/phase. This is distinct from understory forms and grass-distance work.
+- [x] Introduce a bounded curved broadleaf profile, shared near/far source identities and
+  material coordinates/normals using the existing jungle shader. Keep placement, populations,
+  textures, other ground species and framework sources unchanged.
+- [x] Validate 12,726 profile samples, root attachment, finite unit normals, independent
+  tangent orthogonality and exact/unique far identities. Near mesh 234 vertices/300 triangles,
+  far 52/40; jungle vertex payload 2,617,212 bytes, +10,816. Existing footprint assertions pass.
+  Native build and all 32 non-display groups pass (23.13 s), including the 25-case command-line
+  gate. A newly written missing-path assertion initially used incorrect wording; corrected the
+  fixture without changing application error behavior. See `ground-broadleaf.md`.
+- [x] Reject the initial grass crop as visual evidence: it showed a neighboring bush, not this
+  species. Add `--viewpoint ground-broadleaf` with explicit target-variant logging and native/Web
+  validation. Actual targeted llvmpipe capture `085644.169508Z-ground-broadleaf` passes and is
+  inspected: curved tagged blades and attached stems. Empty kernel deltas. This is current-state
+  inspection, not a matched old/new-camera comparison or complete realism verdict.
+- [x] Web six-view vegetation matrix `090051.635173Z-chrome-vegetation` passes all scenes,
+  including the new target, 60 presentation intervals each. Zero GL errors/context loss,
+  empty live/final kernel deltas. Post-simulation target image inspected. Web package validates
+  at 13,883,396 raw / 6,964,284 gzip bytes; full input/lifecycle gates not repeated.
+- [x] Android x86_64 and restored ARM64-only assembly/lint pass (5 s each). Isolated
+  KVM/SwiftShader `090756.767342Z-ground-broadleaf` passes, app PID 1773 / TID 1880,
+  first-draw total 14,121.283 ms. Target PNG inspected; kernel deltas empty, emulator exit zero.
+  APK hashes/sizes in `build-android.md`; only rolling generated packages replaced. ARM64
+  runtime/physical performance unverified. No new duplicate APK archive or dependency edit.
+- [x] Final native dense-jungle capture `091041.337804Z-jungle` passes and is inspected,
+  kernel deltas empty. Final 32 non-display groups pass (20.34 s). No owned graphics
+  processes remain; stop-latch SHA-256 unchanged. `git diff --check` clean, 360 GiB free;
+  evidence sizes: browser 140 MiB, native captures 554 MiB, Android software 1.7 GiB.
+- [ ] Review far silhouette coverage during travel; refine still-angular split ground leaves
+  and near bushes, and overall forest-floor composition. No promise that source identity alone
+  removes all LOD popping or makes the environment realistic.
+
+#### 2026-10-09 — grass distance continuity
+
+- [x] Source audit separates mesh-tier transitions from whole-cell distance rejection:
+  37.5 m cells currently disappear when their anchor-bounds centre crosses 135 m (112 m
+  mobile), regardless of individual anchor distance. A cell's corner can be about 26.5 m
+  nearer than its centre. MSAA does not fix this coverage discontinuity.
+- [x] Keep centre-based mesh-tier selection, but reject custom-shader cells only when
+  their nearest anchor-bounds point is outside range. Contract each cluster's complete
+  footprint, height and motion smoothly over the last 16 m, reprojection onto terrain
+  included. Zero weight must collapse every vertex, not leave flat depth-writing triangles.
+- [x] Actual-layout audit finds up to 134 anchors dropped in one cell/view, up to 26.2993 m
+  before their radius. Check fade endpoints/monotonicity/invalid input and conservative
+  rejection for every anchor at two quality radii. Native build plus 32 non-display groups
+  pass (20.84 s). Native grass capture `083728.138463Z` passes with inspected image and
+  empty kernel deltas. Extra submitted vertices are 5.9% in this view, all far mesh; no
+  physical-GPU timing claim. See `grass-distance-continuity.md` for fallback and LOD limits.
+- [x] Web build and contained SwiftShader walk `083852.440443Z-chrome-grass-motion` pass:
+  18.1906 m outward, 1.1761 m return error, 105 samples / 53 grass population states, 108
+  distinct recorded frames, zero GL errors/context loss and empty kernel deltas. Six sampled
+  frames inspected; not an exhaustive motion-quality verdict. Package validates at
+  13,881,283 raw / 6,963,488 gzip bytes. Full browser matrices are not renewed by this gate.
+- [x] Android x86_64 assembly/lint passes (6 s); contained KVM/SwiftShader grass runtime
+  `084206.226212Z-grass` passes new shader/2x MSAA markers. App PID 1830 / entry TID
+  1925; image inspected, kernel deltas empty, emulator exits zero. Default ARM64 assembly/
+  lint restored (4 s), sole ABI verified; physical runtime pending. Rolling APK paths updated,
+  hashes in `build-android.md`; no additional duplicate APK archive or original-evidence deletion.
+- [x] Final dense-jungle llvmpipe capture `084424.287480Z-jungle` passes, image inspected,
+  empty kernel deltas. Final 32 non-display groups pass (24.05 s); `git diff --check`
+  is clean. Host process-name/exact-browser-PID check finds no owned graphics survivors.
+  Hardware stop-latch hash unchanged; 360 GiB free. Current evidence sizes: browser 126 MiB,
+  native captures 543 MiB, Android software 1.7 GiB; original incident evidence untouched.
+- [ ] Next review apparent shrinking on longer open sightlines and actual near/middle/far
+  silhouette changes, then improve close vegetation/ground composition. Do not call sparse
+  cover realistic merely because distance rejection is now continuous.
+
+#### 2026-10-09 — operator status and upstream triage preparation
+
+- [x] Read-only preflight at 10:32 CEST verifies journal access, the unchanged active
+  hardware stop latch and no remaining device-dump entries. No graphics workload,
+  root dump read, driver change or latch removal. The kernel query since 08:22 CEST
+  finds no matching GPU-fault/reset records; this is not workload qualification.
+- [x] Verify all 15 documented evidence-file SHA-256 hashes, compressed partial-dump
+  integrity and serial-evidence archive readability. Preserve every original artifact.
+- [x] Prepare `docs/incidents/upstream-triage-draft.md`: distinguish exact serial PID
+  attribution from inferred original PID mapping, enumerate missing GPU-state evidence,
+  and separate invalid access from recovery failure. Check installed Debian Mesa identity
+  and captured firmware values. The draft is local only; no external issue/upload.
+- [ ] Compare exact Debian driver source and obtain a bounded, verified pre-fault
+  recorder before proposing hardware work. The upstream tag is not the complete packaged
+  source. Root cause remains unresolved; no new reproducer is justified solely for a dump.
+- [ ] Continue the previously planned grass distance/LOD investigation through CPU and
+  contained software rendering. Keep feature work distinct from incident resolution.
+
+#### 2026-10-09 — portable geometric-edge antialiasing
+
+- [x] Audit grass rendering and current CNA presentation APIs. Grass has three discrete mesh
+  tiers; near/far identity work does not address subpixel edge coverage. The game currently
+  leaves `PreferMultiSampling` false. CNA's EasyGL path supports renderer-owned multisample
+  backbuffers with supported-sample clamping and resolve, including WebGL2/GLES3.
+- [x] Capture a software baseline, request bounded 4x full / 2x mobile MSAA using public
+  `PreparingDeviceSettings` and log requested versus renderer-applied sample counts. Keep
+  shader geometry/populations unchanged and allow explicit diagnostic fallback on unsupported
+  devices. Verify image quality and capture/resize compatibility rather than trusting a flag.
+- [x] Native baseline/revised grass captures (`080538.287043Z` / `080747.895221Z`) and final
+  jungle (`082202.006971Z`) pass; inspect grass edge comparison and jungle PNG. Applied 4x,
+  zero GL errors, empty kernel deltas. Final native build and all 32 non-display groups pass
+  (20.07 s), including sample policy and 24 software-monitor fixtures. See `edge-antialiasing.md`.
+- [x] Web build plus contained Chrome walking gate (`081101.528475Z-chrome-grass-motion`)
+  passes: 18.9789 m outward, 0.3161 m return error, 106 distinct frames, ten canopy identities
+  switching tiers, zero GL errors/context loss. Inspect six motion samples, not all frames.
+  Full Firefox (`081437.151151Z-firefox-full`) passes 4x, including new resized-image/GL check;
+  inspect the 1000x600 result. Both runs have empty kernel deltas. Refreshed package validates
+  at 13,880,109 raw / 6,962,842 gzip bytes; full Chrome matrix was not repeated for MSAA.
+- [x] Android x86_64 build/lint and isolated KVM/SwiftShader grass gate
+  `081708.472756Z-grass` pass requested/applied 2x. App PID 1825 / entry TID 1941; inspected
+  PNG, first draw 10,171.731 ms, empty kernel deltas, emulator exit zero. Retain tested x86
+  APK and restore verified ARM64-only assembly/lint. Previous packages preserved as
+  `before-msaa`; exact hashes/sizes in `build-android.md`. ARM64 runtime remains unverified.
+- [x] Document nominal extra framebuffer storage and coverage-only scope; no shader, mesh,
+  population, dependency or AMD stop-latch change. Builds use existing `build`, `build-probe`
+  and Android intermediates, shared ccache, two workers; retained evidence stays bounded.
+- [ ] Next isolate actual grass/understory LOD changes at first-person height and quantify
+  visible coverage shifts during travel. MSAA is not temporal filtering or LOD continuity;
+  preserve this distinction before spending more geometry on another isolated still image.
+
+#### 2026-10-09 — browser input ownership investigation
+
+- [x] Correct stale Chrome/Firefox full-suite population expectations: current world report
+  contains 578 bushes and 2282 ground plants, including 13/57 clearing additions. Preserve the
+  base-population assertions and all nonzero near/far visibility gates.
+- [x] Add passive bounded browser event evidence and a tested acknowledged input gesture
+  helper. Ten CPU success/error fixtures verify release and preservation of primary failures.
+  All 32 non-display CTest groups pass (30.19 s). Contained Chrome walking review passes at
+  `074114.669206Z-chrome-grass-motion`: 337 ms capture acknowledgement, 18.7217 m outward,
+  1.0033 m return error, 101 distinct frames, empty live/final kernel deltas. Earlier flake
+  remains unexplained; this successful run does not prove a 500 ms click was too short.
+- [x] Attempt contained Firefox requalification. GPU-free headless startup refuses WebGL2
+  (`AllowWebgl2:false`), before game load. Preserve both preflight failures and diagnostics.
+  Add owned Xvfb display with automatic allocation and PID attribution, still inside the
+  GPU-free namespace. It establishes llvmpipe WebGL2 without accessing the desktop or AMD GPU.
+- [x] Firefox exposes a real input ownership discrepancy: production-page click locks
+  the browser, but Escape is acknowledged by the game without releasing browser lock, even
+  after bounded polling. Preserve `074431.684737Z-firefox-full` and
+  `074551.551031Z-firefox-full`. Zero-hold reproduction `074925.345232Z-firefox-full` proves
+  browser locked with game/CNA captured=0/relative=0. Fix game-side ownership by observing the
+  granted browser canvas lock and explicitly releasing it on Escape, with pending-release
+  protection. This is application integration, not a confirmed dependency bug. See
+  `docs/browser-input-ownership.md` for source chain and retained evidence.
+- [x] Firefox full gate after correction passes at `075434.226844Z-firefox-full`: both short
+  clicks synchronize game/CNA capture, Escape unlocks twice, Shift/traversal/audio initialization,
+  resize/tab resume and six fixed views pass. Inspect input PNG; live/final kernel deltas empty.
+  Preserve the preceding fixed-duration Shift failure; use acknowledged real input and frame
+  progression in the harness, without changing the gameplay toggle. Web package refreshed at
+  13,874,521 raw / 6,962,156 gzip bytes. Hardware GPUVM investigation remains separate.
+- [x] Chrome full suite passes at `075634.365065Z-chrome-full`, SwiftShader host PID 3965021;
+  28 passed report sections, including simultaneous look/movement, arrows, persistent run,
+  swimming, Escape/reacquisition, resize/lifecycle and settings. Empty kernel deltas; exact
+  owned browser/display PIDs no longer exist. No hardware GPUVM qualification is implied.
+- [x] Final serial incremental Web/native builds pass through shared ccache with two workers
+  in `build-probe`/`build`. All 32 non-display groups pass (20.99 s), including ten browser
+  containment fixtures and ten acknowledged-input fixtures. Refreshed Web artifacts exactly
+  match all four hashes of the runtime-tested package. `git diff --check` is clean; evidence
+  is retained (browser archive 96 MiB), 360 GiB free, AMD latch hash unchanged. Android was
+  not rerun for this Web-specific correction; no physical-GPU qualification is claimed.
+- [ ] Next resume continuous camera/vegetation LOD review, with bounded software recordings
+  and measured per-tree transitions. Review grass shimmer/floor fade and near/far fern
+  coverage before another geometry pass. Separately, hardware incident diagnosis still needs
+  a discriminating hypothesis and verified pre-fault recorder before any supervised AMD run.
+
+#### 2026-10-09 — detached compositor cleanup takes next safety priority
+
+- [x] Host process inspection discovered serial-incident Weston 3593026 and shell 3593070
+  still alive since October 8 18:31:41. Prove ownership from exact socket/runtime directory
+  in incident logs; preserve configuration and before/after compositor logs. SIGTERM only
+  the verified compositor at 07:51:59 CEST; both PIDs are absent and kernel delta is empty.
+  No user desktop or shared adb was touched; no new hardware workload was launched.
+- [x] Confirmed the original supervisor gap: `stop_process_group` alone cannot stop descendants which call
+  `setsid`; the wrapper's cleanup trap did not prevent this survivor. This is separate from
+  the unresolved GPUVM fault. Do not clear the hardware latch or modify CNA/Sharp Runtime.
+- [x] Add game-side bubblewrap PID containment to the incident supervisor and shared native/
+  Android software monitor. CPU fixtures verify normal exit, fault, timeout, interruption,
+  double-fork/setsid, established-supervisor SIGKILL and unrelated-process survival (38 tests).
+  Preserve procfs-visible PID/TID attribution, independently checked before graphics startup.
+  Native incremental build and 31 non-display CTest groups pass (20.04 s). Android isolation
+  preflight passes with no boot; one serial llvmpipe jungle capture passes with empty live/final
+  kernel deltas and no surviving owned processes. See `docs/incidents/process-containment.md`.
+  This fixes a secondary harness defect, not the GPUVM cause; the hardware latch is unchanged.
+- [x] Audit and contain both Node browser entry points through the shared Python supervisor,
+  with mandatory guards, private GPU-free `/dev`, software overrides, eight-CPU affinity,
+  continuous host-kernel monitoring, and per-run evidence that does not overwrite old reports.
+  Nine CPU-only browser tests pass; 32 non-display CTest groups pass (26.22 s). Chrome's four
+  terrain views pass in `build/browser-software/20261009T061502.364252Z-chrome-terrain/`, actual
+  SwiftShader, host PID 3923492, empty kernel deltas and no owned survivors. Preserve the earlier
+  run's report-writing failure; it is not an accepted run. See the process-containment document.
+- [x] Requalify the complete Firefox suite through the new launcher; subsequent owned-Xvfb
+  llvmpipe run `075434.226844Z-firefox-full` passes (see input investigation above). Direct CNA display-test
+  commands are not covered by this layer and remain prohibited during the hardware incident.
+- [ ] Return to visible environment improvements: investigate grazing-angle floor blur using
+  CNA's supported sampler/capability API, verify animated material fade/shimmer, and reduce
+  repetitive canopy/ground-plant silhouettes. Static screenshots alone cannot qualify motion.
+
+#### 2026-10-09 — broadleaf lamina refinement
+
+- [x] Replace the two broadleaf forms' shared strap outline with paddle/lance lamina profiles,
+  restrained asymmetric margins and a gently cupped cross section. Redistribute the same five
+  near columns to represent the blade surface rather than concentrating them at the midrib.
+  Preserve fern profiles, roots, populations, materials, buffers and triangle counts.
+- [x] Native build and all 32 non-display test groups pass (20.87 s), including normal/geometry
+  envelopes, endpoint rounding, distinct width distributions, LOD identity and unchanged fern
+  formula. Compare clearing-edge baseline/revised crops and inspect actual jungle rendering;
+  all three serial software captures have empty kernel deltas. Vertex payload, triangles and
+  35 jungle draws remain unchanged. See `broadleaf-lamina.md` for evidence and modest visual scope.
+- [x] Web build and contained walking runtime pass as detailed below; package validates at
+  13,871,273 raw / 6,960,777 gzip bytes. Android x86_64 assembly/lint plus isolated SwiftShader
+  clearing-edge gate pass (`073001.635653Z-clearing-edge`, app PID 1770, first draw 12,489.783 ms).
+  Inspect 1280x720 PNG, verify empty kernel deltas and emulator exit zero. Retain tested x86_64
+  APK, restore ARM64-only assembly/lint (2 s); no physical ARM64 test. Prior APKs are preserved
+  as `before-broadleaf`. No owned render processes remain; dependencies and AMD latch unchanged.
+- [x] Exercise contained browser walking review, not just another static matrix. Initial run
+  `072216.611324Z-chrome-grass-motion` fails before travel: 46 samples remain captured=0,
+  relative=0 at the expected start, kernel deltas empty. Preserve failure. The test's fixed
+  500 ms mouse press is an unverified timing assumption; add browser focus/hit/lock evidence
+  and hold the real button until fresh game telemetry acknowledges capture (existing 15 s
+  deadline, release in finally). This is a harness investigation, not a proven framework bug.
+- [x] Updated walking gate passes at `072607.224996Z-chrome-grass-motion`, SwiftShader host PID
+  3951122: 18.3634 m outward/return, 0.1433 m return error, 93 samples, 44 grass states, nine
+  canopy tier switches each way, 100 distinct recorded frames plus seven stops. Inspect sampled
+  sequence and farthest PNG; zero GL errors/context loss and empty kernel deltas. Capture ack
+  was 379 ms, so this does not prove the original 500 ms click was too short. Keep that cause
+  unproven, and preserve first activation error if release also fails. See `broadleaf-lamina.md`.
+- [ ] Next prioritize continuous moving-camera coverage/LOD and the stale full-browser gates
+  before another isolated geometry polish pass; static stills do not qualify motion quality.
+
+#### 2026-10-09 — connected pinnate understory
+
+- [x] Replace the two narrow ribbon-like understory forms with articulated fern fronds:
+  paired tapered leaflets, exposed curved rachis, shared near/far source identities and
+  attachment-compatible wind. Keep broadleaf forms, populations, routes and submission count.
+- [x] Final native build and 32 non-display groups pass (20.23 s). CPU tests verify exact
+  attachment knots/wind, bounded geometry/normals, rachis-derived planes and LOD identity.
+  Inspect clearing-edge/jungle iterations: reject initial horizontal wire-like blades, orient
+  them along the rachis and bound emerging-leaf roll. Six serial software captures have empty
+  kernel deltas. See `understory-ferns.md` for evidence, retained failed iteration and cost.
+  Shared payload grows 80,392 vertex + 6,192 index bytes; no draws added, but far fern triangle
+  cost grows from 20 to 320 per plant. Hardware cost remains unmeasured.
+- [x] Web cross-build and contained Chrome/SwiftShader vegetation scope pass: five views,
+  60 intervals each, zero GL errors/context loss, empty kernel deltas. Inspect post-simulation
+  jungle PNG. Evidence `070325.041949Z-chrome-vegetation`; refreshed package verifies at
+  13,870,094 raw / 6,960,362 gzip bytes. Continuous moving inspection is still pending.
+- [x] Android x86_64 assembly/lint and isolated KVM/SwiftShader jungle gate pass; app PID 1779,
+  first-draw total 10,684.628 ms, inspected PNG, empty live/final kernel deltas, emulator exit
+  zero. Evidence `070727.885381Z-jungle`; retain tested package and restore ARM64 assembly/lint
+  (2 s). Prior APKs are preserved as `before-ferns`. ARM64 runtime and hardware cost remain
+  unverified. Build directories remain `build`, `build-probe` and Android `.cxx`; two workers
+  and the shared cache were used throughout. No dependency edits; AMD latch unchanged.
+- [ ] Follow up moving-camera aliasing/LOD and broadleaf/bush form. Full browser-gate audit
+  also needed: `run_web_smoke.mjs` full jungle regex still names older 565/2225 bush/ground
+  totals, while current deterministic placement/runtime has 578/2282. Focused vegetation gate
+  already checks the current layout; do not treat historical full-suite results as current.
+
+#### 2026-10-09 — broader canopy form vocabulary
+
+- [x] Expand four shared canopy forms to eight, including broad low, narrow high, hanging
+  and open-fork crowns. Share the form count between placement, profiles and leaf postures;
+  preserve population, placement transforms, collision axes and routes. Keep existing portable
+  materials, wind, LOD and measured-bound culling. CPU geometry checks cover every new form.
+- [x] Native incremental build and all 32 non-display CTest groups pass (20.53 s). Inspect the
+  normal jungle and four new-form near/far pairs, all llvmpipe/private pixman with empty kernel
+  deltas. Additional static buffers: 1,175,616 vertex bytes plus 129,480 index bytes; normal
+  jungle retains 65 visible trees but increases from 28 to 35 draws. See `canopy-form-expansion.md`
+  for exact evidence and visible LOD limitations, not a claim of finished realism.
+- [x] Web incremental build and contained Chrome/SwiftShader terrain matrix pass, four views
+  with zero GL errors/context loss and empty kernel deltas. Evidence `064451.929486Z-chrome-terrain`;
+  inspect jungle PNG. Refreshed Web package verifies at 13,856,503 raw / 6,957,042 gzip bytes.
+- [x] Android x86_64 assembly/lint and contained KVM/SwiftShader jungle runtime pass; app PID
+  1846, first-draw total 10,171.476 ms, eight-form marker, inspected 1280x720 PNG, empty kernel
+  deltas and emulator exit zero. Evidence `064727.074751Z-jungle`. Preserve the tested x86_64
+  APK, then restore default ARM64 assembly/lint (4 s); ARM64 is not runtime-qualified.
+  Prior APKs remain `build/android-software/island-{arm64,x86_64}.before-eight-canopy.apk`.
+  No owned render processes remain. Native/Web builds reuse `build`/`build-probe`; Android
+  reuses `.cxx`, all builds use two workers/shared ccache. The AMD latch is unchanged.
+- [ ] Moving-camera transitions and hardware cost remain unqualified. Next focus on natural
+  branching/leaf scale and understory variety rather than increasing form count indefinitely.
+
+#### 2026-10-09 — capability-gated forest-floor clarity
+
+- [x] Inspect the current public sampler/capability contract and EasyGL's device clamp/reset
+  implementation without editing dependencies. Request 4x anisotropic filtering only when
+  supported; keep trilinear otherwise. Preserve shader gradients, full mip chain, palette,
+  geometry, texture payload and draw count. Add a CPU preset-contract check and startup logging.
+- [x] Native incremental build; paired llvmpipe jungle captures at `062131.733404Z` (aniso) and
+  `062207.228248Z` (extension hidden, trilinear) pass with empty kernel deltas. Inspect actual
+  images: more readable grazing-angle litter, unchanged complete fallback scene. Record the
+  same-region contrast/brightness comparison and limitations in `forest-floor-material-review.md`.
+- [x] Web incremental build; Android x86_64 assembly/lint pass. Isolated KVM/SwiftShader jungle
+  `build/android-software/20261009T062509.021834Z-jungle/` passes, app PID 1803, first draw total
+  8893.653 ms, trilinear selected because anisotropy is unavailable. Inspect 1280x720 image;
+  live/final kernel deltas empty and owned emulator exits zero. Retain prior tested APKs.
+- [x] Fresh Web terrain runtime `build/browser-software/20261009T062644.751882Z-chrome-terrain/`
+  passes all four views, 4x aniso selected, Chrome host PID 3927812, zero GL errors/context loss,
+  empty live/final kernel deltas. Inspect the jungle PNG. All 32 non-display CTest groups pass
+  (20.29 s), default ARM64 assembly/lint passes (3 s), and the refreshed Web package verifies at
+  13,855,342 raw / 6,955,371 gzip bytes. No owned processes remain and the AMD latch is unchanged.
+  This optional sampler improvement is not completed realism or fixed AMD hardware safety.
+- [ ] Continuous moving-camera review of floor window blending/fade and mobile hardware cost
+  remain pending. Next visual priority after this bounded validation is repetitive foliage form.
+- [ ] Linux Release packaging with the new file-backed material remains pending. The packager
+  now requires/manifests `Content/terrain/forest-floor.png`, but the existing October 8 17:05
+  release binary and 17:15 archive were deliberately not overwritten. Preserve those historical
+  binaries/library/archive before rebuilding `build-consumer`; do not call them current releases.
+
+#### 2026-10-09 — operator follow-up and recorder readiness
+
+- [x] Repeat read-only incident preflight at 05:31:32 UTC: journal access verified,
+  stop latch active, no device-dump entries, no workload launched. No operator root
+  command is needed; repeating the expired sysfs read cannot restore its payload.
+- [x] Audit Gallium debugger persistence and radeonsi descriptor coverage using the
+  clean Mesa 25.0.7 source and offline installed-binary strings. Record asynchronous
+  output, separate uploaded vertex-descriptor coverage gap, retained-resource timing
+  changes and unverified output bounds in `docs/incidents/mesa-recorder-readiness.md`.
+  This is not a root-cause fix or hardware qualification. Dependencies remain read-only.
+- [ ] Before any hardware proposal, verify the exact distribution recorder and a
+  bounded capture covering IB and referenced descriptors; otherwise prepare an
+  upstream evidence report without provoking another fault. Preserve the stop latch.
+
+#### 2026-10-09 — edge-safe forest-floor sampling reference
+
+- [x] Implement a renderer-independent four-window material sampler: world-stable integer
+  identities, quarter-turn source rotations, interior-only UVs and smooth partition-of-unity
+  blending. Avoid all source wrap boundaries; do not relabel the source study as seamless.
+- [x] Test UV margins, bounded/finite weights, deterministic negative-coordinate identities,
+  continuity across grid boundaries/corners and a constant-colour reconstruction oracle.
+- [x] Render a bounded offline material swatch from the preserved source using the exact C++
+  reference, inspect feature scale, repeated objects and blend ghosting before GPU integration.
+- [x] Document acceptance/rejection and the next portable shader/mip/packaging steps. No game
+  runtime behavior changes until the source-window approach passes these offline gates.
+- [x] The first XOR coordinate combination fails the signed-identity test; correct it to addition
+  before unsigned avalanche mixing and pin golden hashes. Current reference passes, with maximum
+  analytic-source difference 0.000376135 across a 0.2 mm lattice-boundary displacement. Do not
+  treat this numerical oracle as an artwork quality score or a framework defect.
+- [x] Implement bounded opaque area reduction (including fractional source edges) to 512 square
+  and all ten RGBA8 mip levels, 1,398,100 bytes. Explicitly use current RGB-code-value shading,
+  not a claimed color-managed PBR pipeline. Test constant colour, odd source borders, complete
+  payloads, opacity and invalid sizes; add CPU-preview CLI input/output protection tests.
+- [x] Inspect unfiltered and mip-filtered 4x4 m, 1024-square CPU swatches. Accept the interior-window
+  approach for an in-game comparison, not final quality: hard source wrap joins are avoided, but
+  crossfade ghosting/partial leaves remain. Final preview is
+  `build-probe/island-forest-floor-overlap-mipped-v1.png`, SHA-256
+  `af006986f41504312bbdd90353e54cd8b69cb4ee4315e2f68106213f262c1826`.
+- [x] Incremental native build and all 31 non-display CTest groups pass (20.49 s). Native and
+  sanitizer build presets include the new test/preview targets; no sanitizer run is claimed.
+  Asset validation reports 24 procedural records, 61 owning sources, four project files. Source
+  PNG and incident-latch hashes are unchanged; 361 GiB free. No game/GPU/emulator run was needed
+  for this offline reference; existing artifact validators are not fresh runtime qualification.
+- [x] Integrate the accepted reference through public CNA decoding/upload, explicit
+  GLSL 330/ES 300 gradients and sampler binding, source/mip memory accounting and native/Web/
+  Android packaging. Keep the current procedural fallback, test missing-file diagnostics,
+  and inspect actual walking-height comparisons on serial software-rendered platforms.
+- [x] Runtime integration: bounded PNG preflight, public CNA texture transfers,
+  complete 512-square mip chain, explicit-gradient interior-window shader, slot-1 binding,
+  combined resident payload budget and single-source native/Web/Android packaging.
+  Native llvmpipe jungle, Chrome/SwiftShader overview/beach/east/jungle and isolated Android
+  GLES jungle render the loaded material; actual PNGs inspected. All completed software runs
+  have empty kernel deltas, not AMD qualification. Native missing-file negative test renders
+  diagnosed procedural fallback and is correctly rejected by the normal material gate.
+- [x] Fix project Android asset task wiring and verify regeneration without its staged PNG.
+  Register an annotated output through AGP's generated-source API; verify actual APK bytes,
+  not just successful compilation. Add pre-install asset size/hash validation and CPU tests.
+  Preserve the initial Android run rejected by its stale pre-floor budget assertion; the
+  corrected run passes with the independently tested 6,033,888/6,054,104-byte payload/budget.
+- [x] Record exact native/Web/Android artifacts, hashes and integration failures in
+  `docs/forest-floor-material-review.md`. Preserve previous browser/APK comparison evidence.
+  All 31 non-display CTest groups pass (20.21 s); 15 Android preflight tests pass after adding
+  APK asset regression checks. No framework edits or hardware launches.
+- [x] Restore and lint arm64 (5 s), verify only arm64 libraries and the exact source PNG in APK.
+  Final native boar capture from an unrelated working directory passes at
+  `20261009T055021.552666Z-boars`, loaded material, two boars/one draw, inspected 1280x720 PNG,
+  empty kernel delta. Native software helper now records and uses the evidence directory as cwd.
+- [x] Final incremental native build and all 31 non-display groups pass again (20.18 s).
+  Native/Web use existing `build` / `build-probe`; Android reuses its existing `.cxx` trees,
+  shared ccache throughout, two build workers. Asset audit: 24 records, 62 sources, four project
+  files. Source/latch hashes unchanged; 361 GiB free. Remove only the two temporary Android
+  staging duplicates created during this pass; preserve screenshots, logs and comparison APKs.
+- [ ] Next quality pass: inspect floor transitions while walking, evaluate grazing-angle
+  sharpness without shimmer, and prepare a reproducible smaller runtime source to avoid
+  decoding/uploading the full 1254-square study. Keep original provenance and acceptance images.
+  Continue improving leaf scale/silhouette and boar gait contact/sliding; neither material
+  integration nor submillimetre CPU contact accuracy establishes final realism.
+
+#### 2026-10-09 — boar per-foot rendered-terrain contact
+
+- [x] Replace the single analytic ground plane used by all four boar feet with independent
+  samples of the actual rendered terrain triangles. Preserve the smooth body orientation,
+  articulated joints, near/far geometry budgets and single stock-effect draw.
+- [x] Keep limb lengths fixed; explicitly report unreachable targets rather than stretching
+  bones or silently claiming perfect contact. Test adult/juvenile scales, headings, gait phases,
+  slopes, triangle boundaries, finite inputs and flat-ground pose preservation.
+- [x] Inspect a serial native software boar capture, then actual software WebGL and isolated
+  Android GLES runs. Preserve prior evidence and check kernel deltas. Do not qualify AMD.
+- [x] Update architecture, limitations and provenance. World-space stance anchors and stride
+  synchronization remain separate work; per-foot height fitting alone does not remove sliding.
+- [x] Native audit covers 10,752 poses and 29,568 stance contacts: previous maximum sole-centre
+  error 0.0880604 m, fitted maximum 0.00000572205 m, no limited reach in sampled habitat.
+  All 29 non-display test groups pass in 20.10 s. Add one 232,324-byte CPU height cache, no GPU
+  resources or geometry/draw changes. Baseline and revised native captures are
+  `20261009T045947.808700Z-boars` / `20261009T050221.862010Z-boars`; inspect both and comparison,
+  empty kernel deltas. Detailed evidence and remaining limits: `docs/boar-ground-contact.md`.
+- [x] Web build and actual Chrome/SwiftShader PID 3902657 pass jungle/boars/monkeys/east serially,
+  60 intervals each, nine empty kernel checks, no GL/context/fallback/contact-limit errors.
+  Inspect initial/after-simulation boar frames; the latter is too distant for close gait review.
+  Preserve previous reports and images with `.before-boar-ground-contact`.
+- [x] Android x86_64 build/lint passes (4 s), isolated GLES boars
+  `20261009T050603.871427Z-boars` passes with PID 1868, startup 8,865.189 ms, inspected 1280x720
+  image/mobile controls, empty kernel deltas and emulator exit zero. Retain tested APK and prior
+  comparison package with SHA-256 in `docs/build-android.md`; no hardware renderer used.
+- [x] Restore default arm64 assembly/lint (4 s), verify the package contains only arm64 libraries
+  (`libmain.so` 16,711,128 bytes). No owned game/emulator remains; shared adb PID 3509859 is
+  untouched. Asset validation and `git diff --check` pass; incident latch SHA-256 unchanged.
+  Preserve comparison evidence; 361 GiB free, software captures about 450 MiB.
+- [ ] Next broader art task: evaluate an edge-safe overlapping source-window material using
+  the original floor study, with a CPU continuity/scale oracle before adding shader/texture cost.
+  A nonperiodic source must not be advertised as seamless; direct repeat remains rejected.
+  Keep planted-foot locking/stride synchronization pending and avoid endless micro-polish of
+  only one animal while the visibly smooth island floor still dominates first-person views.
+
+#### 2026-10-09 — forest-floor asset investigation
+
+- [x] Evaluate one original image-generated forest-floor albedo candidate against the smooth
+  procedural substrate. Preserve the exact prompt and generation provenance; do not describe
+  AI-generated artwork as a photograph or declare an unchosen project license.
+- [x] Inspect the candidate at intended world scale and repeated tile boundaries before adoption.
+  Reject baked directional shadows, conspicuous repeated objects, and oversized leaf litter.
+- [x] Audit existing CNA texture decoding and native/Web/Android resource packaging. Any adoption
+  requires a manifest hash, explicit memory/mipmap accounting, reproducible local source storage,
+  useful loading diagnostics and actual serial software-rendered platform checks.
+- [x] Keep this a preview until those gates pass. No AMD hardware launch, latch removal, expired
+  devcoredump retry or framework edit is authorized by this art investigation.
+- [x] Preserve v1 and one targeted edge-correction attempt v2, with exact prompts, hashes and
+  explicit AI provenance in `docs/forest-floor-material-review.md` and the asset manifest.
+  Both actual outputs are 1254 square, not the requested 1024. Reject direct repeat sampling:
+  wrap/interior difference ratios are 1.447/1.385 for v1 and worse at 2.338/1.732 for v2.
+  Inspect both 2x2 sheets; visible repeats and discontinuous features support the rejection.
+  These are source studies only; no runtime texture, shader, sampler or package change.
+- [x] Add bounded offline RGB8 tile/mip-memory inspection and four deterministic arithmetic tests.
+  Incremental native build passes with shared ccache/two workers; all 29 non-display CTest groups
+  pass in 19.84 s. Asset validation reports 24 procedural records, 58 source paths and four project
+  files. Historical capture validators are not new runtime qualification. Web/Android binaries
+  are unchanged and were not rebuilt for offline-only studies.
+- [x] Recheck host journal access using `sg systemd-journal`; it works. `devcd3` is absent, no
+  owned game/emulator process is present, and the incident stop-latch SHA-256 is unchanged.
+  No root command, hardware launch or new GPU-fix claim. Preserve source/art-review evidence.
+- [ ] Next: establish a demonstrably periodic, appropriately scaled floor material (do not keep
+  making blind image-generation retries), then implement bounded mip preparation and the audited
+  three-platform packaging. Only compare it in the game after offline source acceptance. Retain
+  procedural terrain as the baseline and judge at walking height, not only top-down previews.
+
+#### 2026-10-09 — trunk pigment continuity and moving-camera review
+
+- [x] Replace alternating ring-index bark pigment with a bounded linear normalized-height
+  field shared by near/far and custom/stock paths. Different ring counts must not invent
+  different colour identities. Keep mesh geometry, wind, shader layout and material detail fixed.
+- [x] Test finite/range validation and interpolation independence from ring segmentation.
+  Compare all four frozen target pairs with the previous far-branch pairs, preserve every result,
+  and inspect normal close-jungle appearance before accepting the material change.
+- [x] Native build and all 28 non-display tests pass (23.26 s), including rounded-byte colour
+  packing rather than a different quantization rule. Eight frozen captures pass with empty
+  kernel deltas; changed pixels/MAE decrease modestly for all four variants (exact pairs and
+  values in `docs/canopy-lod-review.md`). Normal jungle `20261009T044207.629306Z-jungle` passes
+  and is inspected, 190 bins/43.13 luminance deviation/212.51 contrast, empty kernel deltas.
+  No mesh/layout/draw/texture changes. This is consistency work, not final visual realism.
+- [x] Run the existing measured Web software walking route, inspect retained captures/transition
+  telemetry, then validate Android GLES and restore arm64. No AMD hardware or driver-reset test.
+- [x] Android x86_64 build/lint passes; isolated GLES jungle
+  `20261009T044554.537658Z-jungle` passes with PID 1802, startup 9,423.360 ms and current pigment
+  marker/unchanged geometry counts. Actual 1280x720 image inspected, no graphics/fallback/fatal
+  diagnostics, empty live/final kernel deltas and emulator exit zero. Retain tested APK/hash and
+  prior package as documented in `docs/build-android.md`.
+- [x] Restore default arm64 assembly/lint (2 s, shared ccache/two workers), verify sole arm64
+  `libmain.so` is 16,705,768 bytes. All builds reuse approved existing trees. No owned game or
+  emulator remains; existing adb PID 3509859 untouched. `git diff --check` passes, 361 GiB free,
+  incident latch hash unchanged. Retain comparison/failure evidence and the bounded motion recording.
+- [x] Current software Web walking route passes, Chrome PID 3898134: 94 telemetry samples,
+  44 grass population states, 19 observed switches across 10 canopy trees. Progress reaches
+  18.22 m and returns within 1.0033 m, using captured W/S input and no free camera. All ten
+  kernel checks are empty; no lost context/GL error. Retain 101 distinct compositor frames,
+  2,765,421 bytes, untruncated, seven stationary PNGs and reports. Inspect motion frames
+  003/004, 005/006, 087/088 and the farthest stationary capture; no gross scene/culling failure
+  is apparent. These compressed/sampled frames cannot establish absence of individual LOD pops.
+  Sheet: `build-probe/island-trunk-pigment-motion-review-3898134.png`.
+- [ ] Next substantial art pass: close forest-floor material and plant scale/composition remain
+  more conspicuous realism weaknesses than the remaining small trunk-pigment differences.
+  Investigate an original, reproducible surface-texture workflow through existing CNA loading
+  APIs, with explicit native/Web/Android packaging, provenance and texture-memory budgets.
+  Compare against the current procedural fallback before adopting any asset; do not add an
+  untracked external file or build a new general-purpose asset system.
+
+#### 2026-10-09 — representative canopy LOD inspection
+
+- [x] Add a capture-only outward-facing target camera at the actual per-tree LOD threshold,
+  aimed at its measured bounds from crown height. Keep the full surrounding scene rendered;
+  label the elevated camera as diagnostic, not walking-camera evidence. Require the existing
+  explicit target/tier inspection option and reject ordinary gameplay/benchmark use.
+- [x] Report deterministic outermost representatives of all four canopy variants through the
+  existing CPU world report. Test camera geometry, invalid input and CLI isolation. Capture
+  near/far pairs serially in software and inspect actual target visibility before using metrics.
+- [x] Record differences and the next visually justified correction. Do not claim moving-camera
+  or all-angle qualification from static pairs; retain original incident evidence and GPU latch.
+- [x] The four actual pairs expose missing primary branches in the far tier. Retain the same
+  seven 12-vertex/16-triangle support branches there: +84 vertices/+112 triangles per far mesh,
+  no new draws/textures or near-mesh change. Compare all four pairs before accepting the cost;
+  leaf/core/trunk/root/liana differences remain separate limitations.
+- [x] Native build succeeds. Camera geometry/invalid-input tests pass; 24 CLI rejection cases
+  pass after updating the old CTest count of 22. The initial full suite had 27/28 passing only
+  because of that stale count; all three affected tests then pass (1.71 s). Sixteen serial
+  native captures establish original/revised pairs for all four variants, all empty live/final
+  kernel deltas. Changed pixels and MAE improve modestly in every pair; see exact metrics,
+  timestamps, crop observations and palm-occlusion limitations in `docs/canopy-lod-review.md`.
+- [x] Finish current Web/GLES software regression, final CPU suite and default arm64 packaging.
+  No claim of physical GPU cost, seamless LOD or incident resolution is made.
+- [x] Current Web build and five focused SwiftShader vegetation views pass, Chrome PID 3884460,
+  zero GL errors/lost contexts and 11 empty kernel checks. The gate explicitly checks new
+  far geometry 1029 vertices/1064 triangles. x86_64 Android assembly/lint passes (4 s);
+  CNA's existing GLES platform-support warning remains informational, not a proven defect.
+- [x] First Android branch-count gate exposes a game-side diagnostic omission: the canopy
+  count line is stdout-only and absent from logcat although startup/rendering succeeds. Preserve
+  `20261009T043330.125615Z-jungle` (PID 1934) rather than treating this as a rendering pass.
+  Mirror the same actual generated mesh counts to the existing platform logger, then repeat the
+  strict unchanged count assertion. Do not classify this as a CNA/Sharp defect.
+  The first gate exits 1 after its 120-second deadline; emulator exits zero and kernel deltas
+  are empty. Correct the application diagnostic, not the assertion. Rebuilt x86_64 in 2 s;
+  the repeated runtime result remains to be recorded below.
+- [x] Repeated Android software jungle `20261009T043634.972775Z-jungle` passes unchanged strict
+  count checks: PID 1874, startup 9,281.072 ms, far 1029/1064. Actual frame inspected with intact
+  scene/HUD. No application GL/shader/fallback/fatal errors; empty kernel deltas, emulator exit
+  zero. Preserve tested x86_64 APK and prior outline APK; exact hashes in `docs/build-android.md`.
+- [x] Final native rebuild and all 28 non-display tests pass (20.39 s). Ordinary non-inspection
+  jungle capture `20261009T043822.986323Z-jungle` passes (190 bins, 43.12 luminance deviation,
+  212.51 contrast), inspected full-size with empty live/final kernel deltas. arm64 assembly/lint
+  passes (4 s), sole `arm64-v8a/libmain.so` is 16,705,232 bytes. Web's five-view run preceded
+  the final mesh-log mirroring only; its final incremental rebuild also passes, without a second
+  browser run. Rendering geometry/shaders are unchanged by that logging correction.
+  No owned game/emulator remains; existing adb PID 3509859 is untouched. Shared cache/two build
+  workers throughout, approved existing trees only; `git diff --check` clean, 361 GiB free.
+  Incident latch remains unchanged; retain failed and successful evidence.
+- [ ] Next correction to investigate: `AppendCanopyTrunk` currently alternates bark albedo by
+  ring index while near/far use different ring heights/counts. Replace that LOD-dependent colour
+  identity with a bounded height-based field if the four-pair comparison supports it. Separately
+  repeat the existing `grass-motion` software route and inspect actual recorded switches; static
+  pair metrics cannot close movement QA. Do not silently increase geometry to chase one metric.
+
+#### 2026-10-09 — canopy blade outline and coverage tradeoff
+
+- [x] Replace canopy-only five-vertex diamonds with seven-vertex, six-triangle curved outlines;
+  preserve legacy bush/liana blades. Retain 24 of 36 original near sprigs and four nested far
+  sprigs, using two rather than three members on one retained sprig in alternate lobes so total
+  leaf triangles remain unchanged including the perimeter/lower blades.
+- [x] Test outline topology, normals, envelope, retained identity nesting and exact per-tier
+  triangle budgets. Reuse the last verified posed-canopy captures as the unchanged baseline:
+  jungle `20261009T035649.883290Z-jungle`, clearing `20261009T035750.735213Z-clearing-edge`,
+  frozen east near/far `20261009T035754.704151Z-east` / `20261009T035758.724840Z-east`.
+- [x] First native build and leaf tests pass. Actual jungle capture
+  `20261009T040944.207214Z-jungle` passes (190 bins, 43.15 luminance deviation, 212.51 contrast),
+  empty kernel deltas/no GL or fallback errors. Full-size inspection shows broader curved
+  outlines instead of sharp diamonds, without gross exposed-core holes in this view. Leaf
+  counts fall; this observation is not universal coverage or LOD qualification.
+  Near vertices fall 4912/4949→4620/4657, far 997→945; triangles remain 4328/4378 and 952.
+  Jungle vertex payload falls 1,404,468→1,332,916 bytes (71,552 saved), with unchanged GPU layout.
+- [x] Inspect actual coverage and frozen LOD differences before accepting the tradeoff. Revise
+  if reducing sprigs exposes solid cores or degrades the crown disproportionately.
+  Clearing `20261009T041117.692882Z-clearing-edge` passes/inspected; frozen near/far
+  `20261009T041121.451577Z-east` / `20261009T041125.210872Z-east` pass, empty live/final
+  kernel deltas, no GL/fallback errors. This visible target improves 153→139 changed pixels and
+  0.0000277792→0.0000229708 normalized mean RGB error (~17.3% less). Inspect same 70x70 crop
+  at 4x in `build-probe/island-canopy-outline-lod-pairs.png`. Accept the outlined-leaf tradeoff
+  for continued development; do not claim all-angle silhouette equivalence or complete LOD QA.
+- [x] All 28 non-display tests pass (19.90 s), including both blade geometries and exact leaf
+  triangle counts. Near/far identities remain nested; source root/crease/tip and legacy shapes
+  are regression-checked. No texture or draw-call increase.
+- [x] Validate native/Web/GLES serially in software, preserve evidence, restore arm64, document
+  remaining realism/LOD limitations. Hardware incident and stop latch remain untouched.
+- [x] Investigate the first outline Web failure (Chrome PID 3878565): all required feature
+  markers were present, SwiftShader returned GL error 0, context remained live, and all three
+  kernel checks were empty. The harness still required the superseded 4912/997 vertex counts;
+  actual 4620/945 counts match the new geometry, with unchanged 4328/952 triangle counts.
+  Correct that exact assertion, not the rendering/error gates. Preserve the failed report,
+  kernel report and grass image with `.outline-failure` suffixes before repeating the suite.
+- [x] Repeat the complete focused software WebGL suite: Chrome PID 3879198 passes grass,
+  jungle, fronds, east and clearing-edge, 60 frame intervals each. All contexts remain live,
+  GL error is zero, and all 11 kernel checks are empty. Inspect the actual jungle image;
+  foliage remains visibly stylized, so successful rendering is not final realism acceptance.
+- [x] Build/lint x86_64 using the shared ccache and two workers. Isolated Android GLES jungle
+  `20261009T042044.413856Z-jungle` passes: PID 1842, startup 6,116.737 ms, current outline
+  marker, no application graphics/fallback/fatal errors, empty live/final kernel deltas and
+  emulator exit zero. Inspect the actual 1280x720 frame; this is functional software evidence,
+  not a phone benchmark. Preserve tested APK hash/evidence in `docs/build-android.md`.
+- [x] Restore default arm64 assembly/lint (2 s, two workers/shared ccache), verify only
+  `arm64-v8a/libmain.so` (16,702,056 bytes) is packaged. Reuse existing build trees only.
+  No owned emulator/game remains; shared adb PID 3509859 is untouched. Stop-latch hash remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  `git diff --check` passes; 361 GiB free. Preserve incident/failed-test/comparison evidence.
+- [ ] Next bounded visual milestone: review unobscured trees of all four variants and a moving
+  approach across their LOD thresholds. Use serial software captures/telemetry; do not extrapolate
+  the partly occluded east-tree metric to the whole island. Prioritize visible crown structure,
+  light/depth and ground-cover shortcomings over further changes that only improve one metric.
+  Keep the critical incident unresolved: new AMD execution requires a discriminating hypothesis
+  and reviewed pre-fault evidence collection, not an attempt to recreate an expired dump.
+
+#### 2026-10-09 — spatial canopy leaf posture
+
+- [x] Replace uniformly horizontal canopy blades with bounded, deterministic pitch/roll and
+  restrained variant-dependent proportions. Keep five vertices/four triangles per blade,
+  unchanged sprig identities, and default behavior for bushes/lianas/other pointed leaves.
+- [x] Capture current interior-jungle and frozen east near/far baselines before rebuilding.
+  Test orthonormal frames, bounded nondegenerate blades, all identities and unchanged far subset.
+  Baselines: `20261009T035254.642812Z-jungle`, near `20261009T035350.086814Z-east`, far
+  `20261009T035444.374160Z-east`, all under `build/software-captures/`, empty kernel deltas.
+- [x] Native build and all 28 non-display tests pass (19.99 s). New jungle capture
+  `20261009T035649.883290Z-jungle` passes with 190 bins, 42.77 luminance deviation and 212.29
+  contrast, empty live/final kernel deltas and no GL/fallback diagnostics. Actual full-size
+  comparison shows fuller spatial leaf silhouettes instead of stacked horizontal plates.
+  Oversized diamond-like blades and simple branch structure remain visible; this is not final
+  botanical realism. All mesh counts and 1,404,468-byte jungle vertex payload remain unchanged.
+- [x] Inspect new interior/clearing views and the same frozen LOD pair, verify measured bounds
+  and preserved budgets. Retain shared crown anchors/light proxies; document their approximation.
+  Clearing `20261009T035750.735213Z-clearing-edge` passes/inspected; frozen near/far
+  `20261009T035754.704151Z-east` / `20261009T035758.724840Z-east` pass with empty kernel
+  deltas and no GL/fallback errors. Current paired result is mixed: changed pixels fall 180→153,
+  but normalized mean RGB error rises 0.0000253282→0.0000277792. Inspect the same 70x70 target
+  crop at 4x in `build-probe/island-canopy-posture-lod-pairs.png`; no wholesale crown replacement,
+  but some remaining edge differences are higher contrast. This partly occluded tree does NOT
+  qualify all LOD transitions. Keep unobscured, multi-variant moving review open.
+- [x] Qualify native/Web/GLES serially in software with kernel monitoring, update docs and
+  restore the arm64 package. Do not reopen AMD hardware qualification.
+- [x] Web incremental build succeeds with shared ccache/two workers. Five serial SwiftShader
+  views pass with 60 intervals each (Chrome PID 3875066), no GL/context/fallback errors, eleven
+  empty kernel checks including browser exit. Inspect actual full-size jungle image: spatial
+  crowns agree with native. Previous reports and jungle/clearing images retained with
+  `.before-canopy-posture`; software timing does not measure physical-GPU performance.
+- [x] Android x86_64 assemble/lint passes (2 s, 85 tasks/six executed). Isolated GLES jungle
+  run `20261009T040340.569803Z-jungle` passes, PID 1857, startup 9,240.148 ms. Actual full-size
+  image inspected: spatial crowns and complete mobile environment/HUD agree with native/Web.
+  Current posture marker present, no application GL/shader/fallback/fatal errors, empty live/
+  final kernel deltas, emulator exit zero. Retained x86 APK SHA-256
+  `ab547504404d617a0d6e924e654aad058969d786d0516a534274d946c3a5755f`; previous package saved
+  as `island-x86_64.before-canopy-posture.apk`. This does not qualify physical-phone performance.
+- [x] Restore arm64 assemble/lint (2 s, 85 tasks/six executed), confirm its single native ABI.
+  Whitespace checks pass. Final host check shows no game/emulator and only the unchanged shared
+  adb PID 3509859. Captures total 359 MiB, Android owned state/evidence/APKs 1.2 GiB, disk has
+  361 GiB free. Hardware stop latch hash remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Follow-up leaf outline work: the five-vertex blade still formed a conspicuous diamond.
+  Evaluate spending the existing canopy triangle budget on more curved blade outlines with
+  fewer sprigs, preserving paired near/far identities. Measure coverage/LOD error before choosing
+  that tradeoff; do not assume fewer better-shaped blades automatically make a better crown.
+  Implemented and compared in the outline/coverage pass above, with broader LOD review open.
+
+#### 2026-10-09 — irregular, instance-stable bark material
+
+- [x] Break repeated straight bark stripes with bounded periodic value-noise warping, interrupted
+  fissures and restrained plate variation. Derive a stable tree seed from the existing instance
+  transform, packed into the interpolated wood tag without new attributes/varyings/textures.
+- [x] Keep angular wrapping continuous and filter each noise/phase layer; test bounded response,
+  repeatability, seam continuity, seed diversity and unresolved-detail behavior in CPU reference.
+- [x] Inspect actual before/after native software images and qualify WebGL/GLES serially.
+  Keep the primary AMDGPU incident unresolved and preserve its hardware stop latch/evidence.
+- [x] Native build and all 28 non-display tests pass (20.11 s). Actual llvmpipe capture
+  `20261009T034309.496205Z-clearing-edge` passes: 167 colour bins, 40.67 luminance deviation,
+  189.27 contrast, empty live/final kernel deltas, no GL/fallback errors. Inspect against the
+  preceding local-bark full-size image: close trunk grain is less straight and more varied,
+  but this remains a restrained surface improvement, not a new tree silhouette or bark relief.
+  No mesh/texture/attribute budget change; extra fragment arithmetic remains hardware-unprofiled.
+- [x] Web incremental build succeeds with shared ccache/two workers. Five SwiftShader vegetation
+  views pass, 60 intervals each (Chrome PID 3869378), no GL/context/fallback errors, eleven empty
+  kernel checks including browser exit. Full-size clearing-edge image inspected: coherent with
+  native. Preserve preceding report/kernel report/image with `.before-irregular-bark`.
+- [x] Android x86_64 assemble/lint passes (3 s, 85 tasks/six executed). Isolated SwiftShader
+  GLES run `20261009T034859.063876Z-clearing-edge` passes, PID 1716, startup 9,603.086 ms.
+  Inspect actual 1280x720 image: irregular trunk pattern and mobile scene remain coherent with
+  native/Web. Required new material diagnostic present, no GL/shader/fallback/fatal errors,
+  empty live/final kernel deltas and emulator exit zero. No phone or AMD performance claim.
+  Retained current x86 APK SHA-256 `f251abff67b3b1674146c01dec6b4ca054d26d38ead293e0d817cf6519e4d90e`;
+  preceding package retained as `island-x86_64.before-irregular-bark.apk`.
+- [x] Restore default arm64 assemble/lint (3 s, 85 tasks/six executed); ZIP has one arm64
+  native library. Whitespace checks pass. No game/emulator survives, shared adb PID 3509859
+  remains untouched, disk has 361 GiB free, and the hardware stop latch hash remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Record remaining procedural repetition, junction/relief limitations and physical-GPU cost.
+- [x] Follow-up canopy geometry audit: `CreateCanopyGeometry` distributes sprigs over a 3D shell,
+  but `AppendPointedLeaf` always builds its longitudinal axis in X/Z with global-up creasing.
+  Audit pitch/roll and blade proportions across the shell instead of increasing tree counts.
+  Preserve exact near/far leaf identities, measured culling bounds and the shared light field;
+  inspect interior jungle and closer crowns, not only clearing-edge bark. Implemented separately
+  in the spatial-posture pass above; this bark material pass itself did not change geometry.
+
+#### 2026-10-09 — local canopy bark coordinates
+
+- [x] Replace plant-origin bark angles on tagged canopy wood with a seam-safe circular pair
+  and an axial coordinate carried in the existing three material floats. Keep trunk identities
+  consistent across LODs and follow bent branch segments/root wedges without extra GPU attributes.
+- [x] Filter the angular footprint without differentiating the discontinuous `atan` result;
+  test seam continuity, invalid coordinates, interpolation and angular derivative bounds.
+- [x] Build/test native, inspect software clearing-edge imagery, then qualify the shared shader
+  in actual software WebGL and Android GLES. Preserve evidence and the AMD hardware stop latch.
+- [x] Native build and 28 non-display tests pass (20.14 s). Software clearing-edge capture
+  `20261009T033330.077758Z-clearing-edge` passes: 168 bins, 40.66 luminance deviation, 189.26
+  contrast, empty live/final kernel deltas and no GL/fallback diagnostics. Inspect full-size
+  against `20261009T032011.827979Z-clearing-edge`: close bent trunk grain follows its surface
+  more consistently but still looks regular. Overall scene remains intact. Non-frozen images
+  are not a controlled pixel metric. No texture/mesh/attribute budgets change.
+- [x] Web incremental build succeeds with two workers/shared cache. Five serial SwiftShader
+  vegetation views pass, 60 intervals each (Chrome PID 3865034), no GL/context/fallback errors,
+  eleven empty kernel checks including browser exit. Inspect full-size clearing-edge image:
+  bark mapping and overall scene agree with native. Preserve prior report, kernel report and
+  clearing-edge image under `.before-local-bark`; this is not physical-GPU performance evidence.
+- [x] Android x86_64 assemble/lint succeeds (2 s, 85 tasks/six executed) with shared cache/two
+  workers. Isolated GLES evidence `20261009T033732.269341Z-clearing-edge` passes: PID 1795,
+  startup 7,718.907 ms, current bark marker, empty live/final kernel deltas and emulator exit
+  zero. Actual full-size image inspected: local bark matches native/Web with intact mobile HUD
+  and environment. No GL/shader/fallback/fatal errors. This is not physical-phone performance.
+  Retained x86 APK SHA-256 is `537affa7bb7d9cc205f1273ca2e4654274506003fff30b2de904a322ca321977`;
+  preserve the preceding wood-lighting APK as `island-x86_64.before-local-bark.apk`.
+- [x] Restore arm64 assemble/lint (2 s, 85 tasks/six executed), verify its single arm64 native
+  library. Final whitespace check passes, no game/emulator remains, shared adb PID 3509859 is
+  untouched, disk has 361 GiB free and the hardware latch retains SHA-256
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Document remaining junction, low-poly interpolation and realism limitations honestly.
+- [x] Follow up with bounded, filtered irregular grain in the material pass above.
+- [ ] Inspect branch junctions and closer roots. Continue anatomical crown variety and Android
+  right-zone look QA.
+
+#### 2026-10-09 — canopy wood normal/albedo daylight pass
+
+- [x] Audit canopy wood: trunk azimuth shade and branch/buttress side shade are baked into RGB;
+  the shader then adds two-sided world light. Branch right/up/axis strip and buttress wedge
+  triangle winding is inward, previously hidden by two-sided shading. These are game-generated
+  meshes, not CNA defects. Correct winding and validate outward normals against local interiors.
+- [x] Separate custom wood albedo from historical stock fallback RGB; tag wood using the existing
+  material coordinate, preserving 52-byte vertices/nine attributes and all mesh/texture budgets.
+  Smooth outward wood normals get one-sided fixed sunlight/sky fill. Leaves/crown volumes keep
+  their existing lighting. Add CPU/reference checks and require a new runtime marker on all paths.
+- [x] First native software run `20261009T031817.849400Z-clearing-edge` fails before mesh upload:
+  the initial convex-centroid reference assumption is invalid on one corner of the open tapered
+  root wedge. Preserve evidence/empty kernel delta. Use semantic side/crest directions, not a
+  centroid, for this non-convex surface; retain strict outward checks. Add a CPU wedge regression
+  and actionable vertex/range diagnostics. This is not an AMDGPU incident explanation.
+- [x] Native build and initial 28 non-display tests pass (19.98 s). Corrected software capture
+  `20261009T032011.827979Z-clearing-edge` passes (169 bins, 40.66 deviation, 189.26 contrast),
+  no GL/fallback diagnostics and empty live/final kernel deltas. Inspect full-size against
+  `20261009T023801.351331Z-clearing-edge`: trunk sun/shade separation is clearer, while leaves,
+  terrain and sunny sky remain consistent. Normal checks cover all generated near/far wood.
+  Mesh counts and total 1,404,468-byte custom vertex payload stay unchanged. These non-frozen
+  captures have different wildlife/wind timing; do not claim an isolated pixel-difference metric.
+- [x] Web incremental build succeeds with shared ccache/two workers. Preserve the previous
+  clearing-edge images and report with `.before-wood-daylight`; execute serial software views.
+- [x] Five SwiftShader WebGL views pass (Chrome PID 3859992), 60 intervals each, no GL/context/
+  fallback errors and eleven empty kernel checks including browser exit. Inspect the full-size
+  clearing-edge post-simulation image: coherent sun/shade separation remains visible on wood.
+  These CPU frame intervals are not physical GPU performance measurements.
+- [x] Android x86_64 assemble/lint passes in 2 s (85 tasks/six executed) with shared cache/two
+  workers. Run a current APK in the GPU-inaccessible guest before claiming GLES execution.
+- [x] Android GLES run `20261009T032443.475599Z-clearing-edge` passes, PID 1931, startup
+  8,910.839 ms. Inspect the actual 1280x720 image: trunk lighting agrees with native/Web and
+  the rest of the sunny composition remains intact. Current wood marker required; no GL/shader/
+  fallback/fatal diagnostics, empty live/final kernel deltas and emulator exit zero. Preserve
+  the prior x86 APK as `island-x86_64.before-wood-daylight.apk`; current retained x86 APK SHA-256
+  is `e96bf363e34cc7d88d0e2a5bac44667110578fae59a795aa8c57082e157ce403`.
+- [x] Final native build and all 28 non-display tests pass (20.15 s), including the open-root
+  wedge regression, inward/tangent/nonfinite reference rejection and one-sided wood response.
+  Improve normal diagnostics with vertex/range attribution; no rendering changes after images.
+- [x] Restore the default arm64 Android APK: assemble/lint succeeds (3 s, 85 tasks/six executed),
+  and ZIP inspection confirms only `lib/arm64-v8a/libmain.so`. Retain the separately tested x86
+  APK and its recorded hash. This arm64 packaging check is not physical-device qualification.
+- [x] Synchronize the Web build with the final vertex/range error messages using the existing
+  tree, shared ccache and two workers. Incremental compilation/link succeeds; these final changes
+  affect failure diagnostics only, not the rendering behavior tested in the five browser views.
+- [x] Read-only incident preflight at 03:29:59 UTC confirms journal access, no available device
+  dump and an unchanged active stop latch. No game/emulator remains running; the shared adb
+  server is untouched. Whitespace checks pass; disk has 361 GiB available. No root action or
+  deliberate fault reproduction is requested from the operator.
+- [x] Follow up with explicit grain coordinates along bent trunks/branches in the local-bark
+  pass above; the shared plant-origin angle no longer defines tagged canopy wood grain.
+- [ ] Further realism work: stronger anatomical crown variety, cast branch shadows if practical,
+  and near/far wood transition review. Do not treat this lighting pass as
+  completion of the jungle or measured physical bark optics.
+- [x] Build/run native software, inspect actual before/after clearing-edge views, validate GLES/
+  Web shader portability and update the plan with limitations. Do not expose the host AMD GPU.
+
+#### 2026-10-09 — resolution-independent Android touch traversal
+
+- [x] Replace 2400x1080 gesture assumptions with a tested aspect-fit mapping from actual window
+  and logical viewport diagnostics. Share mapping between selector, land-footstep and swimming
+  gestures; reject invalid/missing dimensions and noninteractive test cameras.
+- [x] Exercise the existing authoritative land-footstep/swimming/water-accent checks through
+  the GPU-inaccessible SwiftShader guest, using the retained current x86_64 APK without a rebuild.
+  Preserve exact APK/helper identities, logs, actual screenshot and live/final kernel checks.
+- [x] Runtime `20261009T031108.597736Z-interactive` passes using retained APK SHA-256
+  `2d69f1f838d71cac0a5817c73b393205212000071d597018d62a083c09f1fcfd`, no build. PID 1708
+  reaches first draw in 7,939.514 ms. Actual 1280x720 geometry is `1219 60 320 547 120 600`.
+  High selector at 05:11:45.637 CEST, land footstep at 05:11:46.647, water-transition audio at
+  05:11:55.139 and authoritative swimming entry at 05:11:56.339. Inspect the actual 1280x720
+  screenshot: near-water view of the beach, transparent shallow water and touch HUD, no system
+  overlay. Empty live/final kernel deltas, no application graphics/fallback/fatal diagnostics,
+  emulator exit zero. CPU tests cover 1280x720, 2400x1080 pillarboxing, portrait letterboxing,
+  odd extents, latest diagnostics and invalid/missing dimensions; actual device run is 1280x720.
+- [x] Follow-up canopy trunk/branch outward-normal and baked-shade audit completed in the wood
+  daylight pass above. Touch right-zone look and simultaneous real-finger ergonomics remain
+  separate pending QA requirements.
+- [x] Document results honestly; headless audio submission is not audible-output qualification,
+  and software execution does not reopen AMD hardware testing or establish phone performance.
+- [x] All 28 non-display tests pass (19.96 s), including fourteen Android safety/geometry tests;
+  shell syntax and whitespace checks pass. No build was needed, both APKs remain unchanged,
+  and host inspection shows only shared adb PID 3509859, no emulator. Hardware latch hash remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Begin next material audit read-only: `AppendCanopyTrunk` still bakes local azimuth lighting
+  (`0.68 + 0.30 * max(cos(angle)*0.74 + sin(angle)*0.28, 0)`) into bark vertex RGB, then the
+  custom shader applies world-space two-sided daylight. Separate albedo from this baked term
+  before changing opaque wood response; preserve the stock fallback deliberately. No visual
+  change made yet. Branch/buttress normals and metadata tagging still need full inspection.
+
+#### 2026-10-09 — current Android software scene qualification
+
+- [x] Build current x86_64 APK and lint using existing Gradle tree/shared ccache/two workers:
+  12 seconds, 85 tasks/six executed. Known upstream deleted-default-comparison warnings remain;
+  no dependency edits. Do not mistake package generation for runtime evidence.
+- [x] Extend the isolated gate with explicit APK/ABI/hash attribution, bounded existing smoke
+  helper, optional touch selector/lifecycle gates, and strict application SwiftShader/GLES/fatal/
+  shader/fallback validation. Confirm guest software renderer before any installation.
+- [x] First game attempt `20261009T025847.077590Z-clearing-edge` proves application PID 1873
+  runs GLES 3 on SwiftShader and reaches first draw in 10,523.180 ms. It does NOT pass the input
+  gate: the agent incorrectly combined a fixed QA camera with touch assertions. `IslandGame::Update`
+  only calls `UpdateCamera` for interactive mode. No game/framework defect inferred. Add a
+  prelaunch rejection and regression test; test visuals and interactive input separately. Keep
+  the failed logs, empty live kernel delta and clean emulator exit; no screenshot was captured by
+  that failed helper. Add failure screenshots for future attempts and final kernel collection
+  even when the worker returns nonzero. Twelve CPU-only gate tests pass.
+- [x] Corrected fixed-camera run `20261009T030041.594712Z-clearing-edge` passes runtime markers
+  with PID 1820/first draw 8,759.303 ms and empty kernel deltas. Actual screenshot inspection
+  rejects it for visual qualification: Android's first-run fullscreen education overlay obscures
+  the scene. Stop the following interactive attempt `20261009T030131.006312Z-interactive`
+  through its verified supervisor PID 3850498 before spending another input timeout. This is
+  test-environment setup, not a rendering defect. Use Android CTS's confirmed immersive-intro
+  setting only inside the owned AVD, verify readback, then recapture and run interactive gates.
+- [x] Interrupted-namespace recovery: `20261009T030305.625000Z-interactive` refuses boot with
+  an emulator "snapshot operation pending" fatal, exit 1, empty kernel delta. Host process
+  inspection proves no surviving emulator/private adb. Both owned stale lock files contain
+  namespace PID 12, reused by the next boot; preserve `snapshot.lock.lock` and
+  `hardware-qemu.ini.lock` in that failed run's evidence under the qualification lock, not a data
+  wipe. Do not automate removal based only on these namespace-local PIDs. Retain the zero-byte
+  flock-style multiinstance lock and all userdata; no user AVDs changed.
+- [x] Run current clearing-edge scene, inspect actual image, then related wildlife/input views.
+  Keep the AMD incident unresolved and host GPU inaccessible. Record kernel and cleanup results.
+- [x] Interactive run `20261009T030406.948847Z-interactive` passes after owned-guest setup:
+  PID 1828 reaches first draw in 8,712.503 ms; touch selects high (1.35x) with retained ownership;
+  Home/resume preserves PID 1828; cold relaunch PID 3105 reaches first draw in 4,269.163 ms.
+  Inspect all three actual 1280x720 images: sunny beach/jungle composition and translucent HUD
+  remain intact without the Android introduction. Both cold starts confirm SwiftShader GLES 3;
+  no GL/shader/fallback/fatal diagnostics, empty live/final kernel deltas, emulator exit zero.
+  This tests selector and lifecycle, NOT movement/swimming, audible output or physical-mobile speed.
+- [x] Unobstructed clearing-edge run `20261009T030520.313648Z-clearing-edge` passes: PID 1803,
+  startup 8,909.279 ms, actual 1280x720 image inspected. Current leaf posture/daylight, forest
+  substrate, grass and tree layers appear coherently under GLES 3 with the mobile quality profile.
+  No application shader/GL/fallback/fatal diagnostics; empty kernel deltas and clean emulator exit.
+  The image still shows sparse ground cover, repeated palm silhouettes and limited canopy depth;
+  this is portability evidence, not completion of the requested realism pass.
+- [x] Boar view `20261009T030630.007754Z-boars` passes: PID 1919, startup 9,328.215 ms,
+  inspected 1280x720 screenshot visibly retains the directional coat, connected limbs, bristles,
+  canopy shade and terrain-contact shadow. Empty live/final kernel deltas, no application GL/
+  shader/fallback/fatal errors, clean emulator exit. This is one live pose/view, not all-state
+  animal animation or physical-mobile cost qualification.
+- [x] Remove the old runtime helper's hard-coded 2400x1080 movement/swimming coordinates and
+  validate walking/shoreline entry in the isolated guest; see the resolution-independent
+  traversal entry above. Right-zone look remains open. Continue wood-normal/albedo realism work.
+- [x] Restore arm64 deliverable and lint (3 s, 85 tasks/six executed); verify packaged
+  `lib/arm64-v8a/libmain.so`. Retain one tested x86_64 APK for repeatable software checks:
+  `build/android-software/island-x86_64.apk`, SHA-256
+  `2d69f1f838d71cac0a5817c73b393205212000071d597018d62a083c09f1fcfd`.
+  All 28 non-display tests pass (20.54 s), including twelve Android safety tests; whitespace
+  checks pass. Keep reusable x86_64 intermediates (~1001 MiB) instead of rebuilding them after
+  every scene change. AVD state is ~1.1 GiB. Update build/renderer/limitation documentation.
+
+#### 2026-10-09 — CPU-only Android runtime preflight
+
+- [x] Read installed emulator help: explicit `-gpu swiftshader` supports software GLES/Vulkan;
+  `auto`/`host` are not acceptable. Host `-accel-check` reports usable KVM version 12; no emulator
+  process or adb-connected device is currently present. The existing adb server is shared and
+  must not be killed. Sandbox `/dev/kvm` absence is not a host KVM failure.
+- [x] Existing `Medium_Phone` AVD uses automatic graphics and has 4.1 GiB of userdata plus
+  snapshots. Do not alter/wipe it or another project's AVD. Existing SDK system image is API 35
+  Google Play x86_64; current deliverable is arm64. Inspect a separately owned runtime directory
+  and reuse the system image without another SDK download or repository clone.
+- [x] Verify a child mount namespace can expose KVM but no host DRM nodes, hide display sockets,
+  keep the host filesystem read-only except owned evidence/state, force SwiftShader/headless,
+  cap CPU affinity at eight and guest CPUs at two. Fail closed if isolation cannot be established.
+- [x] Before actual launch, implement kernel monitoring/owned-process cleanup and explicit adb
+  target selection; record exact configuration and prove software renderer before installing
+  the game. Preserve the hardware incident latch and do not interpret this as AMD qualification.
+- [x] Add `run_android_software.py` with preflight default and explicit bounded boot option;
+  eight CPU-only policy tests plus the existing 23 monitor tests pass. Private network/PID
+  namespaces isolate adb; only KVM is exposed; host data and SDK stay read-only. No game install.
+  Actual preflight `20261009T025259.989780Z-preflight` passes. Actual boot
+  `20261009T025311.463227Z-boot` completes in 33.141 s and guest SurfaceFlinger confirms
+  SwiftShader GLES 3.0; live/final kernel deltas are empty. Emulator/private adb exit and the
+  shared host adb PID 3509859 remains. Hardware latch hash is unchanged.
+- [~] Preserve and investigate emulator-only shutdown warnings (`stop: Not implemented`, adb
+  offline and attempted snapshot save despite disabling flags); do not claim an error-free log.
+  Add explicit emulator exit-code/forced-cleanup checks and disable telemetry using the flag
+  documented in the installed emulator warning. Owned reusable AVD occupies about 814 MiB;
+  SDK clean-data directory initializes it without copying personal AVD userdata.
+- [x] Reuse check `20261009T025504.158116Z-boot` safely refused before emulator launch:
+  the SDK reformats INI spacing and enforces 6 GiB logical userdata for this Play image.
+  Compare parsed unique properties, retain strict graphics/ownership checks, and request that
+  minimum explicitly; do not rewrite the existing data. Regression-test spacing and duplicates.
+  Repeated boot `20261009T025531.379815Z-boot` passes in 21.406 s with SwiftShader GLES 3.0,
+  emulator exit code zero, no forced termination, and empty live/final kernel deltas. Retained
+  shutdown diagnostic persists; its 2 GiB logical snapshot RAM placeholder occupies zero disk
+  blocks. Total reusable state is 830 MiB, not another full SDK/AVD copy.
+- [x] Incremental native build passes with shared ccache; all 28 non-display CTest checks pass
+  (20.04 s), including the new Android gate tests. Whitespace checks pass. Final host process
+  inspection shows only the original shared adb server, no emulator; incident latch SHA-256
+  remains `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Only after emulator boot proof, build the needed x86_64 package with shared ccache/two
+  workers, run bounded current-scene/input checks, retain evidence and restore the arm64 package.
+
+#### 2026-10-09 — leaf daylight contrast and material detail filtering
+
+- [x] Reduce excessive constant fill on tagged leaf blades, preserving pleasant fixed daylight,
+  two-sided response and canopy transmission. Add restrained stable tip-age colour, not weather.
+  Keep bark/closed crown lighting unchanged until outward normals and baked colour are audited.
+- [x] Footprint-filter existing leaf mottling and bark grain/fissures; distance fading alone
+  cannot prevent undersampling. Share CPU/GLSL material constants and regression-test bounds,
+  age locality, orientation response and filtering. Add no textures, meshes or attributes.
+- [x] Native build/all 27 non-display tests pass (19.88 s). Test bounded/two-sided daylight,
+  age-tint locality and channel limits, monotone 0.18--0.50 cycles/pixel filter, invalid inputs,
+  locale-independent shader constants and numerical fissure mean within 1e-6 (100,000 samples).
+  Leaf fill/sun/up terms are 0.48/0.44/0.08; old untagged bark/crown lighting remains unchanged.
+  Unresolved fissures converge to 0.29043848 rather than disappearing and brightening bark.
+- [x] Normal llvmpipe clearing-edge `20261009T023801.351331Z-clearing-edge` passes
+  (168 bins/40.83 deviation/189.23 contrast), empty live/final kernel deltas and no GL/fallback.
+  Inspect full-resolution against prior profile-only reference: varied leaf posture reads with
+  stronger shading contrast, while sky/environment remain sunny. This does not prove alias-free
+  motion or physically calibrated optics. Geometry, instance format and texture inventory unchanged.
+- [x] Web incremental build succeeds with shared cache/two workers. Preserve prior normal
+  browser reports/images with `.before-leaf-daylight`; current material marker is required by
+  native, focused Web and Android runtime harnesses.
+- [ ] Next portability investigation: inspect a strictly CPU-rendered, headless Android emulator
+  path (SwiftShader, bounded CPU workers, explicit owned device, no host GPU) before launching
+  anything. Current Android smoke helper assumes an already-selected adb target and does not
+  itself supervise the host kernel or prove the emulator renderer; do not invoke it blindly.
+  Assess existing AVD/KVM and reversible data/snapshot ownership first. Do not clear the AMD stop
+  latch or use a host-GPU emulator. This may enable actual recent Android runtime validation
+  independently of the unresolved AMD hardware failure.
+- [x] Inspect software before/after views, run native/Web/Android builds and regression checks.
+  Keep the GPU incident unresolved and hardware stopped; do not change dependencies.
+- [x] Five normal SwiftShader views pass (Chrome PID 3841575), 60 intervals each, zero
+  GL/context/fallback errors and eleven empty kernel checks including browser exit. Inspect the
+  full-resolution clearing-edge after-simulation frame: stronger leaf contrast persists without
+  apparent missing geometry or a different sun/sky state. CPU means for grass/jungle/fronds/east/
+  clearing-edge are 316.66/243.60/259.71/259.43/267.77 ms, not hardware performance measurements.
+- [x] Android arm64 assemble/lint passes in 2 s, 85 tasks/six executed, shared cache/two workers.
+  Verify new material diagnostic inside packaged `libmain.so`. No emulator/device runtime was
+  performed. Native/Web/Android reuse existing build trees; no framework source changes.
+- [x] Update architecture/limitations and retain references. Native software captures occupy
+  328 MiB, Web tree about 301 MiB and incident evidence 92 MiB; no incident/source data removed.
+  Syntax/whitespace checks pass. Hardware stop-latch SHA-256 remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [ ] Material follow-up: audit canopy trunk/branch outward normals and local baked vertex shade
+  before introducing one-sided wood daylight. Do not simply multiply an additional directional
+  light over already shaded trunk colour. Isolated angle/LOD and moving-camera material review
+  remain necessary; static software images do not establish freedom from shimmer.
+
+#### 2026-10-09 — asymmetric understory leaf architecture
+
+- [x] Replace equal-angle/equal-lift umbrella arrangements with stable leaf identities, varied
+  stature, short emerging leaves and restrained bow/curl. Keep ground-plant geometry unchanged.
+  Far meshes select actual near leaves rather than generating a different five-leaf plant.
+- [x] Share deformed profiles/normals between tiers, test root/height/bounds/normal invariants
+  and nested identity. Keep current leaf/vertex/triangle budgets, placement and batching.
+- [x] Native build and all 27 non-display tests pass (22.74 s). New dense sampling covers 38
+  profiles, finite/above-ground bounds, exact root attachment, unit/upper-facing normals and
+  independently sampled tangent perpendicularity. Check each far profile equals its unique
+  near source including angle/phase/pigment, stature variation, invalid variant/index/coordinates
+  and nonfinite deformation. Ground-plant profile tests remain intact.
+- [x] Normal llvmpipe clearing-edge capture `20261009T022754.517784Z-clearing-edge` passes
+  (168 bins/40.28 deviation/190.02 contrast), empty live/final kernel deltas, no GL/fallback
+  errors. Inspect at full resolution against `20261009T021848.381117Z-clearing-edge`:
+  shorter upright leaves and varied outer posture break the old umbrella outline. These normal
+  captures have different simulation timing; do not use their pixel delta as an isolated metric.
+  Both submit 502 medium plants (146 near/356 far), 141 shrubs, 330 small plants and 27 jungle
+  draws. Static jungle vertex payload remains 1,404,468 bytes, 52-byte vertices/nine attributes.
+  Logged near mesh inventories are 360/512, 405/576, 450/640, 495/704 vertices/triangles;
+  all four far variants retain 30/20. No additional mesh storage, texture or draw format.
+- [x] Web incremental build succeeds with shared cache/two workers, reusing the existing tree.
+  The only configure change adds the renderer-independent profile source; no dependency source
+  is edited. Preserve earlier browser reports/images with `.before-understory-profiles`.
+- [x] Review the clearing-edge reference and other related software views; build all targets,
+  run CPU regression tests, record evidence and limitations. No AMD rendering or framework edits.
+- [x] Normal SwiftShader grass/jungle/fronds/east/clearing-edge views pass (Chrome PID 3839608),
+  60 intervals each, zero GL/context/fallback errors and eleven empty kernel checks including
+  exit. Inspect the full-resolution edge after-simulation image: posture change is retained,
+  without apparent missing leaves or shader divergence. CPU means are
+  285.27/247.21/259.16/249.44/269.71 ms, not physical-GPU performance evidence.
+- [x] Android arm64 assemble/lint passes in 3 s, 85 tasks/six executed, shared cache/two workers.
+  Check the new profile marker in packaged `libmain.so`. No emulator/device run; retain the
+  existing CNA configure warning that GLES3 is primarily tested on Linux, not a newly confirmed
+  framework bug. All dependency sources remain read-only and hardware qualification stopped.
+- [x] Update architecture and limitations. Preserve before/after software captures and browser
+  references; no incident evidence removed. Static mesh/texture budgets stay unchanged, but
+  changed visible coverage does not prove equal fragment cost. The four plant models still repeat,
+  far leaves/curvature are omitted and wind does not deform their normals.
+- [ ] Next: review the overly flat/saturated leaf and bark appearance in the same camera. Improve
+  coherent daylight material response and restrained age variation with portable filtering;
+  avoid adding unmeasured shader noise or extra texture memory blindly. A close moving-camera
+  check of understory near/far transitions remains required before claiming seamless LOD.
+
+#### 2026-10-09 — layered clearing-edge colonies
+
+- [x] Compose irregular shrub/low-plant colonies around the two clearing edges, using existing
+  meshes and batches. Preserve existing placements and canopy/collision; keep clearing interiors
+  and the main walking corridor free using conservative plant-footprint checks.
+- [x] Bound new populations to 24 shrubs and 144 ground plants; vary colony spacing, stature and
+  species locally instead of increasing island-wide density. Validate terrain, deterministic
+  placement, route margins, duplicate-root separation and mesh footprint assumptions.
+- [x] Default seed adds 13 shrubs/57 floor plants; all-near/all-far added triangle budgets are
+  13,316/1,536, with existing per-instance visibility/LOD, meshes and batches. No extra textures.
+  Ground layers now total 578 shrubs and 2,282 small plants. Canopy, medium plants, grass, base
+  ground placements and collisions stay unchanged. `WorldReport` exposes accent counts.
+- [x] Three-seed CPU checks cover local bands, both clearings, budgets, deterministic default
+  placement, root separation, canopy-trunk clearance and full footprint reservations. Independent
+  samples exercise curved path boundaries/end caps. Native build/all 27 non-display tests pass
+  (23.15 s); actual shrub/ground meshes in both LODs pass the startup radius-plus-wind checks.
+- [x] Frozen east reference `20261009T021409.848248Z-east` and after
+  `20261009T021629.648475Z-east` pass llvmpipe, empty kernel deltas and no GL/fallback errors.
+  Only 91 pixels change at the centre view: it hides most colonies and is weak visual evidence.
+  Add fixed `--viewpoint clearing-edge` (camera 69,-12 toward 83,-8). Its normal software capture
+  `20261009T021848.381117Z-clearing-edge` passes and is inspected full-resolution; low groups
+  are readable near the taller understory, but repeated large leaves/trunks remain stylized.
+- [x] Preserve failed diagnostic capture `20261009T021813.567371Z-clearing-edge`: reusing the
+  west-facing canopy-inspection target with the new east-facing camera correctly throws
+  `Canopy inspection target was not submitted by this camera`. This was test setup misuse,
+  not a framework bug or GPU fault (empty kernel deltas). Normal scene capture succeeds.
+- [x] Web incremental build succeeds with shared cache/two workers. Expand focused vegetation
+  smoke coverage to the new clearing-edge view; retain previous reports/stills with
+  `.before-clearing-colonies`. Keep all safety gates and hardware stop latch unchanged.
+- [x] Capture a frozen reference before implementation, inspect after images and normal software
+  WebGL views. Log actual counts/triangle budgets; build native/Web/Android with shared ccache.
+  GPU hardware remains stopped; no dependency modifications or new incident reproduction.
+- [x] Final native build and all 27 non-display tests pass (23.46 s). Five normal SwiftShader
+  views pass (Chrome PID 3836434): grass/jungle/fronds/east/clearing-edge, 60 intervals each,
+  zero GL/context/fallback errors and eleven empty kernel checks including browser exit.
+  Actual accent counts and triangle budgets agree across all five Web scenes and native startup.
+  Inspect the full-resolution clearing-edge after-simulation frame; no missing layer is apparent,
+  but this does not quantify LOD smoothness or establish physical-GPU performance. CPU means are
+  302.77/250.27/244.16/258.88/278.32 ms, not hardware benchmarks.
+- [x] Android arm64 assemble/lint passes in 4 s, 85 tasks/six executed, shared cache/two workers.
+  Verify that the packaged `lib/arm64-v8a/libmain.so` includes the new clearing-edge and shared
+  grass-LOD diagnostics, not just a successful Gradle task. No device/emulator run performed.
+- [x] Update README populations, architecture, limitations and Linux/Web review instructions.
+  Preserve useful images and the rejected diagnostic setup log; remove no incident evidence.
+  Stop-latch SHA-256 remains `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  Syntax/whitespace checks pass; disk remains about 364 GiB free. Reuse existing build trees only.
+- [ ] Next: improve the conspicuously repeated large understory leaf silhouettes visible in the
+  new edge camera, with common near/far structure, restrained curl/age variation and measured
+  geometry cost. Preserve this camera/reference. Complete-plant reservations for historical
+  placements and palm/rock/log overlap remain separate follow-ups, not solved by these colonies.
+
+#### 2026-10-09 — shared grass tuft silhouettes across LOD
+
+- [x] Replace unrelated middle/far golden-angle roots with representatives of the seven near
+  tufts. Keep near geometry unchanged; share source root, facing, height, curvature, pigment ID
+  and wind phase across tiers. Far representatives must be a subset of middle representatives.
+- [x] Retain ten middle blades; use seven far blades rather than five to cover every tuft.
+  Size proxy widths from assigned near-blade upright projected area, keeping middle/far coverage
+  consistent. This is an approximation, not view-independent coverage or seamless crossfading.
+- [x] Add CPU tests for legacy near-shape equivalence, shared roots/profiles/phases, complete
+  tuft coverage, nesting, bounded widths and projected-area conservation. Keep routes, placement,
+  draw distances, instance layout and draw structure unchanged; measure mesh/bounds changes.
+- [x] Native incremental build and all 27 non-display tests pass (23.30 s). Widest proxy half-width
+  is 0.115116 m. Actual mesh inventory is 862/640 near, 60/40 middle, 42/28 far vertices/triangles;
+  shared custom storage adds 432 vertex bytes and 48 index bytes, with no new draws/textures.
+  Radius remains 1.20595 m; maximum height decreases from 0.6572 to 0.6148 m because proxies now
+  inherit actual near heights. Culling continues to derive bounds from all meshes automatically.
+- [x] Frozen serial llvmpipe grass capture `20261009T020818.139864Z-grass` passes with empty
+  live/final kernel deltas, no GL/fallback errors, unchanged 2,827 patches/21 draws and
+  957/637/1,233 near/middle/far populations. Inspect full-resolution output: near silhouettes
+  remain intact; distant changes affect 599 of 921,600 pixels against the prior material capture.
+  Sparse cover and repeated foliage remain visible. This frozen view is not motion qualification.
+- [x] Read-only incident preflight at 02:08 UTC verifies journal access, the active hardware stop
+  latch and no available device-dump entries. No root command or repeat fault is needed.
+  Web incremental build passes with shared cache/two workers; motion validation follows.
+- [x] Verify serial software capture plus a moving WebGL review, build all targets with shared
+  cache and run non-display tests. Preserve references and inspect visual quality, not just counts.
+- [x] SwiftShader movement review passes unchanged gates (Chrome PID 3833108): 98 telemetry
+  samples, 48 grass population states, 20 canopy switches across ten trees. Seven stops cover
+  0/7.9845/12.0272/19.2234/11.1672/5.4045/-0.2867 m; all six controls succeed on first attempt.
+  Save seven stills and 103 distinct JPEGs (2,728,710 bytes over 28.515 s); all hashes verified,
+  no recording error/truncation. Ten empty kernel checks including browser exit, zero GL errors,
+  no context loss/fallback. Inspect farthest-stop full-resolution image and consecutive frames
+  003--008 in `build-probe/island-shared-grass-lod-motion-review-3833108.png`: no gross missing
+  geometry in this sampled segment, but tiny distant blades and low-resolution recording do not
+  prove imperceptible LOD changes or freedom from shimmer. Previous reports/stills retained with
+  `.before-shared-grass-lod`; PID-named earlier recordings are untouched.
+- [x] Android arm64 incremental assemble/lint succeeds in 2 s (85 tasks, six executed), shared
+  cache/two workers. No emulator/device runtime or physical-mobile performance claim. Wrapper
+  replaces only the old reproducible debug APK; dependency sources remain untouched.
+- [x] Related normal SwiftShader grass/jungle/fronds/east views pass serially (Chrome PID
+  3833773), 60 intervals each, zero GL errors/context loss/fallbacks and nine empty kernel checks
+  including browser exit. CPU frame means 314.71/226.10/256.94/262.77 ms are not hardware
+  performance measurements. The motion run's thirty post-route intervals average 243.32 ms.
+  Syntax/whitespace checks pass. Keep useful captures/recordings and all incident evidence;
+  native captures occupy 311 MiB, incident evidence 92 MiB, Web tree about 282 MiB, disk free
+  about 364 GiB. Stop-latch SHA-256 remains unchanged at
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Keep AMD hardware qualification stopped, CNA/Sharp read-only and GPU incident unresolved.
+  Sparse nearby cover and distant undergrowth remain follow-up work beyond this LOD correction.
+- [ ] Next: improve understory composition in a representative grove/clearing boundary, preserving
+  intentional walking corridors. Establish before/after views and a per-layer triangle budget;
+  do not increase island-wide density blindly. Separately review an isolated grass cluster through
+  both LOD transitions at multiple view angles; the current whole-scene route is insufficient for
+  a quantitative transition-quality claim. Hardware remains blocked pending a discriminating
+  incident hypothesis and verified pre-fault evidence collection, not another unchanged run.
+
+#### 2026-10-09 — grass material continuity and basal colour
+
+- [x] Remove the artificial 82--125 m green-ground recolouring from grass. Blades should retain
+  their foliage material while actual soil is visible between them; do not invent a second soil
+  approximation or recolour whole distant plants brown. Use normal atmospheric haze for both
+  custom and stock paths, aligned with terrain rather than green fake fog.
+- [x] Add restrained warm/dark basal colour to tall and low turf blades, using normalized blade
+  height rather than wind amplitude so short grass is not treated as entirely root. Keep upper
+  blades, seed heads, geometry, placement, LOD distances, textures and draw counts unchanged.
+  Evaluate the bottom-24% pigment per fragment: vertex-only tint would stretch to 25% versus
+  50% in five/three-level meshes. Carry geometric material height in existing custom vertex alpha,
+  explicitly output opaque alpha, retain original RGB/stock mesh colours. Temporary CPU height
+  vectors are validated before upload; seeds carry one, turf uses its actual normalized profile
+  rather than its reduced wind weight. The material-height varying replaces fragment biome tint;
+  36-byte vertices, 44-byte instances and eight attributes stay unchanged. Stock fallback uses
+  normal atmospheric fog but does not gain per-fragment basal pigment.
+- [x] Focused CPU grass tests pass, including monotonic/bounded tint, unchanged upper blade,
+  short/tall normalized-height agreement, invalid inputs, exact endpoints, <=half-byte encoding
+  error, <0.0028 channel error across three/five-level interpolation, and locale-independent
+  round-trip GLSL constants. Native incremental build passes using shared ccache/two workers.
+- [x] Native frozen grass before `20261009T014653.153272Z-grass`, after
+  `20261009T015043.885572Z-grass`; latter has 149 bins/21.44 deviation/75.27 contrast. Frozen east
+  `20261009T015106.078544Z-east` passes (197/35.53/187.17), compared with prior slope-light
+  reference. Serial llvmpipe, empty live/final kernel deltas, no GL errors/fallbacks. Inspect the
+  full-resolution grass before/after: restrained warmer bases, unchanged geometry, still sparse
+  and stylized. Frozen diagnostics are comparison evidence, not normal scene qualification.
+- [x] Test the colour profile and inspect frozen grass/east captures; verify normal WebGL views
+  and moving-camera samples on CPU renderers. Build all targets with shared ccache and run core
+  regression tests. Do not treat stationary images as LOD-transition proof.
+- [x] Native/Web incremental builds and all 27 non-display tests pass (23.00 s). Android arm64
+  assemble/lint passes in 2 s, 85 tasks/6 executed, no emulator/device. Shared ccache/two build
+  workers, existing trees only. Wrapper replaced only the previous reproducible debug APK.
+- [x] Normal SwiftShader grass/jungle/fronds/east passes (Chrome PID 3830423), 60 intervals each,
+  no GL/context/fallback errors and nine empty kernel checks including browser exit. Inspect
+  full-resolution grass output: no missing roots/transparency from material-height packing.
+  CPU presentation means 293.60/252.21/248.33/257.21 ms are not physical-GPU performance.
+  Frozen native grass still submits 2,827 patches in 21 draws, LOD 957/637/1,233; geometry,
+  placement and all other scene populations are unchanged by this material pass.
+- [x] SwiftShader moving review passes unchanged gates (Chrome PID 3831033): 93 samples,
+  44 grass population states, 18 observed canopy tier switches across nine trees. Progress
+  0/7.6978/12.3856/18.1484/11.3822/6.6228/-0.2867 m, six first-attempt controls, no corrections.
+  Seven stills plus 104 distinct JPEGs (2,752,143 bytes, 28.603 s), all hashes verified, no
+  recording error/truncation. Ten empty kernel checks, zero GL/context/fallback errors; thirty
+  post-route CPU intervals average 243.88 ms. Prior reports and selected stills are preserved
+  as `.before-grass-material`; PID-named old recordings remain intact.
+- [x] Inspect full-resolution farthest stop and consecutive frames 003--008 in
+  `build-probe/island-grass-material-motion-review-3831033.png`. No gross missing grass or
+  colour ring in this short sampled portion; low-resolution compositor samples cannot establish
+  fine shimmer or seamless LOD. Sparse cover, repetitive foliage and broad exposed soil remain.
+- [x] Document limits: this does not fill distant undergrowth gaps or remove geometry LOD/culling
+  changes. Keep GPU incident unresolved, hardware latch intact and dependencies read-only.
+  Latch SHA-256 stays `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  Syntax/whitespace checks pass. Retain these small useful comparisons and recordings; no
+  incident evidence, source or uncertain-owner files removed. Existing build trees only.
+  Disk: 364 GiB free, native software captures 307 MiB, incident evidence 92 MiB, Web tree 264 MiB.
+- [ ] Next: review grass coverage and structural LOD continuity. Near roots form seven tufts,
+  while middle/far roots still use unrelated golden-angle layouts, heights and enlarged widths
+  (`AppendBlade`). Establish common representative silhouettes before increasing density blindly;
+  preserve routes and measure geometry/overdraw budgets. Distant understory and ground richness
+  remain substantial visual work, not solved by the basal-colour pass.
+
+#### 2026-10-09 — slope light across terrain materials
+
+- [x] Preserve smooth fixed-sun slope light through humus, moss, path, clearing, sand-fleck and
+  fallen-leaf palette overrides. Existing RGB is already lit: do not multiply it a second time.
+  Carry a separate float with shore/slope data; keep alpha opaque and stock-effect RGB unchanged.
+- [x] Validate the explicit 28-byte vertex layout and lighting on CPU, including malformed inputs,
+  full terrain samples and representative sun-facing/away slopes. Add no textures or draws;
+  extra vertex payload is 58,081 * 4 = 232,324 bytes (1,626,268 total). The dedicated CPU test
+  matches CNA's prior response exactly for all 58,081 samples and all 256 possible RGB channels;
+  actual light range 0.819825--0.978072. It checks invalid normals, opposing slope directions,
+  packed offsets across adjacent vertices and opaque alpha. Native build and focused test pass.
+  Runtime additionally checks CNA's declaration stride against the upload struct. Inspected
+  EasyGL stock coloured path requires only position/colour; no forced fallback runtime test yet.
+- [x] Serial native llvmpipe overview `20261009T013955.315204Z-overview` passes
+  (315 bins/33.05 deviation/203.42 contrast); frozen east `20261009T014018.053731Z-east`
+  passes (194/35.46/186.96). Both have empty live/final kernel deltas and no GL/material fallback.
+  Inspect full-resolution frames against previous-turn references: subtle slope response is
+  retained, close leaf/clod patterns remain, but the scene is still stylized with sparse grass.
+- [x] Incrementally build native/Web/Android with shared ccache, inspect serial software-rendered
+  overview/close frames and WebGL output, run non-display tests, and preserve kernel-log evidence.
+  SwiftShader Chrome PID 3828191 passes overview/beach/east/jungle, 60 intervals per view,
+  no GL errors/context loss/fallbacks and nine empty kernel checks including browser exit.
+  Mean CPU presentation intervals 126.39/296.10/254.43/255.82 ms are not physical-GPU benchmarks.
+  Inspect the east full-resolution frame: same ground details, no overlay or lost material.
+  Reports use `build-probe/island-browser-terrain`; preceding reports and overview/east stills
+  are retained as `.before-slope-light`. Stationary captures do not prove moving-camera stability.
+- [x] Native/Web builds pass; all 27 non-display CTest groups pass in 23.11 s. Android arm64
+  assemble/lint passes in 3 s (85 tasks, 6 executed), no emulator. The expected generic CNA GLES3
+  platform-support warning remains visible. Existing trees/shared cache/two workers only.
+  Wrapper replaced only the reproducible debug APK; preserve source and incident artifacts.
+- [x] Document remaining approximations: no new cast shadows, no full relief-normal solution,
+  grass/substrate integration and distant undergrowth still require work. Keep the AMD hardware
+  latch unchanged and CNA/Sharp Runtime read-only; this is unrelated to the unresolved GPUVM cause.
+  Latch SHA-256 remains `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  Syntax/whitespace checks pass. Disk: 364 GiB free, native capture evidence 298 MiB, incident
+  evidence 92 MiB, Web tree about 257 MiB. No obsolete/uncertain-owner files removed; retain the
+  small comparison artifacts. Next: reconcile grass distance colour with the actual substrate
+  and improve distant undergrowth without hiding the bare-ground problem with uniform green.
+
+#### 2026-10-09 — stable terrain material identity
+
+- [x] Correct the game-side material fade: forest humus/moss, authored clearings and paths
+  previously faded into the old green vertex palette between 95 and 285 m. Keep substrate identity
+  independent of camera distance; filter procedural frequencies by pixel footprint instead.
+  Broad/medium noise attenuates over 0.18--0.50 cells/pixel; fine sinusoidal detail retains its
+  distance fade. Path edges widen by footprint, while close clods/litter and fog remain separate.
+  No texture, buffer, vertex format, geometry, collision or draw change. Far fragments now retain
+  two noise fields previously skipped beyond 285 m; physical-GPU cost is not measured.
+- [x] Native overview before/after: `20261009T012820.058774Z-overview` and
+  `20261009T012929.695749Z-overview`; after has 309 colour bins, 32.45 luminance deviation and
+  201.02 contrast. Inspected full-resolution frames: forest floor remains brown in the far view;
+  distant undergrowth coverage is still visibly sparse. This is consistency, not final realism.
+  Frozen east after `20261009T013028.329779Z-east` versus `20261009T011533.085211Z-east`
+  has normalized whole-image MAE 0.0000183937; close ground remains visually consistent.
+  All native runs are serial llvmpipe, empty live/final kernel deltas, no GL error/fallback.
+- [x] Native/Web incremental builds pass with shared ccache/two workers. Add a bounded software
+  Web terrain scope (overview/beach/east/jungle), explicit beach-page arguments and the material
+  startup gate. First browser attempt (PID 3823653) exposed a harness-only assumption that every
+  camera starts with a debug overlay. Overview does not; use its normal no-overlay capture
+  path. Preserve failed reports as `.failed-overlay-assumption`; both kernel checks were empty.
+  First complete pass (PID 3824108) passed four shader/runtime views with nine empty kernel
+  checks. Image inspection caught the beach's automatically enabled overlay still visible:
+  only overview must bypass the overlay-hide step. Preserve this pass as `.beach-overlay-visible`
+  and repeat after correcting the camera classification; no shader/error gate was weakened.
+- [x] Preserve before/after software captures of distant and close terrain, inspect the frames,
+  build native/Web and run non-display tests. Verify the portable shader in a software browser.
+  Final Chrome PID 3825516 passes all four views, 60 intervals each, zero GL errors/context loss/
+  material fallbacks and nine empty kernel checks including exit. Inspected overview, clean beach
+  and jungle stills; beach overlay is now hidden. CPU presentation means are
+  144.99/328.60/263.88/241.38 ms, not GPU benchmarks. Evidence uses the
+  `build-probe/island-browser-terrain` prefix. This is stationary-view coverage, not a full
+  95--285 m continuous camera sweep or proof of shimmer-free motion.
+- [ ] Slope-light preservation is completed in the newer entry above; grass/substrate colour
+  integration remains. Do not conflate either material correction with the unresolved AMD GPUVM
+  incident. `GrassRenderer` still fades blades toward
+  an unrelated green `groundColor` at 82--125 m; derive a compatible substrate cue before tuning
+  density. Review distant understory representation rather than just recolouring all grass brown.
+- [x] All 26 non-display CTest groups pass in 23.57 s. Android arm64 assemble/lint passes in
+  2 s (85 tasks, 6 executed), shared ccache/two workers; no emulator/device run. Only the previous
+  reproducible debug APK was replaced, not source or incident evidence.
+- [x] Keep the hardware stop latch intact, dependencies read-only, and all runtime checks serial
+  and CPU-rendered. No new root command or deliberate fault reproduction is warranted.
+  Latch SHA-256 remains `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  Native `build`, Web `build-probe`, existing Android tree only; two build workers, at most eight
+  CPU render workers. Syntax/whitespace checks pass. Disk: 364 GiB free, software captures 291 MiB,
+  incident evidence 92 MiB, Web tree about 256 MiB. Retain useful reference captures and both harness
+  failure records; no incident evidence or uncertain-owner files removed. GPU root cause unresolved.
+
+#### 2026-10-09 — per-tree canopy frustum rejection
+
+- [x] Reuse measured near/far geometry envelopes (including local wind) to bound each canopy
+  instance, then reject only boxes outside CNA's camera frustum after existing cell/range checks.
+  Keep all tree placements, meshes, LOD distances, material and visible density unchanged.
+- [x] Add a non-display CNA math test covering 172,800 transformed vertices, including 53,316
+  clip-visible samples and 169 rejected boxes. Check offscreen rejection, crown intersections
+  with an offscreen trunk, near/eye-plane crossing and malformed/overflowing envelopes.
+  The first invocation found the new target absent from the explicit build preset; include it
+  in linux-debug, then build and pass. No graphics context is created by this test.
+- [x] Validate all generated mesh position/wind data; weights must remain in [0,1]. Four shared
+  wind amplitudes generate locale-independent GL/ES literals and CPU bounds tests, with static
+  assertions covering the existing 0.16 m horizontal/0.01 m vertical margins. Preserve wind
+  behavior. World boxes add a 0.01 m numerical cushion, apply uniform scale and yaw-invariant
+  radial bounds, and are also used to extend the containing cell. Only canopy instances gain boxes.
+- [x] Preserve pre-cull executable SHA-256
+  `93693c5c1d10793899c50cae6af9b6474e3596a3371058468813f014cc2e8aae`
+  and CNA runtime SHA-256 `a96dcaf304021c980ae8772adbf61fab263f5382246ec07ec776f8098100405a`.
+  Pre-change grass/jungle frozen captures are `20261009T011318.989090Z-grass` and
+  `20261009T011322.954576Z-jungle`; east uses the final previous-turn near/far pair.
+- [x] All four post-cull frozen captures are byte-identical to their respective references:
+  `20261009T011533.085211Z-east` (near), `20261009T011537.054830Z-east` (far),
+  `20261009T011540.809493Z-grass`, `20261009T011544.775233Z-jungle`. All are serial llvmpipe,
+  empty live/final kernel deltas, no GL error or material fallback. This includes unchanged shader
+  pixels after sharing wind constants, not just a tolerance-based image comparison.
+- [x] Frozen near-east submissions decrease 183 -> 116 trees (76/107 near/far -> 42/74),
+  grass 275 -> 236 (61/214 -> 42/194), jungle 109 -> 65 (62/47 -> 37/28). Respective per-tree
+  rejection counts 67/39/44; jungle draws stay 25/28/28 and other plant counts unchanged.
+  This is camera-frustum rejection, not occlusion culling or GPU fault mitigation.
+- [x] All 26 non-display CTest groups pass in 25.54 s, including exact locale-independent
+  round-trip tests of the shared wind literals. Native/Web incremental builds pass with the
+  shared cache/two workers. Normal native jungle `20261009T011901.058728Z-jungle` passes:
+  191 colour bins, 41.27 deviation, 205.49 contrast; empty live/final kernel delta, no GL/fallback.
+- [x] Serial normal SwiftShader vegetation run (Chrome PID 3821108) passes grass/jungle/fronds/
+  east, 60 intervals each, zero GL/context/fallback errors and nine empty kernel checks. Normal
+  canopy populations 236/65/226/116; rejected counts 39/44/44/67. Mean intervals
+  295.55/241.10/244.99/257.21 ms are software/shared-host observations, not hardware benchmarks.
+  Preserve previous reports/stills as `.before-per-tree-frustum`.
+- [x] Bounded SwiftShader movement (Chrome PID 3821826) passes unchanged gates: 91 samples,
+  43 grass LOD populations, 18 observed tier switches across nine submitted trees; progress
+  0/7.5545/12.1706/17.9334/10.5222/5.7628/0.6450 m, no corrective attempts. Ten empty kernel
+  checks, zero GL/context/fallback errors. Thirty post-route intervals average 243.33 ms on CPU.
+  Recording retains 99 distinct frames/2,681,082 bytes over 26.700 s, no truncation/error; all
+  SHA-256 values verified. Prior reports/stills are `.before-per-tree-frustum`.
+- [x] Inspect the full-resolution farthest stop and frames 003–008 in
+  `island-canopy-culling-motion-review-3821826.png`: no gross disappearing crowns in this sampled
+  portion, including viewport edges; this is not exhaustive trajectory or seamless-LOD proof.
+  Compositor samples/telemetry association remain approximate. Visible foliage stays stylized;
+  silhouette repetition and sparse ground cover remain, and the full far-soil fade is not covered.
+- [x] Android arm64 assembly/lint passes in 4 s, 85 tasks/6 executed, shared cache/two workers,
+  without emulator/device execution. The wrapper replaces only the reproducible debug APK.
+- [ ] Next: review the full terrain material distance fade and close ground/grass integration;
+  continue visual improvement without introducing objectives or new gameplay systems. Wider
+  canopy angle/variant coverage and physical-mobile performance remain outstanding.
+- [x] Hardware stop latch remains unchanged; no AMD workload or dependency edits. GPU root cause
+  remains unresolved. Documentation now separates frozen equivalence, moving samples and
+  software timing from physical-device qualification. Final whitespace/JavaScript/shell syntax
+  checks pass. Disk: 364 GiB free, native software captures 281 MiB, incident evidence 92 MiB,
+  Web tree 250 MiB. The new small reference pairs/recording are retained as useful regression
+  evidence; no incident evidence or source material was removed.
+
+#### 2026-10-09 — isolated canopy detail comparison
+
+- [x] Add an explicit capture-only, single-tree LOD inspection with frozen simulation/shader
+  time. Identify the tree by existing millimetre X/Z telemetry IDs, reject unknown/ambiguous
+  targets and missing submissions, and label results as diagnostic rather than scene qualification.
+- [x] Compare the partly occluded variant-1 tree `-87120:-15369` at about 130.15 m. Its repeated
+  near image is byte-identical; a second submitted tree is fully occluded (zero image difference),
+  so do not count it as visual transition evidence. See `docs/canopy-lod-review.md` for exact
+  commands, directories, crops and intermediate results. All native runs are serial llvmpipe.
+- [x] Eight anchors alone do not improve colour agreement. After sharing core dimensions and
+  contours, retain six original three-leaf sprigs per lobe plus perimeter/lower leaves instead
+  of inventing replacement foliage. Final changed pixels 222 -> 181; normalized MAE
+  0.0000303366 -> 0.0000241921 (about 20.3% lower). This is one visible portion, not seamless LOD.
+  Preserve both unsuccessful intermediate revisions; do not substitute those for final evidence.
+- [x] The far tier now has 997 vertices/952 triangles versus 457/464; near meshes unchanged.
+  All jungle vertex payload 1,404,468 bytes (+112,320), four far index buffers +11,712 bytes.
+  No new texture, draw, instance, attribute or collision change. At 46 far trees the scene submits
+  22,448 additional triangles. Document the quality/cost tradeoff; physical-mobile cost unqualified.
+- [x] Final normal native jungle capture `20261009T010213.376912Z-jungle` passes (191 bins,
+  41.27 deviation, 205.49 contrast), empty live/final kernel deltas, no GL error/material fallback.
+  Inspection results are not counted as normal scene qualification.
+- [x] Twenty-three software harness checks and 22 invalid CLI cases pass. The first full CTest
+  run exposes a stale registration expecting eight cases; update it to the actual expanded 22.
+  Native and Web incremental builds pass using shared ccache/two workers. No dependency edits.
+- [x] First Web grass run (Chrome PID 3817329) rejects the obsolete far-mesh inventory of
+  457/464 despite logging the new 997/952. No GL/context/fallback error; three empty kernel
+  checks. Preserve report/stills as `.failed-stale-canopy-inventory`, then update the explicit
+  mesh expectation to the documented allocation. Do not change performance or error tolerances.
+- [x] Serial normal SwiftShader grass/jungle/fronds/east passes (Chrome PID 3817791), 60 intervals
+  each, zero GL errors/context loss/fallback and nine empty kernel checks including browser exit.
+  Mean intervals 316.65/254.44/253.05/269.44 ms are software/shared-host observations, not hardware
+  performance evidence. Inspect native jungle and browser east images: distant shapes are less
+  unrelated to their near forms, but stylized foliage, repetitive silhouettes and LOD gaps remain.
+- [x] Android arm64 assembly/lint passes in 4 s, 85 tasks/6 executed, shared cache/two workers,
+  no emulator/device run. Only the previous reproducible debug APK was replaced by the wrapper.
+- [x] All 25 non-display CTest groups pass in 25.59 s after the registration update, including
+  22 real invalid CLI invocations, 23 synthetic software-harness checks and canopy profile/ID
+  tests. Source whitespace, JavaScript and shell syntax checks pass. Documentation records the
+  isolated evidence, unsuccessful iterations, changed geometry cost and remaining limitations.
+- [ ] Next: inspect unobscured examples of all variants and repeat moving-camera review. Measure
+  per-tree frustum rejection as a possible way to offset added far geometry: the grass view still
+  submits 215 far trees after whole-cell culling, many potentially outside the image. Do not reduce
+  visible density to conceal cost. Full far-soil fade review also remains pending.
+- [x] Hardware latch SHA-256 stays `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  No AMD hardware run or CNA/Sharp edit. Root cause unresolved. Disk: 364 GiB free, native software
+  captures 262 MiB, incident evidence 92 MiB, Web tree 233 MiB. Bounded original/intermediate
+  comparisons remain useful evidence, not obsolete files; no incident artifacts removed.
+
+#### 2026-10-09 — fail-closed software capture supervision
+
+- [x] Close a safety gap in the native software capture harness: it previously waited up to
+  65 seconds before reading the kernel delta. Monitor incrementally while the owned workload
+  runs, preserve live evidence, and terminate the process group on the first fault, lost journal
+  access, boot discontinuity, timeout or interruption. This is prevention, not a GPU root-cause fix.
+- [x] Add CPU-only fault-injection tests, including faults before wrapper exit and faults during
+  cleanup. All 21 software-capture checks pass, including signal handling and first-failure
+  preservation. All 25 non-display CTest groups pass in 25.58 s. No source or dependency rebuild
+  was needed; Python tests retain 3.10-compatible APIs.
+- [x] Verify one serial llvmpipe capture, `20261009T004917.838194Z-east`, PID 3812511:
+  OPENGL33/EasyGL/SDL3/X11, Mesa llvmpipe, 1280x720, 198 colour bins, 34.38 luminance
+  deviation, 183.93 contrast; empty live and final kernel deltas, no GL error/material fallback.
+  Exact command and kernel baseline are saved before launch; live messages flush before failure.
+- [x] Keep the AMD hardware stop latch unchanged (SHA-256 `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`).
+  No new device-dump reproduction or root command is justified. Document the hardened harness
+  and its limits; the GPU root cause is still unresolved. Disk has 364 GiB free; retain the small
+  validation capture as useful evidence. No obsolete artifacts were removed.
+- [ ] Next: resume the full-resolution same-camera canopy LOD review below. Continue software-only
+  visual work; a 200 ms polling interval is not guaranteed detection latency or hardware safety.
+
+#### 2026-10-09 — per-tree LOD and moving-frame review
+
+- [x] Extend opt-in input diagnostics with actual submitted canopy identities and LODs, not
+  only aggregate populations. Require observed switches for trees present in adjacent samples;
+  do not mistake frustum entry/exit for a detail transition.
+- [x] Use the previous draw's real near/far instance batches, with stable millimetre X/Z IDs;
+  the consumer rejects duplicate/malformed IDs and population mismatches. No normal-play
+  logging, GPU queries, renderer state changes or new GPU resources. Parser tests cover stale
+  input, duplicate IDs, count mismatch, false visibility-only switches and unchanged aggregates
+  with real per-tree switches. Existing movement/pointer-lock/return checks remain intact.
+- [x] Native and Web builds pass. Preserve previous walk reports/log/PNGs as
+  `.before-canopy-trace`. The new recording is capped at 240 JPEG frames/16 MiB, 640x360,
+  quality 65; acknowledges compositor events after writing and drains pending writes at stop.
+  File names include the browser PID. It is sampled compositor evidence, not every game frame,
+  and its association with prior-render telemetry is explicitly approximate.
+- [x] First route (Chrome PID 3807576) fails the unchanged 2.5 m return gate: 2.6517 m
+  overshoot. This is a harness-control failure, not a graphics fault. Preserve reports/log/stills
+  as `.failed-open-loop-release` and all PID-named JPEGs: 100 samples, 37 observed LOD switches
+  across 20 trees, 105 distinct frames/2,804,958 bytes, no truncation/recording error and nine
+  empty kernel checks. Correct the controller to learn stopping lead from actual movement and
+  permit at most two corrective attempts; do not widen the distance tolerance or fake movement.
+- [x] Preserve the old walk evidence and record a bounded low-resolution moving-frame sequence
+  alongside the seven full-resolution stops. Keep native/browser runs software-only and serial;
+  record dropped/truncated/error cases instead of claiming complete video coverage.
+- [x] Test parser/review rejection paths, run the measured outward/return route, inspect changes,
+  validate builds and document remaining visual defects. No AMD hardware qualification.
+- [x] Corrected SwiftShader route (Chrome PID 3808640) passes unchanged gates: 105 samples,
+  53 grass LOD tuples, 44 observed tier switches across 18 submitted trees. Stops are
+  0/5.3033/13.0011/17.8322/11.5678/5.7333/-2.2511 m; one corrective reversal was needed at the
+  first target. Extra switches on some trees reflect that reversal, not proven LOD oscillation.
+  Recorded 111 distinct JPEGs/2,967,511 bytes over 31.695 s, no truncation/write/ack errors; verify
+  all frame SHA-256 values for both attempts. Ten empty kernel checks, zero GL/context/fallback
+  failures; 30 post-route intervals average 254.43 ms (software/shared-host, not hardware timing).
+- [x] Inspect sampled frames around switches and six-frame sheet
+  `build-probe/island-canopy-motion-review-3808640.png`: no gross disappearing objects in this
+  portion; distant cores remain visibly coarse/rounded. Telemetry is prior-render and compositor
+  frames are downsampled; whole-cell culling can submit off-screen trees. Do not claim all 18
+  switched trees were visibly inspected or that this closes popping/shimmer review.
+- [x] All 25 non-display test groups pass in 25.61 s, including the expanded parser/control
+  checks. Android arm64 assembly/lint passes in 3 s, shared ccache/two workers, no emulator/device
+  run. The debug APK alone was replaced and is reproducible. No CNA/Sharp Runtime modifications.
+- [x] Documentation and syntax/whitespace checks updated. Disk: 364 GiB free; Web tree 226 MiB,
+  native software captures 220 MiB, incident evidence 92 MiB. Recordings are bounded and useful
+  comparison evidence, not obsolete intermediates. Hardware stop-latch SHA-256 remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`; original AMD root cause
+  still unresolved. No hardware workload or emulator was launched.
+- [ ] Next: isolate an on-screen tree near its LOD threshold in full-resolution before/after
+  views to quantify silhouette and coverage changes, then improve the distant geometry if
+  justified. Review the full far-soil distance fade separately; this 18 m route cannot qualify it.
+
+#### 2026-10-09 — distinct canopy architecture and supported trunk bends
+
+- [x] Replace four mostly height-scaled umbrella crowns with spreading, upright, swept and
+  divided crown arrangements, retaining four variants/eight near lobes/four far lobes. Derive
+  far profiles from paired near lobes and keep the fixed-sun bake on the same near profiles.
+- [x] Share one bounded trunk centreline between near/far meshes and branch attachment points;
+  keep the bottom 3 m straight and placement/collision proxies unchanged. Use measured geometry
+  bounds. Do not increase instance counts or mesh/texture budgets to disguise repetition.
+- [x] Add deterministic profile, near/far envelope, trunk and invalid-input tests. Run native
+  llvmpipe and serial SwiftShader views, inspect silhouette differences, cross-build Android,
+  and record residual LOD/lighting/geometry limitations. No AMD hardware qualification.
+- [x] First CPU/profile tests and llvmpipe jungle capture `20261009T001457.711556Z-jungle`
+  pass (186 bins, 41.57 deviation, 205.56 contrast), zero GL errors/fallback and empty kernel
+  delta. The image has distinct bent/forked silhouettes but overly narrow foliage groups leave
+  the canopy too open. The shared bake's shaded texels fall from 62,472 to 27,393 (same 2,248
+  near lobes and 1,048,576-byte CPU field). Retain this iteration; broaden/deepen the individual
+  lobes without reverting the varied architecture or adding trees, leaves or submissions.
+- [x] Broader-lobe revision passes the profile/light tests and native llvmpipe jungle capture
+  `20261009T001709.541262Z-jungle` (191 bins, 41.09 deviation, 205.49 contrast), empty kernel
+  delta and no GL errors/fallback. Inspect: fuller foliage keeps the distinct bends/forks and
+  reduces the first iteration's overly thin groups. The light bake has 36,304 shaded texels;
+  retain this evidence rather than claiming the old 62,472 coverage or adding artificial shade.
+  It remains a simplified volume model, not botanical optical calibration.
+- [x] CPU profile checks cover deterministic/finite bounded shapes, invalid parameters, the
+  straight lower 3 m, shared tip, structural aspect/offset differences, nondegenerate branch
+  spans and paired near/far axis-aligned extents. The unchanged light tests check transformed
+  casters, ray lengths, deterministic bakes and CPU/GPU field mapping. Profile extents are not
+  proof that the far ellipsoids or outer-leaf meshes exactly match the near silhouette.
+- [x] Geometry and observed jungle submission counts stay unchanged: near variants 0/2
+  4,912 vertices/4,328 triangles, 1/3 4,949/4,378; far 457/464. Custom jungle vertex payload
+  1,292,148 bytes. The jungle view still has 109 visible canopy trees (63 near/46 far), 28 jungle
+  draws, 462 understory/108 bushes/162 ground plants. Placements and collision proxies unchanged.
+- [x] Final native build and all 25 non-display CTest groups pass in 25.69 s, including the
+  expanded canopy profile/light tests. Web cross-build also passes. Serial browser/runtime and
+  Android build results follow below; no AMD hardware or dependency-source modification.
+- [x] Serial SwiftShader grass/jungle/fronds/east passes (Chrome PID 3794864), 60 intervals
+  each, zero GL errors/context loss/fallback and nine empty kernel checks including browser exit.
+  Means 304.99/249.71/244.71/251.94 ms are software/shared-host observations, not physical GPU
+  performance evidence. Preserve pre-change reports/images as `.before-crown-forms`. Inspect
+  final jungle/east frames: varied crown heights and bent/forked upper trunks read at exploration
+  range; repeated variants, faceted leaf silhouettes and approximate distant cores remain visible.
+- [x] Android arm64 assembly/lint passes in 3 s (85 tasks, 6 executed), shared ccache and two
+  workers, without an emulator/device run. Only the reproducible debug APK was replaced.
+  Source/documentation whitespace and shell/JavaScript syntax checks pass. Disk has 364 GiB free;
+  software captures 220 MiB, Web tree 204 MiB and incident evidence 92 MiB. Keep rejected visual
+  iterations and incident evidence. Hardware stop-latch hash unchanged; AMD root cause unresolved.
+- [ ] Next: moving-camera review of crown LOD and soil distance fades, then continuous
+  per-instance proportion/colour diversity if justified by the images. Do not claim stationary
+  captures prove seamless transitions, dense final jungle composition or hardware performance.
+
+#### 2026-10-09 — exposed soil and fallen-leaf material pass
+
+- [x] Replace the dominant green interior substrate with warm earth/humus and localized moss;
+  retain authored paths, beach and clearing boundaries. Improve fallen-leaf coverage, shape and
+  restrained midrib shading in the existing terrain shader, not additional geometry or assets.
+- [x] Filter leaf edges, midribs and whole subpixel leaves using the world-space pixel footprint
+  evaluated outside divergent material branches. Conservative rotated/filter/bend/jitter extent
+  is 0.480859 cell units, below the 0.5 boundary. Clamp west-clearing density before colour
+  blending to prevent extrapolation. No extra hashes, texture allocations, geometry or draws.
+- [x] First native llvmpipe grass capture `20261008T235849.006807Z-grass` passes: 151 bins,
+  21.51 luminance deviation, 82.79 spatial contrast, zero GL errors/fallback and empty kernel
+  delta. Inspect: warm floor and individual fallen leaves read more clearly than the former green
+  surface; leaves remain flat material marks. This capture precedes the final west-density clamp.
+  Preserve prior Web reference reports/images with `.before-soil-litter` suffixes.
+- [x] Inspect final grass, jungle and clearing views for repetition, muddy colours and unresolved
+  distant blending. Broader continuous moving-camera shimmer/transition review remains separate.
+- [x] Validate native/software WebGL execution, CPU regression tests and Android compilation.
+  Record exact artifacts and limitations; this does not qualify the AMD GPU or resolve its fault.
+- [x] Final native llvmpipe west `20261009T000151.725302Z-west` passes (183 bins, 40.60
+  deviation, 203.99 contrast), and beach-path `20261009T000234.929948Z-beach` passes (132 bins,
+  34.28 deviation, 194.40 contrast). Both kernel deltas are empty, no GL errors/fallback. Inspect
+  the images: the west clearing retains green patches and leaf-rich ground; the entrance path
+  stays legible. The `beach` camera faces inland along the path, so it does not itself verify
+  the visible waterline/sand. The Web fronds camera checks near-shore sand separately below.
+- [x] Final serial SwiftShader vegetation run passes (Chrome PID 3790831): grass/jungle/fronds/
+  east, 60 intervals each, zero GL errors/context loss/fallback, nine empty kernel checks including
+  browser exit. Means 285.54/253.88/255.82/274.43 ms are shared-host software observations, not
+  physical GPU cost measurements. Inspect jungle/east/fronds images: exposed forest earth is
+  visibly distinct from living plants, clearings retain their palette difference, and near-shore
+  sand remains free of inland leaf litter. Large olive clearing patches, flat leaf decals and
+  repetitive tree silhouettes remain quality limitations; this is not finished realism.
+- [x] Android arm64 assembly/lint passes in 2 s (85 tasks, 6 executed), shared ccache/two workers.
+  No emulator/device execution. The packaging wrapper replaces only the generated debug APK,
+  recoverable by rebuilding. Architecture, attribution, known limitations and platform notes
+  now describe the new material without claiming hardware performance or physical leaf geometry.
+- [x] All 25 non-display CTest groups pass in 25.55 s. Shell/JavaScript syntax and whitespace
+  checks pass. Disk: 364 GiB free; software captures 213 MiB, Web tree 199 MiB, incident evidence
+  92 MiB. Retain comparison and incident evidence; no obsolete large artifacts were produced.
+  Hardware stop-latch SHA-256 is unchanged. CNA/Sharp Runtime remain read-only; the original
+  AMDGPU root cause remains unresolved, and no hardware qualification was attempted.
+- [ ] Next visual priorities: review the distance-dependent soil blend while moving, then reduce
+  repeated canopy silhouettes and uniform-looking upright trunks. Avoid solving either by only
+  increasing instance counts; retain traversal clearances and the existing rendering budgets.
+
+#### 2026-10-09 — rendered-terrain grass grounding audit
+
+- [x] Add a CPU-only sampler of the exact terrain mesh triangles and independently validate
+  vertices, both triangle halves, normals, edges and invalid inputs. Do not replace gameplay
+  collision queries or change the island shape as part of this investigation.
+- [x] Measure every low-turf root edge under the actual instance yaw/spread/slope transform;
+  report burial/floating distributions globally and in the east clearing. Compare current
+  analytic placement with mesh-height-only and mesh-plane anchor alternatives before choosing
+  a correction. These counterfactuals are not runtime fixes or proof of exact root conformance.
+- [x] Preserve the reproducible report, document the finding and implement/test the narrowest
+  justified game-side correction if the measurements support one. No GPU workload is needed
+  for the audit; any subsequent visual check remains software-only.
+- [x] Audit 1,781,376 low-turf root edges, including 41,664 in the east clearing. Original error
+  is -0.141709..+0.144386 m (mean absolute 0.0159821 m); 25.33% of roots are buried beyond 1 cm.
+  Height-only anchor correction still reaches -0.092415..+0.111375 m. Mesh-plane anchoring
+  improves the mean but worsens extremes to -0.146683..+0.195311 m. Reject those partial fixes.
+  Preserve `build/grass-grounding-analytic-report.json`; document the game-side defect and
+  reproduction in `docs/grass-grounding.md`, not the framework-only BUGS.md.
+- [x] Use an immutable 241x241 RGB24 height map on the existing custom grass path. Three vertex
+  texel fetches reconstruct the rendered triangle; reproject the undeformed footprint before
+  blade height/wind/interaction, and use its base for canopy shading. No placement, collision,
+  mesh/instance/attribute count, or draw changes. Add 232,324 texture bytes; total generated
+  inventory 4,635,788/4,656,004 bytes. Widen cell Y bounds using covered terrain grid heights;
+  preserve the old fallback envelope. Stock fallback remains approximate and visibly diagnosed.
+- [x] Independent tests cover 58,081 grid vertices, triangle planes/normals, shared edges,
+  invalid inputs, RGB24 round trips and footprint ranges. Full root audit's CPU shader emulation
+  reports -0.0000181198..+0.0000190735 m, mean absolute 0.00000350953 m, below its 0.1 mm gate.
+  This is not numerical GPU readback. Register the audit with CTest; all 25 non-display groups
+  pass in 22.88 s. A test's initial range-loop-copy warning was fixed without disabling warnings.
+- [x] Native llvmpipe capture `20261008T234516.431168Z-grass` passes (158 bins, 27.31 deviation,
+  95.31 contrast), zero GL errors/fallback and empty kernel delta. Inspect: roots remain planted
+  without gross displacement; appearance remains stylized. Counts remain 2,827 patches/15 cells/
+  21 draws, with LOD populations 957/637/1,233.
+- [x] Serial SwiftShader grass/jungle/fronds/east validation passes (Chrome PID 3787236),
+  60 presentation intervals per view, zero GL errors/context loss/fallback, and nine empty
+  kernel checks including browser exit. Means are 282.77/251.38/239.99/257.49 ms; these are
+  shared-host software observations, not physical-GPU performance or isolated regression data.
+  Preserve pre-correction reports/images as `.before-grass-grounding`. Inspect final grass/east
+  images: no gross displacement, but sparse cover and broad green/olive substrate remain visible.
+- [x] Android arm64 assembly/lint passes in 5 s (85 tasks, 6 executed); shared ccache and two
+  workers, no emulator/device run. CNA still warns that its GLES renderer is primarily tested on
+  Linux. This is compilation evidence, not Android shader or runtime qualification. The wrapper
+  replaced only the reproducible debug APK. Hardware stop-latch SHA-256 remains
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+- [x] Resume verification: `ctest --test-dir build -LE display --output-on-failure -j2`
+  passes all 25 groups again in 25.52 s. `git diff --check` is clean; disk has 364 GiB free.
+  No rebuild, hardware renderer, emulator, dependency edit or evidence deletion was needed.
+- [~] Follow-up visual pass: improve the exposed jungle/clearing substrate, not just blade
+  count. Retain grass/east/jungle reference images; separate warm earth and leaf-litter patches
+  from green growth while preserving sand, shoreline and walkable routes. Check near and distant
+  views for tiling, grazing-angle shimmer and abrupt material fades. Require CPU checks, serial
+  llvmpipe/SwiftShader visual comparison and an Android cross-build; hardware remains suspended.
+  Warm humus/local moss and filtered fallen leaves are implemented/validated in the entry above;
+  continuous moving-camera/distance-transition review remains open.
+- [ ] Additional grounding coverage: audit roots of the tall near blades and middle/far meshes;
+  the present exhaustive root report covers the 48 low blades only. Numerical GPU readback and
+  physical-device precision/performance remain unverified.
+
+#### 2026-10-09 — low grass layer and substrate integration
+
+- [x] Add a bounded near-only layer of short curved blades between the tall tufts, retaining
+  existing anchors, instances, textures and submissions. Use measured animation bounds and
+  height-scaled wind/interaction; test every generated strip and reject invalid indices.
+- [x] Compare east clearing and close grass against retained software captures before accepting
+  the density/colour change. Record geometry cost and remaining bare-ground/material problems;
+  extra geometry is justified only if the first-person result improves.
+- [x] Initial 48-strip native llvmpipe variant `20261008T231814.006056Z-grass` passes technical
+  checks (156 bins, 27.37 deviation, 95.10 contrast, empty kernel delta), but visual review rejects
+  its thin dark scratch-like appearance. Preserve it. Increase short-blade width/height slightly,
+  reduce lean and brighten the low-layer palette before judging whether its cost is justified.
+- [x] Revised llvmpipe capture `20261008T232003.051815Z-grass` passes unchanged technical gates
+  (157 bins, 27.29 deviation, 95.32 contrast, empty kernel delta, no GL errors/fallback). Inspect
+  against the pre-layer `20261008T225656.133294Z-grass`: low blades now read as short growth
+  between taller tufts, though overall cover remains sparse. Actual mesh radius 1.20598 m and
+  height 0.6572 m are included automatically in culling bounds. Anchor/LOD counts stay
+  2,827 visible patches, 15 cells, 21 draws, near/middle/far 957/637/1,233 in this view.
+  Near mesh grows from 622/496 to 910/688 vertices/triangles (+38.7% near triangles); all three
+  meshes total 1,000 vertices/748 triangles, adding 10,368 vertex and 1,152 index bytes. This is
+  a quality/cost tradeoff, not an optimization; actual mobile cost remains unqualified.
+- [x] That four-triangle low layer passes SwiftShader grass/jungle/fronds/east (Chrome PID
+  3778764), 60 intervals each, zero GL errors/context loss/fallback and nine empty kernel checks.
+  Means 292.49/219.71/255.55/257.21 ms are software/shared-host observations, not isolated GPU
+  costs. Preserve reports/images as `.before-shared-turf-tips`; pre-layer evidence uses
+  `.before-low-turf`. Its geometry cost motivates collapsing only the submillimetre terminal edge.
+- [x] Use one shared pointed tip per short blade: five vertices/three triangles instead of six/
+  four. Tests prove terminal edge width below 0.6 mm, centred tip and valid normals for all 48
+  strips, in addition to deterministic placement/root separation/envelopes and invalid indices.
+  Final near mesh is 862 vertices/640 triangles (+29.0% near triangles versus no low layer);
+  all tiers total 952 vertices/700 triangles. Added payload is 8,640 vertex/864 index bytes.
+  The low layer itself loses 25% of triangles without removing any of its 48 blades.
+- [x] Final native llvmpipe `20261008T232513.585970Z-grass` passes (156 bins, 27.29 deviation,
+  95.32 contrast), empty kernel delta and no GL errors/fallback. Inspect: no material silhouette
+  regression from sharing the tiny tips. Radius 1.20595 m/height 0.6572 m remain measured, not
+  hand-tuned bounds. Final native build/all 23 non-display groups pass in 23.04 s.
+- [x] Final SwiftShader grass/jungle/fronds/east passes (Chrome PID 3780632): 60 intervals each,
+  no GL errors/context loss/fallback and nine empty kernel checks. Means are
+  283.04/188.88/232.77/253.88 ms; do not attribute shared-host differences solely to the tip
+  reduction or infer physical-GPU performance. Inspect final close-grass/east images: a modest
+  low-layer improvement, not dense realistic turf; broad bare/smooth floor remains a priority.
+- [x] Android arm64 assembly/lint passes in 2 s, shared ccache/two workers, no emulator/device
+  run. Only the generated debug APK was replaced. Architecture, attribution, platform notes and
+  known limitations updated. Syntax/whitespace checks pass; disk 364 GiB free, Web tree 189 MiB,
+  software captures 199 MiB, incident evidence 92 MiB. Hardware stop-latch hash unchanged; no
+  dependency-source edits and no new evidence identifying the original AMDGPU defect.
+- [x] Inspect actual grass-root heights against the rendered 2.833 m terrain triangles before
+  adding shorter growth. The rendered-terrain grounding audit above quantifies and corrects the
+  mismatch on the custom shader path. Soil/leaf/turf material coverage remains the next visual
+  task; another mesh-density increase alone is not a complete substrate fix.
+- [x] Validate CPU tests, native llvmpipe captures, serial SwiftShader vegetation and Android
+  cross-build. Preserve failed experiments and the hardware stop latch; no AMD qualification.
+
+#### 2026-10-09 — moving-camera grass review
+
+- [x] Extend opt-in input diagnostics with the previous rendered grass populations/cell/draw
+  counts. Add a software-only browser scope walking 18 m from the east clearing and back,
+  using actual position feedback rather than assuming wall-clock key duration equals distance.
+- [x] Capture start, intermediate outward/return positions and final state; verify pointer lock,
+  stationary capture samples, position/yaw bounds, LOD population variation, clean GL and kernel
+  logs. Save all telemetry and partial failure evidence. Do not mistake this limited route for
+  complete island-wide continuity or hardware performance qualification.
+- [x] Test the telemetry parser/review gates, inspect the resulting frames, cross-build Android,
+  record any observed popping or culling defect and the next correction.
+- [x] First software run (Chrome PID 3774537) failed at stationary-start input capture because
+  the new harness incorrectly combined movement with a fixed `--viewpoint east` camera. These
+  cameras deliberately bypass `UpdateCamera`; this is a harness mistake, not a CNA/input defect.
+  Preserve its JSON/kernel/PNG artifacts with `.failed-fixed-camera`. Both kernel deltas are
+  empty. Correct setup to interactive input diagnostics and the existing F7 east-clearing teleport
+  once before hiding the overlay; all subsequent travel uses ordinary W/S movement and collision.
+  Require the expected startup workload and actual (43,-18) start rather than weakening gates.
+- [x] Corrected Chrome PID 3775097 / verified SwiftShader run passes with 97 telemetry samples,
+  50 distinct aggregate LOD populations and seven stationary captures. Actual projected positions
+  are 0/8.128/13.891/19.582/9.949/4.258/-1.648 m against targets 0/6/12/18/12/6/0 m; all satisfy
+  the original 2.5 m tolerance. Return error is 1.648 m, z remains -18, pointer lock is maintained
+  and free camera remains disabled. Release-to-stop overshoot is recorded, not disguised as an
+  exact 18 m path. Counts are prior-frame aggregates, not per-cell or screenshot-frame identities.
+- [x] All seven images inspected: no missing world strip or whole-scene rendering failure in
+  these samples. Sparse close grass, repetitive canopy silhouettes and a smooth olive substrate
+  remain visibly stylized. Widely spaced stationary captures cannot exclude transient LOD popping
+  or prove continuous transitions; do not mark that broader task complete. Full game output and
+  partial route evidence are now retained. Thirty final software presentation intervals average
+  221.10 ms; zero GL errors/context loss/fallback and ten empty kernel checks including browser exit.
+- [x] Native incremental build and all 23 non-display CTest groups pass (23.31 s), including new
+  Node parser/gate tests. Web build passes. Android arm64 assemble/lint passes in 4 s with the
+  existing CNA GLES3 warning; no emulator/device test. Shared ccache/two workers used throughout;
+  only the reproducible previous debug APK was replaced. Syntax/whitespace checks pass. Web tree
+  178 MiB, software captures 189 MiB, incident evidence 92 MiB; hardware-latch hash unchanged.
+- [ ] Next visual correction: integrate low turf and soil variation under sparse near grass,
+  starting with east/grass comparisons while preserving routes and bounded portable draw cost.
+  Separately add short consecutive-frame/per-cell transition evidence before claiming moving-LOD
+  smoothness. Keep the unresolved hardware incident blocked from launch, not marked fixed.
+
+#### 2026-10-09 — animated grass culling bounds
+
+- [x] Replace fixed per-anchor boxes with bounds derived from actual uploaded mesh radius/height,
+  instance scale, reconstructed terrain basis, full player displacement and wind. Keep movement
+  unchanged and use shared C++/GLSL constants to prevent motion/bounds tuning from diverging.
+- [x] Add independent transformed-point containment tests, explicit old-box counterexamples,
+  malformed-input rejection and GLSL constant checks. Verify the actual meshes before upload.
+- [x] Run CPU tests, serial software native/WebGL checks and Android build. Record bounds cost
+  and remaining moving-camera LOD work; this is not a GPUVM-cause hypothesis or hardware clearance.
+- [x] Linux build and all 22 non-display groups pass (23.07 s). Independent containment covers
+  147,456 transformed states, with 64,633 outside the old box; these intentionally sample a
+  conservative motion superset, not 64,633 observed gameplay failures. A concrete allowed-slope
+  tuft-root counterexample also fails the old lower bound. Eight invalid/overflow cases and all
+  fourteen GLSL constants are checked, including decimal-comma locale independence.
+- [x] Keep a separate per-cell anchor box for the original distance/LOD reference. New animation
+  margins affect frustum inclusion only; geometry, placement, shader motion and LOD tuning do not
+  change. Setup scans all 712 vertices and computes each anchor envelope once; no GPU resources
+  or per-frame motion calculations are added. Edge cells may correctly require additional draws.
+- [x] Native llvmpipe capture `20261008T225656.133294Z-grass` passes (151 bins, 27.08 deviation,
+  94.52 contrast), with no GL errors/fallback and empty kernel delta. Inspect image: no material
+  visual regression. Actual all-LOD mesh envelope is radius 1.05458 m, height 0.6572 m. Both
+  pre/post captures report 2,827 visible patches, 15 cells, 21 draws and LOD populations
+  957/637/1,233. Mean absolute image-channel difference is 0.00135692 on [0,1]; no pixel-identity
+  claim. This fixed view is shader/regression coverage, not a moving-edge culling demonstration.
+- [x] Chrome PID 3771308 / SwiftShader passes grass/jungle/fronds/east, 60 intervals each,
+  zero GL errors/context loss/fallback and nine empty kernel checks. Software intervals average
+  272.21/234.71/229.71/230.27 ms; physical-GPU performance remains unqualified. Prior vegetation
+  evidence is retained with `.before-motion-bounds`. No hardware stop latch was cleared.
+- [x] Android arm64 assemble/lint passes in 4 s, with the existing CNA GLES3 qualification
+  warning. No device/emulator run. Shared ccache/two-worker builds preserved; only the generated
+  debug APK was replaced. Syntax/whitespace checks pass; disk 364 GiB free, incident evidence
+  92 MiB, native comparisons 189 MiB and Web tree 172 MiB. Dependency source and hardware-latch
+  hash are unchanged; this game-side culling defect provides no explanation of the GPUVM fault.
+- [x] Add a bounded software moving-camera review with recorded positions and LOD/cell
+  populations, inspect intermediate frames and reverse traversal. Do not infer continuity from
+  stationary animation or from an unchanged LOD threshold alone. Completed in the ledger above;
+  continuous-frame/per-cell review remains open. Substrate/grass integration is next.
+
+#### 2026-10-09 — irregular near-grass tufts
+
+- [x] Redistribute the existing 42 near blades among seven unequal local tufts, with offset
+  centres, different root spread, outward fanning and coherent but non-identical wind phase.
+  Keep all world anchors, mesh counts, LOD distances and renderer budgets unchanged.
+- [x] Test determinism, invalid indices, root separation, tuft populations, wind phase and full
+  blade extents against the existing envelope. Compare near and wider views on software renderers;
+  reject if the resulting repeated bouquets or bare gaps are worse than the isolated roots.
+- [x] Validate animated WebGL, Android cross-build and documentation; preserve comparison evidence.
+- [x] First llvmpipe variant `20261008T224431.123644Z-grass` passes technical gates (156 bins,
+  26.96 deviation, 94.65 contrast) with empty kernel delta, but visual review rejects its overly
+  tight bouquets and conspicuous bare gaps. Retain the image; widen root spread and offset short
+  juvenile blades outward before accepting the layout. Preserve the original 1.02 m root envelope.
+- [x] Culling audit follow-up found during extent review: `GrassRenderer::CreateCells` used fixed
+  per-anchor bounds x/z +/-1.4 m and y -0.08/+1.35 m. These do not explicitly account for
+  terrain-basis tilt, per-blade stature, full wind and speed-responsive player deflection together.
+  Derive a tested conservative bound from shared motion/geometry limits before claiming that
+  unchanged local mesh extents prove complete animated culling correctness. This predates tufts.
+  Replaced by measured-mesh/shared-motion bounds in the subsequent pass above, with independent
+  containment tests. Moving-camera LOD continuity remains a separate task.
+- [x] Revised llvmpipe capture `20261008T224612.847027Z-grass` passes unchanged gates (152 bins,
+  27.08 deviation, 94.48 contrast), no GL errors/fallback and no kernel records. Inspect: loose
+  roots reduce the tight-bouquet appearance, though bare substrate and sparse patches remain.
+  Revised root radius max is approximately 0.958 m and mean nearest-root distance 0.106 m.
+  All 22 non-display groups pass in 22.75 s. Mesh/instance budgets and world anchors are unchanged.
+- [x] Chrome PID 3768713 / SwiftShader passes grass/jungle/fronds/east, 60 intervals each,
+  zero GL errors/context loss/fallback and nine empty kernel checks. Inspect close grass and wider
+  jungle images after simulation: grouped motion and ground distribution remain coherent, but
+  this stationary-camera scope does not qualify moving-camera LOD transitions. Mean software
+  intervals are 279.99/232.21/226.10/237.77 ms; no hardware speedup claim. Previous evidence uses
+  `.before-tufts`. World placement fingerprint remains `54dd69965d907a2d`.
+- [x] Android arm64 assemble/lint passes in 2 s, shared ccache/two workers, no emulator or
+  device run. The old generated debug APK was replaced. Syntax/whitespace checks pass; disk has
+  364 GiB free, incident evidence 92 MiB, software captures 186 MiB and Web tree 168 MiB.
+  Stop-latch SHA-256 remains unchanged; no dependency source or original incident evidence edits.
+
+#### 2026-10-09 — grass taper and seed attachment
+
+- [x] Share a renderer-independent blade cross-section function between mesh generation and
+  tests. Fix seed roots to the actual terminal centre/ridge instead of the unbent nominal tip.
+- [x] Replace the near blade's broad upper shoulder and abrupt final taper with a progressive
+  width profile. Preserve five levels, placement, LOD counts, buffers and draws; inspect whether
+  the narrower upper silhouette helps without making the ground cover excessively sparse.
+- [x] Build Linux and run the 22-group non-display suite. Initially the new test was not run
+  because the explicit build preset omitted its target; add it to normal and sanitizer presets,
+  build and rerun the failed test successfully (0.01 s). The other 21 groups passed in the
+  initial 23.93 s suite. No lowered expectations. New coverage includes 84 profile variants,
+  101 cross-sections each, progressive taper, seed endpoints and fold normals. Add a fourteenth
+  invalid-input case for finite dimensions whose combined fold/lean overflows: the rebuilt
+  profile test and asset validation both pass in a final 0.04 s focused run.
+- [x] Inspect native llvmpipe capture `20261008T223724.110652Z-grass`: 157 bins, 27.15
+  deviation, 92.92 contrast; no GL errors/fallback and empty kernel delta. Compared with the
+  retained pre-taper image, upper shoulders are less abrupt and seed roots are connected. Ground
+  cover remains sparse-looking in places; improve tuft organization/substrate rather than claiming
+  this pass achieves realistic grass. Counts and GPU upload sizes are unchanged.
+- [~] Next: compare a few coherent, uneven grass tufts inside each near cluster against the
+  present golden-angle disc of isolated roots. Keep 42 blades, the existing spatial envelope and
+  world placement fingerprint, test root/extent bounds, and inspect both ground contact and LOD
+  continuity before accepting the change. Avoid replacing uniform spacing with seven obvious
+  cloned bouquets. Wind-normal response remains a separate open shading limitation.
+  The later tuft pass implements and visually checks this at stationary near/wide cameras;
+  moving-camera LOD review remains open.
+- [x] Test endpoint attachment, finite/bounded geometry, fold continuity, invalid inputs and
+  generated strip normals; compare llvmpipe images, serial WebGL motion and Android cross-build.
+  Keep the unresolved AMD hardware gate intact.
+- [x] WebGL vegetation scope passes in Chrome PID 3765621 / SwiftShader: grass/jungle/fronds/east,
+  60 intervals each, zero GL errors/context loss/fallback and nine empty kernel deltas. Inspect
+  the moving grass image; seed roots remain attached and the upper taper agrees with llvmpipe.
+  Previous vegetation artifacts are retained as `.before-taper`. Mean CPU presentation intervals
+  are 326.65/259.16/259.43/271.10 ms; no physical-GPU performance conclusion follows from them.
+- [x] Android arm64 assemble/lint passes in 3 s using shared ccache and two workers. The existing
+  CNA configuration warning says GLES3 is primarily tested on Linux; no emulator/device claim is
+  made. Only the previous generated APK was replaced. Syntax/whitespace checks pass, disk has
+  364 GiB free, incident evidence 92 MiB, native comparisons 179 MiB and Web tree 163 MiB.
+  Hardware latch SHA-256 is unchanged; no dependency source or incident evidence was modified.
+
+#### 2026-10-09 — curved grass surface lighting
+
+- [x] Replace constant-facing grass normals with area-weighted shared geometry normals and
+  inverse-transpose instance scaling. Keep all placement, silhouette, LOD, wind positions and
+  draw counts unchanged. Custom vertices grow from 24 to 36 bytes with eight total attributes;
+  the existing stock-effect fallback stays unchanged. Reuse the tested normal builder.
+- [x] Native build and all 21 non-display groups pass (22.89 s). New bent V-fold tests cover
+  opposite transverse fold normals, changing centreline tilt and 36 scale/yaw combinations.
+  Custom mesh totals remain 712 vertices / 556 triangles; GPU vertex bytes become 25,632
+  (+8,544), instance bytes and draws unchanged. All three actual LOD meshes pass normal generation
+  during native startup. Asset validation and capture preflight tests also pass after gate changes.
+- [x] Inspect llvmpipe grass `20261008T222920.911473Z-grass` against retained baseline
+  `20261008T222629.751001Z-grass`. New image passes unchanged gates (147 bins, 26.90 deviation,
+  93.47 contrast), with no GL error/fallback and no kernel records. Surface lighting changes are
+  subtle, not a resolution of broad angular silhouettes or final first-person grass quality.
+- [x] Verify folded/curved strip normals and anisotropic scale against independently transformed
+  triangles; reject malformed geometry before upload. Inspect serial software grass/jungle
+  captures, run CPU tests, WebGL and Android cross-build, then record actual budgets/results.
+- [x] Chrome PID 3762631 / SwiftShader passes the new serial vegetation scope: grass, jungle,
+  fronds and east clearing, 60 intervals each, zero GL errors/context loss/fallback and nine empty
+  kernel checks. Inspect grass/jungle post-simulation screenshots: lighting remains coherent,
+  geometry/motion are intact, but silhouettes and ground integration still need work. CPU-rendered
+  intervals average 305.82/240.27/227.77/262.49 ms; these are not hardware performance results.
+  Evidence: `build-probe/island-browser-vegetation{,-kernel}.json` and paired PNGs.
+- [x] Android arm64 assemble/lint passes in 2 s with shared ccache and two workers; no device or
+  emulator qualification. Only the old reproducible debug APK was replaced. Syntax/whitespace
+  checks pass. Disk has 364 GiB free, native comparison captures 175 MiB; incident stop-latch hash
+  is unchanged. No dependency source edits, hardware rendering or incident-evidence removal.
+- [ ] Follow-up: account for wind/player deflection in normals and address overly broad/angular
+  silhouettes and smooth substrate. Rest-shape normals alone do not finish grass realism.
+- [x] Newly confirmed game-side geometry issue: seed stems used `(baseX,height,baseZ)+direction*lean`
+  instead of the final curved blade centre. Five of six seeded blades have 4--16 mm lateral
+  anchor mismatch before instance scaling (indices 2,7,19,24,36; index 41 matches). Fix anchoring
+  to the generated terminal centre/ridge and cover continuity without changing mesh counts.
+  Implemented and CPU-tested in the subsequent grass taper/attachment pass above.
+  Index 41 is also a juvenile blade; documentation must not describe all six as mature.
+
+#### 2026-10-09 — short-wave wind packets
+
+- [x] Modulate the four short-wave height fields with bounded, separately phased slow envelopes.
+  Reuse the warp sine/cosine values, include product-rule gradients and packet sidebands in
+  pixel filtering, and leave the three displacement waves and shoreline motion unchanged.
+- [x] Extend independent finite-difference, time-continuity and analytic-bound tests; retain the
+  existing 0.194 m displacement and 0.21 slope ceilings. Measure actual software cost and inspect
+  near-water/reef imagery plus animated coastal WebGL views before claiming visual improvement.
+- [x] Cross-build Android, record evidence and remaining limitations; do not use AMD hardware.
+- [x] Initial packets pass all 21 non-display groups (22.69 s), including 22,326 independent
+  derivative samples. Water capture `20261008T221328.518322Z-water` passes but retains strong
+  directional repetition. Do not equate the formula's correctness with final visual quality.
+- [x] Perform one explicitly logged llvmpipe flat-normal A/B capture,
+  `20261008T221513.030916Z-water`: the strong crosshatch disappears, confirming a normal-driven
+  source. This is diagnostic evidence only, not a feature removal or release qualification.
+  Restore full normals immediately. Both captures have empty kernel deltas and no GL errors.
+- [x] Spread the two shortest wave directions to approximately 70/115 degrees instead of
+  19/148, retaining their approximate wavelengths, amplitudes, speeds and total band count.
+  Recheck bounds, independent derivatives and images before accepting the complete packet pass.
+- [x] Full restored packets/direction spread pass all 21 groups (29.19 s), final slope bound
+  0.208478. Water `20261008T221723.536088Z-water` passes, but the low-angle opacity still
+  magnifies short normals into regular cyan bands. The normal A/B identifies their source;
+  do not claim that amplitude modulation alone fixes this material response.
+- [x] Evaluate broad-normal Fresnel coverage as a low-cost rough-surface approximation while
+  keeping complete packet normals for reflected sky direction and sun glint. Pointwise Fresnel
+  on unresolved small ripples also drives the alpha floor, amplifying wave families into broad
+  opaque stripes. Preserve fine reflection motion; compare full rendering, not a flat-normal mode.
+- [x] Final full-feature water capture `20261008T221910.683109Z-water` passes (244 bins,
+  27.68 deviation, 123.57 contrast), with empty kernel delta and no GL error/fallback. Inspect:
+  the strongest cyan crosshatch is substantially reduced; fine reflected motion remains. This
+  broad-normal Fresnel approximation is not a physically integrated microfacet model. All
+  diagnostic-only source changes are gone; future marked diagnostic captures are rejected by
+  the full-scene validator, with a new CPU regression test.
+- [x] Final llvmpipe reef `20261008T221940.766768Z-reef` passes (91 bins, 25.29 deviation,
+  183.95 contrast), with empty kernel delta and no GL errors. Chrome PID 3759513 passes all four
+  coastal views on SwiftShader, 120 intervals each, zero GL errors/context loss and nine empty
+  kernel checks. Inspect water/wreck images: strong bands are reduced, but the ocean remains
+  stylized and lacks scene reflections. Water-only paired-image difference is mean 0.0103374,
+  maximum 0.0745098 on [0,1]; motion remains. Previous reports/images use `.before-packets`.
+- [x] Software intervals average 90.97/198.19/241.52/95.97 ms for wreck/water/west/reef.
+  These are observed CPU presentation costs, not an isolated shader benchmark or a mobile-GPU
+  performance claim. Android arm64 assemble/lint passes in 2 s with shared ccache and two workers;
+  no emulator/device run. The prior generated debug APK was replaced, not source or evidence.
+  Disk has 364 GiB free; incident evidence is 92 MiB, native comparisons 169 MiB and Web tree
+  153 MiB. Hardware stop-latch SHA-256 remains unchanged; the GPUVM cause is still unresolved.
+- [ ] Next visual pass: inspect near grass and understory at eye height using serial software
+  captures, identify the dominant silhouette/material defect, and make one bounded correction
+  with before/after images and placement/geometry-budget regression coverage. Do not increase
+  vegetation density blindly. Palms and the wreck still need later silhouette/material polish.
+- [x] Capture/inspect the grass baseline with forced llvmpipe, PID 3761156:
+  `20261008T222629.751001Z-grass` passes (148 bins, 26.93 deviation, 93.65 contrast), no new
+  kernel records. Close blades read as isolated broad angular strips over a smooth green floor;
+  large understory leaves remain visually faceted. Source review finds grass shading encodes only
+  horizontal blade facing plus a fixed 0.10 upward component, independent of the actual centreline
+  bend, stature scale and animated deflection. Next bounded implementation: evaluate curve-aware
+  blade normals against independent geometry before changing density. This is a game-side visual
+  approximation, not evidence of a CNA defect or an explanation for the GPUVM incident.
+- [ ] Hardware testing remains gated: first establish a discriminating incident hypothesis and
+  bounded pre-fault command/descriptor retention. No new root command or GPU-fault reproduction
+  is required from the operator now; an expired device dump cannot be recovered by more access.
+
+#### 2026-10-09 — ocean banding review
+
+- [x] Inspect reef/cove images and the contributing shaders. Grazing modulation maps a tiny
+  slope through `s/(0.010+abs(s))` (gain 100 near zero), exaggerating regular short wave trains.
+  Broad foam is driven by two unfiltered crossing sinusoids and shore distance alone, even over
+  deep water. Sand microdetail is much weaker and does not explain the moving surface bands.
+- [x] Reduce artificial grazing gain while retaining wave normals/reflection. Constrain calm-sea
+  breaker foam by actual depth and shore distance, filter unresolved colour/foam phases, and keep
+  dedicated wash, player interactions, displacement and sunlight coherent. Share tested tuning
+  with the portable shader; no added geometry, textures or rendering pass.
+- [x] Compare reef, near-water and wreck views on llvmpipe and serial SwiftShader animation;
+  cross-build Android. Preserve earlier comparisons and record quality limitations honestly.
+- [x] Linux build and all 21 non-display groups pass (29.76 s). Tests cover 10,001 grazing
+  slopes, 15,000 depth/distance combinations, odd symmetry, monotonic attenuation, dry/deep
+  exclusions and invalid inputs. The additional tuning vec4 adds no texture/geometry/draw.
+- [x] Inspect native llvmpipe reef `20261008T220346.414638Z-reef`, water
+  `20261008T220408.509890Z-water` and wreck `20261008T220532.961311Z-shipwreck`.
+  All pass unchanged image gates (deviation 25.44/27.92/35.80), no GL errors/fallback and
+  empty kernel deltas. Shore wash and player-water effects remain. Deep foam/contrast are more
+  restrained, but wave trains remain conspicuously regular at swimming height; do not call that
+  visual issue resolved. Next, investigate short-wave phase/directional organization and spatial
+  amplitude variation with analytic derivative bounds and a measured mobile/software cost.
+- [x] Quantify remaining spectrum regularity: the four short-wave vectors point at
+  21.59/138.95/19.18/148.12 degrees, wavelengths 2.54/1.53/0.86/0.65 m. Two near-parallel
+  direction families explain why lowering colour gain alone cannot remove the crosshatch.
+  Candidate follow-up: smoothly varying wind-packet envelopes with separate phase per wave,
+  reusing existing warp sine/cosine values and exact product-rule gradients; retain the current
+  slope/displacement limits and validate time continuity before judging the image.
+- [x] Chrome PID 3753708 passes wreck/water/west/reef, 120 intervals each, zero GL errors/
+  context loss/fallback and nine empty kernel checks. Inspect after-simulation water/wreck images;
+  the water-only rectangle (1100x240 at 90,390) differs between frames by mean absolute channel
+  0.01514, maximum 0.21176 on [0,1], confirming motion rather than a frozen phase. This does not
+  establish natural-looking motion. Software intervals average 84.30/193.74/254.85/95.41 ms.
+  Earlier coastal reports/images are preserved with `.before-banding` suffixes.
+- [x] Android arm64 assemble/lint passes in 2 s; no emulator/device run. The wrapper replaced
+  the old reproducible debug APK. Syntax/whitespace checks pass, disk 364 GiB free, incident
+  evidence 92 MiB and native comparison captures 150 MiB. Hardware latch hash is unchanged;
+  no dependency source or original incident evidence was modified. GPUVM cause remains open.
+
+#### 2026-10-08 — wood surface lighting
+
+- [x] Inspect corrected-orientation captures and generators: wood colours bake a local-angle sun
+  response, but instancing never rotates that light. Custom wood vertices have zero normals.
+  Log/driftwood end-cap winding is also inward (hidden by CullNone). These are game-side defects.
+- [x] Generate area-weighted normals from existing shared wood topology, keep separate cap rims,
+  correct cap winding and preserve unlit albedo for the portable shader. Reuse the existing normal
+  attribute and scale-correct world transform; retain stock-effect fallback and geometry budgets.
+- [x] Cover finite/unit normals, winding, independent face accumulation and malformed input;
+  validate real native/WebGL images and Android build without AMD hardware. Keep the existing
+  driftwood contrast failure visible rather than lowering its threshold.
+- [x] Native build and all 21 non-display groups pass (24.51 s). Unit tests cover weighting,
+  hard seams, winding reversal, invalid/unused/degenerate/cancelling input and all 1,204 independent
+  rock normal references. Actual twelve wood meshes also validate cap direction at startup.
+  Generated inventory remains 2,718 vertices / 76,104 vertex bytes and unchanged indices/draws.
+- [x] Inspect llvmpipe props `20261008T215600.923160Z-props` (138 bins, 31.96 deviation,
+  142.04 contrast) and driftwood `20261008T215619.052100Z-driftwood` (211 bins, 18.49 deviation,
+  131.20 contrast). Both pass unchanged image thresholds, with empty kernel deltas and no GL
+  errors/fallback. Prior failed driftwood evidence remains; the corrected lighting improves
+  cylindrical shading but does not make the wood or pale cove final-quality art.
+- [x] Chrome PID 3745118 passes props/driftwood/contact/reef (60 intervals each), zero GL
+  errors/context loss/fallback and nine empty kernel checks. Inspect driftwood and reef images;
+  the stone regression remains intact after normal normalization. Earlier grounding evidence has
+  `.before-wood` suffixes. Software mean intervals are 287.21/110.83/267.21/98.33 ms, not a
+  controlled performance comparison or AMD qualification.
+- [x] Android arm64 assemble/lint passes in 4 s with the existing CNA platform warning; no
+  emulator/device launch. The old reproducible debug APK was replaced. Syntax/whitespace checks
+  pass; 364 GiB free, incident evidence 92 MiB, comparison captures 141 MiB, Web 146 MiB.
+  Hardware stop latch hash remains unchanged. No CNA/Sharp Runtime source changes.
+- [ ] Next visual priority from the reef/cove images: ocean shading still forms conspicuous
+  repetitive parallel/crossing bands. Audit which diffuse/subsurface/specular terms produce them
+  separately from actual displacement, then reduce artificial regularity with bounded portable
+  filtering/variation. Keep calm sunlight, wave/shoreline continuity and mobile budgets; compare
+  near-water and distant views over time, not just static numeric image metrics. Wood bark relief
+  and branch-root intersections also remain unfinished.
+
+#### 2026-10-08 — land prop shadow alignment and support
+
+- [x] Confirm the local-X yaw mismatch against the renderer's scale/rotation matrix. Initial
+  comparison implicated all three shadow axes; follow-up support/collision inspection shows that
+  wood's placement, physical proxies and old shadows agree on `(cos, sin)`, so its renderer is the
+  incorrect consumer. Convert wood heading to matrix yaw at that boundary, preserving placement
+  and collisions. Land rocks instead retain their model yaw and receive a corrected shadow axis.
+  The analytic-height fans also differ from rendered terrain's piecewise-planar surface.
+- [x] Share tested land-prop footprint construction and correct orientation. Reuse terrain-triangle
+  clipping with a compact 12-sector/one-ring profile for these small patches; keep the existing
+  radii, opacity and 78 m distance rather than widening every prop's shadow. Preserve category
+  counts, one draw, coastal quality and exact buffer-capacity checks.
+- [x] Validate every placed land footprint and varied yaw angles, compare native props/driftwood/
+  contact views, check WebGL and cross-build Android. Record actual mesh/visible costs and limitations.
+- [x] Native build and all 21 non-display groups pass (24.57 s), including every log collision
+  sample and all 201 land footprints. Land geometry is 20,304 vertices versus 7,236 old fan
+  vertices (+209,088 bytes per packed copy); 28 coastal patches remain exactly 23,970 vertices.
+  No additional draw or texture; world fingerprint remains `54dd69965d907a2d`.
+- [x] Inspect llvmpipe props `20261008T214556.775354Z-props` and contact
+  `20261008T214653.667310Z-contact`: both pass, with 35/24 visible shadows, 560/336 triangles
+  and one draw. All three native captures have empty kernel deltas and no GL errors/fallback.
+- [x] Driftwood capture `20261008T214626.085573Z-driftwood` renders and was inspected, but
+  fails the unchanged generic luminance-deviation gate (17.9037 < 18.0; 205 colour bins,
+  spatial contrast 131.20). Keep the failure and image, do not lower the threshold or misreport
+  success. Six near driftwood pieces and seven shadows/750 triangles are present. Investigate
+  this pale shoreline composition in the next visual pass; model/collision correctness is separate.
+  The subsequent wood-normal pass above meets the unchanged threshold; this historical failure
+  is retained rather than reclassified as an original pass.
+- [x] At 23:44 CEST, read-only incident preflight verifies journal access, no device-dump entries
+  and the active fault latch. No AMD workload or root operation is needed. Primary GPUVM cause
+  remains unresolved; these game-side corrections do not claim to fix it.
+- [x] First focused WebGL run (Chrome PID 3739473) passed props/driftwood, then exposed a
+  missing `contact` route in the smoke HTML: it fell back to smoke mode, not the requested camera.
+  Add the explicit route and verify the actual workload/viewpoint log before accepting any focused
+  capture. Preserve failed reports as `.before-contact-routing`; all six kernel checks were empty.
+- [x] Corrected SwiftShader run (Chrome PID 3741656) passes props/driftwood/contact/reef,
+  60 intervals each, zero GL errors/context loss/fallback and nine empty kernel deltas. Inspect
+  post-simulation wood images: orientation agrees with native; wood still needs surface polish.
+  Software mean intervals are 313.60/122.49/301.93/101.66 ms, not hardware performance evidence.
+  Reports/images use `build-probe/island-browser-grounding*`; coastal evidence is unchanged.
+- [x] Android arm64 assemble/lint passes in 3 s, without launching an emulator/device. The
+  wrapper replaced only the previous reproducible debug APK. Syntax and whitespace checks pass;
+  hardware latch SHA-256 remains `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
+  Evidence remains 92 MiB, native comparison captures 135 MiB, disk 364 GiB free. No dependency
+  edits or evidence deletion; native GLES runtime and hardware GPU qualification remain pending.
+- [x] Next visual work: inspect wood surface lighting in the corrected orientation. The close
+  log still reads as a dark, flat band and the cove remains pale. Audit local-space baked wood
+  lighting versus rotated/nonuniform instances, then improve physically coherent shading if
+  warranted; do not tune scene exposure or the validator just to cross a numeric threshold.
+  Tree/animal fan-to-rendered-terrain differences remain a separate grounding limitation.
+
+#### 2026-10-08 — near stone surface and normals
+
+- [x] Inspect current reef rendering: the shader adds triangle-derivative lighting on top of
+  baked local-space vertex lighting. Instanced yaw/nonuniform scale do not rotate that baked
+  lighting. Close stone therefore exposes individual triangles and a weak, repetitive strata pattern.
+- [x] Extract testable rock surface generation, refine near silhouettes and compute shared-vertex
+  area-weighted normals. Transform normals correctly for the supported scale/yaw instances. Keep
+  stock-effect fallback, far LOD, instancing, draw budgets and all non-stone materials coherent.
+- [x] Add restrained footprint-filtered mineral/weathering detail and wet shading; inspect actual
+  reef and inland prop views. CPU tests cover all eight meshes (1,204 surface normals), independent
+  face accumulation, finite/unit/outward normals, bounds, indices and nonuniform-scale/yaw
+  orthogonality. All 21 non-display groups pass (24.64 s). Correct the old 1.2-height cell bound to
+  shared 1.23: the tallest cap reaches 1.22. No framework defect or edit.
+- [x] First llvmpipe captures pass and are inspected: `20261008T212221.034835Z-reef` (115 bins,
+  25.80 deviation, 184.41 contrast) and `20261008T212304.498805Z-props` (142 bins, 31.37 deviation,
+  140.97 contrast), empty kernel deltas and no GL errors/fallback. Stone has materially less obvious
+  triangle lighting and visible mineral variation; wood/foliage retain their shader branches.
+- [x] First SwiftShader coastal pass (Chrome PID 3733034) passes all four scenes and nine empty
+  kernel checks. Preserve it as `.before-stone-filter`; preceding contact-only images/reports use
+  `.before-stone`. Shader review found derivatives inside a distance branch; move world-footprint
+  derivatives outside branching and use a conservative warped-grain bound before final qualification.
+- [x] Revalidate the derivative-safe final shader on native software and WebGL; cross-build/lint
+  Android. No hardware test or new texture dependency. Total prop vertex storage is 76,104 bytes
+  for 2,718 vertices (+44,136 bytes); near rock meshes 290 vertices/528 triangles, far 44/70.
+- [x] Final llvmpipe reef `20261008T212851.100707Z-reef` passes (115 bins, 25.81 deviation,
+  184.44 contrast), no GL error/fallback and empty kernel delta; inspect its image. Chrome PID
+  3734479 passes shipwreck/water/west/reef, 120 intervals each, zero GL errors/context loss/fallback
+  and nine empty kernel checks. The inspected browser reef agrees with native. CPU mean intervals
+  were 85.14/207.91/243.19/87.50 ms; not a controlled physical-GPU performance comparison.
+- [x] Android arm64 assemble/lint passes in 4 s, with the existing CNA platform warning and no
+  emulator/device launch. Its previous reproducible debug APK was replaced by the wrapper.
+  Incident evidence is preserved (92 MiB), software captures 125 MiB, Web 137 MiB; disk 364 GiB
+  free. Hardware stop latch hash unchanged. Full Firefox/input/audio and native GLES runtime remain pending.
+- [x] Final regressions: all 21 non-display groups pass (24.84 s), asset validation covers 24
+  procedural records and 53 source files, and syntax/whitespace checks pass. Existing saved-capture
+  validators are not additional graphics runs. No incident evidence or dependency source was changed.
+- [x] Next grounding correction found during review: old land-rock/log/driftwood shadows use
+  `(cos(yaw), +sin(yaw))`, while their mesh local-X axes rotate to `(cos(yaw), -sin(yaw))`.
+  Correct this game-side yaw mismatch with regression coverage; assess replacing their analytic
+  height fans with the rendered-terrain-conforming patches to reduce apparent floating at uneven
+  ground. Follow-up above establishes that wood's renderer, not its placement/shadow convention,
+  needs correction. This is unrelated to the still-unexplained GPUVM incident.
+
+#### 2026-10-08 — coastal object grounding
+
+- [x] Inspect existing shadow pass: land rocks have small contact ellipses; all 14 offshore rocks
+  are excluded, and the two wreck halves and 12 debris pieces have no grounding shadow. The pass
+  already precedes opaque props and transparent water, so reuse its single draw and stock effect.
+- [x] Add bounded, fixed-sun-biased coastal footprints. Keep the hull break open and use actual
+  prop yaw conventions. Build static patches clipped to the rendered terrain triangles so long
+  hull shadows neither float above nor disappear below the coarser seabed mesh.
+- [x] Test terrain conformity, alpha/geometry bounds, yaw, hull separation and upload capacity;
+  expose coastal shadow counts. Run non-display regressions without an AMD hardware test.
+- [x] Linux build and all 21 non-display groups pass (24.70 s). The CPU test validates all 28
+  authored coastal footprints, including per-triangle interior height and conserved footprint
+  area. Added geometry: 23,970 vertices / 7,990 triangles, no texture or draw submission. Actual
+  geometry bounds replace pivot-based static culling bounds; exact upload capacity is checked.
+- [x] Inspect native llvmpipe reef/wreck captures: `20261008T210907.042211Z-reef` (108 bins,
+  22.25 deviation, 163.75 contrast) and `20261008T210925.800203Z-shipwreck` (208 bins, 35.87
+  deviation, 154.00 contrast), in `build/software-captures/`. Both have empty kernel deltas,
+  no GL errors/fallback, and 1/12 visible coastal patches respectively. Grounding is restrained,
+  most visible under debris; these remain soft contact approximations, not accurate cast silhouettes.
+- [x] Chrome PID 3724748 passes shipwreck/water/west/reef, 120 intervals each, with zero GL errors,
+  fallback or context loss and nine empty kernel deltas. Inspect post-simulation wreck/reef images.
+  Prior coastal-optics reports/images remain with `.before-contact`; current files retain the
+  ordinary `build-probe/island-browser-coast*` names. Software mean intervals were
+  68.47/186.52/292.07/110.41 ms, not controlled performance measurements.
+- [x] Android arm64 assemble/lint passes in 5 s, with the existing CNA platform-support warning.
+  No emulator/device launched. The wrapper replaced only the reproducible old debug APK; source
+  evidence is untouched. Disk has 365 GiB free; incident evidence remains 92 MiB, native comparison
+  captures 112 MiB, Web 126 MiB. The hardware stop latch hash is unchanged.
+- [x] Final land-contact regression capture `20261008T211451.058361Z-contact` passes with 198
+  colour bins, 27.26 deviation, 93.68 contrast and empty kernel delta; inspect the image after the
+  static culling-bound change. Syntax/whitespace checks pass. No hardware qualification claimed.
+- [ ] Next realism target: the inspected near reef outcrop is conspicuously faceted and lacks
+  convincing stone surface detail. Investigate smooth/creased normals and restrained multi-scale
+  weathering in the existing natural-prop material, retaining coherent silhouette and portable
+  near/far paths. Grounding patches are not full sun-cast shadows; mast/rigging remain unshadowed.
+
+#### 2026-10-08 — operator-facing, no-launch incident preflight
+
+- [x] Recheck the persistent stop latch and sysfs without initializing graphics: the latch still
+  records the serial jungle GPUVM fault, and `devcd3` is absent. Do not repeat an expired dump read
+  or trigger another GPU fault merely to obtain a replacement.
+- [x] Add and test an explicitly read-only `preflight` command reporting journal access, the
+  persistent stop latch and current device-dump entry names. It must never launch a workload,
+  acquire/create a workload lock, read dump payloads, clear the latch or imply hardware safety.
+- [x] Run that preflight with the journal group, record the result and give the operator the exact
+  safe command. Hardware testing still requires a discriminating hypothesis and verified pre-fault
+  indirect-buffer/descriptor collection; no root command or new hardware run is currently needed.
+- [x] At 23:01 CEST, journal access is verified, no device-dump entries remain, and the stop latch
+  hash is unchanged. All 30 supervisor tests and 21 non-display CTest groups pass (24.78 s).
+  Correct the Linux guide's stale advice to rerun hardware benchmarks. No graphics launch, build,
+  dependency edit or evidence deletion; disk has 365 GiB free.
+- [x] Inspect Mesa Gallium debugger source as a possible alternative evidence path. Record its
+  fence/timing changes, potential output volume and hang-path external halt-wave commands in the
+  incident report. Do not activate it or claim it is verified for the installed driver.
+- [ ] Next incident work: verify bounded pre-fault command/descriptor retention against the exact
+  installed driver and a specific discriminating hypothesis before proposing any hardware test.
+
+#### 2026-10-08 — shallow-water optics and continuous sand substrate
+
+- [x] Inspect the terrain/ocean material path: seabed vertex colours are already turquoise, then
+  ocean tint is blended over them; the palette jumps at height zero. Ocean vertices interpolate
+  a precomputed shallow-weight instead of bed height, and near-zero-depth body opacity stays 0.49.
+- [x] Use continuous sand substrate across mean sea level and retain submerged, filtered sand
+  detail. Pass bed height/shore distance through the existing ocean attributes, derive depth in
+  the fragment shader, and use bounded depth-dependent attenuation/contact fade. Preserve the
+  existing draw, geometry and texture budgets and stock-effect fallback.
+- [x] Test substrate continuity at -22/-3/0/1.4 m and 10,001 optical-depth samples for bounded,
+  monotonic opacity/lagoon/contact response, plus invalid inputs. All 21 non-display groups pass
+  in 24.35 s. Assets validate (24 generators, 51 sources); no added geometry/texture/pass.
+- [x] Inspect native llvmpipe wreck/reef views. Evidence: `20261008T205023.675251Z-shipwreck`
+  (198 bins, 35.86 deviation, 153.40 contrast), `20261008T205045.087012Z-reef` (107 bins, 22.33
+  deviation, 160.97 contrast), both under `build/software-captures/`, no GL errors/fallback and
+  empty kernel deltas. Sand is visible through thin water and the former colour discontinuity is
+  reduced. This is still coarse-grid vertical-depth attenuation, not screen-space ray tracing.
+- [x] Chrome PID 3720281 passes shipwreck/water/west/reef with 120 intervals each, zero GL errors,
+  fallback or context loss, and nine empty kernel deltas. Inspected paired shipwreck and water
+  frames; the sand remains visible through the moving near-shore water. Reports/images use
+  `build-probe/island-browser-coast*`; previous spectrum-only files are retained with `.before-optics`.
+  Software mean intervals: 83.05/188.74/237.77/79.86 ms; not controlled hardware performance results.
+- [x] Android arm64 assemble/lint passes (2 s). No emulator/device launched. Syntax and whitespace
+  checks pass; disk has 365 GiB free. Incident evidence remains 92 MiB, native comparison captures
+  106 MiB, Web build/evidence 126 MiB. No original evidence removed; the hardware stop latch hash
+  is unchanged. The packaging wrapper replaced only the reproducible previous debug APK.
+- [ ] Next visual target from these captures: strengthen static rock/wreck contact with terrain
+  and seabed through restrained fixed-sun/contact shadowing. Inspect existing shadow facilities
+  first and reuse bounded passes/fields; avoid adding an unrelated general shadow engine. Continue
+  to assess shallow depth interpolation and wave repetition from actual walking/swimming cameras.
+
+#### 2026-10-08 — ocean surface spectrum and filtering
+
+- [x] Reinspect current water/shipwreck captures and shader code. The three broad displacement
+  waves are duplicated in ocean and shoreline; existing normal waves have very small slopes and
+  no pixel-footprint filtering. The near-water view is too smooth even though broad colour bands move.
+- [x] Define one bounded wave spectrum for shared displacement and exact analytic normal slopes.
+  Add four calm short-wave components to shading only, filtered per wave in screen space; retain
+  ocean mesh counts, shoreline geometry, draw count, texture inventory and sunny calm conditions.
+- [x] Test 22,326 space/time samples for analytic gradient correctness against independent numerical
+  derivatives, displacement/slope/temporal bounds, filter attenuation, invalid-input behavior and
+  locale-independent GLSL emission. The short-wave coordinate warp's determinant remains >0.7;
+  chain-rule gradients also drive the filter. Physical displacement stays within 0.193 m; conservative
+  shading-slope magnitude stays below 0.21. Add `IslandOceanWaveSpectrumTests` to host presets.
+- [x] Inspect native and WebGL coastal views before/after simulation. First native water view showed
+  overly regular trains; add bounded slow
+  coordinate distortion and reduce the strongest short component. Revised native water capture
+  `20261008T204105.583057Z-water` passes (273 bins, 28.84 deviation, 123.35 contrast) with no
+  GL errors/fallback or kernel delta. Preserve the first spectrum capture and pre-spectrum coast
+  browser files (`.before-spectrum`) for comparison rather than overwriting evidence.
+  Chrome PID 3717051 passed all four coastal views with 120 intervals each, no GL errors/context
+  loss/fallback and nine empty kernel deltas. Paired shipwreck and water frames were inspected;
+  mean software intervals were 87.22/183.33/228.19/78.89 ms, not controlled GPU measurements.
+  Current reports use `build-probe/island-browser-coast*`.
+- [x] Android arm64 assemble/lint passes (3 s), with the existing CNA platform-support warning;
+  no emulator or physical device launched. Asset validation passes (24 generators, 50 sources).
+- [x] Final non-display regressions: 21/21 passed in 24.85 s. Syntax/whitespace checks pass.
+  No incident evidence was removed; its directory remains 92 MiB, software comparison captures
+  100 MiB, disk 365 GiB free. The hardware stop latch hash remains unchanged. Existing artifact
+  validators are not additional fresh graphics runs; current Android and full Firefox remain pending.
+- [x] Review actual images: water is no longer a nearly unbroken colour field, but crossing trains
+  remain visibly stylized and only the sky is reflected. Near shallow transparency remains in the
+  inspected wreck frame. Paired stills and CPU derivative tests cannot prove absence of temporal
+  glitter in every phase; hardware performance and Android runtime remain unqualified.
+- [ ] Next realism pass: improve seabed/shallow-depth cues and wet/dry shore integration, then
+  reassess wave repetition from walking/swimming views. Do not add assets/effects without a visible
+  target or treat software screenshots as completion of the overall realism campaign.
+
+#### 2026-10-08 — shoreline foam realism pass
+
+- [x] Inspect current native software captures: the large split wreck silhouette is readable,
+  but its foreground surf appears as a nearly continuous bright stripe. The separate shoreline
+  ribbon, rather than only the broad ocean foam mask, supplies that stripe. The `beach` viewpoint
+  looks inland and is not adequate evidence for a coast-material change.
+- [x] Replace the fixed hovering crest with an advancing/fading wave, irregular width and
+  footprint-filtered porous foam. Preserve the existing 2,695 vertices, 4,608 triangles, one
+  transparent draw, stock fallback and texture inventory. Avoid unsupported shader features.
+- [x] Inspect shipwreck and water captures, then exercise coastal views serially in real browser
+  SwiftShader including an after-simulation image. Native evidence:
+  `20261008T202811.695189Z-shipwreck` (167 bins, 35.99 luminance deviation, 146.88 contrast) and
+  `20261008T202828.067090Z-water` (253 bins, 27.96 deviation, 123.42 contrast), both in
+  `build/software-captures/`, both with empty kernel deltas and no GL errors/fallback.
+  Chrome PID 3713011 passed shipwreck/water/west/reef, 120 frame intervals per scene, with zero
+  GL errors/context loss and nine empty kernel deltas. Inspected before/after shipwreck frames
+  show the front moving and breaking up instead of the former continuous stripe. Browser reports
+  and paired images use `build-probe/island-browser-coast*`; existing foliage evidence is untouched.
+  Software mean frame intervals were 64.16/182.49/227.35/80.83 ms, not hardware performance claims.
+- [x] Android arm64 assemble/lint passes (2 s). No emulator/hardware run; native GLES runtime and
+  mobile fragment cost remain unqualified. Asset validation passes (24 generators, 49 sources).
+- [x] Final non-display regressions: 20/20 passed in 24.83 s; syntax checks and `git diff --check`
+  pass. Existing capture/startup artifact validators do not imply additional graphics runs.
+  Hardware qualification remains suspended. Disk has 365 GiB free, incident evidence remains
+  92 MiB, software comparison captures 91 MiB; no original evidence was deleted. Android packaging
+  replaced only its reproducible previous debug APK, as required by the existing wrapper.
+- [ ] Next visual work: improve the overly smooth near-water surface and depth cues; assess foam
+  scale/variation in close moving views. The ribbon and ocean still interpolate waves on different
+  grids, and this pass is not a fluid/wet-sand simulation or completion of overall realism.
+
+#### 2026-10-08 — incident continuation and reproducible workload identity
+
+- [x] Recheck the hardware stop latch and the expired device dump. `devcd3` is absent;
+  repeating its root read cannot recover it. Do not trigger a fault merely to replace the dump.
+- [x] Re-run the 18 CPU-only supervisor regressions; all pass without launching graphics.
+- [x] Record SHA-256 and file identity for the executable, private-display runner, supervisor and
+  available CMake cache before a future qualification launch. A command path alone cannot distinguish
+  the incident build from later visual-development builds. Test attribution and failure handling
+  without executing a real GPU workload. All 23 supervisor tests and all 20 non-display CTest groups
+  pass (26.32 s). No rebuild, hardware run, framework edit or evidence deletion was required.
+- [x] Inspect the proposed Mesa `check_vm` evidence path offline: clean `mesa-25.0.7` source expects
+  legacy kernel-message strings/ordering absent from the preserved incident logs, and also changes
+  asynchronous submission timing. Record this diagnostic limitation separately from the unknown
+  GPUVM cause; distribution patches in the installed binary remain unverified. Do not rely on the
+  switch or request elevated `dmesg` access before validating the actual collection path.
+- [ ] Before any future hardware experiment, specify a discriminating hypothesis, identify the
+  preserved pre-feature workload, and pre-arm driver command/descriptor evidence collection.
+  A kernel ring dump without its referenced indirect buffers did not identify the faulty draw.
+  Hardware qualification and incident resolution remain blocked; no root command is needed now.
+
+#### 2026-10-08 — close jungle leaf material pass
+
+- [x] Add smooth leaf normals and explicit per-leaf coordinates using CNA's supported custom
+  vertex declarations. Keep stock-effect fallback on the existing packed stock vertices.
+- [x] Add footprint/distance-filtered midrib/secondary veins, modest albedo variation and restrained
+  broad waxy reflection to the existing opaque jungle shader. No new texture, draw, alpha layer,
+  geometry shader or framework edit. Keep bark and non-leaf geometry on their existing shading.
+- [x] Test 163,317 blade normals for finite/unit/upper-facing values, representative independent
+  tangent orthogonality and invalid inputs; validate custom leaf upload fields and the 52-byte
+  transfer layout. The 24,849 static jungle vertices occupy 1,292,148 bytes (+695,772 bytes).
+  Nine attributes include the unchanged instance matrices; no topology/draw/texture count changed.
+- [x] Inspect native llvmpipe captures of boars (`20261008T200835.959796Z-boars`) and jungle
+  (`20261008T200944.571768Z-jungle`) under `build/software-captures/`. Both pass with no GL errors,
+  fallback or kernel delta. Boars: 141 bins, 41.12 luminance deviation, 196.08 contrast; jungle:
+  189 bins, 38.62 deviation, 193.15 contrast. Broader painted midrib stripes were reduced; fine
+  veins and smooth highlight response are visible, though plant silhouettes remain stylized.
+- [x] Run actual browser software captures and cross-build Android. Chrome PID 3705745 passed all
+  four serial scenes (jungle/boars/monkeys/east) with zero GL errors/fallback/context loss and nine
+  empty kernel deltas. Inspected browser jungle capture matches native leaf shading. Mean CPU
+  frame intervals were 214.44/251.10/238.88/231.66 ms; not a controlled performance comparison.
+  Current `build-probe/island-browser-wildlife-foliage.json` and `island-browser-foliage-kernel.json`
+  hold results; previous captures/reports retained with `.before-leaf-material`. Android arm64
+  assemble/lint passed in 2 s; Android runtime, Firefox and hardware qualification remain pending.
+  This is a material/lighting improvement, not completion of island-wide visual realism or
+  post-incident AMD qualification. Wind-normal deformation remains approximate.
+- [x] Investigate a non-display regression failure rather than ignoring it: the supervisor's
+  CPU-only test read `/proc/PID/stat` after a child exited and received ESRCH (`ProcessLookupError`),
+  whereas its helper only handled ENOENT. Treat either disappearance as stopped, preserve permission
+  errors, and parse parenthesized command names correctly. Add three deterministic helper tests;
+  all 18 supervisor tests pass. Production supervision/fault detection is unchanged. The original
+  failed CTest log is retained at `build/gpu-incident-evidence/cpu-supervisor-stat-exit-race.log`.
+  This is a test observation race, not the cause of the GPUVM incident or a framework defect.
+- [x] Final non-display suite: 20/20 targets pass in 24.19 s after the test-helper fix. Syntax
+  checks and `git diff --check` pass. Artifact-only validators are not new runtime evidence.
+  No hardware latch was cleared; CNA/Sharp Runtime remain untouched. Incident evidence is 92 MiB,
+  software captures 78 MiB, Web tree 116 MiB, Android native intermediates about 1,012 MiB; 365 GiB
+  remain free. All builds used the shared ccache and two workers. Only the normal generated APK
+  was replaced; no incident evidence was removed.
+- [ ] Next environment pass: inspect beach/water/wreck composition and transitions in fresh safe
+  captures; prioritize a visible scene-level weakness rather than adding unrelated game systems.
+
+#### 2026-10-08 — boar anatomy and gait pass
+
+- [x] Replace floating uniform dorsal triangles with short irregular bristles anchored to the
+  shared body profile. Keep them opaque, near-only and inside the existing bounded batch.
+- [x] Replace translating cylindrical legs with two connected tapered segments, a bounded
+  analytic knee solution and split hooves. Use a distinct grounded stance and lifted return
+  phase; preserve existing behavior/habitat and avoid introducing a general animation engine.
+- [x] Test 65,552 poses across all four legs, movement amplitudes and a full cycle: finite joints,
+  fixed segment lengths, 64% stance duty, actual hoof lift, resting contact and wrap continuity;
+  also check shared dorsal anchors, rooting extremes and invalid-input resting fallback.
+  All four targeted CPU/asset test targets pass. Native llvmpipe capture
+  `build/software-captures/20261008T195346.849694Z-boars/` passed and was visually inspected:
+  138 color bins, 41.19 luminance deviation, 195.89 spatial contrast, no GL/fallback errors and
+  empty kernel delta. The sawtooth ridge is substantially reduced and limbs now visibly bend.
+- [x] Check portable builds and fresh actual-browser scenes, including an additional boar capture
+  after 60 simulation/render intervals. Chrome PID 3694992 passed jungle/boars/monkeys/east on
+  SwiftShader with zero GL errors, no fallback/context loss, and nine empty kernel deltas.
+  Means 229.44/242.21/244.43/248.05 ms are CPU-renderer observations, not a hardware performance
+  claim. The post-simulation capture shows the boar herd farther into vegetation; it confirms a
+  running scene, not complete visual gait qualification. Reports are the current
+  `build-probe/island-browser-wildlife-foliage.json` and `island-browser-foliage-kernel.json`;
+  prior material evidence is retained as `.before-pose`. Android arm64 assemble/lint passed in
+  3 s with shared ccache/two workers; no Android runtime or AMD workload was launched.
+- [x] Finish with 20/20 non-display CTest targets passing (26.76 s), gate syntax checks and
+  `git diff --check`. Artifact-only capture/startup validators are not new runtime evidence.
+  Preserve the incident latch and all 92 MiB of incident evidence; software captures are 72 MiB,
+  Web tree 112 MiB, and approximately 365 GiB remain free. No obsolete large artifact was created;
+  only the normal reproducible APK was replaced by the Android packaging wrapper.
+- [ ] Further locomotion work: per-foot terrain sampling, planted world-space stance anchors,
+  scale-aware stride travel and turning/sliding review. Neither the analytic local-plane pose
+  nor the passing software scenes prove these refinements or real-GPU qualification.
+- [ ] Next broader visual pass: reassess near grass/understory silhouette, material contrast and
+  density against first-person captures, then shoreline/wreck integration. Keep wildlife polish
+  bounded so the requested island-wide realism campaign continues.
+
+#### 2026-10-08 — boar coat detail pass
+
+- [x] Add an original deterministic 128x128 opaque coat atlas through CNA BasicEffect's existing
+  texture path: directional strands on the continuous body, padded white region for eyes/tusks/
+  hooves, shared adult/juvenile tint and unchanged one-batch geometry. No custom shader or fur
+  transparency. Account explicitly for 64 KiB texture storage and larger UV-bearing vertices.
+- [x] Validate atlas determinism, seam/white padding and directional detail on CPU; pixels expand
+  to opaque RGBA8. The generated horizontal/vertical difference totals are 109894/256624.
+  Native capture `build/software-captures/20261008T194328.918553Z-boars/` passed and was inspected:
+  141 color bins, 41.22 luminance deviation, 195.92 contrast; 2/6 boars in one draw. Fine longitudinal
+  body detail is visible, but legs and ridge bristles remain stylized and require another pass.
+  No GL errors/fallback or new kernel entries. This is llvmpipe evidence, not AMD qualification.
+- [x] Validate WebGL2 in an actual CPU-rendered browser and Android arm64 assembly/lint. Chrome
+  PID 3689251 passed jungle/boars/monkeys/east serially with 60 intervals each, zero GL errors,
+  no material fallback or context loss, and observed naturally shaded monkeys. The boar browser
+  screenshot was inspected and matches the native material. Nine kernel checkpoints contain no
+  GPU faults/timeouts/resets (two unrelated USB disconnect messages were observed at the end).
+  Results: `build-probe/island-browser-wildlife-foliage.json` and
+  `island-browser-foliage-kernel.json`; previous reports/captures retained with `.before-coat`.
+  CPU frame means 490.26/338.88/301.10/271.38 ms are not hardware performance qualification or a
+  controlled performance comparison. Arm64 assemble/lint passed; no emulator was launched.
+  Hardware and Android runtime remain pending. Inventory is 4,403,464/4,423,680 RGBA8 bytes.
+- [x] Finish with 19/19 non-display CTest targets passing (24.74 s), syntax checks for updated
+  browser/Android gates, and `git diff --check`. Capture/startup validators in the non-display
+  set may inspect earlier artifacts; the fresh runtime claims are the specific captures above.
+  Shared ccache and two build workers were used throughout. Approximately 365 GiB remain free;
+  incident evidence is still 92 MiB, native software captures 68 MiB, Web tree 109 MiB. No
+  original incident artifact was deleted; only the reproducible debug APK was replaced during
+  normal Android packaging. CNA and Sharp Runtime remain unchanged.
+- [x] Next animal polish: reduce the sawtooth-like dorsal bristle silhouette, improve leg/hoof
+  articulation and contact, then reassess close-up anatomy in both native and browser captures.
+  Continue broader vegetation/shoreline/wreck realism work; the texture pass is not overall
+  visual completion and does not resolve the critical GPU incident. The anatomy/gait entry above
+  records the implemented refinement and the remaining contact/locomotion limitations.
+
+#### 2026-10-08 — offline texture completeness, incident still open
+
+- [x] Extend the retained-trace state inspector to audit the required normalized-color 2D mip
+  chain, including sampler overrides, nonzero base/max levels and object-name reuse. Preserve
+  the earlier evidence and add `software-mip-state-inspection.json` with provenance/hash.
+- [x] Pass 21 CPU-only inspector regressions and inspect all 64,169 draws in the retained trace:
+  all 2,884 textured draws have a complete required image chain. No GPU replay, hardware launch,
+  framework edit, new build, or latch removal was performed.
+- [ ] Continue descriptor/storage-renaming correlation against existing CNA/Mesa source and ring
+  evidence. Do not confuse a clean software trace with a root-cause fix or AMD qualification.
+  A bounded read-only follow-up found the expected CNA discard/upload and Mesa dirty-descriptor
+  regeneration paths, not a demonstrated null/stale descriptor. The ring lacks pointed-to
+  userspace command contents. Findings and source functions are recorded in the incident document;
+  no framework/driver fix or additional fault-triggering experiment is justified by this review.
+- [ ] Before any justified future hardware test, prepare timely driver-state/dump collection and
+  retain serial supervision. No operator root command is needed for the current offline work;
+  the expired `devcd3` cannot be retrieved again.
+
+The operator explicitly requested continued diagnosis for a reasonable bounded interval, then
+continued wildlife/visual improvements even if the root cause remains unknown. Do not repeatedly
+fault the AMD GPU to extend diagnosis. Retain the incident latch and all pre-change evidence;
+CPU tests and forced llvmpipe/pixman runtime checks may support new work, but never count as
+post-incident AMD, Web, or Android qualification.
+
+- [x] Add a small original wild-boar population: non-hostile foraging, resting, wandering, and
+  mild player avoidance; deterministic inland habitat, solid-prop avoidance, distance tiers,
+  terrain following, and bounded home ranges.
+- [ ] Add recognizable varied boar silhouettes, articulated walking/rooting poses, near/far LOD,
+  fixed-sun shading, a dedicated QA viewpoint, and observable draw/population diagnostics.
+  Initial one-batch renderer, three coats, adult/juvenile scales, gait/rooting poses, near/far LOD,
+  fixed sun, QA camera, runtime log and benchmark visible count exist. Improve close-up silhouette,
+  close-up coat detail and animation presentation further. Smooth continuous body/head geometry,
+  terrain contact shadows, debug-overlay, world-report identity, and benchmark-range integration
+  are now implemented and software-tested; hardware/platform gates remain pending.
+- [x] Test boar determinism, invalid inputs, habitat/collision invariants, transition reachability,
+  long simulation, and a real CPU-rendered capture; record pending hardware/platform gates.
+  The 12,000-frame CPU test passes with actual palm/jungle/rock obstacles and the expanded 1.30 m
+  adult-snout clearance. Final llvmpipe capture passed scene validation and was inspected.
+  Hardware, browser and Android validation remain pending.
+- [ ] Continue the existing realism backlog after wildlife integration: first-person vegetation,
+  terrain/shoreline transitions, wreck material detail, animal presentation, and visual composition.
+
+#### 2026-10-08 safe wildlife implementation checkpoint
+
+- Added `BoarHerd` and `BoarRenderer`, original source-only assets and attribution, main-loop
+  integration, `--viewpoint boars`, per-pass GPU markers, visible-population logging and tracked
+  draw count. Six animals occupy three inland regions; impossible/invalid obstacle replacement
+  fails transactionally rather than silently spawning into solids. Distant simulation is bounded
+  and substepped; movement drives gait, and rooting blends gradually.
+- Native incremental build passed with shared ccache and at most eight workers. All 14 non-display
+  CTests passed. Some non-display validators read retained pre-existing startup/capture artifacts;
+  those passes are not fresh graphical qualification. The new boar tests independently exercised
+  12,000 updates, deterministic state, all four behaviours, real obstacles, ground/home bounds,
+  invalid input, activation tiers, and failed habitat replacement.
+- Two short isolated pixman/llvmpipe captures were run serially, the latter after the collision
+  envelope correction. Final `build/island-boar-software.ppm` is 1280x720, 128 quantized colour bins,
+  luminance deviation 33.86, spatial contrast 157.85; inspected as
+  `build/island-boar-software.png`. Log reports two visible boars in one draw, actual llvmpipe,
+  and no GL-error/debug severity warning. The checked kernel interval contains no entries.
+- `build/island-boar-software.log`, compositor log, validation JSON and before/after kernel files
+  retain this checkpoint. The incident latch and 92 MB of unique incident evidence remain intact.
+  No CNA/Sharp Runtime sources changed, and no AMD runtime or device/emulator test was attempted.
+- Next implementation: improve boar proportions and smooth coat lighting/contact, integrate
+  population reporting/overlay and a repeatable software-only capture gate, then tackle the
+  visibly flat jungle canopy and ground presentation. Keep the unresolved GPU incident separate.
+
+#### 2026-10-08 boar shape, grounding, and reporting pass
+
+- Replaced intersecting torso/head/snout ellipsoids with a continuous eleven-ring profile,
+  smoothly shaded using analytical surface normals transformed into the terrain-aligned pose.
+  Near and far circumference detail remains separate. Adult/juvenile scale, coat palettes,
+  restrained juvenile stripes, articulated gait, rooting, ears, eyes, tusks and tail remain.
+- Added oriented, terrain-conforming boar contact shadows to the existing shared shadow batch,
+  including expanded capacity, population guards, position/yaw cache invalidation, distance fade,
+  and debug counts. No extra shadow draw call, shadow map, texture, or renderer-specific feature
+  was introduced. These remain approximate contact shadows, not full animal cast shadows.
+- Added BOARS diagnostics to F1, min/max/mean visible counts to the benchmark, and deterministic
+  population/home/pose hashing plus habitat validation to the world report. New fingerprint is
+  `54dd69965d907a2d`; it differs intentionally because boars now participate in world identity.
+- Inspected `build/island-boar-polish.png` against the previous capture: continuous head/neck,
+  smoother coat lighting and grounding improve the first adult's presentation. The environment
+  still has conspicuously solid canopy lobes and flat broad understory leaves; realism is not
+  considered complete. Capture validation: 1280x720, 131 colour bins, deviation 33.90.
+- Full fixed-boar llvmpipe benchmark completed 120 warm-up plus 600 measured intervals with
+  2–3 visible boars, 83 tracked scene submissions, no GL errors or warning-or-higher debug
+  messages, and an empty kernel-log delta. Mean 71.116 ms / p95 95.018 ms describe CPU rendering
+  only, not GPU performance. Evidence: `build/island-boar-software-benchmark.json`, its log,
+  runtime log for PID 3620376, compositor log, and before/after kernel files.
+- Next: add finer leaf shape/lighting to close jungle vegetation and break up solid canopy
+  silhouettes, retaining portable near/far tiers. Add an automated software-only capture gate
+  and qualify new code on Web/Android without reopening unsafe AMD tests. Boar positional
+  snuffles and stronger close-up coat detail remain polish candidates, not shipped features.
+
+#### 2026-10-08 curved foliage and mesh-derived visibility bounds
+
+- Added a renderer-independent `LeafBladeProfile` used by near/far understory and shared small
+  fronds. Blades now arch, droop above the root on level ground, twist gently, and have asymmetric
+  margins. Near meshes use eight longitudinal sections and five columns with a narrow raised
+  midrib; far meshes retain their small two-column/two-section representation. The old formula
+  put frond tips below the root plane. A modulo expression also previously erased per-leaf length
+  variation; the sequence now produces five distinct lengths within each plant variant.
+- Added 96 small folded peripheral leaves per near canopy variant, sharing the existing opaque
+  instanced batch. Far crowns remain cheap. This improves edge detail but does not solve the
+  visibly solid, faceted interior crown masses; do not present the jungle as realistic yet.
+- Replaced hard-coded jungle cell geometry extents with generated near/far mesh extents plus
+  bounded wind displacement. Includes finite vertex rejection before GPU upload. Expanded leaves,
+  branches and future profile changes no longer rely on manually guessed cell radii/heights.
+- `IslandLeafBladeTests` checks 163,317 canonical samples across understory/ground variants for
+  finite coordinates, root/tip placement, conservative culling limits and raised midribs, and
+  rejects out-of-range/non-finite/overflowing inputs. Actual renderer initialization validates
+  generated mesh indices before upload.
+- Inspected the matching `build/island-leaf-boars.png` comparison and a fresh fixed-jungle frame:
+  near understory now reads as curved leaves rather than flat downward-pointing strips. The
+  jungle frame is in `build/software-captures/20261008T174834.768934Z-jungle/`; 1280x720, 165 colour
+  bins, deviation 35.82, zero GL errors/fallback and an empty kernel delta. Actual renderer is
+  llvmpipe. No AMD, browser or Android runtime qualification is implied.
+- Added `tools/run_software_capture.py`: refuses non-OPENGL33/multi-renderer builds, forces
+  llvmpipe and eight CPU workers, selects a private pixman compositor, serializes against the
+  existing qualification lock, captures kernel before/after records, checks implementation and
+  image validity, and preserves per-run evidence. It never clears the hardware incident latch.
+  Five CPU preflight regressions pass, and the actual jungle invocation passes. This is a
+  software visual gate, not the live-monitored hardware incident supervisor.
+- The final shared-ccache native build and all 16 non-display CTests pass. Asset validation covers
+  22 procedural records and 43 generator sources. Earlier stored capture/startup validators are
+  not counted as fresh runtime evidence; only the new inspected captures qualify this visual step.
+- Next: reduce solid crown mass and add convincing small-scale foliage/ground material response;
+  compare close, mid-distance and distant views, and measure the added near-mesh cost. Rebuild
+  Web/Android for the new boar and foliage sources before further feature expansion. Preserve
+  unresolved GPU evidence and continue only CPU-backed runtime checks until a justified hardware
+  qualification plan exists.
+
+#### 2026-10-08 layered canopy shells and cross-target source checks
+
+- Replaced the large near crown cores with smaller internal masses covered by golden-angle
+  shells of three unequal folded leaves per sprig. Each near tree now has 864 shell leaves;
+  bounded colour/height variation breaks up repetitive horizontal rings. The same opaque
+  instanced batches and portable wind shader are retained, without textures, alpha blending,
+  new draw passes, or changes to resource ownership. Far trees use 64 larger edge leaves and
+  a larger inner core to keep their geometry much cheaper while reducing the smooth-ball edge.
+- Added per-variant mesh diagnostics. Near trees have 4,912–4,949 vertices / 4,328–4,378
+  triangles; far trees have 457 vertices / 464 triangles. The fixed jungle capture has 63 near
+  and 46 far trees, hence approximately 294,000–297,000 canopy triangles. Jungle submissions
+  remain 28. This increased geometry needs mobile/browser timing, not a claim of free detail.
+- Native incremental build passes with the shared ccache and two workers. Updated native and
+  sanitizer build presets to include the new boar/leaf test executables; the `linux-core` test
+  preset now actually selects all three CPU simulation/geometry suites. All three pass, as do
+  all 16 non-display CTests. Retained-artifact validators are not fresh graphics validation.
+- Three final captures ran strictly serially with forced llvmpipe and a private pixman
+  compositor. Actual images were inspected at 1280x720; all image checks pass, no GL errors or
+  shader fallback occurred, and all three kernel deltas are empty. Evidence directories:
+  `build/software-captures/20261008T175848.122997Z-jungle/`,
+  `build/software-captures/20261008T175851.519004Z-distant/`, and
+  `build/software-captures/20261008T175854.618390Z-boars/`.
+  Jungle/boar views show less solid canopy and unchanged population/grounding. The distant
+  viewpoint looks out to sea; it is an ocean/scenery regression check, not a canopy LOD test.
+- Initial WebGL 2 build and arm64 GLES 3 APK assembly/lint passed with boars and curved foliage.
+  The final canopy revision also passes `cmake --build --preset web-webgl2` and Android
+  `:app:assembleDebug :app:lintDebug`, run sequentially with shared ccache and two workers.
+  Compilation is not runtime qualification: current browser/device execution remains pending.
+  The existing AMD failure latch remains untouched and its root cause unknown.
+- Disk check: 365 GB free, unique incident evidence 92 MB, software capture evidence 16 MB.
+  No dependency files were edited and no incident evidence was removed. Comparison frames are
+  retained because they document this visual change; no duplicate build trees were created.
+- Next: qualify boars and crown shaders in a forced-software WebGL browser, measure added
+  vertex cost and LOD transitions, then improve ground/grass material response and close boar
+  proportions. Keep mobile/runtime claims explicitly pending. Resume hardware investigation
+  only with a discriminating hypothesis and pre-fault evidence plan, not another blind retry.
+
+#### 2026-10-08 software browser evidence and boar facial proportions
+
+- Added an explicit `wildlife-foliage` scope to the existing browser harness rather than running
+  the whole input/audio suite for each model edit. It verifies Chrome's actual SwiftShader
+  implementation before loading the game, verifies each WebGL 2 context again, visits jungle,
+  boars and east clearing serially, captures images, samples 60 frame intervals, and rejects
+  context loss, GL errors, shader fallback and missing new geometry diagnostics. The boar page
+  requires a nonzero visible population in its single batch. Kernel checks bracket each scene
+  and browser shutdown; this is not a live hardware-fault supervisor or AMD qualification.
+- The first attempt used system Node 20, which lacks global `WebSocket`; it stopped before any
+  game scene loaded. Added an early actionable preflight and reran with Emscripten Node 24.
+  Chrome 152 / SwiftShader passed all three views. Mean frame intervals were 155.55 / 183.88 /
+  162.22 ms (jungle/boars/east), exclusively CPU rendering, not acceptable-GPU-performance claims.
+  The 40 kernel records were USB connect/disconnect and a PCIe PME message, with no GPU fault,
+  timeout or reset. Before-profile evidence is retained in `build-probe/` as
+  `island-browser-wildlife-foliage-before-profile.json`,
+  `island-browser-foliage-kernel-before-profile.json`, and
+  `island-browser-foliage-boars-before-profile.png`.
+- Matching native/browser images revealed a too-long downward-pointing boar muzzle and buried
+  ear/eye landmarks. Shortened and raised the muzzle, strengthened the forehead, raised/folded
+  the ears, repositioned the eyes, added near nostrils, and replaced flat tusk wedges with
+  smaller bent tapered shapes. These stay inside the unchanged conservative 1.30 m collision
+  radius and existing bounded single-batch allocation; no simulation or resource ownership
+  changes. The model is still stylized and needs stronger coat/animation quality later.
+- Native build and 12,000-frame boar regression pass. The inspected private llvmpipe capture at
+  `build/software-captures/20261008T180840.178307Z-boars/` passes image/GL checks (131 colour bins,
+  deviation 33.99) with an empty kernel delta. Final WebGL 2 compilation and Android arm64
+  assembly/lint pass sequentially using shared ccache and two workers. The final focused browser
+  rerun also passes all three scenes (Chrome PID 3637506), including the actual WebGL context
+  renderer, GL status, inspected 1280x720 images and visible boars. All seven journal checkpoints
+  have zero new records. Current evidence is `build-probe/island-browser-wildlife-foliage.json`,
+  `island-browser-foliage-kernel.json`, and `island-browser-foliage-*.png`. Software mean intervals
+  were 233.32 / 202.77 / 208.88 ms; variability on the shared machine means these two runs are
+  not a controlled geometry-cost comparison. Physical Android, AMD and full new-revision
+  input/audio qualification remain pending. Dependencies and the incident latch are untouched.
+- Updated README canopy geometry/LOD and contact-shadow claims, and documented the bounded
+  browser command with a shared qualification lock, deadline, eight-CPU affinity and software
+  environment. Capture evidence now occupies 20 MB; incident evidence remains 92 MB and the
+  reused Web tree 95 MB. Next: work on first-person grass/ground material realism and boar
+  sound/animation, while retaining the unresolved hardware incident boundary. The visibly smooth
+  ground and simple wildlife surfaces remain quality shortcomings, not completed realism goals.
+
+#### 2026-10-08 first-person soil relief and shader-fallback regression coverage
+
+- Rebalanced the interior substrate toward humus with moss islands instead of an uninterrupted
+  green lawn, retaining beach and authored clearing masks. Added analytic value-noise gradients
+  for a bounded 1.2 cm soil relief field, fixed-sun diffuse response, and fine smooth pore colour.
+  Ground-pixel footprint and distance fade both detail bands before they become undersampled;
+  there is no new texture, vertex stream, draw pass, allocation, collision or resource lifetime.
+- Initial inspected captures showed square pore cells and overly rounded clods. Replaced the
+  discontinuous per-cell pore hash with interpolated noise and reduced relief/contrast. The
+  final fixed-jungle image retains small-scale soil structure without the conspicuous squares.
+  This remains procedural stylization: the grass blades and canopy/ground lighting relationship
+  still need larger improvements before the realism extension can be considered complete.
+- Moved terrain world derivatives to uniform fragment control flow and reused them for wet-sand
+  and soil normals. This removes the existing material-conditional derivative evaluation from
+  the wet-edge path; it is a portability correction, not evidence of the AMDGPU fault's cause.
+- Found a game-side validation gap: the software capture gate rejected `stock-effect fallback`
+  but not terrain/shipwreck `material fallback`. Both now fail the gate, with CPU regressions;
+  all seven capture-preflight tests and all 16 non-display CTests pass. Focused browser checks
+  now require the new soil diagnostic and reject both fallback forms too. No framework bug is
+  inferred from this harness defect.
+- Inspected initial jungle/east images and the final native image at
+  `build/software-captures/20261008T181842.941299Z-jungle/capture.png`.
+  Final llvmpipe capture: 1280x720, 175 colour bins, deviation 38.71, spatial contrast 199.40,
+  active soil shader, no GL errors/fallback and an empty kernel delta. The initial serial
+  jungle/boar/east/beach runs also passed; their timestamped capture directories are retained
+  for comparison. The beach run precedes only the final interior-only pore/relief adjustment.
+- Final shared-ccache Linux and WebGL 2 builds and Android arm64 assembly/lint pass. Builds
+  used two workers and reused their existing trees. Focused Chrome 152 / SwiftShader verification
+  passes all three final-shader scenes (PID 3641092), with active soil diagnostics, zero GL
+  errors/fallback/context loss and seven kernel checkpoints containing no new records. Inspected
+  browser jungle/east images match the native material change. CPU frame-interval means are
+  247.21 / 245.82 / 214.71 ms (jungle/boars/east); these are not hardware performance claims.
+  Results are the current `build-probe/island-browser-wildlife-foliage.json`, corresponding
+  `island-browser-foliage-kernel.json` and PNGs. Physical Android and AMD qualification remain
+  pending; the full input/audio suite was not rerun for this material-only revision.
+- Preserved the previous browser reports/captures with `before-soil` suffixes. Software captures
+  occupy 36 MB; original GPU-incident evidence remains 92 MB and the hardware failure latch is
+  unchanged. No CNA or Sharp Runtime files were modified.
+- Next: investigate placement-derived fixed-sun canopy
+  shading shared by terrain and grass. The current synthetic dapple field does not align with
+  actual tree crowns, so more noise alone will not fix the lighting. Compare a small static
+  field against the existing contact-only approach, accounting for memory, ground slope, LOD,
+  and shader portability; keep all implementation game-side and CPU-test the mapping first.
+
+#### 2026-10-08 fixed-sun canopy field implementation checkpoint (not platform-qualified)
+
+- Added shared procedural crown profiles and a CPU-baked 1024-square transmission field from
+  2,248 porous crown lobes. Terrain and grass sample the same fixed-sun field; it approximates
+  canopy attenuation, not leaf-exact or animated shadow mapping. Palms do not cast into this
+  field and wildlife/understory do not yet receive it. Existing synthetic dapple remains.
+- The GPU adapter owns one 4 MiB RGBA8 texture and outlives its terrain/grass consumers. Total
+  generated-texture inventory is now 4,337,928 bytes against 4,358,144 bytes, explicitly including
+  the new field. Bake scratch storage is temporary; no extra draw pass was introduced.
+- Native build and initial canopy CPU checks passed. The current native llvmpipe jungle capture
+  at `build/software-captures/20261008T184237.266953Z-jungle/` includes the canopy diagnostic,
+  has no GL/fallback error and an empty kernel delta; reported bake/upload time is 1000.43 ms
+  in Debug. The earlier `20261008T183947.726210Z-jungle` capture ran a stale pre-canopy executable
+  after a build failure and must not qualify this change. The gate now requires the canopy marker.
+- Pending: inspect light alignment in additional views, qualify the current Web shaders on
+  SwiftShader, build/lint Android, and measure release startup cost. Previous Web/Android passes
+  above describe the pre-canopy revision only. AMD hardware remains stopped.
+
+#### 2026-10-08 canopy-light visual integration and palette-audit extension
+
+- Extended the offline skin auditor to finite uploaded palettes: all 2,884 uploads / 646,016
+  float values pass, with all referenced slots initialized before drawing. Four extra CPU
+  regressions bring this auditor to 14 tests. The separate extended report and hash are retained
+  in incident evidence; no driver-specific cause was established and the hardware latch remains.
+- Removed the old noise-only terrain sun/shade patches. Soil colour noise remains a material
+  property; direct canopy attenuation now comes from crown placement and shares the grass field.
+  Updated runtime diagnostics, browser expectations and architecture instead of retaining a
+  stale marker for the removed approximation.
+- Native incremental build passes. Inspected CPU-only east and boar captures: the open clearing
+  stays light while foreground grass/soil in the boar woodland receive cool canopy shade.
+  The final boar capture is `build/software-captures/20261008T185321.013559Z-boars/`, 137 colour
+  bins, deviation 39.57, spatial contrast 194.59; no GL/fallback error and empty kernel delta.
+  The east capture precedes removal of the old dapple contribution. Current Web and Android
+  validation follows; original pre-canopy browser reports/images are preserved with
+  `before-canopy` suffixes. Runtime alignment is still approximate on slopes/elevated receivers.
+- WebGL 2 build passed in reused `build-probe/`. Chrome 152 / SwiftShader PID 3661024 then
+  passed jungle, boars and east serially; all three inspected images retain matching native
+  composition and the new field. Both result JSON files pass, with seven empty kernel deltas,
+  no GL/fallback/context-loss errors, and nonzero boar visibility. Bake/upload reported
+  349.1 / 218.3 / 230.8 ms for these Web Release scenes. CPU presentation means were
+  273.32 / 270.54 / 269.99 ms, not hardware performance claims or a controlled comparison.
+- Android arm64 assembly and lint passed with the existing Gradle native tree and shared cache,
+  two workers. The wrapper replaced only its generated debug APK; it is reproducible from source.
+  No Android runtime was launched. The existing CNA warning about primarily Linux-tested GLES3
+  remains visible; this successful build does not establish runtime texture/shader behaviour.
+- Fixed a software-capture preflight error path: absent/empty `CNA_ROOT_DIR` now gives an
+  actionable refusal instead of an uncaught KeyError. All eight preflight regressions pass.
+- Final 18/18 non-display CTests pass after this revision (38.73 s, two workers), as does
+  asset validation: 23 original procedural records / 46 generator sources, no external files.
+  Some artifact validators consume earlier capture/startup files and are not new runtime passes.
+  `git diff --check` is clean. Incident evidence remains 92 MB, software comparison captures
+  49 MB, Web tree 99 MB and Android native intermediates approximately 1 GiB, with 365 GiB free.
+  Preserved useful before/after images; no incident evidence or dependency sources were changed.
+- Next visual work: extend coherent canopy reception to understory and grounded wildlife,
+  preserving the 4 MiB shared resource and lifetime ordering; then improve boar coat/animation
+  and near grass presentation. Inspect each change rather than equating feature existence with
+  realism. Physical Android, AMD qualification, full new-revision browser input/audio checks
+  and native Release startup profiling remain pending. The GPU root cause is still unresolved.
+
+#### 2026-10-08 — shared canopy reception for jungle ground layers
+
+- Reuse the existing canopy texture in the jungle material for understory, bushes and ground
+  plants, with a per-instance ground anchor and the same sun-ray projection as grass. Keep the
+  crown draws unattenuated: a ground transmission field cannot correctly self-shadow the crowns.
+- Preserve mesh counts, LOD, draw count and texture budget. Extend owner lifetime ordering to
+  the new consumer, including repeated content loads; fail software gates on shader fallback.
+- Validate close woodland and open clearing composition on native llvmpipe and browser
+  SwiftShader, then compile/lint Android. Do not launch AMD or an accelerated emulator.
+- Implemented the low-layer receiver switch and shared GLSL ground projection. `IslandGame`
+  constructs the new jungle consumer locally and replaces it before the previous canopy owner,
+  preserving lifetime safety during repeated loads and construction failure. Destruction order
+  continues to keep the texture owner last. No CPU retained field or duplicated GPU texture.
+- Native build and isolated llvmpipe boar-view capture pass. Inspected
+  `build/software-captures/20261008T190058.899226Z-boars/capture.png`: shaded leaves now match the
+  nearby shaded soil/grass, while crown lighting remains unchanged. The 1280x720 frame has
+  145 colour bins, deviation 41.00 and spatial contrast 195.90. Jungle remains 28 submissions,
+  with the same 123 visible crowns / 380 understory / 94 bushes / 180 ground plants. Kernel
+  delta is empty; no GL error or shader fallback. Browser/runtime gates require the new marker
+  so an older material cannot qualify accidentally. WebGL compilation passes; runtime follows.
+- Final Chrome 152 / SwiftShader check passed jungle, boars and east serially (PID 3666026).
+  Inspected all three 1280x720 frames; shadowed low leaves match the native result and the open
+  clearing remains sunlit. Both JSON reports pass with seven empty kernel deltas, no shader
+  fallback, GL error or context loss. Mean CPU frame intervals are 237.77 / 257.21 / 241.10 ms;
+  these shared-machine software measurements do not prove a speedup or hardware performance.
+  Prior reports/images are retained as `before-understory-shade` comparisons.
+- Android arm64 incremental assembly/lint passed in four seconds using shared ccache and two
+  workers, with no emulator launch. The wrapper replaced its reproducible debug APK only;
+  native intermediates stayed incremental. Android runtime, AMD, independent Firefox and the
+  complete browser input/audio matrix remain unqualified for this extension.
+- Targeted CPU canopy-field, software preflight and asset-validation CTests pass (3/3);
+  JavaScript/shell syntax checks and `git diff --check` are clean. Incident evidence remains
+  92 MB and the stop latch retains its 18:31 timestamp. Software captures are 52 MB, the reused
+  Web tree 101 MB, Android native intermediates about 1 GiB; 365 GiB is free. No dependency
+  sources or incident evidence were modified and no AMD work was submitted.
+- Next: apply the same sunlight attenuation to grounded wildlife using supported game-side
+  material inputs. Investigated `SkinnedEffect` diffuse/ambient setters read-only: they can
+  consume a CPU light sample without replacing monkey skinning. Compare this bounded CPU
+  sampling path with a new shader before choosing; retain per-body shading and avoid abrupt
+  whole-animal brightness changes at shadow edges. Boar coat/animation refinement still follows.
+
+#### 2026-10-08 — per-vertex canopy light on boars
+
+- Retain the existing one-byte CPU transmission field (1 MiB) alongside its unchanged 4 MiB
+  GPU texture. Use bilinear samples projected along the fixed sun for boar vertex colours;
+  this preserves the existing one-batch BasicEffect path and avoids a separate shader/texture.
+- Centralize the ambient tint constants for CPU/GPU receivers, test elevated projection and
+  edge continuity, and sample each body vertex rather than abruptly switching an entire animal.
+  Keep eye/hoof alpha and existing surface shading. Extend transactional owner lifetime to boars.
+- Qualify the rendered result natively and in WebGL software, then compile/lint Android.
+  Monkeys remain a separate stock-skinned receiver integration; no framework edits or AMD runs.
+- Implemented immutable CPU-field retention and boar per-vertex attenuation. CPU/GPU ambient
+  tint now comes from the same constants, bound as a uniform for terrain/grass/jungle. The boar
+  consumer is committed before replacing the old field owner; no lifetime gap on repeated load.
+  The existing 36,000-vertex GPU capacity, one batch and vertex layout are unchanged.
+- Native build and four targeted CPU CTests pass. The canopy test now checks endpoint/clamped
+  tint, elevated oblique projection, below-ground clamping, non-finite height handling, and
+  continuous bilinear samples across all 128-square oracle texel positions. Boar habitat and
+  movement tests still pass; no movement code changed.
+- Inspected native llvmpipe capture at `build/software-captures/20261008T190944.866816Z-boars/`:
+  the shaded adult no longer remains brighter than the shadowed nearby plants, while the body
+  remains readable. Capture: 1280x720, 137 colour bins, deviation 41.18, spatial contrast 195.94;
+  empty kernel delta and no GL/fallback errors. The coarse coat/animation is still a quality
+  limitation. WebGL build passes and current software runtime qualification follows. Prior
+  browser evidence is preserved with `before-boar-shade` suffixes.
+- Chrome 152 / SwiftShader PID 3670400 passed jungle, boars and east serially. Inspected all
+  three images: boar shade matches native, and the new shared ambient uniform does not darken
+  the open clearing or break jungle shading. Both JSON reports pass; seven kernel deltas are
+  empty, with no GL/fallback/context-loss error. Mean CPU presentation intervals were
+  312.49 / 279.99 / 258.88 ms, not hardware timing or an isolated measure of sampler cost.
+- Android arm64 assembly/lint passed in five seconds, using existing native intermediates and
+  shared ccache with two workers. Only the reproducible debug APK was replaced; no emulator or
+  device run. Native/Web builds also used two workers, and browser software work had eight-CPU
+  affinity. No CNA/Sharp Runtime files changed and the incident latch remains intact.
+- Next: integrate sampled canopy light into the existing monkey material without altering
+  skinning or duplicating shader facilities; use spatial averaging if a whole-body material
+  sample otherwise changes too sharply. Then improve boar coat detail and gait/rooting quality.
+  Real AMD qualification, Android runtime, full browser input/audio and long traversal/performance
+  checks remain pending; the original GPU fault is not fixed by these visual changes.
+
+#### 2026-10-08 — canopy-aware stock monkey material
+
+- Share the retained CPU transmission field with the existing SkinnedEffect renderer. Average
+  five body-footprint samples so a whole-body material does not change sharply at a texel edge.
+  Tint fur, face and eye diffuse colours consistently and attenuate direct specular highlights.
+- Preserve bone transforms, animation transitions, vertex/index buffers, texture budget and
+  submission counts. Extend transactional owner lifetime to this additional consumer.
+- Add CPU sampling tests and a dedicated monkey scene to the serial software browser check;
+  inspect native/browser images, then compile/lint Android. No AMD or emulator workload.
+- Implemented shared-field footprint sampling, diffuse tint and direct specular attenuation
+  through supported SkinnedEffect setters; no palette, shader, geometry or draw changes.
+  Three targeted CPU CTests pass, including per-texel footprint averaging/continuity and invalid
+  radius checks. Added visible-monkey transmission extrema to the initial scene diagnostic.
+- The dedicated native monkey capture at `20261008T192256.050819Z-monkeys` passes with
+  three visible monkeys / seven draws and clean GL/kernel checks, but its initial transmission
+  range is `1..1`: it validates the unshadowed path, not active attenuation. Preserve that
+  distinction instead of treating a feature marker as proof of a shaded scene. Another
+  existing woodland viewpoint is being checked for the attenuated path before browser QA.
+- The boar woodland view also initially reports `1..1` for its two visible monkeys. Added a
+  one-time diagnostic for a visible monkey naturally entering transmission below 0.95, without
+  changing spawn positions, AI or fixtures. The focused browser gate now visits four scenes
+  (jungle, boars, monkeys, east); the dedicated monkey view must contain visible monkeys.
+  Do not claim active shaded-monkey runtime coverage unless the recorded event is present.
+- Final four-scene Chrome 152 / SwiftShader run (PID 3679560) passed. The retained JSON
+  explicitly reports `shadedMonkeyPathObserved: true`; normal motion produced first shade
+  events at transmission 0.892389 / 0.857486 / 0.862748 / 0.868632 in jungle/boars/monkeys/east.
+  All nine kernel deltas are empty and no GL/fallback/context-loss errors occurred. The monkey
+  screenshot was inspected and matches native composition; screenshots precede the later
+  frame-interval sample, so the event log, not the static image, establishes shaded-path use.
+  CPU presentation means are 244.44 / 281.93 / 276.38 / 259.16 ms, not GPU-performance evidence.
+- Android arm64 assembly/lint passed in five seconds, with shared ccache, two workers and no
+  emulator launch. All native/Web builds were sequential with two workers; browser work was
+  bounded to eight CPU cores. No dependency edits, AMD submissions or latch changes occurred.
+  Comparison evidence uses `before-monkey-shade`; incident evidence remains 92 MB, software
+  captures 65 MB, Web tree 106 MB and Android native intermediates about 1 GiB.
+- Final non-display CTest suite passes 18/18 in 33.23 seconds with two workers. Asset validation,
+  script syntax checks and `git diff --check` pass. Retained-artifact startup/capture validators
+  in this suite do not constitute new graphical runs; the explicit software evidence above does.
+  There is 365 GiB free, and all original incident evidence and its stop latch are preserved.
+- Next visual work is now coat detail and movement quality, especially the smooth toy-like
+  boar/monkey surfaces and simple leg poses seen in close captures. Keep the existing field
+  and draw budget; evaluate a small original procedural coat texture against per-pixel shader
+  detail before committing to either. Realistic first-person grass density/materials and more
+  varied jungle composition also remain open, not solved by shared lighting. Hardware and
+  physical Android qualification remain pending behind the unresolved GPU incident.
+
+#### 2026-10-08 offline skinning audit and incident next steps
+
+- Journal access through `sg systemd-journal` is working; `/sys/class/devcoredump` no longer
+  contains `devcd3`. Preserve the partial dump instead of repeating the expired read or causing
+  another fault merely to create a replacement.
+- Added an offline skin-input auditor with ten CPU regression cases. The original software
+  trace contains 721 swaps, 64,169 draws, 2,884 skin draws and 1,445 distinct fetched skin vertex
+  versions. All checked weights and indices pass; maximum bone index is 13. This does not prove
+  hardware shader outputs, uploaded matrix completeness, storage-renaming safety or a root cause.
+- Next incident work: inspect uploaded bone palette completeness and driver descriptor/storage
+  renaming against the preserved command-ring evidence. Before another AMD run, specify a
+  discriminating hypothesis and a pre-armed evidence collector; keep the failure latch active.
+  No root command or hardware rerun is needed for the current offline checks.
+- Incremental Linux build passed with shared ccache and two workers in the existing `build/`
+  tree. All 18 non-display CTests pass, including the current rotated-caster canopy test and
+  the new skin auditor. Artifact validators may read older captures; this is not fresh graphics
+  qualification. The journal interval since 20:45 CEST was empty at the post-test check. Evidence
+  remains 92 MB, with 365 GiB free; no incident artifacts were removed or dependencies edited.
+
+- [x] Extend offline trace inspection to linked draw programs, simple sampler2D level-zero
+  bindings, framebuffer feedback, and allocation/deletion inventory. All 64,169 software draws
+  pass these limited checks; eight inspector regressions pass. No non-shader deletion between
+  first/last swaps; 38,568 buffer storage allocations still require driver-lifetime analysis.
+  All 2,132 traced GLX context-binding calls occur on trace thread 0. This is not AMD qualification.
+- [ ] Continue read-only Mesa descriptor/storage-renaming analysis and shader-data validation;
+  establish a discriminating, pre-fault evidence capture plan before any further hardware run.
 
 - [x] Reconstruct the exact parent command, CTest scheduling, private Weston/Xwayland environment,
   renderer/backend, and collateral PIDs from the agent rollout, CTest

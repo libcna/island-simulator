@@ -19,12 +19,14 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
+    class CanopyLighting;
+    class ForestFloorMaterial;
     /** @brief Frustum-culled island terrain with portable procedural material variation. */
     class TerrainRenderer final
     {
     public:
         TerrainRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                        const IslandTerrain& terrain);
+                        const IslandTerrain& terrain, CanopyLighting& canopyLighting);
         ~TerrainRenderer();
 
         TerrainRenderer(const TerrainRenderer&) = delete;
@@ -58,8 +60,10 @@ namespace island
         void DrawGeometry(int firstIndex, int primitiveCount);
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
+        CanopyLighting& canopyLighting_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> materialEffect_;
+        std::unique_ptr<ForestFloorMaterial> forestFloor_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> indices_;
         std::vector<RenderCell> cells_;

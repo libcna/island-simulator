@@ -6,13 +6,17 @@
 #include <cstddef>
 #include <cstdint>
 #include <numbers>
+#include <limits>
 #include <stdexcept>
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
+#include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
+#include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -56,7 +60,7 @@ namespace island
                 [](const RockPlacement& rock) { return !rock.offshore; }));
             return vegetation.Palms().size() + jungle.Canopy().size() + landRockCount
                 + naturalProps.FallenLogs().size() + naturalProps.Driftwood().size()
-                + MonkeyTroop::MonkeyCount;
+                + MonkeyTroop::MonkeyCount + BoarHerd::BoarCount;
         }
 
         [[nodiscard]] float DistanceFade(const float distanceSquared,
@@ -135,15 +139,11 @@ namespace island
     ContactShadowRenderer::ContactShadowRenderer(
         GraphicsDevice& device, const IslandTerrain& terrain,
         const VegetationLayout& vegetation, const JungleLayout& jungle,
-        const NaturalPropLayout& naturalProps, const float maximumDistanceScale)
+        const NaturalPropLayout& naturalProps, const ShipwreckLayout& shipwreck,
+        const float maximumDistanceScale)
         : device_(device),
           terrain_(terrain),
           effect_(std::make_unique<BasicEffect>(device)),
-          vertices_(std::make_unique<DynamicVertexBuffer>(
-              device, VertexPositionColor::getVertexDeclarationStatic(),
-              static_cast<int>(MaximumShadowCount(vegetation, jungle, naturalProps)
-                               * static_cast<std::size_t>(VerticesPerShadow)),
-              BufferUsage::WriteOnly)),
           monkeyMaximumDistance_(MonkeyMaximumDistance * maximumDistanceScale)
     {
         if (!std::isfinite(maximumDistanceScale) || maximumDistanceScale <= 0.0f
@@ -156,8 +156,8 @@ namespace island
         effect_->setFogEnabledProperty(false);
         const std::size_t maximumShadowCount = MaximumShadowCount(
             vegetation, jungle, naturalProps);
-        staticShadows_.reserve(maximumShadowCount - MonkeyTroop::MonkeyCount);
-        staticVertices_.reserve((maximumShadowCount - MonkeyTroop::MonkeyCount)
+        staticShadows_.reserve(maximumShadowCount - MonkeyTroop::MonkeyCount - BoarHerd::BoarCount);
+        staticVertices_.reserve((maximumShadowCount - MonkeyTroop::MonkeyCount - BoarHerd::BoarCount)
                                 * static_cast<std::size_t>(VerticesPerShadow));
         stagingVertices_.reserve(maximumShadowCount
                                  * static_cast<std::size_t>(VerticesPerShadow));
@@ -173,7 +173,7 @@ namespace island
             AppendTerrainEllipse(staticVertices_, terrain_, x, z, forwardX, forwardZ,
                                  forwardRadius, sideRadius, forwardOffset, centreAlpha);
             staticShadows_.push_back({Vector3(x, y, z), radius, maximumDistance,
-                                      firstVertex, centreAlpha, kind});
+                                      firstVertex, VerticesPerShadow, kind});
         };
 
         const float horizontalSunLength = std::hypot(environment::SunDirectionX,
@@ -195,38 +195,69 @@ namespace island
                         1.18f * tree.scale, 0.72f * tree.scale,
                         0.24f * tree.scale, 40U);
         }
-        for (const RockPlacement& rock : naturalProps.Rocks()) {
-            if (rock.offshore) {
-                continue;
+        const auto cachePatch = [&](const ContactFootprint& footprint, const StaticShadowKind kind,
+                                    const float distance, const ContactPatchDetail detail) {
+            const std::size_t first = staticVertices_.size();
+            for (const auto& vertex : BuildContactPatch(terrain_, footprint, detail)) {
+                staticVertices_.emplace_back(Vector3(vertex.x, vertex.y, vertex.z),
+                    Color(0, 0, 0, static_cast<int>(std::lround(vertex.opacity * 255))));
             }
-            const float footprint = std::max(rock.scaleX, rock.scaleZ);
-            cacheShadow(StaticShadowKind::Rock, rock.x, rock.y, rock.z,
-                        footprint, PropMaximumDistance * maximumDistanceScale,
-                        std::cos(rock.yawRadians), std::sin(rock.yawRadians),
-                        0.78f * rock.scaleX, 0.68f * rock.scaleZ,
-                        0.08f * footprint, 52U);
+            if (staticVertices_.size() == first) return;
+            staticShadows_.push_back({{}, 0, distance * maximumDistanceScale, first,
+                                      staticVertices_.size() - first, kind});
+        };
+        for (const auto& rock : naturalProps.Rocks()) {
+            if (!rock.offshore) cachePatch(LandRockContactFootprint(rock), StaticShadowKind::Rock,
+                                          PropMaximumDistance, ContactPatchDetail::Compact);
         }
-        for (const FallenLogPlacement& log : naturalProps.FallenLogs()) {
-            cacheShadow(StaticShadowKind::Wood, log.x, log.y, log.z,
-                        log.length * 0.55f, PropMaximumDistance * maximumDistanceScale,
-                        std::cos(log.yawRadians), std::sin(log.yawRadians),
-                        log.length * 0.52f, log.radius * 1.45f, 0.0f, 45U);
+        for (const auto& log : naturalProps.FallenLogs()) {
+            cachePatch(LogContactFootprint(log), StaticShadowKind::Wood,
+                       PropMaximumDistance, ContactPatchDetail::Compact);
         }
-        for (const DriftwoodPlacement& wood : naturalProps.Driftwood()) {
-            cacheShadow(StaticShadowKind::Wood, wood.x, wood.y, wood.z,
-                        wood.length * 0.55f, PropMaximumDistance * maximumDistanceScale,
-                        std::cos(wood.yawRadians), std::sin(wood.yawRadians),
-                        wood.length * 0.52f, wood.radius * 1.70f, 0.0f, 30U);
+        for (const auto& wood : naturalProps.Driftwood()) {
+            cachePatch(DriftwoodContactFootprint(wood), StaticShadowKind::Wood,
+                       PropMaximumDistance, ContactPatchDetail::Compact);
         }
+        const auto cacheCoastal = [&](const ContactFootprint& footprint) {
+            cachePatch(footprint, StaticShadowKind::Coastal, 110.0f, ContactPatchDetail::Coastal);
+        };
+        for (const auto& rock : naturalProps.Rocks()) {
+            if (rock.offshore) cacheCoastal(RockContactFootprint(rock));
+        }
+        for (const auto& footprint : HullContactFootprints(shipwreck.Ship())) cacheCoastal(footprint);
+        for (const auto& debris : shipwreck.Debris()) cacheCoastal(DebrisContactFootprint(debris));
+
+        // Bounds cover the actual projected/slope-conforming patch, not the source object's pivot.
+        for (auto& shadow : staticShadows_) {
+            Vector3 minimum(std::numeric_limits<float>::max()), maximum(std::numeric_limits<float>::lowest());
+            for (std::size_t index = shadow.firstVertex; index < shadow.firstVertex + shadow.vertexCount; ++index) {
+                minimum = Vector3::Min(minimum, staticVertices_[index].Position);
+                maximum = Vector3::Max(maximum, staticVertices_[index].Position);
+            }
+            shadow.centre = (minimum + maximum) * 0.5f;
+            shadow.radius = Vector3::Distance(minimum, maximum) * 0.5f + 0.001f;
+        }
+        vertexCapacity_ = staticVertices_.size()
+            + (MonkeyTroop::MonkeyCount + BoarHerd::BoarCount) * VerticesPerShadow;
+        if (vertexCapacity_ > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
+            throw std::length_error("Contact-shadow batch exceeds supported vertex capacity");
+        }
+        stagingVertices_.reserve(vertexCapacity_);
+        vertices_ = std::make_unique<DynamicVertexBuffer>(device,
+            VertexPositionColor::getVertexDeclarationStatic(), static_cast<int>(vertexCapacity_), BufferUsage::WriteOnly);
     }
 
     ContactShadowRenderer::~ContactShadowRenderer() = default;
 
     void ContactShadowRenderer::Draw(const Matrix& view, const Matrix& projection,
                                      const Vector3& cameraPosition,
-                                     const std::span<const MonkeyState> monkeys)
+                                     const std::span<const MonkeyState> monkeys,
+                                     const std::span<const BoarState> boars)
     {
         drawCallCount_ = 0;
+        if (monkeys.size() > MonkeyTroop::MonkeyCount || boars.size() > BoarHerd::BoarCount) {
+            throw std::invalid_argument("Contact-shadow population exceeds the reserved GPU capacity");
+        }
         // Contact shadows are diffuse enough to tolerate sub-decimetre refresh thresholds. This
         // avoids repeating culling and a dynamic-buffer orphan for nearly identical frames.
         bool rebuild = !cacheValid_
@@ -245,12 +276,28 @@ namespace island
                 > ProjectionRefreshThreshold
             || std::abs(projection.M22 - cachedProjection_.M22)
                 > ProjectionRefreshThreshold
-            || cachedMonkeyPositions_.size() != monkeys.size();
+            || cachedMonkeyPositions_.size() != monkeys.size()
+            || cachedBoarPoses_.size() != boars.size();
         if (!rebuild) {
             for (std::size_t index = 0; index < monkeys.size(); ++index) {
                 const Vector3 position(monkeys[index].x, monkeys[index].y, monkeys[index].z);
                 if (Vector3::DistanceSquared(position, cachedMonkeyPositions_[index])
                     > MonkeyRefreshDistanceSquared) {
+                    rebuild = true;
+                    break;
+                }
+            }
+        }
+
+        if (!rebuild) {
+            for (std::size_t index = 0; index < boars.size(); ++index) {
+                const auto& boar = boars[index];
+                const auto& cached = cachedBoarPoses_[index];
+                const float dx = boar.x - cached.X, dz = boar.z - cached.Z;
+                if (dx * dx + dz * dz > MonkeyRefreshDistanceSquared
+                    || std::abs(boar.y - cached.Y) > 0.04f
+                    || std::abs(std::remainder(boar.headingRadians - cached.W,
+                                              2.0f * std::numbers::pi_v<float>)) > 0.06f) {
                     rebuild = true;
                     break;
                 }
@@ -265,6 +312,8 @@ namespace island
             visibleRockShadowCount_ = 0;
             visibleWoodShadowCount_ = 0;
             visibleMonkeyShadowCount_ = 0;
+            visibleBoarShadowCount_ = 0;
+            visibleCoastalShadowCount_ = 0;
             primitiveCount_ = 0;
             const BoundingFrustum frustum(view * projection);
 
@@ -280,16 +329,11 @@ namespace island
                                shadow.radius, shadow.maximumDistance, fade)) {
                     continue;
                 }
-                const std::uint8_t alpha = FadedAlpha(shadow.centreAlpha, fade);
-                for (int vertexIndex = 0; vertexIndex < VerticesPerShadow; ++vertexIndex) {
+                for (std::size_t vertexIndex = 0; vertexIndex < shadow.vertexCount; ++vertexIndex) {
                     const VertexPositionColor& source = staticVertices_[
-                        shadow.firstVertex + static_cast<std::size_t>(vertexIndex)];
-                    if ((vertexIndex % 3) == 0) {
-                        stagingVertices_.emplace_back(
-                            source.Position, Color(0, 0, 0, static_cast<int>(alpha)));
-                    } else {
-                        stagingVertices_.push_back(source);
-                    }
+                        shadow.firstVertex + vertexIndex];
+                    stagingVertices_.emplace_back(source.Position,
+                        Color(0, 0, 0, static_cast<int>(FadedAlpha(source.Color.getAProperty(), fade))));
                 }
                 switch (shadow.kind) {
                 case StaticShadowKind::Palm:
@@ -303,6 +347,9 @@ namespace island
                     break;
                 case StaticShadowKind::Wood:
                     ++visibleWoodShadowCount_;
+                    break;
+                case StaticShadowKind::Coastal:
+                    ++visibleCoastalShadowCount_;
                     break;
                 }
             }
@@ -320,10 +367,24 @@ namespace island
                 ++visibleMonkeyShadowCount_;
             }
 
+            for (const auto& boar : boars) {
+                float fade = 0.0f;
+                if (!IsVisible(frustum, cameraPosition, boar.x, boar.y, boar.z,
+                               1.3f * boar.scale, monkeyMaximumDistance_, fade)) continue;
+                AppendTerrainEllipse(stagingVertices_, terrain_, boar.x, boar.z,
+                                     std::cos(boar.headingRadians), std::sin(boar.headingRadians),
+                                     1.05f * boar.scale, 0.48f * boar.scale,
+                                     0.10f * boar.scale, FadedAlpha(90, fade));
+                ++visibleBoarShadowCount_;
+            }
+
             visibleShadowCount_ = visiblePalmShadowCount_ + visibleCanopyShadowCount_
                 + visibleRockShadowCount_ + visibleWoodShadowCount_
-                + visibleMonkeyShadowCount_;
+                + visibleMonkeyShadowCount_ + visibleBoarShadowCount_ + visibleCoastalShadowCount_;
             primitiveCount_ = static_cast<int>(stagingVertices_.size() / 3U);
+            if (stagingVertices_.size() > vertexCapacity_) {
+                throw std::length_error("Contact-shadow upload exceeds reserved vertex capacity");
+            }
             if (!stagingVertices_.empty()) {
                 vertices_->SetData(stagingVertices_.data(), 0,
                                    static_cast<int>(stagingVertices_.size()),
@@ -336,6 +397,10 @@ namespace island
             cachedMonkeyPositions_.reserve(monkeys.size());
             for (const MonkeyState& monkey : monkeys) {
                 cachedMonkeyPositions_.emplace_back(monkey.x, monkey.y, monkey.z);
+            }
+            cachedBoarPoses_.clear();
+            for (const auto& boar : boars) {
+                cachedBoarPoses_.emplace_back(boar.x, boar.y, boar.z, boar.headingRadians);
             }
             cacheValid_ = true;
         }

@@ -1,0 +1,97 @@
+# Fallen-leaf contact with sloped terrain
+
+Date: 2026-10-09. This is game-side scene correctness, not an AMDGPU incident fix.
+
+## Evidence and scope
+
+Three folded dry leaves accompany each near-detail ground rosette. Previously
+they shared the parent's horizontal root plane, even after that origin had been
+correctly grounded. Across three world seeds, 607,320 vertex/interior samples
+range from **-0.186663 to +0.229299 m** above the actual terrain; 126,987 samples
+are below ground. These are sampled triangle points, not unique plants or pixels.
+
+`GroundLitter.hpp` now contains the original five-vertex/four-triangle leaf profiles,
+shading weights and indices for both rendering and the independent contact audit.
+Species count, placement, silhouettes, colours, folds and stillness are retained.
+The close native comparison restores a previously buried leaf behind the rosette;
+this is a local contact improvement, not a completed natural forest-floor appearance.
+
+## Implementation and resource lifetime
+
+- Material tag 2 identifies only dry litter in the existing 52-byte jungle vertex
+  format. A startup check rejects wind on that tag. Live-leaf and wood lighting
+  retain their own tags; dry-leaf normals use derivatives of the deformed surface.
+- The portable vertex shader samples exact rendered terrain triangles at each
+  litter vertex and adds its original scaled fold height. Upright foliage is not
+  flattened or deformed. Canopy-light receiving uses that vertex's new ground height.
+- `RenderedTerrainHeightMap` owns the one existing 241 by 241 RGBA8/RGB24 texture
+  previously owned privately by grass. `IslandGame` constructs it before borrowing
+  renderers and declares it before them, so reverse member destruction releases it
+  last. Reload replaces consumers before replacing the old owner; failed construction
+  destroys local consumers before their local owner. Neither renderer destroys or
+  uploads this texture during draws. Slot 0 is canopy light; slot 1 is terrain height.
+- Grass retains its existing shader/decoding/sampler path. There is no duplicate
+  texture: the required custom paths still use 232,324 GPU bytes for this map. A
+  startup-only CPU height cache creates the shared texture; no CPU cache is retained
+  by the map. The shared object is also allocated in stock-effect configurations,
+  where it is unused; fallback litter remains on the original flat root plane.
+- Cell bounds include the full terrain height range under the litter's 0.74 m
+  scaled radius, its folded height and 0.1 mm packing/numerical allowance. Near/far
+  mesh bounds remain included. No extra draw, mesh attribute or geometry is added.
+  Jungle shared vertex payload remains 2,893,748 bytes; rosette near geometry stays
+  190 vertices / 236 triangles. Each tagged vertex adds three vertex texture fetches
+  and the shader branch; physical GPU performance remains unmeasured.
+
+## Validation
+
+All 32 non-display groups pass (24.71 s). Tests validate profile bounds, index/triangle
+planform, invalid profile IDs, scaled/yawed placements, packed-height reconstruction
+and conservative renderer height bounds. Four barycentric subdivisions per triangle
+across three seeds yield corrected sampled clearances **0.0103827–0.0634251 m**,
+with zero sampled penetrations. These nonzero clearances preserve the designed
+folds; they are not floating-origin errors. This is a CPU shader emulation and a
+dense sampled check, not GPU readback or proof for every possible seed/point.
+
+Native contained llvmpipe `litter` captures:
+
+- Before: `20261009T112732.839300Z-litter`.
+- After: `20261009T113215.353315Z-litter`.
+
+Both pass image/shader checks and have empty live/final kernel deltas. Converted
+PNGs in `build-probe/island-litter-contact-{before,after}.png` are inspected. The
+folded leaves remain coarse and small; wind remains active in surrounding foliage,
+so these are not frozen pixel-isolation measurements.
+
+Contained Chrome/SwiftShader `20261009T113543.634482Z-chrome-litter` passes both
+litter and grass, 60 intervals each, with zero GL errors/context loss and empty
+live/final kernel deltas. Both logs include the new diagnostic; both captured images
+are inspected. These captures precede the interval series, not post-simulation
+images. Host browser PID 4067759 exits. The focused `litter` scope requires the
+intended rosette camera and both shared-resource consumers; existing broad suites
+remain unchanged. It does not repeat full input/lifecycle or moving-camera checks.
+
+Android x86_64/restored ARM64 assembly and lint pass (5 s each); CNA retains its
+existing warning that GLES3 is primarily tested on Linux. Contained API 35
+KVM/SwiftShader `20261009T113904.058650Z-litter` passes, app PID 1958 / entry
+TID 2035, first-draw total 10,925.940 ms. Required shader marker is present, the
+1280x720 image is inspected, live/final kernel deltas are empty and the owned
+emulator exits zero. This is not renewed touch/lifecycle/traversal testing or
+ARM64 runtime qualification. Only rolling APKs were replaced; hashes are recorded
+in `build-android.md`. Software evidence does not qualify AMD hardware or physical
+mobile performance. Refreshed Web package: 13,910,123 raw / 6,973,507 gzip bytes.
+
+Final native incremental build and all 32 non-display groups pass (22.25 s),
+including Web package validation. Script syntax/whitespace checks pass. No owned
+graphics process survives, the final kernel interval since 13:25 CEST is empty,
+and the hardware stop-latch hash is unchanged. Disk has 359 GiB free; original
+incident evidence remains preserved.
+
+## Remaining work
+
+The stock-effect fallback is not terrain-draped. Litter still disappears with the
+rosette's near LOD at 30 m and repeats three simple folded shapes. This is not a
+complete forest litter system or slope correction for broad tree/shrub roots.
+The original 2.1 cm local base clearance is retained, rather than claiming every
+edge touches the ground; reducing it needs a finer surface-intersection audit.
+Close off-path composition, surface detail, smooth LOD and vegetation/prop overlaps
+remain open. No CNA/Sharp Runtime files or AMD hardware qualification state changed.

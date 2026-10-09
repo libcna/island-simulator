@@ -1,4 +1,5 @@
 #include "IslandSimulator/IslandGame.hpp"
+#include "IslandSimulator/CanopyLighting.hpp"
 
 #include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
@@ -23,6 +24,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/html5.h>
+#endif
 
 #include "Microsoft/Xna/Framework/Color.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
@@ -63,9 +68,13 @@ namespace island
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
+            case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
+            case FixedViewpoint::CanopyInspection: return "canopy";
             case FixedViewpoint::WestClearingDetail: return "west";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
+            case FixedViewpoint::GroundBroadleafDetail: return "ground-broadleaf";
+            case FixedViewpoint::BushDetail: return "bush";
             case FixedViewpoint::FallenLeafDetail: return "litter";
             case FixedViewpoint::GroundContactDetail: return "contact";
             case FixedViewpoint::MovementTraceDetail: return "movement";
@@ -83,6 +92,7 @@ namespace island
             case FixedViewpoint::MonkeyDetail: return "monkeys";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::CrabDetail: return "crabs";
+            case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
@@ -107,11 +117,13 @@ namespace island
                            FixedViewpoint viewpoint, const bool showDebugOverlay,
                            const bool inputDiagnostics, const bool showWorldDebug,
                            std::string benchmarkPath, std::string startupReportPath,
-                           const bool userSettingsEnabled)
+                           const bool userSettingsEnabled,
+                           std::optional<CanopyLodInspection> canopyLodInspection)
         : graphics_(this),
           birdFlock_(terrain_),
           butterflyMeadow_(terrain_),
           crabColony_(terrain_),
+          boarHerd_(terrain_),
           fishSchools_(terrain_),
           seaTurtleGroup_(terrain_),
           sharkPatrol_(terrain_),
@@ -126,6 +138,7 @@ namespace island
           smokeTest_(smokeTest),
           viewpoint_(viewpoint),
           capturePath_(std::move(capturePath)),
+          canopyLodInspection_(canopyLodInspection),
           debugOverlayVisible_(showDebugOverlay),
           worldDebugVisible_(showWorldDebug),
           userSettingsEnabled_(userSettingsEnabled),
@@ -148,6 +161,7 @@ namespace island
                               shipwreckLayout_.Obstacles().end());
         worldCollisionGrid_.Reset(worldObstacles);
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
+        boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -187,6 +201,16 @@ namespace island
             yaw_ = -std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.085f;
             std::cout << "island-simulator: east clearing QA camera at authored centre\n";
+        } else if (viewpoint_ == FixedViewpoint::ClearingEdgeDetail) {
+            // Fixed world coordinates keep comparisons stable if colony placement changes.
+            const auto& clearing = VegetationLayout::EastClearing;
+            cameraPosition_ = Vector3(clearing.x + 26, terrain_.Height(clearing.x + 26, clearing.z + 6)
+                + PlayerMotion::EyeHeight, clearing.z + 6);
+            const Vector3 target(clearing.x + 40, terrain_.Height(clearing.x + 40, clearing.z + 10) + 0.4f,
+                clearing.z + 10);
+            const auto direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
         } else if (viewpoint_ == FixedViewpoint::WestClearingDetail) {
             const ClearingDefinition& clearing = VegetationLayout::WestClearing;
             cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)
@@ -219,11 +243,53 @@ namespace island
             const Vector3 toTarget = target - cameraPosition_;
             yaw_ = std::atan2(toTarget.X, toTarget.Z);
             pitch_ = std::atan2(toTarget.Y, std::hypot(toTarget.X, toTarget.Z));
+        } else if (viewpoint_ == FixedViewpoint::BushDetail) {
+            const BushPlacement* selected = nullptr;
+            float bestScore = std::numeric_limits<float>::max();
+            float selectedCameraX=0,selectedCameraZ=0;
+            for (const auto& bush : jungleLayout_.Bushes()) {
+                if (bush.variant != 0) continue;
+                const float pathDistance = std::abs(bush.x - VegetationLayout::PrimaryPathCenterX(bush.z));
+                for (int heading=0;heading<8;++heading) {
+                    const float angle=heading*std::numbers::pi_v<float>/4;
+                    const float offsetX=std::cos(angle)*3.8f,offsetZ=std::sin(angle)*3.8f;
+                    const auto distanceToSightline=[&](float x,float z) {
+                        const float t=std::clamp(((x-bush.x)*offsetX+(z-bush.z)*offsetZ)/(3.8f*3.8f),0.0f,1.0f);
+                        return std::hypot(x-bush.x-offsetX*t,z-bush.z-offsetZ*t);
+                    };
+                    bool obstructed=false;
+                    for (const auto& plant:jungleLayout_.Understory()) {
+                        if (distanceToSightline(plant.x,plant.z)<1.8f) { obstructed=true; break; }
+                    }
+                    if (obstructed) continue;
+                    for (const auto& obstacle:worldCollisionGrid_.Obstacles()) {
+                        if (distanceToSightline(obstacle.x,obstacle.z)<obstacle.radius+0.65f) {
+                            obstructed=true; break;
+                        }
+                    }
+                    if (obstructed) continue;
+                    const float score=std::abs(terrain_.SignedShoreDistance(bush.x,bush.z)-70.0f)
+                        + std::abs(pathDistance-5.0f)*0.4f - bush.scale*2.0f;
+                    if (score<bestScore) {
+                        bestScore=score; selected=&bush;
+                        selectedCameraX=bush.x+offsetX; selectedCameraZ=bush.z+offsetZ;
+                    }
+                }
+            }
+            if (!selected) throw std::runtime_error("Bush QA camera found no unobstructed variant 0 target");
+            cameraPosition_=Vector3(selectedCameraX,terrain_.Height(selectedCameraX,selectedCameraZ)
+                +PlayerMotion::EyeHeight,selectedCameraZ);
+            const Vector3 target(selected->x,selected->y+0.6f*selected->scale,selected->z);
+            const Vector3 delta=target-cameraPosition_;
+            yaw_=std::atan2(delta.X,delta.Z);
+            pitch_=std::atan2(delta.Y,std::hypot(delta.X,delta.Z));
+            std::cout << "island-simulator: bush QA target variant 0 at player-eye detail distance\n";
         } else if ((viewpoint_ == FixedViewpoint::GroundPlantDetail
+                    || viewpoint_ == FixedViewpoint::GroundBroadleafDetail
                     || viewpoint_ == FixedViewpoint::FallenLeafDetail)
                    && !jungleLayout_.GroundPlants().empty()) {
             const std::uint8_t targetVariant = viewpoint_ == FixedViewpoint::FallenLeafDetail
-                ? 0U : 2U;
+                ? 0U : (viewpoint_ == FixedViewpoint::GroundBroadleafDetail ? 1U : 2U);
             const GroundPlantPlacement* selected = nullptr;
             float bestScore = std::numeric_limits<float>::max();
             for (const GroundPlantPlacement& plant : jungleLayout_.GroundPlants()) {
@@ -292,7 +358,8 @@ namespace island
             pitch_ = std::atan2(toPlant.Y, std::hypot(toPlant.X, toPlant.Z));
             std::cout << "island-simulator: "
                       << (viewpoint_ == FixedViewpoint::FallenLeafDetail
-                              ? "ground-litter" : "ground")
+                              ? "ground-litter" : (viewpoint_ == FixedViewpoint::GroundBroadleafDetail
+                                  ? "ground-broadleaf" : "ground"))
                       << " QA target variant "
                       << static_cast<int>(selected->variant)
                       << " at player-eye detail distance\n";
@@ -560,6 +627,15 @@ namespace island
             pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
             std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
                          "from the beach\n";
+        } else if (viewpoint_ == FixedViewpoint::BoarDetail) {
+            const auto& boar = boarHerd_.Boars().front();
+            const float x = boar.x + 4.5f;
+            const float z = boar.z + 4.5f;
+            cameraPosition_ = Vector3(x, terrain_.Height(x, z) + PlayerMotion::EyeHeight, z);
+            const Vector3 direction = Vector3(boar.x, boar.y + 0.5f, boar.z) - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: boar QA camera views non-hostile inland wildlife\n";
         } else if (viewpoint_ == FixedViewpoint::CrabDetail
                    && crabColony_.Crabs().size() > 2U) {
             const CrabState& crab = crabColony_.Crabs()[2U];
@@ -593,6 +669,16 @@ namespace island
             std::cout << "island-simulator: butterfly QA camera views a sunny clearing group\n";
         }
         graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
+        graphics_.setPreferMultiSamplingProperty(qualityProfile_.preferredBackBufferSamples > 0);
+        // PreferMultiSampling alone requests up to eight samples in current CNA. Bound the
+        // request through its supported preparation event, including future device resets.
+        // Capture only the immutable policy value; this callback does not depend on game lifetime.
+        graphics_.PreparingDeviceSettings.Add(
+            [samples = qualityProfile_.preferredBackBufferSamples](
+                System::Object*, const PreparingDeviceSettingsEventArgs& args) {
+                args.getGraphicsDeviceInformationEXT().getPresentationParametersProperty()
+                    .setMultiSampleCountProperty(samples);
+            });
         graphics_.setPreferredBackBufferWidthProperty(1280);
         graphics_.setPreferredBackBufferHeightProperty(720);
         if (!benchmarkPath_.empty()) {
@@ -680,8 +766,8 @@ namespace island
         if (!qualityProfile_.IsValid()) {
             throw std::logic_error("The selected runtime quality profile is invalid");
         }
-        if (GeneratedTextureBudget::TotalRgba8Bytes
-                > qualityProfile_.generatedTextureByteBudget
+        if (GeneratedTextureBudget::TotalRuntimeRgba8Bytes
+                > qualityProfile_.textureByteBudget
             || Soundscape::MaximumPlayingSourceCount
                 > qualityProfile_.maximumPlayingAudioSources) {
             throw std::logic_error(
@@ -697,38 +783,82 @@ namespace island
                           << static_cast<int>(qualityProfile_.wildlifeMaximumDistanceScale * 100.0f)
                           << "% ocean " << qualityProfile_.oceanQuadsPerAxis << 'x'
                           << qualityProfile_.oceanQuadsPerAxis << " textures "
-                          << GeneratedTextureBudget::TotalRgba8Bytes << '/'
-                          << qualityProfile_.generatedTextureByteBudget << " bytes audio "
+                          << GeneratedTextureBudget::TotalRuntimeRgba8Bytes << '/'
+                          << qualityProfile_.textureByteBudget << " bytes audio "
                           << Soundscape::MaximumPlayingSourceCount << '/'
                           << qualityProfile_.maximumPlayingAudioSources << " sources";
         std::cout << qualityDiagnostic.str() << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(qualityDiagnostic.str());
         auto& device = getGraphicsDeviceProperty();
+        const int appliedSamples = device.getPresentationParametersProperty().getMultiSampleCountProperty();
+        std::ostringstream antialiasingDiagnostic;
+        antialiasingDiagnostic << "island-simulator: edge antialiasing requested "
+            << qualityProfile_.preferredBackBufferSamples << "x renderer-applied " << appliedSamples << 'x';
+        if (appliedSamples < qualityProfile_.preferredBackBufferSamples) {
+            antialiasingDiagnostic << " (device-limited; geometric edge quality reduced)";
+        }
+        std::cout << antialiasingDiagnostic.str() << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(antialiasingDiagnostic.str());
         RecordGraphicsRuntimeDiagnostics(device);
         InitializeGpuDiagnostics();
-        terrainRenderer_ = std::make_unique<TerrainRenderer>(device, terrain_);
+        // Build consumers against a temporary owner. Commit them before replacing the old
+        // owner so a repeated LoadContent never leaves old renderers referencing freed data.
+        auto canopyLighting = std::make_unique<CanopyLighting>(device, terrain_, jungleLayout_);
+        auto terrainHeightMap = std::make_unique<RenderedTerrainHeightMap>(device, terrain_);
+        auto terrainRenderer = std::make_unique<TerrainRenderer>(device, terrain_, *canopyLighting);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(
             device, distantSceneryLayout_);
         contactShadowRenderer_ = std::make_unique<ContactShadowRenderer>(
             device, terrain_, vegetationLayout_, jungleLayout_, naturalPropLayout_,
-            qualityProfile_.contactShadowDistanceScale);
+            shipwreckLayout_, qualityProfile_.contactShadowDistanceScale);
+        constexpr auto coastalShadowDiagnostic =
+            "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch";
+        std::cout << coastalShadowDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(coastalShadowDiagnostic);
+        constexpr auto landShadowDiagnostic =
+            "island-simulator: land prop shadows match model yaw and rendered terrain triangles";
+        std::cout << landShadowDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(landShadowDiagnostic);
         birdRenderer_ = std::make_unique<BirdRenderer>(
             device, 690.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         butterflyRenderer_ = std::make_unique<ButterflyRenderer>(
             device, 72.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         crabRenderer_ = std::make_unique<CrabRenderer>(
             device, 92.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        auto boarRenderer = std::make_unique<BoarRenderer>(
+            device, terrain_, canopyLighting->Field(), 135.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
             device, 190.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         sharkRenderer_ = std::make_unique<SharkRenderer>(
             device, 710.0f * qualityProfile_.wildlifeMaximumDistanceScale);
-        monkeyRenderer_ = std::make_unique<MonkeyRenderer>(
-            device, 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
-        grassRenderer_ = std::make_unique<GrassRenderer>(
-            device, terrain_, grassLayout_, qualityProfile_.grassMaximumDistance);
-        jungleRenderer_ = std::make_unique<JungleRenderer>(device, jungleLayout_);
+        auto monkeyRenderer = std::make_unique<MonkeyRenderer>(
+            device, canopyLighting->Field(), 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        auto grassRenderer = std::make_unique<GrassRenderer>(
+            device, terrain_, grassLayout_, *canopyLighting, *terrainHeightMap, qualityProfile_.grassMaximumDistance);
+        auto jungleRenderer = std::make_unique<JungleRenderer>(device, terrain_, jungleLayout_,
+                                                              *canopyLighting, *terrainHeightMap);
+        if (canopyLodInspection_) {
+            const auto camera = jungleRenderer->SetLodInspection(*canopyLodInspection_);
+            if (viewpoint_ == FixedViewpoint::CanopyInspection) {
+                cameraPosition_ = Vector3(camera.position[0], camera.position[1], camera.position[2]);
+                const Vector3 direction = Vector3(camera.target[0], camera.target[1], camera.target[2]) - cameraPosition_;
+                yaw_ = std::atan2(direction.X, direction.Z);
+                pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+                std::cout << "island-simulator: elevated canopy inspection camera position="
+                          << cameraPosition_.X << ',' << cameraPosition_.Y << ',' << cameraPosition_.Z
+                          << " target=" << camera.target[0] << ',' << camera.target[1] << ',' << camera.target[2]
+                          << " full-scene=1\n";
+            }
+        }
+        terrainRenderer_ = std::move(terrainRenderer);
+        grassRenderer_ = std::move(grassRenderer);
+        jungleRenderer_ = std::move(jungleRenderer);
+        boarRenderer_ = std::move(boarRenderer);
+        monkeyRenderer_ = std::move(monkeyRenderer);
+        canopyLighting_ = std::move(canopyLighting);
+        terrainHeightMap_ = std::move(terrainHeightMap);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         shipwreckRenderer_ = std::make_unique<ShipwreckRenderer>(device, shipwreckLayout_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
@@ -899,7 +1029,7 @@ namespace island
 
     void IslandGame::Update(GameTime& gameTime)
     {
-        const float deltaSeconds = std::min(
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -949,6 +1079,7 @@ namespace island
         butterflyMeadow_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -988,7 +1119,15 @@ namespace island
                           << viewport.getHeightProperty()
                           << " run " << (playerMotion_.IsRunning() ? 1 : 0)
                           << " velocity " << playerMotion_.VelocityX() << ' '
-                          << playerMotion_.VelocityZ() << '\n' << std::flush;
+                          << playerMotion_.VelocityZ()
+                          << " grass " << (grassRenderer_ ? grassRenderer_->VisibleNearPatchCount() : 0)
+                          << ' ' << (grassRenderer_ ? grassRenderer_->VisibleMiddlePatchCount() : 0)
+                          << ' ' << (grassRenderer_ ? grassRenderer_->VisibleFarPatchCount() : 0)
+                          << " cells " << (grassRenderer_ ? grassRenderer_->VisibleCellCount() : 0)
+                          << " draws " << (grassRenderer_ ? grassRenderer_->DrawCallCount() : 0);
+                if (jungleRenderer_) jungleRenderer_->WriteVegetationLodDiagnostics(std::cout);
+                else std::cout << " canopy 0 0 trees none shrubs 0 0 bushes none";
+                std::cout << '\n' << std::flush;
             }
         }
     }
@@ -1078,6 +1217,25 @@ namespace island
         const bool touchInteracting = touchControlState_.movementActive
             || touchControlState_.lookActive
             || touchControlState_.sensitivitySelectorActive;
+#if defined(__EMSCRIPTEN__)
+        // The page acquires pointer lock synchronously in the trusted click handler. A short
+        // click can finish between game updates, so polled button state is not its receipt.
+        // Observe the browser's granted lock instead of relying on the transient button state.
+        EmscriptenPointerlockChangeEvent pointerLock{};
+        if (emscripten_get_pointerlock_status(&pointerLock) != EMSCRIPTEN_RESULT_SUCCESS) {
+            throw std::runtime_error("Unable to query browser pointer-lock state");
+        }
+        const bool browserPointerLocked = pointerLock.isActive
+            && std::string_view(pointerLock.id) == "canvas";
+        if (!browserPointerLocked) {
+            browserPointerReleasePending_ = false;
+            if (Mouse::getIsRelativeMouseModeEXTProperty()) {
+                Mouse::setIsRelativeMouseModeEXTProperty(false);
+                setIsMouseVisibleProperty(true);
+            }
+            mouseCaptured_ = false;
+        }
+#endif
 
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
@@ -1270,6 +1428,15 @@ namespace island
 #if defined(__EMSCRIPTEN__)
             // Browser Escape can release pointer lock before the game observes this key edge.
             // Never turn that ordering difference into a request to terminate the Web session.
+            std::cout << "island-simulator: browser Escape state before release captured "
+                      << mouseCaptured_ << " relative "
+                      << Mouse::getIsRelativeMouseModeEXTProperty() << '\n';
+            // The HTML page can own a lock before CNA relative mode is enabled. Release that
+            // lock explicitly too; SDL's already-disabled relative mode is otherwise a no-op.
+            browserPointerReleasePending_ = browserPointerLocked;
+            if (browserPointerLocked && emscripten_exit_pointerlock() != EMSCRIPTEN_RESULT_SUCCESS) {
+                throw std::runtime_error("Unable to release browser pointer lock");
+            }
             mouseCaptured_ = false;
             Mouse::setIsRelativeMouseModeEXTProperty(false);
             setIsMouseVisibleProperty(true);
@@ -1294,9 +1461,15 @@ namespace island
 #else
         const bool keyboardCanCaptureMouse = movementKeyPressed;
 #endif
+#if defined(__EMSCRIPTEN__)
+        (void)keyboardCanCaptureMouse;
+        const bool pointerCanCapture = browserPointerLocked && !browserPointerReleasePending_;
+#else
+        const bool pointerCanCapture = mouse.getLeftButtonProperty() == ButtonState::Pressed
+            || keyboardCanCaptureMouse;
+#endif
         if (!touchInteracting && !smokeTest_ && !mouseCaptured_
-            && (mouse.getLeftButtonProperty() == ButtonState::Pressed
-                || keyboardCanCaptureMouse)) {
+            && pointerCanCapture) {
             mouseCaptured_ = true;
             Mouse::setIsRelativeMouseModeEXTProperty(true);
             setIsMouseVisibleProperty(false);
@@ -1464,6 +1637,7 @@ namespace island
             + contactShadowRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
             + crabRenderer_->DrawCallCount()
+            + boarRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
@@ -1480,6 +1654,7 @@ namespace island
         const int canopy = jungleRenderer_->VisibleCanopyCount();
         const int grass = grassRenderer_->VisiblePatchCount();
         const int crabs = crabRenderer_->VisibleCrabCount();
+        const int boars = boarRenderer_->VisibleCount();
         const int butterflies = butterflyRenderer_->VisibleButterflyCount();
         const int seaTurtles = seaTurtleRenderer_->VisibleTurtleCount();
         const float shoreDistance = terrain_.SignedShoreDistance(
@@ -1494,6 +1669,7 @@ namespace island
             ranges.minimumCanopy = ranges.maximumCanopy = canopy;
             ranges.minimumGrass = ranges.maximumGrass = grass;
             ranges.minimumCrabs = ranges.maximumCrabs = crabs;
+            ranges.minimumBoars = ranges.maximumBoars = boars;
             ranges.minimumButterflies = ranges.maximumButterflies = butterflies;
             ranges.minimumSeaTurtles = ranges.maximumSeaTurtles = seaTurtles;
             ranges.minimumShoreDistance = ranges.maximumShoreDistance = shoreDistance;
@@ -1517,6 +1693,8 @@ namespace island
             ranges.maximumGrass = std::max(ranges.maximumGrass, grass);
             ranges.minimumCrabs = std::min(ranges.minimumCrabs, crabs);
             ranges.maximumCrabs = std::max(ranges.maximumCrabs, crabs);
+            ranges.minimumBoars = std::min(ranges.minimumBoars, boars);
+            ranges.maximumBoars = std::max(ranges.maximumBoars, boars);
             ranges.minimumButterflies = std::min(
                 ranges.minimumButterflies, butterflies);
             ranges.maximumButterflies = std::max(
@@ -1538,6 +1716,7 @@ namespace island
         ranges.totalCanopy += static_cast<std::uint64_t>(canopy);
         ranges.totalGrass += static_cast<std::uint64_t>(grass);
         ranges.totalCrabs += static_cast<std::uint64_t>(crabs);
+        ranges.totalBoars += static_cast<std::uint64_t>(boars);
         ranges.totalButterflies += static_cast<std::uint64_t>(butterflies);
         ranges.totalSeaTurtles += static_cast<std::uint64_t>(seaTurtles);
         ranges.lastCameraPosition = cameraPosition_;
@@ -1665,6 +1844,9 @@ namespace island
                << "    \"crabs\": {\"min\": " << ranges.minimumCrabs
                << ", \"max\": " << ranges.maximumCrabs << ", \"mean\": "
                << meanCount(ranges.totalCrabs) << "},\n"
+               << "    \"boars\": {\"min\": " << ranges.minimumBoars
+               << ", \"max\": " << ranges.maximumBoars << ", \"mean\": "
+               << meanCount(ranges.totalBoars) << "},\n"
                << "    \"butterflies\": {\"min\": "
                << ranges.minimumButterflies << ", \"max\": "
                << ranges.maximumButterflies << ", \"mean\": "
@@ -1685,6 +1867,8 @@ namespace island
                << contactShadowRenderer_->VisibleShadowCount() << ",\n"
                << "    \"contact_shadow_triangles\": "
                << contactShadowRenderer_->PrimitiveCount() << ",\n"
+               << "    \"coastal_contact_shadows\": "
+               << contactShadowRenderer_->VisibleCoastalShadowCount() << ",\n"
                << "    \"palms\": " << palmRenderer_->VisiblePalmCount() << ",\n"
                << "    \"palms_near\": " << palmRenderer_->VisibleNearPalmCount() << ",\n"
                << "    \"palms_far\": " << palmRenderer_->VisibleFarPalmCount() << ",\n"
@@ -1693,6 +1877,8 @@ namespace island
                << jungleRenderer_->VisibleCanopyNearCount() << ",\n"
                << "    \"canopy_far\": "
                << jungleRenderer_->VisibleCanopyFarCount() << ",\n"
+               << "    \"canopy_frustum_rejected\": "
+               << jungleRenderer_->CanopyFrustumRejectedCount() << ",\n"
                << "    \"understory\": " << jungleRenderer_->VisibleUnderstoryCount() << ",\n"
                << "    \"bushes\": " << jungleRenderer_->VisibleBushCount() << ",\n"
                << "    \"ground_plants\": " << jungleRenderer_->VisibleGroundPlantCount()
@@ -1714,6 +1900,7 @@ namespace island
                << "    \"butterflies\": "
                << butterflyRenderer_->VisibleButterflyCount() << ",\n"
                << "    \"crabs\": " << crabRenderer_->VisibleCrabCount() << ",\n"
+               << "    \"boars\": " << boarRenderer_->VisibleCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"sea_turtles\": "
                << seaTurtleRenderer_->VisibleTurtleCount() << ",\n"
@@ -1843,10 +2030,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("contact-shadows");
             contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                         monkeyTroop_.Monkeys());
+                                         monkeyTroop_.Monkeys(), boarHerd_.Boars());
         }
 
-        const float timeSeconds = static_cast<float>(gameTime.getTotalGameTimeProperty()
+        const float timeSeconds = canopyLodInspection_ ? 1.0f : static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         {
             GpuDiagnosticScope gpuPass("natural-props");
@@ -1888,6 +2075,11 @@ namespace island
             GpuDiagnosticScope gpuPass("crabs");
             crabRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                 crabColony_.Crabs());
+        }
+
+        {
+            GpuDiagnosticScope gpuPass("boars");
+            boarRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_, boarHerd_.Boars());
         }
 
         {
@@ -2100,6 +2292,10 @@ namespace island
             }
             overlayState.butterflyDraws = butterflyRenderer_->DrawCallCount();
             overlayState.visibleCrabs = crabRenderer_->VisibleCrabCount();
+            overlayState.visibleBoars = boarRenderer_->VisibleCount();
+            overlayState.totalBoars = static_cast<int>(boarHerd_.Boars().size());
+            overlayState.boarDraws = boarRenderer_->DrawCallCount();
+            overlayState.boarShadows = contactShadowRenderer_->VisibleBoarShadowCount();
             overlayState.totalCrabs = static_cast<int>(crabColony_.Crabs().size());
             overlayState.nearCrabs = crabRenderer_->VisibleNearCrabCount();
             overlayState.farCrabs = crabRenderer_->VisibleFarCrabCount();
@@ -2277,7 +2473,8 @@ namespace island
                       << jungleRenderer_->TotalGroundPlantCount() << " ground plants (near "
                       << jungleRenderer_->VisibleGroundPlantNearCount() << ", far "
                       << jungleRenderer_->VisibleGroundPlantFarCount() << "), "
-                      << jungleRenderer_->DrawCallCount() << " draws; props "
+                      << jungleRenderer_->DrawCallCount() << " draws; canopy frustum rejects "
+                      << jungleRenderer_->CanopyFrustumRejectedCount() << "; props "
                       << naturalPropRenderer_->VisibleRockCount() << '/'
                       << naturalPropRenderer_->TotalRockCount() << " rocks, "
                       << naturalPropRenderer_->VisibleReefRockCount() << '/'
@@ -2323,7 +2520,9 @@ namespace island
                       << crabColony_.Crabs().size() << " visible (near "
                       << crabRenderer_->VisibleNearCrabCount() << ", far "
                       << crabRenderer_->VisibleFarCrabCount() << "), "
-                      << crabRenderer_->DrawCallCount() << " draw; fish "
+                      << crabRenderer_->DrawCallCount() << " draw; boars "
+                      << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
+                      << " visible, " << boarRenderer_->DrawCallCount() << " draw; fish "
                       << fishRenderer_->VisibleFishCount() << '/'
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "
@@ -2342,14 +2541,17 @@ namespace island
                       << monkeyRenderer_->DrawCallCount() << " draws, blends "
                       << monkeyRenderer_->ActiveCrossfadeCount() << '/'
                       << monkeyRenderer_->CompletedCrossfadeCount()
-                      << " active/completed; distant "
+                      << " active/completed, canopy transmission "
+                      << monkeyRenderer_->MinimumCanopyTransmission() << ".."
+                      << monkeyRenderer_->MaximumCanopyTransmission() << "; distant "
                       << distantSceneryRenderer_->IsletCount() << " islets, "
                       << distantSceneryRenderer_->DrawCallCount()
                       << " draw; contact shadows "
                       << contactShadowRenderer_->VisibleShadowCount() << ", "
                       << contactShadowRenderer_->PrimitiveCount() << " triangles, "
                       << contactShadowRenderer_->DrawCallCount()
-                      << " draw; water view " << waterViewModel_.Intensity()
+                      << " draw; coastal contact shadows " << contactShadowRenderer_->VisibleCoastalShadowCount()
+                      << "; water view " << waterViewModel_.Intensity()
                       << ", " << waterViewOverlay_->DrawCallCount()
                       << " draw, player ripple " << waterRippleModel_.Intensity()
                       << ", phase " << waterRippleModel_.Phase()

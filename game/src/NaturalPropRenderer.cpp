@@ -3,6 +3,8 @@
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/RockSurface.hpp"
+#include "IslandSimulator/SurfaceNormals.hpp"
 
 #include <algorithm>
 #include <array>
@@ -13,6 +15,7 @@
 #include <numbers>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #include "CNA/Graphics/ShaderCodeEXT.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
@@ -56,7 +59,7 @@ namespace island
         constexpr float BeachDetailMaximumDistance = 52.0f;
         constexpr float FallenFrondMaximumDistance = 76.0f;
         constexpr std::string_view RockFacetDiagnostic =
-            "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading";
+            "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering";
         constexpr std::string_view RockTintDiagnostic =
             "island-simulator: rock per-instance tint reuses existing transforms";
         constexpr std::string_view FallenLogEndDiagnostic =
@@ -77,15 +80,36 @@ namespace island
         {
             std::vector<VertexPositionColor> vertices;
             std::vector<std::uint16_t> indices;
+            std::vector<Vector3> normals;
+            std::vector<Color> albedos;
         };
+
+        struct PropGpuVertex
+        {
+            float position[3];
+            std::uint8_t color[4];
+            float normal[3];
+        };
+        static_assert(std::is_trivially_copyable_v<PropGpuVertex>);
+        static_assert(std::is_standard_layout_v<PropGpuVertex> && sizeof(PropGpuVertex) == 28);
+
+        const VertexDeclaration& PropDeclaration()
+        {
+            static const VertexDeclaration declaration{
+                VertexElement(offsetof(PropGpuVertex, position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+                VertexElement(offsetof(PropGpuVertex, color), VertexElementFormat::Color, VertexElementUsage::Color, 0),
+                VertexElement(offsetof(PropGpuVertex, normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0)};
+            return declaration;
+        }
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
-layout(location = 2) in vec4 aInstance0;
-layout(location = 3) in vec4 aInstance1;
-layout(location = 4) in vec4 aInstance2;
-layout(location = 5) in vec4 aInstance3;
+layout(location = 2) in vec3 aNormal;
+layout(location = 3) in vec4 aInstance0;
+layout(location = 4) in vec4 aInstance1;
+layout(location = 5) in vec4 aInstance2;
+layout(location = 6) in vec4 aInstance3;
 
 uniform mat4 uViewProjection;
 
@@ -93,6 +117,7 @@ out vec3 vColor;
 out vec3 vLocal;
 out vec3 vWorld;
 out float vMaterialDetail;
+out vec3 vNormal;
 
 void main()
 {
@@ -115,6 +140,11 @@ void main()
     vLocal = aPosition;
     vWorld = world.xyz;
     vMaterialDetail = aColor.a;
+    // Inverse transpose for orthogonal scale/yaw columns; no per-fragment matrix inverse.
+    vNormal = aInstance0.xyz * (aNormal.x / max(dot(aInstance0.xyz, aInstance0.xyz), 0.000001))
+        + aInstance1.xyz * (aNormal.y / max(dot(aInstance1.xyz, aInstance1.xyz), 0.000001))
+        + aInstance2.xyz * (aNormal.z / max(dot(aInstance2.xyz, aInstance2.xyz), 0.000001));
+    vNormal *= inversesqrt(max(dot(vNormal,vNormal), 0.000001));
     gl_Position = uViewProjection * world;
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -125,39 +155,67 @@ in vec3 vColor;
 in vec3 vLocal;
 in vec3 vWorld;
 in float vMaterialDetail;
+in vec3 vNormal;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
 
 out vec4 fragColor;
 
+float stoneHash(vec3 p)
+{
+    p = fract(p * 0.1031);
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.x + p.y) * p.z);
+}
+
+float stoneNoise(vec3 p)
+{
+    vec3 cell = floor(p);
+    vec3 t = fract(p);
+    t = t*t*(3.0-2.0*t);
+    return mix(mix(mix(stoneHash(cell), stoneHash(cell+vec3(1,0,0)), t.x),
+                   mix(stoneHash(cell+vec3(0,1,0)), stoneHash(cell+vec3(1,1,0)), t.x), t.y),
+               mix(mix(stoneHash(cell+vec3(0,0,1)), stoneHash(cell+vec3(1,0,1)), t.x),
+                   mix(stoneHash(cell+vec3(0,1,1)), stoneHash(cell+vec3(1,1,1)), t.x), t.y), t.z);
+}
+
+float filteredStoneNoise(vec3 p, float footprint)
+{
+    return mix(stoneNoise(p), 0.5, smoothstep(0.22, 0.65, footprint));
+}
+
 void main()
 {
+    // Derivatives must execute outside distance/material branches. The warped grain uses a
+    // conservative Jacobian bound (5.5 + sqrt(3)*1.4*sqrt(3)*1.5*0.85 < 11).
+    float worldFootprint = max(length(dFdx(vWorld)), length(dFdy(vWorld)));
+    vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(235.0, 610.0, distanceToCamera);
     vec3 materialColor = vColor;
     if (vMaterialDetail < 0.375) {
-        vec3 detailedColor = vColor;
-        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
-        float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
-        vec3 faceNormal = faceVector * inverseFaceLength;
-        float facetDiffuse = abs(dot(faceNormal, normalize(uToSun)));
-        float upwardFill = abs(faceNormal.y);
-        detailedColor *= 0.84 + facetDiffuse * 0.20 + upwardFill * 0.05;
-        float strata = 0.5 + 0.5 * sin(vWorld.y * 10.5
-            + vWorld.x * 1.7 - vWorld.z * 1.2);
-        float grain = sin(dot(vWorld, vec3(3.1, 4.7, -2.3)))
-            * sin(dot(vWorld, vec3(-5.3, 2.1, 4.1)) + 1.8);
-        detailedColor *= 0.945 + 0.065 * strata;
-        float lichen = smoothstep(0.72, 0.96, grain);
-        detailedColor = mix(detailedColor,
-                            detailedColor * vec3(0.84, 1.04, 0.82),
-                            lichen * 0.16);
-        float nearDetail = 1.0 - smoothstep(58.0, 90.0, distanceToCamera);
-        materialColor = mix(vColor, detailedColor, nearDetail);
-        float wetBand = (1.0 - smoothstep(-0.08, 0.32, vWorld.y)) * nearDetail;
-        vec3 wetColor = materialColor * vec3(0.68, 0.76, 0.77);
-        materialColor = mix(materialColor, wetColor, wetBand * 0.52);
+        vec3 normal = vNormal * inversesqrt(max(dot(vNormal,vNormal), 0.000001));
+        float direct = max(dot(normal, normalize(uToSun)), 0.0);
+        float sky = max(normal.y, 0.0);
+        float broad = filteredStoneNoise(vWorld * 0.85, worldFootprint * 0.85);
+        float nearDetail = 1.0 - smoothstep(55.0, 90.0, distanceToCamera);
+        float grain = 0.5;
+        float pores = 0.5;
+        if (nearDetail > 0.0) {
+            grain = filteredStoneNoise(vWorld * 5.5 + vec3(broad * 1.4), worldFootprint * 11.0);
+            pores = filteredStoneNoise(vWorld * 28.0, worldFootprint * 28.0);
+        }
+        float mineral = smoothstep(0.56,0.78,grain);
+        vec3 albedo = vColor * (0.86 + 0.25 * broad);
+        albedo = mix(albedo, albedo * vec3(1.17,1.13,1.05), mineral * 0.55 * nearDetail);
+        albedo *= 1.0 + (pores-0.5) * 0.22 * nearDetail;
+        float lichen = smoothstep(0.58,0.78,broad) * smoothstep(-0.1,0.6,normal.y)
+            * smoothstep(0.25,1.0,vWorld.y);
+        albedo = mix(albedo, albedo * vec3(0.81,1.02,0.78), lichen * 0.3);
+        float wetBand = 1.0 - smoothstep(-0.10, 0.26 + 0.10*grain, vWorld.y);
+        albedo *= mix(vec3(1.0), vec3(0.64,0.71,0.73), wetBand);
+        materialColor = albedo * (0.55 + 0.43*direct + 0.13*sky);
     } else if (vMaterialDetail < 0.625) {
         float barkAngle = atan(vLocal.y, vLocal.z);
         float coarseGroove = 0.5 + 0.5 * sin(
@@ -199,12 +257,18 @@ void main()
         materialColor = mix(vColor, detailedColor,
                             1.0 - smoothstep(30.0, 56.0, distanceToCamera));
     } else if (vMaterialDetail < 0.99) {
-        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
         float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
         vec3 faceNormal = faceVector * inverseFaceLength;
         float twoSidedDiffuse = abs(dot(faceNormal, uToSun));
         float upwardFill = abs(faceNormal.y);
         materialColor *= 0.86 + twoSidedDiffuse * 0.16 + upwardFill * 0.04;
+    }
+    // Wood albedo is not prelit. Reuse the stone stream's scale-correct normal transform,
+    // including far wood (material 255); zero-normal decorative/contact meshes stay unchanged.
+    if (vMaterialDetail >= 0.375 && dot(vNormal, vNormal) > 0.000001) {
+        vec3 normal = normalize(vNormal);
+        float direct = max(dot(normal, normalize(uToSun)), 0.0);
+        materialColor *= 0.55 + 0.43*direct + 0.13*max(normal.y, 0.0);
     }
     vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
@@ -274,80 +338,42 @@ void main()
         [[nodiscard]] PropGeometry CreateRockGeometry(const int variant, const bool farMesh)
         {
             PropGeometry geometry;
-            const int rings = farMesh ? 4 : 7;
-            const int slices = farMesh ? 7 : 12;
-            geometry.vertices.reserve(
-                static_cast<std::size_t>((rings + 2) * slices + 2));
-            geometry.indices.reserve(
-                static_cast<std::size_t>(rings * slices * 6 + slices * 6));
+            const int slices = farMesh ? 7 : 24;
             AppendContactDisk(geometry, slices);
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.normals.resize(base, Vector3::Zero);
+            for (const auto& vertex : geometry.vertices) geometry.albedos.push_back(vertex.Color);
             const int materialDetail = farMesh ? 255 : 64;
             const Color rockBase = variant == 0 ? Color(112, 113, 98, materialDetail)
                 : (variant == 1 ? Color(126, 115, 92, materialDetail)
                    : (variant == 2 ? Color(98, 116, 104, materialDetail)
                                    : Color(124, 128, 116, materialDetail)));
-            const float rockHeight = 0.98f + 0.045f * static_cast<float>(variant);
-            for (int ring = 0; ring <= rings; ++ring) {
-                const float t = static_cast<float>(ring) / static_cast<float>(rings);
-                const float radialBase = (0.72f
-                    + 0.38f * std::sin(t * std::numbers::pi_v<float>))
-                    * (1.0f - 0.55f * t);
-                for (int slice = 0; slice < slices; ++slice) {
-                    const float angle = 2.0f * std::numbers::pi_v<float>
-                        * static_cast<float>(slice) / static_cast<float>(slices);
-                    const float crownWeight = farMesh ? 0.0f : t * t * t * t;
-                    const float crownBreakup = crownWeight
-                        * (0.035f * std::sin(
-                               angle * (2.0f + static_cast<float>(variant))
-                               + static_cast<float>(variant) * 0.7f)
-                           + 0.018f * std::sin(
-                               angle * 5.0f - static_cast<float>(variant) * 0.9f));
-                    const float y = t * rockHeight + crownBreakup;
-                    const float roughness = 0.88f + 0.11f
-                        * std::sin(angle * (2.0f + variant) + t * 7.0f + variant * 1.3f);
-                    const float radial = radialBase * roughness;
-                    const Vector3 normal(std::cos(angle) * radialBase,
-                                         std::sin((t - 0.5f) * std::numbers::pi_v<float>),
-                                         std::sin(angle) * radialBase);
-                    const float light = std::clamp(
-                        0.72f + 0.30f * std::max(
-                            0.0f, normal.X * 0.54f + normal.Y * 0.77f
-                                      - normal.Z * 0.18f)
-                            + 0.05f * std::sin(
-                                angle * (3.0f + static_cast<float>(variant)) + t * 11.0f),
-                        0.68f, 1.08f);
-                    geometry.vertices.emplace_back(
-                        Vector3(std::cos(angle) * radial, y, std::sin(angle) * radial),
-                        ShadeColor(rockBase, light));
-                }
+            const Color albedo(rockBase.getRProperty(), rockBase.getGProperty(),
+                               rockBase.getBProperty(), static_cast<std::uint8_t>(64));
+            const auto surface = BuildRockSurface(variant, farMesh);
+            for (const auto& vertex : surface.vertices) {
+                const Vector3 normal(vertex.normal[0], vertex.normal[1], vertex.normal[2]);
+                const float light = 0.72f + 0.30f * std::max(0.0f,
+                    normal.X * 0.54f + normal.Y * 0.77f - normal.Z * 0.18f);
+                geometry.vertices.emplace_back(Vector3(vertex.position[0], vertex.position[1], vertex.position[2]),
+                                                ShadeColor(rockBase, light));
+                geometry.normals.push_back(normal);
+                geometry.albedos.push_back(albedo);
             }
-            for (int ring = 0; ring < rings; ++ring) {
-                for (int slice = 0; slice < slices; ++slice) {
-                    const int next = (slice + 1) % slices;
-                    const auto lower = static_cast<std::uint16_t>(base + ring * slices + slice);
-                    const auto lowerNext = static_cast<std::uint16_t>(base + ring * slices + next);
-                    const auto upper = static_cast<std::uint16_t>(base + (ring + 1) * slices + slice);
-                    const auto upperNext = static_cast<std::uint16_t>(base + (ring + 1) * slices + next);
-                    geometry.indices.insert(geometry.indices.end(),
-                                            {lower, upper, lowerNext,
-                                             lowerNext, upper, upperNext});
-                }
-            }
-            const auto cap = static_cast<std::uint16_t>(geometry.vertices.size());
-            geometry.vertices.emplace_back(
-                Vector3((static_cast<float>(variant) - 1.5f) * 0.065f,
-                        rockHeight + (farMesh ? 0.045f : 0.105f),
-                        std::sin(static_cast<float>(variant) * 1.7f) * 0.065f),
-                ShadeColor(rockBase, 0.91f));
-            const auto topRing = static_cast<std::uint16_t>(base + rings * slices);
-            for (int slice = 0; slice < slices; ++slice) {
-                const auto current = static_cast<std::uint16_t>(topRing + slice);
-                const auto next = static_cast<std::uint16_t>(
-                    topRing + (slice + 1) % slices);
-                geometry.indices.insert(geometry.indices.end(), {current, cap, next});
-            }
+            for (const auto index : surface.indices) geometry.indices.push_back(base + index);
             return geometry;
+        }
+
+        void BuildWoodNormals(PropGeometry& geometry)
+        {
+            std::vector<std::array<float, 3>> positions;
+            positions.reserve(geometry.vertices.size());
+            for (const auto& vertex : geometry.vertices) {
+                positions.push_back({vertex.Position.X, vertex.Position.Y, vertex.Position.Z});
+            }
+            for (const auto& normal : BuildSurfaceNormals(positions, geometry.indices)) {
+                geometry.normals.emplace_back(normal[0], normal[1], normal[2]);
+            }
         }
 
         [[nodiscard]] PropGeometry CreateLogGeometry(const int variant, const bool farMesh)
@@ -401,6 +427,7 @@ void main()
                         Vector3(brokenX, std::sin(angle) * ring + bend,
                                 std::cos(angle) * ring),
                         ShadeColor(bark, light));
+                    geometry.albedos.push_back(bark);
                 }
             }
             for (int section = 0; section < sections; ++section) {
@@ -424,6 +451,7 @@ void main()
                 const float x = endDirection * (farMesh ? 0.505f : 0.53f);
                 const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
                 geometry.vertices.emplace_back(Vector3(x, 0.0f, 0.0f), cut);
+                geometry.albedos.push_back(cut);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
@@ -436,13 +464,25 @@ void main()
                         Vector3(cutX, std::sin(angle) * cutRadius,
                                 std::cos(angle) * cutRadius),
                         ShadeColor(cut, 0.82f + 0.16f * std::max(0.0f, std::sin(angle))));
+                    geometry.albedos.push_back(cut);
                 }
                 for (int side = 0; side < sides; ++side) {
                     const auto first = static_cast<std::uint16_t>(centre + 1U + side);
                     const auto next = static_cast<std::uint16_t>(
                         centre + 1U + (side + 1) % sides);
-                    if (end == 0) geometry.indices.insert(geometry.indices.end(), {centre, next, first});
-                    else geometry.indices.insert(geometry.indices.end(), {centre, first, next});
+                    if (end == 0) geometry.indices.insert(geometry.indices.end(), {centre, first, next});
+                    else geometry.indices.insert(geometry.indices.end(), {centre, next, first});
+                }
+            }
+
+            BuildWoodNormals(geometry);
+            // Cap rims have independent vertices; their normal must face away from the log.
+            const std::size_t caps = (sections + 1) * sides;
+            for (int end = 0; end < 2; ++end) {
+                for (int vertex = 0; vertex <= sides; ++vertex) {
+                    if (geometry.normals[caps + end*(sides+1) + vertex].X * (end == 0 ? -1 : 1) <= 0) {
+                        throw std::runtime_error("Log cap normal faces inward");
+                    }
                 }
             }
 
@@ -471,6 +511,10 @@ void main()
                                      static_cast<std::uint16_t>(contactBase + 1U),
                                      static_cast<std::uint16_t>(contactBase + 2U),
                                      static_cast<std::uint16_t>(contactBase + 3U)});
+            while (geometry.albedos.size() < geometry.vertices.size()) {
+                geometry.albedos.push_back(geometry.vertices[geometry.albedos.size()].Color);
+                geometry.normals.push_back(Vector3::Zero);
+            }
             return geometry;
         }
 
@@ -516,6 +560,7 @@ void main()
                         Vector3(x, std::sin(angle) * ring + bend.Y,
                                 std::cos(angle) * ring + bend.Z),
                         ShadeColor(wood, light));
+                    geometry.albedos.push_back(wood);
                 }
             }
             for (int section = 0; section < sections; ++section) {
@@ -543,6 +588,7 @@ void main()
                 const Vector3 bend = bendOffset(t);
                 const auto centre = static_cast<std::uint16_t>(geometry.vertices.size());
                 geometry.vertices.emplace_back(Vector3(x, bend.Y, bend.Z), endColor);
+                geometry.albedos.push_back(endColor);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
@@ -550,15 +596,16 @@ void main()
                     geometry.vertices.emplace_back(
                         Vector3(x, std::sin(angle) * ring + bend.Y,
                                 std::cos(angle) * ring + bend.Z), endColor);
+                    geometry.albedos.push_back(endColor);
                 }
                 for (int side = 0; side < sides; ++side) {
                     const auto first = static_cast<std::uint16_t>(centre + 1U + side);
                     const auto next = static_cast<std::uint16_t>(
                         centre + 1U + (side + 1) % sides);
                     if (end == 0) {
-                        geometry.indices.insert(geometry.indices.end(), {centre, next, first});
-                    } else {
                         geometry.indices.insert(geometry.indices.end(), {centre, first, next});
+                    } else {
+                        geometry.indices.insert(geometry.indices.end(), {centre, next, first});
                     }
                 }
             }
@@ -590,6 +637,7 @@ void main()
                                 path[ring] + offset
                                     + transverse * (std::sin(angle) * baseRadius * taper),
                                 ShadeColor(wood, light));
+                            geometry.albedos.push_back(ShadeColor(wood, brightness));
                         }
                     }
                     for (int ring = 0; ring < ringCount - 1; ++ring) {
@@ -616,6 +664,7 @@ void main()
                         : path[2];
                     const auto tipIndex = static_cast<std::uint16_t>(geometry.vertices.size());
                     geometry.vertices.emplace_back(tip, ShadeColor(wood, brightness * 1.05f));
+                    geometry.albedos.push_back(ShadeColor(wood, brightness * 1.05f));
                     const auto lastRing = static_cast<std::uint16_t>(
                         limbBase + (ringCount - 1) * sides);
                     for (int side = 0; side < sides; ++side) {
@@ -656,6 +705,15 @@ void main()
                              Vector3(0.18f, 1.03f, -0.84f),
                              Vector3(0.09f, 2.18f, -1.49f)},
                             0.018f, 0.21f, 0.90f);
+                    }
+                }
+            }
+            BuildWoodNormals(geometry);
+            const std::size_t caps = (sections + 1) * sides;
+            for (int end = 0; end < 2; ++end) {
+                for (int vertex = 0; vertex <= sides; ++vertex) {
+                    if (geometry.normals[caps + end*(sides+1) + vertex].X * (end == 0 ? -1 : 1) < 0.99f) {
+                        throw std::runtime_error("Driftwood cap normal faces inward");
                     }
                 }
             }
@@ -996,13 +1054,17 @@ void main()
         std::cout << "island-simulator: dry wrack reuses one of four beach-detail variants\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
-            std::cout << "island-simulator: near rocks use procedural strata and restrained lichen flecks\n";
+            std::cout << "island-simulator: near rocks use filtered mineral grain and restrained lichen patches\n";
             std::cout << "island-simulator: near low rocks use a fixed-sea-level wet material band\n";
             std::cout << RockFacetDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(RockFacetDiagnostic);
             std::cout << RockTintDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(RockTintDiagnostic);
             std::cout << "island-simulator: near fallen logs use procedural bark grooves and cut-end growth rings\n";
+            constexpr std::string_view woodLighting =
+                "island-simulator: wood uses outward shared normals and scale-correct fixed-sun lighting";
+            std::cout << woodLighting << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(woodLighting);
             std::cout << FallenLogEndDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenLogEndDiagnostic);
             std::cout << FallenLogCrackDiagnostic << '\n';
@@ -1027,16 +1089,40 @@ void main()
 
     void NaturalPropRenderer::CreateMeshes()
     {
-        const auto upload = [this](const PropGeometry& geometry, PropMesh& mesh,
+        std::size_t uploadedVertices = 0;
+        const auto upload = [this, &uploadedVertices](const PropGeometry& geometry, PropMesh& mesh,
                                    const char* label) {
             ValidateProceduralTriangleMeshOrThrow(
                 geometry.vertices.size(), geometry.indices, label);
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
-            mesh.vertices = std::make_unique<VertexBuffer>(
-                device_, VertexPositionColor::getVertexDeclarationStatic(),
-                mesh.vertexCount, BufferUsage::WriteOnly);
-            mesh.vertices->SetData(geometry.vertices.data(), mesh.vertexCount);
+            uploadedVertices += geometry.vertices.size();
+            if (customShaderReady_) {
+                if ((!geometry.normals.empty() && geometry.normals.size() != geometry.vertices.size())
+                    || (!geometry.albedos.empty() && geometry.albedos.size() != geometry.vertices.size())) {
+                    throw std::runtime_error("Prop normal/albedo count does not match uploaded geometry");
+                }
+                std::vector<PropGpuVertex> vertices;
+                vertices.reserve(geometry.vertices.size());
+                for (std::size_t index = 0; index < geometry.vertices.size(); ++index) {
+                    const auto& source = geometry.vertices[index];
+                    const auto normal = geometry.normals.empty() ? Vector3::Zero : geometry.normals[index];
+                    const Color color = geometry.albedos.empty() ? source.Color : geometry.albedos[index];
+                    for (float value : {source.Position.X, source.Position.Y, source.Position.Z,
+                                       normal.X, normal.Y, normal.Z}) {
+                        if (!std::isfinite(value)) throw std::runtime_error("Non-finite natural-prop upload");
+                    }
+                    vertices.push_back({{source.Position.X, source.Position.Y, source.Position.Z},
+                        {color.getRProperty(),color.getGProperty(),color.getBProperty(),color.getAProperty()},
+                        {normal.X,normal.Y,normal.Z}});
+                }
+                mesh.vertices = std::make_unique<VertexBuffer>(device_, PropDeclaration(), mesh.vertexCount, BufferUsage::WriteOnly);
+                mesh.vertices->SetData(vertices.data(), mesh.vertexCount);
+            } else {
+                mesh.vertices = std::make_unique<VertexBuffer>(device_, VertexPositionColor::getVertexDeclarationStatic(),
+                                                               mesh.vertexCount, BufferUsage::WriteOnly);
+                mesh.vertices->SetData(geometry.vertices.data(), mesh.vertexCount);
+            }
             mesh.indices = std::make_unique<IndexBuffer>(
                 device_, IndexElementSize::SixteenBits, static_cast<int>(geometry.indices.size()),
                 BufferUsage::WriteOnly);
@@ -1068,6 +1154,9 @@ void main()
             upload(CreateFallenFrondGeometry(static_cast<int>(variant)),
                    fallenFrondMeshes_[variant], "fallen-frond");
         }
+        std::cout << "island-simulator: prop mesh inventory " << uploadedVertices << " vertices, "
+                  << uploadedVertices * (customShaderReady_ ? sizeof(PropGpuVertex) : sizeof(VertexPositionColor))
+                  << " vertex bytes\n";
     }
 
     void NaturalPropRenderer::CreateCells(const NaturalPropLayout& layout)
@@ -1090,14 +1179,14 @@ void main()
                                   rock.variant, rock.x, rock.z, rock.offshore});
             const float radius = std::max(rock.scaleX, rock.scaleZ);
             extendBounds(cell, Vector3(rock.x - radius, rock.y - 0.1f, rock.z - radius),
-                         Vector3(rock.x + radius, rock.y + rock.scaleY * 1.2f, rock.z + radius));
+                         Vector3(rock.x + radius, rock.y + rock.scaleY * RockSurfaceMaximumHeight, rock.z + radius));
             ++totalRockCount_;
             if (rock.offshore) ++totalReefRockCount_;
         }
         for (const FallenLogPlacement& log : layout.FallenLogs()) {
             PropCell& cell = cells_[CellIndex(log.x, log.z)];
             cell.logs.push_back({Matrix::CreateScale(log.length, log.radius, log.radius)
-                                     * Matrix::CreateRotationY(log.yawRadians)
+                                     * Matrix::CreateRotationY(WoodModelYaw(log.yawRadians))
                                      * Matrix::CreateTranslation(log.x, log.y, log.z),
                                  log.variant, log.x, log.z});
             const float boundRadius = log.length * 0.55f;
@@ -1108,7 +1197,7 @@ void main()
         for (const DriftwoodPlacement& wood : layout.Driftwood()) {
             PropCell& cell = cells_[CellIndex(wood.x, wood.z)];
             cell.driftwood.push_back({Matrix::CreateScale(wood.length, wood.radius, wood.radius)
-                                          * Matrix::CreateRotationY(wood.yawRadians)
+                                          * Matrix::CreateRotationY(WoodModelYaw(wood.yawRadians))
                                           * Matrix::CreateTranslation(wood.x, wood.y, wood.z),
                                       wood.variant, wood.x, wood.z});
             const float boundRadius = wood.length * 0.56f;

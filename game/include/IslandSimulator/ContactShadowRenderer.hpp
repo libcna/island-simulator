@@ -8,6 +8,7 @@
 
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
+#include "Microsoft/Xna/Framework/Vector4.hpp"
 
 namespace Microsoft::Xna::Framework::Graphics
 {
@@ -22,8 +23,10 @@ namespace island
     class IslandTerrain;
     class JungleLayout;
     class NaturalPropLayout;
+    class ShipwreckLayout;
     class VegetationLayout;
     struct MonkeyState;
+    struct BoarState;
 
     /**
      * @brief One-batch terrain-conforming grounding shadows for nearby scene objects.
@@ -39,6 +42,7 @@ namespace island
             Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
             const IslandTerrain& terrain, const VegetationLayout& vegetation,
             const JungleLayout& jungle, const NaturalPropLayout& naturalProps,
+            const ShipwreckLayout& shipwreck,
             float maximumDistanceScale = 1.0f);
         ~ContactShadowRenderer();
 
@@ -50,7 +54,8 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  std::span<const MonkeyState> monkeys);
+                  std::span<const MonkeyState> monkeys,
+                  std::span<const BoarState> boars);
 
         [[nodiscard]] int VisibleShadowCount() const noexcept { return visibleShadowCount_; }
         [[nodiscard]] int VisiblePalmShadowCount() const noexcept
@@ -74,7 +79,9 @@ namespace island
             return visibleMonkeyShadowCount_;
         }
         [[nodiscard]] int PrimitiveCount() const noexcept { return primitiveCount_; }
+        [[nodiscard]] int VisibleBoarShadowCount() const noexcept { return visibleBoarShadowCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] int VisibleCoastalShadowCount() const noexcept { return visibleCoastalShadowCount_; }
 
     private:
         enum class StaticShadowKind : std::uint8_t
@@ -82,7 +89,8 @@ namespace island
             Palm,
             Canopy,
             Rock,
-            Wood
+            Wood,
+            Coastal
         };
 
         struct StaticShadow
@@ -91,7 +99,7 @@ namespace island
             float radius = 0.0f;
             float maximumDistance = 0.0f;
             std::size_t firstVertex = 0U;
-            std::uint8_t centreAlpha = 0U;
+            std::size_t vertexCount = 0U;
             StaticShadowKind kind = StaticShadowKind::Palm;
         };
 
@@ -106,6 +114,7 @@ namespace island
         Microsoft::Xna::Framework::Matrix cachedProjection_;
         Microsoft::Xna::Framework::Vector3 cachedCameraPosition_;
         std::vector<Microsoft::Xna::Framework::Vector3> cachedMonkeyPositions_;
+        std::vector<Microsoft::Xna::Framework::Vector4> cachedBoarPoses_;
         bool cacheValid_ = false;
         int visibleShadowCount_ = 0;
         int visiblePalmShadowCount_ = 0;
@@ -113,6 +122,9 @@ namespace island
         int visibleRockShadowCount_ = 0;
         int visibleWoodShadowCount_ = 0;
         int visibleMonkeyShadowCount_ = 0;
+        int visibleBoarShadowCount_ = 0;
+        int visibleCoastalShadowCount_ = 0;
+        std::size_t vertexCapacity_ = 0;
         int primitiveCount_ = 0;
         int drawCallCount_ = 0;
         float monkeyMaximumDistance_ = 105.0f;

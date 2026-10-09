@@ -27,13 +27,20 @@ namespace island
         bool clearingLandmark = false;
     };
 
+    // Wood placement uses a local-X heading (cos, sin), unlike a model's Y-axis rotation.
+    // CNA CreateRotationY maps local +X to (cos, -sin); convert once at rendering boundaries.
+    [[nodiscard]] constexpr float WoodModelYaw(const float headingRadians) noexcept
+    {
+        return -headingRadians;
+    }
+
     /** @brief One fallen natural log, normally procedural or explicitly used as a landmark. */
     struct FallenLogPlacement
     {
         float x = 0.0f;
         float y = 0.0f;
         float z = 0.0f;
-        float yawRadians = 0.0f;
+        float yawRadians = 0.0f; // Local-X heading shared by support queries and collision proxies.
         float length = 1.0f;
         float radius = 0.25f;
         std::uint8_t variant = 0U;
@@ -46,7 +53,7 @@ namespace island
         float x = 0.0f;
         float y = 0.0f;
         float z = 0.0f;
-        float yawRadians = 0.0f;
+        float yawRadians = 0.0f; // Local-X heading shared by support/placement validation.
         float length = 1.0f;
         float radius = 0.1f;
         std::uint8_t variant = 0U;
@@ -82,6 +89,7 @@ namespace island
         static constexpr std::uint32_t DefaultSeed = 0xa7816c39U;
         static constexpr int RockVariantCount = 4;
         static constexpr int LogVariantCount = 3;
+        static constexpr int LogCollisionSamples = 7;
         static constexpr int DriftwoodVariantCount = 3;
         static constexpr int BeachDetailVariantCount = 4;
         static constexpr int FallenFrondVariantCount = 3;

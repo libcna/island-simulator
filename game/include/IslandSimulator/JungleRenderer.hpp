@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/CanopyLodInspection.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
@@ -9,6 +10,8 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -25,12 +28,16 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
+    class CanopyLighting;
+    class LeafSurfaceMaterial;
+    class RenderedTerrainHeightMap;
     /** @brief Instanced canopy, understory, bushes, and forest-floor plants with portable LOD. */
     class JungleRenderer final
     {
     public:
         JungleRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                       const JungleLayout& layout);
+                       const IslandTerrain& terrain, const JungleLayout& layout,
+                       CanopyLighting& canopyLighting, RenderedTerrainHeightMap& terrainHeightMap);
         ~JungleRenderer();
 
         JungleRenderer(const JungleRenderer&) = delete;
@@ -50,6 +57,7 @@ namespace island
         [[nodiscard]] int TotalBushCount() const noexcept { return totalBushCount_; }
         [[nodiscard]] int TotalGroundPlantCount() const noexcept { return totalGroundPlantCount_; }
         [[nodiscard]] int VisibleCanopyCount() const noexcept { return visibleCanopyCount_; }
+        [[nodiscard]] int CanopyFrustumRejectedCount() const noexcept { return canopyFrustumRejectedCount_; }
         [[nodiscard]] int VisibleCanopyNearCount() const noexcept
         {
             return visibleCanopyNearCount_;
@@ -84,6 +92,9 @@ namespace island
         }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        // Opt-in QA: the previous draw's actual submitted identities/LODs; no GPU queries.
+        void WriteVegetationLodDiagnostics(std::ostream& output) const;
+        CanopyInspectionCamera SetLodInspection(const CanopyLodInspection& inspection);
 
     private:
         struct PlantMesh
@@ -94,6 +105,9 @@ namespace island
             int vertexCount = 0;
             int primitiveCount = 0;
             int instanceCapacity = 0;
+            float horizontalRadius = 0.0f;
+            float minimumY = 0.0f;
+            float maximumY = 0.0f;
         };
 
         struct DrawInstance
@@ -105,10 +119,16 @@ namespace island
             float nearLodDistanceSquared = 0.0f;
         };
 
+        struct CanopyInstance
+        {
+            DrawInstance draw;
+            Microsoft::Xna::Framework::BoundingBox bounds;
+        };
+
         struct JungleCell
         {
             Microsoft::Xna::Framework::BoundingBox bounds;
-            std::vector<DrawInstance> canopy;
+            std::vector<CanopyInstance> canopy;
             std::vector<DrawInstance> understory;
             std::vector<DrawInstance> bushes;
             std::vector<DrawInstance> groundPlants;
@@ -118,13 +138,17 @@ namespace island
         [[nodiscard]] static const Microsoft::Xna::Framework::Graphics::VertexDeclaration&
             InstanceDeclaration();
         void CreateMeshes();
-        void CreateCells(const JungleLayout& layout);
+        void CreateCells(const IslandTerrain& terrain, const JungleLayout& layout);
         void DrawInstances(PlantMesh& mesh,
                            const std::vector<Microsoft::Xna::Framework::Matrix>& transforms);
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
+        CanopyLighting& canopyLighting_;
+        RenderedTerrainHeightMap& terrainHeightMap_;
+        std::optional<CanopyLodInspection> lodInspection_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> customEffect_;
+        std::unique_ptr<LeafSurfaceMaterial> leafMaterial_;
         std::array<PlantMesh, JungleLayout::CanopyVariantCount> canopyNearMeshes_;
         std::array<PlantMesh, JungleLayout::CanopyVariantCount> canopyFarMeshes_;
         std::array<PlantMesh, JungleLayout::UnderstoryVariantCount> understoryNearMeshes_;
@@ -158,6 +182,7 @@ namespace island
         int totalBushCount_ = 0;
         int totalGroundPlantCount_ = 0;
         int visibleCanopyCount_ = 0;
+        int canopyFrustumRejectedCount_ = 0;
         int visibleCanopyNearCount_ = 0;
         int visibleCanopyFarCount_ = 0;
         int visibleUnderstoryCount_ = 0;

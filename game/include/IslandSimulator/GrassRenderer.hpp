@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "IslandSimulator/GrassVisibility.hpp"
+
 #include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
@@ -22,6 +24,8 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
+    class CanopyLighting;
+    class RenderedTerrainHeightMap;
     class GrassLayout;
     class IslandTerrain;
 
@@ -29,11 +33,12 @@ namespace island
     class GrassRenderer final
     {
     public:
-        static constexpr int CellsPerAxis = 16;
-        static constexpr std::size_t CellCount = CellsPerAxis * CellsPerAxis;
+        static constexpr int CellsPerAxis = GrassVisibility::CellsPerAxis;
+        static constexpr std::size_t CellCount = GrassVisibility::CellCount;
 
         GrassRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
                       const IslandTerrain& terrain, const GrassLayout& layout,
+                      CanopyLighting& canopyLighting, RenderedTerrainHeightMap& terrainHeightMap,
                       float maximumDrawDistance = 135.0f);
         ~GrassRenderer();
 
@@ -77,6 +82,7 @@ namespace island
             std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> instances;
             std::vector<Microsoft::Xna::Framework::Matrix> fallbackTransforms;
             Microsoft::Xna::Framework::BoundingBox bounds;
+            Microsoft::Xna::Framework::BoundingBox placementBounds;
             int patchCount = 0;
             bool occupied = false;
         };
@@ -91,6 +97,8 @@ namespace island
                               int instanceOffset, int instanceCount);
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
+        CanopyLighting& canopyLighting_;
+        RenderedTerrainHeightMap& terrainHeightMap_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> customEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         GrassMesh nearMesh_;
@@ -108,5 +116,7 @@ namespace island
         int drawCallCount_ = 0;
         float maximumDrawDistance_ = 135.0f;
         bool customShaderReady_ = false;
+        float meshRadius_ = 0.0f;
+        float meshHeight_ = 0.0f;
     };
 }

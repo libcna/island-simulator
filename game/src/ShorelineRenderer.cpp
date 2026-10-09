@@ -1,7 +1,9 @@
 #include "IslandSimulator/ShorelineRenderer.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/OceanWaveSpectrum.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 
 #include <algorithm>
@@ -39,6 +41,8 @@ namespace island
 {
     namespace
     {
+        constexpr const char* PorousFoamDiagnostic =
+            "island-simulator: shoreline advancing wash uses footprint-filtered porous foam";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -51,15 +55,6 @@ out vec3 vWorld;
 out float vAcross;
 out float vPhase;
 out float vBaseMask;
-
-float oceanHeight(vec2 p, float time)
-{
-    float height = 0.0;
-    height += sin(dot(p, vec2(0.061, 0.031)) + time * 0.72) * 0.105;
-    height += sin(dot(p, vec2(-0.093, 0.074)) + time * 0.96 + 1.7) * 0.060;
-    height += sin(dot(p, vec2(0.148, -0.116)) + time * 1.31 + 3.2) * 0.028;
-    return height;
-}
 
 void main()
 {
@@ -85,31 +80,72 @@ uniform float uTime;
 
 out vec4 fragColor;
 
+vec2 cellPoint(vec2 cell)
+{
+    // Bounded float hash, identical feature set in GLSL 330 and GLSL ES 300.
+    vec3 p = fract(vec3(cell.xyx) * vec3(0.1031, 0.1030, 0.0973));
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.xx + p.yz) * p.zy);
+}
+
+float porousFoam(vec2 world, float footprint)
+{
+    const float frequency = 4.6;
+    vec2 p = world * frequency;
+    vec2 cell = floor(p);
+    vec2 local = fract(p);
+    float first = 8.0;
+    float second = 8.0;
+    for (int y = -1; y <= 1; ++y) {
+        for (int x = -1; x <= 1; ++x) {
+            vec2 offset = vec2(float(x), float(y));
+            vec2 delta = offset + cellPoint(cell + offset) - local;
+            float distanceSquared = dot(delta, delta);
+            second = min(second, max(first, distanceSquared));
+            first = min(first, distanceSquared);
+        }
+    }
+    // Thin joined rims around transparent cells, not opaque white discs. Once cells fall below
+    // the pixel footprint, approach their mean coverage rather than sparkle at grazing angles.
+    float filterWidth = clamp(footprint * frequency * 0.7, 0.015, 0.24);
+    float rim = 1.0 - smoothstep(0.035, 0.11 + filterWidth, second - first);
+    float resolved = 1.0 - smoothstep(0.10, 0.36, footprint);
+    return mix(0.38, rim, resolved);
+}
+
 void main()
 {
     const float tau = 6.28318530718;
-    float longWave = sin(vPhase * tau * 7.0 - uTime * 0.72
-                         + sin(vPhase * tau * 3.0 + 1.2) * 0.62);
-    float shortWave = sin(vPhase * tau * 19.0 + uTime * 0.31 + 2.4);
-    float front = 0.46 + longWave * 0.085 + shortWave * 0.024;
-
-    float crestDistance = abs(vAcross - front);
-    float crest = 1.0 - smoothstep(0.030, 0.112, crestDistance);
-    float brokenEdge = 0.68 + 0.32
-        * sin(dot(vWorld.xz, vec2(0.72, -0.51)) + uTime * 0.43
-              + sin(dot(vWorld.xz, vec2(0.17, 0.23))) * 1.7);
-    float brokenMask = smoothstep(0.38, 0.78, brokenEdge);
-    crest *= brokenMask;
-
-    float behindFront = 1.0 - smoothstep(front - 0.14, front + 0.01, vAcross);
-    float wash = behindFront * (0.10 + 0.07
-        * (0.5 + 0.5 * sin(dot(vWorld.xz, vec2(-0.31, 0.28)) - uTime * 0.27)));
-    wash *= mix(0.28, 1.0, brokenMask);
+    float footprint = max(length(dFdx(vWorld.xz)), length(dFdy(vWorld.xz)));
+    float acrossFootprint = max(fwidth(vAcross), 0.002);
+    float phaseOffset = sin(vPhase * tau * 7.0 + 1.2) * 0.11
+        + sin(vPhase * tau * 19.0 + 2.4) * 0.025;
+    float cycle = fract(uTime * 0.115 + phaseOffset);
+    float advance = smoothstep(0.0, 0.68, cycle);
+    float envelope = smoothstep(0.0, 0.12, cycle)
+        * (1.0 - smoothstep(0.64, 0.96, cycle));
+    float edgeVariation = sin(dot(vWorld.xz, vec2(0.92, -0.57))
+        + sin(dot(vWorld.xz, vec2(0.21, 0.36))) * 1.3);
+    // Across increases offshore: the crest advances toward land, leaving wash seaward of it.
+    // The envelope vanishes before cycle wrapping, so a new wave does not pop across the beach.
+    float front = mix(0.91, 0.27, advance) + edgeVariation * 0.022;
+    float width = 0.025 + 0.012 * (0.5 + 0.5 * edgeVariation);
+    float crest = 1.0 - smoothstep(width, width + acrossFootprint + 0.022,
+                                    abs(vAcross - front));
+    float brokenEdge = 0.5 + 0.5 * sin(dot(vWorld.xz, vec2(0.72, -0.51))
+        + sin(dot(vWorld.xz, vec2(0.17, 0.23))) * 1.7 + uTime * 0.16);
+    float brokenMask = smoothstep(0.12, 0.64, brokenEdge);
+    vec2 shoreNormal = vec2(cos(vPhase * tau), sin(vPhase * tau));
+    float cells = porousFoam(vWorld.xz + shoreNormal * advance * 1.7, footprint);
+    float trailing = smoothstep(front - 0.01, front + 0.055, vAcross)
+        * (1.0 - smoothstep(front + 0.10, front + 0.33, vAcross));
+    float wash = trailing * mix(0.04, 0.24, cells) * brokenMask;
+    crest *= mix(0.12, 0.94, cells) * brokenMask;
     float edgeMask = smoothstep(0.015, 0.16, vAcross)
         * (1.0 - smoothstep(0.80, 0.995, vAcross));
     float distanceToCamera = length(vWorld - uCameraPosition);
     float distanceFade = 1.0 - smoothstep(320.0, 680.0, distanceToCamera);
-    float alpha = clamp((crest * 0.78 + wash) * edgeMask * distanceFade, 0.0, 0.88);
+    float alpha = clamp((crest * 0.76 + wash) * envelope * edgeMask * distanceFade, 0.0, 0.82);
     alpha *= mix(0.72, 1.0, clamp(vBaseMask * 2.0, 0.0, 1.0));
 
     vec3 foam = mix(vec3(0.78, 0.91, 0.88), vec3(0.96, 0.98, 0.91), crest);
@@ -117,7 +153,7 @@ void main()
 }
 )";
 
-        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
+        [[nodiscard]] std::string ShaderSource(const bool embedded, const std::string& body)
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\n") + body;
@@ -133,7 +169,7 @@ void main()
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Vertex, "main",
                                   "shoreline/shoreline.es.vert.glsl",
-                                  ShaderSource(true, VertexBody)),
+                                  ShaderSource(true, OceanDisplacementGlsl() + VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Fragment, "main",
                                   "shoreline/shoreline.es.frag.glsl",
@@ -141,7 +177,7 @@ void main()
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Vertex, "main",
                                   "shoreline/shoreline.desktop.vert.glsl",
-                                  ShaderSource(false, VertexBody)),
+                                  ShaderSource(false, OceanDisplacementGlsl() + VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Fragment, "main",
                                   "shoreline/shoreline.desktop.frag.glsl",
@@ -193,7 +229,9 @@ void main()
             std::cout << "island-simulator: shoreline portable animated foam ribbon, "
                       << vertexCount_ << " vertices, " << primitiveCount_ << " triangles\n"
                       << "island-simulator: shoreline broken crest mask modulates wash "
-                         "continuity\n";
+                         "continuity\n"
+                      << PorousFoamDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(PorousFoamDiagnostic);
         } else {
             std::cerr << "island-simulator: shoreline stock-effect fallback: "
                       << fallbackReason_ << '\n';

@@ -1,0 +1,380 @@
+#!/usr/bin/env python3
+"""Capture one native OPENGL33 viewpoint using forced llvmpipe and private pixman.
+
+This is a software visual check, NOT hardware incident qualification. The hardware failure latch
+is never read as permission, changed, or removed. Requires kernel-journal access (use sg if needed).
+"""
+import argparse
+import datetime
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import subprocess
+import sys
+import time
+
+from gpu_incident_qualification import (
+    CAPTURE_VIEWPOINTS, FAULT, GL_ERROR, Journal, MonitorError, stop_process_group,
+    contained_command, artifact_identity,
+)
+
+
+def check_configuration(text):
+    cache = dict(re.findall(r"^([^/#\n:]+):[^=\n]+=(.*)$", text, re.M))
+    if cache.get("CNA_GRAPHICS_RENDERER") != "OPENGL33" \
+            or cache.get("CNA_GRAPHICS_RENDERERS", "") not in ("", "OPENGL33"):
+        raise ValueError("software captures require a native OPENGL33-only build")
+    for key, value in cache.items():
+        if key.startswith("CNA_RENDERER_") and value == "ON" and key != "CNA_RENDERER_OPENGL33":
+            raise ValueError(f"unexpected enabled renderer: {key}")
+    if not cache.get("CNA_ROOT_DIR"):
+        raise ValueError("software capture requires a configured CNA_ROOT_DIR")
+    return Path(cache["CNA_ROOT_DIR"])
+
+
+def software_environment(evidence):
+    environment = os.environ.copy()
+    environment.update(LIBGL_ALWAYS_SOFTWARE="1", GALLIUM_DRIVER="llvmpipe", LP_NUM_THREADS="8",
+                       SDL_VIDEO_DRIVER="x11", SDL_VIDEODRIVER="x11", ISLAND_GPU_DIAGNOSTICS="1",
+                       ISLAND_RUNTIME_LOG_DIRECTORY=str(evidence),
+                       CNA_WAYLAND_TEST_KEEP_LOG=str(evidence / "compositor.log"))
+    return environment
+
+
+def inspection_arguments(values):
+    if values is None:
+        return []
+    if len(values) != 3 or values[2] not in ("near", "far"):
+        raise ValueError("canopy inspection requires X_MM Z_MM near|far")
+    for value in values[:2]:
+        if not re.fullmatch(r"-?\d+", value) or not -500000 <= int(value) <= 500000:
+            raise ValueError("canopy inspection coordinates must be integers within +/-500000")
+    return ["--canopy-lod-inspection", str(int(values[0])), str(int(values[1])), values[2]]
+
+
+def validate_antialiasing_log(diagnostics, expected_samples):
+    samples = re.findall(r"edge antialiasing requested (\d+)x renderer-applied (\d+)x", diagnostics)
+    expected = (str(expected_samples), str(expected_samples))
+    if not samples or any(sample != expected for sample in samples):
+        raise RuntimeError(f"software qualification requires requested/applied {expected_samples}x MSAA")
+
+
+def validate_graphics_log(diagnostics, inspection=None, *, missing_leaf=False):
+    markers = re.findall(r"TEMPORARY SOFTWARE DIAGNOSTIC[^\n]*", diagnostics)
+    if inspection is None:
+        if markers:
+            raise RuntimeError("diagnostic-only rendering cannot qualify the full scene")
+    else:
+        values = inspection_arguments(inspection)[1:]
+        expected = (f"TEMPORARY SOFTWARE DIAGNOSTIC canopy-lod target={values[0]}:{values[1]} "
+                    f"tier={values[2]} frozen-simulation=0 shader-time=1")
+        if not markers or any(marker != expected for marker in markers):
+            raise RuntimeError("canopy inspection marker missing, mismatched or contains another diagnostic")
+    if GL_ERROR.search(diagnostics):
+        raise RuntimeError("GL error in software capture")
+    if missing_leaf:
+        expected = re.compile(r"island-simulator: leaf material fallback: "
+            r"Content/vegetation/leaf-lamina\.png: [^\r\n]+; retaining procedural veins")
+        if not expected.search(diagnostics) or "leaf material loaded" in diagnostics:
+            raise RuntimeError("missing-leaf fixture requires its exact fallback and no loaded marker")
+        diagnostics = expected.sub("expected missing-leaf diagnostic", diagnostics)
+    if re.search(r"(?:stock-effect|material) fallback:", diagnostics):
+        raise RuntimeError("GL error or degraded shader path in software capture")
+
+
+def run_monitored_capture(command, root, environment, evidence, journal, baseline,
+                          timeout=65.0, poll_interval=0.2, *, private_devices=True,
+                          read_only_directories=()):
+    """Own one PID namespace and fail closed while preserving the first kernel failure.
+
+    Software rendering is not permission to ignore an unrelated GPU fault on the shared host.
+    Journal calls have their own bounded timeout; the poll interval is not a response-time SLA.
+    Killing a client cannot retract already submitted hardware work or guarantee desktop recovery.
+    """
+    cursor = baseline["__CURSOR"]
+    process = None
+    previous_handlers = {}
+
+    def interrupt(signum, _frame):
+        raise MonitorError(f"software capture interrupted by signal {signum}")
+
+    def collect(stream):
+        nonlocal cursor
+        latest = journal.latest()  # An empty delta alone does not prove journal access.
+        records = journal.read("--after-cursor", cursor)
+        for record in records:
+            stream.write(json.dumps(record) + "\n")
+        stream.flush()  # Preserve the offending message before raising or terminating children.
+        if latest["_BOOT_ID"] != baseline["_BOOT_ID"] or any(
+                record["_BOOT_ID"] != baseline["_BOOT_ID"] for record in records):
+            raise MonitorError("kernel boot discontinuity during software capture")
+        if any(FAULT.search(record["MESSAGE"]) for record in records):
+            raise MonitorError("GPU fault during software capture; stopping owned workload")
+        if records:
+            cursor = records[-1]["__CURSOR"]
+
+    with (evidence / "kernel-live.jsonl").open("w") as kernel:
+        try:
+            for number in (signal.SIGINT, signal.SIGTERM):
+                previous_handlers[number] = signal.signal(number, interrupt)
+            collect(kernel)  # Refuse a fault between baseline acquisition and launch.
+            launch = contained_command(command, private_devices=private_devices,
+                                       read_only_directories=read_only_directories)
+            (evidence / "process-containment.json").write_text(json.dumps({
+                "command": launch, "workload_command": command,
+                "launcher": artifact_identity(Path(launch[0])),
+                "policy": ("pid-lifetime plus private devices" if private_devices else "pid-lifetime-only")
+                    + "; caller procfs retained for kernel attribution",
+                "private_devices": private_devices,
+            }, indent=2) + "\n")
+            with (evidence / "workload.log").open("w") as output:
+                process = subprocess.Popen(launch, cwd=root, env=environment,
+                                           stdout=output, stderr=subprocess.STDOUT,
+                                           start_new_session=True)
+                deadline = time.monotonic() + timeout
+                while True:
+                    collect(kernel)
+                    result = process.poll()
+                    if result is not None:
+                        break
+                    if time.monotonic() >= deadline:
+                        raise MonitorError("software capture exceeded its time limit")
+                    time.sleep(poll_interval)
+                stop_process_group(process)  # The wrapper may exit before its children.
+                process = None
+                collect(kernel)
+                return result
+        finally:
+            # Do not let a second interruption bypass owned-child cleanup. Restore the caller's
+            # handlers even if cleanup fails, and do not replace an existing fault with that error.
+            active_error = sys.exc_info()[1]
+            try:
+                for number in previous_handlers:
+                    signal.signal(number, signal.SIG_IGN)
+                if process is not None:
+                    try:
+                        stop_process_group(process)
+                    except (OSError, RuntimeError) as error:
+                        if active_error is None:
+                            raise
+                        print(f"Software capture cleanup also failed: {error}", file=sys.stderr)
+            finally:
+                for number, handler in previous_handlers.items():
+                    signal.signal(number, handler)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("build", type=Path)
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "canopy"}))
+    parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
+    parser.add_argument("--missing-leaf", action="store_true",
+                        help="test only the leaf-image fallback using a read-only namespace overlay")
+    args = parser.parse_args()
+    inspection = inspection_arguments(args.canopy_lod_inspection)
+    if args.viewpoint == "canopy" and not inspection:
+        parser.error("canopy viewpoint requires --canopy-lod-inspection")
+    if args.missing_leaf and (args.viewpoint != "ground-broadleaf" or inspection):
+        parser.error("missing-leaf qualification requires the ordinary ground-broadleaf view")
+    build = args.build.resolve()
+    root = Path(__file__).resolve().parent.parent
+    dependency = check_configuration((build / "CMakeCache.txt").read_text())
+    journal = Journal()
+    baseline = journal.latest()  # Refuse an empty/inaccessible kernel journal before launch.
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
+    evidence = build / "software-captures" / f"{stamp}-{args.viewpoint}"
+    evidence.mkdir(parents=True)
+    capture = evidence / "capture.ppm"
+    platform = dependency / "tools/platform"
+    command = [str(platform / "wayland_test_server.sh"), "--compositor", "weston", "--renderer", "pixman",
+               str(platform / "run_gpu_tests_private.sh"), "--inside-private-compositor", "exec",
+               str(build / "island-simulator"), "--capture", str(capture), "--viewpoint", args.viewpoint,
+               "--no-user-settings", *inspection]
+    scope = "single-tree frozen LOD inspection only" if inspection else "software visual validation only"
+    # Exercise title-relative content loading from an unrelated, build-owned working directory.
+    metadata = {"scope": scope, "command": command, "cwd": str(evidence), "kernel_before": baseline}
+    leaf_asset = build / "Content/vegetation/leaf-lamina.png"
+    bindings = []
+    if args.missing_leaf:
+        metadata["scope"] = "missing leaf material fallback only; not normal visual qualification"
+        metadata["leaf_before"] = artifact_identity(leaf_asset)
+        empty = evidence / "empty-leaf-directory"
+        empty.mkdir()
+        bindings = [(empty, leaf_asset.parent)]
+    failure = ""
+    try:
+        with (build / "gpu-qualification.lock").open("a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            # Persist the exact command and baseline before launching any rendering process.
+            metadata["monitor_poll_seconds"] = 0.2
+            (evidence / "run.json").write_text(json.dumps(metadata, indent=2) + "\n")
+            result = run_monitored_capture(command, evidence, software_environment(evidence),
+                                           evidence, journal, baseline, read_only_directories=bindings)
+            if result:
+                raise RuntimeError(f"software capture exited {result}")
+            log = (evidence / "workload.log").read_text(errors="replace")
+            if 'gl-renderer="llvmpipe ' not in log or 'renderer="OPENGL33"' not in log:
+                raise RuntimeError("runtime did not confirm the expected software renderer")
+            diagnostics = log + "".join(p.read_text(errors="replace") for p in evidence.glob("island-runtime-*.log"))
+            validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
+            validate_antialiasing_log(diagnostics, 4)
+            if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
+                raise RuntimeError("packaged live-leaf material is missing; check assets and executable")
+            if "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" not in diagnostics:
+                raise RuntimeError("packaged forest-floor material is missing; check assets and executable")
+            if not re.search(r"forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped"
+                             r"|trilinear, anisotropy unavailable)", diagnostics):
+                raise RuntimeError("forest-floor sampler capability decision is missing")
+            if "boar soles fit rendered terrain independently with fixed-length limbs" not in diagnostics:
+                raise RuntimeError("current boar terrain contact is missing; check for a stale executable")
+            if "boar terrain contact limited by limb reach" in diagnostics:
+                raise RuntimeError("boar contact exceeded anatomical reach in the captured scene")
+            if args.viewpoint == "canopy" and not re.search(
+                    r"elevated canopy inspection camera position=[^\n]+ full-scene=1", diagnostics):
+                raise RuntimeError("targeted canopy camera was not established")
+            if "terrain substrate persists at distance with footprint-filtered noise" not in diagnostics:
+                raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
+            if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:
+                raise RuntimeError("current terrain slope lighting is missing; check for a stale executable")
+            if "canopy per-tree frustum boxes contain both LODs and wind" not in diagnostics:
+                raise RuntimeError("current canopy visibility path is missing; check for a stale executable")
+            if "clearing-edge colonies respect full route footprints; bushes=" not in diagnostics:
+                raise RuntimeError("current clearing-edge composition is missing; check for a stale executable")
+            if "understory leaf identities share asymmetric posture and curled profiles across LOD" not in diagnostics:
+                raise RuntimeError("current understory leaf profiles are missing; check for a stale executable")
+            if "pinnate understory shares rachis attachment knots and retained leaflet wind across LOD" not in diagnostics:
+                raise RuntimeError("current connected fern geometry is missing; check for a stale executable")
+            if "broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD" not in diagnostics:
+                raise RuntimeError("current broadleaf lamina geometry is missing; check for a stale executable")
+            if "leaf daylight contrast and stable tip pigment; footprint-filtered leaf and bark detail" not in diagnostics:
+                raise RuntimeError("current jungle material response is missing; check for a stale executable")
+            if "canopy wood separates albedo from baked shade with validated outward normals and one-sided daylight" not in diagnostics:
+                raise RuntimeError("current canopy wood lighting is missing; check for a stale executable")
+            if "canopy bark follows local wood axes with seam-safe circular footprint filtering" not in diagnostics:
+                raise RuntimeError("current canopy bark coordinates are missing; check for a stale executable")
+            if "canopy bark has instance-stable warped grain and interrupted filtered fissures" not in diagnostics:
+                raise RuntimeError("current canopy bark variation is missing; check for a stale executable")
+            if "canopy trunk pigment follows normalized height across LOD tiers" not in diagnostics:
+                raise RuntimeError("current trunk pigment continuity is missing; check for a stale executable")
+            if "canopy blades use spatial pitch and roll with identical retained LOD poses" not in diagnostics:
+                raise RuntimeError("current canopy leaf posture is missing; check for a stale executable")
+            if "curved canopy blades retain source identities within original triangle budgets" not in diagnostics:
+                raise RuntimeError("current canopy leaf outline is missing; check for a stale executable")
+            if "canopy mesh variant=0 near-vertices=4620 near-triangles=4328 far-vertices=1029 far-triangles=1064" not in diagnostics:
+                raise RuntimeError("current far canopy support branches are missing; check for a stale executable")
+            if "eight structural crown forms share eight LOD lobe anchors and supported trunk bends" not in diagnostics:
+                raise RuntimeError("current canopy structure is missing; check for a stale executable")
+            if "forest soil separates humus and moss with footprint-filtered fallen leaves" not in diagnostics:
+                raise RuntimeError("current forest substrate is missing; check for a stale executable")
+            if "grass culling bounds cover measured meshes, slope and full shared motion limits" not in diagnostics:
+                raise RuntimeError("current grass motion bounds are missing; check for a stale executable")
+            if "grass near blades form seven unequal fanned tufts with coherent wind" not in diagnostics:
+                raise RuntimeError("current grass tuft layout is missing; check for a stale executable")
+            if "grass progressive near taper and seed roots share the sampled blade profile" not in diagnostics:
+                raise RuntimeError("current grass blade profile is missing; check for a stale executable")
+            if "grass shared rest-shape normals follow curvature and instance scale" not in diagnostics:
+                raise RuntimeError("current grass surface normals are missing; check for a stale executable")
+            if "grass retains foliage colour at distance with normalized-height basal tint" not in diagnostics:
+                raise RuntimeError("current grass material continuity is missing; check for a stale executable")
+            if "grass pigment uses separate height occlusion and filtered longitudinal veins" not in diagnostics:
+                raise RuntimeError("current grass surface material is missing; check for a stale executable")
+            if "grass LOD proxies share seven tuft roots, profiles and wind phases" not in diagnostics:
+                raise RuntimeError("current grass shared LOD is missing; check for a stale executable")
+            if "grass anchor-distance contraction uses nearest-bound cell culling" not in diagnostics:
+                raise RuntimeError("current grass distance continuity is missing; check for a stale executable")
+            if "juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities" not in diagnostics:
+                raise RuntimeError("current ground broadleaf geometry is missing; check for a stale executable")
+            if "split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind" not in diagnostics:
+                raise RuntimeError("current split ground leaf geometry is missing; check for a stale executable")
+            if "forest-floor colonies retain route footprints; groups=" not in diagnostics:
+                raise RuntimeError("Forest-floor colony diagnostic missing")
+            if "jungle root origins and culling bounds follow rendered terrain triangles" not in diagnostics:
+                raise RuntimeError("Rendered jungle root-contact diagnostic missing")
+            if "fallen leaves conform to rendered triangles using the shared grass height texture" not in diagnostics:
+                raise RuntimeError("Shared-height-map litter contact diagnostic missing")
+            if "shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines" not in diagnostics:
+                raise RuntimeError("current shrub geometry is missing; check for a stale executable")
+            if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
+                raise RuntimeError("bush camera did not select the intended shrub")
+            if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:
+                raise RuntimeError("ground broadleaf camera did not select the intended plant species")
+            if "grass mesh vertices/triangles near=862/640 middle=60/40 far=42/28" not in diagnostics:
+                raise RuntimeError("unexpected grass mesh inventory")
+            if "ocean short waves use phased wind packets with analytic envelope gradients" not in diagnostics:
+                raise RuntimeError("current wave packets are missing; check for a stale executable")
+            if "grass near mesh adds 48 low curved turf blades with height-scaled motion" not in diagnostics:
+                raise RuntimeError("current low turf layer is missing; check for a stale executable")
+            if "grass roots sample RGB24 rendered terrain triangles before wind" not in diagnostics:
+                raise RuntimeError("current grass grounding is missing; check for a stale executable")
+            if "ocean bounded grazing contrast and depth-limited filtered breaker foam" not in diagnostics:
+                raise RuntimeError("current ocean surface response is missing; check for a stale executable")
+            if "wood uses outward shared normals and scale-correct fixed-sun lighting" not in diagnostics:
+                raise RuntimeError("current wood lighting is missing; check for a stale executable")
+            if "land prop shadows match model yaw and rendered terrain triangles" not in diagnostics:
+                raise RuntimeError("current land shadow geometry is missing; check for a stale executable")
+            if "rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering" not in diagnostics:
+                raise RuntimeError("current stone surface is missing; check for a stale executable")
+            if "coastal contact patches follow rendered seabed triangles in the existing batch" not in diagnostics:
+                raise RuntimeError("current coastal shadows are missing; check for a stale executable")
+            if args.viewpoint in ("reef", "shipwreck") and not re.search(
+                    r"coastal contact shadows [1-9][0-9]*", diagnostics):
+                raise RuntimeError("coastal viewpoint did not draw any grounding patches")
+            if "ocean shallow attenuation uses interpolated bed depth and contact fade" not in diagnostics \
+                    or "coastal sand stays continuous below water with filtered seabed ripples" not in diagnostics:
+                raise RuntimeError("current coastal materials are missing; check for a stale executable")
+            if "ocean shared nine-wave spectrum uses filtered short-wave normals" not in diagnostics:
+                raise RuntimeError("current ocean spectrum is missing; check for a stale executable")
+            if "shoreline advancing wash uses footprint-filtered porous foam" not in diagnostics:
+                raise RuntimeError("current shoreline foam is missing; check for a stale executable")
+            if "shared fixed-sun canopy transmission lights terrain and grass" not in diagnostics:
+                raise RuntimeError("current canopy-light feature is missing; check for a stale executable")
+            if "jungle ground layers receive shared canopy shade; crowns excluded" not in diagnostics:
+                raise RuntimeError("current jungle receiver shader is missing; check for a stale executable")
+            if "jungle leaves use smooth normals, filtered veins and restrained wax shading" not in diagnostics:
+                raise RuntimeError("current leaf material is missing; check for a stale executable")
+            if "boars receive bilinear per-vertex canopy light in their existing batch" not in diagnostics:
+                raise RuntimeError("current boar lighting is missing; check for a stale executable")
+            if "boar directional coat atlas 128x128, opaque stock BasicEffect" not in diagnostics:
+                raise RuntimeError("current boar coat is missing; check for a stale executable")
+            if "boars use connected limb poses, stance contact and body-rooted bristles" not in diagnostics:
+                raise RuntimeError("current boar pose is missing; check for a stale executable")
+            if "monkeys receive footprint-averaged canopy light through stock skinning" not in diagnostics:
+                raise RuntimeError("current monkey lighting is missing; check for a stale executable")
+            validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),
+                                         str(capture), "--output", str(evidence / "validation.json")],
+                                        check=False, timeout=15)
+            if validation.returncode:
+                raise RuntimeError("capture image validation failed")
+    except (OSError, RuntimeError, subprocess.SubprocessError, KeyboardInterrupt) as error:
+        failure = str(error) or "interrupted"
+    finally:
+        if args.missing_leaf:
+            try:
+                metadata["leaf_after"] = artifact_identity(leaf_asset)
+                if metadata["leaf_before"] != metadata["leaf_after"]:
+                    failure = failure or "host leaf asset changed during namespace fixture"
+            except OSError as error:
+                failure = failure or f"host leaf asset verification failed: {error}"
+        try:
+            records = journal.read("--after-cursor", baseline["__CURSOR"])
+            latest = journal.latest()
+            (evidence / "kernel-after.json").write_text(json.dumps(records, indent=2) + "\n")
+            if latest["_BOOT_ID"] != baseline["_BOOT_ID"] or any(FAULT.search(r["MESSAGE"]) for r in records):
+                failure = failure or "kernel fault or boot discontinuity during software check"
+        except RuntimeError as error:
+            failure = failure or str(error)
+        metadata["failure"] = failure
+        (evidence / "run.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    print(f"Software capture {'FAILED: ' + failure if failure else 'passed'}; evidence: {evidence}")
+    return 1 if failure else 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (OSError, ValueError, RuntimeError) as error:
+        print(f"Software capture refused: {error}", file=sys.stderr)
+        raise SystemExit(2)

@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import datetime
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -20,7 +22,7 @@ FAULT = re.compile(
 )
 GL_ERROR = re.compile(r"gl-error |gl-debug .*severity=high\b")
 CAPTURE_VIEWPOINTS = frozenset(
-    "overview beach jungle east west grass ground litter contact movement palms water current "
+    "overview beach jungle east clearing-edge west grass ground ground-broadleaf bush litter contact movement palms water current "
     "distant props driftwood reef fronds birds fish shark monkeys shipwreck crabs butterflies turtles"
     .split()
 )
@@ -32,6 +34,32 @@ class MonitorError(RuntimeError):
 
 def utc_now() -> str:
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds")
+
+
+def sha256_stream(stream) -> str:
+    """Bound memory use and retain the project's Python 3.10 compatibility."""
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
+def artifact_identity(path: Path) -> dict:
+    """Identify bytes, not just a reusable build path; reject replacement during hashing.
+
+    This is attribution, not an executable pin. Builds must not run concurrently with qualification.
+    """
+    def identity(info):
+        return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+    with path.open("rb") as stream:
+        before = os.fstat(stream.fileno())
+        digest = sha256_stream(stream)
+        after = os.fstat(stream.fileno())
+    if identity(before) != identity(after) or identity(after) != identity(path.stat()):
+        raise MonitorError(f"qualification artifact changed while being identified: {path}")
+    return {"path": str(path.resolve()), "sha256": digest, "size_bytes": after.st_size,
+            "device": after.st_dev, "inode": after.st_ino, "mtime_ns": after.st_mtime_ns}
 
 
 class Journal:
@@ -72,8 +100,44 @@ class Journal:
         return records[0]
 
 
+def contained_command(command: list[str], *, private_devices: bool = False,
+                      read_only_directories=()) -> list[str]:
+    """Contain detached descendants without changing the workload's graphics policy.
+
+    Bubblewrap's reaper and die-with-parent chain end the entire PID namespace on initial
+    command exit or supervisor death. Keep the caller's procfs for kernel PID attribution.
+    By default this is lifetime containment, NOT device, filesystem or network isolation.
+    private_devices creates a minimal /dev without host GPUs (for headless browser tests).
+    Android's separate inner sandbox supplies its own restrictions. Never fall back to a bare run.
+    """
+    executable = shutil.which("bwrap")
+    if executable is None:
+        raise MonitorError("bubblewrap is required for detached-process containment")
+    if not command:
+        raise ValueError("cannot contain an empty command")
+    overlays = []
+    if read_only_directories and not private_devices:
+        raise MonitorError("read-only directory fixtures require private devices")
+    for source, target in read_only_directories:
+        source, target = Path(source), Path(target)
+        for path in (source, target):
+            if not path.is_absolute() or not path.is_dir():
+                raise MonitorError("directory fixture paths must be absolute existing directories")
+            resolved = path.resolve()
+            if len(resolved.parts) < 3 or resolved.parts[1] in ("dev", "proc", "sys"):
+                raise MonitorError("directory fixtures cannot bind root or device/process trees")
+        overlays.extend(["--ro-bind", str(source.resolve()), str(target.resolve())])
+    devices = ["--dev", "/dev"] if private_devices else ["--dev-bind", "/dev", "/dev"]
+    return [executable, "--unshare-pid", "--die-with-parent", "--bind", "/", "/",
+            *devices, *overlays, "--cap-drop", "ALL", "--", *command]
+
+
 def stop_process_group(process: subprocess.Popen) -> None:
-    """Stop owned clients, including children left behind by an exited wrapper."""
+    """Stop a contained_command launcher; namespace teardown also kills setsid descendants.
+
+    The process must have been started with start_new_session=True. A bare process group
+    alone cannot guarantee detached-descendant cleanup; all rendering callers use containment.
+    """
     try:
         os.killpg(process.pid, signal.SIGTERM)
     except ProcessLookupError:
@@ -103,6 +167,56 @@ def workload_arguments(game: Path, workload: str, evidence: Path) -> list[str]:
         return [str(game), "--capture", str(evidence / f"{workload}.ppm"),
                 "--viewpoint", workload[8:]]
     raise ValueError(f"unsupported workload: {workload}")
+
+
+def preflight(build: Path, *, journal: Journal | None = None,
+              dump_root: Path = Path("/sys/class/devcoredump")) -> dict:
+    """Inspect incident prerequisites without starting graphics or changing evidence.
+
+    Dump entry presence does not prove its payload is still readable. Do not open payloads here:
+    they may expire during a read, require root, or be large. This is not hardware qualification.
+    """
+    report = {"checked_utc": utc_now(), "mode": "read-only-preflight",
+              "workload_launched": False, "hardware_qualification": "not-performed",
+              "hardware_run_authorized": False, "errors": []}
+    if not build.is_dir():
+        report["errors"].append(f"build directory is missing: {build}")
+    stop_file = build / "gpu-incident-evidence/QUALIFICATION_STOP.json"
+    report["stop_file"] = str(stop_file.absolute())
+    try:
+        # Read directly: an exists/read race must not hide an unreadable or invalid latch.
+        with stop_file.open(encoding="utf-8") as stream:
+            latch = json.load(stream)
+        if not isinstance(latch, dict) or not all(
+                isinstance(latch.get(key), str) and latch[key] for key in ("evidence", "failure")):
+            raise ValueError("missing evidence/failure fields")
+        report.update(stop_latch="active", recorded_failure=latch)
+    except FileNotFoundError:
+        report["stop_latch"] = "absent-not-authorization"
+    except (OSError, ValueError) as error:
+        report["stop_latch"] = "unreadable-or-invalid"
+        report["errors"].append(f"cannot establish stop latch state: {error}")
+    try:
+        report["kernel_latest_record"] = (journal or Journal()).latest()
+        report["journal_access"] = "verified"
+    except MonitorError as error:
+        report["journal_access"] = "unverified"
+        report["errors"].append(str(error))
+    try:
+        report["device_dump_entries"] = sorted(
+            entry.name for entry in dump_root.iterdir() if re.fullmatch(r"devcd[0-9]+", entry.name))
+    except FileNotFoundError:
+        report["device_dump_entries"] = []
+        report["device_dump_interface"] = "absent"
+    except OSError as error:
+        report["device_dump_entries"] = None
+        report["errors"].append(f"cannot list device dump entries: {error}")
+    report["next_action"] = (
+        "Do not clear the latch or reproduce a fault to replace an expired dump. "
+        "Before proposing hardware work, specify a discriminating hypothesis and verify "
+        "pre-fault indirect-buffer/descriptor evidence collection. No root command is needed "
+        "for this preflight. A readable journal or absent latch does not prove GPU safety.")
+    return report
 
 
 def qualify(build: Path, workload: str, runner: Path, *, journal: Journal | None = None,
@@ -135,8 +249,13 @@ def qualify_locked(build: Path, workload: str, runner: Path, *, journal: Journal
         print(f"GPU qualification REFUSED: review the prior failure in {stop_file}", file=sys.stderr)
         return 3
     try:
+        artifacts = {name: artifact_identity(path) for name, path in (
+            ("game", game), ("private_display_runner", runner),
+            ("supervisor", Path(__file__).resolve()))}
+        cache = build / "CMakeCache.txt"
+        artifacts["cmake_cache"] = artifact_identity(cache) if cache.exists() else None
         baseline = journal.latest()
-    except MonitorError as error:
+    except (MonitorError, OSError) as error:
         print(f"GPU qualification REFUSED: {error}", file=sys.stderr)
         return 3
 
@@ -144,9 +263,17 @@ def qualify_locked(build: Path, workload: str, runner: Path, *, journal: Journal
     evidence = evidence_root / f"{stamp}-{os.getpid()}-{workload}"
     logs = evidence / "runtime-logs"
     logs.mkdir(parents=True)
-    command = [str(runner), "--exec", *workload_arguments(game, workload, evidence)]
+    workload_command = [str(runner), "--exec", *workload_arguments(game, workload, evidence)]
+    try:
+        command = contained_command(workload_command)
+        artifacts["containment_launcher"] = artifact_identity(Path(command[0]))
+    except (MonitorError, OSError) as error:
+        print(f"GPU qualification REFUSED: {error}", file=sys.stderr)
+        return 3
     metadata = {"started_utc": utc_now(), "kernel_baseline": baseline, "command": command,
-                "serialization": "one-game-process", "timeout_seconds": timeout}
+                "workload_command": workload_command, "containment": "bubblewrap-pid-namespace",
+                "serialization": "one-game-process", "timeout_seconds": timeout,
+                "artifacts_before_launch": artifacts}
     metadata_path = evidence / "run-metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     environment = os.environ.copy()
@@ -252,11 +379,16 @@ def qualify_locked(build: Path, workload: str, runner: Path, *, journal: Journal
 
 def main() -> int:
     if len(sys.argv) != 3:
-        print(f"usage: {sys.argv[0]} <build-directory> <workload>", file=sys.stderr)
+        print(f"usage: {sys.argv[0]} <build-directory> <workload|preflight>", file=sys.stderr)
         return 2
     root = Path(__file__).resolve().parent.parent
     runner = root / "build/dependencies/cna-next/tools/platform/run_gpu_tests_private.sh"
     try:
+        if sys.argv[2] == "preflight":
+            report = preflight(Path(sys.argv[1]))
+            print(json.dumps(report, indent=2))
+            # Success means inspection completed, never that a GPU workload was qualified.
+            return 3 if report["errors"] else 0
         return qualify(Path(sys.argv[1]), sys.argv[2], runner)
     except (ValueError, OSError) as error:
         print(f"GPU qualification REFUSED: {error}", file=sys.stderr)

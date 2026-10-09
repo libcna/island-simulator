@@ -16,6 +16,7 @@ EXPECTED_CONTENT_TYPES = {
     "island-simulator.html": "text/html; charset=utf-8",
     "island-simulator.js": "text/javascript; charset=utf-8",
     "island-simulator.wasm": "application/wasm",
+    "island-simulator.data": "application/octet-stream",
 }
 
 
@@ -46,6 +47,7 @@ def main() -> int:
         "island-simulator.html": b"<!doctype html><script src='island-simulator.js'></script>\n",
         "island-simulator.js": b"globalThis.islandPackageTest = true;\n" * 32,
         "island-simulator.wasm": b"\0asm\x01\0\0\0" + bytes(range(256)) * 12,
+        "island-simulator.data": b"packaged forest-floor PNG fixture\n" * 64,
     }
 
     with tempfile.TemporaryDirectory(prefix="island-web-package-test-") as temporary:
@@ -67,7 +69,7 @@ def main() -> int:
 
         entries = {entry["name"]: entry for entry in manifest.get("files", [])}
         if set(entries) != set(payloads):
-            raise AssertionError("manifest does not contain exactly the three Web artifacts")
+            raise AssertionError("manifest does not contain exactly the four Web artifacts")
 
         total_bytes = 0
         total_gzip_bytes = 0
@@ -106,6 +108,7 @@ def main() -> int:
         missing_directory.mkdir()
         (missing_directory / "island-simulator.html").write_bytes(b"html")
         (missing_directory / "island-simulator.js").write_bytes(b"js")
+        (missing_directory / "island-simulator.wasm").write_bytes(b"wasm")
         missing = run_packager(script, missing_directory)
         if missing.returncode == 0 or "missing release artifact" not in missing.stderr:
             raise AssertionError("missing artifact did not fail with a useful diagnostic")

@@ -1,4 +1,6 @@
 #include "IslandSimulator/MonkeyRenderer.hpp"
+#include "IslandSimulator/CanopyLightField.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
@@ -10,7 +12,9 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
+#include <iostream>
 #include <numbers>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -787,8 +791,9 @@ namespace island
         std::vector<Matrix> attentiveSkinTransforms;
     };
 
-    MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device, const float maximumDistance)
-        : device_(device),
+    MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device, const CanopyLightField& canopyLight,
+                                   const float maximumDistance)
+        : device_(device), canopyLight_(canopyLight),
           whiteTexture_(std::make_unique<Texture2D>(
               device, GeneratedTextureBudget::SolidWhiteTextureSize,
               GeneratedTextureBudget::SolidWhiteTextureSize)),
@@ -885,6 +890,10 @@ namespace island
         light.setSpecularColorProperty(Vector3(0.16f, 0.14f, 0.10f));
         effect_->getDirectionalLight1Property().setEnabledProperty(false);
         effect_->getDirectionalLight2Property().setEnabledProperty(false);
+        constexpr const char* canopyDiagnostic =
+            "island-simulator: monkeys receive footprint-averaged canopy light through stock skinning";
+        std::cout << canopyDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(canopyDiagnostic);
 
         playbackStates_.reserve(MonkeyTroop::MonkeyCount);
         const AnimationClip& idle = skinningData_->AnimationClips.at("idle");
@@ -908,6 +917,8 @@ namespace island
         visibleFarMonkeyCount_ = 0;
         drawCallCount_ = 0;
         activeCrossfadeCount_ = 0;
+        minimumCanopyTransmission_ = 1.0f;
+        maximumCanopyTransmission_ = 0.0f;
         const BoundingFrustum frustum(view * projection);
         effect_->setViewProperty(view);
         effect_->setProjectionProperty(projection);
@@ -986,8 +997,27 @@ namespace island
             }
 
             effect_->SetBoneTransforms(*skinTransforms);
+            // Spatial averaging is pose/LOD independent: no camera-driven brightness switches.
+            const float transmission = canopyLight_.SampleReceiverFootprint(
+                centre.X, centre.Y, centre.Z, monkey.y, 0.35f * monkey.scale);
+            const auto tint = CanopyTransmissionTint(transmission);
+            minimumCanopyTransmission_ = std::min(minimumCanopyTransmission_, transmission);
+            maximumCanopyTransmission_ = std::max(maximumCanopyTransmission_, transmission);
+            if (!reportedCanopyShade_ && transmission < 0.95f) {
+                std::ostringstream message;
+                message << "island-simulator: visible monkey entered canopy shade, transmission "
+                        << transmission;
+                std::cout << message.str() << '\n';
+                MirrorRuntimeDiagnosticToPlatformLog(message.str().c_str());
+                reportedCanopyShade_ = true;
+            }
+            const auto shaded = [tint](const Vector3& color) {
+                return Vector3(color.X * tint.red, color.Y * tint.green, color.Z * tint.blue);
+            };
+            effect_->getDirectionalLight0Property().setSpecularColorProperty(
+                Vector3(0.16f, 0.14f, 0.10f) * transmission);
             effect_->setDiffuseColorProperty(
-                MonkeyColors[monkey.colorVariant % MonkeyColors.size()]);
+                shaded(MonkeyColors[monkey.colorVariant % MonkeyColors.size()]));
             const float yaw = std::numbers::pi_v<float> * 0.5f - monkey.headingRadians;
             effect_->setWorldProperty(Matrix::CreateScale(monkey.scale)
                 * Matrix::CreateRotationY(yaw)
@@ -1010,13 +1040,13 @@ namespace island
                                           vertexCount, 0, primitiveCount);
             if (near) {
                 effect_->setDiffuseColorProperty(
-                    FaceColors[monkey.colorVariant % FaceColors.size()]);
+                    shaded(FaceColors[monkey.colorVariant % FaceColors.size()]));
                 device_.SetVertexBuffer(faceVertices_.get());
                 device_.setIndicesProperty(faceIndices_.get());
                 effect_->Apply();
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               faceVertexCount_, 0, facePrimitiveCount_);
-                effect_->setDiffuseColorProperty(Vector3(0.025f, 0.022f, 0.018f));
+                effect_->setDiffuseColorProperty(shaded(Vector3(0.025f, 0.022f, 0.018f)));
                 effect_->setSpecularColorProperty(EyeSpecularColor);
                 effect_->setSpecularPowerProperty(EyeSpecularPower);
                 device_.SetVertexBuffer(eyeVertices_.get());

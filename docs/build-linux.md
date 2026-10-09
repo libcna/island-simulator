@@ -1,12 +1,26 @@
 # Linux Build and Validation
 
+For close clearing-edge composition review, `--viewpoint clearing-edge` selects a fixed camera at
+world X/Z 69/-12, looking toward 83/-8. While the incident stop latch remains active, use only the
+software capture helper with journal access:
+
+```sh
+sg systemd-journal -c 'python3 tools/run_software_capture.py build clearing-edge'
+```
+
+This forces llvmpipe/private software compositing and records kernel deltas; it is not AMD
+hardware qualification. Existing `--canopy-lod-inspection` targets must actually be visible from
+the chosen camera; a target behind this east-facing view is correctly rejected.
+
 ## Prerequisites
 
 - CMake 3.23 or newer
 - Ninja
 - a C++23 compiler
-- Python 3.10 or newer for the asset-manifest validator
+- host Python 3.10 or newer and Pillow (`python3-pil`) for material preparation and validation
 - ccache
+- bubblewrap with usable unprivileged PID namespaces for supervised captures and Linux
+  process-containment tests (validated here with 0.12.0; no uncontained fallback)
 - `xdotool` for the optional synthetic free-camera input test
 - Xvfb (`xvfb-run`) for that test when the desktop session is Wayland
 - system SDL 3, SDL_image 3, and SDL_mixer 3 development packages
@@ -28,9 +42,12 @@ cmake --preset linux-debug
 cmake --build --preset linux-debug
 ```
 
-The preset deliberately builds only the game, core tests, and the two host report targets. CNA is
+The preset deliberately builds only the game, project tests, and host report targets. CNA is
 added with `EXCLUDE_FROM_ALL`, so a bare all-target build does not pull unrelated framework tools
 into normal game iteration; explicit project targets remain preferable in automation.
+`IslandTerrainMaterialTests` is a non-display test linked to CNA math: it checks all terrain-grid
+lighting values against the legacy response and verifies the 28-byte upload layout. It does not
+create a graphics context or qualify stock-effect fallback rendering on a physical GPU.
 
 The preset also builds the renderer-independent `island_world_report` and `island_audio_report`
 host tools. Generate machine-readable deterministic content and audio inventories with:
@@ -207,34 +224,89 @@ headland, and four additional shore transects, plus an automatically selected st
 and a real generated land-rock collision route. These scenarios exercise the authoritative terrain
 and layout rather than maintaining a second test-only world description.
 
-`IslandCommandLineValidation` is also display-independent. It starts the real executable for eight
+`IslandCommandLineValidation` is also display-independent. It starts the real executable for 22
 invalid invocations and requires exit code 2, an actionable stderr diagnostic, and no stdout before
 graphics initialization. The cases cover an unknown option, missing option values, an unknown
-viewpoint, a benchmark/debug conflict, and traversal without a benchmark destination.
+viewpoint, a benchmark/debug conflict, traversal without a benchmark destination, and malformed
+or incompatible single-tree canopy inspection options.
+
+`IslandCanopyVisibilityTests` is a CNA-math-only executable included in the `linux-debug` preset.
+It creates no graphics context. It samples conservative transformed wind envelopes and verifies
+frustum/near-plane edge behavior, invalid input and shared shader constants. Four frozen native
+images remain byte-identical after per-tree culling while submitted tree counts decrease;
+see [canopy visibility evidence](canopy-culling.md). These checks do not qualify AMD hardware.
 
 GPU tests must not run on the owner's live desktop. The 2026-10-08 AMDGPU GPUVM incident also means
 that a private compositor is not, by itself, a sufficient safety boundary: it still uses the same
 physical GPU as GNOME. Until the critical incident is closed, do not invoke the aggregate CNA
-runner directly. Obtain read-only kernel-journal access and qualify one workload at a time with:
+runner directly. The serial jungle benchmark already reproduced the fault and the persistent
+stop latch is active. **Do not restart a hardware workload or clear that latch.** For a safe status
+check from the repository root, use:
 
 ```bash
-tools/run_gpu_incident_qualification.sh build smoke
-tools/run_gpu_incident_qualification.sh build capture-jungle
-tools/run_gpu_incident_qualification.sh build benchmark-jungle
+sg systemd-journal -c 'tools/run_gpu_incident_qualification.sh build preflight'
 ```
 
-The harness refuses to launch unless it can read a real kernel record and acquire a journal cursor.
+This command only reads the latest kernel record, the latch and device-dump entry names. It does
+not start the game/compositor, initialize graphics, read dump payloads, create a workload lock or
+modify evidence. Exit zero means inspection completed, **not** hardware qualification or permission
+to run. Journal-group membership is sufficient; root is not required. An expired `devcd3` cannot
+be recovered by repeating its read. No new GPU fault should be triggered merely to replace it.
+
+Future hardware qualification is conditional on a specific diagnostic hypothesis, verified
+pre-fault command/descriptor collection and review of the remaining desktop-reset risk. The
+hardware harness refuses to launch unless it can read a real kernel record and acquire a journal cursor.
 It preserves the command output, per-PID runtime log, private-compositor log, benchmark/capture
 output, and post-run kernel delta. Any new GPUVM fault, GFX ring timeout, VRAM loss, or reset stops
-qualification immediately. See `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md` for the exact
+the owned processes immediately; already-submitted GPU work can still hang or reset the desktop.
+See `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md` for the exact
 sequence and acceptance criteria.
 
 The supervisor also fails on lost journal visibility, GL errors, high-severity KHR_debug messages,
 interruption, and a 120-second workload deadline. It terminates its own process group and writes
-`build/gpu-incident-evidence/QUALIFICATION_STOP.json`, which blocks subsequent launches. Review
-the referenced evidence before deliberately archiving that stop file; never clear it in a retry
-loop. `IslandGpuQualificationSupervisorTests` exercises these controls with synthetic journal
+`build/gpu-incident-evidence/QUALIFICATION_STOP.json`, which blocks subsequent launches. Keep the
+current latch intact while the primary fault remains unexplained; never clear it in a retry loop.
+`IslandGpuQualificationSupervisorTests` exercises these controls with synthetic journal
 data and CPU-only processes, without creating a GL context.
+
+For serial visual work while hardware qualification is suspended, the game-owned software
+capture harness forces llvmpipe, an eight-worker cap and a private pixman compositor:
+
+```bash
+sg systemd-journal -c 'python3 tools/run_software_capture.py build east'
+```
+
+It shares the workload lock, records the exact command and kernel baseline before launch, and
+polls the kernel journal during rendering (200 ms between checks, with separately bounded journal
+reads). A GPU fault, boot discontinuity, lost journal access, interruption or 65-second deadline
+terminates the owned process group. Evidence under `build/software-captures/` includes flushed
+`kernel-live.jsonl`, the final `kernel-after.json`, runtime logs and the capture. An empty later
+scan cannot erase a live-monitor failure. Synthetic supervisor tests never generate real GPU faults.
+This harness does not clear or modify the hardware stop latch, and a passing software image is
+not evidence that the AMD defect is fixed. A fault elsewhere on the shared host also stops the
+capture; temporal overlap alone does not attribute that fault to the software workload.
+
+For a same-camera geometry comparison, explicitly request one telemetry tree ID and detail tier:
+
+```bash
+sg systemd-journal -c 'python3 tools/run_software_capture.py build east --canopy-lod-inspection -87120 -15369 near'
+sg systemd-journal -c 'python3 tools/run_software_capture.py build east --canopy-lod-inspection -87120 -15369 far'
+```
+
+For broader static coverage, `build/island-world-report` now emits
+`placements.canopyReviewTargets` for all four variants. Substitute those target coordinates
+and use viewpoint `canopy` instead of `east` to aim an elevated, outward camera at the tree's
+actual LOD distance. The full scene remains rendered; inspect foreground occlusion separately.
+This viewpoint requires the explicit inspection option and cannot be used as ordinary gameplay.
+See [canopy LOD review](canopy-lod-review.md) for the measured pairs and limitations.
+
+This opt-in mode freezes simulation at its initial state and shader time at one second, overrides
+only the selected canopy tree's tier and keeps all other scene geometry. The application requires
+a capture and fixed camera, rejects benchmark/startup/debug combinations, checks a unique tree
+match and requires its submission. A submitted tree can still be occluded: inspect the actual
+pixel difference before claiming visibility. The harness accepts only the exact requested
+diagnostic marker and labels these runs as inspection, not normal visual qualification. Normal
+captures reject this marker. This option is not a gameplay setting or an incident reproducer.
 
 Ordinary CTest display tests now share the `island_gpu_display` resource lock even under
 `ctest -j8`; independent CPU-only tests can still run in parallel. The
@@ -259,9 +331,13 @@ phase ends when game-owned draw submission returns; CNA presents afterward.
 
 `IslandGameRelocatableWorkingDirectory` runs the same real graphics startup from the empty
 `build/isolated-runtime-cwd/` directory. It guards the current asset model: runtime shaders are
-embedded and meshes, textures, and audio are generated, so launching the executable does not
-depend on the repository being the working directory. This test must be extended when an external
-runtime asset is introduced rather than weakening the working-directory contract.
+embedded and meshes, most textures, and audio are generated. The file-backed floor PNG is staged
+under `build/Content/terrain/forest-floor.png` and installed under the same executable-relative
+path; CNA resolves it independently of the process working directory. Keep the `Content` directory
+with the executable. Missing content is diagnosed and falls back to procedural soil, which normal
+material qualification rejects. See `forest-floor-material-review.md` for current evidence.
+The same rule applies to `Content/vegetation/leaf-lamina.png`; its mipmapped live-leaf
+material and diagnosed procedural-vein fallback are described in `live-leaf-material.md`.
 
 `IslandGameCapture` writes the fixed overview to `build/island-capture.ppm`;
 `IslandGameCaptureValidation` then checks its exact 1280 by 720 P6 payload, luminance spread,
@@ -367,16 +443,17 @@ independently locks the camera-basis signs and 4.3/8.0 m/s land pace limits.
 
 ## Run interactively
 
+**Currently suspended on AMD hardware:** the command below is the normal launch path, not a
+post-incident safety clearance. Do not use it on the affected desktop while the incident remains
+open. Use the read-only preflight above for status.
+
 ```bash
 build/island-simulator
 ```
 
-For repeatable frame-time reports during the current GPU incident qualification:
-
-```bash
-tools/run_gpu_incident_qualification.sh build benchmark-jungle
-tools/run_gpu_incident_qualification.sh build benchmark-traversal
-```
+Hardware frame-time runs are also suspended. Their pending supervised sequence is documented in
+the incident report; neither a private compositor nor kernel monitoring prevents already-submitted
+GPU work from affecting the owner's desktop.
 
 The development executable dynamically loads `build/CNA/libcna.so` through its generated
 build-tree runtime path. Use the release bundle above for a movable executable with its own pinned

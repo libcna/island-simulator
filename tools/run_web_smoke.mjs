@@ -1,22 +1,57 @@
 import { spawn } from "node:child_process";
 import { readFile, writeFile, mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
+import { parseGrassMotionSamples, grassMotionProgress, grassMotionReleaseTarget, reviewGrassMotion } from "./grass_motion_review.mjs";
+import { requireBrowserContainment, recordBrowserProcess } from "./browser_containment.mjs";
+import { acknowledgedInputGesture } from "./browser_input_gesture.mjs";
+
+requireBrowserContainment("chrome");
 
 const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(toolsDirectory, "..");
 const buildDirectory = path.resolve(process.argv[2] ?? path.join(projectRoot, "build-probe"));
+const artifactDirectory = process.env.ISLAND_BROWSER_EVIDENCE;
 const port = Number(process.env.ISLAND_WEB_SMOKE_PORT ?? "18764");
 const chromeExecutable = process.env.ISLAND_CHROME ?? "google-chrome";
 const scriptPath = path.join(buildDirectory, "island-simulator.js");
 const wasmPath = path.join(buildDirectory, "island-simulator.wasm");
+const dataPath = path.join(buildDirectory, "island-simulator.data");
+if (typeof WebSocket === "undefined") {
+  throw new Error("This harness requires Node.js with global WebSocket; use EMSDK_NODE (Node 24 in this workspace)");
+}
+const focusedFoliageCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "wildlife-foliage";
+const focusedCoastCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "coast";
+const focusedGroundingCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grounding";
+const focusedVegetationCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "vegetation";
+const focusedTerrainCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "terrain";
+const focusedGrassMotionCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grass-motion";
+const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
+const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck;
+const focusedArtifactPrefix = focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+  : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
+const focusedViews = focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "beach", "east", "jungle"]
+  : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
+  : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
+  : focusedCoastCheck ? ["shipwreck", "water", "west", "reef"]
+  : ["jungle", "boars", "monkeys", "east"];
+const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
+if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter");
+}
+// The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
+// must not depend on retaining the host's supplementary journal-access group.
+const kernelChecks = [];
+const checkKernel = label => {
+  kernelChecks.push({ label, utc: new Date().toISOString() });
+};
 
-await Promise.all([readFile(scriptPath), readFile(wasmPath)]);
+await Promise.all([readFile(scriptPath), readFile(wasmPath), readFile(dataPath)]);
 const template = await readFile(path.join(toolsDirectory, "web_smoke.html.in"), "utf8");
 await writeFile(path.join(buildDirectory, "island-smoke.html"), template);
 
-const profile = await mkdtemp(path.join(tmpdir(), "island-web-smoke-"));
+const profile = await mkdtemp(path.join(artifactDirectory, "chrome-profile-"));
 const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "127.0.0.1",
   "--directory", buildDirectory], { stdio: ["ignore", "ignore", "pipe"] });
 let serverError = "";
@@ -49,6 +84,7 @@ try {
     "--disable-dev-shm-usage",
     "--no-first-run",
     "--no-default-browser-check",
+    "--use-gl=angle",
     "--use-angle=swiftshader",
     "--enable-unsafe-swiftshader",
     `--user-data-dir=${profile}`,
@@ -57,6 +93,7 @@ try {
   ], { stdio: ["ignore", "ignore", "pipe"] });
   let chromeLog = "";
   chrome.stderr.on("data", chunk => { chromeLog += chunk; });
+  const browserIdentity = recordBrowserProcess(chrome, "chrome");
 
   let debuggingPort;
   for (let attempt = 0; attempt < 100; ++attempt) {
@@ -82,6 +119,8 @@ try {
   let nextId = 0;
   const pending = new Map();
   const consoleMessages = [];
+  let screencastConsumer = null, screencastError = "";
+  const screencastJobs = new Set();
   browserSocket.onmessage = event => {
     const message = JSON.parse(event.data);
     if (message.id) {
@@ -95,6 +134,18 @@ try {
     } else if (message.method === "Runtime.exceptionThrown") {
       consoleMessages.push(message.params.exceptionDetails.exception?.description
         ?? message.params.exceptionDetails.text);
+    } else if (message.method === "Page.screencastFrame") {
+      const work = (async () => {
+        try { if (screencastConsumer) await screencastConsumer(message.params, message.sessionId); }
+        finally {
+          await call("Page.screencastFrameAck", { sessionId: message.params.sessionId }, message.sessionId);
+        }
+      })();
+      screencastJobs.add(work);
+      work.then(() => screencastJobs.delete(work), error => {
+        screencastError = String(error);
+        screencastJobs.delete(work);
+      });
     }
   };
   const call = (method, params = {}, sessionId) => new Promise((resolve, reject) => {
@@ -172,8 +223,31 @@ try {
       if (focusResult.result.value !== true) {
         throw new Error(`Visual capture ${fileName} could not focus the canvas`);
       }
-      const overlayHidden = await dispatchKeyUntilOutput(
-        sessionId, "F1", "F1", 112, "island-simulator: debug overlay disabled");
+      const evidence = {};
+      const inspect = async () => {
+        const snapshot = await call("Runtime.evaluate", {
+          expression: `({ focused: document.hasFocus(), visibility: document.visibilityState,
+            canvasActive: document.activeElement === Module.canvas,
+            events: globalThis.islandSmokeResult?.inputEvents ?? [],
+            error: globalThis.islandSmokeResult?.error,
+            outputTail: (globalThis.islandSmokeResult?.output ?? '').slice(-4000) })`,
+          returnByValue: true,
+        }, sessionId);
+        return snapshot.result.value;
+      };
+      let overlayHidden;
+      try {
+        overlayHidden = await acknowledgedInputGesture({ evidence, inspect,
+          press: () => call("Input.dispatchKeyEvent", { type: "keyDown", key: "F1", code: "F1",
+            windowsVirtualKeyCode: 112, nativeVirtualKeyCode: 112 }, sessionId),
+          acknowledge: () => waitForOutput(sessionId, "island-simulator: debug overlay disabled", 40),
+          release: () => call("Input.dispatchKeyEvent", { type: "keyUp", key: "F1", code: "F1",
+            windowsVirtualKeyCode: 112, nativeVirtualKeyCode: 112 }, sessionId),
+        });
+      } finally {
+        await writeFile(path.join(artifactDirectory, fileName.replace(/\.png$/, "-overlay-gesture.json")),
+          `${JSON.stringify({ ...evidence, acknowledged: overlayHidden === true }, null, 2)}\n`);
+      }
       if (!overlayHidden) {
         throw new Error(`Visual capture ${fileName} could not hide the debug overlay`);
       }
@@ -181,11 +255,358 @@ try {
       await delay(300);
     }
     const screenshot = await call("Page.captureScreenshot", { format: "png" }, sessionId);
-    const screenshotPath = path.join(buildDirectory, fileName);
+    const screenshotPath = path.join(artifactDirectory, fileName);
     await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
     return screenshotPath;
   };
 
+  // Verify the browser's implementation before loading the game, not merely its launch flags.
+  const systemInfo = await call("SystemInfo.getInfo");
+  const browserRenderer = systemInfo.gpu?.auxAttributes?.glRenderer ?? "";
+  if (!/SwiftShader/i.test(browserRenderer)) {
+    throw new Error(`Software-only WebGL check refused renderer: ${browserRenderer}`);
+  }
+  console.log(`Island browser host PID ${browserIdentity.outerPid}, namespace PID ${chrome.pid}: ${browserRenderer}`);
+
+  const runGrassMotionReview = async sessionId => {
+    const stages = [];
+    const controlAttempts = [];
+    let samples = [], startCount = 0, failure = "", result = { passed: false };
+    const activation = {};
+    const recording = { scope: "bounded compositor samples, not every game frame; telemetry association is approximate",
+      maximumFrames: 240, maximumBytes: 16 * 1024 * 1024, bytes: 0, truncated: false, frames: [] };
+    let recordingStarted = false;
+    const stopRecording = async () => {
+      if (!recordingStarted) return;
+      recordingStarted = false;
+      await call("Page.stopScreencast", {}, sessionId);
+      await Promise.allSettled([...screencastJobs]);
+      screencastConsumer = null;
+      recording.error = screencastError;
+      recording.distinctFrames = new Set(recording.frames.map(frame => frame.sha256)).size;
+    };
+    const read = async () => {
+      const all = parseGrassMotionSamples(await readSmokeOutput(sessionId));
+      samples = all.slice(Math.max(0, startCount - 1));
+      return { all, latest: all.at(-1) };
+    };
+    const until = async (predicate, label) => {
+      const deadline = Date.now() + 15000;
+      while (Date.now() < deadline) {
+        const state = await read();
+        if (predicate(state.latest, state.all.length)) return state;
+        await delay(200);
+      }
+      throw new Error(`Grass motion timeout: ${label}`);
+    };
+    const key = (down, forward) => call("Input.dispatchKeyEvent", {
+      type: down ? "keyDown" : "keyUp", key: forward ? "w" : "s", code: forward ? "KeyW" : "KeyS",
+      windowsVirtualKeyCode: forward ? 87 : 83, nativeVirtualKeyCode: forward ? 87 : 83,
+    }, sessionId);
+    const snapshot = async (target, sample) => {
+      const evaluation = await call("Runtime.evaluate", {
+        expression: `(() => { const gl=Module.canvas.getContext('webgl2'); return {
+          lost: !gl || gl.isContextLost(), error: gl?.getError(),
+          gameError: globalThis.islandSmokeResult.error, exited: globalThis.islandSmokeResult.exited }; })()`,
+        returnByValue: true,
+      }, sessionId);
+      const gl = evaluation.result.value;
+      if (!gl || gl.lost || gl.error !== 0 || gl.gameError || gl.exited) {
+        throw new Error(`Grass motion graphics failure: ${JSON.stringify(gl)}`);
+      }
+      const file = `island-browser-grass-motion-step-${stages.length}.png`;
+      await captureVisualFrame(sessionId, file, false);
+      stages.push({ target, sample, screenshot: file, gl });
+      checkKernel(`grass-motion-step-${stages.length - 1}`);
+      console.log(`Island grass motion: capture ${stages.length - 1}, player ${sample.x}, ${sample.z}`);
+    };
+    try {
+      await call("Page.bringToFront", {}, sessionId);
+      const browserInputState = async () => {
+        const state = await call("Runtime.evaluate", {
+          expression: `(() => { const c=Module.canvas, r=c.getBoundingClientRect(); return {
+            focused: document.hasFocus(), canvasActive: document.activeElement === c,
+            centreHitsCanvas: document.elementFromPoint(640,360) === c,
+            pointerLocked: document.pointerLockElement === c, visibility: document.visibilityState,
+            rectangle: {x:r.x,y:r.y,width:r.width,height:r.height},
+            error: globalThis.islandSmokeResult?.error,
+            events: globalThis.islandSmokeResult?.inputEvents,
+            droppedEvents: globalThis.islandSmokeResult?.droppedInputEvents }; })()`, returnByValue: true,
+        }, sessionId);
+        return state.result.value;
+      };
+      const initialCount = (await read()).all.length;
+      // A fixed-duration click is not an acknowledgement. This does not establish the cause
+      // of the earlier flake: keep browser event history and require fresh game telemetry.
+      const initial = await acknowledgedInputGesture({ evidence: activation, inspect: browserInputState,
+        press: () => call("Input.dispatchMouseEvent", {
+          type: "mousePressed", x: 640, y: 360, button: "left", buttons: 1, clickCount: 1,
+        }, sessionId),
+        acknowledge: () => until((s,count) => count > initialCount && s && s.captured && s.relative && !s.free
+          && Math.hypot(s.velocityX,s.velocityZ) < 0.15,"focused stationary start"),
+        release: () => call("Input.dispatchMouseEvent", {
+          type: "mouseReleased", x: 640, y: 360, button: "left", buttons: 0, clickCount: 1,
+        }, sessionId),
+      });
+      startCount = initial.all.length;
+      const start = initial.latest;
+      if (Math.hypot(start.x - 43, start.z + 18) > 0.1) {
+        throw new Error("Grass motion did not start at the east clearing");
+      }
+      await snapshot(0, start);
+      screencastError = "";
+      screencastConsumer = async (frame, frameSession) => {
+        if (frameSession !== sessionId) return;
+        const bytes = Buffer.from(frame.data, "base64");
+        if (recording.frames.length >= recording.maximumFrames
+          || recording.bytes + bytes.length > recording.maximumBytes) {
+          recording.truncated = true;
+          return;
+        }
+        const file = `island-browser-grass-motion-${chrome.pid}-frame-${String(recording.frames.length).padStart(3,"0")}.jpg`;
+        recording.bytes += bytes.length;
+        recording.frames.push({ file, timestamp: frame.metadata?.timestamp ?? null,
+          observedSample: samples.length - 1, observedX: samples.at(-1)?.x, observedZ: samples.at(-1)?.z,
+          sha256: createHash("sha256").update(bytes).digest("hex") });
+        await writeFile(path.join(artifactDirectory,file),bytes);
+      };
+      recordingStarted = true;
+      await call("Page.startScreencast", {
+        format: "jpeg", quality: 65, maxWidth: 640, maxHeight: 360, everyNthFrame: 1,
+      }, sessionId);
+      let stopLead = 0, stopped = initial;
+      for (const target of [6, 12, 18, 12, 6, 0]) {
+        for (let attempt = 0; attempt < 3; ++attempt) {
+          const control = grassMotionReleaseTarget(grassMotionProgress(start,stopped.latest),target,stopLead);
+          let released;
+          await key(true, control.forward);
+          try {
+            released = await until(s => s && (control.forward ? grassMotionProgress(start,s) >= control.release
+              : grassMotionProgress(start,s) <= control.release), `approach ${target} metres`);
+          } finally {
+            await key(false, control.forward);
+          }
+          const releasedCount = (await read()).all.length;
+          stopped = await until((s,count) => count > releasedCount
+            && Math.hypot(s.velocityX,s.velocityZ) < 0.15, `stop at ${target} metres`);
+          const releaseProgress = grassMotionProgress(start,released.latest);
+          const stoppedProgress = grassMotionProgress(start,stopped.latest);
+          stopLead = Math.max(0,(stoppedProgress-releaseProgress)*(control.forward ? 1 : -1));
+          controlAttempts.push({ target,attempt,...control,releaseProgress,stoppedProgress,observedStopLead:stopLead });
+          if (Math.abs(stoppedProgress-target) <= 2.5) break;
+        }
+        await snapshot(target, stopped.latest);
+      }
+      await read();
+      await stopRecording();
+      result = reviewGrassMotion(stages,samples);
+      if (!result.passed) throw new Error(`Grass motion review failed: ${result.errors.join("; ")}`);
+      if (recording.error || recording.frames.length < 12 || recording.distinctFrames < 8) {
+        throw new Error(`Moving-frame recording incomplete: ${recording.error || recording.frames.length + " frames"}`);
+      }
+      return { ...result, stages, samples, recording, controlAttempts };
+    } catch (error) {
+      failure = String(error);
+      throw error;
+    } finally {
+      try { await stopRecording(); }
+      catch (error) { failure ||= `Stop recording failed: ${error}`; }
+      screencastConsumer = null;
+      await writeFile(path.join(artifactDirectory,"island-browser-grass-motion-traversal.json"),
+        `${JSON.stringify({ ...result, passed: result.passed && !failure, failure, browserPid: chrome.pid,
+          scope: "software walking review; prior-frame grass counts and submitted canopy/shrub identities",
+          stages, samples, recording, controlAttempts, activation },null,2)}\n`);
+      await writeFile(path.join(artifactDirectory,"island-browser-grass-motion-output.log"),
+        await readSmokeOutput(sessionId));
+    }
+  };
+
+  if (focusedCheck) {
+    const views = [];
+    const reportPath = path.join(artifactDirectory,
+      focusedFoliageCheck ? "island-browser-wildlife-foliage.json" : `island-browser-${focusedArtifactPrefix}.json`);
+    try {
+      for (const mode of focusedViews) {
+        checkKernel(`before-${mode}`);
+        // One live game at a time; closing the page also releases its WebGL context.
+        const { targetId } = await call("Target.createTarget", { url: "about:blank" });
+        let sessionId;
+        try {
+          ({ sessionId } = await call("Target.attachToTarget", { targetId, flatten: true }));
+          await call("Runtime.enable", {}, sessionId);
+          await call("Page.enable", {}, sessionId);
+          await call("Emulation.setDeviceMetricsOverride", {
+            width: 1280, height: 720, deviceScaleFactor: 1, mobile: false,
+          }, sessionId);
+          await call("Page.navigate", {
+            url: `http://127.0.0.1:${port}/island-smoke.html?mode=${mode}`,
+          }, sessionId);
+          if (!await waitForOutput(sessionId, "island-simulator: visible terrain cells", 160)) {
+            throw new Error(`${mode} did not reach a rendered scene: ${await readSmokeOutput(sessionId)}`);
+          }
+          const startupLog = await readSmokeOutput(sessionId);
+          const expectedWorkload = focusedGrassMotionCheck ? 'workload mode="input-diagnostics" viewpoint="interactive"'
+            : `workload mode="interactive" viewpoint="${mode}"`;
+          if (!startupLog.includes(expectedWorkload)) {
+            throw new Error(`${mode} launched the wrong workload: ${startupLog}`);
+          }
+          if (focusedGrassMotionCheck) {
+            // Set up once through the existing diagnostic teleport. Fixed --viewpoint cameras
+            // deliberately reject input; all measured travel after this setup uses the player.
+            if (!await waitForOutput(sessionId, "island-simulator: debug overlay active", 80)) {
+              throw new Error("Grass motion setup requires the diagnostic overlay");
+            }
+            await call("Page.bringToFront", {}, sessionId);
+            const focused = await call("Runtime.evaluate", {
+              expression: `(() => { Module.canvas.focus(); return document.activeElement === Module.canvas; })()`,
+              returnByValue: true,
+            }, sessionId);
+            if (!focused.result.value || !await dispatchKeyUntilOutput(sessionId, "F7", "F7", 118,
+              "island-simulator: debug teleport east clearing x 43 z -18")) {
+              throw new Error("Grass motion east-clearing setup failed");
+            }
+          }
+          const screenshotPath = await captureVisualFrame(sessionId,
+            `island-browser-${focusedArtifactPrefix}-${mode}.png`,
+            !["boars", "monkeys", "overview"].includes(mode));
+          const motionReview = focusedGrassMotionCheck ? await runGrassMotionReview(sessionId) : null;
+          const sampled = await call("Runtime.evaluate", {
+            expression: `new Promise(resolve => {
+              const gl = Module.canvas.getContext('webgl2');
+              const debug = gl?.getExtension('WEBGL_debug_renderer_info');
+              const renderer = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : '';
+              const intervals = [];
+              let previous;
+              const tick = now => {
+                if (previous !== undefined) intervals.push(now - previous);
+                previous = now;
+                if (intervals.length < ${focusedFrameCount}) requestAnimationFrame(tick);
+                else resolve({ renderer, intervals, result: globalThis.islandSmokeResult,
+                  contextLost: !gl || gl.isContextLost(), glError: gl?.getError() });
+              };
+              requestAnimationFrame(tick);
+            })`, awaitPromise: true, returnByValue: true,
+          }, sessionId);
+          const state = sampled.result.value;
+          if (!state) throw new Error(`${mode} did not return frame evidence`);
+          const afterSimulationScreenshot = mode === "boars" || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+            ? path.basename(await captureVisualFrame(sessionId,
+              `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
+          const log = state.result?.output ?? "";
+          const passed = /SwiftShader/i.test(state.renderer) && !state.contextLost
+            && log.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
+            && (!focusedGrassMotionCheck || motionReview?.passed)
+            && state.glError === 0 && !state.result?.error && !state.result?.exited
+            && log.includes("island-simulator: renderer WEBGL2")
+            && log.includes("ocean 160x160 textures 6383412/6403628 bytes audio 6/6 sources")
+            && log.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
+            && log.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
+            && /forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)/.test(log)
+            && log.includes("grass shared rest-shape normals follow curvature and instance scale")
+            && log.includes("grass retains foliage colour at distance with normalized-height basal tint")
+            && log.includes("grass pigment uses separate height occlusion and filtered longitudinal veins")
+            && log.includes("grass LOD proxies share seven tuft roots, profiles and wind phases")
+            && log.includes("grass anchor-distance contraction uses nearest-bound cell culling")
+            && log.includes("juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities")
+            && log.includes("split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind")
+            && log.includes("shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines")
+            && log.includes("forest-floor colonies retain route footprints; groups=")
+            && log.includes("jungle root origins and culling bounds follow rendered terrain triangles")
+            && log.includes("fallen leaves conform to rendered triangles using the shared grass height texture")
+            && (mode !== "bush" || log.includes("bush QA target variant 0 at player-eye detail distance"))
+            && (mode !== "ground-broadleaf" || log.includes("ground-broadleaf QA target variant 1 at player-eye detail distance"))
+            && (mode !== "litter" || log.includes("ground-litter QA target variant 0 at player-eye detail distance"))
+            && log.includes("grass mesh vertices/triangles near=862/640 middle=60/40 far=42/28")
+            && log.includes("grass progressive near taper and seed roots share the sampled blade profile")
+            && log.includes("grass near blades form seven unequal fanned tufts with coherent wind")
+            && log.includes("grass near mesh adds 48 low curved turf blades with height-scaled motion")
+            && log.includes("grass roots sample RGB24 rendered terrain triangles before wind")
+            && log.includes("grass culling bounds cover measured meshes, slope and full shared motion limits")
+            && log.includes("shoreline advancing wash uses footprint-filtered porous foam")
+            && log.includes("ocean shared nine-wave spectrum uses filtered short-wave normals")
+            && log.includes("ocean shallow attenuation uses interpolated bed depth and contact fade")
+            && log.includes("coastal sand stays continuous below water with filtered seabed ripples")
+            && log.includes("coastal contact patches follow rendered seabed triangles in the existing batch")
+            && log.includes("land prop shadows match model yaw and rendered terrain triangles")
+            && log.includes("wood uses outward shared normals and scale-correct fixed-sun lighting")
+            && log.includes("ocean bounded grazing contrast and depth-limited filtered breaker foam")
+            && log.includes("ocean short waves use phased wind packets with analytic envelope gradients")
+            && (!focusedGroundingCheck || /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(log))
+            && log.includes("rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
+            && (!["reef", "shipwreck"].includes(mode) || /coastal contact shadows [1-9][0-9]*/.test(log))
+            && log.includes("near understory uses curved five-column blades with raised midribs")
+            && log.includes("terrain close soil uses footprint-filtered clods and analytic relief")
+            && log.includes("forest soil separates humus and moss with footprint-filtered fallen leaves")
+            && log.includes("terrain substrate persists at distance with footprint-filtered noise")
+            && log.includes("terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices")
+            && log.includes("eight structural crown forms share eight LOD lobe anchors and supported trunk bends")
+            && log.includes("canopy per-tree frustum boxes contain both LODs and wind")
+            && log.includes("clearing-edge colonies respect full route footprints; bushes=")
+            && log.includes("understory leaf identities share asymmetric posture and curled profiles across LOD")
+            && log.includes("pinnate understory shares rachis attachment knots and retained leaflet wind across LOD")
+            && log.includes("broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD")
+            && log.includes("leaf daylight contrast and stable tip pigment; footprint-filtered leaf and bark detail")
+            && log.includes("canopy wood separates albedo from baked shade with validated outward normals and one-sided daylight")
+            && log.includes("canopy bark follows local wood axes with seam-safe circular footprint filtering")
+            && log.includes("canopy bark has instance-stable warped grain and interrupted filtered fissures")
+            && log.includes("canopy trunk pigment follows normalized height across LOD tiers")
+            && log.includes("canopy blades use spatial pitch and roll with identical retained LOD poses")
+            && log.includes("curved canopy blades retain source identities within original triangle budgets")
+            && log.includes("shared fixed-sun canopy transmission lights terrain and grass")
+            && log.includes("jungle ground layers receive shared canopy shade; crowns excluded")
+            && log.includes("jungle leaves use smooth normals, filtered veins and restrained wax shading")
+            && log.includes("boars receive bilinear per-vertex canopy light in their existing batch")
+            && log.includes("boar directional coat atlas 128x128, opaque stock BasicEffect")
+            && log.includes("boars use connected limb poses, stance contact and body-rooted bristles")
+            && log.includes("boar soles fit rendered terrain independently with fixed-length limbs")
+            && !log.includes("boar terrain contact limited by limb reach")
+            && log.includes("monkeys receive footprint-averaged canopy light through stock skinning")
+            // Curved leaf budgets are unchanged; the far tier now retains seven primary branches.
+            && /canopy mesh variant=0 near-vertices=4620 near-triangles=4328 far-vertices=1029 far-triangles=1064/.test(log)
+            && (mode !== "boars" || /boars [1-6]\/6 visible, 1 draw/.test(log))
+            && (mode !== "monkeys" || /monkeys [1-7]\/7 visible/.test(log))
+            && !/(?:stock-effect|material) fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high/i.test(log);
+          const shadeEvent = log.match(/visible monkey entered canopy shade, transmission ([0-9.eE+-]+)/);
+          const shadeTransmission = shadeEvent ? Number(shadeEvent[1]) : NaN;
+          views.push({ mode, passed, motionReview, monkeyShadeTransmission: Number.isFinite(shadeTransmission)
+              && shadeTransmission >= 0 && shadeTransmission < 0.95 ? shadeTransmission : null,
+            screenshot: path.basename(screenshotPath), afterSimulationScreenshot, ...state });
+          checkKernel(`after-${mode}`);
+          if (!passed) throw new Error(`${mode} failed software WebGL checks; see ${reportPath}`);
+          console.log(`Island focused WebGL ${mode}: PASS (${focusedFrameCount} CPU-rendered frame intervals)`);
+        } catch (error) {
+          // Preserve the failing page before closing its context; a partial views array
+          // alone cannot distinguish input delivery, application exit and GL failure.
+          let state, inspectionError;
+          try {
+            state = await call("Runtime.evaluate", {
+              expression: "globalThis.islandSmokeResult", returnByValue: true,
+            }, sessionId);
+          } catch (failure) { inspectionError = String(failure); }
+          await writeFile(path.join(artifactDirectory, `island-browser-${focusedArtifactPrefix}-${mode}-failure.json`),
+            `${JSON.stringify({ mode, error: String(error), state: state?.result?.value, inspectionError }, null, 2)}\n`);
+          throw error;
+        } finally {
+          await call("Target.closeTarget", { targetId });
+        }
+      }
+    } finally {
+      await writeFile(reportPath, `${JSON.stringify({ scope: focusedLitterCheck
+          ? "software WebGL litter and shared-height grass only" : focusedTerrainCheck
+          ? "software WebGL terrain distance and close views only" : focusedGrassMotionCheck
+          ? "software measured grass traversal only" : focusedVegetationCheck
+          ? "software WebGL grass and vegetation only" : focusedCoastCheck
+          ? "software WebGL coast only" : focusedGroundingCheck
+            ? "software WebGL prop grounding only" : "software WebGL wildlife/foliage only",
+        browser: version.Browser, browserPid: browserIdentity.outerPid,
+        browserNamespacePid: chrome.pid, browserRenderer, views,
+        shadedMonkeyPathObserved: views.some(view => view.monkeyShadeTransmission !== null),
+        passed: views.length === focusedViews.length && views.every(view => view.passed),
+        kernelSupervision: { evidence: artifactDirectory, stages: kernelChecks,
+          acceptance: "see parent run.json; this report only qualifies browser assertions" } }, null, 2)}\n`);
+    }
+    await call("Browser.close");
+  } else {
   const { targetId: smokeTargetId } = await call("Target.createTarget", { url: "about:blank" });
   const { sessionId: smokeSessionId } = await call(
     "Target.attachToTarget", { targetId: smokeTargetId, flatten: true });
@@ -216,7 +637,11 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes(
-      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 143624/163840 bytes audio 6/6 sources")
+      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 6383412/6403628 bytes audio 6/6 sources")
+    && result.output?.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
+    && result.output?.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
+    && result.output?.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
+    && /forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)/.test(result.output ?? "")
     && viewportMatch !== null
     && Number(viewportMatch[1]) === 1280
     && Number(viewportMatch[2]) === 720
@@ -236,7 +661,7 @@ try {
     && result.output?.includes(
       "island-simulator: terrain sparse close sand pebbles and shell flecks")
     && result.output?.includes(
-      "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
+      "island-simulator: terrain fixed-sun shading from placed canopy volumes")
     && result.output?.includes(
       "island-simulator: terrain authored primary footpath material")
     && result.output?.includes(
@@ -257,6 +682,12 @@ try {
     && result.output?.includes(
       "island-simulator: ocean grazing reflection bands reuse analytic slope field")
     && result.output?.includes(
+      "island-simulator: ocean shared nine-wave spectrum uses filtered short-wave normals")
+    && result.output?.includes(
+      "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade")
+    && result.output?.includes(
+      "island-simulator: coastal sand stays continuous below water with filtered seabed ripples")
+    && result.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
@@ -273,8 +704,8 @@ try {
       "island-simulator: selected palm near crowns include sparse hanging dry fronds")
     && result.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
-    && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
-    && result.output?.includes("island-simulator: jungle ground layer 2225 small plants")
+    && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 578 low bushes, hardware instancing")
+    && result.output?.includes("island-simulator: jungle ground layer 2282 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes(
@@ -305,6 +736,14 @@ try {
     && result.output?.includes(
       "island-simulator: terrain-conforming contact shadows in one portable near-field batch")
     && result.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
+    && result.output?.includes("jungle ground layers receive shared canopy shade; crowns excluded")
+    && result.output?.includes("jungle leaves use smooth normals, filtered veins and restrained wax shading")
+    && result.output?.includes("boars receive bilinear per-vertex canopy light in their existing batch")
+    && result.output?.includes("boar directional coat atlas 128x128, opaque stock BasicEffect")
+    && result.output?.includes("boars use connected limb poses, stance contact and body-rooted bristles")
+    && result.output?.includes("boar soles fit rendered terrain independently with fixed-length limbs")
+    && !result.output?.includes("boar terrain contact limited by limb reach")
+    && result.output?.includes("monkeys receive footprint-averaged canopy light through stock skinning")
     && result.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && result.output?.includes(
@@ -340,11 +779,11 @@ try {
       "island-simulator: outer-ocean current uses progressive inward return with mild coherent circulation")
     && result.output?.includes("natural-prop portable shader with near/far LOD")
     && result.output?.includes(
-      "island-simulator: near rocks use procedural strata and restrained lichen flecks")
+      "island-simulator: near rocks use filtered mineral grain and restrained lichen patches")
     && result.output?.includes(
       "island-simulator: near low rocks use a fixed-sea-level wet material band")
     && result.output?.includes(
-      "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading")
+      "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
     && result.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && result.output?.includes(
@@ -364,6 +803,8 @@ try {
     && result.output?.includes("shoreline portable animated foam ribbon, 2695 vertices, 4608 triangles")
     && result.output?.includes(
       "island-simulator: shoreline broken crest mask modulates wash continuity")
+    && result.output?.includes(
+      "island-simulator: shoreline advancing wash uses footprint-filtered porous foam")
     && result.output?.includes("portable instanced wind shader")
     && result.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
@@ -577,15 +1018,15 @@ try {
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
-      "island-simulator: jungle 281 canopy trees, 1822 understory plants, 565 low bushes, hardware instancing")
+      "island-simulator: jungle 281 canopy trees, 1822 understory plants, 578 low bushes, hardware instancing")
     && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
     && visualResult.output?.includes(
-      "island-simulator: near rocks use procedural strata and restrained lichen flecks")
+      "island-simulator: near rocks use filtered mineral grain and restrained lichen patches")
     && visualResult.output?.includes(
       "island-simulator: near low rocks use a fixed-sea-level wet material band")
     && visualResult.output?.includes(
-      "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading")
+      "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
     && visualResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && visualResult.output?.includes("portable instanced wind shader")
@@ -669,11 +1110,19 @@ try {
     visualSessionId, "island-browser-grass.png", true);
   const grassPassed = grassResult.output?.includes("island-simulator: renderer WEBGL2")
     && grassResult.output?.includes(
+      "island-simulator: grass culling bounds cover measured meshes, slope and full shared motion limits")
+    && grassResult.output?.includes(
+      "island-simulator: grass near blades form seven unequal fanned tufts with coherent wind")
+    && grassResult.output?.includes(
+      "island-simulator: grass progressive near taper and seed roots share the sampled blade profile")
+    && grassResult.output?.includes(
+      "island-simulator: grass shared rest-shape normals follow curvature and instance scale")
+    && grassResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && grassResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && grassResult.output?.includes(
-      "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
+      "island-simulator: terrain fixed-sun shading from placed canopy volumes")
     && grassResult.output?.includes(
       "island-simulator: grass player interaction integrated into the instanced vertex shader")
     && grassResult.output?.includes(
@@ -727,7 +1176,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
-    && /[1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/2282 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
@@ -759,7 +1208,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && litterResult.output?.includes(
       "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
-    && /[1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/2282 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       litterResult.output ?? "")
     && litterResult.output?.includes("island-simulator: debug overlay active")
     && !litterResult.error;
@@ -834,12 +1283,13 @@ try {
     && jungleResult.output?.includes(
       "island-simulator: terrain near-field microvariation and procedural interior leaf litter")
     && jungleResult.output?.includes(
-      "island-simulator: terrain fixed-sun interior dapple from shared portable noise fields")
+      "island-simulator: terrain fixed-sun shading from placed canopy volumes")
     && jungleResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
     && jungleResult.output?.includes(
       "island-simulator: terrain footpath narrow irregular wear")
     && jungleResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
+    && jungleResult.output?.includes("jungle ground layers receive shared canopy shade; crowns excluded")
     && jungleResult.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && jungleResult.output?.includes(
@@ -862,7 +1312,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/565 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2225 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/578 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2282 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 
@@ -1042,11 +1492,11 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && reefResult.output?.includes("natural-prop portable shader with near/far LOD")
     && reefResult.output?.includes(
-      "island-simulator: near rocks use procedural strata and restrained lichen flecks")
+      "island-simulator: near rocks use filtered mineral grain and restrained lichen patches")
     && reefResult.output?.includes(
       "island-simulator: near low rocks use a fixed-sea-level wet material band")
     && reefResult.output?.includes(
-      "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading")
+      "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering")
     && reefResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && /[1-9][0-9]*\/14 reef outcrops/.test(reefResult.output ?? "")
@@ -1465,6 +1915,7 @@ try {
   const monkeyScreenshotPath = await captureVisualFrame(
     visualSessionId, "island-browser-monkeys.png");
   const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
+    && monkeyResult.output?.includes("monkeys receive footprint-averaged canopy light through stock skinning")
     && monkeyResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -2044,7 +2495,7 @@ try {
     monkeyScreenshot: path.basename(monkeyScreenshotPath),
     runModeScreenshot: path.basename(runModeScreenshotPath),
   };
-  await writeFile(path.join(buildDirectory, "island-browser-smoke.json"),
+  await writeFile(path.join(artifactDirectory, "island-browser-smoke.json"),
     `${JSON.stringify(report, null, 2)}\n`);
   console.log(report.lifecycle.output.trim());
   if (!passed) {
@@ -2056,6 +2507,7 @@ try {
 
   await call("Target.closeTarget", { targetId: visualTargetId });
   await call("Browser.close");
+  }
 } finally {
   browserSocket?.close();
   server.kill();
@@ -2065,4 +2517,13 @@ try {
     await Promise.race([exited, delay(2000)]);
   }
   await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  if (focusedCheck) {
+    try {
+      checkKernel("after-browser-exit");
+    } finally {
+      await writeFile(path.join(artifactDirectory, `island-browser-${focusedArtifactPrefix}-kernel.json`),
+        `${JSON.stringify({ scope: "stage markers only; kernel acceptance belongs to the parent supervisor",
+          evidence: process.env.ISLAND_BROWSER_EVIDENCE, stages: kernelChecks }, null, 2)}\n`);
+    }
+  }
 }

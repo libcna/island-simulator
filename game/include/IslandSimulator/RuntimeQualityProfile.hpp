@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string_view>
+#include "IslandSimulator/GeneratedTextureBudget.hpp"
 
 namespace island
 {
@@ -13,24 +14,33 @@ namespace island
         float contactShadowDistanceScale = 0.0f;
         float wildlifeMaximumDistanceScale = 0.0f;
         int oceanQuadsPerAxis = 0;
-        std::size_t generatedTextureByteBudget = 0U;
+        std::size_t textureByteBudget = 0U;
         int maximumPlayingAudioSources = 0;
+        int preferredBackBufferSamples = 0;
 
         /** @brief Full portable quality used by Linux OpenGL and browser WebGL. */
         [[nodiscard]] static constexpr RuntimeQualityProfile Full() noexcept
         {
-            return {"full", 135.0f, 1.0f, 1.0f, 160, 160U * 1024U, 6};
+            return {"full", 135.0f, 1.0f, 1.0f, 160,
+                    GeneratedTextureBudget::CanopyLightRgba8Bytes
+                    + GeneratedTextureBudget::BoarCoatRgba8Bytes
+                    + GeneratedTextureBudget::GrassHeightRgba8Bytes
+                    + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes + 160U * 1024U, 6, 4};
         }
 
         /**
          * @brief Balanced Android default that preserves close detail and the full soundscape.
          *
-         * Only distance-dependent work and the ocean grid are reduced. The generated textures
-         * are already tiny, and six bounded audio voices cost less than removing atmosphere.
+         * Distance-dependent work, the ocean grid and MSAA samples are reduced. One 4 MiB canopy field
+         * is shared by terrain/grass; small UI/water textures and six audio voices are retained.
          */
         [[nodiscard]] static constexpr RuntimeQualityProfile Mobile() noexcept
         {
-            return {"mobile", 112.0f, 0.72f, 0.82f, 128, 160U * 1024U, 6};
+            return {"mobile", 112.0f, 0.72f, 0.82f, 128,
+                    GeneratedTextureBudget::CanopyLightRgba8Bytes
+                    + GeneratedTextureBudget::BoarCoatRgba8Bytes
+                    + GeneratedTextureBudget::GrassHeightRgba8Bytes
+                    + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes + 160U * 1024U, 6, 2};
         }
 
         /** @brief Reports whether every field is safe for direct renderer consumption. */
@@ -44,8 +54,10 @@ namespace island
                 && wildlifeMaximumDistanceScale <= 1.0f
                 && oceanQuadsPerAxis > 0
                 && oceanQuadsPerAxis <= 255
-                && generatedTextureByteBudget > 0U
-                && maximumPlayingAudioSources > 0;
+                && textureByteBudget > 0U
+                && maximumPlayingAudioSources > 0
+                && (preferredBackBufferSamples == 0 || preferredBackBufferSamples == 2
+                    || preferredBackBufferSamples == 4);
         }
     };
 

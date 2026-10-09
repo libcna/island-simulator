@@ -408,6 +408,10 @@ namespace island
               << state.reducedSimulationCrabs << '/' << state.dormantSimulationCrabs
               << "  DRAWS " << state.crabDraws;
         lines.push_back(crabs.str());
+        auto boars = DiagnosticLine();
+        boars << "BOARS " << state.visibleBoars << '/' << state.totalBoars
+              << "  SHADOWS " << state.boarShadows << "  DRAWS " << state.boarDraws;
+        lines.push_back(boars.str());
 
         auto fish = DiagnosticLine();
         fish << "FISH " << state.visibleFish << '/' << state.totalFish

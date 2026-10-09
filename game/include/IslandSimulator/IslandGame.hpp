@@ -15,6 +15,10 @@
 #include "IslandSimulator/ButterflyRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
 #include "IslandSimulator/CrabColony.hpp"
+#include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/BoarRenderer.hpp"
+#include "IslandSimulator/CanopyLighting.hpp"
+#include "IslandSimulator/RenderedTerrainHeightMap.hpp"
 #include "IslandSimulator/CrabRenderer.hpp"
 #ifndef NDEBUG
 #include "IslandSimulator/DebugFreeCamera.hpp"
@@ -76,9 +80,13 @@ namespace island
         BeachPath,
         JungleTrail,
         EastClearingDetail,
+        ClearingEdgeDetail,
+        CanopyInspection,
         WestClearingDetail,
         GrassDetail,
         GroundPlantDetail,
+        GroundBroadleafDetail,
+        BushDetail,
         FallenLeafDetail,
         GroundContactDetail,
         MovementTraceDetail,
@@ -96,6 +104,7 @@ namespace island
         MonkeyDetail,
         ShipwreckDetail,
         CrabDetail,
+        BoarDetail,
         ButterflyDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
@@ -120,7 +129,8 @@ namespace island
                             bool showWorldDebug = false,
                             std::string benchmarkPath = {},
                             std::string startupReportPath = {},
-                            bool userSettingsEnabled = true);
+                            bool userSettingsEnabled = true,
+                            std::optional<CanopyLodInspection> canopyLodInspection = std::nullopt);
 
         GetTypeNameHPP()
 
@@ -177,6 +187,9 @@ namespace island
             int minimumCrabs = 0;
             int maximumCrabs = 0;
             std::uint64_t totalCrabs = 0U;
+            int minimumBoars = 0;
+            int maximumBoars = 0;
+            std::uint64_t totalBoars = 0U;
             int minimumButterflies = 0;
             int maximumButterflies = 0;
             std::uint64_t totalButterflies = 0U;
@@ -197,6 +210,7 @@ namespace island
         BirdFlock birdFlock_;
         ButterflyMeadow butterflyMeadow_;
         CrabColony crabColony_;
+        BoarHerd boarHerd_;
         FishSchools fishSchools_;
         SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
@@ -226,10 +240,14 @@ namespace island
 #else
         RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::Full();
 #endif
+        // Declared first so it outlives all rendering consumers during member destruction.
+        std::unique_ptr<CanopyLighting> canopyLighting_;
+        std::unique_ptr<RenderedTerrainHeightMap> terrainHeightMap_;
         std::unique_ptr<BirdRenderer> birdRenderer_;
         std::unique_ptr<ButterflyRenderer> butterflyRenderer_;
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<CrabRenderer> crabRenderer_;
+        std::unique_ptr<BoarRenderer> boarRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
         std::unique_ptr<FishRenderer> fishRenderer_;
@@ -260,7 +278,11 @@ namespace island
         bool smokeTest_ = false;
         FixedViewpoint viewpoint_ = FixedViewpoint::None;
         std::string capturePath_;
+        std::optional<CanopyLodInspection> canopyLodInspection_;
         bool mouseCaptured_ = false;
+#if defined(__EMSCRIPTEN__)
+        bool browserPointerReleasePending_ = false;
+#endif
         bool debugOverlayVisible_ = false;
         bool debugOverlayToggleWasDown_ = false;
         bool worldDebugVisible_ = false;

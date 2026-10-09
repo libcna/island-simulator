@@ -33,24 +33,44 @@ add_library(island_core STATIC
     game/src/AudioAnalysis.cpp
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp
+    game/src/BoarHerd.cpp
+    game/src/BoarCoatTexture.cpp
+    game/src/BoarPose.cpp
+    game/src/BoarGroundPose.cpp
     game/src/ButterflyMeadow.cpp
+    game/src/CanopyLightField.cpp
+    game/src/CanopyProfile.cpp
     game/src/CrabColony.cpp
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
+    game/src/ContactShadowPatch.cpp
     game/src/FirstPersonCameraMotion.cpp
     game/src/FirstPersonInput.cpp
     game/src/FishSchools.cpp
+    game/src/ForestFloorSampling.cpp
+    game/src/ForestFloorPixels.cpp
     game/src/GrassInteractionModel.cpp
+    game/src/GrassBladeProfile.cpp
+    game/src/GrassMotionBounds.cpp
     game/src/GrassLayout.cpp
     game/src/GrassLod.cpp
+    game/src/GroundBroadleaf.cpp
+    game/src/SplitGroundLeaf.cpp
+    game/src/BushProfile.cpp
     game/src/IslandTerrain.cpp
     game/src/JungleLayout.cpp
+    game/src/LeafBladeProfile.cpp
+    game/src/UnderstoryLeafProfile.cpp
     game/src/LocomotionPaceToggle.cpp
     game/src/MonkeyTroop.cpp
     game/src/NaturalPropLayout.cpp
+    game/src/OceanWaveSpectrum.cpp
     game/src/PerformanceStatistics.cpp
     game/src/PlayerMotion.cpp
     game/src/ProceduralMeshValidation.cpp
+    game/src/RockSurface.cpp
+    game/src/RenderedTerrainSurface.cpp
+    game/src/SurfaceNormals.cpp
     game/src/SeaTurtleGroup.cpp
     game/src/SharkPatrol.cpp
     game/src/ShipwreckLayout.cpp
@@ -122,6 +142,17 @@ if(ISLAND_BUILD_TOOLS AND NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(island_world_report PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_world_report)
     island_enable_first_party_sanitizers(island_world_report)
+
+    add_executable(island_grass_grounding_report tools/GrassGroundingReport.cpp)
+    set_target_properties(island_grass_grounding_report PROPERTIES OUTPUT_NAME island-grass-grounding-report)
+    target_link_libraries(island_grass_grounding_report PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_grass_grounding_report)
+    island_enable_first_party_sanitizers(island_grass_grounding_report)
+    add_executable(island_forest_floor_preview tools/ForestFloorPreview.cpp)
+    set_target_properties(island_forest_floor_preview PROPERTIES OUTPUT_NAME island-forest-floor-preview)
+    target_link_libraries(island_forest_floor_preview PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_forest_floor_preview)
+    island_enable_first_party_sanitizers(island_forest_floor_preview)
 endif()
 
 if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
@@ -131,6 +162,60 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_core_tests)
     island_enable_first_party_sanitizers(island_core_tests)
     add_test(NAME IslandCoreTests COMMAND island_core_tests)
+    add_executable(island_boar_tests tests/BoarHerdTests.cpp)
+    target_link_libraries(island_boar_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_boar_tests)
+    island_enable_first_party_sanitizers(island_boar_tests)
+    add_test(NAME IslandBoarHerdTests COMMAND island_boar_tests)
+    add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
+    target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_boar_coat_tests)
+    island_enable_first_party_sanitizers(island_boar_coat_tests)
+    add_test(NAME IslandBoarCoatTextureTests COMMAND island_boar_coat_tests)
+    add_executable(island_boar_pose_tests tests/BoarPoseTests.cpp)
+    target_link_libraries(island_boar_pose_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_boar_pose_tests)
+    island_enable_first_party_sanitizers(island_boar_pose_tests)
+    add_test(NAME IslandBoarPoseTests COMMAND island_boar_pose_tests)
+    add_executable(island_leaf_tests tests/LeafBladeProfileTests.cpp tests/GroundBroadleafTests.cpp
+        tests/SplitGroundLeafTests.cpp tests/BushProfileTests.cpp)
+    target_link_libraries(island_leaf_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_leaf_tests)
+    island_enable_first_party_sanitizers(island_leaf_tests)
+    add_test(NAME IslandLeafBladeTests COMMAND island_leaf_tests)
+    add_executable(island_grass_blade_tests tests/GrassBladeProfileTests.cpp
+        tests/GrassMotionBoundsTests.cpp tests/GrassVisibilityTests.cpp)
+    target_link_libraries(island_grass_blade_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_grass_blade_tests)
+    island_enable_first_party_sanitizers(island_grass_blade_tests)
+    add_test(NAME IslandGrassBladeTests COMMAND island_grass_blade_tests)
+
+    add_executable(island_rendered_terrain_tests tests/RenderedTerrainSurfaceTests.cpp)
+    target_link_libraries(island_rendered_terrain_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_rendered_terrain_tests)
+    island_enable_first_party_sanitizers(island_rendered_terrain_tests)
+    add_test(NAME IslandRenderedTerrainTests COMMAND island_rendered_terrain_tests)
+    add_executable(island_canopy_tests tests/CanopyLightFieldTests.cpp)
+    target_link_libraries(island_canopy_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_canopy_tests)
+    island_enable_first_party_sanitizers(island_canopy_tests)
+    add_test(NAME IslandCanopyLightFieldTests COMMAND island_canopy_tests)
+    add_executable(island_ocean_wave_tests tests/OceanWaveSpectrumTests.cpp)
+    target_link_libraries(island_ocean_wave_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_ocean_wave_tests)
+    island_enable_first_party_sanitizers(island_ocean_wave_tests)
+    add_test(NAME IslandOceanWaveSpectrumTests COMMAND island_ocean_wave_tests)
+    add_executable(island_forest_floor_tests tests/ForestFloorSamplingTests.cpp)
+    target_link_libraries(island_forest_floor_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_forest_floor_tests)
+    island_enable_first_party_sanitizers(island_forest_floor_tests)
+    add_test(NAME IslandForestFloorSamplingTests COMMAND island_forest_floor_tests)
+
+    find_program(ISLAND_NODE_EXECUTABLE NAMES node nodejs)
+    if(ISLAND_NODE_EXECUTABLE)
+        add_test(NAME IslandGrassMotionReviewTests
+            COMMAND "${ISLAND_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/GrassMotionReviewTests.mjs")
+    endif()
 
     if(TARGET island_world_report)
         add_test(NAME IslandWorldReport
@@ -138,6 +223,13 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
                     --output "${CMAKE_BINARY_DIR}/island-world-report.json")
         set_tests_properties(IslandWorldReport PROPERTIES
             PASS_REGULAR_EXPRESSION "world report valid")
+    endif()
+
+    if(TARGET island_grass_grounding_report)
+        add_test(NAME IslandGrassGroundingReport
+            COMMAND island_grass_grounding_report "${CMAKE_BINARY_DIR}/island-grass-grounding-report.json")
+        set_tests_properties(IslandGrassGroundingReport PROPERTIES
+            PASS_REGULAR_EXPRESSION "grass grounding report written")
     endif()
 
     if(TARGET island_audio_report)
@@ -158,6 +250,19 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         add_test(NAME IslandCaptureValidatorTests
             COMMAND "${Python3_EXECUTABLE}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/tests/ValidateCaptureTests.py")
+        add_test(NAME IslandTextureTileReviewTests
+            COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tests/TextureTileReviewTests.py")
+        if(TARGET island_forest_floor_preview)
+            add_test(NAME IslandForestFloorPreviewTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/ForestFloorPreviewTests.py"
+                        "$<TARGET_FILE:island_forest_floor_preview>")
+            add_test(NAME IslandPreparedMaterialTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/PreparedMaterialTests.py"
+                        "$<TARGET_FILE:island_forest_floor_preview>")
+        endif()
         if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             add_test(NAME IslandGpuQualificationSupervisorTests
                 COMMAND "${Python3_EXECUTABLE}"
@@ -166,6 +271,22 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
             add_test(NAME IslandGlVertexTraceAuditTests
                 COMMAND "${Python3_EXECUTABLE}"
                         "${CMAKE_CURRENT_SOURCE_DIR}/tests/AuditGlVertexTraceTests.py")
+            add_test(NAME IslandGlTraceStateTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/InspectGlTraceStateTests.py")
+            add_test(NAME IslandGlSkinTraceAuditTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/AuditGlSkinTraceTests.py")
+            add_test(NAME IslandSoftwareCapturePreflightTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/SoftwareCaptureTests.py")
+            add_test(NAME IslandAndroidSoftwarePreflightTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/AndroidSoftwareTests.py")
+            add_test(NAME IslandBrowserSoftwarePreflightTests
+                COMMAND "${Python3_EXECUTABLE}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/tests/BrowserSoftwareTests.py")
+            set_tests_properties(IslandBrowserSoftwarePreflightTests PROPERTIES TIMEOUT 30)
         endif()
         add_test(NAME IslandWebPackageValidation
             COMMAND "${Python3_EXECUTABLE}"
@@ -261,13 +382,18 @@ if(ISLAND_BUILD_GAME)
     add_subdirectory("${CNA_ROOT_DIR}" CNA EXCLUDE_FROM_ALL)
 
     set(_island_game_sources
+        game/src/CanopyLighting.cpp
         game/src/BirdRenderer.cpp
         game/src/ButterflyRenderer.cpp
         game/src/ContactShadowRenderer.cpp
         game/src/CrabRenderer.cpp
+        game/src/BoarRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp
+        game/src/ForestFloorMaterial.cpp
+        game/src/OpaqueImageLoader.cpp
+        game/src/LeafSurfaceMaterial.cpp
         game/src/GpuDiagnostics.cpp
         game/src/GrassRenderer.cpp
         game/src/IslandGame.cpp
@@ -278,6 +404,7 @@ if(ISLAND_BUILD_GAME)
         game/src/OceanRenderer.cpp
         game/src/PalmRenderer.cpp
         game/src/RuntimeDiagnostics.cpp
+        game/src/RenderedTerrainHeightMap.cpp
         game/src/SeaTurtleRenderer.cpp
         game/src/SharkRenderer.cpp
         game/src/ShipwreckRenderer.cpp
@@ -303,6 +430,47 @@ if(ISLAND_BUILD_GAME)
     island_enable_cna_consumer_warnings(island-simulator)
     island_enable_first_party_sanitizers(island-simulator)
 
+    # Host-only area reduction preserves source artwork and the runtime's exact base pixels.
+    set(_island_floor_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/forest-floor-albedo-v1.png")
+    set(_island_floor_path "Content/terrain/forest-floor.png")
+    set(_island_leaf_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/leaf-lamina-v1.png")
+    set(_island_leaf_path "Content/vegetation/leaf-lamina.png")
+    set(_island_floor_prepared "${CMAKE_BINARY_DIR}/${_island_floor_path}")
+    set(_island_leaf_prepared "${CMAKE_BINARY_DIR}/${_island_leaf_path}")
+    if(NOT ANDROID)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+        execute_process(COMMAND "${Python3_EXECUTABLE}" -c "from PIL import Image"
+            RESULT_VARIABLE _island_pillow_result ERROR_QUIET)
+        if(NOT _island_pillow_result EQUAL 0)
+            message(FATAL_ERROR "Material preparation needs host Python Pillow (python3-pil).")
+        endif()
+        set(_island_material_tool "${CMAKE_CURRENT_SOURCE_DIR}/tools/prepare_material_texture.py")
+        add_custom_command(OUTPUT "${_island_floor_prepared}"
+            COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
+                "${_island_floor_source}" "${_island_floor_prepared}" --size 512
+            DEPENDS "${_island_floor_source}" "${_island_material_tool}" VERBATIM)
+        add_custom_command(OUTPUT "${_island_leaf_prepared}"
+            COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
+                "${_island_leaf_source}" "${_island_leaf_prepared}" --size 256
+            DEPENDS "${_island_leaf_source}" "${_island_material_tool}" VERBATIM)
+        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}")
+        add_dependencies(island-simulator island_material_assets)
+    endif()
+
+    if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
+        add_executable(island_canopy_visibility_tests tests/CanopyVisibilityTests.cpp)
+        target_include_directories(island_canopy_visibility_tests PRIVATE game/include)
+        target_link_libraries(island_canopy_visibility_tests PRIVATE CNA)
+        island_enable_cna_consumer_warnings(island_canopy_visibility_tests)
+        island_enable_first_party_sanitizers(island_canopy_visibility_tests)
+        add_test(NAME IslandCanopyVisibilityTests COMMAND island_canopy_visibility_tests)
+        add_executable(island_terrain_material_tests tests/TerrainMaterialTests.cpp)
+        target_link_libraries(island_terrain_material_tests PRIVATE CNA IslandSimulator::Core)
+        island_enable_cna_consumer_warnings(island_terrain_material_tests)
+        island_enable_first_party_sanitizers(island_terrain_material_tests)
+        add_test(NAME IslandTerrainMaterialTests COMMAND island_terrain_material_tests)
+    endif()
+
     if(COMMAND cna_copy_renderer_runtime)
         cna_copy_renderer_runtime(island-simulator)
     endif()
@@ -319,10 +487,12 @@ if(ISLAND_BUILD_GAME)
             target_link_libraries(island-simulator PRIVATE CNA::EmscriptenAsyncify)
         endif()
         set_property(TARGET island-simulator APPEND PROPERTY LINK_DEPENDS
-            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html")
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html" "${_island_floor_prepared}" "${_island_leaf_prepared}")
         set_target_properties(island-simulator PROPERTIES SUFFIX ".html")
         target_link_options(island-simulator PRIVATE
             --shell-file "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html"
+            "SHELL:--preload-file '${_island_floor_prepared}@/${_island_floor_path}'"
+            "SHELL:--preload-file '${_island_leaf_prepared}@/${_island_leaf_path}'"
             -sALLOW_MEMORY_GROWTH=1
             -sSTACK_SIZE=1048576
             -sINITIAL_MEMORY=134217728
@@ -341,6 +511,10 @@ if(ISLAND_BUILD_GAME)
         install(TARGETS island-simulator
             RUNTIME DESTINATION .
             COMPONENT Runtime)
+        install(FILES "${_island_floor_prepared}" DESTINATION Content/terrain
+            RENAME forest-floor.png COMPONENT Runtime)
+        install(FILES "${_island_leaf_prepared}" DESTINATION Content/vegetation
+            RENAME leaf-lamina.png COMPONENT Runtime)
         if(TARGET cna_shared)
             install(TARGETS cna_shared
                 LIBRARY DESTINATION lib
@@ -388,7 +562,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "island-simulator: smoke test rendered 4 frames")
+                "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips")
         add_test(NAME IslandGameStartupReport
             COMMAND island-simulator --smoke-test --overview
                     --startup-report "${CMAKE_BINARY_DIR}/island-startup-report.json")
@@ -404,7 +578,7 @@ if(ISLAND_BUILD_GAME)
             set_tests_properties(IslandCommandLineValidation PROPERTIES
                 TIMEOUT 15
                 PASS_REGULAR_EXPRESSION
-                    "command-line validation passed [(]8 invalid invocations[)]")
+                    "command-line validation passed [(]26 invalid invocations[)]")
 
             add_test(NAME IslandGameStartupReportValidation
                 COMMAND "${Python3_EXECUTABLE}"

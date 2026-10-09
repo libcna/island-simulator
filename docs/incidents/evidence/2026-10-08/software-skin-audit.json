@@ -1,0 +1,9 @@
+{
+  "scope": "Offline fetched skin indices/weights and vertex bounds; not shader output, uploaded palette completeness, driver safety, or hardware qualification",
+  "frames": 721,
+  "draws": 64169,
+  "skin_draws": 2884,
+  "distinct_skin_vertex_versions": 1445,
+  "maximum_bone_index": 13,
+  "errors": []
+}

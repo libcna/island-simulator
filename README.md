@@ -3,24 +3,63 @@
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming
 experience built in C++23 with CNA.
 
+## Current GPU safety status
+
+AMDGPU hardware qualification is suspended after a confirmed GPUVM fault and desktop-session
+loss. The cause is still unresolved; do not treat successful software captures as a hardware fix.
+See [the incident report](docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md).
+New wildlife and visual work is currently checked with CPU tests and forced llvmpipe/pixman.
+After building, a repeatable software-only visual check is:
+
+```sh
+python3 tools/run_software_capture.py build jungle
+```
+
+This requires kernel-journal visibility. If group membership was granted without a new login,
+use `sg systemd-journal -c 'python3 tools/run_software_capture.py build jungle'`.
+The command preserves its image, logs and kernel delta under `build/software-captures/`, forces
+at most eight llvmpipe workers, hides host GPU device nodes, and never clears the separate
+hardware qualification failure latch.
+
 ![A sunny overview of the complete procedural tropical island](assets/presentation/island-overview.png)
 
 The project remains under an active long-form development and polish campaign. The current
+rendering policy requests 4x geometric-edge antialiasing on Linux/Web and 2x on Android through
+CNA's existing backbuffer path, with explicit applied-sample diagnostics and device fallback.
+See [antialiasing evidence and cost](docs/edge-antialiasing.md); software results do not qualify
+hardware performance or resolve the GPU incident. The current
 playable slice renders a deterministic approximately 500 m island with
 portable procedural
 sand, wet-edge, soil, and slope material variation, including distance-faded interior substrate
-microvariation, broad leaf-humus and cool-moss floor breakup, sparse curved leaf litter, close
+microvariation, broad leaf-humus and cool-moss floor breakup, close analytic soil relief and
+smooth pores faded by both distance and pixel footprint, sparse curved leaf litter, close
 dry-sand granulation, soft-edged pebble/shell
 flecks, subtle shoreline-raked ripples, restrained fixed-sun jungle-floor dappling, and a narrow
 noise-mottled, broken-edge
 earthen footpath that follows the same authored corridor reserved by vegetation. Two
 authored clearings use distinct sunlit-dry and leaf-rich ground treatments with broad irregular
-patch breakup derived from terrain noise that was already evaluated. An animated tropical
+patch breakup derived from terrain noise that was already evaluated. Close jungle soil now adds
+one project-owned floor image with a 512-square mip chain and edge-safe rotated source windows,
+preserving the authored paths and clearing palettes. It is packaged on all targets; missing data
+logs a diagnostic and retains procedural soil. See [material review](docs/forest-floor-material-review.md)
+for provenance, software-only runtime evidence and remaining visual limitations.
+Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
+preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
+An animated tropical
 ocean adds distance-faded crossing-wave colour structure, restrained shallow-ridge light and
 sunward ripple crests plus view-aligned grazing reflection bands from its existing slope field,
-and an exact shore-following foam/wash ribbon,
-330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 565 low
-bushes, 2,225 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
+with a shared nine-wave spectrum, gently irregular short-wave normals and per-wave pixel-footprint
+filtering. Grazing sky reflections become less transparent than downward views into the lagoon.
+Fine waves now vary in strength across slowly moving wind patches, with a wider spread of short
+directions and analytically consistent normals; broad water displacement is unchanged.
+Supplementary grazing contrast is bounded, and broad breaker foam is limited by shallow depth
+and shore distance rather than appearing across deeper water. Fine wave repetition still needs polish.
+The sea floor uses continuous sand colours across the waterline, with filtered shallow sand ripples;
+water tint and opacity increase with local depth instead of baking turquoise into the substrate.
+An exact shore-following foam/wash ribbon uses advancing, fading crests and
+pixel-footprint-filtered porous foam instead of a continuous white stripe. The landscape contains
+330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 578 low
+bushes, 3,148 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
 irregular land rocks, 14 emergent near-shore reef outcrops, 13 mossy fallen logs with irregular
 near broken-end contours,
 31 pieces of sun-bleached beach driftwood, 63 curved fallen palm fronds with asymmetric leaflets,
@@ -47,14 +86,20 @@ waterline sheen. It remains frustum/distance culled and is submitted as one batc
 transparent ocean colours its submerged portions; it introduces no quest, pickup, or objective.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.
-The 42-blade near mesh uses five curvature levels per blade, folded side colour, and portable
-two-sided daylight/root/transmission shading. Its close blades are deliberately narrower than the
+The 42-blade near mesh uses five curvature levels per blade, geometric V-folds, and portable
+two-sided daylight/root/transmission shading. Shared surface normals follow rest-shape curvature
+and instance scale; wind/player motion still uses approximate normal response. Pigment now stays
+separate from fixed side lighting, with restrained filtered longitudinal grain; see
+[grass surface material and evidence](docs/grass-surface-material.md). Its close blades are deliberately narrower than the
 middle tier, use small deterministic left/right edge asymmetry, and occasionally bend and droop at
-the tip instead of repeating broad symmetric ribbons. A sparse juvenile underlayer, six restrained
+the tip instead of repeating broad symmetric ribbons. Their upper width now tapers progressively,
+and seed stems attach to the actual curved terminal centre/ridge. A sparse juvenile underlayer, six restrained
 seed-bearing stems in the near cluster, and deterministic per-instance blade stature, colour, and
 wind variation
 keep neighbouring tufts from repeating the shared mesh literally; the cheaper far mesh uses three
 levels and still merges into the terrain before culling.
+The 42 near blades form seven unequal loose tufts, with outward-facing leaves, short peripheral
+blades and related wind phases. This reuses the existing geometry and draw budget.
 Nearby palm crowns use nine paired, fuller tapered-leaflet stations on each of 10--12 curved fronds
 instead of solid ribbon silhouettes. A cheaper widened ribbon preserves the crown envelope at
 distance,
@@ -69,56 +114,80 @@ unchanged. Two selected near variants also carry two or three irregular hanging 
 remnants beneath the living crown. Their broken ochre-brown leaflets add sparse age variation
 without turning every palm into a uniform dead skirt; the far silhouettes and submission count
 remain unchanged.
-Nearby broadleaf crowns use subtly irregular, separated lobes, visible tapered support branches,
-and pointed perimeter leaves. Their near-only lobe rings now shift sideways and vary contour by
-height, while alternating lobes add a smaller, more strongly drooping lower-edge leaf. This breaks
-the most obvious rounded-shell/skirt line without changing the cheaper far crowns or draw count.
+Nearby broadleaf crowns use small irregular inner foliage masses, visible tapered support
+branches, and layered shells of 584 curved canopy blades per tree. Golden-angle sprigs, unequal leaf
+sizes and height-dependent tints break up smooth silhouettes without alpha blending or another
+draw pass. Eight shared crown forms vary branch architecture as well as leaf posture. The near
+meshes have 4,328–4,378 triangles; the 1,064-triangle far tier retains 104 original blades and
+primary branches. The foliage is still procedurally stylized rather than photorealistic.
+Terrain, grass and jungle ground layers share approximate fixed-sun shade baked from the placed broadleaf crowns,
+replacing unrelated noise-based sun patches. The static 4 MiB field preserves ambient skylight;
+it is not leaf-exact shadow mapping. Boars sample the same light per body vertex, retaining a
+1 MiB CPU field without another GPU texture or draw. Monkeys reuse it through a smoothed body
+sample and the existing skinned material, including reduced direct specular light in shade.
+Other wildlife and palms are not yet integrated. Understory,
+bushes and small plants project their elevated leaves along the same sun direction, retaining
+ambient light beneath crowns instead of remaining uniformly bright against shaded soil.
 The same near meshes give trunks a restrained secondary growth bend and slight ring/azimuth girth
 variation, while each support branch tapers through a deterministic off-axis middle joint instead
-of reading as one straight cylinder. Crown anchors, collision proxies, far meshes, and submissions
-remain unchanged.
-Two of the four near variants also carry one sparse hanging liana
+of reading as one straight cylinder. Near/far crown anchors agree and collision proxies remain
+unchanged; the expanded form set adds shared meshes and variant batches.
+Two of the eight near variants also carry one sparse hanging liana
 with a curved tapered strand and two small leaves, adding vertical jungle detail without another
 instance or draw. Their near trunks now meet the forest floor through four or five
 short irregular buttress roots instead of a uniform cylinder, using the same instanced mesh and
 draw submissions. Close bark gains restrained procedural longitudinal grain and narrow fissures
 that fade before the far tier, without a texture or new pass. A deterministic per-tree 105--129 m
 threshold staggers their
-transition to a rounded 208-triangle far mesh instead of switching complete scene cells at once.
-The shared portable jungle shader reconstructs a two-sided geometric face normal from world-space
-derivatives, so canopy, understory, bush, and ground-plant facets respond coherently to the fixed
-sun without normal buffers, textures, or another draw.
+transition to the far mesh instead of switching complete scene cells at once.
+The shared portable jungle shader uses smooth normals on curved and pointed leaves, with
+subtle footprint-filtered veins and a restrained waxy sun reflection nearby. Fine material detail
+fades between 16 and 38 m; bark and other geometry retain their geometric two-sided lighting.
+Leaf coordinates and normals share the existing vertex buffer; no texture or draw was added.
 Its vertex stage also recombines each existing instance transform's scale/yaw coefficients into a
 stable restrained foliage tint. The green-only mask leaves bark unchanged, and the shared transform
 keeps the same tint identity across near/far LOD without another attribute, texture, or draw.
-Nearby low bushes replace their largest smooth lobes with smaller overlapping volume and paired
-folded, pointed leaves, preserving the inexpensive 48-triangle far tier and existing submissions.
+Low bushes use supported shoots and individual curved leaves. Both detail tiers retain
+the complete leaf outlines; far removes inner rib vertices without extra draw submissions.
+Two medium understory forms now use pinnate fern fronds, with tapered paired leaflets aligned
+to a curved rachis and attached through shared wind vertices. Far meshes retain original leaflet
+identities. This adds geometry but no material, texture or draw; mobile cost and moving LOD
+quality remain unqualified. Two other forms use broad paddle/lance profiles with mildly
+asymmetric margins and cupped surfaces, reusing the same mesh budget.
 One near forest-floor variant forms six upright broad leaves on visible petioles, while another
 uses five low folded split leaves instead of repeating the strap-leaf rosette. Their
-compact far representations and batching remain unchanged. Understory, bush, and forest-floor
+far representations retain reduced original leaf subsets with unchanged batching. Understory, bush, and forest-floor
 LOD and maximum-distance selection use actual instance positions after a conservative cell reject,
 so first-person detail no longer changes early at a coarse cell boundary.
-Near land and reef rocks gain subtle texture-free strata and restrained lichen flecks from their
-portable material shader. The effect is deliberately limited to the near LOD so distant rock
-silhouettes remain calm and avoid unnecessary fragment work. A fixed mean-sea-level band subtly
-darkens and cools their lowest near fragments so emergent outcrops no longer read as uniformly dry
-where they meet the water. Near-rock crown heights and asymmetric caps now break the former flat
-top line, while derivative-based fixed-sun facet shading makes the deliberately low-poly planes
-read clearly without another normal stream or draw. A restrained warm/cool tint derived from each
+Land and reef rocks use shared smooth normals, scale/yaw-correct fixed-sun lighting and refined
+near silhouettes. Texture-free mineral mottling, filtered fine grain and restrained lichen replace
+the former triangle-facet lighting and repetitive strata. Fine detail fades before the far LOD;
+broad colour and daylight remain consistent. A fixed mean-sea-level band darkens their wet bases.
+This uses one additional normal attribute in the existing instanced pass, not another draw or
+texture. A restrained warm/cool tint derived from each
 existing instance transform varies neutral stone tones while preserving one identity across the
 near/far LOD and leaving wood and foliage colours unchanged.
 Nearby fallen logs use the same portable material path for gently irregular cut-end growth rings,
 restrained radial drying cracks, and longitudinal bark fissures. Both rock and wood detail fade
 out before their LOD transition.
+Wood surface normals now follow each instance's rotation and nonuniform scale, with outward-lit
+cut ends and separate hard rims. Far wood keeps the same daylight response without close detail.
 Sun-bleached driftwood adds a still softer near-only longitudinal weathering treatment. Its third
 near variant replaces a simple spike with three curved tapered fork limbs, while cut ends and all
 far meshes stay calm and inexpensive. Rocks, fallen logs, and driftwood select range and LOD from
 each instance after a conservative cell-bounds rejection rather than switching an entire cell.
-Nearby palms, canopy trees, land rocks, fallen wood, driftwood, and monkeys receive subtle
+Nearby palms, canopy trees, land rocks, fallen wood, driftwood, monkeys, and boars receive subtle
 terrain-conforming contact shadows. The twelve-segment soft ellipses use one portable
 `BasicEffect` batch, fade before their bounded draw distances, and cache static terrain sampling
 plus movement-thresholded uploads so this grounding cue does not become a per-frame procedural
 terrain cost.
+Land-rock and wood ellipses are split at rendered terrain triangles to avoid coarse-surface
+mismatches. Fallen-log and driftwood model heading now matches placement/support and collision
+heading; terrain layout and walking routes are unchanged.
+Reef outcrops, the two broken hull sections and twelve wreck fragments now also receive soft
+grounding patches. These are clipped to the actual seabed/terrain triangles, drawn beneath the
+water in the existing batch, and preserve the gap between the hull halves. They remain contact
+approximations, not full mast/rigging or directional shadow silhouettes.
 It supports
 first-person terrain walking, near-shore swimming, trunk collision, and a soft ocean-current
 boundary whose always-shoreward return includes mild coherent coast-parallel circulation,
@@ -132,7 +201,38 @@ and sparse, layered horizontal high-cloud wisps without a weather simulation. A 
 flock of 24 procedural birds follows varied shore, canopy, and high-altitude routes with animated
 wing strokes, layered trailing flight feathers on the near silhouette, intermittent glides, banked
 turns, slow radial route drift, terrain clearance, visibility culling, and distance-throttled
-simulation. Thirty small beach crabs occupy six dry/wet-sand colonies and alternate asynchronous
+simulation. Six non-hostile wild boars now forage, rest, wander, and retreat from nearby players
+in bounded inland habitats, with solid-prop avoidance, adult/juvenile procedural models,
+continuous body/head profiles, folded ears, near nostrils and bent tusks, smooth fixed-sun shading
+and terrain-following contact shadows. An original 128x128 opaque directional coat atlas adds
+fine body strands through stock BasicEffect; a padded white region leaves eyes, tusks and hooves
+unpatterned. The three coat tints and juvenile markings remain shared with the mesh colors.
+Legs use connected tapered segments and split near hooves, with a grounded stance and lifted
+return phase; short swept bristles follow the same body profile. This is still approximate
+procedural animation: individual soles fit the rendered terrain with fixed-length limbs,
+but world-space foot locking and stride-speed synchronization remain unfinished.
+Use `--viewpoint boars` for their dedicated inspection camera. This original asset still needs
+visual refinement; its current runtime validation covers native llvmpipe and actual browser
+WebGL 2 through SwiftShader, not post-incident AMD or Android device qualification.
+The juvenile broadleaf ground plant now uses a curved leaf surface and retains real source
+leaves in its reduced-detail model. Use `--viewpoint ground-broadleaf` for its inspection
+camera; see [ground broadleaf validation](docs/ground-broadleaf.md) for exact scope and cost.
+The split-leaf ground plant uses connected, curved lobes with shared near/far source
+identities. Its `--viewpoint ground` camera and [validation notes](docs/split-ground-leaves.md)
+track the remaining terrain-intersection and LOD limitations.
+Shrubs now use rooted woody shoots and smaller individual curved leaves, retaining
+all source leaves and outlines at far LOD. Use `--viewpoint bush` for the targeted camera;
+[shrub validation](docs/shrub-lod-continuity.md) records the increased geometry cost and
+remaining coverage/animation limitations.
+The floor layer includes 199 irregular canopy-associated groups with 866 smaller
+companion plants, while preserving paths and clearing accents. See
+[placement validation](docs/forest-floor-colonies.md) for bounds, cost and visual limitations.
+Jungle root origins now follow the actual rendered terrain triangles; see
+[root-contact validation and remaining slope limits](docs/jungle-root-contact.md).
+Near rosette litter also follows slopes through the shared terrain height map;
+[contact measurements and remaining limits](docs/fallen-leaf-contact.md) document the change.
+Thirty small beach crabs occupy six dry/wet-sand colonies and
+alternate asynchronous
 pause, forage, and lateral scuttle states. They stay inside terrain-validated home ranges, retreat
 briefly from a nearby player, and use articulated near/far silhouettes in one culled batch.
 Eighteen butterflies occupy three sunny clearing-edge habitats, alternate rest, flutter, and

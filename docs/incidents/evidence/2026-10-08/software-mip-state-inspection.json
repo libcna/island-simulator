@@ -1,0 +1,87 @@
+{
+  "scope": "Offline program links, mutable normalized-color sampler2D mip completeness with sampler overrides, allocation/deletion inventory; not texel contents, lifetimes, shader UB, or hardware qualification",
+  "frames": 721,
+  "draws": 64169,
+  "draws_by_program": {
+    "3": 5768,
+    "6": 14420,
+    "9": 20188,
+    "12": 10815,
+    "18": 5768,
+    "21": 721,
+    "24": 721,
+    "27": 721,
+    "39": 2163,
+    "42": 2884
+  },
+  "shader_compile_checks": 28,
+  "program_link_checks": 14,
+  "sampled_program_texture_pairs": [
+    {
+      "program": 42,
+      "texture": 2,
+      "draws": 2884
+    }
+  ],
+  "sampling_configurations": [
+    {
+      "texture": 2,
+      "sampler": 1,
+      "base_level": 0,
+      "max_level": 0,
+      "min_filter": 9987,
+      "draws": 2884
+    }
+  ],
+  "buffer_data_calls": 38568,
+  "buffer_data_requested_bytes": 320319980,
+  "most_frequent_allocations": [
+    {
+      "bytes": 1024,
+      "initial_data": true,
+      "calls": 23110
+    },
+    {
+      "bytes": 2048,
+      "initial_data": true,
+      "calls": 7942
+    },
+    {
+      "bytes": 8192,
+      "initial_data": true,
+      "calls": 2888
+    },
+    {
+      "bytes": 4096,
+      "initial_data": true,
+      "calls": 2888
+    },
+    {
+      "bytes": 20736,
+      "initial_data": false,
+      "calls": 721
+    },
+    {
+      "bytes": 471744,
+      "initial_data": false,
+      "calls": 466
+    },
+    {
+      "bytes": 720,
+      "initial_data": true,
+      "calls": 10
+    },
+    {
+      "bytes": 120,
+      "initial_data": true,
+      "calls": 10
+    }
+  ],
+  "first_non_shader_deletion": {
+    "call": 673,
+    "frame": 0,
+    "api": "glDeleteFramebuffers"
+  },
+  "deletion_calls_between_first_and_last_swap": 0,
+  "errors": []
+}

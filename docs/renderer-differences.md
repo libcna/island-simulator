@@ -1,5 +1,65 @@
 # Renderer Differences
 
+Grass surface shading shares GLSL 330/ES 300 pigment separation and filtered
+longitudinal detail. Native llvmpipe, WebGL 2 Chrome/SwiftShader and Android GLES 3
+KVM/SwiftShader runs pass; physical GPU qualification remains stopped. BasicEffect
+retains its former unlit baked colour policy. See `grass-surface-material.md` for
+the 40-byte vertex, nine attributes, image evidence and remaining limits.
+
+Jungle root origins follow rendered terrain triangles on both custom and stock
+paths. Near rosette litter additionally samples the shared RGB24 height texture
+per vertex in GLSL 330/ES 300; its normals derive from the deformed surface. Grass
+and jungle share one application-owned map. The BasicEffect fallback keeps litter
+on the root plane and does not implement this draping. See `jungle-root-contact.md`
+and `fallen-leaf-contact.md` for measured and actually validated scope.
+
+Forest-floor recruitment uses the same renderer-independent placement and existing
+ground-plant batches on all APIs. The default 199 groups / 866 companions are verified
+in native llvmpipe, browser SwiftShader and Android KVM/SwiftShader logs. No new
+material, texture or mesh is introduced. See `forest-floor-colonies.md` for actual
+visual scope and increased instance/triangle cost, not physical-GPU qualification.
+
+Shrubs use the same CPU-generated shoots and individual blades on all three APIs,
+with retained leaf identities, complete leaf outlines and compact closed-end meshes
+in both LODs. Far removes the interior rib, not the oval boundary. They reuse
+the jungle leaf/wood shader and existing instance attributes. BasicEffect receives
+the geometry but not custom vein/bark response. See `shrub-lod-continuity.md` for actual
+runtime scope and increased triangle cost; no physical GPU qualification is implied.
+
+Split ground leaves likewise share one connected profile and LOD outline knots
+across APIs, without a new shader or texture. Their local above-origin bounds are
+not exact per-vertex ground conformance. See `split-ground-leaves.md` for evidence.
+
+Ground broadleaf variant 1 uses the same CPU-generated curved geometry, analytic-profile
+normals and existing leaf material on all three APIs. Its far mesh retains four of six
+source leaves rather than substituting fronds. BasicEffect receives the curved geometry but
+not custom leaf shading; that pass left other ground species unchanged. Runtime scope and the extra
+10,816 bytes of static vertex data are documented in `ground-broadleaf.md`.
+
+The custom grass shader now contracts clusters over the last 16 m of the existing 135 m
+Linux/Web or 112 m Android range. Shared GLSL 330/ES 300 performs this without alpha or extra
+passes; CPU cell rejection is conservative for anchor distance. Mesh-tier selection is unchanged.
+The BasicEffect fallback does not implement this fade or exact root reprojection. Consult
+`grass-distance-continuity.md` for actual tests and additional far-instance submission cost;
+source equivalence alone is not cross-platform runtime evidence.
+
+The game now requests bounded backbuffer MSAA through CNA: 4x for Linux/Web and 2x for Android.
+It logs renderer-applied samples and explicitly reports a device-limited downgrade. Current
+software checks cover native readback, Web walking/resize and Android grass rendering; see
+`edge-antialiasing.md`. This smooths polygon edges, not texture/shader aliasing or LOD changes,
+and adds multisample color/depth storage outside the generated-texture inventory. Physical
+GPU/mobile performance remains unqualified.
+
+The floor-image integration uses the same 512-square ten-mip RGBA8 texture and four-window
+mapping on all three APIs. GLSL ES 300 explicitly declares high-precision integers for its
+unsigned hash. All paths rotate explicit world-space texture gradients. When CNA reports
+anisotropic filtering, the floor uses its 4x AnisotropicClamp preset (device-clamped); otherwise
+it retains LinearClamp/trilinear filtering. There is no mandatory extension, negative LOD bias,
+geometry shader, compute shader or texture array. Native title files,
+Web `.data` preloading and Android APK assets supply the same source PNG. Consult
+`forest-floor-material-review.md` for current software-only validation; older hardware results
+below are not post-incident qualification or evidence for this new material.
+
 ## Contract
 
 Linux/OpenGL 3.3, Web/WebGL 2, and Android/OpenGL ES 3 are three presentations of the same game.
@@ -8,12 +68,63 @@ Game code uses CNA abstractions, portable 16-bit index buffers, and explicit GLS
 platform may reduce density or distance after measurement, but it must not remove core terrain,
 ocean, vegetation, traversal, wildlife, or soundscape systems.
 
-Current Linux/Web build and runtime evidence plus current Android build/lint evidence use the
-dependency revisions in `dependencies.lock`. The dedicated shipwreck, beach-crab, butterfly, and
-sea-turtle views have current-pin runtime evidence on every renderer; older rows identify
-preceding-pin evidence where applicable.
+The broad table below is historical, from before the October 8 GPUVM incident and subsequent
+visual-development passes. **It is not current AMD hardware qualification.** The affected desktop
+GPU and host-GPU emulator must not be used while the incident stop latch is active. Current
+software-renderer and build-only evidence is tracked in `PLAN.md`, `build-web.md` and
+`build-android.md`. Consult each pass's scope: a focused scene/walking check does not automatically
+renew the complete browser/input/audio matrix. Physical-device qualification remains pending.
 
-## Current evidence
+Current Android software evidence now includes the API 35 x86_64 interactive scene, touch
+sensitivity selection, same-process Home/resume, cold relaunch and an unobstructed clearing-edge
+view under explicit SwiftShader GLES 3.0 at 1280x720. The owned headless emulator cannot access
+host DRM/display devices. These are functional scene/selector/lifecycle checks, not physical-mobile
+performance or post-incident AMD qualification; historical 2400x1080 host-GPU results below are
+not automatically renewed by this narrower software run.
+
+Canopy trunks, branches and root wedges now have a portable explicit wood tag in the unchanged
+52-byte vertex format. Custom shaders select raw bark albedo and validated outward normals for
+one-sided sunny daylight; branch/root winding is corrected. Stock fallback retains its baked
+RGB, while leaf/crown lighting is unchanged. Native llvmpipe and all five focused SwiftShader
+WebGL vegetation views validate this pass; see `PLAN.md` for Android execution evidence. No new
+texture, instance attribute, triangle or renderer-specific API is required.
+Tagged wood now uses local circular/axial bark coordinates on that same layout, including
+seam-independent angular footprint filtering. Native llvmpipe, all five software WebGL
+vegetation views and the isolated Android clearing-edge view execute this shared shader;
+exact evidence is in `PLAN.md`. Continuous junction atlases and physical-GPU cost are not qualified.
+The subsequent instance-stable noise warp, fissure interruptions and plate-tone variation also
+pass these three software paths. The shared ES 300 shader explicitly uses high-precision integers
+for its lattice hash and nonnegative wrapped indices. No extra vertex attribute or texture is
+used; extra fragment cost remains unmeasured on hardware.
+Canopy blades have deterministic spatial pitch/roll and variant-dependent proportions with
+exact retained source poses at far LOD. The first posture pass used five-vertex diamonds and
+passed native, WebGL and isolated Android checks. The subsequent canopy-only seven-vertex
+outline trades fewer sprigs for fuller individual blades while preserving triangle counts;
+bushes/lianas keep the legacy shape. Runtime evidence for this revision is tracked in `PLAN.md`.
+The frozen comparison improves at one partly occluded tree, not all viewpoints: see
+`canopy-lod-review.md`. Runtime culling uses remeasured mesh bounds; coarse light-bake proxies
+remain unchanged and approximate. Neither pass qualifies physical GPU performance.
+The far tier additionally retains the same seven primary branches as near. This is shared CPU
+geometry (84 vertices/112 triangles added per far mesh), with unchanged shader formats and draws.
+Four native software near/far pairs show modestly reduced transition error; current Web/GLES
+regression evidence is tracked separately in `PLAN.md`. The new explicit `canopy` inspection
+camera is elevated and capture-only, not a normal player viewpoint.
+Trunk albedo now uses one linear normalized-height pigment field rather than alternating ring
+parity, whose different near/far tessellations previously generated different colour bands.
+This shared CPU colour path adds no rendering cost/format change. Native static pairs, a measured
+software Web walking route and isolated GLES jungle execute it; evidence/limits are in `PLAN.md`.
+
+Post-incident additions include boars, placed-canopy lighting, filtered leaf materials, moving
+porous surf, a shared ocean spectrum, depth-dependent shallow-water tint, continuous sand and
+terrain-triangle-conforming coastal contact patches. Stone now has shared smooth normals and
+scale-correct daylight with refined close geometry instead of the historical facet-lighting path.
+These share portable GLSL 330/ES 300 or stock effects, not hardware-specific extensions.
+Terrain material overrides now retain smooth slope daylight through a separate float in the
+28-byte vertex, while RGB remains prelit/alpha opaque for fallback. Substrate identity persists
+at distance on both shader variants. These changes add 232,324 vertex bytes and one varying, no
+draw or texture; physical Android GPU cost and native hardware qualification remain pending.
+
+## Historical evidence (before the GPU incident)
 
 | Area | Linux / OpenGL 3.3 | Web / WebGL 2 | Android / OpenGL ES 3 |
 |---|---|---|---|

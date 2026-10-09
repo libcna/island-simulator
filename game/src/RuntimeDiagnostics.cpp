@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -42,10 +43,29 @@ namespace island
         std::ofstream diagnosticLog;
         std::string diagnosticLogPath;
 
+#if defined(__linux__) && !defined(__EMSCRIPTEN__)
+        [[nodiscard]] std::uint64_t ProcfsId(const char* link, const std::uint64_t fallback) noexcept
+        {
+            // The test supervisor retains its procfs mount across PID-namespace containment.
+            // Kernel reports use these outer IDs, not getpid()/gettid() inside the namespace.
+            // On Android the procfs mount normally belongs to the application's PID namespace.
+            std::array<char, 96> buffer{};
+            const auto count = ::readlink(link, buffer.data(), buffer.size());
+            if (count <= 0 || static_cast<std::size_t>(count) >= buffer.size()) return fallback;
+            std::string_view value(buffer.data(), static_cast<std::size_t>(count));
+            const auto slash = value.find_last_of('/');
+            if (slash != std::string_view::npos) value.remove_prefix(slash + 1U);
+            std::uint64_t result{};
+            const auto parsed = std::from_chars(value.data(), value.data() + value.size(), result);
+            return parsed.ec == std::errc{} && parsed.ptr == value.data() + value.size()
+                && result != 0U ? result : fallback;
+        }
+#endif
+
         [[nodiscard]] std::uint64_t ProcessId() noexcept
         {
 #if defined(__linux__) && !defined(__EMSCRIPTEN__)
-            return static_cast<std::uint64_t>(::getpid());
+            return ProcfsId("/proc/self", static_cast<std::uint64_t>(::getpid()));
 #else
             return 0U;
 #endif
@@ -54,7 +74,7 @@ namespace island
         [[nodiscard]] std::uint64_t CurrentThreadId() noexcept
         {
 #if defined(__linux__) && !defined(__EMSCRIPTEN__)
-            return static_cast<std::uint64_t>(::syscall(SYS_gettid));
+            return ProcfsId("/proc/thread-self", static_cast<std::uint64_t>(::syscall(SYS_gettid)));
 #else
             return static_cast<std::uint64_t>(
                 std::hash<std::thread::id>{}(std::this_thread::get_id()));
@@ -210,7 +230,13 @@ namespace island
 
             std::ostringstream command;
             command << "island-simulator: runtime-start pid=" << ProcessId()
-                    << " main-tid=" << CurrentThreadId() << " command-line=";
+                    << " main-tid=" << CurrentThreadId();
+#if defined(__linux__) && !defined(__EMSCRIPTEN__)
+            command << " namespace-pid=" << ::getpid()
+                    << " namespace-main-tid=" << ::syscall(SYS_gettid)
+                    << " pid-source=procfs-or-namespace-fallback";
+#endif
+            command << " command-line=";
             for (int index = 0; index < argc; ++index) {
                 if (index != 0) command << ' ';
                 command << Quote(argv[index] == nullptr ? "<null>" : argv[index]);
@@ -280,9 +306,9 @@ namespace island
             std::cout << graphicsText << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(graphicsText);
 
-            constexpr std::array<const char*, 19> Names{
+            constexpr std::array Names{
                 "DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR", "SDL_VIDEODRIVER",
-                "MESA_LOADER_DRIVER_OVERRIDE", "MESA_GL_VERSION_OVERRIDE",
+                "MESA_LOADER_DRIVER_OVERRIDE", "MESA_GL_VERSION_OVERRIDE", "MESA_EXTENSION_OVERRIDE",
                 "MESA_GLSL_VERSION_OVERRIDE", "LIBGL_ALWAYS_SOFTWARE", "LIBGL_DRI3_DISABLE",
                 "GALLIUM_DRIVER", "GALLIUM_THREAD", "MESA_DEBUG", "AMD_DEBUG", "R600_DEBUG",
                 "RADEON_DEBUG", "DRI_PRIME", "CNA_GRAPHICS_RENDERER", "CNA_PLATFORM",

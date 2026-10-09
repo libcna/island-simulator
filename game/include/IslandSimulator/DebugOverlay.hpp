@@ -117,6 +117,10 @@ namespace island
         int flutteringButterflies = 0;
         int butterflyDraws = 0;
         int visibleCrabs = 0;
+        int visibleBoars = 0;
+        int totalBoars = 0;
+        int boarDraws = 0;
+        int boarShadows = 0;
         int totalCrabs = 0;
         int nearCrabs = 0;
         int farCrabs = 0;

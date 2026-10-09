@@ -102,10 +102,11 @@ if [ "$REQUIRE_SETTINGS_PERSISTENCE" -eq 1 ] \
     echo "android runtime smoke: settings persistence requires enabled user settings, touch sensitivity, and lifecycle gates" >&2
     exit 2
 fi
-if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
+if [ "$REQUIRE_SWIMMING" -eq 1 ] || [ "$REQUIRE_FOOTSTEPS" -eq 1 ] \
+    || [ "$REQUIRE_TOUCH_SENSITIVITY" -eq 1 ]; then
     case ",$DEBUG_ARGUMENTS," in
         *,--overview,*|*,--viewpoint,*|*,--smoke-test,*|*,--capture,*|*,--benchmark,*)
-            echo "android runtime smoke: swimming traversal requires the interactive south-beach spawn" >&2
+            echo "android runtime smoke: touch checks require the interactive south-beach spawn" >&2
             exit 2
             ;;
     esac
@@ -202,7 +203,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         AUDIO_QUALIFIED=0
     fi
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
-        && grep -q "island-simulator: quality profile mobile grass 112m shadows 72% wildlife 82% ocean 128x128 textures 143624/163840 bytes audio 6/6 sources" \
+        && grep -q "island-simulator: quality profile mobile grass 112m shadows 72% wildlife 82% ocean 128x128 textures 6383412/6403628 bytes audio 6/6 sources" \
             "$LOG_FILE" \
         && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
             "$LOG_FILE" \
@@ -214,6 +215,18 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: selected near grass blades use a geometric V-fold ridge" \
             "$LOG_FILE" \
         && grep -q "island-simulator: grass near blades use asymmetric edges and occasional bent tips" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass shared rest-shape normals follow curvature and instance scale" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass progressive near taper and seed roots share the sampled blade profile" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass near blades form seven unequal fanned tufts with coherent wind" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass near mesh adds 48 low curved turf blades with height-scaled motion" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass roots sample RGB24 rendered terrain triangles before wind" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass culling bounds cover measured meshes, slope and full shared motion limits" \
             "$LOG_FILE" \
         && grep -q "island-simulator: all near driftwood variants use tapered three-dimensional branches" \
             "$LOG_FILE" \
@@ -243,11 +256,90 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: terrain interior humus and moss reuse portable material fields" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: forest soil separates humus and moss with footprint-filtered fallen leaves" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: terrain substrate persists at distance with footprint-filtered noise" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" \
+            "$LOG_FILE" \
+        && grep -q "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" \
+            "$LOG_FILE" \
+        && grep -q "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" \
+            "$LOG_FILE" \
+        && grep -Eq "forest-floor filter (anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass retains foliage colour at distance with normalized-height basal tint" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass pigment uses separate height occlusion and filtered longitudinal veins" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass LOD proxies share seven tuft roots, profiles and wind phases" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass anchor-distance contraction uses nearest-bound cell culling" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: juvenile ground broadleaf uses curved tagged laminae and retained near/far leaf identities" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: split ground leaves use connected lobed surfaces with shared LOD knots and root-anchored wind" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: grass mesh vertices/triangles near=862/640 middle=60/40 far=42/28" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: canopy per-tree frustum boxes contain both LODs and wind" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: clearing-edge colonies respect full route footprints; bushes=" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: forest-floor colonies retain route footprints; groups=" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: jungle root origins and culling bounds follow rendered terrain triangles" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: fallen leaves conform to rendered triangles using the shared grass height texture" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: understory leaf identities share asymmetric posture and curled profiles across LOD" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: pinnate understory shares rachis attachment knots and retained leaflet wind across LOD" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: edge antialiasing requested 2x renderer-applied 2x" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: leaf daylight contrast and stable tip pigment; footprint-filtered leaf and bark detail" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: canopy wood separates albedo from baked shade with validated outward normals and one-sided daylight" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: canopy bark follows local wood axes with seam-safe circular footprint filtering" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: canopy bark has instance-stable warped grain and interrupted filtered fissures" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: canopy trunk pigment follows normalized height across LOD tiers" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: canopy blades use spatial pitch and roll with identical retained LOD poses" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: curved canopy blades retain source identities within original triangle budgets" \
+            "$LOG_FILE" \
+        && grep -q "canopy mesh variant=0 near-vertices=4620 near-triangles=4328 far-vertices=1029 far-triangles=1064" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: jungle per-instance foliage tint reuses existing transforms" \
             "$LOG_FILE" \
         && grep -q "island-simulator: jungle near canopy uses irregular layered lower-crown edges" \
             "$LOG_FILE" \
         && grep -q "island-simulator: jungle near canopy uses irregular trunks and bent support branches" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: jungle ground layers receive shared canopy shade; crowns excluded" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: boars receive bilinear per-vertex canopy light in their existing batch" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: boar directional coat atlas 128x128, opaque stock BasicEffect" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: jungle leaves use smooth normals, filtered veins and restrained wax shading" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: boars use connected limb poses, stance contact and body-rooted bristles" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: boar soles fit rendered terrain independently with fixed-length limbs" \
+            "$LOG_FILE" \
+        && ! grep -q "boar terrain contact limited by limb reach" "$LOG_FILE" \
+        && grep -q "island-simulator: monkeys receive footprint-averaged canopy light through stock skinning" \
             "$LOG_FILE" \
         && grep -q "island-simulator: selected near canopy variants include hanging leafy lianas" \
             "$LOG_FILE" \
@@ -265,7 +357,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: grass sparse near seed heads share blade wind and instancing" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: near rocks use irregular crown profiles and fixed-sun facet shading" \
+        && grep -q "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering" \
             "$LOG_FILE" \
         && grep -q "island-simulator: rock per-instance tint reuses existing transforms" \
             "$LOG_FILE" \
@@ -278,6 +370,24 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: ocean sunward ripple crests reuse analytic slope field" \
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean grazing reflection bands reuse analytic slope field" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: shoreline advancing wash uses footprint-filtered porous foam" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: ocean shared nine-wave spectrum uses filtered short-wave normals" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: coastal sand stays continuous below water with filtered seabed ripples" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: land prop shadows match model yaw and rendered terrain triangles" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: wood uses outward shared normals and scale-correct fixed-sun lighting" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: ocean bounded grazing contrast and depth-limited filtered breaker foam" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: ocean short waves use phased wind packets with analytic envelope gradients" \
             "$LOG_FILE" \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then
         QUALIFIED=1
@@ -298,40 +408,18 @@ if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|erro
     exit 1
 fi
 
+if [ "$REQUIRE_TOUCH_SENSITIVITY" -eq 1 ] || [ "$REQUIRE_FOOTSTEPS" -eq 1 ] \
+    || [ "$REQUIRE_SWIMMING" -eq 1 ]; then
+    SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    TOUCH_GEOMETRY=$(python3 "$SCRIPT_DIR/android_touch_geometry.py" "$LOG_FILE")
+    read -r SELECTOR_X SELECTOR_Y MOVE_X MOVE_LOW_Y MOVE_HIGH_Y MOVE_BOTTOM_Y <<EOF
+$TOUCH_GEOMETRY
+EOF
+    echo "android runtime smoke: mapped touch coordinates $TOUCH_GEOMETRY"
+fi
+
 if [ "$REQUIRE_TOUCH_SENSITIVITY" -eq 1 ]; then
     echo "android runtime smoke: exercising touch look-sensitivity selector"
-    WINDOW_DIMENSIONS=$(sed -n \
-        's/.*Window size: \([1-9][0-9]*x[1-9][0-9]*\).*/\1/p' "$LOG_FILE" | tail -n 1)
-    LOGICAL_DIMENSIONS=$(sed -n \
-        's/.*viewport \([1-9][0-9]*x[1-9][0-9]*\) logical backbuffer.*/\1/p' \
-        "$LOG_FILE" | tail -n 1)
-    WINDOW_WIDTH=${WINDOW_DIMENSIONS%x*}
-    WINDOW_HEIGHT=${WINDOW_DIMENSIONS#*x}
-    LOGICAL_WIDTH=${LOGICAL_DIMENSIONS%x*}
-    LOGICAL_HEIGHT=${LOGICAL_DIMENSIONS#*x}
-    case "$WINDOW_WIDTH:$WINDOW_HEIGHT:$LOGICAL_WIDTH:$LOGICAL_HEIGHT" in
-        *[!0-9:]*|:*|*::*|*:)
-            echo "android runtime smoke: could not parse window/backbuffer sizes for sensitivity input" >&2
-            exit 1
-            ;;
-    esac
-    # CNA scales normalized SDL touch positions into the logical backbuffer. Map the logical HUD
-    # target back through the aspect-fit viewport, including Android's pillarbox/letterbox margin.
-    if [ $((WINDOW_WIDTH * LOGICAL_HEIGHT)) -le \
-         $((WINDOW_HEIGHT * LOGICAL_WIDTH)) ]; then
-        CONTENT_WIDTH=$WINDOW_WIDTH
-        CONTENT_HEIGHT=$((WINDOW_WIDTH * LOGICAL_HEIGHT / LOGICAL_WIDTH))
-    else
-        CONTENT_HEIGHT=$WINDOW_HEIGHT
-        CONTENT_WIDTH=$((WINDOW_HEIGHT * LOGICAL_WIDTH / LOGICAL_HEIGHT))
-    fi
-    CONTENT_X=$(((WINDOW_WIDTH - CONTENT_WIDTH) / 2))
-    CONTENT_Y=$(((WINDOW_HEIGHT - CONTENT_HEIGHT) / 2))
-    SELECTOR_RADIUS=$((LOGICAL_HEIGHT * 6 / 100))
-    SELECTOR_LOGICAL_X=$((LOGICAL_WIDTH - SELECTOR_RADIUS * 7 / 5))
-    SELECTOR_LOGICAL_Y=$((SELECTOR_RADIUS * 7 / 5))
-    SELECTOR_X=$((CONTENT_X + SELECTOR_LOGICAL_X * CONTENT_WIDTH / LOGICAL_WIDTH))
-    SELECTOR_Y=$((CONTENT_Y + SELECTOR_LOGICAL_Y * CONTENT_HEIGHT / LOGICAL_HEIGHT))
     # ADB's instantaneous tap can press and release between game frames. A stationary bounded
     # swipe keeps the contact down long enough to exercise the real Pressed ownership path.
     SENSITIVITY_QUALIFIED=0
@@ -366,9 +454,8 @@ fi
 
 if [ "$REQUIRE_FOOTSTEPS" -eq 1 ]; then
     echo "android runtime smoke: exercising distance-scheduled land footsteps"
-    # The AVD presents the landscape surface at 2400 by 1080. This sustained gesture starts in
-    # its left movement zone and travels upward far enough to request forward motion and running.
-    "$ADB" shell input swipe 600 820 600 180 3000
+    # Sustain a drag in the aspect-fitted left movement zone, independent of device resolution.
+    "$ADB" shell input swipe "$MOVE_X" "$MOVE_LOW_Y" "$MOVE_X" "$MOVE_HIGH_Y" 3000
     FOOTSTEP_DEADLINE=$(( $(date +%s) + 15 ))
     FOOTSTEP_QUALIFIED=0
     while [ "$(date +%s)" -lt "$FOOTSTEP_DEADLINE" ]; do
@@ -392,7 +479,7 @@ if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
     # The interactive spawn faces inland from the south beach. A long downward drag in the left
     # movement zone therefore walks backward through the shallows and continues as swimming. When
     # the footstep gate ran first, the extra duration also covers its short inland displacement.
-    "$ADB" shell input swipe 600 180 600 900 9000
+    "$ADB" shell input swipe "$MOVE_X" "$MOVE_HIGH_Y" "$MOVE_X" "$MOVE_BOTTOM_Y" 9000
     SWIMMING_DEADLINE=$(( $(date +%s) + 20 ))
     SWIMMING_QUALIFIED=0
     while [ "$(date +%s)" -lt "$SWIMMING_DEADLINE" ]; do

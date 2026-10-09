@@ -1,21 +1,484 @@
 # Android OpenGL ES 3 Build
 
+Host Python 3.10+ with Pillow (`python3-pil`) is required for incremental texture
+preparation. Override the interpreter with `-PislandPython=/path/to/python3` when
+needed. No Python or Pillow runtime is packaged in the APK. See `prepared-materials.md`.
+
+## Current grass-surface validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (2 s each). Isolated API 35 KVM/SwiftShader
+`20261009T130636.434000Z-grass` passes, app PID 1770 / entry TID 1868. The image
+is inspected, kernel deltas empty and owned emulator exits zero. Default ARM64
+package is restored with its three native libraries and both prepared materials.
+Current rolling APKs are 20,349,179 / 20,440,564 bytes; hashes and limits are in
+`grass-surface-material.md`. ARM64 runtime, physical-device performance and renewed
+touch/lifecycle qualification are not claimed.
+
+## Previous compact-material validation (2026-10-09)
+
+Both ABI build/lint passes complete (x86_64 4 s, restored ARM64 2 s). Isolated API
+35 KVM/SwiftShader `20261009T123933.093621Z-ground-broadleaf` passes; image inspected,
+empty live/final kernel deltas, owned emulator exit zero. Both PNGs match the
+native/Web prepared hashes. Then-validated APKs were 20,345,947 bytes (x86_64) and
+20,437,764 bytes (ARM64); hashes and loading observations are in `prepared-materials.md`.
+ARM64 runtime and physical-device performance remain unverified. No renewed
+touch/lifecycle/traversal qualification. Historical rolling paths below have since
+been replaced; original logs and incident evidence remain intact.
+
+## Previous fallen-leaf contact validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (5 s each). CNA's existing GLES3 primarily-
+tested-on-Linux warning remains. Isolated API 35 KVM/SwiftShader
+`20261009T113904.058650Z-litter` passes, app PID 1958 / entry TID 2035, first-draw
+total 10,925.940 ms. Required diagnostic and inspected 1280x720 frame agree with
+native/Web. Live/final kernel deltas are empty; owned emulator exit zero. No renewed
+touch/lifecycle/traversal or ARM64 runtime qualification. See `fallen-leaf-contact.md`.
+
+Then-tested x86_64 APK: `build/android-software/island-x86_64.apk`, 24,000,040 bytes,
+SHA-256 `038ca6db797a8f30b6e8ff9e011d2ed2715b406a1822a14931f809da16c61cd5`.
+Then-built ARM64-only APK: `android/app/build/outputs/apk/debug/app-debug.apk`, 24,092,049 bytes,
+SHA-256 `dbec7a5c8b506ec7d88fbe06d08e8c6b1ded93f9f422fec42c914147fccf7f06`.
+Only three arm64-v8a native libraries are packaged. Only rolling generated APKs
+were replaced; original incident and historical runtime evidence was preserved.
+
+## Previous jungle root-contact validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (x86_64 3 s; restored ARM64 4 s). Isolated
+API 35 KVM/SwiftShader `20261009T112028.208485Z-ground-broadleaf` passes, app PID
+1844 / entry TID 1901, first-draw total 12,042.214 ms. The root-contact diagnostic
+is present and the 1280x720 image is inspected. Live/final kernel deltas are empty;
+the owned emulator exits zero. This does not repeat touch/lifecycle/traversal tests,
+qualify ARM64 runtime or measure physical-phone performance. See `jungle-root-contact.md`.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,996,584 bytes,
+SHA-256 `770faa0f61f738e35ea27d6df740eda0a243caa93f78d90a36ad590b981fafdc`.
+Then-built ARM64-only APK (rolling path since replaced): 24,087,145 bytes,
+SHA-256 `91ba164b6a9fe6ec8c2fef269e49b6104785be2377ccb5a0962dc7244bb474d9`.
+Only three arm64-v8a native libraries are packaged. Rolling generated packages are
+replaced; original incident and historical runtime evidence is retained.
+
+## Previous forest-floor colony validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (4 s each). Isolated API 35 KVM/SwiftShader
+`20261009T105740.149768Z-jungle` passes, app PID 1755 / entry TID 1894, first-draw
+total 9,830.804 ms. The 1280x720 image is inspected and native/Web/Android agree on
+199 groups / 866 companions. Live/final kernel deltas are empty; emulator exit zero.
+This fixed view does not repeat touch/lifecycle/traversal checks. ARM64 runtime and
+physical-device performance remain unverified. See `forest-floor-colonies.md`.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,994,728 bytes,
+SHA-256 `da92d4a77f316b5ee1ea761f42fb1be2daee4b74c59f6463bb06132528611456`.
+Then-built ARM64-only APK (rolling path since replaced): 24,085,225 bytes,
+SHA-256 `3864c1c70ffb149442b3a7e2b4b75618dea1654199a8d41c06cbe8d449ea7733`.
+Only three arm64-v8a native libraries are packaged. Rolling generated APKs replace
+the previous packages; all incident and historical runtime evidence is retained.
+
+## Previous shrub-outline validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (x86_64 3 s; restored ARM64 4 s).
+Isolated API 35 KVM/SwiftShader `20261009T103304.055335Z-bush` passes, app PID
+1845 / entry TID 1906, first-draw total 10,688.124 ms. The 1280x720 image is
+inspected; live/final kernel deltas are empty and the owned emulator exits zero.
+This is a fixed-scene check, not renewed touch/lifecycle/traversal qualification.
+ARM64 runtime and physical-device performance remain unverified. See
+`shrub-lod-continuity.md` for the geometry tradeoff and real-input Web walk.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,980,920 bytes,
+SHA-256 `fc2becbbcb6e45cd2fe40d164483cc7a5f8e60d43ef3578bfc678d58543907a8`.
+Then-built ARM64-only APK (rolling path since replaced): 24,071,529 bytes,
+SHA-256 `27195324d69e025f2edee12fb62d51b6e26ec94fec5310fa7c5930182d261805`.
+Only three arm64-v8a native libraries are packaged. Rolling generated APKs replace
+the previous packages; all incident and historical runtime evidence is retained.
+
+## Previous supported-shoot shrub validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (x86_64 4 s; restored default ARM64 5 s).
+Isolated API 35 KVM/SwiftShader `20261009T100800.243131Z-bush` passes, app PID
+1865 / entry TID 1968, first-draw total 10,910.550 ms. The inspected 1280x720
+frame shows the targeted shrub and mobile overlay. Live/final kernel deltas are
+empty; the owned emulator exits zero. This does not repeat touch/lifecycle/traversal
+gates or qualify ARM64 runtime/physical-device performance. See `shrub-structure.md`.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,980,712 bytes,
+SHA-256 `0def474a0aa051d31140f0d2f9225a1aa57b5a07142e963f1bfd5b3f5498187d`.
+Then-built ARM64-only APK (rolling path since replaced): 24,071,265 bytes,
+SHA-256 `5a7351980df2c30680c4776ad35272fecf28c3b98f48e2a98074442b8f5b0add`.
+Only three arm64-v8a native libraries are packaged. Rolling generated packages are
+replaced; original incident artifacts and historical runtime evidence are retained.
+
+## Previous connected split-leaf validation (2026-10-09)
+
+Both ABI assembly/lint passes complete (x86_64 3 s; ARM64 4 s). Isolated API 35
+KVM/SwiftShader run `20261009T093932.612353Z-ground` passes, app PID 1813 / entry
+TID 1886, first-draw total 10,536.045 ms. The inspected 1280x720 image shows the
+connected rounded lobes and touch overlay. Live/final kernel deltas are empty;
+the owned emulator exits zero. This fixed-view gate does not repeat touch,
+lifecycle or traversal qualification. ARM64 runtime/physical performance remains
+unverified. See `split-ground-leaves.md` for cost and remaining art limitations.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,949,832 bytes,
+SHA-256 `dd9ca4441695e65b2dc54b00f7d0d06f98328e5763926442ed1e4429f104d2f1`.
+Then-built ARM64-only APK (rolling path since replaced): 24,041,225 bytes,
+SHA-256 `d9f8e4d9e9d9ae59062ac866f1fae68bc8b8c45414c4b7f8e2058803b40a91b8`.
+Only the three arm64-v8a native libraries are packaged in the default APK. Rolling
+packages replace superseded generated APKs; historical runtime evidence is retained.
+
+## Previous juvenile broadleaf validation (2026-10-09)
+
+Both ABI assembly/lint runs pass (5 s each), using shared ccache/two workers. Isolated
+API 35 KVM/SwiftShader view `20261009T090756.767342Z-ground-broadleaf` passes, with
+app PID 1773 / entry TID 1880, total first-draw startup 14,121.283 ms. The targeted
+1280x720 plant image is inspected; live/final kernel deltas are empty and the owned
+emulator exits zero. This is a fixed-scene functional check, not renewed touch/lifecycle
+coverage or physical-device performance. See `ground-broadleaf.md`.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,950,984 bytes,
+SHA-256 `ab899d1174235fc3575cabed2a8f353e742e4718d58b2183e97e57c192fcbd50`.
+Then-built ARM64-only APK (rolling path since replaced): 24,040,377 bytes,
+SHA-256 `5ab195876e0634b3cfc2f9c922e7b55d050925c2baed93e97b27d8265a053f1c`.
+ARM64 is assembled/linted, not runtime-tested. Rolling package paths replace the previous
+grass-distance packages; their runtime evidence remains, without duplicate APK archives.
+
+## Previous grass distance-continuity validation (2026-10-09)
+
+Both ABI assembly/lint runs pass (x86_64 6 s, ARM64 4 s), using shared ccache and two
+workers. Isolated API 35 KVM/SwiftShader grass run
+`build/android-software/20261009T084206.226212Z-grass/` passes, including the new
+anchor-distance shader diagnostic and 2x MSAA. App PID 1830 / entry TID 1925;
+1280x720 image inspected, empty kernel deltas, owned emulator exits zero. This
+is one fixed view, not a renewed touch/lifecycle matrix or physical-device test.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,946,360 bytes,
+SHA-256 `a3cf391d3606976d5eedf27408afba39a867d314661cebf4289b06879d60286c`.
+Then-built ARM64-only APK (rolling path since replaced): 24,036,449 bytes,
+SHA-256 `df1f3866a331b4353b1ede17cd77051f635bbe44815c39facb752074fcf55898`.
+ARM64 has assembly/lint evidence only. See `grass-distance-continuity.md` for scope.
+The two rolling package paths replace the previous MSAA packages; prior runtime logs,
+images and hash metadata remain, without another pair of duplicate APK archives.
+
+## Previous MSAA validation (2026-10-09)
+
+Both ABI assembly/lint runs pass through shared ccache with two workers. The isolated API 35
+x86_64 KVM/SwiftShader grass gate at `build/android-software/20261009T081708.472756Z-grass/`
+confirms requested/applied 2x MSAA, app PID 1825, entry TID 1941, first-draw total 10,171.731 ms.
+The inspected 1280x720 PNG retains the world and touch HUD. Kernel deltas are empty; the owned
+emulator exits zero. See `edge-antialiasing.md` for scope/cost; this is not hardware performance.
+
+Then-tested x86_64 APK (rolling path since replaced): 23,944,616 bytes,
+SHA-256 `74d3bb05f6e8c57ee865ecaae0b5b8bc76900a3f5101cde9d7272f43bef2aed9`.
+Then-built ARM64-only APK (rolling path since replaced): 24,034,761 bytes,
+SHA-256 `95c1ce00a6623837d24cad35c18147a8592c109befc808b044bb7b87b4e7c54f`.
+ARM64 is assembled/linted, not runtime-tested. Prior APKs are preserved as `before-msaa` below.
+
+## Previous broadleaf-lamina validation (2026-10-09)
+
+Both ABI builds/lint pass; x86_64 isolated KVM/SwiftShader clearing-edge runtime
+`build/android-software/20261009T073001.635653Z-clearing-edge/` passes the lamina marker with
+empty kernel deltas and emulator exit zero. App PID 1770, total first-draw startup 12,489.783 ms;
+close broadleaf PNG inspected. See `broadleaf-lamina.md` for exact scope and remaining limits.
+
+Prior x86_64 APK: `build/android-software/island-x86_64.before-msaa.apk`, 23,920,040 bytes,
+SHA-256 `ee0f0cbf01b1fbf4a8789085e3025f44c149777cfee9e1d0e1f7164d4e6d1577`.
+Prior ARM64 APK: `build/android-software/island-arm64.before-msaa.apk`, 24,009,257 bytes,
+SHA-256 `8ec534cc86f1c91de81cfe2a920c193548b68d830ad9b7b682e5d6aa09e97421`.
+ARM64 runtime and physical-device cost are not qualified.
+
+## Latest pinnate-fern validation (2026-10-09)
+
+Both ABI builds/lint pass; isolated x86_64 KVM/SwiftShader jungle runtime
+`build/android-software/20261009T070727.885381Z-jungle/` passes the fern marker, with empty
+kernel deltas and emulator exit zero. App PID 1779, first-draw total 10,684.628 ms; screenshot
+inspected. See `understory-ferns.md` for evidence/cost and remaining hardware/motion limits.
+
+Prior x86_64 APK: `build/android-software/island-x86_64.before-broadleaf.apk`, 23,918,072 bytes,
+SHA-256 `ae376130a71fcd94782d8228a02585cbd80d5b3f61a63a2cf8bb6ec2dd974dff`.
+Prior ARM64 APK: `build/android-software/island-arm64.before-broadleaf.apk`, 24,007,649 bytes,
+SHA-256 `5adad5d287bf527b3950241d07ad21b4f873bfbcc4fc68babb0324effe56ee5b`.
+ARM64 has build/lint evidence, not physical-device runtime qualification.
+
+## Latest eight-form canopy validation (2026-10-09)
+
+Both ABIs assemble/lint successfully; isolated KVM/SwiftShader x86_64 jungle runtime
+`build/android-software/20261009T064727.074751Z-jungle/` passes the eight-form gate with empty
+kernel deltas. App PID 1846, first-draw total 10,171.476 ms; screenshot inspected and emulator
+exits zero. This is software functional evidence, not ARM64/device performance.
+
+Prior x86_64 APK: `build/android-software/island-x86_64.before-ferns.apk`, 23,910,056 bytes,
+SHA-256 `c48c5ce92a5af42e150d000bc3224a8e4146caea49606cae222bcaeec88a7dc8`.
+Prior ARM64 APK: `build/android-software/island-arm64.before-ferns.apk`, 24,001,121 bytes,
+SHA-256 `ee01d9e5ba214a6b70a4bd5a4495f116b889f3f556195133a9c8987aff50bebe`.
+See `canopy-form-expansion.md` for mesh cost, exact commands and remaining qualification.
+
+## Capability-gated floor filtering (2026-10-09)
+
+The current material requests 4x anisotropic filtering when CNA reports support, retaining the
+trilinear path otherwise. Both x86_64 and default ARM64 assembly/lint pass. Isolated software
+runtime `build/android-software/20261009T062509.021834Z-jungle/` passes with the expected
+unsupported-capability/trilinear decision, app PID 1803, native entry TID 1882, total first-draw
+startup 8893.653 ms and an inspected 1280x720 screenshot. Live/final kernel deltas are empty;
+the owned emulator exits zero. This also validates the new nested process containment with
+an actual emulator/game, not only preflight. No physical-device/aniso performance claim.
+
+Prior floor-filter x86_64 APK: `build/android-software/island-x86_64.before-eight-canopy.apk`, 23,907,400 bytes,
+SHA-256 `8c6541db1d1c9e3946a464ce9edb81d40e4934707b25d0c1b0a9a44a1f4e3f5c`.
+Prior floor-filter ARM64 APK: `build/android-software/island-arm64.before-eight-canopy.apk`, 23,998,641 bytes,
+SHA-256 `1ed1ff9ea343b9614d98e7b7a74342c7705851d69bd0ad85d053443830c16595`.
+Previous packages are retained as `island-x86_64.before-floor-filter.apk` and
+`island-arm64.before-floor-filter.apk` under `build/android-software/`.
+
+## File-backed forest-floor integration (2026-10-09)
+
+The APK now contains `assets/Content/terrain/forest-floor.png`, staged from the hashed v1
+source through the annotated `StageIslandAssets` output and AGP generated-source registration.
+Packaging/lint and regeneration with missing staged data are verified; ZIP contents match the
+source hash. The isolated software runner refuses a missing or mismatched floor asset before
+launch. CNA/Sharp Runtime remain read-only. Earlier no-file-backed-asset statements describe
+older milestones, not this package.
+
+The corrected API 35 KVM/SwiftShader jungle run is
+`build/android-software/20261009T054739.380317Z-jungle/`: PASS, PID 1829, first draw 10,065.572 ms,
+inspected 1280x720 screenshot, empty live/final kernel deltas and owned-emulator exit zero.
+The preceding `20261009T054439.701531Z-jungle/` failed the stale pre-floor memory assertion;
+its logs remain preserved. No GPU fault was recorded and its emulator also exited zero.
+This historical run's texture payload/budget was 6,033,888/6,054,104 bytes, excluding CPU shadows,
+decoder allocations, driver overhead and framebuffers. No physical-device performance claim.
+
+The earlier floor-integration x86_64 APK is now `build/android-software/island-x86_64.before-floor-filter.apk`, 23,903,544 bytes,
+SHA-256 `910a4ffc4db3f3b2b6b890381cb2bf86d5b7426e3d9330b22c20473c1dcad1df`;
+the prior coat/contact build is `island-x86_64.before-floor-runtime.apk`.
+Default arm64 assembly/lint is restored and passes (5 s). Its APK contains only arm64 native
+libraries (`libmain.so` 16,756,072 bytes) and the same floor PNG: 23,994,577 bytes, SHA-256
+`7af6e724362b2cae356ffd289842acaba5b7ab3c6650373c5b87f796e8afb32c`.
+See `forest-floor-material-review.md` for loading, filtering, memory and provenance details.
+
+## Isolated software boot gate after the GPU incident
+
+`tools/run_android_software.py` defaults to an isolation preflight, not an emulator launch.
+On Linux with bubblewrap, usable KVM and readable kernel journal:
+
+```bash
+sg systemd-journal -c 'python3 tools/run_android_software.py --sdk /home/robertvokac/Android/Sdk'
+sg systemd-journal -c 'python3 tools/run_android_software.py --sdk /home/robertvokac/Android/Sdk --boot'
+```
+
+Replace the SDK path for another machine. No sudo/root emulator is needed. This gate reuses the
+installed API 35 Google Play x86_64 system image read-only and keeps one project-owned AVD under
+`build/android-software/state`. It never copies personal userdata. A private mount namespace
+exposes KVM but not DRM devices, hides host display sockets, and makes the host filesystem
+read-only except the owned runtime/evidence directories. Private networking/PIDs isolate its
+adb server (port 5038, explicit `emulator-5558`) from other projects. CPU affinity is capped at
+eight, the guest has two vCPUs/2048 MiB, and rendering is explicitly headless SwiftShader.
+Do not remove these safeguards or substitute `auto`/`host`. There is no unisolated fallback.
+
+The parent records the exact command/environment and a kernel cursor before launch, monitors
+kernel messages, and terminates the owned namespace on a fault, lost monitoring or timeout.
+The shared monitor additionally wraps the worker in lifetime-only PID containment; its exact
+outer command and launcher hash are in `process-containment.json`. The inner Android sandbox
+still supplies all device/network/filesystem isolation. The 2026-10-09 post-change preflight
+`build/android-software/20261009T060433.012207Z-preflight/` verifies the nested arrangement,
+accessible KVM, absent DRM/display access and CPU limit, with an empty kernel delta; it does
+not boot Android or requalify the APK.
+The boot deadline is 150 seconds; the entire workload is bounded to 200 seconds. The worker
+requires a SwiftShader GLES line from guest SurfaceFlinger. The hardware stop latch is untouched.
+This command **does not install or run the game** and is not AMD/mobile performance qualification.
+
+After building `-PislandAbi=x86_64`, explicit application checks use the same isolation:
+
+```bash
+sg systemd-journal -c 'python3 tools/run_android_software.py --sdk /home/robertvokac/Android/Sdk --boot --apk android/app/build/outputs/apk/debug/app-debug.apk --viewpoint clearing-edge'
+sg systemd-journal -c 'python3 tools/run_android_software.py --sdk /home/robertvokac/Android/Sdk --boot --apk android/app/build/outputs/apk/debug/app-debug.apk --viewpoint interactive --touch-selector --lifecycle'
+sg systemd-journal -c 'python3 tools/run_android_software.py --sdk /home/robertvokac/Android/Sdk --boot --apk build/android-software/island-x86_64.apk --viewpoint interactive --touch-selector --traversal'
+```
+
+The gate requires an x86_64-only APK, records its SHA-256 and both helper identities, then
+rechecks the package before installation. Game logcat must independently identify OPENGLES3
+and SwiftShader, without fatal signals, GL errors, shader failures or material/stock fallbacks.
+It invokes the existing strict scene smoke checks rather than replacing them with a boot-only
+success. Application checks have a 600-second outer bound, a 120-second startup gate, and a
+210/360-second helper bound without/with lifecycle checks. Inspect screenshots separately:
+log success is not proof of an unobstructed frame. Failure screenshots are retained where possible.
+
+Touch assertions require `--viewpoint interactive`: fixed inspection cameras intentionally
+ignore player input. The owned guest acknowledges the fullscreen introduction using
+`settings put secure immersive_mode_confirmations confirmed`, with readback validation, following
+[Android CTS setup](https://android.googlesource.com/platform/cts/+/9c015a5784523f3f9805ab1e15b0fc0e3e1a103b/tests/tests/view/AndroidTest.xml).
+This prevents the first-run system overlay from covering the image/stealing input. It never
+changes settings on a personal device or existing user AVD. Do not infer touch movement,
+swimming, audible output or physical-mobile speed from the selector/lifecycle gates alone.
+
+The separate `--traversal` gate requires land-footstep, swimming-entry and water-accent events,
+not merely successful adb gesture submission. Selector and traversal coordinates now share
+`android_touch_geometry.py` (Python 3 required), derived from actual window/logical diagnostics
+through the aspect-fit viewport. Invalid/missing extents fail closed. Unit tests cover pillarbox,
+letterbox and odd-size layouts; fixed QA cameras are rejected before launch for input gates.
+Runtime `20261009T031108.597736Z-interactive` passes on the 1280x720 software guest: PID 1708,
+7,939.514 ms startup, land footstep and water accent, followed by authoritative swimming entry.
+The inspected screenshot shows the player at the water surface facing the beach, with readable
+transparent shallows and touch controls. Live/final kernel deltas are empty and the emulator
+exits zero. This validates that route at that size, not other physical devices or audible output.
+
+An interrupted namespace can leave emulator PID-file locks even with snapshots disabled. The
+next namespace may reuse the recorded PID (observed: 12), causing "snapshot operation pending"
+instead of recognizing a stale owner. Do not automatically delete locks by checking that PID
+on the host. First establish that the owned namespace/emulator has terminated and acquire the
+qualification lock; preserve only the confirmed stale owned `snapshot.lock.lock` and
+`hardware-qemu.ini.lock` in the failed run's evidence before retrying. Do not wipe userdata,
+touch a personal AVD or remove the `multiinstance.lock` flock file. The bounded monitor prioritizes
+stopping owned work on a fault over allowing lengthy emulator snapshot cleanup.
+
+The first isolated boot on October 9 completed in 33.141 seconds, reported SwiftShader GLES 3.0,
+and left empty live/final kernel deltas. Evidence is
+`build/android-software/20261009T025311.463227Z-boot`. Both emulator/private adb exited; the
+existing host adb PID 3509859 remained. Runtime state occupies about 814 MiB and is reused.
+Retained emulator warnings include offline update/modem services, shutdown-time adb operations,
+`stop: Not implemented`, and a snapshot-save diagnostic despite snapshot-disabling flags
+(an owned `snapshots/default_boot/ram.img` exists). Do not describe this as an error-free emulator
+log or assume the flags prevent every snapshot artifact. No CNA/Sharp defect is inferred.
+Next: validate bounded game installation/render/input inside this same isolation after building
+the current x86_64 package with the shared ccache; restore the arm64 deliverable afterwards.
+
+The reuse check initially refused before launch because the emulator reformats INI whitespace
+and enforces a 6 GiB logical userdata minimum for this Play image. Property-based validation
+now accepts formatting only, rejects duplicate/changed settings, and requests that minimum.
+The second actual boot (`20261009T025531.379815Z-boot`) completed in 21.406 seconds with the
+same confirmed software renderer, exit code zero, no forced termination and empty kernel deltas.
+The shutdown diagnostic persists. The apparent 2 GiB snapshot RAM file is sparse with zero
+allocated blocks; total owned state after reuse is about 830 MiB. Keep this single runtime state
+for subsequent checks instead of creating or copying another AVD.
+
 ## Current status
+
+AMDGPU qualification is suspended by the October 8 GPUVM incident. Do not start a host-GPU
+emulator for the commands below while the hardware stop latch is active. Runtime observations
+in this document predate the latest boar, canopy, shoreline and ocean passes unless explicitly
+stated otherwise. The current arm64 ocean/coastal-material/contact-shadow/smooth-stone/wood-lighting
+build and lint pass (the latest leaf-daylight/material-filter arm64 assemble/lint pass took 2 s).
+The October 9 isolated x86_64 SwiftShader interactive run now validates current-source startup,
+the touch-sensitivity selector, same-process Home/resume and a new-process cold relaunch.
+Evidence `20261009T030406.948847Z-interactive` records PIDs 1828/3105, startup totals
+8,712.503/4,269.163 ms, three inspected unobstructed 1280x720 images, no game graphics/fatal/
+fallback diagnostics and empty live/final kernel deltas. The headless emulator exits zero.
+This is limited software GLES functional evidence, not physical-device or AMD qualification;
+close material views, movement/swimming and audio require their own checks (the separate
+software traversal result above now covers one walking/swimming route and sound submission).
+Shadows use the existing stock-effect batch; stone adds one
+normal attribute (seven total including instances) to the portable custom prop shader.
+Current fixed clearing-edge and boar views now also pass under this isolated GLES path:
+`20261009T030520.313648Z-clearing-edge` (PID 1803, 8,909.279 ms startup) and
+`20261009T030630.007754Z-boars` (PID 1919, 9,328.215 ms). Both actual 1280x720 images were
+inspected without system overlays, with no application graphics/fallback/fatal diagnostics,
+empty kernel deltas and emulator exit zero. The clearing view retains leaf profiles/materials,
+forest substrate and grass; the boar view shows coat, connected limbs, bristles and ground shadow.
+These static observations do not qualify all animation states, LOD transitions or moving-camera
+aliasing. The pre-wood-lighting tested package is retained at
+`build/android-software/island-x86_64.before-wood-daylight.apk`, SHA-256
+`2d69f1f838d71cac0a5817c73b393205212000071d597018d62a083c09f1fcfd`.
+The current canopy wood pass also runs successfully in isolated GLES:
+`20261009T032443.475599Z-clearing-edge`, PID 1931, startup 8,910.839 ms. The inspected image
+retains coherent one-sided trunk daylight; all generated wood passes outward-normal checks.
+No application graphics/fallback/fatal errors, empty kernel deltas and emulator exit zero.
+That preceding package is preserved at `build/android-software/island-x86_64.before-local-bark.apk`, SHA-256
+`e96bf363e34cc7d88d0e2a5bac44667110578fae59a795aa8c57082e157ce403`.
+The subsequent part-local bark mapping/filtering pass also succeeds in isolated GLES:
+`20261009T033732.269341Z-clearing-edge`, PID 1795, startup 7,718.907 ms. The inspected image
+retains bent-trunk grain and the complete mobile scene/HUD, no application graphics/fallback/
+fatal errors, empty live/final kernel deltas, emulator exit zero. That preceding package is
+preserved as `build/android-software/island-x86_64.before-irregular-bark.apk`, SHA-256
+`537affa7bb7d9cc205f1273ca2e4654274506003fff30b2de904a322ca321977`.
+The instance-stable irregular-bark pass runs in evidence
+`20261009T034859.063876Z-clearing-edge`, PID 1716, startup 9,603.086 ms. Actual full-size image
+inspected with intact bark/HUD/environment, current material marker, no application graphics/
+fallback/fatal diagnostics, empty live/final kernel deltas, emulator exit zero. That package is
+preserved as `build/android-software/island-x86_64.before-canopy-posture.apk`, SHA-256
+`f251abff67b3b1674146c01dec6b4ca054d26d38ead293e0d817cf6519e4d90e`.
+Spatial canopy leaf posture subsequently passes the actual interior-jungle view:
+`20261009T040340.569803Z-jungle`, PID 1857, startup 9,240.148 ms. The inspected 1280x720
+image retains spatial crowns, undergrowth and mobile HUD, with current posture diagnostic,
+no application GL/shader/fallback/fatal errors, empty live/final kernel deltas, emulator exit zero.
+That package is preserved as `build/android-software/island-x86_64.before-canopy-outline.apk`, SHA-256
+`ab547504404d617a0d6e924e654aad058969d786d0516a534274d946c3a5755f`.
+The subsequent seven-vertex canopy-outline pass succeeds in isolated GLES:
+`20261009T042044.413856Z-jungle`, PID 1842, startup 6,116.737 ms. The actual 1280x720 image
+was inspected with intact foliage, terrain and mobile HUD. The current outline marker is present;
+there are no application GL/shader/fallback/fatal errors, live/final kernel deltas are empty,
+and the emulator exits zero. That package is preserved as
+`build/android-software/island-x86_64.before-far-branches.apk`, SHA-256
+`c38d21938f6c400cebb50f61e59e538591a83832d53242fed3119282224abbd3`.
+The far-support-branch pass first exposed a diagnostic omission: mesh counts were stdout-only,
+not mirrored to logcat. `20261009T043330.125615Z-jungle` therefore fails the strict new count
+assertion after 120 seconds despite rendering; retain its log and failure image. The emulator
+exits zero and kernel deltas are empty. The game now mirrors actual generated counts through
+the existing platform logger instead of relaxing the assertion.
+Repeated evidence `20261009T043634.972775Z-jungle` passes with PID 1874, startup 9,281.072 ms,
+far count 1029 vertices/1064 triangles, inspected intact 1280x720 image/mobile HUD, no application
+GL/shader/fallback/fatal errors, empty live/final kernel deltas and emulator exit zero.
+That package is preserved as `build/android-software/island-x86_64.before-trunk-pigment.apk`, SHA-256
+`5a216e57063d5e5ec2477797294795ea66abbdc30d8d5ed3180a40367f0c2a95`.
+Height-based trunk pigment then passes isolated GLES jungle
+`20261009T044554.537658Z-jungle`, PID 1802, startup 9,423.360 ms, with the current pigment
+marker, unchanged mesh counts and inspected intact 1280x720 scene/HUD. No application
+GL/shader/fallback/fatal errors, empty live/final kernel deltas, emulator exit zero.
+That package is preserved as `build/android-software/island-x86_64.before-boar-ground-contact.apk`, SHA-256
+`577178804b1cd7e5ebd8d9e1b889746e3af4b12416af58e9857253df96e59399`.
+The per-foot boar terrain-contact pass then succeeds in isolated GLES evidence
+`20261009T050603.871427Z-boars`, PID 1868/main TID 1940, startup 8,865.189 ms. The new
+fixed-length/independent-contact marker is present, with no limited-reach warning or application
+GL/fallback/fatal errors. The 1280x720 scene and touch HUD are inspected; live/final kernel deltas
+are empty and the owned emulator exits zero. This is not physical-phone or AMD qualification.
+Current retained `build/android-software/island-x86_64.apk` has SHA-256
+`6fb0bafbbab787461ba7c3db69f842fc33ae7b4269cdcc85d19db414225fdcb6`.
+Use this current APK with the updated strict smoke marker after restoring the default arm64
+package; the older APK is a comparison artifact, not a passing input to newer marker checks.
+Rebuild when sources change and keep one reusable x86_64 intermediate tree.
+The understory pass changes CPU-generated leaf profiles within the same mesh budgets and
+vertex format; its diagnostic is verified inside the packaged arm64 `libmain.so`. Compilation
+and that package check are not Android runtime/appearance qualification.
+The grass custom path now uses shared rest-shape normals in 36-byte vertices and eight attributes
+including instances; isolated Android views exercise it, but dedicated close-grass review and
+physical-device qualification remain pending.
+The near mesh now includes 48 short turf blades in the existing draw, with shared pointed tips
+limiting their addition to 144 triangles/240 vertices per shared mesh. Mobile cost and appearance
+still need device validation; the successful build is not that validation.
+Grass no longer fades into a synthetic green ground colour at distance. Custom blades use the
+existing vertex-alpha byte for normalized basal material height with opaque fragment output;
+vertex size/attribute count and texture inventory stay unchanged. Android assembly/lint passes,
+but this shader's execution and the colour transition remain unqualified on an Android device.
+The custom grass shader also samples an immutable 241 by 241 RGBA8 rendered-terrain height map
+to ground blade footprints. Its extra 232,324 bytes and three vertex texel fetches are included
+in current budgets; Android shader execution, precision and GPU cost still require device testing.
+The forest terrain material now separates warm humus from local moss and adds two footprint-
+filtered fallen-leaf populations with colour/midrib variation; it adds no textures or geometry.
+Desktop/Web software execution and the isolated Android clearing-edge view now exercise this
+latest shader; a physical Android device has not qualified it.
+The terrain substrate now persists at distance instead of fading into the old green vertex
+palette; broad/medium noise uses pixel-footprint filtering. Its extra far-field fragment work
+also remains unmeasured on physical mobile GPUs.
+Slope daylight now travels in the third terrain-data component; vertices grow from 24 to 28 bytes
+(+232,324 bytes), with unchanged baked RGB and opaque alpha. The arm64 build passes with this
+format, but device execution is still pending. CNA's generic configure warning that GLES3 is
+primarily tested on Linux remains visible; the successful package is not runtime qualification.
+Four structural crown forms share eight near/far lobe anchors and a bounded trunk centreline
+with correctly placed branch roots. The far tier retains original leaf subsets and now uses
+997 vertices/952 triangles per variant; the texture inventory and near geometry are unchanged.
+Per-tree frustum rejection avoids submitting offscreen canopy using conservative bounds and
+shared CPU/GLSL wind limits. Mobile appearance, LOD transitions and performance remain unverified
+by the successful cross-build.
+See the incident report and `PLAN.md`.
 
 The project has an Android application for API 24 and newer. The native game target builds as
 `libmain.so`, uses CNA's SDL3 activity bridge, and selects the `OPENGLES3` renderer explicitly.
 The supported package ABIs are `arm64-v8a` for devices and `x86_64` for emulator testing. Both
-debug variants build; the x86_64 APK has also installed and rendered the current complete island
-scene on an API 35 emulator.
+debug variants were built before the incident; the x86_64 APK also installed and rendered that
+revision's island scene on an API 35 emulator.
 
 The Android UI is fixed landscape/fullscreen and includes dual-zone touch movement/look controls
 with generated on-screen affordances. It uses the same restrained walking/swimming camera-motion
 model as desktop, although an on-screen opt-out is not implemented yet. The host loads `kvm` and
 `kvm_amd`, exposes `/dev/kvm` as device `10:232`, and grants the developer access through the
-`kvm` group. Android Emulator 36.5.11 now runs the API 35 x86_64 AVD with KVM and host-GPU
+`kvm` group. Android Emulator 36.5.11 was tested with the API 35 x86_64 AVD using KVM and host-GPU
 gfxstream. The complete scene, independent movement/look gestures, same-process hot resume,
 three selectable touch-look response levels, AAudio pause/resume, and a force-stop/new-process
-cold relaunch are validated there. A
+cold relaunch were validated there before the incident. A
 deterministic touch traversal also walks from the
 south-beach spawn through the shallows, enters the authoritative swimming state, and plays the
 water-transition accent. Physical-device ergonomics, driver coverage, thermals, and extended
@@ -358,7 +821,7 @@ first draw). No fatal, shader, or `GL_INVALID_OPERATION` diagnostic appeared. Th
 stopped cleanly and the arm64-only package above was restored and linted. This proves translated
 GLES 3 composition, not physical-device cost or ergonomics.
 
-The current Android default selects the centralized `mobile` quality profile. Its platform-log
+The Android default selects the centralized `mobile` quality profile. The earlier platform-log
 marker records 112 m grass range, 72% contact-shadow range, 82% wildlife draw range, a 128 by 128
 ocean grid, 143,624/163,840 generated-texture bytes, and 6/6 permitted audio sources. A fixed
 close-grass KVM/gfxstream run passed the strict marker gate twice, reported `OPENGLES3` at the
@@ -366,6 +829,27 @@ close-grass KVM/gfxstream run passed the strict marker gate twice, reported `OPE
 launch reached first draw in 2703.072 ms. The profile changes distant work only: the 42-blade near
 mesh, every wildlife population, every shader layer, textures, and complete soundscape remain.
 This is functional translated-host evidence, not a physical-device frame-time or thermal claim.
+
+The static canopy-light field added 4 MiB to this inventory: that checkpoint
+reports 4,337,928/4,358,144 generated-texture bytes. Arm64 assembly and lint pass for this change.
+The subsequent low-jungle receiver extension also passes arm64 assembly/lint without changing
+that texture budget.
+The boar CPU-light receiver also compiles and passes lint, retaining an additional 1 MiB CPU
+field without changing GPU texture bytes. Its Android runtime is not yet verified.
+Monkey footprint sampling through the stock skinned material also passes arm64 assembly/lint,
+reusing that same CPU field; Android runtime verification remains pending for both receivers.
+The subsequent boar coat atlas added 65,536 bytes; that checkpoint expected
+4,403,464/4,423,680 generated-texture bytes. Arm64 assembly/lint passed with shared ccache and two
+workers; this material's Android runtime is not yet verified.
+The later grass-grounding map adds 232,324 bytes, bringing current source inventory/budget to
+4,635,788/4,656,004 bytes. It uses a portable RGBA8 texture, not floating-point render targets.
+The subsequent shared boar body/leg pose and tapered geometry also pass arm64 assembly/lint;
+their Android runtime remains unverified while the GPU incident gate is active.
+The close jungle leaf material also passes arm64 assembly/lint with its custom 52-byte vertex
+layout and nine attributes including instancing. It adds no textures or submissions; Android
+runtime and physical-device performance remain pending.
+The earlier runtime evidence above predates that addition; Android runtime validation of canopy
+lighting is still pending. Do not infer it from a successful package build.
 
 The game-owned activity also accepts the native QA command line from the
 `com.libcna.islandsimulator.DEBUG_ARGUMENTS` string-array intent extra, but only when Android marks
@@ -460,9 +944,9 @@ lint diagnostics even when those features are not used by island-simulator; they
 strict app-module result and must not be patched in CNA. Re-evaluate the bridge boundary whenever
 the CNA baseline changes.
 
-## Current runtime evidence
+## Historical runtime evidence (before the GPU incident)
 
-The current qualification pass uses the API 35 `Medium_Phone` Google Play x86_64 AVD with Android
+The pre-incident qualification pass used the API 35 `Medium_Phone` Google Play x86_64 AVD with Android
 Emulator 36.5.11, `-accel on`, and `-gpu host`. `emulator -accel-check` reports KVM version 12 as
 usable. Gfxstream translates GLES through the host AMD Radeon 780M. The guest remains at its
 physical 1080 by 2400 / 420 dpi configuration and presents the landscape application surface at

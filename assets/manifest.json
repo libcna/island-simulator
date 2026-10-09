@@ -3,6 +3,30 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "leaf-lamina-generation-prompt",
+      "path": "assets/art-studies/leaf-lamina-v1-prompt.txt",
+      "sha256": "df4a3b5242c89829443052094174ccde27411250636a796106458d727811db71",
+      "licenseRecord": "AI-generated leaf-lamina study"
+    },
+    {
+      "name": "leaf-lamina-runtime-v1",
+      "path": "assets/art-studies/leaf-lamina-v1.png",
+      "sha256": "3162dc7dcfe492a0479cdc5f72474e61154d06f811388f3942d8ad90561b8e8c",
+      "licenseRecord": "AI-generated leaf-lamina study"
+    },
+    {
+      "name": "forest-floor-albedo-runtime-v1",
+      "path": "assets/art-studies/forest-floor-albedo-v1.png",
+      "sha256": "7aeaee6dc2fb99cee72379e80c511ab038df1493abaac7091efe64156fc98637",
+      "licenseRecord": "AI-generated forest-floor studies"
+    },
+    {
+      "name": "forest-floor-albedo-study-v2",
+      "path": "assets/art-studies/forest-floor-albedo-v2.png",
+      "sha256": "50d77339f72d08e2b99b77530898fcf14abc9ec88e510a690235b96d147b3837",
+      "licenseRecord": "AI-generated forest-floor studies"
+    },
+    {
       "name": "android-launcher-icon",
       "path": "android/app/src/main/res/drawable/ic_launcher.xml",
       "sha256": "e0435e5572f4c6f425b9999b28f2c6bcd52741b74eee7bea07faf90d5a0df6e1",
@@ -21,6 +45,10 @@
       "licenseRecord": "Procedural island field",
       "sources": [
         "game/src/IslandTerrain.cpp",
+        "game/include/IslandSimulator/CoastalMaterial.hpp",
+        "game/src/ForestFloorSampling.cpp",
+        "game/src/ForestFloorPixels.cpp",
+        "game/src/ForestFloorMaterial.cpp",
         "game/src/TerrainRenderer.cpp"
       ]
     },
@@ -29,8 +57,14 @@
       "licenseRecord": "Procedural animated ocean",
       "sources": [
         "game/src/OceanRenderer.cpp",
+        "game/src/OceanWaveSpectrum.cpp",
         "game/src/WaterRippleModel.cpp"
       ]
+    },
+    {
+      "name": "shoreline-foam",
+      "licenseRecord": "Procedural shoreline foam",
+      "sources": ["game/src/ShorelineRenderer.cpp"]
     },
     {
       "name": "water-view-veil",
@@ -54,7 +88,11 @@
       "sources": [
         "game/src/GrassLayout.cpp",
         "game/src/GrassInteractionModel.cpp",
-        "game/src/GrassRenderer.cpp"
+        "game/src/GrassRenderer.cpp",
+        "game/src/GrassBladeProfile.cpp",
+        "game/src/GrassMotionBounds.cpp",
+        "game/src/RenderedTerrainSurface.cpp",
+        "game/src/SurfaceNormals.cpp"
       ]
     },
     {
@@ -62,14 +100,23 @@
       "licenseRecord": "Procedural broadleaf jungle",
       "sources": [
         "game/src/JungleLayout.cpp",
+        "game/src/LeafBladeProfile.cpp",
+        "game/src/CanopyProfile.cpp",
         "game/src/JungleRenderer.cpp"
       ]
+    },
+    {
+      "name": "canopy-light-field",
+      "licenseRecord": "Procedural canopy light field",
+      "sources": ["game/src/CanopyLightField.cpp", "game/src/CanopyLighting.cpp"]
     },
     {
       "name": "natural-props",
       "licenseRecord": "Procedural natural props",
       "sources": [
         "game/src/NaturalPropLayout.cpp",
+        "game/src/RockSurface.cpp",
+        "game/src/SurfaceNormals.cpp",
         "game/src/NaturalPropRenderer.cpp"
       ]
     },
@@ -100,7 +147,8 @@
       "name": "contact-shadows",
       "licenseRecord": "Procedural contact shadows",
       "sources": [
-        "game/src/ContactShadowRenderer.cpp"
+        "game/src/ContactShadowRenderer.cpp",
+        "game/src/ContactShadowPatch.cpp"
       ]
     },
     {
@@ -125,6 +173,17 @@
       "sources": [
         "game/src/CrabColony.cpp",
         "game/src/CrabRenderer.cpp"
+      ]
+    },
+    {
+      "name": "inland-boars",
+      "licenseRecord": "Procedural inland boars",
+      "sources": [
+        "game/src/BoarHerd.cpp",
+        "game/src/BoarCoatTexture.cpp",
+        "game/src/BoarPose.cpp",
+        "game/src/BoarGroundPose.cpp",
+        "game/src/BoarRenderer.cpp"
       ]
     },
     {

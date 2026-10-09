@@ -21,6 +21,23 @@
   <script>
     const output = document.getElementById("output");
     globalThis.islandSmokeResult = { exited: false, exitCode: null, output: "", error: "" };
+    // Observe input ordering without requesting focus/capture or altering propagation. Keep
+    // the first bounded sequence so a later noisy scene cannot erase the activation evidence.
+    globalThis.islandSmokeResult.inputEvents = [];
+    globalThis.islandSmokeResult.droppedInputEvents = 0;
+    const recordInputEvent = event => {
+      const result = globalThis.islandSmokeResult;
+      if (result.inputEvents.length >= 128) { ++result.droppedInputEvents; return; }
+      const canvas = document.getElementById("canvas");
+      result.inputEvents.push({ type: event.type, milliseconds: performance.now(),
+        trusted: event.isTrusted, button: event.button ?? null, buttons: event.buttons ?? null,
+        targetIsCanvas: event.target === canvas, focused: document.hasFocus(),
+        canvasActive: document.activeElement === canvas,
+        pointerLocked: document.pointerLockElement === canvas });
+    };
+    for (const type of ["mousedown", "mouseup", "pointerlockchange", "pointerlockerror", "focus", "blur"]) {
+      document.addEventListener(type, recordInputEvent, { capture: true, passive: true });
+    }
     const record = (prefix, values) => {
       const line = prefix + values.join(" ");
       globalThis.islandSmokeResult.output += line + "\n";
@@ -31,16 +48,22 @@
     const modeArguments = new Map([
       ["interactive", []],
       ["input", ["--debug-overlay", "--input-diagnostics"]],
+      ["grass-motion", ["--debug-overlay", "--input-diagnostics"]],
       ["overview", ["--overview"]],
+      ["beach", ["--viewpoint", "beach"]],
       ["beach", ["--viewpoint", "beach", "--debug-overlay"]],
       ["grass", ["--viewpoint", "grass", "--debug-overlay"]],
       ["ground", ["--viewpoint", "ground", "--debug-overlay"]],
+      ["ground-broadleaf", ["--viewpoint", "ground-broadleaf", "--debug-overlay"]],
+      ["bush", ["--viewpoint", "bush", "--debug-overlay"]],
       ["litter", ["--viewpoint", "litter", "--debug-overlay"]],
       ["palms", ["--viewpoint", "palms", "--debug-overlay"]],
       ["jungle", ["--viewpoint", "jungle", "--debug-overlay"]],
       ["east", ["--viewpoint", "east", "--debug-overlay"]],
+      ["clearing-edge", ["--viewpoint", "clearing-edge", "--debug-overlay"]],
       ["west", ["--viewpoint", "west", "--debug-overlay"]],
       ["props", ["--viewpoint", "props", "--debug-overlay"]],
+      ["contact", ["--viewpoint", "contact", "--debug-overlay"]],
       ["driftwood", ["--viewpoint", "driftwood", "--debug-overlay"]],
       ["reef", ["--viewpoint", "reef", "--debug-overlay"]],
       ["shipwreck", ["--viewpoint", "shipwreck", "--debug-overlay"]],
@@ -55,6 +78,7 @@
       ["turtles", ["--viewpoint", "turtles", "--debug-overlay"]],
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
+      ["boars", ["--viewpoint", "boars"]],
     ]);
     var Module = {
       arguments: ["--no-user-settings", ...(modeArguments.get(mode) ?? ["--smoke-test"])],

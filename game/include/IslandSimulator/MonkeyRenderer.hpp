@@ -23,6 +23,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
+    class CanopyLightField;
     /** @brief Portable GPU-skinned renderer for the procedural monkey troop. */
     class MonkeyRenderer final
     {
@@ -30,6 +31,7 @@ namespace island
         static constexpr std::size_t SilhouetteCount = 3U;
 
         explicit MonkeyRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                                const CanopyLightField& canopyLight,
                                 float maximumDistance = 235.0f);
         ~MonkeyRenderer();
 
@@ -51,6 +53,11 @@ namespace island
             return visibleFarMonkeyCount_;
         }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] float MinimumCanopyTransmission() const noexcept { return minimumCanopyTransmission_; }
+        [[nodiscard]] float MaximumCanopyTransmission() const noexcept
+        {
+            return visibleMonkeyCount_ > 0 ? maximumCanopyTransmission_ : 1.0f;
+        }
         [[nodiscard]] int ActiveCrossfadeCount() const noexcept {
             return activeCrossfadeCount_;
         }
@@ -62,6 +69,10 @@ namespace island
         struct PlaybackState;
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
+        const CanopyLightField& canopyLight_;
+        float minimumCanopyTransmission_ = 1.0f;
+        float maximumCanopyTransmission_ = 1.0f;
+        bool reportedCanopyShade_ = false;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> whiteTexture_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinnedEffect> effect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinningData> skinningData_;

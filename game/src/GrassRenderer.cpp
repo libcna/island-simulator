@@ -1,11 +1,18 @@
 #include "IslandSimulator/GrassRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
+#include "IslandSimulator/GrassBladeProfile.hpp"
+#include "IslandSimulator/GrassMotionBounds.hpp"
+#include "IslandSimulator/RenderedTerrainSurface.hpp"
+#include "IslandSimulator/RenderedTerrainHeightMap.hpp"
 #include "IslandSimulator/GrassLod.hpp"
+#include "IslandSimulator/GrassMaterial.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/SurfaceNormals.hpp"
 
 #include <algorithm>
 #include <array>
@@ -17,6 +24,7 @@
 #include <numbers>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "CNA/Graphics/ShaderCodeEXT.hpp"
@@ -52,16 +60,22 @@ namespace island
 {
     namespace
     {
-        constexpr float LayoutExtent = 300.0f;
-        constexpr int NearBladeCount = 42;
-        constexpr int MiddleBladeCount = 10;
-        constexpr int FarBladeCount = 5;
+        constexpr int NearBladeCount = NearGrassBladeCount;
+        constexpr int MiddleBladeCount = MiddleGrassBladeCount;
+        constexpr int FarBladeCount = FarGrassBladeCount;
         constexpr int NearBladeLevels = 5;
         constexpr int MiddleBladeLevels = 3;
         constexpr int FarBladeLevels = 3;
-        constexpr float GoldenAngle = 2.39996323f;
         constexpr const char* NaturalBladeDiagnostic =
             "island-simulator: grass near blades use asymmetric edges and occasional bent tips";
+        constexpr const char* MaterialContinuityDiagnostic =
+            "island-simulator: grass retains foliage colour at distance with normalized-height basal tint";
+        constexpr const char* SurfaceMaterialDiagnostic =
+            "island-simulator: grass pigment uses separate height occlusion and filtered longitudinal veins";
+        constexpr const char* SharedLodDiagnostic =
+            "island-simulator: grass LOD proxies share seven tuft roots, profiles and wind phases";
+        constexpr const char* DistanceFadeDiagnostic =
+            "island-simulator: grass anchor-distance contraction uses nearest-bound cell culling";
 
         struct GrassInstanceData
         {
@@ -80,17 +94,39 @@ namespace island
 
         static_assert(sizeof(GrassInstanceData) == 44U);
 
+        struct GrassSurfaceVertex
+        {
+            std::array<float, 3> position;
+            std::array<std::uint8_t, 4> color;
+            std::array<float, 2> wind;
+            std::array<float, 3> normal;
+            float across;
+        };
+        static_assert(std::is_trivially_copyable_v<GrassSurfaceVertex>);
+        static_assert(std::is_standard_layout_v<GrassSurfaceVertex> && sizeof(GrassSurfaceVertex) == 40);
+
+        const VertexDeclaration& GrassSurfaceDeclaration()
+        {
+            static const VertexDeclaration declaration{
+                VertexElement(offsetof(GrassSurfaceVertex, position), VertexElementFormat::Vector3,
+                              VertexElementUsage::Position, 0),
+                VertexElement(offsetof(GrassSurfaceVertex, color), VertexElementFormat::Color,
+                              VertexElementUsage::Color, 0),
+                VertexElement(offsetof(GrassSurfaceVertex, wind), VertexElementFormat::Vector2,
+                              VertexElementUsage::TextureCoordinate, 0),
+                VertexElement(offsetof(GrassSurfaceVertex, normal), VertexElementFormat::Vector3,
+                              VertexElementUsage::Normal, 0),
+                VertexElement(offsetof(GrassSurfaceVertex, across), VertexElementFormat::Single,
+                              VertexElementUsage::TextureCoordinate, 5)};
+            return declaration;
+        }
+
         struct ClusterGeometry
         {
             std::vector<VertexPositionColorTexture> vertices;
             std::vector<std::uint16_t> indices;
-        };
-
-        enum class GrassMeshTier
-        {
-            Near,
-            Middle,
-            Far
+            std::vector<float> materialHeights;
+            std::vector<float> bladeAcross; // [-1,1] on blades; 2 on seed heads.
         };
 
         [[nodiscard]] constexpr bool HasNearSeedHead(const GrassMeshTier tier,
@@ -125,13 +161,17 @@ namespace island
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aWindData;
-layout(location = 3) in vec4 aPlacement;
-layout(location = 4) in vec4 aVariation;
-layout(location = 5) in vec2 aSlope;
-layout(location = 6) in float aBiomeTint;
+layout(location = 3) in vec3 aNormal;
+layout(location = 4) in float aBladeAcross;
+layout(location = 5) in vec4 aPlacement;
+layout(location = 6) in vec4 aVariation;
+layout(location = 7) in vec2 aSlope;
+layout(location = 8) in float aBiomeTint;
 
 uniform mat4 uViewProjection;
 uniform float uTime;
+uniform vec3 uCameraPosition;
+uniform vec2 uGrassFadeRange;
 uniform vec2 uPlayerPosition;
 uniform float uPlayerInteractionStrength;
 
@@ -139,11 +179,13 @@ out vec3 vColor;
 out vec3 vWorld;
 out vec3 vBladeNormal;
 out float vBladeHeight;
-out float vBiomeTint;
+out float vGroundHeight;
+out float vMaterialHeight;
+out vec2 vBladeSurface;
 
 void main()
 {
-    float normalY = sqrt(max(0.001, 1.0 - dot(aSlope, aSlope)));
+    float normalY = sqrt(max(grassNormalFloor, 1.0 - dot(aSlope, aSlope)));
     vec3 surfaceNormal = normalize(vec3(aSlope.x, normalY, aSlope.y));
     vec3 tangentX = normalize(vec3(surfaceNormal.y, -surfaceNormal.x, 0.0));
     vec3 tangentZ = normalize(cross(tangentX, surfaceNormal));
@@ -153,13 +195,18 @@ void main()
     float localZ = aPosition.x * yawSin + aPosition.z * yawCos;
     float bladeRandom = fract(sin(aWindData.y * 91.73 + aVariation.w * 37.21 + 0.618)
                               * 43758.5453);
-    float bladeStature = mix(0.84, 1.16, bladeRandom);
-    vec3 world = aPlacement.xyz
-        + tangentX * (localX * aVariation.y)
-        + surfaceNormal * (aPosition.y * aVariation.x * bladeStature)
-        + tangentZ * (localZ * aVariation.y);
+    float bladeStature = mix(grassMinimumStature, grassMaximumStature, bladeRandom);
+    float visibility = 1.0 - smoothstep(uGrassFadeRange.x, uGrassFadeRange.y,
+                                       length(aPlacement.xz - uCameraPosition.xz));
+    vec3 base = aPlacement.xyz
+        + tangentX * (localX * aVariation.y * visibility)
+        + tangentZ * (localZ * aVariation.y * visibility);
+    // Drape the undeformed footprint onto the same triangles the terrain actually draws.
+    // Root vertices have zero local height/interaction/wind, so they remain planted exactly.
+    base.y = grassTerrainHeight(base.xz);
+    vec3 world = base + surfaceNormal * (aPosition.y * aVariation.x * bladeStature * visibility);
 
-    float heightWeight = pow(clamp(aWindData.x, 0.0, 1.0), 1.55);
+    float heightWeight = pow(clamp(aWindData.x, 0.0, 1.0), grassHeightExponent);
     vec2 playerOffset = world.xz - uPlayerPosition;
     float playerDistanceSquared = dot(playerOffset, playerOffset);
     float interactionStrength = clamp(uPlayerInteractionStrength, 0.0, 1.0);
@@ -167,11 +214,11 @@ void main()
     if (playerDistanceSquared < interactionRadiusSquared) {
         float interaction = (1.0 - smoothstep(0.09, interactionRadiusSquared,
                                                playerDistanceSquared))
-            * heightWeight;
+            * heightWeight * visibility;
         vec2 awayFromPlayer = playerOffset
             * inversesqrt(max(playerDistanceSquared, 0.01));
-        float pushDistance = mix(0.12, 0.42, interactionStrength);
-        float lowering = mix(0.08, 0.28, interactionStrength);
+        float pushDistance = mix(grassMinimumPush, grassMaximumPush, interactionStrength);
+        float lowering = mix(grassMinimumLowering, grassMaximumLowering, interactionStrength);
         world.xz += awayFromPlayer * interaction * pushDistance * aVariation.x;
         world.y -= interaction * lowering * aVariation.x;
     }
@@ -179,18 +226,20 @@ void main()
     float phase = (aWindData.y + aVariation.z) * 6.28318530718;
     float broad = sin(uTime * 0.86 + phase + world.x * 0.031 + world.z * 0.024);
     float detail = sin(uTime * 1.37 + phase * 1.73 - world.x * 0.071 + world.z * 0.063);
-    float sway = (broad * 0.085 + detail * 0.026) * heightWeight * aVariation.x
-        * mix(0.92, 1.08, bladeRandom);
+    float sway = (broad * grassBroadWind + detail * grassDetailWind) * heightWeight * aVariation.x
+        * mix(grassMinimumWindGain, grassMaximumWindGain, bladeRandom) * visibility;
     world.x += sway;
-    world.z += sway * 0.46;
-    world.y -= abs(sway) * 0.055 * heightWeight;
+    world.z += sway * grassWindZ;
+    world.y -= abs(sway) * grassWindLowering * heightWeight;
 
-    float bladeFacing = aColor.a * 6.28318530718;
-    float bladeNormalX = cos(bladeFacing) * yawCos - sin(bladeFacing) * yawSin;
-    float bladeNormalZ = cos(bladeFacing) * yawSin + sin(bladeFacing) * yawCos;
-    vBladeNormal = normalize(tangentX * bladeNormalX
-                             + tangentZ * bladeNormalZ
-                             + surfaceNormal * 0.10);
+    // Inverse transpose of the rest-shape scale, yaw and terrain basis. Shared mesh normals
+    // follow curvature/folds instead of assigning the same artificial tilt to every level.
+    // Wind/player deformation of normals is still approximate; positions retain full motion.
+    vec3 scaledNormal = aNormal / vec3(aVariation.y, aVariation.x * bladeStature, aVariation.y);
+    float bladeNormalX = scaledNormal.x * yawCos - scaledNormal.z * yawSin;
+    float bladeNormalZ = scaledNormal.x * yawSin + scaledNormal.z * yawCos;
+    vBladeNormal = normalize(tangentX * bladeNormalX + tangentZ * bladeNormalZ
+                             + surfaceNormal * scaledNormal.y);
     float coolWeight = clamp((0.5 - aBiomeTint) * 2.0, 0.0, 1.0);
     float warmWeight = clamp((aBiomeTint - 0.5) * 2.0, 0.0, 1.0);
     vec3 biomeColor = mix(vec3(1.0), vec3(0.82, 0.98, 0.91), coolWeight);
@@ -202,7 +251,9 @@ void main()
                1.0 + colorShift * 0.42);
     vWorld = world;
     vBladeHeight = clamp(aWindData.x, 0.0, 1.0);
-    vBiomeTint = aBiomeTint;
+    vGroundHeight = base.y;
+    vMaterialHeight = aColor.a;
+    vBladeSurface = vec2(aBladeAcross, aWindData.y);
     gl_Position = uViewProjection * vec4(world, 1.0);
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -213,7 +264,9 @@ in vec3 vColor;
 in vec3 vWorld;
 in vec3 vBladeNormal;
 in float vBladeHeight;
-in float vBiomeTint;
+in float vGroundHeight;
+in float vMaterialHeight;
+in vec2 vBladeSurface;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -223,33 +276,52 @@ out vec4 fragColor;
 void main()
 {
     float distanceToCamera = length(vWorld - uCameraPosition);
-    float groundBlend = smoothstep(82.0, 125.0, distanceToCamera);
     vec3 normal = normalize(vBladeNormal);
     vec3 toSun = normalize(uToSun);
     vec3 toCamera = normalize(uCameraPosition - vWorld);
     float twoSidedDiffuse = abs(dot(normal, toSun));
-    float rootLight = mix(0.80, 1.0, smoothstep(0.0, 0.72, vBladeHeight));
+    float rootLight = mix(grassRootOcclusion, 1.0, smoothstep(0.0, 1.0, vMaterialHeight));
     float edgeLight = pow(1.0 - abs(dot(normal, toCamera)), 2.0) * 0.06;
     float transmission = pow(max(dot(-toCamera, toSun), 0.0), 5.0)
         * smoothstep(0.25, 0.92, vBladeHeight) * 0.10;
     float light = rootLight * (0.78 + twoSidedDiffuse * 0.30 + edgeLight + transmission);
-    vec3 litColor = vColor * light;
-    float coolWeight = clamp((0.5 - vBiomeTint) * 2.0, 0.0, 1.0);
-    float warmWeight = clamp((vBiomeTint - 0.5) * 2.0, 0.0, 1.0);
-    vec3 groundColor = mix(vec3(0.255, 0.465, 0.255),
-                           vec3(0.205, 0.405, 0.235), coolWeight);
-    groundColor = mix(groundColor, vec3(0.335, 0.455, 0.185), warmWeight);
-    vec3 color = mix(litColor, groundColor, groundBlend);
+    // Leaves stay leaves at every LOD. The visible terrain supplies the substrate between
+    // blades; a synthetic green "ground" fade would overwrite both material and lighting.
+    float basalWeight = 1.0 - smoothstep(0.0, grassBasalEnd, vMaterialHeight);
+    // Evaluate derivatives before the seed-head branch. Unresolved veins and then the
+    // wider midrib/edge converge to neutral modulation instead of shimmering at distance.
+    float footprint = fwidth(vBladeSurface.x);
+    float resolved = 1.0 - smoothstep(0.12, 0.5, footprint);
+    float veinResolved = 1.0 - smoothstep(0.2, 0.5, footprint * grassGrainCycles);
+    float surface = 1.0;
+    if (abs(vBladeSurface.x) < 1.5) {
+        float veins = cos((vBladeSurface.x * grassGrainCycles + vBladeSurface.y) * 6.28318530718);
+        float midrib = 1.0 - smoothstep(0.015, 0.13, abs(vBladeSurface.x));
+        float edge = smoothstep(0.7, 1.0, abs(vBladeSurface.x));
+        surface += veins * grassGrainStrength * veinResolved
+            + (midrib * grassMidribStrength - edge * grassEdgeStrength) * resolved;
+    }
+    vec3 color = vColor * (vec3(1.0) + grassBasalShift * basalWeight) * light * surface;
+    // Map elevated blades back along the fixed sun ray to the ground transmission field.
+    vec2 receiver = canopyGroundReceiver(vWorld, vGroundHeight, uToSun);
+    color = applyCanopyLight(color, receiver);
+    color = mix(color, vec3(0.53, 0.78, 0.88), smoothstep(260.0, 720.0, distanceToCamera));
     fragColor = vec4(color, 1.0);
 }
 )";
 
-        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
+        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body,
+                                               const bool canopy = false)
         {
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\n")
+                    + GrassMotion::ShaderConstants()
+                    + GrassMaterialShaderConstants()
+                    + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader) + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n") + GrassMotion::ShaderConstants()
+                + GrassMaterialShaderConstants()
+                + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader) + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -262,28 +334,15 @@ void main()
                                   "grass/grass.es.vert.glsl", ShaderSource(true, VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "grass/grass.es.frag.glsl", ShaderSource(true, FragmentBody)),
+                                  "grass/grass.es.frag.glsl", ShaderSource(true, FragmentBody, true)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Vertex, "main",
                                   "grass/grass.desktop.vert.glsl", ShaderSource(false, VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "grass/grass.desktop.frag.glsl", ShaderSource(false, FragmentBody)),
+                                  "grass/grass.desktop.frag.glsl", ShaderSource(false, FragmentBody, true)),
                 },
                 {CNA::ShaderStageEXT::Vertex, CNA::ShaderStageEXT::Fragment});
-        }
-
-        [[nodiscard]] std::size_t CellIndex(const float x, const float z) noexcept
-        {
-            constexpr float cellWidth = 2.0f * LayoutExtent
-                / static_cast<float>(GrassRenderer::CellsPerAxis);
-            const int column = std::clamp(static_cast<int>(
-                std::floor((x + LayoutExtent) / cellWidth)),
-                0, GrassRenderer::CellsPerAxis - 1);
-            const int row = std::clamp(static_cast<int>(
-                std::floor((z + LayoutExtent) / cellWidth)),
-                0, GrassRenderer::CellsPerAxis - 1);
-            return static_cast<std::size_t>(row * GrassRenderer::CellsPerAxis + column);
         }
 
         [[nodiscard]] std::uint8_t EncodedBladeFacing(const float facing)
@@ -295,12 +354,14 @@ void main()
         }
 
         [[nodiscard]] Color BladeColor(const int blade, const float heightFraction,
-                                       const bool rightSide, const float facing)
+                                       const bool rightSide, const float facing, const bool shaderLit)
         {
             const float bladeShift = static_cast<float>((blade * 17) % 9) / 8.0f - 0.5f;
             const bool reverseFold = (blade & 1) != 0;
             const float foldLight = rightSide == reverseFold ? 0.94f : 1.06f;
-            const float light = (0.78f + heightFraction * 0.22f) * foldLight;
+            // Unlit BasicEffect keeps its legacy shading. Custom shading derives fold
+            // illumination from actual normals; its vertex RGB is pigment only.
+            const float light = shaderLit ? 1.0f : (0.78f + heightFraction * 0.22f) * foldLight;
             const bool sunCured = ((blade * 5 + 2) % 11) < 2;
             const float curedProfile = sunCured
                 ? 0.08f + 0.60f * heightFraction * heightFraction
@@ -369,99 +430,55 @@ void main()
                                         {base, static_cast<std::uint16_t>(base + 1U),
                                          static_cast<std::uint16_t>(base + 2U)});
             }
+            geometry.materialHeights.resize(geometry.vertices.size(), 1.0f);
+            geometry.bladeAcross.resize(geometry.vertices.size(), 2.0f);
         }
 
-        void AppendBlade(ClusterGeometry& geometry, const int blade, const int bladeCount,
-                         const GrassMeshTier tier, const int bladeLevels)
+        void AppendBlade(ClusterGeometry& geometry, const int blade,
+                         const GrassMeshTier tier, const int bladeLevels, const bool shaderLit)
         {
-            const bool nearMesh = tier == GrassMeshTier::Near;
-            const bool middleMesh = tier == GrassMeshTier::Middle;
-            const bool farMesh = tier == GrassMeshTier::Far;
-            const bool vFold = HasNearVFold(tier, blade);
-            const bool juvenileBlade = tier == GrassMeshTier::Near && blade % 6 == 5;
-            const float normalizedRadius = std::sqrt(
-                (static_cast<float>(blade) + 0.45f) / static_cast<float>(bladeCount));
-            const float angle = GoldenAngle * static_cast<float>(blade)
-                + (farMesh ? 0.51f : (middleMesh ? 0.27f : 0.0f));
-            const float clusterRadius = farMesh ? 0.82f : (middleMesh ? 0.93f : 1.02f);
-            const float baseX = std::cos(angle) * normalizedRadius * clusterRadius;
-            const float baseZ = std::sin(angle) * normalizedRadius * clusterRadius;
-            const float facing = angle * 1.71f + static_cast<float>(blade % 4) * 0.43f;
+            const GrassLodBlade profile = GrassBladeForTier(tier, blade);
+            const GrassBladePlacement& placement = profile.placement;
+            const GrassBladeShape& shape = profile.shape;
+            const int sourceBlade = profile.sourceBlade;
+            const bool vFold = shape.folded;
+            const float baseX = placement.x;
+            const float baseZ = placement.z;
+            const float facing = placement.facing;
             const Vector3 direction(std::cos(facing), 0.0f, std::sin(facing));
             const Vector3 side(-direction.Z, 0.0f, direction.X);
-            const float individual = 0.87f
-                + 0.19f * static_cast<float>((blade * 5 + bladeCount) % 7) / 6.0f;
-            const float juvenileHeight = juvenileBlade
-                ? 0.56f + 0.06f * static_cast<float>(blade % 3) : 1.0f;
-            const float height = (farMesh ? 0.60f
-                : (middleMesh ? 0.48f + 0.035f * static_cast<float>(blade % 5)
-                              : 0.40f + 0.045f * static_cast<float>(blade % 6)))
-                * individual * juvenileHeight;
-            const float width = (farMesh ? 0.11f
-                : (middleMesh ? 0.055f + 0.005f * static_cast<float>(blade % 4)
-                              : 0.018f + 0.0035f * static_cast<float>(blade % 5)))
-                * (juvenileBlade ? 0.74f : 1.0f);
-            const float lean = (farMesh ? 0.12f
-                : (middleMesh ? 0.09f + 0.012f * static_cast<float>(blade % 5)
-                              : 0.07f + 0.018f * static_cast<float>(blade % 6)))
-                * (juvenileBlade ? 0.62f : 1.0f);
-            const float phase = std::fmod(static_cast<float>(blade) * 0.173f, 1.0f);
-            const float bowVariation = static_cast<float>((blade * 11 + 3) % 9 - 4) / 4.0f;
-            const float edgeAsymmetry = static_cast<float>((blade * 13 + 5) % 11 - 5)
-                / 5.0f;
-            const bool bentTip = nearMesh && ((blade * 5 + 1) % 13) < 3;
-            const float bentTipDirection = (blade & 1) == 0 ? -1.0f : 1.0f;
+            const float phase = placement.windPhase;
+            const auto pointAt = [&](const float t, const float across) {
+                const auto p = SampleGrassBlade(shape,t,across);
+                return Vector3(baseX,p.height,baseZ) + side*p.across + direction*p.along;
+            };
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
 
             for (int level = 0; level < bladeLevels; ++level) {
                 const float t = static_cast<float>(level) / static_cast<float>(bladeLevels - 1);
-                const float taper = level == bladeLevels - 1
-                    ? 0.018f
-                    : 0.58f + 0.42f * std::sin(t * std::numbers::pi_v<float>);
-                const float tipWeight = std::clamp((t - 0.52f) / 0.48f, 0.0f, 1.0f);
-                const float tipCurve = tipWeight * tipWeight;
-                const float tipKink = bentTip ? bentTipDirection * 0.030f * tipCurve : 0.0f;
-                const float tipDrop = bentTip ? 0.018f * tipCurve : 0.0f;
-                const Vector3 centre(baseX, 0.0f, baseZ);
-                const Vector3 curved = centre
-                    + Vector3(0.0f, 1.0f, 0.0f) * (height * t - tipDrop)
-                    + direction * (lean * t * t
-                                   + (nearMesh ? std::abs(bowVariation) * 0.010f
-                                                   * std::sin(t * std::numbers::pi_v<float>)
-                                               : 0.0f))
-                    + side * (0.012f * std::sin(t * std::numbers::pi_v<float>)
-                              * (blade % 3 == 0 ? -1.0f : 1.0f)
-                              + (nearMesh ? bowVariation * 0.016f * t * t : 0.0f)
-                              + tipKink);
-                const float asymmetricProfile = nearMesh
-                    ? edgeAsymmetry * 0.14f
-                        * std::sin(t * std::numbers::pi_v<float>)
-                    : 0.0f;
-                const Vector3 leftHalfWidth = side
-                    * (width * taper * (1.0f + asymmetricProfile));
-                const Vector3 rightHalfWidth = side
-                    * (width * taper * (1.0f - asymmetricProfile));
                 const Vector2 windData(t, phase);
                 if (vFold) {
                     const float foldAngle = 0.42f
                         + 0.045f * static_cast<float>(blade % 4);
-                    const Vector3 ridge = curved + direction * (width * taper * 0.48f);
                     geometry.vertices.emplace_back(
-                        curved - leftHalfWidth,
-                        BladeColor(blade, t, false, facing - foldAngle), windData);
+                        pointAt(t,-1),
+                        BladeColor(sourceBlade, t, false, facing - foldAngle, shaderLit), windData);
                     geometry.vertices.emplace_back(
-                        ridge, BladeColor(blade, t, (blade & 1) != 0, facing), windData);
+                        pointAt(t,0), BladeColor(sourceBlade, t, (sourceBlade & 1) != 0, facing, shaderLit), windData);
                     geometry.vertices.emplace_back(
-                        curved + rightHalfWidth,
-                        BladeColor(blade, t, true, facing + foldAngle), windData);
+                        pointAt(t,1),
+                        BladeColor(sourceBlade, t, true, facing + foldAngle, shaderLit), windData);
+                    geometry.bladeAcross.insert(geometry.bladeAcross.end(), {-1, 0, 1});
                 } else {
                     geometry.vertices.emplace_back(
-                        curved - leftHalfWidth,
-                        BladeColor(blade, t, false, facing), windData);
+                        pointAt(t,-1),
+                        BladeColor(sourceBlade, t, false, facing, shaderLit), windData);
                     geometry.vertices.emplace_back(
-                        curved + rightHalfWidth,
-                        BladeColor(blade, t, true, facing), windData);
+                        pointAt(t,1),
+                        BladeColor(sourceBlade, t, true, facing, shaderLit), windData);
+                    geometry.bladeAcross.insert(geometry.bladeAcross.end(), {-1, 1});
                 }
+                geometry.materialHeights.resize(geometry.vertices.size(), t);
             }
 
             if (vFold) {
@@ -488,16 +505,53 @@ void main()
             }
 
             if (HasNearSeedHead(tier, blade)) {
-                const Vector3 tip = Vector3(baseX, height, baseZ) + direction * lean;
+                // Use the same sampled terminal centre/ridge as the blade, not its nominal tip.
+                const Vector3 tip = pointAt(1,0);
                 AppendNearSeedHead(geometry, blade, tip, direction, side, phase, facing);
+            }
+        }
+
+        void AppendTurfBlade(ClusterGeometry& geometry, const int blade, const bool shaderLit)
+        {
+            const auto turf = NearGrassTurfBlade(blade);
+            const auto& placement = turf.placement;
+            const Vector3 direction(std::cos(placement.facing), 0.0f, std::sin(placement.facing));
+            const Vector3 side(-direction.Z, 0.0f, direction.X);
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int level = 0; level < 3; ++level) {
+                const float t = level * 0.5f;
+                // A shared pointed tip avoids a nearly zero-width terminal quad on short blades.
+                const int edgeCount = level == 2 ? 1 : 2;
+                for (int edge = 0; edge < edgeCount; ++edge) {
+                    const auto point = SampleGrassBlade(turf.shape, t,
+                        level == 2 ? 0.0f : (edge == 0 ? -1.0f : 1.0f));
+                    const bool dry = blade % 4 == 0;
+                    const float variation = 0.88f + 0.04f * (blade % 5);
+                    const float light = (shaderLit ? 1.0f : 0.76f + 0.24f * t) * variation;
+                    const Color color(
+                        static_cast<std::uint8_t>((dry ? 116.0f : 66.0f) * light),
+                        static_cast<std::uint8_t>((dry ? 126.0f : 138.0f) * light),
+                        static_cast<std::uint8_t>((dry ? 51.0f : 42.0f) * light),
+                        EncodedBladeFacing(placement.facing));
+                    geometry.vertices.emplace_back(
+                        Vector3(placement.x, point.height, placement.z)
+                            + side * point.across + direction * point.along,
+                        color, Vector2(t * turf.shape.height / 0.65f, placement.windPhase));
+                    geometry.bladeAcross.push_back(level == 2 ? 0.0f : (edge == 0 ? -1.0f : 1.0f));
+                }
+                geometry.materialHeights.resize(geometry.vertices.size(), t);
+            }
+            for (const auto offset : {0, 2, 1, 1, 2, 3, 2, 4, 3}) {
+                geometry.indices.push_back(static_cast<std::uint16_t>(base + offset));
             }
         }
 
         [[nodiscard]] ClusterGeometry CreateClusterGeometry(const int bladeCount,
                                                             const GrassMeshTier tier,
-                                                            const int bladeLevels)
+                                                            const int bladeLevels, const bool shaderLit)
         {
             ClusterGeometry geometry;
+            const int turfBlades = tier == GrassMeshTier::Near ? NearGrassTurfBladeCount : 0;
             int seedHeadCount = 0;
             int foldedBladeCount = 0;
             for (int blade = 0; blade < bladeCount; ++blade) {
@@ -506,12 +560,17 @@ void main()
             }
             geometry.vertices.reserve(static_cast<std::size_t>(
                 (bladeCount * 2 + foldedBladeCount) * bladeLevels
-                + seedHeadCount * 22));
+                + seedHeadCount * 22 + turfBlades * 5));
             geometry.indices.reserve(static_cast<std::size_t>(
                 (bladeCount * 6 + foldedBladeCount * 6) * (bladeLevels - 1)
-                + seedHeadCount * 24));
+                + seedHeadCount * 24 + turfBlades * 9));
+            geometry.materialHeights.reserve(geometry.vertices.capacity());
+            geometry.bladeAcross.reserve(geometry.vertices.capacity());
             for (int blade = 0; blade < bladeCount; ++blade) {
-                AppendBlade(geometry, blade, bladeCount, tier, bladeLevels);
+                AppendBlade(geometry, blade, tier, bladeLevels, shaderLit);
+            }
+            for (int blade = 0; blade < turfBlades; ++blade) {
+                AppendTurfBlade(geometry, blade, shaderLit);
             }
             return geometry;
         }
@@ -533,8 +592,10 @@ void main()
 
     GrassRenderer::GrassRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
                                  const GrassLayout& layout,
+                                 CanopyLighting& canopyLighting, RenderedTerrainHeightMap& terrainHeightMap,
                                  const float maximumDrawDistance)
-        : device_(device), maximumDrawDistance_(maximumDrawDistance)
+        : device_(device), canopyLighting_(canopyLighting), terrainHeightMap_(terrainHeightMap),
+          maximumDrawDistance_(maximumDrawDistance)
     {
         if (!std::isfinite(maximumDrawDistance_) || maximumDrawDistance_ <= 0.0f) {
             throw std::invalid_argument("Grass maximum draw distance must be finite and positive");
@@ -543,9 +604,9 @@ void main()
         fallbackEffect_->setVertexColorEnabledProperty(true);
         fallbackEffect_->setLightingEnabledProperty(false);
         fallbackEffect_->setFogEnabledProperty(true);
-        fallbackEffect_->setFogColorProperty(Vector3(0.255f, 0.465f, 0.255f));
-        fallbackEffect_->setFogStartProperty(82.0f);
-        fallbackEffect_->setFogEndProperty(125.0f);
+        fallbackEffect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        fallbackEffect_->setFogStartProperty(260.0f);
+        fallbackEffect_->setFogEndProperty(720.0f);
 
         if (!device_.SupportsCapability(CNA::GraphicsCapability::Instancing)) {
             fallbackReason_ = "the active renderer does not support hardware instancing";
@@ -584,6 +645,15 @@ void main()
                       << "island-simulator: selected near grass blades use a geometric V-fold "
                          "ridge\n"
                       << NaturalBladeDiagnostic << '\n'
+                      << MaterialContinuityDiagnostic << '\n'
+                      << SurfaceMaterialDiagnostic << '\n'
+                      << SharedLodDiagnostic << '\n'
+                      << DistanceFadeDiagnostic << '\n'
+                      << "island-simulator: grass shared rest-shape normals follow curvature and instance scale\n"
+                      << "island-simulator: grass progressive near taper and seed roots share the sampled blade profile\n"
+                      << "island-simulator: grass near blades form seven unequal fanned tufts with coherent wind\n"
+                      << "island-simulator: grass near mesh adds 48 low curved turf blades with height-scaled motion\n"
+                      << "island-simulator: grass culling bounds cover measured meshes, slope and full shared motion limits\n"
                       << "island-simulator: grass biome tint follows coast, path, and authored "
                          "clearings\n"
                       << "island-simulator: grass sparse sun-cured tip variation in shared "
@@ -604,6 +674,20 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: selected near grass blades use a geometric V-fold ridge");
             MirrorRuntimeDiagnosticToPlatformLog(NaturalBladeDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(MaterialContinuityDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(SurfaceMaterialDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(SharedLodDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(DistanceFadeDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass shared rest-shape normals follow curvature and instance scale");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass progressive near taper and seed roots share the sampled blade profile");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass near blades form seven unequal fanned tufts with coherent wind");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass near mesh adds 48 low curved turf blades with height-scaled motion");
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: grass culling bounds cover measured meshes, slope and full shared motion limits");
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass sparse near seed heads share blade wind and instancing");
         } else {
@@ -620,33 +704,87 @@ void main()
                                    const char* label) {
             ValidateProceduralTriangleMeshOrThrow(
                 geometry.vertices.size(), geometry.indices, label);
+            if (geometry.materialHeights.size() != geometry.vertices.size()
+                || geometry.bladeAcross.size() != geometry.vertices.size()) {
+                throw std::logic_error(std::string(label) + ": missing grass material coordinates");
+            }
+            for (float across : geometry.bladeAcross) {
+                if (!std::isfinite(across) || (std::abs(across) > 1 && across != 2)) {
+                    throw std::logic_error(std::string(label) + ": invalid blade or seed material tag");
+                }
+            }
+            for (const auto& vertex : geometry.vertices) {
+                const auto& p = vertex.Position;
+                if (!std::isfinite(p.X) || !std::isfinite(p.Y) || !std::isfinite(p.Z) || p.Y < 0) {
+                    throw std::runtime_error(std::string(label) + ": invalid above-ground mesh bound");
+                }
+                meshRadius_ = std::max(meshRadius_, std::hypot(p.X,p.Z));
+                meshHeight_ = std::max(meshHeight_,p.Y);
+            }
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
-            mesh.vertices = std::make_unique<VertexBuffer>(
-                device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
-                mesh.vertexCount, BufferUsage::WriteOnly);
-            mesh.vertices->SetData(geometry.vertices.data(), mesh.vertexCount);
+            if (customShaderReady_) {
+                std::vector<std::array<float, 3>> positions;
+                positions.reserve(geometry.vertices.size());
+                for (const auto& vertex : geometry.vertices) {
+                    positions.push_back({vertex.Position.X, vertex.Position.Y, vertex.Position.Z});
+                }
+                const auto normals = BuildSurfaceNormals(positions, geometry.indices);
+                std::vector<GrassSurfaceVertex> vertices;
+                vertices.reserve(geometry.vertices.size());
+                for (std::size_t i = 0; i < geometry.vertices.size(); ++i) {
+                    const auto& vertex = geometry.vertices[i];
+                    vertices.push_back({positions[i],
+                        {vertex.Color.getRProperty(), vertex.Color.getGProperty(), vertex.Color.getBProperty(),
+                         EncodeGrassMaterialHeight(geometry.materialHeights[i])},
+                        {vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y}, normals[i],
+                        geometry.bladeAcross[i]});
+                }
+                mesh.vertices = std::make_unique<VertexBuffer>(device_, GrassSurfaceDeclaration(),
+                    mesh.vertexCount, BufferUsage::WriteOnly);
+                mesh.vertices->SetData(vertices.data(), mesh.vertexCount);
+            } else {
+                mesh.vertices = std::make_unique<VertexBuffer>(
+                    device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
+                    mesh.vertexCount, BufferUsage::WriteOnly);
+                mesh.vertices->SetData(geometry.vertices.data(), mesh.vertexCount);
+            }
             mesh.indices = std::make_unique<IndexBuffer>(
                 device_, IndexElementSize::SixteenBits, static_cast<int>(geometry.indices.size()),
                 BufferUsage::WriteOnly);
             mesh.indices->SetData(geometry.indices.data(), static_cast<int>(geometry.indices.size()));
         };
         upload(CreateClusterGeometry(
-            NearBladeCount, GrassMeshTier::Near, NearBladeLevels), nearMesh_, "grass near LOD");
+            NearBladeCount, GrassMeshTier::Near, NearBladeLevels, customShaderReady_), nearMesh_, "grass near LOD");
         upload(CreateClusterGeometry(
-            MiddleBladeCount, GrassMeshTier::Middle, MiddleBladeLevels), middleMesh_,
+            MiddleBladeCount, GrassMeshTier::Middle, MiddleBladeLevels, customShaderReady_), middleMesh_,
             "grass middle LOD");
         upload(CreateClusterGeometry(
-            FarBladeCount, GrassMeshTier::Far, FarBladeLevels), farMesh_, "grass far LOD");
+            FarBladeCount, GrassMeshTier::Far, FarBladeLevels, customShaderReady_), farMesh_, "grass far LOD");
+        const std::string inventory = "island-simulator: grass mesh vertices/triangles near="
+            + std::to_string(nearMesh_.vertexCount) + "/" + std::to_string(nearMesh_.primitiveCount)
+            + " middle=" + std::to_string(middleMesh_.vertexCount) + "/"
+            + std::to_string(middleMesh_.primitiveCount) + " far="
+            + std::to_string(farMesh_.vertexCount) + "/" + std::to_string(farMesh_.primitiveCount);
+        std::cout << inventory << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(inventory);
+        std::cout << "island-simulator: measured grass mesh radius " << meshRadius_
+                  << " m, height " << meshHeight_ << " m across all LODs and seed stems\n";
     }
 
     void GrassRenderer::CreateCells(const IslandTerrain& terrain, const GrassLayout& layout)
     {
+        const auto surface=std::make_unique<RenderedTerrainSurface>(terrain);
+        if(customShaderReady_) {
+            constexpr const char* diagnostic="island-simulator: grass roots sample RGB24 rendered terrain triangles before wind";
+            std::cout << diagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+        }
         std::array<std::vector<CellBuildEntry>, CellCount> entries;
         std::uint32_t placementIndex = 0U;
         for (const GrassPlacement& patch : layout.Patches()) {
             const TerrainSample sample = terrain.Sample(patch.x, patch.z);
-            const std::size_t index = CellIndex(patch.x, patch.z);
+            const std::size_t index = GrassVisibility::CellIndex(patch.x, patch.z);
             entries[index].push_back(CellBuildEntry{
                 GrassInstanceData{
                     patch.x, patch.y, patch.z, patch.yawRadians,
@@ -661,14 +799,29 @@ void main()
             GrassCell& cell = cells_[index];
             ++cell.patchCount;
             ++totalPatchCount_;
-            const Vector3 minimum(patch.x - 1.4f, patch.y - 0.08f, patch.z - 1.4f);
-            const Vector3 maximum(patch.x + 1.4f, patch.y + 1.35f, patch.z + 1.4f);
+            const auto bounds = GrassMotion::CalculateBounds(meshRadius_,meshHeight_,patch.scale,
+                patch.spreadScale,sample.normal.x,sample.normal.z);
+            const float footprint=meshRadius_*patch.spreadScale;
+            const auto surfaceRange=surface->HeightRange(patch.x-footprint,patch.z-footprint,
+                                                        patch.x+footprint,patch.z+footprint);
+            // Retain the old fallback envelope and conservatively include all draped bases.
+            // Bounds already include motion and a 1 cm margin, larger than RGB24 rounding error.
+            const Vector3 minimum(patch.x-bounds.horizontalRadius,
+                                  std::min(patch.y,surfaceRange[0])+bounds.minimumY,
+                                  patch.z-bounds.horizontalRadius);
+            const Vector3 maximum(patch.x+bounds.horizontalRadius,
+                                  std::max(patch.y,surfaceRange[1])+bounds.maximumY,
+                                  patch.z+bounds.horizontalRadius);
+            const Vector3 anchor(patch.x,patch.y,patch.z);
             if (!cell.occupied) {
                 cell.bounds = BoundingBox(minimum, maximum);
+                cell.placementBounds = BoundingBox(anchor,anchor);
                 cell.occupied = true;
             } else {
                 cell.bounds = BoundingBox(Vector3::Min(cell.bounds.Min, minimum),
                                           Vector3::Max(cell.bounds.Max, maximum));
+                cell.placementBounds = BoundingBox(Vector3::Min(cell.placementBounds.Min,anchor),
+                                                   Vector3::Max(cell.placementBounds.Max,anchor));
             }
         }
 
@@ -745,9 +898,13 @@ void main()
             float viewProjection[16];
             (view * projection).ToColumnMajor(viewProjection);
             customEffect_->Apply();
+            canopyLighting_.Bind(*customEffect_);
+            terrainHeightMap_.Bind(*customEffect_);
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
+            customEffect_->SetUniformVec2("uGrassFadeRange",
+                GrassVisibility::FadeStart(maximumDrawDistance_), maximumDrawDistance_);
             customEffect_->SetUniformVec3(
                 "uToSun", environment::SunDirectionX, environment::SunDirectionY,
                 environment::SunDirectionZ);
@@ -770,11 +927,18 @@ void main()
             if (!cell.occupied || frustum.Contains(cell.bounds) == ContainmentType::Disjoint) {
                 continue;
             }
-            const Vector3 centre = (cell.bounds.Min + cell.bounds.Max) * 0.5f;
+            // Keep mesh-tier selection unchanged. Shader fading is per anchor, so reject a
+            // cell only once every anchor is beyond range, not when its centre crosses it.
+            const Vector3 centre = (cell.placementBounds.Min + cell.placementBounds.Max) * 0.5f;
             const float deltaX = centre.X - cameraPosition.X;
             const float deltaZ = centre.Z - cameraPosition.Z;
             const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
-            if (distanceSquared > maximumDrawDistance_ * maximumDrawDistance_) {
+            const float cullingDistanceSquared = customShaderReady_
+                ? GrassVisibility::NearestDistanceSquared(cameraPosition.X, cameraPosition.Z,
+                    cell.placementBounds.Min.X, cell.placementBounds.Min.Z,
+                    cell.placementBounds.Max.X, cell.placementBounds.Max.Z)
+                : distanceSquared; // Degraded BasicEffect path has no vertex-distance fade.
+            if (cullingDistanceSquared > maximumDrawDistance_ * maximumDrawDistance_) {
                 continue;
             }
             ++visibleCellCount_;

@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -6,8 +7,10 @@
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/JungleGrounding.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
+#include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
@@ -30,6 +33,7 @@
 #include <ostream>
 #include <sstream>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -91,6 +95,7 @@ namespace
         island::BirdFlock birds{terrain};
         island::ButterflyMeadow butterflies{terrain};
         island::CrabColony crabs{terrain};
+        island::BoarHerd boars{terrain};
         island::FishSchools fish{terrain};
         island::SeaTurtleGroup seaTurtles{terrain};
         island::SharkPatrol shark{terrain};
@@ -118,6 +123,7 @@ namespace
                                   shipwreck.Obstacles().end());
             collisionGrid.Reset(worldObstacles);
             monkeys.SetObstacles(collisionGrid.Obstacles());
+            boars.SetObstacles(collisionGrid.Obstacles());
         }
     };
 
@@ -294,6 +300,17 @@ namespace
             hash.AddFloat(home.radius);
         }
 
+        hash.AddSize(world.boars.Boars().size());
+        for (const auto& boar : world.boars.Boars()) {
+            HashPosition(hash, boar.x, boar.y, boar.z);
+            hash.AddFloat(boar.homeX);
+            hash.AddFloat(boar.homeZ);
+            hash.AddFloat(boar.headingRadians);
+            hash.AddFloat(boar.scale);
+            hash.AddEnum(boar.behavior);
+            hash.AddByte(boar.colorVariant);
+        }
+
         hash.AddSize(world.crabs.Crabs().size());
         for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
             const island::CrabState& crab = world.crabs.Crabs()[index];
@@ -450,6 +467,7 @@ namespace
             && world.butterflies.Homes().size()
                 == island::ButterflyMeadow::ButterflyCount
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
+            && world.boars.Boars().size() == island::BoarHerd::BoarCount
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
@@ -544,6 +562,13 @@ namespace
                 && sample.signedShoreDistance
                     >= island::ButterflyMeadow::MinimumInlandDistance;
         }
+        for (const auto& boar : world.boars.Boars()) {
+            finiteSpecializedData = finiteSpecializedData
+                && AllFinite(boar.x, boar.y, boar.z, boar.homeX, boar.homeZ,
+                             boar.headingRadians, boar.scale, boar.speed, boar.rootingPose)
+                && boar.scale > 0.0f && world.boars.IsValidGround(boar.x, boar.z)
+                && std::hypot(boar.x - boar.homeX, boar.z - boar.homeZ) <= island::BoarHerd::HomeRadius;
+        }
         for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
             const island::CrabState& crab = world.crabs.Crabs()[index];
             const island::CrabHomeRange& home = world.crabs.Homes()[index];
@@ -612,6 +637,32 @@ namespace
         return output.str();
     }
 
+    template<typename Placements>
+    void WriteRootGaps(std::ostream& output, const Placements& plants,
+                       const island::RenderedTerrainSurface& surface, const bool grounded = false)
+    {
+        float minimum = std::numeric_limits<float>::max();
+        float maximum = std::numeric_limits<float>::lowest();
+        double squareSum = 0.0;
+        std::size_t floating = 0, buried = 0;
+        for (const auto& plant : plants) {
+            // Signed translation of the mesh origin, not the whole plant footprint.
+            const auto rendered = grounded ? island::GroundJunglePlacement(plant, surface) : plant;
+            const float gap = rendered.y - surface.Sample(plant.x, plant.z).height;
+            minimum = std::min(minimum, gap);
+            maximum = std::max(maximum, gap);
+            squareSum += static_cast<double>(gap) * gap;
+            floating += gap > 0.02f;
+            buried += gap < -0.02f;
+        }
+        output << "{\"count\":" << plants.size()
+               << ",\"minimumMeters\":" << (plants.empty() ? 0.0f : minimum)
+               << ",\"maximumMeters\":" << (plants.empty() ? 0.0f : maximum)
+               << ",\"rmsMeters\":" << (plants.empty() ? 0.0 : std::sqrt(squareSum / plants.size()))
+               << ",\"floatingOverTwoCentimeters\":" << floating
+               << ",\"buriedOverTwoCentimeters\":" << buried << '}';
+    }
+
     void WriteReport(std::ostream& output, const WorldSnapshot& world,
                      const TerrainStatistics& terrain, const std::uint64_t fingerprint,
                      const bool valid)
@@ -652,13 +703,50 @@ namespace
                << "      \"steepGround\": " << terrain.surfaceCounts[6] << "\n"
                << "    }\n"
                << "  },\n"
+               << "  \"analyticJungleRootGaps\": {\n";
+        const island::RenderedTerrainSurface renderedSurface(world.terrain);
+        output << "    \"canopy\": ";
+        WriteRootGaps(output, world.jungle.Canopy(), renderedSurface);
+        output << ",\n    \"understory\": ";
+        WriteRootGaps(output, world.jungle.Understory(), renderedSurface);
+        output << ",\n    \"bushes\": ";
+        WriteRootGaps(output, world.jungle.Bushes(), renderedSurface);
+        output << ",\n    \"groundPlants\": ";
+        WriteRootGaps(output, world.jungle.GroundPlants(), renderedSurface);
+        output << "\n  },\n  \"renderedJungleRootGaps\": {\n    \"canopy\": ";
+        WriteRootGaps(output, world.jungle.Canopy(), renderedSurface, true);
+        output << ",\n    \"understory\": ";
+        WriteRootGaps(output, world.jungle.Understory(), renderedSurface, true);
+        output << ",\n    \"bushes\": ";
+        WriteRootGaps(output, world.jungle.Bushes(), renderedSurface, true);
+        output << ",\n    \"groundPlants\": ";
+        WriteRootGaps(output, world.jungle.GroundPlants(), renderedSurface, true);
+        output << "\n  },\n"
                << "  \"placements\": {\n"
                << "    \"palms\": " << world.palms.Palms().size() << ",\n"
                << "    \"grassPatches\": " << world.grass.Patches().size() << ",\n"
-               << "    \"canopyTrees\": " << world.jungle.Canopy().size() << ",\n"
+               << "    \"canopyTrees\": " << world.jungle.Canopy().size() << ",\n";
+        // Outermost representatives reduce foreground canopy obstruction for the explicit
+        // elevated LOD camera. Actual screenshots must still establish visible coverage.
+        output << "    \"canopyReviewTargets\": [";
+        for (int variant = 0; variant < island::JungleLayout::CanopyVariantCount; ++variant) {
+            const island::CanopyPlacement* selected = nullptr;
+            for (const auto& tree : world.jungle.Canopy())
+                if (tree.variant == variant && (!selected
+                    || std::hypot(tree.x, tree.z) > std::hypot(selected->x, selected->z))) selected = &tree;
+            if (!selected) throw std::runtime_error("Missing canopy review variant");
+            if (variant) output << ',';
+            output << "{\"variant\":" << variant << ",\"xMillimetres\":" << std::lround(selected->x * 1000)
+                   << ",\"zMillimetres\":" << std::lround(selected->z * 1000) << '}';
+        }
+        output << "],\n"
                << "    \"understoryPlants\": " << world.jungle.Understory().size() << ",\n"
                << "    \"bushes\": " << world.jungle.Bushes().size() << ",\n"
                << "    \"groundPlants\": " << world.jungle.GroundPlants().size() << ",\n"
+               << "    \"clearingBushes\": " << world.jungle.ClearingBushCount() << ",\n"
+               << "    \"clearingGroundPlants\": " << world.jungle.ClearingGroundPlantCount() << ",\n"
+               << "    \"forestFloorColonies\": " << world.jungle.ForestColonies().size() << ",\n"
+               << "    \"forestFloorCompanions\": " << world.jungle.ForestGroundPlantCount() << ",\n"
                << "    \"rocks\": " << world.props.Rocks().size() << ",\n"
                << "    \"offshoreRocks\": " << CountOffshoreRocks(world) << ",\n"
                << "    \"fallenLogs\": " << world.props.FallenLogs().size() << ",\n"
@@ -689,6 +777,7 @@ namespace
                << "    \"butterflies\": "
                << world.butterflies.Butterflies().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
+               << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"

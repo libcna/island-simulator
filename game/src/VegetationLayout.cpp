@@ -96,6 +96,21 @@ namespace island
                    < WestClearing.radius * WestClearing.radius;
     }
 
+    bool VegetationLayout::OverlapsReservedRoute(float x, float z, float radius) noexcept
+    {
+        if (!std::isfinite(x) || !std::isfinite(z) || !std::isfinite(radius) || radius < 0)
+            return true;
+        for (const auto clearing : {EastClearing, WestClearing, ClearingDefinition{0, -225, 17}}) {
+            if (std::hypot(x - clearing.x, z - clearing.z) <= clearing.radius + radius) return true;
+        }
+        // |dx - path'(z)*dz| <= radius*sqrt(1 + maximumDerivative^2). Expanding both
+        // path ends is conservative too, without an iterative closest-point approximation.
+        constexpr float derivative = PrimaryPathAmplitude * PrimaryPathFrequency;
+        const float horizontalMargin = radius * std::sqrt(1 + derivative * derivative);
+        return z >= PrimaryPathMinimumZ - radius && z <= PrimaryPathMaximumZ + radius
+            && std::abs(x - PrimaryPathCenterX(z)) <= PrimaryPathReservedHalfWidth + horizontalMargin;
+    }
+
     VegetationLayout::VegetationLayout(const IslandTerrain& terrain, const std::uint32_t seed)
     {
         palms_.reserve(384U);

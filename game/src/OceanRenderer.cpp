@@ -1,9 +1,11 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/CoastalMaterial.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
+#include "IslandSimulator/OceanWaveSpectrum.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 
@@ -44,6 +46,14 @@ namespace island
     {
         constexpr const char* GrazingReflectionDiagnostic =
             "island-simulator: ocean grazing reflection bands reuse analytic slope field";
+        constexpr const char* SurfaceSpectrumDiagnostic =
+            "island-simulator: ocean shared nine-wave spectrum uses filtered short-wave normals";
+        constexpr const char* CoastalOpticsDiagnostic =
+            "island-simulator: ocean shallow attenuation uses interpolated bed depth and contact fade";
+        constexpr const char* SurfaceContrastDiagnostic =
+            "island-simulator: ocean bounded grazing contrast and depth-limited filtered breaker foam";
+        constexpr const char* WindPacketDiagnostic =
+            "island-simulator: ocean short waves use phased wind packets with analytic envelope gradients";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -54,17 +64,8 @@ uniform float uTime;
 
 out vec3 vWorld;
 out vec3 vVertexTint;
-out float vShallow;
-out float vShoreFoam;
-
-float oceanHeight(vec2 p, float time)
-{
-    float height = 0.0;
-    height += sin(dot(p, vec2(0.061, 0.031)) + time * 0.72) * 0.105;
-    height += sin(dot(p, vec2(-0.093, 0.074)) + time * 0.96 + 1.7) * 0.060;
-    height += sin(dot(p, vec2(0.148, -0.116)) + time * 1.31 + 3.2) * 0.028;
-    return height;
-}
+out float vBedHeight;
+out float vShoreDistance;
 
 void main()
 {
@@ -72,8 +73,8 @@ void main()
     world.y += oceanHeight(world.xz, uTime);
     vWorld = world;
     vVertexTint = aColor.rgb;
-    vShallow = aWaterData.x;
-    vShoreFoam = aWaterData.y;
+    vBedHeight = aWaterData.x;
+    vShoreDistance = aWaterData.y;
     gl_Position = uViewProjection * vec4(world, 1.0);
     // CNA projection matrices follow XNA's [0, 1] depth convention. Custom GLSL uses GL's
     // [-1, 1] clip depth, so perform the same remap as CNA's stock effects.
@@ -84,8 +85,8 @@ void main()
         constexpr const char* FragmentBody = R"(
 in vec3 vWorld;
 in vec3 vVertexTint;
-in float vShallow;
-in float vShoreFoam;
+in float vBedHeight;
+in float vShoreDistance;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -95,24 +96,10 @@ uniform float uPlayerRippleIntensity;
 uniform float uPlayerRipplePhase;
 uniform float uPlayerSplashIntensity;
 uniform float uPlayerSplashPhase;
+uniform vec4 uCoastalOptics;
+uniform vec4 uSurfaceAppearance;
 
 out vec4 fragColor;
-
-vec2 oceanSlope(vec2 p, float time)
-{
-    vec2 slope = vec2(0.0);
-    vec2 d0 = vec2(0.891, 0.453);
-    vec2 d1 = vec2(-0.783, 0.622);
-    vec2 d2 = vec2(0.787, -0.617);
-    vec2 d3 = vec2(-0.360, -0.933);
-    vec2 d4 = vec2(0.514, 0.858);
-    slope += d0 * (0.105 * 0.068) * cos(dot(p, d0) * 0.068 + time * 0.72);
-    slope += d1 * (0.060 * 0.119) * cos(dot(p, d1) * 0.119 + time * 0.96 + 1.7);
-    slope += d2 * (0.028 * 0.188) * cos(dot(p, d2) * 0.188 + time * 1.31 + 3.2);
-    slope += d3 * (0.014 * 0.370) * cos(dot(p, d3) * 0.370 + time * 1.83 + 0.8);
-    slope += d4 * (0.008 * 0.710) * cos(dot(p, d4) * 0.710 + time * 2.27 + 4.1);
-    return slope;
-}
 
 float playerRippleBand(float distanceToPlayer, float phase)
 {
@@ -143,13 +130,25 @@ float playerSplashBand(vec2 playerOffset, float phase)
 
 void main()
 {
-    vec2 slope = oceanSlope(vWorld.xz, uTime);
-    vec3 normal = normalize(vec3(-slope.x, 1.0, -slope.y));
-    vec3 toEye = normalize(uCameraPosition - vWorld);
+    float waterDepth = max(vWorld.y - vBedHeight, 0.0);
+    float vShallow = exp(-waterDepth * uCoastalOptics.y);
+    float vShoreFoam = exp(-abs(vShoreDistance) / uSurfaceAppearance.w)
+        * (1.0 - smoothstep(uSurfaceAppearance.y, uSurfaceAppearance.z, waterDepth));
+    float contactCoverage = smoothstep(0.0, uCoastalOptics.z, waterDepth);
+    vec4 waveSlopes = oceanSlopes(vWorld.xz, uTime, dFdx(vWorld.xz), dFdy(vWorld.xz));
+    vec2 slope = waveSlopes.xy;
+    vec2 surfaceSlope = slope + waveSlopes.zw;
+    vec3 normal = normalize(vec3(-surfaceSlope.x, 1.0, -surfaceSlope.y));
+    float distanceToCamera = length(vWorld - uCameraPosition);
+    vec3 toEye = (uCameraPosition - vWorld) / max(distanceToCamera, 0.0001);
     vec3 toSun = normalize(uToSun);
-    vec3 halfwayDirection = normalize(toEye + toSun);
+    vec3 halfwayDirection = (toEye + toSun) / max(length(toEye + toSun), 0.0001);
 
-    float viewFacing = clamp(dot(normal, toEye), 0.0, 1.0);
+    // Use the broad surface for integrated Fresnel coverage. Applying the nonlinear alpha
+    // floor to each tiny shading ripple turns the few analytic carriers into opaque stripes.
+    // Complete packet normals still drive reflected direction and sunlight glints.
+    vec3 coverageNormal = normalize(vec3(-slope.x, 1.0, -slope.y));
+    float viewFacing = clamp(dot(coverageNormal, toEye), 0.0, 1.0);
     float fresnel = 0.025 + 0.975 * pow(1.0 - viewFacing, 5.0);
     vec3 reflected = reflect(-toEye, normal);
     float horizon = pow(1.0 - clamp(reflected.y, 0.0, 1.0), 1.7);
@@ -162,15 +161,20 @@ void main()
     water += vec3(0.015, 0.070, 0.075) * max(dot(normal, toSun), 0.0);
     water = mix(water, reflectedSky, fresnel * 0.72);
 
-    float crossingWaves = 0.50
-        + 0.27 * sin(dot(vWorld.xz, vec2(0.48, 0.19)) - uTime * 0.82)
-        + 0.23 * sin(dot(vWorld.xz, vec2(-0.27, 0.57)) - uTime * 0.61 + 1.8);
-    float distanceToCamera = length(vWorld - uCameraPosition);
+    // Evaluate derivatives before player/material branches; unresolved colour waves fade to
+    // their mean instead of producing screen-space stripes at grazing angles.
+    float phaseA = dot(vWorld.xz, vec2(0.48, 0.19)) - uTime * 0.82;
+    float phaseB = dot(vWorld.xz, vec2(-0.27, 0.57)) - uTime * 0.61 + 1.8;
+    float continuityPhase = dot(vWorld.xz, vec2(0.91, -0.43)) + uTime * 0.36;
+    float weightA = oceanWaveFilter(max(abs(dFdx(phaseA)), abs(dFdy(phaseA))));
+    float weightB = oceanWaveFilter(max(abs(dFdx(phaseB)), abs(dFdy(phaseB))));
+    float continuityWeight = oceanWaveFilter(max(abs(dFdx(continuityPhase)), abs(dFdy(continuityPhase))));
+    float crossingWaves = 0.50 + 0.27 * sin(phaseA) * weightA + 0.23 * sin(phaseB) * weightB;
     float waveDetailFade = 1.0 - smoothstep(135.0, 420.0, distanceToCamera);
     vec2 planarEye = toEye.xz;
     vec2 planarEyeDirection = planarEye / max(length(planarEye), 0.0001);
-    float glancingSlope = dot(slope, planarEyeDirection);
-    float reflectionRipple = glancingSlope / (0.010 + abs(glancingSlope));
+    float glancingSlope = dot(surfaceSlope, planarEyeDirection);
+    float reflectionRipple = glancingSlope / (uSurfaceAppearance.x + abs(glancingSlope));
     float grazingWeight = smoothstep(0.16, 0.86, 1.0 - viewFacing)
         * waveDetailFade * mix(0.58, 1.0, clamp(vShallow, 0.0, 1.0));
     water += vec3(0.032, 0.076, 0.090) * reflectionRipple * grazingWeight;
@@ -200,8 +204,7 @@ void main()
 
     float foam = clamp(vShoreFoam, 0.0, 1.0)
         * smoothstep(0.47, 0.79, crossingWaves + length(slope) * 4.2);
-    float foamContinuity = 0.5 + 0.5
-        * sin(dot(vWorld.xz, vec2(0.91, -0.43)) + uTime * 0.36);
+    float foamContinuity = 0.5 + 0.5 * sin(continuityPhase) * continuityWeight;
     foam *= 0.16 + 0.84 * foamContinuity * foamContinuity;
     if (uPlayerRippleIntensity > 0.001) {
         vec2 playerOffset = vWorld.xz - uPlayerWaterPosition;
@@ -230,15 +233,18 @@ void main()
     float fog = smoothstep(300.0, 760.0, distanceToCamera);
     water = mix(water, vec3(0.53, 0.78, 0.88), fog);
 
-    float alpha = mix(0.91, 0.49, clamp(vShallow, 0.0, 1.0));
+    float alpha = uCoastalOptics.w * (1.0 - exp(-waterDepth * uCoastalOptics.x));
+    // Grazing sky reflection should not inherit the clear lagoon's downward-view transparency.
+    alpha = max(alpha, fresnel * 0.92);
     alpha = mix(alpha, 0.95, foam);
     alpha = mix(alpha, 0.96, fog);
+    alpha *= contactCoverage;
     // BlendState::AlphaBlend uses premultiplied colour, matching XNA semantics.
     fragColor = vec4(water * alpha, alpha);
 }
 )";
 
-        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
+        [[nodiscard]] std::string ShaderSource(const bool embedded, const std::string& body)
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\n") + body;
@@ -253,25 +259,22 @@ void main()
                 {
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Vertex, "main",
-                                  "ocean/ocean.es.vert.glsl", ShaderSource(true, VertexBody)),
+                                  "ocean/ocean.es.vert.glsl",
+                                  ShaderSource(true, OceanDisplacementGlsl() + VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "ocean/ocean.es.frag.glsl", ShaderSource(true, FragmentBody)),
+                                  "ocean/ocean.es.frag.glsl",
+                                  ShaderSource(true, OceanSlopesGlsl() + FragmentBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Vertex, "main",
-                                  "ocean/ocean.desktop.vert.glsl", ShaderSource(false, VertexBody)),
+                                  "ocean/ocean.desktop.vert.glsl",
+                                  ShaderSource(false, OceanDisplacementGlsl() + VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "ocean/ocean.desktop.frag.glsl", ShaderSource(false, FragmentBody)),
+                                  "ocean/ocean.desktop.frag.glsl",
+                                  ShaderSource(false, OceanSlopesGlsl() + FragmentBody)),
                 },
                 {CNA::ShaderStageEXT::Vertex, CNA::ShaderStageEXT::Fragment});
-        }
-
-        [[nodiscard]] float SmoothStep(const float edge0, const float edge1,
-                                       const float value) noexcept
-        {
-            const float t = std::clamp((value - edge0) / (edge1 - edge0), 0.0f, 1.0f);
-            return t * t * (3.0f - 2.0f * t);
         }
 
         [[nodiscard]] Color WaterVertexColor(const float shallow)
@@ -329,10 +332,18 @@ void main()
                       << "island-simulator: ocean shallow ridge light reuses animated slope field\n"
                       << "island-simulator: ocean sunward ripple crests reuse analytic slope field\n"
                       << GrazingReflectionDiagnostic << '\n'
+                      << SurfaceSpectrumDiagnostic << '\n'
+                      << CoastalOpticsDiagnostic << '\n'
+                      << SurfaceContrastDiagnostic << '\n'
+                      << WindPacketDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
             MirrorRuntimeDiagnosticToPlatformLog(GrazingReflectionDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(SurfaceSpectrumDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(CoastalOpticsDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(SurfaceContrastDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(WindPacketDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';
@@ -354,10 +365,9 @@ void main()
             for (int column = 0; column < verticesPerAxis; ++column) {
                 const float x = OceanMeshLayout::Coordinate(column, quadsPerAxis_);
                 const TerrainSample sample = terrain.Sample(x, z);
-                const float shallow = SmoothStep(-8.0f, -0.05f, sample.height);
-                const float shoreFoam = std::exp(-std::abs(sample.signedShoreDistance) / 10.0f);
+                const float shallow = CoastalWaterOptics::LagoonWeight(-sample.height);
                 vertices.emplace_back(Vector3(x, 0.0f, z), WaterVertexColor(shallow),
-                                      Vector2(shallow, shoreFoam));
+                                      Vector2(sample.height, sample.signedShoreDistance));
             }
         }
 
@@ -418,6 +428,12 @@ void main()
                 "uToSun", environment::SunDirectionX, environment::SunDirectionY,
                 environment::SunDirectionZ);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
+            customEffect_->SetUniformVec4("uCoastalOptics", CoastalWaterOptics::ExtinctionPerMetre,
+                CoastalWaterOptics::LagoonDecayPerMetre, CoastalWaterOptics::ContactFadeDepth,
+                CoastalWaterOptics::MaximumBodyOpacity);
+            customEffect_->SetUniformVec4("uSurfaceAppearance", CoastalSurfaceAppearance::ReflectionSlopeSoftness,
+                CoastalSurfaceAppearance::FoamFullDepth, CoastalSurfaceAppearance::FoamEndDepth,
+                CoastalSurfaceAppearance::FoamShoreDecayMetres);
             customEffect_->SetUniformVec2("uPlayerWaterPosition", playerX, playerZ);
             customEffect_->SetUniformFloat(
                 "uPlayerRippleIntensity",

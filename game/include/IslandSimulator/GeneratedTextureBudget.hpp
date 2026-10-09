@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include "IslandSimulator/ForestFloorPixels.hpp"
+#include "IslandSimulator/LeafSurfaceModel.hpp"
 
 namespace island
 {
@@ -17,6 +19,15 @@ namespace island
         static constexpr int WaterViewHeight = 90;
         static constexpr int SolidWhiteTextureSize = 1;
         static constexpr int SolidWhiteTextureCount = 2;
+        static constexpr int CanopyLightSize = 1024;
+        static constexpr int BoarCoatSize = 128;
+        // One shared map for grass roots and jungle litter; retain established budget names.
+        static constexpr int GrassHeightSize = 241;
+        static constexpr std::size_t GrassHeightRgba8Bytes =
+            static_cast<std::size_t>(GrassHeightSize) * GrassHeightSize * BytesPerPixel;
+        static constexpr std::size_t BoarCoatRgba8Bytes = BoarCoatSize * BoarCoatSize * BytesPerPixel;
+        static constexpr std::size_t CanopyLightRgba8Bytes =
+            static_cast<std::size_t>(CanopyLightSize) * CanopyLightSize * BytesPerPixel;
 
         static constexpr std::size_t TotalPixelCount =
             static_cast<std::size_t>(DebugAtlasWidth * DebugAtlasHeight)
@@ -24,11 +35,18 @@ namespace island
                                        * TouchCircleTextureCount)
             + static_cast<std::size_t>(WaterViewWidth * WaterViewHeight)
             + static_cast<std::size_t>(SolidWhiteTextureSize * SolidWhiteTextureSize
-                                       * SolidWhiteTextureCount);
+                                       * SolidWhiteTextureCount)
+            + static_cast<std::size_t>(CanopyLightSize * CanopyLightSize)
+            + static_cast<std::size_t>(BoarCoatSize * BoarCoatSize)
+            + static_cast<std::size_t>(GrassHeightSize * GrassHeightSize);
         static constexpr std::size_t TotalRgba8Bytes =
             TotalPixelCount * static_cast<std::size_t>(BytesPerPixel);
+        // All game texture payloads, including the file-backed floor and leaf mip chains.
+        // Excludes decoder temporaries, CNA CPU shadows, driver padding and framebuffer storage.
+        static constexpr std::size_t TotalRuntimeRgba8Bytes =
+            TotalRgba8Bytes + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes;
     };
 
-    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 143624U,
+    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4635788U,
                   "Update the generated texture audit when the base-level payload changes");
 }

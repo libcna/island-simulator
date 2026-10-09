@@ -192,7 +192,14 @@ repository. Developers may instead provide a separate read-only CNA `next` check
 
 The current game has no runtime dependency on its process working directory or on an absolute
 developer path. Portable shader sources are embedded in their owning renderers, while meshes,
-small textures, and PCM audio are generated deterministically during startup. Source-side asset
+most small textures, and PCM audio are generated deterministically during startup. One file-backed
+floor material uses `TitleContainer` to load `Content/terrain/forest-floor.png` relative to the title,
+not the current directory. Native install, Web preload and Android AssetManager package that exact
+path. `ForestFloorMaterial` owns and uploads the full mip chain; failed loading logs its path and
+retains procedural soil. A one-time CNA capability query selects the immutable 4x anisotropic
+clamp sampler where supported, otherwise ordinary trilinear clamp; explicit gradients and all
+mip levels remain unchanged. See `forest-floor-material-review.md` for sampling and transient memory.
+Source-side asset
 provenance files and Web packaging templates are development inputs rather than files opened by a
 running game.
 
@@ -307,13 +314,46 @@ retaining cell-granular culling. Fixed daylight is currently baked into procedur
 palm vertex colours. Terrain, ocean, and sky share one project-owned fixed sun direction so the
 surface lighting, water glint, and visible sun cannot silently diverge.
 
+Terrain uses a standard-layout 28-byte upload: float3 position, four opaque RGBA bytes, then
+float3 shore distance/slope/daylight. A three-element CNA declaration uses offsets 0/12/16;
+compile-time layout assertions and a runtime declaration-stride check protect uploads. Compared
+with the previous 24-byte vertex, the one shared buffer adds 232,324 bytes (1,626,268 total).
+`TerrainDaylight` preserves the existing bounded fixed-sun response and rejects non-unit/non-finite
+normals before upload. CPU tests compare every rendered-grid sample with CNA's legacy calculation
+and every possible RGB byte. RGB remains prelit and alpha 255 for the untextured/unlit BasicEffect
+fallback; EasyGL's inspected stock coloured program requires only position and colour, not UV.
+This is source/CPU compatibility evidence, not a newly forced fallback runtime test.
+
+The custom shader interpolates the separate daylight float and applies it only to replacement
+palette colours and additive albedo variation. Multiplicative variation already follows lit RGB;
+it is not lit twice. Sand flecks, humus, moss, clearing/path earth and fallen leaves now agree with
+the slope instead of overwriting its light. Canopy transmission still applies afterwards, as do
+fog and the separate view-dependent wet-sand sheen. This adds one varying, no normal attribute,
+texture or draw. It does not add terrain cast shadows or change the existing analytic clod-relief
+approximation; physical-GPU memory/fragment cost and Android execution remain unqualified.
+
 The portable terrain material reconstructs broad, medium, and fine world-space variation from
 the same interpolated shore-distance and slope fields on GLSL 330 and GLSL ES 300. Inside the
-jungle belt, a 24--68 m camera fade bounds an additional microvariation octave and two sparse
+jungle belt, a 24--68 m camera fade bounds an additional microvariation octave and two
 deterministic leaf-litter grids. Each litter cell derives position, scale, bend, orientation, and
-presence from one hash; pointed curved silhouettes replace the rejected first oval pass. This
+presence from one hash; pointed curved silhouettes replace the rejected first oval pass. Warm
+humus now dominates the exposed forest floor, with a narrower cool-moss region instead of a
+nearly continuous green substrate. Two dry/decayed leaf populations have per-leaf colour,
+restrained fold/midrib shading, and footprint-filtered edges/detail. World-position derivatives
+are evaluated before any material branch. At maximum size, bend, filtering and jitter, a leaf's
+conservative axis extent is 0.48086 cell units, below the 0.5 boundary: single-cell evaluation
+does not cut off a neighbouring leaf. Entire leaves fade as they become subpixel, independently
+of the existing camera-distance fade; this is not a claim of fully shimmer-free camera motion.
+They remain flat material marks, not displaced geometry or physical leaf self-shadowing. This
 detail uses no texture, geometry, asset, or draw submission, does not alter authoritative terrain
-queries, and disappears before it can alias into mid-distance scenery.
+queries, and reduces unresolved detail before mid-distance scenery. Broad substrate identity
+does not fade with camera distance: humus, moss, clearings and paths remain beyond 285 m instead
+of reverting to the legacy green vertex palette. Broad/medium value noise attenuates between
+0.18 and 0.50 cells per pixel; the fine sinusoidal product additionally retains the 95--285 m
+detail fade. The path edge widens with pixel footprint. Close detail and fog retain their separate
+fades. The two broad noise fields can now execute beyond 285 m; this adds fragment arithmetic but
+no resource, varying or submission. Continuous moving-camera appearance and physical-GPU cost
+still need broader review.
 
 The beach branch adds one close-only value-noise octave to break up otherwise flat dry sand. A
 second bounded term follows the interpolated authoritative signed shore distance, so its broken
@@ -327,15 +367,41 @@ soft edge avoids derivative work and keeps the branch valid in GLSL 330 and GLSL
 dry-substrate branch avoids both grid evaluations outside that close dry-beach region. This layer
 is material-only and remains separate from the larger instanced shell/pebble prop clusters.
 
-The same material reuses its already-computed broad, medium, and fine fields for a restrained
-fixed-sun floor-dapple pass. It begins 34 m inland, fades in through 68 m, rejects fully steep
-ground, and shares the existing 95--285 m detail fade. A coherent early branch avoids the extra
-colour shaping on shore, distant, and fully steep fragments. The effect is static material
-breakup suited to the permanent daylight art direction, not a claim of geometric canopy shadowing.
+Terrain, grass and low jungle layers share a static canopy transmission texture, replacing the earlier noise-only
+floor-dapple approximation. `CanopyProfile` supplies the same eight crown lobes used by each
+near tree mesh. `CanopyLightField` integrates forward sun-ray lengths through porous ellipsoids
+at terrain-height texel centres; bounded projected caster rectangles avoid an all-pairs bake.
+The 1024-square field covers 600 m and uses linear-clamped sampling. The GPU adapter uploads
+one RGBA8 texture (4 MiB), lives longer than all receivers, and adds no draw submission.
+Grass and low jungle plants project elevated samples back along the sun ray before lookup.
+Jungle instances supply their ground-anchor height from the existing transform; the uniform
+receiver switch is reset before crown draws every frame and enabled only for understory,
+bushes and ground plants. The same shared GLSL helper keeps grass/plant projection consistent.
+Ambient cool
+skylight remains in full shade. This is approximate fixed canopy shading, not animated,
+leaf-exact shadows: palms do not cast into it, and wildlife other than boars/monkeys does not yet receive it. Projecting
+onto each low receiver's ground-anchor plane is approximate on sloping terrain. Crown
+self-shadowing is deliberately excluded because a ground field cannot represent it correctly.
+Material noise still describes soil variation, but no longer invents independent sun patches.
+
+`CanopyLighting` also retains the immutable one-byte CPU field (1 MiB) for boar and monkey receivers.
+`CanopyLightField::SampleReceiver` uses the same fixed-sun projection and bilinear texel mapping
+as the GLSL helper. Boar mesh construction attenuates each already-lit vertex colour, preserving
+alpha, curved-body shading and the existing BasicEffect single-batch path. The shared ambient
+tint constants also feed the GPU uniform, preventing CPU/GPU tint drift. No extra GPU buffer,
+shader, texture or draw is added; the CPU field owner outlives the boar renderer. This is still
+a ground-plane approximation and triangle-interpolated light, not per-pixel shadow mapping.
+
+Monkeys keep CNA's stock `SkinnedEffect`: a five-tap spatial average around each body's elevated
+centre tints fur/face/eye diffuse colours, while direct specular strength follows transmission.
+The footprint is scaled with the animal but independent of camera, LOD and animation pose. It
+avoids a hard whole-body cell switch, but remains a uniform body-light approximation rather
+than articulated per-limb shadows. Bone transforms, animation playback, textures and draw counts
+are unchanged. The initial visible-scene diagnostic reports sampled transmission extrema.
 
 Deeper inland, the shader also reuses those three fields to prevent the grass substrate from
-remaining one uniform saturated green. A 24--54 m shoreline-distance transition, slope rejection,
-the existing camera-detail fade, and clearing suppression bound a modest dry leaf-humus tint and a
+remaining one uniform saturated green. A 24--54 m shoreline-distance transition,
+slope rejection and clearing suppression bound a dry leaf-humus tint and a
 separate cool-moss tint. The base substrate receives a restrained warm desaturation first, so the
 two irregular classifications remain readable without looking like decals. This pass adds no
 noise evaluation, texture, varying, mesh, allocation, collision rule, or draw submission, and the
@@ -357,8 +423,8 @@ reservation, F7/F8 teleports, fixed QA cameras, tests, and terrain rendering con
 definitions. The shader evaluates only the relevant clearing for each side of the island and uses
 squared distance plus existing noise to avoid a per-fragment square root while retaining a soft,
 irregular edge. The larger east room receives a restrained warm, dry tint and reduced litter; the
-smaller west room receives a darker leaf-rich tint and increased litter. Both suppress the static
-canopy dapple inside their open centres and retain short grass. No texture, geometry, placement,
+smaller west room receives a darker leaf-rich tint and increased litter. Both retain short grass;
+their lighting now follows actual crown placement. No clearing-specific texture, geometry, placement,
 collision, instance, or draw submission is added. A later composition pass strengthened the east
 blend and reuses both already-computed broad and medium fields so its warm olive identity remains
 legible against surrounding forest soil without becoming a hard circular or sand-coloured patch.
@@ -375,14 +441,40 @@ layout is deterministic and renderer-independent, while the rendering path uses 
 custom shader, instancing requirement, or modern-only feature.
 
 `ContactShadowRenderer` provides a deliberately bounded alternative to a full shadow map. It
-precomputes twelve-segment terrain-conforming soft ellipses for every palm, canopy trunk, land
-rock, fallen log, and driftwood item, then generates the same form for the seven moving monkeys.
+precomputes twelve-segment soft ellipses for every palm, canopy trunk, land rock, fallen log,
+and driftwood item, then generates the same form for the moving monkeys and boars.
 Only frustum-visible instances inside class-specific 78--105 m ranges enter one premultiplied-alpha
 `BasicEffect` batch. Alpha fades over the outer 22 percent of each range. Cached geometry is
 refreshed after 0.25 m of camera motion, a small view/projection change, or 0.08 m of monkey motion;
 this keeps close grounding responsive while avoiding repeated procedural terrain sampling and
 per-frame buffer uploads at a nearly fixed view. The pass uses no textures, shadow maps, custom
 shader, or renderer-specific feature.
+
+The 201 land-rock/log/driftwood footprints use a compact twelve-sector, one-ring profile clipped
+against the rendered terrain triangles, rather than sampling only an analytic-height fan. Their
+20,304 vertices replace 7,236 old fan vertices (+209,088 bytes per packed vertex copy), with no
+extra draw or texture and unchanged 78 m range, radii and opacity. Tree and animal fans still use
+analytic heights. `WoodModelYaw` converts the placement/support/collision heading `(cos, sin)`
+to CNA's model-matrix yaw `(cos, -sin)` at both wood rendering boundaries. Rock model yaw is
+unchanged; its footprint follows the distinct negative-Z convention. This fixes a game-side
+model/proxy disagreement without relocating props or changing the world fingerprint. Tests cover
+every log collision sample, both heading signs, footprint area and terrain-plane conformity.
+
+Coastal grounding adds 28 static patches (14 offshore rocks, two separate hull halves, 12 debris
+pieces) to the same batch. `ContactShadowPatch` creates a 24-sector, three-ring soft footprint,
+clips each source triangle against the actual `TerrainMeshLayout` cell triangles, and interpolates
+their vertex heights with a 2.5 cm bias. Analytic terrain sampling alone would not match the rendered
+coarse seabed. Separate hull ellipses retain a >2 m gap; model-local X for rocks and local Z for
+hull/debris use their respective yaw conventions. Small fixed-sun biases improve grounding but
+do not claim full directional shadows, tilt-exact silhouettes or water refraction.
+
+The coastal addition is 23,970 vertices / 7,990 triangles (383,520 bytes per packed 16-byte vertex
+copy). It adds no texture or draw submission. Static bounds are derived from actual patch geometry,
+including projection offset and terrain slope, rather than the source object's pivot. One dynamic
+GPU buffer is allocated after the exact static geometry size is known, with reserved monkey/boar
+capacity; population and upload bounds are checked. Each vertex retains its own faded alpha, and
+coastal range is 110 m before platform scaling. The pass precedes opaque props and transparent
+water. `coastal_contact_shadows` in benchmark JSON and the runtime count identify this feature.
 
 `SkyRenderer` draws a camera-centred 900 m sphere before world geometry. Its GLSL 330 / GLSL ES
 300 fragment shader combines a horizon-to-zenith tropical gradient, warm sun disc and halo, and
@@ -434,7 +526,8 @@ restrained fixed-sun diffuse/fill term before the existing bark detail. Far palm
 fragment work, while no normal attribute or buffer is required.
 
 Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
-visible anchor instances one shared 42-blade near, ten-blade middle, or five-blade far cluster. A
+visible anchor instances one shared near cluster (42 tall/juvenile blades plus 48 low turf
+blades), ten-blade middle, or seven-blade far cluster. A
 stable per-patch ordering and renderer-independent smoothstep split progressively move each cell
 from near to middle across 62--78 m and middle to far across 86--102 m. This avoids both the old
 37.5 m whole-cell replacement and a direct extreme-mesh jump. Pure cells use one draw; a mixed
@@ -442,84 +535,405 @@ cell binds adjacent-tier ranges of the same instance buffer through two draws. N
 instance upload is required. The vertex
 shader reconstructs a terrain-aligned basis from the authoritative surface normal, applies
 independent height/spread/colour/phase variation, and adds a bounded two-frequency breeze. The
-near mesh interleaves seven shorter, narrower juvenile blades among 35 mature blades. Six mature
+near mesh interleaves seven shorter, narrower juvenile blades among 35 mature blades. Six selected
 blades carry small seed-bearing stems with six sparse spikelets each. They use the same opaque
-vertex format, packed facing, per-blade phase, wind shader, shared mesh, and instanced submission
+vertex format, per-blade phase, wind shader, shared mesh, and instanced submission
 as the blades. The existing per-instance colour value also seeds a portable per-blade stature,
 colour, and wind-amplitude offset, so repeated shared geometry retains distinct silhouettes
 without another attribute or instance upload. The
-path keeps denser but shorter turf rather than an artificial bare stripe. Distance colouring merges
-the far tier into the ground before culling. Each instance also carries one coherent cool-to-warm
+near roots now form seven asymmetric local tufts with populations 8/5/7/4/6/7/5. Different
+root spreads and outward blade headings avoid identical radial bouquets; short juvenile blades
+reach slightly outside each core. A shared per-tuft wind phase has small per-blade offsets,
+preserving coherent motion without synchronizing the whole patch. The renderer-independent
+`NearGrassBladePlacement` supplies the same 42 tall/juvenile blades, maximum root radius below
+1.02 m and unchanged five-level geometry. `NearGrassTurfBlade` distributes a separate layer of
+48 short, spreading blades over an irregularly facing golden-angle disk with root radius below
+1.10 m. Their nominal heights are 0.16--0.27 m before instance scale and terminal drop, with
+three cross-sections/three triangles each, with a shared pointed tip. One quarter has a restrained dry palette; wind and
+player-interaction weights scale with actual blade height rather than applying tall-blade tip
+displacement to the low layer. This adds 240 vertices and 144 triangles to the near mesh only,
+not another instance, buffer, attribute, texture or draw. Measured animation bounds include the
+larger spreading footprint. Middle/far meshes retain their old placement. Tests cover
+determinism, population, root separation, neighbour distance, phase bounds and sampled full-blade
+extents, every low strip's shared normals and low-layer index rejection. Moving-camera LOD
+continuity still needs targeted review. The
+path keeps denser but shorter turf rather than an artificial bare stripe. Blades retain their leaf
+material through distance changes instead of fading into a synthetic green ground palette at
+82--125 m. Actual soil remains visible through gaps; this does not fix geometry LOD/cull changes.
+Both custom and stock paths use terrain's atmospheric fog colour/range rather than green fake fog
+(custom smoothstep versus stock linear fog). Each instance also carries one coherent cool-to-warm
 biome value derived from shore distance and the shared route/clearing definitions. It makes coastal
 and path turf slightly drier, keeps the jungle cooler, gives the sunny east clearing an olive-gold
-identity, and makes the leaf-rich west clearing deeper and cooler. The fragment shader preserves
-that identity in its far-ground merge; the extra four-byte attribute does not change placement,
+identity, and makes the leaf-rich west clearing deeper and cooler. The vertex shader preserves
+that identity at all ranges; the existing four-byte attribute does not change placement,
 geometry, or placement counts. `GrassInteractionModel` eases a normalized envelope
 from horizontal player speed. The vertex shader retains a small 0.55 m stationary body radius and
 expands it to 1.35 m during fast walking, bending only blade tips outward and down before wind. The
-interaction shares every existing instance and draw. Near blades use five curved control levels;
-their six sparse seed heads and 14 selected V-fold ridges bring the shared cluster to 622 vertices
-and 496 triangles. The near profile is narrower than the middle tier, offsets its two edges by a
+interaction shares every existing instance and draw. Near blades use five curved control levels.
+
+Custom grass has a restrained basal pigment over the bottom 24% of each blade, evaluated per
+fragment so three- and five-level geometry do not stretch the colour transition differently.
+The otherwise unused packed vertex-alpha byte carries normalized material height, not opacity;
+the shader explicitly writes alpha one. A transient per-mesh height vector keeps wind weights
+separate: low turf reaches material height one at its tip despite its reduced wind amplitude,
+and seed heads remain at one. Upload checks the vector size and finite normalized range. The
+surface vertex now occupies 40 bytes and uses nine attributes including a signed across-blade
+coordinate; the instance remains 44 bytes. The across coordinate and existing stable blade phase
+feed footprint-filtered longitudinal veins, midrib and margin modulation. Seed heads use a
+separate tag and skip this detail. No texture or draw is added.
+`GrassMaterial.hpp` supplies CPU reference, validated encoding and locale-independent GLSL
+constants. Tests bound the three/five-level interpolated tint error below 0.0028 per channel.
+Custom RGB retains pigment but no longer includes fixed side/height shading; actual normals
+provide directional light and a separate normalized-height occlusion ranges from 0.62 to 1.
+Stock-effect mesh colours remain unchanged; the static fallback does not get
+the per-fragment basal pigment. Root colour is artistic material variation, not soil lighting
+or a substitute for cast/contact shadows. Normal deformation and distant density remain limited.
+See `grass-surface-material.md` for cost, filtering and validation scope.
+
+`GrassMotionBounds` derives conservative per-anchor boxes from measured maximum radius/height
+across all three uploaded meshes (including seed stems), instance scale and the shader's exact
+terrain-normal reconstruction. It adds the full bounded player push/lowering, wind vector and
+stature range, with a 1 cm numeric margin. The same constants generate locale-independent GLSL,
+so changing an amplitude changes both motion and bounds. This replaces the insufficient fixed
+x/z +/-1.4 m, y -0.08/+1.35 m box: even a sloped root could lie below the old minimum. Mesh
+generation rejects nonfinite or below-ground input before upload. The bounds also include the
+unanimated stock-effect fallback. Per-cell anchor bounds separately preserve the original LOD
+and distance reference; enlarging the animation envelope must not shift those decisions. Bounds
+are calculated only during setup, with no added GPU buffer, attribute or per-frame motion work.
+More correctly intersecting edge cells can now be submitted; this is not a draw-count reduction.
+CPU tests independently transform a containing cylinder through extreme slope, stature, scale,
+wind and player displacement, and cover old-box escapes, invalid inputs and GLSL constant mapping.
+
+The custom path now drapes each undeformed footprint onto the rendered terrain triangles before
+adding blade height and motion. `RenderedTerrainSurface` supplies a one-time 241x241 RGB24 height
+texture (232,324 RGBA8 bytes) through existing CNA APIs. Three `texelFetch` calls reconstruct a
+triangle, not a bilinear patch; no new attributes, draws or dynamic uploads are needed. Culling
+bounds additionally include all terrain grid heights covering each footprint. This fixes the
+analytic-anchor/tangent-plane mismatch measured in [the grounding audit](grass-grounding.md).
+The fallback remains approximate, and shading normals still approximate surface deformation.
+
+Opt-in `--input-diagnostics` appends the previous rendered grass near/middle/far populations,
+visible cell count and draw count to the existing player/camera samples. Canopy diagnostics
+serialize the actual previous near/far instance batches using stable millimetre X/Z identities.
+The parser rejects duplicate IDs and population mismatches; adjacent-sample comparisons ignore
+frustum entries/exits and count only changed tiers on a shared identity. Whole-cell culling can
+submit off-screen trees, and sampled states can miss intervening switches. These diagnostics
+perform no GPU queries and do not log during normal play.
+The software-only browser `grass-motion` scope uses these samples to drive real W/S traversal,
+learn stopping lead, allow bounded corrective attempts, capture seven stationary stages and
+reject lost input capture or invalid movement. Parser/control/review gates have CPU-only Node
+tests. A capped 640x360 compositor recording adds at most 240 JPEGs/16 MiB with timestamps and
+hashes; writes are acknowledged/drained and failures/truncation reported. Its telemetry
+association is approximate, not same-frame synchronization. Per-tree switches prove workload
+coverage, not smooth visual continuity; isolated full-resolution LOD comparisons remain needed.
+
+The custom grass path uses area-weighted shared rest-shape normals from the same indexed mesh,
+including folds, bent tips and seed stems. A 36-byte position/RGBA8/wind/normal vertex replaces
+the earlier 24-byte vertex with alpha-packed horizontal facing. Including the new low layer,
+the three meshes total 964 vertices (34,704 vertex bytes; low turf adds 8,640 vertex bytes
+and 864 index bytes). World placement and draw counts are unchanged. Eight attributes include
+the four unchanged instance attributes. Shader normals
+use inverse-transpose height/spread/stature scaling, then yaw and the terrain basis; the fragment
+shader renormalizes interpolation before two-sided lighting. Normal generation rejects nonfinite,
+degenerate or cancelling geometry before upload. CPU tests compare a bent V-fold strip under 36
+scale/yaw combinations with independently transformed triangles. Actual startup generates normals
+for every LOD vertex. This corrects rest curvature but does not yet deform normals with wind/player
+motion. The stock-effect path retains its original 24-byte unlit vertices.
+
+`GrassBladeForTier` selects middle/far representatives from the same seven near tufts.
+Roots, facing, source height/curvature, colour identity and wind phase are shared; all seven far
+representatives also exist in the ten-blade middle tier. Near geometry stays unchanged. Proxy
+widths retain 75% of each tuft's summed tall-blade upright area, assigning nearby source blades
+to representatives within their tuft. This is a width/height trapezoidal estimate, not
+view-independent projected coverage; it excludes low turf, seeds, lean and fold overlap.
+Proxies use three levels without V-folds. Middle and far each cover all seven tufts, but blade
+orientation, reduced curvature sampling and omitted low turf still cause visible LOD changes.
+Mesh inventories are logged: near 862 vertices/640 triangles, middle 60/40, far 42/28.
+Replacing the old five-blade far tier adds 12 vertices and eight triangles per far cluster
+(432 shared custom vertex bytes and 48 index bytes), without additional draws or textures.
+
+Near grass retains its 622-vertex/496-triangle tall/juvenile geometry, including six sparse seed
+heads and 14 selected V-fold ridges. The low layer brings the full near cluster to 862 vertices
+and 640 triangles. The near profile is narrower than the middle tier, offsets its two edges by a
 small deterministic asymmetric amount, varies its lateral bow, and gives a minority of blades a
-bent, slightly dropped tip. These are shared-mesh position changes: counts, instance data, wind
+bent, slightly dropped tip. `GrassBladeProfile` samples a local cross-section shared by mesh
+generation and CPU tests. Its near width narrows progressively through the upper half instead of
+remaining broad until the final segment. The seed stem uses the same terminal centre/ridge,
+including lateral bow, drop and fold; this removes the old 4--16 mm nominal-tip offset on five
+of the six seeded blades. Middle/far silhouettes retain their previous width profile. Invalid or
+overflowing inputs are rejected before GPU upload. These are shared-mesh position changes: counts, instance data, wind
 work, LOD thresholds, and submissions remain unchanged. Middle clusters use three levels and 40
 triangles, while the far tier uses three levels and 20 triangles.
-Blade
-orientation is packed into the otherwise-unused vertex alpha channel, avoiding another buffer
-attribute while enabling two-sided fixed-sun diffuse, subtle view-edge transmission, folded side
-colour, and root darkening. Native OpenGL 3.3 and WebGL 2 use the portable instanced shader; a
+The surface-normal attribute enables two-sided fixed-sun diffuse and subtle view-edge
+transmission alongside folded side colour and root darkening. Native OpenGL 3.3 and WebGL 2 use the portable instanced shader; a
 slower static `BasicEffect` path remains functional but omits bending and the fragment-lighting
 detail.
 
-The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 565 low bushes, and
-2,225 small forest-floor plants. Four
-canopy variants combine tapered trunks with irregularly scalloped crown clusters. Their near
-meshes add four/five short irregular buttress roots, seven tapered support branches, and eight
-pointed perimeter leaves. Near trunks retain their root/crown anchors while adding a bounded
-secondary growth bend, five-percent ring girth variation, and six-and-a-half-percent azimuthal
-variation. Each support branch now tapers through an off-axis middle ring, producing two visibly
-connected segments instead of one straight tube. This adds 28 vertices and 56 triangles per
-stored near variant (112 vertices and 224 triangles total), without changing the trunk vertex
-count, collision proxy, far mesh, buffer-object count, or submission count. Each near cluster also
+The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 578 low bushes, and
+3,148 small forest-floor plants. Thirteen shrubs and 57 small plants form local clearing-edge
+colonies on top of the unchanged base populations. Each clearing tests twelve jittered angular
+sectors, leaves deliberate gaps and varies radial offset. Accepted shrubs receive four to six
+candidate companions, mostly one leaf family with occasional contrast, varied scale/yaw and
+minimum root separation. Terrain and canopy-trunk checks may reject candidates; the hard limits
+are 24 added shrubs and 144 floor plants. No extra mesh, material or draw batch is introduced.
+Startup reports the added all-near/all-far triangle budgets from the actual current meshes,
+not a claim that all are simultaneously visible. Existing per-instance culling/LOD still applies.
+
+Canopy-associated forest colonies add another 866 small plants in 199 irregular
+elliptical groups. Each parent supplies independently hashed geometry and bounded
+candidate sites; smaller edge members and related species provide local variation.
+Their full footprints avoid routes/trunks, and the earlier clearing-accent bands
+remain unchanged. `ForestFloorColony` records parent and contiguous placement
+membership for tests and reports, while rendering reuses normal ground instances.
+See `forest-floor-colonies.md` for validation, measured submission cost and limitations.
+
+Jungle rendering now copies each layout placement through `GroundJunglePlacement`,
+anchoring its origin to the exact rendered triangle surface. A startup-only heap
+height cache is released after cell construction. Instance matrices and culling
+bounds consume the same corrected copy, while analytic layout/collision data stays
+unchanged. This does not drape full plant footprints; see `jungle-root-contact.md`.
+
+Near rosette litter now samples the existing RGB24 height texture per vertex,
+preserving its fold above the drawn triangles instead of the parent's horizontal
+plane. `RenderedTerrainHeightMap` owns that immutable texture once at application
+scope; grass and jungle borrow it and bind slot 1. Its owner outlives both renderers.
+Dry-litter tag 2 uses deformed geometric normals and expanded terrain-aware cell
+bounds without changing live foliage. See `fallen-leaf-contact.md` for tests and cost.
+
+`VegetationLayout::OverlapsReservedRoute` expands the two clearing circles and spawn circle by
+the complete plant footprint. It conservatively expands the bent path using its maximum
+derivative and both end caps; invalid input fails closed. The colony placement uses local radii
+2.1 m for shrubs and 1.4 m for floor plants, including wind, multiplied by instance scale.
+Renderer startup checks both actual LOD meshes against those envelopes. This new policy applies
+to colonies, not retroactively to all historical plants. Three-seed CPU tests cover budgets,
+locality, separation, canopy-trunk clearance and sampled footprints around path bends/ends.
+`--viewpoint clearing-edge` supplies a fixed close review camera; the normal centre camera hides
+most changes behind grass and is not sufficient quality evidence. The colony layout does not
+yet test palm/rock/log overlap or produce full botanical habitat simulation.
+
+Eight shared `CanopyProfile` forms now give trees spreading,
+upright, swept, divided, broad-low, narrow-high, hanging and open-fork crowns, rather than mostly
+scaling one umbrella silhouette. `CanopyFormCount` is shared by placement, geometry and leaf
+posture tables. Each form
+contains four structural groups, each split into two unequal lobes in both detail tiers. Both
+tiers use identical lobe anchors/dimensions, core scales and irregular contour functions, with
+coarser far-core tessellation. Near/far tiers retain 24/four of each lobe's 36 source sprig
+identities and the same perimeter/lower leaves, including position, colour and wind identity. It no
+longer merges pairs into oversized opaque masses or substitutes unrelated leaf shapes. Remaining
+leaf removal and tessellation changes still affect silhouette/coverage; this is not seamless LOD.
+The fixed-sun bake uses the same profiles, including the four added forms.
+
+Both trunk LODs sample one bounded centreline, with identical lower knots at 0, 1.5 and 3 local
+metres. The bottom 3 m stays straight; upper growth leans and bends across the lean direction.
+Near meshes retain five-percent ring girth and six-and-a-half-percent azimuthal variation,
+four/five buttresses and seven two-segment tapered support branches. Branch roots now sample the
+actual trunk centreline at staggered heights instead of assuming the crown-tip X/Z position
+below the tip. Tree placements, collision proxies, instance counts, buffer layout and draw
+strategy are unchanged, but eight forms require more shared meshes and variant batches. Near
+variants 0/2/4/6 use 4,620 vertices/4,328 triangles, variants 1/3 use 4,657/4,378, and variants
+5/7 use 4,626/4,334. Every far variant uses 1,029 vertices/1,064 triangles with retained primary
+branches. All jungle meshes total 2,526,004 custom vertex bytes; adding forms 4–7 costs
+1,175,616 vertex bytes and 129,480 index bytes. One inspected jungle view increases from 28 to
+35 jungle draws, with unchanged 65 visible trees (38 near/27 far). Physical-mobile cost is not
+qualified. Measured near/far bounds include the fixed local wind envelope before scaling.
+
+Each near cluster also
 offsets successive shell rings sideways and
 modulates their contour by ring and azimuth. Four alternating clusters append one smaller pointed
 leaf below the existing perimeter leaf with stronger droop, adding 20 vertices and 16 triangles
 per stored near variant. This breaks the former regular lower-crown line without adding a buffer,
-instance field, material, or submission; rounded 208-triangle far meshes preserve the crown
-volume without the close silhouette detail. Near variants one and three append one shared
+instance field, material, or submission; coarse far cores with retained original leaves approximate
+the crown volume without close silhouette detail. Near variants one and three append one shared
 31-vertex/48-triangle tapered three-sided liana with two small pointed leaves. The top-to-bottom
 wind weight gives the strand a restrained flexible response; no liana exists in the far LOD and
 the thin decoration is intentionally non-solid.
 A stable yaw-derived 105--129 m threshold selects LOD per tree after cell rejection, avoiding the
-old 155 m whole-cell switch. Four understory variants
-build fern and broad-leaf silhouettes from curved opaque strips. Three bush variants combine
-offset low lobes with two folded pointed leaves per lobe in the near tier to bridge the visual gap
-between grass and medium plants. Their unchanged 48-triangle far tier keeps only the compact
-volume. Near variants contain 320, 400, or 480 triangles without adding a submission. Three small
-forest-floor variants break up grass-heavy ground at first-person range. Variant 0 uses seven
-short curved opaque leaves. Near variant 1 uses six visible petioles and folded upright broad
-leaves in 36 triangles; near variant 2 uses five low leaves with solid midribs and three separated,
-folded lobe pairs per leaf in 140 triangles. Both retain their unchanged 16-triangle far forms.
+old 155 m whole-cell switch. Four understory variants build two pinnate fern and two broad-leaf
+silhouettes. `UnderstoryLeafProfile` gives each actual leaf a stable identity,
+golden-angle placement with angular jitter, age/stature-dependent length/width, independent lift,
+short emerging leaves, a narrow petiole, side bow, terminal drop and restrained edge curl.
+Root position remains fixed. Far meshes select five actual near profiles with identical angle,
+phase, pigment and posture, rather than rebuilding an unrelated evenly spaced rosette. Surface
+normals sample the complete deformed profile, including the petiole transition; ground plants
+retain their previous profile. CPU tests check dense finite/above-ground/envelope samples, roots,
+nested identities and unit normals perpendicular to independently sampled tangents.
+Fern forms 0/2 attach seven pairs of folded leaflets to nine curved rachis knots, with centre
+vertices sharing exact position/phase/weight at the attachment. Their planes follow the local
+rachis tangent. The far tier retains four original pairs on each of five original fronds with
+unchanged poses. Near variants use 776/405/970/495 vertices and 704/576/880/704 triangles;
+fern far meshes use 335 vertices/320 triangles, broadleaf far meshes 30/20. No layout, attribute,
+material or submission format changes. See `understory-ferns.md` for cost and visual evidence.
+Broadleaf forms 1/3 now have separate paddle/lance width distributions and restrained asymmetric
+margin undulation. The five near columns span both wings evenly; a rounded cross section replaces
+the former wide planar wings around a very narrow midrib strip. `UnderstoryBladeShape::Narrow`
+leaves the fern source curves unchanged. Both tiers sample the same profile; counts, buffers and
+materials remain unchanged. See `broadleaf-lamina.md` for visual evidence and remaining limits.
+
+Ground species 1 and 2 use renderer-independent `GroundBroadleaf` and `SplitGroundLeaf`
+profiles. Both retain actual near-source identities at far LOD and feed the existing
+52-byte jungle leaf vertex layout. Split leaves use one connected indexed surface,
+with shared outline knots and root-anchored wind; near quarter-interval tessellation
+retains curved shoulders that midpoint-only sampling misses. These are static mesh
+changes, not new renderer APIs, per-frame uploads or individual-leaf draw calls. See
+`ground-broadleaf.md` and `split-ground-leaves.md` for costs and validation scope.
+
+`BushProfile` supplies three shrub forms with rooted shoots and individual blades.
+Both LODs keep all leaf identities and their supporting attachment knots; leaf root
+phase/weight matches its shoot. All seven leaf outline rows survive in far; only
+the inner rib column is removed, and shoots use fewer radial sides.
+Closed leaf endpoints are single vertices, avoiding degenerate triangles. The
+existing jungle leaf/wood material, instance transforms, footprint and draw batches
+are reused. See `shrub-lod-continuity.md` for measured mesh inventory and remaining limits.
+The opt-in walking log records actual submitted canopy/shrub identities, not just
+aggregate counts; submission does not prove image visibility. Other species' coarse
+far sampling and omitted leaves still change silhouette/coverage. The four shared
+understory variants remain visibly repetitive, not anatomically complete fern species.
+
+Tagged leaf surfaces use a bounded two-sided daylight response: 0.48 fill, 0.44 sun-facing and
+0.08 upward fill. This replaces their old dominant 0.78 fill without changing unresolved crown
+response. Existing canopy transmission still applies afterward. Stable per-leaf phase selects
+restrained warm/desaturated ageing only over the final 38% of a blade, independent of distance.
+`JungleMaterial.hpp` supplies CPU references and locale-independent GLSL constants. Existing leaf
+mottling is attenuated by a conservative UV phase-frequency bound; bark grain/fissures use
+screen derivatives. Detail fades between 0.18 and 0.50 cycles/pixel. Unresolved bark fissures
+converge to their numerically verified 0.29043848 cycle mean instead of brightening to zero.
+This is a portable art-directed material model, not measured leaf optics or new cast shadows.
+No textures, attributes or mesh changes are introduced. Stock fallback retains its prior colours.
+
+Canopy wood uses material tag -1 in the existing surface coordinate; tag 1 remains a leaf and
+tag 0 an unresolved/legacy surface. Trunk/branch/root stock vertices retain their historical
+baked colours, while custom uploads select a separate raw bark albedo (including neutral trunk
+ring variation). Custom wood lighting is 0.52 ambient, 0.40 positive outward-normal sun response,
+and 0.08 positive upward fill, not absolute two-sided light. Branch/root inward triangle winding
+is corrected; shared area-weighted normals are checked against radial branch/trunk directions
+and semantic side/crest directions on open tapered roots. An averaged centroid is not a valid
+interior reference for that non-convex open wedge. Invalid normals fail during mesh construction,
+before upload. Geometry counts/positions, fallback RGB, 52-byte GPU layout and nine attributes
+are unchanged; only temporary CPU surface metadata retains the separate wood colour.
+Normals still approximate subtle wind deformation. Crown self-shadowing and cast branch shadows
+are not introduced by this material pass.
+
+Tagged wood reuses the three existing material floats for `(cos(angle), sin(angle), along)`.
+Trunks use ring-local angle and shared local height; branches use their local radial frame and
+cumulative distance through the bent centreline. Root wedges use a three-corner circular frame
+and crest length. No seam vertices, extra attributes, textures or geometry are introduced.
+The shader obtains angular derivatives from the circular pair, not wrapped `atan`, and bounds
+the axial phase modulation before filtering the periodic grain/fissures. Root end caps can
+interpolate through a zero-length circular pair: detail fades there and `atan(0,0)` is avoided.
+Upload validation requires finite unit circular pairs and nonnegative axial coordinates. Tests
+cover all strip side counts, branch-cut finite differences and singular/invalid input.
+This follows each bent segment but is not an anatomically continuous bark atlas: branch/root
+junctions have separate phases, trunk height approximates arc distance, and low-poly radial
+interpolation is not uniform angular interpolation. Fine bark relief and anatomical knots remain
+future visual work. Untagged stems and stock fallback preserve their old material behavior.
+
+Trunk pigment no longer alternates by ring parity: near and far have different ring counts and
+heights, so that generated different material bands at the LOD switch. Both paths now use
+`JungleMaterial::TrunkPigment(t)`, a bounded linear 0.96→1.02 normalized-height factor applied
+before custom albedo/stock daylight separation. Its interpolation is independent of ring
+segmentation, apart from at most one byte/channel of colour quantization. CPU tests cover range,
+invalid heights and interpolation, including the actual rounded-byte packing rule. Branch/root
+colours and shader bark detail are unchanged; this does not remove geometric/normal LOD errors.
+
+`BarkMaterial.hpp` now warps the grain with periodic smooth value noise, varies fissure strength
+along the wood, and adds restrained plate-tone variation. Its integer lattice hash is shared
+with a CPU reference; ES shaders explicitly use high-precision integers. Angular lattice indices
+wrap using nonnegative remainders, avoiding the undefined negative-remainder behavior in
+[GLSL ES 3.00](https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf).
+Each layer uses a pixel-footprint fade, with a conservative smoothstep-slope bound for warping.
+Unresolved noise tends to its statistical 0.5 reference and fissures to the existing area mean;
+this is an art-directed filter, not an exact convolution of correlated material layers.
+The scalar albedo multiplier is bounded to [0.76,1.08] before the existing 38–68 m detail fade.
+The vertex shader packs a 0–1023 seed from the existing transform into the negative wood tag;
+every vertex in a wood primitive gets the same value, decoded by rounding in the fragment shader.
+Tree identity survives LOD and wind without a new varying, attribute, mesh or texture. Uploaded
+wood tags still validate as -1. Leaves and legacy stems retain their existing interpretation.
+This reduces identical straight stripes but does not provide geometric bark relief, continuous
+junction phases, botanical species identity or measured mobile fragment cost.
+
+`CanopyLeafPosture.hpp` gives each source sprig/member a deterministic pitch, roll and restrained
+variant-dependent blade proportion. Upper/lower shell positions bias pitch; asymmetric rotation
+breaks the prior uniformly horizontal blade axes. Perimeter and lower blades have explicit
+identities 36/37. The outline pass retains 24 of the original 36 near sprigs (skipping identities
+congruent to 2 modulo 3), with a nested far subset 3/12/21/30. Poses still use original identities,
+never reduced-list indices. `PointedLeafPositions` preserves the legacy five-vertex/four-triangle
+bush/liana crease. Canopy-only `CanopyBladePositions` adds two outline vertices and a six-triangle
+fan around the crease: shoulders at 30% length, taper at 72%, root/crease/tip unchanged. Side rows
+have shallow lift and quadratic gravity droop. The same orthonormal frame handles pitch/roll.
+One retained shoot (identity 30) has two members in alternate lobes, balancing the perimeter
+blades' added triangles. Total canopy leaf triangles remain 3,504 near / 624 far, with 584 / 104
+blades instead of 876 / 156. The outline pass produced 4,620 or 4,657 near / 945 far vertices,
+with 4,328 or 4,378 near / 952 far triangles. The subsequent far-branch correction retains all
+seven primary supports with identical geometry, albedo, normals and wind in both tiers: far now
+has 1,029 vertices / 1,064 triangles. Jungle vertex payload is 1,350,388 bytes, including the
+17,472 added shared far-branch vertex bytes (plus 2,688 index bytes). This measured silhouette
+tradeoff adds no draws/textures and leaves near meshes unchanged. Intermediate leaf vertices have
+bounded existing-range wind weights; normals are reconstructed from the actual posed vertices.
+Runtime culling continues to measure actual near/far mesh extents, union both tiers and add the
+shared wind margins. Shared crown anchors and coarse light-bake ellipsoids stay unchanged: those
+proxies approximate canopy transmission, not individual leaf orientation/occlusion. CPU tests
+cover every source identity, frame orthogonality, nondegenerate posed triangles, local extents,
+default-shape preservation, nested source identity selection and exact triangle budgets.
+This trades leaf count for shape, not guaranteed equal silhouette coverage. Large low-poly
+blades, simple branch hierarchy, crown-core facets and four repeated overall forms still limit
+realism. Static interior/clearing views and the frozen pair inform acceptance; broader moving
+and unobscured LOD review remains open.
+
+Three shrub variants use 45/54/63 leaves on supported shoots; both tiers retain all
+source leaves with shared outline vertices. Three small forest-floor variants break
+up grass-heavy ground at first-person range. Variant 0 uses seven short curved opaque
+leaves; variant 1 uses juvenile broad leaves and petioles, while variant 2 has connected
+lobed blades. Their current profiles, retained far subsets and geometry costs are
+documented in `ground-broadleaf.md` and `split-ground-leaves.md`.
 Placement uses
 independent broad/fine cluster fields plus terrain height, slope, and shoreline constraints while
 preserving the winding route, two clearings, and beach spawn. A shared cell AABB first rejects
 irrelevant regions; actual instance distance then enforces maximum range and selects near/far LOD
-for canopy, understory, bushes, and forest-floor plants. Instances remain gathered into variant
-batches. The deterministic jungle camera renders 63 near and 46 far canopy trees, 462 understory
-plants, 108 bushes, and 162 ground plants in 28 jungle submissions. A portable GLSL
-330 / GLSL ES 300 shader applies weighted calm wind. Its fragment stage reconstructs a safe
-geometric face normal from world-position derivatives, uses the absolute fixed-sun response for
-two-sided foliage, and adds a small upward fill. A brown-material mask adds local-space
+for canopy, understory, bushes, and forest-floor plants. Canopy additionally rejects individual
+world AABBs outside CNA's frustum. The boxes combine measured near/far mesh radii/Y extents,
+local wind margins, positive uniform instance scale and a 0.01 m world rounding cushion. The
+horizontal radial envelope is invariant under yaw. Only canopy instances store these boxes;
+the same boxes extend cell bounds. The primitive is CNA's existing `BoundingFrustum::Contains`,
+not a parallel game-side frustum implementation. This is not occlusion culling: terrain and
+foreground trees can still hide submitted geometry. Visible density/LOD distances are unchanged.
+First-draw diagnostics and benchmark JSON expose per-tree rejection counts.
+
+Instances remain gathered into variant batches. A frozen jungle comparison reduces submitted
+canopy from 109 to 65 (with one forced far target: 62/47 near/far -> 37/28), preserving all image
+bytes, 462 understory plants, 108 bushes, 162 ground plants and 28 jungle submissions. Frozen
+east/grass comparisons also preserve all pixels; see `canopy-culling.md` for scope and evidence.
+A portable GLSL
+330 / GLSL ES 300 shader applies weighted calm wind. `JungleWind` supplies shared CPU/GLSL
+amplitudes, static displacement-envelope checks and locale-independent shader constants. Mesh
+upload validates finite wind inputs and weights in [0,1]; the motion itself is unchanged.
+Its fragment stage uses smooth normals for
+marked curved/pointed leaves and reconstructs a safe geometric normal for other geometry. It uses
+the absolute fixed-sun response for two-sided foliage and adds a small upward fill. A brown-material mask adds local-space
 longitudinal grain and narrow fissures to nearby canopy bark, fading between 38 and 68 m before
 the far tier. The vertex stage derives a stable bounded tint from each existing instance
 transform's scale/yaw coefficients and applies it only to green materials. Near/far batches reuse
 the same transform, so colour identity does not pop with LOD; no instance field, buffer, texture,
-placement value, or submission was added. These cues give the deliberately low-poly crowns and
-leaves coherent facet depth without a normal stream, texture, mesh change, or additional
-submission. `BasicEffect` remains the explicit unlit fallback. Native OpenGL 3.3 compilation,
-actual Chromium/Firefox WebGL 2 execution, and a current KVM/gfxstream GLES 3 jungle launch qualify
-the full shader and layered near-crown geometry. Current native, Chrome, Firefox, and Android fixed
-jungle frames were inspected; moving LOD/wind behaviour and physical-mobile cost remain open.
+placement value, or submission was added by the instance-tint pass. The subsequent close-leaf pass
+uses a game-owned 52-byte standard-layout vertex (position, packed color, wind, normal, leaf UV/
+variation/mask) through CNA's generic `VertexBuffer::SetData<T>` and declaration APIs. Five vertex
+attributes precede four instance columns: nine total, within the portable target feature set.
+The current 50,123 static jungle vertices use 2,606,396 bytes in the 52-byte format. The eight-form
+expansion adds variant batches, but keeps declarations, texture inventory and instance layout.
+Curved blade normals come from the CPU-tested surface derivatives, including tapered endpoints;
+pointed leaves average their adjacent face normals. Placements use uniform scale/yaw, allowing
+normal transformation by their existing matrix. Normal deformation under the subtle wind is
+approximate, not a complete deformed-surface derivative.
+
+Leaf coordinates drive a narrow midrib, angled secondary veins, restrained albedo mottling and
+a broad waxy reflection. Pixel-footprint filtering and a 16–38 m fade bound aliasing; distant
+fragments skip this detail. The old broad painted midrib stripe was reduced. Opaque alpha remains
+one. Positions and custom leaf fields are validated before upload, and size/standard-layout assertions guard
+the transfer format. `BasicEffect` remains the explicit unlit fallback using the unchanged stock
+vertex packing rather than interpreting the custom material layout. Historical native OpenGL 3.3,
+Chromium/Firefox WebGL 2 and KVM/gfxstream GLES 3 runs qualified the previous shader and layered
+near-crown geometry. Their fixed jungle frames were inspected, but those observations predate the GPU incident
+and the new leaf material. Current leaf-material qualification is tracked separately in PLAN.md;
+moving LOD/wind behaviour and physical-mobile cost remain open.
 
 Natural props add 157 irregular rocks across beach/interior bands, 14 larger emergent outcrops on
 the 1.8--9.4 m offshore shelf, 13 mossy fallen logs in the low-slope interior, 31 small
@@ -540,25 +954,52 @@ diagonal is raised into a shallow central fold; a private material-selector valu
 two-sided fixed-sun facet response only for these fronds without another vertex, normal stream, or
 submission. Placement validates complete footprints against shore distance, route reservations,
 nearby trees, slope, and support-height variation.
-The otherwise-unused natural-prop vertex alpha is a private material selector. It marks near-rock
-fragments for subtle world-space strata, sparse lichen, a low fixed-sea-level wet band, and
-derivative-based two-sided facet light from the shared fixed sun;
+The otherwise-unused natural-prop vertex alpha is a private material selector. It marks rock
+fragments for shared-normal fixed-sun lighting, filtered mineral noise/lichen and a low sea-level wet band;
 near-log sides for local-space bark fissures; near cut ends for gently irregular growth rings and
 three thin, slightly curved radial drying cracks; and near-driftwood sides/branches for softer
 sun-bleached longitudinal weathering. Driftwood cut ends remain plain. Distance fades remove all
-cues before their mesh transition. Contact geometry and
-every far mesh retain the plain path; this keeps the material treatment texture-free and free of
-extra instance data or draws. Near fallen logs reuse their existing nine-sided end rings and cap
+cues before their mesh transition. Contact geometry retains the plain path; far wood retains
+normal-based lighting without near material detail. This keeps materials texture-free and free
+of extra instance data or draws. Near fallen logs reuse their existing nine-sided end rings and cap
 vertices, matching their radii and applying bounded deterministic axial offsets so the former
 planar circular cuts become spatially closed irregular broken contours. Vertex/index counts,
 material selection, instances, collision proxies, far LOD, and submissions are unchanged. The near
-rock's existing seven crown rings keep the same topology,
-but bounded per-slice height offsets and a taller asymmetric cap break the former flat top line.
-Its 110 vertices and 192 triangles per shared variant remain unchanged. The vertex shader also
+rocks use `RockSurface`'s ten rings and 24 angular samples, with an asymmetric cap and
+area-weighted shared-vertex normals. Including the basal disk, each near variant has 290 vertices
+and 528 triangles (formerly 110/192); far variants retain 44 vertices and 70 triangles. Both stone
+tiers use albedo rather than baked local-space lighting in the custom path, with an inverse-transpose
+normal transform specialized to the existing orthogonal scale/yaw instance matrices. Fine mineral
+grain fades over 55--90 m and is derivative-footprint filtered; broad mottling and lighting remain
+in the far tier. The vertex shader also
 uses the existing relative neutral colour span to select stone-family vertices and recombines four existing
 scale/yaw transform coefficients into a stable bounded warm/cool tint. This applies consistently
 to near and far rock meshes without another attribute, buffer, texture, geometry, upload, or draw;
 the colour-span mask leaves red-dominant wood and green foliage unchanged.
+
+The packed custom prop vertex is now 28 bytes (position, RGBA8 material colour, normal), with
+seven attributes including the unchanged four instance columns. The total static prop vertex
+inventory is 2,718 vertices / 76,104 bytes (+44,136 bytes versus the old layout/geometry); added
+shared rock index data costs 8,064 bytes. No new texture or draw is required. A shader-unavailable
+fallback uploads stock 16-byte position/colour vertices with CPU-lit stone instead. CPU tests
+validate all eight rock meshes, finite/outward/unit normals, independent area-weight accumulation,
+nondegenerate faces, upload indices, yaw/nonuniform-scale normal orthogonality and the shared
+1.23-height culling bound. The previous 1.2 bound could exclude the tallest cap tip.
+Logs and driftwood now use `SurfaceNormals` to accumulate triangle-area-weighted normals from
+their existing shared topology. Separate end-cap vertices retain the hard rim; formerly inward
+cap indices are corrected, with startup assertions checking outward cap normals for all twelve
+wood meshes. CPU tests cover weighting, winding reversal, duplicated seams, all eight independent
+rock normal references, unused/cancelling vertices, degenerate triangles and invalid input.
+Custom wood uploads unlit albedo and uses the same scale-correct fixed-sun response as stone;
+both vertex and fragment normals are normalized. Far wood remains lit while near bark/grain fades.
+Decorative moss/contact quads retain zero normals and their previous colours. The stock fallback
+retains its prelit approximation. No wood topology, vertex stride, texture, draw or placement count
+is added. Fork geometry still intersects at branch roots, and this is diffuse shading rather than
+new bark relief or a physically based specular model.
+World-position derivatives execute before material/distance branching; filtered noise receives
+an explicit footprint, including a conservative factor of 11 for the warped mineral coordinates.
+This keeps derivatives defined at the detail cutoff while allowing the two finer noise evaluations
+to be skipped in the distance.
 The shared prop-cell AABB is only a conservative range rejection. Rocks, fallen logs, and
 driftwood then enforce maximum range and select near/far geometry from their actual instance
 position, preventing early switches at cell boundaries. Three non-solid driftwood pieces use the
@@ -711,12 +1152,12 @@ crossing-wave values already used to break up broad foam also
 apply restrained bright/dark subsurface colour in the non-reflective surface component. The colour
 detail favours shallow water and fades from 135 to 420 m so it reads in exploration views without
 aliasing across the horizon or adding another trigonometric field. A bounded shallow-ridge cue
-reuses the length of the same five-wave analytic slope already needed for normals. It is limited
+reuses the length of the broad five-wave analytic slope. It is limited
 to the non-reflective, shallow, near/middle-distance surface and therefore adds no new sine,
 texture, varying, geometry, or draw. A second narrow cue projects that same slope toward the fixed
 sun, windows only the sun-facing signed range, and fades from 85 to 245 m. This gives nearby calm
 water short directional crests while leaving the reflective horizon quiet, again without another
-wave field or resource. A third cue projects the same slope toward the horizontal eye direction,
+wave field or resource. A third cue projects the complete normal slope toward the horizontal eye direction,
 smoothly saturates the signed result, and applies it only at grazing angles inside the existing
 135--420 m detail fade. The shallow-weighted cyan reflection bands break up broad low-angle water
 without another wave evaluation, texture, varying, geometry, resource, or draw. The ripple state
@@ -727,28 +1168,125 @@ separate finite transition phase expands and fades its broken double crest, then
 both effects share the existing ocean submission. A stock `BasicEffect` fallback keeps the scene operable with
 a clear diagnostic if the custom effect cannot be created, but intentionally omits the shader-only
 ripple or transition burst.
-Native OpenGL 3.3 compiles the current shader object, while actual Chrome/WebGL 2 and a
-KVM-accelerated API 35 Android GLES3 surface visibly render the full transition-burst,
-sunward-crest, and grazing-reflection paths. The operator-visible native process intentionally
-remains on its prior linked build until it closes. Physical mobile-GPU profiling remains open.
+
+`OceanWaveSpectrum` is the single coefficient source for the ocean and shoreline displacement
+functions and the ocean normal shader, emitted with locale-independent GLSL numbers. The first
+three waves retain the original 0.193 m summed displacement envelope. Two intermediate waves and
+four short waves affect normals only, with no extra geometry, texture or draw. The short trains
+are bent by a slowly moving analytic coordinate distortion; its determinant remains above 0.7,
+and the chain-rule gradient is included in both the shading normal and per-wave screen filter.
+The summed conservative slope bound stays below 0.21 (about 12 degrees). Each wave smoothly
+attenuates between 1.1 and 2.6 radians per pixel, using projected phase derivatives on both pixel
+axes. This avoids evaluating fine detail as distant high-contrast noise. Broad foam/crest colour
+cues retain the broad slope, rather than turning the added ripples into large whitecaps.
+Grazing Fresnel reflection also raises opacity, without removing downward-view shallow transparency.
+The CPU reference tests 22,326 space/time samples against independent numerical gradients,
+displacement/slope/speed bounds, filtering and invalid inputs; actual shader compilation and visual
+checks are separate runtime gates. This is not a physically simulated spectrum or a scene-reflection
+solution: reflections still approximate the fixed sky, not the island silhouette.
+
+The four normal-only short waves have separately phased slow amplitude envelopes in [0.30,1.00],
+using sine/cosine angle addition to reuse the existing warp phases. Exact slopes include both
+the carrier gradient and the envelope gradient (the product rule); merely multiplying a normal
+would be incorrect. Their filter includes carrier +/- both envelope sidebands. The two shortest
+directions are spread to about 70/115 degrees instead of duplicating the longer short waves.
+Displacement stays identical. The conservative slope bound, including packet gradients, remains
+below 0.21. This adds arithmetic and four carrier sine evaluations, not geometry, textures,
+uniforms or draws; it does not add envelope trigonometric evaluations in the GPU shader.
+Independent double-precision height differences validate the CPU slopes over 22,326 samples,
+along with time continuity, complete quiet/strong packet ranges and unchanged calm-water limits.
+The result is still a small analytic spectrum, not a simulated ocean or a finished realism pass.
+Fresnel coverage and its alpha floor use the five broad normal waves, approximating an integrated
+rough-surface response; the complete packet normal still determines reflected sky direction and
+sun glint. A software flat-normal A/B established that pointwise short-normal Fresnel was turning
+wave families into opaque cyan crosshatching. The final path does not flatten or remove the fine
+normal waves. This is an inexpensive approximation, not a microfacet integration or scene reflection.
+
+`CoastalSurfaceAppearance` uploads one additional vec4 for bounded supplementary reflection and
+calm breaker coverage. Reflection uses `s/(0.18+abs(s))` rather than the old 0.010 denominator;
+its small-slope gain drops from 100 to about 5.56 without changing actual normal waves or Fresnel
+sky reflection. Broad breaker coverage decays over 4 m of shore distance and fades with depth
+from 0.35 to 1.25 m. The separate advancing shore wash and player ripple/splash remain intact.
+Crossing colour phases and foam continuity now use the same 1.1--2.6 radians/pixel filter as
+normal waves. Derivatives are evaluated before player branches. CPU tests cover 10,001 slopes,
+15,000 depth/distance cases and invalid inputs; no geometry, texture or draw is added. These
+changes limit artificial contrast, but do not eliminate the visible regularity of the short-wave
+trains. Phase/direction organization still needs visual improvement, especially at swimming height.
+
+Earlier pre-incident native, browser and KVM Android runs covered the older transition-burst,
+sunward-crest and grazing-reflection paths. They do not qualify the updated spectrum or post-incident
+AMD hardware. Current feature validation uses llvmpipe and SwiftShader plus Android cross-builds;
+physical mobile-GPU profiling and current Android runtime verification remain open.
+
+`CoastalMaterial` centralizes the continuous sand palette and bounded clear-water tuning. Seabed
+colour no longer pre-tints the terrain turquoise or jumps at mean sea level. Close sand noise
+extends underwater; restrained shore-aligned seabed ripples fade with pixel footprint, and the
+landward wet band uses height with small existing-noise variation. The ocean's original two-float
+attribute now carries bed height and signed shore distance, not precomputed nonlinear shallow/foam
+weights. Fragment depth is `max(surfaceHeight - interpolatedBedHeight, 0)`: lagoon colour weight
+decays exponentially, body opacity rises toward 0.92, and coverage fades over the first 0.12 m.
+The existing Fresnel opacity and foam remain, multiplied by contact coverage. The four optical
+parameters come from the same constants exercised by CPU tests and are uploaded in one vec4.
+This is vertical-depth artistic attenuation, not refracted ray traversal or a full absorption model.
+It reuses the coarse ocean grid's bed samples, so local depth is approximate and does not replace
+authoritative terrain/collision queries. No depth texture, additional render target or pass is used.
 
 `RuntimeQualityProfile` is the single game-owned quality-policy boundary. Linux and Web select the
-full profile; Android selects the mobile profile at compile time. Renderer constructors receive
+full profile; Android selects the mobile profile at compile time. The profile requests bounded
+4x/2x MSAA through CNA's `PreparingDeviceSettings` extension, logs the applied count, and permits
+explicit device-limited fallback. CNA retains ownership of framebuffer allocation/resolve;
+that extra storage is separate from the generated texture budget below. See `edge-antialiasing.md`.
+Renderer constructors receive
 explicit values rather than consulting platform macros: grass culls beyond 112 m instead of
 135 m, contact-shadow distances scale to 72%, wildlife maximum draw distances scale to 82%, and
-the ocean uses 128 rather than 160 quads per axis. Near grass remains the same 42-blade mesh,
+the ocean uses 128 rather than 160 quads per axis. Near grass retains the same 42-blade tuft mesh
+plus 48 low turf blades on every target;
 wildlife populations and simulations remain intact, and every visual shader path is shared. The
-profile also enforces the existing 143,624-byte generated-texture inventory against a 160 KiB
-ceiling and preserves the bounded six-source soundscape. Invalid profiles or resource-budget
+profile also enforces the 6,383,412-byte runtime texture payload against a 6,403,628-byte
+ceiling (the original 160 KiB allowance plus a 4 MiB fixed-sun canopy field, 64 KiB boar coat,
+232,324-byte shared terrain height texture, 1,398,100-byte full-mip floor material and
+349,524-byte live-leaf material) and preserves
+the bounded six-source soundscape. The static canopy field currently shades terrain, grass and
+low jungle layers, boars and monkeys, and approximates porous crowns rather than individual leaves.
+Boars additionally use a deterministic 128x128 RGBA8 coat atlas (64 KiB). `BoarCoatTexture`
+generates integer-only grayscale longitudinal fibers; body UVs span texel centers and duplicate
+the circumferential seam. Eight white rows isolate unpatterned anatomy from linear filtering.
+The atlas is opaque, single-level, LinearClamp, shared by all coats and near/far meshes, and owned
+longer than the BasicEffect that references it. `VertexPositionColorTexture` adds two UV floats
+per vertex to the existing 36,000-vertex bounded batch; no extra geometry or draw pass is added.
+This is albedo detail, not simulated fur, normal mapping, or a substitute for anatomical polish.
+`BoarPose` shares the 11-ring body profile between the mesh and near-only bristle roots.
+It also provides a small analytic two-segment leg pose: a 64% local-ground stance and sinusoidal
+raised return, fixed segment lengths, phase offsets for four feet, and finite resting fallbacks.
+The renderer builds connected tapered limbs and split near hooves in the same bounded batch.
+`BoarGroundPose` now anchors the body to rendered terrain and independently fits each sole centre
+against the exact terrain triangles. Body orientation retains the smooth analytic normal, avoiding
+triangle-normal snaps. An 18-step bounded solve follows body-up (including its horizontal motion),
+then fixed-length limb IK fits the contact plus existing swing lift. Both LODs consume the same
+pose. A private 232,324-byte CPU height cache avoids repeated procedural height evaluation; no
+GPU resource, vertex count, texture byte or draw count is added. Unreachable targets preserve
+segment lengths and set a flag; rendering logs a one-time warning, rejected by software gates.
+This fits the sole centre, not every curved toe-surface vertex, and is not planted world-space
+foot locking. Stride synchronization and turning/sliding review remain future animation work.
+Wildlife behavior, collision dimensions and population are unchanged.
+Invalid profiles or resource-budget
 overruns fail during content creation with actionable diagnostics.
 
 `ShorelineRenderer` adds one low-cost transparent pass after the ocean. Its 384-segment, six-strip
 ribbon is generated from `IslandTerrain::ShoreRadius`, spans 2.5 m landward to 5.5 m offshore, and
 therefore follows the authoritative coastline independently of the ocean grid's 10.625 m spacing.
-Explicit GLSL 330 / GLSL ES 300 stages reuse the ocean's three vertex waves and animate a narrow,
-broken crest plus a restrained receding wash. Terrain depth naturally clips the landward edge; a
+Explicit GLSL 330 / GLSL ES 300 stages reuse the ocean's three vertex waves. A roughly 8.7-second
+cycle advances a narrow crest shoreward and fades it before restarting, with along-coast phase and
+width variation. Trailing wash is on the seaward side of the advancing front. A nine-neighbor
+procedural cell field produces joined foam rims and transparent interiors without a texture.
+Derivative-based footprint filtering merges unresolved cells toward their mean coverage; the
+crest edge is filtered separately. Phase variation is periodic around the closed coast.
+Terrain depth naturally clips the landward edge; a
 premultiplied vertex-colour `BasicEffect` ribbon remains as the logged fallback. The full layer is
 2,695 vertices, 4,608 triangles, one transparent draw submission, and no texture or external asset.
+This is an artistic surf model, not a fluid simulation or terrain-wetting solver. The ocean and
+ribbon still interpolate their shared vertex waves on different meshes; exact surface conformity
+and mobile GPU fragment cost require further hardware qualification after the incident is resolved.
 
 The game requests the XNA `HiDef` profile because its deterministic QA capture uses back-buffer
 readback and the intended 3D feature set exceeds a `Reach`-only design. This is an application
@@ -946,16 +1484,16 @@ dependencies; the project does not copy distribution-specific system libraries i
 
 ## Current limitations
 
-- Terrain has shared-buffer cell culling and contiguous visible-run batching but no distance LOD,
-  authored material textures, or final biome masks.
+- Terrain has shared-buffer cell culling and contiguous visible-run batching but no distance LOD
+  or final biome masks. Close forest-floor detail uses the documented generated PNG windows.
 - Palms have four geometry variants, segmented near leaflets, widened far crown silhouettes,
   staggered per-instance LOD, placement clustering, cell culling, subtle shader wind, trunk
   collision, irregular faceted root wedges, transform-derived green-only per-instance frond tint,
   and a near-field terrain contact shadow. True LOD
   blending, richer bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person
-  grounding, and near bushes now replace their largest smooth lobes with folded pointed leaves,
-  while near rocks have restrained strata/lichen plus a low sea-level wet band, near logs have
+  grounding, and bushes now replace solid lobes with supported shoots and individual curved leaves,
+  while rocks have smooth normals, filtered mineral/lichen detail and a low sea-level wet band, near logs have
   bark/growth rings, and driftwood has subtle faded grain. Transition popping, richer close-up prop
   shapes, bush diversity, biome variation, and measured mobile density still need repeated polish.
   Broader beach-prop variety remains.

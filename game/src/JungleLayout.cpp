@@ -199,7 +199,7 @@ namespace island
             }
         }
 
-        groundPlants_.reserve(3400U);
+        groundPlants_.reserve(4500U);
         for (int gridZ = -GroundPlantRadius; gridZ <= GroundPlantRadius; ++gridZ) {
             for (int gridX = -GroundPlantRadius; gridX <= GroundPlantRadius; ++gridX) {
                 const std::uint32_t siteHash = Hash(gridX, gridZ, seed ^ 0x243f6a88U);
@@ -245,6 +245,127 @@ namespace island
                     Hash(gridX, gridZ, seed ^ 0xec4e6c89U) % GroundPlantVariantCount);
                 groundPlants_.push_back(plant);
             }
+        }
+
+        // Independent hash channels preserve the existing island-wide placements.
+        const auto clearOfRoots = [](float x, float z, const auto& plants, float separation) {
+            return std::none_of(plants.begin(), plants.end(), [=](const auto& plant) {
+                return std::hypot(x - plant.x, z - plant.z) < separation;
+            });
+        };
+        const auto clearOfCanopy = [this](float x, float z, float radius) {
+            return std::none_of(obstacles_.begin(), obstacles_.end(), [=](const auto& trunk) {
+                return std::hypot(x - trunk.x, z - trunk.z) < radius + trunk.radius;
+            });
+        };
+
+        // Seed-sized companions form irregular ellipses near some canopy trees. Do not fill
+        // every tree base or overwrite the separately composed clearing-edge accents.
+        forestColonies_.reserve(canopy_.size());
+        for (std::size_t treeIndex=0;treeIndex<canopy_.size();++treeIndex) {
+            const auto& tree=canopy_[treeIndex];
+            const auto keyX=static_cast<std::int32_t>(std::lround(tree.x*1000));
+            const auto keyZ=static_cast<std::int32_t>(std::lround(tree.z*1000));
+            const auto random=[&](int channel) {
+                return UnitRandom(Hash(keyX,keyZ,seed ^ (0x37a4c195U
+                    +static_cast<std::uint32_t>(channel)*0x9e3779b9U)));
+            };
+            if (random(0)<0.22f) continue;
+            const float direction=random(1)*2*std::numbers::pi_v<float>;
+            const float reach=(3.2f+4*random(2))*tree.scale;
+            ForestFloorColony colony{treeIndex,groundPlants_.size(),0,
+                tree.x+std::cos(direction)*reach,tree.z+std::sin(direction)*reach,
+                random(3)*2*std::numbers::pi_v<float>,2.5f+1.3f*random(4),1.1f+1.3f*random(5)};
+            const float familyChoice=random(6);
+            const int family=familyChoice<0.55f ? 0 : (familyChoice<0.85f ? 1 : 2);
+            const int count=4+static_cast<int>(random(7)*(ForestPlantsPerColony-3));
+            for (int child=0;child<count;++child) {
+                const int channel=10+child*6;
+                const float radial=std::sqrt(random(channel));
+                const float angle=random(channel+1)*2*std::numbers::pi_v<float>;
+                const float localX=std::cos(angle)*radial*colony.majorRadius;
+                const float localZ=std::sin(angle)*radial*colony.minorRadius;
+                const float x=colony.x+std::cos(colony.angle)*localX-std::sin(colony.angle)*localZ;
+                const float z=colony.z+std::sin(colony.angle)*localX+std::cos(colony.angle)*localZ;
+                const float scale=GroundPlantMinimumScale
+                    +0.36f*(1-0.65f*radial)*(0.75f+0.25f*random(channel+2));
+                const float footprint=GroundPlantFootprintRadius*scale;
+                const auto sample=terrain.Sample(x,z);
+                if (sample.signedShoreDistance<43 || sample.signedShoreDistance>238
+                    || sample.height<2.5f || sample.slopeRadians>0.41887902f
+                    || VegetationLayout::OverlapsReservedRoute(x,z,footprint)
+                    || !clearOfCanopy(x,z,footprint)
+                    || !clearOfRoots(x,z,groundPlants_,ForestRootSeparation)
+                    || !clearOfRoots(x,z,bushes_,0.9f)
+                    || !clearOfRoots(x,z,understory_,0.85f)) continue;
+                bool clearingAccent=false;
+                for (const auto clearing:{VegetationLayout::EastClearing,VegetationLayout::WestClearing})
+                    if (std::hypot(x-clearing.x,z-clearing.z)<clearing.radius+16+footprint)
+                        clearingAccent=true;
+                if (clearingAccent) continue;
+                const int variant=child==3 ? (family+1)%GroundPlantVariantCount : family;
+                groundPlants_.push_back({x,sample.height+0.009f,z,
+                    random(channel+3)*2*std::numbers::pi_v<float>,scale,static_cast<std::uint8_t>(variant)});
+                ++colony.plantCount;
+            }
+            if (colony.plantCount) {
+                forestGroundPlantCount_+=colony.plantCount;
+                forestColonies_.push_back(colony);
+            }
+        }
+
+        // Small colonies connect the shrub and floor layers at clearing edges.
+        int clearingIndex = 0;
+        for (const auto clearing : {VegetationLayout::EastClearing, VegetationLayout::WestClearing}) {
+            for (int colony = 0; colony < ClearingColonyCandidates; ++colony) {
+                const auto random = [&](int channel) {
+                    return UnitRandom(Hash(colony, clearingIndex, seed ^ (0x718ab239U
+                        + static_cast<std::uint32_t>(channel) * 0x9e3779b9U)));
+                };
+                // Leave deliberate breaks; jitter sectors/radius so colonies do not form a hedge.
+                if (random(0) < 0.18f) continue;
+                const float angle = (colony + 0.18f + random(1) * 0.64f)
+                    * (2 * std::numbers::pi_v<float> / ClearingColonyCandidates);
+                const float radial = clearing.radius + 4 + 8 * random(2);
+                const float x = clearing.x + std::cos(angle) * radial;
+                const float z = clearing.z + std::sin(angle) * radial;
+                const auto sample = terrain.Sample(x, z);
+                const float scale = BushMinimumScale + 0.38f * random(3);
+                const float footprint = BushFootprintRadius * scale;
+                if (sample.signedShoreDistance < 38 || sample.signedShoreDistance > 232
+                    || sample.height < 3 || sample.slopeRadians > 0.5235988f
+                    || VegetationLayout::OverlapsReservedRoute(x, z, footprint)
+                    || !clearOfCanopy(x, z, footprint) || !clearOfRoots(x, z, bushes_, 2.8f)) continue;
+                bushes_.push_back({x, sample.height + 0.012f, z,
+                    random(4) * 2 * std::numbers::pi_v<float>, scale,
+                    static_cast<std::uint8_t>(random(5) * BushVariantCount)});
+                ++clearingBushCount_;
+                const int family = static_cast<int>(random(6) * GroundPlantVariantCount);
+                static_assert(ClearingPlantsPerColony >= 4);
+                const int count = 4 + static_cast<int>(random(7) * (ClearingPlantsPerColony - 3));
+                for (int leaf = 0; leaf < count; ++leaf) {
+                    const int channel = 10 + leaf * 5;
+                    const float direction = angle + leaf * 2.39996323f + random(channel) * 0.8f;
+                    const float reach = 1.3f + random(channel + 1) * 2.0f;
+                    const float px = x + std::cos(direction) * reach;
+                    const float pz = z + std::sin(direction) * reach;
+                    const auto ground = terrain.Sample(px, pz);
+                    const float plantScale = GroundPlantMinimumScale + 0.48f * random(channel + 2);
+                    const float plantFootprint = GroundPlantFootprintRadius * plantScale;
+                    if (ground.signedShoreDistance < 27 || ground.signedShoreDistance > 238
+                        || ground.height < 2.5f || ground.slopeRadians > 0.5585054f
+                        || VegetationLayout::OverlapsReservedRoute(px, pz, plantFootprint)
+                        || !clearOfCanopy(px, pz, plantFootprint)
+                        || !clearOfRoots(px, pz, groundPlants_, 0.72f)) continue;
+                    // Most companions share a species; an occasional contrasting leaf breaks cloning.
+                    const int variant = leaf == 3 ? (family + 1) % GroundPlantVariantCount : family;
+                    groundPlants_.push_back({px, ground.height + 0.009f, pz,
+                        random(channel + 3) * 2 * std::numbers::pi_v<float>, plantScale,
+                        static_cast<std::uint8_t>(variant)});
+                    ++clearingGroundPlantCount_;
+                }
+            }
+            ++clearingIndex;
         }
     }
 }

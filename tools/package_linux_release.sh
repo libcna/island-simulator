@@ -39,6 +39,8 @@ cmake --install "${build_directory}" --prefix "${staging_directory}" --component
 readonly packaged_files=(
     island-simulator
     lib/libcna.so
+    Content/terrain/forest-floor.png
+    Content/vegetation/leaf-lamina.png
     share/island-simulator/README.md
     share/island-simulator/ASSET_LICENSES.md
     share/island-simulator/dependencies.lock

@@ -4,6 +4,8 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
+#include "IslandSimulator/CoastalMaterial.hpp"
+#include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
@@ -22,6 +24,8 @@
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
+#include "IslandSimulator/RockSurface.hpp"
+#include "IslandSimulator/SurfaceNormals.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
 #include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
@@ -71,6 +75,234 @@ namespace
 
 int main()
 {
+    {
+        // Bent, tapered V-fold strip; three shared vertices per level, including a centre ridge.
+        const std::vector<std::array<float,3>> strip{
+            {-0.03f,0,0}, {0,0,0.014f}, {0.03f,0,0},
+            {-0.025f,0.3f,0.04f}, {0,0.3f,0.052f}, {0.025f,0.3f,0.04f},
+            {-0.002f,0.55f,0.15f}, {0,0.55f,0.151f}, {0.002f,0.55f,0.15f}};
+        const std::vector<std::uint16_t> indices{0,3,1,1,3,4,1,4,2,2,4,5,
+                                               3,6,4,4,6,7,4,7,5,5,7,8};
+        const auto rest = island::BuildSurfaceNormals(strip,indices);
+        Check(std::abs(rest[1][1]-rest[7][1]) > 0.1f,
+              "grass normal changes along the bent centreline");
+        Check(rest[0][0]*rest[2][0] < 0,
+              "grass fold sides have opposing transverse normal components");
+        for (float spread : {0.4f,1.0f,1.6f}) {
+            for (float stature : {0.3f,0.84f,1.16f,1.5f}) {
+                for (float yaw : {-2.4f,0.0f,1.2f}) {
+                    const float c=std::cos(yaw), s=std::sin(yaw);
+                    const auto rotate = [c,s](std::array<float,3> v) {
+                        return std::array<float,3>{c*v[0]-s*v[2],v[1],s*v[0]+c*v[2]};
+                    };
+                    std::vector<std::array<float,3>> transformed;
+                    for (auto p : strip) transformed.push_back(rotate({p[0]*spread,p[1]*stature,p[2]*spread}));
+                    const auto reference = island::BuildSurfaceNormals(transformed,indices);
+                    for (std::size_t i=0; i<rest.size(); ++i) {
+                        auto n=rotate({rest[i][0]/spread,rest[i][1]/stature,rest[i][2]/spread});
+                        const float length=std::hypot(n[0],n[1],n[2]);
+                        for (int axis=0; axis<3; ++axis) CheckNear(n[axis]/length,reference[i][axis],
+                            0.000003f,"scaled grass normals match independently transformed triangles");
+                    }
+                }
+            }
+        }
+    }
+    {
+        const std::vector<std::array<float,3>> positions{{0,0,0},{2,0,0},{0,1,0},{0,0,0.5f}};
+        const std::vector<std::uint16_t> indices{0,1,2,0,3,1};
+        const auto normals = island::BuildSurfaceNormals(positions,indices);
+        CheckNear(normals[0][1], 1/std::sqrt(5.0f), 0.000001f,
+                  "shared normal weights the smaller triangle by its area");
+        CheckNear(normals[0][2], 2/std::sqrt(5.0f), 0.000001f,
+                  "shared normal weights the larger triangle by its area");
+        const std::vector<std::array<float,3>> split{positions[0],positions[1],positions[2],
+                                                   positions[0],positions[3],positions[1]};
+        const auto seam = island::BuildSurfaceNormals(split,std::array<std::uint16_t,6>{0,1,2,3,4,5});
+        Check(seam[0] == std::array<float,3>{0,0,1} && seam[3] == std::array<float,3>{0,1,0},
+              "duplicate cap/material vertices preserve a hard normal seam");
+        auto reversed = indices;
+        for (std::size_t i=0; i<reversed.size(); i+=3) std::swap(reversed[i+1],reversed[i+2]);
+        const auto reversedNormals = island::BuildSurfaceNormals(positions,reversed);
+        Check(island::BuildOutwardSurfaceNormals(positions, indices, normals) == normals,
+              "outward validation preserves the computed unit normals");
+        const std::array<std::array<float, 3>, 6> wedge{{
+            {.25f,.025f,-.13f}, {.25f,.025f,.13f}, {.265f,.64f,0},
+            {.60f,.018f,-.037f}, {.60f,.018f,.037f}, {.575f,.06f,0}}};
+        const std::array<std::array<float, 3>, 6> wedgeReferences{{
+            {0,0,-1}, {0,0,1}, {0,1,0}, {0,0,-1}, {0,0,1}, {0,1,0}}};
+        std::array<std::uint16_t, 18> wedgeIndices{0,3,2,2,3,5,2,5,1,1,5,4,0,2,1,3,4,5};
+        bool inwardWedgeRejected = false;
+        try { (void)island::BuildOutwardSurfaceNormals(wedge, wedgeIndices, wedgeReferences); }
+        catch (const std::invalid_argument&) { inwardWedgeRejected = true; }
+        Check(inwardWedgeRejected, "historical inward root wedge is rejected");
+        for (std::size_t i = 0; i < wedgeIndices.size(); i += 3)
+            std::swap(wedgeIndices[i+1], wedgeIndices[i+2]);
+        Check(island::BuildOutwardSurfaceNormals(wedge, wedgeIndices, wedgeReferences).size() == 6,
+              "open tapered root wedge accepts semantic side and crest references");
+        for (int invalid = 0; invalid < 5; ++invalid) {
+            auto references = normals;
+            if (invalid == 0) references.pop_back();
+            if (invalid == 1) references[0] = {0, 0, 0};
+            if (invalid == 2) references[0][0] = std::numeric_limits<float>::quiet_NaN();
+            if (invalid == 3) references[0] = {1, 0, 0}; // Tangent is not outward.
+            bool rejected = false;
+            try { (void)island::BuildOutwardSurfaceNormals(positions, invalid == 4 ? reversed : indices, references); }
+            catch (const std::invalid_argument&) { rejected = true; }
+            Check(rejected, "outward normals reject missing, invalid, tangent and inward references");
+        }
+        for (std::size_t i=0; i<normals.size(); ++i) {
+            CheckNear(std::hypot(normals[i][0],normals[i][1],normals[i][2]),1,0.000001f,
+                      "surface normals are finite and unit length");
+            for (int axis=0; axis<3; ++axis) CheckNear(reversedNormals[i][axis],-normals[i][axis],
+                0.000001f,"normal direction follows triangle winding");
+        }
+        for (int invalid=0; invalid<7; ++invalid) {
+            auto p=positions;
+            auto i=indices;
+            if (invalid==0) p.clear();
+            if (invalid==1) i.pop_back();
+            if (invalid==2) i[0]=99;
+            if (invalid==3) p[0][0]=std::numeric_limits<float>::infinity();
+            if (invalid==4) i[1]=i[0];
+            if (invalid==5) p.push_back({3,3,3});
+            if (invalid==6) i.insert(i.end(),reversed.begin(),reversed.end());
+            bool rejected=false;
+            try { (void)island::BuildSurfaceNormals(p,i); }
+            catch (const std::invalid_argument&) { rejected=true; }
+            Check(rejected,"invalid or undefined normal input is rejected before upload");
+        }
+    }
+    for (int variant = 0; variant < 4; ++variant) {
+        for (bool farMesh : {false, true}) {
+            const auto rock = island::BuildRockSurface(variant, farMesh);
+            std::vector<std::array<float,3>> normalPositions;
+            for (const auto& vertex : rock.vertices) normalPositions.push_back(vertex.position);
+            const auto sharedNormals = island::BuildSurfaceNormals(normalPositions,rock.indices);
+            Check(rock.vertices.size() == (farMesh ? 36U : 265U), "rock LOD has a fixed bounded vertex count");
+            Check(rock.indices.size() == (farMesh ? 189U : 1512U), "rock LOD has a fixed bounded index count");
+            island::ValidateProceduralTriangleMeshOrThrow(rock.vertices.size(), rock.indices, "rock CPU test");
+            std::vector<std::array<double,3>> expected(rock.vertices.size());
+            for (std::size_t i = 0; i < rock.indices.size(); i += 3) {
+                const auto& a = rock.vertices[rock.indices[i]].position;
+                const auto& b = rock.vertices[rock.indices[i+1]].position;
+                const auto& c = rock.vertices[rock.indices[i+2]].position;
+                const double ux=b[0]-a[0], uy=b[1]-a[1], uz=b[2]-a[2];
+                const double vx=c[0]-a[0], vy=c[1]-a[1], vz=c[2]-a[2];
+                const std::array n{uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx};
+                Check(std::hypot(n[0],n[1],n[2]) > 0.00001, "rock triangle is not degenerate");
+                for (int corner = 0; corner < 3; ++corner) {
+                    for (int axis = 0; axis < 3; ++axis) expected[rock.indices[i+corner]][axis] += n[axis];
+                }
+            }
+            for (std::size_t i = 0; i < rock.vertices.size(); ++i) {
+                const auto& p = rock.vertices[i].position;
+                const auto& n = rock.vertices[i].normal;
+                for (int axis=0; axis<3; ++axis) CheckNear(sharedNormals[i][axis],n[axis],0.000001f,
+                    "wood normal builder matches independently generated rock normals");
+                Check(std::hypot(p[0],p[2]) <= 1 && p[1] >= 0 && p[1] <= island::RockSurfaceMaximumHeight,
+                      "refined rock fits existing collision/culling extents");
+                CheckNear(std::hypot(n[0],n[1],n[2]), 1, 0.000001f, "rock normals are finite and unit length");
+                const auto& e = expected[i];
+                for (int axis=0; axis<3; ++axis) CheckNear(n[axis], e[axis]/std::hypot(e[0],e[1],e[2]),
+                    0.000001f, "shared normals match independent area-weighted face accumulation");
+                Check(n[0]*p[0] + n[2]*p[2] + n[1]*std::max(0.0f,p[1]-0.6f) > 0,
+                      "rock normals face away from the interior");
+                for (float yaw : {-2.3f, 0.0f, 1.7f}) {
+                    const std::array<double,3> scale{0.4, 3.2, 1.7};
+                    const std::array<double,3> tangent{n[1], -n[0], 0};
+                    const auto rotate = [yaw](const std::array<double,3>& v) {
+                        return std::array{std::cos(yaw)*v[0]+std::sin(yaw)*v[2], v[1],
+                                          -std::sin(yaw)*v[0]+std::cos(yaw)*v[2]};
+                    };
+                    const auto transformedNormal = rotate({n[0]/scale[0],n[1]/scale[1],n[2]/scale[2]});
+                    const auto transformedTangent = rotate({tangent[0]*scale[0],tangent[1]*scale[1],tangent[2]*scale[2]});
+                    double dot=0;
+                    for (int axis=0; axis<3; ++axis) dot += transformedNormal[axis]*transformedTangent[axis];
+                    Check(std::abs(dot) < 0.000001, "inverse-scale yaw normal remains perpendicular to transformed surface");
+                }
+            }
+        }
+    }
+    for (int invalid : {-1,4}) {
+        bool rejected=false;
+        try { (void)island::BuildRockSurface(invalid,false); }
+        catch (const std::invalid_argument&) { rejected=true; }
+        Check(rejected,"invalid rock variant is rejected before upload");
+    }
+    for (float knot : {-22.0f, -3.0f, 0.0f, 1.4f}) {
+        const auto lower = island::CoastalSandColor(knot - 0.00001f);
+        const auto upper = island::CoastalSandColor(knot + 0.00001f);
+        for (std::size_t channel = 0; channel < lower.size(); ++channel) {
+            CheckNear(lower[channel], upper[channel], 0.001f,
+                      "coastal sand palette has no discontinuity at its depth knots");
+        }
+    }
+    float previousOpacity = 0, previousLagoon = 1, previousCoverage = 0;
+    float previousReflection = -1;
+    for (int step=0; step<=10000; ++step) {
+        const float slope = (static_cast<float>(step)/10000-0.5f)*0.42f;
+        const float response = island::CoastalSurfaceAppearance::ReflectionModulation(slope);
+        Check(response >= previousReflection && std::abs(response) < 0.54f,
+              "supplementary grazing response is monotonic and restrained over the wave slope bound");
+        CheckNear(response,-island::CoastalSurfaceAppearance::ReflectionModulation(-slope),0.000001f,
+                  "grazing response has no brightness bias");
+        previousReflection=response;
+    }
+    for (float shore : {-20.0f,-4.0f,0.0f,4.0f,20.0f}) {
+        float previousFoam=1;
+        for (int step=1; step<=3000; ++step) {
+            const float depth=step*0.001f;
+            const float coverage=island::CoastalSurfaceAppearance::BreakingCoverage(depth,shore);
+            Check(coverage >= 0 && coverage <= previousFoam,
+                  "calm breaker coverage decreases with depth");
+            if (depth >= 1.25f) Check(coverage == 0,"deep water does not generate broad breaker foam");
+            CheckNear(coverage,island::CoastalSurfaceAppearance::BreakingCoverage(depth,-shore),0.000001f,
+                      "breaker envelope is symmetric about the shoreline");
+            previousFoam=coverage;
+        }
+    }
+    Check(island::CoastalSurfaceAppearance::BreakingCoverage(0,0)==0
+              && island::CoastalSurfaceAppearance::BreakingCoverage(-1,0)==0
+              && island::CoastalSurfaceAppearance::BreakingCoverage(0.1f,0)==1
+              && island::CoastalSurfaceAppearance::BreakingCoverage(0.1f,20)<0.007f,
+          "breaker foam remains in a bounded wet near-shore region");
+    for (int step = 0; step <= 10000; ++step) {
+        const float depth = static_cast<float>(step) * 0.003f;
+        const float opacity = island::CoastalWaterOptics::BodyOpacity(depth);
+        const float lagoon = island::CoastalWaterOptics::LagoonWeight(depth);
+        const float coverage = island::CoastalWaterOptics::ContactCoverage(depth);
+        Check(opacity >= previousOpacity && opacity <= 0.92f
+                  && lagoon <= previousLagoon && lagoon >= 0
+                  && coverage >= previousCoverage && coverage <= 1,
+              "coastal attenuation, colour and contact coverage are bounded and monotonic");
+        previousOpacity = opacity;
+        previousLagoon = lagoon;
+        previousCoverage = coverage;
+        for (float channel : island::CoastalSandColor(-depth)) {
+            Check(std::isfinite(channel) && channel >= 0 && channel <= 255,
+                  "coastal sand colour stays in byte range");
+        }
+    }
+    Check(island::CoastalWaterOptics::BodyOpacity(0) == 0
+              && island::CoastalWaterOptics::ContactCoverage(-1) == 0
+              && island::CoastalWaterOptics::ContactCoverage(0.12f) == 1
+              && island::CoastalWaterOptics::BodyOpacity(0.1f) < 0.04f
+              && island::CoastalWaterOptics::BodyOpacity(10) > 0.9f,
+          "thin water reveals sand while deep water attenuates the bottom");
+    for (float invalid : {std::numeric_limits<float>::quiet_NaN(),
+                           std::numeric_limits<float>::infinity()}) {
+        Check(island::CoastalSurfaceAppearance::ReflectionModulation(invalid)==0
+                  && island::CoastalSurfaceAppearance::BreakingCoverage(invalid,0)==0
+                  && island::CoastalSurfaceAppearance::BreakingCoverage(1,invalid)==0,
+              "invalid surface appearance input contributes no artificial contrast");
+        Check(std::isfinite(island::CoastalWaterOptics::BodyOpacity(invalid))
+                  && island::CoastalWaterOptics::ContactCoverage(invalid) == 0
+                  && island::CoastalWaterOptics::LagoonWeight(invalid) == 0,
+              "invalid optical inputs produce bounded conservative values");
+        Check(island::CoastalSandColor(invalid) == island::CoastalSandColor(-22),
+              "invalid coastal height uses the finite deep palette");
+    }
     const island::UserSettings defaultSettings;
     Check(defaultSettings.IsValid(), "default user settings are valid");
     Check(defaultSettings.ToText()
@@ -111,9 +343,9 @@ int main()
     Check(!island::UserSettings::Parse(settingsWithNul).IsValid(),
           "settings parser rejects embedded NUL bytes");
 
-    Check(island::GeneratedTextureBudget::TotalPixelCount == 35906U,
+    Check(island::GeneratedTextureBudget::TotalPixelCount == 1158947U,
           "generated texture inventory retains its exact base-level pixel count");
-    Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 143624U,
+    Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 4635788U,
           "generated texture inventory stays below its audited RGBA8 payload");
     constexpr island::RuntimeQualityProfile fullQuality =
         island::RuntimeQualityProfile::Full();
@@ -131,11 +363,23 @@ int main()
               && mobileQuality.wildlifeMaximumDistanceScale
                   < fullQuality.wildlifeMaximumDistanceScale,
           "mobile quality bounds distant shadows and wildlife");
-    Check(mobileQuality.generatedTextureByteBudget
-              >= island::GeneratedTextureBudget::TotalRgba8Bytes,
+    Check(island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes == 6383412U,
+          "runtime texture budget must include the complete floor and leaf mip chains");
+    Check(mobileQuality.textureByteBudget
+              >= island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes,
           "mobile quality admits the compact generated texture inventory");
     Check(mobileQuality.maximumPlayingAudioSources == 6,
           "mobile quality preserves the bounded full soundscape");
+    Check(fullQuality.preferredBackBufferSamples == 4 && mobileQuality.preferredBackBufferSamples == 2,
+          "portable antialiasing requests bound full and mobile sample counts");
+    for (const int samples : {-1, 1, 3, 8, 1024}) {
+        auto invalid = fullQuality;
+        invalid.preferredBackBufferSamples = samples;
+        Check(!invalid.IsValid(), "quality policy rejects unsupported or unbounded sample requests");
+    }
+    auto noAntialiasing = fullQuality;
+    noAntialiasing.preferredBackBufferSamples = 0;
+    Check(noAntialiasing.IsValid(), "quality policy admits explicit single-sample fallback");
 
     const island::AquaticLightProfile shallowLight = island::AquaticLightAt(
         7.0f, -0.35f, -4.0f, 2.0f);
@@ -2373,6 +2617,136 @@ int main()
     const island::ShipwreckLayout repeatedShipwreck(terrain);
     const island::ShipwreckPlacement& ship = shipwreck.Ship();
     const island::ShipwreckPlacement& repeatedShip = repeatedShipwreck.Ship();
+    std::vector<island::ContactFootprint> coastalFootprints;
+    for (const auto& rock : props.Rocks()) {
+        if (!rock.offshore) continue;
+        const auto footprint = island::RockContactFootprint(rock);
+        CheckNear(footprint.directionZ, -std::sin(rock.yawRadians), 0.00001f,
+                  "rock shadow follows the mesh's local X rotation convention");
+        coastalFootprints.push_back(footprint);
+    }
+    const auto hullFootprints = island::HullContactFootprints(ship);
+    const auto& aftShadow = hullFootprints[0];
+    const auto& bowShadow = hullFootprints[1];
+    const float hullGap = std::hypot(aftShadow.x - bowShadow.x, aftShadow.z - bowShadow.z)
+        - aftShadow.alongRadius - bowShadow.alongRadius;
+    Check(hullGap > 2.0f && hullGap < 2.5f, "contact shadows preserve the open hull break");
+    CheckNear(aftShadow.directionX, std::sin(ship.yawRadians), 0.00001f,
+              "hull contact shadow follows the mesh's local Z convention");
+    coastalFootprints.insert(coastalFootprints.end(), hullFootprints.begin(), hullFootprints.end());
+    for (const auto& debris : shipwreck.Debris()) {
+        coastalFootprints.push_back(island::DebrisContactFootprint(debris));
+    }
+    Check(coastalFootprints.size() == 28, "all 14 reef rocks, two hull halves and 12 fragments cast grounding patches");
+    std::vector<island::ContactFootprint> landFootprints;
+    for (const auto& rock : props.Rocks()) {
+        if (!rock.offshore) landFootprints.push_back(island::LandRockContactFootprint(rock));
+    }
+    for (const auto& log : props.FallenLogs()) landFootprints.push_back(island::LogContactFootprint(log));
+    for (const auto& wood : props.Driftwood()) landFootprints.push_back(island::DriftwoodContactFootprint(wood));
+    Check(landFootprints.size() == 201, "all 157 land rocks, 13 logs and 31 driftwood pieces retain their shadows");
+    for (float sign : {-1.0f, 1.0f}) {
+        island::RockPlacement rock;
+        island::FallenLogPlacement log;
+        island::DriftwoodPlacement wood;
+        rock.yawRadians = log.yawRadians = wood.yawRadians = sign*std::numbers::pi_v<float>/4;
+        for (const auto& footprint : {island::LogContactFootprint(log), island::DriftwoodContactFootprint(wood)}) {
+            CheckNear(footprint.directionX, std::sqrt(0.5f), 0.000001f,
+                      "positive local-X shadow axis follows the model's 45-degree rotation");
+            CheckNear(footprint.directionZ, sign*std::sqrt(0.5f), 0.000001f,
+                      "wood shadows retain placement and collision heading");
+            CheckNear(footprint.directionZ, -std::sin(island::WoodModelYaw(log.yawRadians)), 0.000001f,
+                      "wood renderer converts its heading to the matrix rotation convention");
+        }
+        const auto rockFootprint = island::LandRockContactFootprint(rock);
+        CheckNear(rockFootprint.directionZ, -sign*std::sqrt(0.5f), 0.000001f,
+                  "land rock shadow retains its distinct model rotation convention");
+        CheckNear(rockFootprint.z, -sign*std::sqrt(0.5f)*0.08f, 0.000001f,
+                  "land rock shadow offset rotates with its corrected axis");
+    }
+    for (const auto& log : props.FallenLogs()) {
+        const float modelYaw = island::WoodModelYaw(log.yawRadians);
+        for (int sample = 0; sample < island::NaturalPropLayout::LogCollisionSamples; ++sample) {
+            const float t = static_cast<float>(sample) / (island::NaturalPropLayout::LogCollisionSamples-1) - 0.5f;
+            const float x = log.x + std::cos(modelYaw)*log.length*t;
+            const float z = log.z - std::sin(modelYaw)*log.length*t;
+            Check(std::any_of(props.Obstacles().begin(), props.Obstacles().end(), [&](const auto& obstacle) {
+                return std::hypot(obstacle.x-x,obstacle.z-z) < 0.00001f
+                    && std::abs(obstacle.radius-log.radius*0.92f) < 0.00001f;
+            }), "every rendered log centreline collision sample matches an existing physical proxy");
+        }
+    }
+    // Independent rendered-grid interpolation, including the top-right/bottom-left diagonal.
+    const auto renderedHeight = [&](float x, float z) {
+        const auto coordinate = [](float value) {
+            return std::clamp(static_cast<int>(std::floor((value + island::TerrainMeshLayout::Extent)
+                * island::TerrainMeshLayout::QuadsPerAxis / (2 * island::TerrainMeshLayout::Extent))),
+                0, island::TerrainMeshLayout::QuadsPerAxis - 1);
+        };
+        const int column = coordinate(x), row = coordinate(z);
+        const float x0 = island::TerrainMeshLayout::Coordinate(column);
+        const float x1 = island::TerrainMeshLayout::Coordinate(column+1);
+        const float z0 = island::TerrainMeshLayout::Coordinate(row);
+        const float z1 = island::TerrainMeshLayout::Coordinate(row+1);
+        const float u = (x-x0)/(x1-x0), v = (z-z0)/(z1-z0);
+        if (u+v <= 1) return terrain.Height(x0,z0)*(1-u-v) + terrain.Height(x1,z0)*u + terrain.Height(x0,z1)*v;
+        return terrain.Height(x1,z1)*(u+v-1) + terrain.Height(x1,z0)*(1-v) + terrain.Height(x0,z1)*(1-u);
+    };
+    const auto validateContactPatches = [&](const auto& footprints, const island::ContactPatchDetail detail) {
+      std::size_t vertexCount = 0;
+      for (const auto& footprint : footprints) {
+        const auto patch = island::BuildContactPatch(terrain, footprint, detail);
+        Check(!patch.empty() && patch.size() % 3 == 0 && patch.size() < 9000,
+              "coastal contact geometry is nonempty, triangular and bounded");
+        vertexCount += patch.size();
+        double area = 0;
+        float maximumOpacity = 0;
+        for (const auto& vertex : patch) {
+            Check(std::isfinite(vertex.y) && vertex.opacity >= 0 && vertex.opacity <= footprint.opacity + 0.000001f,
+                  "coastal patch upload is finite with bounded opacity");
+            maximumOpacity = std::max(maximumOpacity, vertex.opacity);
+            const float dx = vertex.x - footprint.x, dz = vertex.z - footprint.z;
+            const float u = (dx*footprint.directionX + dz*footprint.directionZ) / footprint.alongRadius;
+            const float v = (-dx*footprint.directionZ + dz*footprint.directionX) / footprint.acrossRadius;
+            Check(u*u+v*v <= 1.001f, "clipped geometry stays inside its grounding footprint");
+            CheckNear(vertex.y, renderedHeight(vertex.x,vertex.z) + island::ContactPatchSurfaceOffset,
+                      0.0001f, "coastal patch vertices follow the rendered terrain, not analytic-height mismatches");
+        }
+        for (std::size_t index = 0; index < patch.size(); index += 3) {
+            const auto& a = patch[index]; const auto& b = patch[index+1]; const auto& c = patch[index+2];
+            area += std::abs((static_cast<double>(b.x)-a.x)*(c.z-a.z) - (static_cast<double>(b.z)-a.z)*(c.x-a.x)) * 0.5;
+            CheckNear((a.y+b.y+c.y)/3, renderedHeight((a.x+b.x+c.x)/3,(a.z+b.z+c.z)/3)
+                          + island::ContactPatchSurfaceOffset, 0.00015f,
+                      "shadow triangle interiors remain on one terrain plane");
+        }
+        const int sectors = detail == island::ContactPatchDetail::Compact ? 12 : 24;
+        const double expectedArea = sectors * 0.5 * std::sin(2 * std::numbers::pi / sectors)
+            * footprint.alongRadius * footprint.acrossRadius;
+        Check(std::abs(area - expectedArea) < expectedArea * 0.001,
+              "terrain clipping preserves footprint area without holes or duplicate coverage");
+        CheckNear(maximumOpacity, footprint.opacity, 0.000001f, "every grounding patch retains its contact core");
+      }
+      return vertexCount;
+    };
+    const auto coastalVertexCount = validateContactPatches(coastalFootprints, island::ContactPatchDetail::Coastal);
+    const auto landVertexCount = validateContactPatches(landFootprints, island::ContactPatchDetail::Compact);
+    Check(landVertexCount < 70000, "the complete clipped land-shadow geometry stays within its static budget");
+    Check(coastalVertexCount == 23970, "compact land support does not change existing coastal patch geometry");
+    std::cout << "Land contact patches: " << landFootprints.size() << ", vertices: " << landVertexCount << '\n';
+    Check(coastalVertexCount < 50000, "the complete coastal shadow addition fits the static vertex budget");
+    std::cout << "Coastal contact patches: " << coastalFootprints.size() << ", vertices: " << coastalVertexCount << '\n';
+    for (int invalidCase = 0; invalidCase < 5; ++invalidCase) {
+        auto invalid = aftShadow;
+        if (invalidCase == 0) invalid.x = std::numeric_limits<float>::quiet_NaN();
+        if (invalidCase == 1) invalid.alongRadius = 8.1f;
+        if (invalidCase == 2) invalid.acrossRadius = 0;
+        if (invalidCase == 3) invalid.directionX = 4;
+        if (invalidCase == 4) invalid.opacity = -1;
+        bool rejected = false;
+        try { (void)island::BuildContactPatch(terrain, invalid); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        Check(rejected, "invalid contact footprint is rejected before GPU upload");
+    }
     Check(ship.length == 20.0f && ship.beam == 5.2f && ship.hullHeight == 4.4f,
           "shipwreck retains the authored large-ship dimensions");
     Check(ship.x == repeatedShip.x && ship.y == repeatedShip.y
@@ -2980,6 +3354,142 @@ int main()
           "east and west clearing grass keep distinct warm and cool biome identities");
 
     const island::JungleLayout repeatedJungle(terrain);
+    Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
+        && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
+        "forest colony membership and shape are deterministic for one seed");
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 565
+        && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
+            - jungle.ForestGroundPlantCount() == 2225,
+        "clearing colonies preserve the existing island-wide populations");
+    const auto checkColonies = [&](const island::JungleLayout& layout) {
+        Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
+            && layout.ClearingGroundPlantCount() > 0 && layout.ClearingGroundPlantCount() <= 144,
+            "clearing accents stay within the authored local population budget");
+        const auto checkLayer = [&](const auto& plants, std::size_t count, float radius, float separation) {
+            std::array<int, 2> clearingCounts{};
+            for (std::size_t i = plants.size() - count; i < plants.size(); ++i) {
+                const auto& plant = plants[i];
+                const float footprint = radius * plant.scale;
+                Check(!island::VegetationLayout::OverlapsReservedRoute(plant.x, plant.z, footprint),
+                    "full animated clearing-plant footprint avoids reserved walking space");
+                for (int step = 0; step < 64; ++step) {
+                    const float a = step * 2 * std::numbers::pi_v<float> / 64;
+                    Check(!island::VegetationLayout::IsReservedRoute(plant.x + footprint * std::cos(a),
+                        plant.z + footprint * std::sin(a)), "independent footprint samples remain outside routes");
+                }
+                for (std::size_t j = 0; j < i; ++j)
+                    Check(std::hypot(plant.x - plants[j].x, plant.z - plants[j].z) >= separation,
+                        "colony roots avoid duplicate roots within their layer");
+                bool inBand = false;
+                int index = 0;
+                for (auto clearing : {island::VegetationLayout::EastClearing, island::VegetationLayout::WestClearing}) {
+                    const float distance = std::hypot(plant.x - clearing.x, plant.z - clearing.z) - clearing.radius;
+                    if (distance >= footprint && distance <= 15.4f) { inBand = true; ++clearingCounts[index]; }
+                    ++index;
+                }
+                Check(inBand, "colony changes remain confined to clearing-edge bands");
+                for (const auto& tree : layout.Obstacles())
+                    Check(std::hypot(plant.x - tree.x, plant.z - tree.z) >= footprint + tree.radius,
+                        "clearing plant footprints avoid canopy trunks");
+            }
+            Check(clearingCounts[0] > 0 && clearingCounts[1] > 0,
+                "both clearings receive accents without filling their centres");
+        };
+        checkLayer(layout.Bushes(), layout.ClearingBushCount(), island::JungleLayout::BushFootprintRadius, 2.8f);
+        checkLayer(layout.GroundPlants(), layout.ClearingGroundPlantCount(), island::JungleLayout::GroundPlantFootprintRadius, 0.72f);
+    };
+    const auto checkForestColonies = [&](const island::JungleLayout& layout) {
+        Check(!layout.ForestColonies().empty() && layout.ForestColonies().size()<layout.Canopy().size(),
+            "forest-floor recruitment leaves some canopy trees without a colony");
+        Check(layout.ForestGroundPlantCount()>200
+            && layout.ForestGroundPlantCount()<=layout.Canopy().size()*island::JungleLayout::ForestPlantsPerColony,
+            "forest companions have useful density within their per-tree candidate budget");
+        Check(layout.GroundPlants().size()<=5000,"forest companions preserve the existing global floor budget");
+        std::size_t next=layout.GroundPlants().size()-layout.ClearingGroundPlantCount()-layout.ForestGroundPlantCount();
+        std::size_t previousTree=0;
+        std::array<int,3> species{};
+        std::size_t groups=0;
+        for (const auto& colony:layout.ForestColonies()) {
+            Check(colony.firstPlant==next && colony.plantCount>0
+                && colony.plantCount<=island::JungleLayout::ForestPlantsPerColony,
+                "forest colony membership is contiguous, nonempty and bounded");
+            Check(colony.canopyIndex<layout.Canopy().size()
+                && (groups==0 || colony.canopyIndex>previousTree),
+                "forest colonies have one unique ordered canopy parent each");
+            previousTree=colony.canopyIndex;
+            const auto& tree=layout.Canopy()[colony.canopyIndex];
+            const float parentDistance=std::hypot(colony.x-tree.x,colony.z-tree.z)/tree.scale;
+            Check(parentDistance>=3.1999f && parentDistance<=7.2001f
+                && colony.majorRadius>=2.5f && colony.majorRadius<=3.8f
+                && colony.minorRadius>=1.1f && colony.minorRadius<=2.4f,
+                "forest colonies remain associated with their parent's nearby floor");
+            for (std::size_t index=colony.firstPlant;index<colony.firstPlant+colony.plantCount;++index) {
+                const auto& plant=layout.GroundPlants()[index];
+                const float dx=plant.x-colony.x,dz=plant.z-colony.z;
+                const float u=(std::cos(colony.angle)*dx+std::sin(colony.angle)*dz)/colony.majorRadius;
+                const float v=(-std::sin(colony.angle)*dx+std::cos(colony.angle)*dz)/colony.minorRadius;
+                Check(u*u+v*v<=1.0001f,"forest recruitment stays in its authored irregular ellipse");
+                const float footprint=island::JungleLayout::GroundPlantFootprintRadius*plant.scale;
+                const auto sample=terrain.Sample(plant.x,plant.z);
+                Check(sample.signedShoreDistance>=43 && sample.signedShoreDistance<=238
+                    && sample.slopeRadians<=0.41887902f && sample.height>=2.5f
+                    && plant.scale>=island::JungleLayout::GroundPlantMinimumScale && plant.scale<=0.94f,
+                    "forest companions have suitable inland ground and restrained stature");
+                Check(!island::VegetationLayout::OverlapsReservedRoute(plant.x,plant.z,footprint),
+                    "forest companion full footprint leaves reserved routes open");
+                for (int step=0;step<64;++step) {
+                    const float angle=step*2*std::numbers::pi_v<float>/64;
+                    Check(!island::VegetationLayout::IsReservedRoute(plant.x+footprint*std::cos(angle),
+                        plant.z+footprint*std::sin(angle)),"independent forest footprint samples avoid paths");
+                }
+                for (const auto& clearing:{island::VegetationLayout::EastClearing,island::VegetationLayout::WestClearing})
+                    Check(std::hypot(plant.x-clearing.x,plant.z-clearing.z)>=clearing.radius+16+footprint,
+                        "forest companions do not overwrite clearing-edge composition");
+                for (std::size_t other=0;other<index;++other)
+                    Check(std::hypot(plant.x-layout.GroundPlants()[other].x,plant.z-layout.GroundPlants()[other].z)
+                        >=island::JungleLayout::ForestRootSeparation,"forest companion roots have minimum separation");
+                for (const auto& trunk:layout.Obstacles())
+                    Check(std::hypot(plant.x-trunk.x,plant.z-trunk.z)>=footprint+trunk.radius,
+                        "forest companions avoid solid trunks with their full footprints");
+                for (const auto& bush:layout.Bushes())
+                    Check(std::hypot(plant.x-bush.x,plant.z-bush.z)>=0.9f,"forest companions avoid shrub roots");
+                for (const auto& plantAbove:layout.Understory())
+                    Check(std::hypot(plant.x-plantAbove.x,plant.z-plantAbove.z)>=0.85f,
+                        "forest companions avoid medium-plant roots");
+                ++species[plant.variant];
+            }
+            next+=colony.plantCount;
+            ++groups;
+        }
+        Check(next==layout.GroundPlants().size()-layout.ClearingGroundPlantCount(),
+            "forest colony metadata covers every added plant exactly once");
+        Check(species[0]>species[1] && species[1]>0 && species[2]>0,
+            "forest groups retain all species with low rosettes predominant");
+    };
+    checkColonies(jungle);
+    checkForestColonies(jungle);
+    Check(jungle.ClearingBushCount()==13 && jungle.ClearingGroundPlantCount()==57,
+        "forest recruitment preserves the existing default clearing accents");
+    for (const auto seed:{0x12345U,0xa55aU}) {
+        const island::JungleLayout alternate(terrain,seed);
+        checkColonies(alternate);
+        checkForestColonies(alternate);
+    }
+    for (float z = -230; z < 196; z += 0.75f) {
+        for (float offset : {-9.0f, -7.5f, 7.5f, 9.0f}) {
+            const float x = island::VegetationLayout::PrimaryPathCenterX(z) + offset;
+            constexpr float radius = 2;
+            if (island::VegetationLayout::OverlapsReservedRoute(x, z, radius)) continue;
+            for (int i = 0; i < 64; ++i) {
+                const float a = i * 2 * std::numbers::pi_v<float> / 64;
+                Check(!island::VegetationLayout::IsReservedRoute(x + radius * std::cos(a), z + radius * std::sin(a)),
+                    "conservative route envelope covers bends and path ends");
+            }
+        }
+    }
+    Check(island::VegetationLayout::OverlapsReservedRoute(0, 0, -1)
+        && island::VegetationLayout::OverlapsReservedRoute(std::numeric_limits<float>::quiet_NaN(), 0, 1),
+        "invalid placement footprints fail closed");
     Check(jungle.Canopy().size() >= 100U && jungle.Canopy().size() <= 600U,
           "broadleaf canopy population stays inside its first performance budget");
     Check(jungle.Understory().size() >= 800U && jungle.Understory().size() <= 4000U,
@@ -2995,6 +3505,7 @@ int main()
           "jungle populations are deterministic");
     Check(jungle.Obstacles().size() == jungle.Canopy().size(),
           "every broadleaf canopy trunk has one collision proxy");
+    std::array<std::size_t, island::JungleLayout::CanopyVariantCount> canopyFormCounts{};
     for (std::size_t index = 0; index < jungle.Canopy().size(); ++index) {
         const island::CanopyPlacement& tree = jungle.Canopy()[index];
         const island::CanopyPlacement& repeated = repeatedJungle.Canopy()[index];
@@ -3012,6 +3523,7 @@ int main()
               "broadleaf trees keep paths, clearings, and player spawn open");
         Check(tree.variant < island::JungleLayout::CanopyVariantCount,
               "broadleaf canopy variant index remains in range");
+        ++canopyFormCounts.at(tree.variant);
         Check(tree.scale >= island::JungleLayout::CanopyMinimumScale
                   && tree.scale <= island::JungleLayout::CanopyMaximumScale,
               "broadleaf canopy scale remains in the authored range");
@@ -3023,6 +3535,8 @@ int main()
         Check(obstacle.radius > 0.30f && obstacle.radius < 0.56f,
               "broadleaf collision radius stays close to the visible trunk");
     }
+    Check(std::ranges::all_of(canopyFormCounts, [](std::size_t count) { return count >= 10; }),
+          "every shared canopy form is represented across the island");
     for (std::size_t index = 0; index < jungle.Understory().size(); ++index) {
         const island::UnderstoryPlacement& plant = jungle.Understory()[index];
         const island::UnderstoryPlacement& repeated = repeatedJungle.Understory()[index];

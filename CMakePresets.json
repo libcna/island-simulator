@@ -107,6 +107,19 @@
         "island-simulator",
         "island_audio_report",
         "island_core_tests",
+        "island_boar_tests",
+        "island_boar_coat_tests",
+        "island_boar_pose_tests",
+        "island_leaf_tests",
+        "island_grass_blade_tests",
+        "island_rendered_terrain_tests",
+        "island_grass_grounding_report",
+        "island_canopy_tests",
+        "island_canopy_visibility_tests",
+        "island_terrain_material_tests",
+        "island_ocean_wave_tests",
+        "island_forest_floor_tests",
+        "island_forest_floor_preview",
         "island_world_report"
       ]
     },
@@ -117,6 +130,17 @@
       "targets": [
         "island_audio_report",
         "island_core_tests",
+        "island_boar_tests",
+        "island_boar_coat_tests",
+        "island_boar_pose_tests",
+        "island_leaf_tests",
+        "island_grass_blade_tests",
+        "island_rendered_terrain_tests",
+        "island_grass_grounding_report",
+        "island_canopy_tests",
+        "island_ocean_wave_tests",
+        "island_forest_floor_tests",
+        "island_forest_floor_preview",
         "island_world_report"
       ]
     },
@@ -157,7 +181,7 @@
       },
       "filter": {
         "include": {
-          "name": "^IslandCoreTests$"
+          "name": "^Island(Core|BoarHerd|BoarCoatTexture|BoarPose|LeafBlade|CanopyLightField|OceanWaveSpectrum|ForestFloorSampling)Tests$"
         }
       }
     },

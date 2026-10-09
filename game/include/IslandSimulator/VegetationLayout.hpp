@@ -58,6 +58,9 @@ namespace island
         /** @brief Reports whether a point is reserved for a path, clearing, or player spawn. */
         [[nodiscard]] static bool IsReservedRoute(float x, float z) noexcept;
 
+        /** @brief Conservative overlap of a horizontal plant footprint with reserved space. */
+        [[nodiscard]] static bool OverlapsReservedRoute(float x, float z, float radius) noexcept;
+
         /** @brief Reports whether a point is inside either authored vegetation clearing. */
         [[nodiscard]] static bool IsInsideAuthoredClearing(float x, float z) noexcept;
 

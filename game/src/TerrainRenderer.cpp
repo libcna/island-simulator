@@ -1,9 +1,13 @@
 #include "IslandSimulator/TerrainRenderer.hpp"
+#include "IslandSimulator/CoastalMaterial.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/CanopyLighting.hpp"
+#include "IslandSimulator/ForestFloorMaterial.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
+#include "IslandSimulator/TerrainMaterialVertex.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
@@ -32,8 +36,10 @@
 #include "Microsoft/Xna/Framework/Graphics/PrimitiveType.hpp"
 #include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
-#include "Microsoft/Xna/Framework/Graphics/VertexPositionColorTexture.hpp"
-#include "Microsoft/Xna/Framework/Vector2.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexDeclaration.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexElement.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexElementFormat.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexElementUsage.hpp"
 
 using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
@@ -46,23 +52,47 @@ namespace island
             "island-simulator: clearing floors reuse existing noise fields for broad patch breakup";
         constexpr std::string_view ForestFloorDiagnostic =
             "island-simulator: terrain interior humus and moss reuse portable material fields";
+        constexpr std::string_view SoilReliefDiagnostic =
+            "island-simulator: terrain close soil uses footprint-filtered clods and analytic relief";
+        constexpr std::string_view FallenLeafDiagnostic =
+            "island-simulator: forest soil separates humus and moss with footprint-filtered fallen leaves";
+        constexpr std::string_view CoastalSandDiagnostic =
+            "island-simulator: coastal sand stays continuous below water with filtered seabed ripples";
+        constexpr std::string_view SubstrateDistanceDiagnostic =
+            "island-simulator: terrain substrate persists at distance with footprint-filtered noise";
+        constexpr std::string_view SlopeLightDiagnostic =
+            "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices";
+
+        const VertexDeclaration& TerrainDeclaration()
+        {
+            static const VertexDeclaration declaration{
+                VertexElement(offsetof(TerrainMaterialVertex, position), VertexElementFormat::Vector3,
+                              VertexElementUsage::Position, 0),
+                VertexElement(offsetof(TerrainMaterialVertex, color), VertexElementFormat::Color,
+                              VertexElementUsage::Color, 0),
+                VertexElement(offsetof(TerrainMaterialVertex, data), VertexElementFormat::Vector3,
+                              VertexElementUsage::TextureCoordinate, 0)};
+            return declaration;
+        }
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
-layout(location = 2) in vec2 aTerrainData;
+layout(location = 2) in vec3 aTerrainData;
 
 uniform mat4 uViewProjection;
 
 out vec3 vWorld;
 out vec3 vBaseColor;
 out vec2 vTerrainData;
+out float vGroundLight;
 
 void main()
 {
     vWorld = aPosition;
     vBaseColor = aColor.rgb;
-    vTerrainData = aTerrainData;
+    vTerrainData = aTerrainData.xy;
+    vGroundLight = aTerrainData.z;
     gl_Position = uViewProjection * vec4(aPosition, 1.0);
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -72,6 +102,7 @@ void main()
 in vec3 vWorld;
 in vec3 vBaseColor;
 in vec2 vTerrainData;
+in float vGroundLight;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -100,27 +131,59 @@ float valueNoise(vec2 p)
     return mix(lower, upper, fraction.y) - 0.5;
 }
 
-float leafLitter(vec2 worldPosition, float scale, vec2 offset, float threshold)
+// Value plus analytic local-space gradient; four hashes, not finite-difference resampling.
+vec3 soilNoiseGradient(vec2 p)
+{
+    vec2 cell = floor(p);
+    vec2 t = fract(p);
+    vec2 u = t * t * (3.0 - 2.0 * t);
+    vec2 du = 6.0 * t * (1.0 - t);
+    float a = hash12(cell);
+    float b = hash12(cell + vec2(1.0, 0.0));
+    float c = hash12(cell + vec2(0.0, 1.0));
+    float d = hash12(cell + vec2(1.0, 1.0));
+    float lower = mix(a, b, u.x);
+    float upper = mix(c, d, u.x);
+    return vec3(mix(lower, upper, u.y) - 0.5,
+                mix(b - a, d - c, u.y) * du.x,
+                (upper - lower) * du.y);
+}
+
+// Coverage, restrained dry-leaf shading and per-leaf colour variation. The maximum rotated
+// radius, bend and jitter stay within a cell, so single-cell evaluation cannot clip a leaf.
+// worldPixelWidth is evaluated before material branching; do not use derivatives here.
+vec3 leafLitter(vec2 worldPosition, float scale, vec2 offset, float threshold,
+                float worldPixelWidth)
 {
     vec2 grid = worldPosition * scale + offset;
     vec2 cell = floor(grid);
     vec2 local = fract(grid) - 0.5;
     float seed = hash12(cell + offset * 0.37);
     vec2 jitter = fract(vec2(seed * 17.17, seed * 41.73)) - 0.5;
-    local -= jitter * 0.42;
+    local -= jitter * 0.21;
     float angle = fract(seed * 7.31) * 6.28318530718;
     vec2 axis = vec2(cos(angle), sin(angle));
     vec2 rotated = vec2(dot(local, axis), dot(local, vec2(-axis.y, axis.x)));
-    float sizeVariation = mix(0.72, 1.12, fract(seed * 11.91));
+    float sizeVariation = mix(0.75, 1.22, fract(seed * 11.91));
     rotated /= sizeVariation;
     rotated.y -= sin(rotated.x * 13.0 + seed * 5.0) * 0.012;
-    float along = abs(rotated.x) / 0.155;
-    float halfWidth = 0.043 * pow(max(0.0, 1.0 - along), 0.58);
-    float pointedEnds = 1.0 - smoothstep(0.94, 1.04, along);
-    float curvedSides = 1.0 - smoothstep(-0.006, 0.010,
-                                          abs(rotated.y) - halfWidth);
-    float shape = pointedEnds * curvedSides;
-    return shape * step(threshold, fract(seed * 23.47));
+    float along = abs(rotated.x) / 0.25;
+    float halfWidth = 0.07 * pow(max(0.0, 1.0 - along), 0.65);
+    float footprint = worldPixelWidth * scale / sizeVariation;
+    float edgeWidth = clamp(footprint, 0.002, 0.035);
+    float pointedEnds = 1.0 - smoothstep(0.25 - edgeWidth, 0.25 + edgeWidth,
+                                        abs(rotated.x));
+    float curvedSides = 1.0 - smoothstep(-edgeWidth, edgeWidth,
+                                        abs(rotated.y) - halfWidth);
+    float visibility = 1.0 - smoothstep(0.025, 0.10, footprint);
+    float coverage = pointedEnds * curvedSides * visibility
+        * step(threshold, fract(seed * 23.47));
+    float veinVisibility = 1.0 - smoothstep(0.007, 0.025, footprint);
+    float midrib = (1.0 - smoothstep(0.002, 0.007 + edgeWidth, abs(rotated.y)))
+        * veinVisibility;
+    float shade = 0.84 + 0.16 * smoothstep(-0.07, 0.07, rotated.y)
+        + midrib * 0.10;
+    return vec3(coverage, shade, fract(seed * 37.13));
 }
 
 float groundFleck(vec2 worldPosition, float scale, vec2 offset, float threshold)
@@ -144,28 +207,41 @@ float groundFleck(vec2 worldPosition, float scale, vec2 offset, float threshold)
 void main()
 {
     vec2 p = vWorld.xz;
+    // Derivatives must be evaluated outside material-dependent, non-uniform branches.
+    vec3 worldDx = dFdx(vWorld);
+    vec3 worldDy = dFdy(vWorld);
+    float groundPixelWidth = max(length(worldDx.xz), length(worldDy.xz));
     float distanceToCamera = length(vWorld - uCameraPosition);
     float detailFade = 1.0 - smoothstep(95.0, 285.0, distanceToCamera);
 
-    float broad = 0.0;
+    // Substrate is a world property: never fade humus, clearings or paths back to
+    // the legacy green vertex palette as the camera retreats. Only unresolved
+    // frequencies fade. Footprint is in metres/pixel, frequency in cells/metre.
+    float broad = valueNoise(p * 0.060)
+        * (1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.060));
     float medium = 0.0;
     float fine = 0.0;
-    if (detailFade > 0.0) {
-        broad = valueNoise(p * 0.060);
-        medium = valueNoise(p * 0.31 + vec2(17.3, -9.7));
+    float mediumVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.31);
+    if (mediumVisibility > 0.0) {
+        medium = valueNoise(p * 0.31 + vec2(17.3, -9.7)) * mediumVisibility;
+    }
+    // The product's largest angular frequency is below 2.67 radians/metre.
+    float fineVisibility = detailFade
+        * (1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.43));
+    if (fineVisibility > 0.0) {
         fine = sin(p.x * 1.73 + p.y * 0.41)
-            * sin(p.y * 1.37 - p.x * 0.56);
+            * sin(p.y * 1.37 - p.x * 0.56) * fineVisibility;
     }
 
     float signedShoreDistance = vTerrainData.x;
     float slopeRadians = vTerrainData.y;
     float sand = (1.0 - smoothstep(7.0, 19.0, signedShoreDistance))
-        * smoothstep(-4.0, 0.8, signedShoreDistance);
+        * smoothstep(-6.0, -0.2, vWorld.y);
     float interior = smoothstep(8.0, 25.0, signedShoreDistance);
     float steep = smoothstep(0.30, 0.70, slopeRadians) * interior;
     float eastClearingMask = 0.0;
     float westClearingMask = 0.0;
-    if (detailFade > 0.0 && interior > 0.0 && steep < 1.0) {
+    if (interior > 0.0 && steep < 1.0) {
         vec3 clearing = p.x > -18.0 ? uEastClearing : uWestClearing;
         vec2 clearingDelta = p - clearing.xy;
         float irregularRadius = clearing.z - broad * 2.20 - medium * 0.85;
@@ -174,7 +250,7 @@ void main()
         float clearingMask = (1.0 - smoothstep(innerRadius * innerRadius,
                                                outerRadius * outerRadius,
                                                dot(clearingDelta, clearingDelta)))
-            * interior * (1.0 - steep) * detailFade;
+            * interior * (1.0 - steep);
         if (p.x > -18.0) {
             eastClearingMask = clearingMask;
         } else {
@@ -188,7 +264,7 @@ void main()
     color *= vec3(1.0 + sandVariation * 0.92,
                   1.0 + sandVariation * 0.72,
                   1.0 + sandVariation * 0.43);
-    color += vec3(0.043, 0.026, -0.011) * medium * sand * detailFade;
+    color += vec3(0.043, 0.026, -0.011) * medium * sand * detailFade * vGroundLight;
 
     float closeSand = sand * (1.0 - smoothstep(28.0, 92.0, distanceToCamera));
     if (closeSand > 0.0) {
@@ -211,47 +287,65 @@ void main()
                       1.0 + brokenCrest * rippleMask * 0.021,
                       1.0 + brokenCrest * rippleMask * 0.014);
 
+        float seabedMask = closeSand * (1.0 - smoothstep(-0.18, 0.02, vWorld.y))
+            * (1.0 - smoothstep(0.045, 0.14, groundPixelWidth));
+        float bedPhase = signedShoreDistance * 9.5 + broad * 2.1 + medium * 1.2;
+        float bedRipple = sin(bedPhase) * (0.65 + medium * 0.4);
+        color *= 1.0 + bedRipple * seabedMask * 0.055;
+
         float drySubstrate = sand
             * (1.0 - smoothstep(18.0, 58.0, distanceToCamera))
             * smoothstep(1.4, 4.8, signedShoreDistance);
         if (drySubstrate > 0.0) {
             float darkPebble = groundFleck(p, 0.90, vec2(8.2, -15.7), 0.60);
             float paleShell = groundFleck(p, 1.15, vec2(-11.4, 6.9), 0.79);
-            color = mix(color, vec3(0.255, 0.240, 0.195),
+            color = mix(color, vec3(0.255, 0.240, 0.195) * vGroundLight,
                         darkPebble * drySubstrate * 0.36);
-            color = mix(color, vec3(0.940, 0.855, 0.650),
+            color = mix(color, vec3(0.940, 0.855, 0.650) * vGroundLight,
                         paleShell * drySubstrate * 0.42);
         }
     }
 
     float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)
-        * interior * detailFade;
+        * interior;
     color *= vec3(1.0 + groundVariation * 0.55,
                   1.0 + groundVariation,
                   1.0 + groundVariation * 0.48);
     float exposedSoil = smoothstep(0.16, 0.40, broad * 0.62 + medium * 0.38)
-        * interior * detailFade;
+        * interior;
     color = mix(color, color * vec3(0.82, 0.76, 0.61), exposedSoil * 0.18);
-    color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24 * detailFade);
+    color = mix(color, color * vec3(0.82, 0.78, 0.68), steep * 0.24);
 
     // Break up the broad green inland floor with restrained, material-specific
-    // humus and moss fields. Reusing the already evaluated terrain noise keeps
-    // the same fragment cost class on desktop, WebGL 2, and OpenGL ES 3.
+    // humus and moss fields. These broad material fields also remain beyond 285 m;
+    // close clods and individual fallen leaves retain their separate detail fades.
     float forestFloorMask = smoothstep(24.0, 54.0, signedShoreDistance)
-        * (1.0 - steep) * detailFade
+        * (1.0 - steep)
         * (1.0 - max(eastClearingMask, westClearingMask) * 0.72);
     float forestMaterialField = broad * 0.70 + medium * 0.45 + fine * 0.035;
-    color = mix(color, color * vec3(0.88, 0.91, 0.75),
-                forestFloorMask * 0.20);
+    // Tropical understory grows through exposed humus; it is not a continuous green lawn.
+    // Keep grass/moss islands, and leave the authored sunny clearing and beach palettes intact.
+    color = mix(color, vec3(0.300, 0.223, 0.139) * vGroundLight, forestFloorMask * 0.82);
     float leafHumus = smoothstep(-0.015, 0.245, forestMaterialField)
         * forestFloorMask;
-    float coolMoss = (1.0 - smoothstep(-0.245, 0.005, forestMaterialField))
+    float coolMoss = (1.0 - smoothstep(-0.245, -0.075, forestMaterialField))
         * forestFloorMask;
-    color = mix(color, vec3(0.185, 0.150, 0.052), leafHumus * 0.27);
-    color = mix(color, vec3(0.205, 0.315, 0.105), coolMoss * 0.18);
+    color = mix(color, vec3(0.205, 0.151, 0.091) * vGroundLight, leafHumus * 0.54);
+    color = mix(color, vec3(0.185, 0.265, 0.115) * vGroundLight, coolMoss * 0.64);
 
-    vec3 sunlitClearingGround = vec3(0.475, 0.395, 0.125);
-    vec3 leafRichClearingGround = vec3(0.170, 0.225, 0.072);
+    // Preserve broad authored material/lighting cues; the litter source supplies close detail.
+    // Fade before the hashed lattice itself becomes subpixel. Its mip chain filters texels,
+    // while this separate footprint fade filters changing window identities.
+    float imageFloor = uForestFloorEnabled * forestFloorMask
+        * (1.0 - smoothstep(18.0, 48.0, distanceToCamera))
+        * (1.0 - smoothstep(0.035, 0.12, groundPixelWidth));
+    if (imageFloor > 0.0) {
+        vec3 litter = forestFloorColor(p, worldDx.xz, worldDy.xz);
+        color = mix(color, litter * vGroundLight * (0.82 + broad*0.12), imageFloor * 0.88);
+    }
+
+    vec3 sunlitClearingGround = vec3(0.475, 0.375, 0.215) * vGroundLight;
+    vec3 leafRichClearingGround = vec3(0.235, 0.205, 0.122) * vGroundLight;
     color = mix(color, sunlitClearingGround,
                 eastClearingMask * (0.58 + broad * 0.055 + medium * 0.035));
     color = mix(color, leafRichClearingGround,
@@ -264,17 +358,17 @@ void main()
         * eastClearingMask;
     float eastCoolPatch = (1.0 - smoothstep(-0.27, -0.045, clearingPatchField))
         * eastClearingMask;
-    color = mix(color, vec3(0.560, 0.455, 0.160), eastDryPatch * 0.40);
+    color = mix(color, vec3(0.560, 0.445, 0.265) * vGroundLight, eastDryPatch * 0.40);
     color = mix(color, color * vec3(0.84, 0.89, 0.76), eastCoolPatch * 0.18);
 
     float westLeafPatch = smoothstep(0.035, 0.27, clearingPatchField)
         * westClearingMask;
     float westMossPatch = (1.0 - smoothstep(-0.26, -0.035, clearingPatchField))
         * westClearingMask;
-    color = mix(color, vec3(0.105, 0.105, 0.032), westLeafPatch * 0.32);
-    color = mix(color, vec3(0.230, 0.315, 0.090), westMossPatch * 0.22);
+    color = mix(color, vec3(0.150, 0.125, 0.075) * vGroundLight, westLeafPatch * 0.32);
+    color = mix(color, vec3(0.230, 0.315, 0.090) * vGroundLight, westMossPatch * 0.22);
 
-    if (detailFade > 0.0 && signedShoreDistance > 20.0 && steep < 1.0) {
+    if (signedShoreDistance > 20.0 && steep < 1.0) {
         float pathCentre = uPrimaryPathShape.x + uPrimaryPathShape.y
             * sin((p.y + uPrimaryPathShape.z) * uPrimaryPathShape.w);
         float pathRange = smoothstep(uPrimaryPathZRange.x,
@@ -285,11 +379,12 @@ void main()
         float pathWidth = 1.52 + (broad + 0.5) * 0.64;
         float brokenLateralDistance = abs(lateralOffset)
             + medium * 0.48 + fine * 0.095;
-        float pathMask = (1.0 - smoothstep(pathWidth - 0.42,
-                                           pathWidth + 0.62,
+        float pathEdgeWidth = max(0.52, groundPixelWidth);
+        float pathMask = (1.0 - smoothstep(pathWidth + 0.10 - pathEdgeWidth,
+                                           pathWidth + 0.10 + pathEdgeWidth,
                                            brokenLateralDistance))
             * pathRange * smoothstep(20.0, 42.0, signedShoreDistance)
-            * (1.0 - steep) * detailFade;
+            * (1.0 - steep);
         if (pathMask > 0.0) {
             float compactedCentre = 1.0 - smoothstep(
                 0.16, 0.94, abs(lateralOffset + medium * 0.14));
@@ -299,48 +394,66 @@ void main()
             vec3 dryEarth = mix(shadedEarth, sunDryEarth, pathMottle + 0.5);
             float pathBlend = pathMask
                 * (0.46 + compactedCentre * 0.16 + pathMottle * 0.055);
-            color = mix(color, dryEarth, pathBlend);
+            color = mix(color, dryEarth * vGroundLight, pathBlend);
         }
-    }
-
-    if (detailFade > 0.0 && signedShoreDistance > 34.0 && steep < 1.0) {
-        float canopyDappleMask = smoothstep(34.0, 68.0, signedShoreDistance)
-            * (1.0 - steep) * detailFade
-            * (1.0 - max(eastClearingMask, westClearingMask) * 0.78);
-        float dappleField = broad * 0.72 + medium * 0.46 + fine * 0.055;
-        float sunDapple = smoothstep(0.07, 0.30, dappleField);
-        float canopyShade = 1.0 - smoothstep(-0.20, 0.10, dappleField);
-        color = mix(color, color * vec3(0.89, 0.93, 0.86),
-                    canopyShade * canopyDappleMask);
-        color += vec3(0.052, 0.045, 0.018) * sunDapple * canopyDappleMask;
     }
 
     float closeDetail = (1.0 - smoothstep(24.0, 68.0, distanceToCamera))
         * smoothstep(22.0, 38.0, signedShoreDistance)
-        * (1.0 - smoothstep(0.34, 0.66, slopeRadians));
+        * (1.0 - smoothstep(0.34, 0.66, slopeRadians))
+        * (1.0 - imageFloor * 0.90);
     if (closeDetail > 0.0) {
         float micro = valueNoise(p * 1.26 + vec2(-21.4, 8.3));
         color *= vec3(1.0 + micro * 0.050,
                       1.0 + micro * 0.082,
                       1.0 + micro * 0.043) * closeDetail
             + vec3(1.0 - closeDetail);
+        float clodVisibility = closeDetail
+            * (1.0 - smoothstep(0.025, 0.085, groundPixelWidth))
+            * (1.0 - smoothstep(18.0, 40.0, distanceToCamera));
+        if (clodVisibility > 0.0) {
+            vec3 clod = soilNoiseGradient(p * 6.5 + vec2(37.1, -12.6));
+            vec3 faceVector = cross(worldDx, worldDy);
+            vec3 surfaceNormal = faceVector
+                * inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
+            if (surfaceNormal.y < 0.0) surfaceNormal = -surfaceNormal;
+            // A 1.2 cm relief field; derivatives are converted from noise to world units.
+            vec2 slope = clod.yz * (6.5 * 0.012) * clodVisibility;
+            vec3 reliefVector = surfaceNormal
+                - vec3(slope.x, 0.0, slope.y) * surfaceNormal.y;
+            vec3 reliefNormal = reliefVector
+                * inversesqrt(max(dot(reliefVector, reliefVector), 0.00000001));
+            vec3 sunDirection = normalize(uToSun);
+            float smoothLight = 0.55 + 0.45 * max(0.0, dot(surfaceNormal, sunDirection));
+            float reliefLight = 0.55 + 0.45 * max(0.0, dot(reliefNormal, sunDirection));
+            color *= reliefLight / smoothLight;
+            color *= 1.0 + clod.x * 0.20 * clodVisibility;
+            float poreVisibility = clodVisibility
+                * (1.0 - smoothstep(0.006, 0.020, groundPixelWidth));
+            float pores = valueNoise(p * 37.0 + vec2(-9.3, 16.7));
+            color *= 1.0 + pores * 0.12 * poreVisibility;
+        }
         float litterPatch = clamp(0.52 + broad * 0.82 + medium * 0.30, 0.18, 1.0)
             * mix(1.0, 0.58, eastClearingMask)
             * mix(1.0, 1.22, westClearingMask);
-        float warmLeaf = leafLitter(p, 2.05, vec2(13.7, -4.3), 0.89);
-        float darkLeaf = leafLitter(p, 3.10, vec2(-7.1, 19.6), 0.95);
-        float litterAmount = closeDetail * litterPatch;
-        color = mix(color, vec3(0.255, 0.165, 0.055),
-                    warmLeaf * litterAmount * 0.56);
-        color = mix(color, vec3(0.145, 0.105, 0.046),
-                    darkLeaf * litterAmount * 0.50);
+        vec3 warmLeaf = leafLitter(p, 1.65, vec2(13.7, -4.3), 0.42, groundPixelWidth);
+        vec3 darkLeaf = leafLitter(p, 2.70, vec2(-7.1, 19.6), 0.65, groundPixelWidth);
+        // The west-clearing density boost may exceed one; never extrapolate leaf colours.
+        float litterAmount = clamp(closeDetail * litterPatch, 0.0, 1.0);
+        vec3 dryLeafColor = mix(vec3(0.235, 0.142, 0.060), vec3(0.445, 0.315, 0.145),
+                                warmLeaf.z) * warmLeaf.y * vGroundLight;
+        vec3 oldLeafColor = mix(vec3(0.120, 0.091, 0.054), vec3(0.245, 0.188, 0.092),
+                                darkLeaf.z) * darkLeaf.y * vGroundLight;
+        color = mix(color, dryLeafColor, warmLeaf.x * litterAmount * 0.90);
+        color = mix(color, oldLeafColor, darkLeaf.x * litterAmount * 0.82);
     }
 
-    float wetEdge = (1.0 - smoothstep(0.0, 2.3, abs(signedShoreDistance)))
-        * smoothstep(-1.3, 0.2, signedShoreDistance);
+    float wetHeight = vWorld.y + broad * 0.06 + medium * 0.025;
+    float wetEdge = (1.0 - smoothstep(0.05, 0.42, wetHeight))
+        * smoothstep(-0.12, 0.06, vWorld.y) * sand;
     color = mix(color, color * vec3(0.76, 0.81, 0.78), wetEdge * 0.42);
     if (wetEdge > 0.001) {
-        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+        vec3 faceVector = cross(worldDx, worldDy);
         vec3 wetNormal = faceVector
             * inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
         if (wetNormal.y < 0.0) {
@@ -356,18 +469,23 @@ void main()
         color += vec3(0.13, 0.17, 0.16) * wetSheen;
     }
 
+    color = applyCanopyLight(color, p);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
     color = mix(color, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }
 )";
 
-        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
+        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body,
+                                               const bool canopy = false)
         {
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
+                    + (canopy ? CanopyLighting::Shader : "")
+                    + (canopy ? ForestFloorMaterial::Shader : "") + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n") + (canopy ? CanopyLighting::Shader : "")
+                + (canopy ? ForestFloorMaterial::Shader : "") + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -380,7 +498,7 @@ void main()
                                   "terrain/terrain.es.vert.glsl", ShaderSource(true, VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "terrain/terrain.es.frag.glsl", ShaderSource(true, FragmentBody)),
+                                  "terrain/terrain.es.frag.glsl", ShaderSource(true, FragmentBody, true)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Vertex, "main",
                                   "terrain/terrain.desktop.vert.glsl",
@@ -388,7 +506,7 @@ void main()
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Fragment, "main",
                                   "terrain/terrain.desktop.frag.glsl",
-                                  ShaderSource(false, FragmentBody)),
+                                  ShaderSource(false, FragmentBody, true)),
                 },
                 {CNA::ShaderStageEXT::Vertex, CNA::ShaderStageEXT::Fragment});
         }
@@ -406,18 +524,15 @@ void main()
                          channel(from.getBProperty(), to.getBProperty()), 255);
         }
 
-        [[nodiscard]] Color TerrainColor(const TerrainSample& sample)
+        [[nodiscard]] Color TerrainColor(const TerrainSample& sample, const float light)
         {
             const float height = sample.height;
             Color base;
-            if (height < -3.0f) {
-                base = Color(38, 130, 145, 255);
-            } else if (height < 0.0f) {
-                base = BlendColor(Color(38, 130, 145, 255), Color(113, 192, 172, 255),
-                                  (height + 3.0f) / 3.0f);
-            } else if (height < 1.4f) {
-                base = BlendColor(Color(186, 174, 118, 255), Color(226, 201, 139, 255),
-                                  height / 1.4f);
+            if (height < 1.4f) {
+                const auto sand = CoastalSandColor(height);
+                base = Color(static_cast<int>(std::lround(sand[0])),
+                             static_cast<int>(std::lround(sand[1])),
+                             static_cast<int>(std::lround(sand[2])), 255);
             } else if (height < 2.2f) {
                 base = Color(220, 196, 131, 255);
             } else if (height < 4.5f) {
@@ -430,13 +545,6 @@ void main()
                                   (height - 9.0f) / 14.0f);
             }
 
-            const Vector3 normal(sample.normal.x, sample.normal.y, sample.normal.z);
-            const Vector3 sun = Vector3::Normalize(Vector3(
-                environment::SunDirectionX,
-                environment::SunDirectionY,
-                environment::SunDirectionZ));
-            const float light = std::clamp(
-                0.52f + 0.48f * Vector3::Dot(normal, sun), 0.34f, 1.0f);
             return Color(
                 static_cast<std::uint8_t>(static_cast<float>(base.getRProperty()) * light),
                 static_cast<std::uint8_t>(static_cast<float>(base.getGProperty()) * light),
@@ -445,8 +553,10 @@ void main()
         }
     }
 
-    TerrainRenderer::TerrainRenderer(GraphicsDevice& device, const IslandTerrain& terrain)
-        : device_(device), fallbackEffect_(std::make_unique<BasicEffect>(device))
+    TerrainRenderer::TerrainRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
+                                     CanopyLighting& canopyLighting)
+        : device_(device), canopyLighting_(canopyLighting),
+          fallbackEffect_(std::make_unique<BasicEffect>(device))
     {
         fallbackEffect_->setVertexColorEnabledProperty(true);
         fallbackEffect_->setTextureEnabledProperty(false);
@@ -471,8 +581,8 @@ void main()
                                  "view-dependent sun sheen\n"
                               << "island-simulator: terrain sparse close sand pebbles and "
                                  "shell flecks\n"
-                              << "island-simulator: terrain fixed-sun interior dapple from "
-                                 "shared portable noise fields\n"
+                              << "island-simulator: terrain fixed-sun shading from "
+                                 "placed canopy volumes\n"
                               << "island-simulator: terrain authored primary footpath material\n"
                               << "island-simulator: terrain footpath narrow irregular wear\n"
                               << "island-simulator: terrain distinct authored east/west "
@@ -482,6 +592,16 @@ void main()
                               << ForestFloorDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(ClearingFloorDiagnostic);
                     MirrorRuntimeDiagnosticToPlatformLog(ForestFloorDiagnostic);
+                    std::cout << SoilReliefDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(SoilReliefDiagnostic);
+                    std::cout << FallenLeafDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(FallenLeafDiagnostic);
+                    std::cout << CoastalSandDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(CoastalSandDiagnostic);
+                    std::cout << SubstrateDistanceDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(SubstrateDistanceDiagnostic);
+                    std::cout << SlopeLightDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(SlopeLightDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';
@@ -496,6 +616,7 @@ void main()
             std::cerr << "island-simulator: terrain material fallback: custom effects unavailable\n";
         }
 
+        if (materialReady_) forestFloor_ = std::make_unique<ForestFloorMaterial>(device_);
         CreateMesh(terrain);
     }
 
@@ -505,7 +626,7 @@ void main()
     {
         cells_.clear();
         cells_.reserve(TerrainMeshLayout::CellCount);
-        std::vector<VertexPositionColorTexture> vertices;
+        std::vector<TerrainMaterialVertex> vertices;
         std::vector<std::uint16_t> indices;
         vertices.reserve(static_cast<std::size_t>(TerrainMeshLayout::Resolution
                                                   * TerrainMeshLayout::Resolution));
@@ -518,9 +639,11 @@ void main()
                  ++gridColumn) {
                 const float x = TerrainMeshLayout::Coordinate(gridColumn);
                 const TerrainSample sample = terrain.Sample(x, z);
-                vertices.emplace_back(Vector3(x, sample.height, z), TerrainColor(sample),
-                                      Vector2(sample.signedShoreDistance,
-                                              sample.slopeRadians));
+                const float light = TerrainDaylight(sample.normal);
+                const Color color = TerrainColor(sample, light);
+                vertices.push_back({{x, sample.height, z},
+                                    {color.getRProperty(), color.getGProperty(), color.getBProperty(), 255},
+                                    {sample.signedShoreDistance, sample.slopeRadians, light}});
             }
         }
 
@@ -535,7 +658,7 @@ void main()
                     const int gridColumn = layout.firstGridColumn + localColumn;
                     const std::size_t vertexIndex = static_cast<std::size_t>(
                         gridRow * TerrainMeshLayout::Resolution + gridColumn);
-                    const float height = vertices[vertexIndex].Position.Y;
+                    const float height = vertices[vertexIndex].position[1];
                     minimumHeight = std::min(minimumHeight, height);
                     maximumHeight = std::max(maximumHeight, height);
                 }
@@ -567,8 +690,11 @@ void main()
         ValidateProceduralTriangleMeshOrThrow(vertices.size(), indices, "terrain");
         vertexCount_ = static_cast<int>(vertices.size());
         primitiveCount_ = static_cast<int>(indices.size() / 3U);
+        if (TerrainDeclaration().getVertexStrideProperty() != static_cast<int>(sizeof(TerrainMaterialVertex))) {
+            throw std::logic_error("Terrain vertex declaration does not match upload stride");
+        }
         vertices_ = std::make_unique<VertexBuffer>(
-            device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
+            device_, TerrainDeclaration(),
             vertexCount_, BufferUsage::WriteOnly);
         vertices_->SetData(vertices.data(), vertexCount_);
         indices_ = std::make_unique<IndexBuffer>(
@@ -591,6 +717,8 @@ void main()
             float viewProjection[16];
             (view * projection).ToColumnMajor(viewProjection);
             materialEffect_->Apply();
+            canopyLighting_.Bind(*materialEffect_);
+            forestFloor_->Bind(*materialEffect_);
             materialEffect_->SetUniformMat4("uViewProjection", viewProjection);
             materialEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                             cameraPosition.Y, cameraPosition.Z);

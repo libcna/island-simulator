@@ -18,7 +18,6 @@ namespace island
         constexpr int RockRadius = 24;
         constexpr float LogSpacing = 30.0f;
         constexpr int LogRadius = 10;
-        constexpr int LogCollisionSamples = 7;
         constexpr float DriftwoodSpacing = 17.5f;
         constexpr int DriftwoodRadius = 18;
         constexpr int DriftwoodSupportSamples = 5;
