@@ -1,7 +1,8 @@
 # island-simulator handoff
 
-Written 2026-10-10 for the next agent (expected: Codex Astra High) starting on a fresh
-context. Everything you need to continue is here or linked; `PLAN.md` is the detailed
+Written 2026-10-10 (last update at the end of that day's session) for the next agent
+(expected: Codex Astra High) starting on a fresh context. The working tree is clean and
+everything below is committed and pushed to `origin/develop`. Everything you need to continue is here or linked; `PLAN.md` is the detailed
 ledger (newest sections at the top, under "2026-10-10"). All repository text is English.
 
 ## 1. Read first: hardware safety boundary (unchanged, still in force)
@@ -162,18 +163,20 @@ Rules that bit this session:
 ## 6. Evidence locations (ignored local data, not in Git)
 
 - Native: `build/software-captures/<timestamp>-<viewpoint>/` (PPM, logs, `run.json`,
-  kernel deltas). Latest (final evening tree): `20261010T172806.329415Z-overview`,
+  kernel deltas). Latest (palm groves): `20261010T174808.840978Z-overview`,
+  `174754.658042Z-palms`, `174801.794546Z-beach`; before: `20261010T172806.329415Z-overview`,
   `172812.566297Z-distant`, `172642.513830Z-palms`, `172648.540756Z-jungle`. Earlier:
   `20261010T150916.889020Z-jungle`, `150924.874906Z-overview`,
   `150932.482781Z-east` (forest stands); `145219Z-beach`, `145227Z-overview`,
   `145234Z-palms` (sky); `143756Z-turtles`; `130435Z-grass`, `131112Z-litter` (ground cover).
-- Web: `build/browser-software/`. Full suite `20261010T172921.618192Z-chrome-full` (28/28,
-  final tree; earlier `142621.752717Z`);
+- Web: `build/browser-software/`. Full suite `20261010T180146.003280Z-chrome-full` (28/28,
+  final tree with palm groves; earlier `172921.618192Z`, `142621.752717Z`);
   vegetation scope for the forest stands `152203.104225Z-chrome-vegetation`; litter scopes `145543Z`
   (sky) and `131626Z` (ground cover); grass-motion `132225Z`. Failed runs from the same day
   are retained on purpose (reserved word, key pulses, stale pins).
-- Android: `build/android-software/`. Final tree, all pass: `20261010T173721.178620Z-jungle`,
-  `173833.723258Z-east`, `174002.366980Z-palms`, `174128.122762Z-turtles`. Earlier:
+- Android: `build/android-software/`. Final tree (palm groves), all pass:
+  `20261010T175715.080427Z-palms`, `175828.715762Z-jungle`, `175941.257408Z-east`; before the
+  groves: `173721.178620Z-jungle`, `173833.723258Z-east`, `174128.122762Z-turtles`. Earlier:
   `145908Z-palms` (sky), `144750Z-turtles`, `133014Z-grass`; the many failed `jungle`/`east`
   runs of the evening are the sky-shader crash bisection. Rolling tested x86_64 APK:
   `build/android-software/island-x86_64.apk`.
