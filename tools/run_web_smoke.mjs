@@ -764,8 +764,8 @@ try {
       "island-simulator: selected palm near crowns include sparse hanging dry fronds")
     && result.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
-    && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 578 low bushes, hardware instancing")
-    && result.output?.includes("island-simulator: jungle ground layer 3148 small plants")
+    && result.output?.includes("island-simulator: jungle 277 canopy trees, 1822 understory plants, 579 low bushes, hardware instancing")
+    && result.output?.includes("island-simulator: jungle ground layer 3116 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes(
@@ -1094,7 +1094,7 @@ try {
     && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
-      "island-simulator: jungle 281 canopy trees, 1822 understory plants, 578 low bushes, hardware instancing")
+      "island-simulator: jungle 277 canopy trees, 1822 understory plants, 579 low bushes, hardware instancing")
     && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
     && visualResult.output?.includes(
@@ -1252,7 +1252,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
-    && /[1-9][0-9]*\/3148 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/3116 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
@@ -1284,7 +1284,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && litterResult.output?.includes(
       "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
-    && /[1-9][0-9]*\/3148 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/3116 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       litterResult.output ?? "")
     && litterResult.output?.includes("island-simulator: debug overlay active")
     && !litterResult.error;
@@ -1388,7 +1388,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/578 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/3148 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /jungle [1-9][0-9]*\/277 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/579 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/3116 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 

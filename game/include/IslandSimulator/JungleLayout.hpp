@@ -75,6 +75,11 @@ namespace island
         static constexpr int GroundPlantVariantCount = 3;
         static constexpr float CanopyMinimumScale = 0.78f;
         static constexpr float CanopyMaximumScale = 1.28f;
+        // A few emergents rise above the closed canopy only inside dense stands.
+        static constexpr float CanopyEmergentMinimumScale = 1.60f;
+        static constexpr float CanopyEmergentScale = 1.85f;
+        static constexpr float CanopyEmergentChance = 0.09f;
+        static constexpr float CanopyStandThreshold = 0.60f;
         static constexpr float UnderstoryMinimumScale = 0.72f;
         static constexpr float UnderstoryMaximumScale = 1.34f;
         static constexpr float BushMinimumScale = 0.68f;

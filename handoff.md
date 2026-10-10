@@ -1,275 +1,176 @@
 # island-simulator handoff
 
-Prepared 2026-10-09 at the operator's request; updated 2026-10-10 after the
-operator asked to continue ("keep working until the tasks are done") and set the
-standing goal that the island must look noticeably closer to reality. The overall
-development campaign is **not complete**. Do not interpret this handoff as
-permission for unattended GPU tests.
+Written 2026-10-10 for the next agent (expected: Codex Astra High) starting on a fresh
+context. Everything you need to continue is here or linked; `PLAN.md` is the detailed
+ledger (newest sections at the top, under "2026-10-10"). All repository text is English.
 
-## Read first: unresolved desktop-threatening GPU failure
+## 1. Read first: hardware safety boundary (unchanged, still in force)
 
 **Do not run this game on the host AMD GPU. Do not clear the hardware stop latch.**
-The October 8 GPUVM faults caused a MODE2 reset, VRAM loss and GNOME logout. A
-later single-client jungle benchmark also faulted: concurrency is not necessary.
-The actual invalid operation/root cause has not been identified or fixed.
-Clean software-renderer tests are not evidence that the hardware workload is safe.
+The 2026-10-08 AMDGPU GPUVM faults caused a MODE2 reset, VRAM loss and a GNOME logout; the
+root cause is not identified or fixed. Clean software-renderer runs are not evidence that the
+hardware workload is safe.
 
-Read these before incident work:
+- Latch: `build/gpu-incident-evidence/QUALIFICATION_STOP.json`, SHA-256
+  `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1` (ignored local state; a
+  fresh clone lacking it is not hardware authorization).
+- Only run the game through the contained software launchers listed in section 5. Never run
+  unrestricted display CTest, never replay GL traces on AMD, never launch the binary directly.
+- Incident documentation: `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md`,
+  `capture-evidence-inventory.md`, `mesa-recorder-readiness.md`, `process-containment.md`,
+  `maintainer-sharing-summary.md` and `upstream-triage-draft.md` (drafts only; nothing has
+  been submitted upstream and pushing this repository is not permission to do so).
+- Stop on any new GPU fault, including unrelated host activity. Do not restart a running
+  tool job just because an output poll timed out.
 
-- `docs/incidents/2026-10-08-amdgpu-gpuvm-reset.md`: reconstruction, exact retained
-  commands, attribution limits, source investigation and recovery observations.
-- `docs/incidents/capture-evidence-inventory.md`: retained versus missing evidence
-  and the acceptance gate for any future hardware capture.
-- `docs/incidents/mesa-recorder-readiness.md` and `debian-mesa-patch-audit.md`:
-  why merely enabling GALLIUM_DDEBUG or installing a driver is not a qualified plan.
-- `docs/incidents/process-containment.md`: detached-process lifetime fix and
-  software device isolation. This supervisor fix is not the GPU fault fix.
-- `docs/incidents/evidence/2026-10-08/README.md`: archived evidence hashes.
-- `docs/incidents/maintainer-sharing-summary.md` and `upstream-triage-draft.md`:
-  drafts only; no upstream issue or attachments have been submitted. The request
-  to push this repository is not permission to file issues or upload raw evidence
-  to another service. Obtain separate approval for that escalation.
+## 2. Operator direction (2026-10-10)
 
-Original fault PID 3497873 / TID 3497891 most likely ran the jungle benchmark;
-direct command-line mapping is **not proven**. `island-sim:cs0` is Mesa's AMD
-submission worker, not a game-created rendering thread. Later SwapBuffers and
-MakeCurrent crashes followed the reset and do not establish its cause.
-Serial fault PID 3593099 / TID 3593107 is directly mapped to the jungle benchmark.
-The partial devcoredump has the graphics ring but lacks referenced userspace IBs
-and uploaded descriptors. `/sys/class/devcoredump/devcd3/data` expired; do not
-ask the operator to read it again or induce a new fault to replace it.
+1. **The island must look noticeably closer to reality**, for existing and all future
+   content. Stylized or crude assets are defects. The operator named the sea turtle as
+   "really terrible"; a first pass is done, more is expected (see section 4).
+2. Product boundaries are unchanged: peaceful first-person exploration of a ~500 m tropical
+   island, fixed sunny daytime, no combat, quests, survival, crafting, inventory, weather or
+   day/night. Deterministic simulation. Portable GLSL 330 / ES 300. Measured budgets.
+3. Backlogs the operator asked for are in `PLAN.md` (section "2026-10-10 — operator
+   direction"): a 16-species nonhostile wildlife list (snakes, spiders, parrots, pigeons,
+   crocodiles, frogs, bats, mice, rats, deer, goats, ants, flies, stingrays, dolphins,
+   octopuses), a decorative island hut, and a 20-item macro-geography realism list from the
+   operator-supplied analysis (Czech original kept outside the repository at
+   `../island_improvements.md`). **Monkeys and wild boars stay on the island** by operator
+   decision.
+4. Order: visual realism of existing content before new species; a new species is not done
+   until silhouette, material, motion and contact look believable in close software captures.
 
-Local latch: `build/gpu-incident-evidence/QUALIFICATION_STOP.json`, SHA-256
-`c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
-It is ignored local state: a fresh clone lacking this file is **not** hardware
-authorization. A new hardware attempt requires a qualified bounded recorder,
-a discriminating hypothesis and explicit approval of the residual desktop risk.
+## 3. What was done on 2026-10-10 (all committed on `develop`)
 
-## Product and actual state
+- Dependency pins advanced twice to the clean shared checkouts (`dependencies.lock`): Sharp
+  Runtime `next` c20373ba, EasyGL f4d6afaf, MetaGL dd3b3005, CNA 97783d1e (unchanged). The
+  strict check in `cmake/VerifyDependencies.cmake` refuses to configure when a shared
+  checkout moves; **other agents commit to those checkouts during the day**, so if a build
+  refuses, review the delta, update the lock deliberately and requalify. Never switch or
+  edit the shared worktrees.
+- `docs/ground-cover-and-trunks.md`: `GroundCoverField` + `GroundCover::Density` shared by
+  grass placement and the terrain turf undercoat (patch field in the canopy-light texture's
+  green channel), 20,523 grass clusters; grey-brown canopy trunks with root flare, rounded
+  buttresses, moss/lichen, contact occlusion and canopy-shaded wood; slender flared palm
+  stems with smooth normals.
+- `docs/sea-turtle-form.md`: domed scute-aligned carapace, plastron, beaked head, bending
+  paddle strokes (`SeaTurtleProfile.hpp`, tested); still blocky head and tonal-only seams.
+- `docs/sky-atmosphere.md`: shared-haze horizon, warm sun glow, eleven fixed distant cumulus
+  masses; `environment::FogColor*` constants back the C++ fog sites (GLSL literals are still
+  hand-kept at `vec3(0.53, 0.78, 0.88)`).
+- `docs/forest-stands.md`: closed canopy stands with a sparse scatter and 22 emergents
+  (277 trees). Counts that changed downstream: 579 bushes (14 clearing), 3,116 ground plants
+  (64 clearing, 2,225 island-wide), 199 colonies, 159 land rocks, 12 logs.
+- Harness fixes (`docs/browser-input-ownership.md`): GLSL ES reserves `patch` (a CPU test now
+  scans generated GLSL for ES-reserved identifiers); the Web harness holds keys until the game
+  logs a new acknowledgement and waits for the release to be observed; the swim walk and
+  resume waits are paced by game output because frames on SwiftShader exceed 1 s and
+  `PlayerMotion` clamps each step to 0.1 s.
 
-Peaceful C++23 first-person exploration of an approximately 500 m tropical
-island, fixed sunny daytime. No quests, combat, survival, crafting, inventory,
-progression, changing weather or day/night cycle. All repository text is English.
-`PLAN.md` is the detailed campaign ledger, not superseded by this shorter handoff.
-The original budget was roughly 300 hours with a requested realism extension;
-it is not a requirement to spend time unnecessarily or a reliable remaining-time
-estimate. The visuals are still stylized, not a completed realism deliverable.
+## 4. Open work, in the intended order
 
-Already implemented:
+1. **Keep going on visual realism** per the `PLAN.md` 2026-10-10 backlog. Highest-impact open
+   items: terrain macro-geography rewrite (item 1), varied coast types (2), environment
+   field replacing shore-distance bands (3), prevailing wind (4), readable reef (5), natural
+   footpath (6), palm distribution (9), directional shadows (11), coastal micro-topography
+   (15), underwater habitat (16), small fauna (17), geology (19), wet biome (20).
+   Partially done: trunks (10), sky (12), atmosphere (13), stands (7), emergents (8).
+2. Sea turtle second pass: head segments, scute seam geometry, surface/underwater lighting.
+3. Then species from the wildlife backlog and the island hut, each with deterministic
+   simulation, budget, capture viewpoint, regression tests and close-capture review.
+4. Requalify Web input/lifecycle and Android touch/lifecycle after relevant changes. ARM64
+   physical-device runtime and Linux AMD hardware acceptance remain open. Never promote
+   pre-incident results to current qualification.
+5. Incident work is a separate approval-gated track (section 1).
 
-- Mouse look, WASD and arrows, ground/slope collision, swimming and soft offshore
-  current boundary. Shift **toggles** walk/run (4.3/8 m/s); it is not hold-to-run.
-  Android has touch controls. See controls and platform limitations in README.
-- Island terrain, beaches, paths/clearings, animated ocean/shoreline, distant
-  islets, palms, layered jungle, rocks, logs, driftwood, litter and mesh grass.
-- Original 20 m split shipwreck with exposed structure and 12 separate debris
-  pieces, plus six conservative collision proxies. This is a large ship, not a
-  small boat, and adds no objectives.
-- Birds, fish schools, nonhostile shark, skinned monkeys, crabs, butterflies,
-  turtles (first realism pass 2026-10-10: domed scute carapace, beaked head,
-  bending paddle strokes; see `docs/sea-turtle-form.md`) and six wild boars. Boar feet sample terrain; stance locking/stride
-  synchronization and broader animation polish remain unfinished.
-- Layered procedural ambience and spatial wildlife/player audio; not a finished
-  soundscape quality claim. Deterministic simulation/placement and extensive CPU
-  regression coverage, runtime identity logging and debug views.
-- Native OpenGL 3.3, WebGL 2 and Android GLES 3 builds. Current actual runtime
-  evidence uses llvmpipe or SwiftShader only. ARM64 compiles/packages but its
-  runtime and physical-phone performance remain unverified.
+**Open blocker (2026-10-10 evening):** the Android KVM/SwiftShader emulator's host render
+thread segfaults in the `jungle` viewpoint on the forest-stands build (two retained runs,
+`build/android-software/20261010T151839.904527Z-jungle` and `154145.130580Z-jungle`, exit -11,
+kernel `RenderThread ... segfault`), while llvmpipe and the Chrome vegetation scope render the
+same view. It is a userspace crash of the contained emulator, not a GPU fault. Diagnose before
+claiming Android qualification of the stands: try the `palms`/`grass` views (control), bisect
+emergent scale (`CanopyEmergentScale`) and the stand density, and check gfxstream limits on
+instance counts per draw. See the PLAN forest-stands entry.
 
-Recent work in the accumulated commit includes canopy structure/lighting/culling,
-supported shrubs and curved/split/fern leaves, forest-floor colonies, rendered-
-triangle root/grass/litter contact, boar ground contact, original image materials,
-portable ocean/shore material work and safer validation harnesses. Detailed
-decisions and measured limitations are in the corresponding `docs/*.md` files.
+Known soft spots to watch: distant turf undercoat reads as flat olive in open clearings;
+cumulus masses are smooth blobs; `lifecycleResumed` in the full Web suite is false (reported
+only, not a gate); `IslandGpuQualificationSupervisorTests` has a 4 s fixture timeout and can
+fail under `ctest -j4` load while passing at `-j2` or alone.
 
-Latest pass (2026-10-10, `docs/ground-cover-and-trunks.md`): nonuniform ground
-cover from a shared `GroundCoverField` + baked canopy light (grass placement and
-the terrain's living-turf undercoat use one `GroundCover::Density` formula; the
-patch field rides in the canopy texture's green channel), 20,523 grass clusters,
-grey-brown canopy trunks with root flare, rounded buttresses, moss/lichen,
-contact occlusion and canopy-shaded wood, and slender flared coconut palm stems
-with smooth normals. Two harness lessons: GLSL ES reserves `patch` (ANGLE sent the
-Web terrain to its fallback; a CPU test now scans generated GLSL), and fixed F7
-key pulses miss heavy SwiftShader frames (setup now holds the key until acknowledged).
-Same day: first sea-turtle realism pass (`docs/sea-turtle-form.md`) and a sky with
-shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses plus
-`environment::FogColor*` constants for the C++ fog sites (`docs/sky-atmosphere.md`).
-
-## Dependency and machine boundaries
-
-- CNA `next` and Sharp Runtime `next` are strictly **read-only**, including their
-  files, Git metadata and branch state. Do not patch even confirmed framework
-  bugs. Use narrow game-side adapters only when justified; record actual defects
-  in `BUGS.md`, not every unsupported feature or application mistake.
-- `dependencies.lock` is authoritative. Current pins (refreshed 2026-10-10 to the
-  clean workspace heads after review; see PLAN.md): CNA
-  `97783d1e090c6d84f4b6a6d7746516e65184569e`, Sharp Runtime
-  `c20373bae5be1f02d1fe2fa33c4cbba8ad05e4a0`, EasyGL develop
-  `f4d6afaf16cdc7e7e73130950bc45e6d865b41bd`, MetaGL develop
-  `dd3b30055d55fdc42240de7af248259338256992`. The strict revision check in
-  `cmake/VerifyDependencies.cmake` refuses to configure when a shared checkout
-  has moved; update the lock deliberately, never switch the shared worktrees.
-- Existing CNA export: `build/dependencies/cna-next`. See
-  `tools/materialize_cna_next.sh` and `cmake/VerifyDependencies.cmake`; do not
-  rematerialize or switch a shared tree just to bypass a pin mismatch.
-- Read `../AGENTS.md`. Every build must use `CCACHE_DIR=/rv/cnaccache` and
-  `CCACHE_BASEDIR=/rv`. Never set `CCACHE_DISABLE` or `CCACHE_MAXSIZE`, create
-  another cache, or silently bypass it. Escalate permissions when sandbox writes
-  to the shared cache are blocked.
-- Use two build workers here; never exceed the user's eight-core cap. Do not
-  overlap heavy builds/render workloads. Web uses EMCC_CORES=2/BINARYEN_CORES=2.
-- Reuse `build/` (native), `build-probe/` (Web and small probes), existing Android
-  intermediates. Preserve `build-consumer/` historical incident binaries. Never
-  build in `/tmp` or create ticket/date-suffixed build trees.
-- Keep original artwork and incident evidence. Do not commit ignored builds,
-  browser profiles, SDKs, APKs, credentials or temporary captures indiscriminately.
-  Last disk check: 359 GiB free. Only reproducible rolling packages were replaced.
-
-## Build and test commands
-
-Run from the repository root. Existing presets are configured; reconfigure only
-if genuinely needed. More setup details: `docs/build-linux.md`, `build-web.md`,
-`build-android.md`. Host texture preparation requires Python 3.10+ and Pillow
-(here 3.13.5 / 11.1.0); no Python/Pillow is shipped in the game.
+## 5. Build, test and capture commands (run from the repository root)
 
 ```sh
-export CCACHE_DIR=/rv/cnaccache CCACHE_BASEDIR=/rv
-cmake --build --preset linux-debug -j2
+export CCACHE_DIR=/rv/cnaccache CCACHE_BASEDIR=/rv     # mandatory, see ../AGENTS.md
+cmake --build --preset linux-debug -j2                 # existing build/ tree, do not reconfigure
 ctest --test-dir build -LE display --output-on-failure -j2
 
-# Safe, monitored native software capture; not an interactive AMD launch.
+# Contained native llvmpipe captures (viewpoints: overview beach jungle east clearing-edge
+# west grass ground ground-broadleaf bush litter contact movement palms water current distant
+# props driftwood reef fronds birds fish shark monkeys shipwreck crabs butterflies turtles)
 sg systemd-journal -c 'python3 tools/run_software_capture.py build grass'
-# Isolated missing-leaf fixture: never move/delete the actual asset.
-sg systemd-journal -c 'python3 tools/run_software_capture.py build ground-broadleaf --missing-leaf'
 
+# Web (existing build-probe/ tree)
 source /home/robertvokac/emsdk/emsdk_env.sh
 export EMCC_CORES=2 BINARYEN_CORES=2
 cmake --build --preset web-webgl2 -j2
 sg systemd-journal -c 'python3 tools/run_browser_software.py build-probe --node /home/robertvokac/emsdk/node/24.19.0_64bit/bin/node --browser chrome --scope litter --timeout 300'
-sg systemd-journal -c 'python3 tools/run_browser_software.py build-probe --node /home/robertvokac/emsdk/node/24.19.0_64bit/bin/node --browser chrome --scope grass-motion --timeout 420'
+#   scopes: full terrain wildlife-foliage coast grounding vegetation grass-motion litter
+#   (the turtle view exists only in --scope full --timeout 1700, about 25 minutes)
 tools/package_web_release.sh build-probe
 
+# Android (x86_64 emulator run, then restore the default ARM64 package)
 export ANDROID_SDK_ROOT=/home/robertvokac/Android/Sdk
 tools/run_android_gradle.sh :app:assembleDebug :app:lintDebug -PislandAbi=x86_64
 sg systemd-journal -c 'python3 tools/run_android_software.py --sdk /home/robertvokac/Android/Sdk --boot --apk android/app/build/outputs/apk/debug/app-debug.apk --viewpoint grass'
-# Preserve the rolling tested emulator APK, then restore the default phone ABI.
 cp android/app/build/outputs/apk/debug/app-debug.apk build/android-software/island-x86_64.apk
 tools/run_android_gradle.sh :app:assembleDebug :app:lintDebug
 ```
 
-Do **not** run unrestricted display CTest or the historical parallel GPU command.
-The software runners share `build/gpu-qualification.lock`, monitor kernel logs
-before/during/after, fail closed, and contain detached descendants with bubblewrap.
-Native/browser private devices hide DRM; Android has an audited inner sandbox
-exposing KVM but not the host GPU/display, private ADB port 5038, emulator port
-5558, two vCPUs and 2 GiB. KVM is available; no new root command is needed.
-Journal access through `sg systemd-journal` works. Never bypass inaccessible logs.
-Stop on any new GPU fault, including unrelated host activity. Do not restart a
-still-running tool job just because an output poll timed out.
+Rules that bit this session:
 
-The browser harness uses acknowledged mouse/F1 gestures: short fixed pulses were
-unreliable. Preserve evidence and fix input ownership, not assertions, if it fails.
-The Android wrapper removes only the previous generated debug APK before assembly
-to avoid AGP ZIP bloat; it retains expensive intermediates and shared cache.
+- Every launcher writes `run.json` with `"result"`; a `tail` of its stdout can look like
+  success while the gate failed. Always read `run.json` and keep failed-run directories.
+- The owned emulator crashed once (exit -11) on 2026-10-10 and its stale AVD lock files made
+  the next launch fail before boot; the harness now removes such locks when no emulator
+  process exists. Browser scopes with eight views need `--timeout 1700` at current frame cost.
+- Harnesses pin exact diagnostics and counts (`tools/run_software_capture.py`,
+  `tools/run_web_smoke.mjs`, `tools/run_firefox_web_smoke.mjs`,
+  `tools/run_android_runtime_smoke.sh`). When you change a mesh inventory, population count or
+  a diagnostic string, update the pins in the same change, otherwise runs fail with
+  "check for a stale executable" or silently on a regex.
+- The full Web suite verifies 28 sections; if a run fails, test the harness' `includes`
+  literals and regexes against the retained `island-browser-smoke.json` outputs to find the
+  stale one quickly (see the PLAN entry for the 2026-10-10 turtle requalification).
+- Do not overlap heavy jobs (Web build, browser suite, emulator, Gradle). Two build workers
+  for Sharp-Runtime-governed work; `-j4` is fine for the island build itself.
+- Never build in `/tmp`; reuse `build/`, `build-probe/`; keep `build-consumer/` and
+  `build/gpu-incident-evidence/` untouched.
 
-## Evidence, screenshots and audits
+## 6. Evidence locations (ignored local data, not in Git)
 
-All paths below are relative to this repository. Most runtime evidence is ignored
-local data and is **not included in Git**. A fresh clone must rerun safe checks;
-do not silently present absent local evidence as reproduced. Archived incident
-sources and small reports under `docs/incidents/evidence/` are versioned separately.
+- Native: `build/software-captures/<timestamp>-<viewpoint>/` (PPM, logs, `run.json`,
+  kernel deltas). Latest: `20261010T150916.889020Z-jungle`, `150924.874906Z-overview`,
+  `150932.482781Z-east` (forest stands); `145219Z-beach`, `145227Z-overview`,
+  `145234Z-palms` (sky); `143756Z-turtles`; `130435Z-grass`, `131112Z-litter` (ground cover).
+- Web: `build/browser-software/`. Full suite `20261010T142621.752717Z-chrome-full` (28/28);
+  vegetation scope for the forest stands `152203.104225Z-chrome-vegetation`; litter scopes `145543Z`
+  (sky) and `131626Z` (ground cover); grass-motion `132225Z`. Failed runs from the same day
+  are retained on purpose (reserved word, key pulses, stale pins).
+- Android: `build/android-software/`. Jungle run for the forest stands (see `PLAN.md`),
+  `145908Z-palms` (sky), `144750Z-turtles`, `133014Z-grass`. Rolling tested x86_64 APK:
+  `build/android-software/island-x86_64.apk`.
+- Package sizes and hashes are in the `docs/*.md` file of each pass. ARM64 runtime untested.
+- Incident evidence: `build/gpu-incident-evidence/` and historical `build-consumer/`.
+  Never clean these as disposable build output.
 
-- Latest native views (2026-10-10): `build/software-captures/20261010T130435.552471Z-grass/`,
-  `130442.064431Z-jungle/`, `130447.989273Z-overview/`, `131112.797097Z-litter/`.
-  Pre-change baselines from the same day: `124054.843331Z-grass/`, `124104.764451Z-jungle/`.
-  Each has PPM, per-PID/runtime/workload logs, run metadata and kernel delta.
-- Missing-leaf test: `build/software-captures/20261009T124801.964528Z-ground-broadleaf/`.
-  Passed and inspected; original hash/size/inode/device/mtime unchanged. Normal
-  qualification still rejects all fallback paths; the fixture accepts only its
-  specific diagnosed procedural-leaf fallback.
-- Full Web suite: `build/browser-software/20261010T142621.752717Z-chrome-full/` (28/28;
-  `lifecycleResumed` false, reported only). Latest litter scope (sky pass):
-  `145543.719907Z-chrome-litter/`. Ground-cover pass litter scope:
-  `20261010T131626.070992Z-chrome-litter/`.
-  Both views pass 60 intervals, GL error zero, live context, empty kernel deltas.
-  Failed `130857.587590Z-chrome-litter/` (reserved GLSL word) is retained.
-- Latest real-input walk: `build/browser-software/20261010T132225.050061Z-chrome-grass-motion/`
-  (passed; `*-teleport-gesture.json` holds the F7 hold evidence). Failed
-  `131944.941204Z` and `132110.766963Z` (F7 pulses) are retained.
-- Latest Android: `build/android-software/20261010T145908.469206Z-palms/` (sky pass);
-  turtle pass `144750.998688Z-turtles/`. Ground-cover pass: `20261010T133014.813550Z-grass/`.
-  `game/island-android.png` and `island-android-logcat.txt`: inspected 1280x720 image,
-  PID 1729/TID 1822, no kernel fault, emulator exit zero. Failed `132633.978451Z-grass/`
-  (stale smoke-script mesh pin) is retained.
-- `docs/ground-cover-and-trunks.md` contains current APK sizes/hashes. Current
-  Web package is `build-probe/web-release`: 10,368,543 raw / 3,527,432 gzip bytes.
-  Last completed non-display suite: 33/33 passed in 26.94 s.
-- Original materials: `assets/art-studies/`, prompts/provenance in
-  `ASSET_LICENSES.md` and `assets/manifest.json`. Retain both selected and rejected
-  studies needed for the documented review. Runtime prepared floor/leaf PNGs
-  total 766,261 bytes, CPU-tested pixel-equivalent to the original runtime filter;
-  see `docs/prepared-materials.md`. Do not mistake image generation for runtime
-  screenshot evidence or claim these artistic images are measured PBR textures.
-- Large incident material remains in `build/gpu-incident-evidence/`, including
-  `software-jungle-trace/jungle.trace`, and historical `build-consumer/`.
-  Use the incident report/inventory for exact authoritative paths and hashes;
-  do not clean these as disposable build output. Never replay traces on AMD.
+## 7. Repository and dependency boundaries
 
-## Next tasks after a new operator instruction
-
-1. Read the final walking result and PLAN.md. Keep the hardware stop boundary.
-2. Improve nonuniform ground cover and tree-trunk/lighting presentation based on
-   actual first-person images. The current ground remains sparse, tufts repeat,
-   and trunks/overall lighting look stylized. Do not add unrelated game systems.
-3. Review discrete vegetation/grass LOD transitions and normal response under wind;
-   filtered grain alone does not prove temporal stability. Maintain portable
-   GLSL 330/300 ES and measured draw/memory budgets.
-4. Continue wildlife animation/contact polish (boar stance/stride and monkey
-   transitions), coastline/water integration and soundscape quality. Repeatedly
-   run the changed system, not just compile it.
-5. Requalify full Web input/lifecycle and Android touch/lifecycle after relevant
-   changes. ARM64 physical-device runtime/performance and Linux AMD hardware
-   acceptance are still open. Never promote old pre-incident results to current
-   qualification.
-6. Incident work is a separate approval-gated track: bounded durable failing-IB /
-   uploaded-descriptor evidence is missing. No confirmed framework repair or
-   root-cause claim is justified by the current software audits.
-7. Operator direction 2026-10-10: the island must look noticeably closer to
-   reality, for existing and all future content. The sea turtle was named as very
-   poor and is the first realism fix; review every other visible system too.
-8. Wildlife backlog requested by the operator (nonhostile ambient life only):
-   snakes, spiders, parrots, pigeons/doves, crocodiles, frogs, bats, mice, rats,
-   deer, goats, ants, flies, stingrays, dolphins and octopuses. Details, order
-   and acceptance rules are in the 2026-10-10 section at the top of `PLAN.md`.
-9. Operator request 2026-10-10: build a realistic decorative island hut somewhere
-   on the island (see the landmark backlog in the same `PLAN.md` section).
-10. Macro-geography realism backlog (asymmetric terrain, varied coasts, environment
-    field, prevailing wind, readable reef, natural path, forest masses, emergent trees,
-    atmosphere/sky/shadows, underwater habitat, small fauna, geology, wet biome) is
-    in the same `PLAN.md` section; the Czech source analysis is `../island_improvements.md`.
-    Monkeys and wild boars stay on the island by operator decision.
-
-## 2026-10-09 final bounded task result (historical)
-
-The existing Web build was already up to date (no compiler work). Contained
-Chrome/SwiftShader run `20261009T131053.908704Z-chrome-grass-motion` passes with
-real W/S and pointer-capture input: 19.0084 m outward, 0.7167 m return error,
-94 telemetry samples, 47 grass LOD population states and 20 canopy transitions.
-All 98 recorded compositor frames are distinct, 2,565,775 bytes total, with no
-truncation or recording error. Thirty additional frame intervals pass; GL error
-is zero, context remains live and live/final kernel deltas are empty.
-
-Inspected full-size `island-browser-grass-motion-step-{0,3,6}.png` and recorded
-`island-browser-grass-motion-16-frame-{025,026,027,075}.jpg` in that run directory.
-No gross geometry/material break was visible in those samples. Sparse coverage
-and repeated tufts remain conspicuous. This sampled 640x360 compressed sequence
-cannot establish absence of fine shimmer or seamless LOD changes; do not claim
-that this review proves photorealism or high-frame-rate temporal stability.
-
-Owned host browser PID 4112991 is gone, with no remaining game/emulator/compositor
-process. Hardware latch unchanged; 359 GiB free. No incident evidence was removed.
-Final non-display regression suite passes 33/33 groups in 22.23 s. No source
-implementation was changed during this final bounded review; only documentation
-was finalized after the already-validated material pass.
-The operator's final action is an ordinary push of branch `develop` to `origin`,
-including previously unpushed project history, followed by stopping this campaign.
+- CNA `next` export at `build/dependencies/cna-next` and Sharp Runtime `next`, EasyGL and
+  MetaGL `develop` under `../` are strictly read-only. Record actual framework defects in
+  `BUGS.md`; do not patch them.
+- Original artwork lives in `assets/art-studies/` with provenance in `ASSET_LICENSES.md`
+  and `assets/manifest.json`; prepared PNGs are generated at build time (Python 3.10+ and
+  Pillow on the host only).
+- Commit on `develop`; push only when the operator asks. The push on 2026-10-10 included all
+  work up to the forest-stands pass.

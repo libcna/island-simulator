@@ -168,10 +168,13 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   detailed coral models.
 - [ ] 6. Make the central route a natural 1.5-3 m footpath that fades, forks and winds around roots
   and stones instead of a ~12 m corridor that visibly halves the island from above.
-- [ ] 7. Redistribute canopy trees into masses (about 60% dense stands, 25% transitional, 15%
-  solitary) with fully open areas between, keeping a similar tree count (8-12 h).
-- [ ] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
-  and broken trunks.
+- [~] 7. Redistribute canopy trees into masses (about 60% dense stands, 25% transitional, 15%
+  solitary) with fully open areas between, keeping a similar tree count (8-12 h). 2026-10-10
+  first pass (`docs/forest-stands.md`): 10.5 m candidate grid with a contrast-shaped stand
+  field; 277 trees, 223 grouped, 9 solitary; downstream counts and harness pins updated.
+- [~] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
+  and broken trunks. 2026-10-10: 22 emergents (scale 1.60-1.85) promoted only inside closed
+  stands; young, dead and broken trunks still open.
 - [ ] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
   palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
 - [ ] 10. Continue trunk realism (started 2026-10-10: grey-brown bark, moss, lichen, root flare,
@@ -216,6 +219,48 @@ added, prefer ones whose realistic form and motion can be validated in close sof
 and add each with its own deterministic simulation, budget, audio where natural, capture viewpoint
 and regression tests. Record species that do not occur naturally on a small tropical island (for
 example deer) as deliberate operator choices, not ecological claims.
+
+#### 2026-10-10 — forest stands and emergent trees
+
+- [x] Canopy candidates every 10.5 m (grid radius 28) with a contrast-shaped stand field so
+  stands close up and open ground stays open; emergents (scale 1.60-1.85) promoted in a second
+  pass only with at least two accepted neighbours within 20 m. 277 trees, 22 emergents, 223
+  grouped, 9 solitary. Downstream: 579 bushes (14 clearing), 3,116 ground plants (64 clearing,
+  2,225 island-wide), 199 colonies, 159 land rocks, 12 logs. Tests pin the structure and the
+  counts; Web/Firefox/Android harness count pins updated. See `docs/forest-stands.md`.
+- [x] 33/33 non-display groups pass at `-j2` (58.00 s); at `-j4` the supervisor fixture's 4 s
+  timeout can trip under load (passes alone in 0.13 s). Native llvmpipe `150916.889020Z-jungle`,
+  `150924.874906Z-overview`, `150932.482781Z-east` pass; images inspected (clumped masses with
+  gaps, emergents above the canopy line).
+- [x] Web rebuilt; package 10,369,803 raw / 3,528,320 gzip bytes. First vegetation scope
+  `20261010T151121.570035Z-chrome-vegetation` **timed out** at 420 s after passing grass and
+  jungle (about 200 s per view at the current frame cost); evidence retained; rerun with 1,700 s.
+  First Android jungle run `151839.904527Z-jungle` **failed**: the owned emulator process itself
+  exited -11 (SIGSEGV) after boot with 17 GiB host memory free and only LibreOffice AppArmor audit
+  lines in the kernel delta (no GPU message); evidence retained; rerun.
+- [x] Vegetation scope rerun `20261010T152203.104225Z-chrome-vegetation` **passes** all eight
+  views / 60 intervals each with the 1,700 s limit, empty kernel deltas.
+- [x] Second Android run `152158.311932Z-jungle` failed before boot: the crashed emulator had
+  left `multiinstance.lock` and `hardware-qemu.ini.lock` in the owned AVD ("Running multiple
+  emulators with the same AVD"). `run_android_software.py` now removes stale AVD locks only when
+  no emulator/QEMU process exists on the host and logs it; Android harness fixtures pass.
+- [!] Android jungle view: after clearing the locks, `154145.130580Z-jungle` failed again and
+  the first failure is now explained the same way: the **host emulator process crashed**
+  (exit -11; kernel log `RenderThread[...]: segfault ... error 4` from the gfxstream/SwiftShader
+  host renderer, a userspace fault inside the contained emulator, no GPU message). The game had
+  started (PID 1789 / TID 1849); the guest logged only the pre-existing `glGetUniformLocation`
+  0x502 noise. The same build's `jungle` view passes on llvmpipe and in the Chrome vegetation
+  scope, and the native jungle camera now submits fewer canopy instances (41/277, near 25) than
+  before (65/281, near 38), so this is not an instance-count overflow. Cause unknown; evidence
+  retained. Hypotheses for the next agent: emergent-scale instances (1.60-1.85) in a single
+  draw, or a gfxstream host bug exposed by the changed jungle QA camera target. A `grass`
+  control run on the same APK **passes**: `154353.959842Z-grass`, PID 1776 / TID 1876, first draw
+  5,622.684 ms, total 12,309.261 ms, emulator exit zero, empty kernel delta, so the crash is
+  specific to the jungle viewpoint. ARM64 package restored (20,502,740 bytes); runtime untested.
+- [x] Session end: hardware latch SHA-256 unchanged, 351 GiB free, no owned graphics process;
+  host kernel journal since 15:00 CEST holds only Bluetooth/USB-enclosure messages, AppArmor
+  audit lines and the emulator RenderThread segfaults (no GPU message). All evidence retained.
+  Work committed and pushed to `origin/develop`; `handoff.md` rewritten for the next agent.
 
 #### 2026-10-10 — dependency baseline refresh
 

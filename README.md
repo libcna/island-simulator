@@ -58,8 +58,8 @@ The sea floor uses continuous sand colours across the waterline, with filtered s
 water tint and opacity increase with local depth instead of baking turquoise into the substrate.
 An exact shore-following foam/wash ribbon uses advancing, fading crests and
 pixel-footprint-filtered porous foam instead of a continuous white stripe. The landscape contains
-330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 578 low
-bushes, 3,148 small forest-floor plants, and 20,523 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 157
+330 varied procedural palms, 277 broadleaf canopy trees (22 emergents in closed stands), 1,822 ferns/large-leaf plants, 579 low
+bushes, 3,116 small forest-floor plants, and 20,523 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 157
 irregular land rocks, 14 emergent near-shore reef outcrops, 13 mossy fallen logs with irregular
 near broken-end contours,
 31 pieces of sun-bleached beach driftwood, 63 curved fallen palm fronds with asymmetric leaflets,

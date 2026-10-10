@@ -75,6 +75,34 @@ def require_private_devices(host_net):
         raise RuntimeError("CPU affinity exceeds the eight-core budget")
 
 
+def emulator_processes_alive():
+    """Any live emulator or QEMU on the host; the owned instance always matches too."""
+    for entry in Path("/proc").iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            command = (entry / "cmdline").read_bytes()
+        except OSError:
+            continue
+        if b"qemu-system" in command or b"/emulator/emulator" in command:
+            return True
+    return False
+
+
+def clear_stale_avd_locks(avd):
+    """A crashed owned emulator (2026-10-10, exit -11) leaves lock files that make the next
+    launch fail before boot with "Running multiple emulators with the same AVD". Remove them
+    only when no emulator process exists anywhere; never touch a live instance's locks."""
+    locks = [path for path in avd.iterdir() if path.name.endswith(".lock")]
+    if not locks:
+        return
+    if emulator_processes_alive():
+        raise RuntimeError("AVD lock files exist and an emulator process is alive; refusing to launch")
+    for path in locks:
+        shutil.rmtree(path) if path.is_dir() else path.unlink()
+    print(f"Removed {len(locks)} stale AVD lock file(s) left by a crashed emulator", flush=True)
+
+
 def prepare_avd(state):
     """Create only fresh project-owned data; never seed from a user's AVD."""
     if (state / "OWNER").read_text() != OWNER:
@@ -82,6 +110,7 @@ def prepare_avd(state):
     avds = state / "android/avd"
     avd = avds / (AVD + ".avd")
     avd.mkdir(parents=True, exist_ok=True)
+    clear_stale_avd_locks(avd)
     config = (f"AvdId={AVD}\nabi.type=x86_64\nhw.cpu.arch=x86_64\nhw.cpu.ncore=2\n"
               "hw.gpu.enabled=yes\nhw.gpu.mode=swiftshader\nhw.ramSize=2048\n"
               "hw.lcd.width=1280\nhw.lcd.height=720\nhw.lcd.density=240\n"

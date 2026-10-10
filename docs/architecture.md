@@ -670,8 +670,8 @@ transmission alongside folded side colour and root darkening. Native OpenGL 3.3 
 slower static `BasicEffect` path remains functional but omits bending and the fragment-lighting
 detail.
 
-The layered interior jungle adds 281 broadleaf trees, 1,822 medium plants, 578 low bushes, and
-3,148 small forest-floor plants. Thirteen shrubs and 57 small plants form local clearing-edge
+The layered interior jungle adds 277 broadleaf trees (closed stands with a sparse scatter and 22 emergents, `docs/forest-stands.md`), 1,822 medium plants, 579 low bushes, and
+3,116 small forest-floor plants. Fourteen shrubs and 64 small plants form local clearing-edge
 colonies on top of the unchanged base populations. Each clearing tests twelve jittered angular
 sectors, leaves deliberate gaps and varies radial offset. Accepted shrubs receive four to six
 candidate companions, mostly one leaf family with occasional contrast, varied scale/yaw and

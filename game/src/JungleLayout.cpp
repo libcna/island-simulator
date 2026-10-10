@@ -12,8 +12,9 @@ namespace island
 {
     namespace
     {
-        constexpr float CanopySpacing = 14.5f;
-        constexpr int CanopyRadius = 20;
+        // Dense stands need crowns that can touch: candidates every 10.5 m over the same area.
+        constexpr float CanopySpacing = 10.5f;
+        constexpr int CanopyRadius = 28;
         constexpr float UnderstorySpacing = 5.8f;
         constexpr int UnderstoryRadius = 50;
         constexpr float BushSpacing = 8.4f;
@@ -70,6 +71,8 @@ namespace island
     {
         canopy_.reserve(420U);
         obstacles_.reserve(420U);
+        struct EmergentCandidate { std::size_t index; bool eligible; float scaleRandom; };
+        std::vector<EmergentCandidate> emergentCandidates;
         for (int gridZ = -CanopyRadius; gridZ <= CanopyRadius; ++gridZ) {
             for (int gridX = -CanopyRadius; gridX <= CanopyRadius; ++gridX) {
                 const std::uint32_t siteHash = Hash(gridX, gridZ, seed);
@@ -87,10 +90,14 @@ namespace island
                 }
 
                 const float interior = SmoothStep((sample.signedShoreDistance - 43.0f) / 78.0f);
-                const float cluster = ClusterNoise(x, z, seed ^ 0x9e3779b9U, 61.0f);
+                // Forest masses, not a park: a contrast-shaped stand field makes near-closed
+                // stands with open ground between them, plus a thin scatter of solitary trees.
+                const float broadCluster = ClusterNoise(x, z, seed ^ 0x9e3779b9U, 61.0f);
+                const float fineCluster = ClusterNoise(x, z, seed ^ 0x2545f491U, 23.0f);
+                const float stand = SmoothStep(
+                    (broadCluster * 0.72f + fineCluster * 0.28f - 0.40f) / 0.24f);
                 const float density = std::clamp(
-                    (0.34f + 0.46f * interior) * (0.48f + 0.78f * cluster),
-                    0.0f, 0.91f);
+                    (0.52f + 0.48f * interior) * (0.045f + 0.60f * stand), 0.0f, 0.95f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x85ebca6bU)) >= density) {
                     continue;
                 }
@@ -104,11 +111,32 @@ namespace island
                 tree.scale = CanopyMinimumScale
                     + (CanopyMaximumScale - CanopyMinimumScale)
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x165667b1U));
+                emergentCandidates.push_back({canopy_.size(),
+                    stand > CanopyStandThreshold
+                        && UnitRandom(Hash(gridX, gridZ, seed ^ 0x3c6ef372U)) < CanopyEmergentChance,
+                    UnitRandom(Hash(gridX, gridZ, seed ^ 0x7f4a7c15U))});
                 tree.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xd3a2646cU) % CanopyVariantCount);
                 canopy_.push_back(tree);
                 obstacles_.push_back(CircularObstacle{tree.x, tree.z, 0.43f * tree.scale});
             }
+        }
+
+        // Emergents rise only above a closed stand: promote eligible trees that actually have
+        // accepted neighbours, so the stand field alone cannot create a lone giant.
+        for (const auto& candidate : emergentCandidates) {
+            if (!candidate.eligible) continue;
+            CanopyPlacement& tree = canopy_[candidate.index];
+            int neighbours = 0;
+            for (std::size_t other = 0; other < canopy_.size(); ++other) {
+                if (other == candidate.index) continue;
+                const float dx = canopy_[other].x - tree.x, dz = canopy_[other].z - tree.z;
+                if (dx * dx + dz * dz < 20.0f * 20.0f) ++neighbours;
+            }
+            if (neighbours < 2) continue;
+            tree.scale = CanopyEmergentMinimumScale
+                + (CanopyEmergentScale - CanopyEmergentMinimumScale) * candidate.scaleRandom;
+            obstacles_[candidate.index].radius = 0.43f * tree.scale;
         }
 
         understory_.reserve(2600U);

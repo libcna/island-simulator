@@ -2712,7 +2712,7 @@ int main()
     }
     for (const auto& log : props.FallenLogs()) landFootprints.push_back(island::LogContactFootprint(log));
     for (const auto& wood : props.Driftwood()) landFootprints.push_back(island::DriftwoodContactFootprint(wood));
-    Check(landFootprints.size() == 201, "all 157 land rocks, 13 logs and 31 driftwood pieces retain their shadows");
+    Check(landFootprints.size() == 202, "all 159 land rocks, 12 logs and 31 driftwood pieces retain their shadows");
     for (float sign : {-1.0f, 1.0f}) {
         island::RockPlacement rock;
         island::FallenLogPlacement log;
@@ -3619,7 +3619,7 @@ int main()
     };
     checkColonies(jungle);
     checkForestColonies(jungle);
-    Check(jungle.ClearingBushCount()==13 && jungle.ClearingGroundPlantCount()==57,
+    Check(jungle.ClearingBushCount()==14 && jungle.ClearingGroundPlantCount()==64,
         "forest recruitment preserves the existing default clearing accents");
     for (const auto seed:{0x12345U,0xa55aU}) {
         const island::JungleLayout alternate(terrain,seed);
@@ -3657,6 +3657,7 @@ int main()
     Check(jungle.Obstacles().size() == jungle.Canopy().size(),
           "every broadleaf canopy trunk has one collision proxy");
     std::array<std::size_t, island::JungleLayout::CanopyVariantCount> canopyFormCounts{};
+    std::size_t emergentCount = 0U;
     for (std::size_t index = 0; index < jungle.Canopy().size(); ++index) {
         const island::CanopyPlacement& tree = jungle.Canopy()[index];
         const island::CanopyPlacement& repeated = repeatedJungle.Canopy()[index];
@@ -3675,16 +3676,46 @@ int main()
         Check(tree.variant < island::JungleLayout::CanopyVariantCount,
               "broadleaf canopy variant index remains in range");
         ++canopyFormCounts.at(tree.variant);
+        const bool emergent = tree.scale > island::JungleLayout::CanopyMaximumScale;
         Check(tree.scale >= island::JungleLayout::CanopyMinimumScale
-                  && tree.scale <= island::JungleLayout::CanopyMaximumScale,
-              "broadleaf canopy scale remains in the authored range");
+                  && (tree.scale <= island::JungleLayout::CanopyMaximumScale
+                      || (tree.scale >= island::JungleLayout::CanopyEmergentMinimumScale
+                          && tree.scale <= island::JungleLayout::CanopyEmergentScale)),
+              "broadleaf canopy scale remains in the authored or emergent range");
+        emergentCount += emergent ? 1U : 0U;
+        if (emergent) {
+            int standNeighbours = 0;
+            for (const island::CanopyPlacement& other : jungle.Canopy()) {
+                if (&other != &tree && std::hypot(other.x - tree.x, other.z - tree.z) < 20.0f) ++standNeighbours;
+            }
+            Check(standNeighbours >= 2, "emergent trees rise only inside closed stands");
+        }
         const island::CircularObstacle& obstacle = jungle.Obstacles()[index];
         CheckNear(obstacle.x, tree.x, 0.0001f,
                   "broadleaf obstacle shares its visual x coordinate");
         CheckNear(obstacle.z, tree.z, 0.0001f,
                   "broadleaf obstacle shares its visual z coordinate");
-        Check(obstacle.radius > 0.30f && obstacle.radius < 0.56f,
+        Check(obstacle.radius > 0.30f
+                  && obstacle.radius < 0.43f * island::JungleLayout::CanopyEmergentScale + 0.01f
+                  && (emergent || obstacle.radius < 0.56f),
               "broadleaf collision radius stays close to the visible trunk");
+    }
+    {
+        // Forest masses, not a park: most trees stand in closed groups, a few stand alone.
+        std::size_t grouped = 0U, solitary = 0U;
+        for (const island::CanopyPlacement& tree : jungle.Canopy()) {
+            int neighbours = 0;
+            for (const island::CanopyPlacement& other : jungle.Canopy()) {
+                if (&other != &tree && std::hypot(other.x - tree.x, other.z - tree.z) < 20.0f) ++neighbours;
+            }
+            grouped += neighbours >= 3 ? 1U : 0U;
+            solitary += neighbours == 0 ? 1U : 0U;
+        }
+        const double total = static_cast<double>(jungle.Canopy().size());
+        Check(grouped / total >= 0.60 && solitary >= 3U && solitary / total <= 0.15,
+              "canopy trees form closed stands with a sparse scatter of solitary trees");
+        Check(emergentCount / total >= 0.03 && emergentCount / total <= 0.15,
+              "a small fraction of canopy trees is emergent");
     }
     Check(std::ranges::all_of(canopyFormCounts, [](std::size_t count) { return count >= 10; }),
           "every shared canopy form is represented across the island");
