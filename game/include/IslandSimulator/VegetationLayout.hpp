@@ -37,6 +37,11 @@ namespace island
         static constexpr int PalmVariantCount = 4;
         static constexpr float PalmMinimumScale = 0.82f;
         static constexpr float PalmMaximumScale = 1.24f;
+        // Young palms recruit around adults inside groves.
+        static constexpr float PalmJuvenileMinimumScale = 0.42f;
+        static constexpr float PalmJuvenileMaximumScale = 0.64f;
+        static constexpr float PalmJuvenileChance = 0.32f;
+        static constexpr float PalmGroveThreshold = 0.45f;
         static constexpr float PrimaryPathBaseX = -5.0f;
         static constexpr float PrimaryPathAmplitude = 21.0f;
         static constexpr float PrimaryPathZOffset = 34.0f;
@@ -72,6 +77,8 @@ namespace island
         [[nodiscard]] static std::uint32_t Hash(std::int32_t x, std::int32_t z,
                                                 std::uint32_t seed) noexcept;
         [[nodiscard]] static float UnitRandom(std::uint32_t value) noexcept;
+        [[nodiscard]] static float GroveNoise(float x, float z, std::uint32_t seed,
+                                              float cellSize) noexcept;
         [[nodiscard]] static float ClusterNoise(float x, float z,
                                                 std::uint32_t seed) noexcept;
 

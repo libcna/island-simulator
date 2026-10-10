@@ -751,7 +751,7 @@ try {
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && result.output?.includes(
       "island-simulator: distant scenery 5 unreachable low islets, one portable batch")
-    && result.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
+    && result.output?.includes("island-simulator: palms 370 in 64 cells, hardware instancing")
     && result.output?.includes("palm portable wind shader with near/far mesh LOD")
     && result.output?.includes("palm near mesh segmented fuller leaflet silhouettes")
     && result.output?.includes(
@@ -822,7 +822,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && result.output?.includes("island-simulator: natural props 173 rocks, 14 reef outcrops, 12 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 11 fallen logs, 32 driftwood pieces, 67 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && result.output?.includes(
@@ -1091,7 +1091,7 @@ try {
       "island-simulator: ocean reused crossing-wave subsurface colour")
     && visualResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
-    && visualResult.output?.includes("island-simulator: palms 330 in 64 cells, hardware instancing")
+    && visualResult.output?.includes("island-simulator: palms 370 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
       "island-simulator: jungle 277 canopy trees, 1822 understory plants, 579 low bushes, hardware instancing")
@@ -1327,7 +1327,7 @@ try {
       "island-simulator: selected palm near crowns include sparse hanging dry fronds")
     && palmResult.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
-    && /palms [1-9][0-9]*\/330 \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /palms [1-9][0-9]*\/370 \(near [1-9][0-9]*, far [0-9]+\)/.test(
       palmResult.output ?? "")
     && !palmResult.error;
 
@@ -1491,7 +1491,7 @@ try {
     && propResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/173 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/12 logs/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/11 logs/.test(
       propResult.output ?? "")
     && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
@@ -1532,7 +1532,7 @@ try {
       "island-simulator: all near driftwood variants use tapered three-dimensional branches")
     && driftwoodResult.output?.includes(
       "island-simulator: driftwood end caps match irregular body rings")
-    && /props [0-9]+\/173 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
+    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/11 logs, [1-9][0-9]*\/32 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
@@ -1826,7 +1826,7 @@ try {
       "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes")
     && frondResult.output?.includes(
       "island-simulator: fallen frond leaflets use geometric central folds")
-    && /[1-9][0-9]*\/63 fallen fronds/.test(frondResult.output ?? "")
+    && /[1-9][0-9]*\/67 fallen fronds/.test(frondResult.output ?? "")
     && !frondResult.error;
 
   await call("Page.navigate", {

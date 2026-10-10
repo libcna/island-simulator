@@ -67,7 +67,7 @@ hardware workload is safe.
   prevailing-wind pass (`docs/prevailing-wind.md`: shared east trade wind, coastal windward
   exposure, palms lean up to ten degrees; ocean/foam/crowns/wisps/audio still to do) and
   depth on the horizon (`docs/distant-islets.md`: nearer wooded islet, sandbar, hazed far
-  silhouettes).
+  silhouettes), and coconut palm groves with young palms (`docs/palm-groves.md`, 370 palms).
 - Harness fixes (`docs/browser-input-ownership.md`): GLSL ES reserves `patch` (a CPU test now
   scans generated GLSL for ES-reserved identifiers); the Web harness holds keys until the game
   logs a new acknowledgement and waits for the release to be observed; the swim walk and
@@ -81,9 +81,16 @@ hardware workload is safe.
    field replacing shore-distance bands (3), prevailing wind (4), readable reef (5), natural
    footpath (6), palm distribution (9), directional shadows (11), coastal micro-topography
    (15), underwater habitat (16), small fauna (17), geology (19), wet biome (20).
-   Partially done: wind (4), trunks (10), sky (12), atmosphere (13), islets (14), stands (7),
-   emergents (8).
+   Partially done: wind (4), stands (7), emergents (8), palm groves (9), trunks (10), sky (12),
+   atmosphere (13); done: islets (14).
 2. Sea turtle third pass: hexagonal scute layout, surface reflections, underwater tint.
+   Suggested next realism step (designed, not started): readable reef/seabed (items 5/16) in the
+   terrain fragment shader only. Measured profile: the bed is 0.7 m deep 20 m offshore, 3 m at
+   70 m, 5 m at 110 m, 16 m at 250 m; water alpha is `0.42/m` extinction, so seabed patterns
+   read to about 3 m depth. Plan: seagrass meadows (0.5-2.5 m depth, dark olive, broad/medium
+   noise), patch reefs 28-78 m offshore (ochre-brown mottled blobs) cut by pale radial sand
+   channels (noise along arc length), and a broken reef crest band 70-84 m offshore. Keep it
+   straight-line GLSL (see the sky lesson below) and verify on Android.
 3. Then species from the wildlife backlog and the island hut, each with deterministic
    simulation, budget, capture viewpoint, regression tests and close-capture review.
 4. Requalify Web input/lifecycle and Android touch/lifecycle after relevant changes. ARM64

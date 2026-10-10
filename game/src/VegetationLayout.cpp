@@ -11,8 +11,9 @@ namespace island
 {
     namespace
     {
-        constexpr float CandidateSpacing = 14.0f;
-        constexpr int CandidateRadius = 19;
+        // Dense enough for a grove of touching crowns; groves, not the grid, set the spacing.
+        constexpr float CandidateSpacing = 8.0f;
+        constexpr int CandidateRadius = 33;
 
         [[nodiscard]] float SmoothStep(const float value) noexcept
         {
@@ -45,6 +46,22 @@ namespace island
     float VegetationLayout::UnitRandom(const std::uint32_t value) noexcept
     {
         return static_cast<float>(value & 0x00ffffffU) / static_cast<float>(0x01000000U);
+    }
+
+    float VegetationLayout::GroveNoise(const float x, const float z, const std::uint32_t seed,
+                                       const float cellSize) noexcept
+    {
+        const float gx = x / cellSize, gz = z / cellSize;
+        const auto x0 = static_cast<std::int32_t>(std::floor(gx));
+        const auto z0 = static_cast<std::int32_t>(std::floor(gz));
+        const float tx = SmoothStep(gx - static_cast<float>(x0));
+        const float tz = SmoothStep(gz - static_cast<float>(z0));
+        const auto value = [seed](const std::int32_t cx, const std::int32_t cz) {
+            return UnitRandom(Hash(cx, cz, seed));
+        };
+        const float back = value(x0, z0) + (value(x0 + 1, z0) - value(x0, z0)) * tx;
+        const float front = value(x0, z0 + 1) + (value(x0 + 1, z0 + 1) - value(x0, z0 + 1)) * tx;
+        return back + (front - back) * tz;
     }
 
     float VegetationLayout::ClusterNoise(const float x, const float z,
@@ -134,12 +151,12 @@ namespace island
                     continue;
                 }
 
-                const float coastal = 1.0f - SmoothStep(
-                    (sample.signedShoreDistance - 38.0f) / 112.0f);
-                const float cluster = ClusterNoise(x, z, seed ^ 0x31415926U);
-                const float density = std::clamp((0.24f + 0.43f * coastal)
-                                                 * (0.42f + 0.88f * cluster),
-                                                 0.0f, 0.90f);
+                // Coconut groves on the beach-backed coastal belt, thinning inland to a few old
+                // solitary palms. A contrast-shaped two-octave grove field makes the groves.
+                const float coastal = 1.0f - SmoothStep((sample.signedShoreDistance - 32.0f) / 70.0f);
+                const float grove = SmoothStep((0.68f * GroveNoise(x, z, seed ^ 0x31415926U, 62.0f)
+                    + 0.32f * GroveNoise(x, z, seed ^ 0x27182818U, 21.0f) - 0.42f) / 0.22f);
+                const float density = std::clamp(0.006f + coastal * (0.012f + 0.36f * grove), 0.0f, 0.90f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x6c8e9cf5U)) >= density) {
                     continue;
                 }
@@ -158,6 +175,40 @@ namespace island
                     Hash(gridX, gridZ, seed ^ 0xf17a245bU) % PalmVariantCount);
                 palms_.push_back(palm);
                 obstacles_.push_back(CircularObstacle{palm.x, palm.z, 0.31f * palm.scale});
+
+                // A young palm beside an adult inside a grove, offset 2.6-4.4 m.
+                if (grove < PalmGroveThreshold
+                    || UnitRandom(Hash(gridX, gridZ, seed ^ 0x5851f42dU)) >= PalmJuvenileChance) {
+                    continue;
+                }
+                const float angle = UnitRandom(Hash(gridX, gridZ, seed ^ 0x4c957f2dU))
+                    * 2.0f * std::numbers::pi_v<float>;
+                const float offset = 2.6f + 1.8f * UnitRandom(Hash(gridX, gridZ, seed ^ 0x6a5d39e9U));
+                const float youngX = x + std::cos(angle) * offset;
+                const float youngZ = z + std::sin(angle) * offset;
+                const TerrainSample youngSample = terrain.Sample(youngX, youngZ);
+                if (youngSample.signedShoreDistance < 7.0f || youngSample.height < 0.55f
+                    || youngSample.slopeRadians > 0.4712389f || IsReservedRoute(youngX, youngZ)) {
+                    continue;
+                }
+                bool crowded = false;
+                for (const PalmPlacement& other : palms_) {
+                    if (DistanceSquared(other.x, other.z, youngX, youngZ) < 2.2f * 2.2f) { crowded = true; break; }
+                }
+                if (crowded) continue;
+                PalmPlacement young;
+                young.x = youngX;
+                young.y = youngSample.height;
+                young.z = youngZ;
+                young.yawRadians = UnitRandom(Hash(gridX, gridZ, seed ^ 0x2545f491U))
+                    * 2.0f * std::numbers::pi_v<float>;
+                young.scale = PalmJuvenileMinimumScale + (PalmJuvenileMaximumScale - PalmJuvenileMinimumScale)
+                    * UnitRandom(Hash(gridX, gridZ, seed ^ 0x9e3779b1U));
+                young.shoreDistance = youngSample.signedShoreDistance;
+                young.variant = static_cast<std::uint8_t>(
+                    Hash(gridX, gridZ, seed ^ 0x7f4a7c13U) % PalmVariantCount);
+                palms_.push_back(young);
+                obstacles_.push_back(CircularObstacle{young.x, young.z, 0.31f * young.scale});
             }
         }
     }

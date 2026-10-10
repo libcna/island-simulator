@@ -2727,7 +2727,7 @@ int main()
     }
     for (const auto& log : props.FallenLogs()) landFootprints.push_back(island::LogContactFootprint(log));
     for (const auto& wood : props.Driftwood()) landFootprints.push_back(island::DriftwoodContactFootprint(wood));
-    Check(landFootprints.size() == 202, "all 159 land rocks, 12 logs and 31 driftwood pieces retain their shadows");
+    Check(landFootprints.size() == 200, "all 157 land rocks, 11 logs and 32 driftwood pieces retain their shadows");
     for (float sign : {-1.0f, 1.0f}) {
         island::RockPlacement rock;
         island::FallenLogPlacement log;
@@ -3294,6 +3294,7 @@ int main()
         Check(island::VegetationLayout::IsReservedRoute(pathX, static_cast<float>(z)),
               "the authored primary path centre remains reserved from vegetation");
     }
+    std::size_t youngPalms = 0U;
     for (std::size_t index = 0; index < vegetation.Palms().size(); ++index) {
         const island::PalmPlacement& palm = vegetation.Palms()[index];
         const island::PalmPlacement& repeated = repeatedVegetation.Palms()[index];
@@ -3310,14 +3311,45 @@ int main()
               "palms keep paths, clearings, and player spawn open");
         Check(palm.variant < island::VegetationLayout::PalmVariantCount,
               "palm variant index remains in range");
-        Check(palm.scale >= island::VegetationLayout::PalmMinimumScale
-                  && palm.scale <= island::VegetationLayout::PalmMaximumScale,
-              "palm scale remains in the authored range");
+        const bool youngPalm = palm.scale < island::VegetationLayout::PalmMinimumScale;
+        Check(youngPalm
+                  ? palm.scale >= island::VegetationLayout::PalmJuvenileMinimumScale
+                      && palm.scale <= island::VegetationLayout::PalmJuvenileMaximumScale
+                  : palm.scale <= island::VegetationLayout::PalmMaximumScale,
+              "palm scale remains in the authored adult or juvenile range");
+        youngPalms += youngPalm ? 1U : 0U;
         const island::CircularObstacle& obstacle = vegetation.Obstacles()[index];
         CheckNear(obstacle.x, palm.x, 0.0001f, "palm obstacle shares its visual x coordinate");
         CheckNear(obstacle.z, palm.z, 0.0001f, "palm obstacle shares its visual z coordinate");
-        Check(obstacle.radius > 0.20f && obstacle.radius < 0.45f,
+        Check(obstacle.radius > (youngPalm ? 0.12f : 0.20f) && obstacle.radius < 0.45f,
               "palm collision radius stays close to the visible trunk");
+    }
+    {
+        // Groves on the coast, few palms inland, young palms beside adults.
+        std::size_t grouped = 0U, inland = 0U;
+        for (const island::PalmPlacement& palm : vegetation.Palms()) {
+            int neighbours = 0;
+            for (const island::PalmPlacement& other : vegetation.Palms()) {
+                if (&other != &palm && std::hypot(other.x - palm.x, other.z - palm.z) < 12.0f) ++neighbours;
+            }
+            grouped += neighbours >= 3 ? 1U : 0U;
+            inland += palm.shoreDistance > 90.0f ? 1U : 0U;
+        }
+        const double total = static_cast<double>(vegetation.Palms().size());
+        Check(grouped / total >= 0.40 && inland / total <= 0.05,
+              "palms form coastal groves with only a few old palms inland");
+        Check(youngPalms >= 30U && youngPalms / total <= 0.35,
+              "groves recruit young palms without replacing the adults");
+        for (std::size_t a = 0; a < vegetation.Palms().size(); ++a) {
+            for (std::size_t b = a + 1; b < vegetation.Palms().size(); ++b) {
+                const auto& p = vegetation.Palms()[a];
+                const auto& q = vegetation.Palms()[b];
+                if (p.scale < island::VegetationLayout::PalmMinimumScale
+                    || q.scale < island::VegetationLayout::PalmMinimumScale) {
+                    Check(std::hypot(p.x - q.x, p.z - q.z) >= 2.2f, "young palms keep their trunks clear");
+                }
+            }
+        }
     }
 
     {

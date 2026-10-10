@@ -183,8 +183,19 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [~] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
   and broken trunks. 2026-10-10: 22 emergents (scale 1.60-1.85) promoted only inside closed
   stands; young, dead and broken trunks still open.
-- [ ] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
+- [~] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
   palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
+  2026-10-10 (`docs/palm-groves.md`): coastal grove field, juveniles beside adults, 370 palms
+  (187 grouped, 3 deep inland), wind lean; tested; native overview/palms/beach inspected.
+  Fallen/broken palms remain. Qualification: 33/33 non-display groups; Android KVM/SwiftShader
+  `175715.080427Z-palms` (PID 1837/TID 1898), `175828.715762Z-jungle`, `175941.257408Z-east`
+  pass with emulator exit 0 and empty kernel deltas; x86_64 APK 20,427,723 bytes
+  (`06a20a45...6b3e83d`), ARM64 restored 20,513,572 bytes (`78a4f460...1e9cd3`). First full Web
+  run `174937.131573Z` failed 26/28 only on a stale `63 fallen fronds` pin (props follow the
+  palms: now 67); pin updated, Web package 10,337,118 raw / 3,524,657 gzip. Rerun
+  `20261010T180146.003280Z-chrome-full` passes **28/28**. Latch unchanged, 350 GiB free, no
+  owned graphics process. Session stopped here at the operator's request; next steps are in
+  `handoff.md`.
 - [ ] 10. Continue trunk realism (started 2026-10-10: grey-brown bark, moss, lichen, root flare,
   slimmer weathered palm stems): irregular thickness, stronger taper and curvature, damaged trunks,
   stronger buttresses on large trees, moss on shaded sides.
