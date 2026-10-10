@@ -28,6 +28,22 @@ most 93,120 bytes of the one dynamic `VertexPositionColor` batch. Still one draw
 sphere grew from 1.08 to 1.22 × scale to contain the paddle reach; tests bound every reference
 point inside 1.20 × scale.
 
+## Second pass (2026-10-10 evening)
+
+- Head: four rings (neck, skull widest behind the eyes, brow, narrowing snout) with ten
+  segments instead of three six-segment rings; beak colour on the lower brow/snout facets;
+  larger eyes on the skull ring.
+- Scute seams as geometry: 5.5 mm half-width dark strips lifted 3 mm off the dome along the
+  four boundaries between scute rows and the vertebral/costal and costal/marginal edges, so
+  the pattern no longer depends on per-facet tone alone. It still reads as a grid rather than
+  offset hexagons.
+- Wet sheen: carapace facets gain a narrow glossy lobe toward the fixed sun (half-vector of
+  sun and up, exponent 12, up to +35 %), so the dome catches light where a wet shell would.
+- Near tier is now 576 triangles / 1,728 vertices per turtle (86,400 bytes for five).
+  Evidence: native llvmpipe `build/software-captures/20261010T161349.542896Z-turtles` (pass,
+  inspected; first tuning in `161322.077668Z`). Open: hexagonal scute layout, surface
+  reflections when the shell breaks the water, the shared underwater tint.
+
 ## Evidence
 
 Native llvmpipe `build/software-captures/20261010T134100.845143Z-turtles` (pass, image

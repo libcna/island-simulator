@@ -86,6 +86,11 @@ Standing visual-quality rules (apply to every task from now on):
   the unchanged single batch; profile tests bound reach, outline, dome and stroke direction.
   Native `20261010T134100.845143Z-turtles` inspected. Still open: blocky head, tonal-only scute
   seams, surface/underwater lighting of the body.
+  Second pass (evening): ten-segment four-ring head with beak and larger eyes, geometric scute
+  seam strips, wet carapace sheen toward the sun; 1,728 near vertices. 33/33 non-display
+  groups pass; native `161349.542896Z-turtles` inspected. Open: hexagonal scute layout,
+  surface reflections, shared underwater tint. Web/Android requalification is batched with
+  the next pass (the turtle renderer is stock BasicEffect on every platform).
   Web requalification used the full Chrome/SwiftShader suite (the turtle view has no focused
   scope). Runs `20261010T134317Z`, `135232Z` and `140719Z` failed on harness debt, not the
   game: a stale `jungle ground layer 2282` pin, a stale `/18556 patches` regex, and fixed key

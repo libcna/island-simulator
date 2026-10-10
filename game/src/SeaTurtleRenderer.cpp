@@ -135,14 +135,24 @@ namespace island
         // One-sided facet lit so that its normal points away from a reference point.
         void AddOutwardTriangle(std::vector<VertexPositionColor>& vertices,
                                 const Vector3& a, const Vector3& b, const Vector3& c,
-                                const Color& color, const Vector3& inside)
+                                const Color& color, const Vector3& inside,
+                                const float sheen = 0.0f)
         {
-            const Vector3 normal = Vector3::Cross(b - a, c - a);
+            Vector3 normal = Vector3::Cross(b - a, c - a);
             const Vector3 centroid = (a + b + c) / 3.0f;
-            if (Vector3::Dot(normal, centroid - inside) >= 0.0f) {
-                AddLitTriangle(vertices, a, b, c, color);
+            const bool outward = Vector3::Dot(normal, centroid - inside) >= 0.0f;
+            if (!outward) normal = -normal;
+            Color lit = color;
+            if (sheen > 0.0f && normal.LengthSquared() > 1.0e-12f) {
+                // Wet carapace: a narrow glossy lobe toward the fixed sun, seen from above.
+                const Vector3 halfVector = Vector3::Normalize(wildlife_render::FixedSunDirection + Vector3::Up);
+                const float facing = std::max(0.0f, Vector3::Dot(Vector3::Normalize(normal), halfVector));
+                lit = wildlife_render::ScaleColor(color, 1.0f + sheen * std::pow(facing, 12.0f));
+            }
+            if (outward) {
+                AddLitTriangle(vertices, a, b, c, lit);
             } else {
-                AddLitTriangle(vertices, a, c, b, color);
+                AddLitTriangle(vertices, a, c, b, lit);
             }
         }
 
@@ -156,11 +166,14 @@ namespace island
             static constexpr int CarapaceRows = sea_turtle::CarapaceStations - 1;
             static constexpr int CarapaceColumns = static_cast<int>(sea_turtle::CarapaceColumns.size()) - 1;
             static constexpr int PlastronColumns = static_cast<int>(sea_turtle::PlastronColumns.size()) - 1;
-            static constexpr int FrontSamples = 7, RearSamples = 5, HeadSegments = 6;
+            static constexpr int FrontSamples = 7, RearSamples = 5, HeadSegments = 10, HeadRings = 4;
+            static constexpr int SeamRows = 4;                                // boundaries between the five scute rows
+            static constexpr int SeamColumns = 4;                             // |s| = 0.22 and 0.78 on both sides
             static constexpr int Triangles =
                 CarapaceRows * CarapaceColumns * 2 + CarapaceColumns * 2      // dome and end caps
+                + SeamRows * CarapaceColumns * 2 + SeamColumns * CarapaceRows * 2 // scute seam strips
                 + CarapaceRows * PlastronColumns * 2 + PlastronColumns * 2    // plastron and caps
-                + HeadSegments * 2 * 2 + HeadSegments * 2                     // neck/head/snout strips, nose, neck cap
+                + HeadSegments * (HeadRings - 1) * 2 + HeadSegments * 2       // neck/skull/brow/snout strips, nose, neck cap
                 + 4                                                           // eyes
                 + 2 * ((FrontSamples - 1) * 2 * 2)                            // front paddles, two faces
                 + 2 * ((RearSamples - 1) * 2 * 2)                             // rear paddles, two faces
@@ -216,8 +229,8 @@ namespace island
                     const auto r0 = static_cast<std::size_t>(row), r1 = r0 + 1U;
                     const float sMid = 0.5f * (CarapaceColumns[c0] + CarapaceColumns[c1]);
                     const Color color = scuteColor(u, sMid, row, column);
-                    AddOutwardTriangle(vertices, dome[r0][c0], dome[r1][c0], dome[r1][c1], color, bodyInside);
-                    AddOutwardTriangle(vertices, dome[r0][c0], dome[r1][c1], dome[r0][c1], color, bodyInside);
+                    AddOutwardTriangle(vertices, dome[r0][c0], dome[r1][c0], dome[r1][c1], color, bodyInside, 0.35f);
+                    AddOutwardTriangle(vertices, dome[r0][c0], dome[r1][c1], dome[r0][c1], color, bodyInside, 0.35f);
                 }
             }
             const Vector3 rearPoint = local(0.0f, CarapaceRimY + 0.012f, LengthToZ(-1.0f) - 0.01f);
@@ -228,6 +241,41 @@ namespace island
                                    ToneColor(palette.underside, 0.80f), bodyInside);
                 AddOutwardTriangle(vertices, frontPoint, dome[CarapaceStations - 1][c0],
                                    dome[CarapaceStations - 1][c1], ToneColor(palette.underside, 0.84f), bodyInside);
+            }
+
+            // Scute seams: narrow dark strips lifted 3 mm off the dome along the boundaries
+            // between the five scute rows and at the vertebral/costal and costal/marginal edges.
+            {
+                const Color seam = ToneColor(palette.shell, 0.70f);
+                const auto lifted = [&](const Vector3& point) {
+                    return point + (point - bodyInside) * 0.0f + axes.up * (0.003f * scale);
+                };
+                constexpr float seamHalfWidth = 0.0055f;
+                for (int boundary = 1; boundary <= NearTurtleBudget::SeamRows; ++boundary) {
+                    const auto r = static_cast<std::size_t>(boundary * 2); // rows pair up per scute
+                    const Vector3 along = (dome[r + 1][4] - dome[r - 1][4]);
+                    const Vector3 step = along * (seamHalfWidth * scale / std::max(along.Length(), 0.0001f));
+                    for (int column = 0; column < Columns; ++column) {
+                        const auto c0 = static_cast<std::size_t>(column), c1 = c0 + 1U;
+                        AddOutwardTriangle(vertices, lifted(dome[r][c0] - step), lifted(dome[r][c0] + step),
+                                           lifted(dome[r][c1] + step), seam, bodyInside);
+                        AddOutwardTriangle(vertices, lifted(dome[r][c0] - step), lifted(dome[r][c1] + step),
+                                           lifted(dome[r][c1] - step), seam, bodyInside);
+                    }
+                }
+                for (const std::size_t c : {std::size_t{1}, std::size_t{3}, std::size_t{5}, std::size_t{7}}) {
+                    for (int row = 0; row < Rows; ++row) {
+                        const auto r0 = static_cast<std::size_t>(row), r1 = r0 + 1U;
+                        const Vector3 across0 = dome[r0][c + 1] - dome[r0][c - 1];
+                        const Vector3 across1 = dome[r1][c + 1] - dome[r1][c - 1];
+                        const Vector3 step0 = across0 * (seamHalfWidth * scale / std::max(across0.Length(), 0.0001f));
+                        const Vector3 step1 = across1 * (seamHalfWidth * scale / std::max(across1.Length(), 0.0001f));
+                        AddOutwardTriangle(vertices, lifted(dome[r0][c] - step0), lifted(dome[r1][c] - step1),
+                                           lifted(dome[r1][c] + step1), seam, bodyInside);
+                        AddOutwardTriangle(vertices, lifted(dome[r0][c] - step0), lifted(dome[r1][c] + step1),
+                                           lifted(dome[r0][c] + step0), seam, bodyInside);
+                    }
+                }
             }
 
             // Plastron shares the rim so the shell is closed; pale with faint central seams.
@@ -265,10 +313,11 @@ namespace island
             // Neck, head and beaked snout: three rings, a nose point and a neck cap.
             constexpr int HeadSegments = NearTurtleBudget::HeadSegments;
             struct Ring { float y, z, radiusX, radiusY; };
-            constexpr std::array<Ring, 3> rings{{{0.02f, 0.50f, 0.075f, 0.065f},
-                                                  {0.035f, 0.68f, 0.095f, 0.085f},
-                                                  {0.0f, 0.85f, 0.055f, 0.045f}}};
-            std::array<std::array<Vector3, HeadSegments>, 3> head{};
+            // Neck, skull (widest behind the eyes), brow and a narrowing beaked snout.
+            constexpr std::array<Ring, NearTurtleBudget::HeadRings> rings{{
+                {0.02f, 0.50f, 0.072f, 0.062f}, {0.038f, 0.66f, 0.094f, 0.082f},
+                {0.028f, 0.76f, 0.078f, 0.066f}, {-0.004f, 0.86f, 0.046f, 0.038f}}};
+            std::array<std::array<Vector3, HeadSegments>, NearTurtleBudget::HeadRings> head{};
             for (std::size_t r = 0; r < rings.size(); ++r) {
                 for (int segment = 0; segment < HeadSegments; ++segment) {
                     const float angle = (static_cast<float>(segment) + 0.5f) * 2.0f
@@ -283,35 +332,35 @@ namespace island
                 for (int segment = 0; segment < HeadSegments; ++segment) {
                     const auto s0 = static_cast<std::size_t>(segment);
                     const auto s1 = static_cast<std::size_t>((segment + 1) % HeadSegments);
-                    // Lower snout facets form the pale horny beak.
+                    // Lower brow/snout facets form the pale horny beak; the skull keeps scaled skin.
                     const bool lower = segment >= HeadSegments / 2;
-                    const Color color = r == 1 && lower ? ToneColor(palette.underside, 0.96f)
-                        : ToneColor(palette.skin, lower ? 0.92f : 1.0f);
+                    const Color color = r >= 1 && lower ? ToneColor(palette.underside, r == 2 ? 0.94f : 0.98f)
+                        : ToneColor(palette.skin, (lower ? 0.92f : 1.0f) * (segment % 2 ? 0.97f : 1.0f));
                     const Vector3 inside = (headInside(r) + headInside(r + 1)) * 0.5f;
                     AddOutwardTriangle(vertices, head[r][s0], head[r + 1][s0], head[r + 1][s1], color, inside);
                     AddOutwardTriangle(vertices, head[r][s0], head[r + 1][s1], head[r][s1], color, inside);
                 }
             }
-            const Vector3 nose = local(0.0f, -0.012f, 0.90f);
+            const Vector3 nose = local(0.0f, -0.014f, 0.905f);
             const Vector3 neckBase = local(0.0f, 0.02f, 0.42f);
             for (int segment = 0; segment < HeadSegments; ++segment) {
                 const auto s0 = static_cast<std::size_t>(segment);
                 const auto s1 = static_cast<std::size_t>((segment + 1) % HeadSegments);
-                AddOutwardTriangle(vertices, nose, head[2][s0], head[2][s1],
-                                   ToneColor(palette.underside, 0.9f), headInside(2));
+                AddOutwardTriangle(vertices, nose, head[3][s0], head[3][s1],
+                                   ToneColor(palette.underside, 0.9f), headInside(3));
                 AddOutwardTriangle(vertices, neckBase, head[0][s1], head[0][s0], palette.skin, headInside(0));
             }
             const Color eye(16, 22, 20, 255);
             const Color eyeShine(96, 112, 108, 255);
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
-                const Vector3 e0 = local(side * 0.098f, 0.075f, 0.705f);
-                const Vector3 e1 = local(side * 0.101f, 0.032f, 0.735f);
-                const Vector3 e2 = local(side * 0.101f, 0.038f, 0.665f);
+                const Vector3 e0 = local(side * 0.094f, 0.085f, 0.690f);
+                const Vector3 e1 = local(side * 0.098f, 0.036f, 0.728f);
+                const Vector3 e2 = local(side * 0.098f, 0.042f, 0.652f);
                 AddTriangle(vertices, e0, side > 0.0f ? e2 : e1, side > 0.0f ? e1 : e2, eye);
-                const Vector3 h0 = local(side * 0.103f, 0.062f, 0.712f);
-                const Vector3 h1 = local(side * 0.104f, 0.052f, 0.722f);
-                const Vector3 h2 = local(side * 0.104f, 0.050f, 0.704f);
+                const Vector3 h0 = local(side * 0.100f, 0.068f, 0.698f);
+                const Vector3 h1 = local(side * 0.101f, 0.056f, 0.712f);
+                const Vector3 h2 = local(side * 0.101f, 0.054f, 0.688f);
                 AddTriangle(vertices, h0, side > 0.0f ? h2 : h1, side > 0.0f ? h1 : h2, eyeShine);
             }
 
