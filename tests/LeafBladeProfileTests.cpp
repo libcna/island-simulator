@@ -1,3 +1,4 @@
+#include "IslandSimulator/TrunkSurfaceMaterial.hpp"
 #include "IslandSimulator/LeafBladeProfile.hpp"
 #include "IslandSimulator/UnderstoryLeafProfile.hpp"
 #include "IslandSimulator/JungleMaterial.hpp"
@@ -438,6 +439,51 @@ int main() try
             catch (const std::invalid_argument&) { }
         }
         std::cout << "Jungle material: bounded daylight/tip tint, Nyquist fade and bark mean passed\n";
+        {
+            using namespace island::TrunkSurface;
+            double lichen = 0;
+            long samples = 0;
+            for (std::uint32_t seed = 0; seed < 32; ++seed)
+                for (int i = 0; i < 90; ++i)
+                    for (int j = 0; j < 200; ++j, ++samples)
+                        lichen += Smooth(LichenStart, LichenEnd, island::BarkMaterial::Noise(
+                            (i + 0.5f) / 90 * island::BarkMaterial::Tau, (j + 0.5f) * 0.1f, 9, seed ^ 1201U));
+            if (std::abs(lichen / samples - LichenMean) > 0.01)
+                throw std::runtime_error("Unresolved lichen must converge to its measured area mean");
+            float previous = 0;
+            for (int i = 0; i <= 300; ++i) {
+                const float height = i * 0.03f;
+                const float contact = ContactOcclusion(height);
+                if (contact < ContactFloor || contact > 1 || contact < previous)
+                    throw std::runtime_error("Trunk contact occlusion must brighten monotonically with height");
+                previous = contact;
+                for (float edge : {0.0f, 0.5f, 1.0f})
+                    for (float moss : {0.0f, 1.0f})
+                        for (float cover : {0.0f, 1.0f}) {
+                            const auto albedo = Albedo({0.45f, 0.40f, 0.33f}, height, edge, moss, cover);
+                            for (float channel : albedo)
+                                if (!std::isfinite(channel) || channel < 0 || channel > 1)
+                                    throw std::runtime_error("Trunk albedo escaped the unit range");
+                        }
+            }
+            if (StainWeight(0, 0.5f) < 0.99f || StainWeight(3.0f, 1.0f) != 0
+                || Albedo({0.4f, 0.4f, 0.4f}, 0.2f, 0.5f, 1.0f, 0.0f)[1]
+                    <= Albedo({0.4f, 0.4f, 0.4f}, 0.2f, 0.5f, 1.0f, 0.0f)[2]
+                || LichenWindow(0.2f) != 0 || LichenWindow(4.0f) != 1 || LichenWindow(9.0f) != 0)
+                throw std::runtime_error("Trunk moss/lichen zones are misplaced");
+            const auto shader = island::TrunkSurface::Shader();
+            struct Comma final : std::numpunct<char> { char do_decimal_point() const override { return ','; } };
+            const auto original = std::locale();
+            std::locale::global(std::locale(original, new Comma));
+            const auto localized = island::TrunkSurface::Shader();
+            std::locale::global(original);
+            if (shader != localized) throw std::runtime_error("Trunk GLSL depends on numeric locale");
+            for (float invalid : {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity()}) {
+                try { (void)ContactOcclusion(invalid); throw std::runtime_error("Invalid trunk height accepted"); }
+                catch (const std::invalid_argument&) { }
+            }
+            std::cout << "Trunk surface: bounded moss/lichen zones, contact occlusion and lichen mean passed\n";
+        }
     }
     for (int variant = 0; variant < 4; ++variant) {
         std::array<bool, 11> seen{};

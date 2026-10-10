@@ -1,4 +1,7 @@
 #include "IslandSimulator/GrassBladeProfile.hpp"
+#include "IslandSimulator/CanopyLightField.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GrassMotionBounds.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
@@ -72,7 +75,10 @@ int main(int argc,char** argv)
         if(argc!=2) throw std::invalid_argument("Usage: island-grass-grounding-report OUTPUT.json");
         const island::IslandTerrain terrain;
         const island::RenderedTerrainSurface surface(terrain);
-        const island::GrassLayout layout(terrain);
+        const island::JungleLayout jungle(terrain);
+        const island::CanopyLightField light(terrain, island::MakeCanopyOccluders(jungle.Canopy()));
+        const island::GroundCoverField cover;
+        const island::GrassLayout layout(terrain, light, cover);
         std::array<std::array<Statistics,2>,4> stats{};
         constexpr std::array names{"analytic", "mesh_height_only", "mesh_height_and_normal", "rgb24_surface_reprojection"};
         std::size_t anchor=0;

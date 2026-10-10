@@ -4,6 +4,9 @@
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/FishSchools.hpp"
+#include "IslandSimulator/CanopyLightField.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -100,9 +103,11 @@ namespace
         island::SeaTurtleGroup seaTurtles{terrain};
         island::SharkPatrol shark{terrain};
         island::MonkeyTroop monkeys{terrain};
-        island::GrassLayout grass{terrain};
         island::VegetationLayout palms{terrain};
         island::JungleLayout jungle{terrain};
+        const island::CanopyLightField canopyLight{terrain, island::MakeCanopyOccluders(jungle.Canopy())};
+        const island::GroundCoverField groundCover;
+        island::GrassLayout grass{terrain, canopyLight, groundCover};
         island::NaturalPropLayout props{terrain, palms, jungle};
         island::ShipwreckLayout shipwreck{terrain};
         std::vector<island::CircularObstacle> worldObstacles;

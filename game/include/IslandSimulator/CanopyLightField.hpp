@@ -10,7 +10,7 @@
 namespace island
 {
     struct CanopyLightTint { float red, green, blue; };
-    inline constexpr CanopyLightTint CanopyAmbientTint{0.56f, 0.64f, 0.72f};
+    inline constexpr CanopyLightTint CanopyAmbientTint{0.46f, 0.53f, 0.62f};
     [[nodiscard]] CanopyLightTint CanopyTransmissionTint(float transmission) noexcept;
     /** @brief Porous upright ellipsoid approximating one foliage lobe, not a solid mesh shadow. */
     struct CanopyOccluder

@@ -4,6 +4,7 @@
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/ForestFloorMaterial.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
@@ -323,6 +324,11 @@ void main()
         * (1.0 - steep)
         * (1.0 - max(eastClearingMask, westClearingMask) * 0.72);
     float forestMaterialField = broad * 0.70 + medium * 0.45 + fine * 0.035;
+    // Shared with grass placement: sunlit, patch-rich ground carries a living turf layer,
+    // shaded or patch-poor ground keeps exposed humus and fallen leaves.
+    vec2 groundField = canopyGroundField(p);
+    float turfAmount = groundCoverDensity(groundField.x, groundField.y,
+        signedShoreDistance, slopeRadians) * 0.86 * (1.0 - steep);
     // Tropical understory grows through exposed humus; it is not a continuous green lawn.
     // Keep grass/moss islands, and leave the authored sunny clearing and beach palettes intact.
     color = mix(color, vec3(0.300, 0.223, 0.139) * vGroundLight, forestFloorMask * 0.82);
@@ -338,7 +344,8 @@ void main()
     // while this separate footprint fade filters changing window identities.
     float imageFloor = uForestFloorEnabled * forestFloorMask
         * (1.0 - smoothstep(18.0, 48.0, distanceToCamera))
-        * (1.0 - smoothstep(0.035, 0.12, groundPixelWidth));
+        * (1.0 - smoothstep(0.035, 0.12, groundPixelWidth))
+        * (1.0 - turfAmount * 0.35);
     if (imageFloor > 0.0) {
         vec3 litter = forestFloorColor(p, worldDx.xz, worldDy.xz);
         color = mix(color, litter * vGroundLight * (0.82 + broad*0.12), imageFloor * 0.88);
@@ -368,6 +375,15 @@ void main()
     color = mix(color, vec3(0.150, 0.125, 0.075) * vGroundLight, westLeafPatch * 0.32);
     color = mix(color, vec3(0.230, 0.315, 0.090) * vGroundLight, westMossPatch * 0.22);
 
+    // Living turf undercoat: olive inland, warmer and drier toward the coast and in the
+    // sun-dried east clearing, cooler in the leaf-rich west clearing. It persists at distance.
+    float turfDryness = clamp(0.30 + broad * 0.85 + medium * 0.35
+        + (1.0 - smoothstep(26.0, 80.0, signedShoreDistance)) * 0.30
+        + eastClearingMask * 0.40 - westClearingMask * 0.25, 0.0, 1.0);
+    vec3 turf = mix(vec3(0.160, 0.235, 0.070), vec3(0.315, 0.300, 0.135), turfDryness)
+        * (1.0 + medium * 0.20 + fine * 0.05);
+    float routeMask = 0.0;
+
     if (signedShoreDistance > 20.0 && steep < 1.0) {
         float pathCentre = uPrimaryPathShape.x + uPrimaryPathShape.y
             * sin((p.y + uPrimaryPathShape.z) * uPrimaryPathShape.w);
@@ -385,6 +401,7 @@ void main()
                                            brokenLateralDistance))
             * pathRange * smoothstep(20.0, 42.0, signedShoreDistance)
             * (1.0 - steep);
+        routeMask = pathMask;
         if (pathMask > 0.0) {
             float compactedCentre = 1.0 - smoothstep(
                 0.16, 0.94, abs(lateralOffset + medium * 0.14));
@@ -433,19 +450,39 @@ void main()
             float pores = valueNoise(p * 37.0 + vec2(-9.3, 16.7));
             color *= 1.0 + pores * 0.12 * poreVisibility;
         }
+        // Short turf breaks into darker gaps and brighter shoot crowns at several scales.
+        float turfDetail = turfAmount * closeDetail;
+        if (turfDetail > 0.0) {
+            float clumpVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 4.7);
+            float tuftVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 9.3);
+            float clump = valueNoise(p * 2.1 + vec2(5.3, -7.9))
+                + valueNoise(p * 4.7 + vec2(-3.1, 2.2)) * 0.6 * clumpVisibility
+                + valueNoise(p * 9.3 + vec2(8.8, 1.7)) * 0.45 * tuftVisibility;
+            color *= 1.0 + clump * 0.40 * turfDetail;
+        }
         float litterPatch = clamp(0.52 + broad * 0.82 + medium * 0.30, 0.18, 1.0)
             * mix(1.0, 0.58, eastClearingMask)
             * mix(1.0, 1.22, westClearingMask);
         vec3 warmLeaf = leafLitter(p, 1.65, vec2(13.7, -4.3), 0.42, groundPixelWidth);
         vec3 darkLeaf = leafLitter(p, 2.70, vec2(-7.1, 19.6), 0.65, groundPixelWidth);
         // The west-clearing density boost may exceed one; never extrapolate leaf colours.
-        float litterAmount = clamp(closeDetail * litterPatch, 0.0, 1.0);
+        float litterAmount = clamp(closeDetail * litterPatch, 0.0, 1.0) * (1.0 - turfAmount * 0.45);
         vec3 dryLeafColor = mix(vec3(0.235, 0.142, 0.060), vec3(0.445, 0.315, 0.145),
                                 warmLeaf.z) * warmLeaf.y * vGroundLight;
         vec3 oldLeafColor = mix(vec3(0.120, 0.091, 0.054), vec3(0.245, 0.188, 0.092),
                                 darkLeaf.z) * darkLeaf.y * vGroundLight;
         color = mix(color, dryLeafColor, warmLeaf.x * litterAmount * 0.90);
         color = mix(color, oldLeafColor, darkLeaf.x * litterAmount * 0.82);
+    }
+
+    // Re-hue the detailed substrate toward living turf instead of painting over it: the
+    // luminance of litter, clods and clumps survives, so close turf keeps its texture.
+    float turfWeight = turfAmount * (1.0 - routeMask) * 0.82;
+    if (turfWeight > 0.0) {
+        const vec3 luminanceWeights = vec3(0.30, 0.55, 0.15);
+        vec3 turfChroma = turf / max(dot(turf, luminanceWeights), 0.0001);
+        vec3 tinted = dot(color, luminanceWeights) * turfChroma;
+        color = mix(color, mix(tinted, turf * vGroundLight, 0.35), turfWeight);
     }
 
     float wetHeight = vWorld.y + broad * 0.06 + medium * 0.025;
@@ -469,7 +506,8 @@ void main()
         color += vec3(0.13, 0.17, 0.16) * wetSheen;
     }
 
-    color = applyCanopyLight(color, p);
+    // Same texel as the cover sample above; retains cool skylight in canopy shade.
+    color *= mix(uCanopyAmbient, vec3(1.0), groundField.x);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
     color = mix(color, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
@@ -482,9 +520,11 @@ void main()
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
                     + (canopy ? CanopyLighting::Shader : "")
+                    + (canopy ? GroundCover::Shader() : std::string())
                     + (canopy ? ForestFloorMaterial::Shader : "") + body;
             }
             return std::string("#version 330 core\n") + (canopy ? CanopyLighting::Shader : "")
+                + (canopy ? GroundCover::Shader() : std::string())
                 + (canopy ? ForestFloorMaterial::Shader : "") + body;
         }
 

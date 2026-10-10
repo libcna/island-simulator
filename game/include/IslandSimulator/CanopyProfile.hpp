@@ -16,7 +16,13 @@ namespace island
         float x, y, z, width, height, angle, phase;
     };
 
+    // Root flare stays inside the player-blocked footprint: collision radius plus capsule.
+    inline constexpr float CanopyTrunkBaseRadius = 0.43f, CanopyTrunkTipRadius = 0.23f;
+    inline constexpr float CanopyRootFlare = 0.34f, CanopyRootFlareHeight = 0.42f;
+
     [[nodiscard]] CanopyTrunkProfile MakeCanopyTrunkProfile(int variant);
+    /** @brief Smooth mesh-local radius before irregularity; a function of height, not ring index. */
+    [[nodiscard]] float CanopyTrunkRadius(int variant, float localHeight);
     // t is normalized height. The bottom 3 local metres stay on the collision-axis centreline.
     [[nodiscard]] std::array<float, 3> SampleCanopyTrunk(int variant, float t);
     // Both mesh tiers and the light bake share all eight lobe anchors and dimensions.

@@ -613,7 +613,7 @@ noise-mottled portable footpath, broad reused-noise clearing-floor patch breakup
 leaf-humus/cool-moss substrate breakup, close sand granulation, sparse soft-edged pebble/shell
 flecks,
 and shoreline-raked ripples, irregular
-faceted near-palm root wedges, irregular near-canopy buttress roots, transform-derived green-only
+low rounded near-palm root ridges, irregular near-canopy buttress roots, transform-derived green-only
 jungle foliage variation, irregular near fallen-log broken-end contours with restrained radial
 end-grain cracks, reused crossing-wave ocean
 colour plus shallow-ridge light, short sunward crests, and view-aligned grazing reflection bands,

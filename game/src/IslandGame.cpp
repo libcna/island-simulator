@@ -128,9 +128,10 @@ namespace island
           seaTurtleGroup_(terrain_),
           sharkPatrol_(terrain_),
           monkeyTroop_(terrain_),
-          grassLayout_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
+          canopyLightField_(terrain_, MakeCanopyOccluders(jungleLayout_.Canopy())),
+          grassLayout_(terrain_, canopyLightField_, groundCoverField_),
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
           shipwreckLayout_(terrain_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
@@ -403,6 +404,11 @@ namespace island
             float bestScore = std::numeric_limits<float>::max();
             for (const GrassPlacement& patch : grassLayout_.Patches()) {
                 if (patch.pathScale) continue;
+                // Inspect a representative sward, not an isolated tuft on exposed humus.
+                const TerrainSample coverSample = terrain_.Sample(patch.x, patch.z);
+                if (GroundCover::Density(std::clamp(canopyLightField_.Sample(patch.x, patch.z), 0.0f, 1.0f),
+                        std::clamp(groundCoverField_.SamplePatch(patch.x, patch.z), 0.0f, 1.0f),
+                        coverSample.signedShoreDistance, coverSample.slopeRadians) < 0.6f) continue;
                 bool clear = true;
                 for (const CircularObstacle& obstacle : worldCollisionGrid_.Obstacles()) {
                     const float deltaX = patch.x - obstacle.x;
@@ -803,7 +809,7 @@ namespace island
         InitializeGpuDiagnostics();
         // Build consumers against a temporary owner. Commit them before replacing the old
         // owner so a repeated LoadContent never leaves old renderers referencing freed data.
-        auto canopyLighting = std::make_unique<CanopyLighting>(device, terrain_, jungleLayout_);
+        auto canopyLighting = std::make_unique<CanopyLighting>(device, canopyLightField_, groundCoverField_);
         auto terrainHeightMap = std::make_unique<RenderedTerrainHeightMap>(device, terrain_);
         auto terrainRenderer = std::make_unique<TerrainRenderer>(device, terrain_, *canopyLighting);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(

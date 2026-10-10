@@ -257,13 +257,15 @@ def main():
                 raise RuntimeError("current canopy bark coordinates are missing; check for a stale executable")
             if "canopy bark has instance-stable warped grain and interrupted filtered fissures" not in diagnostics:
                 raise RuntimeError("current canopy bark variation is missing; check for a stale executable")
+            if "canopy trunks use root flare, rounded buttress ridges and grey-brown bark with moss, lichen, contact occlusion and canopy shade" not in diagnostics:
+                raise RuntimeError("current canopy trunk surface is missing; check for a stale executable")
             if "canopy trunk pigment follows normalized height across LOD tiers" not in diagnostics:
                 raise RuntimeError("current trunk pigment continuity is missing; check for a stale executable")
             if "canopy blades use spatial pitch and roll with identical retained LOD poses" not in diagnostics:
                 raise RuntimeError("current canopy leaf posture is missing; check for a stale executable")
             if "curved canopy blades retain source identities within original triangle budgets" not in diagnostics:
                 raise RuntimeError("current canopy leaf outline is missing; check for a stale executable")
-            if "canopy mesh variant=0 near-vertices=4620 near-triangles=4328 far-vertices=1029 far-triangles=1064" not in diagnostics:
+            if "canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120" not in diagnostics:
                 raise RuntimeError("current far canopy support branches are missing; check for a stale executable")
             if "eight structural crown forms share eight LOD lobe anchors and supported trunk bends" not in diagnostics:
                 raise RuntimeError("current canopy structure is missing; check for a stale executable")

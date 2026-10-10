@@ -64,6 +64,205 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-10 — operator direction: visual realism first, expanded wildlife backlog
+
+The operator asked to continue development and stated the overall goal plainly: the island must
+look noticeably closer to reality. This applies to **existing and all future content**. Stylized,
+cartoon-like or crude assets are defects to be fixed, not an accepted art direction. The operator
+explicitly named the sea turtle as very poor ("really terrible"); it is the first known example,
+not the only one.
+
+Standing visual-quality rules (apply to every task from now on):
+
+- [ ] Review every existing visible system against first-person software captures and real-world
+  reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
+  first), fish, shark, crabs, birds, butterflies, monkeys, boars, palms, canopy trees, understory,
+  grass/ground cover, rocks, logs/driftwood, shipwreck, water/shore, sky and lighting.
+- [ ] Fix the sea turtle first: anatomy and proportions (domed scuted carapace, plastron, beak-like
+  head, paddle flippers with correct stroke), carapace scute pattern/material, swimming animation
+  and underwater/surface lighting. Compare actual before/after captures.
+- [ ] A new species or object is not done when it merely exists and animates. It needs believable
+  silhouette, proportions, material/colour, motion and ground/water contact in close first-person
+  views, and must not ship at the current turtle's quality level.
+- [ ] Keep the product boundaries: peaceful exploration, no combat, damage, hunting, quests or
+  survival systems; deterministic simulation; portable GLSL 330/300 ES; measured draw, memory and
+  frame budgets; software-renderer validation only while the AMD hardware latch stays in place.
+
+Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
+progress or require player interaction; dangerous species keep their distance like the shark):
+
+- [ ] Snakes (ground and tree-dwelling, retreat from the player)
+- [ ] Spiders (webs between plants, ground spiders)
+- [ ] Parrots (flocks, perching in canopy, calls)
+- [ ] Pigeons/doves (tropical fruit doves and ground doves)
+- [ ] Crocodiles (saltwater crocodile in a suitable estuary/shore area, basking, keeps away)
+- [ ] Frogs (near damp ground/water, calls)
+- [ ] Bats (fruit bats roosting/flying; the fixed daytime limits active flight)
+- [ ] Mice
+- [ ] Rats
+- [ ] Deer
+- [ ] Goats (feral island goats on open slopes)
+- [ ] Ants (trails on ground and trunks, close-range detail only)
+- [ ] Flies (small insect swarms, close-range detail only)
+- [ ] Stingrays (shallow sandy water)
+- [ ] Dolphins (offshore pod surfacing beyond the reef)
+- [ ] Octopuses (reef/rock shallows)
+
+Landmark backlog requested by the operator:
+
+- [ ] An island hut somewhere on the island: a small realistic, uninhabited tropical hut (for
+  example a raised timber frame with a thatched palm-leaf roof) at a reachable but not
+  route-blocking site, with collision, grounded footing, weathered materials, contact shadows,
+  a capture viewpoint and regression tests. Decorative only: no interiors with inventory,
+  crafting, quests or other new game systems.
+
+Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
+outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars
+stay on the island** (treat them as introduced populations; do not remove them). The analysis'
+main finding: the island needs stronger macro structure more than more micro detail; from above it
+still reads as a flat procedural green oval inside a uniform sand ring. Suggested order and rough
+effort, all within the peaceful fixed-daytime product and existing renderers:
+
+- [ ] 1. Rewrite `IslandTerrain` into an asymmetric, eroded small volcanic island with a fringing
+  reef, keeping the ~500 m extent: an irregular main ridge with a 35-45 m summit, a 25-30 m second
+  peak and saddle, valleys draining to the coast, 2-3 rocky headlands, one sheltered bay, one
+  dominant sandy beach and one wilder rocky side (15-20 h). Re-place every existing system on it.
+- [ ] 2. Replace the uniform beach ring with distinct coast types: leeward wide calm beach
+  (palms, wreck, driftwood, turtles), windward rocky/reef coast with larger waves, more foam and
+  wind-shaped low vegetation, and a sheltered turquoise bay; vegetation reaching the water in places;
+  reef flats (10-15 h).
+- [ ] 3. Add a shared `IslandEnvironmentField` (moisture, salt/wind/wave exposure, soil depth,
+  rockiness, drainage, sun exposure, reef suitability) and drive palms, canopy, shrubs, ferns,
+  grass and props from it instead of concentric `signedShoreDistance` bands (10-15 h). The current
+  ground-cover field is a first step and should become one of its inputs.
+- [ ] 4. One prevailing trade wind (for example from the east) used consistently: palm lean and
+  crown shape, windward ocean/foam, rock exposure, vegetation height, driftwood accumulation, dune
+  orientation, cloud wisps and wind audio.
+- [ ] 5. Make the reef readable from a distance: seabed macro structure with a pale lagoon, sand
+  channels, dark reef patches and seagrass, a reef crest and a deep blue drop-off, before any
+  detailed coral models.
+- [ ] 6. Make the central route a natural 1.5-3 m footpath that fades, forks and winds around roots
+  and stones instead of a ~12 m corridor that visibly halves the island from above.
+- [ ] 7. Redistribute canopy trees into masses (about 60% dense stands, 25% transitional, 15%
+  solitary) with fully open areas between, keeping a similar tree count (8-12 h).
+- [ ] 8. Vertical forest structure: 5-10% emergent trees of 18-24 m, young 2-5 m trees, some dead
+  and broken trunks.
+- [ ] 9. Palm distribution: large coconut groves at a few beaches, a few old solitary palms, fewer
+  palms deep in the forest, young palms near adults, varied lean, some fallen or broken palms.
+- [ ] 10. Continue trunk realism (started 2026-10-10: grey-brown bark, moss, lichen, root flare,
+  slimmer weathered palm stems): irregular thickness, stronger taper and curvature, damaged trunks,
+  stronger buttresses on large trees, moss on shaded sides.
+- [ ] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
+  (one or two cascades, ~100-150 m, vegetation and large objects, low resolution, soft PCF); at
+  minimum extend the canopy light/shadow system to palms and stronger directional shadows.
+- [ ] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
+  (some low on the horizon), warmer sun surroundings, softer zenith gradient, bright sunlit cloud
+  tops with blue-grey undersides.
+- [ ] 13. One shared `AtmosphereModel` for aerial perspective used by terrain, vegetation, ocean,
+  distant islands and wildlife instead of per-renderer fog colours such as `(0.53, 0.78, 0.88)`.
+- [ ] 14. Integrate distant islets into the atmosphere: one nearer, two almost silhouettes, one
+  treeless sandbar/reef, one very distant, with contrast falling steeply with distance.
+- [ ] 15. Coastal micro-topography of 20-100 cm: beach berm, small dunes, erosion edge, rock steps,
+  wash channels, exposed roots, small tidal pools.
+- [ ] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
+  ripples, shells, small fish, suspended particles, subtle caustics, blue-green depth extinction.
+- [ ] 17. Small fauna with simple behaviour (for example a gecko that sits, flees, disappears):
+  geckos, skinks, hermit crabs, coconut crabs, more small crabs, shorebirds and seabirds, fruit bats,
+  dragonflies, cicadas, beetles, small lizards. Monkeys and boars remain.
+- [ ] 18. Tie wildlife to places: crabs on specific beach sections with burrows, butterflies at
+  specific flowers, coastal/jungle/seabirds in their zones, reef fish at coral patches and small
+  schools over sand, turtles over seagrass.
+- [ ] 19. Rock as geology, not only boulders: a rocky headland, a short 4-8 m cliff, exposed
+  bedrock on a slope, large blocks below the cliff.
+- [ ] 20. One small wet biome without a permanent river: a damp depression or seasonal pool with
+  very dark soil, dense ferns, different sounds and insects, shadier vegetation.
+- Not now (per the analysis and product rules): another renderer, weather simulation,
+  day/night, crafting, survival, hundreds of new models, another large gameplay system.
+
+Order: visual realism of existing content takes priority over adding species. When species are
+added, prefer ones whose realistic form and motion can be validated in close software captures,
+and add each with its own deterministic simulation, budget, audio where natural, capture viewpoint
+and regression tests. Record species that do not occur naturally on a small tropical island (for
+example deer) as deliberate operator choices, not ecological claims.
+
+#### 2026-10-10 — dependency baseline refresh
+
+- [x] `cmake/VerifyDependencies.cmake` refused the existing `build/` because the shared read-only
+  checkouts had advanced: Sharp Runtime `next` 21c06910 -> 59454257 (30 commits: macOS/Apple
+  portability, locale-independent `strtod` fallback, kqueue `FileSystemWatcher`, `Console.hpp`
+  ambiguity fix, test pins), EasyGL develop 1edf4c1a -> f4d6afaf (generated `Version.hpp`,
+  release v0.1.0/v0.1.1), MetaGL develop 40829ca7 -> dd3b3005 (generated `Version.hpp`, export
+  script mangled-name match, removal of a stray `METAGL_API` macro from 49 inline span wrapper
+  calls, release v0.4.0/v0.4.1). None changes island-simulator's exercised API. Updated
+  `dependencies.lock` to these clean heads; CNA stays at 97783d1e. No dependency source touched.
+- [x] Incremental native rebuild (85 objects, 74 s, shared ccache) and 33/33 non-display groups
+  pass (26.86 s) on the refreshed baseline before any game change.
+
+#### 2026-10-10 — nonuniform ground cover and trunk presentation
+
+- [x] Inspect actual first-person llvmpipe images (`grass`, `jungle`, `palms`, `overview`) and
+  measure the baked canopy field: 91.3% of inland ground has transmission above 0.9, so shade
+  alone cannot explain or fix the uniform tuft sprinkle. Identify the orange near trunks in the
+  grass view as coconut palms, not canopy trees.
+- [x] Canopy trunks: shared tested `CanopyTrunkRadius` with root flare inside the collision
+  footprint, 12-sided near trunks with height/angle-continuous irregularity, rounded five-column
+  buttress ridges, six-sided branches, neutral grey-brown bark per form, instance weathering,
+  `TrunkSurfaceMaterial` (contact occlusion, moss/soil stain, filtered lichen with measured
+  0.1797 mean), and wood lit through the shared canopy field in every draw. Darker cooler canopy
+  ambient 0.46/0.53/0.62. Near mesh 4,818/4,640, far 1,071/1,120; no new draw or texture.
+- [x] Palms: 36-byte custom vertex with normals (stock fallback unchanged), slender flared stem
+  0.21->0.14 m, smooth one-sided wood daylight on both tiers, weathered grey/brown bark, narrow
+  filtered leaf-scar rings (11.5% mean), eight low rounded root ridges.
+- [x] Ground cover: `GroundCoverField` (three-octave patch field on the canopy texel grid,
+  cached bake bit-identical to the reference, 73 ms at -O2) and `GroundCover::Density` shared by
+  CPU grass placement and the terrain shader through the canopy texture's green channel. Grass
+  uses `0.05 + 0.95 * cover` plus one companion cluster on rich ground: 20,523 clusters (+10.6%),
+  rich ground carries more than four times the tufts per site of poor ground (tested). Terrain
+  re-hues its detailed substrate toward living turf under dense cover, with filtered clumps and
+  reduced litter; routes stay earthy. Yellow-green blade pigment. The `grass` QA camera now
+  selects a representative sward (cover >= 0.6).
+- [x] Harness pins updated for the new canopy inventory and palm/trunk diagnostics. All 33
+  non-display groups pass (26.97 s) including new trunk radius, trunk surface, cover field and
+  grass distribution regressions. Native llvmpipe `20261010T130435.552471Z-grass`,
+  `130442.064431Z-jungle`, `130447.989273Z-overview` pass with empty kernel deltas; images
+  inspected. Jungle camera: grass 3,746 -> 3,596 visible, near 857 -> 1,074, draws 24 -> 24.
+  See `docs/ground-cover-and-trunks.md`.
+- [x] First contained Chrome/SwiftShader run `20261010T130857.587590Z-chrome-litter` **failed**:
+  ANGLE rejected the generated terrain GLSL (`'patch' : Illegal use of reserved word`, a GLSL ES
+  3.00 reserved identifier that Mesa's GLSL 330 accepts), so the Web terrain silently used its
+  stock fallback and drew a flat green vertex palette; the harness correctly refused it. Renamed
+  the parameter and added a CPU regression that scans generated GLSL for ES-reserved identifiers.
+  Failed-run evidence is retained.
+- [x] Corrected Web build; contained Chrome/SwiftShader `20261010T131626.070992Z-chrome-litter`
+  passes both views / 60 intervals each, GL error zero, context live, empty kernel deltas; litter
+  and grass images inspected and match the native turf/trunk appearance.
+- [x] Two grass-motion runs (`132110.766963Z`, `131944.941204Z`) failed at setup: the fixed 650 ms
+  F7 teleport pulses were never observed by the game (page state retained only the focus event).
+  Replaced the pulses with the existing acknowledged key-hold gesture plus evidence JSON, as the
+  F1 overlay control already does. `20261010T132225.050061Z-chrome-grass-motion` passes: teleport
+  acknowledged after 2,859 ms held, 1.0033 m return error, 44 grass LOD population states, 90 distinct recorded frames (2,338,658
+  bytes), GL error zero, no context loss, empty kernel deltas. Steps 0-5 and frames 25/26/27/75
+  retained; step 3 / frame 26 inspected: turf and grass stay consistent under motion, but the dry
+  clearing's distant turf undercoat reads as flat olive paint. Web package 10,299,978 raw /
+  3,512,848 gzip bytes.
+- [x] Android x86_64 assembly/lint passes. First KVM/SwiftShader run `20261010T132633.978451Z-grass`
+  **failed** only because `tools/run_android_runtime_smoke.sh` still pinned the old canopy mesh
+  inventory (the game itself ran without fallback at about 700 ms/frame); pin updated, evidence
+  retained. Corrected `20261010T133014.813550Z-grass` passes: app PID 1729 / entry TID 1822,
+  first draw 5,867.653 ms, total 15,974.683 ms, image inspected (turf, grass, grey trunks match
+  native), empty kernel deltas, emulator exit zero. Rolling x86_64 APK 20,382,587 bytes
+  (SHA-256 14f98e55...2b3133d); default ARM64 assembly/lint restored (20 s), 20,475,196 bytes
+  (SHA-256 aef3a830...5dda2d9d), three native libraries and both prepared materials verified.
+  ARM64 runtime and physical-device performance remain untested.
+- [x] Final 33/33 non-display groups pass (34.55 s). Hardware stop-latch SHA-256 unchanged
+  (`c0bd1704...6ee6f1`); 359 GiB free; no owned game/emulator/compositor/browser process remains.
+  Host kernel journal since 14:30 CEST holds only Bluetooth hci0 power-off timeouts at 15:00
+  (unrelated host activity, no GPU message). Evidence: browser 283 MiB, native captures 671 MiB,
+  Android software 1.8 GiB; failed-run directories retained. Only rolling Web/APK packages
+  replaced; no source artwork or incident evidence removed.
+- [ ] Next: forest masses/emergent trees and terrain macro-geography (backlog above); turf is
+  still a 2D material and fine motion stability is unproven by still captures.
+
 #### 2026-10-09 — operator-requested handoff and stop
 
 - [x] Complete only the nearest task: contained real-input Web grass walk.

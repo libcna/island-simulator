@@ -38,7 +38,9 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/NaturalPropRenderer.hpp"
+#include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
 #include "IslandSimulator/GrassRenderer.hpp"
 #include "IslandSimulator/OceanRenderer.hpp"
 #include "IslandSimulator/PalmRenderer.hpp"
@@ -215,9 +217,12 @@ namespace island
         SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
         MonkeyTroop monkeyTroop_;
-        GrassLayout grassLayout_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
+        // CPU fields shared by grass placement and the uploaded light/cover texture.
+        CanopyLightField canopyLightField_;
+        GroundCoverField groundCoverField_;
+        GrassLayout grassLayout_;
         NaturalPropLayout naturalPropLayout_;
         ShipwreckLayout shipwreckLayout_;
         WorldCollisionGrid worldCollisionGrid_;

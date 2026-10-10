@@ -5,6 +5,8 @@
 
 namespace island
 {
+    class CanopyLightField;
+    class GroundCoverField;
     class IslandTerrain;
 
     /** @brief One deterministic grass-cluster anchor shared by tests and rendering. */
@@ -33,9 +35,17 @@ namespace island
         static constexpr float MaximumScale = 1.24f;
         static constexpr float MinimumSpreadScale = 0.88f;
         static constexpr float MaximumSpreadScale = 1.12f;
+        // Dense cover adds at most one companion cluster per candidate site.
+        static constexpr float SatelliteStart = 0.50f;
+        static constexpr float SatelliteMinimumOffset = 0.85f, SatelliteMaximumOffset = 1.20f;
 
-        explicit GrassLayout(const IslandTerrain& terrain,
-                             std::uint32_t seed = DefaultSeed);
+        /**
+         * @brief Places grass from the shared ground-cover response.
+         *
+         * Light and cover fields must describe the same terrain; both are only read here.
+         */
+        GrassLayout(const IslandTerrain& terrain, const CanopyLightField& light,
+                    const GroundCoverField& cover, std::uint32_t seed = DefaultSeed);
 
         [[nodiscard]] const std::vector<GrassPlacement>& Patches() const noexcept
         {
@@ -46,9 +56,6 @@ namespace island
         [[nodiscard]] static std::uint32_t Hash(std::int32_t x, std::int32_t z,
                                                 std::uint32_t seed) noexcept;
         [[nodiscard]] static float UnitRandom(std::uint32_t value) noexcept;
-        [[nodiscard]] static float ClusterNoise(float x, float z,
-                                                std::uint32_t seed) noexcept;
-
         std::vector<GrassPlacement> patches_;
     };
 }

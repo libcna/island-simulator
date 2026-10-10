@@ -53,6 +53,7 @@ add_library(island_core STATIC
     game/src/GrassBladeProfile.cpp
     game/src/GrassMotionBounds.cpp
     game/src/GrassLayout.cpp
+    game/src/GroundCoverField.cpp
     game/src/GrassLod.cpp
     game/src/GroundBroadleaf.cpp
     game/src/SplitGroundLeaf.cpp

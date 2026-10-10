@@ -7,6 +7,7 @@
 #include "IslandSimulator/LeafSurfaceMaterial.hpp"
 #include "IslandSimulator/RenderedTerrainHeightMap.hpp"
 #include "IslandSimulator/BarkMaterial.hpp"
+#include "IslandSimulator/TrunkSurfaceMaterial.hpp"
 #include "IslandSimulator/SurfaceNormals.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
@@ -174,6 +175,8 @@ void main()
                             1.0 + signedTint * 0.15,
                             1.0 - signedTint * 0.06);
     vColor = aColor.rgb * mix(vec3(1.0), foliageTint, foliageMask);
+    // Neighbouring trees of one form differ in weathering, not only in yaw and scale.
+    if (aLeaf.w < -0.5) vColor *= 0.90 + 0.18 * tintSeed;
     vWorld = world.xyz;
     vLocal = aPosition;
     vGroundHeight = groundHeight;
@@ -210,19 +213,33 @@ void main()
     float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
     vec3 faceNormal = faceVector * inverseFaceLength;
     bool liveLeaf = vLeaf.w > 0.5 && vLeaf.w < 1.5;
-    if (vLeaf.w < -0.5 || liveLeaf) {
+    bool wood = vLeaf.w < -0.5;
+    // Derivatives must be evaluated outside the per-primitive material branches.
+    vec4 woodCoordinate = woodMaterialCoordinates(vLeaf.xyz);
+    if (wood || liveLeaf) {
         faceNormal = vLeafNormal * inversesqrt(max(dot(vLeafNormal, vLeafNormal), 0.00000001));
     }
     float twoSidedDiffuse = abs(dot(faceNormal, normalize(uToSun)));
     float upwardFill = abs(faceNormal.y);
     float daylight = 0.78 + twoSidedDiffuse * 0.24 + upwardFill * 0.05;
+    vec3 albedo = vColor;
+    vec3 daylightColor = vec3(daylight);
+    uint barkSeed = 0u;
     if (liveLeaf) {
-        daylight = dot(leafDaylightTerms, vec3(1.0, twoSidedDiffuse, upwardFill));
-    } else if (vLeaf.w < -0.5) {
-        daylight = dot(woodDaylightTerms, vec3(1.0,
-            max(dot(faceNormal, normalize(uToSun)), 0.0), max(faceNormal.y, 0.0)));
+        daylightColor = vec3(dot(leafDaylightTerms, vec3(1.0, twoSidedDiffuse, upwardFill)));
+    } else if (wood) {
+        barkSeed = uint(clamp(floor(-vLeaf.w - 1.0 + 0.5), 0.0, 1023.0));
+        float aboveGround = vWorld.y - vGroundHeight;
+        albedo = trunkSurfaceAlbedo(vColor, aboveGround, woodCoordinate, barkSeed);
+        // Wood below and inside crowns receives the shared fixed-sun field in every draw.
+        // Direct sun is attenuated; fill and sky light are cooled and reduced in shade.
+        float transmission = canopyTransmission(canopyGroundReceiver(vWorld, vGroundHeight, uToSun));
+        vec3 skyFill = mix(uCanopyAmbient, vec3(1.0), transmission);
+        daylightColor = (woodDaylightTerms.x + woodDaylightTerms.z * max(faceNormal.y, 0.0)) * skyFill
+            + woodDaylightTerms.y * max(dot(faceNormal, normalize(uToSun)), 0.0) * transmission;
+        daylightColor *= trunkContactOcclusion(aboveGround);
     }
-    vec3 litColor = vColor * daylight;
+    vec3 litColor = albedo * daylightColor;
     // Derivatives must be evaluated outside the per-primitive material branch.
     vec2 leafUv = leafSurfaceUv(vLeaf.xyz);
     vec2 leafDx = dFdx(leafUv), leafDy = dFdy(leafUv);
@@ -258,13 +275,13 @@ void main()
             * max(dot(facingNormal, normalize(uToSun)), 0.0);
         litColor += vec3(0.11, 0.12, 0.08) * wax * detailFade * (1.0 - bladeEdge * 0.35);
     }
-    float barkColorMask = smoothstep(0.025, 0.095, vColor.r - vColor.g)
+    // Tagged wood is grey-brown by design; colour keys only identify untagged legacy bark.
+    float barkColorMask = wood ? 1.0 : smoothstep(0.025, 0.095, vColor.r - vColor.g)
         * smoothstep(0.025, 0.105, vColor.g - vColor.b);
     float barkDetailFade = barkColorMask
         * (1.0 - smoothstep(38.0, 68.0, distanceToCamera));
-    vec4 woodCoordinate = woodMaterialCoordinates(vLeaf.xyz);
     vec2 barkCoordinate = vec2(atan(vLocal.z, vLocal.x), vLocal.y);
-    if (vLeaf.w < -0.5) {
+    if (wood) {
         barkCoordinate = woodCoordinate.xy;
         barkDetailFade *= smoothstep(0.05, 0.20, dot(vLeaf.xy, vLeaf.xy));
     }
@@ -274,7 +291,7 @@ void main()
         + sin(barkCoordinate.y * 0.77) * 0.55;
     float grainFootprint = fwidth(grainPhase);
     float fissureFootprint = fwidth(fissurePhase);
-    if (vLeaf.w < -0.5) {
+    if (wood) {
         // Integer angular frequencies are periodic. Differentiate the circular pair to avoid
         // a false wide footprint on the atan branch cut; bound the axial phase modulation.
         grainFootprint = woodCoordinate.z * 5.0 + woodCoordinate.w * (0.42 + 1.31 * 0.32);
@@ -286,13 +303,11 @@ void main()
     float fissure = mix(barkFissureTerms.z, smoothstep(barkFissureTerms.x, barkFissureTerms.y, fissureWave),
         materialDetailWeight(fissureFootprint / 3.14159265359));
     float barkResponse = 1.0 + broadGrain * 0.035 - fissure * 0.09;
-    if (vLeaf.w < -0.5) {
-        uint barkSeed = uint(clamp(floor(-vLeaf.w - 1.0 + 0.5), 0.0, 1023.0));
-        barkResponse = barkMaterial(woodCoordinate, barkSeed);
-    }
+    if (wood) barkResponse = barkMaterial(woodCoordinate, barkSeed);
     litColor *= mix(1.0, barkResponse, barkDetailFade);
-    // Uniform per draw: low layers receive the ground field; crowns must not shadow themselves.
-    if (uReceiveCanopyLight > 0.5) {
+    // Low layers receive the ground field; crown foliage must not shadow itself. Wood
+    // already applied the same field to its direct and diffuse terms above.
+    if (uReceiveCanopyLight > 0.5 && !wood) {
         litColor = applyCanopyLight(litColor, canopyGroundReceiver(vWorld, vGroundHeight, uToSun));
     }
     vec3 color = mix(litColor, vec3(0.53, 0.78, 0.88), fog);
@@ -305,11 +320,11 @@ void main()
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
-                    + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + LeafSurfaceMaterial::Shader()
+                    + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + TrunkSurface::Shader() + LeafSurfaceMaterial::Shader()
                               : JungleWind::ShaderConstants() + std::string(RenderedTerrainSurface::Shader)) + body;
             }
             return std::string("#version 330 core\n")
-                + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + LeafSurfaceMaterial::Shader()
+                + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + TrunkSurface::Shader() + LeafSurfaceMaterial::Shader()
                           : JungleWind::ShaderConstants() + std::string(RenderedTerrainSurface::Shader)) + body;
         }
 
@@ -391,10 +406,25 @@ void main()
                 geometry.leaves[firstVertex+i].normal = Vector3(normals[i][0], normals[i][1], normals[i][2]);
         }
 
+        // Neutral grey-brown tropical bark, from smooth pale fig-like trunks to darker fissured
+        // ones. Saturated orange-brown read as painted wood under the fixed afternoon sun.
+        [[nodiscard]] Color CanopyBarkColor(const int variant)
+        {
+            constexpr std::array<std::array<std::uint8_t, 3>, CanopyFormCount> barks{{
+                {112, 100, 84}, {128, 122, 110}, {98, 82, 66}, {120, 106, 88},
+                {104, 92, 78}, {136, 128, 114}, {94, 80, 68}, {116, 98, 80}}};
+            const auto& bark = barks.at(static_cast<std::size_t>(variant));
+            return Color(bark[0], bark[1], bark[2], static_cast<std::uint8_t>(255));
+        }
+
         void AppendCanopyButtresses(PlantGeometry& geometry, const int variant)
         {
             const int buttressCount = 4 + variant % 2;
-            const Color bark(104 + variant * 4, 79 + variant * 2, 48, 255);
+            const Color bark = CanopyBarkColor(variant);
+            // Rounded ridges that rise out of the flared trunk and decay into the soil. A single
+            // wedge read as a flat paper fin; five columns give it a convex, root-like section.
+            constexpr int Stations = 5;
+            constexpr std::array<float, 5> Columns{-1.0f, -0.5f, 0.0f, 0.5f, 1.0f};
             for (int buttress = 0; buttress < buttressCount; ++buttress) {
                 const float rootIndex = static_cast<float>(buttress + 1);
                 const float angleVariation = std::sin(
@@ -408,105 +438,99 @@ void main()
                     + static_cast<float>(variant) * 0.37f + angleVariation * 0.11f;
                 const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
                 const Vector3 side(-direction.Z, 0.0f, direction.X);
-                const float innerWidth = 0.13f + widthVariation * 0.05f;
-                const float outerWidth = 0.035f + widthVariation * 0.025f;
-                const float crestHeight = 0.58f + lengthVariation * 0.24f;
-                const Vector3 innerCentre = direction * 0.25f;
+                const float innerDistance = 0.26f;
                 // The maximum scaled tip stays inside the player-blocked trunk footprint for
                 // every authored canopy scale, so the visual flare does not create a snag cue.
-                const Vector3 outerCentre = direction * (0.58f + lengthVariation * 0.09f);
+                const float outerDistance = 0.58f + lengthVariation * 0.09f;
+                const float crestHeight = 0.74f + lengthVariation * 0.26f;
+                const float innerWidth = 0.13f + widthVariation * 0.05f;
+                const float outerWidth = 0.026f + widthVariation * 0.018f;
+                const float sweep = (angleVariation < 0.0f ? -1.0f : 1.0f) * 0.045f;
                 const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
                 const auto firstIndex = geometry.indices.size();
                 const Vector2 still(0.0f, static_cast<float>(buttress) * 0.17f);
-                geometry.vertices.emplace_back(
-                    innerCentre - side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
-                    ShadeColor(bark, 0.80f), still);
-                geometry.vertices.emplace_back(
-                    innerCentre + side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
-                    ShadeColor(bark, 0.96f), still);
-                geometry.vertices.emplace_back(
-                    innerCentre + direction * 0.015f + Vector3(0.0f, crestHeight, 0.0f),
-                    ShadeColor(bark, 1.08f), still);
-                geometry.vertices.emplace_back(
-                    outerCentre - side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
-                    ShadeColor(bark, 0.74f), still);
-                geometry.vertices.emplace_back(
-                    outerCentre + side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
-                    ShadeColor(bark, 0.88f), still);
-                geometry.vertices.emplace_back(
-                    outerCentre - direction * 0.025f + Vector3(0.0f, 0.060f, 0.0f),
-                    ShadeColor(bark, 0.93f), still);
-                geometry.leaves.resize(geometry.vertices.size());
-                const float rootLength = Vector3::Distance(
-                    geometry.vertices[base+2].Position, geometry.vertices[base+5].Position);
-                for (std::size_t i = base; i < geometry.vertices.size(); ++i) {
-                    const auto corner = (i-base) % 3;
-                    const float angle = corner == 2 ? 0.0f
-                        : (corner == 0 ? -1.0f : 1.0f) * 2.0f * std::numbers::pi_v<float> / 3.0f;
-                    geometry.leaves[i] = {Vector3::Zero,
-                        WoodCoordinates(angle, i-base < 3 ? 0.0f : rootLength), bark};
+                std::vector<Vector3> outwardDirections;
+                float along = 0.0f;
+                Vector3 previousCrest;
+                for (int station = 0; station < Stations; ++station) {
+                    const float s = static_cast<float>(station) / static_cast<float>(Stations - 1);
+                    const Vector3 centre = direction * std::lerp(innerDistance, outerDistance, s)
+                        + side * (sweep * std::sin(std::numbers::pi_v<float> * s));
+                    const float crest = crestHeight * std::pow(1.0f - s, 1.25f) + 0.022f * s;
+                    const float halfWidth = std::lerp(innerWidth, outerWidth, s);
+                    const Vector3 crestPoint = centre + Vector3::Up * crest;
+                    if (station > 0) along += Vector3::Distance(previousCrest, crestPoint);
+                    previousCrest = crestPoint;
+                    for (const float column : Columns) {
+                        // Feet stay just above the rendered root plane; the section is convex.
+                        const float lift = std::pow(1.0f - column * column, 0.7f);
+                        geometry.vertices.emplace_back(
+                            centre + side * (column * halfWidth)
+                                + Vector3::Up * std::max(0.016f, crest * lift),
+                            ShadeColor(bark, 0.78f + 0.20f * lift + 0.06f * column), still);
+                        SetWoodAlbedo(geometry, bark,
+                            column * 2.0f * std::numbers::pi_v<float> / 3.0f, along);
+                        outwardDirections.push_back(side * column
+                            + Vector3::Up * (1.0f - std::abs(column) * 0.8f) + direction * 0.15f);
+                    }
                 }
-                geometry.indices.insert(geometry.indices.end(), {
-                    base, static_cast<std::uint16_t>(base + 3U),
-                    static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 3U),
-                    static_cast<std::uint16_t>(base + 5U),
-                    static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 5U),
-                    static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 5U),
-                    static_cast<std::uint16_t>(base + 4U),
-                    base, static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 3U),
-                    static_cast<std::uint16_t>(base + 4U),
-                    static_cast<std::uint16_t>(base + 5U)});
-                // This tapered wedge is open underneath and not strictly convex. Side/crest
-                // directions are valid outward references; its averaged centre need not be.
-                FinishWoodNormals(geometry, base, firstIndex,
-                    {-side, side, Vector3::Up, -side, side, Vector3::Up}, true);
+                constexpr auto columns = static_cast<std::uint16_t>(Columns.size());
+                for (int station = 0; station + 1 < Stations; ++station) {
+                    for (std::uint16_t column = 0; column + 1 < columns; ++column) {
+                        const auto a = static_cast<std::uint16_t>(base + station * columns + column);
+                        const auto b = static_cast<std::uint16_t>(a + columns);
+                        const auto c = static_cast<std::uint16_t>(a + 1U);
+                        const auto d = static_cast<std::uint16_t>(b + 1U);
+                        geometry.indices.insert(geometry.indices.end(), {a, c, b, b, c, d});
+                    }
+                }
+                // Open underneath and partly inside the trunk; references give the outward side.
+                FinishWoodNormals(geometry, base, firstIndex, outwardDirections, false);
             }
         }
 
         void AppendCanopyTrunk(PlantGeometry& geometry, const int variant, const bool farMesh)
         {
-            const int rings = farMesh ? 4 : 7;
-            const int sides = farMesh ? 5 : 8;
+            const int sides = farMesh ? 5 : 12;
             const auto profile = MakeCanopyTrunkProfile(variant);
             const float height = profile.height;
+            // Both tiers retain the straight lower collision zone and the bend's start knot.
+            // Near rings concentrate on the root flare. Irregularity is a smooth function of
+            // height and angle, never of ring index, so ring boundaries do not form creases.
+            std::vector<float> ringHeights = farMesh
+                ? std::vector<float>{0.0f, 1.5f, 3.0f}
+                : std::vector<float>{0.0f, 0.16f, 0.38f, 0.74f, 1.30f, 2.10f, 3.0f};
+            const int upperRings = farMesh ? 2 : 5;
+            for (int ring = 1; ring <= upperRings; ++ring) {
+                ringHeights.push_back(3.0f + (height - 3.0f) * static_cast<float>(ring)
+                    / static_cast<float>(upperRings));
+            }
+            const Color bark = CanopyBarkColor(variant);
             const std::uint16_t base = static_cast<std::uint16_t>(geometry.vertices.size());
             const auto firstIndex = geometry.indices.size();
             std::vector<Vector3> outwardDirections;
 
-            for (int ring = 0; ring <= rings; ++ring) {
-                // Both tiers retain the straight lower collision zone and the bend's start knot.
-                const float localHeight = ring <= 2 ? ring * 1.5f
-                    : 3.0f + (height - 3.0f) * static_cast<float>(ring - 2) / (rings - 2);
+            for (const float localHeight : ringHeights) {
                 const float t = localHeight / height;
                 const float pigment = JungleMaterial::TrunkPigment(t);
                 const auto centre = SampleCanopyTrunk(variant, t);
                 const float centreX = centre[0], centreZ = centre[2];
-                const float ringVariation = farMesh ? 1.0f
-                    : 1.0f + 0.050f * std::sin(
-                        static_cast<float>(ring) * 1.91f
-                        + static_cast<float>(variant) * 0.83f);
-                const float radius = (0.43f + (0.23f - 0.43f) * t) * ringVariation;
+                const float radius = CanopyTrunkRadius(variant, localHeight);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
-                    const float radialVariation = farMesh ? 1.0f
-                        : 1.0f + 0.065f * std::sin(
-                            angle * 2.0f + static_cast<float>(variant) * 0.71f
-                            + static_cast<float>(ring) * 0.47f);
+                    const float irregularity = farMesh ? 1.0f
+                        : 1.0f + 0.032f * std::sin(localHeight * 1.27f + static_cast<float>(variant) * 0.83f)
+                            + 0.045f * std::sin(angle * 2.0f + static_cast<float>(variant) * 0.71f
+                                + localHeight * 0.31f)
+                            + 0.022f * std::sin(angle * 3.0f - static_cast<float>(variant) * 1.30f
+                                + localHeight * 0.90f);
                     const float directional = 0.68f + 0.30f
                         * std::max(0.0f, std::cos(angle) * 0.74f + std::sin(angle) * 0.28f);
-                    const Color bark(104 + variant * 4, 79 + variant * 2, 48, 255);
                     geometry.vertices.emplace_back(
-                        Vector3(centreX + std::cos(angle) * radius * radialVariation,
+                        Vector3(centreX + std::cos(angle) * radius * irregularity,
                                 height * t,
-                                centreZ + std::sin(angle) * radius * radialVariation),
+                                centreZ + std::sin(angle) * radius * irregularity),
                         ShadeColor(bark, directional * pigment),
                         Vector2(t * t * 0.08f, static_cast<float>(variant) * 0.17f));
                     SetWoodAlbedo(geometry, ShadeColor(bark, pigment),
@@ -514,6 +538,7 @@ void main()
                     outwardDirections.emplace_back(std::cos(angle), 0.0f, std::sin(angle));
                 }
             }
+            const int rings = static_cast<int>(ringHeights.size()) - 1;
             for (int ring = 0; ring < rings; ++ring) {
                 for (int side = 0; side < sides; ++side) {
                     const int next = (side + 1) % sides;
@@ -587,7 +612,7 @@ void main()
                                 const Vector3& end, const Color& baseColor,
                                 const float windPhase)
         {
-            constexpr int sides = 4;
+            constexpr int sides = 6;
             const Vector3 axis = Vector3::Normalize(end - start);
             const Vector3 reference = std::fabs(axis.Y) < 0.88f
                 ? Vector3::Up : Vector3::Right;
@@ -613,7 +638,7 @@ void main()
                     const Vector3 outward = right * std::cos(angle) + up * std::sin(angle);
                     geometry.vertices.emplace_back(
                         centre + outward * radius,
-                        ShadeColor(baseColor, 0.76f + 0.10f * static_cast<float>(side)),
+                        ShadeColor(baseColor, 0.76f + 0.06f * static_cast<float>(side)),
                         Vector2(windWeight, windPhase));
                     SetWoodAlbedo(geometry, baseColor, angle, along);
                     outwardDirections.push_back(outward);
@@ -799,8 +824,7 @@ void main()
                         - Vector3(std::cos(angle) * 0.48f, 0.0f,
                                   std::sin(angle) * 0.48f);
                     AppendCanopyBranch(geometry, branchStart, branchEnd,
-                                       Color(78 + variant * 3, 62 + variant * 2, 38, 255),
-                                       phase);
+                                       ShadeColor(CanopyBarkColor(variant), 0.86f), phase);
                 }
                 const float crownHeight = profile.height;
                 // A small opaque core represents unresolved inner foliage. Individual folded
@@ -1352,6 +1376,10 @@ void main()
             "island-simulator: canopy bark has instance-stable warped grain and interrupted filtered fissures";
         std::cout << barkVariationDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(barkVariationDiagnostic);
+        constexpr const char* trunkSurfaceDiagnostic =
+            "island-simulator: canopy trunks use root flare, rounded buttress ridges and grey-brown bark with moss, lichen, contact occlusion and canopy shade";
+        std::cout << trunkSurfaceDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(trunkSurfaceDiagnostic);
         constexpr const char* trunkPigmentDiagnostic =
             "island-simulator: canopy trunk pigment follows normalized height across LOD tiers";
         std::cout << trunkPigmentDiagnostic << '\n';

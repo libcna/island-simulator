@@ -461,10 +461,36 @@ try {
               expression: `(() => { Module.canvas.focus(); return document.activeElement === Module.canvas; })()`,
               returnByValue: true,
             }, sessionId);
-            if (!focused.result.value || !await dispatchKeyUntilOutput(sessionId, "F7", "F7", 118,
-              "island-simulator: debug teleport east clearing x 43 z -18")) {
-              throw new Error("Grass motion east-clearing setup failed");
+            if (!focused.result.value) throw new Error("Grass motion setup could not focus the canvas");
+            // Fixed 650 ms F7 pulses fell between frame-polled updates on heavily loaded
+            // SwiftShader frames (two retained 2026-10-10 failures with only a focus event).
+            // Hold one actual key-down until the game acknowledges the teleport, as F1 does.
+            const teleportPattern = "island-simulator: debug teleport east clearing x 43 z -18";
+            const teleportEvidence = {};
+            const teleportInspect = async () => (await call("Runtime.evaluate", {
+              expression: `({ focused: document.hasFocus(), visibility: document.visibilityState,
+                canvasActive: document.activeElement === Module.canvas,
+                events: globalThis.islandSmokeResult?.inputEvents ?? [],
+                error: globalThis.islandSmokeResult?.error,
+                outputTail: (globalThis.islandSmokeResult?.output ?? '').slice(-2000) })`,
+              returnByValue: true,
+            }, sessionId)).result.value;
+            let teleported = await waitForOutput(sessionId, teleportPattern, 1);
+            if (!teleported) {
+              try {
+                teleported = await acknowledgedInputGesture({ evidence: teleportEvidence, inspect: teleportInspect,
+                  press: () => call("Input.dispatchKeyEvent", { type: "keyDown", key: "F7", code: "F7",
+                    windowsVirtualKeyCode: 118, nativeVirtualKeyCode: 118 }, sessionId),
+                  acknowledge: () => waitForOutput(sessionId, teleportPattern, 60),
+                  release: () => call("Input.dispatchKeyEvent", { type: "keyUp", key: "F7", code: "F7",
+                    windowsVirtualKeyCode: 118, nativeVirtualKeyCode: 118 }, sessionId),
+                });
+              } finally {
+                await writeFile(path.join(artifactDirectory, "island-browser-grass-motion-teleport-gesture.json"),
+                  `${JSON.stringify({ ...teleportEvidence, acknowledged: teleported === true }, null, 2)}\n`);
+              }
             }
+            if (!teleported) throw new Error("Grass motion east-clearing setup failed");
           }
           const screenshotPath = await captureVisualFrame(sessionId,
             `island-browser-${focusedArtifactPrefix}-${mode}.png`,
@@ -561,8 +587,8 @@ try {
             && log.includes("boar soles fit rendered terrain independently with fixed-length limbs")
             && !log.includes("boar terrain contact limited by limb reach")
             && log.includes("monkeys receive footprint-averaged canopy light through stock skinning")
-            // Curved leaf budgets are unchanged; the far tier now retains seven primary branches.
-            && /canopy mesh variant=0 near-vertices=4620 near-triangles=4328 far-vertices=1029 far-triangles=1064/.test(log)
+            // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
+            && /canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120/.test(log)
             && (mode !== "boars" || /boars [1-6]\/6 visible, 1 draw/.test(log))
             && (mode !== "monkeys" || /monkeys [1-7]\/7 visible/.test(log))
             && !/(?:stock-effect|material) fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high/i.test(log);
@@ -698,7 +724,7 @@ try {
       "island-simulator: palm near leaflets use staggered asymmetric silhouettes")
     && result.output?.includes(
       "island-simulator: palm near geometry uses fixed-sun facet shading")
-    && result.output?.includes("palm near root wedges ground trunk bases")
+    && result.output?.includes("palm near root ridges ground flared trunk bases")
     && result.output?.includes("palm procedural bark scars and restrained coconut clusters")
     && result.output?.includes(
       "island-simulator: selected palm near crowns include sparse hanging dry fronds")
@@ -1244,7 +1270,7 @@ try {
       "island-simulator: palm near leaflets use staggered asymmetric silhouettes")
     && palmResult.output?.includes(
       "island-simulator: palm near geometry uses fixed-sun facet shading")
-    && palmResult.output?.includes("palm near root wedges ground trunk bases")
+    && palmResult.output?.includes("palm near root ridges ground flared trunk bases")
     && palmResult.output?.includes(
       "palm procedural bark scars and restrained coconut clusters")
     && palmResult.output?.includes(

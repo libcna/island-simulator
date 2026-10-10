@@ -369,12 +369,13 @@ void main()
             const float redCure = 1.0f + curedProfile * 0.75f;
             const float greenCure = 1.0f + curedProfile * 0.06f;
             const float blueCure = 1.0f - curedProfile * 0.82f;
+            // Sunlit tropical grasses are yellow-green, not emerald; keep per-blade spread.
             const int red = static_cast<int>(std::lround(
-                (40.0f + bladeShift * 9.0f) * light * redCure));
+                (64.0f + bladeShift * 12.0f) * light * redCure));
             const int green = static_cast<int>(std::lround(
-                (124.0f + bladeShift * 19.0f) * light * greenCure));
+                (120.0f + bladeShift * 18.0f) * light * greenCure));
             const int blue = static_cast<int>(std::lround(
-                (38.0f + bladeShift * 8.0f) * light * blueCure));
+                (40.0f + bladeShift * 8.0f) * light * blueCure));
             return Color(static_cast<std::uint8_t>(std::clamp(red, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(green, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(blue, 0, 255)),

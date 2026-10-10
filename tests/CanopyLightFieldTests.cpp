@@ -102,6 +102,23 @@ try
             if(p[1]<=3.0f) Require(p[0]==0 && p[2]==0,
                 "Lower three metres must not bend outside the collision-axis envelope");
         }
+        // Root flare: monotone taper, inside the player-blocked footprint at every authored
+        // scale (collision 0.43 * scale + 0.34 m capsule, including 9.9% near-mesh irregularity).
+        float previousRadius=std::numeric_limits<float>::max();
+        for(int step=0;step<=400;++step) {
+            const float y=trunk.height*step/400.0f;
+            const float radius=CanopyTrunkRadius(variant,y);
+            Require(std::isfinite(radius) && radius<=previousRadius && radius>=CanopyTrunkTipRadius*0.999f,
+                    "Canopy trunk radius must taper monotonically from its flared root");
+            for(float scale:{0.78f,1.28f})
+                Require(radius*1.099f*scale<CanopyTrunkBaseRadius*scale+0.34f,
+                        "Root flare must stay inside the player-blocked trunk footprint");
+            previousRadius=radius;
+        }
+        Require(CanopyTrunkRadius(variant,0)>1.3f*CanopyTrunkRadius(variant,1.5f),
+                "Trunk base must visibly flare above its root plane");
+        Invalid([&] { (void)CanopyTrunkRadius(variant,-0.01f); });
+        Invalid([&] { (void)CanopyTrunkRadius(variant,trunk.height+0.01f); });
         float minX=100,maxX=-100,minY=100,maxY=-100,offset=0;
         for(int cluster=0;cluster<8;++cluster) {
             const auto p=MakeCanopyCrownProfile(variant,cluster);

@@ -488,9 +488,10 @@ supported. Native OpenGL 3.3 and Chromium/WebGL 2 execute the full shader; the c
 3 package compiles its GLSL ES path, and the KVM/API 35 gfxstream matrix visibly executes the same
 full sunny-sky path. Physical-device appearance and fragment cost remain open.
 
-Four palm variants use curved tapered trunk meshes and 10--12 fronds in the near tier, with five
-faceted root wedges around the trunk base as a low-cost contact cue. Their deterministic angle,
-length, width, and ridge-height variation avoids a regular radial stamp. Each near frond combines a
+Four palm variants use curved, slender, root-flared trunk meshes with smooth analytic normals and
+10--12 fronds in the near tier, with eight low rounded root ridges around the bole as a low-cost
+contact cue. Their deterministic angle, length, width, and ridge-height variation avoids a regular
+radial stamp. Each near frond combines a
 thin curved rachis with nine pairs of independently tapered leaflets. Their modestly widened roots
 close the skeletal gaps visible from first-person height without adding vertices or merging the
 individual silhouettes; the lower-segment far tier uses seven
@@ -525,7 +526,7 @@ also reconstructs a two-sided geometric normal from world-position derivatives a
 restrained fixed-sun diffuse/fill term before the existing bark detail. Far palms skip the added
 fragment work, while no normal attribute or buffer is required.
 
-Grass uses 18,556 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Each
+Grass uses 20,523 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Their acceptance follows `GroundCover::Density` (baked canopy transmission, a three-octave patch field, shore distance and slope), the same formula the terrain shader uses for its turf undercoat, so dense swards and bare humus coincide between placement and material (`docs/ground-cover-and-trunks.md`). Each
 visible anchor instances one shared near cluster (42 tall/juvenile blades plus 48 low turf
 blades), ten-blade middle, or seven-blade far cluster. A
 stable per-patch ordering and renderer-independent smoothstep split progressively move each cell
@@ -1488,7 +1489,7 @@ dependencies; the project does not copy distribution-specific system libraries i
   or final biome masks. Close forest-floor detail uses the documented generated PNG windows.
 - Palms have four geometry variants, segmented near leaflets, widened far crown silhouettes,
   staggered per-instance LOD, placement clustering, cell culling, subtle shader wind, trunk
-  collision, irregular faceted root wedges, transform-derived green-only per-instance frond tint,
+  collision, low rounded root ridges, transform-derived green-only per-instance frond tint,
   and a near-field terrain contact shadow. True LOD
   blending, richer bark/frond materials, and full directional/self-shadowing remain open.
 - The first grass, layered-jungle, rock, and fallen-wood tiers substantially improve first-person

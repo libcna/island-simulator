@@ -14,6 +14,16 @@ namespace island
         return {heights[variant], 0.63f + variant * 1.49f, leans[variant]};
     }
 
+    float CanopyTrunkRadius(const int variant, const float localHeight)
+    {
+        const auto trunk=MakeCanopyTrunkProfile(variant);
+        if(!std::isfinite(localHeight) || localHeight<0 || localHeight>trunk.height)
+            throw std::invalid_argument("Invalid canopy trunk radius height");
+        const float t=localHeight/trunk.height;
+        const float taper=CanopyTrunkBaseRadius+(CanopyTrunkTipRadius-CanopyTrunkBaseRadius)*t;
+        return taper*(1.0f+CanopyRootFlare*std::exp(-localHeight/CanopyRootFlareHeight));
+    }
+
     std::array<float,3> SampleCanopyTrunk(const int variant,const float t)
     {
         const auto trunk=MakeCanopyTrunkProfile(variant);

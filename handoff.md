@@ -1,9 +1,10 @@
 # island-simulator handoff
 
-Prepared 2026-10-09 at the operator's request. Finish the current bounded grass
-walking review, commit and push the accumulated project work, then stop. The
-overall development campaign is **not complete**. Resume only on new operator
-direction; do not interpret this handoff as permission for unattended GPU tests.
+Prepared 2026-10-09 at the operator's request; updated 2026-10-10 after the
+operator asked to continue ("keep working until the tasks are done") and set the
+standing goal that the island must look noticeably closer to reality. The overall
+development campaign is **not complete**. Do not interpret this handoff as
+permission for unattended GPU tests.
 
 ## Read first: unresolved desktop-threatening GPU failure
 
@@ -80,12 +81,15 @@ triangle root/grass/litter contact, boar ground contact, original image material
 portable ocean/shore material work and safer validation harnesses. Detailed
 decisions and measured limitations are in the corresponding `docs/*.md` files.
 
-Latest material pass separates grass pigment from fixed baked side/height
-lighting. Actual normals supply directional light; normalized-height occlusion
-is separate. Filtered longitudinal veins/midrib use one added float per vertex;
-seed heads skip the detail. Custom stride is 40 bytes / nine attributes, +3,856
-bytes total across shared meshes, with no new draw, texture or instance. Unlit
-stock fallback preserves its old colour policy. See `docs/grass-surface-material.md`.
+Latest pass (2026-10-10, `docs/ground-cover-and-trunks.md`): nonuniform ground
+cover from a shared `GroundCoverField` + baked canopy light (grass placement and
+the terrain's living-turf undercoat use one `GroundCover::Density` formula; the
+patch field rides in the canopy texture's green channel), 20,523 grass clusters,
+grey-brown canopy trunks with root flare, rounded buttresses, moss/lichen,
+contact occlusion and canopy-shaded wood, and slender flared coconut palm stems
+with smooth normals. Two harness lessons: GLSL ES reserves `patch` (ANGLE sent the
+Web terrain to its fallback; a CPU test now scans generated GLSL), and fixed F7
+key pulses miss heavy SwiftShader frames (setup now holds the key until acknowledged).
 
 ## Dependency and machine boundaries
 
@@ -93,11 +97,14 @@ stock fallback preserves its old colour policy. See `docs/grass-surface-material
   files, Git metadata and branch state. Do not patch even confirmed framework
   bugs. Use narrow game-side adapters only when justified; record actual defects
   in `BUGS.md`, not every unsupported feature or application mistake.
-- `dependencies.lock` is authoritative. Current pins: CNA
+- `dependencies.lock` is authoritative. Current pins (refreshed 2026-10-10 to the
+  clean workspace heads after review; see PLAN.md): CNA
   `97783d1e090c6d84f4b6a6d7746516e65184569e`, Sharp Runtime
-  `21c06910f7cf887cceebb45200e07b43dd45fef4`, EasyGL develop
-  `1edf4c1a4708149b6a699365f43b58aa467c345f`, MetaGL develop
-  `40829ca76a4e99511a7734297ee1dc0e1b926320`.
+  `59454257eb1c4712ef43afd5650267c6d6b64918`, EasyGL develop
+  `f4d6afaf16cdc7e7e73130950bc45e6d865b41bd`, MetaGL develop
+  `dd3b30055d55fdc42240de7af248259338256992`. The strict revision check in
+  `cmake/VerifyDependencies.cmake` refuses to configure when a shared checkout
+  has moved; update the lock deliberately, never switch the shared worktrees.
 - Existing CNA export: `build/dependencies/cna-next`. See
   `tools/materialize_cna_next.sh` and `cmake/VerifyDependencies.cmake`; do not
   rematerialize or switch a shared tree just to bypass a pin mismatch.
@@ -168,26 +175,27 @@ local data and is **not included in Git**. A fresh clone must rerun safe checks;
 do not silently present absent local evidence as reproduced. Archived incident
 sources and small reports under `docs/incidents/evidence/` are versioned separately.
 
-- Latest native grass: `build/software-captures/20261009T130135.460537Z-grass/`.
-  Baseline: `20261009T124913.245139Z-grass/` in the same parent. Each has PPM,
-  per-PID/runtime/workload logs, run metadata and kernel delta.
-  Convenience PNGs: `build-probe/island-grass-material-before.png` and
-  `build-probe/island-grass-material-after.png`.
+- Latest native views (2026-10-10): `build/software-captures/20261010T130435.552471Z-grass/`,
+  `130442.064431Z-jungle/`, `130447.989273Z-overview/`, `131112.797097Z-litter/`.
+  Pre-change baselines from the same day: `124054.843331Z-grass/`, `124104.764451Z-jungle/`.
+  Each has PPM, per-PID/runtime/workload logs, run metadata and kernel delta.
 - Missing-leaf test: `build/software-captures/20261009T124801.964528Z-ground-broadleaf/`.
   Passed and inspected; original hash/size/inode/device/mtime unchanged. Normal
   qualification still rejects all fallback paths; the fixture accepts only its
   specific diagnosed procedural-leaf fallback.
-- Web still views: `build/browser-software/20261009T130317.675153Z-chrome-litter/`.
+- Web still views: `build/browser-software/20261010T131626.070992Z-chrome-litter/`.
   Both views pass 60 intervals, GL error zero, live context, empty kernel deltas.
-  `island-browser-litter-grass.png` is the inspected grass image.
-- Final real-input walk: `build/browser-software/20261009T131053.908704Z-chrome-grass-motion/`.
-  Passed; results and inspection limits are recorded below.
-- Android: `build/android-software/20261009T130636.434000Z-grass/`.
+  Failed `130857.587590Z-chrome-litter/` (reserved GLSL word) is retained.
+- Latest real-input walk: `build/browser-software/20261010T132225.050061Z-chrome-grass-motion/`
+  (passed; `*-teleport-gesture.json` holds the F7 hold evidence). Failed
+  `131944.941204Z` and `132110.766963Z` (F7 pulses) are retained.
+- Android: `build/android-software/20261010T133014.813550Z-grass/`.
   `game/island-android.png` and `island-android-logcat.txt`: inspected 1280x720 image,
-  PID 1770/TID 1868, correct material marker, no kernel fault, emulator exit zero.
-- `docs/grass-surface-material.md` contains current APK sizes/hashes. Current
-  Web package is `build-probe/web-release`: 10,263,469 raw / 3,498,026 gzip bytes.
-  Last completed non-display suite: 33/33 passed in 22.97 s.
+  PID 1729/TID 1822, no kernel fault, emulator exit zero. Failed `132633.978451Z-grass/`
+  (stale smoke-script mesh pin) is retained.
+- `docs/ground-cover-and-trunks.md` contains current APK sizes/hashes. Current
+  Web package is `build-probe/web-release`: 10,299,978 raw / 3,512,848 gzip bytes.
+  Last completed non-display suite: 33/33 passed in 34.55 s.
 - Original materials: `assets/art-studies/`, prompts/provenance in
   `ASSET_LICENSES.md` and `assets/manifest.json`. Retain both selected and rejected
   studies needed for the documented review. Runtime prepared floor/leaf PNGs
@@ -218,8 +226,22 @@ sources and small reports under `docs/incidents/evidence/` are versioned separat
 6. Incident work is a separate approval-gated track: bounded durable failing-IB /
    uploaded-descriptor evidence is missing. No confirmed framework repair or
    root-cause claim is justified by the current software audits.
+7. Operator direction 2026-10-10: the island must look noticeably closer to
+   reality, for existing and all future content. The sea turtle was named as very
+   poor and is the first realism fix; review every other visible system too.
+8. Wildlife backlog requested by the operator (nonhostile ambient life only):
+   snakes, spiders, parrots, pigeons/doves, crocodiles, frogs, bats, mice, rats,
+   deer, goats, ants, flies, stingrays, dolphins and octopuses. Details, order
+   and acceptance rules are in the 2026-10-10 section at the top of `PLAN.md`.
+9. Operator request 2026-10-10: build a realistic decorative island hut somewhere
+   on the island (see the landmark backlog in the same `PLAN.md` section).
+10. Macro-geography realism backlog (asymmetric terrain, varied coasts, environment
+    field, prevailing wind, readable reef, natural path, forest masses, emergent trees,
+    atmosphere/sky/shadows, underwater habitat, small fauna, geology, wet biome) is
+    in the same `PLAN.md` section; the Czech source analysis is `../island_improvements.md`.
+    Monkeys and wild boars stay on the island by operator decision.
 
-## Final bounded task result
+## 2026-10-09 final bounded task result (historical)
 
 The existing Web build was already up to date (no compiler work). Contained
 Chrome/SwiftShader run `20261009T131053.908704Z-chrome-grass-motion` passes with

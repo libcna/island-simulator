@@ -13,7 +13,10 @@
 #include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
+#include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/TrunkSurfaceMaterial.hpp"
 #include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -49,6 +52,7 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <regex>
 #include <numbers>
 #include <stdexcept>
 #include <string_view>
@@ -2612,6 +2616,8 @@ int main()
 
     const island::VegetationLayout vegetation(terrain);
     const island::JungleLayout jungle(terrain);
+    const island::CanopyLightField canopyLight(terrain, island::MakeCanopyOccluders(jungle.Canopy()));
+    const island::GroundCoverField groundCover;
     const island::NaturalPropLayout props(terrain, vegetation, jungle);
     const island::ShipwreckLayout shipwreck(terrain);
     const island::ShipwreckLayout repeatedShipwreck(terrain);
@@ -3237,8 +3243,64 @@ int main()
               "palm collision radius stays close to the visible trunk");
     }
 
-    const island::GrassLayout grass(terrain);
-    const island::GrassLayout repeatedGrass(terrain);
+    const island::GrassLayout grass(terrain, canopyLight, groundCover);
+    const island::GrassLayout repeatedGrass(terrain, canopyLight, groundCover);
+    {
+        // The cached field bake and the direct reference agree exactly; cover stays bounded,
+        // rises with light and patch potential, and vanishes on sand and steep slopes.
+        const island::GroundCoverField repeatedCover;
+        Check(std::ranges::equal(groundCover.PatchTexels(), repeatedCover.PatchTexels()),
+              "ground-cover patch field is deterministic");
+        int mismatches = 0;
+        std::array<int, 2> extremes{};
+        for (int row = 0; row < groundCover.Resolution(); row += 17) {
+            for (int column = 0; column < groundCover.Resolution(); column += 13) {
+                const float x = island::CanopyLightField::TexelCoordinate(column, groundCover.Resolution());
+                const float z = island::CanopyLightField::TexelCoordinate(row, groundCover.Resolution());
+                const auto expected = static_cast<std::uint8_t>(std::lround(255.0f
+                    * island::GroundCover::PatchFromNoise(island::GroundCoverField::Noise(
+                        x, z, island::GroundCoverField::DefaultSeed))));
+                const auto texel = groundCover.PatchTexels()[static_cast<std::size_t>(row)
+                    * groundCover.Resolution() + column];
+                mismatches += texel != expected;
+                extremes[0] += texel < 26;
+                extremes[1] += texel > 229;
+            }
+        }
+        Check(mismatches == 0, "cached ground-cover bake matches the direct noise reference");
+        // GLSL ES 3.00 reserves identifiers that desktop Mesa GLSL 330 accepts; a reserved
+        // parameter name compiled natively but sent the Web terrain to its stock fallback.
+        for (const std::string& shader : {island::GroundCover::Shader(), island::TrunkSurface::Shader()}) {
+            for (const char* reserved : {"patch", "sample", "filter", "input", "output", "active",
+                                         "common", "partition", "resource", "subroutine"}) {
+                const std::regex word("\\b" + std::string(reserved) + "\\b");
+                Check(!std::regex_search(shader, word),
+                      "generated GLSL avoids identifiers reserved by GLSL ES 3.00");
+            }
+        }
+        Check(extremes[0] > 200 && extremes[1] > 200,
+              "ground-cover patches include both sparse and rich ground");
+        float previous = -1.0f;
+        for (int step = 0; step <= 20; ++step) {
+            const float value = static_cast<float>(step) / 20.0f;
+            const float lit = island::GroundCover::Density(value, 1.0f, 80.0f, 0.1f);
+            const float rich = island::GroundCover::Density(1.0f, value, 80.0f, 0.1f);
+            Check(lit >= previous && lit >= 0.0f && lit <= 1.0f && rich >= 0.0f && rich <= 1.0f,
+                  "ground cover is bounded and rises with canopy transmission");
+            previous = lit;
+        }
+        Check(island::GroundCover::Density(1.0f, 1.0f, 10.0f, 0.1f) == 0.0f
+                  && island::GroundCover::Density(1.0f, 1.0f, 80.0f, 0.6f) == 0.0f
+                  && island::GroundCover::Density(0.0f, 1.0f, 80.0f, 0.1f)
+                      < 0.3f * island::GroundCover::Density(1.0f, 1.0f, 80.0f, 0.1f),
+              "ground cover vanishes on sand and steep slopes and thins in deep shade");
+        for (const float invalid : {std::numeric_limits<float>::quiet_NaN(), -0.1f, 1.1f}) {
+            bool rejected = false;
+            try { (void)island::GroundCover::Density(invalid, 0.5f, 50.0f, 0.1f); }
+            catch (const std::invalid_argument&) { rejected = true; }
+            Check(rejected, "ground cover rejects invalid transmission");
+        }
+    }
     const island::GrassLodSplit emptyGrassLod = island::GrassLod::Split(0, 82.0f);
     Check(emptyGrassLod.nearCount == 0 && emptyGrassLod.middleCount == 0
               && emptyGrassLod.farCount == 0,
@@ -3289,6 +3351,33 @@ int main()
           "grass patch population stays inside the first geometry budget");
     Check(grass.Patches().size() == repeatedGrass.Patches().size(),
           "grass population is deterministic");
+    {
+        // Redistribution, not inflation: rich sunlit ground carries several times the tufts
+        // per candidate of patch-poor or shaded ground.
+        double richSites = 0.0, poorSites = 0.0;
+        int richPatches = 0, poorPatches = 0;
+        for (float z = -240.0f; z <= 240.0f; z += 2.0f) {
+            for (float x = -240.0f; x <= 240.0f; x += 2.0f) {
+                const auto sample = terrain.Sample(x, z);
+                if (sample.signedShoreDistance < 40.0f || sample.slopeRadians > 0.3f) continue;
+                const float cover = island::GroundCover::Density(canopyLight.Sample(x, z),
+                    groundCover.SamplePatch(x, z), sample.signedShoreDistance, sample.slopeRadians);
+                if (cover > 0.7f) richSites += 4.0;
+                else if (cover < 0.2f) poorSites += 4.0;
+            }
+        }
+        for (const auto& patch : grass.Patches()) {
+            const auto sample = terrain.Sample(patch.x, patch.z);
+            if (sample.signedShoreDistance < 40.0f || sample.slopeRadians > 0.3f) continue;
+            const float cover = island::GroundCover::Density(canopyLight.Sample(patch.x, patch.z),
+                groundCover.SamplePatch(patch.x, patch.z), sample.signedShoreDistance, sample.slopeRadians);
+            if (cover > 0.7f) ++richPatches;
+            else if (cover < 0.2f) ++poorPatches;
+        }
+        Check(richSites > 1000.0 && poorSites > 1000.0
+                  && richPatches / richSites > 4.0 * (poorPatches / poorSites),
+              "grass forms dense swards on rich ground and isolated tufts on poor ground");
+    }
     double eastClearingTintSum = 0.0;
     double westClearingTintSum = 0.0;
     std::size_t eastClearingPatchCount = 0U;

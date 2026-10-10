@@ -1,16 +1,24 @@
 #include "IslandSimulator/PalmRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/JungleMaterial.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/SurfaceNormals.hpp"
+#include "IslandSimulator/TrunkSurfaceMaterial.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <iostream>
 #include <numbers>
+#include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <vector>
 
 #include "CNA/Graphics/ShaderCodeEXT.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
@@ -54,22 +62,80 @@ namespace island
         {
             std::vector<VertexPositionColorTexture> vertices;
             std::vector<std::uint16_t> indices;
+            // Custom shader only, parallel to vertices once any solid surface is appended.
+            // A unit normal tags trunk/root wood; zero keeps the fronds' two-sided facet light.
+            std::vector<Color> albedo;
+            std::vector<Vector3> normals;
         };
+
+        struct PalmGpuVertex
+        {
+            float position[3];
+            std::uint8_t color[4];
+            float wind[2];
+            float normal[3];
+        };
+        static_assert(std::is_trivially_copyable_v<PalmGpuVertex>);
+        static_assert(std::is_standard_layout_v<PalmGpuVertex> && sizeof(PalmGpuVertex) == 36);
+
+        const VertexDeclaration& PalmDeclaration()
+        {
+            static const VertexDeclaration declaration{
+                VertexElement(offsetof(PalmGpuVertex, position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+                VertexElement(offsetof(PalmGpuVertex, color), VertexElementFormat::Color, VertexElementUsage::Color, 0),
+                VertexElement(offsetof(PalmGpuVertex, wind), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0),
+                VertexElement(offsetof(PalmGpuVertex, normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0)};
+            return declaration;
+        }
+
+        // Weathered coconut stems are grey below and browner toward the crown.
+        constexpr std::array<std::array<std::uint8_t, 3>, 4> PalmBarkLower{{
+            {150, 143, 129}, {158, 151, 137}, {142, 134, 120}, {154, 146, 131}}};
+        constexpr std::array<std::array<std::uint8_t, 3>, 4> PalmBarkUpper{{
+            {132, 115, 92}, {138, 120, 96}, {125, 108, 86}, {135, 117, 93}}};
+        constexpr float PalmTrunkBaseRadius = 0.21f, PalmTrunkTipRadius = 0.14f;
+        constexpr float PalmBoleFlare = 0.55f, PalmBoleHeight = 0.38f;
+
+        [[nodiscard]] Color PalmBarkAlbedo(const int variant, const float t)
+        {
+            const auto& lower = PalmBarkLower.at(static_cast<std::size_t>(variant));
+            const auto& upper = PalmBarkUpper.at(static_cast<std::size_t>(variant));
+            const float w = JungleMaterial::Smooth(0.15f, 0.85f, t);
+            const auto channel = [w](std::uint8_t a, std::uint8_t b) {
+                return static_cast<std::uint8_t>(std::lround(std::lerp(
+                    static_cast<float>(a), static_cast<float>(b), w)));
+            };
+            return Color(channel(lower[0], upper[0]), channel(lower[1], upper[1]),
+                         channel(lower[2], upper[2]), static_cast<std::uint8_t>(255));
+        }
+
+        void SetSolidSurface(PalmGeometry& geometry, const Color& albedo, const Vector3& normal)
+        {
+            geometry.albedo.resize(geometry.vertices.size(), Color(0, 0, 0, 0));
+            geometry.normals.resize(geometry.vertices.size(), Vector3::Zero);
+            geometry.albedo.back() = albedo;
+            geometry.normals.back() = normal;
+        }
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aWindData;
-layout(location = 3) in vec4 aInstance0;
-layout(location = 4) in vec4 aInstance1;
-layout(location = 5) in vec4 aInstance2;
-layout(location = 6) in vec4 aInstance3;
+layout(location = 3) in vec3 aNormal;
+layout(location = 4) in vec4 aInstance0;
+layout(location = 5) in vec4 aInstance1;
+layout(location = 6) in vec4 aInstance2;
+layout(location = 7) in vec4 aInstance3;
 
 uniform mat4 uViewProjection;
 uniform float uTime;
 
 out vec3 vColor;
 out vec3 vWorld;
+out vec3 vLocal;
+out vec3 vNormal;
+out float vSolid;
+out float vGroundHeight;
 out float vWindWeight;
 out float vLocalHeight;
 
@@ -97,6 +163,13 @@ void main()
                           1.0 + signedTint * 0.20,
                           1.0 - signedTint * 0.08);
     vColor = aColor.rgb * mix(vec3(1.0), frondTint, foliageMask);
+    // Every vertex of a trunk or root primitive carries a unit normal; fronds carry zero.
+    vSolid = step(0.25, dot(aNormal, aNormal));
+    if (vSolid > 0.5) vColor *= 0.92 + 0.16 * tintSeed;
+    // Uniform positive scale and yaw: no inverse-transpose is needed.
+    vNormal = mat3(instanceTransform) * aNormal;
+    vLocal = aPosition;
+    vGroundHeight = aInstance3.y;
     vWorld = world.xyz;
     vWindWeight = aWindData.x;
     vLocalHeight = aPosition.y;
@@ -108,6 +181,10 @@ void main()
         constexpr const char* FragmentBody = R"(
 in vec3 vColor;
 in vec3 vWorld;
+in vec3 vLocal;
+in vec3 vNormal;
+in float vSolid;
+in float vGroundHeight;
 in float vWindWeight;
 in float vLocalHeight;
 
@@ -121,32 +198,50 @@ void main()
 {
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(230.0, 620.0, distanceToCamera);
+    // Derivatives stay outside the per-primitive material branch.
+    vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+    // Closely spaced, slightly tilted leaf-scar rings; local metres, filtered by footprint.
+    float scarPhase = vLocalHeight * 8.5 + vLocal.x * 0.45 - vLocal.z * 0.30
+        + sin(vLocalHeight * 1.9) * 0.35 + sin(vLocalHeight * 4.3 + vLocal.x * 2.1) * 0.22;
+    float scarFootprint = fwidth(scarPhase);
     vec3 material = vColor;
-    if (uMaterialDetail > 0.5) {
-        vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+    if (vSolid > 0.5) {
+        vec3 normal = vNormal * inversesqrt(max(dot(vNormal, vNormal), 0.00000001));
+        vec3 sunDirection = normalize(uToSun);
+        float aboveGround = vWorld.y - vGroundHeight;
+        float daylight = dot(woodDaylightTerms, vec3(1.0,
+            max(dot(normal, sunDirection), 0.0), max(normal.y, 0.0)));
+        float scarDistance = abs(fract(scarPhase) - 0.5);
+        // A narrow line per cycle; unresolved rings converge to its 11.5% area mean.
+        float scar = mix(0.115, smoothstep(0.41, 0.475, scarDistance),
+            materialDetailWeight(scarFootprint));
+        float boleShade = mix(0.86, 1.0, smoothstep(0.0, 1.6, aboveGround));
+        material *= daylight * (1.0 - scar * 0.13) * boleShade
+            * trunkContactOcclusion(aboveGround);
+    } else if (uMaterialDetail > 0.5) {
         float inverseFaceLength = inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
         vec3 faceNormal = faceVector * inverseFaceLength;
         float twoSidedDiffuse = abs(dot(faceNormal, uToSun));
         float upwardFill = abs(faceNormal.y);
         material *= 0.88 + twoSidedDiffuse * 0.16 + upwardFill * 0.04;
-        float trunkMask = (1.0 - smoothstep(0.01, 0.055, vWindWeight))
-            * smoothstep(0.28, 0.75, vLocalHeight);
-        float ringPhase = fract(vLocalHeight * 1.18 + 0.17);
-        float ringDistance = min(ringPhase, 1.0 - ringPhase);
-        float barkScar = 1.0 - smoothstep(0.025, 0.085, ringDistance);
-        material *= 1.0 - trunkMask * barkScar * 0.13;
     }
     vec3 color = mix(material, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
 }
 )";
 
-        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body)
+        [[nodiscard]] std::string ShaderSource(const bool embedded, const char* body,
+                                               const bool fragment = false)
         {
+            // Fragment stages share the jungle wood daylight and trunk contact constants.
+            const std::string materials = fragment
+                ? JungleMaterial::Shader() + std::string(BarkMaterial::Shader) + TrunkSurface::Shader()
+                : std::string();
             if (embedded) {
-                return std::string("#version 300 es\nprecision highp float;\n") + body;
+                return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
+                    + materials + body;
             }
-            return std::string("#version 330 core\n") + body;
+            return std::string("#version 330 core\n") + materials + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -159,13 +254,13 @@ void main()
                                   "palms/palms.es.vert.glsl", ShaderSource(true, VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "palms/palms.es.frag.glsl", ShaderSource(true, FragmentBody)),
+                                  "palms/palms.es.frag.glsl", ShaderSource(true, FragmentBody, true)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Vertex, "main",
                                   "palms/palms.desktop.vert.glsl", ShaderSource(false, VertexBody)),
                     ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,
                                   CNA::ShaderStageEXT::Fragment, "main",
-                                  "palms/palms.desktop.frag.glsl", ShaderSource(false, FragmentBody)),
+                                  "palms/palms.desktop.frag.glsl", ShaderSource(false, FragmentBody, true)),
                 },
                 {CNA::ShaderStageEXT::Vertex, CNA::ShaderStageEXT::Fragment});
         }
@@ -182,8 +277,13 @@ void main()
 
         void AppendRoots(PalmGeometry& geometry, const int variant)
         {
-            const Color color(103 + variant * 3, 73 + variant * 2, 40, 255);
-            for (int root = 0; root < 5; ++root) {
+            // A coconut palm's exposed root mass: many low rounded ridges around a swollen
+            // bole, not tall fins. Five columns per station give each ridge a convex section.
+            const Color color(96 + variant * 3, 84 + variant * 2, 68, 255);
+            constexpr int RootCount = 8;
+            constexpr int Stations = 4;
+            constexpr std::array<float, 5> Columns{-1.0f, -0.5f, 0.0f, 0.5f, 1.0f};
+            for (int root = 0; root < RootCount; ++root) {
                 const float rootIndex = static_cast<float>(root + 1);
                 const float angleVariation = std::sin(
                     rootIndex * 2.17f + static_cast<float>(variant) * 1.31f);
@@ -192,88 +292,111 @@ void main()
                 const float widthVariation = 0.5f + 0.5f * std::sin(
                     rootIndex * 3.11f - static_cast<float>(variant) * 0.91f);
                 const float angle = static_cast<float>(root) * 2.0f
-                    * std::numbers::pi_v<float> / 5.0f + static_cast<float>(variant) * 0.29f
-                    + angleVariation * 0.12f;
+                    * std::numbers::pi_v<float> / static_cast<float>(RootCount)
+                    + static_cast<float>(variant) * 0.29f + angleVariation * 0.16f;
                 const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
                 const Vector3 side(-direction.Z, 0.0f, direction.X);
-                const float innerWidth = 0.105f + widthVariation * 0.045f;
-                const float outerWidth = 0.040f + widthVariation * 0.025f;
-                const float crestHeight = 0.20f + lengthVariation * 0.07f;
-                const Vector3 innerCentre = direction * 0.22f;
-                const Vector3 outerCentre = direction * (0.62f + lengthVariation * 0.22f);
+                const float innerDistance = 0.16f;
+                const float outerDistance = 0.40f + lengthVariation * 0.16f;
+                const float crestHeight = 0.11f + lengthVariation * 0.06f;
+                const float innerWidth = 0.050f + widthVariation * 0.020f;
+                const float outerWidth = 0.020f + widthVariation * 0.010f;
                 const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-                geometry.vertices.emplace_back(
-                    innerCentre - side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
-                    ShadeColor(color, 0.82f), Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(
-                    innerCentre + side * innerWidth + Vector3(0.0f, 0.025f, 0.0f),
-                    color, Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(
-                    innerCentre + direction * 0.02f + Vector3(0.0f, crestHeight, 0.0f),
-                    ShadeColor(color, 1.10f), Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(
-                    outerCentre - side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
-                    ShadeColor(color, 0.76f), Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(
-                    outerCentre + side * outerWidth + Vector3(0.0f, 0.018f, 0.0f),
-                    ShadeColor(color, 0.90f), Vector2(0.0f, 0.0f));
-                geometry.vertices.emplace_back(
-                    outerCentre - direction * 0.03f + Vector3(0.0f, 0.055f, 0.0f),
-                    ShadeColor(color, 0.96f), Vector2(0.0f, 0.0f));
-                geometry.indices.insert(geometry.indices.end(), {
-                    base, static_cast<std::uint16_t>(base + 3U),
-                    static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 3U),
-                    static_cast<std::uint16_t>(base + 5U),
-                    static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 5U),
-                    static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 5U),
-                    static_cast<std::uint16_t>(base + 4U),
-                    base, static_cast<std::uint16_t>(base + 2U),
-                    static_cast<std::uint16_t>(base + 1U),
-                    static_cast<std::uint16_t>(base + 3U),
-                    static_cast<std::uint16_t>(base + 4U),
-                    static_cast<std::uint16_t>(base + 5U)});
+                for (int station = 0; station < Stations; ++station) {
+                    const float s = static_cast<float>(station) / static_cast<float>(Stations - 1);
+                    const Vector3 centre = direction * std::lerp(innerDistance, outerDistance, s)
+                        + side * (0.035f * angleVariation * std::sin(std::numbers::pi_v<float> * s));
+                    const float crest = crestHeight * std::pow(1.0f - s, 1.4f) + 0.014f * s;
+                    const float halfWidth = std::lerp(innerWidth, outerWidth, s);
+                    for (const float column : Columns) {
+                        const float lift = std::pow(1.0f - column * column, 0.7f);
+                        geometry.vertices.emplace_back(
+                            centre + side * (column * halfWidth)
+                                + Vector3::Up * std::max(0.012f, crest * lift),
+                            ShadeColor(color, 0.80f + 0.22f * lift), Vector2(0.0f, 0.0f));
+                        SetSolidSurface(geometry, color, Vector3::Zero);
+                    }
+                }
+                constexpr auto columns = static_cast<std::uint16_t>(Columns.size());
+                std::vector<std::array<float, 3>> positions;
+                std::vector<std::array<float, 3>> outward;
+                std::vector<std::uint16_t> local;
+                for (std::size_t i = base; i < geometry.vertices.size(); ++i) {
+                    const auto& position = geometry.vertices[i].Position;
+                    const float column = Columns[(i - base) % columns];
+                    const Vector3 reference = side * column
+                        + Vector3::Up * (1.0f - std::abs(column) * 0.8f) + direction * 0.15f;
+                    positions.push_back({position.X, position.Y, position.Z});
+                    outward.push_back({reference.X, reference.Y, reference.Z});
+                }
+                for (int station = 0; station + 1 < Stations; ++station) {
+                    for (std::uint16_t column = 0; column + 1 < columns; ++column) {
+                        const auto a = static_cast<std::uint16_t>(station * columns + column);
+                        const auto b = static_cast<std::uint16_t>(a + columns);
+                        const auto c = static_cast<std::uint16_t>(a + 1U);
+                        const auto d = static_cast<std::uint16_t>(b + 1U);
+                        for (const auto index : {a, c, b, b, c, d}) {
+                            local.push_back(index);
+                            geometry.indices.push_back(static_cast<std::uint16_t>(base + index));
+                        }
+                    }
+                }
+                const auto normals = BuildOutwardSurfaceNormals(positions, local, outward);
+                for (std::size_t i = 0; i < normals.size(); ++i) {
+                    geometry.normals[base + i] = Vector3(normals[i][0], normals[i][1], normals[i][2]);
+                }
             }
         }
 
         void AppendTrunk(PalmGeometry& geometry, const int variant, const bool farMesh,
                          float& crownX, float& crownY, float& crownZ)
         {
-            const int rings = farMesh ? 5 : 9;
-            const int sides = farMesh ? 6 : 8;
+            const int sides = farMesh ? 6 : 10;
             const float height = 9.4f + static_cast<float>(variant) * 0.55f;
             const float curveAngle = 0.72f + static_cast<float>(variant) * 1.37f;
             const float lean = 0.55f + static_cast<float>((variant * 5) % 3) * 0.25f;
             const std::uint16_t base = static_cast<std::uint16_t>(geometry.vertices.size());
+            // Slender stem on a swollen bole. Near rings concentrate on the flare.
+            std::vector<float> ringTs = farMesh
+                ? std::vector<float>{0.0f, 0.06f}
+                : std::vector<float>{0.0f, 0.014f, 0.036f, 0.075f};
+            const int upperRings = farMesh ? 4 : 8;
+            const float firstUpper = ringTs.back();
+            for (int ring = 1; ring <= upperRings; ++ring) {
+                ringTs.push_back(firstUpper + (1.0f - firstUpper) * static_cast<float>(ring)
+                    / static_cast<float>(upperRings));
+            }
 
-            for (int ring = 0; ring <= rings; ++ring) {
-                const float t = static_cast<float>(ring) / static_cast<float>(rings);
+            for (const float t : ringTs) {
                 const float bend = lean * t * t;
                 const float centreX = std::cos(curveAngle) * bend
                     + std::sin(t * std::numbers::pi_v<float>) * 0.10f;
                 const float centreZ = std::sin(curveAngle) * bend
                     + std::cos(t * std::numbers::pi_v<float> * 0.8f) * 0.08f * t;
-                const float radius = 0.36f + (0.17f - 0.36f) * t;
                 const float y = height * t;
+                const float radius = (PalmTrunkBaseRadius + (PalmTrunkTipRadius - PalmTrunkBaseRadius) * t)
+                    * (1.0f + PalmBoleFlare * std::exp(-y / PalmBoleHeight));
+                // The flare's radial slope tilts the smooth normal upward near the soil.
+                const float flareSlope = PalmTrunkBaseRadius * PalmBoleFlare / PalmBoleHeight
+                    * std::exp(-y / PalmBoleHeight);
+                const Color albedo = PalmBarkAlbedo(variant, t);
                 for (int sideIndex = 0; sideIndex < sides; ++sideIndex) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(sideIndex) / static_cast<float>(sides);
+                    // Stock-effect fallback keeps a baked fixed-sun side and alternating rings.
                     const float light = 0.66f + 0.32f
                         * std::max(0.0f, std::cos(angle) * 0.62f + std::sin(angle) * 0.35f);
-                    const float ringVariation = ring % 2 == 0 ? 1.04f : 0.94f;
-                    const Color trunkBase(132 + variant * 4, 91 + variant * 2,
-                                          48 + variant * 2, 255);
+                    const float ringVariation = static_cast<int>(std::lround(y)) % 2 == 0 ? 1.04f : 0.94f;
                     geometry.vertices.emplace_back(
                         Vector3(centreX + std::cos(angle) * radius, y,
                                 centreZ + std::sin(angle) * radius),
-                        ShadeColor(trunkBase, light * ringVariation), Vector2(0.0f, 0.0f));
+                        ShadeColor(albedo, light * ringVariation), Vector2(0.0f, 0.0f));
+                    SetSolidSurface(geometry, albedo, Vector3::Normalize(
+                        Vector3(std::cos(angle), flareSlope, std::sin(angle))));
                 }
             }
 
+            const int rings = static_cast<int>(ringTs.size()) - 1;
             for (int ring = 0; ring < rings; ++ring) {
                 for (int sideIndex = 0; sideIndex < sides; ++sideIndex) {
                     const int nextSide = (sideIndex + 1) % sides;
@@ -689,7 +812,11 @@ void main()
                 "island-simulator: palm near geometry uses fixed-sun facet shading";
             std::cout << lightingDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(lightingDiagnostic);
-            std::cout << "island-simulator: palm near root wedges ground trunk bases\n";
+            std::cout << "island-simulator: palm near root ridges ground flared trunk bases\n";
+            constexpr const char* trunkDiagnostic =
+                "island-simulator: palm trunks use smooth normals, one-sided daylight, grey weathered bark and filtered leaf-scar rings";
+            std::cout << trunkDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(trunkDiagnostic);
             std::cout << "island-simulator: palm procedural bark scars and restrained coconut "
                          "clusters\n";
             constexpr const char* dryFrondDiagnostic =
@@ -716,10 +843,31 @@ void main()
                 geometry.vertices.size(), geometry.indices, label);
             mesh.vertexCount = static_cast<int>(geometry.vertices.size());
             mesh.primitiveCount = static_cast<int>(geometry.indices.size() / 3U);
-            mesh.vertices = std::make_unique<VertexBuffer>(
-                device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
-                mesh.vertexCount, BufferUsage::WriteOnly);
-            mesh.vertices->SetData(geometry.vertices.data(), mesh.vertexCount);
+            if (customShaderReady_) {
+                std::vector<PalmGpuVertex> packed;
+                packed.reserve(geometry.vertices.size());
+                for (std::size_t i = 0; i < geometry.vertices.size(); ++i) {
+                    const auto& vertex = geometry.vertices[i];
+                    const bool solid = i < geometry.normals.size()
+                        && geometry.normals[i].LengthSquared() > 0.25f;
+                    const Vector3 normal = solid ? Vector3::Normalize(geometry.normals[i]) : Vector3::Zero;
+                    if (!std::isfinite(normal.X) || !std::isfinite(normal.Y) || !std::isfinite(normal.Z))
+                        throw std::runtime_error(std::string(label) + " contains an invalid solid normal");
+                    const Color& color = solid ? geometry.albedo[i] : vertex.Color;
+                    packed.push_back({{vertex.Position.X, vertex.Position.Y, vertex.Position.Z},
+                        {color.getRProperty(), color.getGProperty(), color.getBProperty(), color.getAProperty()},
+                        {vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y},
+                        {normal.X, normal.Y, normal.Z}});
+                }
+                mesh.vertices = std::make_unique<VertexBuffer>(device_, PalmDeclaration(),
+                    mesh.vertexCount, BufferUsage::WriteOnly);
+                mesh.vertices->SetData(packed.data(), mesh.vertexCount);
+            } else {
+                mesh.vertices = std::make_unique<VertexBuffer>(
+                    device_, VertexPositionColorTexture::getVertexDeclarationStatic(),
+                    mesh.vertexCount, BufferUsage::WriteOnly);
+                mesh.vertices->SetData(geometry.vertices.data(), mesh.vertexCount);
+            }
             mesh.indices = std::make_unique<IndexBuffer>(
                 device_, IndexElementSize::SixteenBits, static_cast<int>(geometry.indices.size()),
                 BufferUsage::WriteOnly);

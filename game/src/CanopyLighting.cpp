@@ -1,5 +1,6 @@
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/CanopyLightField.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "Microsoft/Xna/Framework/Color.hpp"
@@ -9,6 +10,7 @@
 #include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include <chrono>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace island
@@ -16,17 +18,18 @@ namespace island
     using namespace Microsoft::Xna::Framework;
     using namespace Microsoft::Xna::Framework::Graphics;
     static_assert(CanopyLightField::DefaultResolution == GeneratedTextureBudget::CanopyLightSize);
-    CanopyLighting::CanopyLighting(GraphicsDevice& device, const IslandTerrain& terrain,
-                                   const JungleLayout& layout) : device_(device)
+    CanopyLighting::CanopyLighting(GraphicsDevice& device, const CanopyLightField& field,
+                                   const GroundCoverField& cover) : device_(device), field_(field)
     {
         const auto start = std::chrono::steady_clock::now();
-        const auto casters = MakeCanopyOccluders(layout.Canopy());
-        field_ = std::make_unique<CanopyLightField>(terrain, casters);
-        const auto& field = *field_;
+        if (cover.Resolution() != field.Resolution())
+            throw std::invalid_argument("Ground cover and canopy light must share one texel grid");
         std::vector<Color> pixels;
         pixels.reserve(field.Texels().size());
-        for (const auto transmission : field.Texels()) {
-            pixels.emplace_back(transmission, transmission, transmission, static_cast<std::uint8_t>(255));
+        const auto patches = cover.PatchTexels();
+        for (std::size_t i = 0; i < field.Texels().size(); ++i) {
+            const auto transmission = field.Texels()[i];
+            pixels.emplace_back(transmission, patches[i], transmission, static_cast<std::uint8_t>(255));
         }
         texture_ = std::make_unique<Texture2D>(device, field.Resolution(), field.Resolution());
         texture_->SetData(pixels.data(), static_cast<int>(pixels.size()));
@@ -36,8 +39,12 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         std::cout << "island-simulator: canopy CPU receiver field " << field.Texels().size()
                   << " bytes retained\n";
-        std::cout << "island-simulator: canopy light " << casters.size() << " lobes, "
-                  << GeneratedTextureBudget::CanopyLightRgba8Bytes << " RGBA8 bytes, bake/upload "
+        constexpr const char* coverDiagnostic =
+            "island-simulator: ground-cover patches share the canopy-light texture green channel with grass placement";
+        std::cout << coverDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(coverDiagnostic);
+        std::cout << "island-simulator: canopy light and ground cover "
+                  << GeneratedTextureBudget::CanopyLightRgba8Bytes << " RGBA8 bytes, upload "
                   << std::chrono::duration<double, std::milli>(
                          std::chrono::steady_clock::now() - start).count() << " ms\n";
     }

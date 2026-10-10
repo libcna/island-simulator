@@ -1,4 +1,7 @@
 #include "IslandSimulator/GrassVisibility.hpp"
+#include "IslandSimulator/CanopyLightField.hpp"
+#include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 
@@ -59,7 +62,10 @@ int TestGrassVisibility()
         "shared batching preserves original cell boundaries");
 
     const island::IslandTerrain terrain;
-    const island::GrassLayout layout(terrain);
+    const island::JungleLayout jungle(terrain);
+    const island::CanopyLightField light(terrain, island::MakeCanopyOccluders(jungle.Canopy()));
+    const island::GroundCoverField cover;
+    const island::GrassLayout layout(terrain, light, cover);
     std::array<std::vector<const island::GrassPlacement*>, GrassVisibility::CellCount> cells;
     for (const auto& patch : layout.Patches()) cells[GrassVisibility::CellIndex(patch.x, patch.z)].push_back(&patch);
     // Probe 16 approach directions just beyond each real cell's old centre cutoff. This is

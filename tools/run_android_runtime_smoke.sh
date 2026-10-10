@@ -316,7 +316,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: curved canopy blades retain source identities within original triangle budgets" \
             "$LOG_FILE" \
-        && grep -q "canopy mesh variant=0 near-vertices=4620 near-triangles=4328 far-vertices=1029 far-triangles=1064" \
+        && grep -q "canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120" \
             "$LOG_FILE" \
         && grep -q "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends" \
             "$LOG_FILE" \

@@ -27,6 +27,17 @@ This is an application/input investigation, **not** a cause or resolution of the
 GPUVM incident. All runtime experiments use the monitored GPU-free software launcher.
 CNA and Sharp Runtime remain read-only. No confirmed dependency defect was identified.
 
+## Grass-motion F7 teleport follow-up — 2026-10-10
+
+After the ground-cover and trunk pass made SwiftShader frames heavier, two contained
+grass-motion runs (`20261010T131944.941204Z` and `132110.766963Z`) failed at setup: three
+fixed 650 ms F7 pulses from `dispatchKeyUntilOutput` were never acknowledged, and the retained
+page state held only the initial focus event. The setup now holds one actual F7 key-down through
+`acknowledgedInputGesture` until the game logs the east-clearing teleport, releases
+unconditionally and writes `island-browser-grass-motion-teleport-gesture.json`. The corrected run
+`20261010T132225.050061Z` acknowledged after 2,859 ms, longer than any fixed pulse. As with F1,
+this establishes delivery, not a proof of the exact earlier miss. No game code changed.
+
 ## Reproduced defect
 
 The production HTML shell requests pointer lock inside its trusted `mousedown` handler.

@@ -59,7 +59,7 @@ water tint and opacity increase with local depth instead of baking turquoise int
 An exact shore-following foam/wash ribbon uses advancing, fading crests and
 pixel-footprint-filtered porous foam instead of a continuous white stripe. The landscape contains
 330 varied procedural palms, 281 broadleaf canopy trees, 1,822 ferns/large-leaf plants, 578 low
-bushes, 3,148 small forest-floor plants, and 18,556 mesh-grass clusters. It also composes 157
+bushes, 3,148 small forest-floor plants, and 20,523 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 157
 irregular land rocks, 14 emergent near-shore reef outcrops, 13 mossy fallen logs with irregular
 near broken-end contours,
 31 pieces of sun-bleached beach driftwood, 63 curved fallen palm fronds with asymmetric leaflets,
