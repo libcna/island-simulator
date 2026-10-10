@@ -1,3 +1,4 @@
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CrabRenderer.hpp"
 
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
@@ -204,7 +205,7 @@ namespace island
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(true);
-        effect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        effect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         effect_->setFogStartProperty(58.0f);
         effect_->setFogEndProperty(105.0f);
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));

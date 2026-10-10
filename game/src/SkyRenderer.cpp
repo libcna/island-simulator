@@ -1,4 +1,5 @@
 #include "IslandSimulator/SkyRenderer.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
@@ -68,19 +69,53 @@ uniform vec3 uSunDirection;
 
 out vec4 fragColor;
 
+float skyHash(vec2 p)
+{
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+float skyNoise(vec2 p)
+{
+    vec2 cell = floor(p);
+    vec2 t = fract(p);
+    t = t * t * (3.0 - 2.0 * t);
+    return mix(mix(skyHash(cell), skyHash(cell + vec2(1.0, 0.0)), t.x),
+               mix(skyHash(cell + vec2(0.0, 1.0)), skyHash(cell + vec2(1.0, 1.0)), t.x), t.y);
+}
+
+// Fixed distant fair-weather cumulus: azimuth, elevation, angular half-width, half-height.
+// All sit low over the sea so they read as far masses, not as weather overhead.
+const int CloudCount = 11;
+const vec4 Clouds[11] = vec4[11](
+    vec4(0.35, 0.075, 0.36, 0.060), vec4(1.10, 0.060, 0.22, 0.042), vec4(1.95, 0.090, 0.42, 0.075),
+    vec4(2.60, 0.055, 0.19, 0.036), vec4(3.30, 0.110, 0.30, 0.058), vec4(3.95, 0.070, 0.46, 0.068),
+    vec4(4.70, 0.085, 0.24, 0.048), vec4(5.25, 0.060, 0.34, 0.050), vec4(5.90, 0.100, 0.26, 0.052),
+    vec4(0.80, 0.230, 0.17, 0.040), vec4(4.20, 0.260, 0.20, 0.046));
+
 void main()
 {
     vec3 direction = normalize(vDirection);
+    vec3 sun = normalize(uSunDirection);
     float elevation = clamp(direction.y * 0.92 + 0.08, 0.0, 1.0);
     float verticalBlend = pow(elevation, 0.58);
-    vec3 horizon = vec3(0.64, 0.84, 0.89);
-    vec3 zenith = vec3(0.14, 0.48, 0.75);
+    // The horizon haze is the same colour every renderer fogs toward, so distant terrain,
+    // water and islets dissolve into the sky instead of standing in front of it.
+    vec3 hazeColor = vec3(0.53, 0.78, 0.88);
+    vec3 horizon = vec3(0.70, 0.86, 0.92);
+    vec3 zenith = vec3(0.12, 0.42, 0.74);
     vec3 color = mix(horizon, zenith, verticalBlend);
+    float haze = exp(-max(direction.y, 0.0) * 9.0);
+    color = mix(color, hazeColor, haze * 0.85);
+    color = mix(color, vec3(0.80, 0.86, 0.88), smoothstep(0.03, -0.02, direction.y) * 0.5);
 
-    float sunDot = max(dot(direction, normalize(uSunDirection)), 0.0);
+    float sunDot = max(dot(direction, sun), 0.0);
+    float glow = pow(sunDot, 5.0);
     float halo = pow(sunDot, 38.0);
     float innerHalo = pow(sunDot, 240.0);
     float disc = smoothstep(0.99970, 0.99991, sunDot);
+    color += vec3(0.30, 0.22, 0.10) * glow * 0.30;
     color += vec3(1.0, 0.80, 0.48) * halo * 0.18;
     color += vec3(1.0, 0.91, 0.67) * innerHalo * 0.31;
     color = mix(color, vec3(1.0, 0.95, 0.76), disc * 0.96);
@@ -98,6 +133,39 @@ void main()
         * cloudAltitude;
     float awayFromSun = 1.0 - smoothstep(0.72, 0.96, sunDot);
     color = mix(color, vec3(0.90, 0.95, 0.96), wisps * awayFromSun * 0.14);
+
+    // Cumulus masses in azimuth/elevation space. Each is an ellipse eroded by two octaves of
+    // value noise; the top is sunlit white, the base grey-blue, the sunward side brighter.
+    float azimuth = atan(direction.z, direction.x);
+    float skyElevation = asin(clamp(direction.y, -1.0, 1.0));
+    float sunAzimuth = atan(sun.z, sun.x);
+    if (direction.y > -0.02 && direction.y < 0.45) {
+        for (int i = 0; i < CloudCount; ++i) {
+            vec4 cloud = Clouds[i];
+            float dAzimuth = azimuth - cloud.x;
+            dAzimuth -= 6.28318530718 * floor(dAzimuth / 6.28318530718 + 0.5);
+            vec2 local = vec2(dAzimuth / cloud.z, (skyElevation - cloud.y) / cloud.w);
+            float radial = dot(local, local);
+            if (radial > 2.6) continue;
+            vec2 noiseCoordinate = vec2(dAzimuth * 9.0, skyElevation * 38.0) + vec2(float(i) * 7.3, float(i) * 3.1);
+            float detail = skyNoise(noiseCoordinate) * 0.62 + skyNoise(noiseCoordinate * 2.3 + 11.0) * 0.38;
+            // Flat base, billowing top: erode the ellipse mostly from above.
+            float topErosion = (detail - 0.5) * (0.9 + 0.8 * max(local.y, 0.0));
+            float shape = 1.0 - radial + topErosion * 0.9 - max(-local.y - 0.55, 0.0) * 3.0;
+            float coverage = smoothstep(0.0, 0.32, shape);
+            if (coverage <= 0.0) continue;
+            float topLight = smoothstep(-1.0, 0.9, local.y + (detail - 0.5) * 0.8);
+            float dSun = azimuth - sunAzimuth;
+            dSun -= 6.28318530718 * floor(dSun / 6.28318530718 + 0.5);
+            float sunSide = 0.5 + 0.5 * cos(dSun) * 0.6;
+            vec3 base = vec3(0.60, 0.66, 0.74);
+            vec3 lit = vec3(0.98, 0.97, 0.94);
+            vec3 cloudColor = mix(base, lit, topLight * (0.55 + 0.45 * sunSide));
+            // Far masses sit inside the haze: soften toward the horizon colour.
+            cloudColor = mix(cloudColor, hazeColor, 0.30 * (1.0 - smoothstep(0.03, 0.20, skyElevation)));
+            color = mix(color, cloudColor, coverage * 0.92);
+        }
+    }
 
     fragColor = vec4(color, 1.0);
 }
@@ -140,8 +208,8 @@ void main()
                 return static_cast<int>(std::lround(
                     (horizon + (zenith - horizon) * blend) * 255.0f));
             };
-            return Color(mixChannel(0.64f, 0.14f), mixChannel(0.84f, 0.48f),
-                         mixChannel(0.89f, 0.75f), 255);
+            return Color(mixChannel(0.70f, 0.12f), mixChannel(0.86f, 0.42f),
+                         mixChannel(0.92f, 0.74f), 255);
         }
     }
 
@@ -223,6 +291,10 @@ void main()
         if (customShaderReady_) {
             std::cout << "island-simulator: fixed sunny sky with layered horizontal high wisps, "
                          "portable shader\n";
+            constexpr const char* volumeDiagnostic =
+                "island-simulator: sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses";
+            std::cout << volumeDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(volumeDiagnostic);
         } else {
             std::cerr << "island-simulator: gradient sky stock-effect fallback: "
                       << fallbackReason_ << '\n';

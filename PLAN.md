@@ -180,11 +180,18 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [ ] 11. Lighting: investigate a bounded directional sun shadow map through supported CNA APIs
   (one or two cascades, ~100-150 m, vegetation and large objects, low resolution, soft PCF); at
   minimum extend the canopy light/shadow system to palms and stronger directional shadows.
-- [ ] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
+- [~] 12. Sky with volume but no weather: stronger horizon haze, 5-15 distant cumulus masses
   (some low on the horizon), warmer sun surroundings, softer zenith gradient, bright sunlit cloud
-  tops with blue-grey undersides.
-- [ ] 13. One shared `AtmosphereModel` for aerial perspective used by terrain, vegetation, ocean,
+  tops with blue-grey undersides. 2026-10-10 first pass done (`docs/sky-atmosphere.md`): haze
+  toward the shared fog colour, warm glow, eleven fixed cumulus masses with lit tops and grey
+  bases; native beach/overview/palms captures inspected. Masses remain smooth blobs.
+  Requalified: 33/33 non-display groups (26.94 s), Chrome litter scope `145543.719907Z`,
+  Android `145908.469206Z-palms` (PID 1822 / TID 1890, image inspected, empty kernel deltas);
+  packages refreshed (Web 10,368,543 / 3,527,432 gzip; x86_64 APK 20,406,235; ARM64 20,495,028).
+- [~] 13. One shared `AtmosphereModel` for aerial perspective used by terrain, vegetation, ocean,
   distant islands and wildlife instead of per-renderer fog colours such as `(0.53, 0.78, 0.88)`.
+  2026-10-10: `environment::FogColor*` constants back the C++ fog sites and the sky haze; GLSL
+  literals are still hand-kept.
 - [ ] 14. Integrate distant islets into the atmosphere: one nearer, two almost silhouettes, one
   treeless sandbar/reef, one very distant, with contrast falling steeply with distance.
 - [ ] 15. Coastal micro-topography of 20-100 cm: beach berm, small dunes, erosion edge, rock steps,

@@ -1287,7 +1287,7 @@ void main()
         fallbackEffect_->setVertexColorEnabledProperty(true);
         fallbackEffect_->setLightingEnabledProperty(false);
         fallbackEffect_->setFogEnabledProperty(true);
-        fallbackEffect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        fallbackEffect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         fallbackEffect_->setFogStartProperty(250.0f);
         fallbackEffect_->setFogEndProperty(660.0f);
 

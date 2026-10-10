@@ -878,7 +878,7 @@ namespace island
         effect_->setSpecularColorProperty(FurSpecularColor);
         effect_->setSpecularPowerProperty(FurSpecularPower);
         effect_->setFogEnabledProperty(true);
-        effect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        effect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         effect_->setFogStartProperty(210.0f);
         effect_->setFogEndProperty(620.0f);
         auto& light = effect_->getDirectionalLight0Property();

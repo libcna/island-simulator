@@ -769,7 +769,7 @@ void main()
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(true);
-        effect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        effect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         effect_->setFogStartProperty(230.0f);
         effect_->setFogEndProperty(620.0f);
 

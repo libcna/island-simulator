@@ -1,3 +1,4 @@
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/BoarRenderer.hpp"
 #include "IslandSimulator/BoarCoatTexture.hpp"
 #include "IslandSimulator/BoarPose.hpp"
@@ -278,7 +279,7 @@ namespace island
         effect_->setVertexColorEnabledProperty(true);
         effect_->setLightingEnabledProperty(false);
         effect_->setFogEnabledProperty(true);
-        effect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        effect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         effect_->setFogStartProperty(90.0f);
         effect_->setFogEndProperty(180.0f);
         constexpr const char* diagnostic =

@@ -91,6 +91,9 @@ contact occlusion and canopy-shaded wood, and slender flared coconut palm stems
 with smooth normals. Two harness lessons: GLSL ES reserves `patch` (ANGLE sent the
 Web terrain to its fallback; a CPU test now scans generated GLSL), and fixed F7
 key pulses miss heavy SwiftShader frames (setup now holds the key until acknowledged).
+Same day: first sea-turtle realism pass (`docs/sea-turtle-form.md`) and a sky with
+shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses plus
+`environment::FogColor*` constants for the C++ fog sites (`docs/sky-atmosphere.md`).
 
 ## Dependency and machine boundaries
 
@@ -185,22 +188,22 @@ sources and small reports under `docs/incidents/evidence/` are versioned separat
   qualification still rejects all fallback paths; the fixture accepts only its
   specific diagnosed procedural-leaf fallback.
 - Full Web suite: `build/browser-software/20261010T142621.752717Z-chrome-full/` (28/28;
-  `lifecycleResumed` false, reported only). Latest litter scope on the final pin:
-  `144151.050032Z-chrome-litter/`. Ground-cover pass litter scope:
+  `lifecycleResumed` false, reported only). Latest litter scope (sky pass):
+  `145543.719907Z-chrome-litter/`. Ground-cover pass litter scope:
   `20261010T131626.070992Z-chrome-litter/`.
   Both views pass 60 intervals, GL error zero, live context, empty kernel deltas.
   Failed `130857.587590Z-chrome-litter/` (reserved GLSL word) is retained.
 - Latest real-input walk: `build/browser-software/20261010T132225.050061Z-chrome-grass-motion/`
   (passed; `*-teleport-gesture.json` holds the F7 hold evidence). Failed
   `131944.941204Z` and `132110.766963Z` (F7 pulses) are retained.
-- Latest Android: `build/android-software/20261010T144750.998688Z-turtles/` (turtle pass,
-  final pin). Ground-cover pass: `20261010T133014.813550Z-grass/`.
+- Latest Android: `build/android-software/20261010T145908.469206Z-palms/` (sky pass);
+  turtle pass `144750.998688Z-turtles/`. Ground-cover pass: `20261010T133014.813550Z-grass/`.
   `game/island-android.png` and `island-android-logcat.txt`: inspected 1280x720 image,
   PID 1729/TID 1822, no kernel fault, emulator exit zero. Failed `132633.978451Z-grass/`
   (stale smoke-script mesh pin) is retained.
 - `docs/ground-cover-and-trunks.md` contains current APK sizes/hashes. Current
-  Web package is `build-probe/web-release`: 10,364,549 raw / 3,526,469 gzip bytes.
-  Last completed non-display suite: 33/33 passed in 27.24 s.
+  Web package is `build-probe/web-release`: 10,368,543 raw / 3,527,432 gzip bytes.
+  Last completed non-display suite: 33/33 passed in 26.94 s.
 - Original materials: `assets/art-studies/`, prompts/provenance in
   `ASSET_LICENSES.md` and `assets/manifest.json`. Retain both selected and rejected
   studies needed for the documented review. Runtime prepared floor/leaf PNGs

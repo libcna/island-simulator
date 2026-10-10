@@ -1,3 +1,4 @@
+#include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ShorelineRenderer.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -201,7 +202,7 @@ void main()
         fallbackEffect_->setTextureEnabledProperty(false);
         fallbackEffect_->setLightingEnabledProperty(false);
         fallbackEffect_->setFogEnabledProperty(true);
-        fallbackEffect_->setFogColorProperty(Vector3(0.53f, 0.78f, 0.88f));
+        fallbackEffect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         fallbackEffect_->setFogStartProperty(320.0f);
         fallbackEffect_->setFogEndProperty(680.0f);
 
