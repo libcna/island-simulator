@@ -29,4 +29,10 @@ Native llvmpipe `build/software-captures/20261010T150916.889020Z-jungle`, `15092
 `150932.482781Z-east` (pass, inspected): the overview shows clumped masses with open gaps and
 emergents breaking the canopy line. Masses are still made of the same eight crown forms and the
 forest edge is not yet shaped by wind or soil; terrain macro-geography (item 1) remains open.
-Platform runs are recorded in `PLAN.md`.
+Platform runs: Chrome/SwiftShader vegetation scope `build/browser-software/20261010T152203.104225Z-chrome-vegetation`
+passes all eight views; Android KVM/SwiftShader `grass` passes (`154353.959842Z-grass`), but the
+`jungle` and `east` views crash the **host emulator process** (qemu SIGSEGV in its render
+thread). Bisection: the crash needs both the stand distribution and the forest-floor colonies;
+it is absent with the pre-stands layout or with colonies disabled, and is not explained by
+instance counts (per-cell maxima are lower than before) or non-finite placements. Details,
+evidence ids and next steps are in `PLAN.md`; Android qualification of this pass is partial.

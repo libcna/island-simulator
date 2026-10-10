@@ -88,10 +88,15 @@ hardware workload is safe.
 thread segfaults in the `jungle` viewpoint on the forest-stands build (two retained runs,
 `build/android-software/20261010T151839.904527Z-jungle` and `154145.130580Z-jungle`, exit -11,
 kernel `RenderThread ... segfault`), while llvmpipe and the Chrome vegetation scope render the
-same view. It is a userspace crash of the contained emulator, not a GPU fault. Diagnose before
-claiming Android qualification of the stands: try the `palms`/`grass` views (control), bisect
-emergent scale (`CanopyEmergentScale`) and the stand density, and check gfxstream limits on
-instance counts per draw. See the PLAN forest-stands entry.
+same view. It is a userspace crash of the contained emulator, not a GPU fault. Bisected on 2026-10-10
+evening: `grass` passes; pre-stands layout passes; stands without emergents crash; coarse grid
+with the stand field crashes; **stands with forest colonies disabled pass**. The trigger is the
+stand distribution combined with the tree-following forest-floor colonies in interior views;
+per-cell instance maxima are not larger than before and all placements are finite, so the
+cause is unknown. Six qemu core dumps sit in systemd-coredump (unsymbolized). Next: symbolized
+or newer emulator, `-gpu swiftshader_indirect` under an audited sandbox policy, and bisecting
+colony parameters on the `jungle` view. Until then Android qualification of the stands build
+covers `grass` only. See the PLAN forest-stands entry.
 
 Known soft spots to watch: distant turf undercoat reads as flat olive in open clearings;
 cumulus masses are smooth blobs; `lifecycleResumed` in the full Web suite is false (reported

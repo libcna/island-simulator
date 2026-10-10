@@ -256,7 +256,23 @@ example deer) as deliberate operator choices, not ecological claims.
   draw, or a gfxstream host bug exposed by the changed jungle QA camera target. A `grass`
   control run on the same APK **passes**: `154353.959842Z-grass`, PID 1776 / TID 1876, first draw
   5,622.684 ms, total 12,309.261 ms, emulator exit zero, empty kernel delta, so the crash is
-  specific to the jungle viewpoint. ARM64 package restored (20,502,740 bytes); runtime untested.
+  specific to interior viewpoints: `154838.572690Z-east` crashes the same way (-11).
+- [!] Bisection of the emulator crash (all on the same host, one run each unless noted):
+  pre-stands `JungleLayout` from 4977afb on today's renderers -> `155011.511795Z-jungle` passes;
+  stands without emergents -> `154633.404172Z-jungle` crashes; coarse 14.5 m grid with the stand
+  field -> `155207.446578Z-jungle` crashes; stands with **forest colonies disabled** ->
+  `155521.926232Z-jungle` passes. So the trigger is the stand distribution combined with the
+  forest-floor colonies that follow the trees, in interior views. Per-cell maxima are not larger
+  than before (ground plants 243 vs 258 per 85 m cell, 110 vs 114 per variant, canopy 35 vs 24),
+  every grounded placement is finite, and llvmpipe and Chrome/SwiftShader render the same views.
+  systemd-coredump holds the six qemu SIGSEGV dumps (4.6 GiB under `/var/lib/systemd/coredump`,
+  system-managed); the stack is unsymbolized (ip inside the emulator binary, corrupted return
+  frame). Not resolved in this session. Next steps: symbolized emulator or a newer emulator
+  build, `-gpu swiftshader_indirect` in a separately audited sandbox policy, and bisecting colony
+  parameters (ellipse radius, plants per colony, overlap with neighbouring trunks) on the
+  `jungle` view. Android qualification of the stands build therefore covers `grass` only; the
+  `jungle`/`east` views are blocked by this host-renderer crash. ARM64 package restored; runtime
+  untested.
 - [x] Session end: hardware latch SHA-256 unchanged, 351 GiB free, no owned graphics process;
   host kernel journal since 15:00 CEST holds only Bluetooth/USB-enclosure messages, AppArmor
   audit lines and the emulator RenderThread segfaults (no GPU message). All evidence retained.
