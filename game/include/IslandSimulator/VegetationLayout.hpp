@@ -17,6 +17,7 @@ namespace island
         float z = 0.0f;
         float yawRadians = 0.0f;
         float scale = 1.0f;
+        float shoreDistance = 0.0f; // Signed analytic shore distance at placement, metres.
         std::uint8_t variant = 0U;
     };
 

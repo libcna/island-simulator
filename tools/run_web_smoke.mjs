@@ -822,7 +822,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && result.output?.includes("island-simulator: natural props 171 rocks, 14 reef outcrops, 13 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 173 rocks, 14 reef outcrops, 12 fallen logs, 31 driftwood pieces, 63 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && result.output?.includes(
@@ -1219,7 +1219,7 @@ try {
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && grassResult.output?.includes(
       "island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres")
-    && /grass [1-9][0-9]*\/20523 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
+    && /grass [1-9][0-9]*\/20499 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
       grassResult.output ?? "")
     && !grassResult.error;
 
@@ -1491,7 +1491,7 @@ try {
     && propResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/13 logs/.test(
+    && /props [0-9]+\/173 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/12 logs/.test(
       propResult.output ?? "")
     && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
@@ -1532,7 +1532,7 @@ try {
       "island-simulator: all near driftwood variants use tapered three-dimensional branches")
     && driftwoodResult.output?.includes(
       "island-simulator: driftwood end caps match irregular body rings")
-    && /props [0-9]+\/171 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/13 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
+    && /props [0-9]+\/173 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/12 logs, [1-9][0-9]*\/31 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/265 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")

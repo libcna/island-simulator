@@ -526,7 +526,7 @@ also reconstructs a two-sided geometric normal from world-position derivatives a
 restrained fixed-sun diffuse/fill term before the existing bark detail. Far palms skip the added
 fragment work, while no normal attribute or buffer is required.
 
-Grass uses 20,523 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Their acceptance follows `GroundCover::Density` (baked canopy transmission, a three-octave patch field, shore distance and slope), the same formula the terrain shader uses for its turf undercoat, so dense swards and bare humus coincide between placement and material (`docs/ground-cover-and-trunks.md`). Each
+Grass uses 20,499 deterministic cluster anchors grouped into a finer 16 by 16 cell grid. Their acceptance follows `GroundCover::Density` (baked canopy transmission, a three-octave patch field, shore distance and slope), the same formula the terrain shader uses for its turf undercoat, so dense swards and bare humus coincide between placement and material (`docs/ground-cover-and-trunks.md`). Each
 visible anchor instances one shared near cluster (42 tall/juvenile blades plus 48 low turf
 blades), ten-blade middle, or seven-blade far cluster. A
 stable per-patch ordering and renderer-independent smoothstep split progressively move each cell

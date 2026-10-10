@@ -153,6 +153,7 @@ namespace island
                 palm.scale = PalmMinimumScale
                     + (PalmMaximumScale - PalmMinimumScale)
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x4a39b70dU));
+                palm.shoreDistance = sample.signedShoreDistance;
                 palm.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xf17a245bU) % PalmVariantCount);
                 palms_.push_back(palm);

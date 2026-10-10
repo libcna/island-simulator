@@ -62,6 +62,12 @@ hardware workload is safe.
 - `docs/forest-stands.md`: closed canopy stands with a sparse scatter and 22 emergents
   (277 trees). Counts that changed downstream: 579 bushes (14 clearing), 3,116 ground plants
   (64 clearing, 2,225 island-wide), 199 colonies, 159 land rocks, 12 logs.
+- Evening, after the operator chose to continue the backlog: sea turtle second pass (ten-segment
+  four-ring head, geometric scute seams, wet sheen; `docs/sea-turtle-form.md`) and the first
+  prevailing-wind pass (`docs/prevailing-wind.md`: shared east trade wind, coastal windward
+  exposure, palms lean up to ten degrees; ocean/foam/crowns/wisps/audio still to do) and
+  depth on the horizon (`docs/distant-islets.md`: nearer wooded islet, sandbar, hazed far
+  silhouettes).
 - Harness fixes (`docs/browser-input-ownership.md`): GLSL ES reserves `patch` (a CPU test now
   scans generated GLSL for ES-reserved identifiers); the Web harness holds keys until the game
   logs a new acknowledgement and waits for the release to be observed; the swim walk and
@@ -75,8 +81,9 @@ hardware workload is safe.
    field replacing shore-distance bands (3), prevailing wind (4), readable reef (5), natural
    footpath (6), palm distribution (9), directional shadows (11), coastal micro-topography
    (15), underwater habitat (16), small fauna (17), geology (19), wet biome (20).
-   Partially done: trunks (10), sky (12), atmosphere (13), stands (7), emergents (8).
-2. Sea turtle second pass: head segments, scute seam geometry, surface/underwater lighting.
+   Partially done: wind (4), trunks (10), sky (12), atmosphere (13), islets (14), stands (7),
+   emergents (8).
+2. Sea turtle third pass: hexagonal scute layout, surface reflections, underwater tint.
 3. Then species from the wildlife backlog and the island hut, each with deterministic
    simulation, budget, capture viewpoint, regression tests and close-capture review.
 4. Requalify Web input/lifecycle and Android touch/lifecycle after relevant changes. ARM64
@@ -84,21 +91,12 @@ hardware workload is safe.
    pre-incident results to current qualification.
 5. Incident work is a separate approval-gated track (section 1).
 
-**Open blocker (2026-10-10 evening):** the Android KVM/SwiftShader emulator's host render
-thread segfaults in the `jungle` viewpoint on the forest-stands build (two retained runs,
-`build/android-software/20261010T151839.904527Z-jungle` and `154145.130580Z-jungle`, exit -11,
-kernel `RenderThread ... segfault`), while llvmpipe and the Chrome vegetation scope render the
-same view. It is a userspace crash of the contained emulator, not a GPU fault. Bisected on 2026-10-10
-evening: `grass` passes; pre-stands layout passes; stands without emergents crash; coarse grid
-with the stand field crashes; **stands with forest colonies disabled pass**. The trigger is the
-stand distribution combined with the tree-following forest-floor colonies in interior views;
-per-cell instance maxima are not larger than before and all placements are finite, so the
-cause is unknown. Also eliminated: a per-draw instance limit (capping at 128 still crashes) and
-instance-buffer replacement at draw time (layout-sized buffers still crash); colony plants show
-no anomaly. Nine qemu core dumps sit in systemd-coredump (unsymbolized, ~0.75 GiB each). Next:
-symbolized or newer emulator, `-gpu swiftshader_indirect` under an audited sandbox policy, and
-bisecting colony placement by region on the `jungle` view. Until then Android qualification of
-the stands build covers `grass` only. See the PLAN forest-stands entry.
+**Resolved 2026-10-10 evening:** the Android emulator crash (qemu host RenderThread SIGSEGV
+in `jungle`/`east`/`turtles`) was caused by the sky's cumulus loop over a constant array, not
+by the forest stands. Bisected file by file and fixed by unrolling (`docs/sky-atmosphere.md`).
+Lesson for future shaders: avoid constant arrays indexed by loop counters (and `continue`)
+in fragment shaders; the Android emulator's gfxstream/SwiftShader host can crash on them even
+when Mesa and ANGLE accept them. Many earlier "colony" experiments in `PLAN.md` are void.
 
 Known soft spots to watch: distant turf undercoat reads as flat olive in open clearings;
 cumulus masses are smooth blobs; `lifecycleResumed` in the full Web suite is false (reported

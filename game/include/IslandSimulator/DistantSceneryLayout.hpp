@@ -23,7 +23,8 @@ namespace island
     {
     public:
         static constexpr std::size_t IsletCount = 5U;
-        static constexpr std::uint8_t VariantCount = 3U;
+        static constexpr std::uint8_t VariantCount = 4U; // 3 is a low treeless sandbar
+        static constexpr std::uint8_t SandbarVariant = 3U;
 
         DistantSceneryLayout() noexcept;
 

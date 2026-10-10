@@ -16,6 +16,7 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/PrevailingWind.hpp"
 #include "IslandSimulator/TrunkSurfaceMaterial.hpp"
 #include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -1878,6 +1879,18 @@ int main()
     const island::DistantSceneryLayout repeatedDistantScenery;
     Check(distantScenery.Islets().size() == island::DistantSceneryLayout::IsletCount,
           "distant scenery keeps its intentionally small bounded population");
+    {
+        // Depth on the horizon: at least one islet within 600 m, at least one beyond 950 m, and
+        // exactly one treeless sandbar.
+        float nearest = 1.0e9f, farthest = 0.0f; int sandbars = 0;
+        for (const auto& islet : distantScenery.Islets()) {
+            nearest = std::min(nearest, std::hypot(islet.x, islet.z));
+            farthest = std::max(farthest, std::hypot(islet.x, islet.z));
+            sandbars += islet.variant == island::DistantSceneryLayout::SandbarVariant ? 1 : 0;
+        }
+        Check(nearest < 600.0f && farthest > 950.0f && sandbars == 1,
+              "distant islets step from a nearer wooded islet to far silhouettes with one sandbar");
+    }
     for (std::size_t index = 0; index < distantScenery.Islets().size(); ++index) {
         const island::DistantIsletPlacement& islet = distantScenery.Islets()[index];
         const island::DistantIsletPlacement& repeated = repeatedDistantScenery.Islets()[index];
@@ -1898,9 +1911,11 @@ int main()
                   && std::abs(islet.z) + islet.radiusZ
                       < island::OceanMeshLayout::Extent - 20.0f,
               "distant islets remain inside the finite ocean surface");
+        const bool sandbar = islet.variant == island::DistantSceneryLayout::SandbarVariant;
         Check(islet.radiusX >= 24.0f && islet.radiusX <= 42.0f
                   && islet.radiusZ >= 17.0f && islet.radiusZ <= 29.0f
-                  && islet.height >= 5.9f && islet.height <= 10.5f
+                  && (sandbar ? (islet.height >= 1.5f && islet.height <= 3.0f)
+                              : (islet.height >= 5.9f && islet.height <= 10.5f))
                   && islet.variant < island::DistantSceneryLayout::VariantCount,
               "distant islet dimensions and variants stay within the authored low silhouette");
         for (std::size_t other = index + 1U;
@@ -3305,6 +3320,28 @@ int main()
               "palm collision radius stays close to the visible trunk");
     }
 
+    {
+        // Prevailing wind: exposure is bounded, strongest on the windward coast, fades inland,
+        // never negative on the lee shore, and the palm lean stays within ten degrees.
+        using namespace island::wind;
+        Check(Exposure(230.0f, 0.0f, 5.0f) > 0.95f && Exposure(-230.0f, 0.0f, 5.0f) < 0.3f
+                  && Exposure(-230.0f, 0.0f, 5.0f) > 0.2f && Exposure(0.0f, 0.0f, 120.0f) == 0.0f
+                  && Exposure(0.0f, 230.0f, 5.0f) > Exposure(-230.0f, 0.0f, 5.0f),
+              "wind exposure peaks on the windward east coast and vanishes inland");
+        float leeMax = 0.0f, windwardMax = 0.0f;
+        for (const island::PalmPlacement& palm : vegetation.Palms()) {
+            const float lean = PalmLeanRadians(Exposure(palm.x, palm.z, palm.shoreDistance));
+            Check(lean >= 0.0f && lean <= PalmMaximumLeanRadians, "palm lean stays within the authored limit");
+            Check(std::abs(palm.shoreDistance - terrain.Sample(palm.x, palm.z).signedShoreDistance) < 0.001f,
+                  "palm placements retain their shore distance");
+            (palm.x > 0.0f ? windwardMax : leeMax) = std::max(palm.x > 0.0f ? windwardMax : leeMax, lean);
+        }
+        Check(windwardMax > leeMax && windwardMax > 0.12f, "east-coast palms lean more than west-coast palms");
+        bool rejected = false;
+        try { (void)Exposure(std::numeric_limits<float>::quiet_NaN(), 0.0f, 1.0f); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        Check(rejected, "wind exposure rejects non-finite input");
+    }
     const island::GrassLayout grass(terrain, canopyLight, groundCover);
     const island::GrassLayout repeatedGrass(terrain, canopyLight, groundCover);
     {

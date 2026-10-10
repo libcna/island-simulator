@@ -22,6 +22,17 @@ of dissolving into it.
   previously repeated the literal; GLSL bodies still repeat the same literal and must be kept in
   step by hand (documented in the header). Underwater renderers keep their own water fog.
 
+## Android emulator crash and fix (2026-10-10 evening)
+
+The first version iterated `const vec4 Clouds[11]` with a loop counter and `continue`. The
+contained Android emulator's host renderer (gfxstream + SwiftShader, emulator 36.5.11)
+segfaulted on it in horizon-facing interior views (`jungle`, `east`, sometimes `turtles`),
+while Mesa llvmpipe and Chrome's ANGLE ran it. It was bisected file by file against the
+previous day's renderers (`PLAN.md`). The masses are now a `cumulusMass()` function called
+eleven times with literal arguments: no array, loop or `continue`, identical output. Two
+Android `jungle` runs then passed (`20261010T171959.757939Z`, `172238.429543Z`). Prefer
+straight-line code over constant arrays indexed in loops in portable fragment shaders.
+
 ## Cost
 
 The cumulus loop runs only for directions between -0.02 and 0.45 elevation and skips a mass by

@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/JungleMaterial.hpp"
+#include "IslandSimulator/PrevailingWind.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/SurfaceNormals.hpp"
@@ -813,6 +814,10 @@ void main()
             std::cout << lightingDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(lightingDiagnostic);
             std::cout << "island-simulator: palm near root ridges ground flared trunk bases\n";
+            constexpr const char* windDiagnostic =
+                "island-simulator: palms lean away from the fixed east trade wind by coastal windward exposure";
+            std::cout << windDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(windDiagnostic);
             constexpr const char* trunkDiagnostic =
                 "island-simulator: palm trunks use smooth normals, one-sided daylight, grey weathered bark and filtered leaf-scar rings";
             std::cout << trunkDiagnostic << '\n';
@@ -887,8 +892,13 @@ void main()
         for (const PalmPlacement& palm : layout.Palms()) {
             PalmCell& cell = cells_[CellIndex(palm.x, palm.z)];
             PalmDrawInstance instance;
+            // Lean away from the fixed trade wind in world space, after yaw so the lean does
+            // not depend on the authored facing. Collision stays at the base.
+            const float lean = wind::PalmLeanRadians(wind::Exposure(palm.x, palm.z, palm.shoreDistance));
+            const Vector3 leanAxis(-wind::DirectionZ, 0.0f, wind::DirectionX); // perpendicular to the wind
             instance.transform = Matrix::CreateScale(palm.scale)
                 * Matrix::CreateRotationY(palm.yawRadians)
+                * Matrix::CreateFromAxisAngle(leanAxis, lean)
                 * Matrix::CreateTranslation(palm.x, palm.y, palm.z);
             instance.x = palm.x;
             instance.z = palm.z;

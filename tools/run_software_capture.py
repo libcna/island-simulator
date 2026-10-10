@@ -299,6 +299,8 @@ def main():
                 raise RuntimeError("Shared-height-map litter contact diagnostic missing")
             if "shrubs use supported shoots and curved individual leaves with shared LOD identities and complete leaf outlines" not in diagnostics:
                 raise RuntimeError("current shrub geometry is missing; check for a stale executable")
+            if "palms lean away from the fixed east trade wind by coastal windward exposure" not in diagnostics:
+                raise RuntimeError("current prevailing wind is missing; check for a stale executable")
             if "sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses" not in diagnostics:
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
             if "sea turtles use domed scute carapaces, beaked heads and bending paddle strokes" not in diagnostics:

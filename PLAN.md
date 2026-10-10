@@ -165,9 +165,12 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   rockiness, drainage, sun exposure, reef suitability) and drive palms, canopy, shrubs, ferns,
   grass and props from it instead of concentric `signedShoreDistance` bands (10-15 h). The current
   ground-cover field is a first step and should become one of its inputs.
-- [ ] 4. One prevailing trade wind (for example from the east) used consistently: palm lean and
+- [~] 4. One prevailing trade wind (for example from the east) used consistently: palm lean and
   crown shape, windward ocean/foam, rock exposure, vegetation height, driftwood accumulation, dune
-  orientation, cloud wisps and wind audio.
+  orientation, cloud wisps and wind audio. 2026-10-10 first pass (`docs/prevailing-wind.md`):
+  shared east trade wind, coastal windward exposure, palms lean up to ten degrees; tested;
+  native palms/beach/overview captures inspected. Ocean, foam, crowns, driftwood, wisps and
+  audio remain.
 - [ ] 5. Make the reef readable from a distance: seabed macro structure with a pale lagoon, sand
   channels, dark reef patches and seagrass, a reef crest and a deep blue drop-off, before any
   detailed coral models.
@@ -200,8 +203,11 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   distant islands and wildlife instead of per-renderer fog colours such as `(0.53, 0.78, 0.88)`.
   2026-10-10: `environment::FogColor*` constants back the C++ fog sites and the sky haze; GLSL
   literals are still hand-kept.
-- [ ] 14. Integrate distant islets into the atmosphere: one nearer, two almost silhouettes, one
+- [x] 14. Integrate distant islets into the atmosphere: one nearer, two almost silhouettes, one
   treeless sandbar/reef, one very distant, with contrast falling steeply with distance.
+  2026-10-10 (`docs/distant-islets.md`): nearer wooded islet at 575 m, sandbar variant, far
+  silhouettes to ~1,000 m, per-islet haze pre-blend and fog end 1,300 m; tested; native
+  `distant`/`overview` captures inspected.
 - [ ] 15. Coastal micro-topography of 20-100 cm: beach berm, small dunes, erosion edge, rock steps,
   wash channels, exposed roots, small tidal pools.
 - [ ] 16. Underwater environment for swimming: seagrass patches, simple coral heads, stones, sand
@@ -285,6 +291,39 @@ example deer) as deliberate operator choices, not ecological claims.
   0.58-1.22, no duplicate positions, nothing within 3 m of either camera, at most 7 plants per
   colony within 14.1 m of the parent. Nine emulator runs were spent; the remaining lead is the
   emulator itself (unsymbolized qemu core dumps in systemd-coredump).
+- [x] **Correction: the crash is stochastic and not caused by the stands.** Repeating the two
+  configurations that had passed once each, pre-stands `164726.158719Z-jungle` and stands
+  without colonies `164612.564626Z-jungle`, both crash (-11). An "edge colonies only" variant
+  passed `turtles` once (`163023Z`) but crashed `jungle` and `east`, and was reverted. The single
+  passes earlier were luck, so the colony/stand bisection above is void. History: Android
+  `jungle` passed 5/5 on 2026-10-09 but only 2/11 on 2026-10-10 with an unchanged emulator
+  (36.5.11, installed 2026-05-08), so a change from 2026-10-10 that every configuration shares
+  raises the crash rate in jungle-heavy views.
+- [x] **Root cause bisected to the sky shader.** One file at a time against yesterday's (d537e03)
+  versions, Android `jungle`, counting only the emulator exit code: old wood shading 3/3 crash
+  (`164936Z`..`165145Z`); yesterday's whole `JungleRenderer` 3/3 crash (`165316Z`..`165519Z`);
+  yesterday's terrain, grass, palm, sky, turtle and distant renderers 3/3 no crash (`165653Z`..
+  `170206Z`); then current terrain+grass 2/2 no crash (`170528Z`, `170801Z`), plus current palms
+  2/2 no crash (`171106Z`, `171340Z`), plus current sky 2/2 crash (`171630Z`, `171727Z`). The
+  cumulus pass iterated `const vec4 Clouds[11]` with a loop counter and `continue`; the Android
+  emulator's host renderer (gfxstream + SwiftShader) segfaults on it, while Mesa llvmpipe and
+  Chrome's ANGLE run it. It is not a CNA or game defect in the data path, so no `BUGS.md` entry;
+  the game-side fix unrolls the masses into one `cumulusMass()` function called eleven times with
+  literal arguments (no array, loop or `continue`). Verified: Android `jungle` 2/2 without crash
+  (`171959.757939Z`, `172238.429543Z`), then the final tree below.
+- [x] Final qualification of the evening tree (stands, turtle pass two, wind, islets, unrolled
+  sky): 33/33 non-display groups; native `172806.329415Z-overview`, `172812.566297Z-distant`,
+  `172642.513830Z-palms`, `172648.540756Z-jungle` inspected; Chrome/SwiftShader full suite
+  `172921.618192Z-chrome-full` **28/28** (`lifecycleResumed` still false, reported only);
+  Android KVM/SwiftShader `173721.178620Z-jungle` (PID 1856/TID 1942), `173833.723258Z-east`,
+  `174002.366980Z-palms`, `174128.122762Z-turtles` all pass with emulator exit 0 (turtles'
+  kernel delta holds only host LibreOffice AppArmor audit lines). Web package 10,335,085 raw /
+  3,524,042 gzip; x86_64 APK 20,425,195 bytes (`11fb346f...b245e3a`); ARM64 restored 20,511,172
+  bytes (`33443a1e...4bfaf`), runtime untested. Latch unchanged, 350 GiB free; remaining weston
+  processes belong to another agent's CNA test. Full Web harness pins updated for 20,499 grass
+  clusters, 173 rocks and 12 logs.
+  The forest stands and all colony experiments were innocent; earlier "passes" were runs where
+  the camera saw fewer cumulus pixels or the crash raced the capture.
 - [x] Session end: hardware latch SHA-256 unchanged, 351 GiB free, no owned graphics process;
   host kernel journal since 15:00 CEST holds only Bluetooth/USB-enclosure messages, AppArmor
   audit lines and the emulator RenderThread segfaults (no GPU message). All evidence retained.

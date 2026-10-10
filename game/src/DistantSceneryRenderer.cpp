@@ -67,16 +67,40 @@ namespace island
                            islet.z + localX * sine + localZ * cosine);
         }
 
+        // Aerial perspective baked per islet: far silhouettes lose contrast toward the shared
+        // haze before the renderer's distance fog, so the horizon reads as depth, not a row.
+        [[nodiscard]] float HazeBlend(const DistantIsletPlacement& islet)
+        {
+            const float distance = std::hypot(islet.x, islet.z);
+            const float t = std::clamp((distance - 480.0f) / (1100.0f - 480.0f), 0.0f, 1.0f);
+            return 0.22f + 0.62f * t * t * (3.0f - 2.0f * t);
+        }
+
+        [[nodiscard]] Color Hazed(const Color& color, const DistantIsletPlacement& islet)
+        {
+            const float blend = HazeBlend(islet);
+            const auto channel = [blend](const std::uint8_t value, const float fog) {
+                return static_cast<int>(std::lround(static_cast<float>(value)
+                    + (fog * 255.0f - static_cast<float>(value)) * blend));
+            };
+            return Color(channel(color.getRProperty(), environment::FogColorRed),
+                         channel(color.getGProperty(), environment::FogColorGreen),
+                         channel(color.getBProperty(), environment::FogColorBlue), 255);
+        }
+
         [[nodiscard]] Color RockColor(const DistantIsletPlacement& islet,
                                       const int ring, const int segment)
         {
-            static const std::array<std::array<Color, 4>, 3> palettes = {{
+            static const std::array<std::array<Color, 4>, 4> palettes = {{
                 {Color(69, 88, 82), Color(83, 101, 87), Color(100, 113, 91),
                  Color(111, 124, 94)},
                 {Color(75, 85, 86), Color(91, 102, 96), Color(107, 116, 101),
                  Color(118, 128, 105)},
                 {Color(67, 82, 78), Color(79, 96, 83), Color(93, 108, 87),
                  Color(104, 119, 90)},
+                // Treeless sandbar: wet dark sand low down, dry pale sand on top.
+                {Color(146, 136, 108), Color(176, 164, 128), Color(206, 192, 150),
+                 Color(224, 210, 166)},
             }};
             const Color base = palettes[islet.variant % palettes.size()]
                                        [static_cast<std::size_t>(ring)];
@@ -100,7 +124,7 @@ namespace island
                     const Vector3 lowerNext = IsletPoint(islet, ring, next);
                     const Vector3 upper = IsletPoint(islet, ring + 1, segment);
                     const Vector3 upperNext = IsletPoint(islet, ring + 1, next);
-                    const Color color = RockColor(islet, ring, segment);
+                    const Color color = Hazed(RockColor(islet, ring, segment), islet);
                     AddTriangle(vertices, lower, upper, lowerNext, color);
                     AddTriangle(vertices, lowerNext, upper, upperNext, color);
                 }
@@ -114,7 +138,7 @@ namespace island
             for (int segment = 0; segment < RockSegments; ++segment) {
                 const int next = (segment + 1) % RockSegments;
                 AddTriangle(vertices, IsletPoint(islet, 3, segment), apex,
-                            IsletPoint(islet, 3, next), RockColor(islet, 3, segment));
+                            IsletPoint(islet, 3, next), Hazed(RockColor(islet, 3, segment), islet));
             }
         }
 
@@ -133,7 +157,7 @@ namespace island
             const float leanZ = std::sin(phase + 0.8f) * 0.62f;
             const Vector3 crown = base + Vector3(leanX, trunkHeight, leanZ);
             const float halfWidth = 0.35f;
-            const Color trunkColor(92, 79, 54, 255);
+            const Color trunkColor = Hazed(Color(92, 79, 54, 255), islet);
             AddTriangle(vertices, base + Vector3(-halfWidth, 0.0f, 0.0f),
                         crown + Vector3(-halfWidth * 0.45f, 0.0f, 0.0f),
                         base + Vector3(halfWidth, 0.0f, 0.0f), trunkColor);
@@ -147,8 +171,8 @@ namespace island
                         crown + Vector3(0.0f, 0.0f, -halfWidth * 0.45f),
                         crown + Vector3(0.0f, 0.0f, halfWidth * 0.45f), trunkColor);
 
-            const Color frondColor = islet.variant == 1U
-                ? Color(58, 105, 69, 255) : Color(48, 112, 67, 255);
+            const Color frondColor = Hazed(islet.variant == 1U
+                ? Color(58, 105, 69, 255) : Color(48, 112, 67, 255), islet);
             constexpr int crownSegments = 8;
             const Vector3 crownTop = crown + Vector3::Up * 1.05f;
             const Vector3 crownBottom = crown - Vector3::Up * 0.85f;
@@ -188,7 +212,8 @@ namespace island
         vertices.reserve(layout.Islets().size() * 512U);
         for (const DistantIsletPlacement& islet : layout.Islets()) {
             AppendRock(vertices, islet);
-            const int palmCount = 1 + static_cast<int>(islet.variant % 3U);
+            const int palmCount = islet.variant == DistantSceneryLayout::SandbarVariant
+                ? 0 : 1 + static_cast<int>(islet.variant % 3U);
             for (int palm = 0; palm < palmCount; ++palm) {
                 AppendPalm(vertices, islet, palm);
             }
@@ -207,7 +232,7 @@ namespace island
         effect_->setFogEnabledProperty(true);
         effect_->setFogColorProperty(Vector3(environment::FogColorRed, environment::FogColorGreen, environment::FogColorBlue));
         effect_->setFogStartProperty(260.0f);
-        effect_->setFogEndProperty(790.0f);
+        effect_->setFogEndProperty(1300.0f); // Far silhouettes stay faintly visible.
         std::cout << "island-simulator: distant scenery " << isletCount_
                   << " unreachable low islets, one portable batch, "
                   << primitiveCount_ << " triangles\n";
