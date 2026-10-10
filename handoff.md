@@ -93,10 +93,12 @@ evening: `grass` passes; pre-stands layout passes; stands without emergents cras
 with the stand field crashes; **stands with forest colonies disabled pass**. The trigger is the
 stand distribution combined with the tree-following forest-floor colonies in interior views;
 per-cell instance maxima are not larger than before and all placements are finite, so the
-cause is unknown. Six qemu core dumps sit in systemd-coredump (unsymbolized). Next: symbolized
-or newer emulator, `-gpu swiftshader_indirect` under an audited sandbox policy, and bisecting
-colony parameters on the `jungle` view. Until then Android qualification of the stands build
-covers `grass` only. See the PLAN forest-stands entry.
+cause is unknown. Also eliminated: a per-draw instance limit (capping at 128 still crashes) and
+instance-buffer replacement at draw time (layout-sized buffers still crash); colony plants show
+no anomaly. Nine qemu core dumps sit in systemd-coredump (unsymbolized, ~0.75 GiB each). Next:
+symbolized or newer emulator, `-gpu swiftshader_indirect` under an audited sandbox policy, and
+bisecting colony placement by region on the `jungle` view. Until then Android qualification of
+the stands build covers `grass` only. See the PLAN forest-stands entry.
 
 Known soft spots to watch: distant turf undercoat reads as flat olive in open clearings;
 cumulus masses are smooth blobs; `lifecycleResumed` in the full Web suite is false (reported

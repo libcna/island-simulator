@@ -273,6 +273,13 @@ example deer) as deliberate operator choices, not ecological claims.
   `jungle` view. Android qualification of the stands build therefore covers `grass` only; the
   `jungle`/`east` views are blocked by this host-renderer crash. ARM64 package restored; runtime
   untested.
+- [x] Two further hypotheses eliminated on the `jungle` view (evidence retained, code reverted):
+  capping instanced draws at 128 instances (`160054.500746Z-jungle`, crash) and creating every
+  jungle instance buffer once from layout totals instead of growing it by replacement at draw
+  time (`160345.437543Z-jungle`, crash). A CPU probe found no anomaly in colony plants: scales
+  0.58-1.22, no duplicate positions, nothing within 3 m of either camera, at most 7 plants per
+  colony within 14.1 m of the parent. Nine emulator runs were spent; the remaining lead is the
+  emulator itself (unsymbolized qemu core dumps in systemd-coredump).
 - [x] Session end: hardware latch SHA-256 unchanged, 351 GiB free, no owned graphics process;
   host kernel journal since 15:00 CEST holds only Bluetooth/USB-enclosure messages, AppArmor
   audit lines and the emulator RenderThread segfaults (no GPU message). All evidence retained.
