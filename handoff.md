@@ -155,15 +155,20 @@ Rules that bit this session:
 ## 6. Evidence locations (ignored local data, not in Git)
 
 - Native: `build/software-captures/<timestamp>-<viewpoint>/` (PPM, logs, `run.json`,
-  kernel deltas). Latest: `20261010T150916.889020Z-jungle`, `150924.874906Z-overview`,
+  kernel deltas). Latest (final evening tree): `20261010T172806.329415Z-overview`,
+  `172812.566297Z-distant`, `172642.513830Z-palms`, `172648.540756Z-jungle`. Earlier:
+  `20261010T150916.889020Z-jungle`, `150924.874906Z-overview`,
   `150932.482781Z-east` (forest stands); `145219Z-beach`, `145227Z-overview`,
   `145234Z-palms` (sky); `143756Z-turtles`; `130435Z-grass`, `131112Z-litter` (ground cover).
-- Web: `build/browser-software/`. Full suite `20261010T142621.752717Z-chrome-full` (28/28);
+- Web: `build/browser-software/`. Full suite `20261010T172921.618192Z-chrome-full` (28/28,
+  final tree; earlier `142621.752717Z`);
   vegetation scope for the forest stands `152203.104225Z-chrome-vegetation`; litter scopes `145543Z`
   (sky) and `131626Z` (ground cover); grass-motion `132225Z`. Failed runs from the same day
   are retained on purpose (reserved word, key pulses, stale pins).
-- Android: `build/android-software/`. Jungle run for the forest stands (see `PLAN.md`),
-  `145908Z-palms` (sky), `144750Z-turtles`, `133014Z-grass`. Rolling tested x86_64 APK:
+- Android: `build/android-software/`. Final tree, all pass: `20261010T173721.178620Z-jungle`,
+  `173833.723258Z-east`, `174002.366980Z-palms`, `174128.122762Z-turtles`. Earlier:
+  `145908Z-palms` (sky), `144750Z-turtles`, `133014Z-grass`; the many failed `jungle`/`east`
+  runs of the evening are the sky-shader crash bisection. Rolling tested x86_64 APK:
   `build/android-software/island-x86_64.apk`.
 - Package sizes and hashes are in the `docs/*.md` file of each pass. ARM64 runtime untested.
 - Incident evidence: `build/gpu-incident-evidence/` and historical `build-consumer/`.
