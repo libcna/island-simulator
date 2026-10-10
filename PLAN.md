@@ -78,9 +78,34 @@ Standing visual-quality rules (apply to every task from now on):
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
   first), fish, shark, crabs, birds, butterflies, monkeys, boars, palms, canopy trees, understory,
   grass/ground cover, rocks, logs/driftwood, shipwreck, water/shore, sky and lighting.
-- [ ] Fix the sea turtle first: anatomy and proportions (domed scuted carapace, plastron, beak-like
+- [~] Fix the sea turtle first: anatomy and proportions (domed scuted carapace, plastron, beak-like
   head, paddle flippers with correct stroke), carapace scute pattern/material, swimming animation
   and underwater/surface lighting. Compare actual before/after captures.
+  2026-10-10 first pass done (`docs/sea-turtle-form.md`): domed scute-aligned carapace, closed
+  plastron, necked beaked head, bending power/recovery paddle strokes, 1,164-vertex near tier in
+  the unchanged single batch; profile tests bound reach, outline, dome and stroke direction.
+  Native `20261010T134100.845143Z-turtles` inspected. Still open: blocky head, tonal-only scute
+  seams, surface/underwater lighting of the body.
+  Web requalification used the full Chrome/SwiftShader suite (the turtle view has no focused
+  scope). Runs `20261010T134317Z`, `135232Z` and `140719Z` failed on harness debt, not the
+  game: a stale `jungle ground layer 2282` pin, a stale `/18556 patches` regex, and fixed key
+  pulses/short waits that heavier frames no longer satisfy (`F5`/`b`/`Shift`/`ArrowRight`
+  pulses, key release observed before the next edge, 15 s swim walk with 0.1 s clamped steps,
+  10 s resume wait). All converted to acknowledged or game-paced waits; see
+  `docs/browser-input-ownership.md`. `lifecycleResumed` is reported only and was false in
+  `140719Z` (no new input sample within 30 s of resume): an open observation, not a gate.
+  Run `141838Z` then exposed the last stale regexes (`/2282 ground plants`, Firefox too).
+  `20261010T142621.752717Z-chrome-full` **passes 28/28 sections** (views, deployment,
+  settings persistence, input, lifecycle), GL error zero, empty kernel deltas; the turtle
+  image was inspected and matches native. `lifecycleResumed` is still false and remains
+  an open observation. Web package refreshed (10,364,549 raw / 3,526,469 gzip bytes).
+  On the final pin c20373ba: native `143756.520012Z-turtles`, Chrome litter scope
+  `144151.050032Z` and Android KVM/SwiftShader `144750.998688Z-turtles` (PID 1676 / TID 1822,
+  first draw 4,994.452 ms, total 10,885.404 ms, image inspected, empty kernel deltas) pass;
+  x86_64 APK 20,402,427 bytes (SHA-256 98716929...241459eb); ARM64 restored (20,491,236 bytes,
+  SHA-256 103b7bc1...8ae5e870), runtime untested. No owned graphics process remains; latch
+  hash unchanged; 358 GiB free; kernel journal since 15:00 CEST has no GPU message.
+  Final 33/33 non-display groups pass (27.24 s) on the rebuilt pin.
 - [ ] A new species or object is not done when it merely exists and animates. It needs believable
   silhouette, proportions, material/colour, motion and ground/water contact in close first-person
   views, and must not ship at the current turtle's quality level.
@@ -197,6 +222,11 @@ example deer) as deliberate operator choices, not ecological claims.
   `dependencies.lock` to these clean heads; CNA stays at 97783d1e. No dependency source touched.
 - [x] Incremental native rebuild (85 objects, 74 s, shared ccache) and 33/33 non-display groups
   pass (26.86 s) on the refreshed baseline before any game change.
+- [x] Later the same day the shared Sharp Runtime `next` advanced again (59454257 -> c20373ba:
+  `TimeZoneInfo.BaseUtcOffset` taken from the latest standard period, release v0.1.0 prep;
+  8 files, no API the game exercises) and the Android configure refused the stale lock. Pin
+  advanced a second time; native, Web and Android requalification of the turtle pass ran on
+  c20373ba (results in the turtle entry below).
 
 #### 2026-10-10 — nonuniform ground cover and trunk presentation
 

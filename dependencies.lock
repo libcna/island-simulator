@@ -1,5 +1,5 @@
 # Reproducible dependency baseline. Update deliberately after qualifying all active targets.
 CNA=97783d1e090c6d84f4b6a6d7746516e65184569e
-SHARP_RUNTIME=59454257eb1c4712ef43afd5650267c6d6b64918
+SHARP_RUNTIME=c20373bae5be1f02d1fe2fa33c4cbba8ad05e4a0
 EASY_GL=f4d6afaf16cdc7e7e73130950bc45e6d865b41bd
 META_GL=dd3b30055d55fdc42240de7af248259338256992

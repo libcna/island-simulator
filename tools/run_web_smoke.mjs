@@ -195,11 +195,45 @@ try {
     }
     return false;
   };
+  const countOutput = (output, pattern) => typeof pattern === "string"
+    ? output.split(pattern).length - 1
+    : (output.match(new RegExp(pattern.source, `${pattern.flags.replace("g", "")}g`)) ?? []).length;
+  // Hold one actual key-down until the game logs a NEW occurrence of the pattern, then release.
+  // Fixed 650 ms pulses fell between frame-polled updates once SwiftShader frames exceeded that
+  // (two retained 2026-10-10 grass-motion failures and a full-suite input failure).
+  const holdKeyUntilNewOutput = async (sessionId, key, code, virtualKeyCode, pattern,
+    attempts = 60, settleMilliseconds = 350) => {
+    const before = countOutput(await readSmokeOutput(sessionId), pattern);
+    let acknowledged = false;
+    await call("Input.dispatchKeyEvent", {
+      type: "keyDown", key, code, windowsVirtualKeyCode: virtualKeyCode,
+      nativeVirtualKeyCode: virtualKeyCode,
+    }, sessionId);
+    try {
+      for (let attempt = 0; attempt < attempts && !acknowledged; ++attempt) {
+        await delay(250);
+        acknowledged = countOutput(await readSmokeOutput(sessionId), pattern) > before;
+      }
+    } finally {
+      await call("Input.dispatchKeyEvent", {
+        type: "keyUp", key, code, windowsVirtualKeyCode: virtualKeyCode,
+        nativeVirtualKeyCode: virtualKeyCode,
+      }, sessionId);
+      // The game polls keys per frame: a second edge sent before it observed this release is
+      // not a press. Wait for two more game output lines (two frames) before returning.
+      const releasedAt = countOutput(await readSmokeOutput(sessionId), "\n");
+      for (let frame = 0; frame < 24; ++frame) {
+        await delay(250);
+        if (countOutput(await readSmokeOutput(sessionId), "\n") >= releasedAt + 2) break;
+      }
+      await delay(settleMilliseconds);
+    }
+    return acknowledged;
+  };
   const dispatchKeyUntilOutput = async (sessionId, key, code, virtualKeyCode, pattern) => {
     if (await waitForOutput(sessionId, pattern, 1)) return true;
-    for (let attempt = 0; attempt < 3; ++attempt) {
-      await dispatchKeyPress(sessionId, key, code, virtualKeyCode, 650, 350);
-      if (await waitForOutput(sessionId, pattern)) return true;
+    for (let attempt = 0; attempt < 2; ++attempt) {
+      if (await holdKeyUntilNewOutput(sessionId, key, code, virtualKeyCode, pattern)) return true;
     }
     return false;
   };
@@ -731,7 +765,7 @@ try {
     && result.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
     && result.output?.includes("island-simulator: jungle 281 canopy trees, 1822 understory plants, 578 low bushes, hardware instancing")
-    && result.output?.includes("island-simulator: jungle ground layer 2282 small plants")
+    && result.output?.includes("island-simulator: jungle ground layer 3148 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes(
@@ -951,8 +985,24 @@ try {
   // runtime in the same origin/profile. QA scene pages disable settings explicitly, so this is
   // isolated from their deterministic input assumptions while still testing the production shell.
   let settingsWriteOutput = "";
-  for (let keyAttempt = 0; keyAttempt < 3; ++keyAttempt) {
-    await dispatchKeyPress(deploymentSessionId, "b", "KeyB", 66, 650, 350);
+  const readDeploymentOutput = async () => (await call("Runtime.evaluate", {
+    expression: "globalThis.islandDeploymentOutput ?? ''", returnByValue: true,
+  }, deploymentSessionId)).result.value ?? "";
+  for (let keyAttempt = 0; keyAttempt < 2; ++keyAttempt) {
+    // Hold the key until the game observes it; a fixed pulse misses heavy SwiftShader frames.
+    const disabledBefore = countOutput(await readDeploymentOutput(), "island-simulator: camera motion disabled");
+    await call("Input.dispatchKeyEvent", { type: "keyDown", key: "b", code: "KeyB",
+      windowsVirtualKeyCode: 66, nativeVirtualKeyCode: 66 }, deploymentSessionId);
+    try {
+      for (let hold = 0; hold < 60; ++hold) {
+        await delay(250);
+        if (countOutput(await readDeploymentOutput(), "island-simulator: camera motion disabled") > disabledBefore) break;
+      }
+    } finally {
+      await call("Input.dispatchKeyEvent", { type: "keyUp", key: "b", code: "KeyB",
+        windowsVirtualKeyCode: 66, nativeVirtualKeyCode: 66 }, deploymentSessionId);
+      await delay(350);
+    }
     for (let outputAttempt = 0; outputAttempt < 12; ++outputAttempt) {
       const evaluation = await call("Runtime.evaluate", {
         expression: "globalThis.islandDeploymentOutput ?? ''",
@@ -1169,7 +1219,7 @@ try {
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && grassResult.output?.includes(
       "island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres")
-    && /grass [1-9][0-9]*\/18556 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
+    && /grass [1-9][0-9]*\/20523 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
       grassResult.output ?? "")
     && !grassResult.error;
 
@@ -1202,7 +1252,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
-    && /[1-9][0-9]*\/2282 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/3148 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
@@ -1234,7 +1284,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && litterResult.output?.includes(
       "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
-    && /[1-9][0-9]*\/2282 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/3148 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       litterResult.output ?? "")
     && litterResult.output?.includes("island-simulator: debug overlay active")
     && !litterResult.error;
@@ -1338,7 +1388,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/578 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2282 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /jungle [1-9][0-9]*\/281 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1822 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/578 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/3148 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 
@@ -2047,9 +2097,22 @@ try {
       concurrentLast.z - concurrentFirst.z) > 0.35
     && concurrentYawRange > 0.005;
 
-  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  await holdKeyUntilNewOutput(visualSessionId, "F5", "F5", 116, "island-simulator: debug teleport ");
   const arrowStartLength = (await readSmokeOutput(visualSessionId)).length;
-  await dispatchKeyPress(visualSessionId, "ArrowRight", "ArrowRight", 39, 900, 400);
+  await call("Input.dispatchKeyEvent", {
+    type: "keyDown", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39,
+    nativeVirtualKeyCode: 39,
+  }, visualSessionId);
+  for (let attempt = 0; attempt < 20; ++attempt) {
+    await delay(250);
+    const samples = parseInputSamples((await readSmokeOutput(visualSessionId)).slice(arrowStartLength));
+    if (samples.length > 1 && samples.at(-1).x < samples[0].x - 0.25) break;
+  }
+  await call("Input.dispatchKeyEvent", {
+    type: "keyUp", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39,
+    nativeVirtualKeyCode: 39,
+  }, visualSessionId);
+  await delay(400);
   const arrowSamples = parseInputSamples(
     (await readSmokeOutput(visualSessionId)).slice(arrowStartLength));
   const arrowFirst = arrowSamples[0];
@@ -2057,7 +2120,7 @@ try {
   const rightArrowMovedRight = arrowFirst && arrowLast
     && arrowLast.x < arrowFirst.x - 0.25;
 
-  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  await holdKeyUntilNewOutput(visualSessionId, "F5", "F5", 116, "island-simulator: debug teleport ");
   // Confirm each toggle edge from game output. A single short synthetic edge can fall entirely
   // between frames when SwiftShader and the browser share a heavily loaded worker.
   await call("Input.dispatchKeyEvent", {
@@ -2106,7 +2169,7 @@ try {
   const runModeDisabled = await dispatchKeyUntilOutput(
     visualSessionId, "Shift", "ShiftLeft", 16,
     "island-simulator: run mode disabled (4.3 m/s)");
-  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  await holdKeyUntilNewOutput(visualSessionId, "F5", "F5", 116, "island-simulator: debug teleport ");
   const walkStartLength = (await readSmokeOutput(visualSessionId)).length;
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38,
@@ -2141,12 +2204,14 @@ try {
     visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion disabled");
   await dispatchKeyUntilOutput(
     visualSessionId, "b", "KeyB", 66, "island-simulator: camera motion enabled");
-  await dispatchKeyPress(visualSessionId, "F5", "F5", 116, 650, 400);
+  await holdKeyUntilNewOutput(visualSessionId, "F5", "F5", 116, "island-simulator: debug teleport ");
   await call("Input.dispatchKeyEvent", {
     type: "keyDown", key: "s", code: "KeyS", windowsVirtualKeyCode: 83,
     nativeVirtualKeyCode: 83,
   }, visualSessionId);
-  for (let attempt = 0; attempt < 15; ++attempt) {
+  // Walking speed is simulated per clamped frame step, so a heavily loaded SwiftShader page
+  // covers the beach much more slowly in wall time. Hold until the game reports water.
+  for (let attempt = 0; attempt < 90; ++attempt) {
     await delay(1000);
     if ((await readSmokeOutput(visualSessionId)).includes(
       "island-simulator: first traversal entered swimming state")) break;
@@ -2224,9 +2289,10 @@ try {
   await call("Page.setWebLifecycleState", { state: "active" }, visualSessionId);
   await call("Page.bringToFront", {}, visualSessionId);
   let lifecycleResumed = false;
-  // A resumed SwiftShader page can spend several seconds rebuilding browser/GPU state. Poll the
-  // authoritative game samples rather than assuming a fixed resume latency.
-  for (let attempt = 0; attempt < 20; ++attempt) {
+  // A resumed SwiftShader page can spend many seconds rebuilding browser/GPU state and its
+  // first frames exceed one second. Poll the authoritative game samples for up to 30 s rather
+  // than assuming a fixed resume latency.
+  for (let attempt = 0; attempt < 60; ++attempt) {
     await delay(500);
     const resumedEvaluation = await call("Runtime.evaluate", {
       expression: "globalThis.islandSmokeResult?.output ?? ''",

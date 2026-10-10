@@ -66,7 +66,8 @@ Already implemented:
   pieces, plus six conservative collision proxies. This is a large ship, not a
   small boat, and adds no objectives.
 - Birds, fish schools, nonhostile shark, skinned monkeys, crabs, butterflies,
-  turtles and six wild boars. Boar feet sample terrain; stance locking/stride
+  turtles (first realism pass 2026-10-10: domed scute carapace, beaked head,
+  bending paddle strokes; see `docs/sea-turtle-form.md`) and six wild boars. Boar feet sample terrain; stance locking/stride
   synchronization and broader animation polish remain unfinished.
 - Layered procedural ambience and spatial wildlife/player audio; not a finished
   soundscape quality claim. Deterministic simulation/placement and extensive CPU
@@ -100,7 +101,7 @@ key pulses miss heavy SwiftShader frames (setup now holds the key until acknowle
 - `dependencies.lock` is authoritative. Current pins (refreshed 2026-10-10 to the
   clean workspace heads after review; see PLAN.md): CNA
   `97783d1e090c6d84f4b6a6d7746516e65184569e`, Sharp Runtime
-  `59454257eb1c4712ef43afd5650267c6d6b64918`, EasyGL develop
+  `c20373bae5be1f02d1fe2fa33c4cbba8ad05e4a0`, EasyGL develop
   `f4d6afaf16cdc7e7e73130950bc45e6d865b41bd`, MetaGL develop
   `dd3b30055d55fdc42240de7af248259338256992`. The strict revision check in
   `cmake/VerifyDependencies.cmake` refuses to configure when a shared checkout
@@ -183,19 +184,23 @@ sources and small reports under `docs/incidents/evidence/` are versioned separat
   Passed and inspected; original hash/size/inode/device/mtime unchanged. Normal
   qualification still rejects all fallback paths; the fixture accepts only its
   specific diagnosed procedural-leaf fallback.
-- Web still views: `build/browser-software/20261010T131626.070992Z-chrome-litter/`.
+- Full Web suite: `build/browser-software/20261010T142621.752717Z-chrome-full/` (28/28;
+  `lifecycleResumed` false, reported only). Latest litter scope on the final pin:
+  `144151.050032Z-chrome-litter/`. Ground-cover pass litter scope:
+  `20261010T131626.070992Z-chrome-litter/`.
   Both views pass 60 intervals, GL error zero, live context, empty kernel deltas.
   Failed `130857.587590Z-chrome-litter/` (reserved GLSL word) is retained.
 - Latest real-input walk: `build/browser-software/20261010T132225.050061Z-chrome-grass-motion/`
   (passed; `*-teleport-gesture.json` holds the F7 hold evidence). Failed
   `131944.941204Z` and `132110.766963Z` (F7 pulses) are retained.
-- Android: `build/android-software/20261010T133014.813550Z-grass/`.
+- Latest Android: `build/android-software/20261010T144750.998688Z-turtles/` (turtle pass,
+  final pin). Ground-cover pass: `20261010T133014.813550Z-grass/`.
   `game/island-android.png` and `island-android-logcat.txt`: inspected 1280x720 image,
   PID 1729/TID 1822, no kernel fault, emulator exit zero. Failed `132633.978451Z-grass/`
   (stale smoke-script mesh pin) is retained.
 - `docs/ground-cover-and-trunks.md` contains current APK sizes/hashes. Current
-  Web package is `build-probe/web-release`: 10,299,978 raw / 3,512,848 gzip bytes.
-  Last completed non-display suite: 33/33 passed in 34.55 s.
+  Web package is `build-probe/web-release`: 10,364,549 raw / 3,526,469 gzip bytes.
+  Last completed non-display suite: 33/33 passed in 27.24 s.
 - Original materials: `assets/art-studies/`, prompts/provenance in
   `ASSET_LICENSES.md` and `assets/manifest.json`. Retain both selected and rejected
   studies needed for the documented review. Runtime prepared floor/leaf PNGs

@@ -1,6 +1,7 @@
 #include "IslandSimulator/SeaTurtleRenderer.hpp"
 
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/SeaTurtleProfile.hpp"
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
 
 #include <algorithm>
@@ -10,6 +11,7 @@
 #include <numbers>
 #include <stdexcept>
 #include <string_view>
+#include <vector>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
 #include "Microsoft/Xna/Framework/BoundingSphere.hpp"
@@ -37,6 +39,8 @@ namespace island
             * SeaTurtleRenderer::NearVertexCount;
         constexpr std::string_view TurtleDiagnostic =
             "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch";
+        constexpr std::string_view TurtleFormDiagnostic =
+            "island-simulator: sea turtles use domed scute carapaces, beaked heads and bending paddle strokes";
 
         struct TurtlePalette
         {
@@ -128,126 +132,265 @@ namespace island
             };
         }
 
+        // One-sided facet lit so that its normal points away from a reference point.
+        void AddOutwardTriangle(std::vector<VertexPositionColor>& vertices,
+                                const Vector3& a, const Vector3& b, const Vector3& c,
+                                const Color& color, const Vector3& inside)
+        {
+            const Vector3 normal = Vector3::Cross(b - a, c - a);
+            const Vector3 centroid = (a + b + c) / 3.0f;
+            if (Vector3::Dot(normal, centroid - inside) >= 0.0f) {
+                AddLitTriangle(vertices, a, b, c, color);
+            } else {
+                AddLitTriangle(vertices, a, c, b, color);
+            }
+        }
+
+        [[nodiscard]] Color ToneColor(const Color& color, const float factor)
+        {
+            return wildlife_render::ScaleColor(color, factor);
+        }
+
+        struct NearTurtleBudget
+        {
+            static constexpr int CarapaceRows = sea_turtle::CarapaceStations - 1;
+            static constexpr int CarapaceColumns = static_cast<int>(sea_turtle::CarapaceColumns.size()) - 1;
+            static constexpr int PlastronColumns = static_cast<int>(sea_turtle::PlastronColumns.size()) - 1;
+            static constexpr int FrontSamples = 7, RearSamples = 5, HeadSegments = 6;
+            static constexpr int Triangles =
+                CarapaceRows * CarapaceColumns * 2 + CarapaceColumns * 2      // dome and end caps
+                + CarapaceRows * PlastronColumns * 2 + PlastronColumns * 2    // plastron and caps
+                + HeadSegments * 2 * 2 + HeadSegments * 2                     // neck/head/snout strips, nose, neck cap
+                + 4                                                           // eyes
+                + 2 * ((FrontSamples - 1) * 2 * 2)                            // front paddles, two faces
+                + 2 * ((RearSamples - 1) * 2 * 2)                             // rear paddles, two faces
+                + 4;                                                          // tail, two faces
+        };
+        static_assert(NearTurtleBudget::Triangles * 3 == SeaTurtleRenderer::NearVertexCount);
+
         void AppendNearTurtle(std::vector<VertexPositionColor>& vertices,
                               const SeaTurtleState& turtle, const float timeSeconds)
         {
+            using namespace sea_turtle;
             const Vector3 centre(turtle.x, turtle.y, turtle.z);
             const PoseAxes axes = MakePoseAxes(turtle);
             const TurtlePalette palette = LitPalette(turtle, timeSeconds);
             const float scale = turtle.scale;
-            constexpr std::size_t SegmentCount = 10U;
-            std::array<Vector3, SegmentCount> upper{};
-            std::array<Vector3, SegmentCount> lower{};
-            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.20f, -0.03f, scale);
-            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.105f, -0.03f, scale);
-            for (std::size_t index = 0; index < SegmentCount; ++index) {
-                const float angle = static_cast<float>(index) * 2.0f
-                    * std::numbers::pi_v<float> / static_cast<float>(SegmentCount);
-                const float x = std::cos(angle) * 0.39f;
-                const float z = std::sin(angle) * 0.52f - 0.03f;
-                upper[index] = LocalPoint(centre, axes, x, 0.055f, z, scale);
-                lower[index] = LocalPoint(
-                    centre, axes, x * 0.91f, -0.055f, z * 0.93f, scale);
+            const auto local = [&](const float x, const float y, const float z) {
+                return LocalPoint(centre, axes, x, y, z, scale);
+            };
+            const Vector3 bodyInside = local(0.0f, 0.03f, -0.03f);
+
+            // Carapace: a scute-aligned grid on the domed teardrop, closed by end fans so no
+            // facet is degenerate. Vertebral scutes are lighter, costals radiate dark-to-light
+            // from the outer edge, marginals form the pale rim; alternate rows tone the seams.
+            constexpr int Rows = NearTurtleBudget::CarapaceRows;
+            constexpr int Columns = NearTurtleBudget::CarapaceColumns;
+            std::array<float, CarapaceStations> stations{};
+            for (int i = 0; i < CarapaceStations; ++i) {
+                stations[static_cast<std::size_t>(i)] = -0.96f + 1.92f * static_cast<float>(i)
+                    / static_cast<float>(CarapaceStations - 1);
             }
-            for (std::size_t index = 0; index < SegmentCount; ++index) {
-                const std::size_t next = (index + 1U) % SegmentCount;
-                const Color topColor = index % 2U == 0U ? palette.shell : palette.scute;
-                AddLitTriangle(vertices, top, upper[index], upper[next], topColor);
-                AddLitTriangle(vertices, upper[index], lower[index], lower[next], palette.shell);
-                AddLitTriangle(vertices, upper[index], lower[next], upper[next], palette.shell);
-                AddLitTriangle(vertices, bottom, lower[next], lower[index], palette.underside);
+            std::array<std::array<Vector3, CarapaceColumns.size()>, CarapaceStations> dome{};
+            for (int i = 0; i < CarapaceStations; ++i) {
+                const float u = stations[static_cast<std::size_t>(i)];
+                const float halfWidth = HalfWidth(u);
+                const float z = LengthToZ(u);
+                for (std::size_t c = 0; c < CarapaceColumns.size(); ++c) {
+                    const float sPos = CarapaceColumns[c];
+                    dome[static_cast<std::size_t>(i)][c] = local(sPos * halfWidth, CarapaceHeight(u, sPos), z);
+                }
+            }
+            const auto scuteColor = [&](const float u, const float sMid, const int row, const int column) {
+                const Scute scute = ScuteAt(sMid);
+                const float rowTone = (ScuteRow(u) % 2 == 0) ? 1.0f : 0.93f;
+                if (scute == Scute::Vertebral) return ToneColor(palette.scute, 1.04f * rowTone);
+                if (scute == Scute::Marginal) return ToneColor(palette.underside, 0.84f * rowTone);
+                const bool inner = column == 2 || column == 5;
+                return ToneColor(palette.shell, (inner ? 1.14f : 0.90f) * rowTone * (row % 2 ? 1.0f : 0.97f));
+            };
+            for (int row = 0; row < Rows; ++row) {
+                const float u = 0.5f * (stations[static_cast<std::size_t>(row)] + stations[static_cast<std::size_t>(row + 1)]);
+                for (int column = 0; column < Columns; ++column) {
+                    const auto c0 = static_cast<std::size_t>(column), c1 = c0 + 1U;
+                    const auto r0 = static_cast<std::size_t>(row), r1 = r0 + 1U;
+                    const float sMid = 0.5f * (CarapaceColumns[c0] + CarapaceColumns[c1]);
+                    const Color color = scuteColor(u, sMid, row, column);
+                    AddOutwardTriangle(vertices, dome[r0][c0], dome[r1][c0], dome[r1][c1], color, bodyInside);
+                    AddOutwardTriangle(vertices, dome[r0][c0], dome[r1][c1], dome[r0][c1], color, bodyInside);
+                }
+            }
+            const Vector3 rearPoint = local(0.0f, CarapaceRimY + 0.012f, LengthToZ(-1.0f) - 0.01f);
+            const Vector3 frontPoint = local(0.0f, CarapaceRimY + 0.02f, LengthToZ(1.0f) + 0.01f);
+            for (int column = 0; column < Columns; ++column) {
+                const auto c0 = static_cast<std::size_t>(column), c1 = c0 + 1U;
+                AddOutwardTriangle(vertices, rearPoint, dome[0][c0], dome[0][c1],
+                                   ToneColor(palette.underside, 0.80f), bodyInside);
+                AddOutwardTriangle(vertices, frontPoint, dome[CarapaceStations - 1][c0],
+                                   dome[CarapaceStations - 1][c1], ToneColor(palette.underside, 0.84f), bodyInside);
             }
 
-            constexpr std::size_t HeadSegments = 6U;
-            std::array<Vector3, HeadSegments> headRing{};
-            const Vector3 headNose = LocalPoint(
-                centre, axes, 0.0f, 0.015f, 0.77f, scale);
-            const Vector3 headNeck = LocalPoint(
-                centre, axes, 0.0f, 0.01f, 0.46f, scale);
-            for (std::size_t index = 0; index < HeadSegments; ++index) {
-                const float angle = static_cast<float>(index) * 2.0f
-                    * std::numbers::pi_v<float> / static_cast<float>(HeadSegments);
-                headRing[index] = LocalPoint(
-                    centre, axes, std::cos(angle) * 0.13f,
-                    std::sin(angle) * 0.105f + 0.02f, 0.61f, scale);
+            // Plastron shares the rim so the shell is closed; pale with faint central seams.
+            constexpr int PlastronCols = NearTurtleBudget::PlastronColumns;
+            std::array<std::array<Vector3, PlastronColumns.size()>, CarapaceStations> plastron{};
+            for (int i = 0; i < CarapaceStations; ++i) {
+                const float u = stations[static_cast<std::size_t>(i)];
+                const float halfWidth = HalfWidth(u);
+                const float z = LengthToZ(u);
+                for (std::size_t c = 0; c < PlastronColumns.size(); ++c) {
+                    const float sPos = PlastronColumns[c];
+                    const bool rim = c == 0 || c + 1 == PlastronColumns.size();
+                    plastron[static_cast<std::size_t>(i)][c] = rim
+                        ? dome[static_cast<std::size_t>(i)][sPos < 0.0f ? 0 : CarapaceColumns.size() - 1]
+                        : local(sPos * halfWidth, PlastronY(u, sPos), z);
+                }
             }
-            for (std::size_t index = 0; index < HeadSegments; ++index) {
-                const std::size_t next = (index + 1U) % HeadSegments;
-                AddLitTriangle(vertices, headNose, headRing[index], headRing[next], palette.skin);
-                AddLitTriangle(vertices, headNeck, headRing[next], headRing[index], palette.skin);
+            for (int row = 0; row < Rows; ++row) {
+                for (int column = 0; column < PlastronCols; ++column) {
+                    const auto c0 = static_cast<std::size_t>(column), c1 = c0 + 1U;
+                    const auto r0 = static_cast<std::size_t>(row), r1 = r0 + 1U;
+                    const Color color = ToneColor(palette.underside, column == 1 || column == 2 ? 1.0f : 0.94f);
+                    AddOutwardTriangle(vertices, plastron[r0][c0], plastron[r1][c1], plastron[r1][c0], color, bodyInside);
+                    AddOutwardTriangle(vertices, plastron[r0][c0], plastron[r0][c1], plastron[r1][c1], color, bodyInside);
+                }
+            }
+            for (int column = 0; column < PlastronCols; ++column) {
+                const auto c0 = static_cast<std::size_t>(column), c1 = c0 + 1U;
+                AddOutwardTriangle(vertices, rearPoint, plastron[0][c1], plastron[0][c0],
+                                   ToneColor(palette.underside, 0.86f), bodyInside);
+                AddOutwardTriangle(vertices, frontPoint, plastron[CarapaceStations - 1][c1],
+                                   plastron[CarapaceStations - 1][c0], ToneColor(palette.underside, 0.9f), bodyInside);
             }
 
-            const float stroke = turtle.flipperStroke;
+            // Neck, head and beaked snout: three rings, a nose point and a neck cap.
+            constexpr int HeadSegments = NearTurtleBudget::HeadSegments;
+            struct Ring { float y, z, radiusX, radiusY; };
+            constexpr std::array<Ring, 3> rings{{{0.02f, 0.50f, 0.075f, 0.065f},
+                                                  {0.035f, 0.68f, 0.095f, 0.085f},
+                                                  {0.0f, 0.85f, 0.055f, 0.045f}}};
+            std::array<std::array<Vector3, HeadSegments>, 3> head{};
+            for (std::size_t r = 0; r < rings.size(); ++r) {
+                for (int segment = 0; segment < HeadSegments; ++segment) {
+                    const float angle = (static_cast<float>(segment) + 0.5f) * 2.0f
+                        * std::numbers::pi_v<float> / static_cast<float>(HeadSegments);
+                    head[r][static_cast<std::size_t>(segment)] = local(
+                        std::cos(angle) * rings[r].radiusX, rings[r].y + std::sin(angle) * rings[r].radiusY,
+                        rings[r].z);
+                }
+            }
+            const auto headInside = [&](const std::size_t r) { return local(0.0f, rings[r].y, rings[r].z); };
+            for (std::size_t r = 0; r + 1 < rings.size(); ++r) {
+                for (int segment = 0; segment < HeadSegments; ++segment) {
+                    const auto s0 = static_cast<std::size_t>(segment);
+                    const auto s1 = static_cast<std::size_t>((segment + 1) % HeadSegments);
+                    // Lower snout facets form the pale horny beak.
+                    const bool lower = segment >= HeadSegments / 2;
+                    const Color color = r == 1 && lower ? ToneColor(palette.underside, 0.96f)
+                        : ToneColor(palette.skin, lower ? 0.92f : 1.0f);
+                    const Vector3 inside = (headInside(r) + headInside(r + 1)) * 0.5f;
+                    AddOutwardTriangle(vertices, head[r][s0], head[r + 1][s0], head[r + 1][s1], color, inside);
+                    AddOutwardTriangle(vertices, head[r][s0], head[r + 1][s1], head[r][s1], color, inside);
+                }
+            }
+            const Vector3 nose = local(0.0f, -0.012f, 0.90f);
+            const Vector3 neckBase = local(0.0f, 0.02f, 0.42f);
+            for (int segment = 0; segment < HeadSegments; ++segment) {
+                const auto s0 = static_cast<std::size_t>(segment);
+                const auto s1 = static_cast<std::size_t>((segment + 1) % HeadSegments);
+                AddOutwardTriangle(vertices, nose, head[2][s0], head[2][s1],
+                                   ToneColor(palette.underside, 0.9f), headInside(2));
+                AddOutwardTriangle(vertices, neckBase, head[0][s1], head[0][s0], palette.skin, headInside(0));
+            }
+            const Color eye(16, 22, 20, 255);
+            const Color eyeShine(96, 112, 108, 255);
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
-                const Vector3 frontRoot = LocalPoint(
-                    centre, axes, side * 0.30f, 0.0f, 0.23f, scale);
-                const Vector3 frontMid = LocalPoint(
-                    centre, axes, side * 0.58f, -0.02f + stroke * 0.105f,
-                    0.11f - std::fabs(stroke) * 0.04f, scale);
-                const Vector3 frontTip = LocalPoint(
-                    centre, axes, side * 0.78f, -0.06f + stroke * 0.16f,
-                    -0.04f - std::fabs(stroke) * 0.08f, scale);
-                const Vector3 frontRear = LocalPoint(
-                    centre, axes, side * 0.31f, -0.035f, -0.06f, scale);
-                AddDoubleSidedTriangle(
-                    vertices, frontRoot, frontMid, frontTip, palette.skin);
-                AddDoubleSidedTriangle(
-                    vertices, frontRoot, frontTip, frontRear, palette.skin);
-
-                const Vector3 rearRoot = LocalPoint(
-                    centre, axes, side * 0.26f, -0.035f, -0.35f, scale);
-                const Vector3 rearTip = LocalPoint(
-                    centre, axes, side * 0.50f, -0.055f - stroke * 0.045f,
-                    -0.54f, scale);
-                const Vector3 rearBack = LocalPoint(
-                    centre, axes, side * 0.18f, -0.055f, -0.50f, scale);
-                AddDoubleSidedTriangle(
-                    vertices, rearRoot, rearTip, rearBack, palette.skin);
+                const Vector3 e0 = local(side * 0.098f, 0.075f, 0.705f);
+                const Vector3 e1 = local(side * 0.101f, 0.032f, 0.735f);
+                const Vector3 e2 = local(side * 0.101f, 0.038f, 0.665f);
+                AddTriangle(vertices, e0, side > 0.0f ? e2 : e1, side > 0.0f ? e1 : e2, eye);
+                const Vector3 h0 = local(side * 0.103f, 0.062f, 0.712f);
+                const Vector3 h1 = local(side * 0.104f, 0.052f, 0.722f);
+                const Vector3 h2 = local(side * 0.104f, 0.050f, 0.704f);
+                AddTriangle(vertices, h0, side > 0.0f ? h2 : h1, side > 0.0f ? h1 : h2, eyeShine);
             }
 
-            AddDoubleSidedTriangle(
-                vertices,
-                LocalPoint(centre, axes, 0.0f, -0.04f, -0.47f, scale),
-                LocalPoint(centre, axes, -0.045f, -0.05f, -0.63f, scale),
-                LocalPoint(centre, axes, 0.045f, -0.05f, -0.63f, scale),
-                palette.skin);
+            // Paddles: thin surfaces with a dark scaled upper face and a pale underside. Lit
+            // one-sided per face so the underside reads as shadowed, as on a real turtle.
+            const float stroke = turtle.flipperStroke;
+            const auto appendPaddle = [&](const float side, const int samples,
+                                          const auto& sampler, const float topTone) {
+                std::vector<Vector3> leading, trailing;
+                for (int i = 0; i < samples; ++i) {
+                    const float t = static_cast<float>(i) / static_cast<float>(samples - 1);
+                    float halfWidth = 0.0f;
+                    const FlipperPoint c = sampler(side, t, halfWidth);
+                    leading.push_back(local(c.x, c.y, c.z + halfWidth));
+                    trailing.push_back(local(c.x, c.y, c.z - halfWidth));
+                }
+                for (int i = 0; i + 1 < samples; ++i) {
+                    const auto a = static_cast<std::size_t>(i), b = a + 1U;
+                    const Color top = ToneColor(palette.skin, topTone * (i % 2 ? 0.95f : 1.0f));
+                    const Color under = ToneColor(palette.underside, 0.9f);
+                    const Vector3 above = (leading[a] + trailing[b]) * 0.5f + axes.up * 0.2f;
+                    const Vector3 below = (leading[a] + trailing[b]) * 0.5f - axes.up * 0.2f;
+                    AddOutwardTriangle(vertices, leading[a], trailing[a], trailing[b], top, below);
+                    AddOutwardTriangle(vertices, leading[a], trailing[b], leading[b], top, below);
+                    AddOutwardTriangle(vertices, leading[a], trailing[a], trailing[b], under, above);
+                    AddOutwardTriangle(vertices, leading[a], trailing[b], leading[b], under, above);
+                }
+            };
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
+                appendPaddle(side, NearTurtleBudget::FrontSamples,
+                    [stroke](const float s, const float t, float& w) { return FrontFlipper(s, t, stroke, w); }, 0.9f);
+                appendPaddle(side, NearTurtleBudget::RearSamples,
+                    [stroke](const float s, const float t, float& w) { return RearFlipper(s, t, -stroke * 0.6f, w); }, 0.88f);
+            }
 
-            const Color eye(19, 28, 24, 255);
-            AddTriangle(
-                vertices,
-                LocalPoint(centre, axes, -0.105f, 0.073f, 0.67f, scale),
-                LocalPoint(centre, axes, -0.118f, 0.038f, 0.70f, scale),
-                LocalPoint(centre, axes, -0.119f, 0.041f, 0.65f, scale), eye);
-            AddTriangle(
-                vertices,
-                LocalPoint(centre, axes, 0.105f, 0.073f, 0.67f, scale),
-                LocalPoint(centre, axes, 0.119f, 0.041f, 0.65f, scale),
-                LocalPoint(centre, axes, 0.118f, 0.038f, 0.70f, scale), eye);
+            const Vector3 tailRoot = local(0.0f, -0.035f, -0.54f);
+            const Vector3 tailLeft = local(-0.035f, -0.045f, -0.62f);
+            const Vector3 tailRight = local(0.035f, -0.045f, -0.62f);
+            const Vector3 tailTip = local(0.0f, -0.05f, -0.70f);
+            AddDoubleSidedTriangle(vertices, tailRoot, tailLeft, tailTip, ToneColor(palette.skin, 0.92f));
+            AddDoubleSidedTriangle(vertices, tailRoot, tailTip, tailRight, ToneColor(palette.skin, 0.92f));
         }
 
         void AppendFarTurtle(std::vector<VertexPositionColor>& vertices,
                              const SeaTurtleState& turtle, const float timeSeconds)
         {
+            // Low domed teardrop plus two paddles: 12 facets that keep the near silhouette.
             const Vector3 centre(turtle.x, turtle.y, turtle.z);
             const PoseAxes axes = MakePoseAxes(turtle);
             const TurtlePalette palette = LitPalette(turtle, timeSeconds);
             const float scale = turtle.scale;
-            const Vector3 front = LocalPoint(centre, axes, 0.0f, 0.03f, 0.68f, scale);
-            const Vector3 rear = LocalPoint(centre, axes, 0.0f, 0.0f, -0.55f, scale);
-            const Vector3 left = LocalPoint(centre, axes, -0.42f, 0.05f, -0.02f, scale);
-            const Vector3 right = LocalPoint(centre, axes, 0.42f, 0.05f, -0.02f, scale);
-            AddDoubleSidedTriangle(vertices, front, left, rear, palette.shell);
-            AddDoubleSidedTriangle(vertices, front, rear, right, palette.scute);
+            const auto local = [&](const float x, const float y, const float z) {
+                return LocalPoint(centre, axes, x, y, z, scale);
+            };
+            const Vector3 inside = local(0.0f, 0.0f, -0.03f);
+            const Vector3 top = local(0.0f, 0.20f, 0.0f);
+            const Vector3 bottom = local(0.0f, -0.07f, -0.03f);
+            const Vector3 front = local(0.0f, 0.0f, 0.62f);
+            const Vector3 rear = local(0.0f, 0.0f, -0.56f);
+            const Vector3 left = local(-0.42f, 0.0f, 0.02f);
+            const Vector3 right = local(0.42f, 0.0f, 0.02f);
+            const Color dome = palette.shell, ridge = palette.scute;
+            AddOutwardTriangle(vertices, top, front, left, ridge, inside);
+            AddOutwardTriangle(vertices, top, left, rear, dome, inside);
+            AddOutwardTriangle(vertices, top, rear, right, dome, inside);
+            AddOutwardTriangle(vertices, top, right, front, ridge, inside);
+            AddOutwardTriangle(vertices, bottom, left, front, palette.underside, inside);
+            AddOutwardTriangle(vertices, bottom, rear, left, palette.underside, inside);
+            AddOutwardTriangle(vertices, bottom, right, rear, palette.underside, inside);
+            AddOutwardTriangle(vertices, bottom, front, right, palette.underside, inside);
             const float stroke = turtle.flipperStroke;
-            AddDoubleSidedTriangle(
-                vertices, front, left,
-                LocalPoint(centre, axes, -0.74f, stroke * 0.13f, 0.02f, scale),
-                palette.skin);
-            AddDoubleSidedTriangle(
-                vertices, front,
-                LocalPoint(centre, axes, 0.74f, stroke * 0.13f, 0.02f, scale),
-                right, palette.skin);
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
+                const Vector3 root = local(side * 0.36f, -0.01f, 0.30f);
+                const Vector3 tip = local(side * 0.98f, -0.01f + stroke * 0.30f, 0.10f - stroke * 0.12f);
+                const Vector3 back = local(side * 0.40f, -0.02f, 0.06f);
+                AddDoubleSidedTriangle(vertices, root, tip, back, ToneColor(palette.skin, 0.92f));
+            }
         }
     }
 
@@ -272,6 +415,8 @@ namespace island
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
         std::cout << TurtleDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(TurtleDiagnostic);
+        std::cout << TurtleFormDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(TurtleFormDiagnostic);
     }
 
     SeaTurtleRenderer::~SeaTurtleRenderer() = default;
@@ -291,7 +436,7 @@ namespace island
             const Vector3 centre(turtle.x, turtle.y, turtle.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
             if (distanceSquared > maximumDistance_ * maximumDistance_
-                || !frustum.Intersects(BoundingSphere(centre, turtle.scale * 1.08f))) {
+                || !frustum.Intersects(BoundingSphere(centre, turtle.scale * 1.22f))) {
                 continue;
             }
             if (distanceSquared <= NearLodDistance * NearLodDistance) {

@@ -22,8 +22,8 @@ namespace island
     class SeaTurtleRenderer final
     {
     public:
-        static constexpr int NearVertexCount = 204;
-        static constexpr int FarVertexCount = 24;
+        static constexpr int NearVertexCount = 1164;
+        static constexpr int FarVertexCount = 36;
 
         explicit SeaTurtleRenderer(
             Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,

@@ -38,6 +38,20 @@ unconditionally and writes `island-browser-grass-motion-teleport-gesture.json`. 
 `20261010T132225.050061Z` acknowledged after 2,859 ms, longer than any fixed pulse. As with F1,
 this establishes delivery, not a proof of the exact earlier miss. No game code changed.
 
+## Full-suite key delivery — 2026-10-10
+
+The first full Chrome/SwiftShader suite since the forest-floor colonies (`20261010T134317Z`)
+failed in lifecycle, settings persistence, input and four scene views. One cause was a stale
+`jungle ground layer 2282` pin (now 3148). The rest were fixed 650 ms key pulses (`F5`
+teleports, `b`, `Shift`, `ArrowRight`) that the heavier frames no longer observed. The second
+run (`135232Z`) after converting `dispatchKeyUntilOutput` and the `F5`/`b`/`ArrowRight` presses
+to acknowledged holds passed lifecycle and persistence but still missed the second `b` toggle:
+the key-up was sent and the next key-down followed within 350 ms, before the frame-polled
+game had observed the release, so there was no new press edge. Holds now wait for two further
+game output lines after releasing. The south-beach swim walk is held until the game reports
+water (bounded 90 s) because `PlayerMotion` clamps each step to 0.1 s, so wall-clock progress
+falls with frame time; the resume wait grew to 30 s for the same reason. No game code changed.
+
 ## Reproduced defect
 
 The production HTML shell requests pointer lock inside its trusted `mousedown` handler.

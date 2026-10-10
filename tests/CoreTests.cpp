@@ -31,6 +31,7 @@
 #include "IslandSimulator/SurfaceNormals.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
 #include "IslandSimulator/SeaTurtleGroup.hpp"
+#include "IslandSimulator/SeaTurtleProfile.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
@@ -2276,6 +2277,67 @@ int main()
             observedNearSurfaceTurtle = observedNearSurfaceTurtle
                 || (turtle.behavior == island::SeaTurtleBehavior::Surface
                     && turtle.y > -0.18f);
+        }
+    }
+    {
+        // Shared turtle shape reference: bounded inside the culling sphere, teardrop outline,
+        // a dome above the rim, paddles that bend and lift with the stroke, invalid input refused.
+        using namespace island::sea_turtle;
+        float reach = 0.0f, widest = 0.0f, widestU = 0.0f, tallest = 0.0f, tallestU = 0.0f;
+        for (int i = 0; i <= 40; ++i) {
+            const float u = -1.0f + 0.05f * static_cast<float>(i);
+            const float w = HalfWidth(u);
+            if (w > widest) { widest = w; widestU = u; }
+            for (int j = 0; j <= 20; ++j) {
+                const float sPos = -1.0f + 0.1f * static_cast<float>(j);
+                const float h = CarapaceHeight(u, sPos), b = PlastronY(u, sPos);
+                Check(std::isfinite(h) && h >= CarapaceRimY && b <= CarapaceRimY,
+                      "turtle carapace stays above its rim and the plastron below it");
+                if (h > tallest) { tallest = h; tallestU = u; }
+                reach = std::max(reach, std::hypot(sPos * w, h, LengthToZ(u)));
+            }
+        }
+        Check(widest > 0.35f && widestU > 0.0f && widestU < 0.5f && HalfWidth(-1.0f) == 0.0f
+                  && HalfWidth(1.0f) == 0.0f,
+              "turtle carapace is a closed teardrop widest ahead of its middle");
+        Check(tallest > 0.18f && tallest < 0.26f && std::abs(tallestU) < 0.3f,
+              "turtle carapace dome peaks near the centre at a realistic height");
+        for (const float stroke : {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f}) {
+            float rootWidth = 0.0f, tipWidth = 0.0f;
+            const auto root = FrontFlipper(1.0f, 0.0f, stroke, rootWidth);
+            const auto tip = FrontFlipper(1.0f, 1.0f, stroke, tipWidth);
+            float rearWidth = 0.0f;
+            const auto rearTip = RearFlipper(-1.0f, 1.0f, stroke, rearWidth);
+            Check(rootWidth > tipWidth && tipWidth > 0.02f && rearWidth > 0.02f,
+                  "turtle paddles taper to a nondegenerate tip");
+            Check(std::hypot(tip.x - root.x, tip.y - root.y, tip.z - root.z) > 0.6f
+                      && std::hypot(rearTip.x, rearTip.z) < 0.9f,
+                  "front paddles are long and rear paddles short");
+            for (int i = 0; i <= 10; ++i) {
+                float w = 0.0f;
+                const auto f = FrontFlipper(-1.0f, 0.1f * static_cast<float>(i), stroke, w);
+                const auto r = RearFlipper(1.0f, 0.1f * static_cast<float>(i), stroke, w);
+                reach = std::max({reach, std::hypot(f.x, f.y, std::abs(f.z) + w),
+                                  std::hypot(r.x, r.y, std::abs(r.z) + w)});
+            }
+        }
+        float upWidth = 0.0f, downWidth = 0.0f;
+        const auto up = FrontFlipper(1.0f, 1.0f, 1.0f, upWidth);
+        const auto down = FrontFlipper(1.0f, 1.0f, -1.0f, downWidth);
+        Check(up.y > down.y + 0.3f && down.z < up.z,
+              "front paddle tip lifts on the recovery stroke and sweeps back on the power stroke");
+        Check(reach <= ReachLimit, "every turtle vertex stays inside the culling reach limit");
+        Check(ScuteAt(0.0f) == Scute::Vertebral && ScuteAt(0.5f) == Scute::Costal
+                  && ScuteAt(-0.9f) == Scute::Marginal && ScuteRow(-1.0f) == 0 && ScuteRow(1.0f) == 4,
+              "turtle scute bands and rows are assigned as authored");
+        for (const float invalid : {1.5f, -1.5f, std::numeric_limits<float>::quiet_NaN()}) {
+            bool rejected = 0;
+            try { (void)HalfWidth(invalid); } catch (const std::invalid_argument&) { rejected = true; }
+            Check(rejected, "turtle profile rejects out-of-range coordinates");
+            rejected = false;
+            float w = 0.0f;
+            try { (void)FrontFlipper(1.0f, 0.5f, invalid, w); } catch (const std::invalid_argument&) { rejected = true; }
+            Check(rejected, "turtle paddle rejects an invalid stroke");
         }
     }
     Check(observedTurtleCruise && observedTurtleForage && observedTurtleSurface
