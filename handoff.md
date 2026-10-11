@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — actual Web hut overview/detail audit PASS; realism still open
+
+Added Chrome software `--scope hut` with two sequential views, retained overlay/image
+checks, before/after captures and60 measured intervals each. Material marker/no
+fallback/one draw/zeroGLerror/livecontext required. Exact visible shadows7overview,
+6close (frustum-culled count, matching earlier native close evidence).
+Actual `build/browser-software/20261011T225804.399610Z-chrome-hut` parent/report PASS,
+both60intervals/gl0/contextLostfalse, kernel-final[]. Both final overview/detail
+images actually viewed. Wood grain/contact shading present, but roof still reads as
+wooden slats, not realistic palm-leaf thatch; this is NOT complete hut realism.
+Earlier failed224903 missingoverlayargument and225033 wrong7patchcloseexpectation
+retained and explained in docs/island-hut.md; no failed evidence relabeled.
+Browser19/software37 CPU tests PASS; JS syntax/diff checks PASS. No game code changed;
+existing Web payload reused, build/package no work. No fresh Android/native run.
+NEXT natural thatch/wood realism, global route and world-report integration; temporal
+aliasing remains unqualified. User flight AMD incident still HIGH PRIORITY OPEN;
+software audit is no evidence of its fix. Full wildlife/resident backlog staysopen.
+All owned jobs terminal; hardware stop latch SHA unchanged, no KVM/emulator config,
+dependencies or push. Persistent overall goal remains active.
+
 ## Latest — hut grain/fibre shader, actual native + Android close views PASS
 
 HutMaterial.hpp portable330/ES300 shader: longitudinal beam-aligned wood coordinates,

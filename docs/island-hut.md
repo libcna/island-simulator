@@ -128,6 +128,40 @@ Android23/software37 CPU tests PASS; x86_64 build/lint PASS5s, standard ARM64 re
 and build/lint PASS4s. Web actual material audit, global route/reporting, long-range
 aliasing and remaining realism work are still open. No AMD incident fix is claimed.
 
+## Web overview and material audit
+
+The contained Chrome supervisor now supports `--scope hut`, running `hut` and
+`hut-material` sequentially with SwiftShader. Each retains the existing overlay
+removal/image checks and 60 measured frame intervals, captures before/after simulation,
+and requires the material marker, no fallback, one hut draw, a live WebGL2 context and
+zero GL error. Exact visible contact counts are seven for the overview and six for
+the close camera (the counter follows frustum culling, not total cached footprints).
+The latter also matches the earlier native close-view workload log. Parent report
+validation rejects missing views, wrong counts, absent material, fallback and lost
+contexts; 19 browser and 37 native-supervisor CPU tests pass.
+
+Retained unsuccessful runs:
+
+- `20261011T224903.183259Z-chrome-hut`: the new template mappings omitted the debug
+  overlay required by the existing capture-removal check. Added the explicit argument.
+- `20261011T225033.343839Z-chrome-hut`: overview passed; close view completed all
+  60 intervals with GL error zero and live context but failed the wrongly shared
+  seven-patch expectation. Corrected the per-camera expectation and added negative
+  fixtures; did not disable the gate. Kernel delta empty. Close initial/after images
+  actually inspected: materials are present but the roof still reads too much like
+  wooden slats, not convincing natural palm-leaf thatch.
+
+Neither unsuccessful run is relabeled as passed. Static before/after frames and
+compositor intervals do not qualify camera-motion aliasing or hardware frame budgets.
+
+Corrected actual run `20261011T225804.399610Z-chrome-hut` passes both views and parent
+validation: 60 intervals per view, GL error zero, contextLost=false, material marker
+present, no fallback, seven/six visible contact patches, kernel-final empty. Both
+final overview/detail screenshots were actually viewed. Roof/wood remain stylized;
+the portable material works, but that is not final realism acceptance. Existing Web
+payload reused (build/package successful, no source rebuild needed); no native or
+Android runtime rerun for these harness-only changes.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing
@@ -137,5 +171,5 @@ aliasing and remaining realism work are still open. No AMD incident fix is claim
    through representative views; conservative site discs are not a triangle proof.
 3. Audit global player-route reachability and refine the coarse building collider if
    needed. No inventory, crafting, quests or unrelated systems.
-4. Add world-report data and Android/Web QA routing; perform actual portable image
-   audits and budget checks. Build success is not runtime qualification.
+4. Add world-report data and complete portable image audits and budget checks.
+   Android/Web QA routing is now implemented. Build success is not runtime qualification.

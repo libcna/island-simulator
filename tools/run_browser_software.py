@@ -15,7 +15,22 @@ import sys
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity
 from run_software_capture import run_monitored_capture, validate_monkey_climb_stages, validate_snake_runtime_samples
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut")
+
+
+def validate_hut_report(report):
+    views = report.get("views", [])
+    if not report.get("passed") or [v.get("mode") for v in views] != ["hut", "hut-material"]:
+        raise RuntimeError("hut report lacks both successful views")
+    for view in views:
+        log = view.get("result", {}).get("output", "")
+        # Counts are after frustum culling: the close camera sees six of seven patches.
+        if (not view.get("passed") or view.get("glError") != 0 or view.get("contextLost") is not False
+            or "hut beam-aligned weathered grain and filtered thatch fibres" not in log
+            or f"hut 1 draw, {7 if view['mode'] == 'hut' else 6} contact patches" not in log
+            or "material fallback:" in log):
+            raise RuntimeError("hut view lacks qualified material, draw or graphics state")
+    return [v["mode"] for v in views]
 
 
 def validate_climb_report(report):
@@ -117,6 +132,9 @@ def main(argv=None):
             if args.scope == "snakes":
                 snake_report=json.loads((evidence / "island-browser-snakes.json").read_text())
                 metadata["snake_motion_samples"]=validate_snake_report(snake_report)
+            if args.scope == "hut":
+                hut_report=json.loads((evidence / "island-browser-hut.json").read_text())
+                metadata["hut_views"]=validate_hut_report(hut_report)
             metadata["result"] = "passed"
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             failure = error

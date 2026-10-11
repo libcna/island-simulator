@@ -801,11 +801,10 @@ Landmark backlog requested by the operator:
   route-blocking site, with collision, grounded footing, weathered materials, contact shadows,
   a capture viewpoint and regression tests. Decorative only: no interiors with inventory,
   crafting, quests or other new game systems.
-  Placement foundation implemented only: bounded 576-candidate CPU search, exact
+  Placement foundation: bounded 576-candidate CPU search, exact
   rendered-ground six supports, dry local approach and clearance from supplied solid
-  obstacles. Tested candidate near(2.582,204.115), level floorY2.517. No live model or
-  collision installed yet. Non-solid foliage reservation, geometry/materials, shadows,
-  global access, reporting and actual native/Android/Web audit remain required.
+  obstacles. Tested candidate near(2.582,204.115), level floorY2.517. The following
+  entries record subsequent live integration; global access and reporting remain open.
   See `docs/island-hut.md`; this checkbox stays open.
   First LIVE model now installed: six posts, braces, separate deck boards/slatted
   walls, rafters and layered roof bundles; one6804-triangle static draw, frustum/300m
@@ -827,6 +826,12 @@ Landmark backlog requested by the operator:
   inspected/kernel[]. Android224038hut-material actualPASS/imageinspected/GLES
   SwiftShader/nofallback/ownedexit0/kernel[]. Appearance stillstylized; temporal/
   longrange filtering andWebactualmaterial/globalroute/worldreport remainOPEN.
+  Actual Web225804.399610Z-chrome-hut nowPASS: overview/detail each60intervals,
+  zeroGLerror/livecontext/materialmarker/nofallback, parentPASS/kernel[]. Bothfinal
+  images inspected: roof stilllookswoodenslat-like, realismNOTcomplete. Earlier
+  failed224903overlaywiring/225033wrongclosepatchcount retained. Per-camera checks
+  require7/6visiblecontactpatches; browser19/software37 CPU testsPASS. No gamechange.
+  Temporal/longrange filtering, globalroute/worldreport and remainingrealism stayOPEN.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

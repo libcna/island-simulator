@@ -49,6 +49,8 @@
       ["flight", ["--input-diagnostics"]],
       ["monkey-climb", ["--viewpoint", "monkey-climb"]],
       ["snakes", ["--viewpoint", "snakes"]],
+      ["hut", ["--viewpoint", "hut", "--debug-overlay"]],
+      ["hut-material", ["--viewpoint", "hut-material", "--debug-overlay"]],
       ["snake-head", ["--viewpoint", "snake-head"]],
       ["interactive", []],
       ["input", ["--debug-overlay", "--input-diagnostics"]],

@@ -89,6 +89,33 @@ class BrowserSoftwareTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 gate.validate_climb_report(invalid)
 
+    def test_hut_scope_and_report_require_material_draw_and_live_context(self):
+        self.assertIn("hut",gate.SCOPES)
+        for mode in ("hut","hut-material"):
+            self.assertIn(f'["{mode}", ["--viewpoint", "{mode}", "--debug-overlay"]]',
+                          (ROOT / "tools/web_smoke.html.in").read_text())
+        def report():
+            return {"passed":True,"views":[{"mode":mode,"passed":True,"glError":0,"contextLost":False,
+                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut 1 draw, {7 if mode == 'hut' else 6} contact patches"}}
+                for mode in ("hut","hut-material")]}
+        self.assertEqual(gate.validate_hut_report(report()),["hut","hut-material"])
+        for index,wrong_count in ((0,6),(1,7),(1,0)):
+            bad=report()
+            bad["views"][index]["result"]["output"] = (
+                "hut beam-aligned weathered grain and filtered thatch fibres\n"
+                f"hut 1 draw, {wrong_count} contact patches")
+            with self.assertRaises(RuntimeError): gate.validate_hut_report(bad)
+        for key,value in (("passed",False),("glError",1282),("contextLost",True),
+                          ("result",{"output":"hut 0 draw, 0 contact patches"})):
+            bad=report();bad["views"][1][key]=value
+            with self.subTest(key=key),self.assertRaises(RuntimeError): gate.validate_hut_report(bad)
+        for text in ("", "hut 1 draw, 7 contact patches", "hut beam-aligned weathered grain and filtered thatch fibres",
+                     report()["views"][0]["result"]["output"]+"\nhut material fallback: failed"):
+            bad=report();bad["views"][0]["result"]["output"]=text
+            with self.assertRaises(RuntimeError): gate.validate_hut_report(bad)
+        missing=report();missing["views"].pop()
+        with self.assertRaises(RuntimeError): gate.validate_hut_report(missing)
+
     def test_snake_scope_requires_both_views_and_visible_population(self):
         self.assertIn("snakes", gate.SCOPES)
         environment = gate.browser_environment("chrome", "snakes", Path("/evidence"))
