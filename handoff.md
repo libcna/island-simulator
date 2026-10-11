@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — Web anatomy/fur/contact qualified; continuous tail native first pass
+
+`20261011T120413.407382Z-chrome-monkeys` PASSES with a 600-second bound, all sixty
+intervals retained: GL error zero, intact context, no app error or reach warning. Start,
+four intermediate and final images inspected. Ten unrelated AppArmor kernel audits, no
+GPU fault. This qualifies the existing 05c3824 anatomy/fur/contact renderer, NOT the tail
+change authored while that browser was running. Older timed-out evidence remains intact.
+
+New `MonkeyTailProfile.hpp` and `AddTail` replace three disconnected rigid tubes with one
+smoothly weighted tapered mesh, eighteen near/nine far longitudinal spans, same three tail
+bones and same fourteen-bone palette. No new draw calls/textures. Profile/gait CPU test
+passes; native build and `20261011T121030.039628Z-monkeys` pass. Image inspected with
+continuous taper/silhouette, empty kernel delta. This static native image does not qualify
+tail motion or Android/Web. Asset validator passes with 65 generator sources.
+All 36 non-display groups pass (79.24 s); all browser/build/capture/test jobs finished.
+NEXT: finish current-tail portable qualification, continue face/shoulder realism and full
+palm/sole contact, then actual tree-contact/climbing. Android is still the older shader-only
+APK, not these anatomy/material/contact revisions. Do not label the monkeys or whole plan
+complete. No dependencies, host graphics settings, KVM or emulator configuration changed.
+
 ## Latest — Web moving-view audit captured, runtime deadline NOT passed
 
 Current anatomy/fur/contact Web build succeeds; package refreshed (10,927,110 raw /

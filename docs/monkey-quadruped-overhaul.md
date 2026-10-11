@@ -92,3 +92,26 @@ The added 32 frames and four screenshots extend a slow software-rendered workloa
 attempt should use a bounded 600-second deadline, retaining all sixty measured intervals
 and the same graphics gates. The runner now additionally persists a partial state checkpoint
 after every intermediate image; `complete:false` cannot be mistaken for acceptance.
+
+Repeat `20261011T120413.407382Z-chrome-monkeys` with a 600-second bound PASSES:
+sixty intervals, GL error zero, context intact, no application error or limb-reach warning.
+All six images (start/four intermediate/end) inspected. Final kernel contains ten unrelated
+AppArmor audit messages, no GPU fault. This qualifies the fur/quadruped/terrain-target
+revision built before the following tail change, not the later tail geometry or full realism.
+
+## Continuous tail skin — first pass
+
+Three disconnected rigid tubes are replaced by one tapering longitudinal mesh, with eighteen
+near/nine far spans. Cubic Hermite sections have shared tangents through the existing three
+bone anchors; smooth adjacent skinning weights remove rigid seams without adding bones,
+textures or draw calls. One continuous interior fur window follows the whole tail. A pure
+profile regression covers finite nondegenerate frames, bounded radii/weights, palette
+indices and position/tangent/weight continuity at both internal anchors. Native build and
+focused profile/gait test pass. Live image and full-suite verification are recorded below.
+
+Native `20261011T121030.039628Z-monkeys` passes; inspected frame has continuous taper
+without the old tube joins. Empty kernel delta. Asset validation passes with 65 sources.
+Full non-display suite passes 36/36 (79.24 s).
+This one near-static tail pose does not establish deformed silhouette quality across its
+whole cycle. Android/Web current-tail checks remain open; the earlier successful Web run
+used the previous tail mesh. Face, limb junctions, palm/sole contact and climbing remain open.

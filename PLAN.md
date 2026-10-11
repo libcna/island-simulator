@@ -319,6 +319,11 @@ Standing visual-quality rules (apply to every task from now on):
   shoulder attachment remain defects. Run hit its 360-second deadline before final GL/
   interval report, so Web qualification remains OPEN. Repeat the expanded series with a
   bounded 600-second deadline, not fewer frames or weakened graphics checks.
+  Repeat `20261011T120413.407382Z-chrome-monkeys` passes sixty intervals with GL error zero,
+  intact context and all six images inspected; previous timed-out evidence retained. This
+  qualifies the anatomy/fur/terrain-target revision, not the later tail change. Continuous
+  tapered, dual-weight tail now native-inspected in `20261011T121030.039628Z-monkeys`;
+  current-tail motion/portable checks and Android anatomy qualification remain open.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

@@ -1,4 +1,5 @@
 #include "IslandSimulator/MonkeyGroundGait.hpp"
+#include "IslandSimulator/MonkeyTailProfile.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -18,6 +19,32 @@ static float Distance(gait::Point a, gait::Point b)
 
 int main()
 try {
+    namespace tail = island::MonkeyTailProfile;
+    const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.70f,-.91f},
+        {0,.86f,-1.25f}, {0,.97f,-1.55f}}};
+    const auto length = [](tail::Point p) { return std::sqrt(p.x*p.x+p.y*p.y+p.z*p.z); };
+    for (int i = 0; i <= 300; ++i) {
+        const auto section = tail::Sample(anchors, i/300.0f);
+        Require(std::isfinite(section.centre.y) && length(section.tangent) > .1f,
+                "tail frame must be finite and nondegenerate");
+        Require(section.radius >= .002999f && section.radius <= .036001f,
+                "tail continuously tapers within authored radii");
+        Require(section.secondWeight >= 0 && section.secondWeight <= 1,
+                "tail weights remain normalized and nonnegative");
+        Require(section.firstBone >= 0 && section.secondBone <= 2,
+                "tail stays within existing three-bone palette");
+    }
+    for (int joint = 1; joint <= 2; ++joint) {
+        const float t = joint/3.0f;
+        const auto before = tail::Sample(anchors, t-1e-5f);
+        const auto after = tail::Sample(anchors, t+1e-5f);
+        Require(length(before.centre-after.centre) < 1e-4f, "tail centreline has no joint gap");
+        Require(length(before.tangent-after.tangent) < 1e-3f, "tail tangent is continuous at anchors");
+        Require(before.secondBone == after.firstBone && before.secondWeight > .999f
+                && after.secondWeight < .001f, "tail joint shares the same dominant transform");
+        Require(length(tail::Sample(anchors,t).centre-anchors[joint]) < 1e-5f,
+                "tail centreline passes through rig anchors");
+    }
     for (int sample = -200; sample <= 400; ++sample) {
         const float phase = static_cast<float>(sample) / 200.0f;
         for (const float amount : {0.0f, 0.25f, 1.0f}) {

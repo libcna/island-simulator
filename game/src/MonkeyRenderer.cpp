@@ -3,6 +3,7 @@
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/MonkeySkinningShader.hpp"
 #include "IslandSimulator/MonkeyGroundGait.hpp"
+#include "IslandSimulator/MonkeyTailProfile.hpp"
 #include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 
@@ -464,27 +465,37 @@ namespace island
             }
         }
 
-        void AddTube(MeshData& mesh, const Vector3& from, const Vector3& to,
-                     const float radius, const int bone, const int segments)
+        void AddTail(MeshData& mesh, const RigDefinition& rig, float length, bool near)
         {
-            const Vector3 axis = Vector3::Normalize(to - from);
-            const Vector3 reference = std::fabs(axis.Y) < 0.88f ? Vector3::Up : Vector3::Right;
-            const Vector3 right = Vector3::Normalize(Vector3::Cross(reference, axis));
-            const Vector3 up = Vector3::Normalize(Vector3::Cross(axis, right));
+            using MonkeyTailProfile::Point;
+            const auto point = [](Vector3 p) { return Point{p.X, p.Y, p.Z}; };
+            const auto vector = [](Point p) { return Vector3(p.x, p.y, p.z); };
+            const std::array<Point, 4> anchors{point(rig.heads[TailBase]),
+                point(rig.heads[TailMiddle]), point(rig.heads[TailTip]), {0, .97f, -1.55f*length}};
+            constexpr std::array<int, 3> bones{TailBase, TailMiddle, TailTip};
+            const int rings = near ? 18 : 9, segments = near ? 10 : 6;
             const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
-            for (int end = 0; end < 2; ++end) {
-                const Vector3 centre = end == 0 ? from : to;
+            for (int ring = 0; ring <= rings; ++ring) {
+                const float t = static_cast<float>(ring) / rings;
+                const auto section = MonkeyTailProfile::Sample(anchors, t);
+                const auto axis = Vector3::Normalize(vector(section.tangent));
+                const Vector3 right = Vector3::Right;
+                const Vector3 up = Vector3::Normalize(Vector3::Cross(axis, right));
                 for (int segment = 0; segment <= segments; ++segment) {
                     const float angle = MathHelper::TwoPi
                         * static_cast<float>(segment) / static_cast<float>(segments);
                     const Vector3 normal = right * std::cos(angle) + up * std::sin(angle);
-                    AddVertex(mesh, centre + normal * radius, normal, bone,
-                        Vector2(0.5f + 0.4f * std::cos(angle), 0.1f + 0.8f * end));
+                    AddVertex(mesh, vector(section.centre) + normal * section.radius, normal,
+                        bones[section.firstBone], Vector2(0.5f + 0.4f * std::cos(angle), 0.1f + 0.8f*t));
+                    mesh.vertices.back().BlendWeight = Vector4(1-section.secondWeight,
+                        section.secondWeight, 0, 0);
+                    mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(bones[section.secondBone]);
                 }
             }
             const int stride = segments + 1;
+            for (int ring = 0; ring < rings; ++ring)
             for (int segment = 0; segment < segments; ++segment) {
-                const auto a = static_cast<std::uint16_t>(base + segment);
+                const auto a = static_cast<std::uint16_t>(base + ring * stride + segment);
                 const auto b = static_cast<std::uint16_t>(a + stride);
                 const auto c = static_cast<std::uint16_t>(b + 1U);
                 const auto d = static_cast<std::uint16_t>(a + 1U);
@@ -614,10 +625,7 @@ namespace island
                                      Vector3(.010f, .012f, .043f - .003f * std::abs(digit - 1)),
                                      lower[limb], 3, 6);
             }
-            AddTube(mesh, rig.heads[TailBase], rig.heads[TailMiddle], .036f, TailBase, segments);
-            AddTube(mesh, rig.heads[TailMiddle], rig.heads[TailTip], .028f, TailMiddle, segments);
-            AddTube(mesh, rig.heads[TailTip], Vector3(0, .97f, -1.55f * shape.tailLength),
-                    .017f, TailTip, segments);
+            AddTail(mesh, rig, shape.tailLength, near);
             return mesh;
         }
 
