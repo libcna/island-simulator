@@ -1,5 +1,34 @@
 # island-simulator handoff
 
+## User priorities — fullscreen and bounded flight (2026-10-11)
+
+Added unchecked PLAN.md tasks: F11 toggles fullscreen; Space toggles fly mode.
+Resolve the existing F11 monkey debug-teleport binding. Flight must never enter terrain,
+must stay at most 100 metres above local terrain (working interpretation), and must
+remain within a reasonable finite offshore boundary; exact allowance is still to be
+chosen. Require safe return to walking, input/help updates and actual input validation.
+These are plan additions only, not implemented controls.
+
+## Latest — actual-island attachment-site preparation, NOT live climbing
+
+`MonkeyAttachmentSite.hpp` constructs the attachment trajectory from naturally reached
+tree sites, actual rendered terrain heights/normals, regrounded trunk geometry and
+obstacles. Checks heading, slope, height, fixed-length reach, sampled contact centres,
+sole/toe corners and three torso/head probes. Exempts only the selected canopy proxy,
+whose actual bark is checked separately. 21/64 natural arrivals pass; 16 reject initial
+reach, 2 height and 25 trajectory reach. Added obstacle at a staged foot rejects entry;
+stale layout tree Y does not affect grounded output. Tests also cover heading/scale guards.
+
+Final revision including the sole-frame 1e-8 fallback threshold rebuilt successfully;
+37/37 non-display tests pass (57.77 s), logs
+`build/monkey-attachment-site-verified-build.log` and
+`build/monkey-attachment-site-verified-tests.log`. Asset validation 24/73/10/0;
+GPU stop latch unchanged. All launched jobs finished; no renderer/emulator launched.
+This is fixed-wind near-mesh CPU preparation, not continuous/full mesh collision or
+visual qualification. Next wire safe attachment/ascent/rest/descent/detach into troop
+and renderer together, preserving tree identity, coherent wind contacts and safe
+interruption. Live monkeys still only inspect trees. Wider tasks and goal stay open.
+
 ## User priorities — boar and shipwreck visual rework (2026-10-11)
 
 Added explicit unchecked tasks near the top-level wildlife backlog in PLAN.md for better
@@ -10,7 +39,7 @@ not implemented improvements. Require actual close/wide in-game visual review on
 Android and Web; existing build/material diagnostics do not close either task. Keep the
 previous monkey, additional wildlife, hut and resident work open.
 
-## Latest — complete attachment trajectory mathematics, NOT live yet
+## Earlier — complete attachment trajectory mathematics, NOT live yet
 
 New `MonkeyTreeAttachment.hpp` bridges live .22-radian torso loading to the existing
 vertical `MonkeyClimbPose` frame. Ten segments: move torso nearer, left/right higher grip,

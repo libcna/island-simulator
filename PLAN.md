@@ -412,6 +412,14 @@ Standing visual-quality rules (apply to every task from now on):
   safe interruption, dynamic wind, ascent/rest/descent/dismount and visual qualification
   remain open. See `docs/monkey-climb-contact-foundation.md`.
 
+  Actual-island CPU staging preparation now samples rendered terrain for ground feet,
+  regrounds the selected tree, queries actual bark and validates reach plus sampled
+  sole/toe footprints and three body/head probes against terrain, bark and obstacles.
+  Of 64 natural approach arrivals, 21 pass; initial reach/height/trajectory reject 43.
+  Tests check staged-foot heights, stale tree Y, heading/scale guards and rejection of
+  an added obstacle at a staging foot. This is fixed-wind sampled preparation only,
+  not full mesh collision, live attachment, dynamic-wind or visual qualification.
+
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
   first), fish, shark, crabs, birds, butterflies, monkeys, boars, palms, canopy trees, understory,
@@ -455,6 +463,25 @@ Standing visual-quality rules (apply to every task from now on):
 - [ ] Keep the product boundaries: peaceful exploration, no combat, damage, hunting, quests or
   survival systems; deterministic simulation; portable GLSL 330/300 ES; measured draw, memory and
   frame budgets; software-renderer validation only while the AMD hardware latch stays in place.
+
+Player controls explicitly requested by the operator (2026-10-11):
+
+- [ ] F11 toggles fullscreen on/off. Remove or remap the existing F11 monkey-troop
+  debug teleport so the two actions cannot fire together. Handle one toggle per press,
+  restore windowed size/state, and keep viewport, focus and mouse capture consistent.
+  Respect browser fullscreen/user-gesture restrictions and report unsupported cases.
+- [ ] Space toggles fly mode on/off, allowing exploration above the island. Prevent
+  entry into the terrain throughout movement (including fast movement and slopes),
+  cap flight at 100 metres above the local terrain surface (working interpretation),
+  and enforce a finite, reasonable offshore boundary derived from the island extent.
+  Choose and document the exact offshore allowance during implementation. Clamp or
+  reject invalid positions after mode changes/loading as well as during movement.
+  Turning flight off must return the player safely to a valid walking position,
+  without dropping through the ground or leaving the player stranded outside the boundary.
+- [ ] Verify fullscreen and flight toggles, held-key repeat, focus loss, terrain clearance,
+  the 100-metre ceiling, offshore limit and safe flight exit with automated tests and
+  actual in-game input checks on supported platforms. Update control help; planning
+  or a passing build alone does not qualify these controls as implemented.
 
 Visual rework explicitly requested by the operator (2026-10-11):
 

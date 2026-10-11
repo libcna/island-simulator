@@ -25,6 +25,7 @@
 #include "IslandSimulator/LocomotionPaceToggle.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
+#include "IslandSimulator/MonkeyAttachmentSite.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
@@ -2976,6 +2977,10 @@ int main()
     Check(collisionCandidateTotal / collisionQueryCount < worldObstacles.size() / 8U,
           "collision broad phase materially reduces the average candidate population");
     island::MonkeyTroop monkeys(terrain);
+    const island::RenderedTerrainSurface monkeyAttachmentTerrain(terrain);
+    std::array<bool,island::MonkeyTroop::MonkeyCount> attachmentAttempted{};
+    unsigned attachmentCandidates=0,attachmentAccepted=0;
+    std::array<unsigned,11> attachmentFailures{};
     island::MonkeyTroop repeatedMonkeys(terrain);
     island::MonkeyTroop invalidInputMonkeys(terrain);
     invalidInputMonkeys.Update(quietNan, quietNan, quietNan, quietNan);
@@ -3071,6 +3076,47 @@ int main()
         for (std::size_t index = 0; index < monkeys.Monkeys().size(); ++index) {
             const island::MonkeyState& state = monkeys.Monkeys()[index];
             const island::MonkeyState& repeated = repeatedMonkeys.Monkeys()[index];
+            if (state.behavior!=island::MonkeyBehavior::InspectTree) attachmentAttempted[index]=false;
+            if (state.behavior==island::MonkeyBehavior::InspectTree && state.treeInspectionSeconds>=3.2f
+                && !attachmentAttempted[index] && attachmentCandidates<64) {
+                attachmentAttempted[index]=true; ++attachmentCandidates;
+                const island::MonkeyAttachmentSite::GroundFrame frame{{state.x,state.y,state.z},state.headingRadians,state.scale};
+                const auto prepared=island::MonkeyAttachmentSite::Prepare(state.selectedTree,frame,
+                    monkeyAttachmentTerrain,worldObstacles,3.0f);
+                if (prepared.plan) {
+                    ++attachmentAccepted;
+                    const auto& plan=*prepared.plan;
+                    if (attachmentAccepted==1) {
+                        auto displacedTree=state.selectedTree;
+                        displacedTree.y+=100;
+                        const auto regrounded=island::MonkeyAttachmentSite::Prepare(displacedTree,frame,
+                            monkeyAttachmentTerrain,worldObstacles,3.0f);
+                        Check(regrounded.plan.has_value() && regrounded.plan->keys[10].contacts[0].y==plan.keys[10].contacts[0].y,
+                            "attachment uses rendered tree grounding rather than stale layout Y");
+                        auto wrongFrame=frame; wrongFrame.heading+=.2f;
+                        Check(island::MonkeyAttachmentSite::Prepare(state.selectedTree,wrongFrame,
+                            monkeyAttachmentTerrain,worldObstacles,3.0f).failure==island::MonkeyAttachmentSite::Failure::Heading,
+                            "attachment does not silently snap a monkey that is not facing its tree");
+                        wrongFrame=frame; wrongFrame.scale=0;
+                        Check(island::MonkeyAttachmentSite::Prepare(state.selectedTree,wrongFrame,
+                            monkeyAttachmentTerrain,worldObstacles,3.0f).failure==island::MonkeyAttachmentSite::Failure::InvalidInput,
+                            "invalid monkey scale is rejected before surface queries");
+                    }
+                    for (std::size_t foot=2;foot<4;++foot) {
+                        const auto point=frame.World(plan.keys[5].contacts[foot]);
+                        const auto ground=monkeyAttachmentTerrain.Sample(point.x,point.z);
+                        Check(std::abs(point.y-ground.height-island::MonkeyGroundGait::SoleHeight*state.scale/ground.normal.y)<1e-4f,
+                            "attachment staging feet follow actual rendered terrain, not a flat plane");
+                    }
+                    const auto blocker=frame.World(plan.keys[5].contacts[2]);
+                    auto blocked=worldObstacles;
+                    blocked.push_back({blocker.x,blocker.z,.09f});
+                    const auto denied=island::MonkeyAttachmentSite::Prepare(state.selectedTree,frame,
+                        monkeyAttachmentTerrain,blocked,3.0f);
+                    Check(!denied.plan && denied.failure==island::MonkeyAttachmentSite::Failure::Obstacle,
+                        "an extra obstacle at a staging foot rejects attachment before lifting supports");
+                } else ++attachmentFailures[static_cast<std::size_t>(prepared.failure)];
+            }
             Check(state.treeIndex == repeated.treeIndex,
                   "repeated monkey simulation selects the same actual canopy tree");
             if (state.behavior == island::MonkeyBehavior::ApproachTree
@@ -3201,6 +3247,11 @@ int main()
           "monkey obstacle steering is exercised and remains deterministic");
     Check(observedMonkeyContinuousClipClock,
           "monkey behaviour changes preserve a continuous renderer animation clock");
+    std::cout << "Monkey attachment sites " << attachmentAccepted << '/' << attachmentCandidates << "; rejections";
+    for (std::size_t reason=0;reason<attachmentFailures.size();++reason)
+        std::cout << ' ' << reason << ':' << attachmentFailures[reason];
+    std::cout << '\n';
+    Check(attachmentAccepted>0,"naturally reached real-island trees include a candidate passing terrain/contact/body-probe checks");
     Check(observedMonkeyTreeApproach && observedMonkeyTreeArrival,
           "real-island simulation approaches and reaches actual canopy trees");
 

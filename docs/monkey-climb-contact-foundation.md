@@ -284,3 +284,40 @@ sequences. Keep tree wind and contact phases coherent. Do not enable an unqualif
 just because its sampled reach check passes.
 Final targeted regression also matches entry roots, joints and contacts to the current
 `RaiseTorso(.22)` pose (`build/monkey-attachment-continuity-tests.log`, passed).
+
+## Actual-island attachment-site preparation — still CPU only
+
+`MonkeyAttachmentSite::Prepare` now constructs those planner inputs from a naturally
+arrived monkey's origin, heading and scale, its selected canopy, rendered terrain and
+world obstacle list. It regrounds the tree on rendered triangles rather than trusting
+layout Y. Ground feet use sampled terrain height/normal; forehands and final climbing
+contacts use the selected wind-deformed trunk mesh. Heading errors over .01 radians,
+steep staging ground, unsuitable height and unreachable trajectories are rejected.
+No caller position or heading is silently snapped to make a candidate pass.
+
+After 1,001 reach samples, 501 clearance samples check all contact centres, four
+normal-aligned sole/toe footprint corners per limb, and three torso/head sphere probes.
+The footprint uses the sole renderer's projected forward direction and 1e-8 fallback
+threshold. Terrain and bark are checked geometrically; nearby obstacle circles retain
+contact padding. Only the selected tree's matching canopy proxy is exempted, because
+its actual bark is checked separately. These are conservative sampled probes, NOT
+continuous collision detection or full limb/body-mesh collision qualification.
+
+The ordinary deterministic island simulation supplies 64 actual arrival candidates;
+21 pass and 43 are rejected (16 initial reach, 2 height, 25 trajectory reach) in the
+footprint regression. Accepted staging feet are independently checked against rendered
+terrain. An extra obstacle at a staged foot rejects the path. Stale tree layout Y does
+not change the grounded result; bad heading and zero monkey scale are rejected.
+The current candidates use their real yaw and terrain, but fixed wind time 3 and near
+trunk meshes; this is not exhaustive slope/yaw/wind/LOD or moving-wind qualification.
+
+The helper is deliberately not called by the live troop or renderer yet. Integration
+must preserve tree identity, safely reverse/descend on interruption, keep wind-aware
+contacts coherent, and transform skin, sole frames, culling and shadows together.
+Then audit actual attachment/ascent/rest/descent/dismount on all supported platforms.
+
+Final native incremental build and all 37 non-display test groups pass (57.77 s,
+`build/monkey-attachment-site-verified-tests.log`), including the final 1e-8 sole-frame
+fallback threshold. Asset validation: 24 records, 73 generator sources, 10 project files,
+zero external files. GPU stop latch unchanged; no graphics run or visual claim for this
+CPU-only change. All launched jobs finished.
