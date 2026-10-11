@@ -82,8 +82,11 @@ historical evidence, not post-incident qualification.
   positive (19 CPU-only tests pass). Repeat `20261011T085244.623709Z-bay` passes and
   matches native visually. No GPU faults, Wi-Fi-only kernel messages. ARM64 build/lint
   restored, physical runtime untested. See the beach document for APK/evidence identities.
-- [ ] Web qualification of this revision. Prior rocky-coast runs do not qualify the new
-  width/material changes. Android lifecycle remains degraded and was not rerun.
+- [x] Web build/package refreshed: 10,343,092 raw / 3,528,055 gzip bytes. Chrome terrain
+  `20261011T085703.088366Z-chrome-terrain` passes all six views, 60 frame intervals each.
+  Overview/bay/headland/east/jungle images inspected; no GPU faults, Wi-Fi-only kernel
+  notice. Qualifies `53a2442`, not newer coastal-turf preparation. Full Web input/lifecycle
+  and Firefox not rerun. Android lifecycle remains degraded and was not rerun.
 
 #### 2026-10-11 — integrated rocky headlands and shared coastal field
 

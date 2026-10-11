@@ -53,5 +53,12 @@ Tested x86_64 APK: 20,439,739 bytes, SHA-256
 `build/android-software/island-x86_64.apk`. Default ARM64 assembly/lint restored:
 20,525,084 bytes, SHA-256
 `b31230970a690adae7a24c3cd43c65084fa6db65ce214969163a0969c5c2a36c`;
-physical-device runtime remains untested. Web build/runtime qualification is next.
+physical-device runtime remains untested.
+
+Web build/package refreshed: 10,343,092 raw / 3,528,055 gzip bytes. Contained Chrome
+terrain suite `20261011T085703.088366Z-chrome-terrain` passes overview, bay, headland,
+beach, east and jungle, with 60 frame intervals each. Overview/bay/headland/east/jungle
+images inspected. No new GPU faults; kernel delta contains a Wi-Fi bandwidth notice.
+This qualifies the committed beach revision `53a2442`, not subsequent coastal-turf
+source preparation. Full Web input/lifecycle and Firefox were not rerun.
 The Android lifecycle issue remains open and the AMD hardware stop latch remains in force.

@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Update — Web beach validation complete; coastal turf preparation
+
+Web build and package for committed `53a2442` complete: 10,343,092 raw / 3,528,055
+gzip bytes. Contained Chrome terrain suite `20261011T085703.088366Z-chrome-terrain`
+finished with all six views passing, 60 intervals each. Overview/bay/headland/east/jungle
+images inspected; no new GPU faults, one Wi-Fi bandwidth notice. Full Web input/lifecycle
+and Firefox not rerun. No browser job remains running; session `38693` completed.
+
+New uncommitted source preparation, NOT qualified yet: `GroundCover::Density`
+now takes normalized rockiness and beach suitability, generating matching CPU/GLSL
+suppression of turf on sandy substrate. Grass placement and the terrain undercoat use it;
+legacy distance/height support bounds remain. Added bounded/monotonic/invalid-input tests.
+Added `bay-ground` eye-height camera near (-147,-8) and CLI/software/Web-template mappings.
+Do not attribute the completed Web test to these newer changes. Native build now started
+(session `53738`). Next run all non-display tests, inspect bay-ground,
+grass and bay images, update measured inventory pins if changed and requalify platforms.
+
 ## Update — dominant bay beach native stage complete
 
 `docs/dominant-bay-beach.md`: shared approximately 36 m sheltered bay / 6.5 m eastern
@@ -15,8 +32,8 @@ PNG despite old log-gate success. Added `tools/android_capture.py`: bounded 30-s
 image-content validation for initial/hot/cold screenshots; 19 CPU-only Android tests pass.
 Repeat `20261011T085244.623709Z-bay` passes strengthened gate and visually matches native.
 No new GPU faults (Wi-Fi-only kernel deltas). Tested x86 APK preserved; ARM64 build/lint
-restored. See `docs/dominant-bay-beach.md` for hashes. No jobs remain running.
-NEXT: Web build/package and contained terrain suite. Earlier rocky-coast runs do not
+restored. See `docs/dominant-bay-beach.md` for hashes. Web work is tracked above.
+Earlier rocky-coast runs do not
 qualify this newer code. A dedicated ground-level bay view is useful follow-up work.
 Android lifecycle remains degraded; do not close the known issue from focused visual runs.
 No Android/KVM system configuration changes are needed or requested. No push.
