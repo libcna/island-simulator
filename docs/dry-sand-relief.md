@@ -51,6 +51,9 @@ Tested x86_64 APK: 20,442,779 bytes, SHA-256
 `65ca23165f69e835541cc0d46bd97446c160ed36f02ec32a5833bf33f7d1199a`;
 physical-device runtime untested. These results also cover the coastal-turf revision.
 
+Web build/package complete: 10,346,158 raw / 3,528,706 gzip bytes. Seven-view Chrome
+terrain qualification started; its outcome is not yet known.
+
 Remaining realism work includes geological strata/talus, dune-scale relief, habitat
 fields and more natural close sand debris. The broader environment/geography tasks
 remain open. The existing soil/wet material normal-length floors also deserve a
