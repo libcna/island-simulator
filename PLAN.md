@@ -528,6 +528,16 @@ Standing visual-quality rules (apply to every task from now on):
 
 Player controls explicitly requested by the operator (2026-10-11):
 
+- [ ] HIGH PRIORITY: investigate the operator's native freeze/abort after fullscreen
+  and repeated flight toggles/flight traversal (2026-10-11). Kernel confirms gfx_0.0.0
+  timeout/soft recovery at21:00:21 CEST; PID423089 SIGABRT/core at21:00:22. Gallium
+  abort thread and presentation stack verified, root cause NOT established. Preserve
+  loaded-artifact identities/core metadata, correlate passes/flight/LOD/resource lifetime,
+  compare previous AMD incident, then develop an evidence-backed fix/regression.
+  Do not infer monkey causation from last log or reproduce on hardware. Existing GPU
+  stop latch unchanged. Evidence and full analysis checklist:
+  `docs/flight-amdgpu-incident-2026-10-11.md`.
+
 - [~] F11 toggles fullscreen on/off. Remove or remap the existing F11 monkey-troop
   debug teleport so the two actions cannot fire together. Handle one toggle per press,
   restore windowed size/state, and keep viewport, focus and mouse capture consistent.

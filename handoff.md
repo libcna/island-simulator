@@ -1,5 +1,33 @@
 # island-simulator handoff
 
+## PRIORITY — operator GPU timeout/abort while flying, 2026-10-11 21:00 CEST
+
+User requests analysis task after fullscreen/repeated flight toggles/traversal freeze.
+Read-only kernel confirms21:00:21 gfx_0.0.0 timeout/soft recovery; coredumpctl PID423089
+confirms21:00:22 SIGABRT. Abort in Mesa/Gallium thread423277; mainthread in EGL/SDL/CNA
+presentation. Rootcause unknown; last monkeypalette log is NOT culprit proof. Exact
+loaded executable/library identity not established (file has been rebuilt during work).
+See docs/flight-amdgpu-incident-2026-10-11.md and new HIGH PRIORITY unchecked PLAN task.
+Raw core metadata preserved in build/gpu-incident-evidence/20261011T190021Z-user-flight/
+coredump-info.txt; core remains in systemstorage, no extraction/deletion/upload.
+No renderer launched after report; no hardware reproduction authorized; stop latch unchanged.
+Investigate fresh evidence read-only first. Do not misfile as confirmed framework bug.
+
+Interrupted work, intentionally still UNCOMMITTED: SnakeGrassContact.hpp header with
+packed164 vec3 points +4bounds (all4 groundsnakes), per-segment radius+15mm core /140mm
+softedge pressure, bounds rejection; GrassRenderer uploads it and presses contacted
+vertices to<=2mm terrain clearance after wind, keepsroots. Single shader/batch/no texture.
+CPU tests pathcoverage/softedge/far/empty/invalidsamples PASS8.87s, supervisor35PASS,
+assets25/81/10/0. Actual native185758.816335Z-snakes four-stagegrid +stage1 inspected:
+lessupright grass throughbody, some obliqueblades/leafocclusion remain. Graphics/motion
+valid, kernelempty for that PRE-INCIDENT run; generic luminancegate FAIL unchanged.
+Web build/package PASS11,154,560raw/4,194,144gzip; ARM64 build/lint PASS5s. All jobs
+terminal (last97461). No portable runtime qualification for grass shader yet. Uniform
+budget/performance and triangle-interior contact/normal deformation remain unqualified.
+Preserve these edits; don't falsely attribute operator fault to them from chronology.
+Grass logs build/snake-grass-{build,tests,arm64}.log and build-probe/snake-grass-{build,package}.log.
+
+
 ## Latest — retained head trail improves snake slithering
 
 Replaced leader projection with arc-length sampling of accepted head path, newest-first
