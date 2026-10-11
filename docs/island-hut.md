@@ -162,6 +162,32 @@ the portable material works, but that is not final realism acceptance. Existing 
 payload reused (build/package successful, no source rebuild needed); no native or
 Android runtime rerun for these harness-only changes.
 
+## Tapered leaf ends instead of square strip tips
+
+The inspected Web close image still read as wooden roof slats. Each of the672 blades
+now has four longitudinal stations: broad overlapping base/body, then a short narrow
+tip with deterministic lateral variation and stronger droop at the eave. Reduced
+course lift and a raised midrib give a folded leaf profile instead of a square end.
+This intentionally adds8,064 vertices /2,688triangles: total28,476vertices /
+9,492triangles, still below the30,000vertex upload guard and still one static draw.
+No new shader, texture or draw, and no frame-time improvement is claimed.
+
+CPU tests retain finite bounds, repeatability, downhill ordering, course overlap and
+length variation. Tip width is required below4.1cm. Body-station adjacency remains
+checked; separate tips are now intentional. A stronger combined coverage check unions
+all projected strips at1cm slope intervals on both roof sides, requiring no internal
+gap over x=0..2.55m,z=-2.20..2.20m. Only the outer fringe may be ragged. Focused CPU
+test PASS0.65s.
+
+Actual native `20261011T230406.778103Z-hut-material/capture.png` PASS and inspected:
+the eave is visibly narrower/frayed rather than square-ended; the roof surface still
+looks too regular/wood-like. This is a silhouette improvement, not completed realism.
+Capture416color bins/luminanceSD52.76/spatialcontrast192.60; kernel-after empty.
+Android ARM64 build/lint PASS3s, no new Android runtime check for this geometry yet.
+The earlier portable screenshots predate these leaf tips and do not qualify them.
+Full41/41 non-display tests PASS72.75s; Web build/package PASS11,228,998raw /
+4,221,248gzip bytes. All owned jobs terminal; hardware stop latch unchanged.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing

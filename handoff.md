@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — hut tapered/drooping leaf tips, native detail audited
+
+HutThatchBlade nowfourstations instead ofthree: broad body through82%, narrow
+deterministically varied tips, eavedroop, strongerfold/reducedcourselift. Renderer
+threequadsegments instead oftwo; now9492triangles/28476vertices/1draw, +2688triangles
+and8064vertices, stillbelow30kguard. No newshader/texture. CPU bounds/determinism/
+overlap retained; tipwidth<4.1cm; combined projectedcoverage at1cm slopeintervals
+onbothsides checksnointernalholes overx0..2.55,z±2.20. Outerfringe intentionallyragged.
+FocusedCPU PASS0.65s; full41/41non-display PASS72.75s. NativebuildPASS.
+Webbuild/packagePASS11,228,998raw/4,221,248gzip. Allownedjobs terminal; hardware
+stoplatchSHA unchanged. No actual Web runtime thispass.
+Actual `20261011T230406.778103Z-hut-material` PASS/imageactuallyviewed/kernel-after[]:
+frayedeave betterthan squarestripends, surface STILLtoo regular/wood-like, notdone.
+AndroidARM64build/lintPASS3s; no portable actualruntime ofnewtips yet. Previous Web
+andAndroidscreenshots predategeometrychange; do not treat ascurrentacceptance.
+NEXT naturalroofmaterial/remainingrealism, globalroute/worldreport. AMDincidentand
+fullwildlife/residentbacklog stillOPEN; nohardware/KVM/dependencychange orpush.
+
 ## Latest — actual Web hut overview/detail audit PASS; realism still open
 
 Added Chrome software `--scope hut` with two sequential views, retained overlay/image

@@ -105,7 +105,7 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
                 const auto p=blade.sections[static_cast<std::size_t>(station)][static_cast<std::size_t>(edge)];
                 return Vector3(p.x,p.y,p.z);
             };
-            for(int station=0;station<2;++station) for(int edge=0;edge<2;++edge) {
+            for(int station=0;station<3;++station) for(int edge=0;edge<2;++edge) {
                 const auto a=point(station,edge),b=point(station,edge+1),
                     d=point(station+1,edge+1),e=point(station+1,edge);
                 if(side>0) quad(a,b,d,e,pigment);

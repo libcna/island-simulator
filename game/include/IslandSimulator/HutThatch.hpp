@@ -5,10 +5,10 @@
 #include <stdexcept>
 namespace island {
 struct ThatchPoint { float x,y,z; };
-// Three longitudinal stations, each with left edge, raised midrib and right edge.
-// Two quads per segment: 24 vertices/blade, 672 blades, matching the old roof budget.
+// Four longitudinal stations retain broad overlapping coverage before a narrow,
+// drooping leaf tip. Two quads per segment: 36 vertices/blade, 672 blades.
 struct HutThatchBlade {
-    std::array<std::array<ThatchPoint,3>,3> sections;
+    std::array<std::array<ThatchPoint,3>,4> sections;
     float pigment;
 };
 inline HutThatchBlade BuildHutThatchBlade(int side,int row,int strip) {
@@ -21,17 +21,20 @@ inline HutThatchBlade BuildHutThatchBlade(int side,int row,int strip) {
     };
     const float shift=noise(),length=noise(),bend=noise(),fringe=noise();
     const float start=(static_cast<float>(row)+(row==0?0.0f:shift*0.18f))/7;
-    const float finish=row==6?1.01f+fringe*0.025f:start+0.205f+length*0.022f;
+    const float finish=row==6?1.005f+fringe*0.032f:start+0.205f+length*0.038f;
     const float z=-2.25f+(static_cast<float>(strip)+0.5f)*4.5f/48+(shift-0.5f)*0.006f;
     HutThatchBlade result{}; result.pigment=noise();
-    for(int station=0;station<3;++station) {
-        const float t=static_cast<float>(station)/2,u=start+(finish-start)*t;
-        const float sag=station==1?0.014f+0.018f*bend:0;
-        const float y=3.55f-1.4f*u+0.035f*static_cast<float>(7-row)-sag;
-        const float centre=z+(bend-0.5f)*0.004f*t;
-        const float halfWidth=0.067f*(station==2?0.82f:1.0f);
+    constexpr std::array<float,4> stations{0.0f,0.48f,0.82f,1.0f};
+    for(std::size_t station=0;station<stations.size();++station) {
+        const float t=stations[station],u=start+(finish-start)*t;
+        const float sag=station==1?0.012f+0.012f*bend:
+            (station==3?(row==6?0.035f+0.025f*bend:0.006f):0.0f);
+        const float y=3.55f-1.4f*u+0.025f*static_cast<float>(7-row)-sag;
+        const float centre=z+(bend-0.5f)*(station==3?0.028f:0.004f)*t;
+        const float halfWidth=station==3?0.008f+fringe*0.012f:
+            (station==2?0.060f:0.067f);
         result.sections[static_cast<std::size_t>(station)]={{{static_cast<float>(side)*2.65f*u,y,centre-halfWidth},
-            {static_cast<float>(side)*2.65f*u,y+0.008f*(1-t)+0.002f,centre},
+            {static_cast<float>(side)*2.65f*u,y+0.022f*(1-t)+0.002f,centre},
             {static_cast<float>(side)*2.65f*u,y+0.003f*(shift-0.5f),centre+halfWidth}}};
     }
     return result;

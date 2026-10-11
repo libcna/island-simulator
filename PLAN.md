@@ -832,6 +832,15 @@ Landmark backlog requested by the operator:
   failed224903overlaywiring/225033wrongclosepatchcount retained. Per-camera checks
   require7/6visiblecontactpatches; browser19/software37 CPU testsPASS. No gamechange.
   Temporal/longrange filtering, globalroute/worldreport and remainingrealism stayOPEN.
+  Roof leaf-tip pass: fourstations/blade, broad overlapping body then narrow/drooping
+  tip, reducedcourse lift. Now9492triangles/28476vertices/1draw (below30kguard),
+  +2688triangles; noextrashader/texture/draw. Added1cm-sampled combined projected
+  roofcoverage andtipwidth tests; focusedPASS0.65s. Native230406.778103Z-hut-material
+  actualPASS/imageinspected/kernel[]: improvedeave, stillregularwood-like roofsurface.
+  AndroidARM64build/lintPASS3s. Actualportable images fromearlierpasses predatechange;
+  naturalmaterial/globalroute/worldreport remainOPEN, notfinalrealism.
+  Full41/41non-displaytestsPASS72.75s; Webbuild/packagePASS11,228,998raw/4,221,248gzip.
+  Allownedjobs terminal; hardwarestoplatch unchanged; noAMDfixclaim.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

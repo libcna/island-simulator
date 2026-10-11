@@ -9,6 +9,7 @@
 #include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/HutThatch.hpp"
 #include <cmath>
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -20,7 +21,7 @@ int main() {
     for(int side:{-1,1}) for(int row=0;row<7;++row) for(int strip=0;strip<48;++strip) {
         const auto blade=island::BuildHutThatchBlade(side,row,strip),repeat=island::BuildHutThatchBlade(side,row,strip);
         Check(blade.pigment>=0&&blade.pigment<=1,"thatch pigment outside bounds");
-        for(std::size_t station=0;station<3;++station) for(std::size_t edge=0;edge<3;++edge) {
+        for(std::size_t station=0;station<blade.sections.size();++station) for(std::size_t edge=0;edge<3;++edge) {
             const auto p=blade.sections[station][edge],r=repeat.sections[station][edge];
             Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite thatch");
             Check(p.x==r.x&&p.y==r.y&&p.z==r.z,"nondeterministic thatch");
@@ -28,19 +29,48 @@ int main() {
                 "thatch outside roof bounds");
             if(station>0) Check(side*(p.x-blade.sections[station-1][edge].x)>0,"thatch folded backwards");
         }
-        const float length=std::abs(blade.sections[2][1].x-blade.sections[0][1].x);
+        const float length=std::abs(blade.sections.back()[1].x-blade.sections[0][1].x);
+        Check(blade.sections.back()[2].z-blade.sections.back()[0].z<0.041f,
+            "leaf ends retain square plank silhouette");
         shortest=std::min(shortest,length); longest=std::max(longest,length);
         if(row<6) {
             const auto next=island::BuildHutThatchBlade(side,row+1,strip);
-            Check(side*(blade.sections[2][1].x-next.sections[0][1].x)>0.08f,"roof courses do not overlap");
+            Check(side*(blade.sections.back()[1].x-next.sections[0][1].x)>0.08f,"roof courses do not overlap");
         }
         if(strip<47) {
             const auto next=island::BuildHutThatchBlade(side,row,strip+1);
-            for(std::size_t station=0;station<3;++station)
+            // Narrow tips are intentionally separate; the lower course covers them.
+            for(std::size_t station=0;station+1<blade.sections.size();++station)
                 Check(blade.sections[station][2].z>=next.sections[station][0].z-0.005f,"roof strips leave large gaps");
         }
     }
     Check(longest-shortest>0.08f,"thatch has uniform rigid lengths");
+    // Check combined projected coverage, not just same-course station widths.
+    // The final 20cm is an intentionally ragged eave outside the structural floor.
+    for(int side:{-1,1}) for(int sample=0;sample<=255;++sample) {
+        const float x=static_cast<float>(sample)*0.01f;
+        std::vector<std::pair<float,float>> spans;
+        for(int row=0;row<7;++row) for(int strip=0;strip<48;++strip) {
+            const auto blade=island::BuildHutThatchBlade(side,row,strip);
+            for(std::size_t i=0;i+1<blade.sections.size();++i) {
+                const auto& a=blade.sections[i]; const auto& b=blade.sections[i+1];
+                const float ax=side*a[1].x,bx=side*b[1].x;
+                if(x<ax||x>bx) continue;
+                const float t=(x-ax)/(bx-ax);
+                spans.emplace_back(a[0].z+(b[0].z-a[0].z)*t,
+                                   a[2].z+(b[2].z-a[2].z)*t);
+            }
+        }
+        std::sort(spans.begin(),spans.end());
+        float covered=-2.20f;
+        for(const auto& [low,high]:spans) {
+            if(high<covered) continue;
+            Check(low<=covered+0.0001f,"layered roof has an internal projected hole");
+            covered=std::max(covered,high);
+            if(covered>=2.20f) break;
+        }
+        Check(covered>=2.20f,"layered roof does not cover structural interior");
+    }
     const island::IslandTerrain terrain;
     const island::RenderedTerrainSurface surface(terrain);
     const island::VegetationLayout vegetation(terrain);
