@@ -29,7 +29,69 @@ int main(int argc, char** argv)
 try
 {
     using namespace island;
+    for (int variant = 0; variant < CanopyFormCount; ++variant) {
+        for (bool far : {false,true}) {
+            const auto heights = CanopyTrunkRingHeights(variant,far);
+            const int sides = far ? 5 : 12;
+            constexpr float tau = 2*std::numbers::pi_v<float>;
+            for (const auto time : {std::optional<float>{}, std::optional<float>{0},
+                                    std::optional<float>{3.25f}, std::optional<float>{91.0f}})
+            for (std::size_t ring = 0; ring+1 < heights.size(); ++ring)
+                for (int side = 0; side < sides; ++side) {
+                    const auto a = CanopyTrunkVertex(variant,heights[ring],tau*side/sides,far,time);
+                    const auto b = CanopyTrunkVertex(variant,heights[ring+1],tau*side/sides,far,time);
+                    const auto c = CanopyTrunkVertex(variant,heights[ring],tau*((side+1)%sides)/sides,far,time);
+                    const auto d = CanopyTrunkVertex(variant,heights[ring+1],tau*((side+1)%sides)/sides,far,time);
+                    for (float fraction : {1.0f/3.0f,2.0f/3.0f}) {
+                        const float h = heights[ring]+(heights[ring+1]-heights[ring])*fraction;
+                        const float angle = tau*(side+fraction)/sides;
+                        const auto contact = SampleCanopyTrunkSurface(variant,h,angle,far,time);
+                        const auto repeated = SampleCanopyTrunkSurface(variant,h,angle-tau,far,time);
+                        float length = 0;
+                        for (std::size_t axis = 0; axis < 3; ++axis) {
+                            const float expected = fraction < .5f ? (a[axis]+b[axis]+c[axis])/3
+                                : (b[axis]+c[axis]+d[axis])/3;
+                            Require(std::fabs(contact.position[axis]-expected) < 1e-5f,
+                                "Trunk grip must lie on the actual selected mesh triangle");
+                            Require(std::fabs(contact.position[axis]-repeated.position[axis]) < 1e-5f,
+                                "Trunk contact must wrap around the seam");
+                            length += contact.normal[axis]*contact.normal[axis];
+                        }
+                        Require(std::fabs(length-1) < 1e-5f,"Trunk contact normal is unit length");
+                        const auto& first = fraction < .5f ? a : d;
+                        float dotB = 0, dotC = 0;
+                        for (std::size_t axis = 0; axis < 3; ++axis) {
+                            dotB += contact.normal[axis]*(b[axis]-first[axis]);
+                            dotC += contact.normal[axis]*(c[axis]-first[axis]);
+                        }
+                        Require(std::fabs(dotB) < 1e-5f && std::fabs(dotC) < 1e-5f,
+                            "Trunk contact normal must match the rendered triangle plane");
+                    }
+                }
+        }
+    }
     const CanopyLodInspection inspection{-87120, -15369, true};
+    Invalid([] { (void)SampleCanopyTrunkSurface(-1,1,0); });
+    Invalid([] { (void)SampleCanopyTrunkSurface(0,-.1f,0); });
+    Invalid([] { (void)SampleCanopyTrunkSurface(0,100,0); });
+    Invalid([] { (void)SampleCanopyTrunkSurface(0,1,std::numeric_limits<float>::quiet_NaN()); });
+    Invalid([] { (void)SampleCanopyTrunkSurface(0,1,0,false,std::numeric_limits<float>::infinity()); });
+    // Independent transcription of the current vertex shader, including pre-deformation inputs.
+    for (int variant = 0; variant < CanopyFormCount; ++variant)
+        for (bool far : {false,true})
+            for (float time : {0.0f,3.25f,91.0f})
+                for (float h : CanopyTrunkRingHeights(variant,far)) {
+                    const auto rest = CanopyTrunkVertex(variant,h,.75f,far);
+                    const auto moving = CanopyTrunkVertex(variant,h,.75f,far,time);
+                    const float t = h/MakeCanopyTrunkProfile(variant).height;
+                    const float weight = t*t*.08f, phase = variant*.17f*6.28318530718f;
+                    const float sway = (std::sin(time*.61f+phase+rest[1]*.075f)*.105f
+                        +std::sin(time*1.07f+phase*1.41f+rest[0]*.18f-rest[2]*.21f)*.028f)*weight;
+                    Require(std::abs(moving[0]-rest[0]-sway) < 1e-6f
+                        && std::abs(moving[2]-rest[2]-sway*.43f) < 1e-6f
+                        && std::abs(moving[1]-rest[1]+std::abs(sway)*.035f*weight) < 1e-6f,
+                        "Trunk contact deformation must match the rendering wind equation");
+                }
     Require(inspection.Matches(-87.1201f, -15.3691f)
         && !inspection.Matches(-87.121f, -15.3691f)
         && !inspection.Matches(-87.1201f, -15.368f),

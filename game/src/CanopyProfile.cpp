@@ -1,4 +1,5 @@
 #include "IslandSimulator/CanopyProfile.hpp"
+#include "IslandSimulator/JungleWind.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -35,6 +36,83 @@ namespace island
             * (0.72f+0.24f*variant);
         const float c=std::cos(trunk.leanAngle),s=std::sin(trunk.leanAngle);
         return {c*bend-s*crossBend,y,s*bend+c*crossBend};
+    }
+
+    std::vector<float> CanopyTrunkRingHeights(int variant, bool farMesh)
+    {
+        const auto profile = MakeCanopyTrunkProfile(variant);
+        std::vector<float> heights = farMesh ? std::vector<float>{0,1.5f,3}
+            : std::vector<float>{0,.16f,.38f,.74f,1.30f,2.10f,3};
+        const int upper = farMesh ? 2 : 5;
+        for (int ring = 1; ring <= upper; ++ring)
+            heights.push_back(3 + (profile.height-3) * static_cast<float>(ring)/upper);
+        return heights;
+    }
+
+    std::array<float,3> CanopyTrunkVertex(int variant, float height, float angle, bool farMesh,
+                                        std::optional<float> windTime)
+    {
+        if (!std::isfinite(angle)) throw std::invalid_argument("Invalid canopy trunk angle");
+        const float radius = CanopyTrunkRadius(variant,height);
+        const auto centre = SampleCanopyTrunk(variant,height/MakeCanopyTrunkProfile(variant).height);
+        const float irregularity = farMesh ? 1.0f
+            : 1.0f + .032f*std::sin(height*1.27f+variant*.83f)
+                + .045f*std::sin(angle*2+variant*.71f+height*.31f)
+                + .022f*std::sin(angle*3-variant*1.30f+height*.90f);
+        std::array<float,3> position{centre[0]+std::cos(angle)*radius*irregularity, centre[1],
+                centre[2]+std::sin(angle)*radius*irregularity};
+        if (windTime) {
+            if (!std::isfinite(*windTime)) throw std::invalid_argument("Invalid canopy wind time");
+            const float t = height/MakeCanopyTrunkProfile(variant).height;
+            const float weight = t*t*.08f;
+            const float phase = variant*.17f*2*std::numbers::pi_v<float>;
+            const float broad = std::sin(*windTime*.61f+phase+position[1]*.075f);
+            const float detail = std::sin(*windTime*1.07f+phase*1.41f+position[0]*.18f-position[2]*.21f);
+            const float sway = (broad*JungleWind::Broad+detail*JungleWind::Detail)*weight;
+            position[0] += sway;
+            position[2] += sway*JungleWind::DirectionZ;
+            position[1] -= std::abs(sway)*JungleWind::Lowering*weight;
+        }
+        return position;
+    }
+
+    CanopyTrunkContact SampleCanopyTrunkSurface(int variant, float height, float angle, bool farMesh,
+                                               std::optional<float> windTime)
+    {
+        const auto heights = CanopyTrunkRingHeights(variant,farMesh);
+        if (!std::isfinite(height) || height < 0 || height > heights.back() || !std::isfinite(angle))
+            throw std::invalid_argument("Invalid canopy trunk contact coordinates");
+        const int sides = farMesh ? 5 : 12;
+        constexpr float tau = 2*std::numbers::pi_v<float>;
+        float wrapped = std::fmod(angle,tau);
+        if (wrapped < 0) wrapped += tau;
+        const float column = wrapped/tau*sides;
+        const int side = std::min(sides-1,static_cast<int>(column));
+        const float u = column-side;
+        const auto found = std::upper_bound(heights.begin(),heights.end(),height);
+        const std::size_t ring = std::min(static_cast<std::size_t>(found-heights.begin()-1),heights.size()-2);
+        const float v = (height-heights[ring])/(heights[ring+1]-heights[ring]);
+        const auto vertex = [&](std::size_t r,int s) {
+            return CanopyTrunkVertex(variant,heights[r],tau*(s%sides)/sides,farMesh,windTime);
+        };
+        const auto a = u+v <= 1 ? vertex(ring,side) : vertex(ring+1,side+1);
+        const auto b = u+v <= 1 ? vertex(ring+1,side) : vertex(ring,side+1);
+        const auto c = u+v <= 1 ? vertex(ring,side+1) : vertex(ring+1,side);
+        const float wb = u+v <= 1 ? v : 1-v, wc = u+v <= 1 ? u : 1-u;
+        CanopyTrunkContact result{};
+        std::array<float,3> ab{},ac{};
+        for (std::size_t k = 0; k < 3; ++k) {
+            result.position[k] = a[k]*(1-wb-wc)+b[k]*wb+c[k]*wc;
+            ab[k]=b[k]-a[k]; ac[k]=c[k]-a[k];
+        }
+        result.normal = {ab[1]*ac[2]-ab[2]*ac[1], ab[2]*ac[0]-ab[0]*ac[2], ab[0]*ac[1]-ab[1]*ac[0]};
+        float length = std::sqrt(result.normal[0]*result.normal[0]+result.normal[1]*result.normal[1]
+            +result.normal[2]*result.normal[2]);
+        const auto centre = SampleCanopyTrunk(variant,height/MakeCanopyTrunkProfile(variant).height);
+        if (result.normal[0]*(result.position[0]-centre[0])+result.normal[2]*(result.position[2]-centre[2]) < 0)
+            length = -length;
+        for (auto& component : result.normal) component /= length;
+        return result;
     }
 
     CanopyCrownProfile MakeCanopyCrownProfile(const int variant, const int cluster)

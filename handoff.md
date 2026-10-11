@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Latest — shared trunk contact geometry, including wind (climbing not connected yet)
+
+`docs/monkey-climb-contact-foundation.md` records the new shared near/far trunk vertices,
+ring layout and barycentric triangle contact/normal query. Renderer consumes the same
+rest vertices. Optional wind time deforms vertices before interpolation with the rendering
+wind equation. Coordinates are mesh-local; tree instance transforms and actual LOD must
+be supplied by future callers. Branches/buttresses are not covered. No monkey uses the
+query yet: actual approach, attachment, reachable limb poses, ascent/descent and arboreal
+movement remain unimplemented, as do moving ground stance locks.
+
+Native build passes. Rest-surface suite passed 37/37 (58.79 s); expanded wind tests cover
+all eight variants/both LODs, both triangles in each cell, three wind times, normals,
+periodicity, invalid inputs and independent shader-equation fixtures. Native jungle
+captures `20261011T130518.614818Z-jungle` and `20261011T131221.540034Z-jungle` pass and
+were inspected; empty kernel deltas. These are renderer integration checks, not climbing
+evidence. No dependency/host/emulator changes. Android/Web qualification remains open.
+Final wind-enabled build and all 37 non-display groups pass (102.14 s). All jobs finished;
+hardware stop latch unchanged. The full plan/goal remains active and incomplete.
+Next integration: `MonkeyTroop` currently receives only circular collision proxies via
+`SetObstacles` (`IslandGame.cpp`), not tree identities/transforms. Supply actual canopy
+placements before selecting approach targets; do not infer climbable trees from generic
+obstacle circles. `MonkeyBehavior` still has only ground states. Preserve the existing
+distance-driven ground gait while adding explicit approach/attach/climb/dismount states.
+
 ## Latest — connected monkey face replaces the two pale oval patches (native first pass)
 
 `docs/monkey-face-profile.md` records scope/evidence. One twelve-row cheek/muzzle/chin surface

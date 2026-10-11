@@ -343,6 +343,12 @@ Standing visual-quality rules (apply to every task from now on):
   `20261011T125510.820617Z-monkeys` inspected, 37/37 CPU groups pass. See
   `docs/monkey-face-profile.md`. Face relief/sockets/lids, fur scale and shoulder anatomy
   still need refinement; this is not realism completion or Android/Web face qualification.
+  Shared near/far trunk vertices and triangle contact query now prepare real bark grips;
+  optional wind time deforms vertices before contact interpolation. See
+  `docs/monkey-climb-contact-foundation.md`. Rest-surface native jungle capture
+  `20261011T130518.614818Z-jungle` inspected, empty kernel delta. This is only a contact
+  foundation: no monkey uses it yet; approach, gripping ascent/descent, branches and
+  arboreal movement remain required and unchecked.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

@@ -497,14 +497,7 @@ void main()
             // Both tiers retain the straight lower collision zone and the bend's start knot.
             // Near rings concentrate on the root flare. Irregularity is a smooth function of
             // height and angle, never of ring index, so ring boundaries do not form creases.
-            std::vector<float> ringHeights = farMesh
-                ? std::vector<float>{0.0f, 1.5f, 3.0f}
-                : std::vector<float>{0.0f, 0.16f, 0.38f, 0.74f, 1.30f, 2.10f, 3.0f};
-            const int upperRings = farMesh ? 2 : 5;
-            for (int ring = 1; ring <= upperRings; ++ring) {
-                ringHeights.push_back(3.0f + (height - 3.0f) * static_cast<float>(ring)
-                    / static_cast<float>(upperRings));
-            }
+            const auto ringHeights = CanopyTrunkRingHeights(variant,farMesh);
             const Color bark = CanopyBarkColor(variant);
             const std::uint16_t base = static_cast<std::uint16_t>(geometry.vertices.size());
             const auto firstIndex = geometry.indices.size();
@@ -513,24 +506,14 @@ void main()
             for (const float localHeight : ringHeights) {
                 const float t = localHeight / height;
                 const float pigment = JungleMaterial::TrunkPigment(t);
-                const auto centre = SampleCanopyTrunk(variant, t);
-                const float centreX = centre[0], centreZ = centre[2];
-                const float radius = CanopyTrunkRadius(variant, localHeight);
                 for (int side = 0; side < sides; ++side) {
                     const float angle = 2.0f * std::numbers::pi_v<float>
                         * static_cast<float>(side) / static_cast<float>(sides);
-                    const float irregularity = farMesh ? 1.0f
-                        : 1.0f + 0.032f * std::sin(localHeight * 1.27f + static_cast<float>(variant) * 0.83f)
-                            + 0.045f * std::sin(angle * 2.0f + static_cast<float>(variant) * 0.71f
-                                + localHeight * 0.31f)
-                            + 0.022f * std::sin(angle * 3.0f - static_cast<float>(variant) * 1.30f
-                                + localHeight * 0.90f);
+                    const auto position = CanopyTrunkVertex(variant,localHeight,angle,farMesh);
                     const float directional = 0.68f + 0.30f
                         * std::max(0.0f, std::cos(angle) * 0.74f + std::sin(angle) * 0.28f);
                     geometry.vertices.emplace_back(
-                        Vector3(centreX + std::cos(angle) * radius * irregularity,
-                                height * t,
-                                centreZ + std::sin(angle) * radius * irregularity),
+                        Vector3(position[0],position[1],position[2]),
                         ShadeColor(bark, directional * pigment),
                         Vector2(t * t * 0.08f, static_cast<float>(variant) * 0.17f));
                     SetWoodAlbedo(geometry, ShadeColor(bark, pigment),
