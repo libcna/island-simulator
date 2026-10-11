@@ -49,9 +49,19 @@ Native headland `20261011T081910.752616Z-headland` and bay
 `20261011T082154.597630Z-bay` pass and were inspected. The latter shows a sheltered pale
 beach between two rocky arms. Final headland `20261011T082316.930694Z-headland` also
 passes and was inspected. Final bay/headland kernel deltas are empty; hardware latch unchanged.
-Android/Web build/runtime qualification has not yet been repeated for this changed terrain
-and shader. Previous coast-shape qualification is not evidence for this new stage. The Web
-terrain suite now includes the sixth `headland` viewpoint.
+Android x86_64 assembly/lint passes. Headland run `20261011T082539.891561Z-headland`
+passes; image inspected and agrees with native. Interactive touch/traversal run
+`20261011T082658.311623Z-interactive` passes sensitivity selection, land footsteps and
+swimming/transition audio (two shoreline gestures). Both kernel deltas are empty.
+Lifecycle was deliberately outside this focused run and remains degraded under the prior
+evidence in `BUGS.md`; these results do not close it.
+Tested x86_64 APK: 20,439,275 bytes, SHA-256
+`73b7ccf799bcd72de55400770441bc2094553102bd6f536197c9757e037d567c`.
+Default ARM64 assembly/lint restored: 20,524,676 bytes, SHA-256
+`684cdbb2e5c7ffa8ab9b9829cd74bd13719cbdb570ceb3a074a30dfaa830e305`;
+physical-device runtime untested. Web build/package refreshed: 10,343,035 raw / 3,528,104
+gzip bytes. Chrome terrain suite `20261011T083120.118782Z-chrome-terrain` is running,
+including the sixth `headland` viewpoint; runtime qualification remains pending.
 
 Current fingerprint `b0f79ae14adeb8cd`: 328 palms, 266 canopy trees, 1,777 understory,
 592 bushes, 2,993 ground plants, 17,251 grass clusters; 164 rocks (14 offshore), 10 logs,

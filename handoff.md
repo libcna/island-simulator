@@ -1,6 +1,15 @@
 # island-simulator handoff
 
-## Update 2026-10-11 — integrated rocky coast (native qualified)
+## Live continuation — rocky coast Web qualification
+
+Web build/package refreshed: 10,343,035 raw / 3,528,104 gzip bytes. Contained Chrome
+terrain suite is RUNNING, exec session **40259**, evidence
+`build/browser-software/20261011T083120.118782Z-chrome-terrain`, timeout 1800 s.
+Six views: overview, bay, headland, beach, east, jungle. Poll this exact session; do not
+restart on an observation timeout. After completion inspect run.json, screenshots and kernel
+delta, update documentation and commit results. No new game changes during qualification.
+
+## Update 2026-10-11 — integrated rocky coast (native and focused Android qualified)
 
 See `docs/coastal-environment.md`. The first `IslandEnvironmentField` coastal subset drives
 actual up-to-7.5 m headland relief, RockyGround classification, palm/canopy/understory/grass
@@ -12,7 +21,11 @@ Final 33/33 non-display groups pass (55.12 s). Bay `20261011T082154.597630Z-bay`
 headland `20261011T082316.930694Z-headland` pass/inspected, empty kernel deltas.
 Fingerprint `b0f79ae14adeb8cd`; inventory pins updated from report. `headland` camera is
 available in native/Android launchers and Web template; terrain suite now has six views.
-NEXT: Android/Web build and visual/runtime qualification for this new terrain/shader, then
+Android x86_64 build/lint and headland `20261011T082539.891561Z-headland` pass, image
+inspected. Interactive `20261011T082658.311623Z-interactive` passes touch/footsteps/swimming
+after two gestures; lifecycle not rerun and still degraded. Empty kernel deltas. ARM64
+assembly/lint restored; physical-device runtime untested. NEXT: finish the running Web
+visual/runtime qualification for this new terrain/shader, then
 extend environmental controls/dominant beach. Prior coast-shape qualification below is not
 current evidence. Android lifecycle remains degraded. No push or hardware rendering authorized.
 

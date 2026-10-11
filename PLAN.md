@@ -77,8 +77,14 @@ historical evidence, not post-incident qualification.
   habitat/determinism checks retained; steep cliff rejection and adjacent beach access
   independently tested. Final 33/33 non-display groups pass (55.12 s), including normalized
   field controls and vegetation root exclusions.
-- [ ] Android/Web qualification for changed geometry/material. New population pins are
-  measured, not runtime evidence; Web terrain now includes the sixth `headland` view.
+- [x] Android x86_64 assembly/lint and headland `20261011T082539.891561Z-headland`
+  pass; image inspected. Interactive `20261011T082658.311623Z-interactive` passes touch,
+  footsteps and swimming/transition audio after two gestures. Empty kernel deltas.
+  Lifecycle excluded from this focused run and remains degraded. Default ARM64 assembly/lint
+  restored; physical-device runtime untested.
+- [x] Web build/package refreshed: 10,343,035 raw / 3,528,104 gzip bytes.
+- [~] Web terrain suite `20261011T083120.118782Z-chrome-terrain` running, including
+  sixth `headland` view. Runtime qualification remains pending.
 - [ ] Broader environment fields, deliberately wider dominant beach, directional waves,
   rock strata/talus and full ecological placement migration remain open.
 
