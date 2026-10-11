@@ -57,6 +57,7 @@ namespace island
         }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
         [[nodiscard]] bool SubjectHasTreeGrips() const noexcept { return subjectHasTreeGrips_; }
+        [[nodiscard]] std::array<float,2> SubjectTreeReachWeights() const noexcept { return subjectTreeReachWeights_; }
         [[nodiscard]] float MinimumCanopyTransmission() const noexcept { return minimumCanopyTransmission_; }
         [[nodiscard]] float MaximumCanopyTransmission() const noexcept
         {
@@ -77,6 +78,7 @@ namespace island
         RenderedTerrainSurface renderedTerrain_;
         bool reportedReachLimit_ = false;
         bool subjectHasTreeGrips_ = false;
+        std::array<float,2> subjectTreeReachWeights_{};
         bool reportedTreePose_ = false;
         float minimumCanopyTransmission_ = 1.0f;
         float maximumCanopyTransmission_ = 1.0f;

@@ -1,6 +1,29 @@
 # island-simulator handoff
 
-## Latest — reaching elbow pole fixed after actual-pose diagnosis
+## User priorities — boar and shipwreck visual rework (2026-10-11)
+
+Added explicit unchecked tasks near the top-level wildlife backlog in PLAN.md for better
+pig/wild-boar anatomy and bristly coat/skin/snout/hoof textures, and for a more realistic
+shipwreck with convincing construction, broken planks, weathered wood and rusty fittings.
+The user permits original generated textures where useful. These are planning additions,
+not implemented improvements. Require actual close/wide in-game visual review on native,
+Android and Web; existing build/material diagnostics do not close either task. Keep the
+previous monkey, additional wildlife, hut and resident work open.
+
+## Latest — eight-stage native tree-transfer visual audit
+
+The pending source changes add eight sampled states from the same naturally reached
+inspection to native `monkey-tree` capture, plus strict sequence/contact-weight validation.
+See `docs/monkey-climb-contact-foundation.md` for capture semantics and limitations.
+`20261011T135905.681863Z-monkey-tree` passes; all eight stage images and final reference
+were inspected, kernel delta empty. Native build and 37/37 non-display tests pass (78.35 s).
+Sequential hand transfer/return is visible; hind feet remain grounded. This is not full
+climbing or continuous-frame qualification. Bulky shoulders, wooden-looking fur, flat
+face and stiff tail remain. Android/Web qualification is still outstanding. Next implement
+body attachment with mixed ground/bark supports, then ascent/rest/descent/dismount; retain
+the larger wildlife, hut, resident, boar and wreck tasks. Goal remains active.
+
+## Earlier — reaching elbow pole fixed after actual-pose diagnosis
 
 `MonkeyTreeReach::BendHint(weight)` continuously changes the ground rearward bend direction
 to downward during a forehand transfer. Retaining the ground pole had pitched elbows above

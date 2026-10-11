@@ -416,6 +416,24 @@ Standing visual-quality rules (apply to every task from now on):
   survival systems; deterministic simulation; portable GLSL 330/300 ES; measured draw, memory and
   frame budgets; software-renderer validation only while the AMD hardware latch stays in place.
 
+Visual rework explicitly requested by the operator (2026-10-11):
+
+- [ ] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
+  head and snout, shoulder/back silhouette, short articulated legs and cloven hooves. Give
+  the coat convincing bristly fur detail and appropriate skin, snout and hoof textures;
+  avoid uniformly brown geometric-looking bodies. Review walking, foot contact and material
+  detail in close and distant actual game captures on native, Android and Web. Existing
+  material-loading and ground-contact checks do not constitute visual acceptance.
+- [ ] Make the shipwreck and scattered ship debris substantially more realistic. Refine the
+  large sailing ship's hull structure, ribs, plank thickness, broken edges and believable
+  damage; integrate debris into sand and shallow water without floating or intersections.
+  Add suitable weathered wood textures with grain aligned to individual boards, splintered
+  ends, wet/dry variation and restrained rust on metal fittings. Original AI-generated
+  textures are permitted where useful; record provenance and verify UV scale, seams,
+  mipmaps and distant readability. Preserve collision/traversal and rendering budgets.
+  Inspect matched before/after close and wide in-game views on native, Android and Web;
+  do not close this task based only on a successful build or texture-loading diagnostics.
+
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
 progress or require player interaction; dangerous species keep their distance like the shark):
 

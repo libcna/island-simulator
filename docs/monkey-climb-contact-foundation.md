@@ -180,3 +180,32 @@ palm coordinates. Empty kernel delta, unchanged stop latch. Shoulder integration
 bulky and the wood-like fur/flat face defects remain. These are held-pose before/after
 images, not a complete moving contact-transfer sequence or portable qualification. Body
 attachment, ascent/descent and the larger island/wildlife plan remain unfinished.
+
+## Eight sampled transfer stages from one natural inspection
+
+Native `monkey-tree --capture` now replays the same bounded ordinary simulation from its
+initial troop state, identifies the selected subject/tree/inspection start, and retains
+eight actual states: before reaching, left transfer, right transfer, paired contact, left
+return, right return, nearly released, and after inspection. No authored pose timer or
+teleported animal substitutes for the simulation. Each state is rendered for four frames
+and saved as `capture.ppm.tree-stage-N.ppm`. After stage 7 the capture returns to the held
+paired-contact reference for the canonical image at frame 36. This reset is intentional,
+not continuous playback. Contact shadows use the same sampled state as the monkey mesh.
+
+The capture runner requires ordered stages, one subject and inspection, increasing clocks,
+the actual renderer-applied hand weights and final tree release. All eight images also
+pass the ordinary scene gate. Negative tests reject missing/duplicate/reordered stages,
+changed subject/tree, inconsistent inspection clocks, non-finite clocks, wrong weights and
+premature or absent release. These checks do not replace visual inspection.
+
+Evidence `20261011T135905.681863Z-monkey-tree` passes with subject 4 and tree 118. Inspection
+samples are at .133333, 1.46667, 2.13333, 2.8, 4.8, 5.46667 and 5.86667 seconds; the last
+sample releases the tree. All eight images plus the final reference were inspected:
+sequential transfers and returns are visible, hind feet stay grounded, and the head remains
+outside the trunk. Grass partly hides ground palms. Bulky shoulders, wood-like fur, flat
+face and a stiff tail remain visible defects. Wind is live draw-time wind, not historical
+simulation wind. These sampled phases do not prove every intervening frame is smooth.
+
+Native build and 37/37 non-display groups pass (`build/monkey-tree-sequence-tests.log`,
+78.35 s); kernel delta is empty. Android/Web are not requalified. Full body attachment,
+ascent, rest, descent and dismount remain unimplemented; do not call this tree climbing.

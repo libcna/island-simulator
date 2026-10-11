@@ -631,6 +631,7 @@ namespace island
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
         } else if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
             if (viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+                const MonkeyTroop initialTroop(monkeyTroop_);
                 bool ready = false;
                 for (int step = 0; step < 12000 && !ready; ++step) {
                     const auto subject = monkeyTroop_.Monkeys().front();
@@ -644,6 +645,33 @@ namespace island
                 }
                 if (!ready) throw std::runtime_error("monkey-tree inspection could not reach a tree in bounded simulation");
                 std::cout << "island-simulator: monkey-tree QA holds naturally reached inspection; wind remains live\n";
+                if (!capturePath_.empty()) {
+                    const auto selected = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
+                    const float startClock = selected.animationSeconds-selected.treeInspectionSeconds;
+                    MonkeyTroop replay(initialTroop);
+                    constexpr std::array<float,7> phaseTimes{.05f,1.35f,2.1f,2.7f,4.8f,5.4f,5.8f};
+                    bool entered = false;
+                    for (int step = 0; step < 12240 && monkeyTreeQaPoses_.size() < 8; ++step) {
+                        const auto observer = replay.Monkeys().front();
+                        replay.Update(1.0f/30.0f,observer.x+12,observer.y,observer.z);
+                        const auto& current = replay.Monkeys()[monkeyQaSubjectIndex_];
+                        const bool sameInspection = current.behavior == MonkeyBehavior::InspectTree
+                            && current.treeIndex == selected.treeIndex
+                            && std::abs(current.animationSeconds-current.treeInspectionSeconds-startClock) < .01f;
+                        if (sameInspection) {
+                            entered = true;
+                            if (monkeyTreeQaPoses_.size() < phaseTimes.size()
+                                && current.treeInspectionSeconds >= phaseTimes[monkeyTreeQaPoses_.size()])
+                                monkeyTreeQaPoses_.emplace_back(replay.Monkeys().begin(),replay.Monkeys().end());
+                        } else if (entered) {
+                            if (monkeyTreeQaPoses_.size() != phaseTimes.size())
+                                throw std::runtime_error("monkey-tree transfer interrupted before all phases");
+                            monkeyTreeQaPoses_.emplace_back(replay.Monkeys().begin(),replay.Monkeys().end());
+                        }
+                    }
+                    if (monkeyTreeQaPoses_.size() != 8)
+                        throw std::runtime_error("monkey-tree replay did not retain all eight transfer stages");
+                }
             }
             const MonkeyState& monkey = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
             const Vector3 forward(std::cos(monkey.headingRadians), 0.0f,
@@ -2061,6 +2089,9 @@ namespace island
 
     void IslandGame::Draw(const GameTime& gameTime)
     {
+        const std::size_t treeQaStage = drawnFrames_/4U;
+        const std::span<const MonkeyState> renderedMonkeys = treeQaStage < monkeyTreeQaPoses_.size()
+            ? std::span<const MonkeyState>(monkeyTreeQaPoses_[treeQaStage]) : monkeyTroop_.Monkeys();
         const auto drawStarted = std::chrono::steady_clock::now();
         auto& device = getGraphicsDeviceProperty();
         BeginGpuDiagnosticFrame(drawnFrames_);
@@ -2092,7 +2123,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("contact-shadows");
             contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                         monkeyTroop_.Monkeys(), boarHerd_.Boars());
+                                         renderedMonkeys, boarHerd_.Boars());
         }
 
         const float timeSeconds = canopyLodInspection_ ? 1.0f : static_cast<float>(gameTime.getTotalGameTimeProperty()
@@ -2171,7 +2202,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("monkeys");
             monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                  monkeyTroop_.Monkeys(),timeSeconds,monkeyQaSubjectIndex_);
+                                  renderedMonkeys,timeSeconds,monkeyQaSubjectIndex_);
         }
 
         const PlayerPosition& oceanPlayer = playerMotion_.Position();
@@ -2658,7 +2689,17 @@ namespace island
             }
         }
         ++drawnFrames_;
-        const std::uint32_t targetFrames = !capturePath_.empty()
+        if (!capturePath_.empty() && treeQaStage < monkeyTreeQaPoses_.size() && drawnFrames_%4U == 0) {
+            GpuDiagnosticScope gpuPass("capture-readback");
+            CaptureFrame(capturePath_+".tree-stage-"+std::to_string(treeQaStage)+".ppm");
+            const auto& subject = renderedMonkeys[monkeyQaSubjectIndex_];
+            const auto weights = monkeyRenderer_->SubjectTreeReachWeights();
+            std::cout << "island-simulator: monkey tree stage=" << treeQaStage
+                << " subject=" << monkeyQaSubjectIndex_ << " tree=" << subject.treeIndex
+                << " elapsed=" << subject.treeInspectionSeconds << " clock=" << subject.animationSeconds
+                << " weights=" << weights[0] << ',' << weights[1] << '\n';
+        }
+        const std::uint32_t targetFrames = !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

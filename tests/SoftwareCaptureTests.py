@@ -14,12 +14,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from run_software_capture import (
     check_configuration, software_environment, validate_graphics_log, run_monitored_capture,
     inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
+    validate_monkey_tree_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 
 
 class SoftwareCaptureTests(unittest.TestCase):
     cache = "CNA_GRAPHICS_RENDERER:STRING=OPENGL33\nCNA_ROOT_DIR:PATH=/dependency\n"
+
+    def test_tree_sequence_requires_same_subject_tree_clock_and_applied_contacts(self):
+        def ease(t):
+            t = max(0, min(1, t/.75))
+            return t*t*(3-2*t)
+        rows = []
+        for index, t in enumerate([.1,1.4,2.2,2.8,4.9,5.5,5.9]):
+            rows.append(f"monkey tree stage={index} subject=4 tree=20 elapsed={t} clock={100+t} "
+                        f"weights={ease(t-1)*ease(6-t-.75)},{ease(t-1.75)*ease(6-t)}")
+        rows.append("monkey tree stage=7 subject=4 tree=-1 elapsed=0 clock=106.1 weights=0,0")
+        valid = "\n".join(rows)
+        self.assertEqual(len(validate_monkey_tree_stages(valid)), 8)
+        for invalid in ("\n".join(rows[:-1]), valid+"\n"+rows[0],
+                        "\n".join([rows[1], rows[0], *rows[2:]]),
+                        valid.replace("stage=1 subject=4", "stage=1 subject=2"),
+                        valid.replace("stage=1 subject=4 tree=20", "stage=1 subject=4 tree=21"),
+                        valid.replace("clock=102.8", "clock=101.0"),
+                        valid.replace("weights=1,1", "weights=0,0"),
+                        valid.replace("clock=106.1", "clock=105.9"),
+                        valid.replace("elapsed=1.4", "elapsed=1.8"),
+                        valid.replace("clock=101.4", "clock=1e999"),
+                        valid.replace("weights=1,1", "weights=1.1,1"),
+                        valid.replace("stage=7 subject=4 tree=-1", "stage=7 subject=4 tree=20")):
+            with self.subTest(invalid=invalid), self.assertRaises(RuntimeError):
+                validate_monkey_tree_stages(invalid)
 
     def test_monkey_close_subject_must_still_be_submitted_at_capture(self):
         valid = ("island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17\n"

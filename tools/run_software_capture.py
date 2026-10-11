@@ -8,6 +8,7 @@ import argparse
 import datetime
 import fcntl
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -71,6 +72,47 @@ def validate_antialiasing_log(diagnostics, expected_samples):
     expected = (str(expected_samples), str(expected_samples))
     if not samples or any(sample != expected for sample in samples):
         raise RuntimeError(f"software qualification requires requested/applied {expected_samples}x MSAA")
+
+
+def validate_monkey_tree_stages(diagnostics):
+    number = r"([-+0-9.eE]+)"
+    rows = re.findall(r"monkey tree stage=(\d+) subject=(\d+) tree=(-?\d+) elapsed=" + number
+                      + r" clock=" + number + r" weights=" + number + "," + number, diagnostics)
+    if len(rows) != 8 or diagnostics.count("monkey tree stage=") != 8:
+        raise RuntimeError("monkey-tree requires exactly eight recorded transfer stages")
+    stages = []
+    for row in rows:
+        stage, subject, tree = map(int, row[:3])
+        elapsed, clock, left, right = map(float, row[3:])
+        if not all(math.isfinite(value) for value in (elapsed, clock, left, right)):
+            raise RuntimeError("non-finite monkey-tree stage")
+        stages.append(dict(stage=stage, subject=subject, tree=tree, elapsed=elapsed,
+                           clock=clock, weights=[left, right]))
+    times = [.05, 1.35, 2.1, 2.7, 4.8, 5.4, 5.8]
+    start = stages[0]["clock"] - stages[0]["elapsed"]
+    def ease(t):
+        t = max(0.0, min(1.0, t / .75))
+        return t*t*(3-2*t)
+    for index, stage in enumerate(stages):
+        if stage["stage"] != index or stage["subject"] != stages[0]["subject"]:
+            raise RuntimeError("monkey-tree stages must retain one subject in order")
+        if index and stage["clock"] <= stages[index-1]["clock"]:
+            raise RuntimeError("monkey-tree animation clock must advance between stages")
+        if index < 7:
+            t = stage["elapsed"]
+            if (stage["tree"] < 0 or stage["tree"] != stages[0]["tree"]
+                    or not times[index] <= t <= times[index]+.501
+                    or abs(stage["clock"]-t-start) > .002):
+                raise RuntimeError("monkey-tree stages must belong to one uninterrupted inspection")
+            expected = [ease(t-1)*ease(6-t-.75), ease(t-1.75)*ease(6-t)]
+        else:
+            if stage["tree"] != -1 or stage["elapsed"] != 0 or not 6 <= stage["clock"]-start <= 6.6:
+                raise RuntimeError("monkey-tree final stage must release the tree after inspection")
+            expected = [0, 0]
+        if any(not 0 <= value <= 1 or abs(value-wanted) > .002
+               for value, wanted in zip(stage["weights"], expected)):
+            raise RuntimeError("monkey-tree rendered contacts do not match sequential hand transfer")
+    return stages
 
 
 def validate_graphics_log(diagnostics, inspection=None, *, missing_leaf=False):
@@ -364,6 +406,16 @@ def main():
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
             if args.viewpoint in {"monkeys", "monkey-tree"}:
                 validate_monkey_capture_log(diagnostics, args.viewpoint == "monkey-tree")
+            if args.viewpoint == "monkey-tree":
+                metadata["monkey_tree_stages"] = validate_monkey_tree_stages(diagnostics)
+                for stage in metadata["monkey_tree_stages"]:
+                    stage_path = Path(str(capture) + f".tree-stage-{stage['stage']}.ppm")
+                    validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),
+                        str(stage_path), "--profile", "scene", "--output",
+                        str(evidence / f"tree-stage-{stage['stage']}-validation.json")],
+                        check=False, timeout=15)
+                    if validation.returncode:
+                        raise RuntimeError(f"monkey-tree stage {stage['stage']} image validation failed")
             validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),
                                          str(capture), "--profile", profile_for_viewpoint(args.viewpoint),
                                          "--output", str(evidence / "validation.json")],

@@ -288,6 +288,7 @@ namespace island
         bool smokeTest_ = false;
         FixedViewpoint viewpoint_ = FixedViewpoint::None;
         std::size_t monkeyQaSubjectIndex_ = 0;
+        std::vector<std::vector<MonkeyState>> monkeyTreeQaPoses_;
         std::string capturePath_;
         std::optional<CanopyLodInspection> canopyLodInspection_;
         bool mouseCaptured_ = false;

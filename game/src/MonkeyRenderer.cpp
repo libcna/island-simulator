@@ -976,6 +976,7 @@ namespace island
     {
         visibleMonkeyCount_ = 0;
         subjectHasTreeGrips_ = false;
+        subjectTreeReachWeights_ = {};
         visibleNearMonkeyCount_ = 0;
         visibleFarMonkeyCount_ = 0;
         drawCallCount_ = 0;
@@ -1072,6 +1073,7 @@ namespace island
 
             std::array<float, MonkeySkinningShader::SoleCount * 16> solePalette{};
             bool treeGripApplied = false;
+            std::array<float,2> appliedTreeWeights{};
             {
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
                 static const RigDefinition groundRig = CreateRig();
@@ -1113,6 +1115,7 @@ namespace island
                         reachable = reachable && targets[limb].has_value() && !limited;
                     }
                     if (reachable) {
+                        appliedTreeWeights = weights;
                         for (std::size_t limb = 0; limb < 2; ++limb) {
                             const Vector3 target = Vector3::Lerp(ToVector(pose.limbs[limb].sole),
                                 ToVector(targets[limb]->position),weights[limb]);
@@ -1189,6 +1192,7 @@ namespace island
 
             std::array<float, BoneCount * 16> palette{};
             if (treeGripApplied && index == qaSubjectIndex) subjectHasTreeGrips_ = true;
+            if (index == qaSubjectIndex) subjectTreeReachWeights_ = appliedTreeWeights;
             for (std::size_t bone = 0; bone < BoneCount; ++bone)
                 (*skinTransforms)[bone].ToColumnMajor(palette.data() + bone * 16);
             paletteEffect_->SetUniformMat4Array("uBones", palette.data(), static_cast<int>(BoneCount));
