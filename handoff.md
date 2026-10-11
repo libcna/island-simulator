@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — close-frontal retreat repaired in native CPU + actual image audit
+
+SnakePopulation adds turnAside fallback onlywhenordinaryretreatsubstep rejected.
+Sidechosenaway, halfspeedhead, quadraticbendfront12stations/66cm, remaininghalfmovement
+budget restores55mm jointlength gradually across40joints. Explicitperjointdisplacement
+guard + originalValidBody/obstacle/selfclearance/home/ground + nonapproach beforecommit.
+Acceptedturnreseed43trailpoints; normalretainedheadtrail unchanged/512cap unchanged.
+Earlyvariants rejected: onejointpivot travel.233m/waves0; distributedno-restoration
+2.499m/waves0. Finaloriginalcoverage7.902m/2340waveframes, alloldtestsretained.
+Closeobservertest nowUNCONDITIONAL indefault (oldCLIaliaskept),4offsets900×1/60:
+(.35,.3)7.553m,(.35,-.3)7.760m,(.5,0)7.900m,(3,0)5.176m, eachstepbodymotionand
+nonapproachchecked. FocusedPASS9.30s; all40non-displaygroupsPASS84.37s.
+HeadQA nowfollowsheadtranslation notcentroid. Actualcontainedllvmpipe
+build/software-captures/20261011T205902.050693Z-snake-head/motion-grid.png inspected:
+headturn/retreatvisibleall4, bendpropagates, somegrassocclusion. MotiongateNOWPASS,
+2.394m first/lasthead displacement, graphicsvalid/kernel[]. Genericluminance+large
+contraststillFAIL unchanged. Notfinalnaturalness/portable/runtimeorallroutesacceptance.
+Native/Web builds/package11,166,542raw/4,200,268gzipPASS; ARM64assemble/lint7sPASS.
+Allownedjobs terminal; noportableactualrun yetforrepair. Stoplatchunchanged. NoAMD
+hardware/AndroidKVM/dependency/push. Goalactive, GPUtimeoutcauseunknown.
+NEXT portableactualretreat review, bodywideview andcontinuousnaturalness/grasscontact
+remaining; then treesnakes/otherwildlife/hut/resident/fullbacklog stillopen.
+
 ## Latest — native matched head UV correction; retreat still fails
 
 SnakeHeadProfile.hpp shared SkinU/V density helpers; headV now matchesbody1.5/55mm,

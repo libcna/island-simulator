@@ -306,21 +306,22 @@ context loss and four intermediate images each; kernel-final[]. This is executio
 qualification on Chrome/SwiftShader only, NOT final visual or motion acceptance. No
 generic native luminance threshold was changed or used to claim these close views pass.
 
-## Confirmed close-frontal retreat deadlock — OPEN
+## Close-frontal retreat deadlock — reproduction history (repair below)
 
 CPU reproduction now matches the initial head-camera observer offset: first snake in
 the real vegetation/jungle/prop obstacle layout, observer fixed at head+(0.35,0.25,0.30),
 900 updates of1/60s. The whole body remains valid but head displacement is **0m** after
 15s. This confirms a simulation failure rather than merely a misleading screenshot.
 
-Run the explicitly opt-in, currently FAILING reproducer:
+The original opt-in reproducer (f9e8bc0) failed; its command is retained as an alias
+for the current default suite, which now includes the repaired scenarios below:
 
 ```sh
 build/island_snake_tests --close-observer-regression
 ```
 
-It returns1 with `KNOWN OPEN DEFECT` (without generating an abort/core). The regular
-CTest snake suite still passes9.48s; that pass does NOT include this unresolved regression.
+At the reproduction stage it returned1 with `KNOWN OPEN DEFECT` (without an abort/core).
+The regular CTest suite then passed9.48s but did NOT include that regression.
 Evidence: build/snake-close-retreat-reproducer.log and
 build/snake-close-retreat-restored-tests.log. The first failing test, before it became
 an explicit reproducer, is retained in build/snake-close-retreat-tests.log.
@@ -363,3 +364,39 @@ sequence; the paired images support only this localized material correction.
 Native/Web builds and package PASS (11,162,882 bytes raw /4,197,939 gzip), ARM64
 assembleDebug/lintDebug PASS3s. No new portable runtime; shader/material execution
 qualification above is native software only. Hardware stop latch remains unchanged.
+
+## Bounded articulated retreat turn — native repair
+
+When an ordinary retreat substep cannot proceed, a validated lateral neck turn is now
+attempted. Side selection increases horizontal distance from the observer; the bend
+falls off quadratically over the front12 stations (66cm). The head uses half the
+normal movement budget; the remaining half is apportioned over40 joints to gradually
+restore55mm spacing without snapping previously curved chords. Every resulting joint
+displacement is explicitly bounded, terrain heights recomputed, and the full existing
+body/obstacle/self-clearance/home-range checks must pass before commit. Rejected
+turns do not change the body/history. Accepted turns reseed43 path points (41body+2
+tail extensions); ordinary movement continues with the existing retained head path
+and512-sample cap. No rigid backwards translation, relaxed test or larger memory cap.
+
+Two preliminary variants were rejected by unchanged coverage tests: concentrating
+rotation into one neck joint traveled only0.233m and lost body waves; distributed
+turning without gradual spacing restoration traveled2.499m and also lost waves.
+The final variant retains7.902m in that older coverage scenario and2340 opposing-wave
+frames. The formerly opt-in close-observer regression is now UNCONDITIONAL in the
+normal snake suite, expanded to four offsets and per-update station-motion and
+non-approach checks. After900×1/60s, displacements are7.553m at(+.35,+.30),7.760m
+at(+.35,-.30),7.900m at(+.5,0), and5.176m at(+3,0). Focused suite PASS9.30s.
+
+The head-detail QA camera now follows the head translation rather than the centroid;
+its direction and ordinary threatening observer behavior remain unchanged. Actual
+contained llvmpipe `20261011T205902.050693Z-snake-head/motion-grid.png` inspected:
+head visibly turns and leaves its initial position, remains framed in all four views,
+and bends progress through the neck/body. Timed motion validation now PASSES with
+2.394m head displacement between first/last stages (previously0), graphics log valid,
+kernel-after[]. Some grass still occludes the neck. The generic luminance/large-scale
+contrast gates still FAIL unchanged: not final snake appearance/naturalness acceptance.
+This qualifies the reproduced native cases, not every possible escape route, portable
+runtime, continuous3D contact or the still-unresolved AMD GPU timeout.
+Full native non-display suite PASS40/40 (84.37s). Native/Web builds and package PASS
+(11,166,542 bytes raw /4,200,268 gzip); ARM64 assembleDebug/lintDebug PASS7s.
+No portable runtime was launched for this repair. Hardware stop-latch SHA unchanged.

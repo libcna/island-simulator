@@ -16,6 +16,8 @@
 static void Check(bool pass, const char* message) { if (!pass) throw std::runtime_error(message); }
 int main(int argc,char** argv)
 {
+    if(argc>1 && (argc!=2 || std::string_view(argv[1])!="--close-observer-regression"))
+        throw std::invalid_argument("Unknown snake test argument");
     Check(island::SnakeSkinV(0,island::SnakePopulation::Spacing)==0,"head/body UV seam differs");
     Check(std::abs(island::SnakeSkinV(island::SnakePopulation::Spacing,island::SnakePopulation::Spacing)-1.5f)<0.00001f,
         "body longitudinal scale density changed");
@@ -168,6 +170,8 @@ int main(int argc,char** argv)
         if (threat) Check(std::hypot(snake.body[0].x-x,snake.body[0].z-z)>=2.9999f,
             "threatened snake advanced toward observer");
     }
+    std::cout << "snake coverage travel=" << totalTravel << " states=" << behaviors[0] << behaviors[1]
+        << behaviors[2] << " wave-frames=" << propagatedWaveFrames << '\n' << std::flush;
     Check(totalTravel>3.0f && behaviors[0] && behaviors[1] && behaviors[2],
         "snake behavior/movement coverage missing");
     Check(propagatedWaveFrames>10,"opposing body waves did not propagate beyond the neck");
@@ -188,23 +192,27 @@ int main(int argc,char** argv)
         Check(std::hypot(a.x-b.x,a.z-b.z)<0.025f,"trail sampling depends excessively on update step");
     }
     const auto before=population.Snakes().front();
-    // Opt-in reproducer for the OPEN close-frontal-observer defect, not a passing gate.
-    // Keep the existing safety suite runnable while the coupled turn solver is redesigned.
-    if(argc==2 && std::string_view(argv[1])=="--close-observer-regression") {
+    // The former opt-in regression now runs in the default suite too. Keep its CLI alias.
+    for(const auto offset:std::array<std::array<float,2>,4>{{{0.35f,0.30f},{0.35f,-0.30f},{0.5f,0},{3,0}}}) {
         island::SnakePopulation closeObserver(terrain,obstacles);
         const auto start=closeObserver.Snakes().front().body.front();
-        const float observerX=start.x+0.35f,observerZ=start.z+0.30f;
+        const float observerX=start.x+offset[0],observerZ=start.z+offset[1];
         for(int frame=0;frame<900;++frame) {
+            const auto old=closeObserver.Snakes().front();
             closeObserver.Update(1.0f/60.0f,observerX,start.y+0.25f,observerZ);
-            Check(closeObserver.ValidBody(closeObserver.Snakes().front()),"close retreat invalid body");
+            const auto& now=closeObserver.Snakes().front();
+            Check(closeObserver.ValidBody(now),"close retreat invalid body");
+            if(now.behavior==island::SnakeBehavior::Retreat)
+                Check(std::hypot(now.body[0].x-observerX,now.body[0].z-observerZ)+0.0001f
+                    >=std::hypot(old.body[0].x-observerX,old.body[0].z-observerZ),"close retreat approached observer");
+            for(std::size_t j=0;j<now.body.size();++j)
+                Check(std::hypot(now.body[j].x-old.body[j].x,now.body[j].z-old.body[j].z)
+                    <=1.151f/60+0.001f,"close turn teleported a body station");
         }
         const auto end=closeObserver.Snakes().front().body.front();
         const float travel=std::hypot(end.x-start.x,end.z-start.z);
-        std::cout << "close observer retreat displacement " << travel << '\n' << std::flush;
-        if(travel<=0.1f) {
-            std::cerr << "KNOWN OPEN DEFECT: snake cannot retreat from close frontal observer\n";
-            return 1;
-        }
+        std::cout << "close observer " << offset[0] << ',' << offset[1] << " retreat displacement " << travel << '\n' << std::flush;
+        Check(travel>1.0f,"snake cannot retreat from frontal observer");
     }
     {
         auto s=before;

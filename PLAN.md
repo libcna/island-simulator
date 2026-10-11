@@ -713,8 +713,8 @@ progress or require player interaction; dangerous species keep their distance li
   (currently centroid-based). Do not count saved screenshots as proof of natural motion.
   Confirmed CPU defect: fixed observer at initial head+(0.35,0.25,0.30),900×1/60s,
   head displacement0m despite valid body. Opt-in `build/island_snake_tests
-  --close-observer-regression` currently FAILS (exit1); normal passing suite does not
-  cover this open case. Circle/path-intersection replacement was rejected for station
+  --close-observer-regression` originally FAILED (exit1); that old normal suite did not
+  cover it. Circle/path-intersection replacement was rejected for station
   teleport/trail-cap violations and removed. Repair coupled neck/turn/path constraints
   without relaxing clearance, movement bounds or512-sample cap; see ground-snakes doc.
   Head UV correction: shared head/body longitudinal density and per-sector nose pole
@@ -722,6 +722,14 @@ progress or require player interaction; dangerous species keep their distance li
   before/204412.087633Z after images inspected, scales more regular, geometry unchanged.
   Timed body records match, graphics/kernel checks pass; BOTH overall capture runs
   still FAIL stationary-motion gate due to the open retreat defect. No full visual pass.
+  Native retreat repair now validated: bounded articulated lateral neck turn on rejected
+  retreat steps; quadratic66cm neck bend, half-speed head plus bounded gradual joint
+  correction, full body/obstacle/self-clearance validation before commit,43-point trail
+  reseed only on accepted turns.512 cap and old movement/wave tests retained.
+  Former opt-in regression now always runs, four offsets retreat5.176–7.900m/15s.
+  Head QA followshead, notcentroid. Actual205902.050693Z headgrid inspected: visible
+  turning/escape, timed motion PASS2.394m stage displacement, graphics valid/kernel[].
+  Generic contrast stillFAILS; portable actual repair qualification/final naturalness open.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

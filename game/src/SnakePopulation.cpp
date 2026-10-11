@@ -113,6 +113,60 @@ namespace island
             const float speed = retreat ? 1.15f : 0.38f;
             const int steps = static_cast<int>(std::ceil(speed*dt/0.012f));
             float traveled = 0.0f;
+            const auto turnAside = [&](const float advance) {
+                if(!retreat) return false;
+                const auto h=state.body[0],neck=state.body[1];
+                const float length=std::hypot(h.x-neck.x,h.z-neck.z);
+                if(length<0.000001f) return false;
+                const float sideX=-(h.z-neck.z)/length,sideZ=(h.x-neck.x)/length;
+                const float sign=(sideX*(h.x-observerX)+sideZ*(h.z-observerZ)>=0)?1.0f:-1.0f;
+                const float headAdvance=advance*0.5f;
+                auto turned=state;
+                turned.body[0].x+=sideX*sign*headAdvance;
+                turned.body[0].z+=sideZ*sign*headAdvance;
+                // An articulated lateral turn, not a rigid translation or reversal.
+                // Spread the bend over the front 66 cm, then restore joint lengths slowly.
+                // Half the movement budget is reserved for length correction; every final
+                // station displacement is checked below instead of trusting the projection.
+                for(std::size_t j=1;j<turned.body.size();++j) {
+                    const float oldLength=std::hypot(state.body[j].x-state.body[j-1].x,
+                                               state.body[j].z-state.body[j-1].z);
+                    const float correctionBudget=advance*0.5f/static_cast<float>(SnakeState::StationCount-1);
+                    const float rest=oldLength+std::clamp(Spacing-oldLength,-correctionBudget,correctionBudget);
+                    const auto previous=turned.body[j-1];
+                    const float neckWeight=std::max(0.0f,1.0f-static_cast<float>(j)/12.0f);
+                    const float dx=state.body[j].x+sideX*sign*headAdvance*neckWeight*neckWeight-previous.x;
+                    const float dz=state.body[j].z+sideZ*sign*headAdvance*neckWeight*neckWeight-previous.z;
+                    const float distance=std::hypot(dx,dz);
+                    if(distance<0.000001f) return false;
+                    turned.body[j].x=previous.x+dx*(rest/distance);
+                    turned.body[j].z=previous.z+dz*(rest/distance);
+                }
+                for(std::size_t j=0;j<turned.body.size();++j) {
+                    auto& p=turned.body[j];
+                    if(std::hypot(p.x-state.body[j].x,p.z-state.body[j].z)>advance+0.00005f) return false;
+                    p.y=GroundedY(p.x,p.z,RadiusAt(j));
+                }
+                if(std::hypot(turned.body[0].x-observerX,turned.body[0].z-observerZ)
+                    <std::hypot(h.x-observerX,h.z-observerZ) || !ValidBody(turned)) return false;
+                state.body=turned.body;
+                state.heading=std::atan2(state.body[0].z-state.body[1].z,state.body[0].x-state.body[1].x);
+                state.phase=std::fmod(state.phase+headAdvance*6.0f,tau);
+                // Reseed only after an accepted articulated escape. Ordinary locomotion
+                // continues using its retained head trail; rejected turns change nothing.
+                auto& trail=trails_[index];
+                trail.assign(state.body.begin(),state.body.end());
+                auto tail=state.body.back();
+                const auto beforeTail=state.body[state.body.size()-2];
+                const float tailLength=std::hypot(tail.x-beforeTail.x,tail.z-beforeTail.z);
+                for(int extra=0;extra<2;++extra) {
+                    tail.x+=(state.body.back().x-beforeTail.x)*Spacing/tailLength;
+                    tail.z+=(state.body.back().z-beforeTail.z)*Spacing/tailLength;
+                    trail.push_back(tail);
+                }
+                traveled+=headAdvance;
+                return true;
+            };
             for (int step=0; step<steps; ++step) {
                 auto candidate = state;
                 const float advance = speed*dt/static_cast<float>(steps);
@@ -121,11 +175,15 @@ namespace island
                 nextHead.x += std::cos(direction)*advance;
                 nextHead.z += std::sin(direction)*advance;
                 if (!ValidPoint(nextHead.x,nextHead.z,MaximumRadius)) {
+                    if(turnAside(advance)) continue;
                     state.heading = std::remainder(state.heading+0.25f,tau);
                     break;
                 }
                 if (retreat && std::hypot(nextHead.x-observerX,nextHead.z-observerZ)
-                        < std::hypot(state.body[0].x-observerX,state.body[0].z-observerZ)) break;
+                        < std::hypot(state.body[0].x-observerX,state.body[0].z-observerZ)) {
+                    if(turnAside(advance)) continue;
+                    break;
+                }
                 nextHead.y = GroundedY(nextHead.x,nextHead.z,RadiusAt(0));
                 const auto& trail = trails_[index];
                 auto segmentStart = nextHead;
@@ -154,6 +212,7 @@ namespace island
                     if (!sampled) { completeTrail = false; break; }
                 }
                 if (!completeTrail || !ValidBody(candidate)) {
+                    if(turnAside(advance)) continue;
                     state.heading = std::remainder(state.heading+0.25f,tau);
                     break;
                 }

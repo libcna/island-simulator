@@ -1250,6 +1250,10 @@ namespace island
         const auto snakeCentre = [this]() {
             Vector3 centre = Vector3::Zero;
             const auto population = snakes_->Snakes();
+            if(viewpoint_==FixedViewpoint::SnakeHeadDetail) {
+                const auto& head=population.front().body.front();
+                return Vector3(head.x,head.y,head.z);
+            }
             for (const auto& p : population.front().body) centre += Vector3(p.x,p.y,p.z);
             return centre/static_cast<float>(SnakeState::StationCount);
         };
