@@ -2987,6 +2987,7 @@ int main()
     unsigned excursionClear=0;
     double attachmentMillis=0,attachmentMaxMillis=0,clearanceMillis=0,clearanceMaxMillis=0;
     double clearanceChunkMaxMillis=0;
+    double attachmentChunkMaxMillis=0;
     bool observedPreparing=false;
     std::array<unsigned,island::MonkeyTroop::MonkeyCount> preparationFrames{};
     bool observedLiveClimb=false,observedLiveSummit=false,checkedLiveReturn=false;
@@ -3093,7 +3094,7 @@ int main()
                 Check(!state.treeExcursion,"pending collision preflight cannot activate tree climbing early");
             } else if (!state.treeExcursion) preparationFrames[index]=0;
             if (state.treeExcursion) {
-                Check(preparationFrames[index]>=122,"live climb waits for every incremental clearance sample");
+                Check(preparationFrames[index]>=215,"live climb waits for all attachment and excursion samples");
                 observedLiveClimb=true;
                 observedLiveSummit=observedLiveSummit||state.treeClock.seconds>=18;
                 Check(state.treeIndex>=0 && repeated.treeExcursion
@@ -3130,6 +3131,30 @@ int main()
                     std::chrono::steady_clock::now()-attachmentStart).count();
                 attachmentMillis+=attachmentTime;
                 attachmentMaxMillis=std::max(attachmentMaxMillis,attachmentTime);
+                island::MonkeyAttachmentSite::Result ranged{};
+                int siteChecked=0;
+                while (siteChecked<island::MonkeyAttachmentSite::SampleCount) {
+                    const int count=std::min(16,island::MonkeyAttachmentSite::SampleCount-siteChecked);
+                    const auto chunkStart=std::chrono::steady_clock::now();
+                    ranged=island::MonkeyAttachmentSite::PrepareRange(state.selectedTree,frame,
+                        monkeyAttachmentTerrain,worldObstacles,3.0f,false,siteChecked,count);
+                    attachmentChunkMaxMillis=std::max(attachmentChunkMaxMillis,
+                        std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-chunkStart).count());
+                    siteChecked+=count;
+                    if (!ranged.plan) break;
+                }
+                Check(ranged.failure==prepared.failure && ranged.plan.has_value()==prepared.plan.has_value(),
+                    "incremental attachment preserves full validator decisions and rejection categories");
+                if (ranged.plan) {
+                    Check(siteChecked==1502,"attachment chunks retain 1001 reach and 501 fixed-wind clearance samples");
+                    for (std::size_t key=0;key<prepared.plan->keys.size();++key)
+                        for (std::size_t limb=0;limb<4;++limb) {
+                            const auto a=ranged.plan->keys[key].contacts[limb];
+                            const auto b=prepared.plan->keys[key].contacts[limb];
+                            Check(a.x==b.x && a.y==b.y && a.z==b.z,
+                                "provisional attachment chunks preserve exactly the same plan contacts");
+                        }
+                }
                 if (prepared.plan) {
                     ++attachmentAccepted;
                     const auto& plan=*prepared.plan;
@@ -3306,6 +3331,16 @@ int main()
                         }
                     }
                     if (attachmentAccepted==1) {
+                        for (const auto& [first,count]:std::array<std::pair<int,int>,5>{{
+                                {-1,1},{0,0},{0,-1},{1502,1},{1501,2}}})
+                            Check(island::MonkeyAttachmentSite::PrepareRange(state.selectedTree,frame,
+                                monkeyAttachmentTerrain,worldObstacles,3.0f,false,first,count).failure
+                                    ==island::MonkeyAttachmentSite::Failure::InvalidInput,
+                                "attachment range rejects negative, empty and overflowing sample intervals");
+                        for (const auto& [first,count]:std::array<std::pair<int,int>,5>{{
+                                {-1,1},{0,0},{0,-1},{1001,1},{1000,2}}})
+                            Check(!island::MonkeyTreeAttachment::IsReachableRange(plan,first,count),
+                                "reach range rejects negative, empty and overflowing sample intervals");
                         auto displacedTree=state.selectedTree;
                         displacedTree.y+=100;
                         const auto regrounded=island::MonkeyAttachmentSite::Prepare(displacedTree,frame,
@@ -3479,6 +3514,7 @@ int main()
         << "; excursion mean/max " << clearanceMillis/std::max(1U,attachmentAccepted)
         << '/' << clearanceMaxMillis << '\n';
     std::cout << "Monkey preflight 16-pose chunk maximum milliseconds " << clearanceChunkMaxMillis << '\n';
+    std::cout << "Monkey attachment 16-pose chunk maximum milliseconds " << attachmentChunkMaxMillis << '\n';
     Check(observedPreparing,"live preparation is exercised across updates instead of blocking on the whole trajectory");
     Check(excursionClear>0,"natural island arrivals include an excursion passing full-cycle clearance probes");
     Check(observedLiveClimb && observedLiveSummit && checkedLiveReturn,

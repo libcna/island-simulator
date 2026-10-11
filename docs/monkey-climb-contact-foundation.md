@@ -576,3 +576,29 @@ Native `20261011T161831.733794Z-monkey-climb` passes all eight stages; original-
 summit and whole sequence inspected, entry/ascent/descent/release retained with no visible
 body/contact regression. Far contacts still occluded, not continuous-motion proof. Empty
 kernel delta, unchanged stop latch, asset gate 24/75/10/0, all jobs finished.
+
+## Attachment preparation split into exact ranges
+
+`PrepareRange` and `IsReachableRange` now allow the remaining 1,001 reach and 501
+fixed-wind clearance samples to share the live update budget with the 1,951 excursion
+samples. Full validators retain complete-range semantics. A successful attachment range
+returns only a provisional plan: all 3,453 samples must pass before the monkey leaves
+its planted inspection pose. The same 16-per-candidate / 32-per-troop update bounds apply.
+
+Core fixtures compare full and ranged decisions for all 64 candidate sites, preserve
+the four accepted sites and exact contact coordinates, and require at least 215 pending
+updates before activation. Measured 16-sample chunk maxima are 0.651717 ms for attachment
+and 1.61227 ms for excursion (`build/monkey-site-incremental-tests.log`). Shared-host Debug
+observations are not Release/mobile frame-time guarantees. All 37 non-display groups
+pass in 85.80 s. Native `20261011T162645.838705Z-monkey-climb` passes all eight stages;
+summit/sequence inspection retains entry, ascent, descent and release without a new
+visible regression. Far contacts remain occluded and continuous/all-angle audit is open.
+Web Release build/package and default ARM64 build/lint pass; Android runtime evidence
+above predates the new scheduler. No sample reduction or broader collision proof claimed.
+
+Portable Web runtime `20261011T163407.734425Z-chrome-monkey-climb` passes all eight stage
+invariants, held summit and 60 simulation intervals (GL 0, context intact, empty kernel
+delta). Both actual summit PNGs inspected; near-side grips/body remain connected, far
+contacts occluded, coarse joints and stiff tail remain realism work. This is not a
+continuous-motion or hardware performance audit. Negative/empty/overflowing range
+regressions added; focused Core rerun passes in 65.54 s. Asset gate 24/75/10/0 passes.

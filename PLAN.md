@@ -469,6 +469,18 @@ Standing visual-quality rules (apply to every task from now on):
   peaks at 21.8729 ms and remains to split. 37/37 groups pass (69.89 s); native eight-stage
   `20261011T161831.733794Z-monkey-climb` passes/inspected with no visible cycle regression,
   empty kernel delta. Portable scheduling/cache checks and Release profiling remain open.
+  Attachment preparation is now incremental too: retain all 1,502 site + 1,951 excursion
+  samples under the same 16-per-candidate / 32-per-troop update budget; provisional plans
+  cannot activate early. Full/ranged decisions and exact contacts agree across 64 sites.
+  Debug chunk maxima 0.651717 / 1.61227 ms (site/excursion), not production FPS guarantees.
+  37/37 non-display groups pass (85.80 s); native eight-stage
+  `20261011T162645.838705Z-monkey-climb` passes and summit/sequence inspected. Web Release
+  build/package and ARM64 build/lint pass. Android runtime, continuous/all-angle motion,
+  Release profiling and overall animal realism remain open.
+  Current incremental WebGL runtime `20261011T163407.734425Z-chrome-monkey-climb` passes
+  eight cycle diagnostics, held summit, 60 intervals, GL 0/context intact and empty kernel
+  delta. Both summit images inspected: no new contact/body regression; coarse joints,
+  stiff tail and hidden far grips remain open. Invalid range CPU regressions also pass.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
@@ -535,6 +547,14 @@ Player controls explicitly requested by the operator (2026-10-11):
 
 Visual rework explicitly requested by the operator (2026-10-11):
 
+- [ ] Give pigs/wild boars natural vocalizations (operator request, 2026-10-11): grunts,
+  snuffles and breathing appropriate to resting, wandering and rooting/foraging. Use
+  positional audio with distance attenuation, restrained volume, varied timing and
+  cooldowns so the herd does not repeat one sound in unison or overwhelm island ambience.
+  Respect mute/settings and existing voice budgets; record asset provenance/licensing.
+  Verify behavior-triggered playback and actual listening in-game, including direction,
+  distance, overlapping animals and native/Web/Android audio lifecycle. Keep unchecked
+  until implemented and audibly reviewed; visual boar improvements do not satisfy this task.
 - [ ] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
   head and snout, shoulder/back silhouette, short articulated legs and cloven hooves. Give
   the coat convincing bristly fur detail and appropriate skin, snout and hoof textures;

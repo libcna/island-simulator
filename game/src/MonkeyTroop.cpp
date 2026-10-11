@@ -419,19 +419,25 @@ namespace island
             } else {
                 agent.state.animationSeconds+=deltaSeconds;
                 // Hold the planted inspection pose while checking small exact chunks.
-                // Bound total full-excursion work across the troop, not just per animal.
+                // Bound both attachment and full-excursion checks across the troop.
+                constexpr int siteSamples=MonkeyAttachmentSite::SampleCount;
+                constexpr int totalSamples=siteSamples+MonkeyExcursionClearance::SampleCount;
+                const bool checkingSite=agent.preflightStep<siteSamples;
                 const int count=std::min({16,32-preflightSamples_,
-                    MonkeyExcursionClearance::SampleCount-agent.preflightStep});
+                    (checkingSite ? siteSamples : totalSamples)-agent.preflightStep});
                 if (count>0) {
                     const auto& plan=*agent.pendingExcursion;
-                    const auto result=MonkeyExcursionClearance::ValidateRange(plan,*renderedTerrain_,
-                        obstacles_,plan.windTime,agent.preflightStep,count);
+                    const bool valid=checkingSite
+                        ? MonkeyAttachmentSite::PrepareRange(agent.state.selectedTree,plan.frame,
+                            *renderedTerrain_,obstacles_,plan.windTime,false,agent.preflightStep,count).plan.has_value()
+                        : MonkeyExcursionClearance::ValidateRange(plan,*renderedTerrain_,obstacles_,
+                            plan.windTime,agent.preflightStep-siteSamples,count).failure==MonkeyExcursionClearance::Failure::None;
                     preflightSamples_+=count;
                     agent.preflightStep+=count;
-                    if (result.failure!=MonkeyExcursionClearance::Failure::None) {
+                    if (!valid) {
                         agent.pendingExcursion.reset();
                         agent.state.treePreparing=false;
-                    } else if (agent.preflightStep==MonkeyExcursionClearance::SampleCount) {
+                    } else if (agent.preflightStep==totalSamples) {
                         agent.state.treeExcursion=std::move(agent.pendingExcursion);
                         agent.state.treeClock={};
                         agent.state.treePreparing=false;
@@ -572,16 +578,24 @@ namespace island
         if (climbingEnabled_ && agent.state.behavior==MonkeyBehavior::InspectTree && !agent.treeClimbAttempted
             && agent.state.treeInspectionSeconds>=3.2f && observerDistance>=7.5f
             && agent.state.simulationTier==WildlifeSimulationTier::Full) {
+            if (preflightSamples_>=32) {
+                agent.state.treeInspectionSeconds=3.2f;
+                agent.stateSecondsRemaining=2.8f;
+                agent.state.treeInspectionRemaining=2.8f;
+                return;
+            }
             agent.treeClimbAttempted=true;
             const MonkeyAttachmentSite::GroundFrame frame{{agent.state.x,agent.state.y,agent.state.z},
                 agent.state.headingRadians,agent.state.scale};
-            const auto site=MonkeyAttachmentSite::Prepare(agent.state.selectedTree,frame,
-                *renderedTerrain_,obstacles_,windTime_);
+            const int count=std::min(16,32-preflightSamples_);
+            const auto site=MonkeyAttachmentSite::PrepareRange(agent.state.selectedTree,frame,
+                *renderedTerrain_,obstacles_,windTime_,false,0,count);
+            preflightSamples_+=count;
             if (site.plan) {
                 const auto plan=MonkeyTreeExcursion::Build(*site.plan,frame,
                     GroundJunglePlacement(agent.state.selectedTree,*renderedTerrain_),windTime_);
                 agent.pendingExcursion=std::make_shared<MonkeyTreeExcursion::Plan>(plan);
-                agent.preflightStep=0;
+                agent.preflightStep=count;
                 agent.state.treePreparing=true;
             }
         }

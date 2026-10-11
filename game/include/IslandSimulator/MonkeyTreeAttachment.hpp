@@ -101,11 +101,12 @@ namespace island::MonkeyTreeAttachment
     // Bounded preflight for a candidate, before lifting any ground supports.
     // This samples reach only; terrain/obstacle/body-clearance and changing wind
     // still require caller checks. It is not a general continuous collision proof.
-    inline bool IsReachable(const Plan& plan)
+    inline bool IsReachableRange(const Plan& plan,int first,int count)
     {
+        if (first<0||first>=1001||count<=0||count>1001-first) return false;
         const auto finite=[](Point p) { return std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z); };
         try {
-            for (int step=0;step<=1000;++step) {
+            for (int step=first;step<first+count;++step) {
                 const auto pose=Sample(plan,step*.01f);
                 if (pose.limbs.reachLimited) return false;
                 for (const auto& limb:pose.limbs.limbs)
@@ -114,4 +115,5 @@ namespace island::MonkeyTreeAttachment
         } catch (const std::invalid_argument&) { return false; }
         return true;
     }
+    inline bool IsReachable(const Plan& plan) { return IsReachableRange(plan,0,1001); }
 }

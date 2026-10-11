@@ -28,11 +28,16 @@ namespace island::MonkeyAttachmentSite
             return LocalDirection({(p.x-origin.x)/scale,(p.y-origin.y)/scale,(p.z-origin.z)/scale});
         }
     };
-    inline Result Prepare(const CanopyPlacement& source,GroundFrame frame,
+    inline constexpr int SampleCount=1001+501;
+    // A successful range is only a provisional candidate, not permission to climb.
+    // The caller must check every range before activating the returned plan.
+    inline Result PrepareRange(const CanopyPlacement& source,GroundFrame frame,
         const RenderedTerrainSurface& terrain,std::span<const CircularObstacle> obstacles,
-        float windTime,bool farMesh=false)
+        float windTime,bool farMesh,int first,int count)
     {
         const auto fail=[](Failure reason) { return Result{{},reason}; };
+        if (first<0||first>=SampleCount||count<=0||count>SampleCount-first)
+            return fail(Failure::InvalidInput);
         const auto finite=[](Point p) { return std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z); };
         if (!finite(frame.origin)||!std::isfinite(frame.heading)||!std::isfinite(frame.scale)
             ||frame.scale<=0||!std::isfinite(windTime)||!std::isfinite(source.scale)||source.scale<=0
@@ -90,7 +95,10 @@ namespace island::MonkeyAttachmentSite
                 climb.origin.y+frame.scale*root.z,
                 climb.origin.z+frame.scale*(root.x*climb.right.z+root.y*climb.outward.z)});
             auto plan=MonkeyTreeAttachment::Build(base,normals,raised,staged,contacts,finalNormals,hip);
-            if (!MonkeyTreeAttachment::IsReachable(plan)) return fail(Failure::TrajectoryReach);
+            const int reachCount=std::min(first+count,1001)-first;
+            if (reachCount>0 && !MonkeyTreeAttachment::IsReachableRange(plan,first,reachCount))
+                return fail(Failure::TrajectoryReach);
+            if (first+count<=1001) return {plan,Failure::None};
             std::vector<CircularObstacle> nearby;
             for (const auto& obstacle:obstacles) {
                 if (!std::isfinite(obstacle.x)||!std::isfinite(obstacle.z)||!std::isfinite(obstacle.radius)
@@ -120,7 +128,7 @@ namespace island::MonkeyAttachmentSite
                     +(world.z-surface.z)*normal.z<radius) return Failure::BarkIntersection;
                 return Failure::None;
             };
-            for (int step=0;step<=500;++step) {
+            for (int step=std::max(0,first-1001);step<first+count-1001;++step) {
                 const auto pose=MonkeyTreeAttachment::Sample(plan,step*.02f);
                 for (std::size_t limb=0;limb<pose.contacts.size();++limb) {
                     const auto centre=frame.World(pose.contacts[limb]);
@@ -161,5 +169,11 @@ namespace island::MonkeyAttachmentSite
             return {plan,Failure::None};
         } catch (const std::invalid_argument&) { return fail(Failure::InvalidInput); }
           catch (const std::out_of_range&) { return fail(Failure::InvalidInput); }
+    }
+    inline Result Prepare(const CanopyPlacement& source,GroundFrame frame,
+        const RenderedTerrainSurface& terrain,std::span<const CircularObstacle> obstacles,
+        float windTime,bool farMesh=false)
+    {
+        return PrepareRange(source,frame,terrain,obstacles,windTime,farMesh,0,SampleCount);
     }
 }

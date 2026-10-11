@@ -1,5 +1,12 @@
 # island-simulator handoff
 
+## New user task — pig/boar sounds (2026-10-11)
+
+Added an unchecked PLAN.md task for natural pig/wild-boar grunts, snuffles and breathing
+matched to behavior, positional/distance-aware audio, varied timing/cooldowns and bounded
+voices/volume. Require asset provenance, mute/lifecycle compatibility and actual in-game
+listening on supported platforms. This is a plan addition, not implemented audio.
+
 ## User priorities — fullscreen and bounded flight (2026-10-11)
 
 Added unchecked PLAN.md tasks: F11 toggles fullscreen; Space toggles fly mode.
@@ -9,7 +16,36 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — preflight hitch measured; exact cache and bounded full-cycle chunks
+## Latest — attachment preparation also split into bounded chunks
+
+Live preparation now checks all 1,502 attachment samples before the existing 1,951
+excursion samples, at most 16 per candidate and 32 across the troop per update.
+PrepareRange returns a provisional plan only; activation requires every check. Full
+Prepare/IsReachable remain complete wrappers for offline callers. Tests compare ranged
+and full decisions across 64 natural candidates (same four accepted), exact contact
+coordinates, all sample coverage, and at least 215 pending updates before activation.
+Measured Debug chunk maxima: attachment 0.651717 ms, excursion 1.61227 ms; these are
+shared-host observations, not production frame-time guarantees.
+
+37/37 non-display groups pass in 85.80 s (`build/monkey-site-incremental-final-tests.log`).
+Native `20261011T162645.838705Z-monkey-climb` passes all eight stages; summit and sequence
+were inspected, with no new visible regression and far contacts still occluded.
+Web Release build/package succeeds (11,068,385 raw / 4,163,056 gzip bytes); default ARM64
+assembleDebug/lintDebug succeeds. Logs: `build-probe/monkey-preflight-portable-build.log`,
+`build-probe/monkey-preflight-portable-package.log`, `build/monkey-preflight-arm64-build.log`.
+Current Android runtime has not been rechecked after the scheduling/cache changes.
+Web runtime `20261011T163407.734425Z-chrome-monkey-climb` passes all eight cycle stages,
+held summit and 60 simulation intervals, GL 0/context intact, empty kernel delta. Both
+actual summit PNGs inspected: connected fur-covered body and near-side bark grips remain;
+coarse joints, stiff tail and occluded far contacts are not accepted as finished realism.
+Added invalid range regressions (negative, empty, overflowing); focused Core passes
+65.54 s (`build/monkey-site-range-bounds-tests.log`) after correcting a test-only strict
+compiler warning about copied structured bindings. Asset gate 24/75/10/0 passes,
+stop-latch SHA unchanged, all owned jobs finished. No Android/KVM/dependency changes.
+Continue portable runtime verification, continuous/all-angle motion and face/joint/tail
+realism, then wider island backlog. Goal remains active; no overall visual acceptance.
+
+## Earlier — preflight hitch measured; exact cache and bounded full-cycle chunks
 
 CPU Core fixture now prints attachment/whole-clearance mean/max and first-fixture chunk
 maximum. Live-simulation fixture accepts 4/64 sites consistently before/after (older
