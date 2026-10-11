@@ -10,7 +10,23 @@ not implemented improvements. Require actual close/wide in-game visual review on
 Android and Web; existing build/material diagnostics do not close either task. Keep the
 previous monkey, additional wildlife, hut and resident work open.
 
-## Latest — narrower body-anchored limb collars, native inspected
+## Latest — current WebGL monkey model/material qualification
+
+Existing Release Web build at f7f2801 succeeds and deployment package is refreshed:
+11,010,318 raw / 4,139,727 gzip bytes. Prepared fur SHA matches native
+`dc65039f7c3875ec2f33d930afc895b47f0443dc82b84c75fa7a056b8f0293ed`.
+Contained Chrome/SwiftShader `20261011T143701.925390Z-chrome-monkeys` passes unchanged
+focused 60-interval gate, GL error 0, context intact, kernel final delta empty. All six
+images (initial, four poses, final) inspected. Fur/collars present, no disintegrated limb
+mesh in sampled motion; grass hides feet in some frames. Mask-like face, visible shoulder
+junction and stiff tail remain. This qualifies ordinary current WebGL geometry/material,
+not every foot contact/frame, full climbing, tree-transfer poses, Firefox or real GPU.
+Metadata retains package/harness hashes. All jobs finished, stop latch unchanged; no
+threshold/dependency/host/emulator changes. See `docs/monkey-limb-skin.md`.
+Goal remains active; next implementation must address remaining monkey behavior/realism
+and the wider wildlife/hut/resident/boar/wreck plan, not treat this gate as completion.
+
+## Earlier — narrower body-anchored limb collars, native inspected
 
 `MonkeyLimbProfile.hpp` defines ten sleeve rings, proximal radius .040 embedded inward
 and upward, maximum .083 further down the limb. First ring follows Spine/Pelvis, next

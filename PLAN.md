@@ -394,6 +394,13 @@ Standing visual-quality rules (apply to every task from now on):
   bulky upper-arm silhouette reduced; shoulder junction remains visible. Android/Web of
   this geometry, all-angle/continuous-motion checks and full climbing remain open. See
   `docs/monkey-limb-skin.md` for costs, rejected revision and limitations.
+  Current WebGL model/material recheck at f7f2801 passes:
+  `20261011T143701.925390Z-chrome-monkeys`, unchanged 60-interval focused gate, GL error 0,
+  context intact, empty kernel delta. All six initial/intermediate/final images inspected;
+  finer fur and collars visible, no disintegrated limbs in sampled motion. Partial grass
+  occlusion prevents full foot-contact acceptance. Mask-like face, shoulder junctions,
+  stiff tail, continuous-motion/all-angle audit, portable tree contacts and full climbing
+  remain open. Web deployment package refreshed; no hardware-performance claim.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

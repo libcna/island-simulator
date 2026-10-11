@@ -36,3 +36,21 @@ remain open. No Android/Web runtime acceptance of this geometry change is claime
 Final native build and 37/37 non-display groups pass in 60.06 seconds
 (`build/monkey-limb-collar-final-tests.log`). Asset gate: 24 records, 71 generator sources,
 10 project files, zero external files. Stop latch unchanged; all launched jobs finished.
+
+## Current WebGL check
+
+Rebuilt the existing Release WebGL tree at commit `f7f2801` and refreshed its deployment
+package (11,010,318 bytes raw / 4,139,727 gzip). The prepared v2 fur SHA-256 is identical
+to native: `dc65039f7c3875ec2f33d930afc895b47f0443dc82b84c75fa7a056b8f0293ed`.
+Contained Chrome/SwiftShader `20261011T143701.925390Z-chrome-monkeys` passes the unchanged
+focused gate with 60 frame intervals, GL error zero and context intact. Kernel final delta
+is empty. Run metadata retains hashes of HTML/JS/WASM/data and the harness.
+
+All six retained 1280x720 images were inspected: initial, four intermediate poses and
+after-simulation. The fur and collar shape are present; the body and limbs remain intact
+through the sampled movement, and the last frame shows a turn on the slope. Grass hides
+feet in some intermediate frames, so these images do not prove every foot contact or
+every intervening animation frame. Face is still mask-like, shoulder junctions visible,
+and tail motion stiff. This qualifies current ordinary geometry/material on software
+WebGL, not tree-contact poses, full climbing, Firefox or real-GPU performance. No changes
+to the pass thresholds, browser configuration, dependency pins or host GPU latch.

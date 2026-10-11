@@ -42,6 +42,11 @@ Default ARM64 build/lint restored successfully (9 s), runtime untested; APK 21,2
 bytes, SHA-256 `d6078c5ef061eb3127e2c7193758f8ef835a230ba37a05bcc7740970c12cb0aa`.
 Stop latch unchanged; all launched jobs finished, no host/emulator configuration edits.
 
+Subsequent WebGL check of current fur plus limb collars passes:
+`20261011T143701.925390Z-chrome-monkeys`, six images inspected, 60 intervals, GL error
+zero, intact context, empty kernel delta. Prepared fur pixels match native by SHA-256.
+See `docs/monkey-limb-skin.md` for scope and remaining visual defects.
+
 ## Historical v1 provenance
 
 Built-in ImageGen (not CLI/API fallback), generated without reference images. Exact
