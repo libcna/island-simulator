@@ -298,6 +298,28 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             with self.assertRaisesRegex(RuntimeError, "confirm"):
                 gate.validate_game_logs(directory, True)
 
+    def test_snake_views_require_live_finite_ordered_motion(self):
+        good = ('renderer="OPENGLES3" gl-renderer="Google SwiftShader"\n'
+                'monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes\n')
+        rows = [f"snake runtime sample frame={frame} head={i * .2},2,3 speed=1.15 visible=1\n"
+                for i, frame in enumerate((8, 16, 24, 32))]
+        with tempfile.TemporaryDirectory(prefix="island-android-test-") as temporary:
+            directory = Path(temporary)
+            log = directory / "island-android-logcat.txt"
+            for view in ("snakes", "snake-head"):
+                log.write_text(good + ''.join(rows))
+                gate.validate_game_logs(directory, False, view)
+                invalid = [[], rows[:3], rows[::-1], rows + rows[:1],
+                           [row.replace(f"head={i * .2}", "head=0") for i, row in enumerate(rows)],
+                           [row.replace("head=0.0", "head=nan") for row in rows],
+                           [row.replace("speed=1.15", "speed=9") for row in rows],
+                           [row.replace("visible=1", "visible=0") for row in rows]]
+                for samples in invalid:
+                    with self.subTest(view=view, samples=samples):
+                        log.write_text(good + ''.join(samples))
+                        with self.assertRaises(RuntimeError):
+                            gate.validate_game_logs(directory, False, view)
+
     def test_emulator_is_explicitly_software_and_bounded(self):
         command = gate.emulator_command(Path("/sdk"))
         for option, value in (("-gpu", "swiftshader"), ("-cores", "2"), ("-accel", "on"),

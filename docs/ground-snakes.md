@@ -426,3 +426,24 @@ That audit-camera issue remains open; this is not final whole-body gait acceptan
 No Android runtime, generic contrast-gate pass, AMD qualification or crash fix claimed.
 Native/Web build PASS, Web package11,167,232 bytes raw /4,200,881 gzip; ARM64
 assembleDebug/lintDebug PASS4s. Software supervisor37 and assets25/81/10/0 PASS.
+
+## Android qualification attempt — still unqualified
+
+The Android supervisor now supports both snake views and reuses the browser's
+four-sample runtime validator. Readiness waits for frame32, and missing, frozen,
+unordered, duplicate, nonfinite, invisible and excessive-speed fixtures are rejected.
+Android23/browser18/software37 CPU tests and shell syntax pass.
+
+Actual isolated `20261011T212904.738068Z-snake-head` FAILED: SwiftShader boot and APK
+launch succeeded, but readiness timed out. Even failure screenshot collection timed
+out after10s; the supervisor forcibly terminated its owned emulator (exit-9).
+kernel-final[]; no screenshot exists to audit and no Android motion/visual pass is
+claimed. No KVM or emulator configuration was changed.
+
+Source review then found the new snake samples only used stdout, unlike the existing
+Android climb diagnostics. They now also use the existing platform/persistent-log
+mirror and flush stdout, still only four records in the two QA views. This fixes a
+diagnostic gap, NOT the unexplained unresponsive guest. Corrected x86_64 build/lint
+passed and is archived as `build/android-software/island-snakes-x86_64.apk`; default
+ARM64 build/lint restored and passed. The corrected APK still needs actual runtime
+verification. The AMD hardware incident remains unrelated/unresolved, not repaired.

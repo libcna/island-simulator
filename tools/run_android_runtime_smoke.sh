@@ -394,6 +394,11 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && { [ "${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}" != "--viewpoint,monkey-climb" ] \
              || grep -q "monkey climb held summit presented after eight cycle stages" "$LOG_FILE"; } \
+        && { case "${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}" in
+                 --viewpoint,snakes|--viewpoint,snake-head)
+                     grep -q "snake runtime sample frame=32 " "$LOG_FILE" ;;
+                 *) true ;;
+             esac; } \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then
         QUALIFIED=1
         break

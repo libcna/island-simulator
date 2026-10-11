@@ -736,6 +736,12 @@ progress or require player interaction; dangerous species keep their distance li
   Bothgrids inspected: headcontinuesretreat/inframe; widerbody stillleaf-occluded.
   BrowserCPU18tests cover frozen/missing/invalidmotion rejection. Androidactualruntime,
   wholebodycontinuousnaturalness/leafocclusion/3Dcontact remainopen.
+  Android attempt212904.738068Z-snake-head FAILED readiness; failure screenshot also
+  timed out, owned guest forcibly terminated, kernel-final[]. No visual acceptance.
+  Shared runtime-motion gate added (Android23/browser18/software37 tests PASS).
+  Missing Android platform-log mirroring of snake samples subsequently repaired;
+  native and x86_64/ARM64 builds pass, corrected APK runtime still unverified.
+  This logging gap does not establish why the guest became unresponsive.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

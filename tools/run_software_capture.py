@@ -24,6 +24,28 @@ from gpu_incident_qualification import (
 )
 
 
+def validate_snake_runtime_samples(log):
+    """Validate sparse live-view motion, not continuous gait or visual quality."""
+    rows = re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)", log)
+    if len(rows) != 4 or log.count("snake runtime sample frame=") != 4 or [int(r[0]) for r in rows] != [8, 16, 24, 32]:
+        raise RuntimeError("snake runtime motion samples incomplete or unordered")
+    heads = []
+    for _, point, speed, visible in rows:
+        try:
+            head = tuple(map(float, point.split(',')))
+            valid = (len(head) == 3 and all(map(math.isfinite, head)) and math.isfinite(float(speed))
+                     and 0 <= float(speed) <= 1.151 and 1 <= int(visible) <= 4)
+        except ValueError:
+            valid = False
+        if not valid:
+            raise RuntimeError("invalid snake runtime motion state")
+        heads.append(head)
+    displacement = max(math.dist(heads[0], h) for h in heads[1:])
+    if displacement < 0.1:
+        raise RuntimeError("snake stayed still during runtime motion review")
+    return {"heads": heads, "displacement": displacement}
+
+
 def validate_snake_motion_stages(text):
     """Require live, finite, connected body samples; not a visual gait-quality oracle."""
     rows = re.findall(r"^island-simulator: snake motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "

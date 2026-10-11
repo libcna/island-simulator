@@ -6,16 +6,14 @@ import argparse
 import datetime
 import fcntl
 import json
-import math
 import os
-import re
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity
-from run_software_capture import run_monitored_capture, validate_monkey_climb_stages
+from run_software_capture import run_monitored_capture, validate_monkey_climb_stages, validate_snake_runtime_samples
 
 SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes")
 
@@ -37,22 +35,7 @@ def validate_snake_report(report):
     result=[]
     for view in views:
         log=view.get("result", {}).get("output", "")
-        rows=re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)",log)
-        if len(rows)!=4 or log.count("snake runtime sample frame=")!=4 or [int(r[0]) for r in rows]!=[8,16,24,32]:
-            raise RuntimeError("snake browser motion samples incomplete or unordered")
-        heads=[]
-        for _,point,speed,visible in rows:
-            try:
-                head=tuple(map(float,point.split(',')))
-                valid=(len(head)==3 and all(map(math.isfinite,head)) and math.isfinite(float(speed))
-                       and 0<=float(speed)<=1.151 and 1<=int(visible)<=4)
-            except ValueError:
-                valid=False
-            if not valid: raise RuntimeError("invalid snake browser motion state")
-            heads.append(head)
-        displacement=max(math.dist(heads[0],h) for h in heads[1:])
-        if displacement<0.1: raise RuntimeError("snake stayed still during browser motion review")
-        result.append({"mode":view["mode"],"heads":heads,"displacement":displacement})
+        result.append({"mode":view["mode"], **validate_snake_runtime_samples(log)})
     return result
 
 

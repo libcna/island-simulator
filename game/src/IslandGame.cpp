@@ -2873,9 +2873,12 @@ namespace island
             && drawnFrames_%8U==0 && drawnFrames_<=32U) {
             const auto& subject=snakes_->Snakes().front();
             const auto head=subject.body.front();
-            std::cout << "island-simulator: snake runtime sample frame=" << drawnFrames_
+            std::ostringstream report;
+            report << "island-simulator: snake runtime sample frame=" << drawnFrames_
                 << " head=" << head.x << ',' << head.y << ',' << head.z
-                << " speed=" << subject.speed << " visible=" << snakeRenderer_->VisibleCount() << '\n';
+                << " speed=" << subject.speed << " visible=" << snakeRenderer_->VisibleCount();
+            std::cout << report.str() << '\n' << std::flush;
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }
         if (snakeCapture && drawnFrames_%8U == 0 && drawnFrames_ <= 32U) {
             GpuDiagnosticScope gpuPass("capture-readback");

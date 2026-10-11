@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — Android snake qualification attempted, FAILED and remains open
+
+Android supervisor now accepts snakes/snake-head and requires the shared sparse
+runtime-motion validator (same finite/ordered/visible/displacement gate as Web).
+Shell waits for frame32 before qualification; Android CPU23, browser18 and software
+capture37 tests PASS, shell syntax PASS. Actual contained run
+build/android-software/20261011T212904.738068Z-snake-head FAILED. Guest boot confirmed
+SwiftShader, game installed/launched, but readiness timed out; failure screencap also
+timed out10s and owned emulator required forced teardown (exit-9). kernel-final[].
+No screenshot obtained or inspected; no Android appearance/motion acceptance.
+Source review found snake samples lacked Android platform-log mirroring. Fixed using
+the existing MirrorRuntimeDiagnosticToPlatformLog and stdout flush (QA-only four
+samples). This diagnostic fix does NOT establish the cause of the unresponsive guest.
+x86_64 assemble/lint PASS4s after fix; archived candidate
+build/android-software/island-snakes-x86_64.apk; default ARM64 restored, build/lint
+PASS4s. Corrected candidate NOT yet runtime-tested. No emulator/KVM configuration
+changes, hardware stop latch unchanged. Next: investigate retained Android failure
+and verify corrected candidate safely; full wildlife/visual backlog and AMD incident
+remain open. Previous turn was status-only; this turn adds gates and actual failure
+evidence, not a claim of goal completion.
+
 ## Latest — actual WebGL retreat repair PASS with numeric motion gate
 
 IslandGame nowprints4sparse runtimehead/speed/visible samples frames8/16/24/32 ONLY
