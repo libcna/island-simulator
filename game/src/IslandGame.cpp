@@ -100,6 +100,7 @@ namespace island
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::SnakeDetail: return "snakes";
+            case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
@@ -751,11 +752,15 @@ namespace island
             pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
             std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
                          "from the beach\n";
-        } else if (viewpoint_ == FixedViewpoint::SnakeDetail) {
+        } else if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
             const auto& snake = snakes_->Snakes().front();
             const auto head = snake.body.front();
             cameraPosition_ = Vector3(head.x-0.6f,head.y+1.5f,head.z+1.7f);
-            const Vector3 direction = Vector3(head.x-0.8f,head.y,head.z)-cameraPosition_;
+            if(viewpoint_ == FixedViewpoint::SnakeHeadDetail)
+                cameraPosition_ = Vector3(head.x+0.35f,head.y+0.25f,head.z+0.30f);
+            const Vector3 target = viewpoint_ == FixedViewpoint::SnakeHeadDetail
+                ? Vector3(head.x+0.01f,head.y,head.z) : Vector3(head.x-0.8f,head.y,head.z);
+            const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::BoarDetail) {

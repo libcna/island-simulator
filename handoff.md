@@ -1,5 +1,31 @@
 # island-simulator handoff
 
+## Latest — readable snake head refinement, image gate still not passed
+
+SnakeHeadProfile header + connected muzzle sections replace conical nose; surface
+mouth seam and convex amber eyes/dark pupil caps replace flat eye fans. Shared profile
+tests check 360-angle full spherical clearance (50 mm) and eye spheres/neck join/lower
+head bound. Found slight rotation-envelope excess, shortened front section1mm before
+final capture/test. Final mesh18,240/20,000 vertices; no new textures. Asset25/78/10/0.
+Added fixed `snake-head` to Main/IslandGame/contained capture list. Ordinary live snakes,
+not replacement/frozen pose. Native build and focused tests PASS8.36s; supervisor34PASS.
+
+Actual images181314,181427 and FINAL `20261011T181556.624816Z-snake-head` inspected.
+Near eye/pupil, mouth seam and muzzle now recognizable; grass still obscures parts,
+face stylized not final realism. All three fail unchanged generic luminance variation
+gate (do NOT claim passing captures). Final graphics-log replay passes, kernel empty.
+Final PNG beside PPM in build/software-captures/run directory. Docs/ground-snakes.md
+records scope. Logs build/snake-head-{build,tests}.log.
+Web Release build/package and ARM64 assembleDebug/lintDebug PASS (Android6s);
+logs build-probe/snake-head-{build,package}.log and build/snake-head-arm64.log.
+All owned jobs terminal; GPU stop latch unchanged. These builds are not portable
+runtime image qualification; generic close image gate remains failed as above.
+
+NEXT: continuous body motion/grounding audit, clear subject-aware close QA without
+accepting blank/missing animals, grass interaction/contact shadows and portable
+runtime snake views; then tree snakes (still absent). F1/WorldReport snake metadata,
+profile culling/LOD and all other full-plan work also remain. Goal active; no push.
+
 ## Latest — ground snakes live/rendered, close image gate still open
 
 Added SnakeRenderer and ordinary IslandGame instantiation after world obstacles,

@@ -116,6 +116,7 @@ namespace island
         CrabDetail,
         BoarDetail,
         SnakeDetail,
+        SnakeHeadDetail,
         ButterflyDetail,
         SeaTurtleDetail,
         BenchmarkTraversal

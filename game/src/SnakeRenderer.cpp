@@ -1,4 +1,5 @@
 #include "IslandSimulator/SnakeRenderer.hpp"
+#include "IslandSimulator/SnakeHeadProfile.hpp"
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
@@ -103,20 +104,62 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
         }
         const auto forward=Vector3::Normalize(Point(snake.body[0])-Point(snake.body[1]));
         const auto right=Vector3::Normalize(Vector3::Cross(Vector3::Up,forward));
-        const auto nose=vertex(origin+forward*0.045f,forward,Color(111,128,57),Vector2(0,0));
+        const auto up=Vector3::Normalize(Vector3::Cross(forward,right));
+        Ring muzzle=rings[0];
+        for(std::size_t section=1;section<SnakeHeadSections.size();++section) {
+            const auto profile=SnakeHeadSections[section];
+            Ring next;
+            for(int k=0;k<=Sides;++k) {
+                const float angle=Tau*static_cast<float>(k)/Sides;
+                const auto normal=Vector3::Normalize(right*(std::cos(angle)/profile.width)
+                    +up*(std::sin(angle)/profile.height)+forward*12.0f);
+                const auto position=origin+forward*profile.forward
+                    +right*(std::cos(angle)*profile.width)+up*(profile.centreY+std::sin(angle)*profile.height);
+                next[static_cast<std::size_t>(k)]=vertex(position,normal,
+                    std::sin(angle)<-0.25f ? Color(192,177,116) : Color(117,136,62),
+                    Vector2(static_cast<float>(k)*4.0f/Sides,-profile.forward*16.0f));
+            }
+            for(int k=0;k<Sides;++k) {
+                const auto a=static_cast<std::size_t>(k),b=a+1;
+                triangle(muzzle[a],next[a],next[b]); triangle(muzzle[a],next[b],muzzle[b]);
+            }
+            muzzle=next;
+        }
+        const auto nose=vertex(origin+forward*SnakeNoseForward-up*0.008f,forward,Color(111,128,57),Vector2(0,0));
         const auto tail=vertex(Point(snake.body.back()),-forward,Color(89,104,43),Vector2(0,0));
         for(int k=0;k<Sides;++k) {
-            triangle(nose,rings[0][static_cast<std::size_t>(k)],rings[0][static_cast<std::size_t>(k+1)]);
+            triangle(nose,muzzle[static_cast<std::size_t>(k)],muzzle[static_cast<std::size_t>(k+1)]);
             triangle(tail,rings.back()[static_cast<std::size_t>(k+1)],rings.back()[static_cast<std::size_t>(k)]);
         }
         for (const float side:{-1.0f,1.0f}) {
-            const auto eye=origin+right*(side*0.036f)+Vector3::Up*0.021f+forward*0.008f;
-            for(int k=0;k<12;++k) {
-                const float a=Tau*static_cast<float>(k)/12,b=Tau*static_cast<float>(k+1)/12;
-                const auto n=Vector3::Normalize(right*side+Vector3::Up*0.4f);
-                triangle(vertex(eye+n*0.002f,n,Color(8,8,5),Vector2(0,0)),
-                    vertex(eye+(forward*std::cos(a)+Vector3::Up*std::sin(a))*0.009f,n,Color(180,143,55),Vector2(0,0)),
-                    vertex(eye+(forward*std::cos(b)+Vector3::Up*std::sin(b))*0.009f,n,Color(180,143,55),Vector2(0,0)));
+            // Fine mouth seam follows the actual muzzle surface, not a floating bar.
+            for(std::size_t section=1;section<SnakeHeadSections.size();++section) {
+                auto lip=[&](const SnakeHeadSection& p,const float vertical) {
+                    const float y=-0.20f*p.height+vertical;
+                    const float width=p.width*std::sqrt(std::max(0.0f,1.0f-y*y/(p.height*p.height)))+0.0003f;
+                    return vertex(origin+forward*p.forward+right*(side*width)+up*(p.centreY+y),
+                        right*side,Color(55,53,30),Vector2(0,0));
+                };
+                const auto a=lip(SnakeHeadSections[section-1],-0.0006f);
+                const auto b=lip(SnakeHeadSections[section-1],0.0006f);
+                const auto c=lip(SnakeHeadSections[section],-0.0006f);
+                const auto d=lip(SnakeHeadSections[section],0.0006f);
+                triangle(a,b,c); triangle(b,d,c);
+            }
+            const auto eye=origin+right*(side*SnakeEyeSide)+up*SnakeEyeHeight+forward*SnakeEyeForward;
+            const auto n=Vector3::Normalize(right*side+up*0.4f);
+            const auto eyeUp=Vector3::Normalize(Vector3::Cross(n,forward));
+            auto eyeVertex=[&](const float angle,const float elevation) {
+                const auto normal=(forward*std::cos(angle)+eyeUp*std::sin(angle))*std::cos(elevation)
+                    +n*std::sin(elevation);
+                const Color color=elevation>=1.04f ? Color(5,6,3) : Color(171,133,53);
+                return vertex(eye+normal*SnakeEyeRadius,normal,color,Vector2(0,0));
+            };
+            for(int ring=0;ring<3;++ring) for(int k=0;k<10;++k) {
+                const float a=Tau*static_cast<float>(k)/10,b=Tau*static_cast<float>(k+1)/10;
+                const float low=static_cast<float>(ring)*Tau/12,high=static_cast<float>(ring+1)*Tau/12;
+                triangle(eyeVertex(a,low),eyeVertex(b,low),eyeVertex(a,high));
+                if(ring<2) triangle(eyeVertex(b,low),eyeVertex(b,high),eyeVertex(a,high));
             }
         }
         ++visible_;

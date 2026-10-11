@@ -51,3 +51,31 @@ and final mesh/ground clearance audit, appropriate close-subject capture accepta
 that still rejects blank/missing animals, grass intersections, contact shadows, profile
 distance/LOD and reporting completeness, portable actual images. Keep the full snake
 task unchecked, including its ground and tree requirements.
+
+## Head refinement (2026-10-11)
+
+Replaced the pointed single-fan nose with three connected rounded/flattened muzzle
+sections. The first joins the body exactly; a narrow surface-following mouth seam,
+convex amber eyes and dark pupil caps now make the face more readable. Head profile
+constants are shared with CPU tests. Tests sample each section through 360 angles
+inside the 50 mm spherical clearance envelope, including a margin for the lip, and
+bound each complete eye. The final front section was shortened by 1 mm after the
+rotation-aware check exposed a slight envelope excess. No body clearance was widened.
+Maximum mesh now 18,240 vertices for four snakes, still inside the existing 20,000
+allocation. No new texture allocation or external asset.
+
+Added `--viewpoint snake-head`. Actual supervised llvmpipe close frames
+`20261011T181314.433311Z-snake-head` and `20261011T181427.154154Z-snake-head` were
+inspected; the first informed darker/larger pupils and the fine mouth seam.
+Final `20261011T181556.624816Z-snake-head` was also inspected: one near eye, pupil,
+mouth and rounded muzzle are recognizable, but grass obscures part of the head and
+the body. The head remains a stylized prototype, not final wildlife realism.
+All three fail the unchanged generic luminance-variation gate; final kernel delta
+is empty and graphics-log replay passes. Do not confuse visible geometric progress
+with a passing image gate. Focused population/head CPU tests pass in 8.36 s;
+34 supervisor checks pass, asset inventory is 25/78/10/0.
+Web Release build/package and ARM64 assembleDebug/lintDebug also pass (Android6s),
+without claiming portable runtime images or overriding the native image-gate failure.
+
+Continuous animation, a reliable close-subject QA gate, grass/body interaction,
+contact shadows and portable runtime images remain open, alongside tree snakes.

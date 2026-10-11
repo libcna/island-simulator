@@ -1,4 +1,5 @@
 #include "IslandSimulator/SnakePopulation.hpp"
+#include "IslandSimulator/SnakeHeadProfile.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -12,6 +13,26 @@
 static void Check(bool pass, const char* message) { if (!pass) throw std::runtime_error(message); }
 int main()
 {
+    for(const auto& section:island::SnakeHeadSections) {
+        Check(section.forward>=0 && section.width>0 && section.height>0,
+            "invalid snake muzzle section");
+        Check(std::hypot(section.forward,section.width)<=island::SnakePopulation::MaximumRadius,
+            "muzzle exceeds horizontal collision envelope");
+        Check(section.centreY-section.height>=-island::SnakePopulation::RadiusAt(0),
+            "muzzle lower surface falls below supported head ring");
+        for (int angle=0;angle<360;++angle) {
+            const float theta=static_cast<float>(angle)*0.01745329252f;
+            Check(std::hypot(section.forward,std::hypot(section.width*std::cos(theta),
+                section.centreY+section.height*std::sin(theta)))+0.0003f
+                <=island::SnakePopulation::MaximumRadius,
+                "terrain-rotated muzzle exceeds spherical clearance envelope");
+        }
+    }
+    Check(island::SnakeHeadSections.front().width==island::SnakePopulation::RadiusAt(0)
+        && island::SnakeNoseForward<=island::SnakePopulation::MaximumRadius,
+        "snake head does not join body or nose exceeds clearance");
+    Check(std::hypot(island::SnakeEyeForward,std::hypot(island::SnakeEyeSide,island::SnakeEyeHeight))+island::SnakeEyeRadius
+        <=island::SnakePopulation::MaximumRadius,"eyes exceed head horizontal clearance");
     const island::IslandTerrain terrain;
     const island::VegetationLayout vegetation(terrain);
     const island::JungleLayout jungle(terrain);

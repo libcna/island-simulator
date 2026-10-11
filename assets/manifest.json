@@ -215,6 +215,7 @@
       "licenseRecord": "Procedural ground snakes",
       "sources": [
         "game/src/SnakePopulation.cpp",
+        "game/include/IslandSimulator/SnakeHeadProfile.hpp",
         "game/src/SnakeRenderer.cpp"
       ]
     },

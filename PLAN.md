@@ -642,6 +642,11 @@ progress or require player interaction; dangerous species keep their distance li
   Final kernel delta empty. Head/eyes, continuous motion, grass intersections, mesh
   clearance/contact shadows, reporting/LOD and portable actual images remain open;
   tree snakes wholly open. Exact evidence and limits: `docs/ground-snakes.md`.
+  Head refinement: connected rounded muzzle sections, mouth seam, convex eyes/dark
+  pupils and `snake-head` QA view. Final native `20261011T181556.624816Z-snake-head`
+  actually inspected: face more readable, partial grass occlusion persists; unchanged
+  luminance gate still fails. Kernel empty, graphics log valid. Rotation-aware head
+  clearance/population tests pass8.36s; final mesh remains within20k vertex budget.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)
