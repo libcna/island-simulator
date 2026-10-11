@@ -2869,6 +2869,14 @@ namespace island
         }
         ++drawnFrames_;
         const bool snakeCapture = UsesSnakeCaptureClock();
+        if(!snakeCapture && (viewpoint_==FixedViewpoint::SnakeDetail || viewpoint_==FixedViewpoint::SnakeHeadDetail)
+            && drawnFrames_%8U==0 && drawnFrames_<=32U) {
+            const auto& subject=snakes_->Snakes().front();
+            const auto head=subject.body.front();
+            std::cout << "island-simulator: snake runtime sample frame=" << drawnFrames_
+                << " head=" << head.x << ',' << head.y << ',' << head.z
+                << " speed=" << subject.speed << " visible=" << snakeRenderer_->VisibleCount() << '\n';
+        }
         if (snakeCapture && drawnFrames_%8U == 0 && drawnFrames_ <= 32U) {
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".snake-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");

@@ -730,6 +730,12 @@ progress or require player interaction; dangerous species keep their distance li
   Head QA followshead, notcentroid. Actual205902.050693Z headgrid inspected: visible
   turning/escape, timed motion PASS2.394m stage displacement, graphics valid/kernel[].
   Generic contrast stillFAILS; portable actual repair qualification/final naturalness open.
+  Web repair qualification now PASS in210926.570528Z Chrome155/SwiftShader: sparse
+  runtimehead samples atframes8/16/24/32 required byparent, notjust screenshots.
+  Body/head displacement5.892/5.614m, each60intervals/glError0/no loss/kernel[].
+  Bothgrids inspected: headcontinuesretreat/inframe; widerbody stillleaf-occluded.
+  BrowserCPU18tests cover frozen/missing/invalidmotion rejection. Androidactualruntime,
+  wholebodycontinuousnaturalness/leafocclusion/3Dcontact remainopen.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

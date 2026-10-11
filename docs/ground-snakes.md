@@ -400,3 +400,29 @@ runtime, continuous3D contact or the still-unresolved AMD GPU timeout.
 Full native non-display suite PASS40/40 (84.37s). Native/Web builds and package PASS
 (11,166,542 bytes raw /4,200,268 gzip); ARM64 assembleDebug/lintDebug PASS7s.
 No portable runtime was launched for this repair. Hardware stop-latch SHA unchanged.
+
+## WebGL retreat verification with actual position samples
+
+Ordinary interactive snake QA viewpoints now emit four sparse runtime samples at
+rendered frames8/16/24/32: head position, current speed and visible snake count. This
+does not add logging to normal gameplay or change simulation; deterministic native
+captures retain their existing separate stage records. The browser parent now requires
+both body/head reports, exactly four ordered finite samples per view, bounded speeds,
+visible submission and at least0.1m displacement from the first sampled head position.
+The18-test browser supervisor suite includes rejection of frozen, missing, reordered,
+nonfinite and invisible traces. Images are still reviewed separately: moving numeric
+coordinates do not establish unobstructed pixels or natural gait.
+
+Actual final run: `build/browser-software/20261011T210926.570528Z-chrome-snakes`,
+Chrome155.0.8059.39/SwiftShader, PASS. Both views completed60 measured compositor
+intervals with glError0/no context loss; four ordered position samples per view pass
+the new parent gate. Displacement from first sample:5.892m body view,5.614m head view.
+kernel-final[]; hardware stop latch untouched. Both body-motion-grid.png and
+head-motion-grid.png actually inspected: the head view now shows continuing retreat
+through changing terrain/vegetation instead of the previously frozen head, with the
+head retained in frame and updated scales visible. The wider body's intermediate
+images still suffer substantial leaf occlusion, including one fully obscured pose.
+That audit-camera issue remains open; this is not final whole-body gait acceptance.
+No Android runtime, generic contrast-gate pass, AMD qualification or crash fix claimed.
+Native/Web build PASS, Web package11,167,232 bytes raw /4,200,881 gzip; ARM64
+assembleDebug/lintDebug PASS4s. Software supervisor37 and assets25/81/10/0 PASS.

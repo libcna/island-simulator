@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — actual WebGL retreat repair PASS with numeric motion gate
+
+IslandGame nowprints4sparse runtimehead/speed/visible samples frames8/16/24/32 ONLY
+interactive SnakeDetail/SnakeHeadDetail, notgameplay/nativedeterministiccapture.
+Parent browser validatesbothviews, exactordered4samples, finitehead/speed0..1.151,
+visible1..4, >=.1m displacement. BrowserCPU18PASS inclfrozen/missing/nonfinite/reordered
+rejections; softwaresupervisor37/assets25/81/10/0PASS.
+Actual build/browser-software/20261011T210926.570528Z-chrome-snakes finalPASS,
+Chrome155.0.8059.39SwiftShader: body5.892m/head5.614m sampledisplacement; each60intervals,
+glError0/no contextloss/kernel-final[]. Both body-motion-grid.png andhead-motion-grid.png
+actuallyinspected. Headnowcontinuesretreat acrosschangingterrain/inframe; materialvisible.
+Widerbodyposesstillleafoccluded(onefullyhidden), notwholegaitacceptance. NoAMDfixclaim.
+Native/Web buildsPASS, package11,167,232raw/4,200,881gzip; ARM64assemble/lint4sPASS.
+NoAndroidactualruntime. Allownedjobs terminal, hardwarestoplatchuntouched, noKVM/deps/push.
+NEXT Androidcontainedactualsnakeviews ifappropriate, wideQAleafocclusion/continuousmotion,
+3Dgrasscontact/normal/relaxation/treehabitat; allotherwildlifebacklog/hut/residentopen.
+Goalactive; originalAMDtimeout remainsunresolved, nohardware reproduction authorized.
+
 ## Latest — close-frontal retreat repaired in native CPU + actual image audit
 
 SnakePopulation adds turnAside fallback onlywhenordinaryretreatsubstep rejected.

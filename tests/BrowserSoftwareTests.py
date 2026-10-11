@@ -102,6 +102,19 @@ class BrowserSoftwareTests(unittest.TestCase):
             self.assertIn(f'["{mode}", ["--viewpoint", "{mode}"]]',
                           (ROOT / "tools/web_smoke.html.in").read_text())
 
+    def test_snake_report_rejects_frozen_missing_and_invalid_motion(self):
+        log='\n'.join(f"snake runtime sample frame={i*8} head={i*0.2},2,0 speed=0.5 visible=1" for i in range(1,5))
+        def report(text):
+            return {"passed":True,"views":[{"mode":mode,"result":{"output":text}}
+                                          for mode in ("snakes","snake-head")]}
+        self.assertEqual(len(gate.validate_snake_report(report(log))),2)
+        for invalid in ("",log.replace("frame=16","frame=8"),log.replace("speed=0.5","speed=nan"),
+                        log.replace("visible=1","visible=0"),log.replace("head=0.2,2,0","head=nan,2,0"),
+                        '\n'.join(f"snake runtime sample frame={i*8} head=1,2,0 speed=0 visible=1" for i in range(1,5))):
+            with self.assertRaises(RuntimeError): gate.validate_snake_report(report(invalid))
+        missing=report(log);missing["views"].pop()
+        with self.assertRaises(RuntimeError): gate.validate_snake_report(missing)
+
     def test_monkey_scope_retains_supervision_and_intermediate_visual_samples(self):
         self.assertIn("monkeys", gate.SCOPES)
         environment = gate.browser_environment("chrome", "monkeys", Path("/evidence"))

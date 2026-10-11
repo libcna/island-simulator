@@ -6,7 +6,9 @@ import argparse
 import datetime
 import fcntl
 import json
+import math
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -26,6 +28,32 @@ def validate_climb_report(report):
     if "monkey climb held summit presented after eight cycle stages" not in log:
         raise RuntimeError("browser climb did not present the held summit")
     return validate_monkey_climb_stages(log)
+
+
+def validate_snake_report(report):
+    views=report.get("views", [])
+    if not report.get("passed") or [v.get("mode") for v in views]!=["snakes","snake-head"]:
+        raise RuntimeError("snake browser report lacks both successful views")
+    result=[]
+    for view in views:
+        log=view.get("result", {}).get("output", "")
+        rows=re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)",log)
+        if len(rows)!=4 or log.count("snake runtime sample frame=")!=4 or [int(r[0]) for r in rows]!=[8,16,24,32]:
+            raise RuntimeError("snake browser motion samples incomplete or unordered")
+        heads=[]
+        for _,point,speed,visible in rows:
+            try:
+                head=tuple(map(float,point.split(',')))
+                valid=(len(head)==3 and all(map(math.isfinite,head)) and math.isfinite(float(speed))
+                       and 0<=float(speed)<=1.151 and 1<=int(visible)<=4)
+            except ValueError:
+                valid=False
+            if not valid: raise RuntimeError("invalid snake browser motion state")
+            heads.append(head)
+        displacement=max(math.dist(heads[0],h) for h in heads[1:])
+        if displacement<0.1: raise RuntimeError("snake stayed still during browser motion review")
+        result.append({"mode":view["mode"],"heads":heads,"displacement":displacement})
+    return result
 
 
 def browser_environment(browser, scope, evidence):
@@ -103,6 +131,9 @@ def main(argv=None):
             if args.scope == "monkey-climb":
                 climb = json.loads((evidence / "island-browser-monkey-climb.json").read_text())
                 metadata["monkey_climb_stages"] = validate_climb_report(climb)
+            if args.scope == "snakes":
+                snake_report=json.loads((evidence / "island-browser-snakes.json").read_text())
+                metadata["snake_motion_samples"]=validate_snake_report(snake_report)
             metadata["result"] = "passed"
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             failure = error
