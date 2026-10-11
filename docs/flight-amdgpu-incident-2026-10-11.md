@@ -42,10 +42,56 @@ Full text metadata retained locally at:
 
 ## Investigation tasks and safety boundaries
 
+### Read-only follow-up: runtime identity and termination path
+
+Recovered the actual per-PID runtime log from
+`/home/robertvokac/.local/state/island-simulator/runtime/island-runtime-423089.log`.
+Byte-identical local evidence copy: `runtime-423089.log` beside the core metadata;
+both SHA256 `bfac8da5e9c35b767d80aa1511c4003da0ecde765c0029368caadce187627092`.
+The process started at18:59:24.835 UTC and logged its first frame at18:59:33.012.
+It confirms OPENGL33/EasyGL/SDL3, native Wayland, AMD Radeon780M/radeonsi,
+Mesa25.0.7-2+deb13u1, kernel6.12.111+deb13-amd64, requested/applied4x MSAA,
+full quality and no software override. `ISLAND_GPU_DIAGNOSTICS` was unset:
+there are no durable frame/pass markers from this run. Fullscreen/flight transition
+messages were printed to stdout, but are not mirrored into this persistent log.
+The last monkey palette message is at18:59:58.852 UTC, about22 seconds BEFORE the
+19:00:21 GPU timeout. It cannot identify the last submitted or faulting draw.
+
+The journal's archived process maps contain only4,024 bytes/57 lines, ending among
+GPU mappings. They do not cover Gallium/CNA/SDL mappings and cannot establish all
+loaded library identities. The executable mapping has inode37231455, matching the
+current file; its modification time20:56:52.391 CEST precedes startup. Current file:
+22,437,288 bytes, build ID `e37224286aeef8884283b5f2231b5983fc2231cd`, SHA256
+`6e509871e84a624a0eb61dbbfa478eb4ac05b0616869ed29290d682bb822bf4a`.
+This is strong corroboration, NOT an extracted core build-ID comparison. Do not rebuild
+over this candidate before preserving or resolving loaded-image evidence.
+
+Read-only source checkout `/home/robertvokac/deps/mesa` is clean at `mesa-25.0.7`.
+`src/gallium/winsys/amdgpu/drm/amdgpu_cs.cpp:1997` maps `-ENODATA` to the exact
+guilty-soft-recovery message and `PIPE_GUILTY_CONTEXT_RESET`.
+`amdgpu_ctx_set_sw_reset_status` (line452) prints the error then calls `abort()`
+when context loss is not allowed. This is a termination mechanism, not proof of the
+initial reason for lost GPU execution; making the context robust alone does not fix it.
+
+Offline disassembly of installed Gallium (build ID
+`f34ab849e878d8ffbbb15533a597ca31ebd583ec`) corroborates both core return addresses:
+at0xa6681a it calls formatted stderr output, at0xa6681f `abort@plt`, returning to
+0xa66824 as recorded by the core. The caller at0xa6a5ed passes the string at0x18e05e0
+and returns to0xa6a5f2; that string is exactly the reported guilty-soft-recovery text.
+No code was executed by this disassembly and no driver binary/source was changed.
+Loaded versus installed Gallium build-ID equality still requires core-note inspection.
+
+Comparison with October8: same GPU/Mesa family and a gfx-ring soft recovery exist in
+both records, but the earlier serial benchmark used X11/GLX and recorded GFXHUB/TCP
+GPUVM faults at0x17000 before its timeout. The new observed interval contains no such
+GPUVM address/protection record and uses Wayland/EGL. Same root cause is unproven;
+flight is not necessary for the older failure, but remains a possible trigger here.
+
 - [ ] Establish exact loaded executable/library identities from the core; a subsequently
   rebuilt file at the same path is NOT proof of the crashed process's version.
 - [ ] Correlate runtime GPU pass/frame diagnostics, kernel timeline and core thread stacks.
   Do not blame the last printed monkey message or flight mode from ordering alone.
+  Runtime log and termination path now recovered; exact triggering draw remains missing.
 - [ ] Compare evidence with the earlier AMD incident; determine shared versus distinct
   signature without assuming either. Assess fullscreen, repeated flight transitions,
   aerial visibility/LOD and shader/resource workload changes as hypotheses only.

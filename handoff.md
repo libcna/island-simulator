@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — read-only flight incident triage, no new GPU workload
+
+Recovered actual runtime423089 log from ~/.local/state/island-simulator/runtime; exact
+copy in build/gpu-incident-evidence/20261011T190021Z-user-flight/runtime-423089.log,
+SHA bfac8da5e9c35b767d80aa1511c4003da0ecde765c0029368caadce187627092.
+Started18:59:24.835UTC, firstframe18:59:33.012, lastmonkey18:59:58.852, kernel19:00:21.
+Confirms real AMD780M/Mesa25.0.7 nativeWayland4xMSAA; GPUdiagnostics unset, no pass markers.
+Lastmonkey is22s beforetimeout; not culpritproof. Flight/fullscreen console messages not
+mirrored inpersistentlog. Archivedmaps truncated4024bytes/57lines, no full libraryidentity.
+Exe inode37231455 matches current22,437,288byte build, mtime20:56:52.391CEST precedingrun;
+buildID e37224286aeef8884283b5f2231b5983fc2231cd, SHA6e509871e84a624a0eb61dbbfa478eb4ac05b0616869ed29290d682bb822bf4a.
+DO NOT rebuild over candidate before preserving/resolving loaded-imageidentity.
+
+Cleanlocal Mesa25.0.7 source maps exacttext to -ENODATA/guiltyreset and abort for context
+notallowingloss. InstalledGallium disassembly corroborates core returnPCs0xa66824/0xa6a5f2
+and string0x18e05e0. Terminationmechanism established, original GPUtimeout cause NOT.
+Olderincident had X11/GLX GPUVM0x17000; newWayland/EGL record has timeoutonly. Notproven
+samecause. Full evidence/limits in docs/flight-amdgpu-incident-2026-10-11.md.
+No coreextraction, driverchanges, rendererlaunch, dependencywrite orpush thisturn.
+NEXT: loadedcore build-ID/candidate preservation and offline stateanalysis; sparse persistent
+controltransitiondiagnostics are a gap (do not mistake telemetry improvement for fix).
+Uncommitted snake-grass work below preserved intact. All ownedjobs terminal. Goal active.
+
 ## PRIORITY — operator GPU timeout/abort while flying, 2026-10-11 21:00 CEST
 
 User requests analysis task after fullscreen/repeated flight toggles/traversal freeze.
