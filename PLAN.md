@@ -801,6 +801,12 @@ Landmark backlog requested by the operator:
   route-blocking site, with collision, grounded footing, weathered materials, contact shadows,
   a capture viewpoint and regression tests. Decorative only: no interiors with inventory,
   crafting, quests or other new game systems.
+  Placement foundation implemented only: bounded 576-candidate CPU search, exact
+  rendered-ground six supports, dry local approach and clearance from supplied solid
+  obstacles. Tested candidate near(2.582,204.115), level floorY2.517. No live model or
+  collision installed yet. Non-solid foliage reservation, geometry/materials, shadows,
+  global access, reporting and actual native/Android/Web audit remain required.
+  See `docs/island-hut.md`; this checkbox stays open.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — hut placement foundation added, NO live hut yet
+
+Previous goal turn progressed with camera/image evidence. Moved to the explicit hut
+backlog; source inspection found no island hut (only wreck cabin geometry).
+New HutLayout CPU search considers 576 bounded coastal candidates, 5m clearance from
+supplied occupied discs, dry locally walkable approach ring, exact rendered roof-AABB
+height range <=0.45m relief. Floor is 0.45m above max; six supports sample exact rendered
+ground. Front faces coast. Invalid occupancy throws; no valid site returns nullopt.
+Current actual palm/jungle/prop/wreck solid fixture candidate x2.58166,z204.115,
+floorY2.51744,yaw0.0126473. Tests check determinism, clearance, footing/floor grounding,
+distinct posts, alternate reserved site and blocked world. Both native test presets
+include island_hut_tests. Initial test was NOT RUN until explicit target was built;
+then passed. No runtime integration, collision, mesh, textures or shadows yet: do not
+claim a hut exists. No graphical run this turn. Android ARM64 build/lint PASS3s.
+See docs/island-hut.md for contract and remaining work. NEXT integrate vegetation
+reservation + hut geometry/renderer before installing any collision; do real QA.
+Snake camera contrast/trunk occlusion, Web verification and AMD incident remain open.
+Native build PASS; all41 non-display tests PASS52.09s. Expanded hut fixture rerun
+PASS0.38s after adding distinct-post/reserved-site checks. All owned jobs terminal;
+no emulator/KVM/hardware changes, dependency edits or push. Web build not run for
+this currently unused CPU placement component; required before live integration.
+
 ## Latest — wide snake QA camera improved; Android image gate still FAILS
 
 SnakeDetail initial camera now uses actual41-station centroid+(0,2,.35), aiming at

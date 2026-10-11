@@ -62,6 +62,7 @@ add_library(island_core STATIC
     game/src/SplitGroundLeaf.cpp
     game/src/BushProfile.cpp
     game/src/IslandTerrain.cpp
+    game/src/HutLayout.cpp
     game/src/JungleLayout.cpp
     game/src/LeafBladeProfile.cpp
     game/src/UnderstoryLeafProfile.cpp
@@ -200,6 +201,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_snake_tests)
     island_enable_first_party_sanitizers(island_snake_tests)
     add_test(NAME IslandSnakePopulationTests COMMAND island_snake_tests)
+    add_executable(island_hut_tests tests/HutLayoutTests.cpp)
+    target_link_libraries(island_hut_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_hut_tests)
+    island_enable_first_party_sanitizers(island_hut_tests)
+    add_test(NAME IslandHutLayoutTests COMMAND island_hut_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
