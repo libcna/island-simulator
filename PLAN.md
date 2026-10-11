@@ -76,8 +76,14 @@ historical evidence, not post-incident qualification.
   `20261011T084654.624120Z-headland` and beach `20261011T084740.315381Z-beach`
   pass and were inspected, empty kernel deltas. The existing beach camera looks
   inland; a dedicated close bay camera remains useful. Hardware latch unchanged.
-- [ ] Android and Web qualification of this revision. Prior rocky-coast runs do not
-  qualify the new width/material changes. Android lifecycle remains degraded.
+- [x] Android x86_64 assembly/lint and focused touch/traversal run
+  `20261011T085027.124944Z-interactive` pass, image inspected. First bay image was black
+  despite a passing old log gate; new bounded image-content gate prevents that false
+  positive (19 CPU-only tests pass). Repeat `20261011T085244.623709Z-bay` passes and
+  matches native visually. No GPU faults, Wi-Fi-only kernel messages. ARM64 build/lint
+  restored, physical runtime untested. See the beach document for APK/evidence identities.
+- [ ] Web qualification of this revision. Prior rocky-coast runs do not qualify the new
+  width/material changes. Android lifecycle remains degraded and was not rerun.
 
 #### 2026-10-11 — integrated rocky headlands and shared coastal field
 

@@ -516,7 +516,8 @@ if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|erro
     exit 1
 fi
 
-"$ADB" exec-out screencap -p >"$SCREENSHOT"
+CAPTURE_SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+python3 "$CAPTURE_SCRIPT_DIR/android_capture.py" "$ADB" "$SCREENSHOT"
 if [ ! -s "$SCREENSHOT" ]; then
     echo "android runtime smoke: device screenshot is empty" >&2
     exit 1
@@ -574,7 +575,7 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
         exit 1
     fi
-    "$ADB" exec-out screencap -p >"$HOT_RESUME_SCREENSHOT"
+    python3 "$CAPTURE_SCRIPT_DIR/android_capture.py" "$ADB" "$HOT_RESUME_SCREENSHOT"
     if [ ! -s "$HOT_RESUME_SCREENSHOT" ]; then
         echo "android runtime smoke: hot-resume screenshot is empty" >&2
         exit 1
@@ -651,7 +652,7 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         tail -n 120 "$COLD_RELAUNCH_LOG_FILE" >&2
         exit 1
     fi
-    "$ADB" exec-out screencap -p >"$COLD_RELAUNCH_SCREENSHOT"
+    python3 "$CAPTURE_SCRIPT_DIR/android_capture.py" "$ADB" "$COLD_RELAUNCH_SCREENSHOT"
     if [ ! -s "$COLD_RELAUNCH_SCREENSHOT" ]; then
         echo "android runtime smoke: cold-relaunch screenshot is empty" >&2
         exit 1

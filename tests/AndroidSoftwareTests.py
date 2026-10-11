@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """CPU-only tests. Never starts adb, an emulator, a namespace, or graphics."""
 import os
+import io
 import subprocess
 from pathlib import Path
 import sys
@@ -13,10 +14,46 @@ from unittest.mock import mock_open, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 import run_android_software as gate
+import android_capture
+from PIL import Image
 from android_touch_geometry import geometry, from_log, TouchGeometry
 
 
 class AndroidSoftwareTests(unittest.TestCase):
+    def test_android_capture_rejects_black_and_incomplete_png(self):
+        data = io.BytesIO()
+        Image.new("RGB", (640, 360)).save(data, format="PNG")
+        self.assertFalse(android_capture.validate_png(data.getvalue())["valid"])
+        with self.assertRaises(OSError):
+            android_capture.validate_png(b"incomplete")
+
+    def test_android_capture_accepts_non_degenerate_scene_fixture(self):
+        image = Image.new("RGB", (640, 360))
+        image.putdata([(x % 256, y % 256, (x + y) % 256)
+                       for y in range(360) for x in range(640)])
+        data = io.BytesIO()
+        image.save(data, format="PNG")
+        self.assertTrue(android_capture.validate_png(data.getvalue())["valid"])
+
+    def test_android_capture_wait_is_bounded_and_requires_image_evidence(self):
+        for passes in (True, False):
+            with self.subTest(passes=passes), tempfile.TemporaryDirectory() as temporary:
+                output = Path(temporary) / "capture.png"
+                reports = [{"valid": False}, {"valid": passes}]
+                with patch.object(android_capture, "validate_png", side_effect=reports), \
+                     patch.object(android_capture.subprocess, "run",
+                                  return_value=SimpleNamespace(stdout=b"fixture")) as run, \
+                     patch.object(android_capture.time, "monotonic", side_effect=
+                                  [0, 0, 0, 0, 1, 1, 2, 3]), \
+                     patch.object(android_capture.time, "sleep"):
+                    if passes:
+                        android_capture.capture("fake-adb", output, timeout=3)
+                    else:
+                        with self.assertRaisesRegex(RuntimeError, "no usable"):
+                            android_capture.capture("fake-adb", output, timeout=3)
+                    self.assertEqual(run.call_count, 2)
+                    self.assertTrue(output.with_suffix(".validation.json").exists())
+
     @staticmethod
     def material_fixture(directory):
         root = directory / "prepared"

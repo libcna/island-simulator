@@ -9,8 +9,14 @@ tests pass (53.06 s). Native bay `20261011T084410.221147Z-bay`, headland
 were inspected, all empty kernel deltas. Existing beach camera looks inland through
 vegetation, so it is not a close sand review. Fingerprint `08ced4994845ae68`; measured
 inventory pins updated in core and browser tests. Hardware latch unchanged.
-NEXT: Android x86_64 build/lint, bay visual and touch/traversal validation, restore ARM64;
-then Web build/package and contained terrain suite. Earlier rocky-coast runs do not
+Android x86_64 build/lint and interactive `20261011T085027.124944Z-interactive` pass
+touch/footsteps/swimming after two gestures, image inspected. Initial bay run had a black
+PNG despite old log-gate success. Added `tools/android_capture.py`: bounded 30-second
+image-content validation for initial/hot/cold screenshots; 19 CPU-only Android tests pass.
+Repeat `20261011T085244.623709Z-bay` passes strengthened gate and visually matches native.
+No new GPU faults (Wi-Fi-only kernel deltas). Tested x86 APK preserved; ARM64 build/lint
+restored. See `docs/dominant-bay-beach.md` for hashes. No jobs remain running.
+NEXT: Web build/package and contained terrain suite. Earlier rocky-coast runs do not
 qualify this newer code. A dedicated ground-level bay view is useful follow-up work.
 Android lifecycle remains degraded; do not close the known issue from focused visual runs.
 No Android/KVM system configuration changes are needed or requested. No push.

@@ -1138,6 +1138,15 @@ GLES 3 frame and process; it does not by itself qualify touch ergonomics, audio,
 performance, memory, or thermals. Override the deliberately generous software-emulator timeout with
 `ISLAND_ANDROID_SMOKE_TIMEOUT_SECONDS` when testing faster hardware.
 
+Screenshot acceptance also uses `android_capture.py` (host Python/Pillow). Each initial,
+hot-resume and cold-relaunch capture gets a bounded 30-second presentation wait, rejecting
+empty, malformed or visually degenerate images with the shared native capture thresholds.
+Each PNG has a sibling `.validation.json` containing metrics, errors and attempt count.
+This closes a false positive observed on 2026-10-11: a startup/first-draw log was present,
+yet the immediate screenshot was entirely black. Drawing diagnostics alone are not proof
+of display presentation. Image checks do not establish semantic correctness or exclude
+system overlays; inspect accepted images too. Earlier runs did not have this image gate.
+
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` for an audio-qualified run. In addition to the normal
 GLES 3 requirements, this waits for the exact sequential-generation/upload diagnostic emitted only
 after all sixteen effects were created, the exact persistent-loop DC-centering diagnostic, and the

@@ -36,6 +36,22 @@ delta. Final non-display suite passes 33/33 groups (53.06 s). Headland
 and were inspected, also with empty kernel deltas. The existing `beach` camera now
 looks inland through vegetation; it confirms ground/vegetation rendering, not a
 close inspection of the new bay sand. A dedicated bay ground-level view remains useful.
-Android and Web builds/runs for this stage are pending; earlier rocky-coast evidence
-does not qualify this revision. The Android lifecycle issue remains open and the
-AMD hardware stop latch remains in force.
+Android x86_64 assembly/lint passes. First bay run `20261011T084849.011688Z-bay`
+passed the old log gate but its image was black: it is NOT visual qualification.
+The harness now uses `android_capture.py`, a bounded 30-second wait with shared
+image-content validation, for initial/hot/cold screenshots. Nineteen CPU-only Android
+tests pass, including black/truncated rejection, colourful-image acceptance, delayed
+presentation and bounded failure. Shell syntax and the Android CTest group pass.
+Repeat bay `20261011T085244.623709Z-bay` passes the strengthened gate and was visually
+inspected; it matches native. Interactive `20261011T085027.124944Z-interactive`
+passes touch sensitivity, footsteps and swimming/audio after two gestures; its image
+was inspected too (this run predates the new image gate). Neither run tests lifecycle.
+No GPU faults; kernel deltas contain only Wi-Fi bandwidth messages. Latch unchanged.
+
+Tested x86_64 APK: 20,439,739 bytes, SHA-256
+`8c89473af7fb392e167fef6cc4ac21de28e70fa50288044195abc4ba093c2c69`, retained at
+`build/android-software/island-x86_64.apk`. Default ARM64 assembly/lint restored:
+20,525,084 bytes, SHA-256
+`b31230970a690adae7a24c3cd43c65084fa6db65ce214969163a0969c5c2a36c`;
+physical-device runtime remains untested. Web build/runtime qualification is next.
+The Android lifecycle issue remains open and the AMD hardware stop latch remains in force.
