@@ -2,6 +2,7 @@
 #include "IslandSimulator/BoarRenderer.hpp"
 #include "IslandSimulator/BoarCoatTexture.hpp"
 #include "IslandSimulator/BoarPose.hpp"
+#include "IslandSimulator/BoarEarGeometry.hpp"
 #include "IslandSimulator/BoarGroundPose.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -210,13 +211,21 @@ namespace island
                                        Color(41, 36, 30), 5, 3);
                     }
                 }
-                const Vector3 earBase(x * 0.17f, 0.83f - dip * 0.35f + bob, 0.54f);
-                const Vector3 earTip = earBase + Vector3(x * 0.14f, 0.23f, -0.035f);
-                const Vector3 earFront = earBase + Vector3(x * 0.09f, 0.025f, 0.17f);
-                const Vector3 earRidge = earBase + Vector3(x * 0.075f, 0.10f, 0.09f);
-                mesh.Triangle(earBase, earTip, earRidge, dark);
-                mesh.Triangle(earTip, earFront, earRidge, coat);
-                mesh.Triangle(earFront, earBase, earRidge, dark);
+                const auto ear=BuildBoarEar(side,dip,bob,near);
+                for(std::size_t i=0;i<ear.count;++i) {
+                    const auto& face=ear.triangles[i];
+                    const auto point=[](BoarJoint p){return Vector3(p.x,p.y,p.z);};
+                    const auto vertex=[&](std::size_t v) {
+                        const auto p=face.points[v];
+                        const float radius=std::hypot((p.y-(0.935f-dip*0.35f+bob))/0.16f,
+                            (p.z-0.59f)/0.10f);
+                        const float tone=face.surface==BoarEarSurface::Back?0.94f:
+                            0.88f+0.12f*std::clamp(radius,0.0f,1.0f);
+                        return mesh.SmoothVertex(point(p),point(face.normals[v]),
+                            wildlife_render::ScaleColor(coat,tone));
+                    };
+                    mesh.SmoothTriangle(vertex(0),vertex(1),vertex(2));
+                }
                 if (near) {
                     mesh.Ellipsoid(Vector3(x * 0.18f, 0.61f - dip * 0.65f + bob, 0.75f),
                                    Vector3(0.020f, 0.018f, 0.025f), Color(18, 16, 12), 8, 4);

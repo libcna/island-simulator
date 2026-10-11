@@ -1,4 +1,5 @@
 #include "IslandSimulator/BoarPose.hpp"
+#include "IslandSimulator/BoarEarGeometry.hpp"
 #include "IslandSimulator/BoarGroundPose.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
@@ -17,6 +18,45 @@ int main()
         return std::hypot(a.y - b.y, a.z - b.z);
     };
     constexpr float Tau = 2.0f * std::numbers::pi_v<float>;
+    for(bool detailed:{false,true}) for(float dip:{0.0f,0.15f}) for(float bob:{0.0f,0.018f}) {
+        const auto right=BuildBoarEar(1,dip,bob,detailed),left=BuildBoarEar(-1,dip,bob,detailed);
+        check(right.count==(detailed?32U:8U)&&left.count==right.count,"ear triangle budget");
+        for(std::size_t i=0;i<right.count;++i) {
+            const auto& face=right.triangles[i];
+            for(std::size_t v=0;v<3;++v) {
+                const auto p=face.points[v],q=left.triangles[i].points[v==0?0:3-v];
+                check(p.x==-q.x&&p.y==q.y&&p.z==q.z,"ears must mirror with reversed winding");
+                const auto n=face.normals[v],m=left.triangles[i].normals[v==0?0:3-v];
+                check(std::isfinite(n.x)&&std::isfinite(n.y)&&std::isfinite(n.z)
+                    &&std::abs(n.x*n.x+n.y*n.y+n.z*n.z-1)<0.00001f,"ear normals must be finite unit vectors");
+                check(std::abs(n.x+m.x)<0.00001f&&std::abs(n.y-m.y)<0.00001f
+                    &&std::abs(n.z-m.z)<0.00001f,"ear normal mirror differs from surface mirror");
+                check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)
+                    &&p.x>=0.169f&&p.x<=0.301f&&p.y>0.77f&&p.y<1.10f
+                    &&p.z>0.48f&&p.z<0.69f,"ear outside bounded head envelope");
+            }
+            const auto a=face.points[0],b=face.points[1],c=face.points[2];
+            const float nx=(b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y),
+                ny=(b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z),
+                nz=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+            check(nx*nx+ny*ny+nz*nz>1e-12f,"degenerate ear face");
+            check((face.surface==BoarEarSurface::Back? -nx:nx)>0,"ear facing or winding reversed");
+            if(detailed) for(std::size_t edge=0;edge<3;++edge) {
+                const auto start=face.points[edge],finish=face.points[(edge+1)%3];
+                const auto same=[](BoarJoint p,BoarJoint q){return p.x==q.x&&p.y==q.y&&p.z==q.z;};
+                int opposite=0;
+                for(std::size_t j=0;j<right.count;++j) for(std::size_t k=0;k<3;++k)
+                    if(same(start,right.triangles[j].points[(k+1)%3])
+                        &&same(finish,right.triangles[j].points[k])) ++opposite;
+                check(opposite==1,"near ear must be closed with consistent edge winding");
+            }
+        }
+    }
+    for(int side:{0,2}) {
+        bool rejected=false;
+        try { (void)BuildBoarEar(side,0,0,true); } catch(const std::invalid_argument&) { rejected=true; }
+        check(rejected,"invalid ear side accepted");
+    }
     for (bool front : {false, true}) for (bool left : {false, true}) {
         for (float movement : {0.0f, 0.1f, 0.5f, 1.0f}) {
             auto previous = EvaluateBoarLeg(-Tau / 4096, movement, 0.018f, front, left);

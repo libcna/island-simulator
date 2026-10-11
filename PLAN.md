@@ -883,6 +883,16 @@ Landmark backlog requested by the operator:
   kernel[]: modestshoulder/rump smoothing, NOTcompleteanatomy. Full41/41testsPASS63.03s,
   AndroidARM64build/lintPASS7s. NEXT cuppedears/muzzle/coat andportableactualQA.
   Webbuild/packagePASS11,343,447raw/4,332,469gzip; allownedjobs terminal/latchunchanged.
+  Cuppedear pass: eight-point outline, near32triangles/ear closedrim/inner/back,
+  far8triangle fan; cachedarea-weightedfrontnormals/separateback andcontinuouscupcolour.
+  +174nearvertices or30far peranimal, same36kbatch/6kguard/noextrashader/texture/draw.
+  Bounds/mirror/winding/unitnormal/closededge tests; firstrootovershoot corrected,
+  failedtestretained. Native234702initialflatcup rejectedforharshshading;234925smooth
+  actualPASS/comparisoninspected/kernel[]. Android235223actualPASS/imageinspected/
+  kernel[] qualifiescurrentcamera/body/ears asstillimage, notnaturalgait/realism.
+  Full41/41testsPASS59.05s, x86buildlint5s/ARM64restored2s, assetauditPASS82sources.
+  NEXT muzzle/eyes/coat plusunobscuredmovingfeet andWebactual; fullbacklog remainsOPEN.
+  Webbuild/packagePASS11,350,607raw/4,331,592gzip; actualWebpending/alljobs terminal.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

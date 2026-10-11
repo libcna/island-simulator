@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — cupped boar ears, actual native + Android audit PASS
+
+New BoarEarGeometry.hpp gives8point curvedoutline, near32tri/ear rim+inner+closedback,
+far8trianglefan sameoutline. Cached4side/LODrestmeshes witharea-weightedfrontnormals
+acrossrim/cup, separateback; dip/bobtranslateposedcopy. Continuouscupcolour inexisting
+SmoothVertex/BasicEffect, noextratexture/shader/draw. +174nearverts/+58tri or30farverts/
+10tri peranimal; existing36kbatch/6kguard unchanged. Manifest addsprocedural source.
+CPU bound/mirror/winding/nondegenerate/unitnormal/closededge tests. Initialroot1.5mm
+inwardovershoot testFAIL retained; correctedgeometry,notthreshold. Full41/41PASS59.05s.
+Native234702.122104Z-boars technicalPASS butflatcup contrasttoo harsh(imageviewed).
+Smoothnormals/tone pass234925.212313Z-boars PASS/comparisonimageviewed/kernel[].
+ActualAndroid235223.099135Z-boars PASS/imageviewed/GLES SwiftShader/kernel[]; qualifies
+currentQAtelephoto/body/ears stillview, NOTnaturalgait/completeanatomy. SavedAPK
+build/android-software/island-boar-ears-x86_64.apk SHA
+cd1ba83ea64346b53eaccf3144217b4d0fe0ef4be413511e2cdfbfe74cf831ff.
+x86buildlintPASS5s; defaultARM64restored/buildlintPASS2s. AssetauditPASS82sources/
+12projectassets/0external. NoKVM/emulator/dependencychange. NEXT muzzle/eyes/coat,
+unobscuredmovingfeet andactualWebcurrentboar; wildlife/resident/audio/AMDbacklogOPEN.
+Webbuild/packagePASS11,350,607raw/4,331,592gzip; actualWebnotrun. Allownedjobs terminal,
+hardwarestoplatchunchanged; no push. Overallgoalactive.
+
 ## Latest — readable boar inspection view and rounded near-body profile
 
 InitialcloseQA233518 technicallyPASS butrejectedvisually: headblockedand<6mobserver

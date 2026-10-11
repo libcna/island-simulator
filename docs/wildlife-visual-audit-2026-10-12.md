@@ -64,7 +64,44 @@ hardware stop latch unchanged. Builds do not replace portable runtime qualificat
 Remaining priorities: cupped ears, muzzle/eye detail, coat/bristles and unobscured
 moving feet. Do not replace those tasks with a claim that a smoother loft is realistic.
 
-## Monkeys (current baseline)
+## Cupped boar ears
+
+`BoarEarGeometry.hpp` replaces each three-triangle fin with an eight-point rounded
+outline. Near ears have a rim, recessed inner surface and closed back (32triangles);
+far ears retain the same outline as an8triangle fan. Both sides are mirrored with
+reversed winding; rooting dip/body bob only translate the posed mesh. Front normals
+are area-weighted across the rim/cup transition, with a separate back-side normal
+group. Four side/LOD rest meshes cache this calculation; it is not repeated per frame.
+Colour varies continuously with distance from the cup centre, instead of a hard dark
+polygon. Existing coat colour/BasicEffect/one batch remain, no new texture/shader.
+Added174near vertices/58triangles or30far vertices/10triangles per animal, within the
+existing6000per-animal/36000batch guards.
+
+CPU tests check both LODs/sides/dip/bob extremes, finite bounds, exact mirror position,
+normal mirror/unit length, triangle winding/nondegeneracy, closed near surface edges
+and rejection of invalid sides. First test found1.5mm inward overshoot at the root;
+fixed the generated inner contour, retained the failed `boar-ear-tests.log` and did
+not relax the bound. Final41/41 non-display tests PASS59.05s; asset audit includes
+the generator (82sources,12project assets,0external).
+
+Actual `20261011T234702.122104Z-boars` technicalPASS/image comparison inspected: new
+outline readable but inner flat-shaded polygons too harsh. Normals/colour revised;
+`20261011T234925.212313Z-boars` PASS and comparison actually inspected, kernel-after[].
+Second image has softer shading and rounded/cupped outlines rather than triangular
+fins. Crops in `build/boar-ear-comparison.png` and `build/boar-ear-smooth-comparison.png`.
+The model is still stylized; ears are only one anatomy step. Muzzle/eyes, coat and
+unobscured moving-foot/whole-animal review remain open. No AMD fix claim.
+Actual Android `20261011T235223.099135Z-boars` PASS, screenshot actually inspected:
+current telephoto framing, rounded body and cupped ears present; grass still obscures
+feet. GLES SwiftShader, kernel-final empty. Tested archive
+`build/android-software/island-boar-ears-x86_64.apk`, SHA256
+`cd1ba83ea64346b53eaccf3144217b4d0fe0ef4be413511e2cdfbfe74cf831ff`.
+x86_64 build/lint PASS5s; default ARM64 restored/build/lint PASS2s. No emulator/KVM
+configuration changes. This is a still-image/material check, not natural-gait proof.
+Web build/package PASS11,350,607raw/4,331,592gzip bytes. Actual browser audit remains
+pending for current boar geometry/framing; all owned jobs terminal, stop latch unchanged.
+
+## Monkeys (unchanged baseline)
 
 Evidence: `build/software-captures/20261011T233132.293700Z-monkeys/capture.png`.
 Technical capture PASS:326colour bins, luminance deviation33.35, spatialcontrast180.72.
