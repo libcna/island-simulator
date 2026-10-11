@@ -7,6 +7,7 @@
 
 #include "IslandSimulator/WildlifeSimulation.hpp"
 #include "IslandSimulator/WorldCollision.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
 
 namespace island
 {
@@ -19,7 +20,9 @@ namespace island
         Observe,
         Wander,
         Walk,
-        RunAway
+        RunAway,
+        ApproachTree,
+        InspectTree
     };
 
     /** @brief Renderer-independent pose and animation state for one monkey. */
@@ -39,6 +42,8 @@ namespace island
         float homeZ = 0.0f;
         float targetX = 0.0f;
         float targetZ = 0.0f;
+        // Index into the installed canopy placements; -1 when no tree is selected.
+        int treeIndex = -1;
         MonkeyBehavior behavior = MonkeyBehavior::Idle;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
         std::uint8_t colorVariant = 0U;
@@ -59,6 +64,7 @@ namespace island
 
         /** @brief Installs solid world proxies and relocates any newly obstructed agents. */
         void SetObstacles(std::span<const CircularObstacle> obstacles);
+        void SetCanopy(std::span<const CanopyPlacement> trees);
         void Update(float deltaSeconds, float observerX, float observerY,
                     float observerZ) noexcept;
 
@@ -88,14 +94,17 @@ namespace island
                          float observerX, float observerZ) noexcept;
         void EnterState(Agent& agent, MonkeyBehavior behavior) noexcept;
         void ChooseWanderTarget(Agent& agent) noexcept;
+        [[nodiscard]] bool ChooseTreeTarget(Agent& agent) noexcept;
         void ChooseEscapeTarget(Agent& agent, float observerX, float observerZ) noexcept;
         [[nodiscard]] bool TryMove(Agent& agent, float headingRadians,
                                    float distance) noexcept;
         [[nodiscard]] bool IsClearOfObstacles(float x, float z) const noexcept;
+        [[nodiscard]] bool IsClearSegment(float fromX, float fromZ, float toX, float toZ) const noexcept;
         [[nodiscard]] bool IsValidGround(float x, float z) const noexcept;
 
         const IslandTerrain& terrain_;
         std::vector<CircularObstacle> obstacles_;
+        std::vector<CanopyPlacement> trees_;
         std::vector<Agent> agents_;
         std::vector<MonkeyState> states_;
         std::uint64_t frameIndex_ = 0U;

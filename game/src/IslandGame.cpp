@@ -166,6 +166,7 @@ namespace island
                               shipwreckLayout_.Obstacles().end());
         worldCollisionGrid_.Reset(worldObstacles);
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
+        monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
         boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
@@ -2392,10 +2393,12 @@ namespace island
                     ++overlayState.idleMonkeys;
                     break;
                 case MonkeyBehavior::Observe:
+                case MonkeyBehavior::InspectTree:
                     ++overlayState.observeMonkeys;
                     break;
                 case MonkeyBehavior::Wander:
                 case MonkeyBehavior::Walk:
+                case MonkeyBehavior::ApproachTree:
                     ++overlayState.walkingMonkeys;
                     break;
                 case MonkeyBehavior::RunAway:

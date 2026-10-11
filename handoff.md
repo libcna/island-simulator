@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — actual canopy selection and ground approach (not attachment/climbing)
+
+`MonkeyTroop::SetCanopy` now receives actual canopy placements from `IslandGame` after
+obstacles. Periodic wander decisions select a suitable nearby tree and a near-side staging
+point outside its flared root plus body clearance. Full segment/proxy clearance and sampled
+terrain qualify candidate paths. Every actual movement step now also checks swept circular
+collision, without exempting the selected tree. `ApproachTree` slows while turning and
+stops within 12 cm; `InspectTree` faces the tree, pauses, then returns to wandering for now.
+Timeouts/blocked steps abandon attempts; player proximity triggers escape. Replacing canopy
+or obstacles cancels stale tree selection. No attachment/ascent/descent or limb grip exists.
+
+The two repeated real-island test troops now use canopy placements and require actual tree
+arrival, matching identities, stand-off, interruption and replacement cancellation. Existing
+terrain/home/behavior coverage remains. Native build passes. First approach-only core test
+passed (35.49 s); see `docs/monkey-climb-contact-foundation.md` for final evidence.
+Native `20261011T131911.555963Z-monkeys` passes/inspected, empty kernel delta; this shows
+early ground locomotion, NOT visual approach/arrival. Coarse fur/face/shoulder defects remain.
+Android/Web current qualification and complete climbing remain open. Next: attachment/body
+rotation and reachable bark grips, then bounded climbing/return with visual motion evidence.
+Final build and all 37 non-display groups pass (85.59 s); all jobs finished. Stop latch
+unchanged, no dependency/host/emulator configuration changes. Full goal remains active.
+
 ## Latest — shared trunk contact geometry, including wind (climbing not connected yet)
 
 `docs/monkey-climb-contact-foundation.md` records the new shared near/far trunk vertices,

@@ -593,6 +593,7 @@ namespace island
                              MonkeyHomeRangeSegments, navigationColor);
             ++monkeyHomeRangeCount_;
             if (monkey.behavior == MonkeyBehavior::Walk
+                || monkey.behavior == MonkeyBehavior::ApproachTree
                 || monkey.behavior == MonkeyBehavior::RunAway) {
                 const Vector3 target(
                     monkey.targetX,

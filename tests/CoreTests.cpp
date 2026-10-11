@@ -2987,6 +2987,8 @@ int main()
           "monkey simulation rejects non-finite frame and observer input without state poisoning");
     monkeys.SetObstacles(worldObstacles);
     repeatedMonkeys.SetObstacles(worldObstacles);
+    monkeys.SetCanopy(jungle.Canopy());
+    repeatedMonkeys.SetCanopy(jungle.Canopy());
     Check(monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount,
           "monkey troop has the intended bounded population");
     Check(monkeys.Monkeys().size() == repeatedMonkeys.Monkeys().size(),
@@ -3036,6 +3038,8 @@ int main()
     bool observedMonkeyObserve = false;
     bool observedMonkeyWalk = false;
     bool observedMonkeyRunAway = false;
+    bool observedMonkeyTreeApproach = false;
+    bool observedMonkeyTreeArrival = false;
     bool observedMonkeyFullTier = false;
     bool observedMonkeyReducedTier = false;
     bool observedMonkeyDormantTier = false;
@@ -3066,6 +3070,45 @@ int main()
         for (std::size_t index = 0; index < monkeys.Monkeys().size(); ++index) {
             const island::MonkeyState& state = monkeys.Monkeys()[index];
             const island::MonkeyState& repeated = repeatedMonkeys.Monkeys()[index];
+            Check(state.treeIndex == repeated.treeIndex,
+                  "repeated monkey simulation selects the same actual canopy tree");
+            if (state.behavior == island::MonkeyBehavior::ApproachTree
+                || state.behavior == island::MonkeyBehavior::InspectTree) {
+                Check(state.treeIndex >= 0 && static_cast<std::size_t>(state.treeIndex) < jungle.Canopy().size(),
+                      "tree behaviour references an installed canopy placement");
+                observedMonkeyTreeApproach = true;
+                if (state.behavior == island::MonkeyBehavior::InspectTree) {
+                    if (!observedMonkeyTreeArrival) {
+                        auto interrupted = monkeys;
+                        interrupted.Update(.1f,state.x,state.y,state.z);
+                        Check(interrupted.Monkeys()[index].behavior == island::MonkeyBehavior::RunAway
+                            && interrupted.Monkeys()[index].treeIndex == -1,
+                            "player proximity interrupts tree inspection and releases the tree");
+                        auto removed = monkeys;
+                        removed.SetCanopy({});
+                        Check(removed.Monkeys()[index].treeIndex == -1
+                            && removed.Monkeys()[index].behavior == island::MonkeyBehavior::Idle,
+                            "replacing canopy placements clears obsolete tree identities");
+                        auto invalidTree = jungle.Canopy().front();
+                        invalidTree.scale = quietNan;
+                        bool rejected = false;
+                        try { removed.SetCanopy(std::span<const island::CanopyPlacement>(&invalidTree,1)); }
+                        catch (const std::invalid_argument&) { rejected = true; }
+                        Check(rejected,"non-finite canopy placement is rejected before installation");
+                    }
+                    observedMonkeyTreeArrival = true;
+                    const auto& tree = jungle.Canopy()[static_cast<std::size_t>(state.treeIndex)];
+                    Check(std::hypot(state.x-tree.x,state.z-tree.z)
+                        >= (island::CanopyTrunkBaseRadius+island::CanopyRootFlare)*tree.scale
+                            +.65f*state.scale+.029f,
+                        "tree staging remains outside the flared root with body clearance");
+                    Check(std::hypot(state.x-state.targetX,state.z-state.targetZ) < .121f
+                        && state.speed == 0,
+                        "tree inspection starts only after reaching the staging point and stopping");
+                }
+            } else {
+                Check(state.treeIndex == -1,"ordinary ground behaviour releases its selected tree");
+            }
             const island::TerrainSample sample = terrain.Sample(state.x, state.z);
             Check(state.x == repeated.x && state.y == repeated.y
                       && state.z == repeated.z
@@ -3120,6 +3163,15 @@ int main()
                     Check(std::hypot(state.x - obstacle.x, state.z - obstacle.z)
                               >= minimumDistance - 0.001f,
                           "monkeys remain outside trunk, rock, and log collision proxies");
+                    const auto& previous = previousMonkeys[index];
+                    const float dx = state.x-previous.x, dz = state.z-previous.z;
+                    const float lengthSquared = dx*dx+dz*dz;
+                    const float t = lengthSquared > 0 ? std::clamp(
+                        ((obstacle.x-previous.x)*dx+(obstacle.z-previous.z)*dz)/lengthSquared,
+                        0.0f,1.0f) : 0.0f;
+                    Check(std::hypot(previous.x+t*dx-obstacle.x,previous.z+t*dz-obstacle.z)
+                              >= minimumDistance-.001f,
+                          "sampled monkey movement segments do not cross solid proxies");
                 }
             }
             monkeyTravelDistance += std::hypot(
@@ -3149,6 +3201,8 @@ int main()
           "monkey obstacle steering is exercised and remains deterministic");
     Check(observedMonkeyContinuousClipClock,
           "monkey behaviour changes preserve a continuous renderer animation clock");
+    Check(observedMonkeyTreeApproach && observedMonkeyTreeArrival,
+          "real-island simulation approaches and reaches actual canopy trees");
 
     Check(island::OceanMeshLayout::VertexCount == 25921U,
           "ocean grid remains within the portable 16-bit vertex budget");

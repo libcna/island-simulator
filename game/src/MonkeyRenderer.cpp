@@ -696,8 +696,10 @@ namespace island
         {
             switch (behavior) {
             case MonkeyBehavior::Observe:
+            case MonkeyBehavior::InspectTree:
                 return AnimationKind::Observe;
             case MonkeyBehavior::Walk:
+            case MonkeyBehavior::ApproachTree:
             case MonkeyBehavior::Wander:
                 return AnimationKind::Walk;
             case MonkeyBehavior::RunAway:

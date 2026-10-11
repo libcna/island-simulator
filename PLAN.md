@@ -349,6 +349,11 @@ Standing visual-quality rules (apply to every task from now on):
   `20261011T130518.614818Z-jungle` inspected, empty kernel delta. This is only a contact
   foundation: no monkey uses it yet; approach, gripping ascent/descent, branches and
   arboreal movement remain required and unchecked.
+  Ground approach is now wired to actual canopy placements: reachable near-side staging
+  points, explicit approach/inspection states, swept circle-proxy collision checks, timeout
+  and player interruption. Real-island CPU regression requires actual arrival, not just a
+  selected target. Inspection currently returns to wandering; no grip, attachment or ascent
+  is implemented, and visual approach/portable qualification remains open. See contact doc.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

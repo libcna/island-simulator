@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cmath>
 #include <numbers>
+#include <stdexcept>
 
 namespace island
 {
@@ -63,12 +64,63 @@ namespace island
     {
         obstacles_.assign(obstacles.begin(), obstacles.end());
         for (std::size_t index = 0; index < agents_.size(); ++index) {
+            if (agents_[index].state.treeIndex >= 0) EnterState(agents_[index], MonkeyBehavior::Idle);
             if (!IsValidGround(agents_[index].state.x, agents_[index].state.z)) {
                 agents_[index] = Agent{};
                 InitializeAgent(index);
             }
             states_[index] = agents_[index].state;
         }
+    }
+
+    void MonkeyTroop::SetCanopy(const std::span<const CanopyPlacement> trees)
+    {
+        for (const auto& tree : trees) {
+            if (!std::isfinite(tree.x) || !std::isfinite(tree.y) || !std::isfinite(tree.z)
+                || !std::isfinite(tree.yawRadians) || !std::isfinite(tree.scale)
+                || tree.scale <= 0 || tree.variant >= CanopyFormCount)
+                throw std::invalid_argument("Invalid monkey canopy placement");
+        }
+        trees_.assign(trees.begin(),trees.end());
+        for (std::size_t index = 0; index < agents_.size(); ++index) {
+            if (agents_[index].state.treeIndex >= 0) EnterState(agents_[index], MonkeyBehavior::Idle);
+            states_[index] = agents_[index].state;
+        }
+    }
+
+    bool MonkeyTroop::ChooseTreeTarget(Agent& agent) noexcept
+    {
+        float bestDistance = 14.0f;
+        int best = -1;
+        float bestX = 0, bestZ = 0;
+        for (std::size_t index = 0; index < trees_.size(); ++index) {
+            const auto& tree = trees_[index];
+            const float dx = agent.state.x-tree.x, dz = agent.state.z-tree.z;
+            const float distance = std::hypot(dx,dz);
+            // Stage outside even the flared base; do not disable the selected tree's collision.
+            const float standOff = (CanopyTrunkBaseRadius+CanopyRootFlare)*tree.scale
+                +.65f*agent.state.scale+.15f;
+            if (distance <= standOff || distance > bestDistance) continue;
+            const float x = tree.x+dx/distance*standOff, z = tree.z+dz/distance*standOff;
+            if (std::hypot(x-agent.state.homeX,z-agent.state.homeZ) > MaximumHomeDistance
+                || !IsValidGround(x,z)
+                || !IsClearSegment(agent.state.x,agent.state.z,x,z)) continue;
+            // A bounded straight approach must be clear throughout, not just at its endpoint.
+            const int steps = static_cast<int>(std::ceil((distance-standOff)/.25f));
+            bool reachable = true;
+            for (int step = 1; step <= steps && reachable; ++step) {
+                const float t = static_cast<float>(step)/steps;
+                reachable = IsValidGround(agent.state.x+(x-agent.state.x)*t,
+                                           agent.state.z+(z-agent.state.z)*t);
+            }
+            if (!reachable) continue;
+            bestDistance = distance;
+            best = static_cast<int>(index); bestX = x; bestZ = z;
+        }
+        if (best < 0) return false;
+        agent.state.treeIndex = best;
+        agent.state.targetX = bestX; agent.state.targetZ = bestZ;
+        return true;
     }
 
     bool MonkeyTroop::IsClearOfObstacles(const float x, const float z) const noexcept
@@ -92,6 +144,21 @@ namespace island
             && sample.height >= 2.8f && sample.slopeRadians <= MaximumSlope
             && !VegetationLayout::IsReservedRoute(x, z)
             && IsClearOfObstacles(x, z);
+    }
+
+    bool MonkeyTroop::IsClearSegment(float fromX, float fromZ, float toX, float toZ) const noexcept
+    {
+        const float dx = toX-fromX, dz = toZ-fromZ;
+        const float lengthSquared = dx*dx+dz*dz;
+        for (const auto& obstacle : obstacles_) {
+            const float t = lengthSquared > 0
+                ? std::clamp(((obstacle.x-fromX)*dx+(obstacle.z-fromZ)*dz)/lengthSquared,0.0f,1.0f)
+                : 0.0f;
+            const float x = fromX+t*dx-obstacle.x, z = fromZ+t*dz-obstacle.z;
+            const float clearance = CollisionRadius+std::max(0.0f,obstacle.radius);
+            if (x*x+z*z < clearance*clearance) return false;
+        }
+        return true;
     }
 
     void MonkeyTroop::InitializeAgent(const std::size_t index) noexcept
@@ -143,6 +210,8 @@ namespace island
     void MonkeyTroop::EnterState(Agent& agent, const MonkeyBehavior behavior) noexcept
     {
         agent.state.behavior = behavior;
+        if (behavior != MonkeyBehavior::ApproachTree && behavior != MonkeyBehavior::InspectTree)
+            agent.state.treeIndex = -1;
         ++agent.decisionCounter;
         const float variation = UnitSequence(agent.decisionCounter) * 2.4f;
         switch (behavior) {
@@ -151,6 +220,7 @@ namespace island
             agent.state.speed = 0.0f;
             break;
         case MonkeyBehavior::Observe:
+        case MonkeyBehavior::InspectTree:
             agent.stateSecondsRemaining = 2.8f + variation;
             agent.state.speed = 0.0f;
             break;
@@ -161,6 +231,10 @@ namespace island
         case MonkeyBehavior::Walk:
             agent.stateSecondsRemaining = 10.0f + variation * 2.0f;
             agent.state.speed = 0.92f + UnitSequence(agent.decisionCounter + 13U) * 0.30f;
+            break;
+        case MonkeyBehavior::ApproachTree:
+            agent.stateSecondsRemaining = 22.0f;
+            agent.state.speed = .95f;
             break;
         case MonkeyBehavior::RunAway:
             agent.stateSecondsRemaining = 4.2f + variation * 0.55f;
@@ -228,7 +302,8 @@ namespace island
         const float proposedZ = agent.state.z + std::sin(headingRadians) * distance;
         if (std::hypot(proposedX - agent.state.homeX, proposedZ - agent.state.homeZ)
                 > MaximumHomeDistance
-            || !IsValidGround(proposedX, proposedZ)) {
+            || !IsValidGround(proposedX, proposedZ)
+            || !IsClearSegment(agent.state.x,agent.state.z,proposedX,proposedZ)) {
             return false;
         }
         agent.state.x = proposedX;
@@ -333,9 +408,14 @@ namespace island
             -0.75f * deltaSeconds, 0.75f * deltaSeconds);
 
         if (agent.state.behavior == MonkeyBehavior::Wander) {
-            ChooseWanderTarget(agent);
-            EnterState(agent, MonkeyBehavior::Walk);
+            if (agent.decisionCounter % 3U == 0U && ChooseTreeTarget(agent)) {
+                EnterState(agent, MonkeyBehavior::ApproachTree);
+            } else {
+                ChooseWanderTarget(agent);
+                EnterState(agent, MonkeyBehavior::Walk);
+            }
         } else if (agent.state.behavior == MonkeyBehavior::Walk
+                   || agent.state.behavior == MonkeyBehavior::ApproachTree
                    || agent.state.behavior == MonkeyBehavior::RunAway) {
             const float toTargetX = agent.state.targetX - agent.state.x;
             const float toTargetZ = agent.state.targetZ - agent.state.z;
@@ -346,12 +426,15 @@ namespace island
                     ? 3.0f : 1.9f;
                 agent.state.headingRadians = TurnToward(
                     agent.state.headingRadians, desiredHeading, turnRate * deltaSeconds);
-                const float stepDistance = agent.state.speed * deltaSeconds;
+                float stepDistance = std::min(targetDistance,agent.state.speed * deltaSeconds);
+                if (agent.state.behavior == MonkeyBehavior::ApproachTree)
+                    stepDistance *= std::max(0.0f,std::cos(WrapAngle(desiredHeading-agent.state.headingRadians)));
                 const float directX = agent.state.x
                     + std::cos(agent.state.headingRadians) * stepDistance;
                 const float directZ = agent.state.z
                     + std::sin(agent.state.headingRadians) * stepDistance;
-                const bool directObstacleBlocked = !IsClearOfObstacles(directX, directZ);
+                const bool directObstacleBlocked = !IsClearSegment(
+                    agent.state.x,agent.state.z,directX,directZ);
                 if (!TryMove(agent, agent.state.headingRadians, stepDistance)) {
                     const float preferredSide = (agent.decisionCounter & 1U) == 0U ? 1.0f : -1.0f;
                     constexpr std::array<float, 4> DeflectionAngles = {
@@ -374,7 +457,12 @@ namespace island
                     }
                 }
             }
-            if (targetDistance < 0.85f || agent.stateSecondsRemaining <= 0.0f) {
+            const bool approaching = agent.state.behavior == MonkeyBehavior::ApproachTree;
+            const float remaining = std::hypot(agent.state.targetX-agent.state.x,
+                                                agent.state.targetZ-agent.state.z);
+            if (approaching && remaining < .12f) {
+                EnterState(agent, MonkeyBehavior::InspectTree);
+            } else if ((!approaching && targetDistance < .85f) || agent.stateSecondsRemaining <= 0.0f) {
                 EnterState(agent, agent.state.behavior == MonkeyBehavior::RunAway
                     ? MonkeyBehavior::Observe : MonkeyBehavior::Idle);
             }
@@ -385,6 +473,12 @@ namespace island
             } else {
                 EnterState(agent, MonkeyBehavior::Wander);
             }
+        }
+
+        if (agent.state.behavior == MonkeyBehavior::InspectTree && agent.state.treeIndex >= 0) {
+            const auto& tree = trees_[static_cast<std::size_t>(agent.state.treeIndex)];
+            agent.state.headingRadians = TurnToward(agent.state.headingRadians,
+                std::atan2(tree.z-agent.state.z,tree.x-agent.state.x),1.9f*deltaSeconds);
         }
 
         const float travelled = std::hypot(agent.state.x - previousX, agent.state.z - previousZ);
