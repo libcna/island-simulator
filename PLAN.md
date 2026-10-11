@@ -874,6 +874,15 @@ Landmark backlog requested by the operator:
   present, butfacemask/eyes/limbjunctions/boxytrunk/stifftail andgrass-obscuredfeet remain.
   Exactfindings/nextactions: `docs/wildlife-visual-audit-2026-10-12.md`. Stillimages do
   notprovewalking/climbing/audio. No species removed orbacklogclosed.
+  BoarQA firstcloseattempt233518 technicalPASS butvisuallyrejected (headobscured,
+  <6mobserver triggersnaturalretreat). New heading-relativetelephoto7.17m/0.50rad
+  view233703 showshead/torso; normalgameFOV/AI/vegetationunchanged, feetstillpartlyhidden.
+  Bodyprofile now11anchors+10boundedHermitehalfstations; near+960verts/+320tri peranimal,
+  farretains11anchors; existing36kbatch/peranimal6kguard. Noanchorovershoot/legstretch/
+  collisionchange. Native233914comparisonandfinal234145imageactuallyinspected/PASS/
+  kernel[]: modestshoulder/rump smoothing, NOTcompleteanatomy. Full41/41testsPASS63.03s,
+  AndroidARM64build/lintPASS7s. NEXT cuppedears/muzzle/coat andportableactualQA.
+  Webbuild/packagePASS11,343,447raw/4,332,469gzip; allownedjobs terminal/latchunchanged.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

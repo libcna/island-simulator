@@ -164,10 +164,11 @@ namespace island
                         BoarCoatTexture::BodyV(static_cast<float>(side) / sides));
                     return SmoothVertex(point, Vector3(nx, ny, nz), coat, uv);
                 };
-                for (std::size_t row = 0; row + 1 < profile.size(); ++row) {
+                const std::size_t rowStep=sides<16?2U:1U; // Far mesh retains authored anchor count.
+                for (std::size_t row = 0; row + rowStep < profile.size(); row+=rowStep) {
                     for (int side = 0; side < sides; ++side) {
-                        const auto a = vertex(row, side), b = vertex(row + 1, side);
-                        const auto c = vertex(row + 1, side + 1), d = vertex(row, side + 1);
+                        const auto a = vertex(row, side), b = vertex(row + rowStep, side);
+                        const auto c = vertex(row + rowStep, side + 1), d = vertex(row, side + 1);
                         SmoothTriangle(a, b, c);
                         SmoothTriangle(a, c, d);
                     }
@@ -325,7 +326,10 @@ namespace island
             }
             ModelBuilder mesh{staging_, vector(grounded.origin), vector(grounded.right),
                               vector(grounded.up), vector(grounded.forward), boar.scale, canopyLight_};
+            const auto vertexStart=staging_.size();
             AppendBoar(mesh, boar, grounded, distance < 55.0f * 55.0f);
+            if(staging_.size()-vertexStart>6000U)
+                throw std::runtime_error("Single boar exceeds per-animal geometry budget");
             ++visibleCount_;
         }
         if (staging_.empty()) return;

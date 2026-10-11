@@ -18,7 +18,7 @@ enough of the coat to claim natural bristles, nor does a still prove gait qualit
 
 Next actions, in order:
 
-- [ ] Establish an unobscured close three-quarter/side inspection view of the live
+- [~] Establish an unobscured close three-quarter/side inspection view of the live
   animal. Change QA camera framing, not population or vegetation to hide problems.
 - [ ] Inspect/refine head-to-shoulder continuity, muzzle/nose/ear anatomy and silhouette
   using that view; retain the shared collision and fitted-leg behavior.
@@ -26,7 +26,45 @@ Next actions, in order:
 - [ ] Inspect multiple walking poses and audible grunts/snuffles separately. Existing
   sole-centre numerical accuracy and audio counters do not establish natural motion/sound.
 
-## Monkeys
+## Boar close-view follow-up and rounded profile
+
+The first close camera attempt, `20261011T233518.569115Z-boars`, passed technical
+capture gates but was rejected for anatomy inspection: leaves still covered the head
+and the closer observer triggered the normal6m retreat behavior. No animal AI or
+vegetation was changed to force a pretty image.
+
+The accepted inspection camera uses initial heading-relative forward2.8m/side-6.6m
+offset (7.17m horizontal), elevation max(terrain+0.4m,animal+2.4m), and0.50rad vertical
+FOV only for `boars`. Ordinary gameplay FOV stays unchanged. It avoids the initial
+retreat trigger, not later movement/retreat forever; camera changes naturally alter
+the observer input. There is no frozen/teleported animal or hidden foliage.
+`20261011T233703.060365Z-boars` PASS and actual image inspected: head, shoulder and most
+of the torso are readable; grass still obscures lower legs. Angular ears, coarse
+shoulder outline and weak coat readability are now easier to assess.
+
+`MakeBoarBodyProfile` now retains its11 authored rings and adds10 bounded nonuniform
+Hermite half-stations. Each interpolated component is clamped between its adjacent
+anchors; extrema, length and rooting dip remain bounded. Nearby geometry uses all21
+rings (+960vertices/+320triangles per animal); far geometry retains the11 anchors.
+The existing36000vertex batch remains; an additional per-animal6000vertex guard
+prevents a partly visible herd from masking an over-budget model. Collision, AI and
+fixed-length leg fitting are unchanged. CPU tests verify order/finite positive radii/
+no overshoot alongside existing full-cycle foot/joint/grounding regressions.
+
+Actual rounded-profile `20261011T233914.459629Z-boars` PASS, image comparison viewed:
+modest smoothing of shoulder/rump contours, not a completed anatomy overhaul.
+Before/after crop retained as `build/boar-rounded-comparison.png`; kernel-after empty.
+The captured version used the extra rings at distance too; the subsequent far-mesh
+decimation keeps only original anchors. Final `20261011T234145.503731Z-boars`
+PASS/image actually inspected/kernel-after[]; body/head still readable, grass partly
+covers feet. All41non-display tests PASS63.03s; Android ARM64 build/lint PASS7s.
+No actual Android/Web run of the new profile/camera yet; no animation acceptance.
+Web build/package PASS11,343,447raw/4,332,469gzip bytes; all owned jobs terminal,
+hardware stop latch unchanged. Builds do not replace portable runtime qualification.
+Remaining priorities: cupped ears, muzzle/eye detail, coat/bristles and unobscured
+moving feet. Do not replace those tasks with a claim that a smoother loft is realistic.
+
+## Monkeys (current baseline)
 
 Evidence: `build/software-captures/20261011T233132.293700Z-monkeys/capture.png`.
 Technical capture PASS:326colour bins, luminance deviation33.35, spatialcontrast180.72.

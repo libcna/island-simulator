@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — readable boar inspection view and rounded near-body profile
+
+InitialcloseQA233518 technicallyPASS butrejectedvisually: headblockedand<6mobserver
+triggerednaturalretreat. FinalBoarDetail cameraheadingrelativeforward2.8/side-6.6,
+heightmax(ground+.4,boar+2.4), FOV.50rad onlyQA. NormalFOV/AI/worldunchanged; observer
+stillaffectsnaturalbehavior.233703baseline actuallyviewed: head/torso readable, grass
+partlycoverslegs. No animal/plantmovedorhidden. Nextanatomyworkhasusablecomparison.
+BoarBodyProfile now21rings from11anchors+10nonuniformHermitehalfstations, component
+clampedtoadjacentanchors (noovershoot), preservedrootingdip/extrema. Renderernearuses
+all21,+960vertices/+320tri peranimal; farusesoriginal11anchors. Batch36kunchanged,
+addedperanimal6kguard. Fixedleg/contact/AI/collisionunchanged. Testsfinite/order/bounds
+added alongsidefullpose/contacttests. Actual233914roundedcomparisonimageviewed;
+modestshoulder/rumpsmoothing, notrealismcompletion. Finalafterfardecimation234145.503731Z
+boarsPASS/imageactuallyviewed/kernel[]. Currentboarimage includesforegroundsnake.
+Full41/41non-displayPASS63.03s; AndroidARM64build/lintPASS7s.
+Webbuild/packagePASS11,343,447raw/4,332,469gzip; allownedjobs terminal/latchunchanged.
+NoactualAndroid/Webnewcamera/profile yet. NEXT cuppedeargeometry, muzzle/eyes/coat andunobscuredmovingfeet;
+monkey/fullspecies/resident/audio/AMDbacklogOPEN. NoKVM/dependencychanges/push.
+
 ## Latest — actual textured hut Web PASS; boar/monkey audit exposes remaining defects
 
 No game/source changes thisturn. Actual Web232507.842729Z-chrome-hut parent/report

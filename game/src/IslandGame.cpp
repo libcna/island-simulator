@@ -784,9 +784,11 @@ namespace island
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::BoarDetail) {
             const auto& boar = boarHerd_.Boars().front();
-            const float x = boar.x + 4.5f;
-            const float z = boar.z + 4.5f;
-            cameraPosition_ = Vector3(x, terrain_.Height(x, z) + PlayerMotion::EyeHeight, z);
+            // Telephoto inspection outside the 6m retreat trigger; habitat stays unchanged.
+            const float c=std::cos(boar.headingRadians),s=std::sin(boar.headingRadians);
+            const float x = boar.x + c*2.8f + s*6.6f;
+            const float z = boar.z + s*2.8f - c*6.6f;
+            cameraPosition_ = Vector3(x, std::max(terrain_.Height(x,z)+0.4f,boar.y+2.4f), z);
             const Vector3 direction = Vector3(boar.x, boar.y + 0.5f, boar.z) - cameraPosition_;
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
@@ -1876,7 +1878,8 @@ namespace island
                                            renderCameraPosition_ + forward,
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
-            std::numbers::pi_v<float> / 3.0f, aspect, 0.08f, 1200.0f);
+            viewpoint_==FixedViewpoint::BoarDetail?0.50f:std::numbers::pi_v<float> / 3.0f,
+            aspect, 0.08f, 1200.0f);
     }
 
     void IslandGame::CaptureFrame(const std::string& path)

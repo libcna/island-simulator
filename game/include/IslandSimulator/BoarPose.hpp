@@ -5,7 +5,7 @@
 namespace island
 {
     struct BoarBodyRing { float z, centreY, radiusX, radiusY; };
-    using BoarBodyProfile = std::array<BoarBodyRing, 11>;
+    using BoarBodyProfile = std::array<BoarBodyRing, 21>;
     [[nodiscard]] BoarBodyProfile MakeBoarBodyProfile(float rootingDip) noexcept;
     /** @brief Upper surface of the shared profile; coordinates are unscaled model meters. */
     [[nodiscard]] float BoarBackHeight(const BoarBodyProfile& profile, float z, float x) noexcept;

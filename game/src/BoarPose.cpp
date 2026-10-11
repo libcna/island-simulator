@@ -8,7 +8,7 @@ namespace island
     BoarBodyProfile MakeBoarBodyProfile(float dip) noexcept
     {
         dip = std::isfinite(dip) ? std::clamp(dip, 0.0f, 0.15f) : 0.0f;
-        return {{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.64f, 0.22f, 0.25f},
+        const std::array<BoarBodyRing,11> anchors{{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.64f, 0.22f, 0.25f},
                  {-0.40f, 0.66f, 0.315f, 0.32f}, {-0.08f, 0.69f, 0.335f, 0.35f},
                  {0.25f, 0.74f, 0.31f, 0.37f}, {0.47f, 0.65f - dip * 0.15f, 0.245f, 0.29f},
                  {0.62f, 0.60f - dip * 0.45f, 0.21f, 0.245f},
@@ -16,6 +16,25 @@ namespace island
                  {0.91f, 0.43f - dip, 0.128f, 0.11f},
                  {1.04f, 0.42f - dip, 0.112f, 0.093f},
                  {1.06f, 0.42f - dip, 0.005f, 0.005f}}};
+        BoarBodyProfile result{};
+        // Nonuniform Hermite half-stations soften the shoulder/rump/head outline.
+        // Clamp each component to its adjacent authored endpoints: no radius overshoot.
+        for(std::size_t i=0;i+1<anchors.size();++i) {
+            const auto& a=anchors[i]; const auto& b=anchors[i+1];
+            const auto& before=anchors[i==0?0:i-1];
+            const auto& after=anchors[std::min(i+2,anchors.size()-1)];
+            const auto midpoint=[&](float BoarBodyRing::* member) {
+                const float left=(b.*member-before.*member)/(b.z-before.z);
+                const float right=(after.*member-a.*member)/(after.z-a.z);
+                return std::clamp((a.*member+b.*member)*0.5f+(b.z-a.z)*(left-right)*0.125f,
+                    std::min(a.*member,b.*member),std::max(a.*member,b.*member));
+            };
+            result[i*2]=a;
+            result[i*2+1]={(a.z+b.z)*0.5f,midpoint(&BoarBodyRing::centreY),
+                midpoint(&BoarBodyRing::radiusX),midpoint(&BoarBodyRing::radiusY)};
+        }
+        result.back()=anchors.back();
+        return result;
     }
 
     float BoarBackHeight(const BoarBodyProfile& profile, float z, float x) noexcept

@@ -48,6 +48,17 @@ int main()
     }
     for (float dip : {0.0f, 0.15f, std::numeric_limits<float>::quiet_NaN()}) {
         const auto body = MakeBoarBodyProfile(dip);
+        check(body.size()==21,"rounded body must retain ten bounded intermediate rings");
+        for(std::size_t i=1;i<body.size();++i) {
+            check(body[i].z>body[i-1].z,"body rings must stay ordered");
+            check(std::isfinite(body[i].centreY)&&body[i].radiusX>0&&body[i].radiusY>0,
+                "rounded body profile must remain finite and nondegenerate");
+            if(i%2==1) for(float BoarBodyRing::* member:
+                {&BoarBodyRing::centreY,&BoarBodyRing::radiusX,&BoarBodyRing::radiusY})
+                check(body[i].*member>=std::min(body[i-1].*member,body[i+1].*member)
+                    &&body[i].*member<=std::max(body[i-1].*member,body[i+1].*member),
+                    "rounded body must not overshoot authored dimensions");
+        }
         for (const auto& ring : body) {
             check(std::abs(BoarBackHeight(body, ring.z, 0) - ring.centreY - ring.radiusY) < 1e-5f,
                   "dorsal roots match shared body rings");
