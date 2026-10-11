@@ -70,8 +70,6 @@ namespace island
 {
     namespace
     {
-        constexpr float CanopyNearMinimumDistance = 105.0f;
-        constexpr float CanopyNearDistanceRange = 24.0f;
         constexpr float CanopyMaximumDistance = 475.0f;
         constexpr float UnderstoryNearDistance = 58.0f;
         constexpr float UnderstoryMaximumDistance = 128.0f;
@@ -1656,10 +1654,7 @@ void main()
         for (const CanopyPlacement& source : layout.Canopy()) {
             const auto tree = GroundJunglePlacement(source, *surface);
             JungleCell& cell = cells_[CellIndex(tree.x, tree.z)];
-            const float normalizedYaw = tree.yawRadians
-                / (2.0f * std::numbers::pi_v<float>);
-            const float nearLodDistance = CanopyNearMinimumDistance
-                + CanopyNearDistanceRange * normalizedYaw;
+            const float nearLodDistance = CanopyNearLodDistance(tree.yawRadians);
             const auto& nearMesh = canopyNearMeshes_[tree.variant];
             const auto& farMesh = canopyFarMeshes_[tree.variant];
             const auto bounds = CanopyInstanceBounds(

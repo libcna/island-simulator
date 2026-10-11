@@ -3,9 +3,8 @@
 The canopy renderer and future grip solver now share trunk ring heights and vertex positions
 in `CanopyProfile`. The contact query samples the actual near/far mesh triangle, including
 root flare, bend and irregular cross-section, rather than an ideal cylinder. It returns a
-mesh-local position and outward triangle normal. No monkey currently calls this query:
-attachment, climbing and descent are still unimplemented. Tree approach is now a separate
-ground behavior described below; it does not claim hand-to-bark contact.
+mesh-local position and outward triangle normal. Live forehand reaching now uses this
+query, as described below; whole-body attachment, climbing and descent remain unimplemented.
 
 An omitted wind time selects the rest mesh. Supplying the renderer's time deforms each
 triangle vertex with the trunk's wind weight/phase before interpolating the contact. This
@@ -116,3 +115,45 @@ validation with the new generator header registered. Native ground capture
 segment rotation retains quadrupedal limb geometry and ground-oriented palms. Grass partly
 obscures contacts and the known coarse fur/flat face/shoulder defects remain. This image
 does not show the CPU climbing pose model or establish attachment/climbing quality.
+
+## Live ground-to-bark forehand transfer
+
+`MonkeyTreeReach.hpp` now supplies the live inspection pose. Approach stand-off is the larger
+of the flared-base radius plus 42 cm, or the upper-trunk radius envelope plus head/body
+clearance scaled to the monkey. Both nominal forehand targets must be reachable before a
+candidate tree is selected. Arrival tolerance is tightened from 12 to 4 cm. Inspection lasts
+six seconds: first settle/face the trunk, transfer one hand then the other, retain both on
+bark, then return them one at a time. The hind limbs keep their rendered-terrain pose.
+The transfer schedule never swings both forehands simultaneously. This still ends by
+wandering away, NOT by raising the body or climbing.
+
+The renderer rechecks both targets against the actual terrain-fitted roots, falling back to
+the ground pose when either is unreachable. Hands use spatial IK and normal-aligned palms.
+Importantly, the renderer grounds canopy placements with `GroundJunglePlacement`: original
+layout Y is not the final rendered tree Y. The grip query now receives this same corrected
+placement. Wind time comes from the same draw clock as the jungle. Ordinary canopy LOD
+distance selection is shared through `CanopyNearLodDistance`; the special forced canopy-LOD
+inspection override is not qualified for this new hand-contact view.
+
+New native QA viewpoint `monkey-tree` runs bounded ordinary troop simulation until some
+monkey naturally reaches the paired-contact part of inspection. It then holds the troop
+state for a close static contact inspection; tree wind remains live. It does not teleport
+the monkey or create a test-only tree. The regular `monkeys` moving view is unchanged.
+The capture gate additionally requires the selected visible subject, not another troop
+member, to have both reachable bark grips applied. A positive submission marker still
+requires actual pixel inspection.
+
+The first run `20261011T133719.762250Z-monkey-tree` failed because it required the first
+troop member to reach a suitable tree within the bounded simulation. Evidence is retained;
+no image was produced and kernel delta is empty. Selecting the first naturally inspecting
+member instead produced `20261011T133928.741268Z-monkey-tree`: pass, image inspected, empty
+kernel delta. Both front palms visibly meet the trunk, with hind feet on the floor (partly
+occluded by grass). Head remains outside the trunk. Boxy shoulder/elbow anatomy, wood-like
+fur and simplified face are still clear defects. This held pose does not verify the moving
+transfer sequence, full attachment, climbing or descent.
+
+Native build and all 37 non-display groups pass (57.42 s;
+`build/monkey-tree-reach-final-tests.log`); the 29 software-capture unit tests include
+missing/zero/wrong-subject grip-marker rejection. Asset validation: 24 procedural records,
+69 generator sources, 8 project files, zero external files. Stop latch unchanged. Current
+Android/Web runtime qualification and a complete visual climbing cycle remain open.

@@ -1,6 +1,7 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/CanopyProfile.hpp"
 #include "IslandSimulator/MonkeyClimbPose.hpp"
+#include "IslandSimulator/MonkeyTreeReach.hpp"
 #include "IslandSimulator/CanopyLodInspection.hpp"
 #include <algorithm>
 #include <array>
@@ -30,6 +31,20 @@ int main(int argc, char** argv)
 try
 {
     using namespace island;
+    for (int frame = 0; frame <= 600; ++frame) {
+        const float elapsed = frame*.01f;
+        const auto weights = MonkeyTreeReach::Weights(elapsed,6-elapsed);
+        int transferring = 0;
+        for (float weight : weights) {
+            Require(weight >= 0 && weight <= 1,"tree reach blend stays bounded");
+            transferring += weight > 0 && weight < 1;
+        }
+        Require(transferring <= 1,"only one forehand transfers while hind feet remain grounded");
+        if (elapsed >= 2.5f && elapsed <= 4.5f)
+            Require(weights[0] == 1 && weights[1] == 1,"inspection retains both bark contacts");
+        if (frame == 0 || frame == 600)
+            Require(weights[0] == 0 && weights[1] == 0,"inspection begins and ends on ground contacts");
+    }
     unsigned reachableClimbPoses = 0;
     const auto distance = [](MonkeyGroundGait::Point a,MonkeyGroundGait::Point b) {
         return std::sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)+(a.z-b.z)*(a.z-b.z));

@@ -5,6 +5,8 @@
 #include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "IslandSimulator/MonkeyTailProfile.hpp"
 #include "IslandSimulator/MonkeySoleFrame.hpp"
+#include "IslandSimulator/MonkeyTreeReach.hpp"
+#include "IslandSimulator/JungleGrounding.hpp"
 #include "IslandSimulator/MonkeyFaceProfile.hpp"
 #include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
@@ -969,9 +971,11 @@ namespace island
 
     void MonkeyRenderer::Draw(const Matrix& view, const Matrix& projection,
                               const Vector3& cameraPosition,
-                              const std::span<const MonkeyState> monkeys)
+                              const std::span<const MonkeyState> monkeys, const float windTime,
+                              const std::size_t qaSubjectIndex)
     {
         visibleMonkeyCount_ = 0;
+        subjectHasTreeGrips_ = false;
         visibleNearMonkeyCount_ = 0;
         visibleFarMonkeyCount_ = 0;
         drawCallCount_ = 0;
@@ -1067,6 +1071,7 @@ namespace island
             }
 
             std::array<float, MonkeySkinningShader::SoleCount * 16> solePalette{};
+            bool treeGripApplied = false;
             {
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
                 static const RigDefinition groundRig = CreateRig();
@@ -1090,7 +1095,36 @@ namespace island
                     ground[limb] += MonkeyGroundGait::SoleHeight
                         * (1.0f / std::max(groundNormals[limb].Y, 0.1f) - 1.0f);
                 }
-                const auto pose = MonkeyGroundGait::FitGround(flatPose, ground);
+                auto pose = MonkeyGroundGait::FitGround(flatPose, ground);
+                if (monkey.behavior == MonkeyBehavior::InspectTree && monkey.treeIndex >= 0) {
+                    const auto tree = GroundJunglePlacement(monkey.selectedTree,renderedTerrain_);
+                    const bool farTree = std::hypot(tree.x-cameraPosition.X,tree.z-cameraPosition.Z)
+                        > CanopyNearLodDistance(tree.yawRadians);
+                    const auto weights = MonkeyTreeReach::Weights(monkey.treeInspectionSeconds,
+                                                                   monkey.treeInspectionRemaining);
+                    std::array<std::optional<MonkeyTreeReach::Contact>,2> targets;
+                    bool reachable = !pose.reachLimited;
+                    for (std::size_t limb = 0; limb < 2; ++limb) {
+                        targets[limb] = MonkeyTreeReach::Target(tree,{monkey.x,monkey.y,monkey.z},
+                            monkey.headingRadians,monkey.scale,pose.limbs[limb].root.y,limb == 0,windTime,farTree);
+                        bool limited = false;
+                        if (targets[limb]) (void)MonkeyGroundGait::SolveLimb(pose.limbs[limb].root,
+                            targets[limb]->position,{0,0,-1},true,limited);
+                        reachable = reachable && targets[limb].has_value() && !limited;
+                    }
+                    if (reachable) {
+                        for (std::size_t limb = 0; limb < 2; ++limb) {
+                            const Vector3 target = Vector3::Lerp(ToVector(pose.limbs[limb].sole),
+                                ToVector(targets[limb]->position),weights[limb]);
+                            bool limited = false;
+                            pose.limbs[limb] = MonkeyGroundGait::SolveLimb(pose.limbs[limb].root,
+                                {target.X,target.Y,target.Z},{0,0,-1},weights[limb] == 0 || weights[limb] == 1,limited);
+                            groundNormals[limb] = Vector3::Normalize(Vector3::Lerp(groundNormals[limb],
+                                ToVector(targets[limb]->normal),weights[limb]));
+                        }
+                        treeGripApplied = weights[0] > .999f && weights[1] > .999f;
+                    }
+                }
                 if (pose.reachLimited && !reportedReachLimit_) {
                     const char* diagnostic = "island-simulator: monkey terrain contact limited by limb reach";
                     std::cout << diagnostic << '\n';
@@ -1140,6 +1174,7 @@ namespace island
             }
 
             std::array<float, BoneCount * 16> palette{};
+            if (treeGripApplied && index == qaSubjectIndex) subjectHasTreeGrips_ = true;
             for (std::size_t bone = 0; bone < BoneCount; ++bone)
                 (*skinTransforms)[bone].ToColumnMajor(palette.data() + bone * 16);
             paletteEffect_->SetUniformMat4Array("uBones", palette.data(), static_cast<int>(BoneCount));

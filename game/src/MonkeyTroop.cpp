@@ -1,5 +1,6 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/MonkeyGroundGait.hpp"
+#include "IslandSimulator/MonkeyTreeReach.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -98,8 +99,7 @@ namespace island
             const float dx = agent.state.x-tree.x, dz = agent.state.z-tree.z;
             const float distance = std::hypot(dx,dz);
             // Stage outside even the flared base; do not disable the selected tree's collision.
-            const float standOff = (CanopyTrunkBaseRadius+CanopyRootFlare)*tree.scale
-                +.65f*agent.state.scale+.15f;
+            const float standOff = MonkeyTreeReach::StandOff(tree.scale,agent.state.scale);
             if (distance <= standOff || distance > bestDistance) continue;
             const float x = tree.x+dx/distance*standOff, z = tree.z+dz/distance*standOff;
             if (std::hypot(x-agent.state.homeX,z-agent.state.homeZ) > MaximumHomeDistance
@@ -114,11 +114,22 @@ namespace island
                                            agent.state.z+(z-agent.state.z)*t);
             }
             if (!reachable) continue;
+            const auto rest = MonkeyGroundGait::Sample(0,0);
+            for (std::size_t limb = 0; limb < 2 && reachable; ++limb) {
+                const auto contact = MonkeyTreeReach::Target(tree,{x,terrain_.Height(x,z),z},
+                    std::atan2(tree.z-z,tree.x-x),agent.state.scale,rest.limbs[limb].root.y,limb == 0,0,false);
+                bool limited = false;
+                if (contact) (void)MonkeyGroundGait::SolveLimb(rest.limbs[limb].root,contact->position,
+                    {0,0,-1},true,limited);
+                reachable = contact.has_value() && !limited;
+            }
+            if (!reachable) continue;
             bestDistance = distance;
             best = static_cast<int>(index); bestX = x; bestZ = z;
         }
         if (best < 0) return false;
         agent.state.treeIndex = best;
+        agent.state.selectedTree = trees_[static_cast<std::size_t>(best)];
         agent.state.targetX = bestX; agent.state.targetZ = bestZ;
         return true;
     }
@@ -210,6 +221,8 @@ namespace island
     void MonkeyTroop::EnterState(Agent& agent, const MonkeyBehavior behavior) noexcept
     {
         agent.state.behavior = behavior;
+        agent.state.treeInspectionSeconds = 0;
+        agent.state.treeInspectionRemaining = 0;
         if (behavior != MonkeyBehavior::ApproachTree && behavior != MonkeyBehavior::InspectTree)
             agent.state.treeIndex = -1;
         ++agent.decisionCounter;
@@ -220,9 +233,13 @@ namespace island
             agent.state.speed = 0.0f;
             break;
         case MonkeyBehavior::Observe:
-        case MonkeyBehavior::InspectTree:
             agent.stateSecondsRemaining = 2.8f + variation;
             agent.state.speed = 0.0f;
+            break;
+        case MonkeyBehavior::InspectTree:
+            agent.stateSecondsRemaining = 6.0f;
+            agent.state.treeInspectionRemaining = 6.0f;
+            agent.state.speed = 0;
             break;
         case MonkeyBehavior::Wander:
             agent.stateSecondsRemaining = 0.18f;
@@ -380,6 +397,10 @@ namespace island
             return;
         }
         agent.stateSecondsRemaining -= deltaSeconds;
+        if (agent.state.behavior == MonkeyBehavior::InspectTree) {
+            agent.state.treeInspectionSeconds += deltaSeconds;
+            agent.state.treeInspectionRemaining = std::max(0.0f,agent.stateSecondsRemaining);
+        }
         const float previousX = agent.state.x;
         const float previousZ = agent.state.z;
         agent.state.animationSeconds += deltaSeconds;
@@ -420,7 +441,7 @@ namespace island
             const float toTargetX = agent.state.targetX - agent.state.x;
             const float toTargetZ = agent.state.targetZ - agent.state.z;
             const float targetDistance = std::hypot(toTargetX, toTargetZ);
-            if (targetDistance > 0.05f) {
+            if (targetDistance > (agent.state.behavior == MonkeyBehavior::ApproachTree ? .01f : .05f)) {
                 const float desiredHeading = std::atan2(toTargetZ, toTargetX);
                 const float turnRate = agent.state.behavior == MonkeyBehavior::RunAway
                     ? 3.0f : 1.9f;
@@ -460,7 +481,7 @@ namespace island
             const bool approaching = agent.state.behavior == MonkeyBehavior::ApproachTree;
             const float remaining = std::hypot(agent.state.targetX-agent.state.x,
                                                 agent.state.targetZ-agent.state.z);
-            if (approaching && remaining < .12f) {
+            if (approaching && remaining < .04f) {
                 EnterState(agent, MonkeyBehavior::InspectTree);
             } else if ((!approaching && targetDistance < .85f) || agent.stateSecondsRemaining <= 0.0f) {
                 EnterState(agent, agent.state.behavior == MonkeyBehavior::RunAway

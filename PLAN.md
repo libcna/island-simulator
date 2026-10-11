@@ -359,6 +359,12 @@ Standing visual-quality rules (apply to every task from now on):
   scheduling and phase-locked grips on actual trunk triangles. It is not live climbing:
   staging-to-attachment, mixed ground/bark support, body clearance and dismount remain to
   implement and visually verify. Unreachable poses are diagnosed, not accepted as grips.
+  Live inspection now transfers forehands one at a time onto the actual rendered/wind-aware
+  bark, retaining hind feet on terrain; closer reachable staging and 4 cm arrival tolerance.
+  Native held-contact view `20261011T133928.741268Z-monkey-tree` passes and was inspected,
+  both forepalms on trunk, empty kernel delta. First first-member-only warm-up failure kept.
+  Full suite passes 37/37 (57.42 s). This is NOT ascent: body attachment/raising, movement
+  sequence, descent and Android/Web checks remain open, as do fur/shoulder/face realism.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

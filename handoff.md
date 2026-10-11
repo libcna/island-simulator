@@ -1,5 +1,37 @@
 # island-simulator handoff
 
+## Latest — live forehand-to-bark transfer, native held contact inspected
+
+`MonkeyTreeReach.hpp` provides closer stand-off, sequential forehand transfer weights and
+model-space bark targets. `MonkeyTroop` prechecks nominal forehand reach, approaches within
+4 cm, stores selected tree and inspection timers. Six-second `InspectTree`: settle, left
+then right hand onto trunk, hold, sequentially return. Hind feet remain on terrain. Live
+renderer checks actual terrain-fitted reach and applies spatial IK/palm normals only if
+both full targets are reachable. No body raising, attachment/climbing/descent yet.
+
+IMPORTANT discovered correction: JungleRenderer uses `GroundJunglePlacement`, overriding
+layout Y with rendered-triangle terrain height. Hand queries now use that same grounding,
+same draw-time wind and shared ordinary canopy LOD threshold. Special forced canopy-LOD
+override is not contact-qualified. `MonkeyClimbPose` full-body model remains CPU-only.
+
+New native `monkey-tree` QA viewpoint warms ordinary simulation (bounded 12000 steps),
+selects a naturally inspecting troop member at >=2.7 seconds into inspection, then holds
+troop state while wind stays live. Captures must show the selected subject with reachable
+paired grips, not just another visible animal. First `20261011T133719.762250Z-monkey-tree`
+failed because member zero never reached a suitable tree in the bounded warm-up; retained,
+no image, empty kernel delta. Selection of any naturally inspecting member fixed QA setup.
+Final `20261011T133928.741268Z-monkey-tree` passes/inspected: both forepalms meet bark,
+hind feet remain on terrain (some grass occlusion), head outside trunk. Shoulder/elbow
+blockiness, wood-like fur and flat face remain defects. This is a HELD pose, not a verified
+moving transfer or full climbing sequence. Regular `monkeys` view remains moving.
+
+Native build and all 37 non-display groups pass (57.42 s), plus direct 29 capture-unit tests.
+Asset gate: 24 records / 69 generators / 8 project assets. All jobs finished, stop latch
+unchanged; no dependency/host/emulator configuration changes. Android/Web NOT requalified.
+Next: visual transfer sequence and body attachment with mixed ground/bark support, then
+actual bounded ascent/rest/descent/dismount; improve exposed limb joins and fur/face too.
+Full goal remains active; wildlife/hut/resident and entire visual audit remain unfinished.
+
 ## Latest — spatial limb solver and CPU bark-grip pose model
 
 `MonkeyGroundGait::SolveLimb` handles arbitrary 3D targets, fixed .31/.33 bone lengths,

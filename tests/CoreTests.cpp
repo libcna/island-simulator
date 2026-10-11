@@ -24,6 +24,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/LocomotionPaceToggle.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
+#include "IslandSimulator/MonkeyTreeReach.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
@@ -3099,8 +3100,7 @@ int main()
                     observedMonkeyTreeArrival = true;
                     const auto& tree = jungle.Canopy()[static_cast<std::size_t>(state.treeIndex)];
                     Check(std::hypot(state.x-tree.x,state.z-tree.z)
-                        >= (island::CanopyTrunkBaseRadius+island::CanopyRootFlare)*tree.scale
-                            +.65f*state.scale+.029f,
+                        >= island::MonkeyTreeReach::StandOff(tree.scale,state.scale)-.121f,
                         "tree staging remains outside the flared root with body clearance");
                     Check(std::hypot(state.x-state.targetX,state.z-state.targetZ) < .121f
                         && state.speed == 0,

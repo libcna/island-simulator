@@ -44,6 +44,9 @@ namespace island
         float targetZ = 0.0f;
         // Index into the installed canopy placements; -1 when no tree is selected.
         int treeIndex = -1;
+        CanopyPlacement selectedTree{};
+        float treeInspectionSeconds = 0.0f;
+        float treeInspectionRemaining = 0.0f;
         MonkeyBehavior behavior = MonkeyBehavior::Idle;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
         std::uint8_t colorVariant = 0U;

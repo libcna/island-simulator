@@ -46,7 +46,7 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  std::span<const MonkeyState> monkeys);
+                  std::span<const MonkeyState> monkeys, float windTime, std::size_t qaSubjectIndex = 0);
 
         [[nodiscard]] int VisibleMonkeyCount() const noexcept { return visibleMonkeyCount_; }
         [[nodiscard]] int VisibleNearMonkeyCount() const noexcept {
@@ -56,6 +56,7 @@ namespace island
             return visibleFarMonkeyCount_;
         }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] bool SubjectHasTreeGrips() const noexcept { return subjectHasTreeGrips_; }
         [[nodiscard]] float MinimumCanopyTransmission() const noexcept { return minimumCanopyTransmission_; }
         [[nodiscard]] float MaximumCanopyTransmission() const noexcept
         {
@@ -75,6 +76,7 @@ namespace island
         const CanopyLightField& canopyLight_;
         RenderedTerrainSurface renderedTerrain_;
         bool reportedReachLimit_ = false;
+        bool subjectHasTreeGrips_ = false;
         float minimumCanopyTransmission_ = 1.0f;
         float maximumCanopyTransmission_ = 1.0f;
         bool reportedCanopyShade_ = false;

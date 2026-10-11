@@ -94,6 +94,7 @@ namespace island
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
+            case FixedViewpoint::MonkeyTreeDetail: return "monkey-tree";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
@@ -628,8 +629,23 @@ namespace island
             const Vector3 toShark = Vector3(shark.x, shark.y, shark.z) - cameraPosition_;
             yaw_ = std::atan2(toShark.X, toShark.Z);
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
-        } else if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
-            const MonkeyState& monkey = monkeyTroop_.Monkeys().front();
+        } else if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+            if (viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+                bool ready = false;
+                for (int step = 0; step < 12000 && !ready; ++step) {
+                    const auto subject = monkeyTroop_.Monkeys().front();
+                    monkeyTroop_.Update(1.0f/30.0f,subject.x+12,subject.y,subject.z);
+                    for (std::size_t index = 0; index < monkeyTroop_.Monkeys().size() && !ready; ++index) {
+                        const auto& current = monkeyTroop_.Monkeys()[index];
+                        ready = current.behavior == MonkeyBehavior::InspectTree
+                            && current.treeInspectionSeconds >= 2.7f;
+                        if (ready) monkeyQaSubjectIndex_ = index;
+                    }
+                }
+                if (!ready) throw std::runtime_error("monkey-tree inspection could not reach a tree in bounded simulation");
+                std::cout << "island-simulator: monkey-tree QA holds naturally reached inspection; wind remains live\n";
+            }
+            const MonkeyState& monkey = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
             const Vector3 forward(std::cos(monkey.headingRadians), 0.0f,
                                   std::sin(monkey.headingRadians));
             const Vector3 side(-forward.Z, 0.0f, forward.X);
@@ -1121,7 +1137,7 @@ namespace island
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         Vector3 monkeyObserver = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
-            const MonkeyState& subject = monkeyTroop_.Monkeys().front();
+            const MonkeyState& subject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
             Vector3 direction(cameraPosition_.X - subject.x, 0.0f,
                               cameraPosition_.Z - subject.z);
             if (direction.LengthSquared() > 0.0001f) {
@@ -1130,13 +1146,14 @@ namespace island
                     + direction * 12.0f;
             }
         }
-        const MonkeyState previousMonkeySubject = monkeyTroop_.Monkeys().front();
-        monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z);
+        const MonkeyState previousMonkeySubject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
+        if (viewpoint_ != FixedViewpoint::MonkeyTreeDetail)
+            monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z);
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
             // Keep the animated subject in the close QA view even when software rendering
             // requires many simulation updates between captured frames. Preserve the original
             // viewing direction rather than orbiting whenever the animal changes heading.
-            const MonkeyState& subject = monkeyTroop_.Monkeys().front();
+            const MonkeyState& subject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
             cameraPosition_ += Vector3(subject.x - previousMonkeySubject.x,
                                        subject.y - previousMonkeySubject.y,
                                        subject.z - previousMonkeySubject.z);
@@ -2154,7 +2171,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("monkeys");
             monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                  monkeyTroop_.Monkeys());
+                                  monkeyTroop_.Monkeys(),timeSeconds,monkeyQaSubjectIndex_);
         }
 
         const PlayerPosition& oceanPlayer = playerMotion_.Position();
@@ -2642,20 +2659,22 @@ namespace island
         }
         ++drawnFrames_;
         const std::uint32_t targetFrames = !capturePath_.empty()
-                && viewpoint_ == FixedViewpoint::MonkeyDetail
+                && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {
             {
                 GpuDiagnosticScope gpuPass("capture-readback");
                 CaptureFrame(capturePath_);
             }
-            if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
-                const auto& subject = monkeyTroop_.Monkeys().front();
+            if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+                const auto& subject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
                 std::cout << "island-simulator: monkey capture visible "
                           << monkeyRenderer_->VisibleMonkeyCount() << "; near "
                           << monkeyRenderer_->VisibleNearMonkeyCount() << "; draws "
                           << monkeyRenderer_->DrawCallCount() << "; subject "
                           << subject.x << ',' << subject.y << ',' << subject.z << '\n';
+                std::cout << "island-simulator: monkey subject paired tree grips "
+                          << monkeyRenderer_->SubjectHasTreeGrips() << '\n';
                 std::cout << "island-simulator: monkey crossfades "
                           << monkeyRenderer_->ActiveCrossfadeCount() << '/'
                           << monkeyRenderer_->CompletedCrossfadeCount()

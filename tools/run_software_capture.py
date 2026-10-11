@@ -56,12 +56,14 @@ def inspection_arguments(values):
     return ["--canopy-lod-inspection", str(int(values[0])), str(int(values[1])), values[2]]
 
 
-def validate_monkey_capture_log(diagnostics):
+def validate_monkey_capture_log(diagnostics, require_tree_grips=False):
     if "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" not in diagnostics:
         raise RuntimeError("monkey capture did not load the required fur material")
     # Submission is necessary, not proof of visible pixels: still inspect the image.
     if not re.search(r"monkey capture visible [1-9][0-9]*; near [1-9][0-9]*; draws [1-9][0-9]*;", diagnostics):
         raise RuntimeError("monkey capture did not retain a close subject at readback")
+    if require_tree_grips and not re.search(r"monkey subject paired tree grips 1\b", diagnostics):
+        raise RuntimeError("monkey-tree capture subject has no reachable paired bark grips")
 
 
 def validate_antialiasing_log(diagnostics, expected_samples):
@@ -178,7 +180,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "canopy"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "canopy", "monkey-tree"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -360,8 +362,8 @@ def main():
                 raise RuntimeError("current boar pose is missing; check for a stale executable")
             if "monkeys receive footprint-averaged canopy light through 14-bone skinning" not in diagnostics:
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
-            if args.viewpoint == "monkeys":
-                validate_monkey_capture_log(diagnostics)
+            if args.viewpoint in {"monkeys", "monkey-tree"}:
+                validate_monkey_capture_log(diagnostics, args.viewpoint == "monkey-tree")
             validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),
                                          str(capture), "--profile", profile_for_viewpoint(args.viewpoint),
                                          "--output", str(evidence / "validation.json")],

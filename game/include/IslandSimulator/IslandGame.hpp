@@ -108,6 +108,7 @@ namespace island
         FishDetail,
         SharkDetail,
         MonkeyDetail,
+        MonkeyTreeDetail,
         ShipwreckDetail,
         CrabDetail,
         BoarDetail,
@@ -286,6 +287,7 @@ namespace island
         float touchDisplayHeight_ = 1.0f;
         bool smokeTest_ = false;
         FixedViewpoint viewpoint_ = FixedViewpoint::None;
+        std::size_t monkeyQaSubjectIndex_ = 0;
         std::string capturePath_;
         std::optional<CanopyLodInspection> canopyLodInspection_;
         bool mouseCaptured_ = false;

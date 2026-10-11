@@ -25,6 +25,10 @@ class SoftwareCaptureTests(unittest.TestCase):
         valid = ("island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17\n"
                  "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
         validate_monkey_capture_log(valid)
+        validate_monkey_capture_log(valid+"\nmonkey subject paired tree grips 1", True)
+        for marker in ("", "monkey subject paired tree grips 0", "monkey subject paired tree grips 10"):
+            with self.subTest(marker=marker), self.assertRaises(RuntimeError):
+                validate_monkey_capture_log(valid+"\n"+marker, True)
         for invalid in ("", "monkeys 2/7 visible, 4 draws", valid.replace("near 1", "near 0"),
                         valid.replace("visible 2", "visible 0"), valid.replace("draws 4", "draws 0"),
                         valid.split("\n")[0], valid.replace("10 mips", "1 mips")):

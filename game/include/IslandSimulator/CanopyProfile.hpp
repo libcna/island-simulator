@@ -6,6 +6,10 @@
 namespace island
 {
     inline constexpr int CanopyFormCount = 8;
+    [[nodiscard]] inline float CanopyNearLodDistance(float yaw) noexcept
+    {
+        return 105.0f+24.0f*yaw/6.28318530718f;
+    }
 
     struct CanopyTrunkProfile
     {
