@@ -2,6 +2,7 @@
 #include "IslandSimulator/CanopyProfile.hpp"
 #include "IslandSimulator/MonkeyClimbPose.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
+#include "IslandSimulator/MonkeyTreeAttachment.hpp"
 #include "IslandSimulator/CanopyLodInspection.hpp"
 #include <algorithm>
 #include <array>
@@ -87,6 +88,117 @@ try
     auto unreachable=planted;
     unreachable.limbs[0].sole.z+=2;
     Require(!MonkeyTreeReach::RaiseTorso(unreachable,.22f),"unreachable torso excursion rejected without moving contacts");
+    const std::array<MonkeyGroundGait::Point,4> initialNormals{{{0,0,-1},{0,0,-1},{0,1,0},{0,1,0}}};
+    const std::array<MonkeyTreeReach::Contact,2> raisedHands{{{{-.18f,1.02f,.79f},{0,0,-1}},
+        {{.18f,1.02f,.79f},{0,0,-1}}}};
+    const std::array<MonkeyTreeReach::Contact,2> stagedFeet{{{{-.18f,.035f,.18f},{0,1,0}},
+        {{.18f,.035f,.18f},{0,1,0}}}};
+    const std::array<MonkeyGroundGait::Point,4> finalContacts{{{-.18f,1.23f,.79f},{.18f,1.0925f,.79f},
+        {-.18f,.54125f,.79f},{.18f,.40375f,.79f}}};
+    const std::array<MonkeyGroundGait::Point,4> finalNormals{{{0,0,-1},{0,0,-1},{0,0,-1},{0,0,-1}}};
+    const auto attachment=MonkeyTreeAttachment::Build(planted,initialNormals,raisedHands,stagedFeet,
+        finalContacts,finalNormals,{0,.5f,.3f});
+    const auto entry=MonkeyTreeAttachment::Sample(attachment,0);
+    const auto raisedEntry=MonkeyTreeReach::RaiseTorso(planted,.22f);
+    Require(raisedEntry.has_value(),"existing live torso-loading entry is reachable");
+    for (std::size_t i=0;i<4;++i) {
+        Require(distance(entry.limbs.limbs[i].root,raisedEntry->limbs[i].root)<1e-5f
+            && distance(entry.limbs.limbs[i].joint,raisedEntry->limbs[i].joint)<1e-5f
+            && distance(entry.limbs.limbs[i].sole,raisedEntry->limbs[i].sole)<1e-5f,
+            "attachment starts at the existing torso-loading pose without a pop");
+    }
+    for (int frame=0;frame<=1000;++frame) {
+        const float time=frame*.01f;
+        const auto pose=MonkeyTreeAttachment::Sample(attachment,time);
+        Require(!pose.limbs.reachLimited,"entire attachment trajectory remains within limb reach");
+        int supports=0;
+        for (std::size_t i=0;i<4;++i) {
+            const auto& limb=pose.limbs.limbs[i];
+            supports+=limb.supporting;
+            Require(distance(limb.sole,pose.contacts[i])<1e-5f,"attachment never silently clamps a contact");
+            Require(std::abs(distance(limb.root,limb.joint)-MonkeyGroundGait::UpperLength)<1e-5f
+                && std::abs(distance(limb.joint,limb.sole)-MonkeyGroundGait::LowerLength)<1e-5f,
+                "attachment retains fixed bone lengths");
+            if (time<9.999f && limb.supporting) {
+                const auto next=MonkeyTreeAttachment::Sample(attachment,time+.0001f);
+                if (next.limbs.limbs[i].supporting)
+                    Require(distance(limb.sole,next.limbs.limbs[i].sole)<1e-5f,"support contacts stay fixed during torso motion");
+            }
+        }
+        Require(supports>=3,"attachment never transfers two supports at once");
+    }
+    const auto attached=MonkeyTreeAttachment::Sample(attachment,10);
+    for (std::size_t i=0;i<4;++i) Require(distance(attached.contacts[i],finalContacts[i])<1e-6f,
+        "attachment ends on the exact supplied climbing contacts");
+    std::array<unsigned,CanopyFormCount*2> attachmentCoverage{};
+    unsigned rejectedAttachments=0;
+    for (int variant=0;variant<CanopyFormCount;++variant)
+    for (bool far:{false,true}) for (float treeScale:{.8f,1.0f,1.4f})
+    for (float scale:{.8f,1.0f,1.15f}) for (float wind:{0.0f,7.0f}) {
+        CanopyPlacement tree{};
+        tree.variant=variant; tree.scale=treeScale;
+        tree.z=MonkeyTreeReach::StandOff(treeScale,scale);
+        auto base=MonkeyGroundGait::Sample(0,0);
+        std::array<MonkeyTreeReach::Contact,2> lifted{};
+        auto normals=initialNormals;
+        bool feasible=true;
+        for (std::size_t i=0;i<2;++i) {
+            const auto palm=MonkeyTreeReach::Target(tree,{0,0,0},std::numbers::pi_v<float>*.5f,
+                scale,base.limbs[i].root.y,i==0,wind,far);
+            const auto high=MonkeyTreeReach::Target(tree,{0,0,0},std::numbers::pi_v<float>*.5f,
+                scale,.99f,i==0,wind,far);
+            if (!palm || !high) { feasible=false; break; }
+            base.limbs[i]=MonkeyGroundGait::SolveLimb(base.limbs[i].root,palm->position,
+                MonkeyTreeReach::BendHint(1),true,base.reachLimited);
+            normals[i]=palm->normal; lifted[i]=*high;
+        }
+        if (!feasible || base.reachLimited || !MonkeyTreeReach::RaiseTorso(base,.22f)) {
+            ++rejectedAttachments; continue;
+        }
+        const auto climb=MonkeyClimbPose::Sample(tree,.84f*scale/treeScale,
+            -std::numbers::pi_v<float>*.5f,0,scale,wind,far);
+        if (climb.limbs.reachLimited) { ++rejectedAttachments; continue; }
+        std::array<MonkeyGroundGait::Point,4> contacts{};
+        for (std::size_t i=0;i<4;++i) contacts[i]={climb.contacts[i].x/scale,
+            climb.contacts[i].y/scale,climb.contacts[i].z/scale};
+        const auto root=MonkeyTreeAttachment::Lerp(climb.limbs.limbs[2].root,climb.limbs.limbs[3].root,.5f);
+        const MonkeyGroundGait::Point hip{climb.origin.x/scale+root.x*climb.right.x+root.y*climb.outward.x,
+            climb.origin.y/scale+root.z,climb.origin.z/scale+root.x*climb.right.z+root.y*climb.outward.z};
+        const auto plan=MonkeyTreeAttachment::Build(base,normals,lifted,stagedFeet,contacts,climb.normals,hip);
+        feasible=MonkeyTreeAttachment::IsReachable(plan);
+        if (feasible) ++attachmentCoverage[variant*2+static_cast<int>(far)];
+        else ++rejectedAttachments;
+        if (feasible) {
+            const auto end=MonkeyTreeAttachment::Sample(plan,10);
+            for (std::size_t i=0;i<4;++i) {
+                const auto& r=climb.limbs.limbs[i].root;
+                const MonkeyGroundGait::Point expectedRoot{climb.origin.x/scale+r.x*climb.right.x+r.y*climb.outward.x,
+                    climb.origin.y/scale+r.z,climb.origin.z/scale+r.x*climb.right.z+r.y*climb.outward.z};
+                Require(distance(end.limbs.limbs[i].root,expectedRoot)<1e-5f,
+                    "attachment endpoint matches the climbing solver roots without a body jump");
+                Require(distance(end.contacts[i],contacts[i])<1e-5f,
+                    "attachment endpoint matches the climbing solver contacts without a grip jump");
+            }
+        }
+    }
+    unsigned acceptedAttachments=0;
+    for (std::size_t fixture=0;fixture<attachmentCoverage.size();++fixture) {
+        const unsigned count=attachmentCoverage[fixture];
+        std::cout << "Attachment variant " << fixture/2 << " far " << fixture%2
+            << " reachable paths " << count << '\n';
+        Require(count>0,"each real trunk variant and mesh LOD needs a reachable attachment path");
+        acceptedAttachments+=count;
+    }
+    std::cout << "Attachment real-mesh fixtures accepted " << acceptedAttachments
+        << ", rejected " << rejectedAttachments << '\n';
+    Invalid([&] { (void)MonkeyTreeAttachment::Sample(attachment,std::numeric_limits<float>::quiet_NaN()); });
+    auto badNormal=attachment;
+    badNormal.keys[0].normals[0]={0,0,0};
+    Invalid([&] { (void)MonkeyTreeAttachment::Sample(badNormal,0); });
+    Require(!MonkeyTreeAttachment::IsReachable(badNormal),"attachment preflight rejects bad normals");
+    auto badContact=attachment;
+    badContact.keys[4].contacts[2].z+=3;
+    Require(!MonkeyTreeAttachment::IsReachable(badContact),"attachment preflight rejects an unreachable middle step");
     for (int variant = 0; variant < CanopyFormCount; ++variant)
         for (bool far : {false,true})
             for (float yaw : {0.0f,1.3f})

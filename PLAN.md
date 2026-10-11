@@ -401,6 +401,16 @@ Standing visual-quality rules (apply to every task from now on):
   occlusion prevents full foot-contact acceptance. Mask-like face, shoulder junctions,
   stiff tail, continuous-motion/all-angle audit, portable tree contacts and full climbing
   remain open. Web deployment package refreshed; no hardware-performance claim.
+  CPU-only attachment planner now bridges the current torso-loading pose to vertical
+  climbing: move torso nearer, regrip hands, stage hind feet on ground, rotate body, move
+  hind feet onto bark, match climbing hand targets. At most one contact transfers; fixed
+  supports and bone lengths are checked through 1,001 samples. Real-trunk fixtures across
+  eight forms/two LODs/scales/wind accept 208 paths and reject 80, with valid paths in each
+  form/LOD. Initial hand-first ordering failed reach tests and was corrected; end roots
+  and contacts match the climbing solver. Full 37/37 groups pass (48.43 s).
+  This is NOT live climbing: terrain/collision-aware staging, behavior/renderer integration,
+  safe interruption, dynamic wind, ascent/rest/descent/dismount and visual qualification
+  remain open. See `docs/monkey-climb-contact-foundation.md`.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

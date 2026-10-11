@@ -236,3 +236,51 @@ maximum float; the fixture now samples `(frame/220.0f)*.22f` and retains strict 
 Final native build and 37/37 non-display groups pass in 60.44 seconds
 (`build/monkey-torso-loading-final-tests.log`); direct 30 capture-unit tests pass.
 GPU stop latch SHA-256 remains unchanged. All launched jobs finished.
+
+## Mixed ground/bark attachment trajectory — CPU only
+
+`MonkeyTreeAttachment.hpp` provides the missing transition between the current .22-radian
+torso-loading pose and the existing vertical climbing pose. It is NOT wired into troop
+behavior or rendering yet. Live monkeys still stop at the previously qualified inspection.
+The ten-second trajectory has ten smooth zero-end-velocity segments:
+
+1. Bring hips forward and raise the torso with all four contacts fixed.
+2. Move the left hand to a higher bark grip.
+3. Move the right hand to a higher bark grip.
+4. Step the left hind foot forward on the ground.
+5. Step the right hind foot forward on the ground.
+6. Rotate/translate the body to the vertical frame with all four contacts fixed.
+7. Transfer the left hind foot to bark.
+8. Transfer the right hind foot to bark.
+9. Move the left hand onto its exact initial climbing-cycle contact.
+10. Move the right hand onto its exact initial climbing-cycle contact.
+
+At most one contact moves; the other three remain fixed while roots move and fixed-length
+IK resolves the limbs. Swing contacts lift .08 model units along their blended normal.
+Reversing time traverses the same positions for dismount. Inputs are caller-supplied
+grounded staging points, actual queried bark contacts/normals and final climbing hip frame.
+No cylinder/flat-ground replacement is hidden in the planner. `IsReachable` samples 1,001
+poses before any support is released, rejects clamping/non-finite data and invalid normals.
+It is a bounded reach check, NOT a continuous collision or dynamic-wind proof.
+
+The initial trial raised hands before moving the torso. Real trunk tests failed: at the
+conservative approach distance, the higher target exceeded arm reach. The retained failure
+is `build/monkey-attachment-fixtures.log`. Moving the body first fixes the ordering.
+The revised fixtures use all eight trunk forms, both mesh LODs, three tree scales, three
+monkey scales and two wind times: 208 candidate paths accepted, 80 rejected, with accepted
+paths for every form/LOD. End roots and contacts coincide with `MonkeyClimbPose`, avoiding
+a jump when that solver takes over. The independent 1,001-pose fixture checks bone lengths,
+stationary supports and at least three supports. Invalid times/normals and an unreachable
+intermediate foot target are rejected. The real-tree fixture uses flat staging terrain;
+arbitrary terrain, yaw, obstacles and body clearance remain caller/integration obligations.
+
+Native build and all 37 non-display groups pass (48.43 s,
+`build/monkey-attachment-final-tests.log`). Asset inventory is 24/72/10/0. No graphics run
+was needed for this CPU-only addition, and no visual or portable runtime claim is made.
+Next: ground/collision-check actual staging feet; integrate an attachment state that keeps
+the selected tree and returns safely if interrupted; apply the frame to body/limbs/normals,
+culling/shadows consistently; then bounded ascent/rest/descent/dismount and real capture
+sequences. Keep tree wind and contact phases coherent. Do not enable an unqualified path
+just because its sampled reach check passes.
+Final targeted regression also matches entry roots, joints and contacts to the current
+`RaiseTorso(.22)` pose (`build/monkey-attachment-continuity-tests.log`, passed).

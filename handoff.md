@@ -10,7 +10,34 @@ not implemented improvements. Require actual close/wide in-game visual review on
 Android and Web; existing build/material diagnostics do not close either task. Keep the
 previous monkey, additional wildlife, hut and resident work open.
 
-## Latest — current WebGL monkey model/material qualification
+## Latest — complete attachment trajectory mathematics, NOT live yet
+
+New `MonkeyTreeAttachment.hpp` bridges live .22-radian torso loading to the existing
+vertical `MonkeyClimbPose` frame. Ten segments: move torso nearer, left/right higher grip,
+left/right hind-foot ground staging, vertical torso, left/right hind-foot bark transfer,
+left/right final climbing grip. Three or four stationary supports, one moving contact at
+most, smooth endpoint velocities, .08-model-unit swing clearance, fixed-length spatial IK.
+Reverse time traverses the same path for dismount. Caller supplies actual surface points.
+`IsReachable` preflights 1,001 samples; rejects clamped/non-finite/invalid-normal poses.
+It is not collision/continuous-wind proof. Not yet included by troop or live renderer.
+
+Real-tree fixture failed the original hand-first order at conservative stand-off; retained
+`build/monkey-attachment-fixtures.log`. Move torso first now passes all form/LOD coverage:
+208 accepted / 80 rejected of 288 tree/monkey-scale/wind cases. Independent trajectory
+tests check fixed contacts, at least three supports and lengths; end roots/contacts match
+climbing solver, entry roots/joints/contacts match the current live torso-loading pose.
+Real-tree staging ground is flat in these fixtures; yaw/slope/obstacles/body clearance
+are not yet qualified. Full 37/37 groups pass (48.43 s) plus final targeted entry-continuity
+test. Asset gate 24/72/10/0, no runtime/graphics change or new capture claimed; stop latch
+unchanged. All jobs finished, no dependency/host/emulator edits.
+
+Next integration must sample/validate actual staging terrain and collision, preserve tree
+identity through attach/ascent/rest/descent/detach, handle interruptions without dropping
+the animal, apply body frame to skin/culling/shadows and track wind-aware grips coherently.
+Then visually audit the real whole cycle, not only CPU reach or a held pose. Live monkeys
+still stop at the earlier inspection. Goal and wider island tasks remain active.
+
+## Earlier — current WebGL monkey model/material qualification
 
 Existing Release Web build at f7f2801 succeeds and deployment package is refreshed:
 11,010,318 raw / 4,139,727 gzip bytes. Prepared fur SHA matches native
