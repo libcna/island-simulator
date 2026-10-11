@@ -541,6 +541,12 @@ Player controls explicitly requested by the operator (2026-10-11):
   window restoration/focus/capture plus Web Escape/pointer-lock/focus remain to verify.
   Native build + 38/38 CPU groups and Web Release build/package pass. Details and first
   failed event-race run retained in `docs/fullscreen-controls.md`; task remains partial.
+  Native `20261011T165736.522833Z` now verifies two on/off cycles through actual X11 state,
+  whole-display coverage, original window size/position restoration, held-key suppression,
+  background F11 isolation across owned-window focus transfer, and subsequent mouse
+  capture/release. Fullscreen/windowed screenshots inspected; empty kernel delta.
+  33 capture/supervisor CPU regressions pass. Web Escape/pointer-lock interactions,
+  focus loss while a key is held, and other desktop environments remain unverified.
 - [ ] Space toggles fly mode on/off, allowing exploration above the island. Prevent
   entry into the terrain throughout movement (including fast movement and slopes),
   cap flight at 100 metres above the local terrain surface (working interpretation),

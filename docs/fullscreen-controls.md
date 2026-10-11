@@ -4,8 +4,9 @@ F11 is reserved for presentation, independently of the diagnostics overlay. The 
 monkey debug teleport is now J (still requires F1). Android keeps its existing immersive
 mode; desktop uses `GraphicsDeviceManager::ToggleFullScreen()` on a rising key edge while
 active. The native diagnostic says **requested**, because the graphics API can retain its
-requested flag even if a window manager refuses the change. Native actual window state,
-windowed-size restoration, focus loss and mouse capture still need contained input QA.
+requested flag even if a window manager refuses the change. Native X11/software state,
+window restoration, background-key isolation and mouse recovery are verified below;
+hardware and other desktop/window-manager combinations are not newly qualified.
 
 Web links `tools/browser_fullscreen.js` into the executable with `--pre-js`, so deployment
 and QA share the same handler. A trusted F11 event directly requests fullscreen for the
@@ -41,3 +42,40 @@ kernel delta. Fullscreen and restored-window screenshots were actually inspected
 1280x720: rendered island retained, no new blank/cropped scene. No extra post-interval
 PNG is emitted by this scope. Native window/focus/capture and broader Web interactions
 remain open; the PLAN task is partial, not complete. GPU stop latch unchanged.
+
+## Native private-window-manager verification
+
+`tools/run_fullscreen_software.py build` uses the existing kernel supervisor, private
+device/PID containment, llvmpipe and headless Weston/pixman plus private Xwayland. It
+starts the already available user-space Openbox with a project-owned minimal config,
+not the user's desktop configuration. No package installation or host display use.
+The worker refuses unsupervised launch, uses only owned windows and records native X11
+properties/geometry, screenshots and full logs. CPU geometry/launch-guard regressions
+extend `SoftwareCaptureTests.py` to 33 passing tests.
+
+Retained setup failures (all terminal, no GPU fault):
+
+- `20261011T165141.848690Z`: bare private Xwayland had no window manager to advertise
+  actual EWMH fullscreen; request log alone was correctly insufficient.
+- `20261011T165340.534186Z`: Openbox respected the game's non-resizable size hints and
+  refused a forced 960x540 resize. The test now checks restoration of the actual original
+  supported window, not an externally invented size. Arbitrary resizable windows untested.
+- `20261011T165429.904236Z`: second synthetic key edge arrived without a polled release
+  frame. Now wait for a fresh game input sample after each release. Kernel delta contained
+  unrelated allowed audit messages, no GPU fault.
+
+`20261011T165602.723088Z` passes two actual on/off cycles and mouse capture/release.
+Final expanded `20261011T165736.522833Z` also passes focus transfer to an owned dialog,
+F11 delivered only to that dialog, and focus return without a phantom fullscreen toggle.
+After focus return W captures the mouse and Escape releases it. This is not a test of
+losing focus *while* F11 is held, nor fullscreen while already mouse-captured.
+
+In both successful runs, EWMH fullscreen is confirmed, held F11 does not repeat, and
+the fullscreen window covers the entire private display at 1280x720. Windowed mode
+restores its original 1280x720 at (561,326), while the private display returns to
+1920x1080. Both final fullscreen/windowed PNGs inspected: scene retained without
+new blank regions, cropping or material loss. No monkey teleport from F11. Final kernel
+delta empty; stop latch unchanged. Actual physical monitor mode switching is untested.
+
+Remaining: Web Escape/pointer-lock/focus interaction and held-key focus-loss cases.
+Space flight and the visual island/wildlife backlog are separate unfinished tasks.

@@ -1,6 +1,28 @@
 # island-simulator handoff
 
-## In progress — F11 fullscreen and monkey debug shortcut remap
+## Latest — native F11 verified in an owned window manager
+
+Added `tools/run_fullscreen_software.py` plus minimal `fullscreen_openbox.xml`, reusing
+the existing software/kernel/PID/private-device supervisor and GPU lock. Existing
+user-space Openbox only inside private Xwayland/Weston pixman; no installation or host
+desktop/KVM/dependency changes. Worker refuses unsupervised launch. Geometry/launch
+CPU regressions added: 33/33 capture/supervisor tests pass.
+
+Final `build/software-fullscreen/20261011T165736.522833Z` passes two F11 on/off cycles,
+actual EWMH state + whole private-display coverage, held repeat suppression, original
+1280x720/(561,326) restoration, and background-key isolation during focus transfer to
+an owned dialog and back. W captures and Escape releases mouse afterward. Fullscreen
+and windowed PNGs actually inspected; no new rendering loss. Empty final kernel delta,
+stop latch unchanged, asset gate 24/75/10/0. All owned jobs terminal. Prior setup failures
+and narrower successful run retained/described in `docs/fullscreen-controls.md`.
+
+The native window is non-resizable; forced 960x540 resize was correctly refused by WM
+hints, so arbitrary resizable-window sizes are not qualified. Neither held-F11 focus
+loss nor fullscreen while already captured is tested. NEXT: finish those input edge
+cases and Web Escape/pointer-lock/focus checks, then bounded Space flight and the
+larger visual/wildlife backlog. F11 remains partial; overall goal stays active.
+
+## Earlier — F11 fullscreen and monkey debug shortcut remap
 
 F11 now requests a native desktop graphics fullscreen toggle once per press; Android
 keeps immersive mode. Web uses shared linked `tools/browser_fullscreen.js` directly in

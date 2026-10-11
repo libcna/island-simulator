@@ -17,9 +17,22 @@ from run_software_capture import (
     validate_monkey_tree_stages, validate_monkey_climb_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
+from run_fullscreen_software import geometry, worker as fullscreen_worker
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_fullscreen_geometry_rejects_missing_or_invalid_dimensions(self):
+        self.assertEqual(geometry("X=-20\nY=10\nWIDTH=960\nHEIGHT=540\n")["WIDTH"], 960)
+        for text in ("", "X=0\nY=0\nWIDTH=1\n", "X=0\nY=0\nWIDTH=0\nHEIGHT=540\n"):
+            with self.assertRaises(RuntimeError):
+                geometry(text)
+
+    def test_fullscreen_worker_refuses_unsupervised_launch_before_process_creation(self):
+        with patch.dict("os.environ", {}, clear=True), patch("subprocess.Popen") as launch:
+            with self.assertRaisesRegex(RuntimeError, "supervised"):
+                fullscreen_worker(Path("/build"), Path("/evidence"), Path("/wm"))
+            launch.assert_not_called()
+
     cache = "CNA_GRAPHICS_RENDERER:STRING=OPENGL33\nCNA_ROOT_DIR:PATH=/dependency\n"
 
     def test_climb_requires_whole_cycle_same_tree_ascent_descent_and_release(self):
