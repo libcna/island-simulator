@@ -1,7 +1,7 @@
 # Pixel-scale-independent terrain shading normals
 
 Status: native checks pass; Android visual checks pass with a retained guest-GL diagnostic;
-Web runtime qualification pending.
+focused Web runtime qualification passes.
 
 Soil clod lighting and wet-sand sheen normalized the cross product of world-space
 pixel derivatives by clamping its squared length to 1e-8. That is not a harmless
@@ -100,8 +100,13 @@ recorded as `CNA-ISLAND-002` in `BUGS.md`. Investigate without patching dependen
 suppressing the messages. No new host GPU fault
 occurred. These focused runs do not requalify touch/traversal or the open lifecycle issue.
 
-Web material qualification remains pending. The completed seven-view Web suite
-qualifies prior revision `9f1ee59`, not this fix. No host AMD rendering is authorized,
-and the separate Android lifecycle issue remains open.
-Current Web build/package succeeds: 10,347,083 raw / 3,528,841 gzip bytes. The four-view
-materials run has started; completion and final kernel evidence must still be checked.
+## Focused Web verification
+
+Contained Chrome/SwiftShader `20261011T100522.314132Z-chrome-materials` passes litter,
+grass, bay-ground and wet-sand: 60 intervals each, GL error zero in every view. All four
+images were inspected and match the native material appearance. Final kernel delta contains
+12 unrelated AppArmor audit entries and one audit-suppression notice, no GPU fault; hardware
+latch unchanged. Build/package: 10,347,083 raw / 3,528,841 gzip bytes. This qualifies the
+surface-normal material fix, not full input/lifecycle, Firefox or host AMD hardware.
+Browser session `21871` completed successfully; do not poll/restart it.
+The separate Android lifecycle and guest-uniform issues remain open.

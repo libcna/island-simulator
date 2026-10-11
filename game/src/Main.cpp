@@ -2,6 +2,9 @@
 
 #include "IslandSimulator/IslandGame.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#ifdef __ANDROID__
+#include "IslandSimulator/DiagnosticStreamMirror.hpp"
+#endif
 
 #include <exception>
 #include <charconv>
@@ -61,6 +64,10 @@ namespace
 int main(const int argc, char* argv[])
 {
     island::InitializeRuntimeDiagnostics(argc, argv);
+#ifdef __ANDROID__
+    island::DiagnosticStreamMirror stderrMirror(
+        std::cerr, island::MirrorRuntimeDiagnosticToPlatformLog);
+#endif
     bool smokeTest = false;
     bool showDebugOverlay = false;
     bool showWorldDebug = false;

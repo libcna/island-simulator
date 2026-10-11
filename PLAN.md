@@ -66,6 +66,12 @@ historical evidence, not post-incident qualification.
 
 #### 2026-10-11 — reviewed shaded-floor image validation
 
+- [x] Chrome materials `20261011T100522.314132Z-chrome-materials`: four views pass,
+  60 intervals each, GL error zero; all images inspected, no host GPU fault. See surface-frame doc.
+- [x] Consumer Android stderr mirror prepared to expose stock shader/link diagnostics;
+  bounded log traffic, original stream preserved, no dependency edits. Native build and
+  34/34 non-display tests pass (52.34 s). Android runtime investigation remains pending.
+
 - [x] Android litter/wet-sand image/startup gates pass and images inspected; x86/ARM64
   build/lint pass. Empty kernel deltas. See `docs/terrain-surface-frame.md` for artifacts.
 - [!] Litter guest uniform-query diagnostic (27 x 0x502) also occurs before this fix;

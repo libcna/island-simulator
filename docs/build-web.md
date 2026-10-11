@@ -5,7 +5,10 @@
 Focused Chrome `--scope materials` covers `litter`, `grass`, `bay-ground` and `wet-sand`,
 60 intervals per view, with the existing diagnostic/GL/context gates. This targets all
 terrain-normal consumers without replacing the terrain or full input/lifecycle suites.
-Twelve CPU-only browser-launcher tests pass; runtime qualification is pending.
+Twelve CPU-only browser-launcher tests pass. Runtime `20261011T100522.314132Z-chrome-materials`
+passes all four views (60 intervals, GL error zero each), images inspected. No host GPU fault;
+final kernel delta contains unrelated AppArmor/audit notices. Package 10,347,083 raw /
+3,528,841 gzip bytes. See `terrain-surface-frame.md` for scope and Android caveats.
 
 Grass surface material passes contained Chrome/SwiftShader litter/grass scope
 `20261009T130317.675153Z-chrome-litter`: 60 intervals each, zero GL errors/context

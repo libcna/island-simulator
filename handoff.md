@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Update — Web surface-frame materials complete; Android stderr mirror prepared
+
+Browser `20261011T100522.314132Z-chrome-materials` passes all four views, 60 intervals
+each, GL error zero. All four images inspected; final kernel 12 AppArmor audit + one
+audit-suppression notice, no GPU fault, latch unchanged. Session `21871` FINISHED exit zero.
+See `docs/terrain-surface-frame.md`. No full input/lifecycle/Firefox qualification implied.
+
+Added consumer-only Android stderr mirror before game construction: complete lines/chunks,
+2 KiB buffer, at most 128 chunks plus a limit notice, original stderr always preserved.
+No dependency/rendering changes. Native build and 34/34 non-display tests pass (52.34 s),
+including chunking, fragmented unitbuf lines, trailing text, stream restoration and log cap.
+New test added to explicit debug/sanitizer preset targets. Android build/runtime verification
+is next; capture the actual shader/link message for suspected `CNA-ISLAND-002`.
+Android x86_64 assembly/lint passes. Monkey close-view run is ACTIVE in session `51286`;
+poll the same handle. Launcher log: `build/diagnostic-mirror-android-monkeys.log`.
+After inspection, preserve the diagnostic x86 APK separately and restore default ARM64
+assembly/lint. The rolling tested APK still holds the earlier material-qualified build.
+
 ## Update — Android guest uniform diagnostics investigated read-only
 
 See suspected `CNA-ISLAND-002` in `BUGS.md`: stock CompileAndLink logs failure but continues
