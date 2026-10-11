@@ -152,6 +152,43 @@ interactive/runtime persistence check has not been run after the hardware incide
 This closes an implementation gap in future evidence collection; it neither restores
 missing history for PID423089 nor proves the GPU timeout fixed.
 
+### Offline grass upload-range audit
+
+Extended the core helper to inspect actual retained CPU upload shadows, without
+calling buffer `GetData`, rendering, or any method in the dead process. All256 cells
+are enumerated from the debug-symbol array bounds (after stripping its typedef),
+not an assumed terrain-grid count. Final evidence: `core-grass-all-cells-review.txt`
+in the local incident directory.
+
+| Grass mesh | Vertices | Vertex stride | Indices | Highest index |
+| --- | ---: | ---: | ---: | ---: |
+| Near | 862 | 40 bytes | 1920 | 861 |
+| Middle | 60 | 40 bytes | 120 | 59 |
+| Far | 42 | 40 bytes | 84 | 41 |
+
+For each mesh, retained byte sizes match declared buffer counts, vertex positions
+are finite, index count equals three times the primitive count, and all16-bit indices
+are below the vertex count. Across114 occupied cells, all17,225 instance records have
+finite float fields, stride44 bytes, matching upload byte lengths and matching cell/
+buffer counts. The sum agrees with the retained renderer's totalPatchCount_.
+
+Source inspection also confirms grass instanced draws already validate the offset/
+count against cell.patchCount. The new snake-contact shader's fixed s<4/j<41 loops
+index at most163 in its164-element vec3 array; the upload supplies492 floats through
+the typed vec3-array path (count164, not a scalar-array setter). No off-by-one or
+type/count mismatch was found in these reviewed paths. This is not a performance,
+GPU-descriptor, bound-resource, compiled-shader or all-renderer correctness proof.
+CPU shadows do not show what an asynchronous GPU actually fetched.
+
+The first helper extension inspected only64 cells and is retained as partial evidence;
+an initial full-array attempt could not unwrap a typedef. Only the final all256-cell
+result supports the complete instance audit above. After diagnostic rebuilds, GDB
+initially warns that the recorded executable path differs; explicitly selecting the
+preserved candidate and reloading the core restores matching symbols. The helper now
+requires that candidate and rechecks retained build IDs before interpreting data.
+No new game build, GPU workload, core deletion or dependency modification occurred
+during this upload audit. The original timeout remains unresolved.
+
 - [x] Match retained build-ID notes for game/Gallium/CNA/SDL3 and preserve the game candidate.
   A subsequently rebuilt file at the same path alone is not evidence of identity.
 - [ ] Correlate runtime GPU pass/frame diagnostics, kernel timeline and core thread stacks.

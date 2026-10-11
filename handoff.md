@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — offline grass CPU upload audit, no found bounds violation
+
+Extended core-review.py to strict retained CPU upload bytes; no GetData/inferiorcalls.
+After newbuild, select preservedcandidate via GDB `file .../island-simulator.candidate`
+before sourcing helper; helper reloads temporarycore to restore sharedlibrarysymbols
+and validates original4 buildIDs. First oldexe mismatch warnings are expected BEFORE
+explicit candidate selection; do not interpret symbols from newexe. No gamebuild thisturn.
+
+Final core-grass-all-cells-review.txt: array256, occupied114, patches17225 matches
+renderer total; all instance44byte strides/counts/finitefloats valid. Meshes near862v/
+1920indices/max861; middle60/120/max59; far42/84/max41. Allstride40; shadowsize/counts,
+finitepositions/indexlimits/primitivecount checks pass. Earlier64cell partial and
+typedef-unwrapping failedattempt retained separately, not fullaudit evidence.
+Shaderreview: snake s<4,j<41 maxindex163 of164vec3; typed upload164×3=492 floats.
+Existing grass draw offset/count guard present. NO proven bounds bug; GPUdescriptors/
+resourcebinding/compiledshader/performance stillunproven. Snapshot not faultingGPUframe.
+Docs updated, allownedjobs terminal, stoplatchunchanged, no GPU/dependencywrite/push.
+Pending grass changes remain uncommitted and intact. Goal/incident remain open.
+
 ## Latest — sparse persistent control transitions, NOT GPU crash fix
 
 Added pure ControlTransitionDiagnostic.hpp (event enum + message + snapshot formatter),

@@ -9,6 +9,13 @@ info = gdb.execute('info files', to_string=True)
 match = re.search(r"Local core dump file:\s*`([^']+)'", info)
 if not match:
     raise RuntimeError('Cannot locate offline core file')
+# coredumpctl initially opens the recorded executable path, which may now be rebuilt.
+# Caller must select the preserved candidate with `file`; reloading the core then
+# restores shared-library symbols and relocation using that selected executable.
+candidate = gdb.current_progspace().filename
+if not candidate or not candidate.endswith('/island-simulator.candidate'):
+    raise RuntimeError('Select the preserved island-simulator.candidate before this helper')
+gdb.execute('core-file '+match.group(1), to_string=True)
 core = open(match.group(1), 'rb')
 header = core.read(64)
 if header[:6] != b'\x7fELF\x02\x01':
@@ -65,7 +72,6 @@ for name, base in [('game',0x562694e5e000),('Gallium',0x7f7044800000),
     except Exception as error:
         print('CORE_BUILD_ID_UNAVAILABLE', name, str(error))
         raise
-core.close()
 gdb.execute('thread 2', to_string=True)
 gdb.execute('frame 20', to_string=True)
 gdb.execute('set print static-members off')
@@ -105,3 +111,61 @@ for member, typename, fields in [
         print('CORE_RENDER_COUNTS', typename, json.dumps({name:int(obj[name]) for name in fields}))
     except Exception as error:
         print('CORE_RENDER_COUNTS_UNAVAILABLE', typename, str(error))
+
+# CPU upload shadows are retained separately from GPU memory. Check them without
+# invoking GetData or any method on the dead process; this cannot verify GPU residency.
+def object_from_unique(value, typename):
+    address = re.search(r'_M_head_impl = (0x[0-9a-f]+)', str(value))
+    if not address:
+        raise RuntimeError('Missing retained buffer pointer')
+    return gdb.parse_and_eval('*(('+typename+'*)'+address.group(1)+')')
+def shadow_bytes(buffer):
+    impl = buffer['cpuShadow_']['_M_impl']
+    start, finish = int(impl['_M_start']), int(impl['_M_finish'])
+    if not 0 <= finish-start <= 16*1024*1024:
+        raise RuntimeError('Invalid or excessive CPU buffer shadow size')
+    return retained(start,finish-start) if finish>start else b''
+try:
+    grass = pointee('game.grassRenderer_', 'island::GrassRenderer')
+    mesh_reports = []
+    for name in ('nearMesh_','middleMesh_','farMesh_'):
+        mesh = grass[name]
+        vb = object_from_unique(mesh['vertices'], 'Microsoft::Xna::Framework::Graphics::VertexBuffer')
+        ib = object_from_unique(mesh['indices'], 'Microsoft::Xna::Framework::Graphics::IndexBuffer')
+        vertices, indices = shadow_bytes(vb), shadow_bytes(ib)
+        count, stride = int(vb['vertexCount_']), int(vb['vertexDeclaration_']['vertexStride_'])
+        index_count = int(ib['indexCount_'])
+        if int(ib['indexElementSize_']) != 0:
+            raise RuntimeError('Expected 16-bit grass mesh indices')
+        decoded = struct.unpack('<'+'H'*(len(indices)//2), indices)
+        positions_finite = all(math.isfinite(v) for i in range(count)
+                               for v in struct.unpack_from('<fff',vertices,i*stride))
+        valid = (len(vertices)==count*stride and len(indices)==index_count*2
+                 and count==int(mesh['vertexCount']) and index_count==int(mesh['primitiveCount'])*3
+                 and max(decoded)<count and positions_finite)
+        mesh_reports.append({'mesh':name,'vertices':count,'stride':stride,'indices':index_count,
+                             'max_index':max(decoded),'valid':valid})
+    cells, patches, invalid = 0,0,[]
+    cell_array = grass['cells_']['_M_elems']
+    first_cell,last_cell = cell_array.type.strip_typedefs().range()
+    for i in range(first_cell,last_cell+1):
+        cell = cell_array[i]
+        if not bool(cell['occupied']):
+            continue
+        vb = object_from_unique(cell['instances'], 'Microsoft::Xna::Framework::Graphics::VertexBuffer')
+        data = shadow_bytes(vb)
+        count, stride = int(vb['vertexCount_']), int(vb['vertexDeclaration_']['vertexStride_'])
+        patch_count = int(cell['patchCount'])
+        valid = (count==patch_count and stride==44 and len(data)==count*stride
+                 and all(math.isfinite(v) for (v,) in struct.iter_unpack('<f',data)))
+        if not valid:
+            invalid.append(i)
+        cells += 1
+        patches += patch_count
+    print('CORE_GRASS_UPLOAD_AUDIT',json.dumps({'meshes':mesh_reports,'array_cells':last_cell-first_cell+1,
+          'occupied_cells':cells,'patches':patches,'reported_patches':int(grass['totalPatchCount_']),
+          'total_matches':patches==int(grass['totalPatchCount_']),
+          'invalid_cells':invalid,'scope':'CPU upload shadows, not GPU descriptors'}))
+except Exception as error:
+    print('CORE_GRASS_UPLOAD_AUDIT_UNAVAILABLE',str(error))
+core.close()
