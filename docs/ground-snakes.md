@@ -170,3 +170,36 @@ in 7 s. The first ARM64 attempt caught Clang's dangling-span warning in the prio
 audit-camera range-for; retaining the span locally fixes it, with final native/Web
 rebuilds afterward. Actual images above precede only that lifetime-warning fix, not a
 simulation change. Portable build success is not portable runtime image evidence.
+
+## Ground-grass contact, native stage (still incomplete)
+
+Grass now receives four41-station snake paths as164 vec3(x,z,radius) values plus
+body bounds. After player/wind motion, vertices within the body footprint (15mm
+margin,140mm soft edge) are pressed toward2mm above the rendered terrain, below
+the snake's4mm supported clearance. Existing roots stay planted. This is one existing
+grass batch, no extra geometry/texture/draw, and does not modify fallback grass.
+
+The initial per-vertex contact check is now conservatively restricted per grass cell:
+CPU AABB overlap sets a four-component uniform mask using the full measured mesh,
+slope, wind and player-motion envelope, NOT just patch anchors. Unaffected cells
+return before snake loops; overlapping cells retain the original pressure calculation.
+Tests compare masked/unmasked pressure across moving-body local grids including cell
+edges; touching bounds stay active, separated cells are rejected, invalid bounds throw.
+Native focused snake/motion bounds tests PASS2/2 (6.31s), supervisor37 and asset gate
+25/81/10/0 PASS. This is a source-level workload reduction, not a measured GPU speedup
+or evidence that it caused/fixed the October11 AMD timeout.
+
+Actual contained llvmpipe capture `20261011T200218.123460Z-snakes`: four-stage
+motion-grid.png inspected, snake body/S-bends retained, but some oblique grass blades
+still intersect the body and foreground leaves occlude later frames. Graphics/motion
+log replay passes, kernel-after empty; generic luminance gate still FAILS unchanged.
+Earlier pending-contact capture185758.816335Z was also inspected, but the images are
+not byte-identical; do not claim a matched pixel regression proof.
+
+Remaining contact work: pressure at vertices alone does not prove triangle-interior
+clearance (a blade can span the body with endpoints outside its footprint); assess
+whole-blade swept contact, normal deformation and temporal relaxation. Portable actual
+views, uniform-budget/performance measurement, tree snakes and final appearance remain
+open. The original GPU-crash candidate and its pre-change patch/header stay preserved.
+Native/Web builds and Web package PASS (11,160,494 bytes raw /4,195,534 gzip);
+ARM64 assembleDebug/lintDebug PASS in5s. No portable runtime was launched for this stage.

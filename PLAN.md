@@ -684,6 +684,14 @@ progress or require player interaction; dangerous species keep their distance li
   `20261011T184233.069497Z-snakes` inspected, alternating S bends now visible after
   3.573m head movement. Grass/leaf occlusion persists; luminance gate still FAILS,
   graphics/motion logs valid and kernel empty. Not final snake-feature acceptance.
+  Ground-grass contact implemented as soft terrain-relative vertex compression;
+  per-cell conservative masks skip distant snake checks without adding draws/textures.
+  Native snake/motion CPU tests PASS2/2 (6.31s), supervisor37/assets pass. Actual
+  `20261011T200218.123460Z-snakes/motion-grid.png` inspected: body/S-bends visible,
+  oblique grass intersections and foreground-leaf occlusion remain. Graphics/motion
+  checks pass, kernel empty, generic luminance gate still FAILS. Whole-blade/triangle
+  contact, normal deformation, portable runtime and measured performance remain open;
+  no claim that this optimization fixes the still-unresolved AMD timeout.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

@@ -1,6 +1,7 @@
 #include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/SnakeHeadProfile.hpp"
 #include "IslandSimulator/SnakeContactShadow.hpp"
+#include "IslandSimulator/SnakeGrassContact.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -59,6 +60,32 @@ int main()
         const float dt = frame%200==0 ? 5.0f : 1.0f/30.0f;
         population.Update(dt,x,head.y+1.7f,z);
         repeated.Update(dt,x,head.y+1.7f,z);
+        if(frame%60==0) {
+            const auto contact=island::SnakeGrassContact::Build(population.Snakes());
+            Check(contact.count==population.Count,"grass contact lost snake population");
+            // Whole-cell rejection must preserve every pressure sample, including soft edges.
+            for(const auto& s:population.Snakes()) {
+                const auto h=s.body.front();
+                for(int cx=-4;cx<=4;++cx) for(int cz=-4;cz<=4;++cz) {
+                    const float left=h.x+cx*0.7f, back=h.z+cz*0.7f;
+                    const auto mask=contact.CellMask(left,back,left+0.7f,back+0.7f);
+                    for(int ix=0;ix<=3;++ix) for(int iz=0;iz<=3;++iz) {
+                        const float px=left+0.7f*ix/3, pz=back+0.7f*iz/3;
+                        Check(contact.Pressure(px,pz,mask)==contact.Pressure(px,pz),
+                            "grass cell mask lost snake contact or soft edge");
+                    }
+                }
+            }
+            for(const auto& s:population.Snakes()) for(std::size_t j=1;j<s.body.size();++j) {
+                const auto a=s.body[j-1],b=s.body[j];
+                for(const float t:{0.0f,0.25f,0.5f,0.75f,1.0f})
+                    Check(contact.Pressure(a.x+(b.x-a.x)*t,a.z+(b.z-a.z)*t)>0.999f,
+                        "grass contact has a gap along snake body");
+            }
+            Check(contact.Pressure(299,299)==0,"snake contact flattened distant grass");
+            Check(contact.Pressure(std::numeric_limits<float>::quiet_NaN(),0)==0,
+                "invalid grass sample did not fail closed");
+        }
         for (std::size_t index=0; index<population.Count; ++index) {
             const auto& snake = population.Snakes()[index];
             const auto& other = repeated.Snakes()[index];
@@ -147,6 +174,35 @@ int main()
         Check(std::hypot(a.x-b.x,a.z-b.z)<0.025f,"trail sampling depends excessively on update step");
     }
     const auto before=population.Snakes().front();
+    {
+        auto s=before;
+        for(std::size_t j=0;j<s.body.size();++j) s.body[j]={static_cast<float>(j)*population.Spacing,2,0};
+        const std::array<island::SnakeState,1> fixture{s};
+        const auto contact=island::SnakeGrassContact::Build(fixture);
+        Check(contact.Pressure(1.1f,0.05f)>0.999f,"snake body pressure insufficient");
+        Check(contact.Pressure(1.1f,0.12f)>0 && contact.Pressure(1.1f,0.12f)<1,
+            "grass pressure lacks soft edge");
+        Check(contact.Pressure(1.1f,0.3f)==0,"grass contact exceeds local footprint");
+        Check(contact.CellMask(100,100,101,101)==std::array<float,4>{},
+            "distant grass cells still run snake contact loops");
+        const auto b=contact.bounds[0];
+        Check(contact.CellMask(b[2],b[3],b[2]+1,b[3]+1)[0]==1,
+            "touching contact bounds rejected");
+        Check(contact.CellMask(b[2]+0.01f,b[3]+0.01f,b[2]+1,b[3]+1)[0]==0,
+            "separated contact bounds retained");
+        for(const auto query:std::array<std::array<float,4>,3>{{{1,0,0,1},{0,1,1,0},
+            {0,0,std::numeric_limits<float>::infinity(),1}}}) {
+            bool invalid=false;
+            try { (void)contact.CellMask(query[0],query[1],query[2],query[3]); }
+            catch(const std::invalid_argument&) { invalid=true; }
+            Check(invalid,"invalid cell bounds accepted");
+        }
+        Check(island::SnakeGrassContact::Build({}).Pressure(0,0)==0,"empty contact flattened grass");
+        bool rejected=false;
+        auto bad=fixture; bad[0].body[0].z=std::numeric_limits<float>::quiet_NaN();
+        try { (void)island::SnakeGrassContact::Build(bad); } catch(const std::invalid_argument&) { rejected=true; }
+        Check(rejected,"invalid snake uploaded to grass shader");
+    }
     for(int invalid=0;invalid<3;++invalid) {
         auto snake=before;
         if(invalid==0) snake.body[0].x=std::numeric_limits<float>::quiet_NaN();

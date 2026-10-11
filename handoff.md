@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — snake-grass contact with conservative whole-cell rejection
+
+Finished initial pending contact implementation plus CPU CellMask over full grass
+cell.bounds horizontal envelope (mesh/slope/wind/player motion), not placementBounds.
+Shader uniform vec4 mask early returns for all-zero cells and skips nonoverlappingsnakes;
+no new draw/texture. Pressure still evaluated at vertices afterwind; NOT continuous
+blade/triangle collision. CPU movingbody grid masked/unmasked equivalence/boundary/
+invalidinput tests added. Native focused snake+grassmotion PASS2/2 6.31s; supervisor37,
+assets25/81/10/0 PASS. Native/Web builds, package11,160,494raw/4,195,534gzip PASS;
+ARM64 assembleDebug/lintDebug PASS5s. No portable runtime or GPU speedup qualification.
+Actual containedllvmpipe build/software-captures/20261011T200218.123460Z-snakes:
+motion-grid.png generated and actuallyinspected; S-bends/body visible, obliquegrass
+intersections andleafocclusion remain. GenericluminanceFAIL unchanged, graphics/motion
+replayPASS/kernel-after[]. Compared old185758 stagePPMs are notbyteidentical; no
+pixel-equivalence claim. Allownedjobs terminal. No AMDGPU/Android/KVM/dependency/push.
+Originalincident candidate+pendingpatch/header preserved; timeoutcauseunknown and
+stoplatch unchanged. Source-level loop rejection is NOT evidenceof crashfix.
+NEXT: whole-blade sweptcontact/normaldeformation/relaxation and portableactualviews
+stillopen, plus incidentoffline resource/lifetime/workloadanalysis. Goalactive.
+
 ## Latest — actual persistent flight/fullscreen diagnostic verification
 
 Added strict scripted transition validator to tools/run_fullscreen_software.py, reads

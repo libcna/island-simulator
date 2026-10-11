@@ -2306,7 +2306,7 @@ namespace island
             grassRenderer_->Draw(
                 cameraView_, cameraProjection_, renderCameraPosition_,
                 Vector3(grassPlayer.x, grassPlayer.y, grassPlayer.z),
-                grassInteractionModel_.Strength(), timeSeconds);
+                grassInteractionModel_.Strength(), timeSeconds, SnakeGrassContact::Build(snakes_->Snakes()));
         }
 
         {

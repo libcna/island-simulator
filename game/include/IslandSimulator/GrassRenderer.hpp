@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "IslandSimulator/GrassVisibility.hpp"
+#include "IslandSimulator/SnakeGrassContact.hpp"
 
 #include "Microsoft/Xna/Framework/BoundingBox.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
@@ -51,7 +52,8 @@ namespace island
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
                   const Microsoft::Xna::Framework::Vector3& playerPosition,
-                  float playerInteractionStrength, float timeSeconds);
+                  float playerInteractionStrength, float timeSeconds,
+                  const SnakeGrassContact& snakeContact);
 
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] int TotalPatchCount() const noexcept { return totalPatchCount_; }

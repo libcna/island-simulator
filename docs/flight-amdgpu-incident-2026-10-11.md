@@ -205,6 +205,15 @@ requires that candidate and rechecks retained build IDs before interpreting data
 No new game build, GPU workload, core deletion or dependency modification occurred
 during this upload audit. The original timeout remains unresolved.
 
+Subsequent planned grass-contact work adds conservative CPU grass-cell/body AABB
+rejection to the pending shader, so cells outside every snake footprint return before
+per-vertex snake loops. Bounds include full horizontal mesh/wind/player deformation.
+Native CPU pressure-equivalence/bounds tests and contained llvmpipe graphics/motion
+checks pass, but the close-view luminance gate fails and oblique grass intersections
+remain. This is not a measured GPU timing result or a root-cause fix. The new capture
+is `build/software-captures/20261011T200218.123460Z-snakes`, kernel-after empty;
+the original incident executable/patch/header remain preserved separately.
+
 - [x] Match retained build-ID notes for game/Gallium/CNA/SDL3 and preserve the game candidate.
   A subsequently rebuilt file at the same path alone is not evidence of identity.
 - [ ] Correlate runtime GPU pass/frame diagnostics, kernel timeline and core thread stacks.
