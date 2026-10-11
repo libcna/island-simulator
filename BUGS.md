@@ -4,8 +4,8 @@ This file is the authoritative record of confirmed or strongly evidenced framewo
 materially affect `island-simulator`. CNA and Sharp Runtime are read-only dependencies. Framework
 issues are worked around only inside this repository and are never patched in their worktrees.
 
-No qualifying CNA or Sharp Runtime defect has been confirmed yet. One Android lifecycle
-failure has strong framework-boundary evidence and is recorded as suspected below.
+No qualifying CNA or Sharp Runtime defect has been confirmed yet. Android lifecycle and
+guest shader diagnostics have framework-boundary evidence and are recorded as suspected below.
 
 Consumer integration constraints, unsupported features, renderer limitations, and incorrect game
 code do not belong here unless investigation demonstrates a framework defect. Suspected entries
@@ -86,6 +86,57 @@ for completed suspension. A future suspension-specific test should await observa
 before requesting resume, with a bounded deadline; retain a separate rapid-transition stress
 case and do not weaken the fatal-swap/surface checks. Missing audio log calls alone must not
 be promoted to a confirmed framework defect.
+
+### CNA-ISLAND-002 — Android guest uniform queries report invalid operation at first draw
+
+**Component:** CNA EasyGL stock-program initialization / Android guest graphics boundary
+
+**Branch/revision:** CNA next `97783d1e090c6d84f4b6a6d7746516e65184569e`,
+EasyGL `f4d6afaf16cdc7e7e73130950bc45e6d865b41bd`
+
+**Platform/renderer:** Android API 35 x86_64 emulator, GLES3 on SwiftShader
+
+**Severity:** Medium pending attribution; a missing draw has not been established
+
+**Status:** Suspected; program identity and exact cause unconfirmed
+
+**Date discovered:** 2026-10-11
+
+#### Evidence and scope
+
+Run `20261011T095903.886091Z-litter` logs 27 identical gfxstream guest
+`GL2Encoder.cpp:s_glGetUniformLocation` errors `0x502` at 12:00:14.754, immediately
+before the first-draw report. Its image is complete and the existing startup/image gates
+pass; those gates do not reject every guest GL diagnostic. These facts do not prove all
+draws succeeded. Host kernel delta is empty; this is not a host AMD GPU fault.
+The same 27 messages appear in pre-normal-fix `20261011T092539.275219Z-interactive`.
+Same-APK `20261011T100107.688712Z-wet-sand` has no `GL error` matches.
+Retain all logs; do not describe the litter result as a zero-error graphics qualification.
+
+#### Read-only source findings and hypothesis
+
+In the pinned CNA export, `modules/renderers/easygl/src/EasyGLRenderer.cpp`,
+`CompileAndLink` (around line 9141) prints shader/link failures to `std::cerr` but does
+not abort or return failure. Stock initialization then queries uniform locations and sets
+`ready = true` without checking link success. EasyGL `src/Program.cpp::uniform_location`
+checks creation, not link status, before forwarding to MetaGL.
+
+One candidate is `EnsureSkinnedVertexLitProgram`: it performs 24 direct location queries
+plus three in `ResolveRenderTargetOrientationUniforms`, matching the observed count of 27.
+The monkey renderer uses stock `SkinnedEffect` without overriding its default vertex-lit
+selection. A failed stock-program link could therefore produce this burst. This is an
+inference, not attribution: the count is not a program identifier, and the retained logcat
+does not contain a corresponding compiler/linker message. No uniform-limit or driver defect
+is established. Do not replace the monkey shader or change its lighting based on this alone.
+
+#### Next evidence required
+
+After the current Web material run, use a contained monkey close view and obtain the actual
+program/link diagnostic through supported consumer-side diagnostics. Verify visible monkey
+geometry, not only startup population messages. Separate a shader failure from guest query
+behaviour before proposing a game-side workaround or escalating a confirmed framework issue.
+Dependencies remain read-only; nothing has been submitted externally. Android lifecycle is
+a separate issue and is not explained or resolved by this observation.
 
 ## Entry template
 

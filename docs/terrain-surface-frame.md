@@ -95,7 +95,9 @@ messages occur in retained pre-fix `20261011T092539.275219Z-interactive`, so thi
 does not establish a regression in the new normal helper. Existing Android gates check
 fatal/shader failures, not every guest GL diagnostic; their passed result must not be
 reported as a zero-GL-error run. Program identity, root cause and ownership remain unknown.
-Investigate without patching dependencies or suppressing the messages. No new host GPU fault
+Read-only initialization findings and the unconfirmed stock-skinned-program hypothesis are
+recorded as `CNA-ISLAND-002` in `BUGS.md`. Investigate without patching dependencies or
+suppressing the messages. No new host GPU fault
 occurred. These focused runs do not requalify touch/traversal or the open lifecycle issue.
 
 Web material qualification remains pending. The completed seven-view Web suite

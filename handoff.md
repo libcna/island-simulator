@@ -1,5 +1,14 @@
 # island-simulator handoff
 
+## Update — Android guest uniform diagnostics investigated read-only
+
+See suspected `CNA-ISLAND-002` in `BUGS.md`: stock CompileAndLink logs failure but continues
+uniform queries; the vertex-lit skinned program has 24+3 queries, matching the 27-message
+burst. This is a candidate, NOT confirmed program attribution or a driver/uniform-limit defect.
+Next targeted evidence: contained monkey close view and actual link diagnostic, after Web ends.
+Browser materials session `21871` is still live; litter and grass screenshots are now present.
+Litter image inspected and consistent with native. Do not restart or run concurrent graphics.
+
 ## Update — surface-frame Android visual checks; Web material scope prepared
 
 Game revision `3642ac1` / capture harness `90fc6a4`: x86_64 assembly/lint and litter
