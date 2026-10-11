@@ -19,7 +19,7 @@ import time
 import zipfile
 
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity, CAPTURE_VIEWPOINTS
-from run_software_capture import run_monitored_capture
+from run_software_capture import run_monitored_capture, validate_monkey_climb_stages
 
 AVD = "IslandSoftwareApi35"
 IMAGE = "system-images/android-35/google_apis_playstore/x86_64"
@@ -210,7 +210,7 @@ def validate_game_options(args):
         raise ValueError("touch checks require --viewpoint interactive; fixed QA cameras reject input")
 
 
-def validate_game_logs(directory, lifecycle):
+def validate_game_logs(directory, lifecycle, viewpoint=None):
     names = ["island-android-logcat.txt"]
     if lifecycle:
         names += ["island-android-hot-resume-logcat.txt", "island-android-cold-relaunch-logcat.txt"]
@@ -226,6 +226,10 @@ def validate_game_logs(directory, lifecycle):
             raise RuntimeError("application did not confirm OPENGLES3 on SwiftShader")
         if "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" not in log:
             raise RuntimeError("application did not confirm the required monkey fur material")
+        if viewpoint == "monkey-climb":
+            validate_monkey_climb_stages(log)
+            if "monkey climb held summit presented after eight cycle stages" not in log:
+                raise RuntimeError("climbing screenshot was not qualified after the complete cycle")
 
 
 def run_game(args):
@@ -263,7 +267,7 @@ def run_game(args):
         except (OSError, subprocess.SubprocessError) as error:
             print(f"Failure screenshot unavailable: {error}", file=sys.stderr)
         raise
-    validate_game_logs(output, args.lifecycle)
+    validate_game_logs(output, args.lifecycle, args.viewpoint)
     (args.evidence / "game-proof.json").write_text(json.dumps({
         "apk_sha256": args.apk_sha256, "viewpoint": args.viewpoint,
         "touch_selector": args.touch_selector, "lifecycle": args.lifecycle, "traversal": args.traversal,
@@ -358,7 +362,7 @@ def main():
     parser.add_argument("--sdk", type=Path, required=True)
     parser.add_argument("--boot", action="store_true", help="also boot the isolated emulator")
     parser.add_argument("--apk", type=Path, help="install/test this x86_64 APK after software renderer proof")
-    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "interactive"}),
+    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "interactive", "monkey-climb"}),
                         default="clearing-edge")
     parser.add_argument("--touch-selector", action="store_true")
     parser.add_argument("--lifecycle", action="store_true")

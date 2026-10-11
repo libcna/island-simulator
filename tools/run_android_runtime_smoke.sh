@@ -392,6 +392,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: ocean short waves use phased wind packets with analytic envelope gradients" \
             "$LOG_FILE" \
+        && { [ "${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}" != "--viewpoint,monkey-climb" ] \
+             || grep -q "monkey climb held summit presented after eight cycle stages" "$LOG_FILE"; } \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then
         QUALIFIED=1
         break

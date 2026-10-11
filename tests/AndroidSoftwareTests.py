@@ -264,6 +264,17 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             log = directory / "island-android-logcat.txt"
             log.write_text(good)
             gate.validate_game_logs(directory, False)
+            times = [0, 5, 10.1, 18.5, 24, 29.1, 38.9, 0]
+            heights = [5, 5.2, 5.3, 7.3, 6.4, 5.3, 5.01, 5]
+            stages = "\n".join(f"monkey climb stage={i} subject=3 tree={187 if i<7 else -1} "
+                f"time={t} active={int(i<7)} centre-y={heights[i]}" for i,t in enumerate(times))
+            held = "\nmonkey climb held summit presented after eight cycle stages\n"
+            log.write_text(good+stages+held)
+            gate.validate_game_logs(directory, False, "monkey-climb")
+            for incomplete in (good, good+stages, good+stages.replace("time=18.5", "time=11.0")+held):
+                log.write_text(incomplete)
+                with self.assertRaises(RuntimeError):
+                    gate.validate_game_logs(directory, False, "monkey-climb")
             for missing in (renderer, good.replace("10 mips", "1 mips")):
                 log.write_text(missing)
                 with self.assertRaisesRegex(RuntimeError, "required monkey fur"):

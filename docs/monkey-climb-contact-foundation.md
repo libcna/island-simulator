@@ -470,3 +470,36 @@ all eight gates. Original-resolution summit and full sequence inspected: muzzle 
 faces toward upcoming grips, ascent/descent/release retained; same near-side contact and
 far-side occlusion limits. Both kernel deltas empty. Asset gate 24/75/10/0, GPU stop latch
 unchanged, all launched jobs finished. No Android/KVM or dependency changes.
+
+## Android GLES climbing qualification
+
+The `monkey-climb` stages now report even without a desktop `--capture` filename.
+After all eight stages, frame 36 reports a held-summit presentation marker. Android's
+existing bounded readiness gate additionally waits for that marker for this viewpoint;
+its Python verifier requires the same subject/tree, phase times, ascent, descent and
+release as the native harness. A first frame or material-loaded message is insufficient.
+New negative Android log fixtures reject no cycle, no held summit and an omitted phase.
+No renderer/image thresholds were relaxed, and other viewpoints retain their gates.
+
+x86_64 build/lint passes (6 s). The existing isolated KVM/SwiftShader emulator passes
+`20261011T155424.149773Z-monkey-climb` with GLES 3, PID 1874 / render TID 1915. All eight
+stage log checks pass; screenshot accepted on its first presentation attempt. The actual
+1280x720 held-summit PNG was inspected: connected body/limbs, fur and head counter-pitch
+match native, visible near-side palms/feet meet bark; opposite contacts remain occluded.
+Touch controls are visible but were not exercised in this fixed-camera run. This proves
+the staged render diagnostics and inspected summit, not eight Android image inspections,
+continuous gait, lifecycle recovery, physical-device speed or ARM64 runtime behavior.
+Startup first draw 5601.262 ms / total 22765.587 ms includes QA warmup and software rendering.
+Final kernel delta is empty; no shared adb, emulator configuration, KVM or dependency edits.
+
+Retained emulator APK: `build/android-software/island-live-climb-x86_64.apk`, 21,251,403
+bytes, SHA-256 `fc3c575c2b8d3461bf55faefcc7ffa44d6310ff3fd02847d05be4c4e577a8ed4`.
+Default ARM64 build/lint restored (6 s): 21,313,652 bytes, SHA-256
+`3434ee4d48a3db55f83a0b59a0ad30fce10fe78812ef2b11ac56959247b327d5`; three ARM64 libraries
+and prepared fur present, runtime untested. Android harness 22 tests and native capture
+harness 31 tests pass. Current Web climbing qualification and realism/performance work
+remain open.
+
+Native diagnostic-change rebuild and all 37 non-display groups pass (62.97 s,
+`build/monkey-climb-platform-markers-tests.log`). Asset gate 24/75/10/0, GPU stop latch
+unchanged, all jobs finished.

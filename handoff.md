@@ -9,7 +9,40 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — LIVE climbing integrated and actual native whole-cycle images inspected
+## Latest — Android GLES climbing qualified, default ARM64 restored
+
+Stage diagnostics now emit without a desktop capture filename and mirror to Android.
+At frame 36, a held-summit marker follows all eight cycle stages. For `monkey-climb`,
+Android readiness must wait for this marker; Python validates the full native stage
+invariants plus held summit. Negative fixtures reject missing cycle, missing summit
+and wrong phase. Unchanged pixel thresholds and gates for other views.
+
+Android x86_64 build/lint passes (6 s). Existing isolated KVM/SwiftShader emulator run
+`20261011T155424.149773Z-monkey-climb` passes, PID 1874 / render TID 1915, GLES 3.
+All eight stage log checks pass; actual 1280x720 summit PNG inspected, first presentation
+attempt. Matches native fur/body/head orientation and near-side bark contacts; far-side
+contacts occluded. Touch controls visible but untested. This is staged diagnostic plus
+one inspected summit evidence, NOT eight Android images/continuous motion/lifecycle/
+physical performance. Startup first draw 5601.262 ms / total 22765.587 ms includes QA.
+Final kernel delta `kernel-final.json` is empty; all owned jobs/emulator finished.
+No shared adb, KVM, emulator configuration or dependency edits.
+
+Retained `build/android-software/island-live-climb-x86_64.apk`, 21,251,403 bytes,
+SHA fc3c575c2b8d3461bf55faefcc7ffa44d6310ff3fd02847d05be4c4e577a8ed4.
+Default ARM64 build/lint restored (6 s), 21,313,652 bytes,
+SHA 3434ee4d48a3db55f83a0b59a0ad30fce10fe78812ef2b11ac56959247b327d5;
+three ARM64 libraries + prepared fur verified, runtime untested.
+Logs `build/monkey-live-climb-android-build.log`, `build/monkey-live-climb-arm64-build.log`.
+Native diagnostic-change rebuild + 37/37 non-display groups pass (62.97 s),
+`build/monkey-climb-platform-markers-tests.log`. 22 Android/31 capture unit tests pass.
+Asset gate 24/75/10/0, GPU stop latch unchanged, all jobs finished.
+
+NEXT: current Web climbing build and actual-browser qualification (new `monkey-climb`
+scope needs harness support), then continuous/all-angle/interruption visuals, synchronous
+preflight frame-cost profiling, monkey face/joints/tail realism and wider island backlog.
+Goal remains active. Do not mark visual quality or the full plan complete.
+
+## Earlier — LIVE climbing integrated and actual native whole-cycle images inspected
 
 Ordinary troop now attempts a validated excursion once after 3.2 s of natural inspection
 at full simulation distance. Immutable shared plan + reversible clock, original ground

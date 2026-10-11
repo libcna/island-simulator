@@ -2732,9 +2732,9 @@ namespace island
             }
         }
         ++drawnFrames_;
-        if (!capturePath_.empty() && treeQaStage < monkeyTreeQaPoses_.size() && drawnFrames_%4U == 0) {
+        if (treeQaStage < monkeyTreeQaPoses_.size() && drawnFrames_%4U == 0) {
             GpuDiagnosticScope gpuPass("capture-readback");
-            CaptureFrame(capturePath_+".tree-stage-"+std::to_string(treeQaStage)+".ppm");
+            if (!capturePath_.empty()) CaptureFrame(capturePath_+".tree-stage-"+std::to_string(treeQaStage)+".ppm");
             const auto& subject = renderedMonkeys[monkeyQaSubjectIndex_];
             const auto weights = monkeyRenderer_->SubjectTreeReachWeights();
             std::cout << "island-simulator: monkey tree stage=" << treeQaStage
@@ -2743,10 +2743,18 @@ namespace island
                 << " weights=" << weights[0] << ',' << weights[1] << '\n';
             if (viewpoint_==FixedViewpoint::MonkeyClimbDetail) {
                 const auto centre=MonkeyVisualCentre(subject);
-                std::cout << "island-simulator: monkey climb stage=" << treeQaStage << " subject=" << monkeyQaSubjectIndex_
+                std::ostringstream report;
+                report << "island-simulator: monkey climb stage=" << treeQaStage << " subject=" << monkeyQaSubjectIndex_
                     << " tree=" << subject.treeIndex << " time=" << subject.treeClock.seconds
-                    << " active=" << static_cast<bool>(subject.treeExcursion) << " centre-y=" << centre.y << '\n';
+                    << " active=" << static_cast<bool>(subject.treeExcursion) << " centre-y=" << centre.y;
+                std::cout << report.str() << '\n';
+                if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report.str());
             }
+        }
+        if (viewpoint_==FixedViewpoint::MonkeyClimbDetail && drawnFrames_==36U) {
+            const char* report="island-simulator: monkey climb held summit presented after eight cycle stages";
+            std::cout << report << '\n';
+            if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
         const std::uint32_t targetFrames = !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)

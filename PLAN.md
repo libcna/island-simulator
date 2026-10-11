@@ -449,6 +449,12 @@ Standing visual-quality rules (apply to every task from now on):
   and anatomy/face/tail realism remain open. This is not overall monkey visual acceptance.
   Final head-corrected native `20261011T154923.604121Z-monkey-climb` passes all eight gates;
   summit/full sequence inspected, muzzle now aims toward upcoming grips, empty kernel delta.
+  Android isolated GLES climbing `20261011T155424.149773Z-monkey-climb` passes: all eight
+  stage diagnostics plus held-summit marker required before screenshot; actual summit
+  PNG inspected and matches native, first presentation attempt, empty kernel delta.
+  x86_64 and restored default ARM64 build/lint pass; ARM64 runtime remains untested.
+  No continuous/all-angle, lifecycle or physical-device performance claim. Current Web
+  climbing, frame-cost profiling and further animal realism remain pending.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
