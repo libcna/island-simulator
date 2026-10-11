@@ -450,6 +450,7 @@ if(ISLAND_BUILD_GAME)
         game/src/SeaTurtleRenderer.cpp
         game/src/SharkRenderer.cpp
         game/src/ShipwreckRenderer.cpp
+        game/src/HutRenderer.cpp
         game/src/ShorelineRenderer.cpp
         game/src/SkyRenderer.cpp
         game/src/Soundscape.cpp

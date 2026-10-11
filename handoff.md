@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — first hut visible in live island, native image audited
+
+HutRenderer added and linked into ordinary IslandGame creation/draw. Placement now
+reserves actual solid obstacles plus understory1.8×scale/bush1.2×/groundplant0.5×.
+Same site2.58166,204.115/floor2.51744. Shared collision grid gets radius2.83 disc
+covering deck/posts; player and wildlife receive it. Eight radial player approaches
+test no penetration and actual approach. Decorative/non-enterable; no indoor system.
+6804triangles/20412vertices, one static buffer/draw, meshAABB/frustum/300m cutoff,
+CPU fixed-sun vertex color+BasicEffect fog. Six supports/braces/deck/slats/rafters/
+448narrow layered roof bundles. Finite/degenerate/30000vertex upload guards added.
+Native --viewpoint hut, CLI help, native software supervisor and frame draw accounting
+updated. Actual software221344.265945Z-hut capturePASS; capture.png actuallyinspected:
+recognizable raisedhut, no obvious plantpenetration, butrooflooksregular/slatlike,
+woodplain and missingcontactshadows makesgroundconnection weak. These stayOPEN.
+kernel-after[]. Renderer no new texture/customshader. Nativebuild/HutCPU0.73sPASS;
+Android ARM64assemble/lintPASS9s. NoAndroid/Webactualrun yet. No hardware/KVM edits.
+NEXT hut realisticroof/wood/contactshadows, worldreport, portableQArouting+actual
+images/globalroute audit. Fullgoal andAMDincidentremainopen. See docs/island-hut.md.
+Full41/41 non-display testsPASS78.11s; software supervisor37PASS. Webbuild/package
+PASS (payload sizes in build-probe/hut-model-package.log). All owned jobs terminal,
+hardwarestoplatchSHA unchanged. No push/dependency changes.
+
 ## Latest — hut placement foundation added, NO live hut yet
 
 Previous goal turn progressed with camera/image evidence. Moved to the explicit hut

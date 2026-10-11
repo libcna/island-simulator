@@ -55,6 +55,7 @@
 #include "IslandSimulator/SharkRenderer.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/ShipwreckRenderer.hpp"
+#include "IslandSimulator/HutRenderer.hpp"
 #include "IslandSimulator/ShorelineRenderer.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/Soundscape.hpp"
@@ -114,6 +115,7 @@ namespace island
         MonkeyTreeDetail,
         MonkeyClimbDetail,
         ShipwreckDetail,
+        HutDetail,
         CrabDetail,
         BoarDetail,
         SnakeDetail,
@@ -238,6 +240,7 @@ namespace island
         GrassLayout grassLayout_;
         NaturalPropLayout naturalPropLayout_;
         ShipwreckLayout shipwreckLayout_;
+        std::optional<HutPlacement> hutPlacement_;
         WorldCollisionGrid worldCollisionGrid_;
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
         PlayerMotion playerMotion_;
@@ -281,6 +284,7 @@ namespace island
         std::unique_ptr<SeaTurtleRenderer> seaTurtleRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
         std::unique_ptr<ShipwreckRenderer> shipwreckRenderer_;
+        std::unique_ptr<HutRenderer> hutRenderer_;
         std::unique_ptr<ShorelineRenderer> shorelineRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;

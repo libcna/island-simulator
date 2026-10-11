@@ -21,6 +21,8 @@ public:
     static constexpr float Width=4.2f, Depth=3.4f, RoofOverhang=0.55f;
     static constexpr float SiteClearance=5.0f;
     static constexpr float FloorClearance=0.45f, MaximumRelief=0.45f;
+    // Conservative decorative-building proxy, including the outside post corners.
+    static constexpr float CollisionRadius=2.83f;
     static constexpr int CandidateCount=96*6;
     [[nodiscard]] static std::optional<HutPlacement> Find(
         const IslandTerrain& terrain, const RenderedTerrainSurface& surface,

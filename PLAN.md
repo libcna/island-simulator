@@ -807,6 +807,13 @@ Landmark backlog requested by the operator:
   collision installed yet. Non-solid foliage reservation, geometry/materials, shadows,
   global access, reporting and actual native/Android/Web audit remain required.
   See `docs/island-hut.md`; this checkbox stays open.
+  First LIVE model now installed: six posts, braces, separate deck boards/slatted
+  walls, rafters and layered roof bundles; one6804-triangle static draw, frustum/300m
+  culling. Site also reserves understory/bush/groundplant discs. Shared2.83m collision
+  proxy covers floor/posts, eight radial player approaches PASS. Native --viewpoint
+  hut actual221344.265945Z capturePASS/imageinspected/kernel[]. Roof stilltoo regular,
+  wooduntextured/contactshadowsmissing; decorative/non-enterable prototype, notdone.
+  Worldreport/globalroute/actualAndroidWebaudit remainopen. Details docs/island-hut.md.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

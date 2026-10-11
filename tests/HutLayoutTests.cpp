@@ -5,6 +5,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
+#include "IslandSimulator/PlayerMotion.hpp"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -25,6 +26,9 @@ int main() {
         std::span<const island::CircularObstacle>(props.Obstacles()),
         std::span<const island::CircularObstacle>(ship.Obstacles())})
         occupied.insert(occupied.end(),obstacles.begin(),obstacles.end());
+    for(const auto& p:jungle.Understory()) occupied.push_back({p.x,p.z,p.scale*1.8f});
+    for(const auto& p:jungle.Bushes()) occupied.push_back({p.x,p.z,p.scale*1.2f});
+    for(const auto& p:jungle.GroundPlants()) occupied.push_back({p.x,p.z,p.scale*0.5f});
     const auto found=island::HutLayout::Find(terrain,surface,occupied);
     Check(found.has_value(),"no hut site in current world");
     const auto repeat=island::HutLayout::Find(terrain,surface,occupied);
@@ -45,6 +49,22 @@ int main() {
             Check(std::hypot(found->footings[i].x-found->footings[j].x,
                 found->footings[i].z-found->footings[j].z)>1.6f,"duplicate or collapsed hut posts");
     const float c=std::cos(found->yawRadians),s=std::sin(found->yawRadians);
+    const std::array<island::CircularObstacle,1> hutSolid{{{found->x,found->z,island::HutLayout::CollisionRadius}}};
+    Check(std::hypot(island::HutLayout::Width/2+0.08f,island::HutLayout::Depth/2+0.08f)
+        <island::HutLayout::CollisionRadius,"hut posts extend outside collision proxy");
+    for(int direction=0;direction<8;++direction) {
+        const float a=static_cast<float>(direction)*0.785398163f,dx=std::cos(a),dz=std::sin(a);
+        island::PlayerMotion player;
+        player.SetPosition(terrain,found->x+dx*6,found->z+dz*6);
+        for(int step=0;step<240;++step) {
+            player.Update(terrain,-dx,-dz,1.0f/60,hutSolid);
+            Check(std::hypot(player.Position().x-found->x,player.Position().z-found->z)
+                >=island::HutLayout::CollisionRadius+island::PlayerMotion::CapsuleRadius-0.002f,
+                "walking player entered hut solid");
+        }
+        Check(std::hypot(player.Position().x-found->x,player.Position().z-found->z)<4.0f,
+            "hut approach test never reached building");
+    }
     for(int ix=-30;ix<=30;++ix) for(int iz=-25;iz<=25;++iz) {
         const float u=static_cast<float>(ix)*0.08f,v=static_cast<float>(iz)*0.08f;
         const float x=found->x+c*u+s*v,z=found->z-s*u+c*v;
@@ -62,5 +82,5 @@ int main() {
     catch(const std::invalid_argument&) { rejected=true; }
     Check(rejected,"invalid occupancy accepted");
     std::cout<<"Hut candidate "<<found->x<<','<<found->z<<" floor "<<found->floorY
-        <<" yaw "<<found->yawRadians<<"; six grounded supports, no runtime hut yet\n";
+        <<" yaw "<<found->yawRadians<<"; six grounded supports, eight collision approaches checked\n";
 }

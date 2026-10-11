@@ -97,6 +97,7 @@ namespace island
             case FixedViewpoint::MonkeyTreeDetail: return "monkey-tree";
             case FixedViewpoint::MonkeyClimbDetail: return "monkey-climb";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
+            case FixedViewpoint::HutDetail: return "hut";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::SnakeDetail: return "snakes";
@@ -168,6 +169,12 @@ namespace island
                               naturalPropLayout_.Obstacles().end());
         worldObstacles.insert(worldObstacles.end(), shipwreckLayout_.Obstacles().begin(),
                               shipwreckLayout_.Obstacles().end());
+        auto hutOccupied=worldObstacles;
+        for(const auto& p:jungleLayout_.Understory()) hutOccupied.push_back({p.x,p.z,p.scale*1.8f});
+        for(const auto& p:jungleLayout_.Bushes()) hutOccupied.push_back({p.x,p.z,p.scale*1.2f});
+        for(const auto& p:jungleLayout_.GroundPlants()) hutOccupied.push_back({p.x,p.z,p.scale*0.5f});
+        hutPlacement_=HutLayout::Find(terrain_,RenderedTerrainSurface(terrain_),hutOccupied);
+        if(hutPlacement_) worldObstacles.push_back({hutPlacement_->x,hutPlacement_->z,HutLayout::CollisionRadius});
         worldCollisionGrid_.Reset(worldObstacles);
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
@@ -752,6 +759,14 @@ namespace island
             pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
             std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
                          "from the beach\n";
+        } else if (viewpoint_ == FixedViewpoint::HutDetail) {
+            if(!hutPlacement_) throw std::runtime_error("Hut QA requires a valid site");
+            const auto& h=*hutPlacement_;
+            const float c=std::cos(h.yawRadians),s=std::sin(h.yawRadians);
+            cameraPosition_=Vector3(h.x+c*6+s*9,h.floorY+3.2f,h.z-s*6+c*9);
+            const Vector3 direction=Vector3(h.x,h.floorY+1.5f,h.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
             const auto& snake = snakes_->Snakes().front();
             const auto head = snake.body.front();
@@ -1005,6 +1020,7 @@ namespace island
         terrainHeightMap_ = std::move(terrainHeightMap);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         shipwreckRenderer_ = std::make_unique<ShipwreckRenderer>(device, shipwreckLayout_);
+        if(hutPlacement_) hutRenderer_=std::make_unique<HutRenderer>(device,*hutPlacement_);
         palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
         oceanRenderer_ = std::make_unique<OceanRenderer>(
             device, terrain_, qualityProfile_.oceanQuadsPerAxis);
@@ -1897,6 +1913,7 @@ namespace island
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + shipwreckRenderer_->DrawCallCount()
+            + (hutRenderer_?hutRenderer_->DrawCallCount():0)
             + distantSceneryRenderer_->DrawCallCount()
             + contactShadowRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
@@ -2312,6 +2329,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("shipwreck");
             shipwreckRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+        }
+        if(hutRenderer_) {
+            GpuDiagnosticScope gpuPass("hut");
+            hutRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_);
         }
 
         {
@@ -2776,7 +2797,8 @@ namespace island
                       << naturalPropRenderer_->DrawCallCount() << " draws; shipwreck "
                       << (shipwreckRenderer_->IsVisible() ? "visible" : "culled") << ", "
                       << shipwreckRenderer_->DebrisCount() << " debris, "
-                      << shipwreckRenderer_->DrawCallCount() << " draw; grass "
+                      << shipwreckRenderer_->DrawCallCount() << " draw; hut "
+                      << (hutRenderer_?hutRenderer_->DrawCallCount():0) << " draw; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "
