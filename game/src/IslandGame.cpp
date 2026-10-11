@@ -170,11 +170,7 @@ namespace island
                               naturalPropLayout_.Obstacles().end());
         worldObstacles.insert(worldObstacles.end(), shipwreckLayout_.Obstacles().begin(),
                               shipwreckLayout_.Obstacles().end());
-        auto hutOccupied=worldObstacles;
-        for(const auto& p:jungleLayout_.Understory()) hutOccupied.push_back({p.x,p.z,p.scale*1.8f});
-        for(const auto& p:jungleLayout_.Bushes()) hutOccupied.push_back({p.x,p.z,p.scale*1.2f});
-        for(const auto& p:jungleLayout_.GroundPlants()) hutOccupied.push_back({p.x,p.z,p.scale*0.5f});
-        hutPlacement_=HutLayout::Find(terrain_,RenderedTerrainSurface(terrain_),hutOccupied);
+        hutPlacement_=HutLayout::FindInWorld(terrain_,jungleLayout_,worldObstacles);
         if(hutPlacement_) worldObstacles.push_back({hutPlacement_->x,hutPlacement_->z,HutLayout::CollisionRadius});
         worldCollisionGrid_.Reset(worldObstacles);
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());

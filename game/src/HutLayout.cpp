@@ -1,6 +1,8 @@
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
+#include <vector>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -8,6 +10,16 @@
 #include <stdexcept>
 
 namespace island {
+std::optional<HutPlacement> HutLayout::FindInWorld(const IslandTerrain& terrain,
+    const JungleLayout& jungle, std::span<const CircularObstacle> solidObstacles)
+{
+    std::vector<CircularObstacle> occupied(solidObstacles.begin(),solidObstacles.end());
+    for(const auto& p:jungle.Understory()) occupied.push_back({p.x,p.z,p.scale*1.8f});
+    for(const auto& p:jungle.Bushes()) occupied.push_back({p.x,p.z,p.scale*1.2f});
+    for(const auto& p:jungle.GroundPlants()) occupied.push_back({p.x,p.z,p.scale*0.5f});
+    return Find(terrain,RenderedTerrainSurface(terrain),occupied);
+}
+
 std::optional<HutPlacement> HutLayout::Find(const IslandTerrain& terrain,
     const RenderedTerrainSurface& surface, std::span<const CircularObstacle> occupied)
 {

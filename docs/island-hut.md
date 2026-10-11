@@ -188,6 +188,40 @@ The earlier portable screenshots predate these leaf tips and do not qualify them
 Full41/41 non-display tests PASS72.75s; Web build/package PASS11,228,998raw /
 4,221,248gzip bytes. All owned jobs terminal; hardware stop latch unchanged.
 
+## Authoritative inventory and continuous spawn-to-hut traversal
+
+The world report previously omitted the hut and its collision proxy. `HutLayout::FindInWorld`
+now shares the solid-plus-foliage reservation between the live game and the report.
+The separate test fixture explicitly reconstructs exclusions and verifies identical
+position/yaw/floor. Geometry and placement are unchanged by this refactor.
+
+The report includes hut count, position/floor/yaw, collision radius, non-enterable
+status and all six footings; its collision grid now includes the actual hut proxy.
+The fingerprint incorporates the hut and supports. Validation requires a finite hut,
+exact rendered-ground footings and the matching proxy. Actual report passes repeat
+determinism, fingerprint `a590b7e4fb787269`,790solids/417occupied cells. This does not
+fix other report omissions such as ground snakes; those remain separate work.
+
+`tests/HutReachability.hpp` performs a bounded test-only2m cardinal A* search over
+the actual terrain and complete solid grid. Conservative expanded obstacle/ground
+checks suggest a route; the acceptance proof is replay with ordinary `PlayerMotion`
+at1/60s from the real normal spawn(0,-225), with no intermediate SetPosition or flight.
+Every step must remain walking, finite, outside solid proxies and free of safety
+clamping; each waypoint has a240step deadline. Final point must reach the front
+approach within7.5m of the hut. A fully blocked world is rejected.
+
+Actual replay:459.108m,6548continuous steps,225waypoints, reaching the hut approach.
+This establishes one dry walkable route in the current simulation, not universal
+path connectivity, non-solid foliage visibility or a native/Android/Web input run.
+The earlier eight local collision approaches are retained. A visual walk along the
+global route and remaining material polish are still required.
+Final replay also rejects nonfinite x/y/z, per-step displacement above ordinary walking
+speed and any obstacle depenetration. Focused rerun passes unchanged459.108m/6548steps.
+Full41/41 non-display tests PASS69.89s before that final test-only strengthening;
+Android ARM64 build/lint PASS6s; Web build/package PASS11,228,439raw/4,221,482gzip.
+No new graphics run for the placement-sharing/report changes; no visual improvement
+or platform input qualification is claimed by these CPU checks.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing
@@ -195,7 +229,7 @@ Full41/41 non-display tests PASS72.75s; Web build/package PASS11,228,998raw /
 2. Ground contact is implemented; consider the remaining directional roof/self-shadow
    limitations. Confirm grass/wind-driven foliage clearance
    through representative views; conservative site discs are not a triangle proof.
-3. Audit global player-route reachability and refine the coarse building collider if
-   needed. No inventory, crafting, quests or unrelated systems.
-4. Add world-report data and complete portable image audits and budget checks.
+3. Visually audit the now CPU-verified spawn-to-hut route and refine the coarse building
+   collider if needed. No inventory, crafting, quests or unrelated systems.
+4. Complete portable image audits and budget checks; hut world-report data is now included.
    Android/Web QA routing is now implemented. Build success is not runtime qualification.

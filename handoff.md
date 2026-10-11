@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — hut world inventory fixed; continuous spawn-to-hut route verified
+
+HutLayout::FindInWorld nowshares the actual solid+foliage exclusion between livegame
+andWorldReport, identicalplace/pose/footings. Report previouslyomittedhut/collider;
+nowreports hutcount/position/floor/yaw/radius/non-enterable/sixfootings andhashes them.
+Validatesfinitegroundedsupports/matchingproxy/repeatfingerprint. Actualreportvalid,
+fingerprint a590b7e4fb787269,790solids/417cells. Groundsnakesreport stillmissing/open.
+New tests/HutReachability.hpp bounded2mcardinalA* suggestsroute; authoritative proof
+is uninterrupted PlayerMotion replayfromnormalspawn(0,-225),1/60steps, nofly/teleport.
+459.108m/6548steps/225waypoints reachesfrontapproach; walkingonly/noobstaclepenetration/
+safetyclamp/depenetration/overspeed/nonfiniteposition. Perwaypoint240stepdeadline,
+fullyblockedworldnegativefixture. No non-solidfoliagevisibility/platforminputclaim.
+GlobaldryrouteCPU acceptance achieved; visualwalkstillopen. Sharedplacementtest
+independently reconstructs foliageexclusions; eightlocalapproaches retained.
+NativebuildPASS,41/41non-displayPASS69.89s; stricter finalroutefixture rebuilt/rerunPASS.
+AndroidARM64build/lintPASS6s; Webbuild/packagePASS11,228,439raw/4,221,482gzip.
+No new graphicalrun (refactor/report/tests only), noactualportable leaf-tip check yet.
+NEXT visuals/materials/portablehutroute QA, groundsnakereport andfullspecies/resident
+backlog. AMDincidentstillHIGHPRIORITYOPEN; nofixclaim. Allownedjobs terminal, hardware
+stoplatchunchanged, noKVM/emulator/dependencychange/push. Goal remainsactive.
+
 ## Latest — hut tapered/drooping leaf tips, native detail audited
 
 HutThatchBlade nowfourstations instead ofthree: broad body through82%, narrow

@@ -8,6 +8,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/HutThatch.hpp"
+#include "HutReachability.hpp"
 #include <cmath>
 #include <algorithm>
 #include <iostream>
@@ -83,11 +84,20 @@ int main() {
         std::span<const island::CircularObstacle>(props.Obstacles()),
         std::span<const island::CircularObstacle>(ship.Obstacles())})
         occupied.insert(occupied.end(),obstacles.begin(),obstacles.end());
+    const auto live=island::HutLayout::FindInWorld(terrain,jungle,occupied);
+    Check(live.has_value(),"live world has no hut");
+    CheckHutReachability(terrain,*live,occupied);
+    bool blockedRouteRejected=false;
+    try { CheckHutReachability(terrain,*live,{{0,0,1000}}); }
+    catch(const std::runtime_error&) { blockedRouteRejected=true; }
+    Check(blockedRouteRejected,"global hut route accepted blocked world");
     for(const auto& p:jungle.Understory()) occupied.push_back({p.x,p.z,p.scale*1.8f});
     for(const auto& p:jungle.Bushes()) occupied.push_back({p.x,p.z,p.scale*1.2f});
     for(const auto& p:jungle.GroundPlants()) occupied.push_back({p.x,p.z,p.scale*0.5f});
     const auto found=island::HutLayout::Find(terrain,surface,occupied);
     Check(found.has_value(),"no hut site in current world");
+    Check(live&&live->x==found->x&&live->z==found->z&&live->floorY==found->floorY
+        &&live->yawRadians==found->yawRadians,"shared live/report placement differs from foliage fixture");
     const auto repeat=island::HutLayout::Find(terrain,surface,occupied);
     Check(repeat&&found->x==repeat->x&&found->z==repeat->z&&found->floorY==repeat->floorY
         &&found->yawRadians==repeat->yawRadians,"hut placement nondeterministic");

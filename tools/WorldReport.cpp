@@ -20,6 +20,7 @@
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
+#include "IslandSimulator/HutLayout.hpp"
 
 #include <algorithm>
 #include <array>
@@ -112,6 +113,7 @@ namespace
         island::ShipwreckLayout shipwreck{terrain};
         std::vector<island::CircularObstacle> worldObstacles;
         island::WorldCollisionGrid collisionGrid;
+        std::optional<island::HutPlacement> hut;
 
         WorldSnapshot()
         {
@@ -126,6 +128,8 @@ namespace
                                   props.Obstacles().end());
             worldObstacles.insert(worldObstacles.end(), shipwreck.Obstacles().begin(),
                                   shipwreck.Obstacles().end());
+            hut=island::HutLayout::FindInWorld(terrain,jungle,worldObstacles);
+            if(hut) worldObstacles.push_back({hut->x,hut->z,island::HutLayout::CollisionRadius});
             collisionGrid.Reset(worldObstacles);
             monkeys.SetObstacles(collisionGrid.Obstacles());
             boars.SetObstacles(collisionGrid.Obstacles());
@@ -271,6 +275,12 @@ namespace
             hash.AddByte(islet.variant);
         }
 
+        hash.AddByte(world.hut?1U:0U);
+        if(world.hut) {
+            HashPosition(hash,world.hut->x,world.hut->floorY,world.hut->z);
+            hash.AddFloat(world.hut->yawRadians);
+            for(const auto& foot:world.hut->footings) HashPosition(hash,foot.x,foot.groundY,foot.z);
+        }
         hash.AddSize(world.worldObstacles.size());
         for (const island::CircularObstacle& obstacle : world.worldObstacles) {
             hash.AddFloat(obstacle.x);
@@ -618,7 +628,20 @@ namespace
                 && AllFinite(monkey.x, monkey.y, monkey.z, monkey.headingRadians,
                              monkey.scale, monkey.homeX, monkey.homeZ);
         }
-        return terrain.finite && terrain.sampleCount == TerrainReportSampleCount
+        bool validHut=world.hut.has_value();
+        if(world.hut) {
+            const auto& h=*world.hut;
+            validHut=AllFinite(h.x,h.z,h.floorY,h.yawRadians)
+                && !world.worldObstacles.empty()
+                && world.worldObstacles.back().x==h.x && world.worldObstacles.back().z==h.z
+                && world.worldObstacles.back().radius==island::HutLayout::CollisionRadius;
+            const island::RenderedTerrainSurface surface(world.terrain);
+            for(const auto& foot:h.footings) validHut=validHut
+                && AllFinite(foot.x,foot.groundY,foot.z)
+                && foot.groundY==surface.Sample(foot.x,foot.z).height
+                && h.floorY-foot.groundY>=island::HutLayout::FloorClearance-0.00001f;
+        }
+        return validHut && terrain.finite && terrain.sampleCount == TerrainReportSampleCount
             && terrain.minimumShoreRadius > 150.0f
             && terrain.maximumShoreRadius < 300.0f
             && expectedPopulations && derivedCountsAgree
@@ -761,6 +784,7 @@ namespace
                << world.props.BeachDetails().size() << ",\n"
                << "    \"fallenFronds\": " << world.props.FallenFronds().size() << ",\n"
                << "    \"distantIslets\": " << world.distantScenery.Islets().size() << ",\n"
+               << "    \"huts\": " << (world.hut?1:0) << ",\n"
                << "    \"shipwrecks\": 1,\n"
                << "    \"shipwreckDebris\": " << world.shipwreck.Debris().size() << "\n"
                << "  },\n"
@@ -773,7 +797,21 @@ namespace
                << "    \"collisionProxies\": "
                << world.shipwreck.Obstacles().size() << "\n"
                << "  },\n"
-               << "  \"collision\": {\n"
+               << "  \"hut\": ";
+        if(world.hut) {
+            const auto& h=*world.hut;
+            output << "{\n    \"x\": " << h.x << ", \"z\": " << h.z
+                   << ", \"floorY\": " << h.floorY << ", \"yawRadians\": " << h.yawRadians
+                   << ",\n    \"collisionRadiusMeters\": " << island::HutLayout::CollisionRadius
+                   << ",\n    \"enterable\": false,\n    \"footings\": [";
+            for(std::size_t i=0;i<h.footings.size();++i) {
+                const auto& foot=h.footings[i];
+                if(i) output << ',';
+                output << "{\"x\":" << foot.x << ",\"groundY\":" << foot.groundY << ",\"z\":" << foot.z << '}';
+            }
+            output << "]\n  }";
+        } else output << "null";
+        output << ",\n  \"collision\": {\n"
                << "    \"staticObstacles\": " << world.worldObstacles.size() << ",\n"
                << "    \"occupiedCells\": " << world.collisionGrid.CellCount() << ",\n"
                << "    \"cellSizeMeters\": " << island::WorldCollisionGrid::CellSize << "\n"

@@ -841,6 +841,16 @@ Landmark backlog requested by the operator:
   naturalmaterial/globalroute/worldreport remainOPEN, notfinalrealism.
   Full41/41non-displaytestsPASS72.75s; Webbuild/packagePASS11,228,998raw/4,221,248gzip.
   Allownedjobs terminal; hardwarestoplatch unchanged; noAMDfixclaim.
+  Hut world-report gap nowfixed: shared FindInWorld foliage/solid reservation,
+  hutcount/pose/sixfootings/non-enterable flag/collisionradius andfingerprint included;
+  actualreportvalid a590b7e4fb787269,790solids/417cells. Groundsnakereport stillmissing.
+  Globalreachability nowCPUverified: bounded2mA* proposesroute, continuousPlayerMotion
+  replay fromnormalspawn(0,-225) walks459.108m/6548steps/225waypoints tofrontapproach,
+  no swimming/solidpenetration/safetyclamp/teleport. Blockedworldnegative test added.
+  One dryroute proven, notallroutes orvisual/inputplatformaudit; realism remainsOPEN.
+  Full41/41non-displayPASS69.89s; finalstricterfinite/stepdistance/depenetration route
+  rerunPASS. AndroidARM64build/lintPASS6s; Webbuild/packagePASS. No graphicsrun for
+  this sharedplacement/report/testchange; noAMD/KVM/dependencychange.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

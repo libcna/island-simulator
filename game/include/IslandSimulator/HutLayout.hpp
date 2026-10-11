@@ -8,6 +8,7 @@
 namespace island {
 class IslandTerrain;
 class RenderedTerrainSurface;
+class JungleLayout;
 
 struct HutFooting { float x, groundY, z; };
 struct HutPlacement {
@@ -27,5 +28,9 @@ public:
     [[nodiscard]] static std::optional<HutPlacement> Find(
         const IslandTerrain& terrain, const RenderedTerrainSurface& surface,
         std::span<const CircularObstacle> occupied);
+    // Shared live/report placement includes non-solid foliage exclusion discs.
+    [[nodiscard]] static std::optional<HutPlacement> FindInWorld(
+        const IslandTerrain& terrain, const JungleLayout& jungle,
+        std::span<const CircularObstacle> solidObstacles);
 };
 }
