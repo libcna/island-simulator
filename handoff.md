@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — individual rendered-terrain targets for monkey limbs (native first pass)
+
+`MonkeyGroundGait::FitGround` now refits all four fixed-length chains to individual
+rendered ground heights, preserving swing clearance and lifting/lowering the trunk within
+the common reachable interval. Impossible terrain reports reach limitation and preserves
+bones instead of stretching. `MonkeyRenderer` samples its cached RenderedTerrainSurface
+at each yaw/scale-transformed sole and applies the body offset to the pelvis hierarchy.
+Native build and all 36 non-display groups pass (82.60 s). The added real-island test
+checks all seven spawn footprints at eight yaws and forty gait phases; separate gait/shader
+recheck passes 2/2. Synthetic tests cover slopes and an impossible cliff. Asset gate passes.
+Capture `20261011T115107.984389Z-monkeys` passes and was inspected: visible quadruped/fur,
+no reach-limit diagnostic, empty kernel delta. Static frame only, not motion acceptance.
+All jobs finished. No dependency/host/emulator changes, GPU stop latch unchanged.
+
+Remaining contact work is explicit in `docs/monkey-quadruped-overhaul.md`: hands/feet still
+inherit lower-limb orientation; independent palm/sole alignment, turning stance locks,
+trunk pitch/roll and silhouette/contact-shadow refinements remain. Actual tree climbing is
+still absent. NEXT: moving-sequence and Android/Web qualification of current anatomy/fur/
+contact, then continue full monkey contact/climbing work. Whole plan/goal remains open.
+
 ## Latest — first real monkey fur material integrated (native inspected)
 
 See `docs/monkey-fur-material.md`. Built-in ImageGen source and exact prompt preserved

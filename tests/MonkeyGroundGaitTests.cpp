@@ -45,6 +45,35 @@ try {
         }
     }
     const auto a = gait::SampleLimb(0.1f, true, true, 1.0f);
+    for (int frame = 0; frame < 200; ++frame) {
+        const auto flat = gait::Sample(frame / 200.0f);
+        for (const float slope : {-0.3f, 0.0f, 0.3f}) {
+            std::array<float, 4> ground{};
+            for (std::size_t i = 0; i < ground.size(); ++i)
+                ground[i] = slope * flat.limbs[i].sole.z + 0.15f * flat.limbs[i].sole.x + 0.23f;
+            const auto fitted = gait::FitGround(flat, ground);
+            Require(!fitted.reachLimited, "ordinary slopes must be reachable");
+            for (std::size_t i = 0; i < ground.size(); ++i) {
+                const auto& limb = fitted.limbs[i];
+                Require(std::fabs(limb.sole.y - ground[i] - flat.limbs[i].sole.y) < 1e-5f,
+                        "individual terrain height and swing clearance preserved");
+                Require(std::fabs(Distance(limb.root, limb.joint) - gait::UpperLength) < 1e-5f,
+                        "terrain fitting preserves upper length");
+                Require(std::fabs(Distance(limb.joint, limb.sole) - gait::LowerLength) < 1e-5f,
+                        "terrain fitting preserves lower length");
+                Require(std::fabs(limb.root.y - gait::RootHeight - fitted.bodyOffset) < 1e-5f,
+                        "limb root stays connected to adjusted trunk");
+            }
+        }
+    }
+    const auto cliff = gait::FitGround(gait::Sample(0.0f), {0.0f, 2.0f, 0.0f, 0.0f});
+    Require(cliff.reachLimited, "impossible cliff must report lost contact");
+    for (const auto& limb : cliff.limbs) {
+        Require(std::fabs(Distance(limb.root, limb.joint) - gait::UpperLength) < 1e-5f,
+                "cliff cannot stretch upper bone");
+        Require(std::fabs(Distance(limb.joint, limb.sole) - gait::LowerLength) < 1e-5f,
+                "cliff cannot stretch lower bone");
+    }
     const auto b = gait::SampleLimb(0.3f, true, true, 1.0f);
     const float rootTravel = 0.2f * gait::StrideLength / gait::SupportFraction;
     Require(std::fabs(b.sole.z + rootTravel - a.sole.z) < 1e-6f,

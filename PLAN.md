@@ -309,6 +309,11 @@ Standing visual-quality rules (apply to every task from now on):
   `20261011T114648.821520Z-monkeys` inspected; texture visible but face and limb junctions
   still stylized. See `docs/monkey-fur-material.md`. No complete climbing cycle or portable
   qualification of this new anatomy/material yet; this requirement stays unchecked.
+  Individual rendered-terrain support targets added next: fixed bone lengths, trunk-height
+  fitting and diagnosed unreachable contacts. Native `20261011T115107.984389Z-monkeys`
+  inspected, 36/36 CPU groups pass plus real-island contact fixtures. Independent sole/palm
+  orientation, turning stance locks, body slope and climbing are still open; this is not
+  complete ground-contact or motion-quality acceptance.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

@@ -32,11 +32,14 @@ state and no phase advance while stationary. Asset manifest validation passes (6
 
 ## Known deficiencies / next required work
 
-1. Fur is STILL flat palette colour. Integrate an actual documented raster fur texture with
-   stable anatomical mapping, mipmaps/filtering and portable texture budgets.
-2. IK currently assumes a flat local support plane. Fit individual hand/foot supports to the
-   rendered terrain, pitch the trunk accordingly, and verify sole orientation/stance locking
-   through turns and transitions. Current slope contact must not be called solved.
+1. Actual raster fur is now integrated (`docs/monkey-fur-material.md`), native-inspected;
+   refine anatomical density and qualify filtering in motion on Android/Web.
+2. Individual ground targets now sample the rendered triangle surface; the trunk is vertically
+   adjusted within the common reachable interval and fixed-length IK refits each limb.
+   Impossible cliffs explicitly report lost contact rather than stretching bones. Still needed:
+   trunk pitch/roll, independent sole orientation and stance locking through turns/transitions.
+   The current hand/foot mesh follows the lower limb, so a solved ankle target alone does NOT
+   prove every digit is on the ground. Current slope contact must not be called fully solved.
 3. Trunk/limb roots still overlap instead of forming a single manifold whole-body skin. Inspect
    joint silhouette and weighting in close moving views; refine pinching and attachment flow.
 4. Replace inherited run/head/tail clip compromises with coordinated primate movement; inspect
@@ -49,3 +52,18 @@ state and no phase advance while stationary. Asset manifest validation passes (6
    qualify it. The complete island audit and other plan items remain open too.
 
 No host GPU, dependency, KVM or emulator configuration change is involved.
+
+## Individual rendered-terrain targets — native verification
+
+The first contact stage samples the actual cached terrain triangles under each yaw/scale
+transformed gait target. `FitGround` adjusts trunk height within the intersection of the
+four reachable vertical intervals and solves both fixed-length links again. Swing clearance
+is retained. Unreachable cliffs produce an explicit reach-limit diagnostic and preserve
+bone lengths; loss of contact is not hidden as successful planting.
+
+Native capture `20261011T115107.984389Z-monkeys` passed and was inspected; no reach-limit
+diagnostic, empty kernel delta. All 36 non-display groups pass (82.60 s). Additional real
+island fixtures cover seven spawn locations, eight yaws and forty gait phases; gait/shader
+recheck passes 2/2. Synthetic fixtures check slopes, trunk/root attachment and unreachable
+cliffs. These tests prove target geometry, not a fully planted palm/foot mesh. The limitations
+above, motion review and Android/Web qualification remain open.

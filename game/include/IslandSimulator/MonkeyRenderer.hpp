@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "IslandSimulator/MonkeyTroop.hpp"
+#include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 
@@ -32,6 +33,7 @@ namespace island
         static constexpr std::size_t SilhouetteCount = 3U;
 
         explicit MonkeyRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
+                                const IslandTerrain& terrain,
                                 const CanopyLightField& canopyLight,
                                 float maximumDistance = 235.0f);
         ~MonkeyRenderer();
@@ -71,6 +73,8 @@ namespace island
 
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
         const CanopyLightField& canopyLight_;
+        RenderedTerrainSurface renderedTerrain_;
+        bool reportedReachLimit_ = false;
         float minimumCanopyTransmission_ = 1.0f;
         float maximumCanopyTransmission_ = 1.0f;
         bool reportedCanopyShade_ = false;

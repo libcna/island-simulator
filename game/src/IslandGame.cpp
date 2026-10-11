@@ -869,7 +869,7 @@ namespace island
         sharkRenderer_ = std::make_unique<SharkRenderer>(
             device, 710.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto monkeyRenderer = std::make_unique<MonkeyRenderer>(
-            device, canopyLighting->Field(), 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+            device, terrain_, canopyLighting->Field(), 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto grassRenderer = std::make_unique<GrassRenderer>(
             device, terrain_, grassLayout_, *canopyLighting, *terrainHeightMap, qualityProfile_.grassMaximumDistance);
         auto jungleRenderer = std::make_unique<JungleRenderer>(device, terrain_, jungleLayout_,

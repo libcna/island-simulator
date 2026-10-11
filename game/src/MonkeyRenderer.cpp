@@ -781,9 +781,10 @@ namespace island
         std::vector<Matrix> attentiveSkinTransforms;
     };
 
-    MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device, const CanopyLightField& canopyLight,
+    MonkeyRenderer::MonkeyRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
+                                   const CanopyLightField& canopyLight,
                                    const float maximumDistance)
-        : device_(device), canopyLight_(canopyLight),
+        : device_(device), canopyLight_(canopyLight), renderedTerrain_(terrain),
           whiteTexture_(std::make_unique<Texture2D>(
               device, GeneratedTextureBudget::SolidWhiteTextureSize,
               GeneratedTextureBudget::SolidWhiteTextureSize)),
@@ -1022,10 +1023,28 @@ namespace island
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
                 static const RigDefinition groundRig = CreateRig();
                 static const auto restPose = MonkeyGroundGait::Sample(0.0f, 0.0f);
+                const auto flatPose = MonkeyGroundGait::Sample(monkey.gaitPhase, monkey.gaitAmount);
+                std::array<float, 4> ground{};
+                const float yaw = std::numbers::pi_v<float> * 0.5f - monkey.headingRadians;
+                const Matrix world = Matrix::CreateScale(monkey.scale)
+                    * Matrix::CreateRotationY(yaw)
+                    * Matrix::CreateTranslation(monkey.x, monkey.y, monkey.z);
+                for (std::size_t limb = 0; limb < ground.size(); ++limb) {
+                    const auto sole = Vector3::Transform(ToVector(flatPose.limbs[limb].sole), world);
+                    ground[limb] = (renderedTerrain_.Sample(sole.X, sole.Z).height - monkey.y)
+                        / monkey.scale;
+                }
+                const auto pose = MonkeyGroundGait::FitGround(flatPose, ground);
+                if (pose.reachLimited && !reportedReachLimit_) {
+                    const char* diagnostic = "island-simulator: monkey terrain contact limited by limb reach";
+                    std::cout << diagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
+                    reportedReachLimit_ = true;
+                }
                 // The horizontal trunk supports four limbs; do not inherit the former
                 // upright-walk pelvis bob/spine lean. Head/tail retain bounded animation.
                 playback.attentiveLocalTransforms[Pelvis] = Matrix::CreateTranslation(
-                    RestTranslation(groundRig, Pelvis));
+                    RestTranslation(groundRig, Pelvis) + Vector3(0.0f, pose.bodyOffset, 0.0f));
                 playback.attentiveLocalTransforms[Spine] = Matrix::CreateTranslation(
                     RestTranslation(groundRig, Spine));
                 playback.attentiveLocalTransforms[Head]
@@ -1034,7 +1053,6 @@ namespace island
                 BuildSkinPalette(*skinningData_, playback.attentiveLocalTransforms,
                                  playback.attentiveWorldTransforms,
                                  playback.attentiveSkinTransforms);
-                const auto pose = MonkeyGroundGait::Sample(monkey.gaitPhase, monkey.gaitAmount);
                 constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
                 constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
                 const auto applySegment = [&](int bone, const Vector3& restDirection,

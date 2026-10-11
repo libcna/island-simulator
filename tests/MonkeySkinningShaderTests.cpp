@@ -1,6 +1,7 @@
 #include "IslandSimulator/MonkeySkinningShader.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
+#include "IslandSimulator/MonkeyGroundGait.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -12,6 +13,28 @@ try {
     const island::IslandTerrain terrain;
     const island::RenderedTerrainSurface rendered(terrain);
     const island::MonkeyTroop troop(terrain);
+    // Exercise the renderer's yaw/scale/terrain-space conversion on actual island
+    // mesh triangles, not just synthetic flat-ground fixtures.
+    for (const auto& monkey : troop.Monkeys()) {
+        for (int direction = 0; direction < 8; ++direction) {
+            const float yaw = direction * std::numbers::pi_v<float> / 4.0f;
+            for (int step = 0; step < 40; ++step) {
+                const auto flat = island::MonkeyGroundGait::Sample(step / 40.0f);
+                std::array<float, 4> heights{};
+                for (std::size_t i = 0; i < heights.size(); ++i) {
+                    const auto sole = flat.limbs[i].sole;
+                    const float x = monkey.x + monkey.scale * (sole.x * std::cos(yaw) + sole.z * std::sin(yaw));
+                    const float z = monkey.z + monkey.scale * (-sole.x * std::sin(yaw) + sole.z * std::cos(yaw));
+                    heights[i] = (rendered.Sample(x, z).height - monkey.y) / monkey.scale;
+                }
+                const auto fitted = island::MonkeyGroundGait::FitGround(flat, heights);
+                if (fitted.reachLimited) throw std::runtime_error("initial island monkey footprint is unreachable");
+                for (std::size_t i = 0; i < heights.size(); ++i)
+                    if (std::fabs(fitted.limbs[i].sole.y - flat.limbs[i].sole.y - heights[i]) > 1e-5f)
+                        throw std::runtime_error("island monkey contact differs from rendered ground");
+            }
+        }
+    }
     for (const auto& monkey : troop.Monkeys())
         std::cout << "monkey root " << monkey.x << ',' << monkey.y << ',' << monkey.z
                   << " rendered floor " << rendered.Sample(monkey.x, monkey.z).height << '\n';
