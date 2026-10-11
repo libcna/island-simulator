@@ -229,6 +229,7 @@
         "game/src/MonkeyTroop.cpp",
         "game/include/IslandSimulator/MonkeyGroundGait.hpp",
         "game/include/IslandSimulator/MonkeyTailProfile.hpp",
+        "game/include/IslandSimulator/MonkeySoleFrame.hpp",
         "game/include/IslandSimulator/MonkeySkinningShader.hpp",
         "game/src/MonkeyRenderer.cpp"
       ]

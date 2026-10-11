@@ -329,6 +329,11 @@ Standing visual-quality rules (apply to every task from now on):
   first-presentation reliability remains unresolved, not explained away by the repeat pass.
   See `docs/monkey-android-current-model.md`. Default ARM64 assembly/lint restored. Current
   Web tail/motion checks, full contact/climbing and whole-model realism remain open.
+  Independent palm/sole ground-normal transforms now implemented with four supplemental
+  contact matrices (92-vector vertex budget), native build and 37/37 tests pass. Capture
+  `20261011T123046.817709Z-monkeys` inspected; grass limits digit-contact evidence. See
+  `docs/monkey-sole-alignment.md`. Turning stance locks, multi-point support, climbing and
+  requalification of the changed shader on Android/Web remain open.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

@@ -36,10 +36,11 @@ state and no phase advance while stationary. Asset manifest validation passes (6
    refine anatomical density and qualify filtering in motion on Android/Web.
 2. Individual ground targets now sample the rendered triangle surface; the trunk is vertically
    adjusted within the common reachable interval and fixed-length IK refits each limb.
-   Impossible cliffs explicitly report lost contact rather than stretching bones. Still needed:
-   trunk pitch/roll, independent sole orientation and stance locking through turns/transitions.
-   The current hand/foot mesh follows the lower limb, so a solved ankle target alone does NOT
-   prove every digit is on the ground. Current slope contact must not be called fully solved.
+   Impossible cliffs explicitly report lost contact rather than stretching bones. Independent
+   palm/sole orientation is now native-tested (`docs/monkey-sole-alignment.md`). Still needed:
+   trunk pitch/roll, multi-point support and stance locking through turns/transitions. A solved
+   ankle target/tangent plane alone does NOT prove every digit is on the triangle surface.
+   Current slope contact must not be called fully solved.
 3. Trunk/limb roots still overlap instead of forming a single manifold whole-body skin. Inspect
    joint silhouette and weighting in close moving views; refine pinching and attachment flow.
 4. Replace inherited run/head/tail clip compromises with coordinated primate movement; inspect

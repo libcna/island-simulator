@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Latest — independent palm/sole frames (native first pass, portable recheck required)
+
+See `docs/monkey-sole-alignment.md`. Four contact matrices now orient hand/foot mesh to each
+rendered ground normal rather than inheriting lower-limb rotation. Blend-index W tags 1–4
+select these matrices; zero remains ordinary skeleton skinning. Fourteen skeleton bones
+unchanged; conservative vertex uniform budget now 92 vectors. Sole-height compensation
+preserves tangent-plane underside clearance. No extra draws/textures/dependency changes.
+Native build and all 37 non-display groups pass (81.08 s), including new CNA-math-only sole
+frame tests and shader dialect/budget contracts. Native `20261011T123046.817709Z-monkeys`
+passes/inspected: visible geometry, but grass masks some digits. Kernel only perf throttle,
+no GPU fault. Asset manifest passes with 66 generator sources. All jobs finished.
+NEXT: requalify this new contact shader on Android/Web and use unobscured close/moving
+contact views; continue stance locking, face/shoulder anatomy and real tree gripping/climbing.
+Prior Android/Web passes do NOT qualify these new contact matrices. Whole goal/plan open.
+
 ## Latest — current monkey model qualified on Android; first black presentation unresolved
 
 See `docs/monkey-android-current-model.md` for hashes, both runs and scope. Current ca6b042

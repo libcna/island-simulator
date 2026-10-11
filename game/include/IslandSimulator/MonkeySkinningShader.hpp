@@ -6,8 +6,9 @@
 namespace island::MonkeySkinningShader
 {
     inline constexpr std::size_t BoneCount = 14;
-    // 56 palette vectors + 12 transform vectors + conservatively one vector per scalar/vec3.
-    inline constexpr std::size_t VertexUniformVectorBudget = BoneCount * 4 + 12 + 8;
+    inline constexpr std::size_t SoleCount = 4;
+    // Skeleton + independent contact transforms + world/view/VP + scalar/vec3 budget.
+    inline constexpr std::size_t VertexUniformVectorBudget = (BoneCount + SoleCount) * 4 + 12 + 8;
 
     inline constexpr const char* VertexBody = R"GLSL(
 layout(location=0) in vec3 aPosition;
@@ -16,6 +17,7 @@ layout(location=2) in vec2 aTexCoord;
 layout(location=3) in vec4 aBoneWeights;
 layout(location=4) in vec4 aBoneIndices;
 uniform mat4 uWorld;
+uniform mat4 uSoles[4];
 uniform mat4 uView;
 uniform mat4 uViewProjection;
 uniform vec3 uCameraPosition;
@@ -32,6 +34,8 @@ void main() {
     vFurUv = aTexCoord;
     mat4 skin = uBones[int(aBoneIndices.x)] * aBoneWeights.x
               + uBones[int(aBoneIndices.y)] * aBoneWeights.y;
+    // W is an otherwise-unused vertex tag, not another skeleton influence.
+    if (aBoneIndices.w > 0.5) skin = uSoles[int(aBoneIndices.w) - 1];
     vec4 local = skin * vec4(aPosition, 1.0);
     vec4 world = uWorld * local;
     gl_Position = uViewProjection * world;

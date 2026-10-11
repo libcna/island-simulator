@@ -119,6 +119,7 @@
         "island_grass_grounding_report",
         "island_canopy_tests",
         "island_canopy_visibility_tests",
+        "island_monkey_sole_tests",
         "island_terrain_material_tests",
         "island_ocean_wave_tests",
         "island_forest_floor_tests",

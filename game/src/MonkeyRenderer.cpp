@@ -4,6 +4,7 @@
 #include "IslandSimulator/MonkeySkinningShader.hpp"
 #include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "IslandSimulator/MonkeyTailProfile.hpp"
+#include "IslandSimulator/MonkeySoleFrame.hpp"
 #include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 
@@ -617,6 +618,7 @@ namespace island
                 AddLimbSkin(mesh, rest.limbs[limb], upper[limb], lower[limb],
                             shape.limbThickness, near ? 10 : 6);
                 const Vector3 sole = ToVector(rest.limbs[limb].sole);
+                const std::size_t soleStart = mesh.vertices.size();
                 AddEllipsoid(mesh, sole + Vector3(0, 0, .027f),
                              Vector3(.048f, .031f, .076f), lower[limb], 3, near ? 10 : 6);
                 if (near)
@@ -624,6 +626,8 @@ namespace island
                         AddEllipsoid(mesh, sole + Vector3((digit - 1.5f) * .021f, -.006f, .095f),
                                      Vector3(.010f, .012f, .043f - .003f * std::abs(digit - 1)),
                                      lower[limb], 3, 6);
+                for (std::size_t vertex = soleStart; vertex < mesh.vertices.size(); ++vertex)
+                    mesh.vertices[vertex].BlendIndices[3] = static_cast<std::uint8_t>(limb + 1);
             }
             AddTail(mesh, rig, shape.tailLength, near);
             return mesh;
@@ -1027,20 +1031,29 @@ namespace island
                 playback.presentedLocalTransforms = playback.player->GetBoneTransforms();
             }
 
+            std::array<float, MonkeySkinningShader::SoleCount * 16> solePalette{};
             {
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
                 static const RigDefinition groundRig = CreateRig();
                 static const auto restPose = MonkeyGroundGait::Sample(0.0f, 0.0f);
                 const auto flatPose = MonkeyGroundGait::Sample(monkey.gaitPhase, monkey.gaitAmount);
                 std::array<float, 4> ground{};
+                std::array<Vector3, 4> groundNormals{};
                 const float yaw = std::numbers::pi_v<float> * 0.5f - monkey.headingRadians;
                 const Matrix world = Matrix::CreateScale(monkey.scale)
                     * Matrix::CreateRotationY(yaw)
                     * Matrix::CreateTranslation(monkey.x, monkey.y, monkey.z);
                 for (std::size_t limb = 0; limb < ground.size(); ++limb) {
                     const auto sole = Vector3::Transform(ToVector(flatPose.limbs[limb].sole), world);
-                    ground[limb] = (renderedTerrain_.Sample(sole.X, sole.Z).height - monkey.y)
+                    const auto sample = renderedTerrain_.Sample(sole.X, sole.Z);
+                    // Undo only world yaw: normals must not inherit the model's scale.
+                    const Vector3 normal(sample.normal.x, sample.normal.y, sample.normal.z);
+                    groundNormals[limb] = Vector3::TransformNormal(normal, Matrix::CreateRotationY(-yaw));
+                    ground[limb] = (sample.height - monkey.y)
                         / monkey.scale;
+                    // Maintain normal-direction clearance when the sole plane tilts.
+                    ground[limb] += MonkeyGroundGait::SoleHeight
+                        * (1.0f / std::max(groundNormals[limb].Y, 0.1f) - 1.0f);
                 }
                 const auto pose = MonkeyGroundGait::FitGround(flatPose, ground);
                 if (pose.reachLimited && !reportedReachLimit_) {
@@ -1079,6 +1092,8 @@ namespace island
                         ToVector(current.joint) - ToVector(current.root), ToVector(current.root));
                     applySegment(lower[limb], ToVector(rest.sole) - ToVector(rest.joint),
                         ToVector(current.sole) - ToVector(current.joint), ToVector(current.joint));
+                    MonkeySoleSkin(ToVector(rest.sole), ToVector(current.sole), groundNormals[limb])
+                        .ToColumnMajor(solePalette.data() + limb * 16);
                 }
                 skinTransforms = &playback.attentiveSkinTransforms;
             }
@@ -1095,6 +1110,8 @@ namespace island
             for (std::size_t bone = 0; bone < BoneCount; ++bone)
                 (*skinTransforms)[bone].ToColumnMajor(palette.data() + bone * 16);
             paletteEffect_->SetUniformMat4Array("uBones", palette.data(), static_cast<int>(BoneCount));
+            paletteEffect_->SetUniformMat4Array("uSoles", solePalette.data(),
+                static_cast<int>(MonkeySkinningShader::SoleCount));
             // Spatial averaging is pose/LOD independent: no camera-driven brightness switches.
             const float transmission = canopyLight_.SampleReceiverFootprint(
                 centre.X, centre.Y, centre.Z, monkey.y, 0.35f * monkey.scale);

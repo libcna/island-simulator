@@ -9,6 +9,8 @@ int main()
 try {
     using namespace island::MonkeySkinningShader;
     static_assert(BoneCount == 14);
+    static_assert(SoleCount == 4);
+    static_assert(VertexUniformVectorBudget == 92);
     static_assert(VertexUniformVectorBudget < 128);
     const island::IslandTerrain terrain;
     const island::RenderedTerrainSurface rendered(terrain);
@@ -47,6 +49,8 @@ try {
         const std::string prefix = embedded ? "#version 300 es" : "#version 330 core";
         require(vertex.starts_with(prefix) && fragment.starts_with(prefix));
         require(vertex.find("uniform mat4 uBones[14];") != std::string::npos);
+        require(vertex.find("uniform mat4 uSoles[4];") != std::string::npos);
+        require(vertex.find("skin = uSoles[int(aBoneIndices.w) - 1]") != std::string::npos);
         require(vertex.find("[72]") == std::string::npos);
         require(fragment.find("uBones") == std::string::npos);
         require(vertex.find("layout(location=3) in vec4 aBoneWeights") != std::string::npos);
