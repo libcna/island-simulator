@@ -50,8 +50,27 @@ Final 33/33 non-display regression groups pass (37.13 s), including the unchange
 separation test, habitat/depth/contact checks and shoreline walking/swimming transects.
 Native turtle capture `20261011T075118.375540Z-turtles` passes and was inspected. All
 captures used contained software rendering; no new GPU faults, hardware latch unchanged.
-Android/Web builds and runtime checks have not yet been repeated for this stage. Previous ridge qualification is
-not evidence for this changed coast. AMD hardware remains stopped.
+Android x86_64 build/lint succeeds. Bay run `20261011T075311.442314Z-bay` passes and its
+image was inspected against native. Interactive `20261011T075435.702413Z-interactive`
+fails swimming after one fixed nine-second gesture: software frames are approximately
+0.7 s, while movement steps are capped at 0.1 s. Replaced the gesture-plus-idle-wait with
+repeated real gestures within a 100 s deadline, retaining swimming and transition-audio
+assertions. A device-free regression executes the actual shell block with fake touch/time/log
+providers: success on gesture three, failure at the deadline if either evidence gate is absent.
+
+Identical-APK run `20261011T075739.370693Z-interactive` confirms touch sensitivity,
+land footsteps and swimming/transition audio after two gestures. Its Home/resume restores
+surface/focus and the same PID 1869, but fails missing AAudio pause/start evidence. No fatal
+swap error in this run; do not conflate it with or close `CNA-ISLAND-001`. Both kernel deltas
+are empty. Cold relaunch was not reached. Android lifecycle remains degraded.
+Tested x86_64 APK: 20,433,195 bytes, SHA-256
+`318c88535538fea89045a58a52f71e59dddc12cce577be86dbd4db0b5d7b8d46`.
+Default ARM64 assembly/lint restored: 20,518,644 bytes, SHA-256
+`35ae8bea06eaaecb1cf4021295bfb7e4f2bb56041d0e9c4862a03eafeb4b5823`;
+physical-device runtime untested. Android/browser preflight and command-line regressions pass,
+as do shell and JavaScript syntax checks. Web build/runtime qualification remains pending; the terrain
+suite now includes `bay` as a fifth view. Previous ridge qualification is not evidence for
+this changed coast. AMD hardware remains stopped.
 
 This stage changes the silhouette, not coast ecology/geology. Headlands are not yet rocky,
 the sand still forms a continuous band, and neither a dominant beach nor a cliff has been

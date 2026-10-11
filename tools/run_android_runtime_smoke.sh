@@ -477,12 +477,17 @@ fi
 if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
     echo "android runtime smoke: exercising shoreline entry with touch traversal"
     # The interactive spawn faces inland from the south beach. A long downward drag in the left
-    # movement zone therefore walks backward through the shallows and continues as swimming. When
-    # the footstep gate ran first, the extra duration also covers its short inland displacement.
-    "$ADB" shell input swipe "$MOVE_X" "$MOVE_HIGH_Y" "$MOVE_X" "$MOVE_BOTTOM_Y" 9000
-    SWIMMING_DEADLINE=$(( $(date +%s) + 20 ))
+    # movement zone therefore walks backward through the shallows and continues as swimming.
+    # SwiftShader frames can exceed 0.7 s while PlayerMotion caps simulation steps at 0.1 s.
+    # One fixed-duration swipe then covers too little simulated distance; an idle wait cannot
+    # complete that movement. Repeat actual touch gestures within a bounded deadline, retaining
+    # the same swimming/audio evidence gates (a blocked route must still fail).
+    SWIMMING_DEADLINE=$(( $(date +%s) + 100 ))
     SWIMMING_QUALIFIED=0
+    SWIMMING_GESTURES=0
     while [ "$(date +%s)" -lt "$SWIMMING_DEADLINE" ]; do
+        "$ADB" shell input swipe "$MOVE_X" "$MOVE_HIGH_Y" "$MOVE_X" "$MOVE_BOTTOM_Y" 9000
+        SWIMMING_GESTURES=$((SWIMMING_GESTURES + 1))
         "$ADB" logcat --pid="$GAME_PID" -d -v threadtime >"$LOG_FILE"
         WATER_AUDIO_QUALIFIED=1
         if [ "$REQUIRE_AUDIO" -eq 1 ] \
@@ -497,6 +502,7 @@ if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
         fi
         sleep 1
     done
+    echo "android runtime smoke: shoreline gestures $SWIMMING_GESTURES, swimming qualified $SWIMMING_QUALIFIED"
     if [ "$SWIMMING_QUALIFIED" -ne 1 ]; then
         echo "android runtime smoke: touch traversal did not enter the swimming state" >&2
         tail -n 120 "$LOG_FILE" >&2
@@ -548,7 +554,7 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         sleep 1
     done
     if [ "$HOT_RESUME_QUALIFIED" -ne 1 ]; then
-        echo "android runtime smoke: same-process Home/resume did not restore surface and focus" >&2
+        echo "android runtime smoke: same-process Home/resume qualification failed (process/surface/focus/audio); audio qualified $HOT_AUDIO_QUALIFIED, original PID $LIFECYCLE_PID, current PID $HOT_PID" >&2
         tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
         exit 1
     fi

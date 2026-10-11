@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """CPU-only tests. Never starts adb, an emulator, a namespace, or graphics."""
 import os
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -109,6 +110,47 @@ class AndroidSoftwareTests(unittest.TestCase):
                 self.assertLess(point.movement_high_y, point.movement_low_y)
                 self.assertLess(point.movement_low_y, point.movement_bottom_y)
                 self.assertLess(point.movement_bottom_y, height)
+
+    def test_swimming_gestures_repeat_but_require_both_evidence_gates(self):
+        # Execute the actual shell gate with fake touch/log/time providers: no device or sleep.
+        source = (Path(__file__).resolve().parent.parent / "tools" /
+                  "run_android_runtime_smoke.sh").read_text()
+        block = source.split('if [ "$REQUIRE_SWIMMING" -eq 1 ]; then', 1)[1]
+        block = 'if [ "$REQUIRE_SWIMMING" -eq 1 ]; then' + block.split(
+            '\nif grep -Eiq "FATAL EXCEPTION', 1)[0]
+        fixture = r'''
+set -eu
+clock=0; gestures=0
+date() { printf '%s\n' "$clock"; }
+sleep() { clock=$((clock + 1)); }
+fake_adb() {
+    if [ "$1" = shell ]; then
+        gestures=$((gestures + 1)); clock=$((clock + 9))
+    elif [ "$gestures" -ge 3 ]; then
+        if [ "$emit_swim" = 1 ]; then
+            echo 'island-simulator: first traversal entered swimming state'
+        fi
+        if [ "$emit_audio" = 1 ]; then
+            echo 'island-simulator: first water-transition accent played'
+        fi
+    fi
+    return 0
+}
+ADB=fake_adb; GAME_PID=123; REQUIRE_SWIMMING=1; REQUIRE_AUDIO=1
+MOVE_X=320; MOVE_HIGH_Y=120; MOVE_BOTTOM_Y=600
+LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
+'''
+        with tempfile.TemporaryDirectory(prefix="island-touch-gate-") as directory:
+            for swim, audio in ((1, 1), (0, 1), (1, 0)):
+                with self.subTest(swim=swim, audio=audio):
+                    result = subprocess.run(
+                        ["bash", "-c", fixture + block, "fixture",
+                         str(Path(directory) / "log"), str(swim), str(audio)],
+                        capture_output=True, text=True, timeout=5)
+                    self.assertEqual(result.returncode, 0 if swim and audio else 1,
+                                     result.stderr)
+                    expected = "3, swimming qualified 1" if swim and audio else "10, swimming qualified 0"
+                    self.assertIn("shoreline gestures " + expected, result.stdout)
 
     def test_touch_geometry_rejects_invalid_or_missing_extent_evidence(self):
         for values in ((0, 720, 1280, 720), (1280, float("nan"), 1280, 720),

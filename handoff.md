@@ -9,7 +9,14 @@ steering at the home centre, now fixed without weakening its movement regression
 Final 33/33 non-display groups pass (37.13 s). Native final bay
 `20261011T074941.874456Z-bay` and turtles `20261011T075118.375540Z-turtles` pass/inspected.
 Fingerprint `9dc988ef0ffd9f67`; population and shadow-count pins updated from the report.
-Next: build and qualify Android/Web for this coast (not done yet), then shared coastal
+Android x86_64 build/lint and bay `20261011T075311.442314Z-bay` pass, image inspected.
+Interactive first fails a too-short fixed swimming gesture; bounded repeated-touch gate
+added with a device-free shell regression. Repeat `20261011T075739.370693Z-interactive`
+passes touch/footsteps/swimming after two gestures but lacks AAudio pause/start evidence
+on Home/resume, despite restored surface/focus/same PID. Lifecycle remains degraded;
+see the distinct observation under `CNA-ISLAND-001`. ARM64 assembly/lint restored;
+physical-device runtime untested. Relevant harness regressions and syntax checks pass.
+Next: build and qualify Web for this coast (terrain now includes fifth `bay` view), then shared coastal
 environment/material placement to replace the continuous sand band with rocky headlands
 and a dominant beach. Macro-geography items 1–3 remain incomplete. Android lifecycle issue
 `CNA-ISLAND-001` remains open. No hardware rendering or push is authorized.

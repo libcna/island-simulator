@@ -31,7 +31,7 @@ const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
 const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck;
 const focusedArtifactPrefix = focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "beach", "east", "jungle"]
+const focusedViews = focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
   : focusedCoastCheck ? ["shipwreck", "water", "west", "reef"]

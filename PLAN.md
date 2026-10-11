@@ -75,8 +75,16 @@ historical evidence, not post-incident qualification.
   original observer-separation assertion. Final 33/33 non-display groups pass (37.13 s).
 - [x] Contained native bay `20261011T074941.874456Z-bay` and turtle
   `20261011T075118.375540Z-turtles` captures pass and were inspected, no new GPU faults.
-- [ ] Android/Web build and runtime qualification for this coast. Updated browser inventory
-  pins are not runtime evidence. Existing Android lifecycle defect remains open.
+- [x] Android x86_64 build/lint and bay `20261011T075311.442314Z-bay` pass; image inspected.
+  Fixed-duration touch test initially failed to reach swimming. Bounded repeated gestures
+  retain swimming/audio assertions and have a device-free shell regression. Repeat
+  `20261011T075739.370693Z-interactive` passes touch/footsteps/swimming after two gestures.
+- [!] Android repeat restores same PID/surface/focus but lacks AAudio pause/start evidence;
+  lifecycle remains degraded. This is not claimed to have the same cause as the earlier
+  fatal swap error. Details in `BUGS.md`. ARM64 assembly/lint restored; physical-device
+  runtime untested. Android/browser preflight, command-line and harness syntax checks pass.
+- [ ] Web build/runtime qualification for this coast; terrain suite now has fifth `bay`
+  view. Updated browser inventory pins are not runtime evidence.
 - [ ] Shared coastal environment field, rocky headlands/cliff and dominant beach; current
   coast still has a continuous sand band. The full macro-geography rewrite is not done.
 
@@ -242,8 +250,9 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   peak and saddle, valleys draining to the coast, 2-3 rocky headlands, one sheltered bay, one
   dominant sandy beach and one wilder rocky side (15-20 h). Re-place every existing system on it.
   2026-10-11 interior stage: 40/29 m ridges, lower saddle, two drainage cuts, weathered
-  steep faces and terrain-aware bird clearance (`docs/ridge-and-valleys.md`). Coastal shape,
-  headlands/bay and shared environment remain open; Android lifecycle has an intermittent
+  steep faces and terrain-aware bird clearance (`docs/ridge-and-valleys.md`). The next stage
+  added a western bay and three headland silhouettes (`docs/coastal-silhouette.md`);
+  rocky coastal relief and the shared environment remain open. Android lifecycle has an intermittent
   `EGL_BAD_SURFACE` issue documented separately in `BUGS.md`.
 - [ ] 2. Replace the uniform beach ring with distinct coast types: leeward wide calm beach
   (palms, wreck, driftwood, turtles), windward rocky/reef coast with larger waves, more foam and

@@ -61,6 +61,19 @@ surface destruction/recreation during backgrounding rather than exit with a fata
 There is no consumer workaround: swallowing presentation exceptions or delaying the Home
 test would hide the defect. Dependencies remain untouched; nothing has been reported externally.
 
+#### Additional lifecycle qualification observation (not proven to share this cause)
+
+Coast-stage run `20261011T075739.370693Z-interactive` restores the same PID 1869, surface,
+window dimensions and focus, and continues rendering without the fatal `EGL_BAD_SURFACE`.
+It still fails the lifecycle gate because neither `AAudioStream_requestPause` nor
+`AAudioStream_requestStart` appears in the hot-resume log. Surface destruction/nativePause
+occur at 09:59:54.097 / 09:59:54.221, nativeResume at 09:59:55.476. The short background
+interval and queued lifecycle handling merit investigation, but missing log evidence alone
+does not prove an audio engine defect or establish the same root cause as the earlier crash.
+Kernel delta is empty. The prior generic failure message incorrectly suggested that surface
+or focus failed; the harness now identifies the process/surface/focus/audio gate and prints
+audio qualification and both PIDs. No acceptance condition was removed.
+
 ## Entry template
 
 <!-- Copy this section only after a qualifying issue has been investigated. -->
