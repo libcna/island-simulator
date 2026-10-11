@@ -83,8 +83,9 @@ historical evidence, not post-incident qualification.
   Lifecycle excluded from this focused run and remains degraded. Default ARM64 assembly/lint
   restored; physical-device runtime untested.
 - [x] Web build/package refreshed: 10,343,035 raw / 3,528,104 gzip bytes.
-- [~] Web terrain suite `20261011T083120.118782Z-chrome-terrain` running, including
-  sixth `headland` view. Runtime qualification remains pending.
+- [x] Web terrain suite `20261011T083120.118782Z-chrome-terrain` passes all six views,
+  including `headland`, with 60 frame intervals each and GL error zero. Bay/headland/east/
+  jungle images inspected; no new GPU faults. Full Web input/lifecycle and Firefox not rerun.
 - [ ] Broader environment fields, deliberately wider dominant beach, directional waves,
   rock strata/talus and full ecological placement migration remain open.
 

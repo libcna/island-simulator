@@ -60,8 +60,11 @@ Tested x86_64 APK: 20,439,275 bytes, SHA-256
 Default ARM64 assembly/lint restored: 20,524,676 bytes, SHA-256
 `684cdbb2e5c7ffa8ab9b9829cd74bd13719cbdb570ceb3a074a30dfaa830e305`;
 physical-device runtime untested. Web build/package refreshed: 10,343,035 raw / 3,528,104
-gzip bytes. Chrome terrain suite `20261011T083120.118782Z-chrome-terrain` is running,
-including the sixth `headland` viewpoint; runtime qualification remains pending.
+gzip bytes. Chrome terrain suite `20261011T083120.118782Z-chrome-terrain` passes all six
+views (overview, bay, headland, beach, east, jungle), 60 frame intervals each, GL error zero.
+Bay/headland/east/jungle images inspected. No new GPU faults; kernel delta includes
+USB/storage disconnect/reconnect, PCIe and perf notices. Full Web input/lifecycle and Firefox
+were not rerun. This evidence qualifies commit `2a660b7`, not later beach-width changes.
 
 Current fingerprint `b0f79ae14adeb8cd`: 328 palms, 266 canopy trees, 1,777 understory,
 592 bushes, 2,993 ground plants, 17,251 grass clusters; 164 rocks (14 offshore), 10 logs,

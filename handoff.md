@@ -1,13 +1,20 @@
 # island-simulator handoff
 
-## Live continuation — rocky coast Web qualification
+## Update — rocky coast Web qualification complete
 
 Web build/package refreshed: 10,343,035 raw / 3,528,104 gzip bytes. Contained Chrome
-terrain suite is RUNNING, exec session **40259**, evidence
-`build/browser-software/20261011T083120.118782Z-chrome-terrain`, timeout 1800 s.
-Six views: overview, bay, headland, beach, east, jungle. Poll this exact session; do not
-restart on an observation timeout. After completion inspect run.json, screenshots and kernel
-delta, update documentation and commit results. No new game changes during qualification.
+terrain suite `20261011T083120.118782Z-chrome-terrain` passes all six views: overview,
+bay, headland, beach, east, jungle, 60 intervals each and GL error zero. Bay/headland/east/
+jungle images inspected. No new GPU faults; kernel delta contains USB/storage, PCIe and
+perf notices. Full Web input/lifecycle and Firefox not rerun. This qualifies `2a660b7`.
+
+Subsequent source preparation (not built or qualified yet): uncommitted changes in
+`IslandEnvironmentField.hpp`, `IslandTerrain.cpp`, `TerrainRenderer.cpp` and `CoreTests.cpp`
+add variable beach width, approximately 36 m in the sheltered bay and 6.5 m at the eastern
+headland, shared by geometry and sand material. The completed browser suite used the immutable
+rocky-coast build from commit `2a660b7`; it does NOT qualify this newer source preparation.
+Now build the next stage and run CPU tests/world report,
+review native bay/beach/headland images, update inventory pins and requalify affected platforms.
 
 ## Update 2026-10-11 — integrated rocky coast (native and focused Android qualified)
 
