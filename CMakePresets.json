@@ -107,6 +107,7 @@
         "island-simulator",
         "island_diagnostic_stream_tests",
         "island_monkey_shader_tests",
+        "island_monkey_gait_tests",
         "island_audio_report",
         "island_core_tests",
         "island_boar_tests",
@@ -132,6 +133,7 @@
       "targets": [
         "island_diagnostic_stream_tests",
         "island_monkey_shader_tests",
+        "island_monkey_gait_tests",
         "island_audio_report",
         "island_core_tests",
         "island_boar_tests",

@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — monkey overhaul started, NOT yet integrated into the live model
+
+Operator explicitly rejected the toy-like brown primitives and human-like upright walk.
+Requirements now recorded in PLAN: coherent primate anatomy, actual fur texture, quadrupedal
+locomotion and climbing actual trees with gripping/contact. Do not substitute a colour change
+or shader success for these requirements. Full-island visual audit and all unimplemented
+wildlife (including snakes, spiders and goats), hut and newly requested human resident remain
+open. The active goal is to implement the whole plan, then repeatedly audit and improve.
+
+First implementation foundation: `MonkeyGroundGait.hpp` provides four phased support/return
+trajectories and two-link sagittal IK with fixed segment lengths; idle-to-walk amplitude and
+support-phase root-travel cancellation. `IslandMonkeyGroundGaitTests` passes (601 phase samples
+at three amplitudes, periodicity, two-or-more supports, sole heights and segment lengths).
+Native incremental build passes. This helper is NOT connected to MonkeyRenderer yet: the live
+model/animation/images are unchanged. No graphics job is running. No new image was generated.
+
+NEXT: replace the upright rest rig and disconnected primitive body with a coherent horizontal
+quadrupedal body, attach this pose solver with speed synchronization and terrain support, then
+qualify real captures. Integrate a documented fur texture, then implement approach/grip/climb/
+rest/descent on actual tree geometry; verify full cycles, not merely a vertical translation.
+ImageGen skill was inspected in the preceding conversation but generation has not started;
+read/use the skill when working on the raster fur asset. Dependencies remain read-only.
+
 ## Latest — 14-bone monkey shader verified on native, Android and Web
 
 Android x86_64 assembly/lint and `20261011T110417.653056Z-monkeys` pass strict graphics

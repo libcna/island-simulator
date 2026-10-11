@@ -297,6 +297,14 @@ not the only one.
 
 Standing visual-quality rules (apply to every task from now on):
 
+- [ ] Monkey overhaul explicitly requested 2026-10-11: replace the toy-like assembly of
+  brown primitives with coherent primate anatomy, a real fur texture and believable facial
+  proportions. Replace human-like upright locomotion with quadrupedal ground movement,
+  planted hands/feet and speed-matched strides. Add tree approach, gripping ascent/descent
+  and arboreal resting/movement on actual climbable tree geometry, not floating ascent.
+  Verify close silhouettes, fur filtering, ground contact and a complete climbing cycle in
+  contained native/Android/Web captures. The 14-bone shader fix does NOT complete this item.
+
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
   first), fish, shark, crabs, birds, butterflies, monkeys, boars, palms, canopy trees, understory,
@@ -360,6 +368,18 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Stingrays (shallow sandy water)
 - [ ] Dolphins (offshore pod surfacing beyond the reef)
 - [ ] Octopuses (reef/rock shallows)
+
+Human character backlog requested by the operator:
+
+- [ ] Add one dark-skinned adult island resident who peacefully walks around the island.
+  Create a believable human model with natural proportions, textured skin, hair and practical
+  tropical jungle clothing made from woven cloth and plant fibres. This is a fictional local
+  resident, not a caricature or a claim to represent a particular real indigenous culture.
+  Use deterministic wandering with pauses, terrain-aware foot placement, obstacle avoidance
+  and natural walking/turning animation; keep the resident on reachable safe ground and out
+  of the player's way. No combat, quests, trading or required interaction. Include a close QA
+  viewpoint, movement/contact regression tests, explicit asset provenance and visual review
+  on native, Android and Web before marking the character complete.
 
 Landmark backlog requested by the operator:
 
