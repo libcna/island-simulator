@@ -100,14 +100,24 @@ namespace island
         const float safeAngle = std::fabs(finiteAngle) <= std::numbers::pi_v<float>
             ? finiteAngle
             : std::remainder(finiteAngle, 2.0f * std::numbers::pi_v<float>);
-        const float broad = 12.0f * std::sin(safeAngle * 3.0f + 0.55f)
-            + 8.0f * std::sin(safeAngle * 5.0f - 1.3f)
-            + 4.5f * std::sin(safeAngle * 9.0f + 2.1f);
+        const float broad = 6.0f * std::sin(safeAngle * 3.0f + 0.55f)
+            + 4.0f * std::sin(safeAngle * 5.0f - 1.3f)
+            + 2.5f * std::sin(safeAngle * 9.0f + 2.1f);
+        // Periodic directional lobes form a sheltered western bay between two
+        // headlands, with a third promontory on the exposed eastern shore. Using
+        // cosine distance keeps the bay continuous across the +/-pi seam.
+        const auto coastLobe = [safeAngle](const float direction, const float width) {
+            return std::exp((std::cos(safeAngle - direction) - 1.0f) / (width * width));
+        };
+        const float headlands = 26.0f * coastLobe(2.48f, 0.23f)
+            + 24.0f * coastLobe(-2.48f, 0.23f)
+            + 18.0f * coastLobe(0.35f, 0.28f);
+        const float shelteredBay = 70.0f * coastLobe(std::numbers::pi_v<float>, 0.28f);
         const float directionX = std::cos(safeAngle);
         const float directionZ = std::sin(safeAngle);
         const float irregular = 9.0f * FractalNoise(directionX * 2.4f + 3.7f,
                                                     directionZ * 2.4f - 1.9f, 0x51a7U);
-        return NominalDiameter * 0.46f + broad + irregular;
+        return NominalDiameter * 0.46f + broad + irregular + headlands - shelteredBay;
     }
 
     float IslandTerrain::SignedShoreDistance(const float x, const float z) const noexcept

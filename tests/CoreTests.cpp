@@ -2817,7 +2817,7 @@ int main()
     const auto coastalVertexCount = validateContactPatches(coastalFootprints, island::ContactPatchDetail::Coastal);
     const auto landVertexCount = validateContactPatches(landFootprints, island::ContactPatchDetail::Compact);
     Check(landVertexCount < 70000, "the complete clipped land-shadow geometry stays within its static budget");
-    Check(coastalVertexCount == 23970, "compact land support does not change existing coastal patch geometry");
+    Check(coastalVertexCount == 23772, "coastal patch geometry matches the authored shoreline layout");
     std::cout << "Land contact patches: " << landFootprints.size() << ", vertices: " << landVertexCount << '\n';
     Check(coastalVertexCount < 50000, "the complete coastal shadow addition fits the static vertex budget");
     std::cout << "Coastal contact patches: " << coastalFootprints.size() << ", vertices: " << coastalVertexCount << '\n';
@@ -3312,9 +3312,24 @@ int main()
                   "shore parameterization agrees with shore distance");
         Check(std::isfinite(terrain.Height(x, z)), "shore height is finite");
     }
-    Check(minimumRadius > 185.0f, "shoreline never collapses inward");
+    Check(minimumRadius > 150.0f, "sheltered bay preserves a broad connected island interior");
     Check(maximumRadius < 275.0f, "shoreline remains near the 500 metre target");
     Check(maximumRadius - minimumRadius > 20.0f, "shoreline silhouette has variation");
+    const float westBayRadius = terrain.ShoreRadius(std::numbers::pi_v<float>);
+    Check(terrain.ShoreRadius(2.48f) > westBayRadius + 35.0f
+              && terrain.ShoreRadius(-2.48f) > westBayRadius + 35.0f,
+          "western sheltered bay sits between two pronounced headlands");
+    Check(terrain.ShoreRadius(0.35f) > terrain.ShoreRadius(1.0f) + 12.0f,
+          "windward coast has a separate eastern promontory");
+    CheckNear(terrain.ShoreRadius(-std::numbers::pi_v<float>), westBayRadius, 0.001f,
+              "sheltered bay is continuous across the polar seam");
+    for (const float headlandAngle : {2.48f, -2.48f}) {
+        const float tipX = std::cos(headlandAngle) * terrain.ShoreRadius(headlandAngle);
+        Check(-westBayRadius > tipX + 25.0f,
+              "bay shore is recessed at least 25 metres behind both headland tips in world space");
+    }
+    std::cout << "Coast radius min/max/bay: " << minimumRadius << '/' << maximumRadius
+              << '/' << westBayRadius << '\n';
 
     const island::VegetationLayout repeatedVegetation(terrain);
     Check(vegetation.Palms().size() >= 180U && vegetation.Palms().size() <= 520U,
@@ -3630,9 +3645,9 @@ int main()
     Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
         && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 566
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 576
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2194,
+            - jungle.ForestGroundPlantCount() == 2170,
         "clearing colonies preserve the existing island-wide populations");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
@@ -3741,7 +3756,7 @@ int main()
     };
     checkColonies(jungle);
     checkForestColonies(jungle);
-    Check(jungle.ClearingBushCount()==13 && jungle.ClearingGroundPlantCount()==64,
+    Check(jungle.ClearingBushCount()==12 && jungle.ClearingGroundPlantCount()==60,
         "forest recruitment preserves the existing default clearing accents");
     for (const auto seed:{0x12345U,0xa55aU}) {
         const island::JungleLayout alternate(terrain,seed);

@@ -65,6 +65,7 @@ namespace island
         {
             switch (viewpoint) {
             case FixedViewpoint::Overview: return "overview";
+            case FixedViewpoint::BayOverview: return "bay";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -179,6 +180,10 @@ namespace island
         } else if (viewpoint_ == FixedViewpoint::Overview) {
             cameraPosition_ = Vector3(0.0f, 68.0f, -365.0f);
             pitch_ = -0.16f;
+        } else if (viewpoint_ == FixedViewpoint::BayOverview) {
+            cameraPosition_ = Vector3(-365.0f, 115.0f, 0.0f);
+            yaw_ = std::numbers::pi_v<float> * 0.5f;
+            pitch_ = -0.38f;
         } else if (viewpoint_ == FixedViewpoint::BeachPath) {
             constexpr float pathZ = -190.0f;
             const float pathX = VegetationLayout::PrimaryPathCenterX(pathZ);

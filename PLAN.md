@@ -64,6 +64,22 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — sheltered bay and headland silhouette
+
+- [~] Macro-geography items 1–2 shoreline stage (`docs/coastal-silhouette.md`): three
+  periodic headland lobes and a recessed western bay. Native review rejected the first
+  shallow design; final shore radii 158.994–258.680 m, with a world-space bay-depth
+  regression and a dedicated `bay` camera. All coastal consumers share the same boundary.
+- [x] Fixed turtle shallow-bank steering exposed by the new coast: forward habitat check,
+  non-degenerate offshore heading at the home centre, preserved bounded turn rate and
+  original observer-separation assertion. Final 33/33 non-display groups pass (37.13 s).
+- [x] Contained native bay `20261011T074941.874456Z-bay` and turtle
+  `20261011T075118.375540Z-turtles` captures pass and were inspected, no new GPU faults.
+- [ ] Android/Web build and runtime qualification for this coast. Updated browser inventory
+  pins are not runtime evidence. Existing Android lifecycle defect remains open.
+- [ ] Shared coastal environment field, rocky headlands/cliff and dominant beach; current
+  coast still has a continuous sand band. The full macro-geography rewrite is not done.
+
 #### 2026-10-11 — asymmetric interior ridges and drainage
 
 - [~] Macro-geography item 1, interior stage (`docs/ridge-and-valleys.md`): replaced the

@@ -619,7 +619,7 @@ namespace
                              monkey.scale, monkey.homeX, monkey.homeZ);
         }
         return terrain.finite && terrain.sampleCount == TerrainReportSampleCount
-            && terrain.minimumShoreRadius > 170.0f
+            && terrain.minimumShoreRadius > 150.0f
             && terrain.maximumShoreRadius < 300.0f
             && expectedPopulations && derivedCountsAgree
             && finitePlacements && finiteSpecializedData

@@ -79,6 +79,7 @@ namespace island
     {
         None,
         Overview,
+        BayOverview,
         BeachPath,
         JungleTrail,
         EastClearingDetail,

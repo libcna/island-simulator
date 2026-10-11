@@ -1,5 +1,19 @@
 # island-simulator handoff
 
+## Update 2026-10-11 — bay/headland silhouette (native qualified)
+
+See `docs/coastal-silhouette.md`. Western bay between two headlands plus eastern promontory;
+shore radii 158.994–258.680 m. New `bay` QA camera. The first shallow design was rejected
+visually; final geometry has world-space recession checks. New coast exposed turtle bank
+steering at the home centre, now fixed without weakening its movement regression.
+Final 33/33 non-display groups pass (37.13 s). Native final bay
+`20261011T074941.874456Z-bay` and turtles `20261011T075118.375540Z-turtles` pass/inspected.
+Fingerprint `9dc988ef0ffd9f67`; population and shadow-count pins updated from the report.
+Next: build and qualify Android/Web for this coast (not done yet), then shared coastal
+environment/material placement to replace the continuous sand band with rocky headlands
+and a dominant beach. Macro-geography items 1–3 remain incomplete. Android lifecycle issue
+`CNA-ISLAND-001` remains open. No hardware rendering or push is authorized.
+
 ## Update 2026-10-11 — ridge/valley interior
 
 See `docs/ridge-and-valleys.md`. Two offset ridges now reach 40.0192 / 29.0938 m, with a

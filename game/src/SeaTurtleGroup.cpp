@@ -216,6 +216,15 @@ namespace island
             desiredHeading = std::atan2(
                 agent.state.z - observerZ, agent.state.x - observerX);
         }
+        // A non-circular coast can put the initial tangent against a shallow bank.
+        // Steer before reaching it; at the home centre there is no homeward direction,
+        // so use the offshore radial direction instead of atan2(0, 0).
+        if (!IsValidHabitat(agent.state.x + std::cos(desiredHeading),
+                            agent.state.z + std::sin(desiredHeading), agent.home)) {
+            desiredHeading = homeDistance > 1.0f
+                ? std::atan2(agent.home.z - agent.state.z, agent.home.x - agent.state.x)
+                : std::atan2(agent.state.z, agent.state.x);
+        }
         const float headingBefore = agent.state.headingRadians;
         agent.state.headingRadians = MoveAngle(
             agent.state.headingRadians, desiredHeading, deltaSeconds * 0.52f);
@@ -241,8 +250,7 @@ namespace island
         } else {
             agent.state.headingRadians = MoveAngle(
                 agent.state.headingRadians,
-                std::atan2(agent.home.z - agent.state.z,
-                           agent.home.x - agent.state.x),
+                desiredHeading,
                 deltaSeconds * 1.25f);
             agent.state.speed = std::min(agent.state.speed, 0.34f);
         }
