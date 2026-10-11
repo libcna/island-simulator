@@ -1,5 +1,6 @@
 #include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "IslandSimulator/MonkeyTailProfile.hpp"
+#include "IslandSimulator/MonkeyFaceProfile.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -19,6 +20,21 @@ static float Distance(gait::Point a, gait::Point b)
 
 int main()
 try {
+    namespace face = island::MonkeyFaceProfile;
+    for (std::size_t row = 0; row < face::Rows.size(); ++row) {
+        if (row > 0) Require(face::Rows[row].y < face::Rows[row-1].y,
+                             "face rows are ordered without folds");
+        Require(face::Rows[row].halfWidth > 0, "face rows do not collapse to degenerate strips");
+        for (int column = 0; column <= 16; ++column) {
+            const float u = column/8.0f-1.0f;
+            const auto p = face::Sample(row,u), mirror = face::Sample(row,-u);
+            Require(std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z), "finite face profile");
+            Require(std::fabs(p.x+mirror.x) < 1e-6f && std::fabs(p.z-mirror.z) < 1e-6f,
+                    "continuous bilateral face profile");
+            Require(p.z >= .5499f && p.z <= .705f, "face stays within authored head envelope");
+        }
+    }
+    Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
     namespace tail = island::MonkeyTailProfile;
     const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.70f,-.91f},
         {0,.86f,-1.25f}, {0,.97f,-1.55f}}};

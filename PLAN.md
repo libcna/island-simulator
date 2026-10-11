@@ -339,6 +339,10 @@ Standing visual-quality rules (apply to every task from now on):
   `20261011T124529.157229Z-monkeys` pass/inspected, including the new contact shader on GLES.
   Default ARM64 build/lint restored. Web recheck, moving stance locks and realism remain open;
   closer images expose the toy-mask face and overly coarse/wavy fur as specific defects.
+  Connected face-profile first pass replaces the two bright oval patches: native
+  `20261011T125510.820617Z-monkeys` inspected, 37/37 CPU groups pass. See
+  `docs/monkey-face-profile.md`. Face relief/sockets/lids, fur scale and shoulder anatomy
+  still need refinement; this is not realism completion or Android/Web face qualification.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

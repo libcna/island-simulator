@@ -5,6 +5,7 @@
 #include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "IslandSimulator/MonkeyTailProfile.hpp"
 #include "IslandSimulator/MonkeySoleFrame.hpp"
+#include "IslandSimulator/MonkeyFaceProfile.hpp"
 #include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 
@@ -636,9 +637,29 @@ namespace island
         [[nodiscard]] MeshData CreateFaceMesh()
         {
             MeshData mesh;
-            // Narrow orbital skin and a projecting, low muzzle, not a teddy-bear mask.
-            AddEllipsoid(mesh, Vector3(0, .86f, .605f), Vector3(.108f, .065f, .027f), Head, 6, 12);
-            AddEllipsoid(mesh, Vector3(0, .787f, .628f), Vector3(.077f, .052f, .069f), Head, 6, 12);
+            constexpr int columns = 16;
+            const auto point = [](std::size_t row, float u) {
+                const auto p = MonkeyFaceProfile::Sample(row, u);
+                return Vector3(p.x,p.y,p.z);
+            };
+            for (std::size_t row = 0; row < MonkeyFaceProfile::Rows.size(); ++row) {
+                for (int column = 0; column <= columns; ++column) {
+                    const float u = 2.0f * column / columns - 1.0f;
+                    const Vector3 across = point(row, std::min(1.0f,u+.01f))
+                        - point(row, std::max(-1.0f,u-.01f));
+                    const Vector3 along = point(std::min(row+1,MonkeyFaceProfile::Rows.size()-1),u)
+                        - point(row == 0 ? 0 : row-1,u);
+                    const Vector3 normal = Vector3::Normalize(Vector3::Cross(along,across));
+                    AddVertex(mesh, point(row,u), normal, Head, Vector2(.5f+.4f*u,.5f));
+                }
+            }
+            for (std::size_t row = 0; row+1 < MonkeyFaceProfile::Rows.size(); ++row)
+                for (int column = 0; column < columns; ++column) {
+                    const auto a = static_cast<std::uint16_t>(row*(columns+1)+column);
+                    const auto b = static_cast<std::uint16_t>(a+columns+1);
+                    mesh.indices.insert(mesh.indices.end(), {a, b, static_cast<std::uint16_t>(a+1),
+                        static_cast<std::uint16_t>(a+1), b, static_cast<std::uint16_t>(b+1)});
+                }
             for (float side : {-1.0f, 1.0f})
                 AddEllipsoid(mesh, Vector3(side * .151f, .84f, .445f),
                              Vector3(.026f, .037f, .013f), Head, 4, 8);
@@ -649,13 +670,25 @@ namespace island
         {
             MeshData mesh;
             for (float side : {-1.0f, 1.0f}) {
-                AddEllipsoid(mesh, Vector3(side * .058f, .864f, .629f),
-                             Vector3(.019f, .013f, .010f), Head, 4, 10);
-                AddEllipsoid(mesh, Vector3(side * .018f, .800f, .694f),
-                             Vector3(.009f, .006f, .004f), Head, 3, 6);
+                AddEllipsoid(mesh, Vector3(side * .052f, .867f, .645f),
+                             Vector3(.016f, .010f, .007f), Head, 4, 10);
+                AddEllipsoid(mesh, Vector3(side * .015f, .817f, .686f),
+                             Vector3(.006f, .004f, .003f), Head, 3, 6);
             }
-            AddEllipsoid(mesh, Vector3(0, .762f, .679f),
-                         Vector3(.046f, .003f, .006f), Head, 3, 10);
+            // Follow the curved muzzle instead of floating a straight mouth bar in front.
+            const auto mouthBase = static_cast<std::uint16_t>(mesh.vertices.size());
+            for (int step = 0; step <= 8; ++step) {
+                const float x = -.041f + .082f * step / 8.0f;
+                const float z = .55f + .15f * std::sqrt(1.0f-(x/.072f)*(x/.072f)) + .002f;
+                for (float y : {.7785f, .7815f})
+                    AddVertex(mesh, Vector3(x,y,z), Vector3(0,0,1), Head, Vector2(.5f,.5f));
+            }
+            for (int step = 0; step < 8; ++step) {
+                const auto a = static_cast<std::uint16_t>(mouthBase + step*2);
+                mesh.indices.insert(mesh.indices.end(), {a, static_cast<std::uint16_t>(a+2),
+                    static_cast<std::uint16_t>(a+1), static_cast<std::uint16_t>(a+1),
+                    static_cast<std::uint16_t>(a+2), static_cast<std::uint16_t>(a+3)});
+            }
             return mesh;
         }
 
@@ -766,10 +799,10 @@ namespace island
             Vector3(0.29f, 0.21f, 0.16f),
             Vector3(0.50f, 0.35f, 0.22f)};
         const std::array<Vector3, 4> FaceColors = {
-            Vector3(0.68f, 0.51f, 0.34f),
-            Vector3(0.76f, 0.59f, 0.39f),
-            Vector3(0.60f, 0.46f, 0.33f),
-            Vector3(0.80f, 0.63f, 0.42f)};
+            Vector3(0.43f, 0.32f, 0.27f),
+            Vector3(0.50f, 0.37f, 0.30f),
+            Vector3(0.38f, 0.29f, 0.25f),
+            Vector3(0.54f, 0.40f, 0.33f)};
         const Vector3 FurSpecularColor(0.04f, 0.04f, 0.035f);
         const Vector3 EyeSpecularColor(0.42f, 0.37f, 0.28f);
         constexpr float FurSpecularPower = 8.0f;

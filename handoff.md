@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Latest — connected monkey face replaces the two pale oval patches (native first pass)
+
+`docs/monkey-face-profile.md` records scope/evidence. One twelve-row cheek/muzzle/chin surface
+replaces separate orbital/muzzle ellipsoids; smaller eyes/nostrils, attached curved mouth
+strip and muted skin palettes. Same head bone/draw structure. New profile included in asset
+manifest (67 sources), CPU profile regression added. Native build and all 37 non-display
+groups pass (93.53 s). `20261011T125510.820617Z-monkeys` passes/inspected, empty kernel delta.
+Two bright oval patches no longer dominate the face, but it is still simple/low-relief and
+needs sockets/lids/cheek transitions. Coarse fur and shoulder attachment remain defects.
+All jobs finished, no dependency/host/emulator changes. Android/Web have NOT qualified this
+face revision; Web also still lacks current contact/tail/camera qualification. Continue those
+checks and actual stance locking/tree gripping/climbing. Whole goal/plan remains open.
+
 ## Latest — close side QA camera and Android contact shader verified
 
 The `monkeys` camera now views from forward 0.6, side -2.1, height 1.1, target height 0.52.
