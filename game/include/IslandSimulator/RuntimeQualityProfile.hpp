@@ -26,7 +26,9 @@ namespace island
                     + GeneratedTextureBudget::BoarCoatRgba8Bytes
                     + GeneratedTextureBudget::SnakeScaleRgba8Bytes
                     + GeneratedTextureBudget::GrassHeightRgba8Bytes
-                    + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes + 160U * 1024U, 6, 4};
+                    + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
+                    + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
+                    + 160U * 1024U, 6, 4};
         }
 
         /**
@@ -42,7 +44,9 @@ namespace island
                     + GeneratedTextureBudget::BoarCoatRgba8Bytes
                     + GeneratedTextureBudget::SnakeScaleRgba8Bytes
                     + GeneratedTextureBudget::GrassHeightRgba8Bytes
-                    + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes + 160U * 1024U, 6, 2};
+                    + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
+                    + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
+                    + 160U * 1024U, 6, 2};
         }
 
         /** @brief Reports whether every field is safe for direct renderer consumption. */

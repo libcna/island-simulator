@@ -851,6 +851,16 @@ Landmark backlog requested by the operator:
   Full41/41non-displayPASS69.89s; finalstricterfinite/stepdistance/depenetration route
   rerunPASS. AndroidARM64build/lintPASS6s; Webbuild/packagePASS. No graphicsrun for
   this sharedplacement/report/testchange; noAMD/KVM/dependencychange.
+  Generated originaldry-palmfibre texture via built-inImageGen, exactprompt/source
+  preservedin assets/art-studies/hut-palm-fibre-v1*, manifest/license provenanceadded.
+  Prepared256square/9mips/349524bytes, interiorclampwindows/mean-normalizedbounded
+  modulation/strawpalette; unchanged9492triangles/28476vertices/1draw. Native231908
+  actualPASS/imageinspected/kernel[]; Android232044 actualPASS/imageinspected/kernel[]:
+  pale fibrousroof nowdistinctfromtimber. Full41/41CPU PASS71.49s. Realism/temporal/
+  webactual/visualroute stillOPEN. Budgetauditalsocorrectedpreviouslyomittedmonkeyfur:
+  total8147420/policy8167636bytes, notallnewallocation. See docs/island-hut.md.
+  ARM64restored/buildlintPASS11s; Webbuild/packagePASS11,342,167raw/4,331,803gzip.
+  AssetauditPASS. ActualWebnewshaderstillpending; allownedjobs terminal/latchunchanged.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

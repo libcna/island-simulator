@@ -3,6 +3,18 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "hut-palm-fibre-v1",
+      "path": "assets/art-studies/hut-palm-fibre-v1.png",
+      "sha256": "06a30db54159f52dd268f2d6fa174bcc02d680004ea889a3f2e4138502889fc0",
+      "licenseRecord": "AI-generated hut palm fibre"
+    },
+    {
+      "name": "hut-palm-fibre-prompt-v1",
+      "path": "assets/art-studies/hut-palm-fibre-v1-prompt.txt",
+      "sha256": "58250f223aa685fe25a5a51f3451a433255ba8333299a878d81884187c129988",
+      "licenseRecord": "AI-generated hut palm fibre"
+    },
+    {
       "name": "monkey-fur-albedo-v2",
       "path": "assets/art-studies/monkey-fur-albedo-v2.png",
       "sha256": "7e0ae1efc6f646758e646549484cf158d1e6d7bc92b7dc33a9499d1ee2e72e46",

@@ -20,6 +20,8 @@ in vec4 vColor;
 in vec2 vGrain;
 uniform vec3 uCameraPosition;
 uniform vec3 uHutCentre;
+uniform sampler2D uThatchTexture;
+uniform vec3 uThatchMean;
 out vec4 fragColor;
 // Fade unresolved cycles to their mean; no texture, loops or dependent sampling.
 float resolvedWave(float phase) {
@@ -38,7 +40,10 @@ void main() {
     if(vColor.a>0.4&&vColor.a<0.65) timber=vColor.rgb*(0.97+0.09*rings);
     float fibres=resolvedWave(u*460.0+sin(v*8.0)*0.28);
     float fineFibres=resolvedWave(u*1410.0+sin(v*13.0)*0.4);
-    vec3 thatch=vColor.rgb*(0.98+0.08*fibres+0.025*fineFibres-0.04*max(weather,0.0));
+    vec3 leafSample=texture(uThatchTexture,vGrain).rgb;
+    vec3 leafVariation=clamp(leafSample/uThatchMean,vec3(0.5),vec3(1.55));
+    vec3 thatch=vColor.rgb*mix(vec3(1.0),leafVariation,0.85)
+        *(0.98+0.04*fibres+0.015*fineFibres);
     vec3 color=vColor.a>0.7?thatch:timber;
     float detail=1.0-smoothstep(35.0,80.0,length(vWorld-uCameraPosition));
     color=mix(vColor.rgb,color,detail);

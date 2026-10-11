@@ -159,7 +159,7 @@ def validate_guest_renderer(text):
 
 
 MATERIAL_PATHS = ("Content/terrain/forest-floor.png", "Content/vegetation/leaf-lamina.png",
-                  "Content/wildlife/monkey-fur.png")
+                  "Content/wildlife/monkey-fur.png", "Content/structures/hut-palm-fibre.png")
 
 
 def validate_apk(apk, prepared_root=None):
@@ -230,6 +230,8 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             validate_snake_runtime_samples(log)
         if viewpoint in ("hut", "hut-material") and "hut beam-aligned weathered grain and filtered thatch fibres" not in log:
             raise RuntimeError("application did not confirm the hut material")
+        if viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log:
+            raise RuntimeError("application did not confirm the hut material texture")
         if viewpoint == "monkey-climb":
             validate_monkey_climb_stages(log)
             if "monkey climb held summit presented after eight cycle stages" not in log:

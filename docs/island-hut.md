@@ -222,6 +222,47 @@ Android ARM64 build/lint PASS6s; Web build/package PASS11,228,439raw/4,221,482gz
 No new graphics run for the placement-sharing/report changes; no visual improvement
 or platform input qualification is claimed by these CPU checks.
 
+## Generated dry-palm fibre material
+
+Built-in ImageGen produced the original opaque square
+`assets/art-studies/hut-palm-fibre-v1.png` from the exact preserved project prompt
+`assets/art-studies/hut-palm-fibre-v1-prompt.txt` (provenance/hashes in ASSET_LICENSES.md
+and assets/manifest.json). This is AI-generated artwork, not a photographed scan;
+no third-party image or exclusive-copyright claim. ImageGen skill used for generation.
+The source was inspected before integration. Despite the prompt's seamless request,
+tileability is not assumed: each geometric leaf samples an interior clamped window,
+aligned down the roof slope. Original remains unchanged; existing host preparation
+reduces it to256square, and runtime uploads9opaque mips,349,524RGBA8bytes.
+
+The portable shader modulates a desaturated straw base by bounded mean-normalized
+texture colour; timber is unchanged. Geometry remains9492triangles/28476vertices,
+one draw; one extra sampler/texture, not zero resource cost. LinearClamp with complete
+mips and existing distance fade; temporal motion/shimmer not yet qualified. Missing
+asset is fatal; unsupported custom shader still logs a rejected material fallback.
+Native/Android/Web hut gates now require the texture-load marker in addition to shader
+and graphics checks. Android archive validation includes the new packaged PNG.
+
+Resource audit also found existing monkey fur omitted from TotalRuntimeRgba8Bytes.
+Added its1,398,100bytes plus the new thatch349,524bytes; actual texture payload accounting
+now8,147,420bytes against8,167,636policy bytes, excluding driver/decoder overhead as
+before. This is partly corrected accounting, not1.75MB newly allocated by this pass.
+Browser/Android diagnostic pins and CPU budget expectation updated accordingly.
+
+Actual native `20261011T231908.276787Z-hut-material/capture.png` PASS and inspected:
+roof now visibly pale/fibrous and distinct from timber, not the old brown slat surface.
+Capture422colour bins/luminanceSD52.58/spatialcontrast192.60, kernel-after empty,
+required texture marker present. Structure remains stylized; directional roof shade,
+long-range/temporal review and full route visual walk remain open.
+Actual Android `20261011T232044.759725Z-hut-material` PASS; screenshot actually
+inspected, GLES SwiftShader, new texture marker/no fallback, kernel-final empty.
+Archive `build/android-software/island-hut-fibre-x86_64.apk`, SHA256
+`e84dab206a5b57096b347faff5862fc9b119f6503a609281092705b937802d73`.
+x86_64 build/lint PASS14s. Full41/41 non-display tests PASS71.49s; Android23/browser19/
+native-supervisor37 CPU tests pass. No AMD/KVM configuration change or hardware claim.
+Standard ARM64 package restored/build/lint PASS11s. Asset audit PASS12projectfiles/
+0external. Web build/package PASS11,342,167raw/4,331,803gzip bytes; actual browser
+execution of this new textured shader remains pending. All owned jobs terminal.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing

@@ -1,6 +1,10 @@
 #include "IslandSimulator/HutRenderer.hpp"
 #include "IslandSimulator/HutThatch.hpp"
 #include "IslandSimulator/HutMaterial.hpp"
+#include "IslandSimulator/OpaqueImageLoader.hpp"
+#include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
 #include "CNA/Graphics/ShaderCodeEXT.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 #include "CNA/ShaderLanguageEXT.hpp"
@@ -47,8 +51,15 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         const Color color(static_cast<int>(pigment.X*light),static_cast<int>(pigment.Y*light),static_cast<int>(pigment.Z*light),materialTag);
         for(const auto p:local) {
             const float phase=materialTag==128?0:Vector3::Dot(grainOrigin,Vector3(0.37f,0.19f,0.53f));
-            mesh.emplace_back(world(p),color,Vector2(Vector3::Dot(p-grainOrigin,grainAcross)+phase,
-                Vector3::Dot(p-grainOrigin,grainAlong)));
+            Vector2 uv(Vector3::Dot(p-grainOrigin,grainAcross)+phase,
+                Vector3::Dot(p-grainOrigin,grainAlong));
+            if(materialTag==224) {
+                // Interior atlas windows: no generated seamless-edge assumption.
+                const float offset=phase-std::floor(phase);
+                uv=Vector2(0.15f+0.7f*offset+Vector3::Dot(p-grainOrigin,grainAcross)*0.8f,
+                    0.12f+Vector3::Dot(p-grainOrigin,grainAlong)*0.9f);
+            }
+            mesh.emplace_back(world(p),color,uv);
         }
     };
     const auto beam=[&](Vector3 a,Vector3 b,float width,float depth,Vector3 pigment) {
@@ -100,7 +111,7 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
             grainOrigin=Vector3(origin.x,origin.y,origin.z);
             grainAcross=Vector3(0,0,1); grainAlong=Vector3(side*2.65f,-1.4f,0);
             grainAlong.Normalize(); materialTag=224;
-            const Vector3 pigment=Vector3(152,131,77)+Vector3(blade.pigment*24,blade.pigment*19,blade.pigment*13);
+            const Vector3 pigment=Vector3(177,163,131)+Vector3(blade.pigment*16,blade.pigment*14,blade.pigment*9);
             const auto point=[&](int station,int edge) {
                 const auto p=blade.sections[static_cast<std::size_t>(station)][static_cast<std::size_t>(edge)];
                 return Vector3(p.x,p.y,p.z);
@@ -131,6 +142,19 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     effect_->setVertexColorEnabledProperty(true); effect_->setLightingEnabledProperty(false);
     effect_->setFogEnabledProperty(true); effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));
     effect_->setFogStartProperty(180); effect_->setFogEndProperty(300);
+    const auto levels=LoadOpaqueImageMips(device_,"Content/structures/hut-palm-fibre.png",256);
+    const auto& mean=levels.back().pixels[0];
+    thatchMean_=Vector3(mean[0]/255.0f,mean[1]/255.0f,mean[2]/255.0f);
+    if(std::min({thatchMean_.X,thatchMean_.Y,thatchMean_.Z})<0.01f)
+        throw std::runtime_error("Hut thatch texture mean too dark");
+    thatch_=std::make_unique<Texture2D>(device_,256,256,true,SurfaceFormat::Color);
+    for(std::size_t level=0;level<levels.size();++level) {
+        const auto& pixels=levels[level].pixels;
+        thatch_->SetData(static_cast<int>(level),nullptr,
+            reinterpret_cast<const std::uint8_t*>(pixels.data()),0,static_cast<int>(pixels.size()*4));
+    }
+    const char* textureMessage="island-simulator: hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes";
+    std::cout<<textureMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(textureMessage);
     try {
         if(!device.SupportsCapability(CNA::GraphicsCapability::CustomEffects))
             throw std::runtime_error("custom effects unavailable");
@@ -164,6 +188,9 @@ void HutRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3
     if(material_) {
         float matrix[16]; (view*projection).ToColumnMajor(matrix);
         material_->Apply(); material_->SetUniformMat4("uViewProjection",matrix);
+        device_.getSamplerStatesProperty()[0]=SamplerState::LinearClamp;
+        material_->SetTexture(0,*thatch_); material_->SetUniformInt("uThatchTexture",0);
+        material_->SetUniformVec3("uThatchMean",thatchMean_.X,thatchMean_.Y,thatchMean_.Z);
         material_->SetUniformVec3("uCameraPosition",camera.X,camera.Y,camera.Z);
         material_->SetUniformVec3("uHutCentre",centre_.X,centre_.Y,centre_.Z);
     } else {

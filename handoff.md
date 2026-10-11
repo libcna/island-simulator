@@ -1,5 +1,30 @@
 # island-simulator handoff
 
+## Latest — generated palm fibre on hut roof; native/Android actual PASS
+
+Used imagegen skill/built-in ImageGen for new opaque dry-palm microtexture. Original
+assets/art-studies/hut-palm-fibre-v1.png and exactprompt sibling preserved inrepo,
+hashes/provenance inmanifest/ASSET_LICENSES. Source2932608bytes; prepared256PNG110298
+bytes viaexistinghostpipeline,9runtime mips349524RGBA8bytes. InteriorclampUVwindows
+perleaf (noseamlessassumption), boundedmean-normalizedcolour/strawbase; timbersame.
+Oneextrasampler/texture; no geometry/drawincrease. Missingtexturefatal; fallbacklogged.
+CMakeprepare/install/Webpreload andAndroidGradle stagingdone; APKvalidationexpectsPNG.
+Native/Android/Webhut gatesrequire newtexturemarker; negativefixturesupdated.
+Budget auditfound EXISTINGmonkeyfur1,398,100bytes missing; addedwithhut349524. Runtime
+now8147420/policy8167636 (notallnewallocation), diagnosticpins/CPUexpectationsupdated.
+Native231908.276787Z-hut-material PASS/imageactuallyviewed/kernel[]: palefibrousroof
+distinctfromwood, surfaceimprovedbutnotfinalrealism. ActualAndroid232044.759725Z-
+hut-material PASS/imageviewed/GLES SwiftShader/texturemarker/nofallback/kernel[].
+Archived build/android-software/island-hut-fibre-x86_64.apk SHA
+e84dab206a5b57096b347faff5862fc9b119f6503a609281092705b937802d73.
+x86buildlintPASS14s, defaultARM64restored/buildlintPASS11s. No KVM/emulatorchanges.
+Full41/41non-displayPASS71.49s; Android23/browser19/native-supervisor37 testsPASS.
+AssetauditPASS12projectfiles/0external; JS/shellsyntax/diffchecksPASS. Webbuild/package
+PASS11,342,167raw/4,331,803gzip; noactualWebnewshadercheckyet. Allownedjobs terminal;
+hardwarestoplatchSHA unchanged.
+NEXT actualWebnewmaterial, temporal/longrange andvisualroute; wildlife/residentbacklog
+andAMDincidentstillOPEN. Shader/texture additionisnotAMDfix. No dependencychange/push.
+
 ## Latest — hut world inventory fixed; continuous spawn-to-hut route verified
 
 HutLayout::FindInWorld nowshares the actual solid+foliage exclusion between livegame

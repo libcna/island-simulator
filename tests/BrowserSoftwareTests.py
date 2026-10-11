@@ -96,14 +96,18 @@ class BrowserSoftwareTests(unittest.TestCase):
                           (ROOT / "tools/web_smoke.html.in").read_text())
         def report():
             return {"passed":True,"views":[{"mode":mode,"passed":True,"glError":0,"contextLost":False,
-                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut 1 draw, {7 if mode == 'hut' else 6} contact patches"}}
+                "result":{"output":f"hut beam-aligned weathered grain and filtered thatch fibres\nhut 1 draw, {7 if mode == 'hut' else 6} contact patches\nhut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes"}}
                 for mode in ("hut","hut-material")]}
         self.assertEqual(gate.validate_hut_report(report()),["hut","hut-material"])
+        missing_texture=report()
+        missing_texture["views"][0]["result"]["output"]=missing_texture["views"][0]["result"]["output"].split("\nhut palm fibre")[0]
+        with self.assertRaises(RuntimeError): gate.validate_hut_report(missing_texture)
         for index,wrong_count in ((0,6),(1,7),(1,0)):
             bad=report()
             bad["views"][index]["result"]["output"] = (
                 "hut beam-aligned weathered grain and filtered thatch fibres\n"
-                f"hut 1 draw, {wrong_count} contact patches")
+                f"hut 1 draw, {wrong_count} contact patches\n"
+                "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
             with self.assertRaises(RuntimeError): gate.validate_hut_report(bad)
         for key,value in (("passed",False),("glError",1282),("contextLost",True),
                           ("result",{"output":"hut 0 draw, 0 contact patches"})):

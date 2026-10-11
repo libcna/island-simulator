@@ -26,7 +26,8 @@ def materialTool = new File(repositoryDir, "tools/prepare_material_texture.py")
 def materialTasks = [
     Floor: [source: "forest-floor-albedo-v1.png", output: "Content/terrain/forest-floor.png", size: 512],
     Leaf: [source: "leaf-lamina-v1.png", output: "Content/vegetation/leaf-lamina.png", size: 256],
-    Fur: [source: "monkey-fur-albedo-v2.png", output: "Content/wildlife/monkey-fur.png", size: 512]
+    Fur: [source: "monkey-fur-albedo-v2.png", output: "Content/wildlife/monkey-fur.png", size: 512],
+    Thatch: [source: "hut-palm-fibre-v1.png", output: "Content/structures/hut-palm-fibre.png", size: 256]
 ].collect { name, material ->
     tasks.register("prepareIsland${name}", Exec) {
         def source = new File(repositoryDir, "assets/art-studies/${material.source}")

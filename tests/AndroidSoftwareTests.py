@@ -268,6 +268,9 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
                 with self.assertRaisesRegex(RuntimeError, "hut material"):
                     gate.validate_game_logs(directory, False, view)
                 log.write_text(good+"hut beam-aligned weathered grain and filtered thatch fibres\n")
+                with self.assertRaisesRegex(RuntimeError, "hut material texture"):
+                    gate.validate_game_logs(directory, False, view)
+                log.write_text(log.read_text()+"hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes\n")
                 gate.validate_game_logs(directory, False, view)
                 log.write_text(good)
             times = [0, 5, 10.1, 18.5, 24, 29.1, 38.9, 0]

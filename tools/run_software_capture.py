@@ -352,6 +352,8 @@ def main():
             if 'gl-renderer="llvmpipe ' not in log or 'renderer="OPENGL33"' not in log:
                 raise RuntimeError("runtime did not confirm the expected software renderer")
             diagnostics = log + "".join(p.read_text(errors="replace") for p in evidence.glob("island-runtime-*.log"))
+            if args.viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
+                raise RuntimeError("hut fibre texture is missing; check packaged assets")
             if args.viewpoint in ("snakes", "snake-head"):
                 validate_snake_motion_stages(log)
                 for stage in range(4):
