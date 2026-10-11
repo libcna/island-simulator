@@ -711,6 +711,12 @@ progress or require player interaction; dangerous species keep their distance li
   samples; head has visibly mismatched large scales versus the body and appears static
   in its close-observer sequence. Investigate retreat behavior and head-camera tracking
   (currently centroid-based). Do not count saved screenshots as proof of natural motion.
+  Confirmed CPU defect: fixed observer at initial head+(0.35,0.25,0.30),900×1/60s,
+  head displacement0m despite valid body. Opt-in `build/island_snake_tests
+  --close-observer-regression` currently FAILS (exit1); normal passing suite does not
+  cover this open case. Circle/path-intersection replacement was rejected for station
+  teleport/trail-cap violations and removed. Repair coupled neck/turn/path constraints
+  without relaxing clearance, movement bounds or512-sample cap; see ground-snakes doc.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

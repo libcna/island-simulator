@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — close-frontal snake retreat deadlock reproduced, NOT fixed
+
+New opt-in CPUreproducer `build/island_snake_tests --close-observer-regression` uses
+actualterrain/vegetation/jungle/propobstacles, firsthead+(0.35,0.25,0.30) fixedobserver,
+900×1/60s. Wholebodyvalid, displacement0m, exit1KNOWNOPENDEFECT (normalreturn,noabort).
+Default snakeCTestPASS9.48s DOESNOTcover thisknownfailure. Logs snake-close-retreat-
+reproducer.log/restored-tests.log; initialfailingtest log snake-close-retreat-tests.log.
+Mechanismfromsource: nonapproachheadconstraint + arc-lengthresample/chord55mm±3%
+rejectsharpretreatturn; headingrotation doesn'tbendneck/trail. Triedcircle/path exit
+sampler; existingtest caughtstationteleport, thenwithmovementguard trail512overflow.
+FullyREVERTED experimentalSnakePopulation.cpp edits viaapply_patch (diffempty), rebuilt
+CPUtest againstrestoredsim. No game/renderer/portablebuild usedexperiment; noGPU run.
+Only testreproducer/docs changed. Alljobs terminal, goalactive, no push/dependency/KVM.
+NEXT: boundedcontinuousneck/turn/pathrepair; retainnonapproach/obstacle/selfclearance,
+spacing/motion/512trailconstraints. DoNOTrelaxoldtests orclaimnormalgreen meansfix.
+Prior WebGLheadstationaryfinding isconfirmed simulationdefect. HeadUV andQAcamera
+tracking stillopen, AMDtimeoutunresolved. This is not a goalblock; moreworkpossible.
+
 ## Latest — actual WebGL snake body/head audit, new defects retained
 
 New tools/run_browser_software.py --scope snakes routes ordinaryinteractive snakes +

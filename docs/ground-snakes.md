@@ -305,3 +305,36 @@ Final supervisor result PASS: both views completed60 intervals with glError0, no
 context loss and four intermediate images each; kernel-final[]. This is execution
 qualification on Chrome/SwiftShader only, NOT final visual or motion acceptance. No
 generic native luminance threshold was changed or used to claim these close views pass.
+
+## Confirmed close-frontal retreat deadlock — OPEN
+
+CPU reproduction now matches the initial head-camera observer offset: first snake in
+the real vegetation/jungle/prop obstacle layout, observer fixed at head+(0.35,0.25,0.30),
+900 updates of1/60s. The whole body remains valid but head displacement is **0m** after
+15s. This confirms a simulation failure rather than merely a misleading screenshot.
+
+Run the explicitly opt-in, currently FAILING reproducer:
+
+```sh
+build/island_snake_tests --close-observer-regression
+```
+
+It returns1 with `KNOWN OPEN DEFECT` (without generating an abort/core). The regular
+CTest snake suite still passes9.48s; that pass does NOT include this unresolved regression.
+Evidence: build/snake-close-retreat-reproducer.log and
+build/snake-close-retreat-restored-tests.log. The first failing test, before it became
+an explicit reproducer, is retained in build/snake-close-retreat-tests.log.
+
+Source-level mechanism to address: retreat rejects every head substep that approaches
+the observer, while the retained-path sampler uses arc length and ValidBody requires
+55mm chords within3%. A sharp initial turn shortens the chord and rejects the candidate;
+turning the heading alone does not reshape the neck or its accepted trail. A replacement
+circle/path-intersection sampler was tested but REJECTED: it first violated the existing
+body-station motion limit, then exceeded the512-sample trail cap after adding a movement
+guard. Those experimental simulation edits were fully removed; no renderer/application
+build used them. Existing safety tests were not relaxed and the trail cap was not raised.
+
+Next repair must solve close-threat turning with bounded, continuous body/neck motion
+and history while retaining terrain, obstacle, self-clearance and non-approach checks.
+Do not close this defect using only the older side-observer retreat tests, or replace
+serpentine motion with rigid backwards translation just to satisfy displacement.

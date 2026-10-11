@@ -10,10 +10,11 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <string_view>
 #include <vector>
 
 static void Check(bool pass, const char* message) { if (!pass) throw std::runtime_error(message); }
-int main()
+int main(int argc,char** argv)
 {
     for(const auto& section:island::SnakeHeadSections) {
         Check(section.forward>=0 && section.width>0 && section.height>0,
@@ -174,6 +175,24 @@ int main()
         Check(std::hypot(a.x-b.x,a.z-b.z)<0.025f,"trail sampling depends excessively on update step");
     }
     const auto before=population.Snakes().front();
+    // Opt-in reproducer for the OPEN close-frontal-observer defect, not a passing gate.
+    // Keep the existing safety suite runnable while the coupled turn solver is redesigned.
+    if(argc==2 && std::string_view(argv[1])=="--close-observer-regression") {
+        island::SnakePopulation closeObserver(terrain,obstacles);
+        const auto start=closeObserver.Snakes().front().body.front();
+        const float observerX=start.x+0.35f,observerZ=start.z+0.30f;
+        for(int frame=0;frame<900;++frame) {
+            closeObserver.Update(1.0f/60.0f,observerX,start.y+0.25f,observerZ);
+            Check(closeObserver.ValidBody(closeObserver.Snakes().front()),"close retreat invalid body");
+        }
+        const auto end=closeObserver.Snakes().front().body.front();
+        const float travel=std::hypot(end.x-start.x,end.z-start.z);
+        std::cout << "close observer retreat displacement " << travel << '\n' << std::flush;
+        if(travel<=0.1f) {
+            std::cerr << "KNOWN OPEN DEFECT: snake cannot retreat from close frontal observer\n";
+            return 1;
+        }
+    }
     {
         auto s=before;
         for(std::size_t j=0;j<s.body.size();++j) s.body[j]={static_cast<float>(j)*population.Spacing,2,0};
