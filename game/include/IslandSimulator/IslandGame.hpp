@@ -334,6 +334,11 @@ namespace island
         bool touchOverlayVisible_ = false;
         float inputDiagnosticsTimer_ = 0.0f;
         std::uint32_t drawnFrames_ = 0;
+        std::uint32_t snakeCaptureUpdates_ = 0;
+        [[nodiscard]] bool UsesSnakeCaptureClock() const noexcept {
+            return !capturePath_.empty() && (viewpoint_ == FixedViewpoint::SnakeDetail
+                || viewpoint_ == FixedViewpoint::SnakeHeadDetail);
+        }
         std::string benchmarkPath_;
         std::string startupReportPath_;
         std::chrono::steady_clock::time_point constructionFinished_;

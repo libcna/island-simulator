@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — deterministic snake capture timing verified by exact repeated pixels
+
+UsesSnakeCaptureClock scopes ONLY capturePath+SnakeDetail/SnakeHeadDetail. Framework
+fixed-stepcatch-up disabled there; Update uses0.1s/countedupdates and Draw wind/water
+time/monkeyabsolute time samecounter. Gameplay/manual viewpoints/othercaptures unchanged.
+Stage logs nowrequire updates8/16/24/32 andtime0.8/1.6/2.4/3.2. Supervisor rejects
+missing/extra/malformed records/wrongtime/nonfinite/extra updates;37testsPASS.
+Actual containedllvmpipe runs build/software-captures/20261011T201403.216063Z-snakes
+and20261011T201453.821080Z-snakes: all4 bodytraces EXACT andall4 stagePPMs BYTEIDENTICAL
+(hashes docs/ground-snakes.md). Firstmotion-grid.png actuallyinspected; snakevisibleall4,
+headbend propagatesinto initiallystraightbody, flattenedgrass visible. Bothgeneric
+luminance ANDlargecontrastgatesFAIL unchanged; bothgraphics/timedmotionPASS/kernel[].
+Native/Web builds andWebpackage11,162,865raw/4,197,939gzip PASS, ARM64assemble/lint4sPASS,
+assets25/81/10/0PASS. Noportableactualruntime. Allownedjobs terminal. Stoplatchunchanged.
+NEXT: use these reproducibleposes for contact/normal/relaxation improvements; no longer
+compare real-time oldframes asmatchedimages. Crossdriveridentity notclaimed. Full3D
+curvedtriangleclearance, continuousmotion, portableviews, treesnakes andotherbacklogopen.
+AMDtimeout stillunresolved, nohardware/AndroidKVM/dependencywrite/push. Goalactive.
+
 ## Latest — swept blade-root contact, visual audit timing gap identified
 
 SnakeGrassContact::SweptPressure now tests root-to-vertex segment vs snake segments:

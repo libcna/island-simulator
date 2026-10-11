@@ -700,6 +700,12 @@ progress or require player interaction; dangerous species keep their distance li
   captures. Add deterministic capture timing before matched-image comparisons.
   Full3D curved-triangle contact, normals/relaxation, portable runtime and GPU timing
   remain open; no final appearance or crash-fix claim.
+  Deterministic capture-only clock now implemented:0.1s/update, no framework catch-up,
+  shared simulation/render time; gameplay/manual viewpoints unchanged. Actual native
+  llvmpipe201403.216063Z and201453.821080Z have identical four body traces AND
+  byte-identical four PPMs. Grid inspected, snake visible throughout. Timed-stage
+  validation/37 CPU tests pass; both generic contrast gates still FAIL, kernel empty.
+  Reproducibility is proven only for this configuration, not final visual acceptance.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

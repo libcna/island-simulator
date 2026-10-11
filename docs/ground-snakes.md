@@ -239,3 +239,38 @@ remain open. Increased segment arithmetic has not been GPU-timed. The AMD timeou
 remains unassigned/unresolved; this change is visual contact work, not its claimed fix.
 Final native/Web builds and package PASS (11,163,384 bytes raw /4,198,207 gzip),
 ARM64 assembleDebug/lintDebug PASS in4s. Portable shader execution remains unverified.
+
+## Reproducible native snake capture clock
+
+SnakeDetail/SnakeHeadDetail **with a capture path only** now disable framework wall-time
+catch-up and advance all simulated actors by0.1s per rendered frame. Render-time wind/
+water animation and monkey absolute time use the same counted clock. Normal gameplay,
+manual fixed viewpoints without capture and other capture viewpoints retain their
+previous timing. Stages8/16/24/32 explicitly report update counts and times0.8/1.6/2.4/
+3.2s. The supervisor rejects missing/extra/malformed stages, unexpected update counts,
+nonfinite/wrong times as well as the existing disconnected/frozen/invalid body traces.
+The37-test CPU supervisor suite passes, including these new negative fixtures.
+
+Two actual contained llvmpipe runs:
+`20261011T201403.216063Z-snakes` and `20261011T201453.821080Z-snakes`.
+All four41-station body traces match exactly. All four corresponding PPM files are
+byte-identical, with SHA256 hashes in stage order:
+
+```
+f4b3d9d5cc59ba968059dfc1f5db3edd904887a2ac5dd94fc2d3f257a4f404b6
+9209692d2f2003debd0bcb691b2120df21d6200bd1f3029fee94114691388b75
+6d77866ed03306218fe7d26b95e35b028405b249b448a82a249c56a01d3202a3
+65f21348d625c41a3dc9ac2b4aa07c95f811752b3d2527e4fffc1dc2d5f1d7f5
+```
+
+First run's motion-grid.png actually inspected: the snake is visible in all four frames,
+with bends progressing from the head through the initially straight body. Flattened
+grass is visible along its path. This does not demonstrate natural temporal recovery,
+prove all triangle contacts, or replace continuous-motion/portable audits. Both runs
+still FAIL generic luminance variation and large-scale contrast gates; thresholds
+unchanged. Both graphics/timed-motion replays pass and kernel deltas are empty.
+This establishes repeatability on this software configuration, not cross-driver pixel
+identity, appearance acceptance or an AMD-crash fix.
+Native/Web builds and package pass (11,162,865 bytes raw /4,197,939 gzip), ARM64
+assembleDebug/lintDebug pass in4s; asset gate25/81/10/0 passes. No portable runtime
+was launched and the hardware qualification stop latch is unchanged.

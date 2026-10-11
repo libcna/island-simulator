@@ -26,13 +26,16 @@ from gpu_incident_qualification import (
 
 def validate_snake_motion_stages(text):
     """Require live, finite, connected body samples; not a visual gait-quality oracle."""
-    rows = re.findall(r"^island-simulator: snake motion stage=(\d+) visible=(\d+) "
+    rows = re.findall(r"^island-simulator: snake motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
                       r"speed=(\S+) phase=(\S+) body=(.*)$", text, re.M)
-    if len(rows) != 4 or [int(row[0]) for row in rows] != list(range(4)):
+    if len(rows) != 4 or text.count("snake motion stage=") != 4 or [int(row[0]) for row in rows] != list(range(4)):
         raise RuntimeError("snake motion requires four ordered stages")
     bodies = []
-    for _, visible, speed, phase, encoded in rows:
+    for stage, updates, elapsed, visible, speed, phase, encoded in rows:
         try:
+            expected_updates=(int(stage)+1)*8
+            if int(updates)!=expected_updates or not math.isclose(float(elapsed),expected_updates*0.1,abs_tol=0.00001):
+                raise RuntimeError("snake capture simulation clock is not frame-deterministic")
             body = [tuple(map(float, point.split(','))) for point in encoded.rstrip(';').split(';')]
             valid = (1 <= int(visible) <= 4 and math.isfinite(float(speed))
                      and 0 <= float(speed) <= 1.151 and math.isfinite(float(phase))

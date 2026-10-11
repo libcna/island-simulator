@@ -54,12 +54,15 @@ class SoftwareCaptureTests(unittest.TestCase):
     def test_snake_motion_requires_connected_live_sequence(self):
         def fixture(moving=True):
             return '\n'.join(
-                f"island-simulator: snake motion stage={stage} visible=1 speed=0.38 phase=1 body="
+                f"island-simulator: snake motion stage={stage} updates={(stage+1)*8} time={(stage+1)*.8} visible=1 speed=0.38 phase=1 body="
                 + ''.join(f"{(stage*.1 if moving else 0)-j*.055:.6f},2,0;" for j in range(41))
                 for stage in range(4))
         good = fixture()
         self.assertEqual(len(validate_snake_motion_stages(good)), 4)
         for invalid in (fixture(False), good.replace('stage=2', 'stage=1'),
+                        good.replace('updates=16', 'updates=17'), good.replace('time=0.8', 'time=nan'),
+                        good.replace('time=0.8', 'time=0.9'),
+                        good+'\nisland-simulator: snake motion stage=broken',
                         good.replace('visible=1', 'visible=0'),
                         good.replace('speed=0.38', 'speed=nan'),
                         good.replace('0.000000,2,0;', 'nan,2,0;'),

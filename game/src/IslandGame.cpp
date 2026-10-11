@@ -826,7 +826,8 @@ namespace island
 #endif
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
-        setIsFixedTimeStepProperty(benchmarkPath_.empty());
+        // Capture-only clock: no wall-time catch-up updates between recorded frames.
+        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock());
         InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
@@ -1182,7 +1183,9 @@ namespace island
 
     void IslandGame::Update(GameTime& gameTime)
     {
-        const float deltaSeconds = canopyLodInspection_ ? 0.0f : std::min(
+        const bool snakeCaptureClock=UsesSnakeCaptureClock();
+        if(snakeCaptureClock) ++snakeCaptureUpdates_;
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : snakeCaptureClock ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -1275,7 +1278,8 @@ namespace island
         const MonkeyState previousMonkeySubject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
         if (viewpoint_ != FixedViewpoint::MonkeyTreeDetail && viewpoint_ != FixedViewpoint::MonkeyClimbDetail)
             monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z,
-                static_cast<float>(gameTime.getTotalGameTimeProperty().getTotalSecondsProperty()));
+                snakeCaptureClock ? static_cast<float>(snakeCaptureUpdates_)*0.1f
+                    : static_cast<float>(gameTime.getTotalGameTimeProperty().getTotalSecondsProperty()));
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
             // Keep the animated subject in the close QA view even when software rendering
             // requires many simulation updates between captured frames. Preserve the original
@@ -2283,7 +2287,8 @@ namespace island
                                          renderedMonkeys, boarHerd_.Boars(),*snakes_);
         }
 
-        const float timeSeconds = canopyLodInspection_ ? 1.0f : static_cast<float>(gameTime.getTotalGameTimeProperty()
+        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
+            ? static_cast<float>(snakeCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         {
             GpuDiagnosticScope gpuPass("natural-props");
@@ -2859,13 +2864,13 @@ namespace island
             }
         }
         ++drawnFrames_;
-        const bool snakeCapture = !capturePath_.empty()
-            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail);
+        const bool snakeCapture = UsesSnakeCaptureClock();
         if (snakeCapture && drawnFrames_%8U == 0 && drawnFrames_ <= 32U) {
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".snake-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
             const auto& snake = snakes_->Snakes().front();
             std::cout << "island-simulator: snake motion stage=" << drawnFrames_/8U-1U
+                << " updates=" << snakeCaptureUpdates_ << " time=" << timeSeconds
                 << " visible=" << snakeRenderer_->VisibleCount() << " speed=" << snake.speed
                 << " phase=" << snake.phase << " body=";
             for (const auto& p : snake.body) std::cout << p.x << ',' << p.y << ',' << p.z << ';';
