@@ -31,6 +31,17 @@ int main(int argc, char** argv)
 try
 {
     using namespace island;
+    // Recorded native contact exposed elbows above the shoulder with the old ground pole.
+    for (float side : {-1.0f,1.0f})
+        for (int frame = 0; frame <= 100; ++frame) {
+            const float weight = frame/100.0f;
+            const MonkeyGroundGait::Point root{side*.18f,.567373f,.28f};
+            const MonkeyGroundGait::Point target{side*.18f,.035f+(.604692f-.035f)*weight,
+                                                  .28f+(.786577f-.28f)*weight};
+            bool limited = false;
+            const auto limb = MonkeyGroundGait::SolveLimb(root,target,MonkeyTreeReach::BendHint(weight),true,limited);
+            Require(!limited && limb.joint.y < root.y,"forehand reach bends elbows down without losing contact");
+        }
     for (int frame = 0; frame <= 600; ++frame) {
         const float elapsed = frame*.01f;
         const auto weights = MonkeyTreeReach::Weights(elapsed,6-elapsed);

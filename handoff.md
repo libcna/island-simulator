@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — reaching elbow pole fixed after actual-pose diagnosis
+
+`MonkeyTreeReach::BendHint(weight)` continuously changes the ground rearward bend direction
+to downward during a forehand transfer. Retaining the ground pole had pitched elbows above
+the shoulders when palms moved forward. Added a bounded first-contact root/joint/palm
+diagnostic to MonkeyRenderer; no shader/bone-budget changes or dependency edits.
+Native pre-fix `20261011T134622.185496Z-monkey-tree` records left root Y .567373,
+elbow Y .779067, palm Y .604692. Final `20261011T135100.198476Z-monkey-tree` has elbow
+Y .391113 with identical root/palm coordinates; image compared, backwards angular forearm
+protrusion gone and hands retain bark contacts. Both kernel deltas empty; latch unchanged.
+Shoulder blend remains bulky; wood-like fur and flat face still defective.
+
+Native build and all 37 non-display groups pass (60.58 s). New 202-pose transfer regression
+requires reachable, downward-bending elbows through the blend. All jobs finished. No
+Android/Web runtime qualification, no full moving-sequence audit claimed: these are held
+before/after poses. Next: capture the actual sequential hand transfers (same naturally
+reached subject/tree, including approach/return), then raise/rotate the body with mixed
+ground/bark supports and implement ascent/rest/descent/dismount. Full goal remains active.
+
 ## Latest — live forehand-to-bark transfer, native held contact inspected
 
 `MonkeyTreeReach.hpp` provides closer stand-off, sequential forehand transfer weights and

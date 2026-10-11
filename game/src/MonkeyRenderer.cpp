@@ -1109,7 +1109,7 @@ namespace island
                             monkey.headingRadians,monkey.scale,pose.limbs[limb].root.y,limb == 0,windTime,farTree);
                         bool limited = false;
                         if (targets[limb]) (void)MonkeyGroundGait::SolveLimb(pose.limbs[limb].root,
-                            targets[limb]->position,{0,0,-1},true,limited);
+                            targets[limb]->position,MonkeyTreeReach::BendHint(1),true,limited);
                         reachable = reachable && targets[limb].has_value() && !limited;
                     }
                     if (reachable) {
@@ -1118,11 +1118,25 @@ namespace island
                                 ToVector(targets[limb]->position),weights[limb]);
                             bool limited = false;
                             pose.limbs[limb] = MonkeyGroundGait::SolveLimb(pose.limbs[limb].root,
-                                {target.X,target.Y,target.Z},{0,0,-1},weights[limb] == 0 || weights[limb] == 1,limited);
+                                {target.X,target.Y,target.Z},MonkeyTreeReach::BendHint(weights[limb]),
+                                weights[limb] == 0 || weights[limb] == 1,limited);
                             groundNormals[limb] = Vector3::Normalize(Vector3::Lerp(groundNormals[limb],
                                 ToVector(targets[limb]->normal),weights[limb]));
                         }
                         treeGripApplied = weights[0] > .999f && weights[1] > .999f;
+                        if (treeGripApplied && index == qaSubjectIndex && !reportedTreePose_) {
+                            std::ostringstream report;
+                            report << "island-simulator: monkey bark pose subject=" << index;
+                            for (std::size_t limb = 0; limb < 2; ++limb) {
+                                const auto& arm = pose.limbs[limb];
+                                report << " arm=" << limb << " root=" << arm.root.x << ',' << arm.root.y << ',' << arm.root.z
+                                    << " joint=" << arm.joint.x << ',' << arm.joint.y << ',' << arm.joint.z
+                                    << " palm=" << arm.sole.x << ',' << arm.sole.y << ',' << arm.sole.z;
+                            }
+                            std::cout << report.str() << '\n';
+                            MirrorRuntimeDiagnosticToPlatformLog(report.str().c_str());
+                            reportedTreePose_ = true;
+                        }
                     }
                 }
                 if (pose.reachLimited && !reportedReachLimit_) {

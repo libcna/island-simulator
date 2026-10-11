@@ -157,3 +157,26 @@ Native build and all 37 non-display groups pass (57.42 s;
 missing/zero/wrong-subject grip-marker rejection. Asset validation: 24 procedural records,
 69 generator sources, 8 project files, zero external files. Stop latch unchanged. Current
 Android/Web runtime qualification and a complete visual climbing cycle remain open.
+
+## Reaching elbow pole correction
+
+The held-contact audit exposed a bad bend direction, not just a coarse mesh silhouette.
+A bounded first-contact diagnostic records model-space roots/joints/palms. In
+`20261011T134622.185496Z-monkey-tree`, left shoulder Y was 0.567373, elbow Y 0.779067,
+and palm Y 0.604692: retaining the ground gait's rearward bend hint as the palm moved
+forward pitched the elbow upward. That capture passes but retains the visual defect;
+kernel delta is empty. Framework sources were inspected read-only, not modified.
+
+`MonkeyTreeReach::BendHint` now interpolates from the ground's rearward pole to a downward
+reaching pole using the hand-transfer weight. The same palm target and fixed-length solver
+remain. A 202-pose regression covers both arms throughout the transfer, requiring reachable
+contacts and elbows below the shoulders. Native build and all 37 non-display groups pass
+(60.58 seconds; `build/monkey-elbow-pole-tests.log`).
+
+Final `20261011T135100.198476Z-monkey-tree` passes and was visually compared: the backward
+angular protrusion is gone, the forearms meet the same bark contacts, and elbows now bend
+below the shoulder-to-palm line. Recorded left elbow Y is 0.391113 with unchanged root and
+palm coordinates. Empty kernel delta, unchanged stop latch. Shoulder integration remains
+bulky and the wood-like fur/flat face defects remain. These are held-pose before/after
+images, not a complete moving contact-transfer sequence or portable qualification. Body
+attachment, ascent/descent and the larger island/wildlife plan remain unfinished.

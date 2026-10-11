@@ -365,6 +365,12 @@ Standing visual-quality rules (apply to every task from now on):
   both forepalms on trunk, empty kernel delta. First first-member-only warm-up failure kept.
   Full suite passes 37/37 (57.42 s). This is NOT ascent: body attachment/raising, movement
   sequence, descent and Android/Web checks remain open, as do fur/shoulder/face realism.
+  Held-contact audit traced the forearm protrusion to a ground-only elbow bend hint:
+  it raised reaching elbows above the shoulders. Continuous downward reaching pole now
+  retains the same palms/bone lengths; 202 transfer-pose fixtures and 37/37 CPU groups pass.
+  Native `20261011T135100.198476Z-monkey-tree` compared with retained pre-fix diagnostic
+  image; protrusion removed, empty kernel delta. Shoulder integration, moving sequence,
+  full attachment/climbing and portable rechecks remain open.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

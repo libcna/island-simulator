@@ -77,6 +77,7 @@ namespace island
         RenderedTerrainSurface renderedTerrain_;
         bool reportedReachLimit_ = false;
         bool subjectHasTreeGrips_ = false;
+        bool reportedTreePose_ = false;
         float minimumCanopyTransmission_ = 1.0f;
         float maximumCanopyTransmission_ = 1.0f;
         bool reportedCanopyShade_ = false;

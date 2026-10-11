@@ -6,6 +6,13 @@ namespace island::MonkeyTreeReach
 {
     using Point = MonkeyGroundGait::Point;
     struct Contact { Point position, normal; }; // Monkey model coordinates.
+    inline Point BendHint(float reachWeight) noexcept
+    {
+        const float t = std::clamp(reachWeight,0.0f,1.0f);
+        // Ground elbows bend rearward; reaching elbows hang below the shoulder/palm line.
+        // Retaining the rearward pole when the palm moves forward pitches elbows upward.
+        return {0,-t,-(1-t)};
+    }
     inline float StandOff(float treeScale,float monkeyScale) noexcept
     {
         return std::max((CanopyTrunkBaseRadius+CanopyRootFlare)*treeScale+.42f,
