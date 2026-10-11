@@ -3345,6 +3345,15 @@ int main()
           "rocky headland is not classified as sandy habitat");
     Check(rockyStation.beachSuitability < 0.1f && bayStation.beachSuitability > 0.9f,
           "sheltered bay and exposed rock have distinct beach suitability");
+    const float bayWidth = island::IslandEnvironmentField::BeachWidth(std::numbers::pi_v<float>);
+    const float easternWidth = island::IslandEnvironmentField::BeachWidth(0.35f);
+    Check(bayWidth > 34.0f && bayWidth < 37.0f && easternWidth < 8.0f,
+          "dominant bay beach is substantially wider than the exposed rocky margin");
+    const auto backBayBeach = coastalStation(std::numbers::pi_v<float>, 25.0f);
+    Check(backBayBeach.beachSuitability > 0.45f && backBayBeach.height < 2.0f,
+          "wide bay beach has both sandy material potential and low physical relief");
+    CheckNear(island::IslandEnvironmentField::BeachWidth(-std::numbers::pi_v<float>), bayWidth,
+              0.0001f, "bay beach width stays continuous across the polar seam");
     for (const auto& palm : vegetation.Palms())
         Check(terrain.Sample(palm.x, palm.z).coastalRockiness <= 0.45f,
               "adult and juvenile palms avoid exposed coastal rock");
@@ -3362,6 +3371,9 @@ int main()
           "non-finite environment query has safe empty controls");
     for (int angularIndex = 0; angularIndex < 180; ++angularIndex) {
         const float angle = angularIndex * std::numbers::pi_v<float> / 90.0f;
+        const float width = island::IslandEnvironmentField::BeachWidth(angle);
+        Check(std::isfinite(width) && width >= 6.0f && width <= 36.0f,
+              "authored beach width stays finite and within coastal scale");
         for (float inland : {-20.0f, 0.0f, 12.0f, 40.0f, 80.0f}) {
             const auto station = coastalStation(angle, inland);
             Check(std::isfinite(station.coastalRockiness) && station.coastalRockiness >= 0.0f
@@ -3688,9 +3700,9 @@ int main()
     Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
         && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 580
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 576
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2182,
+            - jungle.ForestGroundPlantCount() == 2174,
         "clearing colonies preserve the existing island-wide populations");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24

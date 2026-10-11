@@ -769,8 +769,8 @@ try {
       "island-simulator: selected palm near crowns include sparse hanging dry fronds")
     && result.output?.includes(
       "island-simulator: palm per-instance frond tint reuses existing transforms")
-    && result.output?.includes("island-simulator: jungle 266 canopy trees, 1777 understory plants, 592 low bushes, hardware instancing")
-    && result.output?.includes("island-simulator: jungle ground layer 2993 small plants")
+    && result.output?.includes("island-simulator: jungle 262 canopy trees, 1768 understory plants, 588 low bushes, hardware instancing")
+    && result.output?.includes("island-simulator: jungle ground layer 2975 small plants")
     && result.output?.includes(
       "island-simulator: jungle fixed-sun two-sided geometric facet lighting")
     && result.output?.includes(
@@ -827,7 +827,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && result.output?.includes("island-simulator: natural props 164 rocks, 14 reef outcrops, 10 fallen logs, 22 driftwood pieces, 94 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 165 rocks, 14 reef outcrops, 10 fallen logs, 21 driftwood pieces, 92 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && result.output?.includes(
@@ -1099,7 +1099,7 @@ try {
     && visualResult.output?.includes("island-simulator: palms 328 in 64 cells, hardware instancing")
     && visualResult.output?.includes("palm portable wind shader with near/far mesh LOD")
     && visualResult.output?.includes(
-      "island-simulator: jungle 266 canopy trees, 1777 understory plants, 592 low bushes, hardware instancing")
+      "island-simulator: jungle 262 canopy trees, 1768 understory plants, 588 low bushes, hardware instancing")
     && visualResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
     && visualResult.output?.includes("natural-prop portable shader with near/far LOD")
     && visualResult.output?.includes(
@@ -1224,7 +1224,7 @@ try {
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && grassResult.output?.includes(
       "island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres")
-    && /grass [1-9][0-9]*\/17251 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
+    && /grass [1-9][0-9]*\/17227 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
       grassResult.output ?? "")
     && !grassResult.error;
 
@@ -1257,7 +1257,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && groundResult.output?.includes(
       "island-simulator: ground QA target variant 2 at player-eye detail distance")
-    && /[1-9][0-9]*\/2993 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/2975 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       groundResult.output ?? "")
     && groundResult.output?.includes("island-simulator: debug overlay active")
     && !groundResult.error;
@@ -1289,7 +1289,7 @@ try {
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
     && litterResult.output?.includes(
       "island-simulator: ground-litter QA target variant 0 at player-eye detail distance")
-    && /[1-9][0-9]*\/2993 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /[1-9][0-9]*\/2975 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       litterResult.output ?? "")
     && litterResult.output?.includes("island-simulator: debug overlay active")
     && !litterResult.error;
@@ -1393,7 +1393,7 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && jungleResult.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && /jungle [1-9][0-9]*\/266 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1777 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/592 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2993 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
+    && /jungle [1-9][0-9]*\/262 canopy \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/1768 understory \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/588 bushes \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/2975 ground plants \(near [1-9][0-9]*, far [0-9]+\)/.test(
       jungleResult.output ?? "")
     && !jungleResult.error;
 
@@ -1496,7 +1496,7 @@ try {
     && propResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/164 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/10 logs/.test(
+    && /props [0-9]+\/165 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/10 logs/.test(
       propResult.output ?? "")
     && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
@@ -1537,7 +1537,7 @@ try {
       "island-simulator: all near driftwood variants use tapered three-dimensional branches")
     && driftwoodResult.output?.includes(
       "island-simulator: driftwood end caps match irregular body rings")
-    && /props [0-9]+\/164 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/10 logs, [1-9][0-9]*\/22 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/184 shell\/pebble\/wrack clusters/.test(
+    && /props [0-9]+\/165 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/10 logs, [1-9][0-9]*\/21 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/184 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
@@ -1831,7 +1831,7 @@ try {
       "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes")
     && frondResult.output?.includes(
       "island-simulator: fallen frond leaflets use geometric central folds")
-    && /[1-9][0-9]*\/94 fallen fronds/.test(frondResult.output ?? "")
+    && /[1-9][0-9]*\/92 fallen fronds/.test(frondResult.output ?? "")
     && !frondResult.error;
 
   await call("Page.navigate", {

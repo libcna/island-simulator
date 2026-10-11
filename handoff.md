@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Update — dominant bay beach native stage complete
+
+`docs/dominant-bay-beach.md`: shared approximately 36 m sheltered bay / 6.5 m eastern
+headland width now controls physical profile and sand material. Final 33/33 non-display
+tests pass (53.06 s). Native bay `20261011T084410.221147Z-bay`, headland
+`20261011T084654.624120Z-headland`, beach `20261011T084740.315381Z-beach` pass and
+were inspected, all empty kernel deltas. Existing beach camera looks inland through
+vegetation, so it is not a close sand review. Fingerprint `08ced4994845ae68`; measured
+inventory pins updated in core and browser tests. Hardware latch unchanged.
+NEXT: Android x86_64 build/lint, bay visual and touch/traversal validation, restore ARM64;
+then Web build/package and contained terrain suite. Earlier rocky-coast runs do not
+qualify this newer code. A dedicated ground-level bay view is useful follow-up work.
+Android lifecycle remains degraded; do not close the known issue from focused visual runs.
+No Android/KVM system configuration changes are needed or requested. No push.
+
 ## Update — rocky coast Web qualification complete
 
 Web build/package refreshed: 10,343,035 raw / 3,528,104 gzip bytes. Contained Chrome
@@ -8,13 +23,12 @@ bay, headland, beach, east, jungle, 60 intervals each and GL error zero. Bay/hea
 jungle images inspected. No new GPU faults; kernel delta contains USB/storage, PCIe and
 perf notices. Full Web input/lifecycle and Firefox not rerun. This qualifies `2a660b7`.
 
-Subsequent source preparation (not built or qualified yet): uncommitted changes in
+Historical source preparation (now completed in the native stage above): changes in
 `IslandEnvironmentField.hpp`, `IslandTerrain.cpp`, `TerrainRenderer.cpp` and `CoreTests.cpp`
 add variable beach width, approximately 36 m in the sheltered bay and 6.5 m at the eastern
 headland, shared by geometry and sand material. The completed browser suite used the immutable
 rocky-coast build from commit `2a660b7`; it does NOT qualify this newer source preparation.
-Now build the next stage and run CPU tests/world report,
-review native bay/beach/headland images, update inventory pins and requalify affected platforms.
+Native build/tests/review are now complete; affected Android/Web platforms still need requalification.
 
 ## Update 2026-10-11 — integrated rocky coast (native and focused Android qualified)
 

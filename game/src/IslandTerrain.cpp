@@ -145,8 +145,9 @@ namespace island
                             shelf + seabedDetail * SmoothStep(offshore / 14.0f));
         }
 
-        const float beach = std::min(inland, 18.0f) * 0.095f;
-        const float interiorBlend = SmoothStep((inland - 11.0f) / 75.0f);
+        const float beachWidth = IslandEnvironmentField::BeachWidth(std::atan2(z, x));
+        const float beach = std::min(inland / beachWidth, 1.0f) * 1.71f;
+        const float interiorBlend = SmoothStep((inland - beachWidth * (11.0f / 18.0f)) / 75.0f);
         // Two offset, tilted ridges give the island an asymmetric skyline and a saddle.
         // Their broad shoulders leave room for a walkable route between the summits.
         const float mainAlong = z - 48.0f;

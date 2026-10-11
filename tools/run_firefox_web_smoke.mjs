@@ -552,10 +552,10 @@ try {
   const fatalDiagnostic = /fatal error|shader.*(?:failed|error)/i.test(productionOutput);
   if (fatalDiagnostic) throw new Error("Firefox emitted a fatal or shader diagnostic");
   const junglePopulationPattern = new RegExp(
-    "jungle [1-9][0-9]*/266 canopy \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/1777 understory \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/592 bushes \\(near [1-9][0-9]*, far [0-9]+\\), "
-      + "[1-9][0-9]*/2993 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
+    "jungle [1-9][0-9]*/262 canopy \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/1768 understory \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/588 bushes \\(near [1-9][0-9]*, far [0-9]+\\), "
+      + "[1-9][0-9]*/2975 ground plants \\(near [1-9][0-9]*, far [0-9]+\\)");
   const waterStatePattern = new RegExp(
     "water view 0[.][1-9][0-9]*, 1 draw, player ripple 0[.][1-9][0-9]*, "
       + "phase [01](?:[.][0-9]+)?, splash 0[.][1-9][0-9]*, phase 0[.][0-9]+");

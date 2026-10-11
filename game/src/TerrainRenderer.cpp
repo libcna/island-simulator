@@ -237,9 +237,8 @@ void main()
     float signedShoreDistance = vTerrainData.x;
     float slopeRadians = vTerrainData.y;
     vec2 coastField = coastalGroundField(p);
-    float sand = (1.0 - smoothstep(7.0, 19.0, signedShoreDistance))
-        * smoothstep(-6.0, -0.2, vWorld.y) * mix(0.08, 1.0, coastField.y);
-    float interior = smoothstep(8.0, 25.0, signedShoreDistance);
+    float sand = coastField.y * smoothstep(-6.0, -0.2, vWorld.y);
+    float interior = smoothstep(8.0, 25.0, signedShoreDistance) * (1.0 - sand);
     float steep = smoothstep(0.30, 0.70, slopeRadians) * interior;
     float eastClearingMask = 0.0;
     float westClearingMask = 0.0;
@@ -356,7 +355,7 @@ void main()
     // humus and moss fields. These broad material fields also remain beyond 285 m;
     // close clods and individual fallen leaves retain their separate detail fades.
     float forestFloorMask = smoothstep(24.0, 54.0, signedShoreDistance)
-        * (1.0 - steep)
+        * (1.0 - steep) * (1.0 - sand)
         * (1.0 - max(eastClearingMask, westClearingMask) * 0.72);
     float forestMaterialField = broad * 0.70 + medium * 0.45 + fine * 0.035;
     // Shared with grass placement: sunlit, patch-rich ground carries a living turf layer,

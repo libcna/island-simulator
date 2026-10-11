@@ -32,17 +32,28 @@ namespace island
                 + 0.90f * lobe(2.48f, 0.20f) + 0.82f * lobe(-2.48f, 0.20f), 0.0f, 1.0f);
         }
 
+        /** @brief Broad sheltered bay apron, ordinary beach elsewhere, narrow rocky margin. */
+        [[nodiscard]] static float BeachWidth(float angle) noexcept
+        {
+            if (!std::isfinite(angle)) return 18.0f;
+            const float shelteredBay = std::exp(-(1.0f + std::cos(angle)) / (0.45f * 0.45f));
+            return (18.0f + 18.0f * shelteredBay)
+                * (1.0f - 0.65f * CoastalRockPotential(angle));
+        }
+
         /** @brief Finite normalized coastal material/placement controls; no terrain recursion. */
         [[nodiscard]] static CoastalEnvironmentSample SampleCoast(
             float x, float z, float signedShoreDistance) noexcept
         {
             if (!std::isfinite(x) || !std::isfinite(z) || !std::isfinite(signedShoreDistance))
                 return {};
-            const float regional = CoastalRockPotential(std::atan2(z, x));
+            const float angle = std::atan2(z, x);
+            const float regional = CoastalRockPotential(angle);
+            const float beachWidth = BeachWidth(angle);
             const float band = Smooth(-8.0f, -1.0f, signedShoreDistance)
                 * (1.0f - Smooth(25.0f, 65.0f, signedShoreDistance));
             return {regional * band, (1.0f - regional)
-                * (1.0f - Smooth(28.0f, 58.0f, signedShoreDistance))};
+                * (1.0f - Smooth(beachWidth * 0.40f, beachWidth * 1.05f, signedShoreDistance))};
         }
     };
 }

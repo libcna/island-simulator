@@ -64,6 +64,21 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — dominant sheltered beach (native stage)
+
+- [x] Shared variable beach width: approximately 36 m in the sheltered western bay,
+  18 m on ordinary coast, 6.5 m at the eastern headland. Physical profile and sand
+  material share the field; no added texture/mesh/draw budgets. See `docs/dominant-bay-beach.md`.
+- [x] Final 33/33 non-display groups pass (53.06 s), including width contrast, seam,
+  low bay relief, habitat, cliff/access and root-contact checks. World fingerprint
+  `08ced4994845ae68`; browser inventory pins updated from the regenerated report.
+- [x] Native bay `20261011T084410.221147Z-bay`, headland
+  `20261011T084654.624120Z-headland` and beach `20261011T084740.315381Z-beach`
+  pass and were inspected, empty kernel deltas. The existing beach camera looks
+  inland; a dedicated close bay camera remains useful. Hardware latch unchanged.
+- [ ] Android and Web qualification of this revision. Prior rocky-coast runs do not
+  qualify the new width/material changes. Android lifecycle remains degraded.
+
 #### 2026-10-11 — integrated rocky headlands and shared coastal field
 
 - [~] First coastal subset of `IslandEnvironmentField` (`docs/coastal-environment.md`):
@@ -86,7 +101,7 @@ historical evidence, not post-incident qualification.
 - [x] Web terrain suite `20261011T083120.118782Z-chrome-terrain` passes all six views,
   including `headland`, with 60 frame intervals each and GL error zero. Bay/headland/east/
   jungle images inspected; no new GPU faults. Full Web input/lifecycle and Firefox not rerun.
-- [ ] Broader environment fields, deliberately wider dominant beach, directional waves,
+- [ ] Broader environment fields, directional waves,
   rock strata/talus and full ecological placement migration remain open.
 
 #### 2026-10-11 — sheltered bay and headland silhouette
