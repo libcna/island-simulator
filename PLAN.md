@@ -747,6 +747,10 @@ progress or require player interaction; dangerous species keep their distance li
   then enters grass without returning before timeout. Screenshot unavailable,
   forced owned teardown-9, kernel[]. Localized to grass pass, not yet compiler/
   upload/draw cause; no AMD causation or fix claim. Preserve full contact behavior.
+  Follow-up214147.707723Z with finer Apply/upload/draw scopes FAILED too, but first
+  grass pass returned in412ms and later first-frame passes all returned. No frame8
+  motion/screenshot. This contradicts a deterministic first-grass stall; queued
+  work/presentation/later-frame wait remain unresolved. No shader/contact change.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

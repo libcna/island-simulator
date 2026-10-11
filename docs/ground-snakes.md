@@ -468,3 +468,22 @@ This narrows the CPU-side wait to the grass pass. Shader compilation, uniform up
 draw submission and execution remain to be distinguished; it does not establish a
 relationship to the original native AMD failure. Preserve contact behavior and all
 motion gates while investigating. Android23/browser18/software37 tests still pass.
+
+### Finer trace: grass returns in another failed run
+
+Nested diagnostic scopes now distinguish effect Apply, uniform upload and instanced
+binding/drawing, without changing shader source, contact behavior or scene content.
+Run `20261011T214147.707723Z-snake-head` FAILED readiness but, unlike the preceding
+run, returned from the complete first grass pass in412ms (23:42:36.164–36.576 guest
+timestamps). Apply returned within the same millisecond, uniform upload by36.167;
+all instanced draw scopes and subsequent IslandGame draw scopes returned. Startup
+reported first draw5746.146ms, total17743.021ms. No frame8 motion record followed.
+
+CPU call return does not prove completion of queued graphics work or presentation.
+The earlier final grass-entry marker is not proof of a deterministic grass defect.
+Failure screenshot again timed out; owned emulator forced exit-9; kernel-final[].
+A brief read-only GDB attach to owned host emulator PID751700 retained stacks in
+`emulator-stacks.txt` and detached successfully. Missing symbols prevent useful
+compiler/driver attribution; attachment can perturb timing, so this is not a clean
+performance measurement. No image inspected, no Android qualification or AMD fix.
+Android23/software37 CPU tests pass, instrumented x86_64 build/lint PASS3s.

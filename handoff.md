@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Latest — finer Android grass trace contradicts a deterministic first-grass stall
+
+Previous turn progressed by localizing CPU wait. Added nested scopes in grass effect
+Apply, uniform upload and instanced bind/draw (existing opt-in diagnostics; CPU-only
+markers remain limited to first snake QA frame). NO shader/geometry/contact changes.
+Actual214147.707723Z-snake-head FAILED readiness again, but grass now returned:
+23:42:36.164 begin, Apply same-ms, uniforms complete36.167, all draws return, grass
+end36.576 (412ms CPU interval). All subsequent draw passes return, startup log reports
+first draw5746.146ms/total17743.021ms. No frame8 motion sample before timeout.
+Thus213726's final grass-entry marker is only an observed wait location, NOT proof
+of a deterministic grass shader defect or execution completion. Presentation/queued
+driver work and later frames remain unresolved. No screenshot; screencap10s timeout,
+owned teardown-9, kernel-final[]. Do not weaken gates or claim Android qualified.
+Read-only GDB attach to this owned emulator PID751700 captured emulator-stacks.txt,
+detached successfully within seconds, no inferior function/memory changes. All stacks
+lack useful symbols; no compiler/driver causation established. Attach perturbs timing
+and is recorded as diagnostic, not a performance run. No KVM/AVD configuration edits.
+Android23/software37 CPU tests PASS; x86_64 build/lint PASS3s. Hardware stop unchanged.
+Native build PASS; default ARM64 restored, assemble/lint PASS3s. All owned jobs
+terminal. Web not rebuilt/rerun for these additional diagnostic scopes.
+Next: distinguish first presentation/later-frame wait with available persistent
+diagnostics; avoid repeating identical full timeouts without new observability.
+Original AMD incident and complete wildlife/visual/hut/resident backlog remain OPEN.
+
 ## Latest — Android first-frame stall localized to grass pass, NOT repaired
 
 Previous goal turn made progress (gates/diagnostic fix/failure evidence). Re-ran the

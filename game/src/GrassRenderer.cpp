@@ -1,4 +1,5 @@
 #include "IslandSimulator/GrassRenderer.hpp"
+#include "IslandSimulator/GpuDiagnostics.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
@@ -883,6 +884,7 @@ void main()
         }
         ValidateInstancedDrawRangeOrThrow(
             cell.patchCount, instanceOffset, instanceCount, "grass instance");
+        GpuDiagnosticScope drawScope("grass-instanced-draw");
         device_.SetVertexBuffers({VertexBufferBinding(mesh.vertices.get(), 0, 0),
                                   VertexBufferBinding(cell.instances.get(), instanceOffset, 1)});
         device_.setIndicesProperty(mesh.indices.get());
@@ -926,7 +928,11 @@ void main()
         if (customShaderReady_) {
             float viewProjection[16];
             (view * projection).ToColumnMajor(viewProjection);
-            customEffect_->Apply();
+            {
+                GpuDiagnosticScope applyScope("grass-effect-apply");
+                customEffect_->Apply();
+            }
+            GpuDiagnosticScope uploadScope("grass-uniform-upload");
             canopyLighting_.Bind(*customEffect_);
             terrainHeightMap_.Bind(*customEffect_);
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
