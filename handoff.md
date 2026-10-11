@@ -10,7 +10,32 @@ not implemented improvements. Require actual close/wide in-game visual review on
 Android and Web; existing build/material diagnostics do not close either task. Keep the
 previous monkey, additional wildlife, hut and resident work open.
 
-## Latest — initial torso lift while four contacts remain planted
+## Latest — shorter fur source and angular side mapping, native + Android inspected
+
+Built-in ImageGen source v2 is preserved with exact prompt and provenance under
+`assets/art-studies/monkey-fur-albedo-v2*`; v1 untouched. First replacement attempt was
+rejected for long strands. CMake/Android now prepare v2 at the existing 512-square path.
+`MonkeyFurUv` replaces collapsing cosine side projection with angular mirrored interior
+UVs on body/head/limbs/tail; no texture repetition or shader/budget change. CPU density,
+closure and range checks added. Native build and 37/37 non-display groups pass (48.27 s).
+Asset gate passes 24 records / 70 generators / 10 project files / zero external assets.
+
+Native `20261011T141731.945186Z-monkey-tree` and `20261011T141831.862271Z-monkeys`
+pass, peak/walking images inspected; shorter finer coat instead of broad wood-like streaks.
+Android x86_64 build/lint passes in 10 s; isolated GLES
+`20261011T142013.159547Z-monkeys` passes first presentation attempt and image inspected.
+All three kernel deltas empty. Tested APK retained as
+`build/android-software/island-monkey-fur-v2-x86_64.apk` (21,158,731 bytes), SHA-256
+`fa80bf806c7540f9fafc71a010b38909d5730ab4e7f5ba92d09eeef7f0abde2b`.
+Default ARM64 build/lint restored (9 s), 21,233,236-byte APK SHA-256
+`d6078c5ef061eb3127e2c7193758f8ef835a230ba37a05bcc7740970c12cb0aa`; ARM64 runtime untested.
+All launched jobs finished, stop latch unchanged, no dependency/host/KVM configuration edits.
+This qualifies current ordinary model/material on software GLES, not tree-transfer poses,
+lifecycle, physical-device performance or continuous animation. Web remains outstanding.
+Coarse shoulders, simple face/silhouette and stiff tail remain; hind-foot bark transfer and
+ascent/rest/descent/dismount are still missing. Goal and all wider island tasks stay active.
+
+## Earlier — initial torso lift while four contacts remain planted
 
 Live inspection now raises the torso .22 radians about the hind hips only while both
 forehands grip bark, returning before hand release. Fixed-target IK preserves all four

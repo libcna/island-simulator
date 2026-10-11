@@ -379,6 +379,13 @@ Standing visual-quality rules (apply to every task from now on):
   kernel delta; 37/37 non-display groups pass (60.44 s). This remains partial attachment,
   not climbing: hind-foot transfer, ascent/rest/descent/dismount, continuous-motion and
   Android/Web qualification remain open along with anatomy/fur realism.
+  Fur follow-up: generated shorter-coat source v2 and replaced cosine-projected side UVs
+  with angular mirrored interior mapping. Native tree peak `20261011T141731.945186Z-monkey-tree`
+  and ordinary view `20261011T141831.862271Z-monkeys` pass/inspected: less wood-like striping,
+  finer coat detail. Android isolated GLES `20261011T142013.159547Z-monkeys` passes first
+  presentation attempt, screenshot inspected, empty kernel delta. All 37 non-display groups
+  pass (48.27 s). Coarse limb joins/face/silhouette, full climbing, continuous-motion and
+  current Web qualification remain open; this is not acceptance of monkey realism.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

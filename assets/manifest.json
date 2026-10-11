@@ -3,6 +3,18 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "monkey-fur-albedo-v2",
+      "path": "assets/art-studies/monkey-fur-albedo-v2.png",
+      "sha256": "7e0ae1efc6f646758e646549484cf158d1e6d7bc92b7dc33a9499d1ee2e72e46",
+      "licenseRecord": "AI-generated monkey-fur study"
+    },
+    {
+      "name": "monkey-fur-generation-prompt-v2",
+      "path": "assets/art-studies/monkey-fur-albedo-v2-prompt.txt",
+      "sha256": "16ce9e4310b5ec4c381de0bc377d0bbd87e9332942f8bb838bcba102c498cf14",
+      "licenseRecord": "AI-generated monkey-fur study"
+    },
+    {
       "name": "monkey-fur-albedo-v1",
       "path": "assets/art-studies/monkey-fur-albedo-v1.png",
       "sha256": "29ad6b943160456674789b7678fb45b07ec340784ff553333fcc7af318180e80",
@@ -231,6 +243,7 @@
         "game/include/IslandSimulator/MonkeyClimbPose.hpp",
         "game/include/IslandSimulator/MonkeyTreeReach.hpp",
         "game/include/IslandSimulator/MonkeyTailProfile.hpp",
+        "game/include/IslandSimulator/MonkeyFurUv.hpp",
         "game/include/IslandSimulator/MonkeySoleFrame.hpp",
         "game/include/IslandSimulator/MonkeyFaceProfile.hpp",
         "game/include/IslandSimulator/MonkeySkinningShader.hpp",

@@ -6,6 +6,7 @@
 #include "IslandSimulator/MonkeyTailProfile.hpp"
 #include "IslandSimulator/MonkeySoleFrame.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
+#include "IslandSimulator/MonkeyFurUv.hpp"
 #include "IslandSimulator/JungleGrounding.hpp"
 #include "IslandSimulator/MonkeyFaceProfile.hpp"
 #include "IslandSimulator/OpaqueImageLoader.hpp"
@@ -454,7 +455,8 @@ namespace island
                         local.Y / std::max(radii.Y, 0.001f),
                         local.Z / std::max(radii.Z, 0.001f)));
                     AddVertex(mesh, position, normal, bone,
-                        Vector2(0.5f + 0.4f * local.X, 0.5f - 0.4f * local.Y));
+                        Vector2(MonkeyFurUv::Around(longitude),
+                            MonkeyFurUv::Along(1.0f-static_cast<float>(ring)/rings)));
                 }
             }
             const int stride = segments + 1;
@@ -490,7 +492,7 @@ namespace island
                         * static_cast<float>(segment) / static_cast<float>(segments);
                     const Vector3 normal = right * std::cos(angle) + up * std::sin(angle);
                     AddVertex(mesh, vector(section.centre) + normal * section.radius, normal,
-                        bones[section.firstBone], Vector2(0.5f + 0.4f * std::cos(angle), 0.1f + 0.8f*t));
+                        bones[section.firstBone], Vector2(MonkeyFurUv::Around(angle), MonkeyFurUv::Along(t)));
                     mesh.vertices.back().BlendWeight = Vector4(1-section.secondWeight,
                         section.secondWeight, 0, 0);
                     mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(bones[section.secondBone]);
@@ -538,7 +540,7 @@ namespace island
                     // Interior-only mirrored window: no unverified repeat seam. V follows
                     // the spine from neck to tail and stays attached to the rest mesh.
                     AddVertex(mesh, section.centre + radial, normal, section.firstBone,
-                        Vector2(0.5f + 0.4f * c,
+                        Vector2(MonkeyFurUv::Around(angle),
                             0.9f - 0.8f * static_cast<float>(ring) / (sections.size() - 1)));
                     auto& vertex = mesh.vertices.back();
                     vertex.BlendWeight = Vector4(1.0f - section.secondWeight,
@@ -576,7 +578,7 @@ namespace island
                     const float angle = MathHelper::TwoPi * static_cast<float>(segment) / segments;
                     const Vector3 normal = across * std::cos(angle) + around * std::sin(angle);
                     AddVertex(mesh, centre + normal * Radii[ring] * thickness, normal, upperBone,
-                        Vector2(0.5f + 0.4f * std::cos(angle), 0.1f + 0.8f * t));
+                        Vector2(MonkeyFurUv::Around(angle), MonkeyFurUv::Along(t)));
                     mesh.vertices.back().BlendWeight = Vector4(1.0f - blend, blend, 0.0f, 0.0f);
                     mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(lowerBone);
                 }

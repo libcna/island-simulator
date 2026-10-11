@@ -1,6 +1,7 @@
 #include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "IslandSimulator/MonkeyTailProfile.hpp"
 #include "IslandSimulator/MonkeyFaceProfile.hpp"
+#include "IslandSimulator/MonkeyFurUv.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -20,6 +21,20 @@ static float Distance(gait::Point a, gait::Point b)
 
 int main()
 try {
+    namespace fur = island::MonkeyFurUv;
+    constexpr float pi = std::numbers::pi_v<float>;
+    for (int i=0;i<720;++i) {
+        const float angle=i*pi/180.0f;
+        Require(fur::Around(angle)>=.09999f && fur::Around(angle)<=.90001f,
+            "fur UV stays inside source image");
+        Require(std::abs(fur::Around(angle)-fur::Around(angle+2*pi))<1e-5f,
+            "circumference closure has no texture jump");
+    }
+    for (float centre : {0.0f,pi}) {
+        const float density=std::abs(fur::Around(centre+.01f)-fur::Around(centre-.01f))/.02f;
+        Require(std::abs(density-.8f/pi)<1e-4f,"side-facing fur must not collapse into a stretched stripe");
+    }
+    Require(fur::Along(0)==.1f && std::abs(fur::Along(1)-.9f)<1e-6f,"longitudinal UV interior endpoints");
     for (float x : {-.2f,0.0f,.2f})
         for (float y : {-.55f,-.2f,.2f})
             for (float z : {-.15f,0.0f,.15f}) {

@@ -1,6 +1,48 @@
-# Monkey fur material — first integration
+# Monkey fur material
 
-## Provenance
+## Shorter fur and non-collapsing side UVs (2026-10-11)
+
+The first source and cosine UV projection produced large wood-like streaks on the actual
+monkey. The derivative of `.5+.4*cos(angle)` vanishes on side-facing flank vertices: a
+narrow strip of the image is spread over that surface. `MonkeyFurUv::Around` now uses an
+angular mirrored interior window, with folds at top/bottom instead of the broad sides.
+Head UVs also use angular coordinates rather than planar X/Y projection. Body, limbs,
+head and tail retain skin-attached rest UVs; no repeat/seamless claim is required. CPU
+tests cover side density, range, circumference closure and longitudinal endpoints.
+
+New source `assets/art-studies/monkey-fur-albedo-v2.png` is the unchanged built-in ImageGen
+output `01a129bd-2c19-7192-a43c-adcfe79c0fb9/exec-64a1789b-5a13-41e9-bf2d-a0d42e3bef38.png`.
+Exact final prompt is `assets/art-studies/monkey-fur-albedo-v2-prompt.txt`. Generated without
+reference inputs, actually 1254-square opaque RGB8 despite the 1024 prompt. SHA-256 and
+provenance are registered in the asset manifest and ASSET_LICENSES.md. A first attempted
+revision (`exec-f27ea7ba-8883-4926-80a7-7b13f5ef2764.png`) still had long flowing strands
+and was rejected; it is not a runtime asset. Historical v1 remains unchanged. CMake and
+Android Gradle now prepare v2 at the same 512-square runtime path; mip/texture memory,
+shaders, palette, draw count and texture-loading diagnostics are unchanged.
+
+Native evidence `20261011T141731.945186Z-monkey-tree` passes all eight stage gates; peak
+image inspected against `20261011T141011.681705Z-monkey-tree`: coarse flank/head ridges
+are replaced by finer, shorter fur detail. Ordinary moving-view capture
+`20261011T141831.862271Z-monkeys` also passes/inspected. Both kernel deltas are empty.
+This is a visible material improvement, not a realistic-anatomy acceptance: bulky limb
+attachments, simplified facial anatomy, geometric silhouette and stiff tail remain.
+Static frames do not prove full animation quality, LOD transition quality or climbing.
+
+Native build and 37/37 non-display groups pass in 48.27 seconds
+(`build/monkey-fur-v2-tests.log`). Asset gate: 24 procedural records, 70 generator sources,
+10 project files, zero external assets. Web runtime qualification remains outstanding.
+
+Android x86_64 build/lint passes (10 s). Isolated KVM/SwiftShader GLES evidence
+`20261011T142013.159547Z-monkeys` passes on its first presentation attempt; the actual
+1280x720 screenshot was inspected and shows the same finer coat. Kernel delta is empty.
+Retained APK `build/android-software/island-monkey-fur-v2-x86_64.apk`, 21,158,731 bytes,
+SHA-256 `fa80bf806c7540f9fafc71a010b38909d5730ab4e7f5ba92d09eeef7f0abde2b`.
+This ordinary view does not qualify Android tree-contact poses, lifecycle or real hardware.
+Default ARM64 build/lint restored successfully (9 s), runtime untested; APK 21,233,236
+bytes, SHA-256 `d6078c5ef061eb3127e2c7193758f8ef835a230ba37a05bcc7740970c12cb0aa`.
+Stop latch unchanged; all launched jobs finished, no host/emulator configuration edits.
+
+## Historical v1 provenance
 
 Built-in ImageGen (not CLI/API fallback), generated without reference images. Exact
 prompt: `assets/art-studies/monkey-fur-albedo-v1-prompt.txt`. The original output

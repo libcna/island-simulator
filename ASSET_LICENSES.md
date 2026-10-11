@@ -11,6 +11,13 @@ preparation reduces it to 512 square, runtime uploads ten mip levels. Interior-o
 rest-mesh UV windows avoid relying on unverified seamless tiling. Applied to monkey
 body/head/limbs/tail, not the bare face or eyes. See `docs/monkey-fur-material.md`.
 
+Runtime now selects the second source `assets/art-studies/monkey-fur-albedo-v2.png`,
+generated with built-in ImageGen from `assets/art-studies/monkey-fur-albedo-v2-prompt.txt`.
+The original output is preserved unchanged; v1 remains historical evidence. The same
+AI-generated project-artwork attribution and license limitations above apply to v2.
+No external references were supplied. Angular interior UV mapping replaces the side-
+compressing projection; this does not assert that either source tiles seamlessly.
+
 The island field, render meshes, vertex colours, animated ocean and sky, vegetation/prop geometry,
 placement data, touch graphics, and developer bitmap font currently present in this repository are
 generated from original project code and contain no external asset data. The Android launcher icon
