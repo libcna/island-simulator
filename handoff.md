@@ -9,7 +9,31 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — actual-island attachment-site preparation, NOT live climbing
+## Latest — whole excursion and safe-return clock, CPU only
+
+`MonkeyTreeExcursion.hpp` composes attach 10 s / ascend 8 s / rest 3 s / descend 8 s /
+detach 10 s, all in the original ground monkey frame. Eight gait cycles travel 2.2*scale
+world metres upward with zero endpoint velocity; four bark supports at summit. Descent
+retraces the same contacts and detachment returns to the original .22-radian planted
+inspection pose, which still needs ordinary torso lowering/hand release before walking.
+All 21 accepted natural attachment sites pass full-cycle 0.01-s reach sampling.
+Independent tests check stage-boundary roots/joints/soles, bone lengths, support counts,
+contact retracing and seven interruption times. The latched return clock reverses
+attachment/ascent, skips only identical summit rest, or finishes descent/detachment.
+It never directly clears an airborne animal's tree identity. Reversal velocity currently
+changes sign immediately; smoothing remains needed.
+
+Final incremental build and 37/37 non-display groups pass (58.77 s), logs
+`build/monkey-excursion-final-build.log`, `build/monkey-excursion-final-tests.log`.
+Initial focused Core run: 35.69 s, `build/monkey-excursion-tests.log`, 21/21 reachable.
+Asset gate 24/74/10/0. GPU stop latch unchanged; all jobs finished; no graphics launched.
+Live troop/renderer NOT wired yet. Next: retarget contacts with changing wind/LOD,
+validate whole-ascent clearance (current full-cycle check is reach only), then integrate
+state/skin/sole/shadow/culling and safe interruptions/tree replacement together. Perform
+actual whole-cycle visual/platform qualification, not merely held inspection captures.
+Goal and full island backlog remain active.
+
+## Earlier — actual-island attachment-site preparation, NOT live climbing
 
 `MonkeyAttachmentSite.hpp` constructs the attachment trajectory from naturally reached
 tree sites, actual rendered terrain heights/normals, regrounded trunk geometry and

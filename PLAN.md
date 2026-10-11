@@ -419,6 +419,13 @@ Standing visual-quality rules (apply to every task from now on):
   Tests check staged-foot heights, stale tree Y, heading/scale guards and rejection of
   an added obstacle at a staging foot. This is fixed-wind sampled preparation only,
   not full mesh collision, live attachment, dynamic-wind or visual qualification.
+  Whole-excursion CPU composition now covers attachment, eight climbing cycles upward,
+  four-grip rest, retraced descent and detachment to the original planted inspection
+  pose. All 21 accepted natural sites pass full-cycle reach; independent tests check
+  roots/joints/soles at stage boundaries, bone lengths, supports and retraced contacts.
+  An interruption clock returns along the same path instead of clearing tree identity
+  while airborne. Runtime wiring, dynamic wind, full ascent clearance, smooth interruption
+  velocity and actual visual/platform validation remain open. No live climbing claim.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

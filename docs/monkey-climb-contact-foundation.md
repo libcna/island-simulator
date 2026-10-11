@@ -321,3 +321,40 @@ Final native incremental build and all 37 non-display test groups pass (57.77 s,
 fallback threshold. Asset validation: 24 records, 73 generator sources, 10 project files,
 zero external files. GPU stop latch unchanged; no graphics run or visual claim for this
 CPU-only change. All launched jobs finished.
+
+## Whole tree excursion and interruption clock — CPU only
+
+`MonkeyTreeExcursion.hpp` composes the ten-second attachment with eight seconds of
+ascent, three seconds of four-grip rest, eight seconds of descent and ten seconds of
+reverse attachment. Eight complete climbing cycles raise the monkey 2.2 times its scale
+in world metres above its attachment position. Height and gait phase are coupled;
+smoothstep travel gives zero vertical speed at both ends, and integer phase at the
+summit leaves all four limbs supporting. The single ground-relative coordinate frame
+carries transformed roots, joints, contacts, normals and torso hip/pitch throughout.
+The exit remains the original .22-radian planted inspection pose, not an immediate
+walk pose: the existing grip-release/torso-lowering transition is still required.
+
+All 21 accepted actual-island attachment sites also pass full-excursion reach sampling
+at 0.01-second intervals. Independent checks cover roots, joints and sole continuity
+at all four internal stage boundaries, fixed bone lengths, at least three supports,
+four supports during summit rest, and ascent/descent contact retracing. Initial focused
+Core run passed in 35.69 s (`build/monkey-excursion-tests.log`).
+
+The interruption clock latches a return request. During attachment/ascent it reverses
+the same trajectory back to its planted start; during rest it skips only the identical
+rest pose; during descent/detachment it finishes the return. It does not clear the
+selected tree or turn an airborne animal into a walker. Seven interruption times cover
+all phases and check no initial contact teleport and bounded return to original grips.
+An interruption currently reverses velocity immediately; smoothing this is still open.
+
+Not integrated into live troop/renderer yet. Current preflight holds wind time and mesh
+LOD fixed, and checks climb reach, not whole-ascent collision. Before live activation,
+add moving-wind retargeting, upper-body/limb/terrain/obstacle clearance along ascent,
+safe tree replacement handling, consistent renderer/sole/shadow/culling transforms and
+actual whole-cycle visual review. These checks must not be replaced with a reach-only
+acceptance claim. Existing eight-stage inspection captures do not qualify this cycle.
+
+Final incremental build and all 37 non-display groups pass in 58.77 s
+(`build/monkey-excursion-final-tests.log`), including the interruption clock regressions.
+Asset inventory 24/74/10/0; unchanged GPU stop latch; all jobs finished. No new graphical
+evidence is claimed for this CPU-only change.

@@ -26,6 +26,7 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
 #include "IslandSimulator/MonkeyAttachmentSite.hpp"
+#include "IslandSimulator/MonkeyTreeExcursion.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
@@ -2980,6 +2981,7 @@ int main()
     const island::RenderedTerrainSurface monkeyAttachmentTerrain(terrain);
     std::array<bool,island::MonkeyTroop::MonkeyCount> attachmentAttempted{};
     unsigned attachmentCandidates=0,attachmentAccepted=0;
+    unsigned excursionAccepted=0;
     std::array<unsigned,11> attachmentFailures{};
     island::MonkeyTroop repeatedMonkeys(terrain);
     island::MonkeyTroop invalidInputMonkeys(terrain);
@@ -3086,6 +3088,64 @@ int main()
                 if (prepared.plan) {
                     ++attachmentAccepted;
                     const auto& plan=*prepared.plan;
+                    const auto excursion=island::MonkeyTreeExcursion::Build(plan,frame,
+                        island::GroundJunglePlacement(state.selectedTree,monkeyAttachmentTerrain),3.0f);
+                    if (island::MonkeyTreeExcursion::IsReachable(excursion)) {
+                        ++excursionAccepted;
+                        const auto distance=[](auto a,auto b) {
+                            return std::hypot(a.y-b.y,std::hypot(a.x-b.x,a.z-b.z));
+                        };
+                        if (excursionAccepted==1) {
+                            for (float interruptAt:{.25f,5.0f,12.0f,17.0f,19.0f,24.0f,33.0f}) {
+                                island::MonkeyTreeExcursion::Clock clock;
+                                while (clock.seconds<interruptAt) clock.Advance(.05f);
+                                const auto before=island::MonkeyTreeExcursion::Sample(excursion,clock.seconds);
+                                clock.Advance(.001f,true);
+                                const auto after=island::MonkeyTreeExcursion::Sample(excursion,clock.seconds);
+                                for (std::size_t limb=0;limb<4;++limb)
+                                    Check(distance(before.body.contacts[limb],after.body.contacts[limb])<.005f,
+                                        "an excursion interruption starts returning without teleporting contacts");
+                                for (int step=0;step<1000 && !clock.finished;++step) clock.Advance(.05f);
+                                Check(clock.finished && clock.returning,"interrupted excursion returns in bounded time");
+                                const auto returned=island::MonkeyTreeExcursion::Sample(excursion,clock.seconds);
+                                const auto planted=island::MonkeyTreeExcursion::Sample(excursion,0);
+                                for (std::size_t limb=0;limb<4;++limb)
+                                    Check(distance(returned.body.contacts[limb],planted.body.contacts[limb])<1e-5f,
+                                        "interruption finishes on the original planted ground/bark grips before release");
+                            }
+                            island::MonkeyTreeExcursion::Clock clock;
+                            clock.Advance(quietNan); clock.Advance(-1);
+                            Check(clock.seconds==0 && !clock.finished,"invalid excursion time step does not advance the clock");
+                        }
+                        for (float boundary:{10.0f,18.0f,21.0f,29.0f}) {
+                            const auto before=island::MonkeyTreeExcursion::Sample(excursion,boundary-.0001f);
+                            const auto after=island::MonkeyTreeExcursion::Sample(excursion,boundary+.0001f);
+                            for (std::size_t limb=0;limb<4;++limb) {
+                                const auto& a=before.body.limbs.limbs[limb];
+                                const auto& b=after.body.limbs.limbs[limb];
+                                Check(distance(a.root,b.root)<.001f && distance(a.joint,b.joint)<.001f
+                                    && distance(a.sole,b.sole)<.001f,
+                                    "whole tree excursion has continuous roots, joints and soles at stage boundaries");
+                            }
+                        }
+                        for (int step=0;step<=390;++step) {
+                            const auto pose=island::MonkeyTreeExcursion::Sample(excursion,step*.1f);
+                            const auto reverse=island::MonkeyTreeExcursion::Sample(excursion,39-step*.1f);
+                            unsigned supports=0;
+                            for (std::size_t limb=0;limb<4;++limb) {
+                                const auto& current=pose.body.limbs.limbs[limb];
+                                supports+=current.supporting;
+                                Check(distance(current.sole,reverse.body.limbs.limbs[limb].sole)<.0001f,
+                                    "descent and detachment retrace the ascent contacts without ground teleport");
+                                Check(std::abs(distance(current.root,current.joint)-.31f)<1e-4f
+                                    && std::abs(distance(current.joint,current.sole)-.33f)<1e-4f,
+                                    "whole excursion preserves fixed limb lengths");
+                            }
+                            Check(supports>=3,"whole excursion retains at least three supports");
+                            if (pose.stage==island::MonkeyTreeExcursion::Stage::Rest)
+                                Check(supports==4,"summit rest holds all four bark contacts");
+                        }
+                    }
                     if (attachmentAccepted==1) {
                         auto displacedTree=state.selectedTree;
                         displacedTree.y+=100;
@@ -3252,6 +3312,8 @@ int main()
         std::cout << ' ' << reason << ':' << attachmentFailures[reason];
     std::cout << '\n';
     Check(attachmentAccepted>0,"naturally reached real-island trees include a candidate passing terrain/contact/body-probe checks");
+    std::cout << "Monkey full excursion reach " << excursionAccepted << '/' << attachmentAccepted << '\n';
+    Check(excursionAccepted>0,"actual island attachment sites include reachable ascent and descent, not only a first grip");
     Check(observedMonkeyTreeApproach && observedMonkeyTreeArrival,
           "real-island simulation approaches and reaches actual canopy trees");
 
