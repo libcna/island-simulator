@@ -116,6 +116,7 @@ namespace island
         MonkeyClimbDetail,
         ShipwreckDetail,
         HutDetail,
+        HutMaterialDetail,
         CrabDetail,
         BoarDetail,
         SnakeDetail,

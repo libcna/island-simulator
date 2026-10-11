@@ -91,7 +91,44 @@ The surface still lacks fine fibre/material detail and is not final realistic th
 Capture PASS (392color bins/luminanceSD49.92/spatial contrast195.97), kernel-after[].
 Native build and Android ARM64 assemble/lint PASS6s; no portable actual audit yet.
 
-## Remaining implementation
+The initial plain vertex-color material has now been superseded by the material
+described below; earlier image limitations remain historical evidence, not current
+claims that the shader is absent.
+
+## Beam-aligned wood and thatch material
+
+The hut now uses a portable GLSL330/GLES300 material with per-vertex grain coordinates.
+Longitudinal coordinates follow each beam's actual axis (including floorboards and
+diagonal braces), while end faces use transverse coordinates for rings. Thatch uses
+its own slope-aligned frame. A per-face material tag selects wood, end grain or dry
+fibres. Broad weathering/desaturation and mild basal darkening complement the original
+CPU sunlight. Fine sinusoidal bands fade according to screen derivatives and distance;
+this is an anti-aliasing implementation, not yet a temporal-motion flicker qualification.
+
+No raster texture or extra draw was added. VertexPositionColorTexture replaces
+VertexPositionColor: two grain floats add8bytes per vertex (163,296bytes for20,412
+vertices). Geometry, contact shadows and the one-draw layout remain unchanged.
+Finite grain coordinates are validated before upload. A clearly logged BasicEffect
+fallback remains for unsupported/failed custom effects; it is not accepted as shader
+qualification. Native and Android logs confirm the new material without fallback.
+
+Actual native overview `20261011T223611.972091Z-hut` and new close material view
+`20261011T223822.323931Z-hut-material` both PASS/image inspected/kernel-after[].
+Close view shows longitudinal grain on beams/slats and the layered roof; surface
+appearance is still stylized/plain in places, not claimed photorealistic.
+CLI/native supervisor accept `hut-material`; Android accepts both hut views and
+requires the material startup marker (negative/positive CPU fixtures included).
+
+Actual Android `20261011T224038.084741Z-hut-material` PASS, screenshot inspected:
+wood/roof render with contact shadows in GLES SwiftShader; kernel-final[], normal
+owned-emulator exit0. Tested APK archived as
+`build/android-software/island-hut-material-x86_64.apk`, SHA256
+`c04e08f64a718f814a9e1b2f521cff562a46827f00d611a71d3f14916e581541`.
+Android23/software37 CPU tests PASS; x86_64 build/lint PASS5s, standard ARM64 restored
+and build/lint PASS4s. Web actual material audit, global route/reporting, long-range
+aliasing and remaining realism work are still open. No AMD incident fix is claimed.
+
+## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing
    roof bundles are not visually convincing palm-leaf thatch yet.

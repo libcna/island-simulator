@@ -1,5 +1,10 @@
 #include "IslandSimulator/HutRenderer.hpp"
 #include "IslandSimulator/HutThatch.hpp"
+#include "IslandSimulator/HutMaterial.hpp"
+#include "CNA/Graphics/ShaderCodeEXT.hpp"
+#include "CNA/Graphics/ShaderPackageEXT.hpp"
+#include "CNA/ShaderLanguageEXT.hpp"
+#include "CNA/GraphicsCapability.hpp"
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -8,7 +13,8 @@
 #include "Microsoft/Xna/Framework/Graphics/BasicEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
-#include "Microsoft/Xna/Framework/Graphics/VertexPositionColor.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexPositionColorTexture.hpp"
+#include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/BufferUsage.hpp"
 #include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
@@ -17,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -26,24 +33,33 @@ namespace island {
 HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     :device_(device),effect_(std::make_unique<BasicEffect>(device)),centre_(hut.x,hut.floorY,hut.z)
 {
-    std::vector<VertexPositionColor> mesh;
+    std::vector<VertexPositionColorTexture> mesh;
+    Vector3 grainOrigin,grainAcross,grainAlong;
+    int materialTag=64;
     const float c=std::cos(hut.yawRadians),s=std::sin(hut.yawRadians);
     const auto world=[&](Vector3 p) { return Vector3(hut.x+c*p.X+s*p.Z,hut.floorY+p.Y,hut.z-s*p.X+c*p.Z); };
     const auto quad=[&](Vector3 a,Vector3 b,Vector3 d,Vector3 e,Vector3 pigment) {
+        const std::array<Vector3,6> local{a,b,d,a,d,e};
         a=world(a); b=world(b); d=world(d); e=world(e);
         Vector3 normal=Vector3::Cross(b-a,d-a); normal.Normalize();
         const float light=0.48f+0.52f*std::max(0.0f,Vector3::Dot(normal,
             Vector3(environment::SunDirectionX,environment::SunDirectionY,environment::SunDirectionZ)));
-        const Color color(static_cast<int>(pigment.X*light),static_cast<int>(pigment.Y*light),static_cast<int>(pigment.Z*light));
-        for(auto p:{a,b,d,a,d,e}) mesh.emplace_back(p,color);
+        const Color color(static_cast<int>(pigment.X*light),static_cast<int>(pigment.Y*light),static_cast<int>(pigment.Z*light),materialTag);
+        for(const auto p:local) {
+            const float phase=materialTag==128?0:Vector3::Dot(grainOrigin,Vector3(0.37f,0.19f,0.53f));
+            mesh.emplace_back(world(p),color,Vector2(Vector3::Dot(p-grainOrigin,grainAcross)+phase,
+                Vector3::Dot(p-grainOrigin,grainAlong)));
+        }
     };
     const auto beam=[&](Vector3 a,Vector3 b,float width,float depth,Vector3 pigment) {
         Vector3 along=b-a; along.Normalize();
         Vector3 across=Vector3::Cross(along,std::abs(along.Y)>0.9f?Vector3(0,0,1):Vector3(0,1,0)); across.Normalize();
         Vector3 up=Vector3::Cross(across,along); up.Normalize();
+        grainOrigin=a; grainAcross=across; grainAlong=up; materialTag=128;
         const auto r=across*(width/2),t=up*(depth/2);
         const std::array<Vector3,8> p{a-r-t,a+r-t,a+r+t,a-r+t,b-r-t,b+r-t,b+r+t,b-r+t};
         quad(p[0],p[3],p[2],p[1],pigment); quad(p[4],p[5],p[6],p[7],pigment);
+        grainAcross=across+up; grainAlong=along; materialTag=64;
         quad(p[0],p[1],p[5],p[4],pigment); quad(p[1],p[2],p[6],p[5],pigment);
         quad(p[2],p[3],p[7],p[6],pigment); quad(p[3],p[0],p[4],p[7],pigment);
     };
@@ -80,6 +96,10 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         }
         for(int row=0;row<7;++row) for(int strip=0;strip<48;++strip) {
             const auto blade=BuildHutThatchBlade(static_cast<int>(side),row,strip);
+            const auto origin=blade.sections[0][1];
+            grainOrigin=Vector3(origin.x,origin.y,origin.z);
+            grainAcross=Vector3(0,0,1); grainAlong=Vector3(side*2.65f,-1.4f,0);
+            grainAlong.Normalize(); materialTag=224;
             const Vector3 pigment=Vector3(152,131,77)+Vector3(blade.pigment*24,blade.pigment*19,blade.pigment*13);
             const auto point=[&](int station,int edge) {
                 const auto p=blade.sections[static_cast<std::size_t>(station)][static_cast<std::size_t>(edge)];
@@ -96,6 +116,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     if(mesh.empty()||mesh.size()>30000) throw std::runtime_error("Hut mesh exceeds budget");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh) {
+        if(!std::isfinite(vertex.TextureCoordinate.X)||!std::isfinite(vertex.TextureCoordinate.Y))
+            throw std::runtime_error("Nonfinite hut grain coordinate");
         if(!std::isfinite(vertex.Position.X)||!std::isfinite(vertex.Position.Y)||!std::isfinite(vertex.Position.Z))
             throw std::runtime_error("Nonfinite hut vertex");
         low=Vector3::Min(low,vertex.Position); high=Vector3::Max(high,vertex.Position);
@@ -104,11 +126,32 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         if(Vector3::Cross(mesh[i+1].Position-mesh[i].Position,mesh[i+2].Position-mesh[i].Position).LengthSquared()<1e-12f)
             throw std::runtime_error("Degenerate hut triangle");
     bounds_=BoundingBox(low,high); triangles_=static_cast<int>(mesh.size()/3);
-    vertices_=std::make_unique<VertexBuffer>(device,VertexPositionColor::getVertexDeclarationStatic(),static_cast<int>(mesh.size()),BufferUsage::WriteOnly);
+    vertices_=std::make_unique<VertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),static_cast<int>(mesh.size()),BufferUsage::WriteOnly);
     vertices_->SetData(mesh.data(),static_cast<int>(mesh.size()));
     effect_->setVertexColorEnabledProperty(true); effect_->setLightingEnabledProperty(false);
     effect_->setFogEnabledProperty(true); effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,environment::FogColorBlue));
     effect_->setFogStartProperty(180); effect_->setFogEndProperty(300);
+    try {
+        if(!device.SupportsCapability(CNA::GraphicsCapability::CustomEffects))
+            throw std::runtime_error("custom effects unavailable");
+        using CNA::Graphics::ShaderCodeEXT;
+        const auto es=[](const char* body){return std::string("#version 300 es\nprecision highp float;\n")+body;};
+        const auto desktop=[](const char* body){return std::string("#version 330 core\n")+body;};
+        const CNA::Graphics::ShaderPackageEXT package({
+            ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,CNA::ShaderStageEXT::Vertex,"main","hut/es.vert",es(HutMaterialVertex)),
+            ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs,CNA::ShaderStageEXT::Fragment,"main","hut/es.frag",es(HutMaterialFragment)),
+            ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,CNA::ShaderStageEXT::Vertex,"main","hut/gl.vert",desktop(HutMaterialVertex)),
+            ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop,CNA::ShaderStageEXT::Fragment,"main","hut/gl.frag",desktop(HutMaterialFragment))},
+            {CNA::ShaderStageEXT::Vertex,CNA::ShaderStageEXT::Fragment});
+        material_=std::make_unique<ShaderEffect>(device,package);
+        if(!material_->IsEffectValid()) throw std::runtime_error(material_->GetCompileErrorEXT());
+        const char* message="island-simulator: hut beam-aligned weathered grain and filtered thatch fibres";
+        std::cout<<message<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(message);
+    } catch(const std::exception& error) {
+        material_.reset();
+        const std::string message=std::string("island-simulator: hut material fallback: ")+error.what();
+        std::cerr<<message<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(message);
+    }
     MirrorRuntimeDiagnosticToPlatformLog("island-simulator: hut timber frame and layered thatch, triangles="+std::to_string(triangles_));
 }
 HutRenderer::~HutRenderer()=default;
@@ -118,7 +161,14 @@ void HutRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3
     device_.setRasterizerStateProperty(RasterizerState::CullNone);
     device_.setBlendStateProperty(BlendState::Opaque); device_.setDepthStencilStateProperty(DepthStencilState::Default);
     device_.SetVertexBuffer(vertices_.get()); device_.setIndicesProperty(nullptr);
-    effect_->setWorldProperty(Matrix::getIdentityProperty()); effect_->setViewProperty(view); effect_->setProjectionProperty(projection); effect_->Apply();
+    if(material_) {
+        float matrix[16]; (view*projection).ToColumnMajor(matrix);
+        material_->Apply(); material_->SetUniformMat4("uViewProjection",matrix);
+        material_->SetUniformVec3("uCameraPosition",camera.X,camera.Y,camera.Z);
+        material_->SetUniformVec3("uHutCentre",centre_.X,centre_.Y,centre_.Z);
+    } else {
+        effect_->setWorldProperty(Matrix::getIdentityProperty()); effect_->setViewProperty(view); effect_->setProjectionProperty(projection); effect_->Apply();
+    }
     device_.DrawPrimitives(PrimitiveType::TriangleList,0,triangles_); drawCalls_=1;
 }
 }

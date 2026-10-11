@@ -228,6 +228,8 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm the required monkey fur material")
         if viewpoint in ("snakes", "snake-head"):
             validate_snake_runtime_samples(log)
+        if viewpoint in ("hut", "hut-material") and "hut beam-aligned weathered grain and filtered thatch fibres" not in log:
+            raise RuntimeError("application did not confirm the hut material")
         if viewpoint == "monkey-climb":
             validate_monkey_climb_stages(log)
             if "monkey climb held summit presented after eight cycle stages" not in log:
@@ -364,7 +366,7 @@ def main():
     parser.add_argument("--sdk", type=Path, required=True)
     parser.add_argument("--boot", action="store_true", help="also boot the isolated emulator")
     parser.add_argument("--apk", type=Path, help="install/test this x86_64 APK after software renderer proof")
-    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "snakes", "snake-head", "interactive", "monkey-climb"}),
+    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"hut", "hut-material", "boars", "snakes", "snake-head", "interactive", "monkey-climb"}),
                         default="clearing-edge")
     parser.add_argument("--touch-selector", action="store_true")
     parser.add_argument("--lifecycle", action="store_true")

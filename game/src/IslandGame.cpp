@@ -98,6 +98,7 @@ namespace island
             case FixedViewpoint::MonkeyClimbDetail: return "monkey-climb";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::HutDetail: return "hut";
+            case FixedViewpoint::HutMaterialDetail: return "hut-material";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::SnakeDetail: return "snakes";
@@ -759,12 +760,14 @@ namespace island
             pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
             std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
                          "from the beach\n";
-        } else if (viewpoint_ == FixedViewpoint::HutDetail) {
+        } else if (viewpoint_ == FixedViewpoint::HutDetail || viewpoint_ == FixedViewpoint::HutMaterialDetail) {
             if(!hutPlacement_) throw std::runtime_error("Hut QA requires a valid site");
             const auto& h=*hutPlacement_;
             const float c=std::cos(h.yawRadians),s=std::sin(h.yawRadians);
-            cameraPosition_=Vector3(h.x+c*6+s*9,h.floorY+3.2f,h.z-s*6+c*9);
-            const Vector3 direction=Vector3(h.x,h.floorY+1.5f,h.z)-cameraPosition_;
+            const bool close=viewpoint_==FixedViewpoint::HutMaterialDetail;
+            const float x=close?3.8f:6.0f,z=close?4.8f:9.0f;
+            cameraPosition_=Vector3(h.x+c*x+s*z,h.floorY+3.2f,h.z-s*x+c*z);
+            const Vector3 direction=Vector3(h.x,h.floorY+(close?2.0f:1.5f),h.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {

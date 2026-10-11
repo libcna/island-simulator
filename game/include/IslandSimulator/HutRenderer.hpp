@@ -4,7 +4,7 @@
 #include "Microsoft/Xna/Framework/Matrix.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 #include <memory>
-namespace Microsoft::Xna::Framework::Graphics { class GraphicsDevice; class BasicEffect; class VertexBuffer; }
+namespace Microsoft::Xna::Framework::Graphics { class GraphicsDevice; class BasicEffect; class ShaderEffect; class VertexBuffer; }
 namespace island {
 class HutRenderer final {
 public:
@@ -16,6 +16,7 @@ public:
 private:
     Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;
+    std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> material_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
     Microsoft::Xna::Framework::BoundingBox bounds_;
     Microsoft::Xna::Framework::Vector3 centre_;

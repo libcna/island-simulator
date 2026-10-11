@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — hut grain/fibre shader, actual native + Android close views PASS
+
+HutMaterial.hpp portable330/ES300 shader: longitudinal beam-aligned wood coordinates,
+transverse endgrain rings, slope-aligned thatch fibres, bounded weather/desaturation,
+basal darkening, derivative/distance filtering. Geometry unchanged6804tri/20412verts;
+VertexPositionColorTexture adds2floats/vertex (163296bytes), no texture/extra draw.
+FiniteUVguard; logged BasicEffect fallback on unsupported/failed customshader.
+New HutMaterialDetail/CLI hut-material/native supervisor; nearQA camera preserves
+normal hut view. Android accepts hut/hut-material and requiresmaterialmarker (CPU
+positive/negative checks). Android23/software37 testsPASS.
+Native223611.972091Z-hut and223822.323931Z-hut-material bothPASS/imagesactuallyviewed/
+kernel-after[]. Grain follows beams; overallstillstylized/plain, notfinalrealism.
+ActualAndroid224038.084741Z-hut-material PASS/imageactuallyinspected, GLES SwiftShader,
+materialmarker/nofallback/kernel-final[]/ownedexit0. ExactAPK archived
+build/android-software/island-hut-material-x86_64.apk SHA
+c04e08f64a718f814a9e1b2f521cff562a46827f00d611a71d3f14916e581541.
+x86buildlint5sPASS; defaultARM64restored/buildlint4sPASS. NoKVM/emulatorconfigchange.
+NEXT WebQA routing/actualshaderaudit, materialtemporal/longrange andremainingrealism,
+hutworldreport/globalroute. Fullwildlifebacklog andAMDincident remainOPEN.
+Full41/41non-displaytestsPASS54.76s. Webbuild/packagePASS (sizes in
+build-probe/hut-material-package.log); no actualWebshadercheck yet. Allownedjobs
+terminal, hardwarestoplatchSHAunchanged, no push/dependencychanges.
+
 ## Latest — hut roof box bundles replaced with folded irregular strips
 
 New CPU-only HutThatch.hpp generates672 deterministic3-station/3-across leaf strips

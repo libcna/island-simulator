@@ -264,6 +264,12 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             log = directory / "island-android-logcat.txt"
             log.write_text(good)
             gate.validate_game_logs(directory, False)
+            for view in ("hut", "hut-material"):
+                with self.assertRaisesRegex(RuntimeError, "hut material"):
+                    gate.validate_game_logs(directory, False, view)
+                log.write_text(good+"hut beam-aligned weathered grain and filtered thatch fibres\n")
+                gate.validate_game_logs(directory, False, view)
+                log.write_text(good)
             times = [0, 5, 10.1, 18.5, 24, 29.1, 38.9, 0]
             heights = [5, 5.2, 5.3, 7.3, 6.4, 5.3, 5.01, 5]
             stages = "\n".join(f"monkey climb stage={i} subject=3 tree={187 if i<7 else -1} "

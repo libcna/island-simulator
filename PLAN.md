@@ -822,6 +822,11 @@ Landmark backlog requested by the operator:
   Allstripgeometry/overlap testsPASS aftercorrectingexcessivelateraljitter. Actual
   222902.709084Z nativeimageinspected/PASS/kernel[]: lessregulargrid/uneveneave,
   finefibre/woodmaterialdetail and portableactualaudit stillpending. Notfinalrealism.
+  Portable beam-aligned wood/endgrain/thatch shader nowadded; no textures/extradraw,
+  +2grainfloats/vertex. Native223611overview/223822close materialactualPASS/images
+  inspected/kernel[]. Android224038hut-material actualPASS/imageinspected/GLES
+  SwiftShader/nofallback/ownedexit0/kernel[]. Appearance stillstylized; temporal/
+  longrange filtering andWebactualmaterial/globalroute/worldreport remainOPEN.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars
