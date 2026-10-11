@@ -1,6 +1,7 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
+#include "IslandSimulator/MonkeyExcursionClearance.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -51,7 +52,7 @@ namespace island
     }
 
     MonkeyTroop::MonkeyTroop(const IslandTerrain& terrain)
-        : terrain_(terrain)
+        : terrain_(terrain), renderedTerrain_(std::make_shared<RenderedTerrainSurface>(terrain))
     {
         agents_.resize(MonkeyCount);
         states_.resize(MonkeyCount);
@@ -63,6 +64,9 @@ namespace island
 
     void MonkeyTroop::SetObstacles(const std::span<const CircularObstacle> obstacles)
     {
+        for (const auto& agent:agents_)
+            if (agent.state.treeExcursion || agent.state.treeReleasing)
+                throw std::logic_error("Cannot replace monkey obstacles during tree attachment");
         obstacles_.assign(obstacles.begin(), obstacles.end());
         for (std::size_t index = 0; index < agents_.size(); ++index) {
             if (agents_[index].state.treeIndex >= 0) EnterState(agents_[index], MonkeyBehavior::Idle);
@@ -76,6 +80,9 @@ namespace island
 
     void MonkeyTroop::SetCanopy(const std::span<const CanopyPlacement> trees)
     {
+        for (const auto& agent:agents_)
+            if (agent.state.treeExcursion || agent.state.treeReleasing)
+                throw std::logic_error("Cannot replace monkey canopy during tree attachment");
         for (const auto& tree : trees) {
             if (!std::isfinite(tree.x) || !std::isfinite(tree.y) || !std::isfinite(tree.z)
                 || !std::isfinite(tree.yawRadians) || !std::isfinite(tree.scale)
@@ -223,6 +230,10 @@ namespace island
         agent.state.behavior = behavior;
         agent.state.treeInspectionSeconds = 0;
         agent.state.treeInspectionRemaining = 0;
+        agent.state.treeExcursion.reset();
+        agent.state.treeClock = {};
+        agent.state.treeReleasing = false;
+        agent.treeClimbAttempted = false;
         if (behavior != MonkeyBehavior::ApproachTree && behavior != MonkeyBehavior::InspectTree)
             agent.state.treeIndex = -1;
         ++agent.decisionCounter;
@@ -330,10 +341,11 @@ namespace island
     }
 
     void MonkeyTroop::Update(const float deltaSeconds, const float observerX,
-                             const float observerY, const float observerZ) noexcept
+                             const float observerY, const float observerZ, const float windTime) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.1f) : 0.0f;
+        windTime_=std::isfinite(windTime)&&windTime>=0 ? windTime : windTime_+safeDelta;
         ++frameIndex_;
         fullSimulationCount_ = 0;
         reducedSimulationCount_ = 0;
@@ -396,6 +408,19 @@ namespace island
         if (deltaSeconds <= 0.0f) {
             return;
         }
+        if (agent.state.treeExcursion) {
+            agent.state.animationSeconds+=deltaSeconds;
+            agent.state.treeClock.Advance(deltaSeconds,
+                std::hypot(agent.state.x-observerX,agent.state.z-observerZ)<7.5f);
+            if (agent.state.treeClock.finished) {
+                agent.state.treeExcursion.reset();
+                agent.state.treeReleasing=true;
+                agent.state.treeInspectionSeconds=3.2f;
+                agent.stateSecondsRemaining=2.8f;
+                agent.state.treeInspectionRemaining=2.8f;
+            }
+            return;
+        }
         agent.stateSecondsRemaining -= deltaSeconds;
         if (agent.state.behavior == MonkeyBehavior::InspectTree) {
             agent.state.treeInspectionSeconds += deltaSeconds;
@@ -407,7 +432,8 @@ namespace island
 
         const float observerDistance = std::hypot(
             agent.state.x - observerX, agent.state.z - observerZ);
-        if (observerDistance < 7.5f && agent.state.behavior != MonkeyBehavior::RunAway) {
+        if (observerDistance < 7.5f && agent.state.behavior != MonkeyBehavior::RunAway
+            && !agent.state.treeReleasing) {
             EnterState(agent, MonkeyBehavior::RunAway);
             ChooseEscapeTarget(agent, observerX, observerZ);
         }
@@ -511,6 +537,24 @@ namespace island
         agent.state.gaitAmount += std::clamp(desiredGaitAmount - agent.state.gaitAmount,
                                            -4.0f * deltaSeconds, 4.0f * deltaSeconds);
         agent.state.y = terrain_.Height(agent.state.x, agent.state.z);
+        if (climbingEnabled_ && agent.state.behavior==MonkeyBehavior::InspectTree && !agent.treeClimbAttempted
+            && agent.state.treeInspectionSeconds>=3.2f && observerDistance>=7.5f
+            && agent.state.simulationTier==WildlifeSimulationTier::Full) {
+            agent.treeClimbAttempted=true;
+            const MonkeyAttachmentSite::GroundFrame frame{{agent.state.x,agent.state.y,agent.state.z},
+                agent.state.headingRadians,agent.state.scale};
+            const auto site=MonkeyAttachmentSite::Prepare(agent.state.selectedTree,frame,
+                *renderedTerrain_,obstacles_,windTime_);
+            if (site.plan) {
+                const auto plan=MonkeyTreeExcursion::Build(*site.plan,frame,
+                    GroundJunglePlacement(agent.state.selectedTree,*renderedTerrain_),windTime_);
+                if (MonkeyExcursionClearance::Validate(plan,*renderedTerrain_,obstacles_,windTime_).failure
+                    ==MonkeyExcursionClearance::Failure::None) {
+                    agent.state.treeExcursion=std::make_shared<MonkeyTreeExcursion::Plan>(plan);
+                    agent.state.treeClock={};
+                }
+            }
+        }
     }
 
     std::span<const MonkeyState> MonkeyTroop::Monkeys() const noexcept

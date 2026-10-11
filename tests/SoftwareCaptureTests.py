@@ -14,13 +14,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from run_software_capture import (
     check_configuration, software_environment, validate_graphics_log, run_monitored_capture,
     inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
-    validate_monkey_tree_stages,
+    validate_monkey_tree_stages, validate_monkey_climb_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 
 
 class SoftwareCaptureTests(unittest.TestCase):
     cache = "CNA_GRAPHICS_RENDERER:STRING=OPENGL33\nCNA_ROOT_DIR:PATH=/dependency\n"
+
+    def test_climb_requires_whole_cycle_same_tree_ascent_descent_and_release(self):
+        times = [0, 5, 10.1, 18.5, 24, 29.1, 38.9, 0]
+        heights = [5, 5.2, 5.3, 7.3, 6.4, 5.3, 5.01, 5]
+        rows = [f"monkey climb stage={i} subject=2 tree={12 if i<7 else -1} "
+                f"time={t} active={int(i<7)} centre-y={heights[i]}" for i,t in enumerate(times)]
+        valid = "\n".join(rows)
+        self.assertEqual(len(validate_monkey_climb_stages(valid)), 8)
+        for invalid in ["\n".join(rows[:-1]), valid.replace("stage=2 subject=2", "stage=2 subject=3"),
+                        valid.replace("time=18.5", "time=11.0"), valid.replace("centre-y=7.3", "centre-y=5.3"),
+                        valid.replace("centre-y=5.01", "centre-y=6.01"),
+                        valid.replace("stage=7 subject=2 tree=-1", "stage=7 subject=2 tree=12")]:
+            with self.assertRaises(RuntimeError):
+                validate_monkey_climb_stages(invalid)
 
     def test_tree_sequence_requires_same_subject_tree_clock_and_applied_contacts(self):
         def ease(t):

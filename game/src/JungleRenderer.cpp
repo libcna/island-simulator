@@ -1,4 +1,5 @@
 #include "IslandSimulator/JungleRenderer.hpp"
+#include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/CanopyVisibility.hpp"
 #include "IslandSimulator/JungleWind.hpp"
 #include "IslandSimulator/JungleMaterial.hpp"
@@ -1764,7 +1765,8 @@ void main()
     }
 
     void JungleRenderer::Draw(const Matrix& view, const Matrix& projection,
-                              const Vector3& cameraPosition, const float timeSeconds)
+                              const Vector3& cameraPosition, const float timeSeconds,
+                              std::span<const MonkeyState> monkeys)
     {
         for (auto& transforms : visibleCanopyNear_) transforms.clear();
         for (auto& transforms : visibleCanopyFar_) transforms.clear();
@@ -1825,6 +1827,11 @@ void main()
                         nearLod = lodInspection_->near;
                         ++inspectionSubmissions;
                     }
+                    // Supporting geometry must not change beneath planted bark grips.
+                    for (const auto& monkey:monkeys)
+                        if ((monkey.treeExcursion || monkey.treeReleasing)
+                            && std::hypot(monkey.selectedTree.x-instance.x,monkey.selectedTree.z-instance.z)<1e-4f)
+                            nearLod=true;
                     (nearLod ? visibleCanopyNear_ : visibleCanopyFar_)[instance.variant]
                         .push_back(instance.transform);
                     if (nearLod) {

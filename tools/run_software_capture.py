@@ -67,6 +67,34 @@ def validate_monkey_capture_log(diagnostics, require_tree_grips=False):
         raise RuntimeError("monkey-tree capture subject has no reachable paired bark grips")
 
 
+def validate_monkey_climb_stages(diagnostics):
+    number = r"(-?\d+(?:\.\d+)?)"
+    rows = re.findall(r"monkey climb stage=(\d+) subject=(\d+) tree=(-?\d+) time=" + number
+                      + r" active=(\d+) centre-y=" + number, diagnostics)
+    if len(rows) != 8:
+        raise RuntimeError("monkey-climb requires eight complete-cycle stages")
+    result = []
+    for index, row in enumerate(rows):
+        stage, subject, tree, seconds, active, height = row
+        if int(stage) != index or subject != rows[0][1] or not math.isfinite(float(height)):
+            raise RuntimeError("invalid monkey climb stage identity/height")
+        if index < 7:
+            if abs(float(seconds)-[0, 5, 10.1, 18.5, 24, 29.1, 38.9][index]) > .1:
+                raise RuntimeError("monkey climb omitted a required cycle phase")
+            if active != "1" or tree != rows[0][2] or int(tree) < 0:
+                raise RuntimeError("monkey climb lost its supporting tree")
+            if index and float(seconds) <= float(rows[index-1][3]):
+                raise RuntimeError("monkey climb clock did not advance")
+        elif active != "0" or tree != "-1":
+            raise RuntimeError("monkey climb did not safely finish ground release")
+        result.append({"stage": index, "seconds": float(seconds), "centre_y": float(height)})
+    if result[3]["centre_y"]-result[0]["centre_y"] < 1.5:
+        raise RuntimeError("monkey climb did not achieve a visible ascent")
+    if abs(result[6]["centre_y"]-result[0]["centre_y"]) > .1:
+        raise RuntimeError("monkey climb did not descend to its original attachment height")
+    return result
+
+
 def validate_antialiasing_log(diagnostics, expected_samples):
     samples = re.findall(r"edge antialiasing requested (\d+)x renderer-applied (\d+)x", diagnostics)
     expected = (str(expected_samples), str(expected_samples))
@@ -222,7 +250,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "canopy", "monkey-tree"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -404,10 +432,11 @@ def main():
                 raise RuntimeError("current boar pose is missing; check for a stale executable")
             if "monkeys receive footprint-averaged canopy light through 14-bone skinning" not in diagnostics:
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
-            if args.viewpoint in {"monkeys", "monkey-tree"}:
-                validate_monkey_capture_log(diagnostics, args.viewpoint == "monkey-tree")
-            if args.viewpoint == "monkey-tree":
-                metadata["monkey_tree_stages"] = validate_monkey_tree_stages(diagnostics)
+            if args.viewpoint in {"monkeys", "monkey-tree", "monkey-climb"}:
+                validate_monkey_capture_log(diagnostics, args.viewpoint in {"monkey-tree", "monkey-climb"})
+            if args.viewpoint in {"monkey-tree", "monkey-climb"}:
+                metadata["monkey_tree_stages"] = (validate_monkey_climb_stages(diagnostics)
+                    if args.viewpoint == "monkey-climb" else validate_monkey_tree_stages(diagnostics))
                 for stage in metadata["monkey_tree_stages"]:
                     stage_path = Path(str(capture) + f".tree-stage-{stage['stage']}.ppm")
                     validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),

@@ -1083,6 +1083,7 @@ namespace island
             bool treeGripApplied = false;
             float torsoAngle = 0;
             Vector3 torsoPivot = Vector3::Zero;
+            Vector3 torsoTranslation = Vector3::Zero;
             std::array<float,2> appliedTreeWeights{};
             {
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
@@ -1108,9 +1109,20 @@ namespace island
                         * (1.0f / std::max(groundNormals[limb].Y, 0.1f) - 1.0f);
                 }
                 auto pose = MonkeyGroundGait::FitGround(flatPose, ground);
-                if (monkey.behavior == MonkeyBehavior::InspectTree && monkey.treeIndex >= 0) {
+                if (monkey.treeExcursion) {
+                    const auto& plan=*monkey.treeExcursion;
+                    const auto climbing=MonkeyTreeExcursion::Sample(plan,monkey.treeClock.seconds,windTime,false);
+                    pose=climbing.body.limbs;
+                    torsoAngle=climbing.body.frame.pitch;
+                    torsoPivot=ToVector(plan.attachment.pivot);
+                    torsoTranslation=ToVector(climbing.body.frame.hip)-torsoPivot;
+                    for (std::size_t limb=0;limb<4;++limb)
+                        groundNormals[limb]=ToVector(climbing.body.normals[limb]);
+                    treeGripApplied=true;
+                    appliedTreeWeights={1,1};
+                } else if (monkey.behavior == MonkeyBehavior::InspectTree && monkey.treeIndex >= 0) {
                     const auto tree = GroundJunglePlacement(monkey.selectedTree,renderedTerrain_);
-                    const bool farTree = std::hypot(tree.x-cameraPosition.X,tree.z-cameraPosition.Z)
+                    const bool farTree = !monkey.treeReleasing && std::hypot(tree.x-cameraPosition.X,tree.z-cameraPosition.Z)
                         > CanopyNearLodDistance(tree.yawRadians);
                     const auto weights = MonkeyTreeReach::Weights(monkey.treeInspectionSeconds,
                                                                    monkey.treeInspectionRemaining);
@@ -1180,12 +1192,20 @@ namespace island
                 playback.attentiveLocalTransforms[Head]
                     = Matrix::CreateRotationY(-monkey.headLookRadians)
                         * playback.attentiveLocalTransforms[Head];
+                if (monkey.treeExcursion) {
+                    // Keep the face aimed toward the next bark grips, rather than
+                    // rigidly rotating the muzzle skyward with the vertical torso.
+                    const float headCounterPitch=1.1f*std::clamp((torsoAngle-.22f)
+                        /(std::numbers::pi_v<float>*.5f-.22f),0.0f,1.0f);
+                    playback.attentiveLocalTransforms[Head]=Matrix::CreateRotationX(headCounterPitch)
+                        * playback.attentiveLocalTransforms[Head];
+                }
                 BuildSkinPalette(*skinningData_, playback.attentiveLocalTransforms,
                                  playback.attentiveWorldTransforms,
                                  playback.attentiveSkinTransforms);
                 if (torsoAngle > 0) {
                     const Matrix tilt = Matrix::CreateTranslation(-torsoPivot)
-                        * Matrix::CreateRotationX(-torsoAngle) * Matrix::CreateTranslation(torsoPivot);
+                        * Matrix::CreateRotationX(-torsoAngle) * Matrix::CreateTranslation(torsoPivot+torsoTranslation);
                     for (std::size_t bone = 0; bone < BoneCount; ++bone) {
                         playback.attentiveWorldTransforms[bone] = playback.attentiveWorldTransforms[bone] * tilt;
                         playback.attentiveSkinTransforms[bone] = skinningData_->InverseBindPose[bone]
@@ -1215,7 +1235,8 @@ namespace island
             }
             assert(skinTransforms->size() == BoneCount);
 
-            const Vector3 centre(monkey.x, monkey.y + 0.72f * monkey.scale, monkey.z);
+            const auto visualCentre=MonkeyVisualCentre(monkey);
+            const Vector3 centre(visualCentre.x,visualCentre.y,visualCentre.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
             if (distanceSquared > maximumDistance_ * maximumDistance_
                 || !frustum.Intersects(BoundingSphere(centre, 1.9f * monkey.scale))) {

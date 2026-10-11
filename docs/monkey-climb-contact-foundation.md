@@ -419,3 +419,54 @@ cannot stand in for that visual audit.
 Final incremental build and all 37 non-display groups pass (54.09 s,
 `build/monkey-excursion-clearance-final-tests.log`), including the negative fixtures.
 Asset gate 24/75/10/0, stop latch unchanged, all jobs finished. No graphics run yet.
+
+## Live troop/renderer integration and first actual cycle audit
+
+Ordinary `MonkeyTroop` now attempts the prepared excursion once per natural inspection
+after 3.2 seconds, only at full simulation distance and away from a nearby observer.
+It samples the current wind time, rejects failed attachment/full-cycle clearance, and
+stores the accepted immutable plan with a reversible clock. The original ground origin
+is retained for transform continuity. During an excursion the ground walk clock and
+heading remain fixed; the animation clock continues. A nearby player requests return
+instead of replacing airborne support with `RunAway`. After return, 2.8 seconds of the
+ordinary torso-lowering/hand-release inspection finishes before wandering or fleeing.
+Canopy/obstacle replacement during attachment/release is rejected before mutating the
+world snapshot; callers must let attached animals return before replacing supports.
+
+The renderer applies current-wind excursion limbs, sole normals and full torso rotation/
+translation to the 14-bone palette. Body position drives culling/lighting and the contact
+shadow cache/position; ground-shadow opacity fades with elevation. Supporting trees stay
+on the near mesh through attachment and release, avoiding the demonstrated coarse-LOD
+unreachable grip. At most seven occupied trees gain this exception; it is not a global
+LOD override. Live preflight currently runs synchronously and needs frame-cost profiling.
+
+`--viewpoint monkey-climb` captures eight naturally reached stages from one replayed
+excursion without teleporting an animal or fabricating a pose. It retains the summit as
+the final reference frame. The existing `monkey-tree` view explicitly disables climbing
+for its separate inspection-only regression; normal play leaves climbing enabled.
+The software harness requires fixed subject/tree, expected ascending cycle times, more
+than 1.5 m actual rise, return height and completed ground release; all eight images also
+pass the unchanged image-content gate. New negative harness fixtures reject missing,
+wrong-identity, wrong-phase, no-ascent, no-descent and unreleased sequences.
+
+First native llvmpipe capture `20261011T154734.814785Z-monkey-climb` passes all eight
+stages. Actual original-resolution summit and eight-stage contact sheet inspected:
+subject 3 climbs tree 187 from body Y 12.7403 to 15.046, descends to 12.7416 and releases.
+The body stays connected and visible; near-side hands/feet meet the trunk, while the
+opposite contacts are partly occluded. It is not continuous-motion/all-angle proof.
+Audit exposed a skyward-facing head on the vertical torso; a bounded counter-pitch now
+aims the muzzle toward upcoming grips, with zero correction at the attachment boundary.
+The first capture is retained as pre-correction evidence. Anatomy/facial silhouette,
+visible joint transitions and stiff tail remain realism defects, not accepted as final.
+
+Native integration suite: 37/37 non-display groups pass (82.01 s,
+`build/monkey-live-climb-final-tests.log`); live tests require actual climbing/summit,
+deterministic identity/clock, safe proximity return and rejection of support deletion.
+The capture harness has 31 passing CPU tests. No current Web/Android climbing, physical
+GPU performance, continuous animation or all-angle qualification is claimed.
+
+Head correction rebuilt and final native `20261011T154923.604121Z-monkey-climb` passes
+all eight gates. Original-resolution summit and full sequence inspected: muzzle now
+faces toward upcoming grips, ascent/descent/release retained; same near-side contact and
+far-side occlusion limits. Both kernel deltas empty. Asset gate 24/75/10/0, GPU stop latch
+unchanged, all launched jobs finished. No Android/KVM or dependency changes.

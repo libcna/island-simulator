@@ -280,7 +280,8 @@ namespace island
             || cachedBoarPoses_.size() != boars.size();
         if (!rebuild) {
             for (std::size_t index = 0; index < monkeys.size(); ++index) {
-                const Vector3 position(monkeys[index].x, monkeys[index].y, monkeys[index].z);
+                const auto centre=MonkeyVisualCentre(monkeys[index]);
+                const Vector3 position(centre.x,centre.y,centre.z);
                 if (Vector3::DistanceSquared(position, cachedMonkeyPositions_[index])
                     > MonkeyRefreshDistanceSquared) {
                     rebuild = true;
@@ -355,12 +356,15 @@ namespace island
             }
 
             for (const MonkeyState& monkey : monkeys) {
+                const auto centre=MonkeyVisualCentre(monkey);
                 float fade = 0.0f;
-                if (!IsVisible(frustum, cameraPosition, monkey.x, monkey.y, monkey.z,
+                if (!IsVisible(frustum, cameraPosition, centre.x, centre.y, centre.z,
                                0.85f * monkey.scale, monkeyMaximumDistance_, fade)) {
                     continue;
                 }
-                AppendTerrainEllipse(stagingVertices_, terrain_, monkey.x, monkey.z,
+                const float elevation=std::max(0.0f,centre.y-monkey.y-.72f*monkey.scale);
+                fade*=std::clamp(1-elevation/3.0f,0.0f,1.0f);
+                AppendTerrainEllipse(stagingVertices_, terrain_, centre.x, centre.z,
                                      shadowDirectionX, shadowDirectionZ,
                                      0.62f * monkey.scale, 0.38f * monkey.scale,
                                      0.12f * monkey.scale, FadedAlpha(48, fade));
@@ -396,7 +400,8 @@ namespace island
             cachedMonkeyPositions_.clear();
             cachedMonkeyPositions_.reserve(monkeys.size());
             for (const MonkeyState& monkey : monkeys) {
-                cachedMonkeyPositions_.emplace_back(monkey.x, monkey.y, monkey.z);
+                const auto centre=MonkeyVisualCentre(monkey);
+                cachedMonkeyPositions_.emplace_back(centre.x,centre.y,centre.z);
             }
             cachedBoarPoses_.clear();
             for (const auto& boar : boars) {

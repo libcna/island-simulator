@@ -436,6 +436,19 @@ Standing visual-quality rules (apply to every task from now on):
   All 21 accepted natural sites pass at initial wind 3. Negative obstacle/terrain/invalid
   frame fixtures guard rejection. These remain finite proxy samples, not full mesh or
   continuous collision proof. Next is live behavior/render integration and actual images.
+  Live integration now attempts validated excursions after natural inspection, advances
+  a reversible climb clock, descends safely on player approach and releases hands before
+  walking. Renderer uses current-wind limbs/soles/full body frame; culling and contact
+  shadows follow the elevated body. Supporting trees retain near geometry through release.
+  New `monkey-climb` QA replay covers eight stages of one actual excursion, independently
+  of the preserved inspection-only view. Native `20261011T154734.814785Z-monkey-climb`
+  passes; summit and whole-sequence images inspected, 2.3057 m rise and safe return visible,
+  empty kernel delta. Audit found the head aimed too far skyward; counter-pitch correction
+  added for recheck. 37/37 native non-display groups pass (82.01 s); 31 capture-unit tests
+  pass. Continuous/all-angle motion, frame-cost profiling, current Web/Android climbing
+  and anatomy/face/tail realism remain open. This is not overall monkey visual acceptance.
+  Final head-corrected native `20261011T154923.604121Z-monkey-climb` passes all eight gates;
+  summit/full sequence inspected, muzzle now aims toward upcoming grips, empty kernel delta.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

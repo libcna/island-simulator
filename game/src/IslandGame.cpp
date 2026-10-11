@@ -95,6 +95,7 @@ namespace island
             case FixedViewpoint::SharkDetail: return "shark";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
             case FixedViewpoint::MonkeyTreeDetail: return "monkey-tree";
+            case FixedViewpoint::MonkeyClimbDetail: return "monkey-climb";
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
@@ -629,8 +630,10 @@ namespace island
             const Vector3 toShark = Vector3(shark.x, shark.y, shark.z) - cameraPosition_;
             yaw_ = std::atan2(toShark.X, toShark.Z);
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
-        } else if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+        } else if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail
+            || viewpoint_ == FixedViewpoint::MonkeyClimbDetail) {
             if (viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+                monkeyTroop_.SetClimbingEnabled(false); // Preserve the separate inspection-only regression.
                 const MonkeyTroop initialTroop(monkeyTroop_);
                 bool ready = false;
                 for (int step = 0; step < 12000 && !ready; ++step) {
@@ -673,12 +676,51 @@ namespace island
                         throw std::runtime_error("monkey-tree replay did not retain all eight transfer stages");
                 }
             }
+            if (viewpoint_ == FixedViewpoint::MonkeyClimbDetail) {
+                const MonkeyTroop initial(monkeyTroop_);
+                bool ready=false;
+                for (int step=0;step<18000 && !ready;++step) {
+                    const auto observer=monkeyTroop_.Monkeys().front();
+                    monkeyTroop_.Update(1.0f/30,observer.x+12,observer.y,observer.z);
+                    for (std::size_t i=0;i<monkeyTroop_.Monkeys().size();++i) {
+                        const auto& current=monkeyTroop_.Monkeys()[i];
+                        if (current.treeExcursion && !current.treeClock.returning && current.treeClock.seconds>=18.5f) {
+                            monkeyQaSubjectIndex_=i; ready=true; break;
+                        }
+                    }
+                }
+                if (!ready) throw std::runtime_error("No natural monkey climb reached summit in bounded QA warmup");
+                const auto selected=monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
+                const float start=selected.animationSeconds-selected.treeClock.seconds;
+                MonkeyTroop replay(initial);
+                constexpr std::array<float,7> times{0,5,10.1f,18.5f,24,29.1f,38.9f};
+                bool entered=false;
+                for (int step=0;step<19500 && monkeyTreeQaPoses_.size()<8;++step) {
+                    const auto observer=replay.Monkeys().front();
+                    replay.Update(1.0f/30,observer.x+12,observer.y,observer.z);
+                    const auto& current=replay.Monkeys()[monkeyQaSubjectIndex_];
+                    const bool same=current.treeExcursion && current.treeIndex==selected.treeIndex
+                        && std::abs(current.animationSeconds-current.treeClock.seconds-start)<.02f;
+                    if (same) {
+                        entered=true;
+                        if (monkeyTreeQaPoses_.size()<times.size()
+                            && current.treeClock.seconds>=times[monkeyTreeQaPoses_.size()])
+                            monkeyTreeQaPoses_.emplace_back(replay.Monkeys().begin(),replay.Monkeys().end());
+                    } else if (entered && !current.treeReleasing) {
+                        if (monkeyTreeQaPoses_.size()!=7) throw std::runtime_error("Natural monkey climb interrupted during QA replay");
+                        monkeyTreeQaPoses_.emplace_back(replay.Monkeys().begin(),replay.Monkeys().end());
+                    }
+                }
+                if (monkeyTreeQaPoses_.size()!=8) throw std::runtime_error("Monkey climb QA missing cycle stages");
+            }
             const MonkeyState& monkey = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
             const Vector3 forward(std::cos(monkey.headingRadians), 0.0f,
                                   std::sin(monkey.headingRadians));
             const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
                 + forward * 0.6f - side * 2.1f + Vector3::Up * 1.10f;
+            if (viewpoint_==FixedViewpoint::MonkeyClimbDetail)
+                cameraPosition_=Vector3(monkey.x,monkey.y,monkey.z)+forward*.65f-side*5.0f+Vector3::Up*2.2f;
             std::ostringstream monkeyCameraReport;
             monkeyCameraReport << "island-simulator: monkey QA subject " << monkey.x << ','
                 << monkey.y << ',' << monkey.z << "; camera " << cameraPosition_.X << ','
@@ -686,7 +728,7 @@ namespace island
                 << terrain_.Height(cameraPosition_.X, cameraPosition_.Z);
             std::cout << monkeyCameraReport.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(monkeyCameraReport.str());
-            const Vector3 toMonkey = Vector3(monkey.x, monkey.y + 0.52f, monkey.z)
+            const Vector3 toMonkey = Vector3(monkey.x, monkey.y + (viewpoint_==FixedViewpoint::MonkeyClimbDetail ? 1.8f : .52f), monkey.z)
                 - cameraPosition_;
             yaw_ = std::atan2(toMonkey.X, toMonkey.Z);
             pitch_ = std::atan2(toMonkey.Y, std::hypot(toMonkey.X, toMonkey.Z));
@@ -1175,8 +1217,9 @@ namespace island
             }
         }
         const MonkeyState previousMonkeySubject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
-        if (viewpoint_ != FixedViewpoint::MonkeyTreeDetail)
-            monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z);
+        if (viewpoint_ != FixedViewpoint::MonkeyTreeDetail && viewpoint_ != FixedViewpoint::MonkeyClimbDetail)
+            monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z,
+                static_cast<float>(gameTime.getTotalGameTimeProperty().getTotalSecondsProperty()));
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
             // Keep the animated subject in the close QA view even when software rendering
             // requires many simulation updates between captured frames. Preserve the original
@@ -2140,7 +2183,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("jungle");
             jungleRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                  timeSeconds);
+                                  timeSeconds,renderedMonkeys);
         }
 
         const PlayerPosition& grassPlayer = playerMotion_.Position();
@@ -2698,16 +2741,22 @@ namespace island
                 << " subject=" << monkeyQaSubjectIndex_ << " tree=" << subject.treeIndex
                 << " elapsed=" << subject.treeInspectionSeconds << " clock=" << subject.animationSeconds
                 << " weights=" << weights[0] << ',' << weights[1] << '\n';
+            if (viewpoint_==FixedViewpoint::MonkeyClimbDetail) {
+                const auto centre=MonkeyVisualCentre(subject);
+                std::cout << "island-simulator: monkey climb stage=" << treeQaStage << " subject=" << monkeyQaSubjectIndex_
+                    << " tree=" << subject.treeIndex << " time=" << subject.treeClock.seconds
+                    << " active=" << static_cast<bool>(subject.treeExcursion) << " centre-y=" << centre.y << '\n';
+            }
         }
         const std::uint32_t targetFrames = !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
-                && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail)
+                && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {
             {
                 GpuDiagnosticScope gpuPass("capture-readback");
                 CaptureFrame(capturePath_);
             }
-            if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
+            if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail) {
                 const auto& subject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
                 std::cout << "island-simulator: monkey capture visible "
                           << monkeyRenderer_->VisibleMonkeyCount() << "; near "

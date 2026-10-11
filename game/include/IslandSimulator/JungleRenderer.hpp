@@ -14,6 +14,7 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <span>
 
 namespace Microsoft::Xna::Framework::Graphics
 {
@@ -28,6 +29,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
+    struct MonkeyState;
     class CanopyLighting;
     class LeafSurfaceMaterial;
     class RenderedTerrainHeightMap;
@@ -48,7 +50,7 @@ namespace island
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
-                  float timeSeconds);
+                  float timeSeconds, std::span<const MonkeyState> monkeys = {});
 
         [[nodiscard]] bool UsesInstancing() const noexcept { return instancingSupported_; }
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }

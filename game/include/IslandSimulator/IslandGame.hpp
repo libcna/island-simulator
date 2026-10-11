@@ -109,6 +109,7 @@ namespace island
         SharkDetail,
         MonkeyDetail,
         MonkeyTreeDetail,
+        MonkeyClimbDetail,
         ShipwreckDetail,
         CrabDetail,
         BoarDetail,

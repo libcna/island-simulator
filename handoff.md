@@ -9,7 +9,45 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — whole-cycle clearance, ready for live integration work
+## Latest — LIVE climbing integrated and actual native whole-cycle images inspected
+
+Ordinary troop now attempts a validated excursion once after 3.2 s of natural inspection
+at full simulation distance. Immutable shared plan + reversible clock, original ground
+origin retained. Player proximity requests descent/reversal; after return, 2.8 s of
+ordinary torso lowering/hand release precedes wandering/fleeing. Canopy/obstacle setters
+reject replacement while any monkey is attached/releasing rather than delete supports.
+Renderer uses wind-retargeted limbs/normals, torso rotation AND hip translation; culling/
+lighting and ground-shadow cache/position follow body centre, ground shadow fades aloft.
+Supporting tree stays near LOD through release. Added bounded head counter-pitch after
+actual first-capture audit found skyward gaze. Shared terrain cache: 232,324 bytes/troop
+(copies share it); preflight is synchronous and needs frame-cost profiling.
+
+`monkey-climb` is a new native CLI/QA viewpoint: naturally reached subject, eight stages
+of one replayed excursion, held summit final reference. Existing `monkey-tree` explicitly
+disables climb to retain its independent inspection-only gate; normal gameplay enables it.
+New harness requires expected phase times, same subject/tree, >1.5 m ascent, returned
+height and completed release, plus unchanged pixel-content gates for every frame.
+31 capture CPU tests pass, including six negative full-cycle cases. Live Core checks
+require actual climb/summit/determinism, safe player interruption and support-removal refusal.
+Full 37/37 non-display groups pass (82.01 s), `build/monkey-live-climb-final-tests.log`.
+Final renderer-only head correction rebuild succeeds: `build/monkey-live-climb-head-build.log`.
+
+First native evidence `20261011T154734.814785Z-monkey-climb`: passes/inspected, head too
+skyward, retained as pre-correction. FINAL `20261011T154923.604121Z-monkey-climb`: passes
+all eight stage gates; original-resolution summit and whole sequence inspected. Subject 3,
+tree 187, centre rises 12.7403 -> 15.046 and returns 12.7416 before release. Body connected,
+visible near-side grips meet bark; far-side contacts partially occluded. Corrected muzzle
+looks toward upcoming grips. Not continuous-motion/all-angle proof or final anatomy
+acceptance: mask-like face, obvious joint transitions and stiff tail still need work.
+Images `peak.png` and `sequence.png` in both evidence directories. Both kernel deltas empty.
+Asset gate 24/75/10/0, stop latch unchanged, all jobs finished; no Android/KVM/dependency edits.
+
+NEXT: current Web/Android build/runtime climbing qualification, continuous/all-angle and
+interruption visuals, preflight frame-cost profiling (avoid long main-thread spikes),
+then remaining monkey realism and wider island backlog. Do not call the whole goal done.
+This is the first live climb implementation, not merely another CPU-only foundation.
+
+## Earlier — whole-cycle clearance, ready for live integration work
 
 `MonkeyExcursionClearance.hpp` samples the existing 39-s wind-retargeted excursion every
 .02 s. Checks sole centres/toe corners, four points per upper/lower limb with .055/.035

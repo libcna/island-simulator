@@ -2984,6 +2984,7 @@ int main()
     unsigned attachmentCandidates=0,attachmentAccepted=0;
     unsigned excursionAccepted=0;
     unsigned excursionClear=0;
+    bool observedLiveClimb=false,observedLiveSummit=false,checkedLiveReturn=false;
     std::array<unsigned,11> attachmentFailures{};
     island::MonkeyTroop repeatedMonkeys(terrain);
     island::MonkeyTroop invalidInputMonkeys(terrain);
@@ -3080,6 +3081,31 @@ int main()
         for (std::size_t index = 0; index < monkeys.Monkeys().size(); ++index) {
             const island::MonkeyState& state = monkeys.Monkeys()[index];
             const island::MonkeyState& repeated = repeatedMonkeys.Monkeys()[index];
+            if (state.treeExcursion) {
+                observedLiveClimb=true;
+                observedLiveSummit=observedLiveSummit||state.treeClock.seconds>=18;
+                Check(state.treeIndex>=0 && repeated.treeExcursion
+                    && state.treeClock.seconds==repeated.treeClock.seconds,
+                    "live monkey climbing preserves tree identity and deterministic clock");
+                if (!checkedLiveReturn && state.treeClock.seconds>=12) {
+                    checkedLiveReturn=true;
+                    auto interrupted=monkeys;
+                    interrupted.Update(.1f,state.x,state.y,state.z);
+                    Check(interrupted.Monkeys()[index].treeExcursion
+                        && interrupted.Monkeys()[index].treeClock.returning,
+                        "player proximity requests descent instead of clearing airborne tree grips");
+                    bool refused=false;
+                    try { interrupted.SetCanopy({}); } catch (const std::logic_error&) { refused=true; }
+                    Check(refused && interrupted.Monkeys()[index].treeExcursion,
+                        "canopy replacement cannot delete an attached monkey's supporting tree");
+                    for (int step=0;step<500 && interrupted.Monkeys()[index].treeIndex>=0;++step)
+                        interrupted.Update(.1f,state.x,state.y,state.z);
+                    Check(!interrupted.Monkeys()[index].treeExcursion
+                        && !interrupted.Monkeys()[index].treeReleasing
+                        && interrupted.Monkeys()[index].treeIndex<0,
+                        "interrupted live monkey descends and releases grounded grips before fleeing");
+                }
+            }
             if (state.behavior!=island::MonkeyBehavior::InspectTree) attachmentAttempted[index]=false;
             if (state.behavior==island::MonkeyBehavior::InspectTree && state.treeInspectionSeconds>=3.2f
                 && !attachmentAttempted[index] && attachmentCandidates<64) {
@@ -3414,6 +3440,8 @@ int main()
     Check(excursionAccepted>0,"actual island attachment sites include reachable ascent and descent, not only a first grip");
     std::cout << "Monkey full excursion clearance " << excursionClear << '/' << attachmentAccepted << '\n';
     Check(excursionClear>0,"natural island arrivals include an excursion passing full-cycle clearance probes");
+    Check(observedLiveClimb && observedLiveSummit && checkedLiveReturn,
+        "ordinary island simulation actually climbs, reaches summit and exercises safe interruption");
     Check(observedMonkeyTreeApproach && observedMonkeyTreeArrival,
           "real-island simulation approaches and reaches actual canopy trees");
 
