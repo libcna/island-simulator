@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — close side QA camera and Android contact shader verified
+
+The `monkeys` camera now views from forward 0.6, side -2.1, height 1.1, target height 0.52.
+No vegetation/behaviour hidden or altered. Candidate `123555.508886Z` passed image checks but
+was visually rejected because a shrub masked feet; `123834.120032Z` failed image variance.
+Both retained. Final native `20261011T124224.778948Z-monkeys` passes/inspected: front palms
+clearly visible along slope, rear partly masked. Empty kernel deltas, unchanged image gates.
+Native build and four targeted monkey/CLI groups pass. Prior full sole-frame suite was 37/37.
+
+Android x86_64 assembly/lint and `20261011T124529.157229Z-monkeys` PASS: new `uSoles[4]`
+shader packaged, side-view image inspected with visible front palms/rear foot. First image
+attempt accepted, no shader/GL/reach-limit errors, empty kernel delta. Tested APK retained;
+ARM64 assembly/lint restored and ZIP checked. Hashes/scope in `docs/monkey-sole-alignment.md`.
+All jobs finished. No dependency/host/KVM/emulator changes. The intermittent earlier black
+presentation remains unresolved. Web has NOT qualified current contact shader/tail/camera.
+NEXT: focused Web sequence with 600-second bound; face-mask/shoulder/coarse fur refinement,
+turning stance locks and actual tree-contact/climbing. Whole goal and wildlife/hut/resident
+backlog remain open. The new close camera makes the toy-like face and coarse/wavy fur obvious.
+
 ## Latest — independent palm/sole frames (native first pass, portable recheck required)
 
 See `docs/monkey-sole-alignment.md`. Four contact matrices now orient hand/foot mesh to each

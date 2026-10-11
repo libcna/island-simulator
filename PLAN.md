@@ -334,6 +334,11 @@ Standing visual-quality rules (apply to every task from now on):
   `20261011T123046.817709Z-monkeys` inspected; grass limits digit-contact evidence. See
   `docs/monkey-sole-alignment.md`. Turning stance locks, multi-point support, climbing and
   requalification of the changed shader on Android/Web remain open.
+  Closer side QA view now exposes front-palm contact without hiding vegetation; two rejected
+  candidates retained. Final native `20261011T124224.778948Z-monkeys` and Android
+  `20261011T124529.157229Z-monkeys` pass/inspected, including the new contact shader on GLES.
+  Default ARM64 build/lint restored. Web recheck, moving stance locks and realism remain open;
+  closer images expose the toy-mask face and overly coarse/wavy fur as specific defects.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

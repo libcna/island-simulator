@@ -633,7 +633,7 @@ namespace island
                                   std::sin(monkey.headingRadians));
             const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
-                + forward * 4.2f + side * 1.0f + Vector3::Up * 1.40f;
+                + forward * 0.6f - side * 2.1f + Vector3::Up * 1.10f;
             std::ostringstream monkeyCameraReport;
             monkeyCameraReport << "island-simulator: monkey QA subject " << monkey.x << ','
                 << monkey.y << ',' << monkey.z << "; camera " << cameraPosition_.X << ','
@@ -641,7 +641,7 @@ namespace island
                 << terrain_.Height(cameraPosition_.X, cameraPosition_.Z);
             std::cout << monkeyCameraReport.str() << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(monkeyCameraReport.str());
-            const Vector3 toMonkey = Vector3(monkey.x, monkey.y + 0.72f, monkey.z)
+            const Vector3 toMonkey = Vector3(monkey.x, monkey.y + 0.52f, monkey.z)
                 - cameraPosition_;
             yaw_ = std::atan2(toMonkey.X, toMonkey.Z);
             pitch_ = std::atan2(toMonkey.Y, std::hypot(toMonkey.X, toMonkey.Z));
