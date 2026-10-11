@@ -80,6 +80,7 @@ namespace island
         None,
         Overview,
         BayOverview,
+        BayBeachDetail,
         HeadlandDetail,
         BeachPath,
         JungleTrail,

@@ -3548,11 +3548,39 @@ int main()
                   && island::GroundCover::Density(0.0f, 1.0f, 80.0f, 0.1f)
                       < 0.3f * island::GroundCover::Density(1.0f, 1.0f, 80.0f, 0.1f),
               "ground cover vanishes on sand and steep slopes and thins in deep shade");
+        float previousCoastalCover = 1.0f;
+        for (int step = 0; step <= 20; ++step) {
+            const float beach = static_cast<float>(step) / 20.0f;
+            const float density = island::GroundCover::Density(1.0f, 1.0f, 40.0f, 0.1f, 0.0f, beach);
+            Check(density >= 0.0f && density <= previousCoastalCover,
+                  "shared grass and turf response decreases monotonically with sandy substrate");
+            previousCoastalCover = density;
+        }
+        Check(island::GroundCover::Density(1.0f, 1.0f, 40.0f, 0.1f, 0.0f, 0.8f) == 0.0f
+                  && island::GroundCover::Density(1.0f, 1.0f, 40.0f, 0.1f, 1.0f, 0.0f) == 0.0f
+                  && island::GroundCover::Density(1.0f, 1.0f, 40.0f, 0.1f, 0.0f, 0.0f) == 1.0f,
+              "sandy apron and bare rock suppress turf independently of distance from shore");
+        const auto wideBeach = coastalStation(std::numbers::pi_v<float>, 25.0f);
+        const auto ordinaryBeach = coastalStation(-1.5f, 25.0f);
+        const float bayCover = island::GroundCover::Density(1.0f, 1.0f, 25.0f, 0.1f,
+            wideBeach.coastalRockiness, wideBeach.beachSuitability);
+        const float ordinaryCover = island::GroundCover::Density(1.0f, 1.0f, 25.0f, 0.1f,
+            ordinaryBeach.coastalRockiness, ordinaryBeach.beachSuitability);
+        Check(bayCover < ordinaryCover * 0.5f,
+              "wide bay suppresses turf more than ordinary coast at the same shore distance");
         for (const float invalid : {std::numeric_limits<float>::quiet_NaN(), -0.1f, 1.1f}) {
             bool rejected = false;
             try { (void)island::GroundCover::Density(invalid, 0.5f, 50.0f, 0.1f); }
             catch (const std::invalid_argument&) { rejected = true; }
             Check(rejected, "ground cover rejects invalid transmission");
+            for (bool invalidRock : {false, true}) {
+                rejected = false;
+                try {
+                    (void)island::GroundCover::Density(0.5f, 0.5f, 50.0f, 0.1f,
+                        invalidRock ? invalid : 0.0f, invalidRock ? 0.0f : invalid);
+                } catch (const std::invalid_argument&) { rejected = true; }
+                Check(rejected, "ground cover rejects invalid coastal controls");
+            }
         }
     }
     const island::GrassLodSplit emptyGrassLod = island::GrassLod::Split(0, 82.0f);
@@ -3622,6 +3650,8 @@ int main()
         }
         for (const auto& patch : grass.Patches()) {
             const auto sample = terrain.Sample(patch.x, patch.z);
+            Check(sample.beachSuitability < island::GroundCover::BeachSuppressionEnd,
+                  "grass parents and companions avoid the sandy apron even on reserved routes");
             if (sample.signedShoreDistance < 40.0f || sample.slopeRadians > 0.3f) continue;
             const float cover = island::GroundCover::Density(canopyLight.Sample(patch.x, patch.z),
                 groundCover.SamplePatch(patch.x, patch.z), sample.signedShoreDistance, sample.slopeRadians);

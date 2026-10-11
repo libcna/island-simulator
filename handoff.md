@@ -1,21 +1,32 @@
 # island-simulator handoff
 
-## Update — Web beach validation complete; coastal turf preparation
+## Update — coastal turf native stage complete
+
+`docs/coastal-turf.md`: shared CPU/generated-GLSL sand/rock suppression for grass and
+turf, plus hard sandy-apron exclusion before the density floor/route boost (parents and
+companions). New `bay-ground` eye-height camera and platform mappings. Native build and
+final 33/33 non-display groups pass (52.01 s); CLI help test updated for the new camera.
+Captures bay-ground `20261011T091417.768738Z-bay-ground`, grass
+`20261011T091436.406649Z-grass`, bay `20261011T091521.122820Z-bay` pass and were
+inspected; all kernel deltas empty, latch unchanged. Fingerprint `5d0b62ad43a25895`,
+17,225 grass patches (two fewer), other populations unchanged, rendered root gaps zero.
+Browser grass count pin updated. No jobs remain running.
+
+NEXT: Android/Web qualification of the new turf/camera revision. The previous beach
+results below do not qualify it. Ground-level bay review also identified overly smooth
+dry sand as the next material target (filtered wind ripples/grain); that is not implemented.
+Full environment migration/geology still open. Android lifecycle remains degraded.
+
+## Update — Web wider-beach validation complete
 
 Web build and package for committed `53a2442` complete: 10,343,092 raw / 3,528,055
 gzip bytes. Contained Chrome terrain suite `20261011T085703.088366Z-chrome-terrain`
 finished with all six views passing, 60 intervals each. Overview/bay/headland/east/jungle
-images inspected; no new GPU faults, one Wi-Fi bandwidth notice. Full Web input/lifecycle
+images inspected; no new GPU faults, Wi-Fi bandwidth/EXT4 unmount/USB disconnect notices.
+Full Web input/lifecycle
 and Firefox not rerun. No browser job remains running; session `38693` completed.
 
-New uncommitted source preparation, NOT qualified yet: `GroundCover::Density`
-now takes normalized rockiness and beach suitability, generating matching CPU/GLSL
-suppression of turf on sandy substrate. Grass placement and the terrain undercoat use it;
-legacy distance/height support bounds remain. Added bounded/monotonic/invalid-input tests.
-Added `bay-ground` eye-height camera near (-147,-8) and CLI/software/Web-template mappings.
-Do not attribute the completed Web test to these newer changes. Native build now started
-(session `53738`). Next run all non-display tests, inspect bay-ground,
-grass and bay images, update measured inventory pins if changed and requalify platforms.
+Do not attribute this completed Web test to the newer coastal-turf revision above.
 
 ## Update — dominant bay beach native stage complete
 

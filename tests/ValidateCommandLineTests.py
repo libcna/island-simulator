@@ -143,7 +143,7 @@ def main() -> int:
         InvalidInvocation(
             "missing viewpoint value",
             ("--viewpoint",),
-            "island-simulator: --viewpoint requires overview, bay, beach, jungle",
+            "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle",
         ),
         InvalidInvocation(
             "unknown viewpoint",

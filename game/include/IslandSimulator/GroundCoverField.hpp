@@ -12,7 +12,8 @@ namespace island
      * @brief Shared ground-cover response for grass placement and the terrain turf undercoat.
      *
      * Cover combines direct canopy transmission, a deterministic patch field, shore distance
-     * and slope. Grass density and the terrain's green undercoat both use exactly this formula,
+     * and slope, with shared suppression on rocky or sandy coastal substrate.
+     * Grass density and the terrain's green undercoat both use exactly this formula,
      * so dense swards sit on turf and shaded or patch-poor ground keeps exposed humus and litter.
      */
     namespace GroundCover
@@ -21,12 +22,14 @@ namespace island
         inline constexpr float LightFloor = 0.18f, LightLow = 0.12f, LightHigh = 0.80f;
         inline constexpr float ShoreStart = 18.0f, ShoreEnd = 34.0f;
         inline constexpr float SlopeStart = 0.30f, SlopeEnd = 0.49f;
+        inline constexpr float BeachSuppressionStart = 0.15f, BeachSuppressionEnd = 0.70f;
 
         /** @brief Contrast-shaped [0,1] patch value from the raw multi-octave noise. */
         [[nodiscard]] float PatchFromNoise(float noise);
         /** @brief Cover in [0,1]; throws on non-finite input or out-of-range light/patch. */
         [[nodiscard]] float Density(float transmission, float patch,
-                                    float shoreDistance, float slopeRadians);
+                                    float shoreDistance, float slopeRadians,
+                                    float rockiness = 0.0f, float beachSuitability = 0.0f);
         /** @brief GLSL 330 / ES 300 groundCoverDensity() with the same constants. */
         [[nodiscard]] std::string Shader();
     }

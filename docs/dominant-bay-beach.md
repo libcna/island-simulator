@@ -58,7 +58,8 @@ physical-device runtime remains untested.
 Web build/package refreshed: 10,343,092 raw / 3,528,055 gzip bytes. Contained Chrome
 terrain suite `20261011T085703.088366Z-chrome-terrain` passes overview, bay, headland,
 beach, east and jungle, with 60 frame intervals each. Overview/bay/headland/east/jungle
-images inspected. No new GPU faults; kernel delta contains a Wi-Fi bandwidth notice.
+images inspected. No new GPU faults; final kernel delta contains Wi-Fi bandwidth,
+EXT4 unmount and USB disconnect notices.
 This qualifies the committed beach revision `53a2442`, not subsequent coastal-turf
 source preparation. Full Web input/lifecycle and Firefox were not rerun.
 The Android lifecycle issue remains open and the AMD hardware stop latch remains in force.

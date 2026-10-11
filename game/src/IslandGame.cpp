@@ -66,6 +66,7 @@ namespace island
             switch (viewpoint) {
             case FixedViewpoint::Overview: return "overview";
             case FixedViewpoint::BayOverview: return "bay";
+            case FixedViewpoint::BayBeachDetail: return "bay-ground";
             case FixedViewpoint::HeadlandDetail: return "headland";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
@@ -185,6 +186,11 @@ namespace island
             cameraPosition_ = Vector3(-365.0f, 115.0f, 0.0f);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.38f;
+        } else if (viewpoint_ == FixedViewpoint::BayBeachDetail) {
+            constexpr float x = -147.0f, z = -8.0f;
+            cameraPosition_ = Vector3(x, terrain_.Height(x, z) + PlayerMotion::EyeHeight, z);
+            yaw_ = 0.12f;
+            pitch_ = -0.07f;
         } else if (viewpoint_ == FixedViewpoint::HeadlandDetail) {
             cameraPosition_ = Vector3(300.0f, 28.0f, 110.0f);
             yaw_ = std::atan2(-63.0f, -23.0f);

@@ -64,6 +64,20 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — coastal turf substrate and ground-level bay view
+
+- [x] Shared CPU/generated-GLSL sandy-substrate response for grass density and turf
+  undercoat; bare-sand placement exclusion precedes density floor/route exceptions and
+  applies to companion tufts. See `docs/coastal-turf.md`. Legacy distance support remains.
+- [x] `bay-ground` eye-height camera with CLI/software/Android/Web-template mapping.
+  Native bay-ground, grass and bay captures pass/inspected, empty kernel deltas.
+- [x] Final 33/33 non-display groups pass (52.01 s), including bounded/monotonic controls,
+  invalid inputs, same-distance coast contrast and all-tuft sandy exclusion. Fingerprint
+  `5d0b62ad43a25895`, grass 17,225; other populations unchanged. Web inventory pin updated.
+- [ ] Android/Web qualification of this new stage; earlier beach results do not qualify it.
+  Close dry sand still needs finer relief/grain. Broader ecological migration and geology
+  remain open; Android lifecycle remains degraded and hardware rendering remains stopped.
+
 #### 2026-10-11 — dominant sheltered beach (native stage)
 
 - [x] Shared variable beach width: approximately 36 m in the sheltered western bay,
@@ -84,8 +98,8 @@ historical evidence, not post-incident qualification.
   restored, physical runtime untested. See the beach document for APK/evidence identities.
 - [x] Web build/package refreshed: 10,343,092 raw / 3,528,055 gzip bytes. Chrome terrain
   `20261011T085703.088366Z-chrome-terrain` passes all six views, 60 frame intervals each.
-  Overview/bay/headland/east/jungle images inspected; no GPU faults, Wi-Fi-only kernel
-  notice. Qualifies `53a2442`, not newer coastal-turf preparation. Full Web input/lifecycle
+  Overview/bay/headland/east/jungle images inspected; no GPU faults, final kernel notices
+  for Wi-Fi bandwidth, EXT4 unmount and USB disconnect. Qualifies `53a2442`, not newer coastal-turf preparation. Full Web input/lifecycle
   and Firefox not rerun. Android lifecycle remains degraded and was not rerun.
 
 #### 2026-10-11 — integrated rocky headlands and shared coastal field

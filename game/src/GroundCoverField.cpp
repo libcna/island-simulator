@@ -94,16 +94,21 @@ namespace island
     }
 
     float GroundCover::Density(const float transmission, const float patch,
-                               const float shoreDistance, const float slopeRadians)
+                               const float shoreDistance, const float slopeRadians,
+                               const float rockiness, const float beachSuitability)
     {
         if (!std::isfinite(transmission) || !std::isfinite(patch) || !std::isfinite(shoreDistance)
             || !std::isfinite(slopeRadians) || transmission < 0 || transmission > 1
-            || patch < 0 || patch > 1)
+            || patch < 0 || patch > 1 || !std::isfinite(rockiness)
+            || !std::isfinite(beachSuitability) || rockiness < 0 || rockiness > 1
+            || beachSuitability < 0 || beachSuitability > 1)
             throw std::invalid_argument("Invalid ground-cover input");
         const float inland = Smooth(ShoreStart, ShoreEnd, shoreDistance);
         const float slope = 1.0f - Smooth(SlopeStart, SlopeEnd, slopeRadians);
         const float light = LightFloor + (1.0f - LightFloor) * Smooth(LightLow, LightHigh, transmission);
-        return inland * slope * light * (PatchFloor + (1.0f - PatchFloor) * patch);
+        const float soil = (1.0f - rockiness)
+            * (1.0f - Smooth(BeachSuppressionStart, BeachSuppressionEnd, beachSuitability));
+        return inland * slope * light * (PatchFloor + (1.0f - PatchFloor) * patch) * soil;
     }
 
     std::string GroundCover::Shader()
@@ -114,15 +119,20 @@ namespace island
             << "const vec4 groundCoverLight=vec4(" << LightFloor << ',' << LightLow << ','
             << LightHigh << ',' << PatchFloor << ");\n"
             << "const vec4 groundCoverTerrain=vec4(" << ShoreStart << ',' << ShoreEnd << ','
-            << SlopeStart << ',' << SlopeEnd << ");\n";
+            << SlopeStart << ',' << SlopeEnd << ");\n"
+            << "const vec2 groundCoverBeach=vec2(" << BeachSuppressionStart << ','
+            << BeachSuppressionEnd << ");\n";
         // "patch" is reserved in GLSL ES 3.00: ANGLE rejects it even though Mesa's GLSL 330 does not.
         out << R"(
-float groundCoverDensity(float transmission,float patchValue,float shoreDistance,float slopeRadians) {
+float groundCoverDensity(float transmission,float patchValue,float shoreDistance,float slopeRadians,
+                         float rockiness,float beachSuitability) {
     float inland=smoothstep(groundCoverTerrain.x,groundCoverTerrain.y,shoreDistance);
     float slope=1.0-smoothstep(groundCoverTerrain.z,groundCoverTerrain.w,slopeRadians);
     float light=groundCoverLight.x+(1.0-groundCoverLight.x)
         *smoothstep(groundCoverLight.y,groundCoverLight.z,transmission);
-    return inland*slope*light*(groundCoverLight.w+(1.0-groundCoverLight.w)*patchValue);
+    float soil=(1.0-rockiness)
+        *(1.0-smoothstep(groundCoverBeach.x,groundCoverBeach.y,beachSuitability));
+    return inland*slope*light*(groundCoverLight.w+(1.0-groundCoverLight.w)*patchValue)*soil;
 }
 )";
         return out.str();

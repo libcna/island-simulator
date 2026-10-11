@@ -362,7 +362,7 @@ void main()
     // shaded or patch-poor ground keeps exposed humus and fallen leaves.
     vec2 groundField = canopyGroundField(p);
     float turfAmount = groundCoverDensity(groundField.x, groundField.y,
-        signedShoreDistance, slopeRadians) * 0.86 * (1.0 - steep) * (1.0 - coastField.x);
+        signedShoreDistance, slopeRadians, coastField.x, coastField.y) * 0.86 * (1.0 - steep);
     // Tropical understory grows through exposed humus; it is not a continuous green lawn.
     // Keep grass/moss islands, and leave the authored sunny clearing and beach palettes intact.
     color = mix(color, vec3(0.300, 0.223, 0.139) * vGroundLight, forestFloorMask * 0.82);
