@@ -426,6 +426,11 @@ Standing visual-quality rules (apply to every task from now on):
   An interruption clock returns along the same path instead of clearing tree identity
   while airborne. Runtime wiring, dynamic wind, full ascent clearance, smooth interruption
   velocity and actual visual/platform validation remain open. No live climbing claim.
+  Wind-aware excursion retargeting now refreshes actual bark contacts/body frame while
+  keeping grounded hind feet/staging fixed. A regression exposed coarse-LOD palm targets
+  beyond arm reach; these are explicitly rejected instead of accepting clamped soles.
+  Runtime must keep the supporting tree mesh coherent or qualify a continuous LOD transfer.
+  Live wiring, ascent clearance, whole-cycle visuals and portable validation remain open.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

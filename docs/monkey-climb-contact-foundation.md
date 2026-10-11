@@ -358,3 +358,32 @@ Final incremental build and all 37 non-display groups pass in 58.77 s
 (`build/monkey-excursion-final-tests.log`), including the interruption clock regressions.
 Asset inventory 24/74/10/0; unchanged GPU stop latch; all jobs finished. No new graphical
 evidence is claimed for this CPU-only change.
+
+## Wind-aware excursion retargeting — CPU only
+
+`MonkeyTreeExcursion::Retarget` rebuilds bark-dependent attachment keys at a supplied
+wind time and trunk mesh LOD. Initial and raised hands use fresh triangle queries;
+final hands, hind feet and body frame match a freshly sampled climb entry. Grounded
+hind feet and staging contacts/normals remain unchanged. The live-wind `Sample` overload
+retargets attachment/detachment and queries current wind directly during climbing/rest.
+It does not rerun the expensive site search, and does not imply collision acceptance.
+
+The first regression exposed three failures when the far mesh moved an initial palm
+beyond reach: the two-link solver clamped the sole and the rebuilt plan silently called
+that a grip. Retargeting now explicitly rejects unreachable initial/raised-torso and
+climbing-entry poses. The retained failing log is `build/monkey-excursion-wind-tests.log`.
+Tests independently establish initial reach before expecting acceptance or refusal.
+Changing LOD is therefore not automatically safe for an already attached monkey: runtime
+integration must keep the supporting tree mesh coherent or qualify a continuous transfer,
+never swap to a failed retarget or drop to a ground pose.
+
+Tests exercise three wind times and both mesh queries, verify fresh hand targets and
+unchanged ground feet, and ensure wind actually changes contacts. Valid transition
+fixtures compare roots/joints/soles across stage boundaries while wind advances. A full
+39-second advancing-wind near-mesh sample checks reach and bone lengths at every accepted
+natural site. This is sampled coverage, not every wind phase or continuous collision
+proof. Live troop/render integration and actual graphical qualification remain open.
+
+After the refusal fix, final incremental native build and all 37 non-display groups pass
+(38.52 s, `build/monkey-excursion-wind-final-tests.log`). Asset inventory remains 24/74/10/0;
+GPU stop latch unchanged, all jobs finished. No graphics process was launched.

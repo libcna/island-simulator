@@ -55,9 +55,50 @@ namespace island::MonkeyTreeExcursion
             std::atan2(frame.origin.z-groundedTree.z,frame.origin.x-groundedTree.x)+groundedTree.yawRadians,
             windTime,farMesh};
     }
+    // Requery bark at the render wind time/mesh without redoing the expensive site
+    // search. Ground supports and staging remain anchored to their original terrain.
+    // This does not certify a new LOD or wind envelope: callers must preflight those.
+    inline Plan Retarget(const Plan& source,float windTime,bool farMesh)
+    {
+        if (!std::isfinite(windTime)) throw std::invalid_argument("Invalid monkey excursion wind");
+        auto result=source;
+        result.windTime=windTime; result.farMesh=farMesh;
+        auto base=source.attachment.ground;
+        base.reachLimited=false;
+        auto normals=source.attachment.keys[0].normals;
+        std::array<MonkeyTreeReach::Contact,2> raised{},staged{};
+        for (std::size_t i=0;i<2;++i) {
+            const auto palm=MonkeyTreeReach::Target(source.tree,source.frame.origin,
+                source.frame.heading,source.frame.scale,base.limbs[i].root.y,i==0,windTime,farMesh);
+            const auto high=MonkeyTreeReach::Target(source.tree,source.frame.origin,
+                source.frame.heading,source.frame.scale,.99f+base.bodyOffset,i==0,windTime,farMesh);
+            if (!palm||!high) throw std::invalid_argument("Unreachable retargeted monkey bark grip");
+            base.limbs[i]=MonkeyGroundGait::SolveLimb(base.limbs[i].root,palm->position,
+                MonkeyTreeReach::BendHint(1),true,base.reachLimited);
+            normals[i]=palm->normal; raised[i]=*high;
+            staged[i]={source.attachment.keys[5].contacts[i+2],source.attachment.keys[5].normals[i+2]};
+        }
+        if (base.reachLimited||!MonkeyTreeReach::RaiseTorso(base,.22f))
+            throw std::invalid_argument("Retargeted monkey attachment exceeds limb reach");
+        const auto climb=MonkeyClimbPose::Sample(source.tree,source.baseHeight,source.angle,0,
+            source.frame.scale,windTime,farMesh);
+        if (climb.limbs.reachLimited)
+            throw std::invalid_argument("Retargeted monkey climb entry exceeds limb reach");
+        std::array<Point,4> contacts{},finalNormals{};
+        for (std::size_t i=0;i<4;++i) {
+            contacts[i]=source.frame.Local(climb.contacts[i]);
+            finalNormals[i]=source.frame.LocalDirection(climb.normals[i]);
+        }
+        const auto root=MonkeyTreeAttachment::Lerp(climb.limbs.limbs[2].root,climb.limbs.limbs[3].root,.5f);
+        const auto hip=source.frame.Local({climb.origin.x+source.frame.scale*(root.x*climb.right.x+root.y*climb.outward.x),
+            climb.origin.y+source.frame.scale*root.z,
+            climb.origin.z+source.frame.scale*(root.x*climb.right.z+root.y*climb.outward.z)});
+        result.attachment=MonkeyTreeAttachment::Build(base,normals,raised,staged,contacts,finalNormals,hip);
+        return result;
+    }
     // Coordinates stay in the original ground yaw/scale frame, including body and soles.
     // Signed phase is derived from height; descending exactly retraces the same grip path.
-    // Wind/LOD are held at the preflight values here. Runtime wind retargeting is separate.
+    // This overload uses the plan's wind snapshot; the overload below tracks live wind.
     inline Pose Sample(const Plan& plan,float seconds)
     {
         if (!std::isfinite(seconds)) throw std::invalid_argument("Invalid monkey excursion time");
@@ -98,6 +139,16 @@ namespace island::MonkeyTreeExcursion
         body.frame={MonkeyTreeAttachment::Lerp(body.limbs.limbs[2].root,body.limbs.limbs[3].root,.5f),
             std::numbers::pi_v<float>*.5f};
         return {body,stage,phase};
+    }
+    inline Pose Sample(const Plan& plan,float seconds,float windTime,bool farMesh)
+    {
+        if (!std::isfinite(seconds)||!std::isfinite(windTime))
+            throw std::invalid_argument("Invalid monkey excursion time/wind");
+        if (seconds<=AttachSeconds || seconds>=DetachStart)
+            return Sample(Retarget(plan,windTime,farMesh),seconds);
+        auto current=plan;
+        current.windTime=windTime; current.farMesh=farMesh;
+        return Sample(current,seconds);
     }
     // Check the whole climb, not only the attachment endpoint. Reject upper trunk sections
     // that become too narrow or too bent. This is reach validation, not mesh collision proof.

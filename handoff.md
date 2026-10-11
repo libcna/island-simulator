@@ -9,7 +9,35 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — whole excursion and safe-return clock, CPU only
+## Latest — wind-aware excursion contacts and unreachable LOD rejection, CPU only
+
+`MonkeyTreeExcursion::Retarget` refreshes initial/raised forehands, final climb grips
+and body hip at current wind/mesh, preserving original grounded hind feet and staging.
+The four-argument `Sample(plan, seconds, windTime, farMesh)` uses retargeting for attachment
+and detachment, current wind directly for climb/rest. No expensive site search per pose.
+This is not a collision preflight or runtime integration.
+
+First regression failed three assertions: coarse trunk LOD moved initial palms beyond
+reach and the solver silently clamped the requested grip. Retained failed evidence:
+`build/monkey-excursion-wind-tests.log`. Retarget now rejects unreachable initial/
+raised-torso or climb-entry poses explicitly. Tests independently check whether the
+requested initial grips are reachable before expecting retarget acceptance/refusal.
+Three wind times/both mesh queries test ground-contact invariance, current bark targets,
+actual nonzero wind movement and boundary continuity for valid targets. All 21 accepted
+natural sites also check reach/bone lengths over 39 seconds of advancing wind, near mesh.
+Sampling is not an all-wind, continuous-collision or cross-LOD transfer proof.
+
+Final build and 37/37 non-display groups pass (38.52 s):
+`build/monkey-excursion-wind-final-build.log`,
+`build/monkey-excursion-wind-final-tests.log`. Asset gate 24/74/10/0; stop latch unchanged.
+All jobs finished; no renderer/emulator launched, no new visual claim.
+Next: whole-ascent collision/clearance, then live state/renderer integration. Keep the
+supporting tree mesh coherent while attached or qualify a continuous LOD transfer; do
+not accept a rejected retarget, freeze hands in space or drop the monkey to a walking
+pose. Preserve safe interruption/tree identity and update culling/shadows consistently.
+Actual whole-cycle visual/platform audit still required. Goal remains active.
+
+## Earlier — whole excursion and safe-return clock, CPU only
 
 `MonkeyTreeExcursion.hpp` composes attach 10 s / ascend 8 s / rest 3 s / descend 8 s /
 detach 10 s, all in the original ground monkey frame. Eight gait cycles travel 2.2*scale

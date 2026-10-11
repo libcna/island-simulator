@@ -3096,6 +3096,70 @@ int main()
                             return std::hypot(a.y-b.y,std::hypot(a.x-b.x,a.z-b.z));
                         };
                         if (excursionAccepted==1) {
+                            bool movingBarkObserved=false;
+                            for (float wind:{0.0f,3.0f,17.0f}) for (bool far:{false,true}) {
+                                // A coarse trunk can move the requested palm beyond arm
+                                // reach. Establish that independently before retargeting;
+                                // refusal is correct, clamping and reporting a grip is not.
+                                bool initialLimited=false;
+                                auto initial=plan.ground;
+                                for (std::size_t hand=0;hand<2;++hand) {
+                                    const auto target=island::MonkeyTreeReach::Target(excursion.tree,frame.origin,
+                                        frame.heading,frame.scale,initial.limbs[hand].root.y,hand==0,wind,far);
+                                    Check(target.has_value(),"retarget fixture has defined bark coordinates");
+                                    if (target) initial.limbs[hand]=island::MonkeyGroundGait::SolveLimb(
+                                        initial.limbs[hand].root,target->position,island::MonkeyTreeReach::BendHint(1),
+                                        true,initialLimited);
+                                }
+                                initialLimited=initialLimited||!island::MonkeyTreeReach::RaiseTorso(initial,.22f);
+                                if (initialLimited) {
+                                    bool refused=false;
+                                    try { (void)island::MonkeyTreeExcursion::Retarget(excursion,wind,far); }
+                                    catch (const std::invalid_argument&) { refused=true; }
+                                    Check(refused,"unreachable mesh/wind retarget is rejected instead of clamping bark grips");
+                                    continue;
+                                }
+                                const auto retargeted=island::MonkeyTreeExcursion::Retarget(excursion,wind,far);
+                                for (std::size_t limb=2;limb<4;++limb) {
+                                    Check(distance(retargeted.attachment.keys[0].contacts[limb],plan.keys[0].contacts[limb])<1e-6f
+                                        && distance(retargeted.attachment.keys[5].contacts[limb],plan.keys[5].contacts[limb])<1e-6f,
+                                        "wind/mesh retargeting leaves planted and staged ground feet fixed");
+                                }
+                                for (std::size_t hand=0;hand<2;++hand) {
+                                    const auto expected=island::MonkeyTreeReach::Target(excursion.tree,frame.origin,
+                                        frame.heading,frame.scale,plan.ground.limbs[hand].root.y,hand==0,wind,far);
+                                    Check(expected && distance(expected->position,retargeted.attachment.keys[0].contacts[hand])<1e-6f,
+                                        "retargeted forepalms use actual current wind and trunk mesh queries");
+                                    if (!far && wind!=3)
+                                        movingBarkObserved=movingBarkObserved
+                                            ||distance(retargeted.attachment.keys[0].contacts[hand],plan.keys[0].contacts[hand])>1e-6f;
+                                }
+                                for (float boundary:{10.0f,18.0f,21.0f,29.0f}) {
+                                    const auto before=island::MonkeyTreeExcursion::Sample(excursion,boundary-.0001f,wind-.0001f,far);
+                                    const auto after=island::MonkeyTreeExcursion::Sample(excursion,boundary+.0001f,wind+.0001f,far);
+                                    for (std::size_t limb=0;limb<4;++limb) {
+                                        const auto& a=before.body.limbs.limbs[limb];
+                                        const auto& b=after.body.limbs.limbs[limb];
+                                        Check(distance(a.root,b.root)<.001f && distance(a.joint,b.joint)<.001f
+                                            && distance(a.sole,b.sole)<.001f,
+                                            "stage transitions stay continuous with advancing wind on either trunk mesh");
+                                    }
+                                }
+                            }
+                            Check(movingBarkObserved,"wind test must move the bark, not silently reuse frozen grips");
+                            for (int step=0;step<=390;++step) {
+                                const float time=step*.1f;
+                                const auto moving=island::MonkeyTreeExcursion::Sample(excursion,time,time+3,false);
+                                Check(!moving.body.limbs.reachLimited,"selected real excursion stays reachable with advancing wind");
+                                unsigned supports=0;
+                                for (const auto& limb:moving.body.limbs.limbs) {
+                                    supports+=limb.supporting;
+                                    Check(std::abs(distance(limb.root,limb.joint)-.31f)<1e-4f
+                                        && std::abs(distance(limb.joint,limb.sole)-.33f)<1e-4f,
+                                        "moving-wind excursion preserves limb lengths");
+                                }
+                                Check(supports>=3,"moving-wind excursion retains three supports");
+                            }
                             for (float interruptAt:{.25f,5.0f,12.0f,17.0f,19.0f,24.0f,33.0f}) {
                                 island::MonkeyTreeExcursion::Clock clock;
                                 while (clock.seconds<interruptAt) clock.Advance(.05f);
@@ -3130,10 +3194,17 @@ int main()
                         }
                         for (int step=0;step<=390;++step) {
                             const auto pose=island::MonkeyTreeExcursion::Sample(excursion,step*.1f);
+                            const auto windy=island::MonkeyTreeExcursion::Sample(excursion,step*.1f,3+step*.1f,false);
+                            Check(!windy.body.limbs.reachLimited,
+                                "every accepted natural site retains full-cycle reach with advancing wind");
                             const auto reverse=island::MonkeyTreeExcursion::Sample(excursion,39-step*.1f);
                             unsigned supports=0;
                             for (std::size_t limb=0;limb<4;++limb) {
                                 const auto& current=pose.body.limbs.limbs[limb];
+                                const auto& windLimb=windy.body.limbs.limbs[limb];
+                                Check(std::abs(distance(windLimb.root,windLimb.joint)-.31f)<1e-4f
+                                    && std::abs(distance(windLimb.joint,windLimb.sole)-.33f)<1e-4f,
+                                    "moving-wind contacts do not stretch limbs at natural sites");
                                 supports+=current.supporting;
                                 Check(distance(current.sole,reverse.body.limbs.limbs[limb].sole)<.0001f,
                                     "descent and detachment retrace the ascent contacts without ground teleport");
