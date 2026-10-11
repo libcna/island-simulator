@@ -66,6 +66,12 @@ historical evidence, not post-incident qualification.
 
 #### 2026-10-11 — reviewed shaded-floor image validation
 
+- [!] Diagnostic Android monkey view confirms stock vertex-lit shader exceeds 256 uniform
+  vectors and monkeys are absent. Old harness result was false-positive. `CNA-ISLAND-002`
+  now confirmed; dependency unchanged. Consumer 14-bone workaround is the next priority.
+- [x] Reject stock shader/link failures and nonzero guest GL errors at four Android
+  checkpoints; 21 CPU tests and shell syntax pass. ARM64 package restored after diagnostic run.
+
 - [x] Chrome materials `20261011T100522.314132Z-chrome-materials`: four views pass,
   60 intervals each, GL error zero; all images inspected, no host GPU fault. See surface-frame doc.
 - [x] Consumer Android stderr mirror prepared to expose stock shader/link diagnostics;

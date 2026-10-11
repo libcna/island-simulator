@@ -4,8 +4,8 @@ This file is the authoritative record of confirmed or strongly evidenced framewo
 materially affect `island-simulator`. CNA and Sharp Runtime are read-only dependencies. Framework
 issues are worked around only inside this repository and are never patched in their worktrees.
 
-No qualifying CNA or Sharp Runtime defect has been confirmed yet. Android lifecycle and
-guest shader diagnostics have framework-boundary evidence and are recorded as suspected below.
+The Android stock-skinned shader failure is confirmed below. The separate lifecycle issue
+remains suspected; neither dependency has been modified.
 
 Consumer integration constraints, unsupported features, renderer limitations, and incorrect game
 code do not belong here unless investigation demonstrates a framework defect. Suspected entries
@@ -96,9 +96,9 @@ EasyGL `f4d6afaf16cdc7e7e73130950bc45e6d865b41bd`
 
 **Platform/renderer:** Android API 35 x86_64 emulator, GLES3 on SwiftShader
 
-**Severity:** Medium pending attribution; a missing draw has not been established
+**Severity:** High; stock-skinned monkeys are absent in the Android close view
 
-**Status:** Suspected; program identity and exact cause unconfirmed
+**Status:** Confirmed on the tested Android emulator; no workaround implemented yet
 
 **Date discovered:** 2026-10-11
 
@@ -129,14 +129,39 @@ inference, not attribution: the count is not a program identifier, and the retai
 does not contain a corresponding compiler/linker message. No uniform-limit or driver defect
 is established. Do not replace the monkey shader or change its lighting based on this alone.
 
-#### Next evidence required
+#### Confirming runtime evidence
 
-After the current Web material run, use a contained monkey close view and obtain the actual
-program/link diagnostic through supported consumer-side diagnostics. Verify visible monkey
-geometry, not only startup population messages. Separate a shader failure from guest query
-behaviour before proposing a game-side workaround or escalating a confirmed framework issue.
-Dependencies remain read-only; nothing has been submitted externally. Android lifecycle is
-a separate issue and is not explained or resolved by this observation.
+The hypothesis above was confirmed by diagnostic build `1a1bf75`: game-owned bounded
+stderr mirroring exposes the previously hidden link log, without modifying dependencies.
+Contained monkey run `20261011T101527.286817Z-monkeys` reports at 12:16:35.328:
+
+```text
+[CNA EasyGL 3D] skinned (vertex-lit) link failed:
+Vertex shader active uniforms exceed GL_MAX_VERTEX_UNIFORM_VECTORS (256)
+```
+
+The next lines are the same 27 uniform-query errors. The inspected monkey close screenshot
+contains terrain/vegetation and touch controls but no monkeys. The stock shader declares
+`mat4 uBones[72]`, in addition to its other uniforms; the game uses a 14-bone rig. This is
+a demonstrated stock-program compatibility/failure-handling defect on this renderer, not
+evidence of an emulator driver bug. Host kernel delta is empty.
+
+The old harness still reports `passed` for this run: preserve that historical JSON unchanged
+as evidence of a false positive, NOT graphics acceptance. The harness now explicitly rejects
+stock VS/FS/link failures and nonzero guest GL errors at initial, post-traversal, hot-resume
+and cold-relaunch gates. Device-free fixtures cover these failures and benign log lines.
+Diagnostic x86 APK is retained as `build/android-software/island-diagnostic-x86_64.apk`,
+20,447,851 bytes, SHA-256
+`c88063a1c1a0950c18f2fd0a9abc1ef5cc2bb6eddb7685dd58f6f770ed715128`.
+
+#### Next implementation and acceptance
+
+A consumer-owned shader with the actual 14-bone palette is a possible scoped workaround;
+it must preserve rig animation, lighting, canopy transmission, colour/texture and fog rather
+than hiding monkeys or forcing a different scene. No workaround is implemented yet. Verify
+monkey close geometry and motion on Android, native and Web, with no shader/GL diagnostics.
+Do not claim older generic image/startup gates established monkey visibility. Dependencies
+remain read-only; nothing has been submitted externally. Android lifecycle is a separate issue.
 
 ## Entry template
 

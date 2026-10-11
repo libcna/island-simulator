@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Update — confirmed Android missing-monkey shader failure
+
+Diagnostic monkey run `20261011T101527.286817Z-monkeys` FINISHED (session `51286`).
+New stderr mirror captured stock `skinned (vertex-lit) link failed`, active vertex uniforms
+exceed 256; the inspected image has no monkeys. Old run.json says passed, but that is a
+documented FALSE POSITIVE, not acceptance; preserve it unchanged. Empty kernel delta.
+`CNA-ISLAND-002` is now confirmed in `BUGS.md`. Dependencies remain read-only.
+Harness now rejects stock VS/FS/link and nonzero guest GL errors at all four checkpoints;
+21 Android CPU tests and shell syntax pass. Existing swimming fixture delimiter updated.
+Diagnostic x86 APK preserved separately at `build/android-software/island-diagnostic-x86_64.apk`.
+Default ARM64 assembly/lint restored (20,533,364 bytes, SHA-256
+`931349af0a37149cee31154c6b4e8409a562eb725abf48963f9d599d94d6e6f2`), physical runtime untested.
+No jobs remain running. NEXT: implement consumer-only 14-bone monkey shader workaround,
+preserving animation, material, canopy shade and fog; qualify close geometry/motion on all
+three platforms. Current stock shader declares 72 mat4 bones; game rig has only 14.
+Do not hide monkeys, change dependency pins or claim earlier generic image gates prove visibility.
+
 ## Update — Web surface-frame materials complete; Android stderr mirror prepared
 
 Browser `20261011T100522.314132Z-chrome-materials` passes all four views, 60 intervals

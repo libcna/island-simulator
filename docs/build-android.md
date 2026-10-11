@@ -1151,6 +1151,12 @@ yet the immediate screenshot was entirely black. Drawing diagnostics alone are n
 of display presentation. Image checks do not establish semantic correctness or exclude
 system overlays; inspect accepted images too. Earlier runs did not have this image gate.
 
+`CNA-ISLAND-002` exposed another false positive: a complete background image despite failed
+stock-skinned shader linking and missing monkeys. The application now mirrors bounded stderr
+lines to the platform log; all four runtime checkpoints reject stock VS/FS/link failures and
+nonzero guest GL diagnostics. Scene-content review remains required. The monkey workaround
+is not implemented yet; do not infer wildlife acceptance from the earlier image gates.
+
 Set `ISLAND_ANDROID_SMOKE_REQUIRE_AUDIO=1` for an audio-qualified run. In addition to the normal
 GLES 3 requirements, this waits for the exact sequential-generation/upload diagnostic emitted only
 after all sixteen effects were created, the exact persistent-loop DC-centering diagnostic, and the

@@ -20,6 +20,29 @@ from android_touch_geometry import geometry, from_log, TouchGeometry
 
 
 class AndroidSoftwareTests(unittest.TestCase):
+    def test_graphics_gate_rejects_stock_link_failures_and_guest_gl_errors(self):
+        source = (Path(__file__).resolve().parent.parent /
+                  "tools/run_android_runtime_smoke.sh").read_text()
+        declaration = next(line for line in source.splitlines()
+                           if line.startswith("GRAPHICS_ERROR_PATTERN="))
+        pattern = declaration.split("=", 1)[1].strip("'")
+        self.assertEqual(source.count('grep -Eiq "$GRAPHICS_ERROR_PATTERN"'), 4)
+        fixtures = (
+            ("[CNA EasyGL 3D] skinned (vertex-lit) link failed:", True),
+            ("[CNA EasyGL 3D] colored VS failed:", True),
+            ("[CNA EasyGL 3D] lit FS failed:", True),
+            ("GL2Encoder.cpp:s_glGetUniformLocation:2221 GL error 0x502", True),
+            ("GL error 1282", True), ("GL error 0x0000", False),
+            ("shader compilation failed", True), ("FATAL EXCEPTION", True),
+            ("island-simulator: fatal error: fixture", True),
+            ("Failed to initialize 101010-2 format, error = EGL_SUCCESS", False),
+            ("renderer OPENGLES3; startup first draw 100 ms", False))
+        for message, rejected in fixtures:
+            with self.subTest(message=message):
+                result = subprocess.run(["grep", "-Eiq", pattern], input=message,
+                                        text=True, check=False)
+                self.assertEqual(result.returncode, 0 if rejected else 1)
+
     def test_android_capture_rejects_black_and_incomplete_png(self):
         data = io.BytesIO()
         Image.new("RGB", (640, 360)).save(data, format="PNG")
@@ -168,7 +191,7 @@ class AndroidSoftwareTests(unittest.TestCase):
                   "run_android_runtime_smoke.sh").read_text()
         block = source.split('if [ "$REQUIRE_SWIMMING" -eq 1 ]; then', 1)[1]
         block = 'if [ "$REQUIRE_SWIMMING" -eq 1 ]; then' + block.split(
-            '\nif grep -Eiq "FATAL EXCEPTION', 1)[0]
+            '\nif grep -Eiq "$GRAPHICS_ERROR_PATTERN"', 1)[0]
         fixture = r'''
 set -eu
 clock=0; gestures=0

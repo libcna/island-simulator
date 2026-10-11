@@ -27,6 +27,7 @@ else
     DEBUG_ARGUMENTS=$REQUESTED_ARGUMENTS
 fi
 DEBUG_ARGUMENTS_EXTRA="$PACKAGE.DEBUG_ARGUMENTS"
+GRAPHICS_ERROR_PATTERN='FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)|\[CNA EasyGL 3D\].*(VS|FS|link) failed|GL error (0x0*[1-9a-fA-F][0-9a-fA-F]*|[1-9][0-9]*)'
 
 if [ ! -x "$ADB" ]; then
     echo "android runtime smoke: adb is not executable: $ADB" >&2
@@ -402,7 +403,7 @@ if [ "$QUALIFIED" -ne 1 ]; then
     exit 1
 fi
 
-if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" "$LOG_FILE"; then
+if grep -Eiq "$GRAPHICS_ERROR_PATTERN" "$LOG_FILE"; then
     echo "android runtime smoke: fatal or shader error appeared in logcat" >&2
     tail -n 120 "$LOG_FILE" >&2
     exit 1
@@ -510,7 +511,7 @@ if [ "$REQUIRE_SWIMMING" -eq 1 ]; then
     fi
 fi
 
-if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" "$LOG_FILE"; then
+if grep -Eiq "$GRAPHICS_ERROR_PATTERN" "$LOG_FILE"; then
     echo "android runtime smoke: fatal or shader error appeared after traversal" >&2
     tail -n 120 "$LOG_FILE" >&2
     exit 1
@@ -569,7 +570,7 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
         exit 1
     fi
-    if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" \
+    if grep -Eiq "$GRAPHICS_ERROR_PATTERN" \
         "$HOT_RESUME_LOG_FILE"; then
         echo "android runtime smoke: fatal or shader error appeared during hot resume" >&2
         tail -n 120 "$HOT_RESUME_LOG_FILE" >&2
@@ -646,7 +647,7 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         tail -n 120 "$COLD_RELAUNCH_LOG_FILE" >&2
         exit 1
     fi
-    if grep -Eiq "FATAL EXCEPTION|island-simulator: fatal error|shader.*(failed|error)" \
+    if grep -Eiq "$GRAPHICS_ERROR_PATTERN" \
         "$COLD_RELAUNCH_LOG_FILE"; then
         echo "android runtime smoke: fatal or shader error appeared during cold relaunch" >&2
         tail -n 120 "$COLD_RELAUNCH_LOG_FILE" >&2

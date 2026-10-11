@@ -1,6 +1,6 @@
 # Pixel-scale-independent terrain shading normals
 
-Status: native checks pass; Android visual checks pass with a retained guest-GL diagnostic;
+Status: native checks pass; Android material images pass but stock-skinned rendering is degraded;
 focused Web runtime qualification passes.
 
 Soil clod lighting and wet-sand sheen normalized the cross product of world-space
@@ -95,9 +95,11 @@ messages occur in retained pre-fix `20261011T092539.275219Z-interactive`, so thi
 does not establish a regression in the new normal helper. Existing Android gates check
 fatal/shader failures, not every guest GL diagnostic; their passed result must not be
 reported as a zero-GL-error run. Program identity, root cause and ownership remain unknown.
-Read-only initialization findings and the unconfirmed stock-skinned-program hypothesis are
-recorded as `CNA-ISLAND-002` in `BUGS.md`. Investigate without patching dependencies or
-suppressing the messages. No new host GPU fault
+Follow-up `20261011T101527.286817Z-monkeys` confirms a stock-skinned link failure:
+active vertex uniforms exceed the device's 256-vector limit, and monkeys are absent.
+See confirmed `CNA-ISLAND-002` in `BUGS.md`. The old generic passed results do not establish
+whole-scene correctness; the Android gate now rejects these failures. Dependencies remain
+unchanged. No new host GPU fault
 occurred. These focused runs do not requalify touch/traversal or the open lifecycle issue.
 
 ## Focused Web verification
