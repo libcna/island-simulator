@@ -32,6 +32,7 @@
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
 #include "IslandSimulator/GrassInteractionModel.hpp"
+#include "IslandSimulator/ControlTransitionDiagnostic.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/JungleRenderer.hpp"
@@ -166,6 +167,7 @@ namespace island
         void UpdateBenchmarkTraversal();
         void UpdateCamera(float deltaSeconds);
         void TryStartSoundscape() noexcept;
+        void ReportControlTransition(ControlTransitionEvent event) noexcept;
         void InitializeUserSettings();
         void PersistUserSettings();
         void UpdateCameraMatrices();

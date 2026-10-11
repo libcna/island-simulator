@@ -1164,6 +1164,22 @@ namespace island
         soundscapeNeedsGesture_ = false;
     }
 
+    void IslandGame::ReportControlTransition(const ControlTransitionEvent event) noexcept
+    {
+        try {
+            const auto message=ControlTransitionMessage(event);
+            std::cout << message << '\n' << std::flush;
+            MirrorRuntimeDiagnosticToPlatformLog(message);
+            const auto p=flightMotion_.Position();
+            const ControlTransitionSnapshot snapshot{drawnFrames_,
+                {cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z}, {p.x,p.y,p.z},
+                yaw_,pitch_,flightMotion_.IsActive(),graphics_.getIsFullScreenProperty()};
+            MirrorRuntimeDiagnosticToPlatformLog(FormatControlTransition(event,snapshot));
+        } catch (...) {
+            // Logging must not turn an otherwise successful input transition into a failure.
+        }
+    }
+
     void IslandGame::Update(GameTime& gameTime)
     {
         const float deltaSeconds = canopyLodInspection_ ? 0.0f : std::min(
@@ -1182,9 +1198,8 @@ namespace island
         const bool fullscreenDown = frameKeyboard.IsKeyDown(Keys::F11);
         if (fullscreenDown && !fullscreenToggleWasDown_ && getIsActiveProperty()) {
             graphics_.ToggleFullScreen();
-            std::cout << "island-simulator: fullscreen "
-                      << (graphics_.getIsFullScreenProperty() ? "on" : "off")
-                      << " requested\n" << std::flush;
+            ReportControlTransition(graphics_.getIsFullScreenProperty()
+                ? ControlTransitionEvent::FullscreenOn : ControlTransitionEvent::FullscreenOff);
         }
         fullscreenToggleWasDown_ = fullscreenDown;
 #endif
@@ -1358,9 +1373,9 @@ namespace island
                     playerMotion_.Update(terrain_,0,0,0,worldCollisionGrid_);
                     flightMotion_.Deactivate();
                     cameraPosition_=Vector3(landing->x,landing->y,landing->z);
-                    std::cout << "island-simulator: flight off; safe dry-land return\n" << std::flush;
+                    ReportControlTransition(ControlTransitionEvent::FlightOff);
                 } else {
-                    std::cout << "island-simulator: flight remains on; no safe landing found\n" << std::flush;
+                    ReportControlTransition(ControlTransitionEvent::LandingRefused);
                 }
             } else {
 #ifndef NDEBUG
@@ -1369,7 +1384,7 @@ namespace island
                 flightMotion_.Activate(terrain_,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
                 const auto p=playerMotion_.Position();
                 playerMotion_.SetPosition(terrain_,p.x,p.z); // Stop stale walking velocity/footsteps.
-                std::cout << "island-simulator: flight on; Q/E down/up, 100m terrain ceiling, 330m radius\n" << std::flush;
+                ReportControlTransition(ControlTransitionEvent::FlightOn);
             }
             cameraMotion_.Reset();
             locomotionModeNoticeSeconds_=LocomotionModeNoticeDuration;

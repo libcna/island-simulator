@@ -537,6 +537,11 @@ Player controls explicitly requested by the operator (2026-10-11):
   Do not infer monkey causation from last log or reproduce on hardware. Existing GPU
   stop latch unchanged. Evidence and full analysis checklist:
   `docs/flight-amdgpu-incident-2026-10-11.md`.
+  Retained core build IDs now match game/Gallium/CNA/SDL3; preserved executable.
+  Abort snapshot flight-active,44.786m above terrain/radius119.183m, finite matrices;
+  not proof about the earlier faulting GPU frame. Sparse persistent control-transition
+  diagnostics added (native fullscreen requests, flight on/off/refused landing), CPU
+  tests/build pass; new runtime persistence test and actual root-cause fix remain open.
 
 - [~] F11 toggles fullscreen on/off. Remove or remap the existing F11 monkey-troop
   debug teleport so the two actions cannot fire together. Handle one toggle per press,

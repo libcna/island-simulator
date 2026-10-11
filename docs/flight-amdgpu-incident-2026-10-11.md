@@ -132,6 +132,26 @@ frame. They do not show a NaN camera or flight-radius/height violation in that s
 they cannot exclude earlier invalid state, a bad resource, or a shader/driver issue.
 Full compact result is `core-state-review.txt` in the local incident directory.
 
+### Diagnostic gap addressed (not a crash fix)
+
+Native fullscreen requests and flight on/off/refused-landing transitions now mirror
+their existing console messages into the per-process incident log. A separate sparse
+`control-transition` record includes submitted-frame count, camera/flight positions,
+yaw/pitch, flight-active and fullscreen-requested flags, and an explicit finite-value
+flag. Event IDs are0 flight-on,1 flight-off,2 landing-refused,3 fullscreen-on-request,
+4 fullscreen-off-request. Values use locale-independent float round-trip precision;
+nonfinite values are flagged, not silently repaired by the logger. Fullscreen request
+is not treated as confirmed platform state. Web trusted-event fullscreen remains separate.
+The existing log sink timestamps and flushes each record; unavailable logging remains
+best effort and cannot replace a successful input operation with an exception.
+
+No per-frame log stream or GPU synchronization was added. Native build and focused
+flight/diagnostic CPU tests pass (2/2,0.72s); supervisor35 and asset checks pass. Tests
+cover formatting, float precision, all event kinds and nonfinite fields. A new actual
+interactive/runtime persistence check has not been run after the hardware incident.
+This closes an implementation gap in future evidence collection; it neither restores
+missing history for PID423089 nor proves the GPU timeout fixed.
+
 - [x] Match retained build-ID notes for game/Gallium/CNA/SDL3 and preserve the game candidate.
   A subsequently rebuilt file at the same path alone is not evidence of identity.
 - [ ] Correlate runtime GPU pass/frame diagnostics, kernel timeline and core thread stacks.

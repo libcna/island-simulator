@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest — sparse persistent control transitions, NOT GPU crash fix
+
+Added pure ControlTransitionDiagnostic.hpp (event enum + message + snapshot formatter),
+IslandGame::ReportControlTransition mirrors existing console notice and separate detailed
+state into timestamped/flushed persistent sink on native fullscreen request and flight
+on/off/landing-refused. Snapshot: submitted frames, camera/flight xyz, yaw/pitch,
+flight-active/fullscreen-requested, finite flag; classiclocale/max_digits10. No perframe
+logging/GPU synchronization. noexcept best-effort. Webfullscreen eventpath unchanged.
+Focused native build/tests PASS2/2(.72s), supervisor35/assets25/81/10/0PASS. No graphics
+or new interactive persistence test after incident; no crashfixclaim. Original candidate
+is safely copied and SHAunchanged before rebuild. New native executable includes pending
+grasswork; the diagnostic commit must exclude that unrelated grass-call hunk.
+Logs build/control-transition-{build,tests}.log. Allownedjobs terminal. Goalactive.
+NEXT: actual fault/state/resource investigation remainspriority; runtime diagnostic
+persistence verification only via containedsoftware whenappropriate; never hardware.
+
 ## Latest — offline core build IDs verified, finite in-bounds flight snapshot recovered
 
 Preserved22,437,288byte game candidate in build/gpu-incident-evidence/20261011T190021Z-user-flight/
