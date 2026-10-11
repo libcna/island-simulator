@@ -626,6 +626,16 @@ Wildlife backlog requested by the operator (all nonhostile ambient life; none ma
 progress or require player interaction; dangerous species keep their distance like the shark):
 
 - [ ] Snakes (ground and tree-dwelling, retreat from the player)
+  Ground simulation started: four deterministic snakes with 41 tapered body stations,
+  constant planar station spacing, head-path following, rest/explore/retreat and bounded
+  home ranges. Static obstacle grid checks containing discs along every body segment;
+  rendered-height cache supports the body, dormant snakes stop updating. Retreat steps
+  cannot decrease horizontal distance to a nearby observer. Dedicated CPU tests cover
+  actual vegetation/jungle/prop layouts, repeatability, spacing, sampled segment ground
+  clearance, independent segment/obstacle oracle and invalid input/impossible habitat.
+  Not yet instantiated in IslandGame or rendered: do not claim visible snakes. Next:
+  continuous tapered mesh, head/eyes/scale material, game integration, near QA view and
+  actual native/Web/Android visual audit; tree-dwelling snakes remain wholly open.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

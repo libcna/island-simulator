@@ -111,6 +111,7 @@
         "island_audio_report",
         "island_core_tests",
         "island_flight_tests",
+        "island_snake_tests",
         "island_boar_tests",
         "island_boar_coat_tests",
         "island_boar_pose_tests",
@@ -140,6 +141,7 @@
         "island_audio_report",
         "island_core_tests",
         "island_boar_tests",
+        "island_snake_tests",
         "island_boar_coat_tests",
         "island_boar_pose_tests",
         "island_leaf_tests",
@@ -190,7 +192,7 @@
       },
       "filter": {
         "include": {
-          "name": "^Island(Core|FlightMotion|BoarHerd|BoarCoatTexture|BoarPose|LeafBlade|CanopyLightField|OceanWaveSpectrum|ForestFloorSampling)Tests$"
+          "name": "^Island(Core|FlightMotion|SnakePopulation|BoarHerd|BoarCoatTexture|BoarPose|LeafBlade|CanopyLightField|OceanWaveSpectrum|ForestFloorSampling)Tests$"
         }
       }
     },

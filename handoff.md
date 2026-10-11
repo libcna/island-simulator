@@ -1,5 +1,34 @@
 # island-simulator handoff
 
+## Latest — ground snake simulation started, not yet visible
+
+Added SnakePopulation header/source: four ground snakes, 41 stations spaced .055 m
+in XZ, tapered .004–.048 m radius, head follows bounded sinusoidal steering and body
+follows preceding station (not a rigid waving stick). Rest/explore/retreat, .38/1.15 m/s,
+dt <=.1 with movement substeps <=.012 m, 18 m home radius; retreat cannot move toward
+nearby observer. Dormant at >120 m; reduced tier currently uses same bounded stepping
+as full tier. One heap RenderedTerrainSurface cache and WorldCollisionGrid per population.
+Spawn searches whole-body safe habitat; rejects impossible layout. Finite mesh/dryshore/
+rendered slope restrictions; containing-disc checks cover horizontal body/solid segments,
+nonadjacent station checks reject self-intersection. Vertical support uses local rendered
+samples, not a continuous final triangle-mesh penetration proof. Renderer still absent.
+
+Dedicated IslandSnakePopulationTests / island_snake_tests added to CMake and both
+explicit native test build presets, linux-core regex. Initial test fixture ctor corrected;
+initial run exposed negative floating-point sin(pi) at tail causing fractional-power NaN,
+fixed with nonnegative clamp and radius regression. Focused test passed 7.97 s before
+the additional independent segment/obstacle oracle; final rerun recorded below.
+Tests use actual vegetation/jungle/prop obstacles, 2400 updates with repeated simulation,
+all behaviors, retreat monotonicity, ground samples between stations, invalid dt/observer,
+dormancy and blocked habitat. Logs build/snake-population-{build,tests}.log.
+Final independent-oracle rerun PASS (10.31 s), diff check clean; all owned jobs terminal.
+
+NEXT: implement SnakeRenderer and actual IslandGame population/update/draw integration,
+with continuous tapered mesh, recognizable head/eyes and scale material (avoid a chain
+of geometric lumps), QA viewpoint + actual image audit. Do not claim snakes are present
+until rendered/seen. Ground feature remains partial; tree snakes still entirely open.
+All other tasks, audio listening and full goal remain open. No renderer/emulator launched.
+
 ## Latest — actual native boar playback/mute verified with disk audio
 
 Native `build/software-boar-audio/20261011T174853.374413Z` passed parent and worker,

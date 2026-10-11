@@ -34,6 +34,7 @@ add_library(island_core STATIC
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp
     game/src/BoarHerd.cpp
+    game/src/SnakePopulation.cpp
     game/src/BoarCoatTexture.cpp
     game/src/BoarPose.cpp
     game/src/BoarGroundPose.cpp
@@ -193,6 +194,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_boar_tests)
     island_enable_first_party_sanitizers(island_boar_tests)
     add_test(NAME IslandBoarHerdTests COMMAND island_boar_tests)
+    add_executable(island_snake_tests tests/SnakePopulationTests.cpp)
+    target_link_libraries(island_snake_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_snake_tests)
+    island_enable_first_party_sanitizers(island_snake_tests)
+    add_test(NAME IslandSnakePopulationTests COMMAND island_snake_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
