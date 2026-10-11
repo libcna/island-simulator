@@ -53,7 +53,8 @@ class PreparedMaterialTests(unittest.TestCase):
                         self.compare(image, target)
 
     def test_actual_artwork_matches_cpp_pixel_for_pixel(self):
-        for name, size in (("forest-floor-albedo-v1.png",512), ("leaf-lamina-v1.png",256)):
+        for name, size in (("forest-floor-albedo-v1.png",512), ("leaf-lamina-v1.png",256),
+                           ("monkey-fur-albedo-v1.png",512)):
             with self.subTest(name=name), Image.open(ROOT / "assets/art-studies" / name) as image:
                 self.compare(image, size)
 

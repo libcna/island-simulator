@@ -34,7 +34,11 @@ try {
         require(vertex.find("vDiffuse = clamp") != std::string::npos);
         require(vertex.find("vSpecular = clamp") != std::string::npos);
         require(vertex.find("float depth = -(uView * world).z") != std::string::npos);
-        require(fragment.find("mix(uFogColor, vDiffuse + vSpecular, vFogKeep)") != std::string::npos);
+        require(vertex.find("layout(location=2) in vec2 aTexCoord") != std::string::npos);
+        require(vertex.find("vFurUv = aTexCoord") != std::string::npos);
+        require(fragment.find("texture(uFurTexture, vFurUv)") != std::string::npos);
+        require(fragment.find("mix(vec3(1.0), fur, uFurAmount)") != std::string::npos);
+        require(fragment.find("mix(uFogColor, diffuse + vSpecular, vFogKeep)") != std::string::npos);
     }
     std::cout << "Monkey shader: 14-bone palette, budget and both dialect contracts pass\n";
     return 0;

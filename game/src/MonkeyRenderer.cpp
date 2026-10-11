@@ -3,6 +3,7 @@
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/MonkeySkinningShader.hpp"
 #include "IslandSimulator/MonkeyGroundGait.hpp"
+#include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
@@ -39,6 +40,8 @@
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/SkinnedEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
 #include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexPositionNormalTextureSkinned.hpp"
@@ -415,11 +418,11 @@ namespace island
         }
 
         void AddVertex(MeshData& mesh, const Vector3& position, const Vector3& normal,
-                       const int bone)
+                       const int bone, const Vector2& uv)
         {
             if (bone < 0 || static_cast<std::size_t>(bone) >= BoneCount)
                 throw std::invalid_argument("monkey vertex exceeds the 14-bone shader palette");
-            mesh.vertices.emplace_back(position, normal, Vector2::Zero,
+            mesh.vertices.emplace_back(position, normal, uv,
                 Vector4(1.0f, 0.0f, 0.0f, 0.0f),
                 std::array<std::uint8_t, 4>{static_cast<std::uint8_t>(bone), 0U, 0U, 0U});
         }
@@ -445,7 +448,8 @@ namespace island
                         local.X / std::max(radii.X, 0.001f),
                         local.Y / std::max(radii.Y, 0.001f),
                         local.Z / std::max(radii.Z, 0.001f)));
-                    AddVertex(mesh, position, normal, bone);
+                    AddVertex(mesh, position, normal, bone,
+                        Vector2(0.5f + 0.4f * local.X, 0.5f - 0.4f * local.Y));
                 }
             }
             const int stride = segments + 1;
@@ -474,7 +478,8 @@ namespace island
                     const float angle = MathHelper::TwoPi
                         * static_cast<float>(segment) / static_cast<float>(segments);
                     const Vector3 normal = right * std::cos(angle) + up * std::sin(angle);
-                    AddVertex(mesh, centre + normal * radius, normal, bone);
+                    AddVertex(mesh, centre + normal * radius, normal, bone,
+                        Vector2(0.5f + 0.4f * std::cos(angle), 0.1f + 0.8f * end));
                 }
             }
             const int stride = segments + 1;
@@ -515,7 +520,11 @@ namespace island
                     Vector3 normal = Vector3::Cross(tangent, longitudinal);
                     if (Vector3::Dot(normal, radial) < 0.0f) normal *= -1.0f;
                     normal.Normalize();
-                    AddVertex(mesh, section.centre + radial, normal, section.firstBone);
+                    // Interior-only mirrored window: no unverified repeat seam. V follows
+                    // the spine from neck to tail and stays attached to the rest mesh.
+                    AddVertex(mesh, section.centre + radial, normal, section.firstBone,
+                        Vector2(0.5f + 0.4f * c,
+                            0.9f - 0.8f * static_cast<float>(ring) / (sections.size() - 1)));
                     auto& vertex = mesh.vertices.back();
                     vertex.BlendWeight = Vector4(1.0f - section.secondWeight,
                                                   section.secondWeight, 0.0f, 0.0f);
@@ -551,7 +560,8 @@ namespace island
                 for (int segment = 0; segment <= segments; ++segment) {
                     const float angle = MathHelper::TwoPi * static_cast<float>(segment) / segments;
                     const Vector3 normal = across * std::cos(angle) + around * std::sin(angle);
-                    AddVertex(mesh, centre + normal * Radii[ring] * thickness, normal, upperBone);
+                    AddVertex(mesh, centre + normal * Radii[ring] * thickness, normal, upperBone,
+                        Vector2(0.5f + 0.4f * std::cos(angle), 0.1f + 0.8f * t));
                     mesh.vertices.back().BlendWeight = Vector4(1.0f - blend, blend, 0.0f, 0.0f);
                     mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(lowerBone);
                 }
@@ -785,6 +795,22 @@ namespace island
         }
         const Color whitePixel = Color::White;
         whiteTexture_->SetData(&whitePixel, 1);
+        // Required material: a missing/invalid asset must not silently become plain brown.
+        const auto furLevels = LoadOpaqueImageMips(device_, "Content/wildlife/monkey-fur.png", 512);
+        for (std::size_t c = 0; c < furMean_.size(); ++c) {
+            furMean_[c] = furLevels.back().pixels[0][c] / 255.0f;
+            if (furMean_[c] < 0.01f) throw std::runtime_error("Monkey fur mean is too dark");
+        }
+        furTexture_ = std::make_unique<Texture2D>(device_, 512, 512, true, SurfaceFormat::Color);
+        for (std::size_t level = 0; level < furLevels.size(); ++level) {
+            const auto& pixels = furLevels[level].pixels;
+            furTexture_->SetData(static_cast<int>(level), nullptr,
+                reinterpret_cast<const std::uint8_t*>(pixels.data()), 0,
+                static_cast<int>(pixels.size() * 4));
+        }
+        const char* furDiagnostic = "island-simulator: monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes";
+        std::cout << furDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(furDiagnostic);
         const RigDefinition rig = CreateRig();
         skinningData_ = CreateSkinningData(rig);
         ValidateSkinningDataOrThrow(*skinningData_);
@@ -919,13 +945,18 @@ namespace island
         paletteEffect_->SetUniformVec3("uFogColor", environment::FogColorRed,
                                       environment::FogColorGreen, environment::FogColorBlue);
         // Keep SkinnedEffect only as the authored material state; never apply its 72-bone program.
-        const auto applyMaterial = [&] {
+        const auto applyMaterial = [&](float furAmount) {
             float worldValues[16];
             effect_->getWorldProperty().ToColumnMajor(worldValues);
             const auto diffuse = effect_->getDiffuseColorProperty();
             const auto specular = effect_->getSpecularColorProperty();
             const auto lightSpecular = effect_->getDirectionalLight0Property().getSpecularColorProperty();
             paletteEffect_->Apply();
+            device_.getSamplerStatesProperty()[0] = SamplerState::LinearClamp;
+            paletteEffect_->SetTexture(0, *furTexture_);
+            paletteEffect_->SetUniformInt("uFurTexture", 0);
+            paletteEffect_->SetUniformVec3("uFurMean", furMean_[0], furMean_[1], furMean_[2]);
+            paletteEffect_->SetUniformFloat("uFurAmount", furAmount);
             paletteEffect_->SetUniformMat4("uWorld", worldValues);
             paletteEffect_->SetUniformVec3("uDiffuse", diffuse.X, diffuse.Y, diffuse.Z);
             paletteEffect_->SetUniformVec3("uSpecular", specular.X, specular.Y, specular.Z);
@@ -1088,7 +1119,7 @@ namespace island
                                             : farPrimitiveCounts_[silhouette];
             device_.SetVertexBuffer(vertices);
             device_.setIndicesProperty(indices);
-            applyMaterial();
+            applyMaterial(1.0f);
             device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                           vertexCount, 0, primitiveCount);
             if (near) {
@@ -1096,7 +1127,7 @@ namespace island
                     shaded(FaceColors[monkey.colorVariant % FaceColors.size()]));
                 device_.SetVertexBuffer(faceVertices_.get());
                 device_.setIndicesProperty(faceIndices_.get());
-                applyMaterial();
+                applyMaterial(0.0f);
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               faceVertexCount_, 0, facePrimitiveCount_);
                 effect_->setDiffuseColorProperty(shaded(Vector3(0.025f, 0.022f, 0.018f)));
@@ -1104,7 +1135,7 @@ namespace island
                 effect_->setSpecularPowerProperty(EyeSpecularPower);
                 device_.SetVertexBuffer(eyeVertices_.get());
                 device_.setIndicesProperty(eyeIndices_.get());
-                applyMaterial();
+                applyMaterial(0.0f);
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               eyeVertexCount_, 0, eyePrimitiveCount_);
                 effect_->setSpecularColorProperty(FurSpecularColor);

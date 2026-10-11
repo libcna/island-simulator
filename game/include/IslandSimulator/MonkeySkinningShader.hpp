@@ -12,6 +12,7 @@ namespace island::MonkeySkinningShader
     inline constexpr const char* VertexBody = R"GLSL(
 layout(location=0) in vec3 aPosition;
 layout(location=1) in vec3 aNormal;
+layout(location=2) in vec2 aTexCoord;
 layout(location=3) in vec4 aBoneWeights;
 layout(location=4) in vec4 aBoneIndices;
 uniform mat4 uWorld;
@@ -26,7 +27,9 @@ uniform float uSpecularPower;
 out vec3 vDiffuse;
 out vec3 vSpecular;
 out float vFogKeep;
+out vec2 vFurUv;
 void main() {
+    vFurUv = aTexCoord;
     mat4 skin = uBones[int(aBoneIndices.x)] * aBoneWeights.x
               + uBones[int(aBoneIndices.y)] * aBoneWeights.y;
     vec4 local = skin * vec4(aPosition, 1.0);
@@ -57,10 +60,16 @@ void main() {
 in vec3 vDiffuse;
 in vec3 vSpecular;
 in float vFogKeep;
+in vec2 vFurUv;
 uniform vec3 uFogColor;
+uniform sampler2D uFurTexture;
+uniform vec3 uFurMean;
+uniform float uFurAmount;
 out vec4 fragmentColor;
 void main() {
-    fragmentColor = vec4(mix(uFogColor, vDiffuse + vSpecular, vFogKeep), 1.0);
+    vec3 fur = clamp(texture(uFurTexture, vFurUv).rgb / uFurMean, 0.45, 1.8);
+    vec3 diffuse = vDiffuse * mix(vec3(1.0), fur, uFurAmount);
+    fragmentColor = vec4(mix(uFogColor, diffuse + vSpecular, vFogKeep), 1.0);
 }
 )GLSL";
 

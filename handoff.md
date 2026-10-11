@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — first real monkey fur material integrated (native inspected)
+
+See `docs/monkey-fur-material.md`. Built-in ImageGen source and exact prompt preserved
+in `assets/art-studies/monkey-fur-albedo-v1*`, hashed in manifest and attributed.
+512-square build preparation wired into native/Web/Android packaging; runtime ten mips,
+required asset, rest-mesh UVs, body-only mean-normalized diffuse modulation. Face/eyes
+excluded. Native build and `20261011T114648.821520Z-monkeys` pass; image inspected,
+fur variation visible, but face/limb junctions still stylized. Empty kernel delta.
+Native gate now requires fur-load marker as well as a close subject at readback;
+focused Web gate requires the marker, Android APK attribution includes the third texture.
+Native non-display suite passes 36/36 (69.53 s); direct Android/launcher CPU tests pass
+21/29 respectively, asset validation passes and Web runner syntax passes. The actual-fur
+pixel-oracle test was added after the full suite started; separate material/shader recheck
+passes 2/2 (9.98 s), including the actual fur source. All build/test/capture jobs finished.
+Portable runtime qualification and movement review remain pending. No emulator/KVM or
+dependency changes. Keep the entire goal active; monkey realism, tree climbing, full
+visual audit, remaining wildlife, hut and human resident are NOT complete.
+
 ## Latest — quadrupedal mesh and distance-driven ground pose are live (native first pass)
 
 `docs/monkey-quadruped-overhaul.md` records the actual scope and deficiencies. Horizontal

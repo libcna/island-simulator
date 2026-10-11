@@ -75,6 +75,8 @@ namespace island
         float maximumCanopyTransmission_ = 1.0f;
         bool reportedCanopyShade_ = false;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> whiteTexture_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> furTexture_;
+        std::array<float, 3> furMean_{};
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinnedEffect> effect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> paletteEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinningData> skinningData_;

@@ -22,10 +22,12 @@ class SoftwareCaptureTests(unittest.TestCase):
     cache = "CNA_GRAPHICS_RENDERER:STRING=OPENGL33\nCNA_ROOT_DIR:PATH=/dependency\n"
 
     def test_monkey_close_subject_must_still_be_submitted_at_capture(self):
-        valid = "island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17"
+        valid = ("island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17\n"
+                 "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
         validate_monkey_capture_log(valid)
         for invalid in ("", "monkeys 2/7 visible, 4 draws", valid.replace("near 1", "near 0"),
-                        valid.replace("visible 2", "visible 0"), valid.replace("draws 4", "draws 0")):
+                        valid.replace("visible 2", "visible 0"), valid.replace("draws 4", "draws 0"),
+                        valid.split("\n")[0], valid.replace("10 mips", "1 mips")):
             with self.subTest(invalid=invalid), self.assertRaises(RuntimeError):
                 validate_monkey_capture_log(invalid)
 

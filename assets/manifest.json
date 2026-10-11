@@ -3,6 +3,18 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "monkey-fur-albedo-v1",
+      "path": "assets/art-studies/monkey-fur-albedo-v1.png",
+      "sha256": "29ad6b943160456674789b7678fb45b07ec340784ff553333fcc7af318180e80",
+      "licenseRecord": "AI-generated monkey-fur study"
+    },
+    {
+      "name": "monkey-fur-generation-prompt",
+      "path": "assets/art-studies/monkey-fur-albedo-v1-prompt.txt",
+      "sha256": "edb95100e1cea506275e6e2e8d33be48e1fd7381bd881a78bd318efeb9e2b2d5",
+      "licenseRecord": "AI-generated monkey-fur study"
+    },
+    {
       "name": "leaf-lamina-generation-prompt",
       "path": "assets/art-studies/leaf-lamina-v1-prompt.txt",
       "sha256": "df4a3b5242c89829443052094174ccde27411250636a796106458d727811db71",

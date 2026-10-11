@@ -455,6 +455,9 @@ if(ISLAND_BUILD_GAME)
     set(_island_floor_path "Content/terrain/forest-floor.png")
     set(_island_leaf_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/leaf-lamina-v1.png")
     set(_island_leaf_path "Content/vegetation/leaf-lamina.png")
+    set(_island_fur_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/monkey-fur-albedo-v1.png")
+    set(_island_fur_path "Content/wildlife/monkey-fur.png")
+    set(_island_fur_prepared "${CMAKE_BINARY_DIR}/${_island_fur_path}")
     set(_island_floor_prepared "${CMAKE_BINARY_DIR}/${_island_floor_path}")
     set(_island_leaf_prepared "${CMAKE_BINARY_DIR}/${_island_leaf_path}")
     if(NOT ANDROID)
@@ -473,7 +476,11 @@ if(ISLAND_BUILD_GAME)
             COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
                 "${_island_leaf_source}" "${_island_leaf_prepared}" --size 256
             DEPENDS "${_island_leaf_source}" "${_island_material_tool}" VERBATIM)
-        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}")
+        add_custom_command(OUTPUT "${_island_fur_prepared}"
+            COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
+                "${_island_fur_source}" "${_island_fur_prepared}" --size 512
+            DEPENDS "${_island_fur_source}" "${_island_material_tool}" VERBATIM)
+        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}")
         add_dependencies(island-simulator island_material_assets)
     endif()
 
@@ -507,12 +514,13 @@ if(ISLAND_BUILD_GAME)
             target_link_libraries(island-simulator PRIVATE CNA::EmscriptenAsyncify)
         endif()
         set_property(TARGET island-simulator APPEND PROPERTY LINK_DEPENDS
-            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html" "${_island_floor_prepared}" "${_island_leaf_prepared}")
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html" "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}")
         set_target_properties(island-simulator PROPERTIES SUFFIX ".html")
         target_link_options(island-simulator PRIVATE
             --shell-file "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html"
             "SHELL:--preload-file '${_island_floor_prepared}@/${_island_floor_path}'"
             "SHELL:--preload-file '${_island_leaf_prepared}@/${_island_leaf_path}'"
+            "SHELL:--preload-file '${_island_fur_prepared}@/${_island_fur_path}'"
             -sALLOW_MEMORY_GROWTH=1
             -sSTACK_SIZE=1048576
             -sINITIAL_MEMORY=134217728
@@ -535,6 +543,8 @@ if(ISLAND_BUILD_GAME)
             RENAME forest-floor.png COMPONENT Runtime)
         install(FILES "${_island_leaf_prepared}" DESTINATION Content/vegetation
             RENAME leaf-lamina.png COMPONENT Runtime)
+        install(FILES "${_island_fur_prepared}" DESTINATION Content/wildlife
+            RENAME monkey-fur.png COMPONENT Runtime)
         if(TARGET cna_shared)
             install(TARGETS cna_shared
                 LIBRARY DESTINATION lib

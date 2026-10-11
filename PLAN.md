@@ -304,6 +304,11 @@ Standing visual-quality rules (apply to every task from now on):
   and arboreal resting/movement on actual climbable tree geometry, not floating ascent.
   Verify close silhouettes, fur filtering, ground contact and a complete climbing cycle in
   contained native/Android/Web captures. The 14-bone shader fix does NOT complete this item.
+  First progress: horizontal lofted quadruped with distance-driven limbs, followed by an
+  actual ImageGen fur texture with rest-mesh UVs and ten mip levels. Native fur capture
+  `20261011T114648.821520Z-monkeys` inspected; texture visible but face and limb junctions
+  still stylized. See `docs/monkey-fur-material.md`. No complete climbing cycle or portable
+  qualification of this new anatomy/material yet; this requirement stays unchecked.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,
