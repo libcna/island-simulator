@@ -487,3 +487,27 @@ A brief read-only GDB attach to owned host emulator PID751700 retained stacks in
 compiler/driver attribution; attachment can perturb timing, so this is not a clean
 performance measurement. No image inspected, no Android qualification or AMD fix.
 Android23/software37 CPU tests pass, instrumented x86_64 build/lint PASS3s.
+
+## Conservative per-segment grass-contact rejection
+
+CPU and GLSL now reject a body segment before the four point/segment distances when
+the swept blade's XZ envelope is separated from the segment envelope expanded by
+maximum endpoint radius +15mm margin +140mm full fade +0.1mm numerical guard. This
+is conservative for the existing projected capsule model: no contact/fade distance,
+body stations, uniforms, shader path or grass geometry are removed or reduced.
+The existing snake-wide and grass-cell rejection remain in place. Actual performance
+gain is unmeasured; this does not diagnose or fix either Android or AMD stalls.
+
+An independent double-precision unculled capsule oracle checks24000 deterministic
+point/swept queries against straight and actual multi-snake bodies, plus246 near-fade
+boundary queries. Tolerance0.0002 pressure units. All prior movement/retreat tests
+remain; focused snake suite PASS10.08s. Native build PASS; Android ARM64 build/lint
+PASS5s. Actual contained llvmpipe capture `20261011T214716.834158Z-snake-head` has
+valid motion stages and kernel-after[]. Its four-stage motion-grid.png was inspected:
+head visible and retreating; some foreground grass occludes the neck as before.
+All four full-resolution stage images are pixel-identical (ImageMagick absolute-error
+count0 each) to `20261011T205902.050693Z-snake-head`. The unchanged generic luminance
+and large-scale contrast gates still FAIL; no overall visual acceptance claim.
+No Android/Web runtime qualification or hardware incident repair is claimed here.
+Full non-display suite PASS40/40 (95.27s). Web build/package PASS,11,178,925bytes raw
+and4,203,549bytes gzip. Hardware stop-latch checksum unchanged; all owned jobs terminal.

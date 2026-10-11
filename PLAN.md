@@ -751,6 +751,12 @@ progress or require player interaction; dangerous species keep their distance li
   grass pass returned in412ms and later first-frame passes all returned. No frame8
   motion/screenshot. This contradicts a deterministic first-grass stall; queued
   work/presentation/later-frame wait remain unresolved. No shader/contact change.
+  Subsequent conservative per-segment contact rejection preserves the full capsule
+  and fade; CPU+GLSL skip separated segment envelopes before expensive distances.
+  Independent unculled oracle24000queries+246boundary checks PASS. Native214716
+  four motion images pixel-identical to205902, visually inspected; motion PASS,
+  generic contrast FAIL unchanged. Actual performance gain/Android/Web runtime still
+  unqualified; this is not evidence of either GPU incident being fixed.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

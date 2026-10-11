@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — exact segment-level grass rejection, native pixels unchanged
+
+Prior turn provided diagnostic evidence, not a stall fix. SnakeGrassContact CPU+GLSL
+now conservatively rejects separated swept-blade/segment envelopes before four
+distance calculations, expanded by endpoint maxradius+Margin+Fade+0.1mm floatguard.
+No geometry/contact fade/stations/uniform capacity removed. Independent unculled
+double capsule oracle:24000 deterministic queries (points+sweeps,straight/actual4body)
+plus246fadeboundary cases, pressure tolerance.0002. Prior movementtests retained.
+SnakeCPU PASS10.08s; nativebuildPASS, ARM64assemble/lintPASS5s. Actual contained
+llvmpipe214716.834158Z-snake-head motion validatorPASS/kernel-after[]. Fourstage
+motion-grid.png actuallyinspected, headretreat/scales visible with priorgrassocclusion.
+Every fullresolutionstage pixelIDENTICAL to205902.050693Z (ImageMagickAE=0 each).
+Genericluminance/contrast gates stillFAIL unchanged. Performancegainunmeasured;
+this is NOT an Android/AMD fix. No new Android emulation or hardware run this turn.
+Full wildlife/hut/resident/treehabitat/visual backlog and GPU incidents remainOPEN.
+Full40/40non-display testsPASS95.27s. Webbuild/packagePASS11,178,925raw/4,203,549gzip.
+Allownedjobs terminal; hardwarestoplatch SHAunchanged. Next: portable actual runtime
+of segment rejection, remaininggrass3Dcontact/normal/relaxation andwidecameraocclusion;
+Androidwait stillunresolved, avoid identical retries withoutnewobservability.
+
 ## Latest — finer Android grass trace contradicts a deterministic first-grass stall
 
 Previous turn progressed by localizing CPU wait. Added nested scopes in grass effect

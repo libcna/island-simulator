@@ -9,11 +9,38 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <random>
 #include <stdexcept>
 #include <string_view>
 #include <vector>
 
 static void Check(bool pass, const char* message) { if (!pass) throw std::runtime_error(message); }
+
+// Unculled double-precision capsule oracle: intentionally no snake/cell/segment AABBs.
+static double ReferencePressure(const island::SnakeGrassContact& contact,
+                               double x,double z,double u,double v)
+{
+    const auto distance=[](double px,double pz,double ax,double az,double bx,double bz) {
+        const double dx=bx-ax,dz=bz-az;
+        const double t=std::clamp(((px-ax)*dx+(pz-az)*dz)/std::max(dx*dx+dz*dz,1e-6),0.0,1.0);
+        return std::hypot(px-ax-t*dx,pz-az-t*dz);
+    };
+    double nearest=island::SnakeGrassContact::Fade;
+    for(std::size_t s=0;s<contact.count;++s) for(std::size_t j=1;j<41;++j) {
+        const auto i=(s*41+j-1)*3,k=i+3;
+        const double ax=contact.points[i],az=contact.points[i+1],bx=contact.points[k],bz=contact.points[k+1];
+        const double dx=u-x,dz=v-z,sx=bx-ax,sz=bz-az,denom=dx*sz-dz*sx;
+        if(std::abs(denom)>1e-8) {
+            const double t=((ax-x)*sz-(az-z)*sx)/denom,r=((ax-x)*dz-(az-z)*dx)/denom;
+            if(t>=0&&t<=1&&r>=0&&r<=1) return 1;
+        }
+        const double d=std::min({distance(x,z,ax,az,bx,bz),distance(u,v,ax,az,bx,bz),
+                                distance(ax,az,x,z,u,v),distance(bx,bz,x,z,u,v)});
+        nearest=std::min(nearest,d-std::max(contact.points[i+2],contact.points[k+2])-island::SnakeGrassContact::Margin);
+    }
+    const double t=std::clamp(nearest/island::SnakeGrassContact::Fade,0.0,1.0);
+    return 1-t*t*(3-2*t);
+}
 int main(int argc,char** argv)
 {
     if(argc>1 && (argc!=2 || std::string_view(argv[1])!="--close-observer-regression"))
@@ -219,6 +246,26 @@ int main(int argc,char** argv)
         for(std::size_t j=0;j<s.body.size();++j) s.body[j]={static_cast<float>(j)*population.Spacing,2,0};
         const std::array<island::SnakeState,1> fixture{s};
         const auto contact=island::SnakeGrassContact::Build(fixture);
+        std::mt19937 generator(741923U);
+        std::uniform_real_distribution<float> sample(-0.8f,3.0f);
+        // Straight and bent multi-snake bodies, points, long swept blades and the
+        // full fade boundary. Compare without sharing the production broad phase.
+        for(const auto& tested: {contact,island::SnakeGrassContact::Build(population.Snakes())}) {
+            const float originX=tested.points[0],originZ=tested.points[1];
+            for(int i=0;i<12000;++i) {
+                const float x=originX+sample(generator),z=originZ+sample(generator),
+                    u=i%3==0?x:originX+sample(generator),v=i%3==0?z:originZ+sample(generator);
+                Check(std::abs(tested.SweptPressure(x,z,u,v)-ReferencePressure(tested,x,z,u,v))<0.0002,
+                    "segment broad phase changed exact capsule pressure");
+            }
+            for(int station=0;station<41;++station) for(float offset: {-0.0001f,0.0f,0.0001f}) {
+                const auto k=static_cast<std::size_t>(station)*3;
+                const float x=tested.points[k],z=tested.points[k+1]+tested.points[k+2]
+                    +island::SnakeGrassContact::Margin+island::SnakeGrassContact::Fade+offset;
+                Check(std::abs(tested.Pressure(x,z)-ReferencePressure(tested,x,z,x,z))<0.0002,
+                    "segment envelope lost fade-boundary contact");
+            }
+        }
         Check(contact.Pressure(1.1f,0.05f)>0.999f,"snake body pressure insufficient");
         Check(contact.Pressure(1.1f,0.12f)>0 && contact.Pressure(1.1f,0.12f)<1,
             "grass pressure lacks soft edge");

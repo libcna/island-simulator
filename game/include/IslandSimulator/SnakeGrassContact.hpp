@@ -67,6 +67,12 @@ struct SnakeGrassContact {
             for(std::size_t j=1;j<41;++j) {
                 const auto i=(s*41+j-1)*3,k=i+3;
                 const float ax=points[i],az=points[i+1],bx=points[k],bz=points[k+1];
+                // Conservative segment envelope: a separated swept blade cannot reach
+                // this capsule, including its entire soft falloff. Keep a float guard.
+                const float reach=std::max(points[i+2],points[k+2])+Margin+Fade+0.0001f;
+                if(std::max(rootX,x)<std::min(ax,bx)-reach || std::min(rootX,x)>std::max(ax,bx)+reach
+                    ||std::max(rootZ,z)<std::min(az,bz)-reach || std::min(rootZ,z)>std::max(az,bz)+reach)
+                    continue;
                 const float dx=x-rootX,dz=z-rootZ,sx=bx-ax,sz=bz-az;
                 const float denominator=dx*sz-dz*sx;
                 if(std::abs(denominator)>0.00000001f) {
@@ -106,6 +112,9 @@ float snakeGrassPressure(vec2 root,vec2 position) {
         if(any(lessThan(max(root,position),bounds.xy)) || any(greaterThan(min(root,position),bounds.zw))) continue;
         for(int j=1;j<41;++j) {
             vec3 a=uSnakeGrassPoints[s*41+j-1], b=uSnakeGrassPoints[s*41+j];
+            float reach=max(a.z,b.z)+0.015+0.14+0.0001;
+            if(any(lessThan(max(root,position),min(a.xy,b.xy)-vec2(reach)))
+                ||any(greaterThan(min(root,position),max(a.xy,b.xy)+vec2(reach)))) continue;
             vec2 d=position-root, direction=b.xy-a.xy;
             float denominator=snakeCross(d,direction);
             if(abs(denominator)>0.00000001) {
