@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — Android head/body functional motion PASS, wide image still occluded
+
+Prior turn progressed with exact segment rejection/native image equivalence. Added
+one QA-only post-first-draw Update marker and extended CPU breadcrumbs from first
+to first TWO snake QA frames; no simulation/render content changes. Actual corrected
+APK SHA045a1121b58ea5bf2a5a57bc3c02354e132445d1e6ad5ec0886ebebb60a0cc44:
+-215120.905025Z-snake-head PASS;4runtime samples frames8/16/24/32, displacement11.304m.
+-215307.497535Z-snakes PASS; sameAPK,4samples, displacement11.320m.
+Bothkernel-final[], ownedemulatorexit0, screenshotacceptedfirstattempt. BOTH actual
+game/island-android.png images inspected: head/scales/eyes clear in close view;
+wideview haslargeforegroundleaf coveringhead/upperbody, S-curvedbodypartvisible.
+Therefore functionalmotion/GLES check PASS, not wholebodyvisual/naturalgaitacceptance.
+These runs followed segment rejection but are NOT a controlledA/B proof of prior
+timeoutcause; earlierfailuresremainretained. No nativeAMDfix/performanceclaim.
+ExactAPKarchived build/android-software/island-snakes-qualified-x86_64.apk (old
+island-snakes-x86_64.apk retained unchanged). Android23/browser18/software37testsPASS;
+x86build/lintPASS8s. NoKVM/AVD/dependency/hardwareconfigurationchange.
+NativebuildPASS; defaultARM64restored,assemble/lintPASS4s. Allownedjobsterminal;
+hardwarestoplatchunchanged. Webnotrebuilt foradditionalQA-onlymarkers thisturn.
+NEXT fix wideQA camera leafocclusion without hidingplants; portableWeb check of
+segmentrejection stillpending, grass3Dcontact/normal/relaxation andfullbacklogopen.
+
 ## Latest — exact segment-level grass rejection, native pixels unchanged
 
 Prior turn provided diagnostic evidence, not a stall fix. SnakeGrassContact CPU+GLSL

@@ -511,3 +511,29 @@ and large-scale contrast gates still FAIL; no overall visual acceptance claim.
 No Android/Web runtime qualification or hardware incident repair is claimed here.
 Full non-display suite PASS40/40 (95.27s). Web build/package PASS,11,178,925bytes raw
 and4,203,549bytes gzip. Hardware stop-latch checksum unchanged; all owned jobs terminal.
+
+## Actual Android motion qualification after segment rejection
+
+The two snake QA views now log one Update-resumed marker after the first draw, and
+CPU pass breadcrumbs cover the first two frames rather than only the first. This
+does not change simulation, shaders, timing limits or motion acceptance criteria.
+
+Actual software GLES runs using the same APK SHA256
+`045a1121b58ea5bf2a5a57bc3c02354e132445d1e6ad5ec0886ebebb60a0cc44`:
+
+- `20261011T215120.905025Z-snake-head`: PASS, four ordered live samples,11.304m maximum
+  head displacement from the first sample; actual screenshot inspected, head, eyes
+  and scales clearly visible.
+- `20261011T215307.497535Z-snakes`: PASS functional gate, four live samples,11.320m
+  displacement; actual screenshot inspected but a large foreground leaf hides the
+  head/upper body. The visible lower body has an S-shaped bend. This is not whole-body
+  visual acceptance; the wide QA camera needs unobstructed framing without removing
+  foliage from gameplay or the test scene.
+
+Both runs show SwiftShader GLES, kernel-final[], first-attempt screenshot acceptance,
+normal owned-emulator exit0 and no rejected graphics diagnostics. Exact APK archived
+as `build/android-software/island-snakes-qualified-x86_64.apk`. Earlier failed APK
+archive and all failed evidence remain unchanged. Android23/browser18/software37 CPU
+tests pass, x86_64 build/lint PASS8s. These successful runs follow the segment filter
+but do not constitute a controlled causal A/B experiment for the earlier stalls.
+No general stability/mobile performance/native AMD fix or complete natural gait claim.

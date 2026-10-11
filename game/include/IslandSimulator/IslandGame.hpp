@@ -335,6 +335,7 @@ namespace island
         float inputDiagnosticsTimer_ = 0.0f;
         std::uint32_t drawnFrames_ = 0;
         std::uint32_t snakeCaptureUpdates_ = 0;
+        bool snakeFirstDrawReturnReported_ = false;
         [[nodiscard]] bool UsesSnakeCaptureClock() const noexcept {
             return !capturePath_.empty() && (viewpoint_ == FixedViewpoint::SnakeDetail
                 || viewpoint_ == FixedViewpoint::SnakeHeadDetail);

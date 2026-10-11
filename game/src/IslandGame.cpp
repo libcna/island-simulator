@@ -1184,6 +1184,11 @@ namespace island
     void IslandGame::Update(GameTime& gameTime)
     {
         const bool snakeCaptureClock=UsesSnakeCaptureClock();
+        if (!snakeFirstDrawReturnReported_ && drawnFrames_ > 0U
+            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail)) {
+            snakeFirstDrawReturnReported_ = true;
+            MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
+        }
         if(snakeCaptureClock) ++snakeCaptureUpdates_;
         const float deltaSeconds = canopyLodInspection_ ? 0.0f : snakeCaptureClock ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
@@ -2259,7 +2264,7 @@ namespace island
             ? std::span<const MonkeyState>(monkeyTreeQaPoses_[treeQaStage]) : monkeyTroop_.Monkeys();
         const auto drawStarted = std::chrono::steady_clock::now();
         auto& device = getGraphicsDeviceProperty();
-        BeginGpuDiagnosticFrame(drawnFrames_, drawnFrames_ == 0U
+        BeginGpuDiagnosticFrame(drawnFrames_, drawnFrames_ < 2U
             && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail));
         if (drawnFrames_ == 1U) RecordRuntimeThreadInventory();
         if (!benchmarkPath_.empty() && !benchmarkReportPending_) {

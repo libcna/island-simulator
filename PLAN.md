@@ -757,6 +757,10 @@ progress or require player interaction; dangerous species keep their distance li
   four motion images pixel-identical to205902, visually inspected; motion PASS,
   generic contrast FAIL unchanged. Actual performance gain/Android/Web runtime still
   unqualified; this is not evidence of either GPU incident being fixed.
+  Actual Android215120.905025Z-head and215307.497535Z-body now functionalPASS on same
+  APK:4live samples each,11.304/11.320m displacement, screenshots inspected,
+  kernel[],ownedexit0. Closehead clearlyvisible; wideviewhead/upperbodyleafoccluded,
+  so wholebodyvisualacceptance remainsOPEN. NotcontrolledA/B rootcause or AMDfix.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)
