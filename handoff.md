@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — hut contact shadows added and actual image reviewed
+
+HutContactFootprints returns one yaw-oriented soft floor ellipse(alpha.28) + six
+25cm footing ellipses(alpha.34), all passed through existing rendered-terrain-clipped
+BuildContactPatch. ContactShadowRenderer optional hut pointer, new counted Hut kind,
+90m quality-scaled fade; existing single batch/no extra texture/shader/draw. IslandGame
+supplies placement and logs hut draw/contact count.3300vertices/1100triangles cached.
+Tests: yaw/footingcenters/finitealpha/vertex AND triangle-centroid ground conformity,
+12000vertex cap; eight player approach tests retained. FocusedPASS0.65s.
+Actual222202.355026Z-hut capturePASS/capture.png actuallyinspected: subtle underdeck/
+postbase darkening improvesgroundconnection. Kernel-after[]. Loghut1draw/7contacts,
+allcontactshadows43patches/1704triangles/1draw. This is NOT directionalroof/selfshadow.
+NativebuildPASS, AndroidARM64build/lintPASS4s. NoAndroid/Webactualvisualrun yet.
+NEXT naturalroof/woodmaterials andportableQA; globalroute/worldreport/fullbacklog
+stillopen. AMDtimeoutunresolved; nohardware/KVM/dependencychanges. Goalactive.
+Full suite initially40/41PASS71.31s: supervisor SIGKILL fixture failed to start within
+4s. No gate relaxed; isolated rerun of entire supervisor group PASS1.82s (retained
+hut-shadow-supervisor-recheck.log). Do not rewrite first run as41/41. Webbuild/package
+PASS11,208,839raw/4,213,502gzip. Allownedjobs terminal, stoplatchSHAunchanged.
+
 ## Latest — first hut visible in live island, native image audited
 
 HutRenderer added and linked into ordinary IslandGame creation/draw. Placement now

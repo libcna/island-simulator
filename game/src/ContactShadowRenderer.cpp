@@ -141,7 +141,7 @@ namespace island
         GraphicsDevice& device, const IslandTerrain& terrain,
         const VegetationLayout& vegetation, const JungleLayout& jungle,
         const NaturalPropLayout& naturalProps, const ShipwreckLayout& shipwreck,
-        const float maximumDistanceScale)
+        const float maximumDistanceScale, const HutPlacement* hut)
         : device_(device),
           terrain_(terrain),
           effect_(std::make_unique<BasicEffect>(device)),
@@ -227,6 +227,8 @@ namespace island
         }
         for (const auto& footprint : HullContactFootprints(shipwreck.Ship())) cacheCoastal(footprint);
         for (const auto& debris : shipwreck.Debris()) cacheCoastal(DebrisContactFootprint(debris));
+        if(hut) for(const auto& footprint:HutContactFootprints(*hut))
+            cachePatch(footprint,StaticShadowKind::Hut,90.0f,ContactPatchDetail::Coastal);
 
         // Bounds cover the actual projected/slope-conforming patch, not the source object's pivot.
         for (auto& shadow : staticShadows_) {
@@ -323,6 +325,7 @@ namespace island
             visibleCanopyShadowCount_ = 0;
             visibleRockShadowCount_ = 0;
             visibleWoodShadowCount_ = 0;
+            visibleHutShadowCount_ = 0;
             visibleMonkeyShadowCount_ = 0;
             visibleBoarShadowCount_ = 0;
             visibleSnakeShadowCount_ = 0;
@@ -360,6 +363,9 @@ namespace island
                     break;
                 case StaticShadowKind::Wood:
                     ++visibleWoodShadowCount_;
+                    break;
+                case StaticShadowKind::Hut:
+                    ++visibleHutShadowCount_;
                     break;
                 case StaticShadowKind::Coastal:
                     ++visibleCoastalShadowCount_;
@@ -405,7 +411,7 @@ namespace island
                 ++visibleSnakeShadowCount_;
             }
             visibleShadowCount_ = visiblePalmShadowCount_ + visibleCanopyShadowCount_
-                + visibleRockShadowCount_ + visibleWoodShadowCount_
+                + visibleRockShadowCount_ + visibleWoodShadowCount_ + visibleHutShadowCount_
                 + visibleMonkeyShadowCount_ + visibleBoarShadowCount_ + visibleCoastalShadowCount_
                 + visibleSnakeShadowCount_;
             primitiveCount_ = static_cast<int>(stagingVertices_.size() / 3U);

@@ -967,7 +967,7 @@ namespace island
             device, distantSceneryLayout_);
         contactShadowRenderer_ = std::make_unique<ContactShadowRenderer>(
             device, terrain_, vegetationLayout_, jungleLayout_, naturalPropLayout_,
-            shipwreckLayout_, qualityProfile_.contactShadowDistanceScale);
+            shipwreckLayout_, qualityProfile_.contactShadowDistanceScale, hutPlacement_?&*hutPlacement_:nullptr);
         constexpr auto coastalShadowDiagnostic =
             "island-simulator: coastal contact patches follow rendered seabed triangles in the existing batch";
         std::cout << coastalShadowDiagnostic << '\n';
@@ -2798,7 +2798,8 @@ namespace island
                       << (shipwreckRenderer_->IsVisible() ? "visible" : "culled") << ", "
                       << shipwreckRenderer_->DebrisCount() << " debris, "
                       << shipwreckRenderer_->DrawCallCount() << " draw; hut "
-                      << (hutRenderer_?hutRenderer_->DrawCallCount():0) << " draw; grass "
+                      << (hutRenderer_?hutRenderer_->DrawCallCount():0) << " draw, "
+                      << contactShadowRenderer_->VisibleHutShadowCount() << " contact patches; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "

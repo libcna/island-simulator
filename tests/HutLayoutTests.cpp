@@ -6,6 +6,7 @@
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/ContactShadowPatch.hpp"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -49,6 +50,32 @@ int main() {
             Check(std::hypot(found->footings[i].x-found->footings[j].x,
                 found->footings[i].z-found->footings[j].z)>1.6f,"duplicate or collapsed hut posts");
     const float c=std::cos(found->yawRadians),s=std::sin(found->yawRadians);
+    const auto footprints=island::HutContactFootprints(*found);
+    std::size_t shadowVertices=0;
+    for(std::size_t index=0;index<footprints.size();++index) {
+        const auto& footprint=footprints[index];
+        Check(std::abs(footprint.directionX-s)<1e-6f&&std::abs(footprint.directionZ-c)<1e-6f,
+            "hut shadow orientation differs from model");
+        if(index>0) Check(footprint.x==found->footings[index-1].x&&footprint.z==found->footings[index-1].z,
+            "post shadow not centered on footing");
+        const auto patch=island::BuildContactPatch(terrain,footprint);
+        Check(!patch.empty()&&patch.size()%3==0,"hut shadow patch missing triangles");
+        shadowVertices+=patch.size();
+        for(const auto& v:patch) {
+            Check(std::abs(v.y-surface.Sample(v.x,v.z).height-island::ContactPatchSurfaceOffset)<0.00015f,
+                "hut shadow not grounded on rendered triangles");
+            Check(std::isfinite(v.opacity)&&v.opacity>=0&&v.opacity<=footprint.opacity+1e-6f,
+                "hut shadow alpha outside bounds");
+        }
+        for(std::size_t i=0;i<patch.size();i+=3) {
+            const float x=(patch[i].x+patch[i+1].x+patch[i+2].x)/3,
+                z=(patch[i].z+patch[i+1].z+patch[i+2].z)/3,
+                y=(patch[i].y+patch[i+1].y+patch[i+2].y)/3;
+            Check(std::abs(y-surface.Sample(x,z).height-island::ContactPatchSurfaceOffset)<0.00015f,
+                "hut shadow triangle crosses a terrain fold");
+        }
+    }
+    Check(shadowVertices<=12000,"hut shadow exceeded fixed geometry budget");
     const std::array<island::CircularObstacle,1> hutSolid{{{found->x,found->z,island::HutLayout::CollisionRadius}}};
     Check(std::hypot(island::HutLayout::Width/2+0.08f,island::HutLayout::Depth/2+0.08f)
         <island::HutLayout::CollisionRadius,"hut posts extend outside collision proxy");
@@ -82,5 +109,6 @@ int main() {
     catch(const std::invalid_argument&) { rejected=true; }
     Check(rejected,"invalid occupancy accepted");
     std::cout<<"Hut candidate "<<found->x<<','<<found->z<<" floor "<<found->floorY
-        <<" yaw "<<found->yawRadians<<"; six grounded supports, eight collision approaches checked\n";
+        <<" yaw "<<found->yawRadians<<"; six grounded supports, eight collision approaches checked; "
+        <<shadowVertices<<" shadow vertices\n";
 }

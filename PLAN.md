@@ -814,6 +814,10 @@ Landmark backlog requested by the operator:
   hut actual221344.265945Z capturePASS/imageinspected/kernel[]. Roof stilltoo regular,
   wooduntextured/contactshadowsmissing; decorative/non-enterable prototype, notdone.
   Worldreport/globalroute/actualAndroidWebaudit remainopen. Details docs/island-hut.md.
+  Grounding now adds7terrain-clipped contactpatches (3300vertices) to existing1draw
+  batch, noextra texture/shader. CPU footprint/trianglegrounding testsPASS; native
+  222202.355026Z actualimageinspected/PASS/kernel[]. Underdeck/post darkening visible.
+  Directionalroof/selfshadows are not implemented; realism/portableaudit stillOPEN.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

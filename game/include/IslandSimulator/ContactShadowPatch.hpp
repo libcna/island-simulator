@@ -11,6 +11,7 @@ namespace island
     struct DriftwoodPlacement;
     struct ShipwreckPlacement;
     struct ShipwreckDebrisPlacement;
+    struct HutPlacement;
 
     // Soft grounding approximation, not a directional shadow-map silhouette.
     struct ContactFootprint
@@ -36,6 +37,7 @@ namespace island
         const ShipwreckPlacement& ship) noexcept;
     [[nodiscard]] ContactFootprint DebrisContactFootprint(
         const ShipwreckDebrisPlacement& debris) noexcept;
+    [[nodiscard]] std::array<ContactFootprint,7> HutContactFootprints(const HutPlacement& hut) noexcept;
 
     /** Build a soft ellipse, split at actual terrain grid/diagonal boundaries.
      * All output triangles lie on one rendered terrain triangle, plus a small vertical bias.

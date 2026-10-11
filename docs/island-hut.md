@@ -50,11 +50,35 @@ kernel-after[]. Visual shortcomings: roof looks too regular/slat-like, untexture
 wood is plain, and missing contact/roof shadows make the hut look insufficiently
 connected to the ground. These are open, not waived by the capture pass.
 
+## Terrain-conforming contact shadow
+
+The live hut now contributes seven static patches to the existing contact-shadow batch:
+a soft ellipse under the raised floor (28% maximum opacity) and six small footing
+patches (34%,25cm radius). The floor ellipse follows hut yaw. All patches are clipped
+to exact rendered terrain triangles with the existing25mm vertical bias, cached once,
+culled/faded at90m scaled by the existing quality profile, and counted separately as
+hut contacts. There is no extra texture, shader or draw call. This is ambient grounding,
+not a directional roof silhouette or structural self-shadow.
+
+CPU tests check yaw, exact footing centers, finite bounded opacity, vertex and triangle
+centroid height against rendered ground, and a12,000vertex cap. Current geometry is
+3,300vertices/1,100triangles. All eight player collision approaches remain covered.
+Focused suite PASS0.65s. Actual llvmpipe `20261011T222202.355026Z-hut/capture.png`
+inspected: subtle darkening under the deck and around support bases improves grounding.
+Image gate PASS (395color bins/luminanceSD50.45/spatial contrast196.80), kernel-after[].
+Log confirms hut1draw/7contact patches; all nearby contacts remain1draw (1,704triangles
+total in this view). Native build and Android ARM64 assemble/lint PASS4s.
+Web build/package PASS (11,208,839bytes raw/4,213,502gzip); no portable runtime audit
+yet. Full CPU suite initially40/41 passed: the process-supervisor SIGKILL fixture did
+not start within4s. The whole supervisor group passed on an isolated rerun in1.82s
+without changes to timeout/acceptance; both results are retained.
+
 ## Remaining implementation
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing
    roof bundles are not visually convincing palm-leaf thatch yet.
-2. Add grounded contact/roof shadows. Confirm grass/wind-driven foliage clearance
+2. Ground contact is implemented; consider the remaining directional roof/self-shadow
+   limitations. Confirm grass/wind-driven foliage clearance
    through representative views; conservative site discs are not a triangle proof.
 3. Audit global player-route reachability and refine the coarse building collider if
    needed. No inventory, crafting, quests or unrelated systems.

@@ -28,6 +28,7 @@ namespace island
     struct MonkeyState;
     struct BoarState;
     class SnakePopulation;
+    struct HutPlacement;
 
     /**
      * @brief One-batch terrain-conforming grounding shadows for nearby scene objects.
@@ -44,7 +45,7 @@ namespace island
             const IslandTerrain& terrain, const VegetationLayout& vegetation,
             const JungleLayout& jungle, const NaturalPropLayout& naturalProps,
             const ShipwreckLayout& shipwreck,
-            float maximumDistanceScale = 1.0f);
+            float maximumDistanceScale = 1.0f, const HutPlacement* hut = nullptr);
         ~ContactShadowRenderer();
 
         ContactShadowRenderer(const ContactShadowRenderer&) = delete;
@@ -84,6 +85,7 @@ namespace island
         [[nodiscard]] int VisibleSnakeShadowCount() const noexcept { return visibleSnakeShadowCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
         [[nodiscard]] int VisibleCoastalShadowCount() const noexcept { return visibleCoastalShadowCount_; }
+        [[nodiscard]] int VisibleHutShadowCount() const noexcept { return visibleHutShadowCount_; }
 
     private:
         enum class StaticShadowKind : std::uint8_t
@@ -92,7 +94,8 @@ namespace island
             Canopy,
             Rock,
             Wood,
-            Coastal
+            Coastal,
+            Hut
         };
 
         struct StaticShadow
@@ -124,6 +127,7 @@ namespace island
         int visibleCanopyShadowCount_ = 0;
         int visibleRockShadowCount_ = 0;
         int visibleWoodShadowCount_ = 0;
+        int visibleHutShadowCount_ = 0;
         int visibleMonkeyShadowCount_ = 0;
         int visibleBoarShadowCount_ = 0;
         int visibleSnakeShadowCount_ = 0;
