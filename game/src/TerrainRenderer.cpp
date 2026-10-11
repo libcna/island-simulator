@@ -5,6 +5,7 @@
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/ForestFloorMaterial.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/PrevailingWind.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
@@ -107,6 +108,7 @@ in float vGroundLight;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
+uniform vec2 uSandWind;
 uniform vec4 uPrimaryPathShape;
 uniform vec2 uPrimaryPathZRange;
 uniform vec3 uEastClearing;
@@ -274,6 +276,35 @@ void main()
         color *= vec3(1.0 + grain * 0.90,
                       1.0 + grain * 0.72,
                       1.0 + grain * 0.46);
+
+        // Millimetre-scale dry relief: wind-normal ripple crests, with warped phase
+        // rather than ruler-straight stripes. Fade the highest harmonic before Nyquist.
+        float dryRelief = closeSand * smoothstep(2.0, 6.0, signedShoreDistance)
+            * smoothstep(0.18, 0.65, vWorld.y);
+        float rippleVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 9.0);
+        float grainVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 85.0);
+        if (dryRelief * max(rippleVisibility, grainVisibility) > 0.0) {
+            vec3 bend = soilNoiseGradient(p * 0.45 + vec2(18.2, -6.3));
+            float phase = dot(p, uSandWind) * 28.0 + bend.x * 4.0;
+            vec2 phaseGradient = uSandWind * 28.0 + bend.yz * 1.80;
+            float rippleDerivative = cos(phase) + 0.36 * cos(phase * 2.0 + 0.7);
+            float rippleHeight = sin(phase) + 0.18 * sin(phase * 2.0 + 0.7);
+            float rippleEnvelope = 0.60 + bend.x * 0.80;
+            vec3 grains = soilNoiseGradient(p * 85.0 + vec2(-14.2, 9.6));
+            vec2 sandSlope = (phaseGradient * rippleDerivative * rippleEnvelope
+                + rippleHeight * bend.yz * 0.36) * (0.0022 * rippleVisibility)
+                + grains.yz * (85.0 * 0.00015 * grainVisibility);
+            vec3 sandNormal = cross(worldDx, worldDy);
+            sandNormal *= inversesqrt(max(dot(sandNormal, sandNormal), 1.0e-20));
+            if (sandNormal.y < 0.0) sandNormal = -sandNormal;
+            vec3 reliefNormal = sandNormal - vec3(sandSlope.x, 0.0, sandSlope.y) * sandNormal.y;
+            reliefNormal *= inversesqrt(max(dot(reliefNormal, reliefNormal), 0.00000001));
+            vec3 toSun = normalize(uToSun);
+            float flatLight = 0.55 + 0.45 * max(0.0, dot(sandNormal, toSun));
+            float reliefLight = 0.55 + 0.45 * max(0.0, dot(reliefNormal, toSun));
+            color *= mix(1.0, reliefLight / flatLight, dryRelief);
+            color *= 1.0 + grains.x * 0.12 * grainVisibility * dryRelief;
+        }
 
         float rippleMask = closeSand
             * smoothstep(0.35, 1.40, signedShoreDistance)
@@ -818,6 +849,7 @@ void main()
             materialEffect_->SetUniformVec3(
                 "uToSun", environment::SunDirectionX, environment::SunDirectionY,
                 environment::SunDirectionZ);
+            materialEffect_->SetUniformVec2("uSandWind", wind::DirectionX, wind::DirectionZ);
             materialEffect_->SetUniformVec4(
                 "uPrimaryPathShape", VegetationLayout::PrimaryPathBaseX,
                 VegetationLayout::PrimaryPathAmplitude,

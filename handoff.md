@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Update — dry sand relief native stage complete
+
+`docs/dry-sand-relief.md`: wind-aligned warped ripples plus footprint-filtered grain
+shading. Native build succeeds, non-display 33/33 pass (50.10 s); final shader refinements
+pass material/CLI/browser-preflight checks. Initial bright foreground rejected and fixed
+by correcting the sand normal-length floor. Final bay-ground
+`20261011T092129.366965Z-bay-ground` and bay `20261011T092157.241700Z-bay` pass and
+were inspected; empty kernel deltas, latch unchanged. No geometry/population changes.
+Web terrain suite now has seven views, including `bay-ground`. No jobs running.
+NEXT: qualify BOTH this shader and preceding coastal turf on Android (bay-ground and
+focused touch/traversal, restore ARM64) and Web (build/package, seven-view terrain matrix).
+Earlier beach qualification does not qualify these newer stages. Static native images
+do not prove temporal stability. Soil/wet-normal length floors deserve separate review;
+they were not changed here. Full environment/geology and Android lifecycle remain open.
+
 ## Update — coastal turf native stage complete
 
 `docs/coastal-turf.md`: shared CPU/generated-GLSL sand/rock suppression for grass and

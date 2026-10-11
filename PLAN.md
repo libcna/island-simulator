@@ -64,6 +64,18 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — dry sand microrelief (native stage)
+
+- [x] `docs/dry-sand-relief.md`: wind-aligned warped millimetre-scale ripples and
+  footprint-filtered grain shading, no added geometry/textures/draws. First candidate
+  rejected for near-camera brightening; sand normal-length guard corrected.
+- [x] Native build and 33/33 non-display groups pass (50.10 s); final shader refinements
+  pass relevant material/CLI/browser-preflight groups. Final bay-ground and bay captures
+  pass/inspected, empty kernel deltas. Geometry/populations unchanged from coastal turf.
+- [ ] Android/Web runtime of this and preceding turf stage. Web terrain matrix now has
+  seven views including bay-ground. Temporal stability and device performance are not
+  established by static native captures. Geology/dunes/full environment fields remain open.
+
 #### 2026-10-11 — coastal turf substrate and ground-level bay view
 
 - [x] Shared CPU/generated-GLSL sandy-substrate response for grass density and turf
