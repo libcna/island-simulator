@@ -64,6 +64,25 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — narrow forest footpath
+
+- [~] Macro-geography item 6: narrowed the vegetation reserve from 12.4 m to 2.8 m and
+  dirt shading to approximately 1.7–2.6 m. Palm/canopy trunk and rock footprint rejection
+  protects walking clearance; a regression samples three walking lanes against all static
+  collision proxies. It caught and led to exclusion of one obstructing rock.
+  See `docs/natural-footpath.md`. Local detours/forks and terrain integration remain open.
+- [x] Native build, corrected core regression and the other 32 non-display groups pass.
+  Software overview/jungle captures inspected. Default fingerprint `2816679faacc0474`;
+  Web inventory pins updated with the newly accepted vegetation/props.
+- [x] Android x86_64 assembly/lint and contained SwiftShader interactive run
+  `20261011T071027.731091Z-interactive` pass touch selection, land footsteps, swimming,
+  hot resume and cold relaunch; empty kernel delta. ARM64 assembly/lint restored.
+- [x] Web build and focused Chrome/SwiftShader grass-motion suite
+  `20261011T071524.062886Z-chrome-grass-motion` pass all seven stages, 93 distinct recorded
+  frames, GL error zero and no new GPU faults. Initial run `071355.532471Z` exposed a 15 s
+  wall-time limit at 5.99/6 m; bounded game-sample pacing fixed the harness, failed evidence
+  retained. Web release: 10,338,572 raw / 3,524,786 gzip bytes. Full Web lifecycle not rerun.
+
 #### 2026-10-11 — reef and seagrass substrate
 
 - [~] Continued macro-geography items 5/16 with a terrain-material pass
@@ -192,8 +211,11 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
 - [ ] 5. Make the reef readable from a distance: seabed macro structure with a pale lagoon, sand
   channels, dark reef patches and seagrass, a reef crest and a deep blue drop-off, before any
   detailed coral models.
-- [ ] 6. Make the central route a natural 1.5-3 m footpath that fades, forks and winds around roots
+- [~] 6. Make the central route a natural 1.5-3 m footpath that fades, forks and winds around roots
   and stones instead of a ~12 m corridor that visibly halves the island from above.
+  2026-10-11: 2.8 m vegetation reserve, narrower irregular dirt shading, complete solid
+  footprints excluded and three-lane clearance regression (`docs/natural-footpath.md`).
+  Detours, forks and terrain integration remain open.
 - [~] 7. Redistribute canopy trees into masses (about 60% dense stands, 25% transitional, 15%
   solitary) with fully open areas between, keeping a similar tree count (8-12 h). 2026-10-10
   first pass (`docs/forest-stands.md`): 10.5 m candidate grid with a contrast-shaped stand

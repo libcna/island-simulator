@@ -426,10 +426,10 @@ void main()
             * (1.0 - smoothstep(uPrimaryPathZRange.y - 16.0,
                                 uPrimaryPathZRange.y, p.y));
         float lateralOffset = p.x - pathCentre;
-        float pathWidth = 1.52 + (broad + 0.5) * 0.64;
+        float pathWidth = 0.75 + (broad + 0.5) * 0.45;
         float brokenLateralDistance = abs(lateralOffset)
             + medium * 0.48 + fine * 0.095;
-        float pathEdgeWidth = max(0.52, groundPixelWidth);
+        float pathEdgeWidth = max(0.28, groundPixelWidth);
         float pathMask = (1.0 - smoothstep(pathWidth + 0.10 - pathEdgeWidth,
                                            pathWidth + 0.10 + pathEdgeWidth,
                                            brokenLateralDistance))

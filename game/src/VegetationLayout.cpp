@@ -92,8 +92,8 @@ namespace island
 
     bool VegetationLayout::IsReservedRoute(const float x, const float z) noexcept
     {
-        // A broad south-to-north walking line makes dense vegetation readable and keeps the
-        // initial beach approach open. Its gentle bend prevents it reading as a road.
+        // A footpath-sized reserve lets the forest approach the walking line.
+        // Solid trunks additionally exclude their footprint so the narrow path stays usable.
         const float pathX = PrimaryPathCenterX(z);
         if (z > PrimaryPathMinimumZ && z < PrimaryPathMaximumZ
             && std::abs(x - pathX) < PrimaryPathReservedHalfWidth) {
@@ -173,6 +173,7 @@ namespace island
                 palm.shoreDistance = sample.signedShoreDistance;
                 palm.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xf17a245bU) % PalmVariantCount);
+                if (OverlapsReservedRoute(x, z, 0.31f * palm.scale)) continue;
                 palms_.push_back(palm);
                 obstacles_.push_back(CircularObstacle{palm.x, palm.z, 0.31f * palm.scale});
 
@@ -207,6 +208,7 @@ namespace island
                 young.shoreDistance = youngSample.signedShoreDistance;
                 young.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0x7f4a7c13U) % PalmVariantCount);
+                if (OverlapsReservedRoute(youngX, youngZ, 0.31f * young.scale)) continue;
                 palms_.push_back(young);
                 obstacles_.push_back(CircularObstacle{young.x, young.z, 0.31f * young.scale});
             }

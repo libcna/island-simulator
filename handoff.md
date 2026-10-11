@@ -1,5 +1,19 @@
 # island-simulator handoff
 
+## Update 2026-10-11 — narrow footpath
+
+See `docs/natural-footpath.md`: vegetation corridor 12.4 m -> 2.8 m, narrower dirt shading,
+full trunk/rock footprint rejection and three-lane collision regression. Native overview/jungle
+inspected; all non-display test groups pass (core rerun after the rock fix).
+Android x86_64 touch/traversal/lifecycle run `20261011T071027.731091Z-interactive` passes;
+ARM64 build/lint restored. Web build and package refreshed. First grass-motion run failed a
+15 s wall wait at 5.99/6 m; bounded game-sample wait added. Retry
+`20261011T071524.062886Z-chrome-grass-motion` passes seven stages, 93 distinct frames,
+GL error zero and no new GPU faults. Full Web lifecycle was not rerun.
+New inventory and world fingerprint are in the footpath document; browser pins updated.
+The next substantial realism target is the asymmetric ridge/valley terrain
+and coast from macro-geography items 1–3. Local path forks/detours remain open too.
+
 ## Update 2026-10-11 — reef/seabed material pass
 
 Continued the suggested items 5/16 in `TerrainRenderer.cpp`: depth-limited olive seagrass,
@@ -15,10 +29,8 @@ restored; physical runtime untested. Chrome/SwiftShader terrain suite
 Nothing from this
 session has been pushed. The AMD hardware stop latch remains unchanged.
 
-Next selected step: narrow the central trail's vegetation exclusion corridor (currently
-`PrimaryPathReservedHalfWidth = 6.2 m`) to remove the broad visible forest cut. Coordinate
-the soil material width, collision clearance and placement, and update inventory pins after
-measuring the new populations. The reef pass is complete as a first material milestone.
+The reef pass is complete as a first material milestone. The trail step selected after it is
+recorded above.
 
 The following is the historical 2026-10-10 handoff; use the update above and `PLAN.md` for
 the current state.

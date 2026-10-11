@@ -2727,7 +2727,10 @@ int main()
     }
     for (const auto& log : props.FallenLogs()) landFootprints.push_back(island::LogContactFootprint(log));
     for (const auto& wood : props.Driftwood()) landFootprints.push_back(island::DriftwoodContactFootprint(wood));
-    Check(landFootprints.size() == 200, "all 157 land rocks, 11 logs and 32 driftwood pieces retain their shadows");
+    Check(landFootprints.size() == static_cast<std::size_t>(std::count_if(
+              props.Rocks().begin(), props.Rocks().end(), [](const auto& rock) { return !rock.offshore; }))
+              + props.FallenLogs().size() + props.Driftwood().size(),
+          "all land rocks, logs and driftwood pieces retain their shadows");
     for (float sign : {-1.0f, 1.0f}) {
         island::RockPlacement rock;
         island::FallenLogPlacement log;
@@ -2916,6 +2919,23 @@ int main()
     worldObstacles.insert(worldObstacles.end(), shipwreck.Obstacles().begin(),
                           shipwreck.Obstacles().end());
     const island::WorldCollisionGrid worldCollisionGrid(worldObstacles);
+    // Narrowing the vegetation reserve must preserve a continuous walking corridor,
+    // including collision footprints of rocks, logs and promoted emergent trunks.
+    for (int z = -215; z <= 180; ++z) {
+        const float centre = island::VegetationLayout::PrimaryPathCenterX(static_cast<float>(z));
+        for (const float offset : {-0.65f, 0.0f, 0.65f}) {
+            for (const auto& obstacle : worldObstacles) {
+                const bool clear = std::hypot(centre + offset - obstacle.x,
+                                              static_cast<float>(z) - obstacle.z)
+                    > obstacle.radius + island::PlayerMotion::CapsuleRadius;
+                if (!clear) std::cerr << "Trail blocked at z=" << z << " offset=" << offset
+                    << " by obstacle " << obstacle.x << ',' << obstacle.z
+                    << " radius=" << obstacle.radius << '\n';
+                Check(clear,
+                      "narrow trail leaves a continuous player-width corridor beside its centre");
+            }
+        }
+    }
     Check(worldCollisionGrid.Obstacles().size() == worldObstacles.size()
               && worldCollisionGrid.CellCount() > 0U,
           "world collision grid indexes the complete static obstacle set");
@@ -3277,8 +3297,9 @@ int main()
               "primary path shape constants identify the authored centre crossing");
     Check(island::VegetationLayout::PrimaryPathMinimumZ
                   < island::VegetationLayout::PrimaryPathMaximumZ
-              && island::VegetationLayout::PrimaryPathReservedHalfWidth > 4.0f,
-          "primary path material range remains ordered inside a walkable reserve");
+              && island::VegetationLayout::PrimaryPathReservedHalfWidth >= 0.75f
+              && island::VegetationLayout::PrimaryPathReservedHalfWidth <= 1.5f,
+          "primary path keeps an ordered range and a 1.5 to 3 metre walking reserve");
     Check(island::VegetationLayout::EastClearing.radius > 20.0f
               && island::VegetationLayout::WestClearing.radius > 20.0f,
           "authored clearings retain useful first-person room dimensions");
@@ -3577,9 +3598,9 @@ int main()
     Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
         && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 565
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 584
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2225,
+            - jungle.ForestGroundPlantCount() == 2299,
         "clearing colonies preserve the existing island-wide populations");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
@@ -3688,7 +3709,7 @@ int main()
     };
     checkColonies(jungle);
     checkForestColonies(jungle);
-    Check(jungle.ClearingBushCount()==14 && jungle.ClearingGroundPlantCount()==64,
+    Check(jungle.ClearingBushCount()==14 && jungle.ClearingGroundPlantCount()==69,
         "forest recruitment preserves the existing default clearing accents");
     for (const auto seed:{0x12345U,0xa55aU}) {
         const island::JungleLayout alternate(terrain,seed);

@@ -143,6 +143,8 @@ namespace island
                 rock.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xd3a2646cU) % RockVariantCount);
                 rock.solid = rock.scaleY >= 0.48f && std::max(rock.scaleX, rock.scaleZ) >= 0.70f;
+                if (VegetationLayout::OverlapsReservedRoute(x, z,
+                        0.63f * std::max(rock.scaleX, rock.scaleZ))) continue;
                 rocks_.push_back(rock);
                 if (rock.solid) {
                     obstacles_.push_back(CircularObstacle{

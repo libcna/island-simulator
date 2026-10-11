@@ -1,5 +1,16 @@
 # Browser input ownership — 2026-10-09
 
+## Grass-motion pacing — 2026-10-11
+
+The narrowed-footpath qualification run `20261011T071355.532471Z-chrome-grass-motion`
+failed a fixed 15 s wait at 5.9895 m of the first 6 m leg. Retained samples show correct
+focus/capture, westward motion and 4.3 m/s simulated velocity; the final output continued
+past 7 m during cleanup. Slow software frames and clamped simulation steps exhausted wall
+time before the required sample was observed. The wait now allows at most 120 new game
+samples or 90 s, whichever is reached first. Motion, stopping tolerance and rendering checks
+are unchanged. Retry `20261011T071524.062886Z-chrome-grass-motion` passes all seven movement
+stages with 93 distinct recorded frames and GL error zero at every stage.
+
 ## Focused screenshot F1 follow-up
 
 During compact-material qualification, contained Chrome run

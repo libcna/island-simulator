@@ -48,7 +48,7 @@ namespace island
         static constexpr float PrimaryPathFrequency = 0.018f;
         static constexpr float PrimaryPathMinimumZ = -225.0f;
         static constexpr float PrimaryPathMaximumZ = 190.0f;
-        static constexpr float PrimaryPathReservedHalfWidth = 6.2f;
+        static constexpr float PrimaryPathReservedHalfWidth = 1.4f;
         static constexpr ClearingDefinition EastClearing {43.0f, -18.0f, 32.0f};
         static constexpr ClearingDefinition WestClearing {-82.0f, 62.0f, 24.0f};
 

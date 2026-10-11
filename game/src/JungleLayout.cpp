@@ -111,6 +111,10 @@ namespace island
                 tree.scale = CanopyMinimumScale
                     + (CanopyMaximumScale - CanopyMinimumScale)
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x165667b1U));
+                // Reserve the largest possible trunk before selecting emergents below.
+                // Crowns may overhang the trail; their collision trunks may not.
+                if (VegetationLayout::OverlapsReservedRoute(x, z,
+                        0.43f * CanopyEmergentScale)) continue;
                 emergentCandidates.push_back({canopy_.size(),
                     stand > CanopyStandThreshold
                         && UnitRandom(Hash(gridX, gridZ, seed ^ 0x3c6ef372U)) < CanopyEmergentChance,
