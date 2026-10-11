@@ -18,9 +18,39 @@ from run_software_capture import (
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
+from run_fullscreen_software import validate_control_transitions, owned_runtime_log
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_runtime_log_uses_namespace_identity_not_filename_pid(self):
+        evidence = Mock()
+        matching, unrelated = Mock(), Mock()
+        matching.read_text.return_value = "timestamp runtime-start pid=504958 main-tid=504958 namespace-pid=44 namespace-main-tid=44"
+        unrelated.read_text.return_value = "timestamp runtime-start pid=504959 main-tid=504959 namespace-pid=441 namespace-main-tid=441"
+        evidence.glob.return_value = [unrelated, matching]
+        self.assertIs(owned_runtime_log(evidence, 44)[0], matching)
+        for logs in ([], [unrelated], [matching, matching]):
+            evidence.glob.return_value = logs
+            with self.assertRaises(RuntimeError):
+                owned_runtime_log(evidence, 44)
+
+    def test_persistent_control_transitions_require_complete_finite_ordered_states(self):
+        lines = [f"timestamp island-simulator: control-transition event={event} submitted-frames={i+1} "
+                 f"camera=1,2,3 yaw=0 pitch=0 flight-active={int(event == 0)} "
+                 f"flight-position=1,2,3 fullscreen-requested={int(event == 3)} finite=1"
+                 for i, event in enumerate([3, 4, 3, 4, 0, 1])]
+        valid = "\n".join(lines)
+        self.assertEqual(len(validate_control_transitions(valid, True)), 6)
+        self.assertEqual(len(validate_control_transitions("\n".join(lines[:4]))), 4)
+        for invalid in ("", "\n".join(lines[:-1]), valid + "\n" + lines[-1],
+                        "\n".join(reversed(lines)), valid.replace("camera=1,2,3", "camera=nan,2,3"),
+                        valid.replace("camera=1,2,3", "camera=1,2"), valid.replace("finite=1", "finite=0"),
+                        valid.replace("flight-active=1", "flight-active=0"),
+                        valid.replace("submitted-frames=6", "submitted-frames=1"),
+                        valid.replace("flight-position=1,2,3", "flight-position=2,2,3")):
+            with self.assertRaises(RuntimeError):
+                validate_control_transitions(invalid, True)
+
     def test_snake_motion_requires_connected_live_sequence(self):
         def fixture(moving=True):
             return '\n'.join(

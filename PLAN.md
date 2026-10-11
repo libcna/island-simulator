@@ -541,7 +541,10 @@ Player controls explicitly requested by the operator (2026-10-11):
   Abort snapshot flight-active,44.786m above terrain/radius119.183m, finite matrices;
   not proof about the earlier faulting GPU frame. Sparse persistent control-transition
   diagnostics added (native fullscreen requests, flight on/off/refused landing), CPU
-  tests/build pass; new runtime persistence test and actual root-cause fix remain open.
+  tests/build pass. Contained llvmpipe runtime persistence PASS in
+  `build/software-flight/20261011T195901.992700Z`: four fullscreen transitions plus
+  flight on/off recorded with finite state and advancing frame counts, kernel delta empty.
+  This is not AMD qualification; actual root-cause fix remains open.
 
 - [~] F11 toggles fullscreen on/off. Remove or remap the existing F11 monkey-troop
   debug teleport so the two actions cannot fire together. Handle one toggle per press,

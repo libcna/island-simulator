@@ -6,6 +6,7 @@ import argparse
 import datetime
 import fcntl
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -45,6 +46,44 @@ def validate_boar_audio_trace(samples):
         raise RuntimeError("missing boar playback before/after mute")
     if not any(s[4] == 3 for s in samples):
         raise RuntimeError("no active boar source observed")
+
+
+def owned_runtime_log(evidence, namespace_pid):
+    logs = [(path, path.read_text()) for path in evidence.glob("island-runtime-*.log")]
+    logs = [(path, text) for path, text in logs if re.search(
+        rf"runtime-start pid=\d+ main-tid=\d+ namespace-pid={namespace_pid}(?:\s|$)", text)]
+    if len(logs) != 1:
+        raise RuntimeError("missing or ambiguous owned persistent runtime log")
+    return logs[0]
+
+
+def validate_control_transitions(text, flight=False):
+    """Require the exact scripted transitions from the persistent file, not stdout."""
+    records = []
+    for line in text.splitlines():
+        if "island-simulator: control-transition " not in line:
+            continue
+        fields = dict(re.findall(r"([\w-]+)=([^\s]+)", line.split("control-transition ", 1)[1]))
+        try:
+            event, frame = int(fields["event"]), int(fields["submitted-frames"])
+            camera = [float(v) for v in fields["camera"].split(",")]
+            position = [float(v) for v in fields["flight-position"].split(",")]
+            values = camera + position + [float(fields["yaw"]), float(fields["pitch"])]
+            if (len(camera) != 3 or len(position) != 3 or not all(map(math.isfinite, values))
+                    or fields["finite"] != "1" or frame <= 0
+                    or fields["flight-active"] != ("1" if event == 0 else "0")
+                    or fields["fullscreen-requested"] != ("1" if event == 3 else "0")):
+                raise ValueError("invalid transition state")
+            if event == 0 and camera != position:
+                raise ValueError("flight activation camera differs from flight position")
+        except (KeyError, ValueError) as error:
+            raise RuntimeError("malformed persistent control transition") from error
+        records.append({"event": event, "frame": frame})
+    if [r["event"] for r in records] != [3, 4, 3, 4] + ([0, 1] if flight else []):
+        raise RuntimeError("missing, duplicate or reordered persistent control transitions")
+    if any(b["frame"] <= a["frame"] for a, b in zip(records, records[1:])):
+        raise RuntimeError("persistent transition frame counter did not advance")
+    return records
 
 
 def worker(build, evidence, window_manager, flight=False, boar_audio=False):
@@ -254,6 +293,13 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False):
             if "debug teleport monkey troop" in log():
                 raise RuntimeError("F11 still teleported to monkeys")
             validate_graphics_log(log(), None)
+            # Runtime filenames deliberately use outer procfs IDs for kernel correlation;
+            # Popen.pid belongs to the private PID namespace. Match its startup identity.
+            runtime_path, runtime_text = owned_runtime_log(evidence, game.pid)
+            transitions = validate_control_transitions(runtime_text, flight)
+            (evidence / "control-transitions-result.json").write_text(json.dumps({
+                "passed": True, "source": runtime_path.name, "records": transitions,
+                "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")
             (evidence / "input-result.json").write_text(json.dumps({
                 "passed": True, "stages": stages, "heldRepeatSuppressed": True,
                 "backgroundKeyIgnoredAfterFocusReturn": True,

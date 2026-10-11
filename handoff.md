@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Latest — actual persistent flight/fullscreen diagnostic verification
+
+Added strict scripted transition validator to tools/run_fullscreen_software.py, reads
+owned persistent log via startup namespace PID (filename deliberately uses outerPID).
+37 CPU supervisor tests PASS, including ambiguous/missing identity and bad state/order.
+Actual contained llvmpipe flight run build/software-flight/20261011T195901.992700Z PASS:
+two F11 cycles; held Space, ascent100m/descent/safe return; six persistent events at
+frames3/8/10/14/22/51. Kernel-final[]; stoplatch SHA unchanged. Ceiling/landed PNGs
+actually inspected: sparse slopes/grass transitions still open. NOT AMD crash fix.
+Two earlier runs195708.323678Z/195829.747964Z completed scenario but failed loglookup
+(outerPID mismatch, then matcher omitted main-tid); retained as failed. Alljobs terminal.
+No build, hardware GPU, dependencies, Android/KVM or push. Pending snakegrass edits
+remain intact/uncommitted; only supervisor/tests/docs changed this turn. Goalactive.
+NEXT: actual timeout cause still unknown. Continue offline resource/shader/workload
+investigation and planned visual work; software persistence success does not authorize
+hardware reproduction or mark incident resolved.
+
 ## Latest — offline grass CPU upload audit, no found bounds violation
 
 Extended core-review.py to strict retained CPU upload bytes; no GetData/inferiorcalls.

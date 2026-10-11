@@ -147,8 +147,24 @@ best effort and cannot replace a successful input operation with an exception.
 
 No per-frame log stream or GPU synchronization was added. Native build and focused
 flight/diagnostic CPU tests pass (2/2,0.72s); supervisor35 and asset checks pass. Tests
-cover formatting, float precision, all event kinds and nonfinite fields. A new actual
-interactive/runtime persistence check has not been run after the hardware incident.
+cover formatting, float precision, all event kinds and nonfinite fields.
+After the offline investigation, contained llvmpipe runtime verification passed in
+`build/software-flight/20261011T195901.992700Z`. The actual persistent runtime file
+contains events3/4/3/4/0/1 at submitted frames3/8/10/14/22/51: two fullscreen cycles,
+flight activation and safe return after ascent to the100m ceiling and descent.
+The validator requires finite state, expected flags/order and increasing frame counts;
+it reads the owned persistent file rather than stdout. Runtime filenames use outer
+procfs PID, so selection matches the startup namespace PID to the supervised child.
+CPU supervisor suite:37 tests pass, including missing/ambiguous log identity and
+missing/duplicate/reordered/nonfinite transition rejection.
+
+Two preceding captures (`20261011T195708.323678Z` and `20261011T195829.747964Z`)
+completed the interactive scenario but failed new log selection (first namespace/outer
+PID mismatch, then an omitted main-tid field in the startup matcher). Both remain
+failed evidence, not retroactively relabeled. All three kernel-final deltas are empty.
+Final ceiling and landed PNGs actually inspected: island/landing visible, upper-slope
+vegetation sparsity and grass transitions remain visual work, not final acceptance.
+No AMD GPU, emulator or KVM was used or modified; no game rebuild was needed.
 This closes an implementation gap in future evidence collection; it neither restores
 missing history for PID423089 nor proves the GPU timeout fixed.
 
@@ -202,8 +218,9 @@ during this upload audit. The original timeout remains unresolved.
 - [ ] Implement an evidence-supported fix and regression coverage; require matching-scope
   runtime qualification before claiming the crash fixed. Software success does not qualify AMD.
 
-No new renderer was launched after the report. Previously running Web/ARM64 compilation
-finished successfully and is terminal; compilation is not a GPU reproduction.
+No hardware renderer was launched after the report. The later contained llvmpipe
+diagnostic verification above is not a reproduction on AMD. Previously running
+Web/ARM64 compilation finished successfully; compilation is not a GPU reproduction.
 Keep the existing hardware qualification stop latch unchanged:
 `build/gpu-incident-evidence/QUALIFICATION_STOP.json`, SHA256
 `c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1`.
