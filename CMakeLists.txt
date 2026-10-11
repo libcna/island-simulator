@@ -233,6 +233,8 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
 
     find_program(ISLAND_NODE_EXECUTABLE NAMES node nodejs)
     if(ISLAND_NODE_EXECUTABLE)
+        add_test(NAME IslandBrowserFullscreenTests
+            COMMAND "${ISLAND_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/BrowserFullscreenTests.mjs")
         add_test(NAME IslandGrassMotionReviewTests
             COMMAND "${ISLAND_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/GrassMotionReviewTests.mjs")
     endif()
@@ -520,10 +522,12 @@ if(ISLAND_BUILD_GAME)
             target_link_libraries(island-simulator PRIVATE CNA::EmscriptenAsyncify)
         endif()
         set_property(TARGET island-simulator APPEND PROPERTY LINK_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/browser_fullscreen.js"
             "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html" "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}")
         set_target_properties(island-simulator PROPERTIES SUFFIX ".html")
         target_link_options(island-simulator PRIVATE
             --shell-file "${CMAKE_CURRENT_SOURCE_DIR}/tools/web_shell.html"
+            "SHELL:--pre-js '${CMAKE_CURRENT_SOURCE_DIR}/tools/browser_fullscreen.js'"
             "SHELL:--preload-file '${_island_floor_prepared}@/${_island_floor_path}'"
             "SHELL:--preload-file '${_island_leaf_prepared}@/${_island_leaf_path}'"
             "SHELL:--preload-file '${_island_fur_prepared}@/${_island_fur_path}'"

@@ -31,10 +31,11 @@ const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
 const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials";
 const focusedMonkeyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkeys";
 const focusedClimbCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkey-climb";
-const focusedCheck = focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedFullscreenCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "fullscreen";
+const focusedCheck = focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -492,6 +493,47 @@ try {
             : `workload mode="interactive" viewpoint="${mode}"`;
           if (!startupLog.includes(expectedWorkload)) {
             throw new Error(`${mode} launched the wrong workload: ${startupLog}`);
+          }
+          if (focusedFullscreenCheck) {
+            await call("Page.bringToFront", {}, sessionId);
+            await call("Runtime.evaluate", {expression:"Module.canvas.focus()"}, sessionId);
+            const fullscreenState = async () => (await call("Runtime.evaluate", {
+              expression: "({active:!!document.fullscreenElement,width:innerWidth,height:innerHeight})",
+              returnByValue: true,
+            }, sessionId)).result.value;
+            const key = async (type, repeat = false) => call("Input.dispatchKeyEvent", {
+              type, key:"F11", code:"F11", windowsVirtualKeyCode:122,
+              nativeVirtualKeyCode:122, autoRepeat:repeat,
+            }, sessionId);
+            const requireState = async (active, occurrence) => {
+              for (let attempt=0; attempt<40; ++attempt) {
+                const state = await fullscreenState();
+                // fullscreenElement can change before the asynchronous fullscreenchange
+                // notification is delivered; require both, not a race with the log reader.
+                const confirmed = countOutput(await readSmokeOutput(sessionId),
+                  `island-simulator: fullscreen ${active ? "on" : "off"}`);
+                if (state.active === active && confirmed === occurrence) return state;
+                await delay(100);
+              }
+              throw new Error(`F11 did not set DOM fullscreen to ${active}`);
+            };
+            const stages = [];
+            for (let cycle=0; cycle<2; ++cycle) {
+              await key("keyDown");
+              stages.push(await requireState(true, cycle+1));
+              await key("keyDown", true); await delay(400);
+              if (!(await fullscreenState()).active) throw new Error("Held F11 toggled fullscreen twice");
+              if (cycle===0) await captureVisualFrame(sessionId, "island-browser-fullscreen-active.png");
+              await key("keyUp");
+              await key("keyDown"); stages.push(await requireState(false, cycle+1));
+              await key("keyUp");
+            }
+            const log = await readSmokeOutput(sessionId);
+            if (countOutput(log,"fullscreen on")!==2 || countOutput(log,"fullscreen off")!==2
+                || log.includes("fullscreen failed:") || log.includes("fullscreen unavailable:"))
+              throw new Error("Fullscreen diagnostics do not match actual transitions");
+            await writeFile(path.join(artifactDirectory,"island-browser-fullscreen-transitions.json"),
+              JSON.stringify({passed:true,stages,heldRepeatSuppressed:true},null,2)+"\n");
           }
           if (focusedClimbCheck && !await waitForOutput(sessionId,
               "monkey climb held summit presented after eight cycle stages", 320)) {

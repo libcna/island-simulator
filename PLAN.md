@@ -528,10 +528,19 @@ Standing visual-quality rules (apply to every task from now on):
 
 Player controls explicitly requested by the operator (2026-10-11):
 
-- [ ] F11 toggles fullscreen on/off. Remove or remap the existing F11 monkey-troop
+- [~] F11 toggles fullscreen on/off. Remove or remap the existing F11 monkey-troop
   debug teleport so the two actions cannot fire together. Handle one toggle per press,
   restore windowed size/state, and keep viewport, focus and mouse capture consistent.
   Respect browser fullscreen/user-gesture restrictions and report unsupported cases.
+  Implementation in progress: desktop edge-triggered GraphicsDeviceManager request,
+  Web trusted-event handler with repeat/pending suppression and real DOM state diagnostics;
+  monkey teleport remapped to J, help updated. CPU browser event/rejection tests pass.
+  Web `20261011T164625.592602Z-chrome-fullscreen` verifies two actual on/off cycles and
+  repeat suppression, 60 intervals, GL 0/context intact, empty kernel delta; fullscreen
+  and restored-window images inspected. Fixed 1280x720 viewport only. Native actual
+  window restoration/focus/capture plus Web Escape/pointer-lock/focus remain to verify.
+  Native build + 38/38 CPU groups and Web Release build/package pass. Details and first
+  failed event-race run retained in `docs/fullscreen-controls.md`; task remains partial.
 - [ ] Space toggles fly mode on/off, allowing exploration above the island. Prevent
   entry into the terrain throughout movement (including fast movement and slopes),
   cap flight at 100 metres above the local terrain surface (working interpretation),

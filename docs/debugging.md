@@ -96,11 +96,11 @@ authoritative. This distinction matters in browsers, where clipboard access can 
 user-gesture-gated even though the key was handled by the game. The native private-display input
 gate presses F4 and requires a confirmed round trip.
 
-While the overlay is visible, F5 through F12 teleport to the south beach, jungle trail, east
+While the overlay is visible, F5–F10, J, and F12 teleport to the south beach, jungle trail, east
 clearing, west clearing, south fish shallows, offshore shark view, monkey troop, and the 62 m
 offshore current field. These fixed
 locations shorten traversal and wildlife/vegetation QA without exposing teleports during the
-ordinary presentation. Repeated F11 presses cycle through all seven monkeys for silhouette,
+ordinary presentation. F11 now toggles fullscreen. Repeated J presses cycle through all seven monkeys for silhouette,
 animation, and obstacle-clearance inspection.
 
 In debug builds, press F3 while the F1 panel is visible to detach a bounded inspection camera at

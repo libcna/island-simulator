@@ -1160,6 +1160,18 @@ namespace island
         // Fixed QA cameras deliberately reject player movement, but their diagnostic overlay
         // remains interactive so automated and manual reviewers can inspect an unobstructed view.
         const KeyboardState frameKeyboard = Keyboard::GetState();
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+        // Web fullscreen is requested synchronously by browser_fullscreen.js in the
+        // trusted key event. Android keeps its existing immersive presentation.
+        const bool fullscreenDown = frameKeyboard.IsKeyDown(Keys::F11);
+        if (fullscreenDown && !fullscreenToggleWasDown_ && getIsActiveProperty()) {
+            graphics_.ToggleFullScreen();
+            std::cout << "island-simulator: fullscreen "
+                      << (graphics_.getIsFullScreenProperty() ? "on" : "off")
+                      << " requested\n" << std::flush;
+        }
+        fullscreenToggleWasDown_ = fullscreenDown;
+#endif
         const bool debugOverlayToggleDown = frameKeyboard.IsKeyDown(Keys::F1);
         if (debugOverlayToggleDown && !debugOverlayToggleWasDown_) {
             debugOverlayVisible_ = !debugOverlayVisible_;
@@ -1481,7 +1493,7 @@ namespace island
 #endif
 
         constexpr std::array<Keys, 8> teleportKeys = {
-            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::F11,
+            Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::J,
             Keys::F12};
         constexpr std::array<const char*, 8> teleportNames = {
             "south beach", "jungle trail", "east clearing", "west clearing",

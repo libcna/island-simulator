@@ -33,6 +33,20 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertEqual(gate.browser_environment("chrome", "terrain", Path("/evidence"))[
             "ISLAND_WEB_SMOKE_SCOPE"], "terrain")
 
+    def test_fullscreen_scope_keeps_containment_and_real_state_checks(self):
+        self.assertIn("fullscreen", gate.SCOPES)
+        environment = gate.browser_environment("chrome", "fullscreen", Path("/evidence"))
+        self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "fullscreen")
+        self.assertEqual(environment["ISLAND_BROWSER_SUPERVISED"], "chrome")
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('document.fullscreenElement', source)
+        self.assertIn('await requireState(true, cycle+1)', source)
+        self.assertIn('await requireState(false, cycle+1)', source)
+        self.assertIn('state.active === active && confirmed === occurrence', source)
+        self.assertIn('await key("keyDown", true)', source)
+        game = (ROOT / "game/src/IslandGame.cpp").read_text()
+        self.assertIn('Keys::F9, Keys::F10, Keys::J,', game)
+
     def test_material_scope_preserves_software_supervision(self):
         environment = gate.browser_environment("chrome", "materials", Path("/evidence"))
         self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "materials")

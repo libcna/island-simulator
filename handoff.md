@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## In progress — F11 fullscreen and monkey debug shortcut remap
+
+F11 now requests a native desktop graphics fullscreen toggle once per press; Android
+keeps immersive mode. Web uses shared linked `tools/browser_fullscreen.js` directly in
+trusted key events, rejecting repeat/pending duplicates, observing actual DOM state,
+and logging policy/permission errors. Both release shell and QA use the same pre-JS.
+Monkey debug teleport is J instead of F11; docs and overlay updated. Added CPU event,
+held-key, pending, blur, exit and denial tests plus contained Web `fullscreen` scope.
+Native build and 38/38 non-display groups pass (71.33 s), browser supervisor tests 15/15.
+Web Release build/package passes (11,069,478 raw / 4,163,284 gzip bytes). Desktop-only
+member needed a platform guard to pass strict Web compilation. First runtime
+`20261011T164526.828216Z-chrome-fullscreen` failed on a diagnostic-event race after
+actual DOM transitions; final `20261011T164625.592602Z-chrome-fullscreen` passes after
+requiring both actual state and its asynchronous confirmation (same four transitions).
+Two on/off cycles, held repeat suppression, 60 intervals, GL 0/context intact, empty
+kernel delta. Fullscreen and restored-window 1280x720 PNGs actually inspected, no new
+blank/cropped scene. Fixed emulated viewport, not arbitrary resolution or hardware QA.
+Asset gate 24/75/10/0, latch unchanged, all owned jobs terminal. See
+`docs/fullscreen-controls.md`; no Android/KVM/dependency changes or remote push.
+Native window restoration/focus/pointer capture still need actual contained input QA.
+NEXT: complete native actual F11/window-size restoration/focus/capture verification and
+Web Escape/pointer-lock/focus interaction, then bounded Space flight and visual backlog.
+F11 task remains partial; Space flight and all prior backlog remain open.
+
 ## New user task — pig/boar sounds (2026-10-11)
 
 Added an unchecked PLAN.md task for natural pig/wild-boar grunts, snuffles and breathing

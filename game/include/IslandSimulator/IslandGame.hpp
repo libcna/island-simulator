@@ -298,6 +298,9 @@ namespace island
 #endif
         bool debugOverlayVisible_ = false;
         bool debugOverlayToggleWasDown_ = false;
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+        bool fullscreenToggleWasDown_ = false;
+#endif
         bool worldDebugVisible_ = false;
         bool worldDebugToggleWasDown_ = false;
         bool worldSeedCopyWasDown_ = false;
