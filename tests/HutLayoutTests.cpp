@@ -7,6 +7,7 @@
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/ContactShadowPatch.hpp"
+#include "IslandSimulator/HutThatch.hpp"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -15,6 +16,31 @@
 
 static void Check(bool value,const char* message) { if(!value) throw std::runtime_error(message); }
 int main() {
+    float shortest=10,longest=0;
+    for(int side:{-1,1}) for(int row=0;row<7;++row) for(int strip=0;strip<48;++strip) {
+        const auto blade=island::BuildHutThatchBlade(side,row,strip),repeat=island::BuildHutThatchBlade(side,row,strip);
+        Check(blade.pigment>=0&&blade.pigment<=1,"thatch pigment outside bounds");
+        for(std::size_t station=0;station<3;++station) for(std::size_t edge=0;edge<3;++edge) {
+            const auto p=blade.sections[station][edge],r=repeat.sections[station][edge];
+            Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite thatch");
+            Check(p.x==r.x&&p.y==r.y&&p.z==r.z,"nondeterministic thatch");
+            Check(std::abs(p.x)<=2.75f&&std::abs(p.z)<=2.32f&&p.y>=2.0f&&p.y<=3.81f,
+                "thatch outside roof bounds");
+            if(station>0) Check(side*(p.x-blade.sections[station-1][edge].x)>0,"thatch folded backwards");
+        }
+        const float length=std::abs(blade.sections[2][1].x-blade.sections[0][1].x);
+        shortest=std::min(shortest,length); longest=std::max(longest,length);
+        if(row<6) {
+            const auto next=island::BuildHutThatchBlade(side,row+1,strip);
+            Check(side*(blade.sections[2][1].x-next.sections[0][1].x)>0.08f,"roof courses do not overlap");
+        }
+        if(strip<47) {
+            const auto next=island::BuildHutThatchBlade(side,row,strip+1);
+            for(std::size_t station=0;station<3;++station)
+                Check(blade.sections[station][2].z>=next.sections[station][0].z-0.005f,"roof strips leave large gaps");
+        }
+    }
+    Check(longest-shortest>0.08f,"thatch has uniform rigid lengths");
     const island::IslandTerrain terrain;
     const island::RenderedTerrainSurface surface(terrain);
     const island::VegetationLayout vegetation(terrain);

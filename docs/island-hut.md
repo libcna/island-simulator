@@ -73,6 +73,24 @@ yet. Full CPU suite initially40/41 passed: the process-supervisor SIGKILL fixtur
 not start within4s. The whole supervisor group passed on an isolated rerun in1.82s
 without changes to timeout/acceptance; both results are retained.
 
+## Roof geometry refinement
+
+The initial448 rectangular beam bundles were replaced by672 thin folded leaf strips,
+each with three longitudinal stations and a raised central crease. Deterministic
+length, course staggering, curvature, pigment and uneven eave tips break the rigid
+grid. Constrained lateral drift preserves coverage; no alpha texture or new shader.
+Both versions use16,128 roof vertices, so the complete hut remains6,804triangles /
+20,412vertices in one draw. The ridge/frame, materials and collider are unchanged.
+
+CPU tests check all672 strips for finite bounds, exact repeatability, downhill station
+order, adjacent-strip coverage, overlapping courses and varied lengths. The first
+version failed the gap test; lateral jitter was reduced instead of relaxing the test.
+Final focused test PASS0.58s. Actual llvmpipe `20261011T222902.709084Z-hut/capture.png`
+inspected: the strong rectangular roof grid is gone and the eave is less regular.
+The surface still lacks fine fibre/material detail and is not final realistic thatch.
+Capture PASS (392color bins/luminanceSD49.92/spatial contrast195.97), kernel-after[].
+Native build and Android ARM64 assemble/lint PASS6s; no portable actual audit yet.
+
 ## Remaining implementation
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing

@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest — hut roof box bundles replaced with folded irregular strips
+
+New CPU-only HutThatch.hpp generates672 deterministic3-station/3-across leaf strips
+with middle crease, varied length/curvature/course starts/pigment/uneven eave tips.
+Renderer replaces448box bundles with672×24vertices = same16128roofvertices; complete
+hut still6804triangles/20412vertices/1draw, no newtexture/shader, structureunchanged.
+CPU allstrip bounds/determinism/downhillorder/courseoverlap/adjacentcoverage/length
+variation tests. Firstvariant failed gaptest; reduced lateraldrift, testnotrelaxed.
+FinalhutCPU PASS0.58s. Actual222902.709084Z-hut capturePASS/imageactuallyinspected:
+rooflessgridlike,uneveneave, butstillplainwithoutfinefibres; NOTfinalrealism.
+kernel-after[], nativebuildPASS, AndroidARM64build/lintPASS6s. Portableactualaudit
+stillpending. NEXT wood/thatchmaterialdetail andAndroid/WebQA; globalroute/reporting
+andfullwildlifeplan remainopen. NoAMDfix/hardware/KVM/dependencychange.
+Full41/41non-displaytestsPASS92.60s. Webbuild/packagePASS11,214,600raw/4,215,808gzip.
+Allownedjobsterminal; hardwarestoplatchSHAunchanged. No push.
+
 ## Latest — hut contact shadows added and actual image reviewed
 
 HutContactFootprints returns one yaw-oriented soft floor ellipse(alpha.28) + six

@@ -1,4 +1,5 @@
 #include "IslandSimulator/HutRenderer.hpp"
+#include "IslandSimulator/HutThatch.hpp"
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -77,14 +78,19 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
             const float z=-2.1f+static_cast<float>(i)*0.7f;
             beam({0,3.5f,z},{side*2.65f,2.12f,z},0.10f,0.10f,timber);
         }
-        for(int row=0;row<7;++row) for(int strip=0;strip<32;++strip) {
-            const float u=static_cast<float>(row)/7, v=std::min(1.0f,u+0.19f);
-            const float z=-2.25f+static_cast<float>(strip)*4.5f/32;
-            const float rag=static_cast<float>((strip*7+row*3)%5)*0.008f;
-            const float y=0.035f*static_cast<float>(7-row);
-            beam({side*2.65f*u,3.55f-1.4f*u+y,z},
-                 {side*(2.65f*v+rag),3.55f-1.4f*v+y,z},0.137f,0.045f,
-                 Vector3(153,132,80)+Vector3(static_cast<float>((strip+row)%5)*4));
+        for(int row=0;row<7;++row) for(int strip=0;strip<48;++strip) {
+            const auto blade=BuildHutThatchBlade(static_cast<int>(side),row,strip);
+            const Vector3 pigment=Vector3(152,131,77)+Vector3(blade.pigment*24,blade.pigment*19,blade.pigment*13);
+            const auto point=[&](int station,int edge) {
+                const auto p=blade.sections[static_cast<std::size_t>(station)][static_cast<std::size_t>(edge)];
+                return Vector3(p.x,p.y,p.z);
+            };
+            for(int station=0;station<2;++station) for(int edge=0;edge<2;++edge) {
+                const auto a=point(station,edge),b=point(station,edge+1),
+                    d=point(station+1,edge+1),e=point(station+1,edge);
+                if(side>0) quad(a,b,d,e,pigment);
+                else quad(b,a,e,d,pigment);
+            }
         }
     }
     if(mesh.empty()||mesh.size()>30000) throw std::runtime_error("Hut mesh exceeds budget");

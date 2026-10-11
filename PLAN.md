@@ -818,6 +818,10 @@ Landmark backlog requested by the operator:
   batch, noextra texture/shader. CPU footprint/trianglegrounding testsPASS; native
   222202.355026Z actualimageinspected/PASS/kernel[]. Underdeck/post darkening visible.
   Directionalroof/selfshadows are not implemented; realism/portableaudit stillOPEN.
+  Roof now672folded irregular strips instead of448boxbundles, same16128roofvertices.
+  Allstripgeometry/overlap testsPASS aftercorrectingexcessivelateraljitter. Actual
+  222902.709084Z nativeimageinspected/PASS/kernel[]: lessregulargrid/uneveneave,
+  finefibre/woodmaterialdetail and portableactualaudit stillpending. Notfinalrealism.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars
