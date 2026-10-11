@@ -721,7 +721,7 @@ try {
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
-            && log.includes("ocean 160x160 textures 6383412/6403628 bytes audio 6/6 sources")
+            && log.includes("ocean 160x160 textures 6399796/6420012 bytes audio 6/6 sources")
             && log.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
             && log.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
             && /forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)/.test(log)
@@ -865,7 +865,7 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes(
-      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 6383412/6403628 bytes audio 6/6 sources")
+      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 6399796/6420012 bytes audio 6/6 sources")
     && result.output?.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
     && result.output?.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
     && result.output?.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")

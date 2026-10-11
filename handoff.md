@@ -1,5 +1,35 @@
 # island-simulator handoff
 
+## Latest — ground snakes live/rendered, close image gate still open
+
+Added SnakeRenderer and ordinary IslandGame instantiation after world obstacles,
+update/draw and draw-count/startup-visible diagnostics; Main/FixedViewpoint snakes QA.
+Connected 41×16 tube with tapered tail/capped nose/eyes, shared canopy tint, 70 m/frustum
+cull, one 20k-vertex dynamic batch. Original repeating 64x64 scale texture +16,384 bytes;
+generated total4,652,172/runtime6,399,796/allowance6,420,012. Exact tests and Web/Android
+log expectations updated. Manifest/provenance gate passes25/77/10/0.
+
+Native build +40 CPU groups PASS73.86s; supervisor34 PASS. Four actual native captures
+inspected, all kernel deltas empty. First180203 shows snake but oversized scales;
+softened borders and increased UV frequency. Wider180405 and opposite180523 pass
+generic image metrics BUT hide snake with foliage, rejected as appearance evidence.
+FINAL `20261011T180722.242708Z-snakes` restores close view and visibly shows fine-scale
+tapered snake on ground. Generic scene contrast gate FAILS (luminance11.8835<18,
+spatial17.8797<30). Do NOT claim successful final capture! No thresholds changed.
+Screenshot reviewed; head/eyes still weak, grass crosses body, no motion audit yet.
+Details docs/ground-snakes.md. Final PNG is in capture directory beside PPM.
+Final graphics-log replay PASS (image gate still FAIL). Web Release build/package
+PASS11,118,476 raw/4,183,185 gzip; ARM64 assembleDebug/lintDebug PASS10s. Logs:
+`build/snake-render-build.log`, `build/snake-render-tests.log`,
+`build-probe/snake-render-build.log`, `build-probe/snake-render-package.log`,
+`build/snake-render-arm64.log`. All owned jobs terminal; GPU stop latch unchanged.
+
+NEXT: improve head readability/continuous motion, validate final mesh clearance and
+snake-specific close-view acceptance without accepting missing/blank subjects; contact
+shadows/grass overlap, profile-scaled culling/LOD, F1 and WorldReport snake metadata,
+portable actual snake images. Tree snakes not implemented. Keep whole task unchecked.
+No hardware GPU or emulator/KVM changes, no push; full visual/wildlife goal remains active.
+
 ## Latest — ground snake simulation started, not yet visible
 
 Added SnakePopulation header/source: four ground snakes, 41 stations spaced .055 m

@@ -355,9 +355,9 @@ int main()
     Check(!island::UserSettings::Parse(settingsWithNul).IsValid(),
           "settings parser rejects embedded NUL bytes");
 
-    Check(island::GeneratedTextureBudget::TotalPixelCount == 1158947U,
+    Check(island::GeneratedTextureBudget::TotalPixelCount == 1163043U,
           "generated texture inventory retains its exact base-level pixel count");
-    Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 4635788U,
+    Check(island::GeneratedTextureBudget::TotalRgba8Bytes == 4652172U,
           "generated texture inventory stays below its audited RGBA8 payload");
     constexpr island::RuntimeQualityProfile fullQuality =
         island::RuntimeQualityProfile::Full();
@@ -375,7 +375,7 @@ int main()
               && mobileQuality.wildlifeMaximumDistanceScale
                   < fullQuality.wildlifeMaximumDistanceScale,
           "mobile quality bounds distant shadows and wildlife");
-    Check(island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes == 6383412U,
+    Check(island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes == 6399796U,
           "runtime texture budget must include the complete floor and leaf mip chains");
     Check(mobileQuality.textureByteBudget
               >= island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes,

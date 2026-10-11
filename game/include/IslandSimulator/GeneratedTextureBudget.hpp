@@ -21,6 +21,8 @@ namespace island
         static constexpr int SolidWhiteTextureCount = 2;
         static constexpr int CanopyLightSize = 1024;
         static constexpr int BoarCoatSize = 128;
+        static constexpr int SnakeScaleSize = 64;
+        static constexpr std::size_t SnakeScaleRgba8Bytes = SnakeScaleSize * SnakeScaleSize * BytesPerPixel;
         // One shared map for grass roots and jungle litter; retain established budget names.
         static constexpr int GrassHeightSize = 241;
         static constexpr std::size_t GrassHeightRgba8Bytes =
@@ -38,6 +40,7 @@ namespace island
                                        * SolidWhiteTextureCount)
             + static_cast<std::size_t>(CanopyLightSize * CanopyLightSize)
             + static_cast<std::size_t>(BoarCoatSize * BoarCoatSize)
+            + static_cast<std::size_t>(SnakeScaleSize * SnakeScaleSize)
             + static_cast<std::size_t>(GrassHeightSize * GrassHeightSize);
         static constexpr std::size_t TotalRgba8Bytes =
             TotalPixelCount * static_cast<std::size_t>(BytesPerPixel);
@@ -47,6 +50,6 @@ namespace island
             TotalRgba8Bytes + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes;
     };
 
-    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4635788U,
+    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4652172U,
                   "Update the generated texture audit when the base-level payload changes");
 }

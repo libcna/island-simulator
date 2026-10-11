@@ -633,9 +633,15 @@ progress or require player interaction; dangerous species keep their distance li
   cannot decrease horizontal distance to a nearby observer. Dedicated CPU tests cover
   actual vegetation/jungle/prop layouts, repeatability, spacing, sampled segment ground
   clearance, independent segment/obstacle oracle and invalid input/impossible habitat.
-  Not yet instantiated in IslandGame or rendered: do not claim visible snakes. Next:
-  continuous tapered mesh, head/eyes/scale material, game integration, near QA view and
-  actual native/Web/Android visual audit; tree-dwelling snakes remain wholly open.
+  Now instantiated/updated/drawn in ordinary IslandGame: continuous 16-sided tube,
+  small eyes, original 64x64 repeating scale texture, one culled draw, `--viewpoint snakes`.
+  Native 40 non-display groups pass (73.86 s). Actual close images confirm a visible
+  ground snake; oversized scales were reduced after inspection. Final close capture
+  `20261011T180722.242708Z-snakes` remains below generic contrast thresholds (not a pass).
+  Two passing wide frames hid the animal and were rejected for appearance acceptance.
+  Final kernel delta empty. Head/eyes, continuous motion, grass intersections, mesh
+  clearance/contact shadows, reporting/LOD and portable actual images remain open;
+  tree snakes wholly open. Exact evidence and limits: `docs/ground-snakes.md`.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

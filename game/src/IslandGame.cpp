@@ -99,6 +99,7 @@ namespace island
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
+            case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
             case FixedViewpoint::SeaTurtleDetail: return "turtles";
             case FixedViewpoint::BenchmarkTraversal: return "traversal";
@@ -170,6 +171,7 @@ namespace island
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
         boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
+        snakes_ = std::make_unique<SnakePopulation>(terrain_,worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -749,6 +751,13 @@ namespace island
             pitch_ = std::atan2(toShip.Y, std::hypot(toShip.X, toShip.Z));
             std::cout << "island-simulator: shipwreck QA camera views the 20m wreck "
                          "from the beach\n";
+        } else if (viewpoint_ == FixedViewpoint::SnakeDetail) {
+            const auto& snake = snakes_->Snakes().front();
+            const auto head = snake.body.front();
+            cameraPosition_ = Vector3(head.x-0.6f,head.y+1.5f,head.z+1.7f);
+            const Vector3 direction = Vector3(head.x-0.8f,head.y,head.z)-cameraPosition_;
+            yaw_ = std::atan2(direction.X,direction.Z);
+            pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::BoarDetail) {
             const auto& boar = boarHerd_.Boars().front();
             const float x = boar.x + 4.5f;
@@ -949,6 +958,7 @@ namespace island
             device, 92.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto boarRenderer = std::make_unique<BoarRenderer>(
             device, terrain_, canopyLighting->Field(), 135.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        auto snakeRenderer = std::make_unique<SnakeRenderer>(device,canopyLighting->Field());
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
@@ -978,6 +988,7 @@ namespace island
         grassRenderer_ = std::move(grassRenderer);
         jungleRenderer_ = std::move(jungleRenderer);
         boarRenderer_ = std::move(boarRenderer);
+        snakeRenderer_ = std::move(snakeRenderer);
         monkeyRenderer_ = std::move(monkeyRenderer);
         canopyLighting_ = std::move(canopyLighting);
         terrainHeightMap_ = std::move(terrainHeightMap);
@@ -1213,6 +1224,7 @@ namespace island
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        snakes_->Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -1840,6 +1852,7 @@ namespace island
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
             + crabRenderer_->DrawCallCount()
             + boarRenderer_->DrawCallCount()
+            + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
             + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
@@ -2286,6 +2299,10 @@ namespace island
             GpuDiagnosticScope gpuPass("boars");
             boarRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_, boarHerd_.Boars());
         }
+        {
+            GpuDiagnosticScope gpuPass("snakes");
+            snakeRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,snakes_->Snakes());
+        }
 
         {
             GpuDiagnosticScope gpuPass("birds");
@@ -2731,7 +2748,9 @@ namespace island
                       << crabRenderer_->VisibleFarCrabCount() << "), "
                       << crabRenderer_->DrawCallCount() << " draw; boars "
                       << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
-                      << " visible, " << boarRenderer_->DrawCallCount() << " draw; fish "
+                      << " visible, " << boarRenderer_->DrawCallCount() << " draw; snakes "
+                      << snakeRenderer_->VisibleCount() << '/' << snakes_->Snakes().size()
+                      << " visible, " << snakeRenderer_->DrawCallCount() << " draw; fish "
                       << fishRenderer_->VisibleFishCount() << '/'
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "

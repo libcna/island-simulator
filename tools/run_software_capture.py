@@ -250,7 +250,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"boars", "snakes", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -426,6 +426,8 @@ def main():
                 raise RuntimeError("current leaf material is missing; check for a stale executable")
             if "boars receive bilinear per-vertex canopy light in their existing batch" not in diagnostics:
                 raise RuntimeError("current boar lighting is missing; check for a stale executable")
+            if args.viewpoint == "snakes" and not re.search(r"snakes [1-4]/4 visible, 1 draw",diagnostics):
+                raise RuntimeError("snake capture did not submit the live population")
             if "boar directional coat atlas 128x128, opaque stock BasicEffect" not in diagnostics:
                 raise RuntimeError("current boar coat is missing; check for a stale executable")
             if "boars use connected limb poses, stance contact and body-rooted bristles" not in diagnostics:

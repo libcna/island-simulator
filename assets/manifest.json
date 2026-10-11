@@ -211,6 +211,14 @@
       ]
     },
     {
+      "name": "ground-snakes",
+      "licenseRecord": "Procedural ground snakes",
+      "sources": [
+        "game/src/SnakePopulation.cpp",
+        "game/src/SnakeRenderer.cpp"
+      ]
+    },
+    {
       "name": "fish-schools",
       "licenseRecord": "Procedural fish schools",
       "sources": [

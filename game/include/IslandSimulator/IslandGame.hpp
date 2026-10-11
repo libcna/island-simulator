@@ -11,6 +11,7 @@
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
+#include "IslandSimulator/SnakeRenderer.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/ButterflyRenderer.hpp"
 #include "IslandSimulator/ContactShadowRenderer.hpp"
@@ -114,6 +115,7 @@ namespace island
         ShipwreckDetail,
         CrabDetail,
         BoarDetail,
+        SnakeDetail,
         ButterflyDetail,
         SeaTurtleDetail,
         BenchmarkTraversal
@@ -220,6 +222,7 @@ namespace island
         ButterflyMeadow butterflyMeadow_;
         CrabColony crabColony_;
         BoarHerd boarHerd_;
+        std::unique_ptr<SnakePopulation> snakes_;
         FishSchools fishSchools_;
         SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
@@ -262,6 +265,7 @@ namespace island
         std::unique_ptr<ContactShadowRenderer> contactShadowRenderer_;
         std::unique_ptr<CrabRenderer> crabRenderer_;
         std::unique_ptr<BoarRenderer> boarRenderer_;
+        std::unique_ptr<SnakeRenderer> snakeRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
         std::unique_ptr<FishRenderer> fishRenderer_;

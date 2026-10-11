@@ -24,6 +24,7 @@ namespace island
             return {"full", 135.0f, 1.0f, 1.0f, 160,
                     GeneratedTextureBudget::CanopyLightRgba8Bytes
                     + GeneratedTextureBudget::BoarCoatRgba8Bytes
+                    + GeneratedTextureBudget::SnakeScaleRgba8Bytes
                     + GeneratedTextureBudget::GrassHeightRgba8Bytes
                     + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes + 160U * 1024U, 6, 4};
         }
@@ -39,6 +40,7 @@ namespace island
             return {"mobile", 112.0f, 0.72f, 0.82f, 128,
                     GeneratedTextureBudget::CanopyLightRgba8Bytes
                     + GeneratedTextureBudget::BoarCoatRgba8Bytes
+                    + GeneratedTextureBudget::SnakeScaleRgba8Bytes
                     + GeneratedTextureBudget::GrassHeightRgba8Bytes
                     + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes + 160U * 1024U, 6, 2};
         }
