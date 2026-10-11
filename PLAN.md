@@ -64,6 +64,24 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — reef and seagrass substrate
+
+- [~] Continued macro-geography items 5/16 with a terrain-material pass
+  (`docs/reef-seabed.md`): depth-limited olive seagrass meadows, mottled ochre reef patches,
+  pale radial sand channels and a broken outer material crest. No additional geometry,
+  textures, draw calls or simulation state. Geometric reef relief and habitat remain open.
+- [x] Linux incremental build and 33/33 non-display test groups pass (29.47 s); native
+  llvmpipe overview before `20261011T065432.951110Z` and after `20261011T065517.280206Z`
+  inspected. Dark shallow-water masses now alternate with pale sand passages.
+- [x] Android x86_64 assembly/lint and contained SwiftShader reef capture
+  `20261011T065607.960099Z-reef` and overview `20261011T065707.346500Z-overview` pass;
+  images inspected, empty kernel deltas. Default ARM64 assembly/lint restored, runtime untested.
+- [x] Web incremental build and Chrome/SwiftShader terrain suite
+  `20261011T065909.248161Z-chrome-terrain` pass 4/4 views, no new GPU faults (unrelated
+  cupsd AppArmor/audit messages in the kernel delta); overview
+  image inspected. Web release refreshed (10,339,183 raw / 3,525,279 gzip bytes).
+- Hardware stop latch is unchanged. Dependency pins remain at the handoff baseline.
+
 #### 2026-10-10 — operator direction: visual realism first, expanded wildlife backlog
 
 The operator asked to continue development and stated the overall goal plainly: the island must

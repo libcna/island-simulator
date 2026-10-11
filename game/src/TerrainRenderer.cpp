@@ -307,6 +307,40 @@ void main()
         }
     }
 
+    // Submerged habitat is world-anchored substrate, not a second water tint.
+    // Broad fields survive distant views; only fine mottling is footprint-filtered.
+    // Keep this straight-line: indexed constant loops crash the Android software backend.
+    float bedDepth = max(-vWorld.y, 0.0);
+    float submergedHabitat = smoothstep(0.25, 0.65, bedDepth)
+        * (1.0 - smoothstep(5.0, 8.0, bedDepth));
+    if (submergedHabitat > 0.0) {
+        float offshore = max(-signedShoreDistance, 0.0);
+        float meadowField = valueNoise(p * 0.038 + vec2(43.7, -21.6));
+        float reefField = valueNoise(p * 0.085 + vec2(-13.2, 57.9));
+        // Project onto a fixed-radius circle to make radial channels without an atan seam.
+        vec2 coastArc = p / max(length(p), 1.0) * 250.0;
+        float channelField = valueNoise(coastArc * 0.065 + vec2(5.1, 19.3)
+            + vec2(broad * 0.65));
+        float sandChannel = smoothstep(0.10, 0.28, channelField);
+        float meadow = smoothstep(-0.16, 0.17, meadowField + medium * 0.22)
+            * smoothstep(0.45, 0.85, bedDepth)
+            * (1.0 - smoothstep(1.8, 2.6, bedDepth));
+        float reefZone = smoothstep(24.0, 36.0, offshore)
+            * (1.0 - smoothstep(72.0, 88.0, offshore));
+        float reefCrest = smoothstep(66.0, 73.0, offshore + meadowField * 12.0)
+            * (1.0 - smoothstep(78.0, 86.0, offshore + meadowField * 12.0));
+        float reefCover = smoothstep(-0.10, 0.19, reefField + meadowField * 0.38)
+            * max(reefZone * 0.88, reefCrest);
+        float habitatCoverage = submergedHabitat * (1.0 - sandChannel);
+        vec3 grassBed = vec3(0.22, 0.265, 0.105)
+            * (1.0 + meadowField * 0.28 + medium * 0.20) * vGroundLight;
+        vec3 reefBed = mix(vec3(0.29, 0.255, 0.145), vec3(0.49, 0.405, 0.24),
+                           clamp(0.5 + reefField + medium * 0.65, 0.0, 1.0))
+            * vGroundLight;
+        color = mix(color, grassBed, meadow * habitatCoverage * 0.86);
+        color = mix(color, reefBed, reefCover * habitatCoverage);
+    }
+
     float groundVariation = (broad * 0.185 + medium * 0.120 + fine * 0.024)
         * interior;
     color *= vec3(1.0 + groundVariation * 0.55,

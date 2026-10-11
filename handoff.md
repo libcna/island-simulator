@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Update 2026-10-11 — reef/seabed material pass
+
+Continued the suggested items 5/16 in `TerrainRenderer.cpp`: depth-limited olive seagrass,
+mottled ochre reef patches, pale radial sand channels and a broken outer material crest.
+See `docs/reef-seabed.md` for the design, limitations, captures and package identities.
+This is a material-only first pass; geometric reef relief and the larger terrain rewrite
+remain open. No dependency pins or population/mesh counts changed.
+
+Linux build and 33/33 non-display tests pass. Native before/after overview and Android
+SwiftShader reef/overview captures pass and were visually inspected. ARM64 assembly/lint
+restored; physical runtime untested. Chrome/SwiftShader terrain suite
+`20261011T065909.248161Z-chrome-terrain` passes all four views and the web release is refreshed.
+Nothing from this
+session has been pushed. The AMD hardware stop latch remains unchanged.
+
+Next selected step: narrow the central trail's vegetation exclusion corridor (currently
+`PrimaryPathReservedHalfWidth = 6.2 m`) to remove the broad visible forest cut. Coordinate
+the soil material width, collision clearance and placement, and update inventory pins after
+measuring the new populations. The reef pass is complete as a first material milestone.
+
+The following is the historical 2026-10-10 handoff; use the update above and `PLAN.md` for
+the current state.
+
 Written 2026-10-10 (last update at the end of that day's session) for the next agent
 (expected: Codex Astra High) starting on a fresh context. The working tree is clean and
 everything below is committed and pushed to `origin/develop`. Everything you need to continue is here or linked; `PLAN.md` is the detailed
