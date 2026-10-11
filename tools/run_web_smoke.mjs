@@ -28,17 +28,19 @@ const focusedVegetationCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "vegetatio
 const focusedTerrainCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "terrain";
 const focusedGrassMotionCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grass-motion";
 const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
-const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck;
-const focusedArtifactPrefix = focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials";
+const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck;
+const focusedArtifactPrefix = focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
+const focusedViews = focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+  : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
   : focusedCoastCheck ? ["shipwreck", "water", "west", "reef"]
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -656,7 +658,8 @@ try {
         }
       }
     } finally {
-      await writeFile(reportPath, `${JSON.stringify({ scope: focusedLitterCheck
+      await writeFile(reportPath, `${JSON.stringify({ scope: focusedMaterialsCheck
+          ? "software WebGL soil, grass, dry sand and wet sand only" : focusedLitterCheck
           ? "software WebGL litter and shared-height grass only" : focusedTerrainCheck
           ? "software WebGL terrain distance and close views only" : focusedGrassMotionCheck
           ? "software measured grass traversal only" : focusedVegetationCheck

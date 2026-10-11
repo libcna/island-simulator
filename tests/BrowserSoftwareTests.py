@@ -33,6 +33,18 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertEqual(gate.browser_environment("chrome", "terrain", Path("/evidence"))[
             "ISLAND_WEB_SMOKE_SCOPE"], "terrain")
 
+    def test_material_scope_preserves_software_supervision(self):
+        environment = gate.browser_environment("chrome", "materials", Path("/evidence"))
+        self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "materials")
+        self.assertEqual(environment["ISLAND_BROWSER_SUPERVISED"], "chrome")
+        self.assertEqual(environment["GALLIUM_DRIVER"], "llvmpipe")
+        self.assertEqual(gate.browser_command(ROOT, ROOT, Path("/node"), "chrome", "materials"),
+                         ["/node", str(ROOT / "tools/run_web_smoke.mjs"), str(ROOT)])
+        with self.assertRaises(ValueError):
+            gate.browser_command(ROOT, ROOT, Path("/node"), "firefox", "materials")
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]', source)
+
     def test_litter_scope_preserves_supervision_and_driver_policy(self):
         environment = gate.browser_environment("chrome", "litter", Path("/evidence"))
         self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "litter")

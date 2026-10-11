@@ -66,6 +66,13 @@ historical evidence, not post-incident qualification.
 
 #### 2026-10-11 — reviewed shaded-floor image validation
 
+- [x] Android litter/wet-sand image/startup gates pass and images inspected; x86/ARM64
+  build/lint pass. Empty kernel deltas. See `docs/terrain-surface-frame.md` for artifacts.
+- [!] Litter guest uniform-query diagnostic (27 x 0x502) also occurs before this fix;
+  exact ownership/root cause unknown. Not a zero-GL-error qualification.
+- [x] Prepared four-view Chrome `materials` scope, 12 CPU launcher tests and syntax pass.
+- [ ] Run current Web material matrix; no new full input/lifecycle qualification claimed.
+
 - [x] Explicit `litter` capture profile with relative contrast and a hard noise floor;
   generic scene thresholds and all other image gates unchanged. Profile/effective threshold
   recorded in reports; camera selection precedes image analysis.

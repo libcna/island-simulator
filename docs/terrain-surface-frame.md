@@ -1,6 +1,7 @@
 # Pixel-scale-independent terrain shading normals
 
-Status: native build/CPU tests and reviewed native captures pass; Android/Web pending.
+Status: native checks pass; Android visual checks pass with a retained guest-GL diagnostic;
+Web runtime qualification pending.
 
 Soil clod lighting and wet-sand sheen normalized the cross product of world-space
 pixel derivatives by clamping its squared length to 1e-8. That is not a harmless
@@ -28,7 +29,8 @@ The existing byte-layout/legacy baked-light checks remain unchanged.
 
 `wet-sand` is a new fixed QA view one metre inside the western shoreline, at eye height
 with downward pitch. CLI, software/Android allowlist and Web template are mapped. It is
-not in an automatic Web matrix yet. The previous `water` camera remains 18 m offshore
+included in the focused Chrome `materials` matrix with litter, grass and bay-ground.
+The previous `water` camera remains 18 m offshore
 and cannot substitute for inspecting a close wet-sand highlight.
 
 ## Verification and open image-gate discrepancy
@@ -74,6 +76,30 @@ textured shaded floor and vegetation remain readable. Kernel delta is empty and 
 unchanged. No renderer lighting was adjusted for this calibration. This new run does not
 retroactively turn the earlier failed run into a pass.
 
-Android/Web material qualification remains pending. The completed seven-view Web suite
+## Focused Android verification
+
+x86_64 assembly/lint succeeds. Contained runs `20261011T095903.886091Z-litter` and
+`20261011T100107.688712Z-wet-sand` pass their existing runtime and image gates, both on
+the first screenshot attempt. Both images were inspected; soil texture remains readable
+and wet sand has no missing material/black frame. Litter selects `shaded-detail`; wet sand
+retains `scene`. Both final kernel deltas are empty. Tested APK: 20,443,211 bytes,
+SHA-256 `991af9d4978d2b13bdbc467202d8758f5f0d02bce3bbd95b59e5cb5a86f88625`, preserved
+at `build/android-software/island-x86_64.apk`.
+Default ARM64 assembly/lint restored: 20,528,428 bytes, SHA-256
+`f475545d831065a4c068690d69d253c8c1e78e5138758fe32e09faa7dc5224ce`.
+Physical-device runtime remains untested.
+
+Qualification caveat: litter logs 27 guest gfxstream `s_glGetUniformLocation` errors
+`0x502` near the first draw. The wet-sand log has no `GL error` matches. The same 27
+messages occur in retained pre-fix `20261011T092539.275219Z-interactive`, so this observation
+does not establish a regression in the new normal helper. Existing Android gates check
+fatal/shader failures, not every guest GL diagnostic; their passed result must not be
+reported as a zero-GL-error run. Program identity, root cause and ownership remain unknown.
+Investigate without patching dependencies or suppressing the messages. No new host GPU fault
+occurred. These focused runs do not requalify touch/traversal or the open lifecycle issue.
+
+Web material qualification remains pending. The completed seven-view Web suite
 qualifies prior revision `9f1ee59`, not this fix. No host AMD rendering is authorized,
 and the separate Android lifecycle issue remains open.
+Current Web build/package succeeds: 10,347,083 raw / 3,528,841 gzip bytes. The four-view
+materials run has started; completion and final kernel evidence must still be checked.

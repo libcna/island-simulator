@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Update — surface-frame Android visual checks; Web material scope prepared
+
+Game revision `3642ac1` / capture harness `90fc6a4`: x86_64 assembly/lint and litter
+`20261011T095903.886091Z-litter`, wet-sand `20261011T100107.688712Z-wet-sand` gates pass.
+Both images inspected, first screenshot attempt; empty final kernel deltas. ARM64 build/lint
+restored, tested x86 APK retained; exact hashes in `docs/terrain-surface-frame.md`.
+CAVEAT: litter has 27 guest gfxstream uniform-query 0x502 diagnostics, also seen in the
+older `20261011T092539.275219Z-interactive`; wet-sand has none. Root cause/ownership unknown;
+passed image/startup gates do not mean zero GL errors. Android lifecycle remains open.
+Added Chrome `materials` scope: litter, grass, bay-ground, wet-sand, 60 intervals each;
+12 browser-launcher tests and Node syntax check pass. Web runtime qualification pending.
+Web build/package complete: 10,347,083 raw / 3,528,841 gzip bytes. Browser materials run
+is ACTIVE in session `21871`; poll the same handle, do not restart on observation timeout.
+Launcher output: `build/surface-frame-web-materials.log`. Build session `8078` is complete.
+
+
 ## Update — explicit shaded-floor capture profile verified
 
 The litter image discrepancy below is resolved by an explicit `shaded-detail` profile,
