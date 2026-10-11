@@ -83,10 +83,14 @@ historical evidence, not post-incident qualification.
   lifecycle remains degraded. This is not claimed to have the same cause as the earlier
   fatal swap error. Details in `BUGS.md`. ARM64 assembly/lint restored; physical-device
   runtime untested. Android/browser preflight, command-line and harness syntax checks pass.
-- [ ] Web build/runtime qualification for this coast; terrain suite now has fifth `bay`
-  view. Updated browser inventory pins are not runtime evidence.
+- [x] Web build/package refreshed (10,340,739 raw / 3,525,638 gzip bytes).
+- [x] Chrome terrain suite `20261011T080318.835613Z-chrome-terrain` passes all five views,
+  including `bay`, with 60 frame intervals each. Overview/bay/east/jungle images inspected;
+  no new GPU faults. Full Web input/lifecycle and Firefox were not rerun.
 - [ ] Shared coastal environment field, rocky headlands/cliff and dominant beach; current
   coast still has a continuous sand band. The full macro-geography rewrite is not done.
+  Implementation design: `docs/environment-field-design.md`, including a non-cyclic
+  terrain/placement/shade dependency order and reuse of two existing texture channels.
 
 #### 2026-10-11 — asymmetric interior ridges and drainage
 

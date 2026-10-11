@@ -74,6 +74,19 @@ Kernel delta is empty. The prior generic failure message incorrectly suggested t
 or focus failed; the harness now identifies the process/surface/focus/audio gate and prints
 audio qualification and both PIDs. No acceptance condition was removed.
 
+Read-only follow-up identifies a concrete mechanism: bundled SDL's
+`third_party/SDL/src/core/android/SDL_android.c`, `Android_SendLifecycleEvent`, removes a
+pending PAUSE when RESUME arrives before the event pump consumes it (and vice versa).
+`SDL_androidevents.c` calls `Android_PauseAudio` only from the consumed pause handler;
+`Android_ResumeAudio` acts only if audio was paused. Therefore a short Home/resume can
+legitimately produce Java surface/focus logs without AAudio pause/start calls. This code
+path is verified; its execution in the failed run is not instrumented and remains an inference.
+The audio assertion currently combines a fixed two-second background interval with a demand
+for completed suspension. A future suspension-specific test should await observable pause
+before requesting resume, with a bounded deadline; retain a separate rapid-transition stress
+case and do not weaken the fatal-swap/surface checks. Missing audio log calls alone must not
+be promoted to a confirmed framework defect.
+
 ## Entry template
 
 <!-- Copy this section only after a qualifying issue has been investigated. -->

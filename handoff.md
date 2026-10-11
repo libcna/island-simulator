@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Update 2026-10-11 — Web coast qualification complete
+
+Coast Web build and release package refreshed (10,340,739 raw / 3,525,638 gzip bytes).
+Contained Chrome terrain suite `20261011T080318.835613Z-chrome-terrain` passes all five
+views: overview, bay, beach, east, jungle (60 frame intervals each). Overview/bay/east/jungle
+screenshots inspected. No new GPU faults; kernel delta contains perf and Bluetooth/USB
+messages. No game changes since coast commit `623c314`. Web input/lifecycle and Firefox
+were not rerun. Android lifecycle remains degraded, separately from the passed visual checks.
+Read-only SDL inspection found explicit pending pause/resume coalescing, which can explain
+missing AAudio calls during rapid Home/resume; see `BUGS.md`, not a confirmed root cause.
+Next implementation: `docs/environment-field-design.md` (design only), integrating shared
+coastal rockiness/beach suitability through relief, vegetation placement and terrain materials.
+
 ## Update 2026-10-11 — bay/headland silhouette (native qualified)
 
 See `docs/coastal-silhouette.md`. Western bay between two headlands plus eastern promontory;
@@ -16,7 +29,7 @@ passes touch/footsteps/swimming after two gestures but lacks AAudio pause/start 
 on Home/resume, despite restored surface/focus/same PID. Lifecycle remains degraded;
 see the distinct observation under `CNA-ISLAND-001`. ARM64 assembly/lint restored;
 physical-device runtime untested. Relevant harness regressions and syntax checks pass.
-Next: build and qualify Web for this coast (terrain now includes fifth `bay` view), then shared coastal
+Web qualification is recorded above. Next is shared coastal
 environment/material placement to replace the continuous sand band with rocky headlands
 and a dominant beach. Macro-geography items 1–3 remain incomplete. Android lifecycle issue
 `CNA-ISLAND-001` remains open. No hardware rendering or push is authorized.

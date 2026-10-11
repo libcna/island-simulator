@@ -68,9 +68,12 @@ Tested x86_64 APK: 20,433,195 bytes, SHA-256
 Default ARM64 assembly/lint restored: 20,518,644 bytes, SHA-256
 `35ae8bea06eaaecb1cf4021295bfb7e4f2bb56041d0e9c4862a03eafeb4b5823`;
 physical-device runtime untested. Android/browser preflight and command-line regressions pass,
-as do shell and JavaScript syntax checks. Web build/runtime qualification remains pending; the terrain
-suite now includes `bay` as a fifth view. Previous ridge qualification is not evidence for
-this changed coast. AMD hardware remains stopped.
+as do shell and JavaScript syntax checks. Web build/package refreshed (10,340,739 raw /
+3,525,638 gzip bytes). Chrome terrain suite `20261011T080318.835613Z-chrome-terrain`
+passes all five views (overview, bay, beach, east, jungle), 60 frame intervals each.
+Overview/bay/east/jungle images inspected. No new kernel GPU faults; delta includes perf
+and Bluetooth/USB messages. Full Web input/lifecycle and Firefox were not rerun. This
+qualifies the focused terrain workload, not all platform behaviour. AMD hardware remains stopped.
 
 This stage changes the silhouette, not coast ecology/geology. Headlands are not yet rocky,
 the sand still forms a continuous band, and neither a dominant beach nor a cliff has been
