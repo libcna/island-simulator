@@ -1829,7 +1829,7 @@ void main()
                     }
                     // Supporting geometry must not change beneath planted bark grips.
                     for (const auto& monkey:monkeys)
-                        if ((monkey.treeExcursion || monkey.treeReleasing)
+                        if ((monkey.treeExcursion || monkey.treeReleasing || monkey.treePreparing)
                             && std::hypot(monkey.selectedTree.x-instance.x,monkey.selectedTree.z-instance.z)<1e-4f)
                             nearLod=true;
                     (nearLod ? visibleCanopyNear_ : visibleCanopyFar_)[instance.variant]

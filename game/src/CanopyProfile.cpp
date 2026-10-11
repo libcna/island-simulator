@@ -79,7 +79,21 @@ namespace island
     CanopyTrunkContact SampleCanopyTrunkSurface(int variant, float height, float angle, bool farMesh,
                                                std::optional<float> windTime)
     {
-        const auto heights = CanopyTrunkRingHeights(variant,farMesh);
+        if (variant<0 || variant>=CanopyFormCount)
+            throw std::invalid_argument("Invalid canopy variant");
+        // Ring topology is immutable. Rebuilding this vector for each contact/probe
+        // allocated hundreds of thousands of times during one climb preflight.
+        // Keep exactly the same authored float values/order as mesh construction.
+        static const auto ringTables=[] {
+            std::array<std::array<std::vector<float>,2>,CanopyFormCount> tables;
+            for (int form=0;form<CanopyFormCount;++form)
+                for (int far=0;far<2;++far)
+                    tables[form][far]=CanopyTrunkRingHeights(form,far!=0);
+            return tables;
+        }();
+        const auto& heights=ringTables[variant][farMesh ? 1 : 0];
+        if (windTime && !std::isfinite(*windTime))
+            throw std::invalid_argument("Invalid canopy wind time");
         if (!std::isfinite(height) || height < 0 || height > heights.back() || !std::isfinite(angle))
             throw std::invalid_argument("Invalid canopy trunk contact coordinates");
         const int sides = farMesh ? 5 : 12;
@@ -92,8 +106,28 @@ namespace island
         const auto found = std::upper_bound(heights.begin(),heights.end(),height);
         const std::size_t ring = std::min(static_cast<std::size_t>(found-heights.begin()-1),heights.size()-2);
         const float v = (height-heights[ring])/(heights[ring+1]-heights[ring]);
+        // Many contact/clearance queries share the same few triangles in one pose.
+        // Cache vertices lazily, not whole answers or quantized wind: exact shape and
+        // normal computation remain unchanged. Thread-local storage avoids shared mutation.
+        struct VertexCache {
+            int variant=-1;
+            bool far=false;
+            std::optional<float> wind;
+            std::array<std::array<float,3>,12*12> vertices{};
+            std::array<bool,12*12> valid{};
+        };
+        static thread_local VertexCache cache;
+        if (cache.variant!=variant || cache.far!=farMesh || cache.wind!=windTime) {
+            cache.variant=variant; cache.far=farMesh; cache.wind=windTime;
+            cache.valid.fill(false);
+        }
         const auto vertex = [&](std::size_t r,int s) {
-            return CanopyTrunkVertex(variant,heights[r],tau*(s%sides)/sides,farMesh,windTime);
+            const auto index=r*static_cast<std::size_t>(sides)+static_cast<std::size_t>(s%sides);
+            if (!cache.valid[index]) {
+                cache.vertices[index]=CanopyTrunkVertex(variant,heights[r],tau*(s%sides)/sides,farMesh,windTime);
+                cache.valid[index]=true;
+            }
+            return cache.vertices[index];
         };
         const auto a = u+v <= 1 ? vertex(ring,side) : vertex(ring+1,side+1);
         const auto b = u+v <= 1 ? vertex(ring+1,side) : vertex(ring,side+1);

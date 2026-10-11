@@ -462,6 +462,13 @@ Standing visual-quality rules (apply to every task from now on):
   the animal, so it was rejected visually and the QA launch corrected. No cycle/frame
   requirement weakened. Package refreshed (11,062,826 raw / 4,161,779 gzip bytes).
   This does not close continuous/all-angle/interruption review, performance or realism.
+  Preflight profiling exposed a Debug whole-cycle clearance mean/max of 249.233/255.921 ms.
+  Exact ring/vertex caching reduces repeated work; live clearance now processes at most
+  16 poses per candidate / 32 per troop update, retaining all 1,951 samples before activation.
+  Measured first-fixture chunk max 1.42561 ms; synchronous attachment preparation still
+  peaks at 21.8729 ms and remains to split. 37/37 groups pass (69.89 s); native eight-stage
+  `20261011T161831.733794Z-monkey-climb` passes/inspected with no visible cycle regression,
+  empty kernel delta. Portable scheduling/cache checks and Release profiling remain open.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

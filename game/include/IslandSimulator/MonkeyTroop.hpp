@@ -52,6 +52,7 @@ namespace island
         std::shared_ptr<const MonkeyTreeExcursion::Plan> treeExcursion;
         MonkeyTreeExcursion::Clock treeClock;
         bool treeReleasing = false;
+        bool treePreparing = false;
         MonkeyBehavior behavior = MonkeyBehavior::Idle;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
         std::uint8_t colorVariant = 0U;
@@ -88,6 +89,7 @@ namespace island
 
         [[nodiscard]] std::span<const MonkeyState> Monkeys() const noexcept;
         [[nodiscard]] int FullSimulationCount() const noexcept { return fullSimulationCount_; }
+        [[nodiscard]] int PreflightSamplesLastUpdate() const noexcept { return preflightSamples_; }
         [[nodiscard]] int ReducedSimulationCount() const noexcept {
             return reducedSimulationCount_;
         }
@@ -106,6 +108,8 @@ namespace island
             float accumulatedSeconds = 0.0f;
             std::uint32_t decisionCounter = 0U;
             bool treeClimbAttempted = false;
+            std::shared_ptr<const MonkeyTreeExcursion::Plan> pendingExcursion;
+            int preflightStep = 0;
         };
 
         void InitializeAgent(std::size_t index) noexcept;
@@ -125,6 +129,7 @@ namespace island
         std::shared_ptr<const RenderedTerrainSurface> renderedTerrain_;
         float windTime_ = 0;
         bool climbingEnabled_ = true;
+        int preflightSamples_ = 0;
         std::vector<CircularObstacle> obstacles_;
         std::vector<CanopyPlacement> trees_;
         std::vector<Agent> agents_;

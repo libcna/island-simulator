@@ -6,14 +6,16 @@ namespace island::MonkeyExcursionClearance
     using Point=MonkeyGroundGait::Point;
     enum class Failure { None, InvalidInput, Reach, Terrain, Bark, Obstacle };
     struct Result { Failure failure; float seconds; int probe; };
+    inline constexpr int SampleCount=static_cast<int>(MonkeyTreeExcursion::Duration*50)+1;
     // Bounded sampled collision preflight, not continuous or exact skinned-mesh collision.
     // The supporting tree uses its real wind-deformed triangle surface; other solid
     // objects use the world's conservative vertical circular proxies.
-    inline Result Validate(const MonkeyTreeExcursion::Plan& plan,
+    inline Result ValidateRange(const MonkeyTreeExcursion::Plan& plan,
         const RenderedTerrainSurface& terrain,std::span<const CircularObstacle> obstacles,
-        float initialWindTime)
+        float initialWindTime,int first,int count)
     {
-        if (!std::isfinite(initialWindTime)) return {Failure::InvalidInput,0,-1};
+        if (!std::isfinite(initialWindTime)||first<0||count<=0||first>=SampleCount
+            ||count>SampleCount-first) return {Failure::InvalidInput,0,-1};
         const auto& tree=plan.tree;
         const auto& frame=plan.frame;
         if (!std::isfinite(frame.scale)||frame.scale<=0||!std::isfinite(frame.heading)
@@ -35,7 +37,7 @@ namespace island::MonkeyExcursionClearance
         float seconds=0;
         int probe=0;
         try {
-            for (int step=0;step<=static_cast<int>(MonkeyTreeExcursion::Duration*50);++step) {
+            for (int step=first;step<first+count;++step) {
                 seconds=step*.02f; probe=0;
                 const float wind=initialWindTime+seconds;
                 const auto pose=MonkeyTreeExcursion::Sample(plan,seconds,wind,plan.farMesh);
@@ -105,6 +107,11 @@ namespace island::MonkeyExcursionClearance
             }
         } catch (const std::invalid_argument&) { return {Failure::Reach,seconds,probe}; }
           catch (const std::out_of_range&) { return {Failure::Terrain,seconds,probe}; }
-        return {Failure::None,MonkeyTreeExcursion::Duration,-1};
+        return {Failure::None,(first+count-1)*.02f,-1};
+    }
+    inline Result Validate(const MonkeyTreeExcursion::Plan& plan,
+        const RenderedTerrainSurface& terrain,std::span<const CircularObstacle> obstacles,float windTime)
+    {
+        return ValidateRange(plan,terrain,obstacles,windTime,0,SampleCount);
     }
 }

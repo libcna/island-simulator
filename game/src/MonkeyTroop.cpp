@@ -233,6 +233,9 @@ namespace island
         agent.state.treeExcursion.reset();
         agent.state.treeClock = {};
         agent.state.treeReleasing = false;
+        agent.state.treePreparing = false;
+        agent.pendingExcursion.reset();
+        agent.preflightStep=0;
         agent.treeClimbAttempted = false;
         if (behavior != MonkeyBehavior::ApproachTree && behavior != MonkeyBehavior::InspectTree)
             agent.state.treeIndex = -1;
@@ -346,6 +349,7 @@ namespace island
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.1f) : 0.0f;
         windTime_=std::isfinite(windTime)&&windTime>=0 ? windTime : windTime_+safeDelta;
+        preflightSamples_=0;
         ++frameIndex_;
         fullSimulationCount_ = 0;
         reducedSimulationCount_ = 0;
@@ -407,6 +411,34 @@ namespace island
     {
         if (deltaSeconds <= 0.0f) {
             return;
+        }
+        if (agent.pendingExcursion) {
+            if (std::hypot(agent.state.x-observerX,agent.state.z-observerZ)<7.5f) {
+                agent.pendingExcursion.reset();
+                agent.state.treePreparing=false;
+            } else {
+                agent.state.animationSeconds+=deltaSeconds;
+                // Hold the planted inspection pose while checking small exact chunks.
+                // Bound total full-excursion work across the troop, not just per animal.
+                const int count=std::min({16,32-preflightSamples_,
+                    MonkeyExcursionClearance::SampleCount-agent.preflightStep});
+                if (count>0) {
+                    const auto& plan=*agent.pendingExcursion;
+                    const auto result=MonkeyExcursionClearance::ValidateRange(plan,*renderedTerrain_,
+                        obstacles_,plan.windTime,agent.preflightStep,count);
+                    preflightSamples_+=count;
+                    agent.preflightStep+=count;
+                    if (result.failure!=MonkeyExcursionClearance::Failure::None) {
+                        agent.pendingExcursion.reset();
+                        agent.state.treePreparing=false;
+                    } else if (agent.preflightStep==MonkeyExcursionClearance::SampleCount) {
+                        agent.state.treeExcursion=std::move(agent.pendingExcursion);
+                        agent.state.treeClock={};
+                        agent.state.treePreparing=false;
+                    }
+                }
+                return;
+            }
         }
         if (agent.state.treeExcursion) {
             agent.state.animationSeconds+=deltaSeconds;
@@ -548,11 +580,9 @@ namespace island
             if (site.plan) {
                 const auto plan=MonkeyTreeExcursion::Build(*site.plan,frame,
                     GroundJunglePlacement(agent.state.selectedTree,*renderedTerrain_),windTime_);
-                if (MonkeyExcursionClearance::Validate(plan,*renderedTerrain_,obstacles_,windTime_).failure
-                    ==MonkeyExcursionClearance::Failure::None) {
-                    agent.state.treeExcursion=std::make_shared<MonkeyTreeExcursion::Plan>(plan);
-                    agent.state.treeClock={};
-                }
+                agent.pendingExcursion=std::make_shared<MonkeyTreeExcursion::Plan>(plan);
+                agent.preflightStep=0;
+                agent.state.treePreparing=true;
             }
         }
     }

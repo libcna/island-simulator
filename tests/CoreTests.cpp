@@ -28,6 +28,7 @@
 #include "IslandSimulator/MonkeyAttachmentSite.hpp"
 #include "IslandSimulator/MonkeyTreeExcursion.hpp"
 #include "IslandSimulator/MonkeyExcursionClearance.hpp"
+#include <chrono>
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
@@ -2984,6 +2985,10 @@ int main()
     unsigned attachmentCandidates=0,attachmentAccepted=0;
     unsigned excursionAccepted=0;
     unsigned excursionClear=0;
+    double attachmentMillis=0,attachmentMaxMillis=0,clearanceMillis=0,clearanceMaxMillis=0;
+    double clearanceChunkMaxMillis=0;
+    bool observedPreparing=false;
+    std::array<unsigned,island::MonkeyTroop::MonkeyCount> preparationFrames{};
     bool observedLiveClimb=false,observedLiveSummit=false,checkedLiveReturn=false;
     std::array<unsigned,11> attachmentFailures{};
     island::MonkeyTroop repeatedMonkeys(terrain);
@@ -3067,6 +3072,7 @@ int main()
         const float observerZ = frame < 240 ? followed.z
             : (frame < 12000 ? 0.0f : (frame < 18000 ? 1000.0f : 35.0f));
         monkeys.Update(1.0f / 30.0f, observerX, observerY, observerZ);
+        Check(monkeys.PreflightSamplesLastUpdate()<=32,"full-excursion preflight has a troop-wide per-update work bound");
         repeatedMonkeys.Update(1.0f / 30.0f, observerX, observerY, observerZ);
         Check(monkeys.FullSimulationCount() + monkeys.ReducedSimulationCount()
                   + monkeys.DormantSimulationCount()
@@ -3081,7 +3087,13 @@ int main()
         for (std::size_t index = 0; index < monkeys.Monkeys().size(); ++index) {
             const island::MonkeyState& state = monkeys.Monkeys()[index];
             const island::MonkeyState& repeated = repeatedMonkeys.Monkeys()[index];
+            if (state.treePreparing) {
+                observedPreparing=true;
+                ++preparationFrames[index];
+                Check(!state.treeExcursion,"pending collision preflight cannot activate tree climbing early");
+            } else if (!state.treeExcursion) preparationFrames[index]=0;
             if (state.treeExcursion) {
+                Check(preparationFrames[index]>=122,"live climb waits for every incremental clearance sample");
                 observedLiveClimb=true;
                 observedLiveSummit=observedLiveSummit||state.treeClock.seconds>=18;
                 Check(state.treeIndex>=0 && repeated.treeExcursion
@@ -3111,18 +3123,41 @@ int main()
                 && !attachmentAttempted[index] && attachmentCandidates<64) {
                 attachmentAttempted[index]=true; ++attachmentCandidates;
                 const island::MonkeyAttachmentSite::GroundFrame frame{{state.x,state.y,state.z},state.headingRadians,state.scale};
+                const auto attachmentStart=std::chrono::steady_clock::now();
                 const auto prepared=island::MonkeyAttachmentSite::Prepare(state.selectedTree,frame,
                     monkeyAttachmentTerrain,worldObstacles,3.0f);
+                const double attachmentTime=std::chrono::duration<double,std::milli>(
+                    std::chrono::steady_clock::now()-attachmentStart).count();
+                attachmentMillis+=attachmentTime;
+                attachmentMaxMillis=std::max(attachmentMaxMillis,attachmentTime);
                 if (prepared.plan) {
                     ++attachmentAccepted;
                     const auto& plan=*prepared.plan;
                     const auto excursion=island::MonkeyTreeExcursion::Build(plan,frame,
                         island::GroundJunglePlacement(state.selectedTree,monkeyAttachmentTerrain),3.0f);
+                    const auto clearanceStart=std::chrono::steady_clock::now();
                     const auto clearance=island::MonkeyExcursionClearance::Validate(excursion,
                         monkeyAttachmentTerrain,worldObstacles,3.0f);
+                    const double clearanceTime=std::chrono::duration<double,std::milli>(
+                        std::chrono::steady_clock::now()-clearanceStart).count();
+                    clearanceMillis+=clearanceTime;
+                    clearanceMaxMillis=std::max(clearanceMaxMillis,clearanceTime);
                     if (clearance.failure==island::MonkeyExcursionClearance::Failure::None) {
                         ++excursionClear;
                         if (excursionClear==1) {
+                            int checkedSamples=0;
+                            while (checkedSamples<island::MonkeyExcursionClearance::SampleCount) {
+                                const int count=std::min(16,island::MonkeyExcursionClearance::SampleCount-checkedSamples);
+                                const auto chunkStart=std::chrono::steady_clock::now();
+                                const auto chunk=island::MonkeyExcursionClearance::ValidateRange(excursion,
+                                    monkeyAttachmentTerrain,worldObstacles,3.0f,checkedSamples,count);
+                                clearanceChunkMaxMillis=std::max(clearanceChunkMaxMillis,
+                                    std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-chunkStart).count());
+                                Check(chunk.failure==island::MonkeyExcursionClearance::Failure::None,
+                                    "incremental clearance checks exactly the same passing poses as full validation");
+                                checkedSamples+=count;
+                            }
+                            Check(checkedSamples==1951,"incremental clearance retains every original sample");
                             const auto summit=island::MonkeyTreeExcursion::Sample(excursion,19.0f,22.0f,false);
                             const auto foot=frame.World(summit.body.contacts[2]);
                             auto obstructed=worldObstacles;
@@ -3439,6 +3474,12 @@ int main()
     std::cout << "Monkey full excursion reach " << excursionAccepted << '/' << attachmentAccepted << '\n';
     Check(excursionAccepted>0,"actual island attachment sites include reachable ascent and descent, not only a first grip");
     std::cout << "Monkey full excursion clearance " << excursionClear << '/' << attachmentAccepted << '\n';
+    std::cout << "Monkey preflight milliseconds: attachment mean/max "
+        << attachmentMillis/std::max(1U,attachmentCandidates) << '/' << attachmentMaxMillis
+        << "; excursion mean/max " << clearanceMillis/std::max(1U,attachmentAccepted)
+        << '/' << clearanceMaxMillis << '\n';
+    std::cout << "Monkey preflight 16-pose chunk maximum milliseconds " << clearanceChunkMaxMillis << '\n';
+    Check(observedPreparing,"live preparation is exercised across updates instead of blocking on the whole trajectory");
     Check(excursionClear>0,"natural island arrivals include an excursion passing full-cycle clearance probes");
     Check(observedLiveClimb && observedLiveSummit && checkedLiveReturn,
         "ordinary island simulation actually climbs, reaches summit and exercises safe interruption");

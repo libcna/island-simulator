@@ -1122,7 +1122,8 @@ namespace island
                     appliedTreeWeights={1,1};
                 } else if (monkey.behavior == MonkeyBehavior::InspectTree && monkey.treeIndex >= 0) {
                     const auto tree = GroundJunglePlacement(monkey.selectedTree,renderedTerrain_);
-                    const bool farTree = !monkey.treeReleasing && std::hypot(tree.x-cameraPosition.X,tree.z-cameraPosition.Z)
+                    const bool farTree = !monkey.treeReleasing && !monkey.treePreparing
+                        && std::hypot(tree.x-cameraPosition.X,tree.z-cameraPosition.Z)
                         > CanopyNearLodDistance(tree.yawRadians);
                     const auto weights = MonkeyTreeReach::Weights(monkey.treeInspectionSeconds,
                                                                    monkey.treeInspectionRemaining);

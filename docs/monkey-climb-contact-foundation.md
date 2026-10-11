@@ -536,3 +536,43 @@ climbing. The two earlier attempts remain as rejected/limited evidence. Asset ga
 24/75/10/0, GPU stop latch unchanged, all launched jobs finished. No dependency or emulator
 configuration changes. Remaining work includes preflight frame cost, continuous/all-angle
 motion and interruptions, face/joint/tail realism, and the wider island plan.
+
+## Measured preflight hitch and bounded incremental clearance
+
+CPU timing was added to the existing real-island Core fixtures, without a wall-time test
+threshold. With live climbing enabled this fixture now visits 64 sites and accepts four;
+all before/after runs retain the same 4/64 decisions. These are shared-host Debug timings,
+not Release/mobile/browser frame guarantees. Baseline whole-excursion clearance mean/max
+is 249.233/255.921 ms (`build/monkey-preflight-baseline-tests.log`), enough to cause a
+visible main-thread hitch. Attachment preparation mean/max is 1.54248/24.5363 ms.
+
+Trunk queries now retain immutable ring-height tables and lazily cache exact vertices
+for the current variant/LOD/optional wind time in thread-local storage. No wind rounding,
+triangle approximation or changed normal/contact calculation. A changed key invalidates
+the cache. Existing independent triangle-position/normal fixtures cover all variants,
+LODs and wind values. The cache-only run measures 139.585/155.632 ms whole clearance and
+0.931476/16.0059 ms attachment; repeat timings vary with host load, so caching alone is
+not treated as a solved frame-time problem.
+
+`ValidateRange` now checks an explicit contiguous range of the same 1,951 full-cycle
+samples. The full validator remains a wrapper over the complete range. Live troop
+updates process at most 16 samples per pending monkey and 32 total per update. The
+animal holds its planted inspection pose while checking; its immutable pending plan
+cannot become an active climb until every sample passes. Proximity cancels pending
+preparation while the animal is still grounded. Tree geometry remains near LOD while
+preparing as well as attaching/releasing. No background threads or timing-dependent
+simulation decisions were introduced. Multiple simultaneous candidates can wait longer.
+
+Tests assert the troop-wide bound, no early activation, at least 122 preparation updates
+before climbing and exact complete-range coverage. The measured 16-pose chunk maximum
+is 1.42561 ms on the first accepted fixture (`build/monkey-preflight-incremental-tests.log`).
+The remaining synchronous attachment preparation still peaks at 21.8729 ms in that run;
+split/optimize it next rather than claim a fully hitch-free game. Wind-phase/collision
+coverage remains sampled, not an all-times proof; portable cache/scheduling rechecks and
+Release cost profiling are still required.
+
+Final 37/37 non-display groups pass (69.89 s, `build/monkey-preflight-final-tests.log`).
+Native `20261011T161831.733794Z-monkey-climb` passes all eight stages; original-resolution
+summit and whole sequence inspected, entry/ascent/descent/release retained with no visible
+body/contact regression. Far contacts still occluded, not continuous-motion proof. Empty
+kernel delta, unchanged stop latch, asset gate 24/75/10/0, all jobs finished.

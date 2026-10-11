@@ -9,7 +9,40 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — current WebGL climbing qualified and unobscured images inspected
+## Latest — preflight hitch measured; exact cache and bounded full-cycle chunks
+
+CPU Core fixture now prints attachment/whole-clearance mean/max and first-fixture chunk
+maximum. Live-simulation fixture accepts 4/64 sites consistently before/after (older
+21/64 was pre-live behavior). Baseline Debug whole clearance 249.233/255.921 ms mean/max,
+attachment 1.54248/24.5363 ms: `build/monkey-preflight-baseline-tests.log`.
+CanopyProfile surface query now retains ring tables and lazily caches exact local vertices
+by variant/LOD/optional wind time, thread-local, no quantization or geometry changes.
+Cache-only whole mean/max 139.585/155.632 ms, attachment .931476/16.0059 ms:
+`build/monkey-preflight-cache-tests.log`. Shared-host Debug timings vary; no Release/FPS claim.
+
+Full excursion clearance now exposes ValidateRange; Validate still covers all 1,951
+samples. Agent holds an immutable pending plan and planted inspection while validating
+16 poses per update, with troop-wide maximum 32. Cannot activate until all samples pass.
+Player proximity cancels preparation on the ground. EnterState/world replacement clears
+pending state. Near supporting-tree LOD retained while preparing. No worker threads or
+wall-clock-dependent decisions. Multi-candidate queues can lengthen inspection dwell.
+Tests assert complete range coverage, <=32 samples/update, no early activation and >=122
+preparation updates before climb. Measured 16-pose chunk max 1.42561 ms; remaining
+synchronous attachment prep max 21.8729 ms (`build/monkey-preflight-incremental-tests.log`).
+
+Final 37/37 non-display groups pass (69.89 s), `build/monkey-preflight-final-tests.log`.
+Native `20261011T161831.733794Z-monkey-climb` passes all eight gates; summit/full sequence
+inspected, complete cycle retained, no visible body/contact regression, far contacts
+occluded. Kernel delta empty, stop latch unchanged, asset gate 24/75/10/0, all jobs finished.
+Current Web/Android evidence below predates this cache/scheduling change.
+
+NEXT: split the remaining synchronous MonkeyAttachmentSite preparation (up to ~22 ms
+Debug) without discarding its 1,001 reach and 501 fixed-wind clearance samples; preserve
+full-cycle 1,951 dynamic-wind checks too. Then portable cache/scheduling build/runtime
+rechecks and Release profiling. Continue motion/all-angle/interruption visuals and
+face/joints/tail realism plus wider island backlog. Goal remains active, not complete.
+
+## Earlier — current WebGL climbing qualified and unobscured images inspected
 
 Added contained Chrome `monkey-climb` scope, QA HTML mapping and parent-side full-cycle
 validation using the shared native/Android validator. Wait for eight stages/held summit,
