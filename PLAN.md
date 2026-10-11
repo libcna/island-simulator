@@ -371,6 +371,14 @@ Standing visual-quality rules (apply to every task from now on):
   Native `20261011T135100.198476Z-monkey-tree` compared with retained pre-fix diagnostic
   image; protrusion removed, empty kernel delta. Shoulder integration, moving sequence,
   full attachment/climbing and portable rechecks remain open.
+  Eight sampled phases of one natural inspection now validate sequential transfers and
+  return. Live torso loading raises the body .22 radians around the hind hips while all
+  four contacts stay planted, then lowers before releasing a hand. Full-excursion reach
+  is prechecked; 221 CPU poses retain fixed contacts and bone lengths. Native peak/return
+  images `20261011T141011.681705Z-monkey-tree` inspected, all eight stage gates pass, empty
+  kernel delta; 37/37 non-display groups pass (60.44 s). This remains partial attachment,
+  not climbing: hind-foot transfer, ascent/rest/descent/dismount, continuous-motion and
+  Android/Web qualification remain open along with anatomy/fur realism.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

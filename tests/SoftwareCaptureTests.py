@@ -27,7 +27,7 @@ class SoftwareCaptureTests(unittest.TestCase):
             t = max(0, min(1, t/.75))
             return t*t*(3-2*t)
         rows = []
-        for index, t in enumerate([.1,1.4,2.2,2.8,4.9,5.5,5.9]):
+        for index, t in enumerate([.1,1.4,2.2,3.4,4.9,5.5,5.9]):
             rows.append(f"monkey tree stage={index} subject=4 tree=20 elapsed={t} clock={100+t} "
                         f"weights={ease(t-1)*ease(6-t-.75)},{ease(t-1.75)*ease(6-t)}")
         rows.append("monkey tree stage=7 subject=4 tree=-1 elapsed=0 clock=106.1 weights=0,0")
@@ -37,7 +37,7 @@ class SoftwareCaptureTests(unittest.TestCase):
                         "\n".join([rows[1], rows[0], *rows[2:]]),
                         valid.replace("stage=1 subject=4", "stage=1 subject=2"),
                         valid.replace("stage=1 subject=4 tree=20", "stage=1 subject=4 tree=21"),
-                        valid.replace("clock=102.8", "clock=101.0"),
+                        valid.replace("clock=103.4", "clock=101.0"),
                         valid.replace("weights=1,1", "weights=0,0"),
                         valid.replace("clock=106.1", "clock=105.9"),
                         valid.replace("elapsed=1.4", "elapsed=1.8"),

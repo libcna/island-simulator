@@ -88,7 +88,7 @@ def validate_monkey_tree_stages(diagnostics):
             raise RuntimeError("non-finite monkey-tree stage")
         stages.append(dict(stage=stage, subject=subject, tree=tree, elapsed=elapsed,
                            clock=clock, weights=[left, right]))
-    times = [.05, 1.35, 2.1, 2.7, 4.8, 5.4, 5.8]
+    times = [.05, 1.35, 2.1, 3.3, 4.8, 5.4, 5.8]
     start = stages[0]["clock"] - stages[0]["elapsed"]
     def ease(t):
         t = max(0.0, min(1.0, t / .75))

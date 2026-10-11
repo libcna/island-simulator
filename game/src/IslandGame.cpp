@@ -649,7 +649,7 @@ namespace island
                     const auto selected = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
                     const float startClock = selected.animationSeconds-selected.treeInspectionSeconds;
                     MonkeyTroop replay(initialTroop);
-                    constexpr std::array<float,7> phaseTimes{.05f,1.35f,2.1f,2.7f,4.8f,5.4f,5.8f};
+                    constexpr std::array<float,7> phaseTimes{.05f,1.35f,2.1f,3.3f,4.8f,5.4f,5.8f};
                     bool entered = false;
                     for (int step = 0; step < 12240 && monkeyTreeQaPoses_.size() < 8; ++step) {
                         const auto observer = replay.Monkeys().front();

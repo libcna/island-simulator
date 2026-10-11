@@ -18,6 +18,33 @@ namespace island::MonkeyTreeReach
         return std::max((CanopyTrunkBaseRadius+CanopyRootFlare)*treeScale+.42f,
                         .48f*treeScale+.80f*monkeyScale);
     }
+    // Begin loading the bark grips without moving planted hind feet or palms.
+    // Full vertical attachment must subsequently transfer the hind supports too.
+    inline float TorsoAngle(float elapsed, float remaining) noexcept
+    {
+        const auto ease = [](float t) { t=std::clamp(t/.5f,0.0f,1.0f); return t*t*(3-2*t); };
+        return .22f*ease(elapsed-2.5f)*ease(remaining-1.5f);
+    }
+    inline Point TorsoPoint(Point point, Point pivot, float angle) noexcept
+    {
+        const float c=std::cos(angle), s=std::sin(angle);
+        const float y=point.y-pivot.y, z=point.z-pivot.z;
+        return {point.x,pivot.y+y*c+z*s,pivot.z-y*s+z*c};
+    }
+    inline std::optional<MonkeyGroundGait::Pose> RaiseTorso(
+        const MonkeyGroundGait::Pose& planted, float angle)
+    {
+        if (!std::isfinite(angle) || angle < 0 || angle > .22f) return {};
+        auto result=planted;
+        const Point pivot{0,planted.limbs[2].root.y,planted.limbs[2].root.z};
+        for (std::size_t i=0;i<4;++i) {
+            const auto& limb=planted.limbs[i];
+            result.limbs[i]=MonkeyGroundGait::SolveLimb(TorsoPoint(limb.root,pivot,angle),
+                limb.sole,i<2 ? BendHint(1) : Point{0,0,1},limb.supporting,result.reachLimited);
+        }
+        if (result.reachLimited) return {};
+        return result;
+    }
     inline std::array<float,2> Weights(float elapsed,float remaining) noexcept
     {
         const auto ease = [](float t) { t=std::clamp(t/.75f,0.0f,1.0f); return t*t*(3-2*t); };

@@ -10,9 +10,26 @@ not implemented improvements. Require actual close/wide in-game visual review on
 Android and Web; existing build/material diagnostics do not close either task. Keep the
 previous monkey, additional wildlife, hut and resident work open.
 
-## Latest — eight-stage native tree-transfer visual audit
+## Latest — initial torso lift while four contacts remain planted
 
-The pending source changes add eight sampled states from the same naturally reached
+Live inspection now raises the torso .22 radians about the hind hips only while both
+forehands grip bark, returning before hand release. Fixed-target IK preserves all four
+contacts; full-excursion reach is prechecked. Hind feet stay on terrain: full attachment,
+ascent/rest/descent/dismount are still missing. No shader/bone budget change.
+Peak capture stage moved from >=2.7 to >=3.3 seconds. Final native evidence
+`20261011T141011.681705Z-monkey-tree` passes all eight image/contact gates, kernel delta
+empty; peak and return images inspected. Peak diagnostic angle .22, left shoulder Y
+.702676 and palm Y .604693. Earlier partial-lift capture `20261011T140816.894255Z-monkey-tree`
+also passes/inspected, empty kernel delta. Fur/shoulder/face/tail defects remain.
+See contact-foundation doc for CPU fixtures and the corrected float-boundary test failure.
+Final native build and 37/37 non-display groups pass (60.44 s,
+`build/monkey-torso-loading-final-tests.log`); direct 30 capture-unit tests pass. All jobs
+finished, GPU stop latch hash unchanged, no dependency or emulator configuration edits.
+Android/Web remain unqualified for these changes. Goal remains active.
+
+## Earlier — eight-stage native tree-transfer visual audit
+
+The source changes add eight sampled states from the same naturally reached
 inspection to native `monkey-tree` capture, plus strict sequence/contact-weight validation.
 See `docs/monkey-climb-contact-foundation.md` for capture semantics and limitations.
 `20261011T135905.681863Z-monkey-tree` passes; all eight stage images and final reference

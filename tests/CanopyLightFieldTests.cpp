@@ -45,6 +45,10 @@ try
     for (int frame = 0; frame <= 600; ++frame) {
         const float elapsed = frame*.01f;
         const auto weights = MonkeyTreeReach::Weights(elapsed,6-elapsed);
+        const float angle = MonkeyTreeReach::TorsoAngle(elapsed,6-elapsed);
+        Require(angle >= 0 && angle <= .22f,"torso loading stays bounded");
+        if (angle > 0) Require(weights[0] == 1 && weights[1] == 1,
+            "torso rises only while both bark grips are planted");
         int transferring = 0;
         for (float weight : weights) {
             Require(weight >= 0 && weight <= 1,"tree reach blend stays bounded");
@@ -60,6 +64,29 @@ try
     const auto distance = [](MonkeyGroundGait::Point a,MonkeyGroundGait::Point b) {
         return std::sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)+(a.z-b.z)*(a.z-b.z));
     };
+    auto planted = MonkeyGroundGait::Sample(0,0);
+    for (std::size_t i=0;i<2;++i) {
+        const auto root=planted.limbs[i].root;
+        planted.limbs[i]=MonkeyGroundGait::SolveLimb(root,{root.x,.604692f,.786577f},
+            MonkeyTreeReach::BendHint(1),true,planted.reachLimited);
+    }
+    for (int frame=0;frame<=220;++frame) {
+        const auto raised=MonkeyTreeReach::RaiseTorso(planted,(frame/220.0f)*.22f);
+        Require(raised.has_value(),"planted torso-loading fixture remains reachable");
+        for (std::size_t i=0;i<4;++i) {
+            const auto& limb=raised->limbs[i];
+            Require(distance(limb.sole,planted.limbs[i].sole)<1e-5f,"torso lift never moves planted contacts");
+            Require(std::abs(distance(limb.root,limb.joint)-MonkeyGroundGait::UpperLength)<1e-5f
+                && std::abs(distance(limb.joint,limb.sole)-MonkeyGroundGait::LowerLength)<1e-5f,
+                "torso lift retains fixed bone lengths");
+            if (i>=2) Require(distance(limb.root,planted.limbs[i].root)<1e-5f,"hind roots stay at pivot");
+        }
+        Require(raised->limbs[0].root.y>=planted.limbs[0].root.y,"shoulders rise toward climbing pose");
+    }
+    Require(!MonkeyTreeReach::RaiseTorso(planted,1),"unbounded torso angle rejected");
+    auto unreachable=planted;
+    unreachable.limbs[0].sole.z+=2;
+    Require(!MonkeyTreeReach::RaiseTorso(unreachable,.22f),"unreachable torso excursion rejected without moving contacts");
     for (int variant = 0; variant < CanopyFormCount; ++variant)
         for (bool far : {false,true})
             for (float yaw : {0.0f,1.3f})

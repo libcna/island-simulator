@@ -1073,6 +1073,8 @@ namespace island
 
             std::array<float, MonkeySkinningShader::SoleCount * 16> solePalette{};
             bool treeGripApplied = false;
+            float torsoAngle = 0;
+            Vector3 torsoPivot = Vector3::Zero;
             std::array<float,2> appliedTreeWeights{};
             {
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
@@ -1127,9 +1129,22 @@ namespace island
                                 ToVector(targets[limb]->normal),weights[limb]));
                         }
                         treeGripApplied = weights[0] > .999f && weights[1] > .999f;
+                        if (treeGripApplied) {
+                            const float angle = MonkeyTreeReach::TorsoAngle(monkey.treeInspectionSeconds,
+                                monkey.treeInspectionRemaining);
+                            // Reject the full excursion up front, not halfway through a lift.
+                            if (angle > 0 && MonkeyTreeReach::RaiseTorso(pose,.22f)) {
+                                const auto raised = MonkeyTreeReach::RaiseTorso(pose,angle);
+                                if (raised) {
+                                    torsoAngle = angle;
+                                    torsoPivot = Vector3(0,pose.limbs[2].root.y,pose.limbs[2].root.z);
+                                    pose = *raised;
+                                }
+                            }
+                        }
                         if (treeGripApplied && index == qaSubjectIndex && !reportedTreePose_) {
                             std::ostringstream report;
-                            report << "island-simulator: monkey bark pose subject=" << index;
+                            report << "island-simulator: monkey bark pose subject=" << index << " torso-angle=" << torsoAngle;
                             for (std::size_t limb = 0; limb < 2; ++limb) {
                                 const auto& arm = pose.limbs[limb];
                                 report << " arm=" << limb << " root=" << arm.root.x << ',' << arm.root.y << ',' << arm.root.z
@@ -1160,6 +1175,15 @@ namespace island
                 BuildSkinPalette(*skinningData_, playback.attentiveLocalTransforms,
                                  playback.attentiveWorldTransforms,
                                  playback.attentiveSkinTransforms);
+                if (torsoAngle > 0) {
+                    const Matrix tilt = Matrix::CreateTranslation(-torsoPivot)
+                        * Matrix::CreateRotationX(-torsoAngle) * Matrix::CreateTranslation(torsoPivot);
+                    for (std::size_t bone = 0; bone < BoneCount; ++bone) {
+                        playback.attentiveWorldTransforms[bone] = playback.attentiveWorldTransforms[bone] * tilt;
+                        playback.attentiveSkinTransforms[bone] = skinningData_->InverseBindPose[bone]
+                            * playback.attentiveWorldTransforms[bone];
+                    }
+                }
                 constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
                 constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
                 const auto applySegment = [&](int bone, const Vector3& restDirection,

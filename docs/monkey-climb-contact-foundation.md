@@ -209,3 +209,30 @@ simulation wind. These sampled phases do not prove every intervening frame is sm
 Native build and 37/37 non-display groups pass (`build/monkey-tree-sequence-tests.log`,
 78.35 s); kernel delta is empty. Android/Web are not requalified. Full body attachment,
 ascent, rest, descent and dismount remain unimplemented; do not call this tree climbing.
+
+## Initial torso loading with mixed bark/ground support
+
+`MonkeyTreeReach::RaiseTorso` rotates the body roots about the hind-hip axis while solving
+all four limbs against their unchanged planted contacts. The renderer applies the same
+rigid tilt to pelvis/spine/head/tail before replacing limb matrices with the fixed-contact
+solutions. A smooth .22-radian lift occurs only while both hands are fully on bark, and
+returns before either hand releases. Full-excursion reach is checked before lifting; an
+unreachable excursion retains the previous grounded inspection pose. Hind feet do not
+transfer to bark yet. This is the beginning of attachment, NOT climbing.
+
+Native `20261011T140816.894255Z-monkey-tree` passed; its inspected partial-lift image and
+diagnostic showed .14256 radians. Stage 3 now samples >=3.3 seconds instead of >=2.7 so
+the maximum lift is visible. Final `20261011T141011.681705Z-monkey-tree` passes the eight
+stage gates and has an empty kernel delta. Peak and returning-hand images were inspected:
+torso/head rise while palms and hind feet retain contact, then lower before release.
+Peak diagnostic is .22 radians; left shoulder Y .702676, palm Y .604693. Blocky shoulders,
+wood-like fur, simplistic face and stiff tail remain defects. No continuous-animation,
+full climbing or Android/Web qualification is claimed.
+
+CPU regression samples 221 torso angles, requiring preserved contacts, fixed segment
+lengths, unchanged hind roots and rising shoulders, plus rejection of unreachable/out-of-
+range poses. The first test run failed because `220*.001f` slightly exceeded the exact
+maximum float; the fixture now samples `(frame/220.0f)*.22f` and retains strict bounds.
+Final native build and 37/37 non-display groups pass in 60.44 seconds
+(`build/monkey-torso-loading-final-tests.log`); direct 30 capture-unit tests pass.
+GPU stop latch SHA-256 remains unchanged. All launched jobs finished.
