@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Update 2026-10-11 — integrated rocky coast (native qualified)
+
+See `docs/coastal-environment.md`. The first `IslandEnvironmentField` coastal subset drives
+actual up-to-7.5 m headland relief, RockyGround classification, palm/canopy/understory/grass
+exclusions and shader rock/sand controls. Reuses canopy texture blue/alpha; red/green and
+texture/mesh/draw budgets unchanged. This is not the full environment model.
+Crab starts now find nearby valid sandy habitat; tests preserve their population/determinism.
+Rocky faces intentionally block climbing, with separately tested adjacent beach access.
+Final 33/33 non-display groups pass (55.12 s). Bay `20261011T082154.597630Z-bay` and final
+headland `20261011T082316.930694Z-headland` pass/inspected, empty kernel deltas.
+Fingerprint `b0f79ae14adeb8cd`; inventory pins updated from report. `headland` camera is
+available in native/Android launchers and Web template; terrain suite now has six views.
+NEXT: Android/Web build and visual/runtime qualification for this new terrain/shader, then
+extend environmental controls/dominant beach. Prior coast-shape qualification below is not
+current evidence. Android lifecycle remains degraded. No push or hardware rendering authorized.
+
 ## Update 2026-10-11 — Web coast qualification complete
 
 Coast Web build and release package refreshed (10,340,739 raw / 3,525,638 gzip bytes).

@@ -11,8 +11,9 @@ namespace island
 {
     class CanopyLightField;
     class GroundCoverField;
+    class IslandTerrain;
     /**
-     * @brief Immutable ground-field texture: red/blue direct transmission, green cover patch.
+     * @brief Ground texture: red transmission, green cover, blue coastal rock, alpha beach potential.
      *
      * The CPU fields and this owner must outlive all receiving renderers.
      */
@@ -20,7 +21,8 @@ namespace island
     {
     public:
         CanopyLighting(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                       const CanopyLightField& field, const GroundCoverField& cover);
+                       const CanopyLightField& field, const GroundCoverField& cover,
+                       const IslandTerrain& terrain);
         ~CanopyLighting();
         CanopyLighting(const CanopyLighting&) = delete;
         CanopyLighting& operator=(const CanopyLighting&) = delete;
@@ -43,6 +45,13 @@ vec2 canopyGroundField(vec2 groundPosition)
     // The field has one level: explicit LOD keeps this valid inside per-primitive branches.
     return mix(vec2(1.0, 0.0), textureLod(uCanopyLight, clamp(uv, 0.0, 1.0), 0.0).rg,
                inside.x * inside.y);
+}
+// x: coastal rockiness, y: beach suitability; same grid and interpolation as lighting.
+vec2 coastalGroundField(vec2 groundPosition)
+{
+    vec2 uv = (groundPosition + vec2(uCanopyMap.x)) * uCanopyMap.y;
+    vec2 inside = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+    return textureLod(uCanopyLight, clamp(uv, 0.0, 1.0), 0.0).ba * inside.x * inside.y;
 }
 float canopyTransmission(vec2 groundPosition)
 {

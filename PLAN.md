@@ -64,6 +64,24 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — integrated rocky headlands and shared coastal field
+
+- [~] First coastal subset of `IslandEnvironmentField` (`docs/coastal-environment.md`):
+  shared rockiness/beach suitability drives actual headland relief, physical classification,
+  vegetation exclusion and terrain materials. Existing texture blue/alpha reused, no added
+  texture/vertex/draw budgets. Moisture/soil/drainage/exposure/reef fields remain open.
+- [x] Real 7.5 m maximum coastal relief replaces material-only headland tint. New `headland`
+  review camera. Native final headland `20261011T082316.930694Z-headland` and bay
+  `20261011T082154.597630Z-bay` pass/inspected, empty kernel deltas.
+- [x] Crabs find bounded nearby sandy habitat rather than invalid rock starts. Existing
+  habitat/determinism checks retained; steep cliff rejection and adjacent beach access
+  independently tested. Final 33/33 non-display groups pass (55.12 s), including normalized
+  field controls and vegetation root exclusions.
+- [ ] Android/Web qualification for changed geometry/material. New population pins are
+  measured, not runtime evidence; Web terrain now includes the sixth `headland` view.
+- [ ] Broader environment fields, deliberately wider dominant beach, directional waves,
+  rock strata/talus and full ecological placement migration remain open.
+
 #### 2026-10-11 — sheltered bay and headland silhouette
 
 - [~] Macro-geography items 1–2 shoreline stage (`docs/coastal-silhouette.md`): three
@@ -258,11 +276,11 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   added a western bay and three headland silhouettes (`docs/coastal-silhouette.md`);
   rocky coastal relief and the shared environment remain open. Android lifecycle has an intermittent
   `EGL_BAD_SURFACE` issue documented separately in `BUGS.md`.
-- [ ] 2. Replace the uniform beach ring with distinct coast types: leeward wide calm beach
+- [~] 2. Replace the uniform beach ring with distinct coast types: leeward wide calm beach
   (palms, wreck, driftwood, turtles), windward rocky/reef coast with larger waves, more foam and
   wind-shaped low vegetation, and a sheltered turquoise bay; vegetation reaching the water in places;
   reef flats (10-15 h).
-- [ ] 3. Add a shared `IslandEnvironmentField` (moisture, salt/wind/wave exposure, soil depth,
+- [~] 3. Add a shared `IslandEnvironmentField` (moisture, salt/wind/wave exposure, soil depth,
   rockiness, drainage, sun exposure, reef suitability) and drive palms, canopy, shrubs, ferns,
   grass and props from it instead of concentric `signedShoreDistance` bands (10-15 h). The current
   ground-cover field is a first step and should become one of its inputs.

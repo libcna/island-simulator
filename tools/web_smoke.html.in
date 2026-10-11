@@ -51,6 +51,7 @@
       ["grass-motion", ["--debug-overlay", "--input-diagnostics"]],
       ["overview", ["--overview"]],
       ["bay", ["--viewpoint", "bay", "--debug-overlay"]],
+      ["headland", ["--viewpoint", "headland", "--debug-overlay"]],
       ["beach", ["--viewpoint", "beach"]],
       ["beach", ["--viewpoint", "beach", "--debug-overlay"]],
       ["grass", ["--viewpoint", "grass", "--debug-overlay"]],

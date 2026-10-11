@@ -5,6 +5,7 @@
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -3330,6 +3331,48 @@ int main()
     }
     std::cout << "Coast radius min/max/bay: " << minimumRadius << '/' << maximumRadius
               << '/' << westBayRadius << '\n';
+    const auto coastalStation = [&](float angle, float inland) {
+        const float radius = terrain.ShoreRadius(angle) - inland;
+        return terrain.Sample(std::cos(angle) * radius, std::sin(angle) * radius);
+    };
+    const auto rockyStation = coastalStation(0.35f, 12.0f);
+    const auto bayStation = coastalStation(std::numbers::pi_v<float>, 12.0f);
+    Check(rockyStation.coastalRockiness > 0.90f && bayStation.coastalRockiness < 0.05f,
+          "coastal environment distinguishes headland and bay at the same shore distance");
+    Check(rockyStation.height > bayStation.height + 6.0f,
+          "rocky headland has actual elevated relief, not only a material tint");
+    Check(rockyStation.surface == island::TerrainSurface::RockyGround,
+          "rocky headland is not classified as sandy habitat");
+    Check(rockyStation.beachSuitability < 0.1f && bayStation.beachSuitability > 0.9f,
+          "sheltered bay and exposed rock have distinct beach suitability");
+    for (const auto& palm : vegetation.Palms())
+        Check(terrain.Sample(palm.x, palm.z).coastalRockiness <= 0.45f,
+              "adult and juvenile palms avoid exposed coastal rock");
+    const auto checkCoastalRoots = [&](const auto& plants, float maximumRockiness) {
+        for (const auto& plant : plants)
+            Check(terrain.Sample(plant.x, plant.z).coastalRockiness <= maximumRockiness,
+                  "jungle roots respect shared coastal rock exclusions");
+    };
+    checkCoastalRoots(jungle.Canopy(), 0.45f);
+    checkCoastalRoots(jungle.Understory(), 0.60f);
+    checkCoastalRoots(jungle.Bushes(), 0.60f);
+    checkCoastalRoots(jungle.GroundPlants(), 0.60f);
+    const auto invalidCoast = island::IslandEnvironmentField::SampleCoast(quietNan, 0.0f, 0.0f);
+    Check(invalidCoast.rockiness == 0.0f && invalidCoast.beachSuitability == 0.0f,
+          "non-finite environment query has safe empty controls");
+    for (int angularIndex = 0; angularIndex < 180; ++angularIndex) {
+        const float angle = angularIndex * std::numbers::pi_v<float> / 90.0f;
+        for (float inland : {-20.0f, 0.0f, 12.0f, 40.0f, 80.0f}) {
+            const auto station = coastalStation(angle, inland);
+            Check(std::isfinite(station.coastalRockiness) && station.coastalRockiness >= 0.0f
+                      && station.coastalRockiness <= 1.0f && station.beachSuitability >= 0.0f
+                      && station.beachSuitability <= 1.0f,
+                  "coastal environment controls remain finite and normalized");
+            if (inland == 80.0f)
+                Check(station.coastalRockiness == 0.0f,
+                      "coastal rock field does not override interior ridge geology");
+        }
+    }
 
     const island::VegetationLayout repeatedVegetation(terrain);
     Check(vegetation.Palms().size() >= 180U && vegetation.Palms().size() <= 520U,
@@ -3645,9 +3688,9 @@ int main()
     Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
         && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 576
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 580
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2170,
+            - jungle.ForestGroundPlantCount() == 2182,
         "clearing colonies preserve the existing island-wide populations");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
@@ -4378,7 +4421,11 @@ int main()
         coveAngle, headlandAngle, -2.35f, -0.78f, 0.69f, 2.18f};
     int completedShorelineRoundTrips = 0;
     bool shorelineTraversalStayedFinite = true;
-    for (const float angle : shorelineTransects) {
+    for (const float authoredAngle : shorelineTransects) {
+        // Rocky headlands now intentionally block climbing. Test their adjacent sandy
+        // access here, and the actual cliff barrier independently below.
+        const float angle = island::IslandEnvironmentField::CoastalRockPotential(authoredAngle) > 0.55f
+            ? authoredAngle + 0.65f : authoredAngle;
         const float outwardX = std::cos(angle);
         const float outwardZ = std::sin(angle);
         const float shoreRadius = terrain.ShoreRadius(angle);
@@ -4447,6 +4494,19 @@ int main()
           "cove, headland, and varied-coast traversal scenarios all complete");
     Check(shorelineTraversalStayedFinite,
           "all shoreline traversal positions remain finite");
+
+    island::PlayerMotion cliffPlayer;
+    constexpr float cliffAngle = 0.35f;
+    const float cliffRadius = terrain.ShoreRadius(cliffAngle);
+    cliffPlayer.SetPosition(terrain, std::cos(cliffAngle) * (cliffRadius - 0.5f),
+                           std::sin(cliffAngle) * (cliffRadius - 0.5f));
+    for (int frame = 0; frame < 600; ++frame)
+        cliffPlayer.Update(terrain, -std::cos(cliffAngle), -std::sin(cliffAngle), 1.0f / 60.0f);
+    const float cliffReached = terrain.SignedShoreDistance(cliffPlayer.Position().x, cliffPlayer.Position().z);
+    Check(cliffReached > 1.0f && cliffReached < 7.0f,
+          "player can approach rocky headland but cannot climb through its steep face");
+    Check(cliffPlayer.Mode() == island::LocomotionMode::Walking,
+          "cliff rejection leaves player on stable dry footing");
 
     bool foundSteepBankScenario = false;
     float steepBankSlope = 0.0f;

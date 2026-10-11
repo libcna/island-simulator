@@ -58,13 +58,13 @@ namespace island
         const auto accepted = [&terrain](const float x, const float z, TerrainSample& sample) {
             sample = terrain.Sample(x, z);
             return sample.signedShoreDistance >= 20.0f && sample.height >= 2.1f
-                && sample.slopeRadians <= 0.4886922f;
+                && sample.slopeRadians <= 0.4886922f && sample.coastalRockiness < 0.60f;
         };
         const auto coverAt = [&light, &cover](const float x, const float z,
                                               const TerrainSample& sample) {
             return GroundCover::Density(std::clamp(light.Sample(x, z), 0.0f, 1.0f),
                 std::clamp(cover.SamplePatch(x, z), 0.0f, 1.0f),
-                sample.signedShoreDistance, sample.slopeRadians);
+                sample.signedShoreDistance, sample.slopeRadians) * (1.0f - sample.coastalRockiness);
         };
         for (int gridZ = -CandidateRadius; gridZ <= CandidateRadius; ++gridZ) {
             for (int gridX = -CandidateRadius; gridX <= CandidateRadius; ++gridX) {

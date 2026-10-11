@@ -13,7 +13,8 @@ namespace island
         DrySand,
         CoastalGround,
         InteriorGround,
-        SteepGround
+        SteepGround,
+        RockyGround
     };
 
     /** @brief Renderer-independent unit surface normal. */
@@ -32,6 +33,8 @@ namespace island
         TerrainNormal normal;
         float slopeRadians = 0.0f;
         TerrainSurface surface = TerrainSurface::WetSand;
+        float coastalRockiness = 0.0f;
+        float beachSuitability = 0.0f;
 
         /** @brief Reports whether mean water level covers the sampled terrain. */
         [[nodiscard]] bool IsSubmerged() const noexcept { return height < 0.0f; }

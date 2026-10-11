@@ -19,6 +19,7 @@ namespace
         case FixedViewpoint::None: return "interactive";
         case FixedViewpoint::Overview: return "overview";
         case FixedViewpoint::BayOverview: return "bay";
+        case FixedViewpoint::HeadlandDetail: return "headland";
         case FixedViewpoint::BeachPath: return "beach";
         case FixedViewpoint::JungleTrail: return "jungle";
         case FixedViewpoint::EastClearingDetail: return "east";
@@ -105,7 +106,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, beach, jungle, "
-                             "east, clearing-edge, canopy (inspection only), west, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
+                             "east, headland, clearing-edge, canopy (inspection only), west, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "current, distant, props, driftwood, reef, fronds, birds, fish, "
                              "shark, monkeys, shipwreck, crabs, boars, butterflies, turtles, or traversal\n";
                 return 2;
@@ -115,6 +116,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::Overview;
             } else if (name == "bay") {
                 viewpoint = island::FixedViewpoint::BayOverview;
+            } else if (name == "headland") {
+                viewpoint = island::FixedViewpoint::HeadlandDetail;
             } else if (name == "beach") {
                 viewpoint = island::FixedViewpoint::BeachPath;
             } else if (name == "jungle") {

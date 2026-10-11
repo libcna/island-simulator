@@ -1,6 +1,8 @@
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
+#include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "Microsoft/Xna/Framework/Color.hpp"
@@ -9,6 +11,7 @@
 #include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -19,7 +22,8 @@ namespace island
     using namespace Microsoft::Xna::Framework::Graphics;
     static_assert(CanopyLightField::DefaultResolution == GeneratedTextureBudget::CanopyLightSize);
     CanopyLighting::CanopyLighting(GraphicsDevice& device, const CanopyLightField& field,
-                                   const GroundCoverField& cover) : device_(device), field_(field)
+                                   const GroundCoverField& cover, const IslandTerrain& terrain)
+        : device_(device), field_(field)
     {
         const auto start = std::chrono::steady_clock::now();
         if (cover.Resolution() != field.Resolution())
@@ -29,7 +33,12 @@ namespace island
         const auto patches = cover.PatchTexels();
         for (std::size_t i = 0; i < field.Texels().size(); ++i) {
             const auto transmission = field.Texels()[i];
-            pixels.emplace_back(transmission, patches[i], transmission, static_cast<std::uint8_t>(255));
+            const float x = CanopyLightField::TexelCoordinate(static_cast<int>(i % field.Resolution()), field.Resolution());
+            const float z = CanopyLightField::TexelCoordinate(static_cast<int>(i / field.Resolution()), field.Resolution());
+            const auto coast = IslandEnvironmentField::SampleCoast(x, z, terrain.SignedShoreDistance(x, z));
+            pixels.emplace_back(transmission, patches[i],
+                static_cast<std::uint8_t>(std::lround(coast.rockiness * 255.0f)),
+                static_cast<std::uint8_t>(std::lround(coast.beachSuitability * 255.0f)));
         }
         texture_ = std::make_unique<Texture2D>(device, field.Resolution(), field.Resolution());
         texture_->SetData(pixels.data(), static_cast<int>(pixels.size()));

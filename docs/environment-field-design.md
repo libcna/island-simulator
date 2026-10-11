@@ -1,6 +1,8 @@
 # Shared coastal environment field — implementation design
 
-Status: design only, 2026-10-11. No field or coast-type integration is implemented yet.
+Status: partial implementation, 2026-10-11. The initial coastal rock/beach subset is now
+integrated; see `coastal-environment.md`. The broader design below remains the target,
+not a claim that every listed field or consumer is implemented.
 This is the next step after `coastal-silhouette.md`, covering macro-geography items 2–3.
 
 ## Dependency order

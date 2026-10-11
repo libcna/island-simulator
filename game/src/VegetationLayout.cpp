@@ -147,6 +147,7 @@ namespace island
                 // eventual broadleaf canopy will own the deepest central jungle.
                 if (sample.signedShoreDistance < 7.0f || sample.signedShoreDistance > 158.0f
                     || sample.height < 0.55f || sample.slopeRadians > 0.4712389f
+                    || sample.coastalRockiness > 0.45f
                     || IsReservedRoute(x, z)) {
                     continue;
                 }
@@ -189,6 +190,7 @@ namespace island
                 const float youngZ = z + std::sin(angle) * offset;
                 const TerrainSample youngSample = terrain.Sample(youngX, youngZ);
                 if (youngSample.signedShoreDistance < 7.0f || youngSample.height < 0.55f
+                    || youngSample.coastalRockiness > 0.45f
                     || youngSample.slopeRadians > 0.4712389f || IsReservedRoute(youngX, youngZ)) {
                     continue;
                 }

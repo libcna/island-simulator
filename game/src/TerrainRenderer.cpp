@@ -236,8 +236,9 @@ void main()
 
     float signedShoreDistance = vTerrainData.x;
     float slopeRadians = vTerrainData.y;
+    vec2 coastField = coastalGroundField(p);
     float sand = (1.0 - smoothstep(7.0, 19.0, signedShoreDistance))
-        * smoothstep(-6.0, -0.2, vWorld.y);
+        * smoothstep(-6.0, -0.2, vWorld.y) * mix(0.08, 1.0, coastField.y);
     float interior = smoothstep(8.0, 25.0, signedShoreDistance);
     float steep = smoothstep(0.30, 0.70, slopeRadians) * interior;
     float eastClearingMask = 0.0;
@@ -362,7 +363,7 @@ void main()
     // shaded or patch-poor ground keeps exposed humus and fallen leaves.
     vec2 groundField = canopyGroundField(p);
     float turfAmount = groundCoverDensity(groundField.x, groundField.y,
-        signedShoreDistance, slopeRadians) * 0.86 * (1.0 - steep);
+        signedShoreDistance, slopeRadians) * 0.86 * (1.0 - steep) * (1.0 - coastField.x);
     // Tropical understory grows through exposed humus; it is not a continuous green lawn.
     // Keep grass/moss islands, and leave the authored sunny clearing and beach palettes intact.
     color = mix(color, vec3(0.300, 0.223, 0.139) * vGroundLight, forestFloorMask * 0.82);
@@ -523,6 +524,7 @@ void main()
     // featureless green vertex palette. Existing filtered fields break the edge.
     float ridgeRock = smoothstep(0.32, 0.60, slopeRadians + broad * 0.16 + medium * 0.10)
         * interior * smoothstep(5.0, 13.0, vWorld.y);
+    ridgeRock = max(ridgeRock, coastField.x * smoothstep(-0.25, 0.35, vWorld.y));
     vec3 weatheredRock = mix(vec3(0.255, 0.245, 0.205), vec3(0.43, 0.365, 0.265),
         clamp(0.5 + broad * 0.80 + medium * 0.42, 0.0, 1.0));
     weatheredRock *= 1.0 + medium * 0.27 + fine * 0.045;

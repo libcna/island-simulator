@@ -66,6 +66,7 @@ namespace island
             switch (viewpoint) {
             case FixedViewpoint::Overview: return "overview";
             case FixedViewpoint::BayOverview: return "bay";
+            case FixedViewpoint::HeadlandDetail: return "headland";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -184,6 +185,10 @@ namespace island
             cameraPosition_ = Vector3(-365.0f, 115.0f, 0.0f);
             yaw_ = std::numbers::pi_v<float> * 0.5f;
             pitch_ = -0.38f;
+        } else if (viewpoint_ == FixedViewpoint::HeadlandDetail) {
+            cameraPosition_ = Vector3(300.0f, 28.0f, 110.0f);
+            yaw_ = std::atan2(-63.0f, -23.0f);
+            pitch_ = -0.33f;
         } else if (viewpoint_ == FixedViewpoint::BeachPath) {
             constexpr float pathZ = -190.0f;
             const float pathX = VegetationLayout::PrimaryPathCenterX(pathZ);
@@ -814,7 +819,7 @@ namespace island
         InitializeGpuDiagnostics();
         // Build consumers against a temporary owner. Commit them before replacing the old
         // owner so a repeated LoadContent never leaves old renderers referencing freed data.
-        auto canopyLighting = std::make_unique<CanopyLighting>(device, canopyLightField_, groundCoverField_);
+        auto canopyLighting = std::make_unique<CanopyLighting>(device, canopyLightField_, groundCoverField_, terrain_);
         auto terrainHeightMap = std::make_unique<RenderedTerrainHeightMap>(device, terrain_);
         auto terrainRenderer = std::make_unique<TerrainRenderer>(device, terrain_, *canopyLighting);
         distantSceneryRenderer_ = std::make_unique<DistantSceneryRenderer>(

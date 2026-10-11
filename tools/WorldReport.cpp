@@ -138,7 +138,7 @@ namespace
         float maximumShoreRadius = std::numeric_limits<float>::lowest();
         float minimumHeight = std::numeric_limits<float>::max();
         float maximumHeight = std::numeric_limits<float>::lowest();
-        std::array<std::size_t, 7U> surfaceCounts{};
+        std::array<std::size_t, 8U> surfaceCounts{};
         std::size_t sampleCount = 0U;
         bool finite = true;
     };
@@ -705,7 +705,8 @@ namespace
                << "      \"drySand\": " << terrain.surfaceCounts[3] << ",\n"
                << "      \"coastalGround\": " << terrain.surfaceCounts[4] << ",\n"
                << "      \"interiorGround\": " << terrain.surfaceCounts[5] << ",\n"
-               << "      \"steepGround\": " << terrain.surfaceCounts[6] << "\n"
+               << "      \"steepGround\": " << terrain.surfaceCounts[6] << ",\n"
+               << "      \"rockyGround\": " << terrain.surfaceCounts[7] << "\n"
                << "    }\n"
                << "  },\n"
                << "  \"analyticJungleRootGaps\": {\n";

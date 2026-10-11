@@ -85,6 +85,7 @@ namespace island
                 if (sample.signedShoreDistance < 43.0f
                     || sample.signedShoreDistance > 238.0f
                     || sample.height < 3.8f || sample.slopeRadians > 0.4712389f
+                    || sample.coastalRockiness > 0.45f
                     || VegetationLayout::IsReservedRoute(x, z)) {
                     continue;
                 }
@@ -156,6 +157,7 @@ namespace island
                 if (sample.signedShoreDistance < 31.0f
                     || sample.signedShoreDistance > 242.0f
                     || sample.height < 2.8f || sample.slopeRadians > 0.5410521f
+                    || sample.coastalRockiness > 0.60f
                     || VegetationLayout::IsReservedRoute(x, z)) {
                     continue;
                 }
@@ -199,6 +201,7 @@ namespace island
                 if (sample.signedShoreDistance < 38.0f
                     || sample.signedShoreDistance > 232.0f
                     || sample.height < 3.0f || sample.slopeRadians > 0.5235988f
+                    || sample.coastalRockiness > 0.60f
                     || VegetationLayout::IsReservedRoute(x, z)) {
                     continue;
                 }
@@ -246,6 +249,7 @@ namespace island
                 if (sample.signedShoreDistance < 27.0f
                     || sample.signedShoreDistance > 238.0f
                     || sample.height < 2.5f || sample.slopeRadians > 0.5585054f
+                    || sample.coastalRockiness > 0.60f
                     || VegetationLayout::IsReservedRoute(x, z)) {
                     continue;
                 }

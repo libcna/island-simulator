@@ -1,4 +1,5 @@
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -172,7 +173,10 @@ namespace island
         const float localRelief = 1.4f * FractalNoise(x * 0.027f, z * 0.027f, 0x711dU);
         const float erodedRidges = (mainRidge + secondRidge)
             * (1.0f - 0.62f * southValley) * (1.0f - 0.32f * westValley);
-        return beach + interiorBlend * (foothills + erodedRidges + localRelief);
+        const float headland = IslandEnvironmentField::CoastalRockPotential(std::atan2(z, x));
+        const float coastalRelief = 7.5f * headland * SmoothStep((inland - 2.0f) / 10.0f)
+            * (1.0f - SmoothStep((inland - 32.0f) / 38.0f));
+        return beach + coastalRelief + interiorBlend * (foothills + erodedRidges + localRelief);
     }
 
     TerrainSample IslandTerrain::Sample(const float x, const float z) const noexcept
@@ -183,6 +187,9 @@ namespace island
         TerrainSample sample;
         sample.height = Height(x, z);
         sample.signedShoreDistance = SignedShoreDistance(x, z);
+        const auto coast = IslandEnvironmentField::SampleCoast(x, z, sample.signedShoreDistance);
+        sample.coastalRockiness = coast.rockiness;
+        sample.beachSuitability = coast.beachSuitability;
 
         const float left = Height(x - SurfaceSampleDistance, z);
         const float right = Height(x + SurfaceSampleDistance, z);
@@ -201,6 +208,8 @@ namespace island
             sample.surface = TerrainSurface::DeepSeabed;
         } else if (sample.height < -0.12f) {
             sample.surface = TerrainSurface::ShallowSeabed;
+        } else if (sample.coastalRockiness > 0.55f && sample.height > 0.22f) {
+            sample.surface = TerrainSurface::RockyGround;
         } else if (sample.height <= 0.22f || sample.signedShoreDistance < 2.5f) {
             sample.surface = TerrainSurface::WetSand;
         } else if (sample.signedShoreDistance < 18.0f || sample.height < 1.8f) {

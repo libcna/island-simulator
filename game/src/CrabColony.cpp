@@ -6,6 +6,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <stdexcept>
 #include <limits>
 #include <numbers>
 
@@ -51,17 +52,27 @@ namespace island
         const float sequence = static_cast<float>(index);
         const std::size_t colonyIndex = index / 5U;
         const float memberOffset = (static_cast<float>(index % 5U) - 2.0f) * 0.012f;
-        const float angle = ColonyAngles[colonyIndex] + memberOffset;
-        const float shoreRadius = terrain_.ShoreRadius(angle);
+        const float authoredAngle = ColonyAngles[colonyIndex] + memberOffset;
+        float angle = authoredAngle;
         const float landwardOffset = 3.4f + static_cast<float>(index % 6U) * 1.55f;
         const float tangentOffset = (static_cast<float>((index * 7U) % 9U) - 4.0f) * 0.42f;
-        const float radialX = std::cos(angle);
-        const float radialZ = std::sin(angle);
-        const float tangentX = -radialZ;
-        const float tangentZ = radialX;
-        agent.home.x = radialX * (shoreRadius - landwardOffset) + tangentX * tangentOffset;
-        agent.home.z = radialZ * (shoreRadius - landwardOffset) + tangentZ * tangentOffset;
         agent.home.radius = 5.8f + static_cast<float>(index % 4U) * 0.7f;
+        bool foundHabitat = false;
+        for (int attempt = 0; attempt < 97; ++attempt) {
+            const float offset = static_cast<float>((attempt + 1) / 2) * 0.025f
+                * (attempt % 2 == 0 ? -1.0f : 1.0f);
+            angle = authoredAngle + offset;
+            const float radius = terrain_.ShoreRadius(angle) - landwardOffset;
+            agent.home.x = std::cos(angle) * radius - std::sin(angle) * tangentOffset;
+            agent.home.z = std::sin(angle) * radius + std::cos(angle) * tangentOffset;
+            const auto sample = terrain_.Sample(agent.home.x, agent.home.z);
+            if (sample.coastalRockiness < 0.35f
+                && IsValidHabitat(agent.home.x, agent.home.z, agent.home)) {
+                foundHabitat = true;
+                break;
+            }
+        }
+        if (!foundHabitat) throw std::runtime_error("No sandy shoreline habitat for beach crab");
         agent.state.x = agent.home.x;
         agent.state.z = agent.home.z;
         agent.state.y = terrain_.Height(agent.state.x, agent.state.z) + 0.075f;
