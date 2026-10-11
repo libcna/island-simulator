@@ -205,6 +205,11 @@ namespace island
                 GenerateMonkeyCallAlternate());
             monkeyCallAlternateEffect_->setNameProperty(
                 "Procedural monkey contact call alternate");
+            for (std::size_t i = 0; i < boarEffects_.size(); ++i) {
+                boarEffects_[i] = CreateOneShotSoundEffect(GenerateBoarCall(
+                    static_cast<BoarCallKind>(1U + i / 2U), static_cast<std::uint8_t>(i % 2U)));
+                boarEffects_[i]->setNameProperty("Original procedural boar voice " + std::to_string(i));
+            }
 
             // CNA's 3D approximation uses this as the full-volume radius before inverse falloff.
             // Island world units are meters, so 24 m keeps calls local without disappearing.
@@ -230,6 +235,7 @@ namespace island
             waterTransitionScheduler_.Reset(waterDepth, swimming);
             footstepScheduler_.Reset();
             wildlifeScheduler_.Reset();
+            boarScheduler_.Reset();
             waveAccentsEnabled_ = true;
             waterTransitionsEnabled_ = true;
             footstepsEnabled_ = true;
@@ -251,6 +257,8 @@ namespace island
             std::cout << "island-simulator: two stronger-wave variants enabled\n";
             std::cout << "island-simulator: positional bird and monkey calls enabled "
                          "(one pooled wildlife voice)\n";
+            std::cout << "island-simulator: positional boar breath/snuffle/grunt enabled "
+                         "(shared wildlife voice, six original clips)\n";
 #ifdef __ANDROID__
             // SDLActivity does not expose stdout through logcat. Mirror only the bounded set
             // consumed by Android runtime qualification without adding no-op calls elsewhere.
@@ -277,6 +285,7 @@ namespace island
             waterTransitionEffect_.reset();
             wildlifeInstance_.reset();
             monkeyCallAlternateEffect_.reset();
+            for (auto& effect : boarEffects_) effect.reset();
             monkeyCallEffect_.reset();
             birdCallAlternateEffect_.reset();
             birdCallEffect_.reset();
@@ -304,7 +313,8 @@ namespace island
         const float deltaSeconds,
         const SoundscapeListenerState& listenerState,
         const std::span<const BirdState> birds,
-        const std::span<const MonkeyState> monkeys) noexcept
+        const std::span<const MonkeyState> monkeys,
+        const std::span<const BoarState> boars) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
@@ -402,6 +412,25 @@ namespace island
                     wildlifeSecondsRemaining_ = 0.0f;
                     activeWildlifeCall_ = {};
                 } else if (available_ && !muted_) {
+                    if (activeWildlifeCall_.type == WildlifeCallType::Boar) {
+                        if (activeBoarCall_.animalIndex >= boars.size()) {
+                            wildlifeInstance_->Stop();
+                            wildlifeSecondsRemaining_ = 0.0f;
+                        } else {
+                            const BoarState& boar = boars[activeBoarCall_.animalIndex];
+                            const float y = boar.y + 0.55f * boar.scale;
+                            const float distance = std::hypot(std::hypot(boar.x - listenerState.x,
+                                boar.z - listenerState.z), y - listenerState.y);
+                            if (!std::isfinite(distance) || boar.simulationTier == WildlifeSimulationTier::Dormant) {
+                                wildlifeInstance_->Stop();
+                                wildlifeSecondsRemaining_ = 0.0f;
+                            } else {
+                                activeWildlifeCall_.source = {true, boar.x, y, boar.z};
+                                wildlifeInstance_->setVolumeProperty(boarVoiceGain_
+                                    * BoarCallVolume(activeBoarCall_.kind, distance));
+                            }
+                        }
+                    }
                     AudioEmitter emitter;
                     emitter.setPositionProperty(Vector3(
                         activeWildlifeCall_.source.x, activeWildlifeCall_.source.y,
@@ -581,9 +610,17 @@ namespace island
                             birds, monkeys);
         const bool wildlifeSlotAvailable = available_ && !muted_ && wildlifeCallsEnabled_
             && !wildlifeInstance_ && !waveInstance_ && !waterTransitionInstance_;
-        const WildlifeCallRequest wildlifeCall = wildlifeScheduler_.Update(
+        WildlifeCallRequest wildlifeCall = wildlifeScheduler_.Update(
             safeDelta, swimming, signedShoreDistance, listenerState.x, listenerState.y,
             listenerState.z, nearestBirdSource_, nearestMonkeySource_, wildlifeSlotAvailable);
+        // Due birds/monkeys get first refusal; boars use gaps, never extra voices.
+        const BoarCallRequest boarCall = boarScheduler_.Update(safeDelta,
+            listenerState.x, listenerState.y, listenerState.z, boars,
+            wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
+        if (boarCall.kind != BoarCallKind::None) {
+            wildlifeCall = {WildlifeCallType::Boar, boarCall.variant,
+                boarCall.volume, boarCall.pitch, boarCall.source};
+        }
         if (wildlifeCall.type == WildlifeCallType::None) {
             return;
         }
@@ -592,9 +629,13 @@ namespace island
         if (wildlifeCall.type == WildlifeCallType::Bird) {
             wildlifeEffect = wildlifeCall.variant == 1U
                 ? birdCallAlternateEffect_.get() : birdCallEffect_.get();
-        } else {
+        } else if (wildlifeCall.type == WildlifeCallType::Monkey) {
             wildlifeEffect = wildlifeCall.variant == 1U
                 ? monkeyCallAlternateEffect_.get() : monkeyCallEffect_.get();
+        } else if (wildlifeCall.type == WildlifeCallType::Boar) {
+            const std::size_t index = (static_cast<std::size_t>(boarCall.kind) - 1U) * 2U
+                + boarCall.variant;
+            wildlifeEffect = boarEffects_.at(index).get();
         }
         if (!wildlifeEffect) {
             return;
@@ -612,6 +653,12 @@ namespace island
             wildlifeInstance_->Apply3D(listener, emitter);
             wildlifeInstance_->Play();
             activeWildlifeCall_ = wildlifeCall;
+            if (wildlifeCall.type == WildlifeCallType::Boar) {
+                activeBoarCall_ = boarCall;
+                const float distance = std::hypot(std::hypot(boarCall.source.x - listenerState.x,
+                    boarCall.source.z - listenerState.z), boarCall.source.y - listenerState.y);
+                boarVoiceGain_ = boarCall.volume / std::max(0.0001f, BoarCallVolume(boarCall.kind, distance));
+            }
             wildlifeSecondsRemaining_ = wildlifeCall.type == WildlifeCallType::Monkey
                 ? 2.35f : 1.50f;
             if (wildlifeCall.type == WildlifeCallType::Bird) {
@@ -620,11 +667,18 @@ namespace island
                     std::cout << "island-simulator: first positional bird call played\n"
                               << std::flush;
                 }
-            } else {
+            } else if (wildlifeCall.type == WildlifeCallType::Monkey) {
                 ++playedMonkeyCallCount_;
                 if (playedMonkeyCallCount_ == 1) {
                     std::cout << "island-simulator: first positional monkey call played\n"
                               << std::flush;
+                }
+            } else {
+                ++playedBoarCallCount_;
+                if (playedBoarCallCount_ == 1) {
+                    std::cout << "island-simulator: first positional boar call played; animal "
+                              << boarCall.animalIndex << " kind " << static_cast<int>(boarCall.kind)
+                              << '\n' << std::flush;
                 }
             }
         } catch (const std::exception& exception) {
@@ -710,6 +764,7 @@ namespace island
         waterTransitionEffect_.reset();
         wildlifeInstance_.reset();
         monkeyCallAlternateEffect_.reset();
+        for (auto& effect : boarEffects_) effect.reset();
         monkeyCallEffect_.reset();
         birdCallAlternateEffect_.reset();
         birdCallEffect_.reset();

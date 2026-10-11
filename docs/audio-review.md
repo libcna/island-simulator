@@ -26,7 +26,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 16 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 22 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -51,8 +51,8 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains four loop beds and twelve one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 3.18 MiB plus headers. Delete the directory after review;
+The directory contains four loop beds and eighteen one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. They total about 3.48 MiB plus headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -67,6 +67,11 @@ Listen first to each source alone:
    repetition, and none should sound like a click or an exaggerated boot impact.
 4. Compare both bird and monkey phrases. Confirm that calls remain atmospheric rather than alarm-
    like, synthetic in an obtrusive way, or much louder than the beds.
+5. Compare both `boar-breath`, `boar-snuffle` and `boar-grunt` variants. These are original
+   synthesized prototypes, not recordings: verify that they actually read as a pig/boar,
+   not a pitched oscillator or generic hiss. Test resting, foraging and moving animals,
+   listener rotation, approaching/leaving range, multiple animals, mute and resume.
+   Replace or refine the synthesis if listening does not support natural boar identity.
 
 Then perform the authoritative in-game pass with headphones and ordinary speakers. Walk a complete
 beach circuit, both clearings, the main jungle trail, dense interior, shallow water, and the active
@@ -75,9 +80,38 @@ repetition, directional confusion, and fatigue in `PLAN.md`. Use F1 to observe l
 to compare audible calls with exact source markers. Numerical success alone does not complete this
 subjective task.
 
-## Current measured baseline
+## Boar audio implementation and unverified listening (2026-10-11)
 
-The current report validates 16 unique sources and 3,336,164 PCM payload bytes. Normalized peaks
+Six original synthesized 1.2-second mono clips now join the live Soundscape: two each
+for breath, snuffle and grunt. Filtered deterministic noise, irregular low harmonic
+voicing and separate exhalation envelopes generate the clips; no third-party recordings
+are used. Provenance is included in ASSET_LICENSES.md. Total PCM is now 3,653,684 bytes
+across 22 unique sources, +317,520 bytes for boars; sequential startup staging remains.
+Measured boar peaks are 0.48/0.62, RMS 0.0623–0.1303, maximum absolute mean 0.00456,
+with exact silent endpoints. Report/export tests pass without weakening audio gates.
+
+Rest uses breath within 9 m, forage snuffle within 23 m, wander/retreat grunt within
+42 m (retreat uses shorter cooldown, not an aggressive attack sound). The common
+distance-gain function now serves both scheduling and live emitter updates; this
+changes the initial scheduler's wander-only 38 m range to 42 m. Each animal has a
+cooldown, the herd has a 2.5–4.5 s gap, and candidate selection rotates fairly.
+Due birds/monkeys have first refusal of the existing single wildlife voice, followed
+by boars. Four persistent plus two transient maximum voices remain unchanged.
+While playing, boar source position and volume follow that animal/listener; dormant,
+invalid or removed sources stop. Existing mute destroys transient voices. F1 now
+reports a BOAR call count and the first actual playback logs a bounded diagnostic.
+
+Native build and all 39 non-display groups pass (83.36 s). WAV previews exported to
+`build/boar-audio-preview/`; numerical report is `build/boar-audio-report.json`.
+Web Release build/package and ARM64 assembleDebug/lintDebug also pass (Android 6 s).
+These establish implementation/format, not naturalness or actual audible playback.
+No listening-capable tool is available in this session. In-game playback, spatial
+listening, source arbitration, mute/resume and Web/Android audio lifecycle are still
+unqualified. Keep the user task open until those checks are actually performed.
+
+## Earlier measured baseline (before boar clips)
+
+The pre-boar report validates 16 unique sources and 3,336,164 PCM payload bytes. Normalized peaks
 range from approximately 0.56 to 0.86. The four persistent loops subtract their generated mean
 before quantization; their measured normalized means are at or below approximately 0.00000002.
 One-shots retain exact silent endpoints and the largest absolute mean across all sources remains

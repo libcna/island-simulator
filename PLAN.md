@@ -591,8 +591,14 @@ Visual rework explicitly requested by the operator (2026-10-11):
   from actual Rest/Forage/Wander/Retreat behavior, with per-animal cooldowns, round-robin
   herd selection, randomized variant/pitch and a shared-slot gate. Distance-based volume
   and finite range suppress inaudible/dormant animals; no paused-time or catch-up bursts.
-  This is scheduling only: PCM clips, live Soundscape integration, diagnostics and actual
-  listening/native-Web-Android lifecycle verification are still to implement.
+  Six original 1.2-second synthesized breath/snuffle/grunt clips and live Soundscape
+  integration now exist, using the same pooled wildlife voice after due bird/monkey
+  calls. Moving boar/listener positions update source and gain; F1 shows BOAR count.
+  Shared attenuation now uses grunt range 42 m for both wander and retreat. Native
+  build + 39 non-display groups pass (83.36 s), 22-clip report/export valid (3,653,684
+  PCM bytes), provenance documented. Actual in-game playback/spatial listening,
+  naturalness and native-Web-Android mute/lifecycle verification remain unqualified.
+  See `docs/audio-review.md`; synthesized prototypes are not accepted natural sounds.
 - [ ] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
   head and snout, shoulder/back silhouette, short articulated legs and cloven hooves. Give
   the coat convincing bristly fur detail and appropriate skin, snout and hoof textures;

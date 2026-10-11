@@ -474,6 +474,7 @@ namespace island
         auto wildlifeAudio = DiagnosticLine();
         wildlifeAudio << "POSITIONAL CALLS  BIRD " << state.playedBirdCalls
                       << " MONKEY " << state.playedMonkeyCalls
+                      << " BOAR " << state.playedBoarCalls
                       << "  VOICE " << (state.wildlifeCallActive ? "ACTIVE" : "IDLE")
                       << "  SOURCES " << state.playingAudioSources << '/'
                       << state.audioSourceBudget;

@@ -779,6 +779,58 @@ namespace island
         return request;
     }
 
+    AmbientLoop GenerateBoarCall(const BoarCallKind kind, const std::uint8_t variant)
+    {
+        constexpr std::size_t frames = AmbientSampleRate * 6U / 5U;
+        std::vector<float> samples(frames, 0.0f);
+        if (kind == BoarCallKind::None) return Quantize(samples, 0.0f);
+        const bool alternate = (variant & 1U) != 0U;
+        DeterministicNoise noise(0x51a7b0a4U + static_cast<std::uint32_t>(kind) * 7919U
+            + static_cast<std::uint32_t>(alternate) * 137U);
+        float lowNoise = 0.0f, slowerNoise = 0.0f;
+        double phase = 0.0;
+        for (std::size_t i = 0; i < frames; ++i) {
+            const float t = static_cast<float>(i) / static_cast<float>(AmbientSampleRate);
+            lowNoise += 0.18f * (noise.Next() - lowNoise);
+            slowerNoise += 0.035f * (lowNoise - slowerNoise);
+            const float start = alternate ? 0.13f : 0.08f;
+            const float duration = kind == BoarCallKind::Breath ? 0.92f : 0.38f;
+            const auto pulse = [t](const float begin, const float length) {
+                const float u = (t - begin) / length;
+                if (u <= 0.0f || u >= 1.0f) return 0.0f;
+                const float sine = std::sin(std::numbers::pi_v<float> * u);
+                return sine * sine;
+            };
+            float envelope = pulse(start, duration);
+            if (kind != BoarCallKind::Breath)
+                envelope += (alternate ? 0.64f : 0.82f) * pulse(alternate ? 0.69f : 0.58f, 0.32f);
+            const float frequency = (alternate ? 91.0f : 108.0f)
+                - 19.0f * t + 5.0f * std::sin(t * 31.0f) + 7.0f * slowerNoise;
+            phase += 2.0 * std::numbers::pi * static_cast<double>(frequency) / AmbientSampleRate;
+            const float voice = static_cast<float>(std::sin(phase) + 0.55 * std::sin(2.0 * phase)
+                + 0.32 * std::sin(4.0 * phase) + 0.17 * std::sin(7.0 * phase));
+            const float texture = kind == BoarCallKind::Grunt
+                ? voice * (0.70f + slowerNoise) + lowNoise * 0.8f
+                : kind == BoarCallKind::Snuffle
+                    ? 3.5f * (lowNoise - slowerNoise) + voice * 0.12f
+                    : 2.8f * lowNoise + voice * 0.025f;
+            samples[i] = envelope * texture;
+        }
+        return Quantize(samples, kind == BoarCallKind::Grunt ? 0.62f : 0.48f);
+    }
+
+    float BoarCallVolume(const BoarCallKind kind, const float distance) noexcept
+    {
+        if (!std::isfinite(distance) || distance < 0.0f) return 0.0f;
+        const float radius = kind == BoarCallKind::Breath ? 9.0f
+            : kind == BoarCallKind::Snuffle ? 23.0f : kind == BoarCallKind::Grunt ? 42.0f : 0.0f;
+        if (distance >= radius) return 0.0f;
+        const float base = kind == BoarCallKind::Breath ? 0.14f
+            : kind == BoarCallKind::Snuffle ? 0.29f : 0.40f;
+        const float fade = 1.0f - distance / radius;
+        return base * fade * fade;
+    }
+
     float BoarCallScheduler::NextUnit() noexcept
     {
         randomState_ ^= randomState_ << 13U;
@@ -818,28 +870,22 @@ namespace island
                 || !std::isfinite(boar.x) || !std::isfinite(boar.y) || !std::isfinite(boar.z)
                 || !std::isfinite(boar.scale) || boar.scale <= 0.0f) continue;
             BoarCallKind kind = BoarCallKind::None;
-            float radius = 0.0f, baseVolume = 0.0f, interval = 0.0f;
+            float interval = 0.0f;
             switch (boar.behavior) {
                 case BoarBehavior::Rest:
-                    kind = BoarCallKind::Breath; radius = 9.0f;
-                    baseVolume = 0.14f; interval = 16.0f; break;
+                    kind = BoarCallKind::Breath; interval = 16.0f; break;
                 case BoarBehavior::Forage:
-                    kind = BoarCallKind::Snuffle; radius = 23.0f;
-                    baseVolume = 0.29f; interval = 7.0f; break;
+                    kind = BoarCallKind::Snuffle; interval = 7.0f; break;
                 case BoarBehavior::Wander:
-                    kind = BoarCallKind::Grunt; radius = 38.0f;
-                    baseVolume = 0.36f; interval = 12.0f; break;
+                    kind = BoarCallKind::Grunt; interval = 12.0f; break;
                 case BoarBehavior::Retreat:
-                    kind = BoarCallKind::Grunt; radius = 42.0f;
-                    baseVolume = 0.40f; interval = 6.0f; break;
+                    kind = BoarCallKind::Grunt; interval = 6.0f; break;
                 default: continue;
             }
             const float sourceY = boar.y + 0.55f * boar.scale;
             const float distance = std::hypot(std::hypot(boar.x - listenerX,
                 boar.z - listenerZ), sourceY - listenerY);
-            if (!std::isfinite(distance) || distance >= radius) continue;
-            const float fade = 1.0f - distance / radius;
-            const float volume = baseVolume * fade * fade;
+            const float volume = BoarCallVolume(kind, distance);
             if (volume < 0.005f) continue;
             BoarCallRequest request;
             request.kind = kind;

@@ -163,7 +163,7 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(16U);
+        clips.reserve(22U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
@@ -196,6 +196,18 @@ namespace
                          island::GenerateMonkeyCall()});
         clips.push_back({"monkey call B", "monkey-call-b.wav", false, 46305U,
                          island::GenerateMonkeyCallAlternate()});
+        clips.push_back({"boar breath A", "boar-breath-a.wav", false, 26460U,
+                         island::GenerateBoarCall(island::BoarCallKind::Breath, 0)});
+        clips.push_back({"boar breath B", "boar-breath-b.wav", false, 26460U,
+                         island::GenerateBoarCall(island::BoarCallKind::Breath, 1)});
+        clips.push_back({"boar snuffle A", "boar-snuffle-a.wav", false, 26460U,
+                         island::GenerateBoarCall(island::BoarCallKind::Snuffle, 0)});
+        clips.push_back({"boar snuffle B", "boar-snuffle-b.wav", false, 26460U,
+                         island::GenerateBoarCall(island::BoarCallKind::Snuffle, 1)});
+        clips.push_back({"boar grunt A", "boar-grunt-a.wav", false, 26460U,
+                         island::GenerateBoarCall(island::BoarCallKind::Grunt, 0)});
+        clips.push_back({"boar grunt B", "boar-grunt-b.wav", false, 26460U,
+                         island::GenerateBoarCall(island::BoarCallKind::Grunt, 1)});
         return clips;
     }
 }

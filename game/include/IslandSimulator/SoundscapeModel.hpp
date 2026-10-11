@@ -202,7 +202,8 @@ namespace island
     {
         None,
         Bird,
-        Monkey
+        Monkey,
+        Boar
     };
 
     /** @brief Nearest currently eligible world-space source for one wildlife species. */
@@ -215,6 +216,10 @@ namespace island
     };
 
     enum class BoarCallKind : std::uint8_t { None, Breath, Snuffle, Grunt };
+
+    /** @brief Original synthesized mono voice, 1.2 seconds; not a recorded animal sample. */
+    [[nodiscard]] AmbientLoop GenerateBoarCall(BoarCallKind kind, std::uint8_t variant);
+    [[nodiscard]] float BoarCallVolume(BoarCallKind kind, float distance) noexcept;
 
     struct BoarCallRequest
     {

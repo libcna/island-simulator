@@ -63,7 +63,8 @@ namespace island
                     float horizontalSpeed, float oceanCurrentStrength, float deltaSeconds,
                     const SoundscapeListenerState& listener,
                     std::span<const BirdState> birds,
-                    std::span<const MonkeyState> monkeys) noexcept;
+                    std::span<const MonkeyState> monkeys,
+                    std::span<const BoarState> boars) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -105,6 +106,7 @@ namespace island
         {
             return playedMonkeyCallCount_;
         }
+        [[nodiscard]] int PlayedBoarCallCount() const noexcept { return playedBoarCallCount_; }
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
@@ -135,6 +137,10 @@ namespace island
         WaterTransitionScheduler waterTransitionScheduler_;
         FootstepScheduler footstepScheduler_;
         WildlifeCallScheduler wildlifeScheduler_;
+        BoarCallScheduler boarScheduler_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
+        BoarCallRequest activeBoarCall_;
+        float boarVoiceGain_ = 1.0f;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
@@ -193,5 +199,6 @@ namespace island
         int playedFootstepCount_ = 0;
         int playedBirdCallCount_ = 0;
         int playedMonkeyCallCount_ = 0;
+        int playedBoarCallCount_ = 0;
     };
 }

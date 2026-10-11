@@ -1751,7 +1751,7 @@ namespace island
                                 flightMotion_.IsActive() ? 0.0f : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
                                 flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
                                 deltaSeconds, listener,
-                                birdFlock_.Birds(), monkeyTroop_.Monkeys());
+                                birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars());
         }
     }
 
@@ -2570,6 +2570,7 @@ namespace island
                 overlayState.playedFootsteps = soundscape_->PlayedFootstepCount();
                 overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
                 overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
+                overlayState.playedBoarCalls = soundscape_->PlayedBoarCallCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
                 const SoundscapeDebugState soundscapeDebug = soundscape_->DebugState();
                 overlayState.playingAudioSources = soundscapeDebug.playingSourceCount;

@@ -1629,6 +1629,24 @@ int main()
           "wildlife calls remain sparse over a twenty-minute session");
 
     // Boar audio scheduling is independent of rendering and of the playback device.
+    for (const auto kind : {island::BoarCallKind::Breath, island::BoarCallKind::Snuffle,
+                           island::BoarCallKind::Grunt}) {
+        const auto a = island::GenerateBoarCall(kind, 0);
+        const auto b = island::GenerateBoarCall(kind, 1);
+        Check(a.sampleRate == 22050 && a.samples.size() == 26460U
+            && a.samples.front() == 0 && a.samples.back() == 0
+            && b.samples.front() == 0 && b.samples.back() == 0
+            && a.samples == island::GenerateBoarCall(kind, 0).samples
+            && a.samples != b.samples
+            && std::any_of(a.samples.begin(), a.samples.end(), [](auto s) { return s > 1000; })
+            && std::all_of(a.samples.begin(), a.samples.end(), [](auto s) { return std::abs(s) < 21000; }),
+            "boar PCM clips are deterministic, distinct, bounded and silent at endpoints");
+        Check(island::BoarCallVolume(kind, 0.0f) > island::BoarCallVolume(kind, 5.0f)
+            && island::BoarCallVolume(kind, 50.0f) == 0.0f
+            && island::BoarCallVolume(kind, -1.0f) == 0.0f
+            && island::BoarCallVolume(kind, std::numeric_limits<float>::quiet_NaN()) == 0.0f,
+            "boar attenuation is bounded and rejects invalid distances");
+    }
     std::array<island::BoarState, island::BoarHerd::BoarCount> audioBoars{};
     for (std::size_t i = 0; i < audioBoars.size(); ++i) {
         audioBoars[i].x = static_cast<float>(i);

@@ -182,6 +182,7 @@ namespace island
         int playedFootsteps = 0;
         int playedBirdCalls = 0;
         int playedMonkeyCalls = 0;
+        int playedBoarCalls = 0;
         bool wildlifeCallActive = false;
         int playingAudioSources = 0;
         int audioSourceBudget = 0;

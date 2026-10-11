@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — boar clips and live audio integration, listening still open
+
+Six original synthesized mono 22.05 kHz / 1.2 s clips in GenerateBoarCall(kind,variant),
+two breath/snuffle/grunt variants. Filtered deterministic noise and low irregular
+harmonics; not animal recordings. Live Soundscape creates effects one at a time,
+feeds BoarHerd to scheduler and uses existing single wildlife voice after due bird/
+monkey calls (six-source budget unchanged). Boar emitter follows stable animal index,
+and gain follows listener distance every update; invalid/dormant/removed source stops.
+BoarCallVolume shared by scheduler/live playback: breath 9 m, snuffle 23 m, grunt 42 m;
+the earlier wander 38 m choice is superseded. Mute uses existing transient teardown.
+F1 BOAR counter and first-playback diagnostic added. No third-party assets/dependency
+changes; original source provenance updated in ASSET_LICENSES.md.
+
+Native build and 39/39 non-display groups PASS (83.36 s). Audio report/export validates
+22 distinct clips / 3,653,684 PCM bytes, +317,520 for boars. Exact silent endpoints;
+new clips peak .48/.62, RMS .0623–.1303, absolute mean <=.00456. Previews retained at
+`build/boar-audio-preview/`, report `build/boar-audio-report.json`. Build/tests logs
+`build/boar-audio-runtime-build.log` and `build/boar-audio-runtime-tests.log`.
+Web Release build/package PASS: 11,089,781 raw / 4,172,122 gzip bytes; logs
+`build-probe/boar-audio-runtime-build.log` and `boar-audio-runtime-package.log`.
+ARM64 assembleDebug/lintDebug PASS (6 s), `build/boar-audio-arm64-build.log`.
+All owned jobs terminal; no render/emulator launch, GPU latch unchanged (c0bd1704…).
+No listening-capable tool was available; do NOT infer naturalness/audible game behavior
+from these numerical passes. NEXT: contained actual runtime playback/arbitration/mute
+test near herd, spatial listening to clips/game, Web/Android lifecycle qualification.
+Task remains unchecked and full goal active. See docs/audio-review.md for details.
+
 ## Latest — boar sound scheduler implementation started (not audible yet)
 
 Added BoarCallScheduler/BoarCallRequest/BoarCallKind in SoundscapeModel header/source.
