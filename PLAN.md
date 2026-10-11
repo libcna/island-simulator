@@ -547,7 +547,7 @@ Player controls explicitly requested by the operator (2026-10-11):
   capture/release. Fullscreen/windowed screenshots inspected; empty kernel delta.
   33 capture/supervisor CPU regressions pass. Web Escape/pointer-lock interactions,
   focus loss while a key is held, and other desktop environments remain unverified.
-- [ ] Space toggles fly mode on/off, allowing exploration above the island. Prevent
+- [~] Space toggles fly mode on/off, allowing exploration above the island. Prevent
   entry into the terrain throughout movement (including fast movement and slopes),
   cap flight at 100 metres above the local terrain surface (working interpretation),
   and enforce a finite, reasonable offshore boundary derived from the island extent.
@@ -555,6 +555,17 @@ Player controls explicitly requested by the operator (2026-10-11):
   reject invalid positions after mode changes/loading as well as during movement.
   Turning flight off must return the player safely to a valid walking position,
   without dropping through the ground or leaving the player stranded outside the boundary.
+  Implemented native controls: WASD horizontal, Q/E vertical, held Shift fast; circular
+  radius 330 m (nominal 250 m + 80 m), 100 m above rendered terrain, swept triangle-edge
+  clipping and safe dry-land placement on exit. 39/39 groups pass; actual native ascent,
+  held Space, ceiling, descent and landing pass in `20261011T171103.599867Z`; images
+  inspected, empty kernel delta. Portable runtime and continuous horizontal ridge/boundary
+  review remain open; see `docs/flight-controls.md`. Aerial audit exposes grass-density
+  transitions/sparse upper slopes to improve, not final environment acceptance.
+  Final native `20261011T171850.676505Z` passes with corrected rotated-diagonal heading;
+  flight instruction notice, ceiling view and landed WALK notice all actually inspected.
+  Focused CPU rerun 1.08 s, empty kernel delta. Horizontal player boundary is 330 m from
+  centre, not 80 m from every point of the irregular coast; this choice is documented.
 - [ ] Verify fullscreen and flight toggles, held-key repeat, focus loss, terrain clearance,
   the 100-metre ceiling, offshore limit and safe flight exit with automated tests and
   actual in-game input checks on supported platforms. Update control help; planning

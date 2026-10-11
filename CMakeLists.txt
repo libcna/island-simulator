@@ -46,6 +46,7 @@ add_library(island_core STATIC
     game/src/ContactShadowPatch.cpp
     game/src/FirstPersonCameraMotion.cpp
     game/src/FirstPersonInput.cpp
+    game/src/FlightMotion.cpp
     game/src/FishSchools.cpp
     game/src/ForestFloorSampling.cpp
     game/src/ForestFloorPixels.cpp
@@ -158,6 +159,11 @@ endif()
 
 if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     enable_testing()
+    add_executable(island_flight_tests tests/FlightMotionTests.cpp)
+    target_link_libraries(island_flight_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_flight_tests)
+    island_enable_first_party_sanitizers(island_flight_tests)
+    add_test(NAME IslandFlightMotionTests COMMAND island_flight_tests)
     add_executable(island_diagnostic_stream_tests tests/DiagnosticStreamMirrorTests.cpp)
     target_include_directories(island_diagnostic_stream_tests PRIVATE game/include)
     target_compile_features(island_diagnostic_stream_tests PRIVATE cxx_std_20)

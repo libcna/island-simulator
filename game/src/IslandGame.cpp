@@ -1191,7 +1191,7 @@ namespace island
             || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail
             || viewpoint_ == FixedViewpoint::BenchmarkTraversal;
         (void)waterViewModel_.Update(
-            waterViewAllowed && playerMotion_.Mode() == LocomotionMode::Swimming,
+            waterViewAllowed && !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), playerMotion_.OceanCurrentStrength(terrain_),
             deltaSeconds);
         const float rippleSpeed = viewpoint_ == FixedViewpoint::WaterlineDetail
@@ -1200,7 +1200,7 @@ namespace island
                    ? benchmarkTraversalPresentationSpeed_
                    : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()));
         (void)waterRippleModel_.Update(
-            playerMotion_.Mode() == LocomotionMode::Swimming,
+            !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
             playerMotion_.GroundHeight(), rippleSpeed, deltaSeconds);
         const float grassInteractionSpeed = viewpoint_ == FixedViewpoint::GrassDetail
             ? 3.2f
@@ -1272,7 +1272,12 @@ namespace island
                           << " draws " << (grassRenderer_ ? grassRenderer_->DrawCallCount() : 0);
                 if (jungleRenderer_) jungleRenderer_->WriteVegetationLodDiagnostics(std::cout);
                 else std::cout << " canopy 0 0 trees none shrubs 0 0 bushes none";
-                std::cout << '\n' << std::flush;
+                std::cout << '\n';
+                if (flightMotion_.IsActive())
+                    std::cout << "island-simulator: flight position " << cameraPosition_.X << ' '
+                              << cameraPosition_.Y << ' ' << cameraPosition_.Z
+                              << " above-ground " << flightMotion_.HeightAboveGround() << '\n';
+                std::cout << std::flush;
             }
         }
     }
@@ -1307,6 +1312,32 @@ namespace island
     void IslandGame::UpdateCamera(const float deltaSeconds)
     {
         const KeyboardState keyboard = Keyboard::GetState();
+        const bool flightDown = keyboard.IsKeyDown(Keys::Space);
+        if (flightDown && !flightToggleWasDown_ && getIsActiveProperty()) {
+            if (flightMotion_.IsActive()) {
+                const auto landing=flightMotion_.FindLanding(terrain_,worldCollisionGrid_);
+                if (landing) {
+                    playerMotion_.SetPosition(terrain_,landing->x,landing->z);
+                    playerMotion_.Update(terrain_,0,0,0,worldCollisionGrid_);
+                    flightMotion_.Deactivate();
+                    cameraPosition_=Vector3(landing->x,landing->y,landing->z);
+                    std::cout << "island-simulator: flight off; safe dry-land return\n" << std::flush;
+                } else {
+                    std::cout << "island-simulator: flight remains on; no safe landing found\n" << std::flush;
+                }
+            } else {
+#ifndef NDEBUG
+                debugFreeCamera_.Deactivate();
+#endif
+                flightMotion_.Activate(terrain_,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+                const auto p=playerMotion_.Position();
+                playerMotion_.SetPosition(terrain_,p.x,p.z); // Stop stale walking velocity/footsteps.
+                std::cout << "island-simulator: flight on; Q/E down/up, 100m terrain ceiling, 330m radius\n" << std::flush;
+            }
+            cameraMotion_.Reset();
+            locomotionModeNoticeSeconds_=LocomotionModeNoticeDuration;
+        }
+        flightToggleWasDown_=flightDown;
         const MouseState mouse = Mouse::GetState();
         const auto touches = Touch::TouchPanel::GetState();
         std::vector<TouchContact> touchContacts;
@@ -1384,7 +1415,7 @@ namespace island
 
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
-        if (locomotionPaceToggle_.Update(runToggleDown, !IsDebugFreeCameraActive())) {
+        if (locomotionPaceToggle_.Update(runToggleDown, !IsDebugFreeCameraActive() && !flightMotion_.IsActive())) {
             userSettings_.runningSelected = locomotionPaceToggle_.IsRunningSelected();
             PersistUserSettings();
             locomotionModeNoticeSeconds_ = LocomotionModeNoticeDuration;
@@ -1468,7 +1499,7 @@ namespace island
 
 #ifndef NDEBUG
         const bool debugFreeCameraToggleDown = keyboard.IsKeyDown(Keys::F3);
-        if (debugOverlayVisible_ && debugFreeCameraToggleDown
+        if (debugOverlayVisible_ && !flightMotion_.IsActive() && debugFreeCameraToggleDown
             && !debugFreeCameraToggleWasDown_) {
             if (debugFreeCamera_.IsActive()) {
                 debugFreeCamera_.Deactivate();
@@ -1501,6 +1532,7 @@ namespace island
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
+                flightMotion_.Deactivate();
                 float x = 0.0f;
                 float z = -225.0f;
                 yaw_ = 0.0f;
@@ -1652,6 +1684,14 @@ namespace island
         const Vector3 wish(movementIntent.worldX, 0.0f, movementIntent.worldZ);
         playerMotion_.SetRunning(movementIntent.run);
 
+        if (flightMotion_.IsActive()) {
+            const float vertical=(keyboard.IsKeyDown(Keys::E) ? 1.0f : 0.0f)
+                -(keyboard.IsKeyDown(Keys::Q) ? 1.0f : 0.0f);
+            flightMotion_.Update(wish.X,vertical,wish.Z,runToggleDown,deltaSeconds);
+            const auto p=flightMotion_.Position();
+            cameraPosition_=Vector3(p.x,p.y,p.z);
+            cameraMotion_.Reset();
+        } else {
 #ifndef NDEBUG
         if (debugFreeCamera_.IsActive()) {
             const float vertical = (keyboard.IsKeyDown(Keys::E) ? 1.0f : 0.0f)
@@ -1691,6 +1731,7 @@ namespace island
 #ifndef NDEBUG
         }
 #endif
+        }
         if (soundscape_) {
             const PlayerPosition& position = playerMotion_.Position();
             const SoundscapeListenerState listener{
@@ -1700,14 +1741,15 @@ namespace island
                 forward.X * std::cos(pitch_),
                 std::sin(pitch_),
                 forward.Z * std::cos(pitch_),
-                IsDebugFreeCameraActive() ? 0.0f : playerMotion_.VelocityX(),
-                IsDebugFreeCameraActive() ? 0.0f : playerMotion_.VelocityZ(),
+                IsDebugFreeCameraActive() || flightMotion_.IsActive() ? 0.0f : playerMotion_.VelocityX(),
+                IsDebugFreeCameraActive() || flightMotion_.IsActive() ? 0.0f : playerMotion_.VelocityZ(),
             };
-            soundscape_->Update(terrain_.SignedShoreDistance(position.x, position.z),
-                                playerMotion_.Mode() == LocomotionMode::Swimming,
-                                std::max(0.0f, -playerMotion_.GroundHeight()),
-                                std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
-                                playerMotion_.OceanCurrentStrength(terrain_),
+            soundscape_->Update(terrain_.SignedShoreDistance(flightMotion_.IsActive() ? cameraPosition_.X : position.x,
+                                                            flightMotion_.IsActive() ? cameraPosition_.Z : position.z),
+                                !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
+                                flightMotion_.IsActive() ? 0.0f : std::max(0.0f, -playerMotion_.GroundHeight()),
+                                flightMotion_.IsActive() ? 0.0f : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
+                                flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
                                 deltaSeconds, listener,
                                 birdFlock_.Birds(), monkeyTroop_.Monkeys());
         }
@@ -1732,7 +1774,7 @@ namespace island
                               std::cos(yaw_) * cosPitch);
         renderCameraPosition_ = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::None && !smokeTest_
-            && !IsDebugFreeCameraActive()) {
+            && !IsDebugFreeCameraActive() && !flightMotion_.IsActive()) {
             const CameraMotionOffset& motion = cameraMotion_.Offset();
             const Vector3 right(std::cos(yaw_), 0.0f, -std::sin(yaw_));
             renderCameraPosition_ = renderCameraPosition_
@@ -2289,7 +2331,7 @@ namespace island
             GpuDiagnosticScope gpuPass("locomotion-overlay");
             debugOverlay_->DrawLocomotionModeNotice(
                 locomotionPaceToggle_.IsRunningSelected(), opacity,
-                viewport.getWidthProperty(), viewport.getHeightProperty());
+                viewport.getWidthProperty(), viewport.getHeightProperty(),flightMotion_.IsActive());
         }
 
         if (debugOverlayVisible_ && worldDebugVisible_) {
@@ -2323,6 +2365,7 @@ namespace island
             overlayState.playerPosition = Vector3(player.x, player.y, player.z);
             overlayState.cameraPosition = renderCameraPosition_;
             overlayState.freeCameraActive = IsDebugFreeCameraActive();
+            overlayState.flightActive = flightMotion_.IsActive();
             overlayState.renderer = device.GetGraphicsRendererName();
             overlayState.viewportWidth = viewport.getWidthProperty();
             overlayState.viewportHeight = viewport.getHeightProperty();

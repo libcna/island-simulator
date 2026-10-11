@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native F11 input QA, owned private display and mandatory software/kernel supervision."""
+"""Native F11/optional Space flight QA with private display and mandatory kernel supervision."""
 from __future__ import annotations
 
 import argparse
@@ -29,7 +29,7 @@ def geometry(output):
     return result
 
 
-def worker(build, evidence, window_manager):
+def worker(build, evidence, window_manager, flight=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -145,12 +145,59 @@ def worker(build, evidence, window_manager):
                     focus_target.wait(timeout=5)
             keys("w", "input sample captured 1 relative 1")
             keys("Escape", "input sample captured 0 relative 0")
+            if flight:
+                def flight_samples():
+                    return [tuple(map(float,m)) for m in re.findall(
+                        r"flight position ([-+\d.eE]+) ([-+\d.eE]+) ([-+\d.eE]+) above-ground ([-+\d.eE]+)", log())]
+                command("xdotool", "keydown", "space")
+                try:
+                    wait(lambda: len(flight_samples())>=3,"flight activation presentation")
+                    command("import", "-window", window, str(evidence / "flight-notice.png"))
+                    wait(lambda: len(flight_samples())>=4,"held Space flight frames")
+                    if log().count("flight on;")!=1 or "flight off;" in log():
+                        raise RuntimeError("held Space toggled flight repeatedly")
+                finally:
+                    command("xdotool", "keyup", "space")
+                command("xdotool", "keydown", "Shift_L", "e")
+                try:
+                    wait(lambda: flight_samples()[-1][3]>99.9,"100m flight ceiling")
+                    samples=len(flight_samples())
+                    wait(lambda: len(flight_samples())>=samples+4,"held ascent at ceiling")
+                finally:
+                    command("xdotool", "keyup", "e", "Shift_L")
+                # Look downward using actual relative mouse input for an aerial audit.
+                command("xdotool", "mousemove", "--window", window, "640", "360")
+                command("xdotool", "mousedown", "1")
+                try:
+                    wait(lambda: "input sample captured 1 relative 1" in log().split("flight on;")[-1],
+                         "flight mouse capture")
+                finally:
+                    command("xdotool", "mouseup", "1")
+                command("xdotool", "mousemove_relative", "--", "0", "220")
+                samples=len(flight_samples())
+                wait(lambda: len(flight_samples())>=samples+3,"aerial look frames")
+                command("import", "-window", window, str(evidence / "flight-ceiling.png"))
+                command("xdotool", "keydown", "q")
+                try:
+                    wait(lambda: flight_samples()[-1][3]<60,"flight descent")
+                finally:
+                    command("xdotool", "keyup", "q")
+                samples=flight_samples()
+                if any(not 1.71<=p[3]<=100.001 or (p[0]**2+p[2]**2)**.5>330.001 for p in samples):
+                    raise RuntimeError("live flight exceeded terrain/height/radius bounds")
+                keys("space", "flight off; safe dry-land return")
+                frames=log().count("input sample captured")
+                wait(lambda: log().count("input sample captured")>=frames+3,"landed frames")
+                command("import", "-window", window, str(evidence / "flight-landed.png"))
+                (evidence / "flight-result.json").write_text(json.dumps({"passed":True,"samples":samples,
+                    "scope":"native Space repeat, vertical ascent/ceiling/descent and safe return; horizontal boundary is CPU tested"},indent=2)+"\n")
             if "debug teleport monkey troop" in log():
                 raise RuntimeError("F11 still teleported to monkeys")
             validate_graphics_log(log(), None)
             (evidence / "input-result.json").write_text(json.dumps({
                 "passed": True, "stages": stages, "heldRepeatSuppressed": True,
                 "backgroundKeyIgnoredAfterFocusReturn": True,
+                "flightChecked": flight,
                 "mouseCapturedAndReleasedAfterToggle": True}, indent=2)+"\n")
         finally:
             game.terminate()
@@ -170,6 +217,7 @@ def worker(build, evidence, window_manager):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
+    parser.add_argument("--flight", action="store_true", help="also exercise Space flight, ceiling and return")
     parser.add_argument("--window-manager", type=Path,
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
@@ -177,7 +225,7 @@ def main():
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
-        worker(build, args.worker.resolve(strict=True), window_manager)
+        worker(build, args.worker.resolve(strict=True), window_manager, args.flight)
         return
     for executable in ("xdotool", "xprop", "import", "xmessage"):
         if not shutil.which(executable):
@@ -190,12 +238,14 @@ def main():
         journal = Journal()
         baseline = journal.latest()
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        evidence = build / "software-fullscreen" / stamp
+        evidence = build / ("software-flight" if args.flight else "software-fullscreen") / stamp
         evidence.mkdir(parents=True)
         command = [str(platform / "wayland_test_server.sh"), "--compositor", "weston", "--renderer", "pixman",
                    str(platform / "run_gpu_tests_private.sh"), "--inside-private-compositor", "exec",
                    sys.executable, str(Path(__file__).resolve()), str(build), "--worker", str(evidence),
                    "--window-manager", str(window_manager)]
+        if args.flight:
+            command.append("--flight")
         environment = software_environment(evidence)
         for key in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"):
             environment.pop(key, None)
@@ -206,7 +256,7 @@ def main():
                     "window_manager":artifact_identity(window_manager),
                     "harness":artifact_identity(Path(__file__)),
                     "window_manager_config":artifact_identity(Path(__file__).with_name("fullscreen_openbox.xml")),
-                    "scope":"private llvmpipe native fullscreen input; not hardware qualification"}
+                    "scope":"private llvmpipe native fullscreen/optional flight input; not hardware qualification"}
         report = evidence / "run.json"
         report.write_text(json.dumps(metadata, indent=2)+"\n")
         print(f"Native fullscreen evidence: {evidence}", flush=True)

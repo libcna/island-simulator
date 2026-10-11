@@ -189,14 +189,15 @@ namespace island
 
     void DebugOverlay::DrawLocomotionModeNotice(const bool running, const float opacity,
                                                 const int viewportWidth,
-                                                const int viewportHeight)
+                                                const int viewportHeight, const bool flying)
     {
         const float boundedOpacity = std::clamp(opacity, 0.0f, 1.0f);
         if (boundedOpacity <= 0.0f || viewportWidth <= 0 || viewportHeight <= 0) {
             return;
         }
 
-        const std::string text = running ? "RUN MODE  8.0 M/S" : "WALK MODE  4.3 M/S";
+        const std::string text = flying ? "FLIGHT  Q/E DOWN/UP  SPACE TO LAND"
+            : (running ? "RUN MODE  8.0 M/S" : "WALK MODE  4.3 M/S");
         constexpr float scale = 1.65f;
         constexpr int horizontalPadding = 13;
         constexpr int verticalPadding = 9;
@@ -244,15 +245,16 @@ namespace island
 #else
         lines.emplace_back("F1 DEBUG  F2 WORLD  F4 SEEDS  F5-F10/J/F12 TELEPORT  F11 FULLSCREEN");
 #endif
+        lines.emplace_back("SPACE FLIGHT  Q/E DOWN/UP  HOLD SHIFT FAST  LIMIT 100M / RADIUS 330M");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";
         lines.push_back(timing.str());
 
         auto position = DiagnosticLine();
-        const Vector3& displayedPosition = state.freeCameraActive
+        const Vector3& displayedPosition = state.freeCameraActive || state.flightActive
             ? state.cameraPosition : state.playerPosition;
-        position << (state.freeCameraActive ? "CAM" : "POS")
+        position << (state.freeCameraActive || state.flightActive ? "CAM" : "POS")
                  << " X:" << displayedPosition.X << " Y:" << displayedPosition.Y
                  << " Z:" << displayedPosition.Z;
         if (state.freeCameraActive) {
@@ -262,8 +264,8 @@ namespace island
         lines.push_back(position.str());
 
         auto locomotion = DiagnosticLine();
-        locomotion << "STATE " << (state.swimming ? "SWIMMING"
-                                                   : (state.running ? "RUNNING" : "WALKING"))
+        locomotion << "STATE " << (state.flightActive ? "FLYING" : (state.swimming ? "SWIMMING"
+                                                   : (state.running ? "RUNNING" : "WALKING")))
                    << (state.freeCameraActive ? "  FREE CAMERA" : "")
                    << "  GROUND " << state.groundHeight
                    << "  SLOPE " << state.groundSlopeDegrees << " DEG";

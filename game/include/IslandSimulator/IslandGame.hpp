@@ -24,6 +24,7 @@
 #include "IslandSimulator/DebugFreeCamera.hpp"
 #endif
 #include "IslandSimulator/DebugOverlay.hpp"
+#include "IslandSimulator/FlightMotion.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
@@ -234,6 +235,8 @@ namespace island
         WorldCollisionGrid worldCollisionGrid_;
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
         PlayerMotion playerMotion_;
+        FlightMotion flightMotion_;
+        bool flightToggleWasDown_ = false;
         FirstPersonCameraMotion cameraMotion_;
         LocomotionPaceToggle locomotionPaceToggle_;
 #ifndef NDEBUG

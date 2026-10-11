@@ -1,5 +1,43 @@
 # island-simulator handoff
 
+## Latest — bounded Space flight implemented and native/portable builds verified
+
+Added FlightMotion and live Space toggle, WASD horizontal/Q-E vertical/held Shift fast.
+12/36 m/s, normalized 3D direction, 0.1 s dt clamp, 330 m radial boundary (nominal 250+80),
+eye >=1.72 m above rendered terrain and sea, <=100 m above rendered terrain including
+seabed. Segment clipping visits every grid and diagonal crossing (piecewise-affine gap),
+with 1 mm numerical margin, not endpoint-only collision. Lazy height cache on heap.
+Landing uses PlayerMotion placement/depenetration plus dry ground, slope/obstacle/rendered
+surface checks; bounded 10 m fallback grid from offshore; refuse disabling if all blocked.
+F3 remains separate, debug teleports cancel flight, walking pace persistence unchanged.
+Camera bob, underwater overlay/ripple source and movement audio suppressed while flying;
+listener/shore ambience follow camera. No new touch flight button; keyboard Space/Q/E.
+
+39/39 non-display groups passed (80.93 s), initial native live run
+`20261011T171103.599867Z` passed ascent/ceiling/descent/landing; aerial/land PNGs inspected.
+Second `20261011T171521.041577Z` also passes, with landed WALK notice visible. Its early
+flight-notice capture was too early (old frame), so QA now waits three diagnostic samples.
+Both kernel deltas empty. Native flight path includes existing fullscreen/focus regression.
+Input telemetry format preserved; flight position/above-ground is a separate diagnostic line.
+
+Review found per-axis input clipping bent rotated diagonals; changed to double-intermediate
+vector normalization and added heading regression. Focused CPU tests also cover invalid
+input, cap/radius, 48x120 paths with 33 interior probes and actual world landing layouts.
+Explicit build preset includes the new test. Final direction-corrected native run
+`20261011T171850.676505Z` passes, with all three actual PNGs inspected: readable flight
+notice, aerial ceiling view and grounded WALK notice. Empty final kernel delta. Focused
+CPU rerun passes in 1.08 s. Final Web Release build/package and ARM64 assembleDebug/lintDebug
+pass (Android 4 s); all owned jobs are terminal. No Web/Android runtime flight claim.
+Logs: `build/flight-final-build.log`, `build/flight-final-tests.log`, then current native
+evidence, `build-probe/flight-final-build.log`, `build-probe/flight-final-package.log`,
+`build/flight-final-arm64-build.log`. Asset gate 24/75/10/0 and 33 software supervisor
+tests pass; stop latch unchanged. No Android/KVM configuration or dependency edits.
+
+NEXT: portable runtime flight and continuous horizontal ridge/boundary review remain open, as do audio,
+focus-loss cases and existing F11 edge cases. Aerial audit reveals conspicuous grass-density
+transitions and sparse upper slopes; not final island appearance. See docs/flight-controls.md.
+Full wildlife/monkey/boar/hut/resident/wreck backlog and boar vocalizations remain intact.
+
 ## Latest — native F11 verified in an owned window manager
 
 Added `tools/run_fullscreen_software.py` plus minimal `fullscreen_openbox.xml`, reusing

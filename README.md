@@ -376,6 +376,10 @@ Press M to mute or unmute the soundscape. Press B to toggle locomotion camera mo
 overlay is visible, F5–F10, J, and F12 teleport among eight fixed QA locations, including views toward
 the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.
 F11 toggles fullscreen on desktop/Web (subject to browser permissions); Android stays immersive.
+Space toggles player flight: WASD stays horizontal, Q/E moves down/up, and holding Shift
+flies faster. Flight stops at terrain, a 100 m above-terrain ceiling and a 330 m island-centred
+radius. Space again returns to safe dry ground. See [flight controls](docs/flight-controls.md)
+for exact limits and the remaining portable/runtime verification scope.
 The overlay starts
 hidden in a normal run and can be enabled at launch with `--debug-overlay` for automated QA.
 Use `--world-debug` to enable both the panel and world visualization at launch.

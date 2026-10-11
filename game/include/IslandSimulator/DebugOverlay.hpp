@@ -30,6 +30,7 @@ namespace island
         bool worldSeedCopyFeedbackActive = false;
         bool worldSeedCopySucceeded = false;
         bool freeCameraActive = false;
+        bool flightActive = false;
         bool swimming = false;
         bool running = false;
         float groundHeight = 0.0f;
@@ -230,7 +231,7 @@ namespace island
 
         /** @brief Draws a short normal-play confirmation after keyboard run-mode toggles. */
         void DrawLocomotionModeNotice(bool running, float opacity,
-                                      int viewportWidth, int viewportHeight);
+                                      int viewportWidth, int viewportHeight, bool flying = false);
 
         [[nodiscard]] float FramesPerSecond() const noexcept { return framesPerSecond_; }
         [[nodiscard]] float FrameMilliseconds() const noexcept { return frameMilliseconds_; }

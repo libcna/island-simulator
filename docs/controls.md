@@ -13,6 +13,7 @@
 | F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |
 | F4 | With F1 visible, copy the four authoritative procedural-layout seeds and show whether clipboard readback confirmed the copy |
 | F11 | Toggle fullscreen on desktop/Web; browser permission or embedding policy may refuse it. Android keeps immersive mode. |
+| Space | Toggle player flight; WASD/arrows move horizontally, Q/E descend/ascend, hold Shift for faster flight. Ceiling: 100 m above rendered terrain; radius: 330 m from island centre. Turning off selects safe dry ground nearby (grid fallback offshore). |
 | F5 / F6 / F7 / F8 / F9 / F10 / J / F12 | With the overlay visible, teleport to eight QA locations; F9 faces the fish shallows, F10 the offshore shark, repeated J presses cycle through all seven monkeys, and F12 enters the active offshore current for feedback QA |
 | B | Smoothly disable or restore restrained walking/swimming camera motion; the selection is saved |
 | M | Mute or unmute the ambient soundscape; the selection is saved |
