@@ -386,6 +386,14 @@ Standing visual-quality rules (apply to every task from now on):
   presentation attempt, screenshot inspected, empty kernel delta. All 37 non-display groups
   pass (48.27 s). Coarse limb joins/face/silhouette, full climbing, continuous-motion and
   current Web qualification remain open; this is not acceptance of monkey realism.
+  Limb-root follow-up: narrower ten-ring sleeve embeds its proximal ring in the torso and
+  blends body/upper then upper/lower bones. First native revision exposed a collar rim and
+  was corrected after inspecting pixels, not accepted on green gates. Final native tree
+  `20261011T143018.362367Z-monkey-tree` and walking `20261011T143134.265841Z-monkeys`
+  pass/inspected, empty kernel deltas; 37/37 groups pass (60.06 s). Exposed rim removed,
+  bulky upper-arm silhouette reduced; shoulder junction remains visible. Android/Web of
+  this geometry, all-angle/continuous-motion checks and full climbing remain open. See
+  `docs/monkey-limb-skin.md` for costs, rejected revision and limitations.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

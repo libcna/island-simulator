@@ -2,6 +2,7 @@
 #include "IslandSimulator/MonkeyTailProfile.hpp"
 #include "IslandSimulator/MonkeyFaceProfile.hpp"
 #include "IslandSimulator/MonkeyFurUv.hpp"
+#include "IslandSimulator/MonkeyLimbProfile.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -21,6 +22,25 @@ static float Distance(gait::Point a, gait::Point b)
 
 int main()
 try {
+    namespace limbProfile = island::MonkeyLimbProfile;
+    const auto rest=gait::Sample(0,0);
+    for (const auto& limb:rest.limbs) for (float thickness:{.9f,1.0f,1.1f}) {
+        for (std::size_t row=0;row<limbProfile::Fractions.size();++row) {
+            const auto section=limbProfile::Sample(limb,row,thickness);
+            Require(std::isfinite(section.centre.y) && section.radius>0,"finite positive limb sleeve");
+            Require(section.bodyWeight>=0 && section.bodyWeight<=1 && section.lowerWeight>=0
+                && section.lowerWeight<=1,"limb skin weights bounded");
+            Require(!(section.bodyWeight>0 && section.lowerWeight>0),"limb skin uses at most two influences");
+            if (row==0) Require(section.bodyWeight==1 && std::abs(section.centre.x)<std::abs(limb.root.x)
+                && section.centre.y>limb.root.y,"proximal sleeve stays embedded and attached to torso");
+            if (row==0) Require(std::abs(section.centre.x)+section.radius<.14f,
+                "whole proximal ring must fit inside even the narrow shoulder torso");
+            if (row+1==limbProfile::Fractions.size()) Require(section.lowerWeight==1
+                && Distance(section.centre,limb.sole)<1e-6f,"wrist stays attached to lower limb endpoint");
+            if (row>0) Require(Distance(section.centre,limbProfile::Sample(limb,row-1,thickness).centre)>1e-4f,
+                "limb rings cannot collapse");
+        }
+    }
     namespace fur = island::MonkeyFurUv;
     constexpr float pi = std::numbers::pi_v<float>;
     for (int i=0;i<720;++i) {

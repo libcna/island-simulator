@@ -10,7 +10,27 @@ not implemented improvements. Require actual close/wide in-game visual review on
 Android and Web; existing build/material diagnostics do not close either task. Keep the
 previous monkey, additional wildlife, hut and resident work open.
 
-## Latest — shorter fur source and angular side mapping, native + Android inspected
+## Latest — narrower body-anchored limb collars, native inspected
+
+`MonkeyLimbProfile.hpp` defines ten sleeve rings, proximal radius .040 embedded inward
+and upward, maximum .083 further down the limb. First ring follows Spine/Pelvis, next
+blends to upper bone; distal rings retain upper/lower weights. At most two influences,
+14 bones, unchanged sole contacts/shader/draw count. +44 vertices/80 triangles near,
++28 vertices/48 triangles far per silhouette. Taper-aware normals and orthonormal rings.
+
+First capture `20261011T142749.956942Z-monkey-tree` passed gates but exposed an angular
+collar rim; corrected after actual image inspection, retained as rejected evidence.
+Final `20261011T143018.362367Z-monkey-tree` passes all eight gates; grounded/peak images
+inspected, exposed rim hidden, upper arm less bulky. Walking
+`20261011T143134.265841Z-monkeys` also passes/inspected. All kernel deltas empty.
+Final native build and 37/37 non-display tests pass (60.06 s), asset gate 24/71/10/0;
+stop latch unchanged, all jobs finished, no dependency/host/emulator edits.
+This remains overlapping geometry with a visible shoulder junction, not completed
+anatomical realism. Android/Web of these new collars unqualified; last Android below
+still qualifies only the previous geometry. Full climbing, all-angle and continuous
+motion checks remain open. See `docs/monkey-limb-skin.md`. Goal remains active.
+
+## Earlier — shorter fur source and angular side mapping, native + Android inspected
 
 Built-in ImageGen source v2 is preserved with exact prompt and provenance under
 `assets/art-studies/monkey-fur-albedo-v2*`; v1 untouched. First replacement attempt was

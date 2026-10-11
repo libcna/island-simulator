@@ -244,6 +244,7 @@
         "game/include/IslandSimulator/MonkeyTreeReach.hpp",
         "game/include/IslandSimulator/MonkeyTailProfile.hpp",
         "game/include/IslandSimulator/MonkeyFurUv.hpp",
+        "game/include/IslandSimulator/MonkeyLimbProfile.hpp",
         "game/include/IslandSimulator/MonkeySoleFrame.hpp",
         "game/include/IslandSimulator/MonkeyFaceProfile.hpp",
         "game/include/IslandSimulator/MonkeySkinningShader.hpp",

@@ -7,6 +7,7 @@
 #include "IslandSimulator/MonkeySoleFrame.hpp"
 #include "IslandSimulator/MonkeyTreeReach.hpp"
 #include "IslandSimulator/MonkeyFurUv.hpp"
+#include "IslandSimulator/MonkeyLimbProfile.hpp"
 #include "IslandSimulator/JungleGrounding.hpp"
 #include "IslandSimulator/MonkeyFaceProfile.hpp"
 #include "IslandSimulator/OpaqueImageLoader.hpp"
@@ -559,32 +560,37 @@ namespace island
         }
 
         void AddLimbSkin(MeshData& mesh, const MonkeyGroundGait::Limb& limb,
-                         int upperBone, int lowerBone, float thickness, int segments)
+                         int bodyBone, int upperBone, int lowerBone, float thickness, int segments)
         {
             const auto base = static_cast<std::uint16_t>(mesh.vertices.size());
-            constexpr std::array<float, 9> Radii{0.105f, 0.097f, 0.080f, 0.064f,
-                                                0.055f, 0.048f, 0.042f, 0.037f, 0.034f};
-            const Vector3 root = ToVector(limb.root), joint = ToVector(limb.joint);
-            const Vector3 sole = ToVector(limb.sole);
-            for (std::size_t ring = 0; ring < Radii.size(); ++ring) {
-                const float t = static_cast<float>(ring) / 8.0f;
-                const Vector3 centre = t < 0.5f ? Vector3::Lerp(root, joint, t * 2.0f)
-                                                : Vector3::Lerp(joint, sole, t * 2.0f - 1.0f);
-                const Vector3 axis = Vector3::Normalize(t < 0.5f ? joint - root : sole - joint);
-                const Vector3 across = Vector3::Right;
+            constexpr auto rows = MonkeyLimbProfile::Fractions.size();
+            for (std::size_t ring = 0; ring < rows; ++ring) {
+                const float t = MonkeyLimbProfile::Fractions[ring];
+                const auto section = MonkeyLimbProfile::Sample(limb,ring,thickness);
+                const auto before = MonkeyLimbProfile::Sample(limb,ring ? ring-1 : 0,thickness);
+                const auto after = MonkeyLimbProfile::Sample(limb,std::min(ring+1,rows-1),thickness);
+                const Vector3 centre = ToVector(section.centre);
+                const Vector3 longitudinal = ToVector(after.centre)-ToVector(before.centre);
+                const Vector3 axis = Vector3::Normalize(longitudinal);
+                const Vector3 across = Vector3::Normalize(Vector3::Right-axis*axis.X);
                 const Vector3 around = Vector3::Normalize(Vector3::Cross(axis, across));
-                const float blend = std::clamp((t - 0.375f) * 4.0f, 0.0f, 1.0f);
                 for (int segment = 0; segment <= segments; ++segment) {
                     const float angle = MathHelper::TwoPi * static_cast<float>(segment) / segments;
-                    const Vector3 normal = across * std::cos(angle) + around * std::sin(angle);
-                    AddVertex(mesh, centre + normal * Radii[ring] * thickness, normal, upperBone,
+                    const Vector3 radial = across * std::cos(angle) + around * std::sin(angle);
+                    const Vector3 normal = Vector3::Normalize(radial
+                        - axis*((after.radius-before.radius)/longitudinal.Length()));
+                    const bool collar = section.bodyWeight > 0;
+                    const int firstBone = collar ? bodyBone : upperBone;
+                    const int secondBone = collar ? upperBone : lowerBone;
+                    const float blend = collar ? 1-section.bodyWeight : section.lowerWeight;
+                    AddVertex(mesh, centre + radial * section.radius, normal, firstBone,
                         Vector2(MonkeyFurUv::Around(angle), MonkeyFurUv::Along(t)));
                     mesh.vertices.back().BlendWeight = Vector4(1.0f - blend, blend, 0.0f, 0.0f);
-                    mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(lowerBone);
+                    mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(secondBone);
                 }
             }
             const int stride = segments + 1;
-            for (int ring = 0; ring < 8; ++ring)
+            for (std::size_t ring = 0; ring+1 < rows; ++ring)
                 for (int segment = 0; segment < segments; ++segment) {
                     const auto a = static_cast<std::uint16_t>(base + ring * stride + segment);
                     const auto b = static_cast<std::uint16_t>(a + stride);
@@ -620,7 +626,7 @@ namespace island
             constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
             constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
             for (std::size_t limb = 0; limb < rest.limbs.size(); ++limb) {
-                AddLimbSkin(mesh, rest.limbs[limb], upper[limb], lower[limb],
+                AddLimbSkin(mesh, rest.limbs[limb], limb < 2 ? Spine : Pelvis, upper[limb], lower[limb],
                             shape.limbThickness, near ? 10 : 6);
                 const Vector3 sole = ToVector(rest.limbs[limb].sole);
                 const std::size_t soleStart = mesh.vertices.size();
