@@ -76,6 +76,10 @@ namespace island
                 found = ValidBody(state);
             }
             if (!found) throw std::runtime_error("No safe whole-body ground snake habitat");
+            trails_[index].assign(state.body.begin(),state.body.end());
+            auto beyondTail = state.body.back();
+            beyondTail.x -= Spacing;
+            trails_[index].push_back(beyondTail);
             clocks_[index] = static_cast<float>(index)*4.3f;
         }
     }
@@ -112,7 +116,7 @@ namespace island
             for (int step=0; step<steps; ++step) {
                 auto candidate = state;
                 const float advance = speed*dt/static_cast<float>(steps);
-                const float direction = state.heading + 0.35f*std::sin(state.phase);
+                const float direction = state.heading + 0.8f*std::sin(state.phase);
                 auto& nextHead = candidate.body.front();
                 nextHead.x += std::cos(direction)*advance;
                 nextHead.z += std::sin(direction)*advance;
@@ -123,23 +127,44 @@ namespace island
                 if (retreat && std::hypot(nextHead.x-observerX,nextHead.z-observerZ)
                         < std::hypot(state.body[0].x-observerX,state.body[0].z-observerZ)) break;
                 nextHead.y = GroundedY(nextHead.x,nextHead.z,RadiusAt(0));
+                const auto& trail = trails_[index];
+                auto segmentStart = nextHead;
+                std::size_t trailIndex = 0;
+                float distanceBefore = 0.0f;
+                bool completeTrail = true;
                 for (std::size_t j=1; j<candidate.body.size(); ++j) {
-                    auto& p = candidate.body[j];
-                    const auto& leader = candidate.body[j-1];
-                    const float dx = p.x-leader.x, dz = p.z-leader.z;
-                    const float length = std::hypot(dx,dz);
-                    if (length > 0.000001f) {
-                        p.x = leader.x+dx*Spacing/length;
-                        p.z = leader.z+dz*Spacing/length;
+                    const float wanted = static_cast<float>(j)*Spacing;
+                    bool sampled = false;
+                    while (trailIndex < trail.size()) {
+                        const auto end = trail[trailIndex];
+                        const float length = std::hypot(end.x-segmentStart.x,end.z-segmentStart.z);
+                        if (length > 0.000001f && distanceBefore+length >= wanted) {
+                            const float t = (wanted-distanceBefore)/length;
+                            auto& p = candidate.body[j];
+                            p.x = segmentStart.x+(end.x-segmentStart.x)*t;
+                            p.z = segmentStart.z+(end.z-segmentStart.z)*t;
+                            p.y = GroundedY(p.x,p.z,RadiusAt(j));
+                            sampled = true;
+                            break;
+                        }
+                        distanceBefore += length;
+                        segmentStart = end;
+                        ++trailIndex;
                     }
-                    p.y = GroundedY(p.x,p.z,RadiusAt(j));
+                    if (!sampled) { completeTrail = false; break; }
                 }
-                if (!ValidBody(candidate)) {
+                if (!completeTrail || !ValidBody(candidate)) {
                     state.heading = std::remainder(state.heading+0.25f,tau);
                     break;
                 }
                 state.body = candidate.body;
-                state.phase = std::fmod(state.phase+advance*8.0f,tau);
+                // Commit only accepted motion. Keep one full segment beyond the tail.
+                auto& committed = trails_[index];
+                while (committed.size() > trailIndex+2) committed.pop_back();
+                if (std::hypot(nextHead.x-committed.front().x,nextHead.z-committed.front().z) >= 0.006f)
+                    committed.push_front(nextHead);
+                if (committed.size() > 512) throw std::length_error("Snake trail budget exceeded");
+                state.phase = std::fmod(state.phase+advance*6.0f,tau);
                 traveled += advance;
             }
             state.speed = traveled/dt;

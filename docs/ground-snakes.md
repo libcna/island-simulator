@@ -136,3 +136,37 @@ projection smooths the small head oscillation; investigate retained arc-length h
 sampling with bounded curvature, while preserving whole-body collision and grounding.
 Grass still crosses the mesh. Four sampled poses are not a full temporal-quality pass.
 Next work is to fix this visible motion defect, not to mark the snake task complete.
+
+## Retained head-trail slithering (2026-10-11)
+
+Replaced repeated follower projection with arc-length sampling of the accepted head
+trail. Body stations are sampled 55 mm apart along that path, then independently
+grounded. Accepted samples at least 6 mm apart are retained newest-first and pruned
+just beyond the tail, with a defensive 512-record limit per snake. Sub-threshold motion
+still uses the current head as the first segment, without adding unlimited tiny samples.
+Rejected obstacle/body steps never enter the trail. Existing spacing tolerance, habitat,
+self-separation, retreat-distance and whole-segment obstacle checks remain in force.
+Head steering oscillation is now 0.8 radians at 6 radians per metre traveled; phase
+advances only on accepted movement. No new textures or mesh allocation.
+
+Tests now require repeated opposing bends beyond the first four stations (more than
+one radian accumulated in each direction), bound every body station's planar movement,
+and compare 2,000 1-ms steps with 200 10-ms steps (station difference below 25 mm).
+Full 40 non-display groups pass in 58.03 s; the final additional fine-step focused
+test passes in 7.55 s. Supervisor35 and asset25/80/10/0 checks pass.
+
+Inspected actual native four-stage grids:
+`20261011T184024.136306Z-snakes` shows improved bends but only 1.693 m head displacement,
+less than one body length. Extended QA capture from frames4/8/12/16 to8/16/24/32.
+Final `20261011T184233.069497Z-snakes/motion-grid.png` shows alternating S bends along
+the body after 3.573 m displacement. Foreground leaves partially occlude the last stage;
+grass still intersects the animal. Both motion/graphics log replays pass and both kernel
+deltas are empty. Generic image gates still FAIL (final luminance variation), unchanged.
+This supports visible improvement, not final naturalness, continuous collision proof,
+or acceptance of grass interactions. Portable runtime snake views and tree snakes remain open.
+
+Final native/Web builds and Web packaging pass; ARM64 assembleDebug/lintDebug passes
+in 7 s. The first ARM64 attempt caught Clang's dangling-span warning in the prior
+audit-camera range-for; retaining the span locally fixes it, with final native/Web
+rebuilds afterward. Actual images above precede only that lifetime-warning fix, not a
+simulation change. Portable build success is not portable runtime image evidence.

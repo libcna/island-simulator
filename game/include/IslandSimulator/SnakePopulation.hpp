@@ -2,6 +2,7 @@
 
 #include <array>
 #include <memory>
+#include <deque>
 #include <span>
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
@@ -46,5 +47,7 @@ namespace island
         std::unique_ptr<RenderedTerrainSurface> surface_;
         std::array<SnakeState, Count> states_{};
         std::array<float, Count> clocks_{};
+        // Newest first, >=6 mm between committed samples; bounded independently of dt.
+        std::array<std::deque<SnakePoint>, Count> trails_{};
     };
 }

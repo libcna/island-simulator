@@ -1231,7 +1231,8 @@ namespace island
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         const auto snakeCentre = [this]() {
             Vector3 centre = Vector3::Zero;
-            for (const auto& p : snakes_->Snakes().front().body) centre += Vector3(p.x,p.y,p.z);
+            const auto population = snakes_->Snakes();
+            for (const auto& p : population.front().body) centre += Vector3(p.x,p.y,p.z);
             return centre/static_cast<float>(SnakeState::StationCount);
         };
         const auto previousSnakeCentre = snakeCentre();
@@ -2845,11 +2846,11 @@ namespace island
         ++drawnFrames_;
         const bool snakeCapture = !capturePath_.empty()
             && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail);
-        if (snakeCapture && drawnFrames_%4U == 0 && drawnFrames_ <= 16U) {
+        if (snakeCapture && drawnFrames_%8U == 0 && drawnFrames_ <= 32U) {
             GpuDiagnosticScope gpuPass("capture-readback");
-            CaptureFrame(capturePath_+".snake-stage-"+std::to_string(drawnFrames_/4U-1U)+".ppm");
+            CaptureFrame(capturePath_+".snake-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
             const auto& snake = snakes_->Snakes().front();
-            std::cout << "island-simulator: snake motion stage=" << drawnFrames_/4U-1U
+            std::cout << "island-simulator: snake motion stage=" << drawnFrames_/8U-1U
                 << " visible=" << snakeRenderer_->VisibleCount() << " speed=" << snake.speed
                 << " phase=" << snake.phase << " body=";
             for (const auto& p : snake.body) std::cout << p.x << ',' << p.y << ',' << p.z << ';';
@@ -2879,7 +2880,7 @@ namespace island
             std::cout << report << '\n';
             if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
-        const std::uint32_t targetFrames = snakeCapture ? 16U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        const std::uint32_t targetFrames = snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

@@ -1,5 +1,33 @@
 # island-simulator handoff
 
+## Latest — retained head trail improves snake slithering
+
+Replaced leader projection with arc-length sampling of accepted head path, newest-first
+deque per snake, min6mm commit spacing, prune just beyond tail, defensive512record cap.
+Body55mm arc spacing (existing3% chord tolerance), grounded perstation; rejected movement
+does not enter trail. Head swing0.8rad/phase6rad per metre accepted travel. No newtextures.
+Tests require >1rad both bend directions beyond neck in >10frames, allstations no teleport,
+and fine1ms/coarse10ms agreement<25mm. Full40 groups PASS58.03s; final addedfine-step
+focused PASS7.55s. Supervisor35/assets25/80/10/0 PASS. Nativebuild passed.
+
+Actual184024.136306Z four-stagegrid inspected, improvedbend but travel1.693m short.
+Extended capture to frames8/16/24/32 (still4samples). FINAL
+`20261011T184233.069497Z-snakes/motion-grid.png` inspected: S bends visible along body,
+head displacement3.573m. Laststage leafocclusion, grassintersections persist. Both runs
+graphics/motionreplay PASS, kernelempty, genericimagegate FAIL (final luminance), unchanged.
+Not finalnaturalness/continuouscollisionproof. No hardware/emulator/KVM changes.
+Native/Web final builds and Web package PASS; ARM64 assembleDebug/lintDebug PASS7s.
+First ARM64 failed -Wdangling-gsl in the prior QA camera range-for over temporaryspan;
+fixed by retaining the span locally (no population lifetime change). Final native/Web
+rebuilt after this fix. Logs build/snake-trail-{build,all-tests,fine-tests,arm64-final,
+final-build}.log and build-probe/snake-trail-final-{build,package}.log. Softwarecaptures
+precede only this lifetime-warning fix, not a simulationchange. Allownedjobs terminal;
+GPUstop SHA unchanged. Builds not portable runtime evidence. Goal active; no push.
+
+NEXT: grass/body intersections, clear subject-aware image QA, portable actualsnake views,
+longerturning/obstacle/stall audit (fourposes not comprehensive motionacceptance), then
+tree snakes and all other animals/hut/resident/boar/wreck/control/audio backlog intact.
+
 ## Latest — actual live snake motion audit finds rope-like motion
 
 SnakeDetail/SnakeHeadDetail QA camera now follows mean-body translation, fixedorientation;

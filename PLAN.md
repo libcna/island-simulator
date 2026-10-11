@@ -659,6 +659,13 @@ progress or require player interaction; dangerous species keep their distance li
   New defect: follower motion looks rope-like/too straight; investigate retained
   head-path sampling instead of repeatedly smoothing body segments. Grass intersections
   persist. Four poses are not a continuous natural-motion acceptance test.
+  Replaced smoothed following with retained accepted head-trail arc-length sampling,
+  bounded/pruned at512 records per snake, 6mm sampling and 55mm body station spacing.
+  Stronger propagated-bend, station-motion and fine/coarse time-step tests pass;
+  full40 groups PASS58.03s, final focused7.55s. Extended actual sequence to32frames:
+  `20261011T184233.069497Z-snakes` inspected, alternating S bends now visible after
+  3.573m head movement. Grass/leaf occlusion persists; luminance gate still FAILS,
+  graphics/motion logs valid and kernel empty. Not final snake-feature acceptance.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

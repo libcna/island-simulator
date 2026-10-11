@@ -50,6 +50,7 @@ int main()
     const island::RenderedTerrainSurface surface(terrain);
     std::array<bool,3> behaviors{};
     float totalTravel=0.0f;
+    int propagatedWaveFrames=0;
     for (int frame=0; frame<2400; ++frame) {
         const auto old = population.Snakes().front();
         const auto head = old.body.front();
@@ -108,6 +109,17 @@ int main()
             }
         }
         const auto& snake = population.Snakes().front();
+        float leftTurn=0.0f, rightTurn=0.0f;
+        for (std::size_t j=1;j+1<snake.body.size();++j) {
+            const auto a=snake.body[j-1], b=snake.body[j], c=snake.body[j+1];
+            const float ax=b.x-a.x, az=b.z-a.z, bx=c.x-b.x, bz=c.z-b.z;
+            const float turn=std::atan2(ax*bz-az*bx,ax*bx+az*bz);
+            if(j>=4) { leftTurn+=std::max(0.0f,turn); rightTurn+=std::max(0.0f,-turn); }
+        }
+        if(leftTurn>1.0f && rightTurn>1.0f) ++propagatedWaveFrames;
+        for(std::size_t j=0;j<snake.body.size();++j)
+            Check(std::hypot(snake.body[j].x-old.body[j].x,snake.body[j].z-old.body[j].z)
+                <=1.151f*std::min(dt,0.1f)+0.001f,"snake body station teleported");
         behaviors[static_cast<std::size_t>(snake.behavior)]=true;
         const float travel = std::hypot(snake.body[0].x-head.x,snake.body[0].z-head.z);
         totalTravel+=travel;
@@ -117,6 +129,23 @@ int main()
     }
     Check(totalTravel>3.0f && behaviors[0] && behaviors[1] && behaviors[2],
         "snake behavior/movement coverage missing");
+    Check(propagatedWaveFrames>10,"opposing body waves did not propagate beyond the neck");
+    // Sub-millimetre updates must accumulate into the bounded trail, not append
+    // unbounded tiny samples or lose the body's path as old samples are pruned.
+    island::SnakePopulation fineSteps(terrain), coarseSteps(terrain);
+    for(int frame=0;frame<2000;++frame) {
+        const auto h=fineSteps.Snakes().front().body.front();
+        fineSteps.Update(0.001f,h.x-3.0f,h.y+1.7f,h.z);
+        if(frame%10==0) {
+            const auto c=coarseSteps.Snakes().front().body.front();
+            coarseSteps.Update(0.01f,c.x-3.0f,c.y+1.7f,c.z);
+        }
+        Check(fineSteps.ValidBody(fineSteps.Snakes().front()),"fine-step trail lost body validity");
+    }
+    for(std::size_t j=0;j<island::SnakeState::StationCount;++j) {
+        const auto a=fineSteps.Snakes().front().body[j], b=coarseSteps.Snakes().front().body[j];
+        Check(std::hypot(a.x-b.x,a.z-b.z)<0.025f,"trail sampling depends excessively on update step");
+    }
     const auto before=population.Snakes().front();
     for(int invalid=0;invalid<3;++invalid) {
         auto snake=before;
