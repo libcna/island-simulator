@@ -373,7 +373,7 @@ The overlay also shows the four authoritative procedural-layout seeds. Press F4 
 to copy a stable seed report; the panel reports `COPIED` only after reading back the same text and
 otherwise reports `UNAVAILABLE`.
 Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
-overlay is visible, F5–F10, J, and F12 teleport among eight fixed QA locations, including views toward
+overlay is visible, F5–F10, J, K, and F12 teleport among QA locations (K cycles through boars), including views toward
 the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.
 F11 toggles fullscreen on desktop/Web (subject to browser permissions); Android stays immersive.
 Space toggles player flight: WASD stays horizontal, Q/E moves down/up, and holding Shift

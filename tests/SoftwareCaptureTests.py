@@ -17,10 +17,24 @@ from run_software_capture import (
     validate_monkey_tree_stages, validate_monkey_climb_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
-from run_fullscreen_software import geometry, worker as fullscreen_worker
+from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_boar_audio_trace_rejects_missing_playback_mute_and_budget_failures(self):
+        valid = [(1, 0, 2, 5, 3)] * 5 + [(1, 1, 2, 4, 0)] * 24 + [(1, 0, 3, 5, 3)] * 5
+        validate_boar_audio_trace(valid)
+        for index, state in ((0, (0, 0, 2, 5, 3)), (5, (1, 1, 3, 4, 0)),
+                             (5, (1, 1, 2, 5, 3)), (0, (1, 0, 2, 7, 3)),
+                             (-1, (1, 0, 2, 4, 0))):
+            invalid = list(valid)
+            invalid[index] = state
+            with self.assertRaises(RuntimeError):
+                validate_boar_audio_trace(invalid)
+        for invalid in ([], valid[:20], [(1, 0, 3, 4, 0)] * 40):
+            with self.assertRaises(RuntimeError):
+                validate_boar_audio_trace(invalid)
+
     def test_fullscreen_geometry_rejects_missing_or_invalid_dimensions(self):
         self.assertEqual(geometry("X=-20\nY=10\nWIDTH=960\nHEIGHT=540\n")["WIDTH"], 960)
         for text in ("", "X=0\nY=0\nWIDTH=1\n", "X=0\nY=0\nWIDTH=0\nHEIGHT=540\n"):

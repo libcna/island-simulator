@@ -29,7 +29,25 @@ def geometry(output):
     return result
 
 
-def worker(build, evidence, window_manager, flight=False):
+def validate_boar_audio_trace(samples):
+    """Validate captured runtime states, not subjective sound identity or device quality."""
+    if len(samples) < 30 or any(len(s) != 5 for s in samples):
+        raise RuntimeError("missing boar audio trace")
+    if any(s[0] != 1 or s[1] not in (0, 1) or not 4 <= s[3] <= 6
+           or s[4] not in (0, 1, 2, 3) for s in samples):
+        raise RuntimeError("unavailable audio or invalid voice budget/state")
+    if any(b[2] < a[2] for a, b in zip(samples, samples[1:])):
+        raise RuntimeError("boar playback counter regressed")
+    muted = [s for s in samples if s[1]]
+    if len(muted) < 24 or any(s[2] != muted[0][2] or s[3] != 4 or s[4] != 0 for s in muted):
+        raise RuntimeError("mute failed to suppress transient playback")
+    if muted[0][2] < 2 or samples[-1][1] or samples[-1][2] <= muted[-1][2]:
+        raise RuntimeError("missing boar playback before/after mute")
+    if not any(s[4] == 3 for s in samples):
+        raise RuntimeError("no active boar source observed")
+
+
+def worker(build, evidence, window_manager, flight=False, boar_audio=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -145,6 +163,48 @@ def worker(build, evidence, window_manager, flight=False):
                     focus_target.wait(timeout=5)
             keys("w", "input sample captured 1 relative 1")
             keys("Escape", "input sample captured 0 relative 0")
+            if boar_audio:
+                def samples():
+                    return [tuple(map(int, m)) for m in re.findall(
+                        r"audio sample available (\d+) muted (\d+) boars (\d+) sources (\d+) wildlife (\d+)", log())]
+                wait(lambda: samples() and samples()[-1][0] == 1, "available disk audio device")
+                keys("F1", "debug overlay enabled")
+                keys("k", "debug teleport boar herd")
+                wait(lambda: samples()[-1][2] >= 2, "two actual boar playbacks")
+                command("import", "-window", window, str(evidence / "boar-audio.png"))
+                keys("m", "soundscape muted")
+                wait(lambda: samples()[-1][1] == 1, "muted audio diagnostics")
+                first = len(samples())
+                wait(lambda: len(samples()) >= first+4, "mute pipeline drain")
+                recording = evidence / "game-audio.raw"
+                start = recording.stat().st_size
+                muted_start = len(samples())
+                wait(lambda: len(samples()) >= muted_start+24, "six simulated muted seconds")
+                muted = samples()[muted_start:]
+                if any(s[1] != 1 or s[2] != muted[0][2] or s[3] != 4 or s[4] != 0 for s in muted):
+                    raise RuntimeError("mute retained a transient or started a boar call")
+                end = recording.stat().st_size
+                with recording.open("rb") as pcm:
+                    pcm.seek(start)
+                    silent = pcm.read(end-start)
+                if not silent or any(silent):
+                    raise RuntimeError("muted disk audio is missing or not exact silence")
+                keys("m", "soundscape unmuted")
+                previous = muted[-1][2]
+                wait(lambda: samples()[-1][2] > previous, "boar playback after unmute")
+                if any(s[3] > 6 for s in samples()):
+                    raise RuntimeError("audio source budget exceeded")
+                if not re.search(r"Writing to file .*format=(?:F32|S16|S32).*channels=2 freq=", log()):
+                    raise RuntimeError("missing signed PCM/stereo disk output identity")
+                with recording.open("rb") as pcm:
+                    pcm.seek(end)
+                    resumed = pcm.read()
+                if not resumed or not any(resumed):
+                    raise RuntimeError("unmuted disk audio stayed silent")
+                validate_boar_audio_trace(samples())
+                (evidence / "boar-audio-result.json").write_text(json.dumps({
+                    "passed":True,"samples":samples(),"mutedBytes":len(silent),
+                    "resumedBytes":len(resumed),"scope":"native disk-device playback/mute; not subjective listening"},indent=2)+"\n")
             if flight:
                 def flight_samples():
                     return [tuple(map(float,m)) for m in re.findall(
@@ -198,6 +258,7 @@ def worker(build, evidence, window_manager, flight=False):
                 "passed": True, "stages": stages, "heldRepeatSuppressed": True,
                 "backgroundKeyIgnoredAfterFocusReturn": True,
                 "flightChecked": flight,
+                "boarAudioChecked": boar_audio,
                 "mouseCapturedAndReleasedAfterToggle": True}, indent=2)+"\n")
         finally:
             game.terminate()
@@ -218,6 +279,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
     parser.add_argument("--flight", action="store_true", help="also exercise Space flight, ceiling and return")
+    parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--window-manager", type=Path,
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
@@ -225,7 +287,7 @@ def main():
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
-        worker(build, args.worker.resolve(strict=True), window_manager, args.flight)
+        worker(build, args.worker.resolve(strict=True), window_manager, args.flight, args.boar_audio)
         return
     for executable in ("xdotool", "xprop", "import", "xmessage"):
         if not shutil.which(executable):
@@ -238,7 +300,7 @@ def main():
         journal = Journal()
         baseline = journal.latest()
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        evidence = build / ("software-flight" if args.flight else "software-fullscreen") / stamp
+        evidence = build / ("software-boar-audio" if args.boar_audio else "software-flight" if args.flight else "software-fullscreen") / stamp
         evidence.mkdir(parents=True)
         command = [str(platform / "wayland_test_server.sh"), "--compositor", "weston", "--renderer", "pixman",
                    str(platform / "run_gpu_tests_private.sh"), "--inside-private-compositor", "exec",
@@ -246,17 +308,23 @@ def main():
                    "--window-manager", str(window_manager)]
         if args.flight:
             command.append("--flight")
+        if args.boar_audio:
+            command.append("--boar-audio")
         environment = software_environment(evidence)
         for key in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"):
             environment.pop(key, None)
         environment["ISLAND_FULLSCREEN_SUPERVISED"] = "1"
         environment["XDG_CONFIG_HOME"] = str(evidence / "config")
+        if args.boar_audio:
+            environment["SDL_AUDIO_DRIVER"] = "disk"
+            environment["SDL_AUDIO_DISK_OUTPUT_FILE"] = str(evidence / "game-audio.raw")
+            environment["SDL_AUDIO_DISK_TIMESCALE"] = "1.0"
         metadata = {"result":"running", "command":command, "kernel_before":baseline,
                     "artifact":artifact_identity(build / "island-simulator"),
                     "window_manager":artifact_identity(window_manager),
                     "harness":artifact_identity(Path(__file__)),
                     "window_manager_config":artifact_identity(Path(__file__).with_name("fullscreen_openbox.xml")),
-                    "scope":"private llvmpipe native fullscreen/optional flight input; not hardware qualification"}
+                    "scope":"private llvmpipe fullscreen/optional flight or disk-audio input; not hardware qualification"}
         report = evidence / "run.json"
         report.write_text(json.dumps(metadata, indent=2)+"\n")
         print(f"Native fullscreen evidence: {evidence}", flush=True)

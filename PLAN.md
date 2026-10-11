@@ -599,6 +599,13 @@ Visual rework explicitly requested by the operator (2026-10-11):
   PCM bytes), provenance documented. Actual in-game playback/spatial listening,
   naturalness and native-Web-Android mute/lifecycle verification remain unqualified.
   See `docs/audio-review.md`; synthesized prototypes are not accepted natural sounds.
+  Native actual disk-device run `20261011T174853.374413Z` now proves three backend
+  Playing boar calls, M mute with unchanged counter/no transient voice and 1,048,576
+  exact-zero output bytes, then restored nonzero output/call. 130 diagnostics, max
+  five of six sources, empty kernel delta. Screenshot inspected (boars obscured by
+  foliage, not appearance acceptance); mixed WAV retained. K with F1 cycles boars.
+  34 supervisor/trace tests pass. Subjective/spatial listening and Web/Android runtime
+  lifecycle remain open; this does not establish that synthesized clips sound natural.
 - [ ] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
   head and snout, shoulder/back silhouette, short articulated legs and cloven hooves. Give
   the coat convincing bristly fur detail and appropriate skin, snout and hoof textures;

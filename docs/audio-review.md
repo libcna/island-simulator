@@ -109,6 +109,32 @@ No listening-capable tool is available in this session. In-game playback, spatia
 listening, source arbitration, mute/resume and Web/Android audio lifecycle are still
 unqualified. Keep the user task open until those checks are actually performed.
 
+### Actual native disk-device playback and mute
+
+`build/software-boar-audio/20261011T174853.374413Z` passes the owned display/PID/device
+supervisor with llvmpipe and the SDL disk audio backend. The installed SDL headers and
+source define this backend as writing real playback buffers to a file; the actual
+log identifies S16LE, stereo, 44100 Hz. Unlike earlier display tests that reported
+ALSA unavailable, this run reports audio available and confirms each wildlife voice
+enters the backend Playing state before incrementing its playback count.
+
+Actual F1/K/M input navigates near the live herd, observes two boar calls, mutes for
+24 diagnostic intervals, then unmutes and observes a third call. Across 130 audio
+samples, at most five of six allowed sources are allocated. Muted samples retain
+four silent bed voices, no wildlife voice and an unchanged boar count. After draining
+the audio pipeline, 1,048,576 captured bytes are exactly zero; after unmute 884,736
+captured bytes contain nonzero audio. Kernel delta is empty; parent and worker pass.
+34 supervisor/trace CPU tests pass, including negative budget, missing playback and
+mute fixtures. The final strengthened validator also passes the retained real trace.
+
+The actual screenshot was inspected: F1 text is readable, but foliage obscures the
+boars. It is diagnostic evidence, not animal appearance acceptance. K now cycles
+through all six boars with F1 visible for further audio/visual review. Exported
+`game-audio.wav` wraps the captured bytes without altering the signal. It is the
+mixed game output, not an isolated boar stem or proof of perceptual boar identity.
+This test does not qualify hardware speakers, spatial listening, focus/suspension,
+Web/Android runtime audio or subjective naturalness. Those requirements remain open.
+
 ## Earlier measured baseline (before boar clips)
 
 The pre-boar report validates 16 unique sources and 3,336,164 PCM payload bytes. Normalized peaks

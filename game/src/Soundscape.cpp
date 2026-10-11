@@ -652,6 +652,9 @@ namespace island
             emitter.setDopplerScaleProperty(0.0f);
             wildlifeInstance_->Apply3D(listener, emitter);
             wildlifeInstance_->Play();
+            if (wildlifeInstance_->getStateProperty() != SoundState::Playing) {
+                throw std::runtime_error("Wildlife voice did not enter Playing state");
+            }
             activeWildlifeCall_ = wildlifeCall;
             if (wildlifeCall.type == WildlifeCallType::Boar) {
                 activeBoarCall_ = boarCall;

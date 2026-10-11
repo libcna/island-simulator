@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — actual native boar playback/mute verified with disk audio
+
+Native `build/software-boar-audio/20261011T174853.374413Z` passed parent and worker,
+empty kernel delta. Existing fullscreen/focus/mouse tests also rerun. Added optional
+`--boar-audio` to contained fullscreen launcher: forces SDL disk backend (no host
+audio settings), captures actual S16LE stereo 44100 Hz stream, uses F1/K to herd,
+requires two boar calls, real M mute, 24 muted diagnostic intervals, M unmute/thirdcall.
+130 audio samples, max5/6 sources; muted counter constant/no transients, 1,048,576
+exact-zero PCM bytes, then 884,736 nonzero-containing resumed bytes. Wildlife count
+now increments only after Play() actually enters Playing. Native build passed.
+34 supervisor/trace CPU tests pass; strengthened final validator replays actual trace.
+
+K with overlay visible cycles six live boars; controls/README/F1 help updated. New
+audio diagnostics are separate lines, preserving existing input parsers. Screenshot
+actually inspected: readable overlay, animals hidden by vegetation; NOT visual boar
+acceptance. `game-audio.wav` is a lossless wrapper of mixed raw disk stream, available
+for listening, not an isolated boar sound. No listening capability available here;
+naturalness, spatial hearing, hardware output and Web/Android lifecycle remain open.
+Prior native display tests had unavailable ALSA and did not qualify actual audio.
+See docs/audio-review.md. All original visual/wildlife tasks and full goal stay open.
+Final Web Release build/package and ARM64 assembleDebug/lintDebug PASS (Android 6 s).
+Logs: `build-probe/boar-audio-device-build.log`, `boar-audio-device-package.log`,
+`build/boar-audio-device-arm64.log`. All owned processes terminal; latch unchanged.
+NEXT: keep remaining listening/portable audio checks explicit, and move to missing
+wildlife (snakes are still absent from game sources; ground AND tree snakes remain
+unchecked). Do not spend the whole continuation on repeated green audio/build gates.
+
 ## Latest — boar clips and live audio integration, listening still open
 
 Six original synthesized mono 22.05 kHz / 1.2 s clips in GenerateBoarCall(kind,variant),

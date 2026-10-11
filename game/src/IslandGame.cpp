@@ -1273,6 +1273,14 @@ namespace island
                 if (jungleRenderer_) jungleRenderer_->WriteVegetationLodDiagnostics(std::cout);
                 else std::cout << " canopy 0 0 trees none shrubs 0 0 bushes none";
                 std::cout << '\n';
+                if (soundscape_) {
+                    const auto audio = soundscape_->DebugState();
+                    std::cout << "island-simulator: audio sample available " << soundscape_->IsAvailable()
+                        << " muted " << soundscape_->IsMuted()
+                        << " boars " << soundscape_->PlayedBoarCallCount()
+                        << " sources " << audio.playingSourceCount
+                        << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type) << '\n';
+                }
                 if (flightMotion_.IsActive())
                     std::cout << "island-simulator: flight position " << cameraPosition_.X << ' '
                               << cameraPosition_.Y << ' ' << cameraPosition_.Z
@@ -1523,12 +1531,12 @@ namespace island
         }
 #endif
 
-        constexpr std::array<Keys, 8> teleportKeys = {
+        constexpr std::array<Keys, 9> teleportKeys = {
             Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::J,
-            Keys::F12};
-        constexpr std::array<const char*, 8> teleportNames = {
+            Keys::F12, Keys::K};
+        constexpr std::array<const char*, 9> teleportNames = {
             "south beach", "jungle trail", "east clearing", "west clearing",
-            "fish shallows", "offshore shark", "monkey troop", "offshore current"};
+            "fish shallows", "offshore shark", "monkey troop", "offshore current", "boar herd"};
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
@@ -1573,6 +1581,13 @@ namespace island
                     x = monkey.x + std::cos(monkey.headingRadians) * 5.0f;
                     z = monkey.z + std::sin(monkey.headingRadians) * 5.0f;
                     yaw_ = std::atan2(monkey.x - x, monkey.z - z);
+                    pitch_ = -0.08f;
+                } else if (index == 8U) {
+                    const auto boars = boarHerd_.Boars();
+                    const auto& boar = boars[boarTeleportIndex_++ % boars.size()];
+                    x = boar.x + std::cos(boar.headingRadians) * 7.0f;
+                    z = boar.z + std::sin(boar.headingRadians) * 7.0f;
+                    yaw_ = std::atan2(boar.x - x, boar.z - z);
                     pitch_ = -0.08f;
                 } else if (index == 7U) {
                     constexpr float angle = -std::numbers::pi_v<float> * 0.5f;
