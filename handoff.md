@@ -1,24 +1,22 @@
 # island-simulator handoff
 
-## In progress — scale-invariant terrain surface normals (source preparation)
+## Update — surface normal fix built; litter image gate remains open
 
-Browser session `28597` completed successfully; native build now runs in session `97943`.
-New uncommitted source is NOT built/qualified: `TerrainSurfaceFrame.hpp` provides a
-scale-first upward normal helper with CPU reference and GLSL counterpart. Sand, soil
-clod lighting and wet-sand sheen now use it instead of clamping squared cross-product
-length. For a flat 2 mm/pixel footprint the old 1e-8 clamp yields a length-0.04 normal,
-not a unit vector; soil lighting and wet sheen can therefore depend on pixel size.
-`TerrainMaterialTests.cpp` adds scale/winding invariance from 1e-30 to 1e30, unit length,
-degenerate fallback and non-finite-input checks. These new tests have NOT run yet.
-Also added an unbuilt `wet-sand` fixed camera one metre inside the western shore,
-eye height and downward pitch, with CLI/software/Android/Web-template mappings.
-The existing `water` camera is 18 m offshore and does not replace a close wet-sand review.
+`docs/terrain-surface-frame.md`: scale-first CPU/GLSL normal helper now drives sand,
+soil clods and wet sheen; new `wet-sand` camera and mappings. Native build and 33/33
+non-display tests pass (42.70 s), including 1e-30..1e30 scale/winding invariance.
+Fingerprint still `5d0b62ad43a25895`, grass 17,225. Native wet-sand
+`20261011T094128.539261Z-wet-sand`, grass `20261011T094154.489156Z-grass`, bay-ground
+`20261011T094225.864744Z-bay-ground`, water `20261011T094616.083800Z-water` pass and
+were inspected; all kernel deltas empty, latch unchanged. No jobs running.
 
-The completed seven-view Web suite qualifies `9f1ee59`, NOT this preparation.
-After the current native build succeeds, run non-display
-tests. Inspect grass/litter, `wet-sand`, water and bay-ground for this normalization fix.
-All platform requalification for this newer change remains pending. Do not close the
-Android lifecycle issue or clear the hardware latch.
+NEXT: resolve retained litter capture `20261011T094405.569362Z-litter`, which FAILED
+the generic image gate: luminance deviation 16.8656 < 18, mean 58.8703, 240 bins,
+spatial contrast 37.2447; other gates pass. Inspected image is complete textured shaded
+floor, not blank. Do not call it passed. Validator unchanged. Evaluate appropriate
+image criteria/reference evidence without adjusting lighting just to satisfy a threshold.
+Then Android/Web material qualification for this fix; prior `9f1ee59` results do not
+qualify it. Android lifecycle remains open and hardware latch must remain set.
 
 ## Update — sand/turf Android and Web qualification complete
 

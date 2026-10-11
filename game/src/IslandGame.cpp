@@ -83,6 +83,7 @@ namespace island
             case FixedViewpoint::MovementTraceDetail: return "movement";
             case FixedViewpoint::PalmDetail: return "palms";
             case FixedViewpoint::WaterlineDetail: return "water";
+            case FixedViewpoint::WetSandDetail: return "wet-sand";
             case FixedViewpoint::CurrentBoundaryDetail: return "current";
             case FixedViewpoint::DistantSceneryDetail: return "distant";
             case FixedViewpoint::PropDetail: return "props";
@@ -464,6 +465,11 @@ namespace island
                                       selected->z);
             yaw_ = std::atan2(-selected->x, -selected->z);
             pitch_ = -0.38f;
+        } else if (viewpoint_ == FixedViewpoint::WetSandDetail) {
+            const float x = -(terrain_.ShoreRadius(std::numbers::pi_v<float>) - 1.0f);
+            cameraPosition_ = Vector3(x, terrain_.Height(x, 0.0f) + PlayerMotion::EyeHeight, 0.0f);
+            yaw_ = 0.0f;
+            pitch_ = -0.40f;
         } else if (viewpoint_ == FixedViewpoint::WaterlineDetail) {
             constexpr float angle = -std::numbers::pi_v<float> * 0.5f;
             const float radius = terrain_.ShoreRadius(angle) + 18.0f;

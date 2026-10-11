@@ -36,6 +36,7 @@ namespace
         case FixedViewpoint::MovementTraceDetail: return "movement";
         case FixedViewpoint::PalmDetail: return "palms";
         case FixedViewpoint::WaterlineDetail: return "water";
+        case FixedViewpoint::WetSandDetail: return "wet-sand";
         case FixedViewpoint::CurrentBoundaryDetail: return "current";
         case FixedViewpoint::DistantSceneryDetail: return "distant";
         case FixedViewpoint::PropDetail: return "props";
@@ -108,7 +109,7 @@ int main(const int argc, char* argv[])
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
                              "east, headland, clearing-edge, canopy (inspection only), west, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
-                             "current, distant, props, driftwood, reef, fronds, birds, fish, "
+                             "wet-sand, current, distant, props, driftwood, reef, fronds, birds, fish, "
                              "shark, monkeys, shipwreck, crabs, boars, butterflies, turtles, or traversal\n";
                 return 2;
             }
@@ -151,6 +152,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::PalmDetail;
             } else if (name == "water") {
                 viewpoint = island::FixedViewpoint::WaterlineDetail;
+            } else if (name == "wet-sand") {
+                viewpoint = island::FixedViewpoint::WetSandDetail;
             } else if (name == "current") {
                 viewpoint = island::FixedViewpoint::CurrentBoundaryDetail;
             } else if (name == "distant") {

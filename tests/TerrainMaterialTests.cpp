@@ -1,5 +1,6 @@
 #include "IslandSimulator/TerrainMaterialVertex.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
+#include "IslandSimulator/TerrainSurfaceFrame.hpp"
 #include "Microsoft/Xna/Framework/Vector3.hpp"
 #include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
 
@@ -22,6 +23,28 @@ try
     using Microsoft::Xna::Framework::Vector3;
     using island::TerrainDaylight;
     using namespace Microsoft::Xna::Framework::Graphics;
+    const auto reference = island::TerrainSurfaceFrame::Normalize({0.25f, 1.0f, -0.5f});
+    for (float scale : {1.0e-30f, 1.0e-15f, 1.0e-6f, 1.0f, 1.0e15f, 1.0e30f}) {
+        for (float sign : {-1.0f, 1.0f}) {
+            const auto normal = island::TerrainSurfaceFrame::Normalize(
+                {0.25f * scale * sign, scale * sign, -0.5f * scale * sign});
+            Require(std::abs(normal.x - reference.x) < 1.0e-6f
+                && std::abs(normal.y - reference.y) < 1.0e-6f
+                && std::abs(normal.z - reference.z) < 1.0e-6f,
+                "Terrain shading normal must not vary with pixel scale or winding");
+            Require(std::abs(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z - 1.0f) < 1.0e-6f,
+                "Terrain shading normal must remain unit length across derivative scales");
+        }
+    }
+    const auto degenerate = island::TerrainSurfaceFrame::Normalize({0.0f, 0.0f, 0.0f});
+    Require(degenerate.x == 0 && degenerate.y == 1 && degenerate.z == 0,
+            "Degenerate terrain footprint must have a finite upward fallback");
+    for (float bad : {std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()}) {
+        bool rejected = false;
+        try { (void)island::TerrainSurfaceFrame::Normalize({bad, 1, 0}); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        Require(rejected, "CPU surface-frame reference rejects non-finite input");
+    }
     // The floor uses these immutable presets. Protect its 4x cost ceiling and no-LOD-bias
     // contract when updating the read-only CNA dependency; no graphics context is created.
     Require(SamplerState::AnisotropicClamp.getFilterProperty() == TextureFilter::Anisotropic

@@ -97,6 +97,7 @@ namespace island
         MovementTraceDetail,
         PalmDetail,
         WaterlineDetail,
+        WetSandDetail,
         CurrentBoundaryDetail,
         DistantSceneryDetail,
         PropDetail,

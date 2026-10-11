@@ -52,6 +52,7 @@
       ["overview", ["--overview"]],
       ["bay", ["--viewpoint", "bay", "--debug-overlay"]],
       ["bay-ground", ["--viewpoint", "bay-ground", "--debug-overlay"]],
+      ["wet-sand", ["--viewpoint", "wet-sand", "--debug-overlay"]],
       ["headland", ["--viewpoint", "headland", "--debug-overlay"]],
       ["beach", ["--viewpoint", "beach"]],
       ["beach", ["--viewpoint", "beach", "--debug-overlay"]],

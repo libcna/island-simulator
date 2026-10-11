@@ -10,6 +10,7 @@
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TerrainMaterialVertex.hpp"
+#include "IslandSimulator/TerrainSurfaceFrame.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
 #include <algorithm>
@@ -294,9 +295,7 @@ void main()
             vec2 sandSlope = (phaseGradient * rippleDerivative * rippleEnvelope
                 + rippleHeight * bend.yz * 0.36) * (0.0022 * rippleVisibility)
                 + grains.yz * (85.0 * 0.00015 * grainVisibility);
-            vec3 sandNormal = cross(worldDx, worldDy);
-            sandNormal *= inversesqrt(max(dot(sandNormal, sandNormal), 1.0e-20));
-            if (sandNormal.y < 0.0) sandNormal = -sandNormal;
+            vec3 sandNormal = terrainSurfaceNormal(cross(worldDx, worldDy));
             vec3 reliefNormal = sandNormal - vec3(sandSlope.x, 0.0, sandSlope.y) * sandNormal.y;
             reliefNormal *= inversesqrt(max(dot(reliefNormal, reliefNormal), 0.00000001));
             vec3 toSun = normalize(uToSun);
@@ -495,10 +494,7 @@ void main()
             * (1.0 - smoothstep(18.0, 40.0, distanceToCamera));
         if (clodVisibility > 0.0) {
             vec3 clod = soilNoiseGradient(p * 6.5 + vec2(37.1, -12.6));
-            vec3 faceVector = cross(worldDx, worldDy);
-            vec3 surfaceNormal = faceVector
-                * inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
-            if (surfaceNormal.y < 0.0) surfaceNormal = -surfaceNormal;
+            vec3 surfaceNormal = terrainSurfaceNormal(cross(worldDx, worldDy));
             // A 1.2 cm relief field; derivatives are converted from noise to world units.
             vec2 slope = clod.yz * (6.5 * 0.012) * clodVisibility;
             vec3 reliefVector = surfaceNormal
@@ -574,12 +570,7 @@ void main()
         * smoothstep(-0.12, 0.06, vWorld.y) * sand;
     color = mix(color, color * vec3(0.76, 0.81, 0.78), wetEdge * 0.42);
     if (wetEdge > 0.001) {
-        vec3 faceVector = cross(worldDx, worldDy);
-        vec3 wetNormal = faceVector
-            * inversesqrt(max(dot(faceVector, faceVector), 0.00000001));
-        if (wetNormal.y < 0.0) {
-            wetNormal = -wetNormal;
-        }
+        vec3 wetNormal = terrainSurfaceNormal(cross(worldDx, worldDy));
         vec3 toView = normalize(uCameraPosition - vWorld);
         vec3 halfVector = normalize(uToSun) + toView;
         vec3 halfDirection = halfVector
@@ -605,10 +596,12 @@ void main()
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
                     + (canopy ? CanopyLighting::Shader : "")
                     + (canopy ? GroundCover::Shader() : std::string())
+                    + (canopy ? TerrainSurfaceFrame::Shader : "")
                     + (canopy ? ForestFloorMaterial::Shader : "") + body;
             }
             return std::string("#version 330 core\n") + (canopy ? CanopyLighting::Shader : "")
                 + (canopy ? GroundCover::Shader() : std::string())
+                + (canopy ? TerrainSurfaceFrame::Shader : "")
                 + (canopy ? ForestFloorMaterial::Shader : "") + body;
         }
 

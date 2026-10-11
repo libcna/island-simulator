@@ -64,6 +64,20 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — pixel-scale-independent terrain surface normals
+
+- [x] Shared CPU/GLSL scale-first normalization replaces length clamps in dry sand,
+  soil clods and wet sheen. Old 2 mm pixel example produced a length-0.04 normal.
+  New `wet-sand` eye-height review camera; see `docs/terrain-surface-frame.md`.
+- [x] Native build and 33/33 non-display groups pass (42.70 s), including scale/winding
+  invariance, unit length, zero fallback and invalid-input tests. Inventory unchanged.
+  Wet-sand, grass, bay-ground and water captures pass/inspected; empty kernel deltas.
+- [!] Litter image gate fails absolute luminance deviation (16.8656 < 18) after corrected
+  near-ground lighting. Complete textured image inspected, but NOT claimed as a pass.
+  Mean 58.8703, 240 bins, spatial contrast 37.2447; other gates pass. Validator unchanged.
+  Resolve scene-appropriate criteria/reference evidence; retained failure is documented.
+- [ ] Android/Web qualification of this new fix. Previous dry-sand runs do not qualify it.
+
 #### 2026-10-11 — dry sand microrelief (native stage)
 
 - [x] `docs/dry-sand-relief.md`: wind-aligned warped millimetre-scale ripples and
