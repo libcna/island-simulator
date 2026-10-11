@@ -13,9 +13,19 @@ import subprocess
 import sys
 
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity
-from run_software_capture import run_monitored_capture
+from run_software_capture import run_monitored_capture, validate_monkey_climb_stages
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb")
+
+
+def validate_climb_report(report):
+    views = report.get("views", [])
+    if not report.get("passed") or len(views) != 1 or views[0].get("mode") != "monkey-climb":
+        raise RuntimeError("browser climb report is incomplete or has the wrong view")
+    log = views[0].get("result", {}).get("output", "")
+    if "monkey climb held summit presented after eight cycle stages" not in log:
+        raise RuntimeError("browser climb did not present the held summit")
+    return validate_monkey_climb_stages(log)
 
 
 def browser_environment(browser, scope, evidence):
@@ -90,6 +100,9 @@ def main(argv=None):
                                            timeout=args.timeout, private_devices=True)
             if result:
                 raise RuntimeError(f"browser suite exited {result}; inspect workload.log")
+            if args.scope == "monkey-climb":
+                climb = json.loads((evidence / "island-browser-monkey-climb.json").read_text())
+                metadata["monkey_climb_stages"] = validate_climb_report(climb)
             metadata["result"] = "passed"
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             failure = error

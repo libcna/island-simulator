@@ -30,10 +30,11 @@ const focusedGrassMotionCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grass-mo
 const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
 const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials";
 const focusedMonkeyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkeys";
-const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedClimbCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkey-climb";
+const focusedCheck = focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -492,6 +493,10 @@ try {
           if (!startupLog.includes(expectedWorkload)) {
             throw new Error(`${mode} launched the wrong workload: ${startupLog}`);
           }
+          if (focusedClimbCheck && !await waitForOutput(sessionId,
+              "monkey climb held summit presented after eight cycle stages", 320)) {
+            throw new Error("monkey-climb did not finish its rendered cycle before summit capture");
+          }
           if (focusedGrassMotionCheck) {
             // Set up once through the existing diagnostic teleport. Fixed --viewpoint cameras
             // deliberately reject input; all measured travel after this setup uses the player.
@@ -536,7 +541,7 @@ try {
           }
           const screenshotPath = await captureVisualFrame(sessionId,
             `island-browser-${focusedArtifactPrefix}-${mode}.png`,
-            !["boars", "monkeys", "overview"].includes(mode));
+            !["boars", "monkeys", "monkey-climb", "overview"].includes(mode));
           const motionReview = focusedGrassMotionCheck ? await runGrassMotionReview(sessionId) : null;
           // Preserve intermediate poses for real visual review of the quadrupedal gait;
           // endpoint screenshots alone can hide foot sliding and limb inversion.
@@ -583,13 +588,14 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = mode === "boars" || mode === "monkeys" || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
           const passed = /SwiftShader/i.test(state.renderer) && !state.contextLost
             && log.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
             && (!focusedGrassMotionCheck || motionReview?.passed)
+            && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
             && log.includes("ocean 160x160 textures 6383412/6403628 bytes audio 6/6 sources")
@@ -686,7 +692,8 @@ try {
         }
       }
     } finally {
-      await writeFile(reportPath, `${JSON.stringify({ scope: focusedMonkeyCheck
+      await writeFile(reportPath, `${JSON.stringify({ scope: focusedClimbCheck
+          ? "software WebGL staged climbing diagnostics and held summit; not continuous animation" : focusedMonkeyCheck
           ? "software WebGL monkey close view only" : focusedMaterialsCheck
           ? "software WebGL soil, grass, dry sand and wet sand only" : focusedLitterCheck
           ? "software WebGL litter and shared-height grass only" : focusedTerrainCheck

@@ -9,7 +9,37 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — Android GLES climbing qualified, default ARM64 restored
+## Latest — current WebGL climbing qualified and unobscured images inspected
+
+Added contained Chrome `monkey-climb` scope, QA HTML mapping and parent-side full-cycle
+validation using the shared native/Android validator. Wait for eight stages/held summit,
+capture, then unchanged 60 intervals / GL 0 / intact context / material gates and final
+capture. Ordinary `monkeys` walking scope unchanged. 14 browser CPU tests + Node syntax pass.
+
+Existing Release Web build/package refreshed: 11,062,826 raw / 4,161,779 gzip bytes.
+Logs `build-probe/monkey-climb-web-build.log`, `build-probe/monkey-climb-web-package.log`.
+Prepared fur SHA dc65039f7c3875ec2f33d930afc895b47f0443dc82b84c75fa7a056b8f0293ed.
+First `20261011T160143.966968Z-chrome-monkey-climb` failed after seven healthy stages at
+40-s wait; terminal failure retained, bounded wait extended to 80 s (no gate removal).
+Second `20261011T160312.460229Z-chrome-monkey-climb` passed functional checks but actual
+image inspection found the debug panel obscured the monkey: NOT visually accepted.
+QA launch now omits overlay, regression guards that mapping.
+
+FINAL `20261011T160632.181230Z-chrome-monkey-climb`: Chrome/155.0.8059.39, host PID 239924,
+contained SwiftShader, full cycle + held summit passes, 60 intervals, GL 0, context intact,
+empty final kernel delta. Both actual 1280x720 PNGs inspected before/after intervals:
+connected body, fur, head correction and near-side grips match native/Android. Far-side
+contacts occluded; these are held-summit images, NOT continuous/all-angle motion proof.
+Evidence directory contains report, run metadata with eight parsed stages, both PNGs,
+artifact/harness attribution and kernel logs. Stop latch unchanged, all jobs finished,
+asset gate 24/75/10/0. No dependencies, KVM or emulator configuration changed.
+
+NEXT: profile synchronous attachment/excursion preflight cost (possible main-thread
+spikes), audit continuous/all-angle climbing and interruptions, improve face/joint/tail
+realism, and continue wider island backlog (including F11/fly, wildlife, hut, resident,
+boars/wreck). The goal and full visual-quality requirements remain open.
+
+## Earlier — Android GLES climbing qualified, default ARM64 restored
 
 Stage diagnostics now emit without a desktop capture filename and mirror to Android.
 At frame 36, a held-summit marker follows all eight cycle stages. For `monkey-climb`,

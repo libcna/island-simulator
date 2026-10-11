@@ -455,6 +455,13 @@ Standing visual-quality rules (apply to every task from now on):
   x86_64 and restored default ARM64 build/lint pass; ARM64 runtime remains untested.
   No continuous/all-angle, lifecycle or physical-device performance claim. Current Web
   climbing, frame-cost profiling and further animal realism remain pending.
+  Current Web climbing `20261011T160632.181230Z-chrome-monkey-climb` now passes:
+  eight cycle invariants, held summit, 60 intervals, GL error 0/context intact and empty
+  kernel delta. Both actual unobscured summit screenshots inspected; match native/Android.
+  First run stopped at a too-short stage wait; second passed functions but overlay hid
+  the animal, so it was rejected visually and the QA launch corrected. No cycle/frame
+  requirement weakened. Package refreshed (11,062,826 raw / 4,161,779 gzip bytes).
+  This does not close continuous/all-angle/interruption review, performance or realism.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

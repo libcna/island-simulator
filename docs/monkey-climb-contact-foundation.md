@@ -503,3 +503,36 @@ remain open.
 Native diagnostic-change rebuild and all 37 non-display groups pass (62.97 s,
 `build/monkey-climb-platform-markers-tests.log`). Asset gate 24/75/10/0, GPU stop latch
 unchanged, all jobs finished.
+
+## Focused WebGL climbing gate
+
+The contained Chrome harness now has a separate `monkey-climb` scope and launch mapping.
+It waits for all eight staged renders and the held-summit marker, then captures the
+summit and measures the unchanged 60 requestAnimationFrame intervals with GL error zero,
+intact context, required materials and renderer diagnostics. The parent supervisor
+independently parses the full-cycle identity/time/height/release invariants using the
+same tested validator as native/Android. This is staged diagnostics plus held-summit
+images, not continuous-motion or all-angle qualification. The ordinary `monkeys` scope
+retains its separate walking-pose image sequence.
+
+Existing Release Web build/package refreshed: 11,062,826 raw / 4,161,779 gzip bytes.
+Prepared fur SHA remains `dc65039f7c3875ec2f33d930afc895b47f0443dc82b84c75fa7a056b8f0293ed`.
+The first run `20261011T160143.966968Z-chrome-monkey-climb` failed a 40-second stage wait
+after seven of eight healthy stages. Its terminal failure and empty kernel delta are
+retained. The bounded wait is now 80 seconds; no phase, frame-count or pixel gate was
+removed. The second run `20261011T160312.460229Z-chrome-monkey-climb` passes functional
+checks, but actual screenshot inspection found the debug overlay covering the animal.
+That image is NOT accepted for visual qualification. The QA launch now omits the overlay,
+matching the ordinary monkey view, and a regression asserts that unobscured launch mapping.
+Browser harness 14 CPU tests and Node syntax check pass.
+
+Final `20261011T160632.181230Z-chrome-monkey-climb` passes in Chrome/155.0.8059.39,
+host PID 239924, contained SwiftShader: eight cycle invariants, held-summit marker,
+60 intervals, GL error 0, context intact, final kernel delta empty. Both actual 1280x720
+unobscured summit PNGs (before/after intervals) inspected: fur, connected limbs and head
+counter-pitch match native/Android; visible near-side grips meet bark. Opposite grips
+remain occluded, and both images hold the same summit pose rather than document continuous
+climbing. The two earlier attempts remain as rejected/limited evidence. Asset gate
+24/75/10/0, GPU stop latch unchanged, all launched jobs finished. No dependency or emulator
+configuration changes. Remaining work includes preflight frame cost, continuous/all-angle
+motion and interruptions, face/joint/tail realism, and the wider island plan.

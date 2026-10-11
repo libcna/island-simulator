@@ -45,6 +45,25 @@ class BrowserSoftwareTests(unittest.TestCase):
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
         self.assertIn('focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]', source)
 
+    def test_climb_scope_requires_full_cycle_and_held_summit(self):
+        self.assertIn("monkey-climb", gate.SCOPES)
+        self.assertIn('["monkey-climb", ["--viewpoint", "monkey-climb"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        self.assertEqual(gate.browser_environment("chrome", "monkey-climb", Path("/evidence"))
+                         ["ISLAND_BROWSER_SUPERVISED"], "chrome")
+        times = [0, 5, 10.1, 18.5, 24, 29.1, 38.9, 0]
+        heights = [5, 5.2, 5.3, 7.3, 6.4, 5.3, 5.01, 5]
+        log = "\n".join(f"monkey climb stage={i} subject=3 tree={187 if i<7 else -1} "
+            f"time={t} active={int(i<7)} centre-y={heights[i]}" for i,t in enumerate(times))
+        held = "\nmonkey climb held summit presented after eight cycle stages"
+        report = {"passed": True, "views": [{"mode": "monkey-climb", "result": {"output": log+held}}]}
+        self.assertEqual(len(gate.validate_climb_report(report)), 8)
+        for invalid in [{}, {"passed": True, "views": []}, {"passed": False, "views": report["views"]},
+                        {"passed": True, "views": [{"mode": "monkey-climb", "result": {"output": log}}]},
+                        {"passed": True, "views": [{"mode": "monkey-climb", "result": {"output": held}}]}]:
+            with self.assertRaises(RuntimeError):
+                gate.validate_climb_report(invalid)
+
     def test_monkey_scope_retains_supervision_and_intermediate_visual_samples(self):
         self.assertIn("monkeys", gate.SCOPES)
         environment = gate.browser_environment("chrome", "monkeys", Path("/evidence"))
