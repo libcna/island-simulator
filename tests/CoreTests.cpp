@@ -3073,6 +3073,8 @@ int main()
                       && state.headLookRadians == repeated.headLookRadians
                       && state.speed == repeated.speed
                       && state.animationSeconds == repeated.animationSeconds
+                      && state.gaitPhase == repeated.gaitPhase
+                      && state.gaitAmount == repeated.gaitAmount
                       && state.homeX == repeated.homeX && state.homeZ == repeated.homeZ
                       && state.targetX == repeated.targetX
                       && state.targetZ == repeated.targetZ
@@ -3086,6 +3088,13 @@ int main()
                       && std::isfinite(state.homeX) && std::isfinite(state.homeZ)
                       && std::isfinite(state.targetX) && std::isfinite(state.targetZ),
                   "monkey pose remains finite over a long session");
+            Check(state.gaitPhase >= 0.0f && state.gaitPhase < 1.0f
+                      && state.gaitAmount >= 0.0f && state.gaitAmount <= 1.0f,
+                  "distance-driven monkey gait remains bounded over all simulation tiers");
+            if (state.x == previousMonkeys[index].x && state.z == previousMonkeys[index].z) {
+                Check(state.gaitPhase == previousMonkeys[index].gaitPhase,
+                      "stationary monkeys do not advance the ground stride");
+            }
             Check(std::fabs(state.headLookRadians)
                       <= island::MonkeyTroop::MaximumHeadLookRadians + 0.001f,
                   "monkey head attention remains inside its restrained skeletal bound");

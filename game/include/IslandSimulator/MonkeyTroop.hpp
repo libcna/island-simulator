@@ -32,6 +32,8 @@ namespace island
         float headLookRadians = 0.0f;
         float speed = 0.0f;
         float animationSeconds = 0.0f;
+        float gaitPhase = 0.0f;
+        float gaitAmount = 0.0f;
         float scale = 1.0f;
         float homeX = 0.0f;
         float homeZ = 0.0f;

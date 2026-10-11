@@ -215,6 +215,8 @@
       "licenseRecord": "Procedural monkey troop",
       "sources": [
         "game/src/MonkeyTroop.cpp",
+        "game/include/IslandSimulator/MonkeyGroundGait.hpp",
+        "game/include/IslandSimulator/MonkeySkinningShader.hpp",
         "game/src/MonkeyRenderer.cpp"
       ]
     },

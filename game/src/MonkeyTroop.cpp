@@ -1,4 +1,5 @@
 #include "IslandSimulator/MonkeyTroop.hpp"
+#include "IslandSimulator/MonkeyGroundGait.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -304,6 +305,8 @@ namespace island
             return;
         }
         agent.stateSecondsRemaining -= deltaSeconds;
+        const float previousX = agent.state.x;
+        const float previousZ = agent.state.z;
         agent.state.animationSeconds += deltaSeconds;
 
         const float observerDistance = std::hypot(
@@ -384,6 +387,14 @@ namespace island
             }
         }
 
+        const float travelled = std::hypot(agent.state.x - previousX, agent.state.z - previousZ);
+        const float cycleDistance = MonkeyGroundGait::StrideLength
+            / MonkeyGroundGait::SupportFraction * agent.state.scale;
+        agent.state.gaitPhase = MonkeyGroundGait::WrappedPhase(
+            agent.state.gaitPhase + travelled / cycleDistance);
+        const float desiredGaitAmount = travelled > 0.00001f ? 1.0f : 0.0f;
+        agent.state.gaitAmount += std::clamp(desiredGaitAmount - agent.state.gaitAmount,
+                                           -4.0f * deltaSeconds, 4.0f * deltaSeconds);
         agent.state.y = terrain_.Height(agent.state.x, agent.state.z);
     }
 

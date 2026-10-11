@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — quadrupedal mesh and distance-driven ground pose are live (native first pass)
+
+`docs/monkey-quadruped-overhaul.md` records the actual scope and deficiencies. Horizontal
+torso/neck loft, continuous dual-weight limb skins and smaller face replace the upright model.
+`MonkeyState.gaitPhase/gaitAmount` now drive the ground IK from actual travel, not a clock.
+Native build and contained `20261011T113355.740100Z-monkeys` pass; image inspected with a
+visibly horizontal quadrupedal animal, empty kernel delta. This is NOT complete monkey realism:
+fur texture and climbing are still absent; flat-plane sole supports/turning/contact need work.
+Native test run: 35/36 pass; the CPU supervisor fixture missed its four-second startup marker.
+Unchanged standalone supervisor recheck passes (1.95 s), recorded in
+`build/monkey-quadruped-supervisor-recheck.log`; all jobs finished.
+No safety gate was weakened. No native/Android/browser renderer remains running.
+
+NEXT: actual documented fur texture and stable UVs/filtering, then per-limb rendered-terrain
+support and tree-contact/climbing. Portable anatomy verification is pending; do not reuse
+the older Android/Web shader-fix images as qualification for this changed model. The full
+island visual audit, wildlife backlog, hut and resident are all still open.
+
 ## Latest — monkey overhaul started, NOT yet integrated into the live model
 
 Operator explicitly rejected the toy-like brown primitives and human-like upright walk.

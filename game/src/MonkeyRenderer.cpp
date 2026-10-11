@@ -2,6 +2,7 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/MonkeySkinningShader.hpp"
+#include "IslandSimulator/MonkeyGroundGait.hpp"
 #include "CNA/Graphics/ShaderPackageEXT.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
@@ -114,45 +115,37 @@ namespace island
 
         struct SilhouetteParameters
         {
-            Vector3 torsoRadii;
-            Vector3 headRadii;
-            float armReach = 0.47f;
-            float armEndHeight = 0.34f;
-            float armThickness = 1.0f;
-            float legWidth = 0.20f;
-            float legThickness = 1.0f;
-            float tailEndZ = -1.20f;
-            float tailThickness = 1.0f;
+            float width;
+            float headSize;
+            float limbThickness;
+            float tailLength;
         };
 
         const std::array<SilhouetteParameters, MonkeyRenderer::SilhouetteCount>
-            SilhouetteParametersByVariant = {{
-                {Vector3(0.30f, 0.40f, 0.22f), Vector3(0.235f, 0.225f, 0.21f),
-                 0.47f, 0.34f, 1.00f, 0.20f, 1.00f, -1.20f, 1.00f},
-                {Vector3(0.265f, 0.43f, 0.20f), Vector3(0.22f, 0.235f, 0.20f),
-                 0.53f, 0.29f, 0.88f, 0.21f, 0.88f, -1.33f, 0.88f},
-                {Vector3(0.35f, 0.36f, 0.25f), Vector3(0.25f, 0.215f, 0.225f),
-                 0.43f, 0.38f, 1.14f, 0.18f, 1.14f, -1.06f, 1.12f}
-            }};
+            SilhouetteParametersByVariant = {{{1.0f, 1.0f, 1.0f, 1.0f},
+                                              {0.90f, 0.96f, 0.90f, 1.10f},
+                                              {1.10f, 1.04f, 1.10f, 0.94f}}};
+
+        Vector3 ToVector(const MonkeyGroundGait::Point& point)
+        {
+            return Vector3(point.x, point.y, point.z);
+        }
 
         [[nodiscard]] RigDefinition CreateRig()
         {
+            const auto rest = MonkeyGroundGait::Sample(0.0f, 0.0f);
             return RigDefinition{
                 .heads = {
-                    Vector3(0.0f, 0.56f, 0.0f),
-                    Vector3(0.0f, 0.91f, 0.0f),
-                    Vector3(0.0f, 1.27f, 0.015f),
-                    Vector3(-0.27f, 1.04f, 0.0f),
-                    Vector3(-0.43f, 0.67f, 0.055f),
-                    Vector3(0.27f, 1.04f, 0.0f),
-                    Vector3(0.43f, 0.67f, 0.055f),
-                    Vector3(-0.15f, 0.57f, 0.0f),
-                    Vector3(-0.20f, 0.28f, 0.035f),
-                    Vector3(0.15f, 0.57f, 0.0f),
-                    Vector3(0.20f, 0.28f, 0.035f),
-                    Vector3(0.0f, 0.58f, -0.17f),
-                    Vector3(0.03f, 0.48f, -0.58f),
-                    Vector3(-0.05f, 0.66f, -0.96f)},
+                    Vector3(0.0f, 0.57f, -0.34f),
+                    Vector3(0.0f, 0.63f, 0.12f),
+                    Vector3(0.0f, 0.79f, 0.39f),
+                    ToVector(rest.limbs[0].root), ToVector(rest.limbs[0].joint),
+                    ToVector(rest.limbs[1].root), ToVector(rest.limbs[1].joint),
+                    ToVector(rest.limbs[2].root), ToVector(rest.limbs[2].joint),
+                    ToVector(rest.limbs[3].root), ToVector(rest.limbs[3].joint),
+                    Vector3(0.0f, 0.62f, -0.52f),
+                    Vector3(0.0f, 0.70f, -0.91f),
+                    Vector3(0.0f, 0.86f, -1.25f)},
                 .parents = {-1, Pelvis, Spine, Spine, UpperArmLeft, Spine, UpperArmRight,
                             Pelvis, ThighLeft, Pelvis, ThighRight, Pelvis, TailBase,
                             TailMiddle}};
@@ -494,187 +487,153 @@ namespace island
             }
         }
 
-        void AddFlatTriangle(MeshData& mesh, const Vector3& a, const Vector3& b,
-                             const Vector3& c, const Vector3& outward, const int bone)
+        struct BodySection
         {
-            Vector3 normal = Vector3::Normalize(Vector3::Cross(b - a, c - a));
-            if (Vector3::Dot(normal, outward) < 0.0f) {
-                normal *= -1.0f;
+            Vector3 centre;
+            float radiusX, radiusY;
+            int firstBone, secondBone;
+            float secondWeight;
+        };
+
+        // A longitudinal, smoothly shaded skin surface rather than stacked torso balls.
+        void AddBodyLoft(MeshData& mesh, const std::span<const BodySection> sections,
+                         const int segments)
+        {
+            const auto base = static_cast<std::uint16_t>(mesh.vertices.size());
+            for (std::size_t ring = 0; ring < sections.size(); ++ring) {
+                const auto& section = sections[ring];
+                const auto& before = sections[ring == 0 ? 0 : ring - 1];
+                const auto& after = sections[std::min(ring + 1, sections.size() - 1)];
+                for (int segment = 0; segment <= segments; ++segment) {
+                    const float angle = MathHelper::TwoPi * static_cast<float>(segment) / segments;
+                    const float c = std::cos(angle), s = std::sin(angle);
+                    const Vector3 radial(section.radiusX * c, section.radiusY * s, 0.0f);
+                    const Vector3 tangent(-section.radiusX * s, section.radiusY * c, 0.0f);
+                    const Vector3 longitudinal = after.centre - before.centre
+                        + Vector3((after.radiusX - before.radiusX) * c,
+                                  (after.radiusY - before.radiusY) * s, 0.0f);
+                    Vector3 normal = Vector3::Cross(tangent, longitudinal);
+                    if (Vector3::Dot(normal, radial) < 0.0f) normal *= -1.0f;
+                    normal.Normalize();
+                    AddVertex(mesh, section.centre + radial, normal, section.firstBone);
+                    auto& vertex = mesh.vertices.back();
+                    vertex.BlendWeight = Vector4(1.0f - section.secondWeight,
+                                                  section.secondWeight, 0.0f, 0.0f);
+                    vertex.BlendIndices[1] = static_cast<std::uint8_t>(section.secondBone);
+                }
             }
-            const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
-            AddVertex(mesh, a, normal, bone);
-            AddVertex(mesh, b, normal, bone);
-            AddVertex(mesh, c, normal, bone);
-            mesh.indices.insert(mesh.indices.end(), {base,
-                static_cast<std::uint16_t>(base + 1U),
-                static_cast<std::uint16_t>(base + 2U)});
+            const int stride = segments + 1;
+            for (std::size_t ring = 1; ring < sections.size(); ++ring)
+                for (int segment = 0; segment < segments; ++segment) {
+                    const auto a = static_cast<std::uint16_t>(base + (ring - 1) * stride + segment);
+                    const auto b = static_cast<std::uint16_t>(a + stride);
+                    mesh.indices.insert(mesh.indices.end(), {a, b, static_cast<std::uint16_t>(b + 1),
+                        a, static_cast<std::uint16_t>(b + 1), static_cast<std::uint16_t>(a + 1)});
+                }
         }
 
-        void AddHeadTuft(MeshData& mesh, const Vector3& baseA, const Vector3& baseB,
-                         const Vector3& baseC, const Vector3& tip)
+        void AddLimbSkin(MeshData& mesh, const MonkeyGroundGait::Limb& limb,
+                         int upperBone, int lowerBone, float thickness, int segments)
         {
-            const Vector3 headCentre(0.0f, 1.30f, 0.035f);
-            const auto addSide = [&mesh, &headCentre](const Vector3& a, const Vector3& b,
-                                                      const Vector3& c) {
-                const Vector3 outward = (a + b + c) * (1.0f / 3.0f) - headCentre;
-                AddFlatTriangle(mesh, a, b, c, outward, Head);
-            };
-            addSide(baseA, baseB, tip);
-            addSide(baseB, baseC, tip);
-            addSide(baseC, baseA, tip);
+            const auto base = static_cast<std::uint16_t>(mesh.vertices.size());
+            constexpr std::array<float, 9> Radii{0.105f, 0.097f, 0.080f, 0.064f,
+                                                0.055f, 0.048f, 0.042f, 0.037f, 0.034f};
+            const Vector3 root = ToVector(limb.root), joint = ToVector(limb.joint);
+            const Vector3 sole = ToVector(limb.sole);
+            for (std::size_t ring = 0; ring < Radii.size(); ++ring) {
+                const float t = static_cast<float>(ring) / 8.0f;
+                const Vector3 centre = t < 0.5f ? Vector3::Lerp(root, joint, t * 2.0f)
+                                                : Vector3::Lerp(joint, sole, t * 2.0f - 1.0f);
+                const Vector3 axis = Vector3::Normalize(t < 0.5f ? joint - root : sole - joint);
+                const Vector3 across = Vector3::Right;
+                const Vector3 around = Vector3::Normalize(Vector3::Cross(axis, across));
+                const float blend = std::clamp((t - 0.375f) * 4.0f, 0.0f, 1.0f);
+                for (int segment = 0; segment <= segments; ++segment) {
+                    const float angle = MathHelper::TwoPi * static_cast<float>(segment) / segments;
+                    const Vector3 normal = across * std::cos(angle) + around * std::sin(angle);
+                    AddVertex(mesh, centre + normal * Radii[ring] * thickness, normal, upperBone);
+                    mesh.vertices.back().BlendWeight = Vector4(1.0f - blend, blend, 0.0f, 0.0f);
+                    mesh.vertices.back().BlendIndices[1] = static_cast<std::uint8_t>(lowerBone);
+                }
+            }
+            const int stride = segments + 1;
+            for (int ring = 0; ring < 8; ++ring)
+                for (int segment = 0; segment < segments; ++segment) {
+                    const auto a = static_cast<std::uint16_t>(base + ring * stride + segment);
+                    const auto b = static_cast<std::uint16_t>(a + stride);
+                    mesh.indices.insert(mesh.indices.end(), {a, b, static_cast<std::uint16_t>(b + 1),
+                        a, static_cast<std::uint16_t>(b + 1), static_cast<std::uint16_t>(a + 1)});
+                }
         }
 
         [[nodiscard]] MeshData CreateMonkeyMesh(const RigDefinition& rig, const bool near,
                                                 const std::size_t silhouetteIndex)
         {
             MeshData mesh;
-            const SilhouetteParameters& silhouette =
-                SilhouetteParametersByVariant[silhouetteIndex];
-            const int rings = near ? 6 : 3;
-            const int segments = near ? 9 : 5;
-            const int limbSegments = near ? 7 : 4;
-            AddEllipsoid(mesh, Vector3(0.0f, 0.87f, 0.0f),
-                         silhouette.torsoRadii, Spine, rings, segments);
-            AddEllipsoid(mesh, Vector3(0.0f, 1.30f, 0.035f),
-                         silhouette.headRadii, Head, rings, segments);
-            AddEllipsoid(mesh, Vector3(0.0f, 1.22f, 0.205f),
-                         Vector3(0.17f, 0.115f, 0.145f), Head,
-                         std::max(3, rings - 1), segments);
-            AddEllipsoid(mesh, Vector3(-0.215f, 1.32f, 0.015f),
-                         Vector3(0.085f, 0.105f, 0.055f), Head, 3, segments);
-            AddEllipsoid(mesh, Vector3(0.215f, 1.32f, 0.015f),
-                         Vector3(0.085f, 0.105f, 0.055f), Head, 3, segments);
-            if (near) {
-                const float tuftReach = 0.305f
-                    + 0.008f * static_cast<float>(silhouetteIndex);
-                AddHeadTuft(mesh,
-                    Vector3(-0.075f, 1.485f, -0.020f),
-                    Vector3(0.075f, 1.485f, -0.020f),
-                    Vector3(0.0f, 1.465f, 0.060f),
-                    Vector3(0.0f, 1.575f, 0.005f));
-                AddHeadTuft(mesh,
-                    Vector3(-0.185f, 1.365f, 0.015f),
-                    Vector3(-0.205f, 1.255f, 0.060f),
-                    Vector3(-0.165f, 1.315f, 0.135f),
-                    Vector3(-tuftReach, 1.315f, 0.095f));
-                AddHeadTuft(mesh,
-                    Vector3(0.185f, 1.365f, 0.015f),
-                    Vector3(0.165f, 1.315f, 0.135f),
-                    Vector3(0.205f, 1.255f, 0.060f),
-                    Vector3(tuftReach, 1.315f, 0.095f));
+            const auto& shape = SilhouetteParametersByVariant[silhouetteIndex];
+            const int segments = near ? 14 : 8;
+            const float w = shape.width;
+            const std::array<BodySection, 9> body{{
+                {Vector3(0, .58f, -.57f), .008f, .015f, Pelvis, Spine, 0},
+                {Vector3(0, .59f, -.48f), .15f*w, .17f, Pelvis, Spine, 0},
+                {Vector3(0, .61f, -.31f), .205f*w, .205f, Pelvis, Spine, .15f},
+                {Vector3(0, .62f, -.10f), .21f*w, .21f, Pelvis, Spine, .55f},
+                {Vector3(0, .63f, .10f), .20f*w, .215f, Pelvis, Spine, 1},
+                {Vector3(0, .67f, .27f), .175f*w, .20f, Spine, Head, .05f},
+                {Vector3(0, .74f, .36f), .13f*w, .17f, Spine, Head, .45f},
+                {Vector3(0, .80f, .45f), .105f*w, .13f, Spine, Head, 1},
+                {Vector3(0, .82f, .51f), .008f, .015f, Spine, Head, 1}}};
+            AddBodyLoft(mesh, body, segments);
+            AddEllipsoid(mesh, Vector3(0, .85f, .46f),
+                         Vector3(.15f, .16f, .165f) * shape.headSize, Head, near ? 8 : 4, segments);
+            for (float side : {-1.0f, 1.0f})
+                AddEllipsoid(mesh, Vector3(side * .147f, .84f, .425f),
+                             Vector3(.042f, .057f, .023f), Head, 4, near ? 10 : 6);
+            const auto rest = MonkeyGroundGait::Sample(0, 0);
+            constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
+            constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
+            for (std::size_t limb = 0; limb < rest.limbs.size(); ++limb) {
+                AddLimbSkin(mesh, rest.limbs[limb], upper[limb], lower[limb],
+                            shape.limbThickness, near ? 10 : 6);
+                const Vector3 sole = ToVector(rest.limbs[limb].sole);
+                AddEllipsoid(mesh, sole + Vector3(0, 0, .027f),
+                             Vector3(.048f, .031f, .076f), lower[limb], 3, near ? 10 : 6);
+                if (near)
+                    for (int digit = 0; digit < 4; ++digit)
+                        AddEllipsoid(mesh, sole + Vector3((digit - 1.5f) * .021f, -.006f, .095f),
+                                     Vector3(.010f, .012f, .043f - .003f * std::abs(digit - 1)),
+                                     lower[limb], 3, 6);
             }
-
-            AddTube(mesh, rig.heads[UpperArmLeft], rig.heads[ForearmLeft],
-                    0.078f * silhouette.armThickness, UpperArmLeft, limbSegments);
-            AddTube(mesh, rig.heads[ForearmLeft],
-                    Vector3(-silhouette.armReach, silhouette.armEndHeight, 0.10f),
-                    0.063f * silhouette.armThickness, ForearmLeft, limbSegments);
-            AddTube(mesh, rig.heads[UpperArmRight], rig.heads[ForearmRight],
-                    0.078f * silhouette.armThickness, UpperArmRight, limbSegments);
-            AddTube(mesh, rig.heads[ForearmRight],
-                    Vector3(silhouette.armReach, silhouette.armEndHeight, 0.10f),
-                    0.063f * silhouette.armThickness, ForearmRight, limbSegments);
-            AddEllipsoid(mesh,
-                         Vector3(-silhouette.armReach, silhouette.armEndHeight - 0.04f, 0.12f),
-                         Vector3(0.075f, 0.10f, 0.065f) * silhouette.armThickness,
-                         ForearmLeft, 3, segments);
-            AddEllipsoid(mesh,
-                         Vector3(silhouette.armReach, silhouette.armEndHeight - 0.04f, 0.12f),
-                         Vector3(0.075f, 0.10f, 0.065f) * silhouette.armThickness,
-                         ForearmRight, 3, segments);
-            if (near) {
-                constexpr int digitRings = 2;
-                constexpr int digitSegments = 5;
-                for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
-                    const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
-                    const int bone = sideIndex == 0 ? ForearmLeft : ForearmRight;
-                    for (int digit = -1; digit <= 1; ++digit) {
-                        const float spread = static_cast<float>(digit)
-                            * 0.031f * silhouette.armThickness;
-                        const float reach = digit == 0 ? 0.059f : 0.052f;
-                        AddEllipsoid(
-                            mesh,
-                            Vector3(sideSign * silhouette.armReach + spread,
-                                    silhouette.armEndHeight - 0.148f
-                                        - 0.004f * std::abs(digit),
-                                    0.142f + 0.006f * static_cast<float>(digit)),
-                            Vector3(0.019f, reach, 0.019f) * silhouette.armThickness,
-                            bone, digitRings, digitSegments);
-                    }
-                }
-            }
-
-            AddTube(mesh, rig.heads[ThighLeft], rig.heads[ShinLeft],
-                    0.105f * silhouette.legThickness, ThighLeft, limbSegments);
-            AddTube(mesh, rig.heads[ShinLeft], Vector3(-silhouette.legWidth, 0.06f, 0.08f),
-                    0.075f * silhouette.legThickness, ShinLeft, limbSegments);
-            AddTube(mesh, rig.heads[ThighRight], rig.heads[ShinRight],
-                    0.105f * silhouette.legThickness, ThighRight, limbSegments);
-            AddTube(mesh, rig.heads[ShinRight], Vector3(silhouette.legWidth, 0.06f, 0.08f),
-                    0.075f * silhouette.legThickness, ShinRight, limbSegments);
-            AddEllipsoid(mesh, Vector3(-silhouette.legWidth, 0.055f, 0.135f),
-                         Vector3(0.10f, 0.055f, 0.16f) * silhouette.legThickness,
-                         ShinLeft, 3, segments);
-            AddEllipsoid(mesh, Vector3(silhouette.legWidth, 0.055f, 0.135f),
-                         Vector3(0.10f, 0.055f, 0.16f) * silhouette.legThickness,
-                         ShinRight, 3, segments);
-            if (near) {
-                constexpr int digitRings = 2;
-                constexpr int digitSegments = 5;
-                for (int sideIndex = 0; sideIndex < 2; ++sideIndex) {
-                    const float sideSign = sideIndex == 0 ? -1.0f : 1.0f;
-                    const int bone = sideIndex == 0 ? ShinLeft : ShinRight;
-                    for (int digit = -1; digit <= 1; ++digit) {
-                        const float spread = static_cast<float>(digit)
-                            * 0.038f * silhouette.legThickness;
-                        AddEllipsoid(
-                            mesh,
-                            Vector3(sideSign * silhouette.legWidth + spread,
-                                    0.050f + 0.003f * std::abs(digit),
-                                    0.320f - 0.008f * std::abs(digit)),
-                            Vector3(0.018f, 0.017f,
-                                    digit == 0 ? 0.078f : 0.068f)
-                                * silhouette.legThickness,
-                            bone, digitRings, digitSegments);
-                    }
-                }
-            }
-
-            AddTube(mesh, rig.heads[TailBase], rig.heads[TailMiddle],
-                    0.062f * silhouette.tailThickness, TailBase, limbSegments);
-            AddTube(mesh, rig.heads[TailMiddle], rig.heads[TailTip],
-                    0.053f * silhouette.tailThickness, TailMiddle, limbSegments);
-            AddTube(mesh, rig.heads[TailTip], Vector3(0.03f, 0.91f, silhouette.tailEndZ),
-                    0.043f * silhouette.tailThickness, TailTip, limbSegments);
-            if (mesh.vertices.size() > 65535U) {
-                throw std::runtime_error("procedural monkey mesh exceeds portable 16-bit indices");
-            }
+            AddTube(mesh, rig.heads[TailBase], rig.heads[TailMiddle], .036f, TailBase, segments);
+            AddTube(mesh, rig.heads[TailMiddle], rig.heads[TailTip], .028f, TailMiddle, segments);
+            AddTube(mesh, rig.heads[TailTip], Vector3(0, .97f, -1.55f * shape.tailLength),
+                    .017f, TailTip, segments);
             return mesh;
         }
 
         [[nodiscard]] MeshData CreateFaceMesh()
         {
             MeshData mesh;
-            AddEllipsoid(mesh, Vector3(0.0f, 1.332f, 0.225f),
-                         Vector3(0.16f, 0.105f, 0.045f), Head, 5, 8);
-            AddEllipsoid(mesh, Vector3(0.0f, 1.215f, 0.218f),
-                         Vector3(0.176f, 0.116f, 0.151f), Head, 5, 8);
-            AddEllipsoid(mesh, Vector3(-0.216f, 1.32f, 0.047f),
-                         Vector3(0.054f, 0.071f, 0.029f), Head, 3, 7);
-            AddEllipsoid(mesh, Vector3(0.216f, 1.32f, 0.047f),
-                         Vector3(0.054f, 0.071f, 0.029f), Head, 3, 7);
+            // Narrow orbital skin and a projecting, low muzzle, not a teddy-bear mask.
+            AddEllipsoid(mesh, Vector3(0, .86f, .605f), Vector3(.108f, .065f, .027f), Head, 6, 12);
+            AddEllipsoid(mesh, Vector3(0, .787f, .628f), Vector3(.077f, .052f, .069f), Head, 6, 12);
+            for (float side : {-1.0f, 1.0f})
+                AddEllipsoid(mesh, Vector3(side * .151f, .84f, .445f),
+                             Vector3(.026f, .037f, .013f), Head, 4, 8);
             return mesh;
         }
 
         [[nodiscard]] MeshData CreateEyeMesh()
         {
             MeshData mesh;
-            AddEllipsoid(mesh, Vector3(-0.073f, 1.342f, 0.265f),
-                         Vector3(0.027f, 0.033f, 0.025f), Head, 3, 6);
-            AddEllipsoid(mesh, Vector3(0.073f, 1.342f, 0.265f),
-                         Vector3(0.027f, 0.033f, 0.025f), Head, 3, 6);
-            AddEllipsoid(mesh, Vector3(0.0f, 1.205f, 0.370f),
-                         Vector3(0.055f, 0.036f, 0.025f), Head, 3, 7);
+            for (float side : {-1.0f, 1.0f}) {
+                AddEllipsoid(mesh, Vector3(side * .058f, .864f, .629f),
+                             Vector3(.019f, .013f, .010f), Head, 4, 10);
+                AddEllipsoid(mesh, Vector3(side * .018f, .800f, .694f),
+                             Vector3(.009f, .006f, .004f), Head, 3, 6);
+            }
+            AddEllipsoid(mesh, Vector3(0, .762f, .679f),
+                         Vector3(.046f, .003f, .006f), Head, 3, 10);
             return mesh;
         }
 
@@ -1028,14 +987,42 @@ namespace island
                 playback.presentedLocalTransforms = playback.player->GetBoneTransforms();
             }
 
-            if (std::fabs(monkey.headLookRadians) > 0.001f) {
+            {
                 playback.attentiveLocalTransforms = playback.presentedLocalTransforms;
+                static const RigDefinition groundRig = CreateRig();
+                static const auto restPose = MonkeyGroundGait::Sample(0.0f, 0.0f);
+                // The horizontal trunk supports four limbs; do not inherit the former
+                // upright-walk pelvis bob/spine lean. Head/tail retain bounded animation.
+                playback.attentiveLocalTransforms[Pelvis] = Matrix::CreateTranslation(
+                    RestTranslation(groundRig, Pelvis));
+                playback.attentiveLocalTransforms[Spine] = Matrix::CreateTranslation(
+                    RestTranslation(groundRig, Spine));
                 playback.attentiveLocalTransforms[Head]
                     = Matrix::CreateRotationY(-monkey.headLookRadians)
                         * playback.attentiveLocalTransforms[Head];
                 BuildSkinPalette(*skinningData_, playback.attentiveLocalTransforms,
                                  playback.attentiveWorldTransforms,
                                  playback.attentiveSkinTransforms);
+                const auto pose = MonkeyGroundGait::Sample(monkey.gaitPhase, monkey.gaitAmount);
+                constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
+                constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
+                const auto applySegment = [&](int bone, const Vector3& restDirection,
+                                               const Vector3& direction, const Vector3& origin) {
+                    const float angle = std::atan2(direction.Z, direction.Y)
+                        - std::atan2(restDirection.Z, restDirection.Y);
+                    playback.attentiveWorldTransforms[bone] = Matrix::CreateRotationX(angle)
+                        * Matrix::CreateTranslation(origin);
+                    playback.attentiveSkinTransforms[bone] = skinningData_->InverseBindPose[bone]
+                        * playback.attentiveWorldTransforms[bone];
+                };
+                for (std::size_t limb = 0; limb < pose.limbs.size(); ++limb) {
+                    const auto& rest = restPose.limbs[limb];
+                    const auto& current = pose.limbs[limb];
+                    applySegment(upper[limb], ToVector(rest.joint) - ToVector(rest.root),
+                        ToVector(current.joint) - ToVector(current.root), ToVector(current.root));
+                    applySegment(lower[limb], ToVector(rest.sole) - ToVector(rest.joint),
+                        ToVector(current.sole) - ToVector(current.joint), ToVector(current.joint));
+                }
                 skinTransforms = &playback.attentiveSkinTransforms;
             }
             assert(skinTransforms->size() == BoneCount);
@@ -1043,7 +1030,7 @@ namespace island
             const Vector3 centre(monkey.x, monkey.y + 0.72f * monkey.scale, monkey.z);
             const float distanceSquared = Vector3::DistanceSquared(centre, cameraPosition);
             if (distanceSquared > maximumDistance_ * maximumDistance_
-                || !frustum.Intersects(BoundingSphere(centre, 1.2f * monkey.scale))) {
+                || !frustum.Intersects(BoundingSphere(centre, 1.9f * monkey.scale))) {
                 continue;
             }
 

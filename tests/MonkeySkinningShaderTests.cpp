@@ -29,6 +29,7 @@ try {
         require(vertex.find("layout(location=3) in vec4 aBoneWeights") != std::string::npos);
         require(vertex.find("layout(location=4) in vec4 aBoneIndices") != std::string::npos);
         require(vertex.find("uBones[int(aBoneIndices.x)] * aBoneWeights.x") != std::string::npos);
+        require(vertex.find("uBones[int(aBoneIndices.y)] * aBoneWeights.y") != std::string::npos);
         require(vertex.find("gl_Position.z = 2.0 * gl_Position.z - gl_Position.w") != std::string::npos);
         require(vertex.find("vDiffuse = clamp") != std::string::npos);
         require(vertex.find("vSpecular = clamp") != std::string::npos);

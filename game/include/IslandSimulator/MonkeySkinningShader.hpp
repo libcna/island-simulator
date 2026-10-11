@@ -27,7 +27,8 @@ out vec3 vDiffuse;
 out vec3 vSpecular;
 out float vFogKeep;
 void main() {
-    mat4 skin = uBones[int(aBoneIndices.x)] * aBoneWeights.x;
+    mat4 skin = uBones[int(aBoneIndices.x)] * aBoneWeights.x
+              + uBones[int(aBoneIndices.y)] * aBoneWeights.y;
     vec4 local = skin * vec4(aPosition, 1.0);
     vec4 world = uWorld * local;
     gl_Position = uViewProjection * world;

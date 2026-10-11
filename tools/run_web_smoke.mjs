@@ -797,7 +797,7 @@ try {
     && result.output?.includes(
       "island-simulator: keyboard run/walk toggle uses a transient mode confirmation")
     && result.output?.includes(
-      "island-simulator: near monkeys use restrained procedural crown and cheek fur tufts")
+      "island-simulator: monkeys use a horizontal lofted trunk and distance-driven quadrupedal gait")
     && result.output?.includes(
       "island-simulator: near monkeys use bone-following finger and toe silhouettes")
     && result.output?.includes(
@@ -2007,7 +2007,7 @@ try {
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
     && monkeyResult.output?.includes("3 silhouettes, 4 palettes")
     && monkeyResult.output?.includes(
-      "island-simulator: near monkeys use restrained procedural crown and cheek fur tufts")
+      "island-simulator: monkeys use a horizontal lofted trunk and distance-driven quadrupedal gait")
     && monkeyResult.output?.includes(
       "island-simulator: near monkeys use bone-following finger and toe silhouettes")
     && monkeyResult.output?.includes(
