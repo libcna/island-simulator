@@ -537,3 +537,25 @@ archive and all failed evidence remain unchanged. Android23/browser18/software37
 tests pass, x86_64 build/lint PASS8s. These successful runs follow the segment filter
 but do not constitute a controlled causal A/B experiment for the earlier stalls.
 No general stability/mobile performance/native AMD fix or complete natural gait claim.
+
+## Centroid-centered overhead wide QA camera
+
+The wide SnakeDetail camera now starts at the actual mean of41 body stations plus
+(0,2m,0.35m), looking toward that centroid; translation tracking was already centroid
+based. The close head view is unchanged. No foliage or animals are hidden/moved.
+Simulation code is unchanged, but the new observer location naturally changes the
+retreat route, so old/new image pairs are not matched-pose rendering comparisons.
+
+Actual native `20261011T215642.556056Z-snakes` four-stage grid inspected: entire body
+visible in each stage, lateral bends develop without the old large-leaf obstruction.
+Motion gate passes, kernel-after[]; generic luminance/large-scale contrast still fail.
+Native build passes. Actual Android `20261011T215811.492358Z-snakes` has all four
+valid motion samples (9.372m displacement), but overall run FAILS image acceptance.
+Screenshot inspected: most of the body is readable from above, head partly hidden by
+a trunk near the upper edge. Luminance standard deviation12.6251 is below unchanged
+threshold18; spatial contrast38.3623 passes30. After21 attempts/60seconds no image
+was accepted; owned emulator required forced termination-9, kernel-final[].
+Do not relabel as an Android pass or full unobstructed-body qualification. Android
+x86_64 build/lint PASS5s, Android23/software37 CPU tests pass; standard ARM64 restored.
+Remaining work: dark/readability limitations, trunk occlusion along the live route,
+Web verification and continuous gait audit. Original AMD investigation remains open.

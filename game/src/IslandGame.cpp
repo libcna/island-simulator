@@ -755,11 +755,16 @@ namespace island
         } else if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
             const auto& snake = snakes_->Snakes().front();
             const auto head = snake.body.front();
-            cameraPosition_ = Vector3(head.x-0.6f,head.y+1.5f,head.z+1.7f);
+            Vector3 centre = Vector3::Zero;
+            for (const auto& p : snake.body) centre += Vector3(p.x,p.y,p.z);
+            centre /= static_cast<float>(SnakeState::StationCount);
+            // Frame the entire body from above; the old oblique head-relative
+            // camera crossed nearby broad leaves and lost the retreating head.
+            cameraPosition_ = centre + Vector3(0.0f,2.0f,0.35f);
             if(viewpoint_ == FixedViewpoint::SnakeHeadDetail)
                 cameraPosition_ = Vector3(head.x+0.35f,head.y+0.25f,head.z+0.30f);
             const Vector3 target = viewpoint_ == FixedViewpoint::SnakeHeadDetail
-                ? Vector3(head.x+0.01f,head.y,head.z) : Vector3(head.x-0.8f,head.y,head.z);
+                ? Vector3(head.x+0.01f,head.y,head.z) : centre;
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));

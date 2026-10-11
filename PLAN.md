@@ -761,6 +761,11 @@ progress or require player interaction; dangerous species keep their distance li
   APK:4live samples each,11.304/11.320m displacement, screenshots inspected,
   kernel[],ownedexit0. Closehead clearlyvisible; wideviewhead/upperbodyleafoccluded,
   so wholebodyvisualacceptance remainsOPEN. NotcontrolledA/B rootcause or AMDfix.
+  WideQA camera now aims at actualbodycentroid from2m above/.35m offset; nofoliage
+  removed. Native215642 fourposes allbodyvisible/motionPASS, genericcontrastFAIL.
+  Android215811 motionPASS9.372m but imagegateFAIL (luminanceSD12.6251<18,21attempts),
+  screenshotinspected: mostbodyvisible, headpartlytrunkoccluded. Forcedownedexit-9,
+  kernel[]. Remainingreadability/routeocclusion/Webcameraqualification stillOPEN.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

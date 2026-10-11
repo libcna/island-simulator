@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — wide snake QA camera improved; Android image gate still FAILS
+
+SnakeDetail initial camera now uses actual41-station centroid+(0,2,.35), aiming at
+centroid, instead of oblique head-relative offset/target. Existing centroid translation
+tracking retained. SnakeHeadDetail unchanged. No vegetation hidden/moved and no
+simulation logic changed; observer position changes the natural retreat route.
+NativebuildPASS. Actual llvmpipe215642.556056Z-snakes4-stagegrid inspected: wholebody
+visible across4poses, evolving lateralwaves; priorlargeleafocclusion removed in these
+poses. MotionvalidatorPASS/kernel-after[]. Genericluminance/contrastFAIL unchanged.
+Androidx86build/lintPASS5s; actual215811.492358Z-snakesFAILED image qualification:
+fourruntime motion samplesPASS9.372m, actual screenshotinspected: mostbodyvisible,
+headpartlyhiddenbytrunkatupperedge. Savedimage luminanceSD12.6251<18, spatialcontrast
+38.3623>30,21attempts, noacceptedimagewithin60s. Forcedownedteardown-9/kernel-final[].
+DoNOTcallthisAndroidPASS or completewholebodyvisibility. Existinggatesunchanged.
+Android23/software37CPUtestsPASS. DefaultARM64restored/buildlintPASS (see log).
+NEXT improvevisualreadability/remainingtrunkocclusion, retainnativeheadview and
+earlierqualifiedAndroidAPK; Webcamera/runtimeverificationstillpending. NoAMDfix,
+noKVM/AVD/dependencychanges; fullwildlife/hut/residentplan remainsOPEN.
+
 ## Latest — Android head/body functional motion PASS, wide image still occluded
 
 Prior turn progressed with exact segment rejection/native image equivalence. Added
