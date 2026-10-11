@@ -338,3 +338,28 @@ Next repair must solve close-threat turning with bounded, continuous body/neck m
 and history while retaining terrain, obstacle, self-clearance and non-approach checks.
 Do not close this defect using only the older side-observer retreat tests, or replace
 serpentine motion with rigid backwards translation just to satisfy displacement.
+
+## Head scale mapping correction, native matched view
+
+Found two UV discontinuities: muzzle longitudinal density was16 repeats/metre versus
+the body's1.5/0.055≈27.27, and every nose-fan triangle interpolated to the same(0,0)
+pole, spanning up to four circumferential texture wraps. Shared SnakeSkinU/V helpers
+now keep the same signed longitudinal density through the neck seam. Each nose
+triangle gets its own mid-sector pole U and the correct longitudinal V. Geometry,
+triangles, scales bitmap, texture allocation, clearance and simulation are unchanged.
+CPU tests check seam/density and every fan triangle's local UV span; normal snake
+suite PASS9.79s, supervisor37/assets25/81/10/0 PASS. The known close-retreat regression
+is still open and not part of that normal-suite pass.
+
+Matched native head captures before `20261011T204120.519708Z-snake-head`, after
+`20261011T204412.087633Z-snake-head`: all four timed body records match exactly.
+Both stage0 images and the after directory's head-before-after.png crop actually
+inspected: head scales are more regular and closer in density to the neck/body;
+eyes/mouth and geometry stay recognizable. Full natural material/anatomy acceptance
+remains open. Both graphics logs validate and both kernel deltas are empty.
+**Both overall capture runs FAIL the motion gate** because the head remains stationary
+in the confirmed close-observer case. No validator was weakened to approve the static
+sequence; the paired images support only this localized material correction.
+Native/Web builds and package PASS (11,162,882 bytes raw /4,197,939 gzip), ARM64
+assembleDebug/lintDebug PASS3s. No new portable runtime; shader/material execution
+qualification above is native software only. Hardware stop latch remains unchanged.

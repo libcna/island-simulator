@@ -1,6 +1,15 @@
 #pragma once
 #include <array>
 namespace island {
+    inline constexpr float SnakeSkinCircumferenceRepeats=4.0f;
+    inline constexpr float SnakeSkinStationRepeats=1.5f;
+    // Signed longitudinal distance: positive toward the tail, negative over the muzzle.
+    [[nodiscard]] constexpr float SnakeSkinV(float distanceBehindHead,float stationSpacing) noexcept {
+        return distanceBehindHead*(SnakeSkinStationRepeats/stationSpacing);
+    }
+    [[nodiscard]] constexpr float SnakeSkinU(float sector,float sides) noexcept {
+        return sector*SnakeSkinCircumferenceRepeats/sides;
+    }
     struct SnakeHeadSection { float forward, width, height, centreY; };
     // First section exactly joins the first body ring. Rounded flattened muzzle,
     // entirely inside the population's 50 mm horizontal clearance envelope.

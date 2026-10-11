@@ -16,6 +16,19 @@
 static void Check(bool pass, const char* message) { if (!pass) throw std::runtime_error(message); }
 int main(int argc,char** argv)
 {
+    Check(island::SnakeSkinV(0,island::SnakePopulation::Spacing)==0,"head/body UV seam differs");
+    Check(std::abs(island::SnakeSkinV(island::SnakePopulation::Spacing,island::SnakePopulation::Spacing)-1.5f)<0.00001f,
+        "body longitudinal scale density changed");
+    for(const auto& section:island::SnakeHeadSections)
+        Check(std::abs(island::SnakeSkinV(-section.forward,island::SnakePopulation::Spacing)
+            +island::SnakeSkinV(section.forward,island::SnakePopulation::Spacing))<0.00001f,
+            "head and body scale density differs");
+    for(int sector=0;sector<16;++sector) {
+        const float a=island::SnakeSkinU(static_cast<float>(sector),16),
+            b=island::SnakeSkinU(static_cast<float>(sector+1),16),
+            pole=island::SnakeSkinU(static_cast<float>(sector)+0.5f,16);
+        Check(pole>a && pole<b && b-a<=0.25001f,"nose fan UV crosses unrelated texture wraps");
+    }
     for(const auto& section:island::SnakeHeadSections) {
         Check(section.forward>=0 && section.width>0 && section.height>0,
             "invalid snake muzzle section");

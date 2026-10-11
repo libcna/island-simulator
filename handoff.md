@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Latest — native matched head UV correction; retreat still fails
+
+SnakeHeadProfile.hpp shared SkinU/V density helpers; headV now matchesbody1.5/55mm,
+nosefan pole duplicatedpersector withmidU andnoseV instead ofsame(0,0) stretching4wraps.
+No geometry/triangle/textureallocation/simulationchange. CPU seam/density/localUVspan
+tests, normalsnake suitePASS9.79s; knownoptincloseretreatstillopen (notnormalgreen).
+Native before build/software-captures/20261011T204120.519708Z-snake-head andafter
+20261011T204412.087633Z-snake-head:4 timedbodylogsidentical, graphicsvalid/kernel[].
+Bothstage0PNG+afterhead-before-after.png cropsactuallyinspected; moreregularheadscales
+andbetterdensitycontinuity. BOTH captureoverallFAIL motiongate dueconfirmedstationary
+closeretreat. Validatorunchanged; pairedimagesproveonlylocalizedmaterialimprovement.
+Native/Web builds, package11,162,882raw/4,197,939gzipPASS; ARM64assemble/lint3sPASS.
+Supervisor37/assets25/81/10/0PASS. Nonewportableactualruntime. Allownedjobs terminal.
+Stoplatchunchanged; nohardware/AndroidKVM/dependency/push. Goalactive, AMDcauseunknown.
+NEXT close-frontalretreat stillpriority; boundedneck/turnsolver mustretainalltests,
+alsoheadQAcamera centroidtracking/leafocclusion andremainingwildlifebacklog stayopen.
+
 ## Latest — close-frontal snake retreat deadlock reproduced, NOT fixed
 
 New opt-in CPUreproducer `build/island_snake_tests --close-observer-regression` uses

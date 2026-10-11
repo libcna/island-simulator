@@ -717,6 +717,11 @@ progress or require player interaction; dangerous species keep their distance li
   cover this open case. Circle/path-intersection replacement was rejected for station
   teleport/trail-cap violations and removed. Repair coupled neck/turn/path constraints
   without relaxing clearance, movement bounds or512-sample cap; see ground-snakes doc.
+  Head UV correction: shared head/body longitudinal density and per-sector nose pole
+  remove stretched fan wraps. CPU seam/span tests PASS; matched native204120.519708Z
+  before/204412.087633Z after images inspected, scales more regular, geometry unchanged.
+  Timed body records match, graphics/kernel checks pass; BOTH overall capture runs
+  still FAIL stationary-motion gate due to the open retreat defect. No full visual pass.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

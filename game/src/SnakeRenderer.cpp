@@ -91,7 +91,8 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
                 const Color color=std::sin(angle)<-0.25f ? Color(177,165,105)
                     : Color(static_cast<int>(104*band),static_cast<int>(119*band),static_cast<int>(49*band));
                 rings[j][static_cast<std::size_t>(k)]=vertex(centre+normal*SnakePopulation::RadiusAt(j),normal,color,
-                    Vector2(static_cast<float>(k)*4.0f/Sides,static_cast<float>(j)*1.5f));
+                    Vector2(SnakeSkinU(static_cast<float>(k),Sides),
+                        SnakeSkinV(static_cast<float>(j)*SnakePopulation::Spacing,SnakePopulation::Spacing)));
             }
         }
         auto triangle=[&](const auto& a,const auto& b,const auto& c) {
@@ -117,7 +118,8 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
                     +right*(std::cos(angle)*profile.width)+up*(profile.centreY+std::sin(angle)*profile.height);
                 next[static_cast<std::size_t>(k)]=vertex(position,normal,
                     std::sin(angle)<-0.25f ? Color(192,177,116) : Color(117,136,62),
-                    Vector2(static_cast<float>(k)*4.0f/Sides,-profile.forward*16.0f));
+                    Vector2(SnakeSkinU(static_cast<float>(k),Sides),
+                        SnakeSkinV(-profile.forward,SnakePopulation::Spacing)));
             }
             for(int k=0;k<Sides;++k) {
                 const auto a=static_cast<std::size_t>(k),b=a+1;
@@ -125,9 +127,13 @@ void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vecto
             }
             muzzle=next;
         }
-        const auto nose=vertex(origin+forward*SnakeNoseForward-up*0.008f,forward,Color(111,128,57),Vector2(0,0));
         const auto tail=vertex(Point(snake.body.back()),-forward,Color(89,104,43),Vector2(0,0));
         for(int k=0;k<Sides;++k) {
+            // Each cap triangle needs a local pole UV. Reusing (0,0) across the fan
+            // dragged up to four texture wraps across a single tiny muzzle triangle.
+            const auto nose=vertex(origin+forward*SnakeNoseForward-up*0.008f,forward,Color(111,128,57),
+                Vector2(SnakeSkinU(static_cast<float>(k)+0.5f,Sides),
+                    SnakeSkinV(-SnakeNoseForward,SnakePopulation::Spacing)));
             triangle(nose,muzzle[static_cast<std::size_t>(k)],muzzle[static_cast<std::size_t>(k+1)]);
             triangle(tail,rings.back()[static_cast<std::size_t>(k+1)],rings.back()[static_cast<std::size_t>(k)]);
         }
