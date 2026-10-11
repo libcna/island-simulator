@@ -79,3 +79,32 @@ without claiming portable runtime images or overriding the native image-gate fai
 
 Continuous animation, a reliable close-subject QA gate, grass/body interaction,
 contact shadows and portable runtime images remain open, alongside tree snakes.
+
+## Continuous terrain-clipped contact shadow (2026-10-11)
+
+Ground snakes now contribute a soft continuous ribbon to the existing contact-shadow
+batch, including a tapered head cap and tail fade. Each ribbon triangle is clipped
+against the actual rendered terrain triangles before height projection, preventing
+bridges across terrain creases. The offset is 4 mm; opacity peaks at 0.23. The existing
+population height cache is reused, with no new texture or draw call. Capacity reserves
+12,000 vertices per snake (48,000 additional slots); any body station moving over
+8 mm invalidates the cached batch. Shadow distance follows the existing quality scale.
+F1 now has snake population, shadow and draw counts; its layout still needs a live review.
+
+Population tests sample shadow vertices and two interior points per triangle every
+60 frames of the 2,400-update scenario, checking terrain clearance, opacity and vertex
+limits. Nonfinite, stretched and degenerate input fixtures must be rejected.
+
+Actually inspected native `20261011T182707.559480Z-snake-head/capture.png`: visible
+scaled body with subtle ground darkening, no chain of separate shadow discs. Grass
+still heavily occludes the animal and the head faces away in this live pose. This is
+not acceptance of final appearance or continuous-motion quality. Startup reports one
+visible snake, one snake shadow and one shared contact-shadow draw. Graphics-log replay
+passes and kernel delta is empty, but the unchanged generic luminance-variation gate
+FAILS. Portable runtime images, grass intersections and motion review remain open.
+
+Full 40 non-display test groups pass (87.01 s), 34 supervisor checks pass and asset
+validation passes (25 procedural records / 80 sources / 10 project files / 0 external).
+Web Release build/package passes (11,138,018 raw / 4,188,113 gzip bytes); ARM64
+assembleDebug/lintDebug passes in 7 s. These builds do not establish portable runtime
+appearance. The hardware qualification stop latch remains unchanged.

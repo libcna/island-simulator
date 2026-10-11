@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — continuous ground snake contact shadows
+
+Added SnakeContactShadow CPU geometry: soft continuous body ribbon/head cap/tail fade,
+clipped to exact rendered grid triangles, 4 mm offset, max alpha .23. Reuses population
+height cache, existing single shadow batch; reserves 12k vertices per snake, no texture.
+Any station moving >8 mm invalidates cache. Existing profile scales shadow distance.
+F1 snake visible/total/shadows/draws added (layout not yet visually reviewed).
+Tests cover vertices/interior triangle points over 2400-update scenario and invalid
+NaN/stretched/degenerate fixtures. Asset inventory now25/80/10/0.
+
+Actually inspected `20261011T182707.559480Z-snake-head/capture.png`: subtle body-ground
+darkening, substantial grass occlusion and head facing away. Generic luminance gate
+FAILS; independent graphics-log replay PASS, kernel delta empty. Startup1/4 snakes,
+1 snake shadow, single shared shadow draw. Not final appearance/motion acceptance.
+See docs/ground-snakes.md. Full 40 non-display groups PASS87.01s; supervisor34PASS,
+assets25/80/10/0. Web Release build/package PASS11,138,018 raw/4,188,113 gzip bytes;
+ARM64 assembleDebug/lintDebug PASS7s. Logs build/snake-shadow-all-tests.log,
+build-probe/snake-shadow-{build,package}.log and build/snake-shadow-arm64.log.
+All owned jobs terminal; GPU stop latch SHA unchanged. Builds are not runtime images.
+Next: live continuous motion/grass interactions, subject-aware close QA,
+portable images and tree snakes. Keep whole goal active, no hardware/KVM changes/push.
+
 ## Latest — readable snake head refinement, image gate still not passed
 
 SnakeHeadProfile header + connected muzzle sections replace conical nose; surface

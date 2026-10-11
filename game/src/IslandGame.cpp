@@ -2253,7 +2253,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("contact-shadows");
             contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                         renderedMonkeys, boarHerd_.Boars());
+                                         renderedMonkeys, boarHerd_.Boars(),*snakes_);
         }
 
         const float timeSeconds = canopyLodInspection_ ? 1.0f : static_cast<float>(gameTime.getTotalGameTimeProperty()
@@ -2524,6 +2524,10 @@ namespace island
             overlayState.totalBoars = static_cast<int>(boarHerd_.Boars().size());
             overlayState.boarDraws = boarRenderer_->DrawCallCount();
             overlayState.boarShadows = contactShadowRenderer_->VisibleBoarShadowCount();
+            overlayState.visibleSnakes = snakeRenderer_->VisibleCount();
+            overlayState.totalSnakes = static_cast<int>(snakes_->Snakes().size());
+            overlayState.snakeShadows = contactShadowRenderer_->VisibleSnakeShadowCount();
+            overlayState.snakeDraws = snakeRenderer_->DrawCallCount();
             overlayState.totalCrabs = static_cast<int>(crabColony_.Crabs().size());
             overlayState.nearCrabs = crabRenderer_->VisibleNearCrabCount();
             overlayState.farCrabs = crabRenderer_->VisibleFarCrabCount();
@@ -2755,7 +2759,8 @@ namespace island
                       << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
                       << " visible, " << boarRenderer_->DrawCallCount() << " draw; snakes "
                       << snakeRenderer_->VisibleCount() << '/' << snakes_->Snakes().size()
-                      << " visible, " << snakeRenderer_->DrawCallCount() << " draw; fish "
+                      << " visible, " << snakeRenderer_->DrawCallCount() << " draw, "
+                      << contactShadowRenderer_->VisibleSnakeShadowCount() << " shadows; fish "
                       << fishRenderer_->VisibleFishCount() << '/'
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "

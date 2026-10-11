@@ -122,6 +122,10 @@ namespace island
         int totalBoars = 0;
         int boarDraws = 0;
         int boarShadows = 0;
+        int visibleSnakes = 0;
+        int totalSnakes = 0;
+        int snakeShadows = 0;
+        int snakeDraws = 0;
         int totalCrabs = 0;
         int nearCrabs = 0;
         int farCrabs = 0;

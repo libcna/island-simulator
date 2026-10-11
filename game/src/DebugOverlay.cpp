@@ -414,6 +414,10 @@ namespace island
         boars << "BOARS " << state.visibleBoars << '/' << state.totalBoars
               << "  SHADOWS " << state.boarShadows << "  DRAWS " << state.boarDraws;
         lines.push_back(boars.str());
+        auto snakes = DiagnosticLine();
+        snakes << "SNAKES " << state.visibleSnakes << '/' << state.totalSnakes
+               << "  SHADOWS " << state.snakeShadows << "  DRAWS " << state.snakeDraws;
+        lines.push_back(snakes.str());
 
         auto fish = DiagnosticLine();
         fish << "FISH " << state.visibleFish << '/' << state.totalFish

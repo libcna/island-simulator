@@ -647,6 +647,12 @@ progress or require player interaction; dangerous species keep their distance li
   actually inspected: face more readable, partial grass occlusion persists; unchanged
   luminance gate still fails. Kernel empty, graphics log valid. Rotation-aware head
   clearance/population tests pass8.36s; final mesh remains within20k vertex budget.
+  Contact shadows now use a continuous soft ribbon clipped to rendered terrain triangles,
+  sharing the existing batch/cache (no extra draw/texture); F1 snake counts added.
+  Actual `20261011T182707.559480Z-snake-head` inspected: subtle grounding visible,
+  grass occlusion remains; generic luminance gate FAILS, graphics log valid/kernel empty.
+  Vertex/interior terrain-clearance and invalid-input shadow tests added. Motion quality,
+  portable runtime images, F1 layout review and tree snakes remain unqualified/open.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

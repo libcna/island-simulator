@@ -34,6 +34,7 @@ namespace island
         SnakePopulation(const IslandTerrain& terrain, std::span<const CircularObstacle> obstacles = {});
         void Update(float deltaSeconds, float observerX, float observerY, float observerZ);
         [[nodiscard]] std::span<const SnakeState> Snakes() const noexcept { return states_; }
+        [[nodiscard]] const RenderedTerrainSurface& Surface() const noexcept { return *surface_; }
         [[nodiscard]] static float RadiusAt(std::size_t station) noexcept;
         [[nodiscard]] bool ValidBody(const SnakeState& state) const;
 

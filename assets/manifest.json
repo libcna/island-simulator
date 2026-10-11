@@ -216,6 +216,8 @@
       "sources": [
         "game/src/SnakePopulation.cpp",
         "game/include/IslandSimulator/SnakeHeadProfile.hpp",
+        "game/include/IslandSimulator/SnakeContactShadow.hpp",
+        "game/src/SnakeContactShadow.cpp",
         "game/src/SnakeRenderer.cpp"
       ]
     },

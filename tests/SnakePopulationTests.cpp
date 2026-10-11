@@ -1,5 +1,6 @@
 #include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/SnakeHeadProfile.hpp"
+#include "IslandSimulator/SnakeContactShadow.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -62,6 +63,27 @@ int main()
             const auto& other = repeated.Snakes()[index];
             Check(population.ValidBody(snake),"snake left whole-body habitat/spacing/clearance bounds");
             Check(snake.speed>=0 && snake.speed<=1.151f,"snake speed not bounded");
+            if(frame%60==0) {
+                const auto shadow=island::BuildSnakeContactShadow(snake,surface);
+                Check(!shadow.empty() && shadow.size()%3==0 && shadow.size()<=island::SnakeShadowVertexLimit,
+                    "snake shadow geometry budget/triangles invalid");
+                for(const auto& v:shadow) {
+                    Check(std::isfinite(v.opacity) && v.opacity>=0 && v.opacity<=0.230001f,
+                        "snake shadow opacity invalid");
+                    Check(std::abs(v.y-surface.Sample(v.x,v.z).height-island::SnakeShadowSurfaceOffset)<0.00002f,
+                        "snake shadow vertex not on rendered terrain");
+                }
+                for(std::size_t j=0;j<shadow.size();j+=3) {
+                    const auto a=shadow[j],b=shadow[j+1],c=shadow[j+2];
+                    for(const auto weights:{std::array{0.2f,0.3f,0.5f},std::array{0.6f,0.2f,0.2f}}) {
+                        const float x0=a.x*weights[0]+b.x*weights[1]+c.x*weights[2];
+                        const float z0=a.z*weights[0]+b.z*weights[1]+c.z*weights[2];
+                        const float y0=a.y*weights[0]+b.y*weights[1]+c.y*weights[2];
+                        Check(std::abs(y0-surface.Sample(x0,z0).height-island::SnakeShadowSurfaceOffset)<0.00003f,
+                            "snake shadow triangle bridges rendered terrain crease");
+                    }
+                }
+            }
             for (std::size_t j=0; j<snake.body.size(); ++j) {
                 const auto a=snake.body[j], b=other.body[j];
                 Check(a.x==b.x && a.y==b.y && a.z==b.z,"snake trajectory not deterministic");
@@ -96,6 +118,16 @@ int main()
     Check(totalTravel>3.0f && behaviors[0] && behaviors[1] && behaviors[2],
         "snake behavior/movement coverage missing");
     const auto before=population.Snakes().front();
+    for(int invalid=0;invalid<3;++invalid) {
+        auto snake=before;
+        if(invalid==0) snake.body[0].x=std::numeric_limits<float>::quiet_NaN();
+        if(invalid==1) snake.body[2]=snake.body[0];
+        if(invalid==2) snake.body[0].x+=2.0f;
+        bool rejected=false;
+        try { (void)island::BuildSnakeContactShadow(snake,surface); }
+        catch(const std::invalid_argument&) { rejected=true; }
+        Check(rejected,"invalid snake shadow geometry accepted");
+    }
     for (float dt : {0.0f,-1.0f,std::numeric_limits<float>::quiet_NaN()})
         population.Update(dt,0,0,0);
     Check(before.body[0].x==population.Snakes()[0].body[0].x,"invalid time moved snake");

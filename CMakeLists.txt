@@ -35,6 +35,7 @@ add_library(island_core STATIC
     game/src/BirdFlock.cpp
     game/src/BoarHerd.cpp
     game/src/SnakePopulation.cpp
+    game/src/SnakeContactShadow.cpp
     game/src/BoarCoatTexture.cpp
     game/src/BoarPose.cpp
     game/src/BoarGroundPose.cpp
