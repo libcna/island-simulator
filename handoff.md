@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — current monkey model qualified on Android; first black presentation unresolved
+
+See `docs/monkey-android-current-model.md` for hashes, both runs and scope. Current ca6b042
+x86_64 assembly/lint passes. `20261011T121437.574103Z-monkeys` FAILED: six all-black images
+in 30 seconds despite fur-load/first-draw markers. Fresh failure-log retention was added and
+CLI presentation wait extended to 60 seconds without changing image/GL gates. Identical APK
+`20261011T121912.364377Z-monkeys` PASSES on its FIRST screenshot attempt, image inspected:
+current quadruped/fur/terrain-target/tail visible. Empty kernel deltas in both. No claim that
+the longer wait fixed the failure; cause remains unknown/intermittent. Both runs retained.
+Shell and Python startup gates require the fur-load marker; APK hashes all three textures.
+22 Android CPU tests and shell syntax pass. Tested x86 APK retained separately; default
+ARM64 assembly/lint restored, three ARM64 libraries and three textures verified. No physical
+ARM64/lifecycle qualification. All jobs finished; no emulator/KVM/dependency changes.
+
+NEXT: improve toy-mask face/shoulder form, independent palm/sole alignment and stance locks,
+then actual tree-contact/climbing; Web current-tail verification is still pending (its last
+passing motion series used the prior tail). Keep whole-plan audit/wildlife/hut/resident open.
+
 ## Latest — Web anatomy/fur/contact qualified; continuous tail native first pass
 
 `20261011T120413.407382Z-chrome-monkeys` PASSES with a 600-second bound, all sixty

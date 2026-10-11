@@ -324,6 +324,11 @@ Standing visual-quality rules (apply to every task from now on):
   qualifies the anatomy/fur/terrain-target revision, not the later tail change. Continuous
   tapered, dual-weight tail now native-inspected in `20261011T121030.039628Z-monkeys`;
   current-tail motion/portable checks and Android anatomy qualification remain open.
+  Android current-model run `20261011T121912.364377Z-monkeys` passes and image inspected
+  after an identical-APK run produced only black presentations. Failed evidence retained;
+  first-presentation reliability remains unresolved, not explained away by the repeat pass.
+  See `docs/monkey-android-current-model.md`. Default ARM64 assembly/lint restored. Current
+  Web tail/motion checks, full contact/climbing and whole-model realism remain open.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

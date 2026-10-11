@@ -267,6 +267,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" \
             "$LOG_FILE" \
+        && grep -q "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" \
+            "$LOG_FILE" \
         && grep -Eq "forest-floor filter (anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)" \
             "$LOG_FILE" \
         && grep -q "island-simulator: grass retains foliage colour at distance with normalized-height basal tint" \

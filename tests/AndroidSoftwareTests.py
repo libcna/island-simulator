@@ -20,6 +20,24 @@ from android_touch_geometry import geometry, from_log, TouchGeometry
 
 
 class AndroidSoftwareTests(unittest.TestCase):
+    def test_failed_presentation_retains_fresh_app_log_before_teardown(self):
+        for pid in ("1864", "1864 1870", ""):
+            with self.subTest(pid=pid), tempfile.TemporaryDirectory(prefix="island-failure-test-") as temporary:
+                args = SimpleNamespace(apk=Path("test.apk"), apk_sha256="test",
+                    sdk=Path("/sdk"), evidence=Path(temporary), lifecycle=False)
+                failure = subprocess.CalledProcessError(1, "runtime-gate")
+                responses = [failure, SimpleNamespace(stdout=pid)]
+                if pid == "1864": responses.append(SimpleNamespace(returncode=0))
+                responses.append(SimpleNamespace(returncode=0))
+                with patch.object(gate, "validate_apk", return_value={"sha256":"test"}), \
+                     patch.object(gate, "game_environment", return_value={}), \
+                     patch.object(gate.subprocess, "run", side_effect=responses) as run:
+                    with self.assertRaises(subprocess.CalledProcessError): gate.run_game(args)
+                    commands = [call.args[0] for call in run.call_args_list]
+                    self.assertEqual(any("--pid=1864" in command for command in commands), pid == "1864")
+                    self.assertIn("screencap", commands[-1])
+                    self.assertEqual((Path(temporary)/"game-failure-logcat.txt").exists(), pid == "1864")
+
     def test_graphics_gate_rejects_stock_link_failures_and_guest_gl_errors(self):
         source = (Path(__file__).resolve().parent.parent /
                   "tools/run_android_runtime_smoke.sh").read_text()
@@ -239,12 +257,17 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
         self.assertEqual(from_log(log), geometry(1280, 720, 1280, 720))
 
     def test_game_must_report_software_gles_without_graphics_errors(self):
-        good = 'renderer="OPENGLES3" gl-renderer="Google SwiftShader"\n'
+        renderer = 'renderer="OPENGLES3" gl-renderer="Google SwiftShader"\n'
+        good = renderer + 'monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes\n'
         with tempfile.TemporaryDirectory(prefix="island-android-test-") as temporary:
             directory = Path(temporary)
             log = directory / "island-android-logcat.txt"
             log.write_text(good)
             gate.validate_game_logs(directory, False)
+            for missing in (renderer, good.replace("10 mips", "1 mips")):
+                log.write_text(missing)
+                with self.assertRaisesRegex(RuntimeError, "required monkey fur"):
+                    gate.validate_game_logs(directory, False)
             for bad in ("GL_INVALID_OPERATION", "gl-error invalid", "Fatal signal 6", "FATAL EXCEPTION",
                         "terrain material fallback: bad", "grass stock-effect fallback: bad",
                         "shader compilation failed", "gl-debug source severity=high"):

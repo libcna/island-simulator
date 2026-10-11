@@ -224,6 +224,8 @@ def validate_game_logs(directory, lifecycle):
     for log in [logs[0], *([logs[-1]] if lifecycle else [])]:
         if 'renderer="OPENGLES3"' not in log or not re.search(r'gl-renderer="[^"\n]*SwiftShader', log):
             raise RuntimeError("application did not confirm OPENGLES3 on SwiftShader")
+        if "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes" not in log:
+            raise RuntimeError("application did not confirm the required monkey fur material")
 
 
 def run_game(args):
@@ -239,6 +241,19 @@ def run_game(args):
             subprocess.run(command, env=game_environment(args), stdout=log, stderr=subprocess.STDOUT,
                            timeout=360 if args.lifecycle else 210, check=True)
     except (OSError, subprocess.SubprocessError):
+        # The shell's last log snapshot precedes its presentation wait. Preserve a
+        # fresh app-only log after failure, before teardown, to distinguish a late
+        # GL/lifecycle error from a slow or stalled first presentation.
+        failure_adb = [str(args.sdk / "platform-tools/adb"), "-P", "5038", "-s", "emulator-5558"]
+        try:
+            pid = subprocess.run([*failure_adb, "shell", "pidof", "com.libcna.islandsimulator"],
+                                 capture_output=True, text=True, timeout=10, check=True).stdout.strip()
+            if re.fullmatch(r"[0-9]+", pid):
+                with (args.evidence / "game-failure-logcat.txt").open("w") as log:
+                    subprocess.run([*failure_adb, "logcat", "--pid=" + pid, "-d", "-v", "threadtime"],
+                                   stdout=log, stderr=subprocess.STDOUT, timeout=10, check=True)
+        except (OSError, subprocess.SubprocessError) as error:
+            print(f"Failure app log unavailable: {error}", file=sys.stderr)
         # Capture the actual failed presentation before the owned emulator is shut down.
         try:
             with (args.evidence / "failure-screen.png").open("wb") as image:

@@ -43,7 +43,9 @@ def capture(adb, output, timeout=30, profile="scene"):
 if __name__ == "__main__":
     try:
         arguments = sys.argv[3].split(",") if len(sys.argv) > 3 else []
-        capture(sys.argv[1], Path(sys.argv[2]), profile=profile_for_arguments(arguments))
+        # Software GLES first presentation can lag the first-draw marker. Keep a
+        # bounded 60-second CLI window; image thresholds and failure semantics stay intact.
+        capture(sys.argv[1], Path(sys.argv[2]), timeout=60, profile=profile_for_arguments(arguments))
     except (OSError, RuntimeError, subprocess.SubprocessError) as error:
         print(f"android capture failed: {error}", file=sys.stderr)
         sys.exit(1)
