@@ -387,3 +387,35 @@ proof. Live troop/render integration and actual graphical qualification remain o
 After the refusal fix, final incremental native build and all 37 non-display groups pass
 (38.52 s, `build/monkey-excursion-wind-final-tests.log`). Asset inventory remains 24/74/10/0;
 GPU stop latch unchanged, all jobs finished. No graphics process was launched.
+
+## Whole-excursion clearance preflight — CPU only
+
+`MonkeyExcursionClearance::Validate` now follows the whole 39-second trajectory at
+0.02-second intervals with advancing wind. Each pose checks four sole centres and
+normal-aligned toe/sole corners, four interior samples on each upper and lower limb,
+and three torso/head spheres. Upper/lower limb probes use .055/.035 model-unit radii;
+these are coarse probes, not exact skinned sleeves. Terrain uses rendered triangles;
+the selected trunk uses its current wind-deformed surface with angular queries relative
+to the bent trunk centre. Other objects use existing conservative vertical circular
+proxies. Only the selected tree's matching canopy proxy is exempted. Nearby obstacles
+are filtered once with a bound including trunk lean and monkey size.
+
+Failure returns the category, excursion time and probe index; an unreachable retarget
+is rejected, never silently replaced with a ground pose. All 21 accepted actual-island
+attachment sites pass this preflight at initial wind time 3. The first targeted Core run
+passes in 34.44 s (`build/monkey-excursion-clearance-tests.log`). Negative fixtures insert
+an obstacle on the bark-contact path, shift the entire pose/tree .02 m into unchanged
+terrain, and supply an invalid frame. They must be refused as obstacle, terrain and
+invalid-input failures respectively.
+
+Limits: finite time/shape probes, not continuous swept collision, full mesh/tail collision
+or all possible wind phases. The static world proxies overestimate some elevated objects.
+This completes the initial full-cycle CPU preparation, NOT the live feature. Next wire
+the existing prepared path and clock into troop/renderer, retain coherent supporting-tree
+LOD, transform body/sole frames and culling/shadows together, then inspect actual in-game
+attachment, ascent, rest, descent, interruption and release. Existing inspection captures
+cannot stand in for that visual audit.
+
+Final incremental build and all 37 non-display groups pass (54.09 s,
+`build/monkey-excursion-clearance-final-tests.log`), including the negative fixtures.
+Asset gate 24/75/10/0, stop latch unchanged, all jobs finished. No graphics run yet.

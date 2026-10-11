@@ -431,6 +431,11 @@ Standing visual-quality rules (apply to every task from now on):
   beyond arm reach; these are explicitly rejected instead of accepting clamped soles.
   Runtime must keep the supporting tree mesh coherent or qualify a continuous LOD transfer.
   Live wiring, ascent clearance, whole-cycle visuals and portable validation remain open.
+  Whole-cycle clearance now samples advancing wind, sole/toe footprints, upper/lower limb
+  probes and torso/head spheres against rendered terrain, actual bark and world obstacles.
+  All 21 accepted natural sites pass at initial wind 3. Negative obstacle/terrain/invalid
+  frame fixtures guard rejection. These remain finite proxy samples, not full mesh or
+  continuous collision proof. Next is live behavior/render integration and actual images.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

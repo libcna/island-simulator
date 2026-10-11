@@ -9,7 +9,33 @@ remain within a reasonable finite offshore boundary; exact allowance is still to
 chosen. Require safe return to walking, input/help updates and actual input validation.
 These are plan additions only, not implemented controls.
 
-## Latest — wind-aware excursion contacts and unreachable LOD rejection, CPU only
+## Latest — whole-cycle clearance, ready for live integration work
+
+`MonkeyExcursionClearance.hpp` samples the existing 39-s wind-retargeted excursion every
+.02 s. Checks sole centres/toe corners, four points per upper/lower limb with .055/.035
+model-unit radii, and three torso/head spheres. Uses actual rendered terrain, bent-centre
+wind-deformed trunk triangle queries and nearby world circular obstacle proxies. Exempts
+only the selected tree's matching canopy proxy; returns failure category/time/probe.
+All 21 accepted natural attachment sites pass initial wind 3. Negative tests reject an
+added obstacle on the bark path, pose/tree shifted .02 m into terrain, and zero frame scale.
+This remains finite shape/time sampling, not exact skin/tail or swept collision proof.
+
+Final incremental build and 37/37 non-display groups pass (54.09 s), logs
+`build/monkey-excursion-clearance-final-build.log`,
+`build/monkey-excursion-clearance-final-tests.log`. Initial focused Core: 34.44 s,
+`build/monkey-excursion-clearance-tests.log` reports 21/21 full-cycle clearance.
+Asset validation 24/75/10/0; GPU stop latch unchanged. All jobs finished, no graphics run.
+
+NEXT: wire the prepared excursion/clock into actual troop and renderer, not more isolated
+pose-only milestones. Preserve grounded origin for frame continuity; update visible
+body centre/culling and contact-shadow position/cache while elevated. Keep supporting
+tree geometry LOD coherent (JungleRenderer builds canopy instances near line 1657 and
+draws near/far later; blindly switching mesh can reject grips). Retain tree identity
+and reverse/descend safely on interruption, then finish ordinary grip release before
+walking. Actual native whole-cycle captures and visual inspection are required, followed
+by Web/Android qualification. Live monkeys still only inspect, not climb. Goal stays active.
+
+## Earlier — wind-aware excursion contacts and unreachable LOD rejection, CPU only
 
 `MonkeyTreeExcursion::Retarget` refreshes initial/raised forehands, final climb grips
 and body hip at current wind/mesh, preserving original grounded hind feet and staging.

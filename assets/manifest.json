@@ -248,6 +248,7 @@
         "game/include/IslandSimulator/MonkeyTreeAttachment.hpp",
         "game/include/IslandSimulator/MonkeyAttachmentSite.hpp",
         "game/include/IslandSimulator/MonkeyTreeExcursion.hpp",
+        "game/include/IslandSimulator/MonkeyExcursionClearance.hpp",
         "game/include/IslandSimulator/MonkeySoleFrame.hpp",
         "game/include/IslandSimulator/MonkeyFaceProfile.hpp",
         "game/include/IslandSimulator/MonkeySkinningShader.hpp",

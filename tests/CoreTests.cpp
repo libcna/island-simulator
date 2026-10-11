@@ -27,6 +27,7 @@
 #include "IslandSimulator/MonkeyTreeReach.hpp"
 #include "IslandSimulator/MonkeyAttachmentSite.hpp"
 #include "IslandSimulator/MonkeyTreeExcursion.hpp"
+#include "IslandSimulator/MonkeyExcursionClearance.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
@@ -2982,6 +2983,7 @@ int main()
     std::array<bool,island::MonkeyTroop::MonkeyCount> attachmentAttempted{};
     unsigned attachmentCandidates=0,attachmentAccepted=0;
     unsigned excursionAccepted=0;
+    unsigned excursionClear=0;
     std::array<unsigned,11> attachmentFailures{};
     island::MonkeyTroop repeatedMonkeys(terrain);
     island::MonkeyTroop invalidInputMonkeys(terrain);
@@ -3090,6 +3092,31 @@ int main()
                     const auto& plan=*prepared.plan;
                     const auto excursion=island::MonkeyTreeExcursion::Build(plan,frame,
                         island::GroundJunglePlacement(state.selectedTree,monkeyAttachmentTerrain),3.0f);
+                    const auto clearance=island::MonkeyExcursionClearance::Validate(excursion,
+                        monkeyAttachmentTerrain,worldObstacles,3.0f);
+                    if (clearance.failure==island::MonkeyExcursionClearance::Failure::None) {
+                        ++excursionClear;
+                        if (excursionClear==1) {
+                            const auto summit=island::MonkeyTreeExcursion::Sample(excursion,19.0f,22.0f,false);
+                            const auto foot=frame.World(summit.body.contacts[2]);
+                            auto obstructed=worldObstacles;
+                            obstructed.push_back({foot.x,foot.z,.025f});
+                            Check(island::MonkeyExcursionClearance::Validate(excursion,monkeyAttachmentTerrain,
+                                obstructed,3.0f).failure==island::MonkeyExcursionClearance::Failure::Obstacle,
+                                "full excursion preflight rejects an additional obstacle along its bark-contact path");
+                            auto sunken=excursion;
+                            sunken.frame.origin.y-=.02f; sunken.tree.y-=.02f;
+                            Check(island::MonkeyExcursionClearance::Validate(sunken,monkeyAttachmentTerrain,
+                                worldObstacles,3.0f).failure==island::MonkeyExcursionClearance::Failure::Terrain,
+                                "full excursion preflight rejects sole footprints penetrating actual terrain");
+                            auto invalid=excursion; invalid.frame.scale=0;
+                            Check(island::MonkeyExcursionClearance::Validate(invalid,monkeyAttachmentTerrain,
+                                worldObstacles,3.0f).failure==island::MonkeyExcursionClearance::Failure::InvalidInput,
+                                "full excursion clearance rejects invalid frames before querying geometry");
+                        }
+                    }
+                    else std::cout << "Monkey excursion clearance rejected reason=" << static_cast<int>(clearance.failure)
+                        << " time=" << clearance.seconds << " probe=" << clearance.probe << '\n';
                     if (island::MonkeyTreeExcursion::IsReachable(excursion)) {
                         ++excursionAccepted;
                         const auto distance=[](auto a,auto b) {
@@ -3385,6 +3412,8 @@ int main()
     Check(attachmentAccepted>0,"naturally reached real-island trees include a candidate passing terrain/contact/body-probe checks");
     std::cout << "Monkey full excursion reach " << excursionAccepted << '/' << attachmentAccepted << '\n';
     Check(excursionAccepted>0,"actual island attachment sites include reachable ascent and descent, not only a first grip");
+    std::cout << "Monkey full excursion clearance " << excursionClear << '/' << attachmentAccepted << '\n';
+    Check(excursionClear>0,"natural island arrivals include an excursion passing full-cycle clearance probes");
     Check(observedMonkeyTreeApproach && observedMonkeyTreeArrival,
           "real-island simulation approaches and reaches actual canopy trees");
 
