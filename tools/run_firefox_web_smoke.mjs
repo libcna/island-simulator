@@ -332,7 +332,7 @@ try {
     "island-simulator: boar directional coat atlas 128x128, opaque stock BasicEffect",
     "island-simulator: jungle leaves use smooth normals, filtered veins and restrained wax shading",
     "island-simulator: boars use connected limb poses, stance contact and body-rooted bristles",
-    "island-simulator: monkeys receive footprint-averaged canopy light through stock skinning",
+    "island-simulator: monkeys receive footprint-averaged canopy light through 14-bone skinning",
     "island-simulator: selected near canopy variants include hanging leafy lianas",
     "island-simulator: palm per-instance frond tint reuses existing transforms",
     "island-simulator: selected palm near crowns include sparse hanging dry fronds",

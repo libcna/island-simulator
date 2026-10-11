@@ -340,7 +340,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: boar soles fit rendered terrain independently with fixed-length limbs" \
             "$LOG_FILE" \
         && ! grep -q "boar terrain contact limited by limb reach" "$LOG_FILE" \
-        && grep -q "island-simulator: monkeys receive footprint-averaged canopy light through stock skinning" \
+        && grep -q "island-simulator: monkeys receive footprint-averaged canopy light through 14-bone skinning" \
             "$LOG_FILE" \
         && grep -q "island-simulator: selected near canopy variants include hanging leafy lianas" \
             "$LOG_FILE" \

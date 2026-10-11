@@ -45,6 +45,17 @@ class BrowserSoftwareTests(unittest.TestCase):
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
         self.assertIn('focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]', source)
 
+    def test_monkey_scope_retains_supervision_and_two_visual_samples(self):
+        self.assertIn("monkeys", gate.SCOPES)
+        environment = gate.browser_environment("chrome", "monkeys", Path("/evidence"))
+        self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "monkeys")
+        self.assertEqual(environment["ISLAND_BROWSER_SUPERVISED"], "chrome")
+        with self.assertRaises(ValueError):
+            gate.browser_command(ROOT, ROOT, Path("/node"), "firefox", "monkeys")
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedMonkeyCheck ? ["monkeys"]', source)
+        self.assertIn('mode === "boars" || mode === "monkeys"', source)
+
     def test_litter_scope_preserves_supervision_and_driver_policy(self):
         environment = gate.browser_environment("chrome", "litter", Path("/evidence"))
         self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "litter")

@@ -16,6 +16,7 @@ namespace Microsoft::Xna::Framework::Graphics
     class GraphicsDevice;
     class IndexBuffer;
     class SkinnedEffect;
+    class ShaderEffect;
     struct SkinningData;
     class Texture2D;
     class VertexBuffer;
@@ -75,6 +76,7 @@ namespace island
         bool reportedCanopyShade_ = false;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> whiteTexture_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinnedEffect> effect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> paletteEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::SkinningData> skinningData_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer>,
                    SilhouetteCount> nearVertices_;

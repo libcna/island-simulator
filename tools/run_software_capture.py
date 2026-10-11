@@ -56,6 +56,12 @@ def inspection_arguments(values):
     return ["--canopy-lod-inspection", str(int(values[0])), str(int(values[1])), values[2]]
 
 
+def validate_monkey_capture_log(diagnostics):
+    # Submission is necessary, not proof of visible pixels: still inspect the image.
+    if not re.search(r"monkey capture visible [1-9][0-9]*; near [1-9][0-9]*; draws [1-9][0-9]*;", diagnostics):
+        raise RuntimeError("monkey capture did not retain a close subject at readback")
+
+
 def validate_antialiasing_log(diagnostics, expected_samples):
     samples = re.findall(r"edge antialiasing requested (\d+)x renderer-applied (\d+)x", diagnostics)
     expected = (str(expected_samples), str(expected_samples))
@@ -350,8 +356,10 @@ def main():
                 raise RuntimeError("current boar coat is missing; check for a stale executable")
             if "boars use connected limb poses, stance contact and body-rooted bristles" not in diagnostics:
                 raise RuntimeError("current boar pose is missing; check for a stale executable")
-            if "monkeys receive footprint-averaged canopy light through stock skinning" not in diagnostics:
+            if "monkeys receive footprint-averaged canopy light through 14-bone skinning" not in diagnostics:
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
+            if args.viewpoint == "monkeys":
+                validate_monkey_capture_log(diagnostics)
             validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),
                                          str(capture), "--profile", profile_for_viewpoint(args.viewpoint),
                                          "--output", str(evidence / "validation.json")],

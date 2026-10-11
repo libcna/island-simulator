@@ -29,10 +29,11 @@ const focusedTerrainCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "terrain";
 const focusedGrassMotionCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "grass-motion";
 const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
 const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials";
-const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck;
-const focusedArtifactPrefix = focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedMonkeyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkeys";
+const focusedCheck = focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -40,7 +41,7 @@ const focusedViews = focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "
   : ["jungle", "boars", "monkeys", "east"];
 const focusedFrameCount = focusedGrassMotionCheck ? 30 : focusedCoastCheck ? 120 : 60;
 if (process.env.ISLAND_WEB_SMOKE_SCOPE && !focusedCheck) {
-  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials");
+  throw new Error("Unknown ISLAND_WEB_SMOKE_SCOPE; omit for the full suite or use wildlife-foliage/coast/grounding/vegetation/terrain/grass-motion/litter/materials/monkeys");
 }
 // The outer Python supervisor monitors the host kernel continuously. A user/PID namespace
 // must not depend on retaining the host's supplementary journal-access group.
@@ -556,7 +557,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = mode === "boars" || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = mode === "boars" || mode === "monkeys" || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -627,7 +628,7 @@ try {
             && log.includes("boars use connected limb poses, stance contact and body-rooted bristles")
             && log.includes("boar soles fit rendered terrain independently with fixed-length limbs")
             && !log.includes("boar terrain contact limited by limb reach")
-            && log.includes("monkeys receive footprint-averaged canopy light through stock skinning")
+            && log.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
             && /canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120/.test(log)
             && (mode !== "boars" || /boars [1-6]\/6 visible, 1 draw/.test(log))
@@ -658,7 +659,8 @@ try {
         }
       }
     } finally {
-      await writeFile(reportPath, `${JSON.stringify({ scope: focusedMaterialsCheck
+      await writeFile(reportPath, `${JSON.stringify({ scope: focusedMonkeyCheck
+          ? "software WebGL monkey close view only" : focusedMaterialsCheck
           ? "software WebGL soil, grass, dry sand and wet sand only" : focusedLitterCheck
           ? "software WebGL litter and shared-height grass only" : focusedTerrainCheck
           ? "software WebGL terrain distance and close views only" : focusedGrassMotionCheck
@@ -811,7 +813,7 @@ try {
     && result.output?.includes("boars use connected limb poses, stance contact and body-rooted bristles")
     && result.output?.includes("boar soles fit rendered terrain independently with fixed-length limbs")
     && !result.output?.includes("boar terrain contact limited by limb reach")
-    && result.output?.includes("monkeys receive footprint-averaged canopy light through stock skinning")
+    && result.output?.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
     && result.output?.includes(
       "jungle near canopy tapered support branches and pointed leaf silhouettes")
     && result.output?.includes(
@@ -1999,7 +2001,7 @@ try {
   const monkeyScreenshotPath = await captureVisualFrame(
     visualSessionId, "island-browser-monkeys.png");
   const monkeyPassed = monkeyResult.output?.includes("island-simulator: renderer WEBGL2")
-    && monkeyResult.output?.includes("monkeys receive footprint-averaged canopy light through stock skinning")
+    && monkeyResult.output?.includes("monkeys receive footprint-averaged canopy light through 14-bone skinning")
     && monkeyResult.output?.includes(
       "island-simulator: fixed sunny sky with layered horizontal high wisps, portable shader")
     && monkeyResult.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")

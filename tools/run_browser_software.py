@@ -15,7 +15,7 @@ import sys
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity
 from run_software_capture import run_monitored_capture
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys")
 
 
 def browser_environment(browser, scope, evidence):

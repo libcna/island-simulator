@@ -1,5 +1,48 @@
 # island-simulator handoff
 
+## Latest — 14-bone monkey shader verified on native, Android and Web
+
+Android x86_64 assembly/lint and `20261011T110417.653056Z-monkeys` pass strict graphics
+gates; close monkey visible, image inspected, no shader/guest GL errors, empty final kernel.
+Tested APK retained separately and default ARM64 assembly/lint restored; exact hashes in
+`docs/monkey-palette-workaround.md`. Native also qualified below. Physical ARM64/lifecycle
+remain unqualified. Focused Chrome `20261011T110957.242647Z-chrome-monkeys` passes
+60 intervals, zero GL error, intact context; before/after images inspected with visible
+close geometry and changed pose/location, empty final kernel. Web package refreshed:
+10,366,754 raw / 3,534,595 gzip bytes. 13 browser-launcher tests and Node syntax pass.
+ALL jobs finished, including Web sessions 51546/70348; do not poll or restart them.
+No temporary diagnostic shader/depth/draw substitutions remain. This is a rendering fix,
+NOT a realism milestone: the old model is still visibly toy-like. Next: continue existing
+content realism (monkey form/material/contact or terrain backlog), retaining the same safety
+boundaries. Full browser input/lifecycle, Firefox and Android lifecycle remain separate open work.
+
+## Latest — native monkey visibility restored; Android/Web still pending
+
+Read the latest section of `docs/monkey-palette-workaround.md`, which supersedes earlier
+visibility hypotheses below. QA camera now follows subject translation; replacement shader
+now converts XNA clip depth to GL, matching terrain. Normal native close monkey is visible
+in `20261011T110027.440307Z-monkeys` (inspected, empty kernel delta). Native 35/35 non-display
+tests pass in 74.01 s. Temporary magenta/bind-pose/depth-disabled/screen diagnostics removed.
+Native harness additionally requires a close-model submission at capture time; final
+`20261011T110247.359170Z-monkeys` passes (2 visible / 1 near / 4 draws), inspected,
+empty kernel. 29 software-launcher and 21 Android device-free tests pass.
+No dependency/host/emulator settings changed, hardware latch unchanged.
+Current Android default APK is still the older ARM64 diagnostic build. Next: x86 build/lint,
+strict software close capture, retain tested APK and restore ARM64; then Web verification.
+
+## Update — WIP 14-bone shader; native visibility still unresolved
+
+Uncommitted implementation in `MonkeySkinningShader.hpp`, MonkeyRenderer, shader contract test,
+CMake/presets and launcher marker updates. Read `docs/monkey-palette-workaround.md` before
+continuing. Native build/first 35/35 CPU groups pass, but replacement captures show no monkeys.
+Crucially temporary native STOCK comparison is also empty; its bypass was removed. Do not
+claim shader acceptance or infer that the replacement alone caused invisibility.
+Latest contained probe `20261011T103724.288807Z-monkeys` finished (session `77749`), CPU
+skinned pelvis is correctly near subject, camera above terrain. Other build/test/capture
+sessions also finished. No jobs live. Current native binary is replacement + bounded probes.
+NEXT: investigate vertex/palette binding or occlusion on native before Android qualification.
+Android default remains the restored ARM64 diagnostic build, not the new monkey shader.
+
 ## Update — confirmed Android missing-monkey shader failure
 
 Diagnostic monkey run `20261011T101527.286817Z-monkeys` FINISHED (session `51286`).

@@ -146,6 +146,13 @@ contains terrain/vegetation and touch controls but no monkeys. The stock shader 
 a demonstrated stock-program compatibility/failure-handling defect on this renderer, not
 evidence of an emulator driver bug. Host kernel delta is empty.
 
+Subsequent native investigation also finds an empty close view with both a draft 14-bone
+replacement and the original stock program on llvmpipe. Thus the Android link failure is
+confirmed, but is not established as the ONLY reason for absent monkey pixels in the current
+scene. Follow-up resolved two consumer issues: the QA camera lost the moving close subject,
+and the draft shader omitted GL clip-depth conversion. Native close geometry is now visible;
+see `docs/monkey-palette-workaround.md`. Neither issue invalidates the Android link failure.
+
 The old harness still reports `passed` for this run: preserve that historical JSON unchanged
 as evidence of a false positive, NOT graphics acceptance. The harness now explicitly rejects
 stock VS/FS/link failures and nonzero guest GL errors at initial, post-traversal, hot-resume
@@ -156,10 +163,12 @@ Diagnostic x86 APK is retained as `build/android-software/island-diagnostic-x86_
 
 #### Next implementation and acceptance
 
-A consumer-owned shader with the actual 14-bone palette is a possible scoped workaround;
+A consumer-owned shader with the actual 14-bone palette is implemented as a draft workaround;
 it must preserve rig animation, lighting, canopy transmission, colour/texture and fog rather
-than hiding monkeys or forcing a different scene. No workaround is implemented yet. Verify
-monkey close geometry and motion on Android, native and Web, with no shader/GL diagnostics.
+than hiding monkeys or forcing a different scene. Native and Android close captures plus
+Web before/after-simulation images pass and are inspected, with no shader/GL diagnostics;
+see the workaround document for exact artifacts. Continuous motion-quality, full browser
+input/lifecycle and physical ARM64 checks are not implied by these bounded captures.
 Do not claim older generic image/startup gates established monkey visibility. Dependencies
 remain read-only; nothing has been submitted externally. Android lifecycle is a separate issue.
 

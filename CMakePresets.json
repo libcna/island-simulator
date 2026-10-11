@@ -106,6 +106,7 @@
       "targets": [
         "island-simulator",
         "island_diagnostic_stream_tests",
+        "island_monkey_shader_tests",
         "island_audio_report",
         "island_core_tests",
         "island_boar_tests",
@@ -130,6 +131,7 @@
       "jobs": 2,
       "targets": [
         "island_diagnostic_stream_tests",
+        "island_monkey_shader_tests",
         "island_audio_report",
         "island_core_tests",
         "island_boar_tests",

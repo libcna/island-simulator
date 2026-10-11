@@ -13,13 +13,21 @@ from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from run_software_capture import (
     check_configuration, software_environment, validate_graphics_log, run_monitored_capture,
-    inspection_arguments, validate_antialiasing_log,
+    inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 
 
 class SoftwareCaptureTests(unittest.TestCase):
     cache = "CNA_GRAPHICS_RENDERER:STRING=OPENGL33\nCNA_ROOT_DIR:PATH=/dependency\n"
+
+    def test_monkey_close_subject_must_still_be_submitted_at_capture(self):
+        valid = "island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17"
+        validate_monkey_capture_log(valid)
+        for invalid in ("", "monkeys 2/7 visible, 4 draws", valid.replace("near 1", "near 0"),
+                        valid.replace("visible 2", "visible 0"), valid.replace("draws 4", "draws 0")):
+            with self.subTest(invalid=invalid), self.assertRaises(RuntimeError):
+                validate_monkey_capture_log(invalid)
 
     def test_missing_leaf_acceptance_is_narrow_and_opt_in(self):
         expected = ("island-simulator: leaf material fallback: Content/vegetation/leaf-lamina.png: "

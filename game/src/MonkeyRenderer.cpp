@@ -1,6 +1,8 @@
 #include "IslandSimulator/MonkeyRenderer.hpp"
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/MonkeySkinningShader.hpp"
+#include "CNA/Graphics/ShaderPackageEXT.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
@@ -35,6 +37,7 @@
 #include "Microsoft/Xna/Framework/Graphics/PrimitiveType.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/SkinnedEffect.hpp"
+#include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
 #include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexPositionNormalTextureSkinned.hpp"
@@ -53,7 +56,22 @@ namespace island
         using SkinnedVertex = VertexPositionNormalTextureSkinned;
 
         constexpr float NearLodDistance = 92.0f;
-        constexpr std::size_t BoneCount = 14U;
+        constexpr std::size_t BoneCount = MonkeySkinningShader::BoneCount;
+
+        CNA::Graphics::ShaderPackageEXT MonkeyShaderPackage()
+        {
+            using CNA::Graphics::ShaderCodeEXT;
+            return CNA::Graphics::ShaderPackageEXT({
+                ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs, CNA::ShaderStageEXT::Vertex,
+                    "main", "monkey/skin.es.vert", MonkeySkinningShader::Source(true, true)),
+                ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslEs, CNA::ShaderStageEXT::Fragment,
+                    "main", "monkey/skin.es.frag", MonkeySkinningShader::Source(true, false)),
+                ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop, CNA::ShaderStageEXT::Vertex,
+                    "main", "monkey/skin.vert", MonkeySkinningShader::Source(false, true)),
+                ShaderCodeEXT(CNA::ShaderLanguageEXT::GlslDesktop, CNA::ShaderStageEXT::Fragment,
+                    "main", "monkey/skin.frag", MonkeySkinningShader::Source(false, false))},
+                {CNA::ShaderStageEXT::Vertex, CNA::ShaderStageEXT::Fragment});
+        }
 
         enum Bone : std::uint8_t
         {
@@ -72,6 +90,7 @@ namespace island
             TailMiddle,
             TailTip
         };
+        static_assert(static_cast<std::size_t>(TailTip) + 1U == BoneCount);
 
         enum class AnimationKind : std::uint8_t
         {
@@ -405,6 +424,8 @@ namespace island
         void AddVertex(MeshData& mesh, const Vector3& position, const Vector3& normal,
                        const int bone)
         {
+            if (bone < 0 || static_cast<std::size_t>(bone) >= BoneCount)
+                throw std::invalid_argument("monkey vertex exceeds the 14-bone shader palette");
             mesh.vertices.emplace_back(position, normal, Vector2::Zero,
                 Vector4(1.0f, 0.0f, 0.0f, 0.0f),
                 std::array<std::uint8_t, 4>{static_cast<std::uint8_t>(bone), 0U, 0U, 0U});
@@ -890,8 +911,13 @@ namespace island
         light.setSpecularColorProperty(Vector3(0.16f, 0.14f, 0.10f));
         effect_->getDirectionalLight1Property().setEnabledProperty(false);
         effect_->getDirectionalLight2Property().setEnabledProperty(false);
+        paletteEffect_ = std::make_unique<ShaderEffect>(device_, MonkeyShaderPackage());
+        if (!paletteEffect_->IsEffectValid()) {
+            throw std::runtime_error("monkey 14-bone shader failed: "
+                                     + paletteEffect_->GetCompileErrorEXT());
+        }
         constexpr const char* canopyDiagnostic =
-            "island-simulator: monkeys receive footprint-averaged canopy light through stock skinning";
+            "island-simulator: monkeys receive footprint-averaged canopy light through 14-bone skinning";
         std::cout << canopyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(canopyDiagnostic);
 
@@ -922,6 +948,31 @@ namespace island
         const BoundingFrustum frustum(view * projection);
         effect_->setViewProperty(view);
         effect_->setProjectionProperty(projection);
+        float viewValues[16], viewProjectionValues[16];
+        view.ToColumnMajor(viewValues);
+        (view * projection).ToColumnMajor(viewProjectionValues);
+        paletteEffect_->Apply();
+        paletteEffect_->SetUniformMat4("uView", viewValues);
+        paletteEffect_->SetUniformMat4("uViewProjection", viewProjectionValues);
+        paletteEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X, cameraPosition.Y, cameraPosition.Z);
+        paletteEffect_->SetUniformVec3("uSunDirection", environment::SunDirectionX,
+                                      environment::SunDirectionY, environment::SunDirectionZ);
+        paletteEffect_->SetUniformVec3("uFogColor", environment::FogColorRed,
+                                      environment::FogColorGreen, environment::FogColorBlue);
+        // Keep SkinnedEffect only as the authored material state; never apply its 72-bone program.
+        const auto applyMaterial = [&] {
+            float worldValues[16];
+            effect_->getWorldProperty().ToColumnMajor(worldValues);
+            const auto diffuse = effect_->getDiffuseColorProperty();
+            const auto specular = effect_->getSpecularColorProperty();
+            const auto lightSpecular = effect_->getDirectionalLight0Property().getSpecularColorProperty();
+            paletteEffect_->Apply();
+            paletteEffect_->SetUniformMat4("uWorld", worldValues);
+            paletteEffect_->SetUniformVec3("uDiffuse", diffuse.X, diffuse.Y, diffuse.Z);
+            paletteEffect_->SetUniformVec3("uSpecular", specular.X, specular.Y, specular.Z);
+            paletteEffect_->SetUniformVec3("uLightSpecular", lightSpecular.X, lightSpecular.Y, lightSpecular.Z);
+            paletteEffect_->SetUniformFloat("uSpecularPower", effect_->getSpecularPowerProperty());
+        };
         device_.setRasterizerStateProperty(RasterizerState::CullNone);
         device_.setBlendStateProperty(BlendState::Opaque);
         device_.setDepthStencilStateProperty(DepthStencilState::Default);
@@ -996,7 +1047,10 @@ namespace island
                 continue;
             }
 
-            effect_->SetBoneTransforms(*skinTransforms);
+            std::array<float, BoneCount * 16> palette{};
+            for (std::size_t bone = 0; bone < BoneCount; ++bone)
+                (*skinTransforms)[bone].ToColumnMajor(palette.data() + bone * 16);
+            paletteEffect_->SetUniformMat4Array("uBones", palette.data(), static_cast<int>(BoneCount));
             // Spatial averaging is pose/LOD independent: no camera-driven brightness switches.
             const float transmission = canopyLight_.SampleReceiverFootprint(
                 centre.X, centre.Y, centre.Z, monkey.y, 0.35f * monkey.scale);
@@ -1022,6 +1076,18 @@ namespace island
             effect_->setWorldProperty(Matrix::CreateScale(monkey.scale)
                 * Matrix::CreateRotationY(yaw)
                 * Matrix::CreateTranslation(monkey.x, monkey.y, monkey.z));
+            static bool reportedPaletteProbe = false;
+            if (!reportedPaletteProbe && index == 0) {
+                const auto probe = Vector3::Transform(Vector3(0.0f, 0.56f, 0.0f),
+                    (*skinTransforms)[0] * effect_->getWorldProperty());
+                std::ostringstream report;
+                report << "island-simulator: monkey palette probe root " << monkey.x << ','
+                    << monkey.y << ',' << monkey.z << "; skinned pelvis " << probe.X << ','
+                    << probe.Y << ',' << probe.Z << "; bone M44 " << (*skinTransforms)[0].M44;
+                std::cout << report.str() << '\n';
+                MirrorRuntimeDiagnosticToPlatformLog(report.str());
+                reportedPaletteProbe = true;
+            }
 
             const bool near = distanceSquared <= NearLodDistance * NearLodDistance;
             const std::size_t silhouette = monkey.colorVariant % SilhouetteCount;
@@ -1035,7 +1101,7 @@ namespace island
                                             : farPrimitiveCounts_[silhouette];
             device_.SetVertexBuffer(vertices);
             device_.setIndicesProperty(indices);
-            effect_->Apply();
+            applyMaterial();
             device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                           vertexCount, 0, primitiveCount);
             if (near) {
@@ -1043,7 +1109,7 @@ namespace island
                     shaded(FaceColors[monkey.colorVariant % FaceColors.size()]));
                 device_.SetVertexBuffer(faceVertices_.get());
                 device_.setIndicesProperty(faceIndices_.get());
-                effect_->Apply();
+                applyMaterial();
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               faceVertexCount_, 0, facePrimitiveCount_);
                 effect_->setDiffuseColorProperty(shaded(Vector3(0.025f, 0.022f, 0.018f)));
@@ -1051,7 +1117,7 @@ namespace island
                 effect_->setSpecularPowerProperty(EyeSpecularPower);
                 device_.SetVertexBuffer(eyeVertices_.get());
                 device_.setIndicesProperty(eyeIndices_.get());
-                effect_->Apply();
+                applyMaterial();
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList, 0, 0,
                                               eyeVertexCount_, 0, eyePrimitiveCount_);
                 effect_->setSpecularColorProperty(FurSpecularColor);

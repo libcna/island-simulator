@@ -634,6 +634,13 @@ namespace island
             const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(monkey.x, monkey.y, monkey.z)
                 + forward * 4.2f + side * 1.0f + Vector3::Up * 1.40f;
+            std::ostringstream monkeyCameraReport;
+            monkeyCameraReport << "island-simulator: monkey QA subject " << monkey.x << ','
+                << monkey.y << ',' << monkey.z << "; camera " << cameraPosition_.X << ','
+                << cameraPosition_.Y << ',' << cameraPosition_.Z << "; camera terrain "
+                << terrain_.Height(cameraPosition_.X, cameraPosition_.Z);
+            std::cout << monkeyCameraReport.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(monkeyCameraReport.str());
             const Vector3 toMonkey = Vector3(monkey.x, monkey.y + 0.72f, monkey.z)
                 - cameraPosition_;
             yaw_ = std::atan2(toMonkey.X, toMonkey.Z);
@@ -1123,7 +1130,17 @@ namespace island
                     + direction * 12.0f;
             }
         }
+        const MonkeyState previousMonkeySubject = monkeyTroop_.Monkeys().front();
         monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z);
+        if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
+            // Keep the animated subject in the close QA view even when software rendering
+            // requires many simulation updates between captured frames. Preserve the original
+            // viewing direction rather than orbiting whenever the animal changes heading.
+            const MonkeyState& subject = monkeyTroop_.Monkeys().front();
+            cameraPosition_ += Vector3(subject.x - previousMonkeySubject.x,
+                                       subject.y - previousMonkeySubject.y,
+                                       subject.z - previousMonkeySubject.z);
+        }
         if (soundscape_ && worldDebugVisible_) {
             soundscape_->RefreshDebugSources(
                 cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z,
@@ -2631,6 +2648,12 @@ namespace island
                 CaptureFrame(capturePath_);
             }
             if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
+                const auto& subject = monkeyTroop_.Monkeys().front();
+                std::cout << "island-simulator: monkey capture visible "
+                          << monkeyRenderer_->VisibleMonkeyCount() << "; near "
+                          << monkeyRenderer_->VisibleNearMonkeyCount() << "; draws "
+                          << monkeyRenderer_->DrawCallCount() << "; subject "
+                          << subject.x << ',' << subject.y << ',' << subject.z << '\n';
                 std::cout << "island-simulator: monkey crossfades "
                           << monkeyRenderer_->ActiveCrossfadeCount() << '/'
                           << monkeyRenderer_->CompletedCrossfadeCount()
