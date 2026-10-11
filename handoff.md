@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Update — sand/turf Android qualification complete, Web build running
+
+Current game revision `9f1ee59`. x86_64 assembly/lint passes. Bay-ground
+`20261011T092336.875730Z-bay-ground` passes the image gate and matches native visually.
+Interactive `20261011T092539.275219Z-interactive` passes sensitivity/footsteps/swimming
+and transition audio after one gesture; image inspected. Both kernel deltas empty,
+latch unchanged. Lifecycle deliberately excluded, still degraded. Tested x86 APK
+preserved, default ARM64 build/lint restored. Exact sizes/hashes in `docs/dry-sand-relief.md`.
+
+Web build now RUNNING in exec session `34267` (existing build-probe, -j2). Poll that
+handle; do not restart on an observation timeout. After success: package web release,
+then contained Chrome `--scope terrain --timeout 1800` (seven views, now bay-ground too).
+Do not overlap another heavy build/emulator/render. No game source changes since Android
+qualification. These are software checks, not host AMD or physical-device acceptance.
+
 ## Update — dry sand relief native stage complete
 
 `docs/dry-sand-relief.md`: wind-aligned warped ripples plus footprint-filtered grain

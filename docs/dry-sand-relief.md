@@ -1,6 +1,6 @@
 # Dry sand microrelief
 
-2026-10-11, native visual stage; Android/Web pending together with coastal turf.
+2026-10-11, native and focused Android qualified; Web pending together with coastal turf.
 
 The ground-level bay review exposed a smooth dry-sand plane. The terrain material
 now adds wind-aligned ripples with a nominal 22 cm wavelength and millimetre-scale
@@ -31,9 +31,25 @@ appearance. Rejected evidence is retained; unrelated soil/wet-normal code is unc
   are empty; hardware latch unchanged. The distant composition remains intact.
 - World geometry/placements unchanged from coastal turf: fingerprint
   `5d0b62ad43a25895`, 17,225 grass patches.
-- Web terrain matrix now includes `bay-ground` (seven views total). Android and Web
-  runtime checks are pending for this shader and the preceding coastal-turf change.
+- Web terrain matrix now includes `bay-ground` (seven views total). Web runtime
+  checks are pending for this shader and the preceding coastal-turf change.
   Static captures alone do not establish temporal antialiasing or hardware performance.
+
+## Focused Android qualification
+
+x86_64 assembly/lint passes. `20261011T092336.875730Z-bay-ground` passes the scene
+image gate on its first attempt; inspected and matches native. Interactive
+`20261011T092539.275219Z-interactive` passes touch sensitivity, distance-scheduled
+footsteps and swimming/transition audio after one shoreline gesture. Its accepted
+image was inspected too. Both final kernel deltas are empty, hardware latch unchanged.
+Lifecycle was not exercised; these runs do not resolve the known lifecycle issue.
+
+Tested x86_64 APK: 20,442,779 bytes, SHA-256
+`1eb8383faeec95ffa8fd50162270c024b476bc2e38bdb2d0d84dc3eb6e83abb1`, preserved at
+`build/android-software/island-x86_64.apk`. Default ARM64 assembly/lint restored:
+20,528,044 bytes, SHA-256
+`65ca23165f69e835541cc0d46bd97446c160ed36f02ec32a5833bf33f7d1199a`;
+physical-device runtime untested. These results also cover the coastal-turf revision.
 
 Remaining realism work includes geological strata/talus, dune-scale relief, habitat
 fields and more natural close sand debris. The broader environment/geography tasks

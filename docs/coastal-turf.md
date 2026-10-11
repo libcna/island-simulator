@@ -1,6 +1,6 @@
 # Shared sandy-substrate response for turf
 
-Status: native implementation qualified, 2026-10-11; Android/Web pending.
+Status: native and focused Android qualified, 2026-10-11; Web pending.
 
 The wider bay exposed a remaining independent shoreline band in the grass system.
 `GroundCover::Density` now accepts normalized rockiness and beach suitability, in
@@ -41,7 +41,10 @@ consistency change, not a wholesale vegetation redistribution.
 Fingerprint `5d0b62ad43a25895`, 17,225 grass patches (two fewer). Other populations
 match the wider-beach stage; rendered jungle root gaps remain zero. Web grass count
 pin updated from the generated world report. Web harness syntax and diff checks pass.
-Android/Web runtime qualification remains pending. The completed wider-beach Web suite
+Focused Android qualification now passes with the subsequent dry-sand relief revision:
+bay-ground image, touch sensitivity, footsteps, swimming and transition audio; see
+`dry-sand-relief.md` for exact evidence/APK identities. ARM64 assembly/lint restored,
+physical runtime untested. Web runtime qualification remains pending. The completed wider-beach Web suite
 does not qualify these newer changes. No hardware rendering is authorized; Android
 lifecycle remains separate and unresolved.
 
