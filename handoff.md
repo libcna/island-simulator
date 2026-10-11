@@ -1,5 +1,30 @@
 # island-simulator handoff
 
+## Latest — Android first-frame stall localized to grass pass, NOT repaired
+
+Previous goal turn made progress (gates/diagnostic fix/failure evidence). Re-ran the
+corrected archived APK: 20261011T213346.432797Z-snake-head FAILED again; no motion
+samples/qualified first frame, screencap timeout and owned emulator forced exit-9.
+Thus missing platform logging alone does not explain the failure. kernel-final[].
+Added optional CPU-only breadcrumbs to existing GpuDiagnosticScope, enabled ONLY for
+frame0 of SnakeDetail/SnakeHeadDetail. No GL calls, fences, sleeps or content changes
+are added by this flag; existing opt-in GPU diagnostics retain their behavior.
+Actual instrumented Android213726.011849Z-snake-head also FAILED, but now proves:
+clear/sky/terrain/distant-scenery/contact-shadows/natural-props/shipwreck/jungle all
+return; grass begins at23:38:19.439 guest timestamp and has no end record before
+timeout. No later passes, motion samples or image. kernel-final[], forced owned
+teardown-9. This localizes the CPU-side wait to GrassRenderer::Draw, NOT a particular
+shader operation, and is NOT proof of the cause of the native AMD timeout.
+Next inspect/narrow grass Apply/uniform upload/instanced draws and compiler/runtime
+cost of snake-contact shader; do not disable contact or weaken the motion gate to
+manufacture a pass. No KVM/emulator configuration/dependency/hardware changes.
+Android23/browser18/software37 CPU tests PASS; instrumented x86_64 build/lint PASS4s.
+Native build PASS; default ARM64 APK restored, assemble/lint PASS4s. All owned jobs
+terminal, hardware stop-latch SHA unchanged. Web build/runtime not rerun this turn.
+Archived island-snakes-x86_64.apk remains the earlier logging-fixed candidate (no
+CPU breadcrumbs); exact instrumented APK identity is retained in run.json.
+All wildlife/hut/resident/full plan still open; goal remains active.
+
 ## Latest — Android snake qualification attempted, FAILED and remains open
 
 Android supervisor now accepts snakes/snake-head and requires the shared sparse

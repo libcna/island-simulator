@@ -742,6 +742,11 @@ progress or require player interaction; dangerous species keep their distance li
   Missing Android platform-log mirroring of snake samples subsequently repaired;
   native and x86_64/ARM64 builds pass, corrected APK runtime still unverified.
   This logging gap does not establish why the guest became unresponsive.
+  Corrected APK rerun213346.432797Z FAILED as well. First-frame CPU-only pass markers
+  added; actual Android213726.011849Z completes all earlier passes through jungle,
+  then enters grass without returning before timeout. Screenshot unavailable,
+  forced owned teardown-9, kernel[]. Localized to grass pass, not yet compiler/
+  upload/draw cause; no AMD causation or fix claim. Preserve full contact behavior.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

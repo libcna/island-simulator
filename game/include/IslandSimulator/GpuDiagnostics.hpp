@@ -14,7 +14,8 @@ namespace island
     void InitializeGpuDiagnostics() noexcept;
 
     /** @brief Starts a frame in the opt-in GPU diagnostic stream. */
-    void BeginGpuDiagnosticFrame(std::uint64_t frame) noexcept;
+    // cpuBreadcrumbs records pass entry/exit without enabling any GL diagnostics.
+    void BeginGpuDiagnosticFrame(std::uint64_t frame, bool cpuBreadcrumbs = false) noexcept;
 
     /** @brief Finishes a frame in the opt-in GPU diagnostic stream. */
     void EndGpuDiagnosticFrame() noexcept;
@@ -32,6 +33,7 @@ namespace island
     private:
         std::string_view name_;
         bool active_ = false;
+        bool cpuBreadcrumbs_ = false;
         bool groupPushed_ = false;
     };
 }

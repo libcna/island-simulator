@@ -447,3 +447,24 @@ diagnostic gap, NOT the unexplained unresponsive guest. Corrected x86_64 build/l
 passed and is archived as `build/android-software/island-snakes-x86_64.apk`; default
 ARM64 build/lint restored and passed. The corrected APK still needs actual runtime
 verification. The AMD hardware incident remains unrelated/unresolved, not repaired.
+
+### First-frame localization after correcting log mirroring
+
+The corrected archived APK was actually rerun in `20261011T213346.432797Z-snake-head`:
+same readiness failure, screencap timeout and forced owned-emulator exit-9, kernel[].
+The logging fix alone therefore did not resolve the runtime failure.
+
+Optional CPU pass-entry/exit breadcrumbs now reuse the existing render-pass scopes,
+enabled only on frame0 of the two snake QA views. This flag enables no GL diagnostics,
+fences or sleeps, and changes no scene content. Instrumented actual Android run
+`20261011T213726.011849Z-snake-head` again failed, but completed entry/exit pairs for
+clear, sky, terrain, distant scenery, contact shadows, natural props, shipwreck and
+jungle. The final marker is `cpu-pass begin frame=0 name=grass` at23:38:19.439 guest
+time. No grass return, later draw pass or snake motion sample was recorded before
+timeout. Failure screenshot again timed out; owned emulator was forcibly terminated,
+kernel-final[]. No image or successful runtime qualification is claimed.
+
+This narrows the CPU-side wait to the grass pass. Shader compilation, uniform uploads,
+draw submission and execution remain to be distinguished; it does not establish a
+relationship to the original native AMD failure. Preserve contact behavior and all
+motion gates while investigating. Android23/browser18/software37 tests still pass.

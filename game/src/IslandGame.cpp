@@ -2259,7 +2259,8 @@ namespace island
             ? std::span<const MonkeyState>(monkeyTreeQaPoses_[treeQaStage]) : monkeyTroop_.Monkeys();
         const auto drawStarted = std::chrono::steady_clock::now();
         auto& device = getGraphicsDeviceProperty();
-        BeginGpuDiagnosticFrame(drawnFrames_);
+        BeginGpuDiagnosticFrame(drawnFrames_, drawnFrames_ == 0U
+            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail));
         if (drawnFrames_ == 1U) RecordRuntimeThreadInventory();
         if (!benchmarkPath_.empty() && !benchmarkReportPending_) {
             RecordBenchmarkFrame();

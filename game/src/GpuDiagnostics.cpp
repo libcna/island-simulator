@@ -37,6 +37,7 @@ namespace island
         constexpr unsigned int GlNoError = 0U;
 
         bool enabled = false;
+        bool cpuBreadcrumbs = false;
         std::uint64_t currentFrame = 0U;
         EnableFunction glEnableFunction = nullptr;
         DebugMessageCallbackFunction glDebugMessageCallbackFunction = nullptr;
@@ -168,10 +169,11 @@ namespace island
         }
     }
 
-    void BeginGpuDiagnosticFrame(const std::uint64_t frame) noexcept
+    void BeginGpuDiagnosticFrame(const std::uint64_t frame, const bool traceCpu) noexcept
     {
-        if (!enabled) return;
+        cpuBreadcrumbs = traceCpu;
         currentFrame = frame;
+        if (!enabled) return;
         try {
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: gpu-frame begin frame=" + std::to_string(currentFrame));
@@ -191,8 +193,15 @@ namespace island
     }
 
     GpuDiagnosticScope::GpuDiagnosticScope(const std::string_view name) noexcept
-        : name_(name), active_(enabled)
+        : name_(name), active_(enabled), cpuBreadcrumbs_(cpuBreadcrumbs)
     {
+        if (cpuBreadcrumbs_) {
+            try {
+                MirrorRuntimeDiagnosticToPlatformLog(
+                    "island-simulator: cpu-pass begin frame=" + std::to_string(currentFrame)
+                    + " name=" + std::string(name_));
+            } catch (...) {}
+        }
         if (!active_) return;
         try {
             MirrorRuntimeDiagnosticToPlatformLog(
@@ -209,6 +218,13 @@ namespace island
 
     GpuDiagnosticScope::~GpuDiagnosticScope() noexcept
     {
+        if (cpuBreadcrumbs_) {
+            try {
+                MirrorRuntimeDiagnosticToPlatformLog(
+                    "island-simulator: cpu-pass end frame=" + std::to_string(currentFrame)
+                    + " name=" + std::string(name_));
+            } catch (...) {}
+        }
         if (!active_) return;
         try {
             CheckErrors(name_);
