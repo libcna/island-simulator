@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — actual live snake motion audit finds rope-like motion
+
+SnakeDetail/SnakeHeadDetail QA camera now follows mean-body translation, fixedorientation;
+ordinary live simulation/observer retreat unchanged. Captures at frames4/8/12/16 plus
+41 station positions/speed/phase; finalcapture16. Software frames variable time, not video.
+Validator requires ordered4 finite connected41-point samples, visible count and displacement;
+does not prove image visibility or natural motion. Negative fixtures added, supervisor35PASS.
+Native build + focused snake tests PASS6.27s; portable builds not rerun for this QAchange.
+
+Actual183434.634965Z-snakes four images inspected separately: head follow clippedtail.
+Final `20261011T183616.764190Z-snakes/motion-grid.png` four stages inspected after meanbody
+tracking: body remains inframe, head travels2.171m. Both graphicslogs valid, kernelempty;
+both FAIL unchanged generic luminance/spatialcontrast gate. All ownedjobs terminal.
+
+NEXT CONCRETE DEFECT: visible motion is rope-like, mostlystraight before a broad bend,
+not propagated slithering. Current follow-leader projection smooths tiny headoscillation;
+investigate retained head trail sampled at arc length with boundedcurvature, preserving
+wholebody habitat/obstacle/self/grounding invariants. Grass stillcrossesbody. Fourposes
+not continuousqualityproof. See docs/ground-snakes.md. Tree snakes/allremainingplan open.
+Goal active, no push/hardware/KVMchange. Previous shadow commit8b55653 remains valid.
+
 ## Latest — continuous ground snake contact shadows
 
 Added SnakeContactShadow CPU geometry: soft continuous body ribbon/head cap/tail fade,

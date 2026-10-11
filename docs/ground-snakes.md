@@ -108,3 +108,31 @@ validation passes (25 procedural records / 80 sources / 10 project files / 0 ext
 Web Release build/package passes (11,138,018 raw / 4,188,113 gzip bytes); ARM64
 assembleDebug/lintDebug passes in 7 s. These builds do not establish portable runtime
 appearance. The hardware qualification stop latch remains unchanged.
+
+## Live motion sequence audit (2026-10-11)
+
+The two snake capture viewpoints now retain four frames (rendered frames 4/8/12/16)
+from ordinary live simulation, plus all 41 body positions, speed and phase at readback.
+The close QA camera follows body-centre translation, preserving orientation; it does
+not replace poses or skip simulation. This camera movement also moves the real observer,
+so the sequence exercises retreat, not an undisturbed observer or all behavior transitions.
+Software frame timing is variable; these are ordered samples, not a fixed-rate video.
+
+First run `20261011T183434.634965Z-snakes`: all four images inspected separately;
+head translated 1.923 m, but following only the head let the tail leave the image.
+Changed tracking to the mean of the body stations. Final run
+`20261011T183616.764190Z-snakes`: inspected the four-frame `motion-grid.png`; the body
+remains in frame and the head travels 2.171 m. Both kernel deltas are empty and graphics
+logs pass. Both generic image gates FAIL luminance/spatial contrast; thresholds unchanged.
+The motion validator passes four ordered finite connected samples with actual displacement,
+but does NOT establish natural slithering, continuous mesh clearance or image visibility.
+Its missing/reordered/frozen/nonfinite/disconnected/invisible fixtures are rejected.
+35 supervisor tests and focused snake tests (6.27 s) pass; native build passes.
+Portable builds/runtime for this QA-camera change have not been rerun.
+
+**Actionable visual finding:** movement looks like a largely straight rope being pulled
+around a bend, rather than a wave propagating down a snake. Current repeated follower
+projection smooths the small head oscillation; investigate retained arc-length head-path
+sampling with bounded curvature, while preserving whole-body collision and grounding.
+Grass still crosses the mesh. Four sampled poses are not a full temporal-quality pass.
+Next work is to fix this visible motion defect, not to mark the snake task complete.

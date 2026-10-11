@@ -24,6 +24,33 @@ from gpu_incident_qualification import (
 )
 
 
+def validate_snake_motion_stages(text):
+    """Require live, finite, connected body samples; not a visual gait-quality oracle."""
+    rows = re.findall(r"^island-simulator: snake motion stage=(\d+) visible=(\d+) "
+                      r"speed=(\S+) phase=(\S+) body=(.*)$", text, re.M)
+    if len(rows) != 4 or [int(row[0]) for row in rows] != list(range(4)):
+        raise RuntimeError("snake motion requires four ordered stages")
+    bodies = []
+    for _, visible, speed, phase, encoded in rows:
+        try:
+            body = [tuple(map(float, point.split(','))) for point in encoded.rstrip(';').split(';')]
+            valid = (1 <= int(visible) <= 4 and math.isfinite(float(speed))
+                     and 0 <= float(speed) <= 1.151 and math.isfinite(float(phase))
+                     and len(body) == 41 and all(len(p) == 3 for p in body)
+                     and all(math.isfinite(v) for p in body for v in p))
+        except ValueError:
+            valid = False
+        if not valid:
+            raise RuntimeError("invalid snake motion sample")
+        if any(abs(math.hypot(a[0]-b[0], a[2]-b[2])-.055) > .003
+               for a, b in zip(body, body[1:])):
+            raise RuntimeError("disconnected snake body in motion sample")
+        bodies.append(body)
+    if max(math.dist(bodies[0][0], body[0]) for body in bodies[1:]) < .01:
+        raise RuntimeError("snake motion sequence did not move")
+    return bodies
+
+
 def check_configuration(text):
     cache = dict(re.findall(r"^([^/#\n:]+):[^=\n]+=(.*)$", text, re.M))
     if cache.get("CNA_GRAPHICS_RENDERER") != "OPENGL33" \
@@ -300,6 +327,11 @@ def main():
             if 'gl-renderer="llvmpipe ' not in log or 'renderer="OPENGL33"' not in log:
                 raise RuntimeError("runtime did not confirm the expected software renderer")
             diagnostics = log + "".join(p.read_text(errors="replace") for p in evidence.glob("island-runtime-*.log"))
+            if args.viewpoint in ("snakes", "snake-head"):
+                validate_snake_motion_stages(log)
+                for stage in range(4):
+                    if not Path(str(capture)+f".snake-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing snake motion stage image")
             validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
             validate_antialiasing_log(diagnostics, 4)
             if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:

@@ -14,13 +14,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from run_software_capture import (
     check_configuration, software_environment, validate_graphics_log, run_monitored_capture,
     inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
-    validate_monkey_tree_stages, validate_monkey_climb_stages,
+    validate_monkey_tree_stages, validate_monkey_climb_stages, validate_snake_motion_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_snake_motion_requires_connected_live_sequence(self):
+        def fixture(moving=True):
+            return '\n'.join(
+                f"island-simulator: snake motion stage={stage} visible=1 speed=0.38 phase=1 body="
+                + ''.join(f"{(stage*.1 if moving else 0)-j*.055:.6f},2,0;" for j in range(41))
+                for stage in range(4))
+        good = fixture()
+        self.assertEqual(len(validate_snake_motion_stages(good)), 4)
+        for invalid in (fixture(False), good.replace('stage=2', 'stage=1'),
+                        good.replace('visible=1', 'visible=0'),
+                        good.replace('speed=0.38', 'speed=nan'),
+                        good.replace('0.000000,2,0;', 'nan,2,0;'),
+                        good.replace('0.000000,2,0;', '10,2,0;'),
+                        good.split('\n', 1)[1]):
+            with self.assertRaises(RuntimeError):
+                validate_snake_motion_stages(invalid)
+
     def test_boar_audio_trace_rejects_missing_playback_mute_and_budget_failures(self):
         valid = [(1, 0, 2, 5, 3)] * 5 + [(1, 1, 2, 4, 0)] * 24 + [(1, 0, 3, 5, 3)] * 5
         validate_boar_audio_trace(valid)

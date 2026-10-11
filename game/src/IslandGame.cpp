@@ -1229,7 +1229,18 @@ namespace island
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const auto snakeCentre = [this]() {
+            Vector3 centre = Vector3::Zero;
+            for (const auto& p : snakes_->Snakes().front().body) centre += Vector3(p.x,p.y,p.z);
+            return centre/static_cast<float>(SnakeState::StationCount);
+        };
+        const auto previousSnakeCentre = snakeCentre();
         snakes_->Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
+            // Follow translation only: preserve the viewing direction and live retreat behavior.
+            // Software frames can span many simulation updates; otherwise the close subject exits.
+            cameraPosition_ += snakeCentre()-previousSnakeCentre;
+        }
         fishSchools_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
@@ -2832,6 +2843,18 @@ namespace island
             }
         }
         ++drawnFrames_;
+        const bool snakeCapture = !capturePath_.empty()
+            && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail);
+        if (snakeCapture && drawnFrames_%4U == 0 && drawnFrames_ <= 16U) {
+            GpuDiagnosticScope gpuPass("capture-readback");
+            CaptureFrame(capturePath_+".snake-stage-"+std::to_string(drawnFrames_/4U-1U)+".ppm");
+            const auto& snake = snakes_->Snakes().front();
+            std::cout << "island-simulator: snake motion stage=" << drawnFrames_/4U-1U
+                << " visible=" << snakeRenderer_->VisibleCount() << " speed=" << snake.speed
+                << " phase=" << snake.phase << " body=";
+            for (const auto& p : snake.body) std::cout << p.x << ',' << p.y << ',' << p.z << ';';
+            std::cout << '\n';
+        }
         if (treeQaStage < monkeyTreeQaPoses_.size() && drawnFrames_%4U == 0) {
             GpuDiagnosticScope gpuPass("capture-readback");
             if (!capturePath_.empty()) CaptureFrame(capturePath_+".tree-stage-"+std::to_string(treeQaStage)+".ppm");
@@ -2856,7 +2879,7 @@ namespace island
             std::cout << report << '\n';
             if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
-        const std::uint32_t targetFrames = !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        const std::uint32_t targetFrames = snakeCapture ? 16U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

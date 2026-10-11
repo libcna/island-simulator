@@ -653,6 +653,12 @@ progress or require player interaction; dangerous species keep their distance li
   grass occlusion remains; generic luminance gate FAILS, graphics log valid/kernel empty.
   Vertex/interior terrain-clearance and invalid-input shadow tests added. Motion quality,
   portable runtime images, F1 layout review and tree snakes remain unqualified/open.
+  Live four-frame audit added: `20261011T183616.764190Z-snakes` images inspected,
+  body-centre tracking keeps subject in frame; recorded head displacement2.171m.
+  Motion samples/graphics valid, kernel empty, generic contrast gate still FAILS.
+  New defect: follower motion looks rope-like/too straight; investigate retained
+  head-path sampling instead of repeatedly smoothing body segments. Grass intersections
+  persist. Four poses are not a continuous natural-motion acceptance test.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)
