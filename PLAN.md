@@ -692,6 +692,14 @@ progress or require player interaction; dangerous species keep their distance li
   checks pass, kernel empty, generic luminance gate still FAILS. Whole-blade/triangle
   contact, normal deformation, portable runtime and measured performance remain open;
   no claim that this optimization fixes the still-unresolved AMD timeout.
+  Next contact step uses planted blade roots and horizontal root-to-deformed-vertex
+  segment distance, catching crossings whose endpoints both miss the snake. CPU
+  crossing/parallel/reversal/interior-sample tests pass; native actual200740.707227Z
+  grid inspected, graphics/motion valid/kernel empty, luminance gate still FAILS.
+  Foreground leaves obscure a stage; real-time simulation gives different poses across
+  captures. Add deterministic capture timing before matched-image comparisons.
+  Full3D curved-triangle contact, normals/relaxation, portable runtime and GPU timing
+  remain open; no final appearance or crash-fix claim.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

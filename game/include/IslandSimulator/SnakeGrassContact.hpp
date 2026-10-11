@@ -48,19 +48,38 @@ struct SnakeGrassContact {
         return mask;
     }
     [[nodiscard]] float Pressure(float x,float z, const std::array<float,4>& mask={1,1,1,1}) const {
-        if(!std::isfinite(x)||!std::isfinite(z)) return 0;
+        return SweptPressure(x,z,x,z,mask);
+    }
+    [[nodiscard]] float SweptPressure(float rootX,float rootZ,float x,float z,
+                                      const std::array<float,4>& mask={1,1,1,1}) const {
+        if(!std::isfinite(x)||!std::isfinite(z)||!std::isfinite(rootX)||!std::isfinite(rootZ)) return 0;
+        const auto pointDistanceSquared=[](float px,float pz,float ax,float az,float bx,float bz) {
+            const float dx=bx-ax,dz=bz-az;
+            const float t=std::clamp(((px-ax)*dx+(pz-az)*dz)/std::max(dx*dx+dz*dz,0.000001f),0.0f,1.0f);
+            return (px-ax-t*dx)*(px-ax-t*dx)+(pz-az-t*dz)*(pz-az-t*dz);
+        };
         float nearest=Fade;
         for(std::size_t s=0;s<count;++s) {
             if(mask[s]==0) continue;
             const auto b=bounds[s];
-            if(x<b[0]||z<b[1]||x>b[2]||z>b[3]) continue;
+            if(std::max(x,rootX)<b[0]||std::max(z,rootZ)<b[1]
+                ||std::min(x,rootX)>b[2]||std::min(z,rootZ)>b[3]) continue;
             for(std::size_t j=1;j<41;++j) {
                 const auto i=(s*41+j-1)*3,k=i+3;
-                const float dx=points[k]-points[i],dz=points[k+1]-points[i+1];
-                const float t=std::clamp(((x-points[i])*dx+(z-points[i+1])*dz)
-                    /std::max(dx*dx+dz*dz,0.000001f),0.0f,1.0f);
-                nearest=std::min(nearest,std::hypot(x-points[i]-t*dx,z-points[i+1]-t*dz)
+                const float ax=points[i],az=points[i+1],bx=points[k],bz=points[k+1];
+                const float dx=x-rootX,dz=z-rootZ,sx=bx-ax,sz=bz-az;
+                const float denominator=dx*sz-dz*sx;
+                if(std::abs(denominator)>0.00000001f) {
+                    const float t=((ax-rootX)*sz-(az-rootZ)*sx)/denominator;
+                    const float u=((ax-rootX)*dz-(az-rootZ)*dx)/denominator;
+                    if(t>=0&&t<=1&&u>=0&&u<=1) return 1;
+                }
+                const float distanceSquared=std::min({pointDistanceSquared(x,z,ax,az,bx,bz),
+                    pointDistanceSquared(rootX,rootZ,ax,az,bx,bz),
+                    pointDistanceSquared(ax,az,rootX,rootZ,x,z),pointDistanceSquared(bx,bz,rootX,rootZ,x,z)});
+                nearest=std::min(nearest,std::sqrt(distanceSquared)
                     -std::max(points[i+2],points[k+2])-Margin);
+                if(nearest<=0) return 1;
             }
         }
         const float t=std::clamp(nearest/Fade,0.0f,1.0f);
@@ -71,19 +90,34 @@ uniform vec3 uSnakeGrassPoints[164];
 uniform vec4 uSnakeGrassBounds[4];
 uniform float uSnakeGrassCount;
 uniform vec4 uSnakeGrassCellMask;
-float snakeGrassPressure(vec2 position) {
+float snakePointSegmentSquared(vec2 p,vec2 a,vec2 b) {
+    vec2 d=b-a;
+    vec2 offset=p-a-d*clamp(dot(p-a,d)/max(dot(d,d),0.000001),0.0,1.0);
+    return dot(offset,offset);
+}
+float snakeCross(vec2 a,vec2 b) { return a.x*b.y-a.y*b.x; }
+float snakeGrassPressure(vec2 root,vec2 position) {
     if(!any(greaterThan(uSnakeGrassCellMask,vec4(0.0)))) return 0.0;
     float nearest = 0.14;
     for(int s=0;s<4;++s) {
         if(float(s)>=uSnakeGrassCount) break;
         if(uSnakeGrassCellMask[s]<0.5) continue;
         vec4 bounds=uSnakeGrassBounds[s];
-        if(any(lessThan(position,bounds.xy)) || any(greaterThan(position,bounds.zw))) continue;
+        if(any(lessThan(max(root,position),bounds.xy)) || any(greaterThan(min(root,position),bounds.zw))) continue;
         for(int j=1;j<41;++j) {
             vec3 a=uSnakeGrassPoints[s*41+j-1], b=uSnakeGrassPoints[s*41+j];
-            vec2 direction=b.xy-a.xy;
-            float t=clamp(dot(position-a.xy,direction)/max(dot(direction,direction),0.000001),0.0,1.0);
-            nearest=min(nearest,length(position-mix(a.xy,b.xy,t))-max(a.z,b.z)-0.015);
+            vec2 d=position-root, direction=b.xy-a.xy;
+            float denominator=snakeCross(d,direction);
+            if(abs(denominator)>0.00000001) {
+                float t=snakeCross(a.xy-root,direction)/denominator;
+                float u=snakeCross(a.xy-root,d)/denominator;
+                if(t>=0.0&&t<=1.0&&u>=0.0&&u<=1.0) return 1.0;
+            }
+            float distanceSquared=min(min(snakePointSegmentSquared(root,a.xy,b.xy),
+                snakePointSegmentSquared(position,a.xy,b.xy)),
+                min(snakePointSegmentSquared(a.xy,root,position),snakePointSegmentSquared(b.xy,root,position)));
+            nearest=min(nearest,sqrt(distanceSquared)-max(a.z,b.z)-0.015);
+            if(nearest<=0.0) return 1.0;
         }
     }
     return 1.0-smoothstep(0.0,0.14,nearest);

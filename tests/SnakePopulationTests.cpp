@@ -183,6 +183,32 @@ int main()
         Check(contact.Pressure(1.1f,0.12f)>0 && contact.Pressure(1.1f,0.12f)<1,
             "grass pressure lacks soft edge");
         Check(contact.Pressure(1.1f,0.3f)==0,"grass contact exceeds local footprint");
+        Check(contact.Pressure(1.1f,-0.5f)==0&&contact.Pressure(1.1f,0.5f)==0
+            &&contact.SweptPressure(1.1f,-0.5f,1.1f,0.5f)==1,
+            "slanted blade spanning snake with both endpoints outside was missed");
+        Check(contact.SweptPressure(1.1f,0.5f,1.1f,-0.5f)==1,
+            "reversed blade contact was missed");
+        Check(contact.SweptPressure(0.3f,0.12f,1.8f,0.12f)>0
+            &&contact.SweptPressure(0.3f,0.12f,1.8f,0.12f)<1,
+            "parallel blade lost soft contact edge");
+        Check(contact.SweptPressure(-1,0,-0.5f,0)==0,
+            "collinear but separated blade flattened");
+        Check(contact.SweptPressure(std::numeric_limits<float>::quiet_NaN(),0,1,0)==0,
+            "invalid swept contact did not fail closed");
+        for(int i=0;i<30;++i) {
+            const float ax=-0.3f+i*0.1f,az=-0.4f, bx=2.5f-i*0.08f,bz=0.3f;
+            const auto mask=contact.CellMask(std::min(ax,bx),std::min(az,bz),
+                                             std::max(ax,bx),std::max(az,bz));
+            const float pressure=contact.SweptPressure(ax,az,bx,bz);
+            Check(pressure==contact.SweptPressure(ax,az,bx,bz,mask),"mask lost swept contact");
+            Check(std::abs(pressure-contact.SweptPressure(bx,bz,ax,az))<0.00001f,
+                "swept contact depends on blade direction");
+            for(int sample=0;sample<=100;++sample) {
+                const float t=sample/100.0f;
+                Check(pressure+0.00001f>=contact.Pressure(ax+(bx-ax)*t,az+(bz-az)*t),
+                    "swept contact weaker than an interior blade sample");
+            }
+        }
         Check(contact.CellMask(100,100,101,101)==std::array<float,4>{},
             "distant grass cells still run snake contact loops");
         const auto b=contact.bounds[0];

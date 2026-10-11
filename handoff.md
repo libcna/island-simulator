@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — swept blade-root contact, visual audit timing gap identified
+
+SnakeGrassContact::SweptPressure now tests root-to-vertex segment vs snake segments:
+crossing returns1, otherwise min4point/segment squared distances → radius/margin/fade;
+early fullpressure return and cellmask preserved. Pressure(point) delegates zero-length
+segment. GLSL mirrors CPU. Grass customVB48bytes (was40), newvec2 root atlocation5,
+instances shifted6..9 (unchanged44bytes). Allblade/turf/seed vertices get localroot;
+length/finite guards. +7,712staticVBbytes, no extra draw/texture/uniformarrays.
+Focused CPU2/2PASS9.91s covers endpoint-outside crossing/reversal/parallel/collinear/
+nonfinite/interior oracle/mask; supervisor37/assets25/81/10/0PASS. Native/Web builds,
+Webpackage11,163,384raw/4,198,207gzip, ARM64 assembleDebug/lintDebug4sPASS.
+Actual software capture build/software-captures/20261011T200740.707227Z-snakes:
+motion-grid.png actuallyinspected, snakevisible0/2/3, largeleaves obscurestage1.
+Graphics/motionreplayPASS/kernel-after[], genericluminanceFAIL unchanged. Real-time
+updates produced differentposes frompreviouscapture, so NOT matchedbeforeafterproof.
+NEXT: deterministic capture-only simulation timing needed before image regressions;
+gameplay stays real-time. Still no curvedtriangle/3D collisionguarantee, normals and
+temporalrelaxation/performance/portableactualviews open. AMDcauseunknown, nofixclaim.
+Allownedjobs terminal; no GPUhardware/AndroidKVM/dependencies/push. Stoplatchunchanged.
+
 ## Latest — snake-grass contact with conservative whole-cell rejection
 
 Finished initial pending contact implementation plus CPU CellMask over full grass

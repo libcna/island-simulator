@@ -203,3 +203,39 @@ views, uniform-budget/performance measurement, tree snakes and final appearance 
 open. The original GPU-crash candidate and its pre-change patch/header stay preserved.
 Native/Web builds and Web package PASS (11,160,494 bytes raw /4,195,534 gzip);
 ARM64 assembleDebug/lintDebug PASS in5s. No portable runtime was launched for this stage.
+
+## Swept root-to-vertex grass contact
+
+The next change addresses a demonstrated endpoint-only gap: both ends of a slanted
+blade can be outside a snake capsule while the intervening blade crosses it. Every
+grass blade/turf blade and its seed-head vertices now retain their planted local root.
+The custom mesh stride grows40→48 bytes (+7,712 bytes for964 existing vertices),
+with ten total vertex attributes including the unchanged44-byte instance record.
+Roots are transformed with the same yaw, terrain tangent basis, spread and distance
+contraction as the rest of the blade. Contact checks the horizontal root-to-deformed-
+vertex segment against each relevant snake segment rather than just the endpoint.
+Crossing segments return full pressure; otherwise the closest endpoint-to-segment
+distance supplies the existing radius/margin/fade. Per-cell rejection is retained;
+no new draw, texture, instance buffer update or shader uniform array is introduced.
+
+CPU regression covers the both-endpoints-outside crossing, reverse direction, parallel
+soft edge, separated collinear segments, nonfinite roots, masked/unmasked agreement
+and comparison with101 interior point samples on30 test blades. Focused snake and
+grass-motion tests PASS2/2 (9.91s); supervisor37 and asset25/81/10/0 gates pass.
+
+Actual contained llvmpipe `20261011T200740.707227Z-snakes/motion-grid.png` inspected:
+snake/S-bends remain visible in stages0/2/3; large foreground leaves obscure much of
+stage1. Graphics/motion checks pass and kernel-after is empty. Generic luminance
+gate still FAILS; no threshold changed. Poses differ from the preceding capture:
+the current audit advances simulation with real update time, not fixed per-stage
+simulation time. Thus this is shader/runtime evidence, NOT matched before/after
+appearance proof. Add deterministic capture timing before using frame-indexed poses
+as image regressions. Natural gameplay timing must remain unchanged.
+
+This horizontal swept approximation still does not prove every curved blade triangle
+clear of a3D snake, and can press blades whose higher sections pass over it. Normal
+deformation, temporal relaxation, true continuous contact and portable actual images
+remain open. Increased segment arithmetic has not been GPU-timed. The AMD timeout
+remains unassigned/unresolved; this change is visual contact work, not its claimed fix.
+Final native/Web builds and package PASS (11,163,384 bytes raw /4,198,207 gzip),
+ARM64 assembleDebug/lintDebug PASS in4s. Portable shader execution remains unverified.

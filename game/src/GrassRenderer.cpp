@@ -101,9 +101,10 @@ namespace island
             std::array<float, 2> wind;
             std::array<float, 3> normal;
             float across;
+            std::array<float,2> root;
         };
         static_assert(std::is_trivially_copyable_v<GrassSurfaceVertex>);
-        static_assert(std::is_standard_layout_v<GrassSurfaceVertex> && sizeof(GrassSurfaceVertex) == 40);
+        static_assert(std::is_standard_layout_v<GrassSurfaceVertex> && sizeof(GrassSurfaceVertex) == 48);
 
         const VertexDeclaration& GrassSurfaceDeclaration()
         {
@@ -117,7 +118,9 @@ namespace island
                 VertexElement(offsetof(GrassSurfaceVertex, normal), VertexElementFormat::Vector3,
                               VertexElementUsage::Normal, 0),
                 VertexElement(offsetof(GrassSurfaceVertex, across), VertexElementFormat::Single,
-                              VertexElementUsage::TextureCoordinate, 5)};
+                              VertexElementUsage::TextureCoordinate, 5),
+                VertexElement(offsetof(GrassSurfaceVertex, root), VertexElementFormat::Vector2,
+                              VertexElementUsage::TextureCoordinate, 6)};
             return declaration;
         }
 
@@ -127,6 +130,7 @@ namespace island
             std::vector<std::uint16_t> indices;
             std::vector<float> materialHeights;
             std::vector<float> bladeAcross; // [-1,1] on blades; 2 on seed heads.
+            std::vector<std::array<float,2>> bladeRoots;
         };
 
         [[nodiscard]] constexpr bool HasNearSeedHead(const GrassMeshTier tier,
@@ -163,10 +167,11 @@ layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aWindData;
 layout(location = 3) in vec3 aNormal;
 layout(location = 4) in float aBladeAcross;
-layout(location = 5) in vec4 aPlacement;
-layout(location = 6) in vec4 aVariation;
-layout(location = 7) in vec2 aSlope;
-layout(location = 8) in float aBiomeTint;
+layout(location = 5) in vec2 aBladeRoot;
+layout(location = 6) in vec4 aPlacement;
+layout(location = 7) in vec4 aVariation;
+layout(location = 8) in vec2 aSlope;
+layout(location = 9) in float aBiomeTint;
 
 uniform mat4 uViewProjection;
 uniform float uTime;
@@ -233,8 +238,12 @@ void main()
     world.y -= abs(sway) * grassWindLowering * heightWeight;
 
     // Press contacted grass below the supported snake belly; preserve planted roots.
-    // Evaluate after wind/player motion so a wind-blown blade cannot ignore contact.
-    float snakePressure=snakeGrassPressure(world.xz);
+    // Sweep from each blade's planted root to its wind/player-deformed vertex: endpoints
+    // can both miss the snake while the slanted blade between them intersects it.
+    vec2 rootLocal=vec2(aBladeRoot.x*yawCos-aBladeRoot.y*yawSin,
+                       aBladeRoot.x*yawSin+aBladeRoot.y*yawCos);
+    vec3 bladeRoot=aPlacement.xyz+(tangentX*rootLocal.x+tangentZ*rootLocal.y)*aVariation.y*visibility;
+    float snakePressure=snakeGrassPressure(bladeRoot.xz,world.xz);
     if(snakePressure>0.0) {
         float floorHeight=grassTerrainHeight(world.xz);
         float aboveGround=max(0.0,world.y-floorHeight);
@@ -521,6 +530,7 @@ void main()
                 const Vector3 tip = pointAt(1,0);
                 AppendNearSeedHead(geometry, blade, tip, direction, side, phase, facing);
             }
+            geometry.bladeRoots.resize(geometry.vertices.size(),{baseX,baseZ});
         }
 
         void AppendTurfBlade(ClusterGeometry& geometry, const int blade, const bool shaderLit)
@@ -556,6 +566,7 @@ void main()
             for (const auto offset : {0, 2, 1, 1, 2, 3, 2, 4, 3}) {
                 geometry.indices.push_back(static_cast<std::uint16_t>(base + offset));
             }
+            geometry.bladeRoots.resize(geometry.vertices.size(),{placement.x,placement.z});
         }
 
         [[nodiscard]] ClusterGeometry CreateClusterGeometry(const int bladeCount,
@@ -717,13 +728,18 @@ void main()
             ValidateProceduralTriangleMeshOrThrow(
                 geometry.vertices.size(), geometry.indices, label);
             if (geometry.materialHeights.size() != geometry.vertices.size()
-                || geometry.bladeAcross.size() != geometry.vertices.size()) {
+                || geometry.bladeAcross.size() != geometry.vertices.size()
+                || geometry.bladeRoots.size() != geometry.vertices.size()) {
                 throw std::logic_error(std::string(label) + ": missing grass material coordinates");
             }
             for (float across : geometry.bladeAcross) {
                 if (!std::isfinite(across) || (std::abs(across) > 1 && across != 2)) {
                     throw std::logic_error(std::string(label) + ": invalid blade or seed material tag");
                 }
+            }
+            for(const auto& root:geometry.bladeRoots) {
+                if(!std::isfinite(root[0])||!std::isfinite(root[1]))
+                    throw std::logic_error(std::string(label)+": invalid grass blade root");
             }
             for (const auto& vertex : geometry.vertices) {
                 const auto& p = vertex.Position;
@@ -750,7 +766,7 @@ void main()
                         {vertex.Color.getRProperty(), vertex.Color.getGProperty(), vertex.Color.getBProperty(),
                          EncodeGrassMaterialHeight(geometry.materialHeights[i])},
                         {vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y}, normals[i],
-                        geometry.bladeAcross[i]});
+                        geometry.bladeAcross[i],geometry.bladeRoots[i]});
                 }
                 mesh.vertices = std::make_unique<VertexBuffer>(device_, GrassSurfaceDeclaration(),
                     mesh.vertexCount, BufferUsage::WriteOnly);
