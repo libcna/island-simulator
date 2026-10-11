@@ -1,7 +1,11 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
+#include <span>
 #include <vector>
+#include "IslandSimulator/BoarHerd.hpp"
 
 namespace island
 {
@@ -208,6 +212,38 @@ namespace island
         float x = 0.0f;
         float y = 0.0f;
         float z = 0.0f;
+    };
+
+    enum class BoarCallKind : std::uint8_t { None, Breath, Snuffle, Grunt };
+
+    struct BoarCallRequest
+    {
+        BoarCallKind kind = BoarCallKind::None;
+        std::size_t animalIndex = 0;
+        std::uint8_t variant = 0;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        WildlifeAudioSource source;
+    };
+
+    /** @brief Behavior-aware, per-animal cooldowns; consumes at most one shared wildlife slot.
+     * Input order is the stable BoarHerd order. Muted/busy callers pass false for the slot.
+     * Inaudible/dormant animals are virtualized; no backlog of missed calls is replayed.
+     */
+    class BoarCallScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] BoarCallRequest Update(float deltaSeconds,
+            float listenerX, float listenerY, float listenerZ,
+            std::span<const BoarState> boars, bool playbackSlotAvailable) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+        std::array<float, BoarHerd::BoarCount> cooldowns_{};
+        std::uint32_t randomState_ = 0xb0a45eedU;
+        float herdCooldown_ = 0.0f;
+        std::size_t nextAnimal_ = 0;
     };
 
     /** @brief One bounded, mono positional call request selected from visible wildlife. */

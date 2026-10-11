@@ -779,6 +779,83 @@ namespace island
         return request;
     }
 
+    float BoarCallScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU) / 16777216.0f;
+    }
+
+    void BoarCallScheduler::Reset() noexcept
+    {
+        randomState_ = 0xb0a45eedU;
+        herdCooldown_ = 2.0f;
+        nextAnimal_ = 0;
+        for (float& cooldown : cooldowns_) {
+            cooldown = 3.0f + 8.0f * NextUnit();
+        }
+    }
+
+    BoarCallRequest BoarCallScheduler::Update(const float deltaSeconds,
+        const float listenerX, const float listenerY, const float listenerZ,
+        const std::span<const BoarState> boars, const bool playbackSlotAvailable) noexcept
+    {
+        const float dt = SafeDeltaSeconds(deltaSeconds);
+        // Paused/invalid time must never emit an overdue call.
+        if (dt <= 0.0f) return {};
+        herdCooldown_ = std::max(0.0f, herdCooldown_ - dt);
+        for (float& cooldown : cooldowns_) cooldown = std::max(0.0f, cooldown - dt);
+        if (!playbackSlotAvailable || herdCooldown_ > 0.0f
+            || !std::isfinite(listenerX) || !std::isfinite(listenerY)
+            || !std::isfinite(listenerZ)) return {};
+
+        const std::size_t count = std::min(boars.size(), cooldowns_.size());
+        for (std::size_t offset = 0; offset < count; ++offset) {
+            const std::size_t index = (nextAnimal_ + offset) % count;
+            const BoarState& boar = boars[index];
+            if (cooldowns_[index] > 0.0f || boar.simulationTier == WildlifeSimulationTier::Dormant
+                || !std::isfinite(boar.x) || !std::isfinite(boar.y) || !std::isfinite(boar.z)
+                || !std::isfinite(boar.scale) || boar.scale <= 0.0f) continue;
+            BoarCallKind kind = BoarCallKind::None;
+            float radius = 0.0f, baseVolume = 0.0f, interval = 0.0f;
+            switch (boar.behavior) {
+                case BoarBehavior::Rest:
+                    kind = BoarCallKind::Breath; radius = 9.0f;
+                    baseVolume = 0.14f; interval = 16.0f; break;
+                case BoarBehavior::Forage:
+                    kind = BoarCallKind::Snuffle; radius = 23.0f;
+                    baseVolume = 0.29f; interval = 7.0f; break;
+                case BoarBehavior::Wander:
+                    kind = BoarCallKind::Grunt; radius = 38.0f;
+                    baseVolume = 0.36f; interval = 12.0f; break;
+                case BoarBehavior::Retreat:
+                    kind = BoarCallKind::Grunt; radius = 42.0f;
+                    baseVolume = 0.40f; interval = 6.0f; break;
+                default: continue;
+            }
+            const float sourceY = boar.y + 0.55f * boar.scale;
+            const float distance = std::hypot(std::hypot(boar.x - listenerX,
+                boar.z - listenerZ), sourceY - listenerY);
+            if (!std::isfinite(distance) || distance >= radius) continue;
+            const float fade = 1.0f - distance / radius;
+            const float volume = baseVolume * fade * fade;
+            if (volume < 0.005f) continue;
+            BoarCallRequest request;
+            request.kind = kind;
+            request.animalIndex = index;
+            request.variant = static_cast<std::uint8_t>(NextUnit() >= 0.5f);
+            request.volume = volume * (0.86f + 0.14f * NextUnit());
+            request.pitch = -0.07f + 0.14f * NextUnit();
+            request.source = {true, boar.x, sourceY, boar.z};
+            cooldowns_[index] = interval + 9.0f * NextUnit();
+            herdCooldown_ = 2.5f + 2.0f * NextUnit();
+            nextAnimal_ = (index + 1U) % count;
+            return request;
+        }
+        return {};
+    }
+
     void WildlifeCallScheduler::Reset() noexcept
     {
         randomState_ = 0x6c8e9cf5U;

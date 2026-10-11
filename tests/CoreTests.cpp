@@ -1628,6 +1628,92 @@ int main()
               && longMonkeyCallCount >= 5 && longMonkeyCallCount <= 30,
           "wildlife calls remain sparse over a twenty-minute session");
 
+    // Boar audio scheduling is independent of rendering and of the playback device.
+    std::array<island::BoarState, island::BoarHerd::BoarCount> audioBoars{};
+    for (std::size_t i = 0; i < audioBoars.size(); ++i) {
+        audioBoars[i].x = static_cast<float>(i);
+        audioBoars[i].simulationTier = island::WildlifeSimulationTier::Full;
+        audioBoars[i].behavior = static_cast<island::BoarBehavior>(i % 4U);
+    }
+    island::BoarCallScheduler boarCalls, repeatedBoarCalls;
+    boarCalls.Reset(); repeatedBoarCalls.Reset();
+    std::array<int, island::BoarHerd::BoarCount> boarCallCounts{};
+    std::array<int, island::BoarHerd::BoarCount> previousBoarCall{};
+    previousBoarCall.fill(-1000);
+    std::array<bool, 2> boarVariants{};
+    int previousHerdCall = -1000;
+    bool boarBounds = true, boarDeterminism = true;
+    for (int step = 0; step < 2400; ++step) {
+        const auto call = boarCalls.Update(0.25f, 0.0f, 1.72f, 0.0f, audioBoars, true);
+        const auto repeated = repeatedBoarCalls.Update(0.25f, 0.0f, 1.72f, 0.0f, audioBoars, true);
+        boarDeterminism = boarDeterminism && call.kind == repeated.kind
+            && call.animalIndex == repeated.animalIndex && call.variant == repeated.variant
+            && call.volume == repeated.volume && call.pitch == repeated.pitch;
+        if (call.kind == island::BoarCallKind::None) continue;
+        const std::size_t i = call.animalIndex;
+        const auto behavior = audioBoars[i].behavior;
+        const auto expected = behavior == island::BoarBehavior::Rest ? island::BoarCallKind::Breath
+            : behavior == island::BoarBehavior::Forage ? island::BoarCallKind::Snuffle
+            : island::BoarCallKind::Grunt;
+        boarBounds = boarBounds && call.kind == expected && step - previousHerdCall >= 10
+            && step - previousBoarCall[i] >= 24 && call.volume > 0.0f && call.volume <= 0.40f
+            && call.pitch >= -0.07f && call.pitch <= 0.07f && call.variant < 2U
+            && call.source.available && call.source.x == audioBoars[i].x
+            && std::abs(call.source.y - 0.55f) < 0.0001f;
+        previousHerdCall = step; previousBoarCall[i] = step;
+        ++boarCallCounts[i]; boarVariants[call.variant] = true;
+    }
+    Check(boarBounds && boarDeterminism && boarVariants[0] && boarVariants[1]
+        && std::all_of(boarCallCounts.begin(), boarCallCounts.end(), [](int n) { return n > 5; }),
+        "boar calls match behavior, vary, remain bounded and fairly service each animal");
+    const auto noBoarCall = [](const auto& animals, float x, float dt, bool slot) {
+        island::BoarCallScheduler scheduler;
+        scheduler.Reset();
+        bool silent = true;
+        for (int step = 0; step < 200; ++step) {
+            const auto call = scheduler.Update(dt, x, 1.72f, 0.0f, animals, slot);
+            silent = silent && call.kind == island::BoarCallKind::None;
+        }
+        return silent;
+    };
+    Check(noBoarCall(audioBoars, 0.0f, 0.25f, false)
+        && noBoarCall(audioBoars, 300.0f, 0.25f, true)
+        && noBoarCall(audioBoars, std::numeric_limits<float>::quiet_NaN(), 0.25f, true)
+        && noBoarCall(audioBoars, 0.0f, std::numeric_limits<float>::quiet_NaN(), true)
+        && noBoarCall(audioBoars, 0.0f, -1.0f, true)
+        && noBoarCall(audioBoars, 0.0f, 0.0f, true),
+        "boar calls respect unavailable slots, range, invalid listener and paused/invalid time");
+    for (auto& boar : audioBoars) boar.simulationTier = island::WildlifeSimulationTier::Dormant;
+    Check(noBoarCall(audioBoars, 0.0f, 0.25f, true), "dormant boars remain silent");
+    for (auto& boar : audioBoars) {
+        boar.simulationTier = island::WildlifeSimulationTier::Full;
+        boar.x = std::numeric_limits<float>::infinity();
+    }
+    Check(noBoarCall(audioBoars, 0.0f, 0.25f, true), "invalid boar positions remain silent");
+    Check(noBoarCall(std::span<const island::BoarState>{}, 0.0f, 0.25f, true),
+        "empty boar population remains silent");
+    std::array<island::BoarState, 1> loneBoar{};
+    loneBoar[0].behavior = island::BoarBehavior::Wander;
+    loneBoar[0].simulationTier = island::WildlifeSimulationTier::Full;
+    island::BoarCallScheduler nearBoar, farBoar, heldBoar;
+    nearBoar.Reset(); farBoar.Reset(); heldBoar.Reset();
+    bool quieterAtDistance = false;
+    for (int step = 0; step < 200; ++step) {
+        const auto near = nearBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, true);
+        const auto far = farBoar.Update(0.25f, 20.0f, 1.72f, 0.0f, loneBoar, true);
+        (void)heldBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, false);
+        if (near.kind != island::BoarCallKind::None) {
+            quieterAtDistance = far.kind == near.kind && far.volume < near.volume * 0.3f;
+        }
+    }
+    Check(quieterAtDistance, "boar volume attenuates with listener distance");
+    Check(heldBoar.Update(0.0f, 0.0f, 1.72f, 0.0f, loneBoar, true).kind
+        == island::BoarCallKind::None, "paused overdue boar calls cannot start playback");
+    Check(heldBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, true).kind
+        == island::BoarCallKind::Grunt, "one due boar call resumes when a slot opens");
+    Check(heldBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, true).kind
+        == island::BoarCallKind::None, "resuming boar audio cannot replay a backlog burst");
+
     island::SoundscapeModel longSoundscapeModel;
     island::WaterMovementModel longWaterMovementModel;
     island::WaveAccentScheduler longWaveScheduler;

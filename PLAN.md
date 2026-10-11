@@ -587,6 +587,12 @@ Visual rework explicitly requested by the operator (2026-10-11):
   Verify behavior-triggered playback and actual listening in-game, including direction,
   distance, overlapping animals and native/Web/Android audio lifecycle. Keep unchecked
   until implemented and audibly reviewed; visual boar improvements do not satisfy this task.
+  In progress: renderer-independent BoarCallScheduler now selects breath/snuffle/grunt
+  from actual Rest/Forage/Wander/Retreat behavior, with per-animal cooldowns, round-robin
+  herd selection, randomized variant/pitch and a shared-slot gate. Distance-based volume
+  and finite range suppress inaudible/dormant animals; no paused-time or catch-up bursts.
+  This is scheduling only: PCM clips, live Soundscape integration, diagnostics and actual
+  listening/native-Web-Android lifecycle verification are still to implement.
 - [ ] Improve pigs/wild boars beyond their current procedural appearance: believable anatomy,
   head and snout, shoulder/back silhouette, short articulated legs and cloven hooves. Give
   the coat convincing bristly fur detail and appropriate skin, snout and hoof textures;

@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — boar sound scheduler implementation started (not audible yet)
+
+Added BoarCallScheduler/BoarCallRequest/BoarCallKind in SoundscapeModel header/source.
+Consumes stable BoarHerd span order; Rest breath (9 m), Forage snuffle (23 m),
+Wander grunt (38 m), Retreat grunt (42 m). Squared distance fade, bounded randomized
+gain/pitch/variant, individual cooldowns and 2.5–4.5 s herd gap; round-robin fairness.
+Dormant, invalid and inaudible candidates skipped. Caller must pass available shared
+wildlife slot (false while muted/busy); no new voice budget or playback yet. Zero or
+invalid time cannot trigger even an overdue call; no missed-call backlog replay.
+
+CoreTests exercise ten-minute deterministic multi-animal scheduling/behavior/fairness,
+cooldowns, variants/limits, muted/busy slot, distance attenuation, invalid data, dormant
+and empty population, pause and delayed-slot return. Build/test logs:
+`build/boar-audio-scheduler-build.log`, `build/boar-audio-scheduler-tests.log`.
+Native core build and IslandCoreTests pass (63.26 s); diff whitespace check passes.
+No renderer/emulator was launched. This does not qualify clips or runtime audio.
+NEXT: create distinct original mono breath/snuffle/grunt clips with variants, connect
+to the existing pooled Soundscape wildlife voice without starving birds/monkeys,
+track the moving emitting animal, expose diagnostics and export/listen to previews,
+then actually qualify gameplay audio/mute/lifecycle. Do not claim audible boars or
+natural sound quality from scheduler tests. PLAN task stays unchecked.
+
 ## Latest — actual Web vertical flight verified
 
 Contained Chrome 155 / SwiftShader `20261011T172804.191069Z-chrome-flight` reports
