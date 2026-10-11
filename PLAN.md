@@ -314,6 +314,11 @@ Standing visual-quality rules (apply to every task from now on):
   inspected, 36/36 CPU groups pass plus real-island contact fixtures. Independent sole/palm
   orientation, turning stance locks, body slope and climbing are still open; this is not
   complete ground-contact or motion-quality acceptance.
+  Web moving-view audit `20261011T115524.501474Z-chrome-monkeys`: five images inspected,
+  visible fur and changing quadrupedal poses; rounded pale face mask, angular tail and
+  shoulder attachment remain defects. Run hit its 360-second deadline before final GL/
+  interval report, so Web qualification remains OPEN. Repeat the expanded series with a
+  bounded 600-second deadline, not fewer frames or weakened graphics checks.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

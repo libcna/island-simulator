@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest — Web moving-view audit captured, runtime deadline NOT passed
+
+Current anatomy/fur/contact Web build succeeds; package refreshed (10,927,110 raw /
+4,083,870 gzip bytes). Focused monkey runner adds four intermediate images after eight
+frames each, plus original endpoints and sixty measured intervals. Syntax and 13 launcher
+CPU tests pass. `20261011T115524.501474Z-chrome-monkeys` TERMINATED at the 360-second
+supervisor deadline; do NOT call it qualified. Start + four intermediate images inspected:
+visible textured quadruped changes position/heading/limb pose; toy-like face mask, angular
+tail and assembled shoulder remain explicit defects. No final GL/interval report exists.
+Final kernel delta only keyboard registration/perf throttling, no GPU fault. All jobs finished.
+No current job to poll/restart. Keep failed evidence unchanged. Newly added partial checkpoint
+writing will preserve page state during the next attempt; it always says complete:false.
+NEXT: fresh bounded 600-second focused Web run for the longer sequence, retaining all sixty
+intervals and graphics gates; then Android current-model qualification and contact/climbing.
+See `docs/monkey-quadruped-overhaul.md`. Goal and whole-plan scope remain unchanged/open.
+
 ## Latest — individual rendered-terrain targets for monkey limbs (native first pass)
 
 `MonkeyGroundGait::FitGround` now refits all four fixed-length chains to individual

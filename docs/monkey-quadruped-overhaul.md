@@ -67,3 +67,28 @@ island fixtures cover seven spawn locations, eight yaws and forty gait phases; g
 recheck passes 2/2. Synthetic fixtures check slopes, trunk/root attachment and unreachable
 cliffs. These tests prove target geometry, not a fully planted palm/foot mesh. The limitations
 above, motion review and Android/Web qualification remain open.
+
+## Focused Web moving-view audit
+
+The focused monkey runner now saves four intermediate screenshots, each after eight
+additional animation frames, as well as the existing start/end images and sixty measured
+frame intervals. It records all filenames in `monkeyMotionFrames`. This is bounded visual
+evidence, not an automatic claim of biologically correct locomotion or perfect foot contact.
+
+Inspected start and intermediate frames from
+`20261011T115524.501474Z-chrome-monkeys` show the textured model remaining visible while
+heading/location and limb poses change. Concrete remaining defects: the pale rounded
+orbital/muzzle patches still read as a toy mask from the front; shoulder/trunk attachment
+still looks assembled; the animated tail makes angular bends between its three segments.
+Grass obscures some feet, so these images cannot establish absence of sliding or complete
+sole contact. Preserve these as open defects rather than treating a renderer pass as realism
+acceptance. Full runtime verdict is recorded separately after supervision terminates.
+
+This run TERMINATED at the 360-second supervisor deadline: **not qualified**. All four
+intermediate poses and the start image exist and were inspected, but the final interval/GL
+report and endpoint image are missing. Final kernel delta contains only virtual-keyboard
+registration and perf sampling throttling, no GPU fault. Retain the failed run unchanged.
+The added 32 frames and four screenshots extend a slow software-rendered workload; next
+attempt should use a bounded 600-second deadline, retaining all sixty measured intervals
+and the same graphics gates. The runner now additionally persists a partial state checkpoint
+after every intermediate image; `complete:false` cannot be mistaken for acceptance.

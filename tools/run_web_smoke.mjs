@@ -538,6 +538,32 @@ try {
             `island-browser-${focusedArtifactPrefix}-${mode}.png`,
             !["boars", "monkeys", "overview"].includes(mode));
           const motionReview = focusedGrassMotionCheck ? await runGrassMotionReview(sessionId) : null;
+          // Preserve intermediate poses for real visual review of the quadrupedal gait;
+          // endpoint screenshots alone can hide foot sliding and limb inversion.
+          const monkeyMotionFrames = [];
+          if (focusedMonkeyCheck) {
+            for (let pose = 0; pose < 4; ++pose) {
+              await call("Runtime.evaluate", {
+                expression: `new Promise(resolve => {
+                  let frames = 0;
+                  const tick = () => ++frames >= 8 ? resolve(true) : requestAnimationFrame(tick);
+                  requestAnimationFrame(tick);
+                })`, awaitPromise: true, returnByValue: true,
+              }, sessionId);
+              monkeyMotionFrames.push(path.basename(await captureVisualFrame(sessionId,
+                `island-browser-monkeys-${mode}-pose-${pose}.png`, false)));
+              const checkpoint = await call("Runtime.evaluate", {
+                expression: `({ result: globalThis.islandSmokeResult,
+                  contextLost: Module.canvas.getContext('webgl2')?.isContextLost() })`,
+                returnByValue: true,
+              }, sessionId);
+              // Keep attribution even if the outer supervisor reaches its deadline
+              // before the final 60-interval result. Partial evidence is never a pass.
+              await writeFile(path.join(artifactDirectory, "island-browser-monkeys-progress.json"),
+                `${JSON.stringify({ complete: false, monkeyMotionFrames,
+                  checkpoint: checkpoint.result.value }, null, 2)}\n`);
+            }
+          }
           const sampled = await call("Runtime.evaluate", {
             expression: `new Promise(resolve => {
               const gl = Module.canvas.getContext('webgl2');
@@ -637,7 +663,7 @@ try {
             && !/(?:stock-effect|material) fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high/i.test(log);
           const shadeEvent = log.match(/visible monkey entered canopy shade, transmission ([0-9.eE+-]+)/);
           const shadeTransmission = shadeEvent ? Number(shadeEvent[1]) : NaN;
-          views.push({ mode, passed, motionReview, monkeyShadeTransmission: Number.isFinite(shadeTransmission)
+          views.push({ mode, passed, motionReview, monkeyMotionFrames, monkeyShadeTransmission: Number.isFinite(shadeTransmission)
               && shadeTransmission >= 0 && shadeTransmission < 0.95 ? shadeTransmission : null,
             screenshot: path.basename(screenshotPath), afterSimulationScreenshot, ...state });
           checkKernel(`after-${mode}`);
