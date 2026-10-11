@@ -2924,6 +2924,12 @@ int main()
     for (int z = -215; z <= 180; ++z) {
         const float centre = island::VegetationLayout::PrimaryPathCenterX(static_cast<float>(z));
         for (const float offset : {-0.65f, 0.0f, 0.65f}) {
+            const auto trailSurface = terrain.Sample(centre + offset, static_cast<float>(z));
+            if (trailSurface.slopeRadians >= island::PlayerMotion::MaximumWalkSlopeRadians - 0.025f)
+                std::cerr << "Trail slope at z=" << z << " offset=" << offset
+                          << " is " << trailSurface.slopeRadians << '\n';
+            Check(trailSurface.slopeRadians < island::PlayerMotion::MaximumWalkSlopeRadians - 0.025f,
+                  "primary trail stays below the player's slope limit with contact margin");
             for (const auto& obstacle : worldObstacles) {
                 const bool clear = std::hypot(centre + offset - obstacle.x,
                                               static_cast<float>(z) - obstacle.z)
@@ -3262,6 +3268,32 @@ int main()
               || centreSample.surface == island::TerrainSurface::SteepGround,
           "island centre has an interior ground classification");
 
+    const auto regionalSummit = [&](int minX, int maxX, int minZ, int maxZ) {
+        float highest = 0.0f;
+        for (int z = minZ; z <= maxZ; z += 2)
+            for (int x = minX; x <= maxX; x += 2)
+                highest = std::max(highest, terrain.Height(static_cast<float>(x), static_cast<float>(z)));
+        return highest;
+    };
+    const float mainSummit = regionalSummit(-90, -20, 20, 86);
+    const float secondarySummit = regionalSummit(44, 104, -60, 0);
+    const float saddleHeight = terrain.Height(10.0f, 5.0f);
+    std::cout << "Terrain summits/saddle: " << mainSummit << '/' << secondarySummit
+              << '/' << saddleHeight << '\n';
+    Check(mainSummit >= 35.0f && mainSummit <= 45.0f,
+          "main ridge has an island-scale 35 to 45 metre summit");
+    Check(secondarySummit >= 25.0f && secondarySummit <= 30.0f,
+          "second ridge has a distinct 25 to 30 metre summit");
+    Check(saddleHeight > 6.0f && saddleHeight < secondarySummit - 6.0f,
+          "a lower inland saddle separates the two ridges");
+    std::cout << "South valley left/bed/right: " << terrain.Height(-31.0f, -70.0f)
+              << '/' << terrain.Height(-6.0f, -70.0f) << '/' << terrain.Height(19.0f, -70.0f) << '\n';
+    Check(terrain.Height(-6.0f, -70.0f) + 1.0f < terrain.Height(-31.0f, -70.0f)
+              && terrain.Height(-6.0f, -70.0f) + 1.0f < terrain.Height(19.0f, -70.0f),
+          "southern drainage has shoulders on both sides rather than a uniform dome");
+    Check(terrain.Height(-6.0f, -70.0f) > terrain.Height(5.0f, -175.0f) + 2.0f,
+          "southern drainage descends toward the coastal plain");
+
     const island::TerrainSample deepWaterSample = terrain.Sample(420.0f, 0.0f);
     Check(deepWaterSample.IsSubmerged(), "deep-water sample reports submerged terrain");
     Check(deepWaterSample.surface == island::TerrainSurface::DeepSeabed,
@@ -3598,9 +3630,9 @@ int main()
     Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
         && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 584
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 566
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2299,
+            - jungle.ForestGroundPlantCount() == 2194,
         "clearing colonies preserve the existing island-wide populations");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
@@ -3709,7 +3741,7 @@ int main()
     };
     checkColonies(jungle);
     checkForestColonies(jungle);
-    Check(jungle.ClearingBushCount()==14 && jungle.ClearingGroundPlantCount()==69,
+    Check(jungle.ClearingBushCount()==13 && jungle.ClearingGroundPlantCount()==64,
         "forest recruitment preserves the existing default clearing accents");
     for (const auto seed:{0x12345U,0xa55aU}) {
         const island::JungleLayout alternate(terrain,seed);
@@ -4181,7 +4213,7 @@ int main()
             const float second = terrain.Height(static_cast<float>(x), static_cast<float>(z));
             Check(std::isfinite(first), "terrain height is finite across the world grid");
             Check(first == second, "terrain generation is deterministic");
-            Check(first >= -22.01f && first < 40.0f, "terrain height stays in the authored scale");
+            Check(first >= -22.01f && first <= 45.0f, "terrain height stays in the authored scale");
             const island::TerrainSample sample = terrain.Sample(static_cast<float>(x),
                                                                  static_cast<float>(z));
             Check(std::isfinite(sample.slopeRadians), "terrain slope is finite across the world grid");
@@ -4281,7 +4313,15 @@ int main()
               "walking deceleration is independent of movement direction");
 
     island::PlayerMotion runningPlayer;
-    runningPlayer.SetPosition(terrain, 0.0f, 0.0f);
+    // Speed selection needs an unobstructed gentle slope; the island centre is now a saddle
+    // approach whose bank correctly rejects some northward movement. Steep-bank behaviour
+    // has its own independent test below.
+    for (int z = -170; z <= -140; ++z) {
+        const auto runningSurface = terrain.Sample(0.0f, static_cast<float>(z));
+        Check(runningSurface.height > 0.5f && runningSurface.slopeRadians < 0.25f,
+              "run-speed fixture remains dry and gently sloped");
+    }
+    runningPlayer.SetPosition(terrain, 0.0f, -170.0f);
     runningPlayer.SetRunning(true);
     for (int frame = 0; frame < 120; ++frame) {
         runningPlayer.Update(terrain, 0.0f, 1.0f, 1.0f / 60.0f);

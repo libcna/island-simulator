@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Update 2026-10-11 — ridge/valley interior
+
+See `docs/ridge-and-valleys.md`. Two offset ridges now reach 40.0192 / 29.0938 m, with a
+13.7758 m saddle station and southern/western drainage. Steep faces reveal filtered rock
+grain/fractures. Bird clearance now anticipates terrain and clamps the complete altitude.
+Final 33/33 non-display tests pass (49.78 s), including summit/valley, trail slope, roots,
+wildlife contact and bird clearance. Native final overview `20261011T072739.811196Z-overview`
+and east `20261011T072605.084747Z-east` pass and were inspected.
+Android x86_64 build/lint and east `20261011T072932.613664Z-east` pass, image inspected.
+Interactive `20261011T073115.062445Z-interactive` fails Home/resume with `EGL_BAD_SURFACE`;
+identical-APK repeat `20261011T073355.598497Z-interactive` passes. Suspected lifecycle race
+is open as `CNA-ISLAND-001` in `BUGS.md`; do not call Android lifecycle reliably qualified.
+ARM64 assembly/lint restored. Web build/package refreshed; Chrome terrain suite
+`20261011T073720.044111Z-chrome-terrain` passes all four views (60 frame intervals each).
+Overview/east/jungle screenshots inspected; no new kernel GPU faults.
+The world fingerprint and new inventory pins are in the ridge document.
+Next is the shoreline/headland/bay stage, followed by the shared environment field. The full
+macro-geography rewrite remains open. No hardware rendering or push is authorized.
+
 ## Update 2026-10-11 — narrow footpath
 
 See `docs/natural-footpath.md`: vegetation corridor 12.4 m -> 2.8 m, narrower dirt shading,

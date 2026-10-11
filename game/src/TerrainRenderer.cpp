@@ -519,6 +519,24 @@ void main()
         color = mix(color, mix(tinted, turf * vGroundLight, 0.35), turfWeight);
     }
 
+    // Thin soil on steep ridge faces exposes weathered rock instead of the old
+    // featureless green vertex palette. Existing filtered fields break the edge.
+    float ridgeRock = smoothstep(0.32, 0.60, slopeRadians + broad * 0.16 + medium * 0.10)
+        * interior * smoothstep(5.0, 13.0, vWorld.y);
+    vec3 weatheredRock = mix(vec3(0.255, 0.245, 0.205), vec3(0.43, 0.365, 0.265),
+        clamp(0.5 + broad * 0.80 + medium * 0.42, 0.0, 1.0));
+    weatheredRock *= 1.0 + medium * 0.27 + fine * 0.045;
+    if (ridgeRock > 0.0) {
+        float rockVisibility = 1.0 - smoothstep(0.18, 0.50, groundPixelWidth * 0.90);
+        float rockGrain = valueNoise(p * 0.90 + vec2(31.8, -8.4)) * rockVisibility;
+        float fractureField = valueNoise(p * 0.19 + vec2(vWorld.y * 0.17, 9.3));
+        float fractureWidth = max(0.014, groundPixelWidth * 0.19);
+        float fracture = 1.0 - smoothstep(0.018, 0.018 + fractureWidth, abs(fractureField));
+        weatheredRock *= 1.0 + rockGrain * 0.36 - fracture * 0.16
+            * (1.0 - smoothstep(0.10, 0.35, groundPixelWidth * 0.19));
+    }
+    color = mix(color, weatheredRock * vGroundLight, ridgeRock * 0.92);
+
     float wetHeight = vWorld.y + broad * 0.06 + medium * 0.025;
     float wetEdge = (1.0 - smoothstep(0.05, 0.42, wetHeight))
         * smoothstep(-0.12, 0.06, vWorld.y) * sand;

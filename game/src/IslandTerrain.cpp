@@ -136,13 +136,33 @@ namespace island
 
         const float beach = std::min(inland, 18.0f) * 0.095f;
         const float interiorBlend = SmoothStep((inland - 11.0f) / 75.0f);
-        const float broadHills = 8.5f + 7.0f * FractalNoise(x * 0.009f, z * 0.009f, 0xc0a5U);
-        const float localRelief = 2.2f * FractalNoise(x * 0.027f, z * 0.027f, 0x711dU);
-        const float offsetX = x - 38.0f;
-        const float offsetZ = z + 22.0f;
-        const float viewpointHill = 8.0f * std::exp(-(offsetX * offsetX + offsetZ * offsetZ)
-                                                    / (2.0f * 78.0f * 78.0f));
-        return beach + interiorBlend * (broadHills + localRelief + viewpointHill);
+        // Two offset, tilted ridges give the island an asymmetric skyline and a saddle.
+        // Their broad shoulders leave room for a walkable route between the summits.
+        const float mainAlong = z - 48.0f;
+        const float mainAcross = x + 48.0f + mainAlong * 0.32f;
+        const float mainRidge = 36.0f * std::exp(-0.5f
+            * (mainAcross * mainAcross / (43.0f * 43.0f)
+               + mainAlong * mainAlong / (65.0f * 65.0f)));
+        const float secondAlong = z + 30.0f;
+        const float secondAcross = x - 76.0f - secondAlong * 0.20f;
+        const float secondRidge = 22.5f * std::exp(-0.5f
+            * (secondAcross * secondAcross / (38.0f * 38.0f)
+               + secondAlong * secondAlong / (58.0f * 58.0f)));
+
+        // Broad drainage cuts widen downslope. Multiplicative erosion preserves a
+        // positive, continuous land surface instead of clipping a flat valley floor.
+        const float southChannel = x - 5.0f - 12.0f * std::sin(z * 0.018f);
+        const float southWidth = 12.0f + 12.0f * SmoothStep(-z / 180.0f);
+        const float southValley = std::exp(-0.5f * southChannel * southChannel
+            / (southWidth * southWidth)) * (1.0f - SmoothStep((z - 5.0f) / 65.0f));
+        const float westChannel = z + 55.0f + x * 0.23f;
+        const float westValley = std::exp(-0.5f * westChannel * westChannel / (18.0f * 18.0f))
+            * (1.0f - SmoothStep((x + 70.0f) / 70.0f));
+        const float foothills = 3.3f + 1.8f * FractalNoise(x * 0.009f, z * 0.009f, 0xc0a5U);
+        const float localRelief = 1.4f * FractalNoise(x * 0.027f, z * 0.027f, 0x711dU);
+        const float erodedRidges = (mainRidge + secondRidge)
+            * (1.0f - 0.62f * southValley) * (1.0f - 0.32f * westValley);
+        return beach + interiorBlend * (foothills + erodedRidges + localRelief);
     }
 
     TerrainSample IslandTerrain::Sample(const float x, const float z) const noexcept

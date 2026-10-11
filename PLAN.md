@@ -64,6 +64,37 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — asymmetric interior ridges and drainage
+
+- [~] Macro-geography item 1, interior stage (`docs/ridge-and-valleys.md`): replaced the
+  low 19.4 m dome with tilted offset ridges (40.0192 / 29.0938 m regional summits), a
+  13.7758 m saddle station and southern/western drainage cuts. Steep slopes expose
+  filtered weathered-rock material. Same terrain grid and render passes.
+- [x] Core tests cover summit heights, saddle separation, raised drainage shoulders,
+  coastal descent and three-lane trail slope/obstacle clearance. Taller terrain exposed
+  bird spawn-wave/climb-lag clearance defects; fixed final spawn clamp, two-second terrain
+  anticipation and clearance floor. Run-speed fixture moved onto an explicitly verified
+  gentle slope; steep-bank tests retained. Core group passes (31.38 s).
+- [x] Native software overview `20261011T072739.811196Z-overview` and east
+  `20261011T072605.084747Z-east` pass and were inspected. Terrain now reads as two ridges;
+  close steep faces have weathered rock instead of plain green.
+- [x] Final 33/33 non-display test groups pass (49.78 s).
+- [x] Chrome terrain suite `20261011T073720.044111Z-chrome-terrain` passes overview,
+  beach, east and jungle (60 frame intervals each), no new kernel GPU faults.
+  Overview/east/jungle screenshots inspected. Web build/package refreshed. New fingerprint
+  `ccc1de2816f009d0`; inventory pins updated. Shoreline/headlands/bay and environment
+  field remain open: this is not completion of items 1–3.
+- [x] Android x86_64 assembly/lint and east capture `20261011T072932.613664Z-east`
+  pass; image inspected and matches native rock detail.
+- [!] Android interactive `20261011T073115.062445Z-interactive` passed touch/traversal
+  but failed Home/resume with `EGL_BAD_SURFACE` after surface destruction during a long
+  frame. Empty kernel delta. Recorded as suspected framework boundary issue
+  `CNA-ISLAND-001` in `BUGS.md`; exact ownership/root cause unconfirmed, dependencies
+  untouched. Identical-APK repeat `20261011T073355.598497Z-interactive` passes all gates
+  (hot PID 1756, cold PID 3258). Intermittent failure remains open; the repeat does not
+  restore reliable lifecycle qualification.
+- [x] Default ARM64 assembly/lint restored; physical-device runtime remains untested.
+
 #### 2026-10-11 — narrow forest footpath
 
 - [~] Macro-geography item 6: narrowed the vegetation reserve from 12.4 m to 2.8 m and
@@ -190,10 +221,14 @@ main finding: the island needs stronger macro structure more than more micro det
 still reads as a flat procedural green oval inside a uniform sand ring. Suggested order and rough
 effort, all within the peaceful fixed-daytime product and existing renderers:
 
-- [ ] 1. Rewrite `IslandTerrain` into an asymmetric, eroded small volcanic island with a fringing
+- [~] 1. Rewrite `IslandTerrain` into an asymmetric, eroded small volcanic island with a fringing
   reef, keeping the ~500 m extent: an irregular main ridge with a 35-45 m summit, a 25-30 m second
   peak and saddle, valleys draining to the coast, 2-3 rocky headlands, one sheltered bay, one
   dominant sandy beach and one wilder rocky side (15-20 h). Re-place every existing system on it.
+  2026-10-11 interior stage: 40/29 m ridges, lower saddle, two drainage cuts, weathered
+  steep faces and terrain-aware bird clearance (`docs/ridge-and-valleys.md`). Coastal shape,
+  headlands/bay and shared environment remain open; Android lifecycle has an intermittent
+  `EGL_BAD_SURFACE` issue documented separately in `BUGS.md`.
 - [ ] 2. Replace the uniform beach ring with distinct coast types: leeward wide calm beach
   (palms, wreck, driftwood, turtles), windward rocky/reef coast with larger waves, more foam and
   wind-shaped low vegetation, and a sheltered turquoise bay; vegetation reaching the water in places;

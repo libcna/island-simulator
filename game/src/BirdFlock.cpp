@@ -126,8 +126,9 @@ namespace island
         agent.state.scale = 0.72f + static_cast<float>(index % 6U) * 0.085f;
         agent.state.colorVariant = static_cast<std::uint8_t>(index % 3U);
         const float terrainHeight = terrain_.Height(agent.state.x, agent.state.z);
-        agent.state.y = std::max(route.baseAltitude, terrainHeight + route.minimumClearance)
-            + std::sin(agent.verticalPhase) * route.verticalAmplitude;
+        agent.state.y = std::max(route.baseAltitude
+            + std::sin(agent.verticalPhase) * route.verticalAmplitude,
+            terrainHeight + route.minimumClearance);
         route.spawnX = agent.state.x;
         route.spawnY = agent.state.y;
         route.spawnZ = agent.state.z;
@@ -256,14 +257,19 @@ namespace island
             * agent.state.speed * speedVariation * deltaSeconds;
 
         const float terrainHeight = terrain_.Height(agent.state.x, agent.state.z);
+        const float lookAhead = agent.state.speed * 2.0f;
+        const float upcomingHeight = terrain_.Height(
+            agent.state.x + std::cos(agent.state.headingRadians) * lookAhead,
+            agent.state.z + std::sin(agent.state.headingRadians) * lookAhead);
         const float verticalWave = std::sin(elapsedSeconds_ * agent.verticalFrequency * TwoPi
                                             + agent.verticalPhase);
         const float desiredAltitude = std::max(
             agent.route.baseAltitude + verticalWave * agent.route.verticalAmplitude,
-            terrainHeight + agent.route.minimumClearance);
+            std::max(terrainHeight, upcomingHeight) + agent.route.minimumClearance + 2.0f);
         const float maximumVerticalStep = deltaSeconds * 4.5f;
         agent.state.y += std::clamp(desiredAltitude - agent.state.y,
                                     -maximumVerticalStep, maximumVerticalStep);
+        agent.state.y = std::max(agent.state.y, terrainHeight + agent.route.minimumClearance);
 
         agent.flapPhase = std::fmod(agent.flapPhase + agent.flapSpeed * deltaSeconds, TwoPi);
         const float glideSignal = std::sin(
