@@ -75,3 +75,44 @@ relief and shoulder joins remain visible defects rather than accepted realism.
 The final approach/swept-collision revision passes all 37 non-display groups (85.59 seconds,
 `build/monkey-tree-approach-tests.log`). Hardware stop latch is unchanged; no dependency or
 emulator configuration changes were made.
+
+## Spatial limb solving and bark pose model
+
+`MonkeyGroundGait::SolveLimb` now handles arbitrary three-dimensional targets with a bend
+hint, fixed upper/lower lengths and explicit unreachable-target clamping. Ground fitting
+uses it too. The renderer replaces sagittal-only segment rotation with a rigid shortest-arc
+rotation; the sole frame also handles a normal parallel to its usual forward direction.
+This prepares circumferential grips without changing the 14-bone/four-contact palette.
+
+`MonkeyClimbPose::Sample` is a CPU pose model, NOT yet called by the live troop/renderer.
+It samples four requested targets on wind-deformed near/far trunk triangles, applies actual
+tree scale/yaw/translation, adds palm clearance and solves each limb in a body frame with
+forward up the trunk and dorsal direction away from bark. The torso is 8 cm closer to the
+grip plane than its ground pose. A 22 cm stride and 80-percent support duty with staggered
+limb phases retain at least three supports. Signed vertical travel must drive phase at
+`CycleDistance * monkeyScale`; supporting contact parameters then stay fixed on the bark
+while the body advances. Swing contacts lift away from bark. Bent/narrow trunks can exceed
+reach: callers must reject/adjust those poses, never treat clamped targets as real grips.
+
+CPU fixtures cover straight and bent trunk heights, eight forms, both LODs, two yaws,
+three tree scales and three monkey scales. They check fixed bone lengths, reconstructed
+world-space targets, actual bark clearance and non-sliding supports at fixed wind time.
+Spatial segment tests include parallel and opposite directions; palm tests include vertical
+normals. This is analytic contact evidence, not a visually verified climbing cycle.
+
+Next integration must solve the attachment transition before enabling climbing: the current
+ground staging point deliberately stays outside the root flare plus body clearance and is
+too far away for a forehand grip. Add a safely checked closer stance, plant forehands while
+hind feet remain on terrain, raise/rotate the torso, and transfer hind contacts to bark.
+Reverse this for descent/dismount. Do not simply interpolate the entire animal into the air
+or bypass the selected trunk's collision. Live gait phase, actual tree LOD and renderer wind
+time must agree with the model. Body/branch clearance and a complete visual motion sequence
+remain required, along with current portable runtime qualification and fur/anatomy refinement.
+
+Native build and all 37 non-display groups pass (60.58 seconds;
+`build/monkey-spatial-grips-tests.log`), including 46,080 climb-pose fixtures and asset
+validation with the new generator header registered. Native ground capture
+`20261011T132740.781674Z-monkeys` passes/inspected with empty kernel delta: the spatial
+segment rotation retains quadrupedal limb geometry and ground-oriented palms. Grass partly
+obscures contacts and the known coarse fur/flat face/shoulder defects remain. This image
+does not show the CPU climbing pose model or establish attachment/climbing quality.

@@ -1,5 +1,6 @@
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/CanopyProfile.hpp"
+#include "IslandSimulator/MonkeyClimbPose.hpp"
 #include "IslandSimulator/CanopyLodInspection.hpp"
 #include <algorithm>
 #include <array>
@@ -29,6 +30,60 @@ int main(int argc, char** argv)
 try
 {
     using namespace island;
+    unsigned reachableClimbPoses = 0;
+    const auto distance = [](MonkeyGroundGait::Point a,MonkeyGroundGait::Point b) {
+        return std::sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)+(a.z-b.z)*(a.z-b.z));
+    };
+    for (int variant = 0; variant < CanopyFormCount; ++variant)
+        for (bool far : {false,true})
+            for (float yaw : {0.0f,1.3f})
+                for (float scale : {.85f,1.0f,1.15f})
+                for (float treeScale : {.85f,1.1f,1.4f})
+                for (float baseHeight : {1.4f,4.4f})
+                    for (int frame = 0; frame < 80; ++frame) {
+                        const CanopyPlacement tree{15,4,-21,yaw,treeScale,static_cast<std::uint8_t>(variant)};
+                        const float phase = frame/80.0f;
+                        const float h = baseHeight+phase*MonkeyClimbPose::CycleDistance*scale/tree.scale;
+                        const auto pose = MonkeyClimbPose::Sample(tree,h,.7f,phase,scale,3.0f,far);
+                        const auto next = MonkeyClimbPose::Sample(tree,
+                            h+.001f*MonkeyClimbPose::CycleDistance*scale/tree.scale,.7f,phase+.001f,scale,3.0f,far);
+                        unsigned supporting = 0;
+                        reachableClimbPoses += !pose.limbs.reachLimited;
+                        for (std::size_t i = 0; i < 4; ++i) {
+                            const auto& limb = pose.limbs.limbs[i];
+                            supporting += limb.supporting;
+                            const float p = MonkeyGroundGait::WrappedPhase(phase+MonkeyGroundGait::PhaseOffsets[i]);
+                            if (limb.supporting) {
+                                const float gripHeight = h+(limb.root.z+(.5f-p/MonkeyClimbPose::SupportFraction)
+                                    *MonkeyClimbPose::Stride)*scale/tree.scale;
+                                const float gripAngle = .7f+std::asin(limb.root.x*scale
+                                    /(CanopyTrunkRadius(variant,gripHeight)*tree.scale));
+                                const auto bark = SampleCanopyTrunkSurface(variant,gripHeight,gripAngle,far,3.0f);
+                                const MonkeyGroundGait::Point worldBark{
+                                    tree.x+tree.scale*(bark.position[0]*std::cos(yaw)+bark.position[2]*std::sin(yaw)),
+                                    tree.y+tree.scale*bark.position[1],
+                                    tree.z+tree.scale*(-bark.position[0]*std::sin(yaw)+bark.position[2]*std::cos(yaw))};
+                                Require(std::abs(distance(worldBark,pose.contacts[i])-MonkeyGroundGait::SoleHeight*scale) < 1e-5f,
+                                    "supporting grip has sole clearance from the actual wind-deformed bark");
+                            }
+                            Require(std::abs(distance(limb.root,limb.joint)-MonkeyGroundGait::UpperLength) < 1e-5f
+                                && std::abs(distance(limb.joint,limb.sole)-MonkeyGroundGait::LowerLength) < 1e-5f,
+                                "climbing limbs keep authored lengths in three dimensions");
+                            if (!pose.limbs.reachLimited) {
+                                const MonkeyGroundGait::Point world{
+                                    pose.origin.x+scale*(limb.sole.x*pose.right.x+limb.sole.y*pose.outward.x),
+                                    pose.origin.y+scale*limb.sole.z,
+                                    pose.origin.z+scale*(limb.sole.x*pose.right.z+limb.sole.y*pose.outward.z)};
+                                Require(distance(world,pose.contacts[i]) < 1e-5f,
+                                    "reachable palms land on world-space bark contact targets");
+                            }
+                            if (limb.supporting && next.limbs.limbs[i].supporting)
+                                Require(distance(pose.contacts[i],next.contacts[i]) < 1e-5f,
+                                    "supporting grips do not slide as the body ascends");
+                        }
+                        Require(supporting >= 3,"climbing schedule retains at least three supports");
+                    }
+    Require(reachableClimbPoses > 7000,"climb fixtures must exercise reachable poses, not only rejected targets");
     for (int variant = 0; variant < CanopyFormCount; ++variant) {
         for (bool far : {false,true}) {
             const auto heights = CanopyTrunkRingHeights(variant,far);

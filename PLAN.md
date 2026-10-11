@@ -354,6 +354,11 @@ Standing visual-quality rules (apply to every task from now on):
   and player interruption. Real-island CPU regression requires actual arrival, not just a
   selected target. Inspection currently returns to wandering; no grip, attachment or ascent
   is implemented, and visual approach/portable qualification remains open. See contact doc.
+  Spatial two-link limb solver and rigid segment rotations now replace the ground-only
+  sagittal restriction. CPU bark-pose model supplies wind-aware contacts, three-support
+  scheduling and phase-locked grips on actual trunk triangles. It is not live climbing:
+  staging-to-attachment, mixed ground/bark support, body clearance and dismount remain to
+  implement and visually verify. Unreachable poses are diagnosed, not accepted as grips.
 
 - [ ] Review every existing visible system against first-person software captures and real-world
   reference knowledge, and record a concrete realism defect list per system: sea turtles (worst,

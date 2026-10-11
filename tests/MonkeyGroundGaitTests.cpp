@@ -20,6 +20,25 @@ static float Distance(gait::Point a, gait::Point b)
 
 int main()
 try {
+    for (float x : {-.2f,0.0f,.2f})
+        for (float y : {-.55f,-.2f,.2f})
+            for (float z : {-.15f,0.0f,.15f}) {
+                bool limited = false;
+                const auto limb = gait::SolveLimb({0,0,0},{x,y,z},{0,0,-1},true,limited);
+                Require(!limited && Distance(limb.sole,{x,y,z}) < 1e-5f,"spatial IK reaches feasible targets");
+                Require(std::abs(Distance(limb.root,limb.joint)-gait::UpperLength) < 1e-5f
+                    && std::abs(Distance(limb.joint,limb.sole)-gait::LowerLength) < 1e-5f,
+                    "spatial IK preserves both segment lengths");
+            }
+    for (auto target : {gait::Point{0,0,0},gait::Point{0,2,0},gait::Point{0,0,-.4f}}) {
+        bool limited = false;
+        const auto limb = gait::SolveLimb({0,0,0},target,{0,0,-1},true,limited);
+        Require(std::abs(Distance(limb.root,limb.joint)-gait::UpperLength) < 1e-5f
+            && std::abs(Distance(limb.joint,limb.sole)-gait::LowerLength) < 1e-5f,
+            "degenerate bend directions and unreachable targets preserve finite bone lengths");
+        Require(limited == (target.y == 2 || Distance(target,{0,0,0}) == 0),
+                "unreachable IK contacts must be diagnosed");
+    }
     namespace face = island::MonkeyFaceProfile;
     for (std::size_t row = 0; row < face::Rows.size(); ++row) {
         if (row > 0) Require(face::Rows[row].y < face::Rows[row-1].y,

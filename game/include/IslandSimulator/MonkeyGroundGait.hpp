@@ -27,6 +27,32 @@ namespace island::MonkeyGroundGait
     inline constexpr float SoleHeight = 0.035f;
     inline constexpr std::array<float, 4> PhaseOffsets{0.0f, 0.5f, 0.25f, 0.75f};
 
+    // General spatial two-link solver for ground and bark targets. The bend hint chooses
+    // the elbow/knee side without constraining the target to the old sagittal plane.
+    inline Limb SolveLimb(Point root, Point target, Point bendHint, bool supporting,
+                          bool& reachLimited) noexcept
+    {
+        const auto dot = [](Point a, Point b) { return a.x*b.x+a.y*b.y+a.z*b.z; };
+        const auto scale = [](Point a,float s) { return Point{a.x*s,a.y*s,a.z*s}; };
+        const auto add = [](Point a,Point b) { return Point{a.x+b.x,a.y+b.y,a.z+b.z}; };
+        Point direction{target.x-root.x,target.y-root.y,target.z-root.z};
+        const float distance = std::sqrt(dot(direction,direction));
+        direction = distance > 1e-7f ? scale(direction,1/distance) : Point{0,-1,0};
+        const float reach = std::clamp(distance,std::abs(UpperLength-LowerLength)+.001f,
+                                      UpperLength+LowerLength-.001f);
+        reachLimited = reachLimited || std::abs(reach-distance) > 1e-6f;
+        target = add(root,scale(direction,reach));
+        Point bend = add(bendHint,scale(direction,-dot(bendHint,direction)));
+        if (dot(bend,bend) < 1e-8f) {
+            const Point fallback = std::abs(direction.x) < .8f ? Point{1,0,0} : Point{0,0,1};
+            bend = add(fallback,scale(direction,-dot(fallback,direction)));
+        }
+        bend = scale(bend,1/std::sqrt(dot(bend,bend)));
+        const float along = (UpperLength*UpperLength-LowerLength*LowerLength+reach*reach)/(2*reach);
+        const float offset = std::sqrt(std::max(0.0f,UpperLength*UpperLength-along*along));
+        return {root,add(root,add(scale(direction,along),scale(bend,offset))),target,supporting};
+    }
+
     inline float WrappedPhase(float phase) noexcept
     {
         return phase - std::floor(phase);
@@ -103,16 +129,8 @@ namespace island::MonkeyGroundGait
             // On impossible cliffs preserve bone lengths and diagnose lost contact;
             // never stretch the mesh or silently pretend that a floating foot is planted.
             limb.sole.y = std::max(limb.sole.y, rootHeight - maximumDrop);
-            const float dy = limb.sole.y - rootHeight;
-            const float distance = std::hypot(dy, dz);
-            const float along = (UpperLength * UpperLength - LowerLength * LowerLength
-                + distance * distance) / (2.0f * distance);
-            const float perpendicular = std::sqrt(std::max(0.0f,
-                UpperLength * UpperLength - along * along));
-            const float bend = i < 2 ? 1.0f : -1.0f;
-            limb.joint = {limb.root.x,
-                rootHeight + dy * along / distance - dz * perpendicular * bend / distance,
-                limb.root.z + dz * along / distance + dy * perpendicular * bend / distance};
+            limb = SolveLimb(limb.root,limb.sole,{0,0,i < 2 ? -1.0f : 1.0f},
+                              limb.supporting,pose.reachLimited);
         }
         return pose;
     }

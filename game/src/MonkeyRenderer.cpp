@@ -1113,9 +1113,7 @@ namespace island
                 constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
                 const auto applySegment = [&](int bone, const Vector3& restDirection,
                                                const Vector3& direction, const Vector3& origin) {
-                    const float angle = std::atan2(direction.Z, direction.Y)
-                        - std::atan2(restDirection.Z, restDirection.Y);
-                    playback.attentiveWorldTransforms[bone] = Matrix::CreateRotationX(angle)
+                    playback.attentiveWorldTransforms[bone] = MonkeySegmentRotation(restDirection,direction)
                         * Matrix::CreateTranslation(origin);
                     playback.attentiveSkinTransforms[bone] = skinningData_->InverseBindPose[bone]
                         * playback.attentiveWorldTransforms[bone];

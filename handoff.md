@@ -1,5 +1,35 @@
 # island-simulator handoff
 
+## Latest — spatial limb solver and CPU bark-grip pose model
+
+`MonkeyGroundGait::SolveLimb` handles arbitrary 3D targets, fixed .31/.33 bone lengths,
+bend hints and explicit reach clamping. Ground fitting uses it. Renderer segment rotations
+now use a general rigid shortest arc (`MonkeySoleFrame.hpp`), not X-axis-only rotations;
+palm frames handle forward-parallel bark normals. Bone/uniform budgets are unchanged.
+
+New `MonkeyClimbPose.hpp` (asset manifest registered) produces local limb poses plus world
+contacts/normals/origin/frame from actual tree transforms and wind-deformed trunk triangles.
+Model +Z points upward, +Y outward, +X circumferential. Root height offset -.08; stride .22,
+support fraction .8, phase advances with signed vertical travel / (.275 * monkeyScale).
+At least three supports; supporting tree coordinates stay fixed while root moves. Reach
+clamping is diagnostic, NOT contact success. This model is only tested, NOT used by live
+monkeys yet. Current live behavior remains ground approach/inspection then wandering.
+
+Native build and all 37 non-display groups pass (60.58 s). 46,080 climbing fixtures cover
+two heights (straight/bent), eight forms, both LODs, yaw, independent tree/monkey scales;
+fixed lengths, target reconstruction, bark clearance and support locking pass. Segment
+opposition/palm singularity tests pass. Native `20261011T132740.781674Z-monkeys` passes and
+was inspected: retained ground quadruped geometry, grass partly masks contacts, existing
+wood-like fur/flat face/shoulder defects remain. Empty kernel delta, stop latch unchanged.
+No current Android/Web qualification; all jobs finished, no dependency/host/emulator changes.
+
+Next must solve attachment: the present staging stand-off is too far for a forehand grip.
+Use a collision-checked closer stance, forehands on bark while hind feet stay on terrain,
+then raise/rotate torso and transfer hind contacts. Do not simply elevate the whole animal.
+Need reachable mixed-support IK, body/root-flare clearance, reverse dismount and actual
+visual motion evidence before claiming climbing. See `docs/monkey-climb-contact-foundation.md`.
+Full goal/plan stays active and incomplete.
+
 ## Latest — actual canopy selection and ground approach (not attachment/climbing)
 
 `MonkeyTroop::SetCanopy` now receives actual canopy placements from `IslandGame` after

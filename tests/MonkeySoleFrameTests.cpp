@@ -6,6 +6,19 @@
 int main()
 try {
     using Microsoft::Xna::Framework::Vector3;
+    for (const auto from : {Vector3(0,-1,0),Vector3(0,1,1),Vector3(1,0,0)})
+        for (const auto to : {from,from*-1,Vector3(.3f,-.4f,.2f),Vector3(-.2f,.1f,.5f)}) {
+            const auto rotation = island::MonkeySegmentRotation(from,to);
+            const auto rotated = Vector3::TransformNormal(Vector3::Normalize(from),rotation);
+            if (Vector3::Distance(rotated,Vector3::Normalize(to)) > 1e-5f)
+                throw std::runtime_error("spatial segment rotation misses its target direction");
+        }
+    for (const auto normal : {Vector3(0,0,1),Vector3(0,0,-1),Vector3(1,0,0)}) {
+        const auto frame = island::MonkeySoleSkin(Vector3::Zero,Vector3::Zero,normal);
+        if (Vector3::Distance(Vector3::TransformNormal(Vector3(0,1,0),frame),normal) > 1e-5f
+            || std::abs(Vector3::TransformNormal(Vector3(0,0,1),frame).Length()-1) > 1e-5f)
+            throw std::runtime_error("vertical bark normals must produce a finite rigid palm frame");
+    }
     for (float slopeX : {-0.6f, 0.0f, 0.6f}) {
         for (float slopeZ : {-0.6f, 0.0f, 0.6f}) {
             const auto normal = Vector3::Normalize(Vector3(slopeX, 1, slopeZ));
