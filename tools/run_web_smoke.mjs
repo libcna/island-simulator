@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { parseGrassMotionSamples, grassMotionProgress, grassMotionReleaseTarget, reviewGrassMotion } from "./grass_motion_review.mjs";
 import { requireBrowserContainment, recordBrowserProcess } from "./browser_containment.mjs";
 import { acknowledgedInputGesture } from "./browser_input_gesture.mjs";
+import { parseFlightSamples, reviewFlight } from "./browser_flight_review.mjs";
 
 requireBrowserContainment("chrome");
 
@@ -32,10 +33,11 @@ const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials"
 const focusedMonkeyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkeys";
 const focusedClimbCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkey-climb";
 const focusedFullscreenCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "fullscreen";
-const focusedCheck = focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedFlightCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "flight";
+const focusedCheck = focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -465,6 +467,83 @@ try {
     }
   };
 
+  const runFlightReview = async sessionId => {
+    const stages = [], held = new Map();
+    let result = {passed:false}, failure = "";
+    const keys = {Space:[" ",32], ShiftLeft:["Shift",16], KeyE:["e",69], KeyQ:["q",81]};
+    const key = async (code,down) => {
+      const [name,value]=keys[code];
+      await call("Input.dispatchKeyEvent", {type:down ? "keyDown" : "keyUp",key:name,code,
+        windowsVirtualKeyCode:value,nativeVirtualKeyCode:value},sessionId);
+      if(down) held.set(code,true); else held.delete(code);
+    };
+    const read = async () => parseFlightSamples(await readSmokeOutput(sessionId));
+    const until = async (predicate,description) => {
+      for(let attempt=0;attempt<240;++attempt) {
+        const samples=await read();
+        if(predicate(samples)) return samples;
+        await delay(250);
+      }
+      throw new Error(`Flight timed out: ${description}`);
+    };
+    try {
+      await call("Page.bringToFront",{},sessionId);
+      await call("Runtime.evaluate",{expression:"Module.canvas.focus()"},sessionId);
+      await key("Space",true);
+      let samples=await until(s=>s.length>=4,"held Space activation");
+      stages.push({label:"activation",sample:samples[0]});
+      if(countOutput(await readSmokeOutput(sessionId),"flight on;")!==1)
+        throw new Error("Held Space repeated flight activation");
+      await key("Space",false);
+      const releasedCount=samples.length;
+      await until(s=>s.length>=releasedCount+2,"released Space frames");
+      await key("ShiftLeft",true); await key("KeyE",true);
+      samples=await until(s=>s.at(-1)?.height>99.9,"terrain-relative ceiling");
+      const ceilingCount=samples.length;
+      samples=await until(s=>s.length>=ceilingCount+4,"held ascent at ceiling");
+      stages.push({label:"ceiling",sample:samples.at(-1),heldSamples:samples.length-ceilingCount});
+      await key("KeyE",false); await key("ShiftLeft",false);
+      await dispatchMouseClick(sessionId,640,360);
+      const locked=await call("Runtime.evaluate", {
+        expression:"document.pointerLockElement===Module.canvas",returnByValue:true},sessionId);
+      if(!locked.result.value) throw new Error("Flight view could not acquire pointer lock");
+      await call("Input.dispatchMouseEvent",{type:"mouseMoved",x:640,y:570,button:"none",buttons:0},sessionId);
+      samples=await read();
+      const lookCount=samples.length;
+      await until(s=>s.length>=lookCount+3,"aerial look presentation");
+      await captureVisualFrame(sessionId,"island-browser-flight-ceiling.png");
+      await key("KeyQ",true);
+      samples=await until(s=>s.at(-1)?.height<60,"descent");
+      stages.push({label:"descent",sample:samples.at(-1)});
+      await key("KeyQ",false);
+      await key("Space",true);
+      if(!await waitForOutput(sessionId,"flight off; safe dry-land return",240))
+        throw new Error("Flight did not return safely to land");
+      await key("Space",false);
+      const prior=countOutput(await readSmokeOutput(sessionId),"input sample captured");
+      for(let attempt=0;attempt<240;++attempt) {
+        if(countOutput(await readSmokeOutput(sessionId),"input sample captured")>=prior+3) break;
+        if(attempt===239) throw new Error("No landed input frames");
+        await delay(250);
+      }
+      const output=await readSmokeOutput(sessionId);
+      const positions=[...output.split("flight off; safe dry-land return").at(-1).matchAll(
+        /camera ([-+0-9.eE]+) ([-+0-9.eE]+) ([-+0-9.eE]+) free/g)];
+      stages.push({label:"landed",safeReturn:true,cameraY:Number(positions.at(-1)?.[2])});
+      await captureVisualFrame(sessionId,"island-browser-flight-landed.png");
+      result=reviewFlight(output,stages);
+      if(!result.passed) throw new Error(result.errors.join("; "));
+      return result;
+    } catch(error) {
+      failure=String(error); throw error;
+    } finally {
+      for(const code of [...held.keys()]) await key(code,false);
+      const output=await readSmokeOutput(sessionId);
+      await writeFile(path.join(artifactDirectory,"island-browser-flight-input.json"),
+        JSON.stringify({...result,failure,stages,output},null,2)+"\n");
+    }
+  };
+
   if (focusedCheck) {
     const views = [];
     const reportPath = path.join(artifactDirectory,
@@ -489,11 +568,12 @@ try {
             throw new Error(`${mode} did not reach a rendered scene: ${await readSmokeOutput(sessionId)}`);
           }
           const startupLog = await readSmokeOutput(sessionId);
-          const expectedWorkload = focusedGrassMotionCheck ? 'workload mode="input-diagnostics" viewpoint="interactive"'
+          const expectedWorkload = focusedGrassMotionCheck || focusedFlightCheck ? 'workload mode="input-diagnostics" viewpoint="interactive"'
             : `workload mode="interactive" viewpoint="${mode}"`;
           if (!startupLog.includes(expectedWorkload)) {
             throw new Error(`${mode} launched the wrong workload: ${startupLog}`);
           }
+          const flightReview = focusedFlightCheck ? await runFlightReview(sessionId) : null;
           if (focusedFullscreenCheck) {
             await call("Page.bringToFront", {}, sessionId);
             await call("Runtime.evaluate", {expression:"Module.canvas.focus()"}, sessionId);
@@ -583,7 +663,7 @@ try {
           }
           const screenshotPath = await captureVisualFrame(sessionId,
             `island-browser-${focusedArtifactPrefix}-${mode}.png`,
-            !["boars", "monkeys", "monkey-climb", "overview"].includes(mode));
+            !["boars", "monkeys", "monkey-climb", "overview", "flight"].includes(mode));
           const motionReview = focusedGrassMotionCheck ? await runGrassMotionReview(sessionId) : null;
           // Preserve intermediate poses for real visual review of the quadrupedal gait;
           // endpoint screenshots alone can hide foot sliding and limb inversion.
@@ -630,13 +710,14 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedFlightCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
           const passed = /SwiftShader/i.test(state.renderer) && !state.contextLost
             && log.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
             && (!focusedGrassMotionCheck || motionReview?.passed)
+            && (!focusedFlightCheck || flightReview?.passed)
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
@@ -713,7 +794,7 @@ try {
           const shadeTransmission = shadeEvent ? Number(shadeEvent[1]) : NaN;
           views.push({ mode, passed, motionReview, monkeyMotionFrames, monkeyShadeTransmission: Number.isFinite(shadeTransmission)
               && shadeTransmission >= 0 && shadeTransmission < 0.95 ? shadeTransmission : null,
-            screenshot: path.basename(screenshotPath), afterSimulationScreenshot, ...state });
+            screenshot: path.basename(screenshotPath), afterSimulationScreenshot, flightReview, ...state });
           checkKernel(`after-${mode}`);
           if (!passed) throw new Error(`${mode} failed software WebGL checks; see ${reportPath}`);
           console.log(`Island focused WebGL ${mode}: PASS (${focusedFrameCount} CPU-rendered frame intervals)`);
@@ -734,7 +815,8 @@ try {
         }
       }
     } finally {
-      await writeFile(reportPath, `${JSON.stringify({ scope: focusedClimbCheck
+      await writeFile(reportPath, `${JSON.stringify({ scope: focusedFlightCheck
+          ? "software WebGL vertical Space flight, ceiling and safe return; not horizontal route qualification" : focusedClimbCheck
           ? "software WebGL staged climbing diagnostics and held summit; not continuous animation" : focusedMonkeyCheck
           ? "software WebGL monkey close view only" : focusedMaterialsCheck
           ? "software WebGL soil, grass, dry sand and wet sand only" : focusedLitterCheck

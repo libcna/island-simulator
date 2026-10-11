@@ -46,6 +46,7 @@
     };
     const mode = new URLSearchParams(location.search).get("mode") ?? "smoke";
     const modeArguments = new Map([
+      ["flight", ["--input-diagnostics"]],
       ["monkey-climb", ["--viewpoint", "monkey-climb"]],
       ["interactive", []],
       ["input", ["--debug-overlay", "--input-diagnostics"]],

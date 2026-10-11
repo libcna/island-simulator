@@ -17,6 +17,17 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_flight_review_cpu_regressions_and_scope(self):
+        self.assertIn("flight", gate.SCOPES)
+        node = shutil.which("node")
+        self.assertIsNotNone(node)
+        result = subprocess.run([node,str(ROOT / "tests/BrowserFlightReviewTests.mjs")],
+                                capture_output=True,text=True,timeout=10)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('await runFlightReview(sessionId)',source)
+        self.assertIn('&& (!focusedFlightCheck || flightReview?.passed)',source)
+        self.assertIn('["flight", ["--input-diagnostics"]]',(ROOT / "tools/web_smoke.html.in").read_text())
     def test_environment_forces_software_and_removes_displays_and_stale_scope(self):
         with patch.dict(os.environ, {"DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0",
                                      "XAUTHORITY": "/private", "DRI_PRIME": "1",

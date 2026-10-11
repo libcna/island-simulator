@@ -66,3 +66,26 @@ three flight diagnostic samples before capture. No gameplay timing or limits wea
 Final native kernel delta is empty. Final Web Release build/package passes (11,082,700
 raw / 4,168,979 gzip bytes); ARM64 assembleDebug/lintDebug passes (4 s). Build evidence
 is recorded in handoff; these builds are not portable runtime flight qualification.
+
+### Web runtime vertical controls
+
+Contained Chrome 155 / SwiftShader run
+`build/browser-software/20261011T172804.191069Z-chrome-flight` passes actual Space,
+Shift/E, pointer-lock mouse look, Q and Space-return input. Its 47 flight samples show
+activation at 1.7521 m above terrain, ceiling at 99.999 m (four additional held-ascent
+samples), descent to 59.7995 m and grounded camera Y restored to 2.62923 m.
+Exactly one activation and one safe-return event are required. The CPU-only report
+validator rejects malformed/non-finite telemetry, out-of-envelope positions, missing
+stages, insufficient held-ceiling evidence and invalid landed heights. All 16 browser
+supervisor tests pass, including validator negative fixtures.
+
+Actually inspected ceiling, landed and post-60-interval screenshots: elevated island
+view and grounded beach are rendered, without an apparent underground return. The
+landed camera still points downward, as expected after aerial mouse look. GL error 0,
+context intact and final kernel delta empty; parent run reports passed. The aerial
+view confirms the sparse upper hills and grass-density transitions already recorded
+above. CPU-rendered intervals are not hardware performance qualification.
+
+This is vertical control evidence at one land position, not a live horizontal ridge,
+offshore-boundary or offshore-return test. Android runtime flight, held-key focus-loss
+and actual audio listening remain open. No Android/KVM configuration was changed.

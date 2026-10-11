@@ -566,6 +566,12 @@ Player controls explicitly requested by the operator (2026-10-11):
   flight instruction notice, ceiling view and landed WALK notice all actually inspected.
   Focused CPU rerun 1.08 s, empty kernel delta. Horizontal player boundary is 330 m from
   centre, not 80 m from every point of the irregular coast; this choice is documented.
+  Web `20261011T172804.191069Z-chrome-flight` now passes actual vertical controls:
+  47 samples, 99.999 m ceiling with held ascent, Q descent and safe Space return;
+  pointer-lock look, 60 subsequent intervals, GL 0/context intact, empty kernel delta.
+  Ceiling/landed/post-interval PNGs actually inspected; sparse hills/grass transitions
+  remain visible. 16 browser supervisor/validator tests pass. Android runtime, live
+  horizontal ridge/boundary/offshore return, focus-loss and listening remain open.
 - [ ] Verify fullscreen and flight toggles, held-key repeat, focus loss, terrain clearance,
   the 100-metre ceiling, offshore limit and safe flight exit with automated tests and
   actual in-game input checks on supported platforms. Update control help; planning

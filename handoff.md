@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — actual Web vertical flight verified
+
+Contained Chrome 155 / SwiftShader `20261011T172804.191069Z-chrome-flight` reports
+passed in parent run.json and browser report; kernel-final.json is empty. Actual
+Space/Shift-E/mouse-pointer-lock/Q/Space sequence records 47 flight samples: 1.7521 m
+activation, 99.999 m ceiling held for four additional samples, 59.7995 m descent,
+safe ground return at camera Y 2.62923. Inspected actual ceiling, landed and
+post-60-interval screenshots: correct aerial/grounded views, sparse upper slopes and
+grass-density transitions still visible. GL 0/context intact; not hardware FPS QA.
+
+Added contained `flight` browser scope, real input controller and independent CPU
+telemetry validator with negative fixtures, integrated in BrowserSoftwareTests (16).
+Final review additionally rejects non-finite/below-sea landed camera heights; this
+only strengthens evidence checks, not gameplay. Existing recorded run is revalidated.
+No new build or renderer needed for that validator-only change.
+
+NEXT: actual horizontal ridge/radius/offshore-return flight and Android runtime,
+focus-loss/audio checks, then visible island/wildlife work. Full goal remains active;
+all prior animal, hut, resident, boar sounds and wreck tasks remain open as recorded.
+No Android/KVM/dependency changes or push. Details: docs/flight-controls.md.
+
 ## Latest — bounded Space flight implemented and native/portable builds verified
 
 Added FlightMotion and live Space toggle, WASD horizontal/Q-E vertical/held Shift fast.
