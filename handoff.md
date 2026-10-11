@@ -1,6 +1,26 @@
 # island-simulator handoff
 
-## Update — sand/turf Android qualification complete, Web test running
+## In progress — scale-invariant terrain surface normals (source preparation)
+
+Browser session `28597` completed successfully; native build now runs in session `97943`.
+New uncommitted source is NOT built/qualified: `TerrainSurfaceFrame.hpp` provides a
+scale-first upward normal helper with CPU reference and GLSL counterpart. Sand, soil
+clod lighting and wet-sand sheen now use it instead of clamping squared cross-product
+length. For a flat 2 mm/pixel footprint the old 1e-8 clamp yields a length-0.04 normal,
+not a unit vector; soil lighting and wet sheen can therefore depend on pixel size.
+`TerrainMaterialTests.cpp` adds scale/winding invariance from 1e-30 to 1e30, unit length,
+degenerate fallback and non-finite-input checks. These new tests have NOT run yet.
+Also added an unbuilt `wet-sand` fixed camera one metre inside the western shore,
+eye height and downward pitch, with CLI/software/Android/Web-template mappings.
+The existing `water` camera is 18 m offshore and does not replace a close wet-sand review.
+
+The completed seven-view Web suite qualifies `9f1ee59`, NOT this preparation.
+After the current native build succeeds, run non-display
+tests. Inspect grass/litter, `wet-sand`, water and bay-ground for this normalization fix.
+All platform requalification for this newer change remains pending. Do not close the
+Android lifecycle issue or clear the hardware latch.
+
+## Update — sand/turf Android and Web qualification complete
 
 Current game revision `9f1ee59`. x86_64 assembly/lint passes. Bay-ground
 `20261011T092336.875730Z-bay-ground` passes the image gate and matches native visually.
@@ -9,13 +29,13 @@ and transition audio after one gesture; image inspected. Both kernel deltas empt
 latch unchanged. Lifecycle deliberately excluded, still degraded. Tested x86 APK
 preserved, default ARM64 build/lint restored. Exact sizes/hashes in `docs/dry-sand-relief.md`.
 
-Web build and package complete: 10,346,158 raw / 3,528,706 gzip bytes. Contained Chrome
-terrain test now RUNNING in exec session `28597`, evidence
-`build/browser-software/20261011T092826.584773Z-chrome-terrain` (seven views, bay-ground too).
-Poll this handle; do not restart on an observation timeout. Build session `34267` completed.
-After completion inspect all view results/GL errors, key images and final kernel delta.
-Do not overlap another heavy build/emulator/render. No game source changes since Android
-qualification. These are software checks, not host AMD or physical-device acceptance.
+Web build/package: 10,346,158 raw / 3,528,706 gzip bytes. Contained Chrome terrain
+`20261011T092826.584773Z-chrome-terrain` passes seven views, 60 intervals each, GL error zero.
+Bay-ground before/after and jungle images inspected. No GPU faults; final kernel delta
+contains AppArmor audit and audit-suppression notices. Full input/lifecycle/Firefox not rerun.
+Browser session `28597` and build `34267` completed; do not poll/restart them.
+This qualifies game revision `9f1ee59`, not newer uncommitted normal/camera changes above.
+These are software checks, not host AMD or physical-device acceptance.
 
 ## Update — dry sand relief native stage complete
 

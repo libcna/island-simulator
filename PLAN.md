@@ -77,8 +77,11 @@ historical evidence, not post-incident qualification.
   `20261011T092539.275219Z-interactive` (touch, footsteps, swimming/audio after one gesture).
   Images inspected, empty kernel deltas. ARM64 build/lint restored; physical runtime untested.
   Lifecycle not rerun and remains degraded. APK identities in `docs/dry-sand-relief.md`.
-- [ ] Web runtime of this and preceding turf stage. Web terrain matrix now has
-  seven views including bay-ground. Temporal stability and device performance are not
+- [x] Web terrain `20261011T092826.584773Z-chrome-terrain` passes seven views including
+  bay-ground, 60 intervals each, GL error zero. Close bay before/after and jungle images
+  inspected; no GPU faults, audit-only final kernel delta. Package 10,346,158 raw /
+  3,528,706 gzip bytes. Qualifies `9f1ee59`, not the newer normal fix. Full input/lifecycle
+  and Firefox not rerun. Moving-camera temporal stability and device performance are not
   established by static native captures. Geology/dunes/full environment fields remain open.
 
 #### 2026-10-11 — coastal turf substrate and ground-level bay view
@@ -91,7 +94,7 @@ historical evidence, not post-incident qualification.
 - [x] Final 33/33 non-display groups pass (52.01 s), including bounded/monotonic controls,
   invalid inputs, same-distance coast contrast and all-tuft sandy exclusion. Fingerprint
   `5d0b62ad43a25895`, grass 17,225; other populations unchanged. Web inventory pin updated.
-- [~] Focused Android qualification passes with the dry-sand stage above; Web remains pending.
+- [x] Focused Android and Web terrain qualification pass with the dry-sand stage above.
   Close dry sand still needs finer relief/grain. Broader ecological migration and geology
   remain open; Android lifecycle remains degraded and hardware rendering remains stopped.
 
