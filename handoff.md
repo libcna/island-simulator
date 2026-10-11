@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — offline core build IDs verified, finite in-bounds flight snapshot recovered
+
+Preserved22,437,288byte game candidate in build/gpu-incident-evidence/20261011T190021Z-user-flight/
+island-simulator.candidate, SHA6e509871e84a624a0eb61dbbfa478eb4ac05b0616869ed29290d682bb822bf4a.
+Batch coredumpctl/GDB used nx/nh, auto-loadoff/debuginfodoff, never ran/resumed inferior.
+Temporary core expansion cleaned byhelper; original compressedcore retained. Read PT_LOAD
+pages directly, no file-backed fallback: game e37224286aeef8884283b5f2231b5983fc2231cd,
+Gallium f34ab849e878d8ffbbb15533a597ca31ebd583ec, CNA f8dc807d0df965e4dfb6881e3cae4b1269f70acf,
+SDL3 c25c94cd74bd8f6413a1ab65fa4f5e662ab16689 all match currentfiles.
+Thus current gamecandidate includes pending snakegrasschange; NOT proof of causation.
+Preserved trackedpatch +untrackedSnakeGrassContactheader in sameevidencedir.
+
+Gameobject0x7ffcef5dc0c0, CPUdrawcounter2290; flightactive and camera/rendercamera/flight
+all(-15.9166985,49.44701,-118.114937). Radius119.18255m, retainedground4.66093m,
+aboveground44.78608m; yaw-.417899817/pitch-.296599835, matricesfinite. Grass2838patches
+(776/470/1592),24draws/customshader1; monkeys4/4draws; shadows20/240tris/1draw.
+CPUabortsnapshot != faulting GPUframe; no NaN/outofbounds evidence in thissnapshot only.
+Raw compactcore-state-review.txt retained. Versioned offlinehelper
+docs/incidents/evidence/2026-10-11/core-review.py, reportupdated. No newGPU/build/push.
+Alljobs terminal. Stoplatch unchanged. Uncommitted grasswork preserved; goalactive.
+NEXT: offline renderresource/shader/state bounds inspection with matching identities;
+controlled software coverage later only after reviewing freshincident. Don't claimcrashfixed.
+
 ## Latest — read-only flight incident triage, no new GPU workload
 
 Recovered actual runtime423089 log from ~/.local/state/island-simulator/runtime; exact

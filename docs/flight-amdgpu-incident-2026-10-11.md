@@ -30,7 +30,8 @@ amdgpu 0000:c3:00.0: amdgpu: ring gfx_0.0.0 timeout, but soft recovered
 `coredumpctl info 423089` confirms PID423089, signal6/ABRT, timestamp21:00:22 CEST,
 command `./island-simulator`, executable `build/island-simulator`. Core is present:
 `/var/lib/systemd/coredump/core.island-simulato.1000.3808d1dccf7343bf91b26f5ce7bbdcb1.423089.1791745222000000.zst`
-(27.9M compressed). No core was extracted, deleted or uploaded.
+(27.9M compressed). Initial triage did not extract it. Later offline GDB inspection
+used coredumpctl's temporary expansion; no core was deleted or uploaded.
 
 Aborting thread423277 has `abort` then frames in
 `libgallium-25.0.7-2+deb13u1.so` (offsets0xa66824,0xa6a5f2,0x57b369,0x5afb8b).
@@ -79,7 +80,8 @@ at0xa6681a it calls formatted stderr output, at0xa6681f `abort@plt`, returning t
 0xa66824 as recorded by the core. The caller at0xa6a5ed passes the string at0x18e05e0
 and returns to0xa6a5f2; that string is exactly the reported guilty-soft-recovery text.
 No code was executed by this disassembly and no driver binary/source was changed.
-Loaded versus installed Gallium build-ID equality still requires core-note inspection.
+Loaded versus installed Gallium build-ID equality was unresolved at this stage;
+the subsequent retained-page check below resolves it.
 
 Comparison with October8: same GPU/Mesa family and a gfx-ring soft recovery exist in
 both records, but the earlier serial benchmark used X11/GLX and recorded GFXHUB/TCP
@@ -87,8 +89,51 @@ GPUVM faults at0x17000 before its timeout. The new observed interval contains no
 GPUVM address/protection record and uses Wayland/EGL. Same root cause is unproven;
 flight is not necessary for the older failure, but remains a possible trigger here.
 
-- [ ] Establish exact loaded executable/library identities from the core; a subsequently
-  rebuilt file at the same path is NOT proof of the crashed process's version.
+### Offline core inspection: loaded IDs and game state
+
+Preserved `island-simulator.candidate` (22,437,288 bytes, matching SHA above) in the
+local incident directory before any further rebuild. Core inspection via batch GDB
+used `-nx -nh`, disabled auto-load and debuginfod, and never ran/resumed the program.
+`coredumpctl` temporarily expanded its stored dump and cleaned that temporary file;
+the compressed system core remains intact. Warnings concern deleted PulseAudio/Mutter
+memfd mappings, not an executable mismatch. No renderer or GPU workload was launched.
+
+The [incident-specific helper](incidents/evidence/2026-10-11/core-review.py) reads GNU
+build-ID notes only from bytes actually present in the core's PT_LOAD segments,
+rejecting missing pages rather than substituting current file-backed data:
+
+| Loaded object | Build ID retained in core |
+| --- | --- |
+| Game | `e37224286aeef8884283b5f2231b5983fc2231cd` |
+| Gallium | `f34ab849e878d8ffbbb15533a597ca31ebd583ec` |
+| CNA | `f8dc807d0df965e4dfb6881e3cae4b1269f70acf` |
+| SDL3 | `c25c94cd74bd8f6413a1ab65fa4f5e662ab16689` |
+
+All four match the corresponding current candidate/installed files, verified with
+`readelf -n`. This resolves the build-ID matching question for these four objects,
+not binary provenance for every driver dependency. The game candidate includes the
+still-uncommitted snake/grass interaction work. Its tracked diff and new header are
+preserved locally as `pending-worktree.patch` and `SnakeGrassContact.hpp.snapshot`;
+presence of this work does not establish fault causation.
+
+Matching debug symbols recover the main-thread game object at `0x7ffcef5dc0c0`:
+
+- CPU drawn-frame counter2290; flight active.
+- Flight, camera and rendered-camera positions agree:
+  `(-15.9166985, 49.44701, -118.114937)`.
+- Radius119.18255 m, rendered terrain height4.66093 m, height above terrain44.78608 m
+  (computed offline from retained height-cache samples using the rendered triangle layout).
+- Yaw−0.417899817, pitch−0.296599835; all view/projection matrix entries finite.
+- Grass2838 patches:776 near/470 middle/1592 far,24 draws, custom shader active.
+  Monkeys4 visible/4 draws; contact shadows20/240 triangles/1 draw.
+
+These values are a CPU snapshot at abort, NOT the exact asynchronously faulting GPU
+frame. They do not show a NaN camera or flight-radius/height violation in that snapshot;
+they cannot exclude earlier invalid state, a bad resource, or a shader/driver issue.
+Full compact result is `core-state-review.txt` in the local incident directory.
+
+- [x] Match retained build-ID notes for game/Gallium/CNA/SDL3 and preserve the game candidate.
+  A subsequently rebuilt file at the same path alone is not evidence of identity.
 - [ ] Correlate runtime GPU pass/frame diagnostics, kernel timeline and core thread stacks.
   Do not blame the last printed monkey message or flight mode from ordering alone.
   Runtime log and termination path now recovered; exact triggering draw remains missing.
