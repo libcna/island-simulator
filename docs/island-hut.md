@@ -262,6 +262,12 @@ native-supervisor37 CPU tests pass. No AMD/KVM configuration change or hardware 
 Standard ARM64 package restored/build/lint PASS11s. Asset audit PASS12projectfiles/
 0external. Web build/package PASS11,342,167raw/4,331,803gzip bytes; actual browser
 execution of this new textured shader remains pending. All owned jobs terminal.
+Subsequent actual Web `20261011T232507.842729Z-chrome-hut` now PASS: both overview and
+material views complete60intervals, GLerror0/contextLost=false, texture/material
+markers and exact7/6visible contact patches; parent validation passes, kernel-final[].
+Initial and final images actually inspected (final side-by-side review retained).
+Pale fibrous material agrees with native/Android; this does not qualify camera-motion
+aliasing, directional roof shading, global input traversal or hardware performance.
 
 ## Remaining acceptance work
 

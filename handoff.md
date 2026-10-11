@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Latest — actual textured hut Web PASS; boar/monkey audit exposes remaining defects
+
+No game/source changes thisturn. Actual Web232507.842729Z-chrome-hut parent/report
+PASSboth60intervals/gl0/contextLostfalse/requirednewtexture+materialmarkers/7-6contacts,
+kernel-final[]. Initial/finaloverview/detailimages actuallyviewed, finalmontageretained.
+Currentroof portablematerial works; temporal/longrange/route input/realism stillopen.
+Then serialnativecaptures boars233059.789662Z andmonkeys233132.293700Z PASStechnical
+gates/imagesactuallyviewed/kernel[]. Boar anatomy/legs mostlyobscuredbyforeground
+shrubs/leaf; visibleheadwedge/angular. Monkeyrecognizablefur/horizontalbody present,
+butflatfacemask/tinyeyes/coarsejoints/boxytrunk/stifftail/grassobscuredfeet remain.
+Full findings in docs/wildlife-visual-audit-2026-10-12.md; doNOTequatecapturePASSwith
+visualquality ormotionacceptance. No newbuildsneeded; same5fc2a94artifacts reused.
+NEXT returnto explicitwildliferealism: unobscuredcloseboarQAview withoutmovingworld
+vegetation, thenhead/shoulder/muzzle/coat improvement. Monkeyface/tail andfullnew-species/
+resident/audio/AMDincidentbacklog remainOPEN. Allownedjobs terminal/latchunchanged,
+nohardware/KVM/dependencychange/push. Goalactive.
+
 ## Latest — generated palm fibre on hut roof; native/Android actual PASS
 
 Used imagegen skill/built-in ImageGen for new opaque dry-palm microtexture. Original

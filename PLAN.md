@@ -861,6 +861,19 @@ Landmark backlog requested by the operator:
   total8147420/policy8167636bytes, notallnewallocation. See docs/island-hut.md.
   ARM64restored/buildlintPASS11s; Webbuild/packagePASS11,342,167raw/4,331,803gzip.
   AssetauditPASS. ActualWebnewshaderstillpending; allownedjobs terminal/latchunchanged.
+  Subsequent actualWeb232507.842729Z-chrome-hut PASSbothviews/60intervalseach/GL0/
+  livecontext/newtexturemarker/parentPASS/kernel[]. Initial/finalimages inspected;
+  currenttexturedroof portablevisualcheck nowachieved, nottemporal/route/realismcomplete.
+
+### Current wildlife audit — 2026-10-12
+
+- [~] Actual current native boars233059.789662Z andmonkeys233132.293700Z technical
+  capturesPASS/imagesactuallyviewed/kernel[]. NOToverallvisualacceptance. Boar body/
+  legs obscuredbyshrubs/largeforegroundleaf; visibleheadstillcoarsewedge. NEXT establish
+  unobscuredcloseboarQAview thenrefinehead/shoulder/muzzle/coat. Monkeyfur/horizontaltrunk
+  present, butfacemask/eyes/limbjunctions/boxytrunk/stifftail andgrass-obscuredfeet remain.
+  Exactfindings/nextactions: `docs/wildlife-visual-audit-2026-10-12.md`. Stillimages do
+  notprovewalking/climbing/audio. No species removed orbacklogclosed.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars
