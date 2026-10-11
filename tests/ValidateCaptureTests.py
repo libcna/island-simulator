@@ -8,15 +8,63 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.validate_capture import CaptureError, PpmImage, read_ppm, validate_capture  # noqa: E402
+from tools.validate_capture import (CaptureError, PpmImage, read_ppm, validate_capture,
+                                    profile_for_viewpoint, profile_for_arguments)  # noqa: E402
 
 
 class CaptureValidatorTests(unittest.TestCase):
+    def test_profile_follows_last_explicit_camera(self):
+        for arguments, expected in (([], "scene"), (["--viewpoint", "litter"], "shaded-detail"),
+                (["--viewpoint", "litter-other"], "scene"),
+                (["--viewpoint", "litter", "--overview"], "scene"),
+                (["--overview", "--viewpoint", "litter"], "shaded-detail"),
+                (["--viewpoint", "litter", "--viewpoint", "grass"], "scene")):
+            with self.subTest(arguments=arguments):
+                self.assertEqual(profile_for_arguments(arguments), expected)
+
+    def test_shaded_profile_is_explicit_and_not_a_brightness_bypass(self):
+        image = PpmImage(640, 360, b"")
+        metrics = {"luminanceMean": 50.0, "luminanceStandardDeviation": 15.0,
+                   "quantizedColorBins": 100, "spatialContrast": 40.0,
+                   "darkPixelFraction": 0.0, "brightPixelFraction": 0.0}
+        with patch("tools.validate_capture.analyze_capture", return_value=metrics):
+            self.assertFalse(validate_capture(image)["valid"])
+            report = validate_capture(image, profile="shaded-detail")
+            self.assertTrue(report["valid"])
+            self.assertEqual(report["profile"], "shaded-detail")
+            self.assertEqual(report["thresholds"]["minimumLuminanceStandardDeviation"], 12.5)
+            metrics.update(luminanceMean=160.0, luminanceStandardDeviation=20.0)
+            self.assertTrue(validate_capture(image)["valid"])
+            self.assertFalse(validate_capture(image, profile="shaded-detail")["valid"])
+            metrics.update(luminanceMean=30.0, luminanceStandardDeviation=11.0)
+            self.assertFalse(validate_capture(image, profile="shaded-detail")["valid"])
+        with self.assertRaises(ValueError):
+            validate_capture(image, profile="unknown")
+        self.assertEqual(profile_for_viewpoint("litter"), "shaded-detail")
+        for name in ("", "overview", "grass", "wet-sand", "litter-other", "interactive"):
+            self.assertEqual(profile_for_viewpoint(name), "scene")
+
+    def test_shaded_profile_preserves_other_failure_gates(self):
+        image = PpmImage(640, 360, b"")
+        good = {"luminanceMean": 50.0, "luminanceStandardDeviation": 15.0,
+                "quantizedColorBins": 100, "spatialContrast": 40.0,
+                "darkPixelFraction": 0.0, "brightPixelFraction": 0.0}
+        for key, bad in (("quantizedColorBins", 63), ("spatialContrast", 29),
+                         ("luminanceMean", 23), ("darkPixelFraction", 0.93),
+                         ("brightPixelFraction", 0.93)):
+            with self.subTest(key=key), patch("tools.validate_capture.analyze_capture",
+                                            return_value={**good, key: bad}):
+                self.assertFalse(validate_capture(image, profile="shaded-detail")["valid"])
+        for rgb in ((0, 0, 0), (255, 255, 255), (50, 45, 30)):
+            flat = PpmImage(640, 360, bytes(rgb) * 640 * 360)
+            self.assertFalse(validate_capture(flat, profile="shaded-detail")["valid"])
+
     def test_reads_comment_and_crlf_header(self) -> None:
         pixels = bytes((10, 20, 30, 40, 50, 60))
         with tempfile.TemporaryDirectory() as directory:

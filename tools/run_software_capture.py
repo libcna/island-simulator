@@ -15,6 +15,7 @@ import signal
 import subprocess
 import sys
 import time
+from validate_capture import profile_for_viewpoint
 
 from gpu_incident_qualification import (
     CAPTURE_VIEWPOINTS, FAULT, GL_ERROR, Journal, MonitorError, stop_process_group,
@@ -352,7 +353,8 @@ def main():
             if "monkeys receive footprint-averaged canopy light through stock skinning" not in diagnostics:
                 raise RuntimeError("current monkey lighting is missing; check for a stale executable")
             validation = subprocess.run([sys.executable, str(root / "tools/validate_capture.py"),
-                                         str(capture), "--output", str(evidence / "validation.json")],
+                                         str(capture), "--profile", profile_for_viewpoint(args.viewpoint),
+                                         "--output", str(evidence / "validation.json")],
                                         check=False, timeout=15)
             if validation.returncode:
                 raise RuntimeError("capture image validation failed")

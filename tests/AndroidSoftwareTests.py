@@ -54,6 +54,20 @@ class AndroidSoftwareTests(unittest.TestCase):
                     self.assertEqual(run.call_count, 2)
                     self.assertTrue(output.with_suffix(".validation.json").exists())
 
+    def test_android_capture_passes_explicit_profile_through_png_decode(self):
+        data = io.BytesIO()
+        Image.new("RGB", (640, 360)).save(data, format="PNG")
+        with patch.object(android_capture, "validate_capture", return_value={"valid": True}) as validate:
+            android_capture.validate_png(data.getvalue(), profile="shaded-detail")
+            self.assertEqual(validate.call_args.kwargs, {"profile": "shaded-detail"})
+        with tempfile.TemporaryDirectory() as temporary, \
+             patch.object(android_capture, "validate_png", return_value={"valid": True}) as decode, \
+             patch.object(android_capture.subprocess, "run",
+                          return_value=SimpleNamespace(stdout=data.getvalue())):
+            android_capture.capture("fake-adb", Path(temporary) / "capture.png",
+                                    profile="shaded-detail")
+            decode.assert_called_once_with(data.getvalue(), profile="shaded-detail")
+
     @staticmethod
     def material_fixture(directory):
         root = directory / "prepared"

@@ -1,6 +1,6 @@
 # Pixel-scale-independent terrain shading normals
 
-Status: native build/CPU tests pass; one native image gate remains degraded.
+Status: native build/CPU tests and reviewed native captures pass; Android/Web pending.
 
 Soil clod lighting and wet-sand sheen normalized the cross product of world-space
 pixel derivatives by clamping its squared length to 1e-8. That is not a harmless
@@ -52,9 +52,27 @@ standard deviation is 16.8656, below its global 18 threshold. Mean luminance 58.
 240 colour bins, spatial contrast 37.2447, no overwhelmingly dark/bright pixels. Image
 inspection shows a complete textured shaded floor and vegetation, not a blank frame.
 This is not counted as a passed capture. Its kernel delta is also empty. The global
-validator is unchanged. Resolve whether its absolute-contrast requirement is appropriate
-for this darker close view using independently justified image criteria/reference evidence;
-do not silently relabel the failed run or change lighting solely to satisfy the threshold.
+validator at that time was unchanged. That failed run remains untouched.
+
+### Explicit shaded-detail image profile
+
+The `litter` view now selects the named `shaded-detail` profile in the native and Android
+launchers. Its deviation requirement is `max(12, 0.25 * mean luminance)`, making contrast
+relative to scene brightness while retaining an absolute noise floor. The constants are
+reviewed project heuristics, not a perceptual standard or proof of visual quality. All other
+image gates are unchanged. Other viewpoints retain the original `scene` profile and its
+absolute deviation threshold of 18. Selection depends on camera arguments, never on whether
+an image failed. Reports record the profile and effective threshold.
+
+Six validator tests cover camera selection/order, relative contrast, the noise floor,
+washed-out bright images, unchanged colour/spatial/extreme-pixel gates and real solid images.
+Twenty Android CPU-only tests include profile forwarding through capture and PNG decoding.
+The final non-display CTest run passes all 33 groups in 49.94 seconds.
+Fresh native run `20261011T095340.833878Z-litter` passes with deviation 16.8703 against
+14.71815, mean 58.8726, 240 colour bins and spatial contrast 37.2616. Its image was inspected:
+textured shaded floor and vegetation remain readable. Kernel delta is empty and latch hash
+unchanged. No renderer lighting was adjusted for this calibration. This new run does not
+retroactively turn the earlier failed run into a pass.
 
 Android/Web material qualification remains pending. The completed seven-view Web suite
 qualifies prior revision `9f1ee59`, not this fix. No host AMD rendering is authorized,

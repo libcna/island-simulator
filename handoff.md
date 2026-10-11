@@ -1,5 +1,16 @@
 # island-simulator handoff
 
+## Update — explicit shaded-floor capture profile verified
+
+The litter image discrepancy below is resolved by an explicit `shaded-detail` profile,
+not a lighting change or global gate reduction. See `docs/terrain-surface-frame.md`.
+Fresh native `20261011T095340.833878Z-litter` passes and was inspected; empty kernel delta,
+latch unchanged. The old failed run remains failed and untouched. Six validator and twenty
+Android CPU-only tests pass; native/Android launchers select the profile from camera arguments.
+Full non-display CTest also passes 33/33 (49.94 s); no jobs remain running.
+NEXT: Android/Web material qualification of game revision `3642ac1` remains pending.
+No emulator/KVM configuration change, hardware rendering or push is authorized.
+
 ## Update — surface normal fix built; litter image gate remains open
 
 `docs/terrain-surface-frame.md`: scale-first CPU/GLSL normal helper now drives sand,

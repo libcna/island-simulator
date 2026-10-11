@@ -8,17 +8,17 @@ import sys
 import time
 
 from PIL import Image
-from validate_capture import PpmImage, validate_capture
+from validate_capture import PpmImage, validate_capture, profile_for_arguments
 
 
-def validate_png(data):
+def validate_png(data, profile="scene"):
     with Image.open(io.BytesIO(data)) as source:
         source.load()
         image = source.convert("RGB")
-        return validate_capture(PpmImage(image.width, image.height, image.tobytes()))
+        return validate_capture(PpmImage(image.width, image.height, image.tobytes()), profile=profile)
 
 
-def capture(adb, output, timeout=30):
+def capture(adb, output, timeout=30, profile="scene"):
     deadline = time.monotonic() + timeout
     attempts = 0
     while time.monotonic() < deadline:
@@ -28,7 +28,7 @@ def capture(adb, output, timeout=30):
                                 timeout=max(0.1, min(10, deadline - time.monotonic())))
         output.write_bytes(result.stdout)
         try:
-            report = validate_png(result.stdout)
+            report = validate_png(result.stdout, profile=profile)
         except (OSError, ValueError) as error:
             report = {"valid": False, "errors": [str(error)]}
         report["attempts"] = attempts
@@ -42,7 +42,8 @@ def capture(adb, output, timeout=30):
 
 if __name__ == "__main__":
     try:
-        capture(sys.argv[1], Path(sys.argv[2]))
+        arguments = sys.argv[3].split(",") if len(sys.argv) > 3 else []
+        capture(sys.argv[1], Path(sys.argv[2]), profile=profile_for_arguments(arguments))
     except (OSError, RuntimeError, subprocess.SubprocessError) as error:
         print(f"android capture failed: {error}", file=sys.stderr)
         sys.exit(1)

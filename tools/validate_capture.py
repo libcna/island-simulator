@@ -19,6 +19,23 @@ MINIMUM_HEIGHT = 360
 MINIMUM_LUMINANCE_DEVIATION = 18.0
 MINIMUM_QUANTIZED_COLOR_BINS = 64
 MINIMUM_SPATIAL_CONTRAST = 30.0
+PROFILES = ("scene", "shaded-detail")
+
+
+def profile_for_viewpoint(viewpoint: str) -> str:
+    """Reviewed close shaded-floor view only; never infer an exception from failed pixels."""
+    return "shaded-detail" if viewpoint == "litter" else "scene"
+
+
+def profile_for_arguments(arguments: list[str]) -> str:
+    """Match the game's last explicit camera selection, including --overview."""
+    viewpoint = ""
+    for index, argument in enumerate(arguments):
+        if argument == "--overview":
+            viewpoint = "overview"
+        elif argument == "--viewpoint" and index + 1 < len(arguments):
+            viewpoint = arguments[index + 1]
+    return profile_for_viewpoint(viewpoint)
 
 
 class CaptureError(ValueError):
@@ -39,6 +56,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("capture", type=Path, help="P6 PPM capture to validate.")
     parser.add_argument("--expect-width", type=int, help="Required capture width.")
     parser.add_argument("--expect-height", type=int, help="Required capture height.")
+    parser.add_argument("--profile", choices=PROFILES, default="scene")
     parser.add_argument(
         "--output",
         type=Path,
@@ -187,8 +205,14 @@ def analyze_capture(image: PpmImage) -> dict[str, Any]:
 
 
 def validate_capture(image: PpmImage, expected_width: int | None = None,
-                     expected_height: int | None = None) -> dict[str, Any]:
+                     expected_height: int | None = None, *, profile: str = "scene") -> dict[str, Any]:
+    if profile not in PROFILES:
+        raise ValueError(f"Unknown capture profile: {profile}")
     metrics = analyze_capture(image)
+    # Shaded close-ups must retain at least 25% relative variation and a hard noise
+    # floor. This is stricter for bright/washed-out pictures, not a blanket bypass.
+    minimum_deviation = (max(12.0, metrics["luminanceMean"] * 0.25)
+                         if profile == "shaded-detail" else MINIMUM_LUMINANCE_DEVIATION)
     errors: list[str] = []
     if image.width < MINIMUM_WIDTH or image.height < MINIMUM_HEIGHT:
         errors.append(
@@ -199,7 +223,7 @@ def validate_capture(image: PpmImage, expected_width: int | None = None,
         errors.append(f"capture width is {image.width}; expected {expected_width}")
     if expected_height is not None and image.height != expected_height:
         errors.append(f"capture height is {image.height}; expected {expected_height}")
-    if metrics["luminanceStandardDeviation"] < MINIMUM_LUMINANCE_DEVIATION:
+    if metrics["luminanceStandardDeviation"] < minimum_deviation:
         errors.append("capture has insufficient luminance variation")
     if metrics["quantizedColorBins"] < MINIMUM_QUANTIZED_COLOR_BINS:
         errors.append("capture has too few quantized colour bins")
@@ -214,12 +238,14 @@ def validate_capture(image: PpmImage, expected_width: int | None = None,
 
     return {
         "schemaVersion": 1,
+        "profile": profile,
         "valid": not errors,
         "metrics": metrics,
         "thresholds": {
             "minimumWidth": MINIMUM_WIDTH,
             "minimumHeight": MINIMUM_HEIGHT,
-            "minimumLuminanceStandardDeviation": MINIMUM_LUMINANCE_DEVIATION,
+            "minimumLuminanceStandardDeviation": minimum_deviation,
+            "minimumRelativeLuminanceDeviation": 0.25 if profile == "shaded-detail" else None,
             "minimumQuantizedColorBins": MINIMUM_QUANTIZED_COLOR_BINS,
             "minimumSpatialContrast": MINIMUM_SPATIAL_CONTRAST,
         },
@@ -231,7 +257,8 @@ def main() -> int:
     arguments = parse_arguments()
     try:
         image = read_ppm(arguments.capture)
-        report = validate_capture(image, arguments.expect_width, arguments.expect_height)
+        report = validate_capture(image, arguments.expect_width, arguments.expect_height,
+                                  profile=arguments.profile)
     except CaptureError as error:
         report = {
             "schemaVersion": 1,

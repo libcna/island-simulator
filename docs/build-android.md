@@ -1141,6 +1141,10 @@ performance, memory, or thermals. Override the deliberately generous software-em
 Screenshot acceptance also uses `android_capture.py` (host Python/Pillow). Each initial,
 hot-resume and cold-relaunch capture gets a bounded 30-second presentation wait, rejecting
 empty, malformed or visually degenerate images with the shared native capture thresholds.
+The explicit `litter` camera uses the reviewed `shaded-detail` relative-contrast profile;
+all other cameras use `scene`. The last explicit camera argument selects the profile,
+including `--overview`; failed pixels never trigger a fallback profile. See
+`terrain-surface-frame.md` for calibration and limitations.
 Each PNG has a sibling `.validation.json` containing metrics, errors and attempt count.
 This closes a false positive observed on 2026-10-11: a startup/first-draw log was present,
 yet the immediate screenshot was entirely black. Drawing diagnostics alone are not proof

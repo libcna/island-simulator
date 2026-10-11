@@ -64,6 +64,17 @@ historical evidence, not post-incident qualification.
 
 ### Updated operator direction: bounded diagnosis and safe feature development
 
+#### 2026-10-11 — reviewed shaded-floor image validation
+
+- [x] Explicit `litter` capture profile with relative contrast and a hard noise floor;
+  generic scene thresholds and all other image gates unchanged. Profile/effective threshold
+  recorded in reports; camera selection precedes image analysis.
+- [x] Six validator and twenty Android CPU-only regressions, including solid/washed-out
+  rejection and profile forwarding. Fresh native `20261011T095340.833878Z-litter` passes,
+  inspected, empty kernel delta, latch unchanged. Original failed run retained unchanged.
+- [ ] Android/Web qualification of the surface-normal fix still pending. See
+  `docs/terrain-surface-frame.md`; this calibration does not establish semantic correctness.
+
 #### 2026-10-11 — pixel-scale-independent terrain surface normals
 
 - [x] Shared CPU/GLSL scale-first normalization replaces length clamps in dry sand,
@@ -72,10 +83,10 @@ historical evidence, not post-incident qualification.
 - [x] Native build and 33/33 non-display groups pass (42.70 s), including scale/winding
   invariance, unit length, zero fallback and invalid-input tests. Inventory unchanged.
   Wet-sand, grass, bay-ground and water captures pass/inspected; empty kernel deltas.
-- [!] Litter image gate fails absolute luminance deviation (16.8656 < 18) after corrected
+- [x] Investigated initial litter image-gate failure (16.8656 < 18) after corrected
   near-ground lighting. Complete textured image inspected, but NOT claimed as a pass.
-  Mean 58.8703, 240 bins, spatial contrast 37.2447; other gates pass. Validator unchanged.
-  Resolve scene-appropriate criteria/reference evidence; retained failure is documented.
+  Mean 58.8703, 240 bins, spatial contrast 37.2447; other gates pass. Validator was unchanged.
+  Resolution and separate fresh capture are recorded above; the original failure is retained.
 - [ ] Android/Web qualification of this new fix. Previous dry-sand runs do not qualify it.
 
 #### 2026-10-11 — dry sand microrelief (native stage)
