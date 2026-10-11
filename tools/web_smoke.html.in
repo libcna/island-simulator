@@ -48,6 +48,8 @@
     const modeArguments = new Map([
       ["flight", ["--input-diagnostics"]],
       ["monkey-climb", ["--viewpoint", "monkey-climb"]],
+      ["snakes", ["--viewpoint", "snakes"]],
+      ["snake-head", ["--viewpoint", "snake-head"]],
       ["interactive", []],
       ["input", ["--debug-overlay", "--input-diagnostics"]],
       ["grass-motion", ["--debug-overlay", "--input-diagnostics"]],

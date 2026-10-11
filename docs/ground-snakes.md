@@ -274,3 +274,34 @@ identity, appearance acceptance or an AMD-crash fix.
 Native/Web builds and package pass (11,162,865 bytes raw /4,197,939 gzip), ARM64
 assembleDebug/lintDebug pass in4s; asset gate25/81/10/0 passes. No portable runtime
 was launched and the hardware qualification stop latch is unchanged.
+
+## Focused WebGL audit
+
+The contained Chrome supervisor now supports `--scope snakes`: sequential ordinary
+`snakes` and `snake-head` viewpoints, four intermediate screenshots per view and
+60 additional compositor-frame intervals with WebGL error/context checks. It requires
+SwiftShader, visible snake submission, existing shared-material diagnostics and no
+fallback/high-severity GL errors. Both pages are closed independently. These are
+real-time interactive views, NOT the native capture-clock sequence; screenshot counts
+alone do not prove live snake motion or subjective appearance. CPU supervisor suite
+has17 tests, including explicit scope, view routing and visible-population requirements;
+native software-supervisor37 tests and JS syntax check pass.
+
+Actual evidence: `build/browser-software/20261011T202147.595070Z-chrome-snakes`.
+Initial body/head images and both four-pose grids actually inspected. Body view shows
+S-bends and scales, but foreground leaves substantially or wholly obscure some later
+frames. Head view retains readable eyes/mouth, yet its large irregular scale mapping
+does not transition convincingly into the smaller regular body scales. Head appears
+stationary across the four sampled images while nearby grass changes; this is not
+evidence of successful retreat in that close-observer scenario. Investigate behavior
+and camera placement rather than count four screenshots as a gait pass. The head QA
+camera currently follows body centroid translation, not head translation.
+
+Open visual/audit defects: improve head/body material continuity, avoid losing the
+subject behind foreground leaves in the audit camera without removing live vegetation,
+and qualify actual near-observer retreat. No AMD hardware qualification or Android
+runtime is inferred from these browser images.
+Final supervisor result PASS: both views completed60 intervals with glError0, no
+context loss and four intermediate images each; kernel-final[]. This is execution
+qualification on Chrome/SwiftShader only, NOT final visual or motion acceptance. No
+generic native luminance threshold was changed or used to claim these close views pass.

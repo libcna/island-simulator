@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Latest — actual WebGL snake body/head audit, new defects retained
+
+New tools/run_browser_software.py --scope snakes routes ordinaryinteractive snakes +
+snake-head via web_smoke.html.in, sequentialcontexts,4intermediates/60intervalseach,
+SwiftShader/GL0/contextalive/visible1..4snakes andno materialfallback required. CPU
+BrowserSoftwareTests17PASS, SoftwareCaptureTests37PASS,node syntaxPASS. No gamebuild.
+Actual build/browser-software/20261011T202147.595070Z-chrome-snakes finalPASS, bothviews
+60intervals/glError0/no loss, kernel-final[]. Allownedjobs terminal, no hardwareGPU.
+Initialbody/head images AND body-motion-grid.png/head-motion-grid.png actuallyinspected.
+BodyS-bends/scalesvisible butlargeforegroundleaves completelyocclude oneintermediate.
+Headeyes/mouthreadable butheadscaleUVsize/shape doesn'tmatchbody. Headappearsstationary
+through4poses whilegrassmoves: doNOTclaimretreat/gaitpass. Theseare realtimeviewsNOT
+nativefixedclock. SourceheadQAcamera followscentroid nothead. NEXT investigate close
+observerretreat (possibleblockedheading), headmaterialcontinuity andheadcameratracking;
+do not removeactualvegetation justto makeimagespass. Androidruntime/treesnakesopen.
+No dependency/AndroidKVM/push; stoplatchunchanged. AMDincidentcauseunknown. Goalactive.
+
 ## Latest — deterministic snake capture timing verified by exact repeated pixels
 
 UsesSnakeCaptureClock scopes ONLY capturePath+SnakeDetail/SnakeHeadDetail. Framework

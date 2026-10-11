@@ -706,6 +706,11 @@ progress or require player interaction; dangerous species keep their distance li
   byte-identical four PPMs. Grid inspected, snake visible throughout. Timed-stage
   validation/37 CPU tests pass; both generic contrast gates still FAIL, kernel empty.
   Reproducibility is proven only for this configuration, not final visual acceptance.
+  New WebGL scope `snakes` audits body/head separately with intermediate images.
+  Actual202147.595070Z body/head grids inspected: foreground leaves obscure some body
+  samples; head has visibly mismatched large scales versus the body and appears static
+  in its close-observer sequence. Investigate retreat behavior and head-camera tracking
+  (currently centroid-based). Do not count saved screenshots as proof of natural motion.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

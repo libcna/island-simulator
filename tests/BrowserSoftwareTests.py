@@ -89,6 +89,19 @@ class BrowserSoftwareTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 gate.validate_climb_report(invalid)
 
+    def test_snake_scope_requires_both_views_and_visible_population(self):
+        self.assertIn("snakes", gate.SCOPES)
+        environment = gate.browser_environment("chrome", "snakes", Path("/evidence"))
+        self.assertEqual(environment["ISLAND_BROWSER_SUPERVISED"], "chrome")
+        self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "snakes")
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedSnakeCheck ? ["snakes", "snake-head"]', source)
+        self.assertIn('snakeMotionFrames.length === 4', source)
+        self.assertIn('snakes [1-4]', source)
+        for mode in ("snakes", "snake-head"):
+            self.assertIn(f'["{mode}", ["--viewpoint", "{mode}"]]',
+                          (ROOT / "tools/web_smoke.html.in").read_text())
+
     def test_monkey_scope_retains_supervision_and_intermediate_visual_samples(self):
         self.assertIn("monkeys", gate.SCOPES)
         environment = gate.browser_environment("chrome", "monkeys", Path("/evidence"))
