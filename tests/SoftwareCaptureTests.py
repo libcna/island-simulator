@@ -18,6 +18,7 @@ from run_software_capture import (
     validate_monkey_tree_stages, validate_monkey_climb_stages, validate_snake_motion_stages,
     validate_goat_motion_stages,
     validate_spider_motion_stages,
+    validate_spider_render_log,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
@@ -25,6 +26,16 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_spider_render_requires_grounding(self):
+        good = "island-simulator: spider render proof: spiders 1/12 visible, 1 draw; contact-shadows=1\n"
+        validate_spider_render_log(good)
+        for bad in ("", good.replace("1/12", "0/12"), good.replace("1/12", "13/12"),
+                    good.replace("1 draw", "0 draw"), good.replace("contact-shadows=1", "contact-shadows=0"),
+                    good.replace("contact-shadows=1", "contact-shadows=13"),
+                    good.replace(" contact-shadows=1", "")):
+            with self.assertRaises(RuntimeError):
+                validate_spider_render_log(bad)
+
     def test_spider_live_motion_and_corruptions(self):
         def fixture(frozen=False):
             rows = []

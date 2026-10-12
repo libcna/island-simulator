@@ -1,5 +1,6 @@
 #include "IslandSimulator/SpiderColony.hpp"
 #include "IslandSimulator/SpiderMesh.hpp"
+#include "IslandSimulator/SpiderContactShadow.hpp"
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -48,6 +49,25 @@ int main() {
                 check(std::hypot(actual.x-foot.x,actual.y-foot.y,actual.z-foot.z)<.00003f,"rendered foot differs from anchor");
             }
             if(step%50==0) {
+                const auto shadow=BuildSpiderContactShadow(state,terrain,surface);
+                check(!shadow.empty()&&shadow.size()%3==0&&shadow.size()<=SpiderShadowVertexLimit,
+                    "spider shadow triangle budget invalid");
+                for(const auto& p:shadow) {
+                    check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)
+                        &&std::isfinite(p.opacity)&&p.opacity>=0&&p.opacity<=.300001f,
+                        "invalid spider shadow vertex");
+                    check(std::abs(p.y-surface.Sample(p.x,p.z).height-SmallContactSurfaceOffset)<.00003f,
+                        "spider shadow not on rendered terrain");
+                }
+                for(std::size_t triangle=0;triangle<shadow.size();triangle+=3) {
+                    const auto a=shadow[triangle],b=shadow[triangle+1],c=shadow[triangle+2];
+                    const float x=(a.x+b.x+c.x)/3,z=(a.z+b.z+c.z)/3,y=(a.y+b.y+c.y)/3;
+                    check(std::abs(y-surface.Sample(x,z).height-SmallContactSurfaceOffset)<.00003f,
+                        "spider shadow triangle cuts through terrain");
+                }
+                auto raised=state;raised.pose.stance.fill(false);
+                check(BuildSpiderContactShadow(raised,terrain,surface).size()<shadow.size(),
+                    "raised feet retain grounded shadows");
                 const auto mesh=BuildSpiderMesh(state.pose.legs,true);
                 for(const auto& vertex:mesh.vertices) {
                     const auto p=state.pose.ToWorld(vertex.position);

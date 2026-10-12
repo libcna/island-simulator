@@ -106,6 +106,11 @@ def validate_goat_motion_stages(text):
     return {"positions": positions, "phases": phases, "grazing": grazing}
 
 
+def validate_spider_render_log(text):
+    if not re.search(r"spider render proof: spiders (?:[1-9]|1[0-2])/12 visible, 1 draw; contact-shadows=(?:[1-9]|1[0-2])(?:\s|$)", text):
+        raise RuntimeError("spider capture lacks a live population or grounding shadows")
+
+
 def validate_spider_motion_stages(text):
     """Sparse actual crawling presentation, not continuous foot-lock/contact proof."""
     rows = re.findall(r"^island-simulator: spider motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
@@ -567,8 +572,8 @@ def main():
                 raise RuntimeError("snake capture did not submit the live population")
             if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")
-            if args.viewpoint == "spiders" and not re.search(r"spider render proof: spiders (?:[1-9]|1[0-2])/12 visible, 1 draw;", diagnostics):
-                raise RuntimeError("spider capture did not submit the live population")
+            if args.viewpoint == "spiders":
+                validate_spider_render_log(diagnostics)
             if args.viewpoint == "goats" and "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("goat fur material was not loaded")
             if "boar directional coat atlas 128x128, opaque stock BasicEffect" not in diagnostics:

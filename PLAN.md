@@ -795,6 +795,13 @@ progress or require player interaction; dangerous species keep their distance li
   Regression now requireszero eligiblepauses onbothroutes. Full52CPU PASS58.03s.
   Actualpostfix8frames inspected: .272804m displacement, stage2..7speed~.065m/s,
   kernel[]/motiondatapass; outerimagecontraststillFAIL/material/contactissuesopen.
+  Added body/stance-foot grounding into existingcontactshadowbatch (noadditionaldraw):
+  smallterrain-clippedpatches,.3mmbias,8mqualityscaledrange,nearpose/stancecache
+  refresh. CPUchecks verticesandtriangleinteriors/raisedfeet/limits;40harnesschecks.
+  Actual045511.802447Z-spiders8frames+rawbefore/after inspected: subtlebodygrounding,
+  contactcount1/motionpass/kernel[]; outerimagegate stillFAIL. Plainbody/sparsehair,
+  continuousvisualacceptance/webs/portableaudits remainopen.
+  Shadow-step inclusivebuild/full52CPU PASS88.30s; noWeb/Androidbuild/runtime.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

@@ -6,6 +6,7 @@
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
+#include "IslandSimulator/RenderedTerrainSurface.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -114,27 +115,30 @@ namespace island
 
     std::vector<ContactPatchVertex> BuildContactPatch(const IslandTerrain& terrain,
                                                      const ContactFootprint& footprint,
-                                                     const ContactPatchDetail detail)
+                                                     const ContactPatchDetail detail,
+                                                     const RenderedTerrainSurface* cachedSurface)
     {
         const auto& f = footprint;
+        const bool small=detail==ContactPatchDetail::SmallAnimal;
+        const float minimumRadius=small?.001f:.05f,maximumRadius=small?.2f:8;
         for (float value : {f.x, f.z, f.directionX, f.directionZ, f.alongRadius,
                            f.acrossRadius, f.opacity}) {
             if (!std::isfinite(value)) throw std::invalid_argument("Non-finite contact footprint");
         }
         if (std::abs(f.x) > TerrainMeshLayout::Extent || std::abs(f.z) > TerrainMeshLayout::Extent
             || std::abs(std::hypot(f.directionX, f.directionZ) - 1) > 0.0001f
-            || f.alongRadius < 0.05f || f.alongRadius > 8 || f.acrossRadius < 0.05f
-            || f.acrossRadius > 8 || f.opacity < 0 || f.opacity > 1) {
+            || f.alongRadius < minimumRadius || f.alongRadius > maximumRadius || f.acrossRadius < minimumRadius
+            || f.acrossRadius > maximumRadius || f.opacity < 0 || f.opacity > 1) {
             throw std::invalid_argument("Contact footprint exceeds its geometry contract");
         }
         std::vector<ContactPatchVertex> result;
-        if (detail != ContactPatchDetail::Compact && detail != ContactPatchDetail::Coastal) {
+        if (detail != ContactPatchDetail::Compact && detail != ContactPatchDetail::Coastal && !small) {
             throw std::invalid_argument("Unknown contact patch detail profile");
         }
         // Small land props retain their old twelve-sector linear falloff; only terrain clipping
         // introduces extra triangles. Larger coastal patches use a rounder, smoother profile.
-        const int segments = detail == ContactPatchDetail::Compact ? 12 : 24;
-        const int rings = detail == ContactPatchDetail::Compact ? 1 : 3;
+        const int segments = detail == ContactPatchDetail::Coastal ? 24 : 12;
+        const int rings = detail == ContactPatchDetail::Coastal ? 3 : 1;
         const auto point = [&](int ring, int segment) {
             const double radius = static_cast<double>(ring) / rings;
             const double angle = static_cast<double>(segment) * 2 * std::numbers::pi / segments;
@@ -170,15 +174,15 @@ namespace island
                         const double area = Side(cell[0], cell[1], cell[2]);
                         std::array<float,3> heights;
                         for (int corner = 0; corner < 3; ++corner) {
-                            heights[corner] = terrain.Height(static_cast<float>(cell[corner].x),
-                                                              static_cast<float>(cell[corner].z));
+                            const float x=static_cast<float>(cell[corner].x),z=static_cast<float>(cell[corner].z);
+                            heights[corner] = cachedSurface ? cachedSurface->Sample(x,z).height : terrain.Height(x,z);
                         }
                         const auto emit = [&](const Point& p) {
                             const double w0 = Side(cell[1],cell[2],p) / area;
                             const double w1 = Side(cell[2],cell[0],p) / area;
                             const double height = heights[0]*w0 + heights[1]*w1 + heights[2]*(1-w0-w1);
                             result.push_back({static_cast<float>(p.x),
-                                static_cast<float>(height) + ContactPatchSurfaceOffset,
+                                static_cast<float>(height) + (small?SmallContactSurfaceOffset:ContactPatchSurfaceOffset),
                                 static_cast<float>(p.z), static_cast<float>(std::clamp(p.opacity,0.0,1.0))});
                         };
                         for (std::size_t index = 1; index + 1 < polygon.size(); ++index) {

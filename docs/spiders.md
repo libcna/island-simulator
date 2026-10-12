@@ -12,7 +12,8 @@ The renderer uses one opaque vertex-color BasicEffect batch, CPU normal/daylight
 shared canopy transmission. Near meshes apply within4m, far to18m; a0.16m frustum
 sphere surrounds each body. Capacity120000 VertexPositionColor vertices (1,920,000
 GPU bytes plus the same reserved CPU staging payload), with population/upload guards.
-No custom shader, texture or special GPU feature. No spider contact-shadow pass yet.
+No custom shader, texture or special GPU feature. Grounding shadows now use the
+existing contact-shadow batch (details below).
 Visible counts appear in the HUD and benchmark; draw totals include the batch.
 WorldReport now covers this live population (see the reporting section below).
 
@@ -72,6 +73,41 @@ must address the observed material/contact and motion limitations, not merely re
 this same dark camera. Web/Android remain untested for live spiders.
 Current inclusive native build and52/52 CPU groups pass59.42s, logs
 build/spider-motion-{build,tests}.log. World fingerprint4c38d1adbddc9c9e is unchanged.
+
+## Grounding shadows
+
+BuildSpiderContactShadow adds one soft60×29mm-radius body ellipse (18% centre opacity)
+at local z=-12mm and3.5mm-radius foot ellipses (30%) only for stance feet. These are
+compact ambient grounding approximations, not directional body/leg silhouettes.
+New SmallAnimal ContactPatchDetail permits1..200mm radii and0.3mm vertical bias;
+Compact/Coastal retain their original50mm..8m contract and25mm bias. All footprints
+are clipped at the actual terrain grid/triangle boundaries. A matching rendered-surface
+cache supplies corner heights, avoiding repeated procedural terrain evaluation.
+
+The existing single transparent ContactShadowRenderer batch includes these patches
+within8m (quality-scaled), with population/upload guards and4096vertices/spider reserve
+(12×4096×16=786432 additional GPU/staging bytes each). Nearby body/feet/stance changes
+invalidate its cache precisely; distant spider movement does not force a refresh.
+HUD and the mirrored render proof expose spider grounding counts. The native capture
+harness requires a positive spider contact-shadow count;40 preflight tests pass,
+including seven corrupt/missing shadow-proof cases.
+
+SpiderColonyTests checks shadow vertex/opacity budgets, exact surface bias and triangle
+interior grounding at1s intervals over all12 moving spiders, and verifies that raised
+feet remove their footprints. Focused core+colony tests pass39.89s; existing large-prop
+shadow contracts/counts remain unchanged.
+
+Actual contained run build/software-captures/20261012T045511.802447Z-spiders:
+1/12visible,1bodydraw,1groundedspider; motion data pass, kernel-after[].
+All eight images inspected via build/spider-shadow-montage.png; raw matching stage0
+before/after crops inspected in build/spider-shadow-comparison.png. Under-body shading
+is subtly darker, but deep forest shade limits readability; smooth plain material and
+sparse hairs still dominate the visual deficit. Outer contrast/color gate stillFAILED.
+No gate/profile exceptions or clean visual/platform acceptance claim. No Web/Android
+build/run. Next substantial visual work: body surface/hair detail, not another
+unchanged-image audit.
+Inclusive native build and52/52 CPU groups pass88.30s, logs
+build/spider-shadow-{build,tests}.log. World fingerprint4c38d1adbddc9c9e is unchanged.
 
 ## Population reporting
 

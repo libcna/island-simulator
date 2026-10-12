@@ -2365,7 +2365,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("contact-shadows");
             contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                         renderedMonkeys, boarHerd_.Boars(),*snakes_,goats_->Goats());
+                                         renderedMonkeys, boarHerd_.Boars(),*snakes_,goats_->Goats(),spiders_->Spiders());
         }
 
         const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
@@ -2653,6 +2653,7 @@ namespace island
             overlayState.visibleSpiders = spiderRenderer_->VisibleCount();
             overlayState.totalSpiders = static_cast<int>(spiders_->Spiders().size());
             overlayState.spiderDraws = spiderRenderer_->DrawCallCount();
+            overlayState.spiderShadows = contactShadowRenderer_->VisibleSpiderShadowCount();
             overlayState.goatDraws = goatRenderer_->DrawCallCount();
             overlayState.goatShadows = contactShadowRenderer_->VisibleGoatShadowCount();
             overlayState.totalBoars = static_cast<int>(boarHerd_.Boars().size());
@@ -2973,7 +2974,8 @@ namespace island
         if(viewpoint_==FixedViewpoint::SpiderDetail&&drawnFrames_==1U) {
             std::ostringstream report;
             report << "island-simulator: spider render proof: spiders " << spiderRenderer_->VisibleCount()
-                << '/' << spiders_->Spiders().size() << " visible, " << spiderRenderer_->DrawCallCount() << " draw;";
+                << '/' << spiders_->Spiders().size() << " visible, " << spiderRenderer_->DrawCallCount() << " draw;"
+                << " contact-shadows=" << contactShadowRenderer_->VisibleSpiderShadowCount();
             std::cout << report.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }
         if(viewpoint_==FixedViewpoint::GoatDetail&&drawnFrames_==1U) {

@@ -68,6 +68,7 @@ add_library(island_core STATIC
     game/src/SpiderPose.cpp
     game/src/SpiderMesh.cpp
     game/src/SpiderColony.cpp
+    game/src/SpiderContactShadow.cpp
     game/src/GoatPose.cpp
     game/src/GoatHerd.cpp
     game/src/GoatMesh.cpp

@@ -420,7 +420,7 @@ namespace island
         lines.push_back(goats.str());
         auto spiders = DiagnosticLine();
         spiders << "SPIDERS " << state.visibleSpiders << '/' << state.totalSpiders
-                << "  DRAWS " << state.spiderDraws;
+                << "  DRAWS " << state.spiderDraws << "  SHADOWS " << state.spiderShadows;
         lines.push_back(spiders.str());
         auto snakes = DiagnosticLine();
         snakes << "SNAKES " << state.visibleSnakes << '/' << state.totalSnakes

@@ -1,5 +1,40 @@
 # island-simulator handoff
 
+## Latest — live spider grounding shadows, inspected before/after; material still open
+
+The previous turn made progress by fixing measured foot-reach stalls. This turn adds
+SpiderContactShadow.hpp/.cpp: one body ellipse (60/29mm radii, local z=-12mm, opacity
+0.18) and 3.5mm/0.30 foot ellipses for stance feet only. ContactPatchDetail::SmallAnimal
+uses 1..200mm radius bounds and 0.3mm bias; old Compact/Coastal bounds/bias are unchanged.
+Clipping follows actual terrain triangles. Optional RenderedTerrainSurface cache avoids
+procedural corner resampling. This is ambient grounding, not directional leg silhouettes.
+
+Integrated into the existing ContactShadowRenderer transparent batch, with no extra
+draw call. Quality-scaled 8m range; 4096 vertices/spider reserve adds 786432 bytes each
+to GPU and CPU staging capacities. Population/upload guards remain. Exact nearby
+spider state/stance changes refresh the cache; distant changes do not force it.
+HUD and mirrored actual-render proof expose spider shadow count. Native harness requires
+positive body and grounding counts; 40 CPU preflight tests include seven bad proof cases.
+Colony tests additionally check shadow vertices/triangle interiors against rendered
+ground and removal of raised-foot footprints. Focused core+colony PASS39.89s; inclusive
+build/full52CPU PASS88.30s. Logs build/spider-shadow-{build,focused-tests,tests}.log.
+World fingerprint remains4c38d1adbddc9c9e.
+
+Actual llvmpipe sequence:
+build/software-captures/20261012T045511.802447Z-spiders,1/12visible,1bodydraw,
+contact-shadows=1, motion-data pass, kernel-after[]. All8 images actually inspected in
+build/spider-shadow-montage.png; matching stage0 raw crops from before/after inspected
+in build/spider-shadow-comparison.png. Under-body darkening is subtle in deep shade.
+Outer image-contrast/color gate still FAILED; no thresholds/profile changes or clean
+visual/platform qualification. Smooth plain body/sparse hairs remain the main deficit.
+
+Owned handles47732build0,13492focused0,14099capture1,34862full0 are terminal.
+No Web/Android build/runtime, AMD hardware, KVM/emulator or dependency changes.
+Latch SHA c0bd1704 unchanged. Goal active; no push. Full remaining requested species,
+web habitats, resident, environment, goat refinements and AMD flight root-cause work
+remain open. NEXT: tangible spider body/hair material detail, then Web/Android and
+plant-attached webs. Do not just repeat the same unchanged dark-camera audit.
+
 ## Latest — spider reach-wait pauses fixed on measured routes, actual8stage post-fix inspected
 
 Previous turn was progress (actualmotionfoundpauses). Extended SpiderColonyTests with
