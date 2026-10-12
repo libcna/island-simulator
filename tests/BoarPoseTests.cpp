@@ -1,4 +1,5 @@
 #include "IslandSimulator/BoarPose.hpp"
+#include "IslandSimulator/BoarBristle.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
 #include "IslandSimulator/BoarEyeGeometry.hpp"
 #include "IslandSimulator/BoarMouthGeometry.hpp"
@@ -23,6 +24,17 @@ int main()
     for(int step=0;step<=30;++step) for(float bob:{0.0f,0.018f}) {
         const float dip=static_cast<float>(step)*0.005f;
         const auto profile=MakeBoarBodyProfile(dip);
+        check(BoarBackHeight(profile,.25f,0)-BoarBackHeight(profile,-.4f,0)>.16f,
+            "boar shoulder lost its distinct rise over the rump");
+        for(int index=0;index<BoarBristleCount;++index)for(bool juvenile:{false,true}) {
+            const auto bristle=BuildBoarBristle(profile,index,juvenile,bob);
+            for(auto p:{bristle.left,bristle.right})check(
+                std::abs(p.y-BoarBackHeight(profile,p.z,p.x)-bob+.006f)<1e-6f,
+                "bristle root detached from body loft");
+            const auto p=bristle.tip;
+            check(std::isfinite(p.y)&&p.y>BoarBackHeight(profile,p.z,p.x)+bob
+                &&p.y<1.20f+ bob&&std::abs(p.x)<.06f,"bristle tip outside dorsal envelope");
+        }
         const auto eye=BuildBoarEye(1,dip,bob),mirror=BuildBoarEye(-1,dip,bob);
         const auto mouth=BuildBoarMouth(1,dip,bob),mouthMirror=BuildBoarMouth(-1,dip,bob);
         for(std::size_t i=0;i<mouth.size();++i) {

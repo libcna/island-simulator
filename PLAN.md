@@ -39,6 +39,12 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   firstcallkind3/grunt, threecalls/101samples, max6sources, mute991232zero bytes and
   restored114688nonzero-output bytes, kernel-final[]. Screenshot inspected, animals
   obscured. Does not establish speaker audibility, naturalness or portable lifecycle.
+  Appearance follow-up: narrower/lower rear/abdomen,17cm shoulder rise over rear,
+  three staggered rooted bristle rows135triangles(+270near vertices/animal), same
+  draw/texture budgets. Pose/herd/coat PASS4.59s. Actual software062718.488953Z-boars
+  inspected/PASS/kernel[]: modest dorsal edge/rear silhouette improvement, still
+  plain flank/long muzzle/angular limbs. Not visual completion or portable proof.
+  Inclusive55CPU PASS94.79s; build/boar-silhouette-full-tests.log.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

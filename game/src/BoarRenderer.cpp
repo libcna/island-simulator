@@ -2,6 +2,7 @@
 #include "IslandSimulator/BoarRenderer.hpp"
 #include "IslandSimulator/BoarCoatTexture.hpp"
 #include "IslandSimulator/BoarPose.hpp"
+#include "IslandSimulator/BoarBristle.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
 #include "IslandSimulator/BoarEyeGeometry.hpp"
 #include "IslandSimulator/BoarMouthGeometry.hpp"
@@ -273,16 +274,11 @@ namespace island
             if (near) {
                 // Short swept fibers rooted slightly inside the shared body, not a row of spikes.
                 const auto profile = MakeBoarBodyProfile(dip);
-                for (int tuft = 0; tuft < 45; ++tuft) {
-                    const float t = static_cast<float>(tuft);
-                    const float z = -0.55f + t * 0.021f + std::sin(t * 2.7f) * 0.007f;
-                    const float x = std::sin(t * 2.1f) * 0.030f;
-                    const float height = BoarBackHeight(profile, z, x) + bob - 0.007f;
-                    const float length = (boar.scale < 0.8f ? 0.017f : 0.026f)
-                        + (0.5f + 0.5f * std::sin(t * 1.7f)) * 0.014f;
-                    mesh.Triangle(Vector3(x - 0.005f, height, z),
-                                  Vector3(x + 0.003f, height + length, z - 0.013f),
-                                  Vector3(x + 0.005f, height, z + 0.009f), dark);
+                for (int tuft = 0; tuft < BoarBristleCount; ++tuft) {
+                    const auto bristle=BuildBoarBristle(profile,tuft,boar.scale<.8f,bob);
+                    const auto point=[](BoarJoint p){return Vector3(p.x,p.y,p.z);};
+                    mesh.Triangle(point(bristle.left),point(bristle.tip),point(bristle.right),
+                        wildlife_render::ScaleColor(coat,bristle.tone));
                 }
                 mesh.Ellipsoid(Vector3(0.015f, 0.66f, -0.76f), Vector3(0.025f, 0.035f, 0.17f), dark, 6, 3);
             }

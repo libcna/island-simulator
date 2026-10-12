@@ -1,5 +1,29 @@
 # Current wildlife visual audit — 2026-10-12
 
+## Latest boar shoulder/bristle pass
+
+Current baseline062020.501241Z-boars and revised062718.488953Z-boars were both
+actually inspected as full1280x720 native software images. Latest gate PASS317bins,
+luminance deviation43.88, spatial contrast195.58, kernel-after[]. Comparison files:
+`build/boar-current-review.png` and `build/boar-silhouette-after.png`.
+
+The rear/abdominal loft is narrower/lower while shoulder/head/leg anchors are retained.
+The shoulder rises17cm above the rear anchor instead of13cm. Three staggered dorsal
+bristle rows replace the single45-strand row (135triangles, +270near vertices per
+animal, no new draw/material/texture). Each root independently seats6mm into the same
+body profile; adult lengths vary34–67mm, juveniles20–53mm with rearward lean.
+CPU tests cover rooting/bob/age variants, attached roots, raised tips/bounded envelope
+and the shoulder/rump difference. Pose/herd/coat tests PASS4.59s.
+Inclusive55 CPU groups PASS94.79s (`build/boar-silhouette-full-tests.log`).
+
+The image shows a slightly leaner rear and a fine broken dorsal edge; this is a modest
+improvement, NOT a completed realistic boar. The flank remains smooth/plain, muzzle
+is long, legs remain angular and vegetation partly obscures feet. The body texture and
+head/limb transitions need a more substantial next pass, followed by motion and
+native/Web/Android inspection. No portable build/runtime or listening in this step.
+
+## Earlier audit
+
 Actual current native build after `5fc2a94`, contained llvmpipe/private pixman,
 one renderer at a time. Both captures passed their technical image/runtime gates,
 and both complete1280x720 PNGs were actually inspected. Kernel deltas are empty.

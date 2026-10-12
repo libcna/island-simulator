@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — boar shoulder/bristle silhouette, visual task still open
+
+Previousf86b2b4 was progress. MakeBoarBodyProfile rear/abdomen anchors reduced,
+same shoulder/head/limb anchors; shoulder now17cm above rear versus13cm. New
+BoarBristle.hpp shared135-strand/three-row shape, roots seated6mm in loft, variable
+adult34–67mm/juvenile20–53mm raised tips and rearward lean. Replaces45triangles,
++270near vertices/animal, no extra draw/texture/buffer allocation. CPU tests cover
+all rooting/bob/age variants, finite bounded tips, attached roots, shoulder/rump.
+Build90480terminal0; pose/herd/coat PASS4.59s. Actual contained software67202exit0
+062718.488953Z-boars PASS317bins/std43.88/spatial195.58/kernel[]. Image ACTUALLY
+inspected build/boar-silhouette-after.png versus previous build/boar-current-review.png.
+Modest leaner rear/fine broken dorsal edge; smooth flank, long muzzle/angular legs
+still obvious. No complete boar visual acceptance, motion or portable qualification.
+Full CPU handle89368 terminal0: all55groups PASS94.79s.
+Logs build/boar-silhouette-{build,tests,full-tests}.log. Reusebuild/-j2/sharedcache.
+NEXT substantial boar coat/head/limb improvement; all other user priorities remain.
+Goal active/no push. No AMD/AndroidKVM/dependency changes; stop latch unchanged.
+All owned handles terminal. Disk build8.8G/build-probe430M/android/app/build412M;
+no artifacts removed. Stop latch SHA c0bd1704 unchanged.
+
 ## Latest — quiet boars now grunt; actual disk output/mute verified
 
 Previous1be0bd4 was progress. Current actual boar image062020.501241Z (29191exit0)

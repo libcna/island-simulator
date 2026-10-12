@@ -9,7 +9,7 @@ namespace island
     {
         dip = std::isfinite(dip) ? std::clamp(dip, 0.0f, 0.15f) : 0.0f;
         const std::array<BoarBodyRing,11> anchors{{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.64f, 0.22f, 0.25f},
-                 {-0.40f, 0.66f, 0.315f, 0.32f}, {-0.08f, 0.69f, 0.335f, 0.35f},
+                 {-0.40f, 0.65f, 0.285f, 0.29f}, {-0.08f, 0.68f, 0.300f, 0.31f},
                  {0.25f, 0.74f, 0.31f, 0.37f}, {0.47f, 0.65f - dip * 0.15f, 0.245f, 0.29f},
                  // Broad cheek transitions into a narrower nasal bridge instead of one
                  // straight wedge from the forehead to the nose. Keep the nose anchor,
