@@ -45,6 +45,11 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   inspected/PASS/kernel[]: modest dorsal edge/rear silhouette improvement, still
   plain flank/long muzzle/angular limbs. Not visual completion or portable proof.
   Inclusive55CPU PASS94.79s; build/boar-silhouette-full-tests.log.
+  Original ImageGen coarse-bristle source now saved with exact prompt/provenance
+  as assets/art-studies/boar-bristle-albedo-v1*. Source1254square and256square reduced
+  preview actually inspected. Not live: needs RGB material/solid-anatomy split,
+  suitable UVs, mips, packaging/budget updates and actual island comparison.
+  See docs/boar-coat-material.md; source generation does not complete visual quality.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

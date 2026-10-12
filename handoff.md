@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — original boar bristle source prepared, runtime integration NEXT
+
+Previous12274a6 was progress. Used imagegen skill (read SKILL and both shared prompt
+refs), built-in tool, no references. New1254square opaque original4,135,795bytes at
+assets/art-studies/boar-bristle-albedo-v1.png; exact prompt sibling-prompt.txt.
+Image SHA26576df7..., prompta0086021..., recorded in manifest/license table.
+Tool source .../generated_images/01a129bd-2c19-7192-a43c-adcfe79c0fb9/
+exec-ad125c01-bfe7-436f-a8bb-755f957f65f7.png copied unchanged, original retained.
+Source ACTUALLY inspected: coarse short grey/brown/tan overlapping bristles, slight
+oblique clumps. Existing prepare_material_texture.py --size256 produced actual
+build/boar-bristle-preview-256.png,154913bytes/hash7dc6d99d..., also inspected.
+No seamless or final art acceptance claim; source contrast needs live assessment.
+NO runtime code/render/material/packaging change yet. Integration NEXT: load required
+file-backed RGB coat+mips, neutral body tint instead of old dark-brown multiplier,
+separate solid anatomy from textured body (newsource has no oldwhiteatlasstrip),
+interior directional UVs, update budgets/native/Web/Android content, actual capture.
+See docs/boar-coat-material.md. Skill used built-in, noCLI/API key fallback.
+All other user tasks remain; goalactive/no push. No GPU/Android/dependency changes.
+AssetValidation+PreparedMaterialTests PASS9.06s,33318terminal0;
+build/boar-bristle-source-tests.log. No compile/fullsuite or renderer for source-only
+change. All owned handles terminal; no artifact deletion.
+
 ## Latest — boar shoulder/bristle silhouette, visual task still open
 
 Previousf86b2b4 was progress. MakeBoarBodyProfile rear/abdomen anchors reduced,

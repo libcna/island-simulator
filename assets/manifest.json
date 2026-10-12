@@ -3,6 +3,18 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "boar-bristle-albedo-v1",
+      "path": "assets/art-studies/boar-bristle-albedo-v1.png",
+      "sha256": "26576df73227b556005663058f063e499b458ffe7bfcac8ee74cfa5fe6a96a07",
+      "licenseRecord": "AI-generated boar-bristle study"
+    },
+    {
+      "name": "boar-bristle-generation-prompt-v1",
+      "path": "assets/art-studies/boar-bristle-albedo-v1-prompt.txt",
+      "sha256": "a0086021d5584fc31dd845c5f4042d56fa7ac2249b2dae8fd33d7e367f73d1db",
+      "licenseRecord": "AI-generated boar-bristle study"
+    },
+    {
       "name": "spider-setae-albedo-v1",
       "path": "assets/art-studies/spider-setae-albedo-v1.png",
       "sha256": "4d92254d1c172da00314f2135dab047e459cc7fda0c2d17865746194a3929c4f",
