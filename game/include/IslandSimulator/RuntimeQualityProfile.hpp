@@ -29,6 +29,7 @@ namespace island
                     + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
+                    + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + 160U * 1024U, 6, 4};
         }
 
@@ -48,6 +49,7 @@ namespace island
                     + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
+                    + GeneratedTextureBudget::SpiderSetaeMipBytes
                     + 160U * 1024U, 6, 2};
         }
 

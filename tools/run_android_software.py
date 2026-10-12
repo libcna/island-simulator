@@ -160,7 +160,7 @@ def validate_guest_renderer(text):
 
 MATERIAL_PATHS = ("Content/terrain/forest-floor.png", "Content/vegetation/leaf-lamina.png",
                   "Content/wildlife/monkey-fur.png", "Content/structures/hut-palm-fibre.png",
-                  "Content/wildlife/goat-fur.png")
+                  "Content/wildlife/goat-fur.png", "Content/wildlife/spider-setae.png")
 
 
 def validate_apk(apk, prepared_root=None):

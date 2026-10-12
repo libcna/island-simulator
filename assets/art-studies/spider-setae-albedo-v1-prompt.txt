@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: opaque square albedo texture for a small ground spider's body and legs in a realistic 3D island game.
+Primary request: a flat close material swatch of dense, very short spider setae over matte brown cuticle, not a picture of a whole spider.
+Composition: edge-to-edge square material only, orthographic top-down, consistent hair scale across the whole image, no perspective or silhouette. Fine tapered individual bristles predominantly point from top toward bottom, with subtle irregular splay and a few sparse lighter tips. At least 60 short bristle lengths should fit along the image height: microscopic short velvet, not mammal fur or long grass. Avoid large clumps.
+Color palette: restrained warm grey-brown and tawny brown, with subtle natural small mottling; medium albedo, not black, not orange. No broad stripes or dorsal anatomy baked into the swatch.
+Lighting: neutral even diffuse illumination for base color use, no directional highlights, cast shadows, vignette or lighting gradient. The game supplies all lighting.
+Constraints: photorealistic material microstructure, opaque 1024 by 1024 square, no text, labels, logos, watermarks, eyes, limbs, web, background scene, border, separate panels, scales, metallic glitter, bark or reptile skin. Do not paint a 3D body. All pixels are material. Seamless if possible, but interior sampling will be used.

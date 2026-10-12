@@ -1,5 +1,33 @@
 # island-simulator handoff
 
+## Latest — spider setae material integrated and inspected, visual gate still fails
+
+The preceding response merely confirmed the existing AMD task (no implementation
+progress). This turn resumed the existing uncommitted material work and completed
+native verification/visual iteration. Built-in ImageGen original1254square and exact
+prompt are in assets/art-studies/spider-setae-albedo-v1* with manifest/provenance.
+Prepared256image SHA06b5295893a201a4f83523bf5194c69089af7b723ad186eb4d22a59f6ace1f89.
+Skin uses required opaque9mip texture349524bytes; eyes/bristles remain solid. Two
+near draws, unchanged4248/1632geometry. VPCT120000capacity2880000 GPUbytes; two
+CPU vectors each reserve thatpayload. RuntimeRGBA8total8846468; qualitycapsupdated.
+CMake install/Webpreload/Androidpreparation included, not portable runtime evidence.
+
+Old build handle62346 missing; incremental resume exit0/no work. Full52CPU PASS74.94s
+(30507 exit0). Added pose-invariantUV regression; final curvedUV focusedtest PASS0.05s
+andnativebuildPASS (29298 exit0). First actual050946.511021Z-spiders capture
+showed top-projection stretching at rear. Latitude/foldedlongitude mapping corrected
+this; final actual051053.143139Z-spiders all8crops inspected in
+build/spider-setae-curved-montage.png. Finebodydetail/reducedrearstreaking, stilldark,
+faceted and stiff-looking limbs. 1/12visible/2draws/contact1/motiondatapass/kernel[].
+Both capture supervisors terminalexit1 (17149,80645): generic luminance/colour/spatial
+contrast gate FAILED. No threshold/profile exceptions. Do not call these green or
+portable qualification. docs/spiders.md has full evidence and limitations.
+
+No hardware/Android/KVM/dependency changes; GPU latch SHA c0bd1704 unchanged.
+Goal remains active, no push. NEXT: shaded-scene lighting/acceptance investigation,
+portable spider audit and required plant-attached webs; all other remaining requested
+animals/resident/environment work and AMD incident rootcause remain open.
+
 ## Latest — live spider grounding shadows, inspected before/after; material still open
 
 The previous turn made progress by fixing measured foot-reach stalls. This turn adds

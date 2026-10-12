@@ -9,6 +9,7 @@ struct SpiderVertex {
     SpiderPoint position,normal;
     SpiderPart part;
     SpiderMaterial material;
+    float u=.5f,v=.5f; // Interior albedo window, authored before world transforms.
 };
 struct SpiderMesh {
     static constexpr std::size_t MaximumVertices=10000;

@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 namespace Microsoft::Xna::Framework::Graphics {
-class GraphicsDevice;class BasicEffect;class DynamicVertexBuffer;struct VertexPositionColor;
+class GraphicsDevice;class BasicEffect;class DynamicVertexBuffer;class Texture2D;struct VertexPositionColorTexture;
 }
 namespace island {
 class CanopyLightField;
@@ -22,7 +22,8 @@ private:
     const CanopyLightField& canopy_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::DynamicVertexBuffer> buffer_;
-    std::vector<Microsoft::Xna::Framework::Graphics::VertexPositionColor> vertices_;
+    std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> setae_;
+    std::vector<Microsoft::Xna::Framework::Graphics::VertexPositionColorTexture> vertices_,solid_;
     int visible_=0,draws_=0;
 };
 }

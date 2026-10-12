@@ -26,6 +26,8 @@ namespace island
         static constexpr std::size_t HutThatchMipBytes = 349524U;
         static constexpr int GoatFurSize = 256;
         static constexpr std::size_t GoatFurMipBytes = 349524U;
+        static constexpr int SpiderSetaeSize = 256;
+        static constexpr std::size_t SpiderSetaeMipBytes = 349524U;
         static constexpr std::size_t SnakeScaleRgba8Bytes = SnakeScaleSize * SnakeScaleSize * BytesPerPixel;
         // One shared map for grass roots and jungle litter; retain established budget names.
         static constexpr int GrassHeightSize = 241;
@@ -52,7 +54,7 @@ namespace island
         // Excludes decoder temporaries, CNA CPU shadows, driver padding and framebuffer storage.
         static constexpr std::size_t TotalRuntimeRgba8Bytes =
             TotalRgba8Bytes + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
-            + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes;
+            + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes + SpiderSetaeMipBytes;
     };
 
     static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4652172U,

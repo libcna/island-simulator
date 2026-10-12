@@ -23,13 +23,21 @@ int main() {
             Check(!legs[i].reachLimited,"mesh fixture target unreachable");
         }
         const auto mesh=BuildSpiderMesh(legs,detailed);
+        const auto restMesh=BuildSpiderMesh(SpiderPose::Rest(),detailed);
         Check(!mesh.vertices.empty()&&mesh.vertices.size()%3==0&&mesh.vertices.size()<=SpiderMesh::MaximumVertices,"mesh budget invalid");
+        Check(mesh.vertices.size()==restMesh.vertices.size(),"pose changes mesh topology");
+        for(std::size_t i=0;i<mesh.vertices.size();++i) {
+            Check(mesh.vertices[i].u==restMesh.vertices[i].u&&mesh.vertices[i].v==restMesh.vertices[i].v,
+                "setae UV swims with articulated pose");
+        }
         (detailed?nearCount:farCount)=mesh.vertices.size();
         std::array<std::size_t,6> parts{};
         for(const auto& v:mesh.vertices) {
             const auto p=v.position;
             Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite vertex");
             Check(std::abs(Dot(v.normal,v.normal)-1)<1e-5f,"non-unit normal");
+            Check(std::isfinite(v.u)&&std::isfinite(v.v)&&v.u>=.05999f&&v.u<=.94001f
+                &&v.v>=.05999f&&v.v<=.94001f,"spider albedo UV outside interior window");
             Check(p.y>=-1e-7f,"flat mesh penetrates ground");
             Check(std::hypot(p.x,p.z)<=SpiderHabitat::BodyRadius,"mesh exceeds habitat envelope");
             ++parts[static_cast<std::size_t>(v.part)];

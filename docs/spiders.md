@@ -4,6 +4,42 @@ Status: **12 ground spiders are now integrated in IslandGame. Webs are still abs
 The first actual native software image was inspected, but its generic image-contrast
 gate failed. Natural motion, visual realism and portable qualification remain open.
 
+## Generated setae material
+
+Built-in ImageGen produced the project-authored, reference-free opaque study
+`assets/art-studies/spider-setae-albedo-v1.png` (1254 square); its exact prompt is
+`assets/art-studies/spider-setae-albedo-v1-prompt.txt`. Original and prompt are retained
+with hashes in assets/manifest.json and provenance in ASSET_LICENSES.md. This is an
+AI-generated material study, not a species photograph or a seamless texture claim.
+The existing preparation tool produces a 256-square runtime image, SHA256
+`06b5295893a201a4f83523bf5194c69089af7b723ad186eb4d22a59f6ace1f89`.
+
+Cuticle/markings use interior UVs (0.06..0.94), defined in mesh-local coordinates;
+leg UVs follow each articulated segment. Eyes and geometric bristles remain solid.
+Tests check finite interior UVs and identical UVs across nine articulated poses.
+The same stock BasicEffect now submits textured skin and untextured details in two
+near draws. Geometry counts remain4248/1632. The120000-vertex buffer uses24-byte
+VertexPositionColorTexture entries (2880000 GPU bytes); two staging vectors each
+reserve that payload. The required image has9 mip levels/349524 RGBA8 bytes.
+Runtime texture total is8846468 bytes; both quality-profile caps include the addition.
+CMake native install/Web preload and Android preparation include the material, but
+packaging source changes alone do not qualify Web/Android runtime.
+
+The prepared image was inspected: dense short brown/grey marks remain at256px.
+First actual eight-stage run050946.511021Z exposed stretched rear-body hairs from
+top-down UV projection. Replaced that with latitude and continuously folded longitude
+inside the image, retaining pose-invariant coordinates. Final actual llvmpipe run
+`build/software-captures/20261012T051053.143139Z-spiders` has1/12visible,2draws,
+contact-shadows=1, complete motion data and kernel-after[]. All eight crops inspected
+in `build/spider-setae-curved-montage.png`: rear streaking is reduced and the body has
+surface detail instead of flat brown. Deep shade, faceting and stiff-looking segment
+silhouettes remain; sparse images do not establish natural continuous motion.
+**Outer image validation still FAILED** luminance variation, colour bins and spatial
+contrast. No gate/profile thresholds changed. Webs and portable acceptance stay open.
+Inclusive native build/full52CPU passed74.94s before the final UV-only correction;
+post-correction native build and focused mesh regression passed0.05s. Logs:
+`build/spider-setae-tests.log`, `build/spider-setae-curved-{build,tests}.log`.
+
 ## First live integration and actual native inspection
 
 IslandGame constructs SpiderColony after the full static collision grid/hut, updates

@@ -37,7 +37,8 @@ struct Builder {
             const float angle=2*Pi*static_cast<float>(i)/sides;
             const auto radial=Add(Mul(right,std::cos(angle)),Mul(up,std::sin(angle)));
             return SpiderVertex{Add(end?b:a,Mul(radial,end?radiusB:radiusA)),
-                Unit(Sub(radial,Mul(axis,slope))),part,material};
+                Unit(Sub(radial,Mul(axis,slope))),part,material,
+                .06f+.88f*(.5f-.5f*std::cos(angle)),end?.94f:.06f};
         };
         for(int i=0;i<sides;++i) {
             Triangle(vertex(false,i),vertex(true,i),vertex(true,i+1));
@@ -59,7 +60,11 @@ struct Builder {
             auto m=material;
             if(material==SpiderMaterial::Cuticle&&unit.y>.45f&&std::abs(unit.x)<.40f)m=SpiderMaterial::Marking;
             return SpiderVertex{Add(centre,{unit.x*radii.x,unit.y*radii.y,unit.z*radii.z}),
-                Unit({unit.x/radii.x,unit.y/radii.y,unit.z/radii.z}),part,m};
+                Unit({unit.x/radii.x,unit.y/radii.y,unit.z/radii.z}),part,m,
+                // Fold longitude continuously inside the non-seamless study.
+                // Latitude follows the curved surface instead of projecting from
+                // above, which stretched short setae down the rear body wall.
+                .06f+.88f*(.5f+.5f*std::cos(lon)),.06f+.88f*static_cast<float>(row)/rows};
         };
         for(int row=0;row<rows;++row)for(int side=0;side<sides;++side) {
             const auto a=vertex(row,side),b=vertex(row+1,side),c=vertex(row+1,side+1),d=vertex(row,side+1);

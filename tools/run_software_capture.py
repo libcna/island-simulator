@@ -107,8 +107,10 @@ def validate_goat_motion_stages(text):
 
 
 def validate_spider_render_log(text):
-    if not re.search(r"spider render proof: spiders (?:[1-9]|1[0-2])/12 visible, 1 draw; contact-shadows=(?:[1-9]|1[0-2])(?:\s|$)", text):
+    if not re.search(r"spider render proof: spiders (?:[1-9]|1[0-2])/12 visible, 2 draw; contact-shadows=(?:[1-9]|1[0-2])(?:\s|$)", text):
         raise RuntimeError("spider capture lacks a live population or grounding shadows")
+    if "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in text:
+        raise RuntimeError("spider capture lacks the setae albedo")
 
 
 def validate_spider_motion_stages(text):

@@ -802,6 +802,14 @@ progress or require player interaction; dangerous species keep their distance li
   contactcount1/motionpass/kernel[]; outerimagegate stillFAIL. Plainbody/sparsehair,
   continuousvisualacceptance/webs/portableaudits remainopen.
   Shadow-step inclusivebuild/full52CPU PASS88.30s; noWeb/Androidbuild/runtime.
+  Generated setae albedo integrated:256square/9mips/349524bytes, texturedskin plus
+  solid eyes/bristles in2near draws. Interior pose-invariant UV regression added;
+  actual firstcapture exposed rearstretching, corrected with latitude/foldedlongitude.
+  Final051053.143139Z-spiders all8images inspected: finerbodydetail/reducedstreaking,
+  1/12visible/2draws/contact1/motiondata/kernel[]; outerimagecontraststillFAIL.
+  Full52CPU PASS74.94s; finalUV-only focusedmesh PASS0.05s andnativebuildPASS.
+  Web/Android packaging updated butnotbuilt/run; bodyfaceting/sparsebristles,
+  darksceneacceptance, naturalcontinuousmotion andwebs remainopen.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current
