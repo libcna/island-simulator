@@ -1635,6 +1635,11 @@ namespace island
                << runtimeWildlifeMilliseconds_[3]/updates
                << " flight=" << flightMotion_.IsActive()
                << " camera=" << cameraPosition_.X << ',' << cameraPosition_.Y << ',' << cameraPosition_.Z;
+        if (soundscape_) {
+            report << " audio-available=" << soundscape_->IsAvailable()
+                   << " audio-muted=" << soundscape_->IsMuted()
+                   << " audio-playing=" << soundscape_->DebugState().playingSourceCount;
+        }
         std::cout << report.str() << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(report.str());
         reset();

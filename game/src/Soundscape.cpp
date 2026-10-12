@@ -44,6 +44,16 @@ namespace island
         constexpr std::string_view WaterTransitionPlaybackDiagnostic =
             "island-simulator: first water-transition accent played";
 
+        void PositionStream(SoundEffectInstance& instance, const AudioListener& listener,
+                            const StreamSoundSample& source)
+        {
+            AudioEmitter emitter;
+            emitter.setPositionProperty(Vector3(source.x, listener.getPositionProperty().Y, source.z));
+            emitter.setDopplerScaleProperty(0.0f);
+            // CNA/XNA require 3D mode before the first Play submits the audio packet.
+            instance.Apply3D(listener, emitter);
+        }
+
         [[nodiscard]] std::vector<SharpRuntime::bytecs> ToPcmBytes(const AmbientLoop& loop)
         {
             std::vector<SharpRuntime::bytecs> bytes;
@@ -122,6 +132,30 @@ namespace island
     Soundscape::Soundscape() = default;
 
     Soundscape::~Soundscape() = default;
+
+    SoundscapeDebugState Soundscape::DebugState() const noexcept
+    {
+        SoundscapeDebugState state;
+        state.nearestBird = nearestBirdSource_;
+        state.nearestMonkey = nearestMonkeySource_;
+        state.activeWildlifeCall = activeWildlifeCall_;
+        state.sourceBudget = MaximumPlayingSourceCount;
+        if (available_) {
+            // Query actual playback: an owned instance does not prove an audible/live track.
+            for (const auto* instance : {surfInstance_.get(), breezeInstance_.get(),
+                    jungleInstance_.get(), streamInstance_.get(), waterMovementInstance_.get(),
+                    waveInstance_.get(), waterTransitionInstance_.get(), footstepInstance_.get(),
+                    wildlifeInstance_.get()}) {
+                try {
+                    if (instance && instance->getStateProperty() == SoundState::Playing)
+                        ++state.playingSourceCount;
+                } catch (const std::exception&) {
+                    // Diagnostics must remain usable after a device failure.
+                }
+            }
+        }
+        return state;
+    }
 
     void Soundscape::RefreshDebugSources(
         const float listenerX, const float listenerY, const float listenerZ,
@@ -247,6 +281,9 @@ namespace island
             streamPlaybackActive_ = StreamSoundField::ShouldUseStreamPlayback(
                 swimming, streamSound_.presence, false);
             if (streamPlaybackActive_) {
+                AudioListener listener;
+                listener.setPositionProperty(Vector3(playerX, 0.0f, playerZ));
+                PositionStream(*streamInstance_, listener, streamSound_);
                 streamInstance_->Play();
             } else {
                 waterMovementInstance_->Play();
@@ -275,6 +312,8 @@ namespace island
             wildlifeSecondsRemaining_ = 0.0f;
             std::cout << BoundedStagingDiagnostic << '\n';
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: soundscape started (procedural surf and breeze)");
             std::cout << DcCenteringDiagnostic << '\n';
             std::cout << AmbientVariationDiagnostic << '\n';
             std::cout << CoastalWindMixDiagnostic << '\n';
@@ -342,6 +381,8 @@ namespace island
             activeWildlifeCall_ = {};
             std::cerr << "island-simulator: audio unavailable; continuing silently: "
                       << error_ << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(
+                "island-simulator: audio unavailable; continuing silently: " + error_);
             return false;
         }
     }
@@ -437,6 +478,24 @@ namespace island
             waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
         const bool wantsStreamPlayback = StreamSoundField::ShouldUseStreamPlayback(
             swimming, streamSound_.presence, streamPlaybackActive_);
+        AudioListener listener;
+        listener.setPositionProperty(Vector3(
+            listenerState.x, listenerState.y, listenerState.z));
+        listener.setForwardProperty(Vector3(
+            listenerState.forwardX, listenerState.forwardY, listenerState.forwardZ));
+        listener.setUpProperty(Vector3::Up);
+        listener.setVelocityProperty(Vector3(
+            listenerState.velocityX, 0.0f, listenerState.velocityZ));
+
+        if (available_ && wantsStreamPlayback && streamInstance_ && streamSound_.valid) {
+            try {
+                // Must precede Play on first entry as well as after a Stop/re-entry.
+                PositionStream(*streamInstance_, listener, streamSound_);
+            } catch (const std::exception& exception) {
+                DisableAfterRuntimeFailure(exception.what());
+                return;
+            }
+        }
         if (available_ && wantsStreamPlayback != streamPlaybackActive_) {
             try {
                 if (wantsStreamPlayback) {
@@ -453,28 +512,6 @@ namespace island
             }
         }
         ApplyVolumes();
-
-        AudioListener listener;
-        listener.setPositionProperty(Vector3(
-            listenerState.x, listenerState.y, listenerState.z));
-        listener.setForwardProperty(Vector3(
-            listenerState.forwardX, listenerState.forwardY, listenerState.forwardZ));
-        listener.setUpProperty(Vector3::Up);
-        listener.setVelocityProperty(Vector3(
-            listenerState.velocityX, 0.0f, listenerState.velocityZ));
-
-        if (available_ && streamPlaybackActive_ && streamInstance_ && streamSound_.valid) {
-            try {
-                AudioEmitter emitter;
-                emitter.setPositionProperty(Vector3(
-                    streamSound_.x, listenerState.y, streamSound_.z));
-                emitter.setDopplerScaleProperty(0.0f);
-                streamInstance_->Apply3D(listener, emitter);
-            } catch (const std::exception& exception) {
-                DisableAfterRuntimeFailure(exception.what());
-                return;
-            }
-        }
 
         if (wildlifeInstance_) {
             try {
@@ -842,6 +879,8 @@ namespace island
         }
         ApplyVolumes();
         std::cout << "island-simulator: soundscape " << (muted_ ? "muted" : "unmuted") << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(
+            muted_ ? "island-simulator: soundscape muted" : "island-simulator: soundscape unmuted");
     }
 
     void Soundscape::ApplyVolumes() noexcept
@@ -904,5 +943,7 @@ namespace island
         activeWildlifeCall_ = {};
         std::cerr << "island-simulator: audio stopped after a runtime failure; "
                      "continuing silently: " << error_ << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(
+            "island-simulator: audio stopped after a runtime failure; continuing silently: " + error_);
     }
 }

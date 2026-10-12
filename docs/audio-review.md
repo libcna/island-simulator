@@ -1,5 +1,26 @@
 # Audio Source Audit and Listening Review
 
+## Stream-entry runtime dropout — 2026-10-12
+
+The operator heard all audio stop during two Release runs. The real-CNA regression
+`IslandSoundscapeRuntimeTests` reproduced this without graphics or a physical audio output:
+stream `Play()` occurred before its first `Apply3D()`. CNA correctly rejects changing a submitted
+non-spatial packet to 3D, and the game's fatal-audio catch then destroys all audio instances.
+Their recorded route also enters the stream's 34m sound region.
+
+Spatial setup now precedes Play both at startup near the stream and upon entering its region.
+The test exercises far/near startup, repeated approaches and departures, stream/swim arbitration,
+mute and unmute. It checks the actual backend Playing state of at least four ambient tracks and
+the six-source cap, not just an available flag or estimated owned-instance count. It requires
+`SDL_AUDIODRIVER=dummy` and never opens a graphics context or the user's speakers. This is runtime
+lifecycle evidence, not a listening or physical-device qualification.
+Before-fix failure is retained in `build-consumer/audio-stream-before.log`; after-fix runs pass in
+both Release and Debug (`build-consumer/audio-stream-after.log`, `build/audio-stream-after.log`).
+
+Audio startup, mute and fatal errors are mirrored into persistent runtime logs; five-second frame
+windows also record audio availability, mute and actual playing-source count. The existing safe
+silent fallback remains for genuine device/runtime failures, now with retained evidence.
+
 ## Purpose
 
 The runtime soundscape is generated from original deterministic code rather than stored audio

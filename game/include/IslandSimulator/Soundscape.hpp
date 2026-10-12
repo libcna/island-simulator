@@ -117,21 +117,7 @@ namespace island
         {
             return wildlifeSecondsRemaining_ > 0.0f;
         }
-        [[nodiscard]] SoundscapeDebugState DebugState() const noexcept
-        {
-            SoundscapeDebugState state;
-            state.nearestBird = nearestBirdSource_;
-            state.nearestMonkey = nearestMonkeySource_;
-            state.activeWildlifeCall = activeWildlifeCall_;
-            state.playingSourceCount = available_
-                ? PersistentSourceCount + static_cast<int>(waveInstance_ != nullptr)
-                    + static_cast<int>(waterTransitionInstance_ != nullptr)
-                    + static_cast<int>(footstepInstance_ != nullptr)
-                    + static_cast<int>(wildlifeInstance_ != nullptr)
-                : 0;
-            state.sourceBudget = MaximumPlayingSourceCount;
-            return state;
-        }
+        [[nodiscard]] SoundscapeDebugState DebugState() const noexcept;
 
     private:
         void ApplyVolumes() noexcept;

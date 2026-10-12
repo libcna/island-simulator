@@ -1,6 +1,23 @@
 # island-simulator handoff
 
-## Current critical work — native FPS regression
+## Latest operator feedback — FPS resolved, audio dropout reproduced
+
+Operator confirms Release59.3FPS; runtime3558619 corroborates ~59FPS walking and flight. Close
+the FPS incident; preserve current profile. Cave planning started but NO cave code was changed.
+Priority switched to all-sound dropout, reported twice. New real-CNA dummy-audio CTest reproduces
+the cause: stream Play happens before its first Apply3D, throwing InvalidOperationException and
+DisableAfterRuntimeFailure tears down all audio. Fixed: prepare stream spatial mode BEFORE Play at both
+near-stream startup and first approach; preserve four ambient/six total source budget. Runtime
+start/mute/fatal diagnostics now persist; frame windows include actual audio playing count.
+No AMD/Android/KVM activity or device/volume changes. Host audio state was read-only inspected.
+Native Release/Debug executables rebuilt with CPUs0-3/-j4. New `IslandSoundscapeRuntimeTests`
+fails before fix (`build-consumer/audio-stream-before.log`), passes after in both trees
+(`audio-stream-after.log`). Python software-runner tests47/47. The runtime test links real CNA,
+forces dummy audio and opens no graphics context. Actual Playing-state counts stay4..6 through
+far/near startup, repeated stream/swim switches and mute/unmute. Operator audible retest and
+portable runtime remain; no need to wait to continue cave/remaining plan work when goal resumes.
+
+## Historical native FPS regression evidence
 
 Latest finding: user's log3538060 explicitly starts `./island-simulator` in `build/`, which is
 unoptimized Debug (`-g`, no -O). Existing native Release `build-consumer/` was stale Oct8; refreshed

@@ -587,6 +587,17 @@ if(ISLAND_BUILD_GAME)
     island_enable_cna_consumer_warnings(island-simulator)
     island_enable_first_party_sanitizers(island-simulator)
 
+    if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
+        add_executable(island_soundscape_runtime_tests tests/SoundscapeRuntimeTests.cpp
+            game/src/Soundscape.cpp game/src/RuntimeDiagnostics.cpp)
+        target_link_libraries(island_soundscape_runtime_tests PRIVATE IslandSimulator::Core CNA)
+        island_enable_cna_consumer_warnings(island_soundscape_runtime_tests)
+        island_enable_first_party_sanitizers(island_soundscape_runtime_tests)
+        add_test(NAME IslandSoundscapeRuntimeTests COMMAND island_soundscape_runtime_tests)
+        set_tests_properties(IslandSoundscapeRuntimeTests PROPERTIES TIMEOUT 45
+            ENVIRONMENT "SDL_AUDIODRIVER=dummy;ISLAND_RUNTIME_LOG_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/audio-regression-logs")
+    endif()
+
     # Host-only area reduction preserves source artwork and the runtime's exact base pixels.
     set(_island_floor_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/forest-floor-albedo-v1.png")
     set(_island_floor_path "Content/terrain/forest-floor.png")

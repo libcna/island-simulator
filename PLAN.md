@@ -59,7 +59,12 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-## Highest priority — native frame-rate regression
+## Resolved native frame-rate regression
+
+`[x]` Operator confirms the Release version holds approximately 59.3 FPS. Runtime
+`island-runtime-3558619.log` corroborates roughly 59 FPS during both walking and flight.
+Keep the current native-performance profile and use Release for ordinary play; no further
+quality reduction is justified by this incident. The earlier evidence below is historical.
 
 Configuration follow-up: the operator was playing the unoptimized Debug binary in `build/`.
 The stale native Release tree is now refreshed at `build-consumer/island-simulator`, keeping
@@ -81,8 +86,8 @@ but walking varies 18–45 FPS. A 29.443 FPS walking window spends 16.532ms/fram
 snake CPU work and dense near-ground rendering; retain all 50 snakes / 200 spiders. No matched
 same-route FPS measurement from before the population expansion exists.
 
-This item remains `[~]`: operator verification confirms partial recovery, not stable 60 FPS
-walking. The earlier retained interactive log shows 339 submitted frames in 15.95s before flight (about
+The intermediate Debug retest only confirmed partial recovery. The earlier retained interactive
+log shows 339 submitted frames in 15.95s before flight (about
 21 FPS) and 143 frames in 13.83s during flight (about 10 FPS), despite an idle host. The renderer
 was real AMD hardware, not llvmpipe, using the former full profile with 4x MSAA.
 
@@ -93,8 +98,18 @@ models but uses a 72m grass cutoff, 55% palm/jungle range, 50% shadow range, 70%
 a 96x96 ocean grid and single-sample rendering. Web keeps the full profile and Android keeps its
 mobile profile. The elevated llvmpipe overview first draw fell from 311.281ms to 200.735ms while
 rendering the expanded current world; this is directional evidence, not an AMD frame-rate claim.
-Core, snake, software-supervisor tests and native jungle/overview captures pass. Await an operator
-hardware retest before closing or relaxing this profile.
+Core, snake, software-supervisor tests and native jungle/overview captures pass. The final
+operator Release retest closes this FPS incident, not the unrelated AMD recovery investigation.
+
+## Current stability follow-up — complete audio dropout
+
+Operator reported all sounds stopping on two runs. A real-CNA dummy-audio regression reproduces
+stream entry throwing `Apply3D cannot be called on a playing instance that is not using 3D audio`,
+after which Soundscape disables every sound. Stream spatial setup now precedes first Play,
+including near-stream startup. The regression passes in Release and Debug for repeated
+entry/exit/swim/mute, checking actual playing tracks and the six-source cap. Fatal/mute diagnostics
+now persist. Corrected native executables are rebuilt; operator listening confirmation and
+Web/Android runtime remain pending. The FPS work is closed; cave integration can resume.
 
 ## Latest implementation — turtle nesting traces
 

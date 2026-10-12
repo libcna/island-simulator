@@ -1,5 +1,13 @@
 # Performance Measurement
 
+## Operator Release confirmation — 2026-10-12
+
+The operator confirms the performance issue is resolved at about 59.3 FPS. Their Release log
+`island-runtime-3558619.log` independently records approximately 59 FPS through walking and
+flight, generally one simulation update per submitted frame. Keep the current quality profile;
+the historical pending-hardware statements below precede this successful retest. The separate
+complete audio dropout is a stream playback-order bug, not evidence of another FPS regression.
+
 ## Optimized player build versus Debug — 2026-10-12
 
 The operator's `island-runtime-3538060.log` starts in the `build/` directory. That tree uses
