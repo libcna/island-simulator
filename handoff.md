@@ -1,5 +1,15 @@
 # island-simulator handoff
 
+## Latest implementation — bounded bird landing and real perches
+
+Existing shore/canopy birds now use Fly/Approach/Perched/Depart with at most two non-flying;
+high birds remain airborne. Eight deterministic real supports: 5 broadleaf branch vertices,
+2 solid rock caps, 1 wreck cross-tree beam. Near birds fold wings and add feet/toes in the same
+batch; far birds fold wings. Core PASS covers layout/counts/all states/terrain/bank/two-agent cap/
+exact contact. Inspected llvmpipe `20261012T153950.288712Z-birds` PASS222bins/std42.51/spatial206.86
+and visibly places the bird on the wreck beam. Moving sequence, branch wind tracking and actual
+Web/Android remain; item13 `[~]`. Builds CPUs0-3/-j2; no Android/KVM/AMD changes.
+
 ## Latest implementation — positional stream audio and wet local mix
 
 New deterministic 13s procedural stream PCM follows the nearest point of the authoritative

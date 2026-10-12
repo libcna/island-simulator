@@ -144,9 +144,14 @@ existing features, not a broad redesign.
     and breeze remain integrated through item 11. Core signal/field/mix tests and the
     independent 25-file WAV export pass; actual spatial listening, route walk, mute/
     swim switching and Web/Android lifecycle evidence remain.
-13. [ ] **Bird landing/perching.** Before adding more birds/species, implement
+13. [~] **Bird landing/perching.** Before adding more birds/species, implement
     bounded Fly → Approach → Perched → Depart behavior on real branches, rocks or
     the wreck's broken mast, with verified feet/perch contact and takeoff/landing.
+    The first native pass derives five real branch, two rock and one wreck-beam anchor,
+    limits landing to two birds, folds wings/adds near feet, and completes all four
+    deterministic states. Core contact/motion tests and an inspected wreck-perch
+    llvmpipe frame pass. A moving visual sequence, branch-wind following and actual
+    Web/Android runtime remain; see [bird-perching.md](bird-perching.md).
 14. [ ] **One turtle nesting beach.** Subtle procedural/static shore-to-nest tracks
     and one or two disturbed sand areas on a suitable beach, fitting terrain and
     existing dry-sand material. No breeding simulation required.

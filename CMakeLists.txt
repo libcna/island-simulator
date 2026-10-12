@@ -33,6 +33,7 @@ add_library(island_core STATIC
     game/src/AudioAnalysis.cpp
     game/src/BenchmarkTraversalRoute.cpp
     game/src/BirdFlock.cpp
+    game/src/BirdPerchLayout.cpp
     game/src/BoarHerd.cpp
     game/src/SnakePopulation.cpp
     game/src/SnakeContactShadow.cpp

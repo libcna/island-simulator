@@ -6,7 +6,9 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
+#include <iterator>
 #include <numbers>
+#include <stdexcept>
 
 namespace island
 {
@@ -62,6 +64,8 @@ namespace island
     void BirdFlock::InitializeAgent(const std::size_t index)
     {
         Agent& agent = agents_[index];
+        agent.index = index;
+        agent.nextPerchSeconds = 10.0f + static_cast<float>(index) * 5.75f;
         BirdRouteState& route = agent.route;
         const float sequence = static_cast<float>(index);
         const float angle = std::fmod(0.47f + sequence * GoldenAngle, TwoPi);
@@ -135,6 +139,58 @@ namespace island
         route.spawnHeadingRadians = agent.state.headingRadians;
     }
 
+    void BirdFlock::SetPerchSites(const std::span<const BirdPerchSite> sites)
+    {
+        if (sites.size() > std::numeric_limits<std::uint8_t>::max()) {
+            throw std::invalid_argument("Bird perch count exceeds the compact state index");
+        }
+        for (const BirdPerchSite& site : sites) {
+            if (!std::isfinite(site.x) || !std::isfinite(site.y)
+                || !std::isfinite(site.z) || !std::isfinite(site.headingRadians)
+                || site.y < terrain_.Height(site.x, site.z) + 0.35f) {
+                throw std::invalid_argument("Bird perch site is invalid or intersects terrain");
+            }
+        }
+        perchSites_.assign(sites.begin(), sites.end());
+        for (std::size_t index = 0; index < agents_.size(); ++index) {
+            Agent& agent = agents_[index];
+            agent.state.behavior = BirdBehavior::Fly;
+            agent.state.perchAmount = 0.0f;
+            agent.behaviorSeconds = 0.0f;
+            agent.perchCycle = 0U;
+            states_[index] = agent.state;
+        }
+        const auto seedPerchedBird = [this](const std::size_t agentIndex,
+                                            const BirdPerchKind kind) {
+            const auto site = std::find_if(
+                perchSites_.begin(), perchSites_.end(), [kind](const BirdPerchSite& candidate) {
+                    return candidate.kind == kind;
+                });
+            if (site == perchSites_.end() || agentIndex >= agents_.size()) {
+                return;
+            }
+            Agent& bird = agents_[agentIndex];
+            const std::size_t siteIndex = static_cast<std::size_t>(
+                std::distance(perchSites_.begin(), site));
+            bird.state.x = site->x;
+            bird.state.y = site->y + bird.state.scale * 0.12f;
+            bird.state.z = site->z;
+            bird.state.headingRadians = site->headingRadians;
+            bird.state.speed = 0.0f;
+            bird.state.wingPose = 0.0f;
+            bird.state.bankRadians = 0.0f;
+            bird.state.glideAmount = 0.0f;
+            bird.state.perchAmount = 1.0f;
+            bird.state.behavior = BirdBehavior::Perched;
+            bird.state.perchSiteIndex = static_cast<std::uint8_t>(siteIndex);
+            bird.behaviorSeconds = 0.0f;
+            bird.perchCycle = 1U;
+            states_[agentIndex] = bird.state;
+        };
+        seedPerchedBird(0U, BirdPerchKind::Wreck);
+        seedPerchedBird(10U, BirdPerchKind::Branch);
+    }
+
     void BirdFlock::BuildRouteRegions() noexcept
     {
         routeRegions_[0].family = BirdPathFamily::Shore;
@@ -168,6 +224,14 @@ namespace island
         fullSimulationCount_ = 0;
         reducedSimulationCount_ = 0;
         dormantSimulationCount_ = 0;
+        approachingCount_ = 0;
+        perchedCount_ = 0;
+        departingCount_ = 0;
+
+        int activePerching = static_cast<int>(std::ranges::count_if(
+            agents_, [](const Agent& agent) {
+                return agent.state.behavior != BirdBehavior::Fly;
+            }));
 
         for (std::size_t index = 0; index < agents_.size(); ++index) {
             Agent& agent = agents_[index];
@@ -193,8 +257,22 @@ namespace island
             const std::uint32_t divisor = WildlifeActivationPolicy::UpdateDivisor(
                 agent.state.simulationTier);
             if ((frameIndex_ + index) % divisor == 0U) {
-                UpdateAgent(agent, std::min(agent.accumulatedSeconds, 0.5f));
+                const bool wasFlying = agent.state.behavior == BirdBehavior::Fly;
+                UpdateAgent(agent, std::min(agent.accumulatedSeconds, 0.5f),
+                            activePerching < 2);
+                const bool isFlying = agent.state.behavior == BirdBehavior::Fly;
+                if (wasFlying && !isFlying) {
+                    ++activePerching;
+                } else if (!wasFlying && isFlying) {
+                    --activePerching;
+                }
                 agent.accumulatedSeconds = 0.0f;
+            }
+            switch (agent.state.behavior) {
+            case BirdBehavior::Fly: break;
+            case BirdBehavior::Approach: ++approachingCount_; break;
+            case BirdBehavior::Perched: ++perchedCount_; break;
+            case BirdBehavior::Depart: ++departingCount_; break;
             }
             states_[index] = agent.state;
         }
@@ -210,17 +288,64 @@ namespace island
             assert(std::isfinite(state.bankRadians) && std::fabs(state.bankRadians) <= 0.341f);
             assert(std::isfinite(state.glideAmount)
                    && state.glideAmount >= 0.0f && state.glideAmount <= 1.0f);
+            assert(std::isfinite(state.perchAmount)
+                   && state.perchAmount >= 0.0f && state.perchAmount <= 1.0f);
             assert(std::isfinite(state.scale) && state.scale > 0.0f);
             assert(state.colorVariant < 3U);
         }
+        assert(approachingCount_ + perchedCount_ + departingCount_ <= 2);
 #endif
     }
 
-    void BirdFlock::UpdateAgent(Agent& agent, const float deltaSeconds) noexcept
+    void BirdFlock::UpdateAgent(Agent& agent, const float deltaSeconds,
+                                const bool allowNewPerch) noexcept
     {
         if (deltaSeconds <= 0.0f) {
             return;
         }
+        const bool perchEligible = agent.state.family != BirdPathFamily::High;
+        if (agent.state.behavior == BirdBehavior::Fly && perchEligible
+            && allowNewPerch && !perchSites_.empty()
+            && elapsedSeconds_ >= agent.nextPerchSeconds) {
+            float nearestDistanceSquared = std::numeric_limits<float>::max();
+            std::size_t nearest = 0U;
+            bool found = false;
+            for (std::size_t index = 0; index < perchSites_.size(); ++index) {
+                const BirdPerchSite& site = perchSites_[index];
+                const bool suitable = agent.state.family == BirdPathFamily::Canopy
+                    ? site.kind == BirdPerchKind::Branch
+                    : site.kind != BirdPerchKind::Branch;
+                if (!suitable) {
+                    continue;
+                }
+                const float dx = site.x - agent.state.x;
+                const float dy = site.y - agent.state.y;
+                const float dz = site.z - agent.state.z;
+                const float distanceSquared = dx * dx + dy * dy + dz * dz;
+                if (distanceSquared < nearestDistanceSquared) {
+                    nearestDistanceSquared = distanceSquared;
+                    nearest = index;
+                    found = true;
+                }
+            }
+            if (found) {
+                agent.state.perchSiteIndex = static_cast<std::uint8_t>(nearest);
+                agent.state.behavior = BirdBehavior::Approach;
+                agent.behaviorSeconds = 0.0f;
+                ++agent.perchCycle;
+            }
+        }
+        if (agent.state.behavior != BirdBehavior::Fly) {
+            UpdatePerching(agent, deltaSeconds);
+            return;
+        }
+        UpdateFlight(agent, deltaSeconds);
+    }
+
+    void BirdFlock::UpdateFlight(Agent& agent, const float deltaSeconds) noexcept
+    {
+        agent.state.perchAmount = std::max(
+            0.0f, agent.state.perchAmount - deltaSeconds * 1.5f);
         const float radius = std::max(1.0f, std::hypot(agent.state.x, agent.state.z));
         const float radialX = agent.state.x / radius;
         const float radialZ = agent.state.z / radius;
@@ -287,6 +412,116 @@ namespace island
             + std::sin(elapsedSeconds_ * 0.23f + agent.wanderPhaseA) * 0.035f;
         agent.state.wingPose = std::lerp(
             flappingPose, glidingPose, agent.state.glideAmount);
+    }
+
+    void BirdFlock::UpdatePerching(Agent& agent, const float deltaSeconds) noexcept
+    {
+        if (agent.state.perchSiteIndex >= perchSites_.size()) {
+            agent.state.behavior = BirdBehavior::Fly;
+            agent.state.perchAmount = 0.0f;
+            agent.nextPerchSeconds = elapsedSeconds_ + 60.0f;
+            return;
+        }
+        const BirdPerchSite& site = perchSites_[agent.state.perchSiteIndex];
+        agent.behaviorSeconds += deltaSeconds;
+        const float restingY = site.y + agent.state.scale * 0.12f;
+
+        if (agent.state.behavior == BirdBehavior::Approach) {
+            const float dx = site.x - agent.state.x;
+            const float dz = site.z - agent.state.z;
+            const float horizontalDistance = std::hypot(dx, dz);
+            const float desiredHeading = horizontalDistance > 0.0001f
+                ? std::atan2(dz, dx) : site.headingRadians;
+            const float headingError = WrapAngle(desiredHeading - agent.state.headingRadians);
+            agent.state.headingRadians = LerpAngle(
+                agent.state.headingRadians, desiredHeading, deltaSeconds * 1.45f);
+            agent.state.bankRadians += std::clamp(
+                headingError * 0.32f - agent.state.bankRadians,
+                -deltaSeconds * 0.9f, deltaSeconds * 0.9f);
+            agent.state.bankRadians = std::clamp(
+                agent.state.bankRadians, -0.34f, 0.34f);
+            const float step = std::min(horizontalDistance,
+                (6.8f + std::min(horizontalDistance, 20.0f) * 0.08f) * deltaSeconds);
+            if (horizontalDistance > 0.0001f) {
+                agent.state.x += dx / horizontalDistance * step;
+                agent.state.z += dz / horizontalDistance * step;
+            }
+            const float approachLift = std::clamp(horizontalDistance * 0.10f, 0.0f, 3.2f);
+            const float targetY = restingY + approachLift;
+            const float terrainFloor = terrain_.Height(agent.state.x, agent.state.z) + 0.75f;
+            agent.state.y += std::clamp(
+                std::max(targetY, terrainFloor) - agent.state.y,
+                -deltaSeconds * 4.8f, deltaSeconds * 4.8f);
+            agent.state.y = std::max(agent.state.y, terrainFloor);
+            agent.state.speed = 6.8f;
+            agent.state.glideAmount = std::max(0.0f,
+                agent.state.glideAmount - deltaSeconds * 1.2f);
+            agent.flapPhase = std::fmod(agent.flapPhase + agent.flapSpeed * deltaSeconds,
+                                        TwoPi);
+            agent.state.wingPose = std::sin(agent.flapPhase) * 0.72f;
+            agent.state.perchAmount = std::clamp(
+                1.0f - horizontalDistance / 5.0f, 0.0f, 1.0f);
+            if (horizontalDistance < 0.24f
+                && std::abs(agent.state.y - restingY) < 0.24f) {
+                agent.state.x = site.x;
+                agent.state.y = restingY;
+                agent.state.z = site.z;
+                agent.state.headingRadians = site.headingRadians;
+                agent.state.behavior = BirdBehavior::Perched;
+                agent.behaviorSeconds = 0.0f;
+                agent.state.perchAmount = 1.0f;
+            }
+            return;
+        }
+
+        if (agent.state.behavior == BirdBehavior::Perched) {
+            agent.state.x = site.x;
+            agent.state.y = restingY;
+            agent.state.z = site.z;
+            agent.state.headingRadians = site.headingRadians;
+            agent.state.speed = 0.0f;
+            agent.state.bankRadians = 0.0f;
+            agent.state.glideAmount = 0.0f;
+            agent.state.perchAmount = 1.0f;
+            agent.state.wingPose = 0.035f * std::sin(
+                elapsedSeconds_ * 1.7f + static_cast<float>(agent.index));
+            const float duration = 8.0f + std::fmod(
+                static_cast<float>(agent.index) * 1.7f
+                    + static_cast<float>(agent.perchCycle) * 1.3f,
+                6.0f);
+            if (agent.behaviorSeconds >= duration) {
+                agent.state.behavior = BirdBehavior::Depart;
+                agent.behaviorSeconds = 0.0f;
+            }
+            return;
+        }
+
+        agent.state.headingRadians = LerpAngle(
+            agent.state.headingRadians, site.headingRadians, deltaSeconds * 0.8f);
+        agent.state.speed = 8.2f;
+        agent.state.x += std::cos(agent.state.headingRadians)
+            * agent.state.speed * deltaSeconds;
+        agent.state.z += std::sin(agent.state.headingRadians)
+            * agent.state.speed * deltaSeconds;
+        agent.state.y += deltaSeconds * 2.6f;
+        agent.state.y = std::max(agent.state.y,
+            terrain_.Height(agent.state.x, agent.state.z) + 1.2f);
+        agent.flapPhase = std::fmod(agent.flapPhase + agent.flapSpeed * deltaSeconds, TwoPi);
+        agent.state.wingPose = std::sin(agent.flapPhase) * 0.82f;
+        agent.state.bankRadians *= std::max(0.0f, 1.0f - deltaSeconds * 2.0f);
+        agent.state.glideAmount = 0.0f;
+        agent.state.perchAmount = std::max(0.0f, 1.0f - agent.behaviorSeconds / 1.1f);
+        if (agent.behaviorSeconds >= 3.2f) {
+            agent.state.behavior = BirdBehavior::Fly;
+            agent.state.perchAmount = 0.0f;
+            agent.state.y = std::max(agent.state.y,
+                terrain_.Height(agent.state.x, agent.state.z)
+                    + agent.route.minimumClearance);
+            agent.nextPerchSeconds = elapsedSeconds_ + 58.0f + std::fmod(
+                static_cast<float>(agent.index) * 7.0f
+                    + static_cast<float>(agent.perchCycle) * 11.0f,
+                52.0f);
+        }
     }
 
     std::span<const BirdState> BirdFlock::Birds() const noexcept

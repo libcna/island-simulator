@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 
+#include "IslandSimulator/BirdPerchLayout.hpp"
 #include "IslandSimulator/WildlifeSimulation.hpp"
 
 namespace island
@@ -20,6 +21,14 @@ namespace island
         High
     };
 
+    enum class BirdBehavior : std::uint8_t
+    {
+        Fly,
+        Approach,
+        Perched,
+        Depart
+    };
+
     /** @brief Renderer-independent pose for one procedural bird. */
     struct BirdState
     {
@@ -31,10 +40,13 @@ namespace island
         float wingPose = 0.0f;
         float bankRadians = 0.0f;
         float glideAmount = 0.0f;
+        float perchAmount = 0.0f;
         float scale = 1.0f;
         BirdPathFamily family = BirdPathFamily::Shore;
+        BirdBehavior behavior = BirdBehavior::Fly;
         WildlifeSimulationTier simulationTier = WildlifeSimulationTier::Dormant;
         std::uint8_t colorVariant = 0U;
+        std::uint8_t perchSiteIndex = 0U;
     };
 
     /** @brief Immutable authored orbit and spawn data for one procedural bird. */
@@ -77,9 +89,19 @@ namespace island
         void Update(float deltaSeconds, float observerX, float observerY,
                     float observerZ) noexcept;
 
+        /** @brief Installs static anchors after world layouts have been constructed. */
+        void SetPerchSites(std::span<const BirdPerchSite> sites);
+
         [[nodiscard]] std::span<const BirdState> Birds() const noexcept;
         [[nodiscard]] std::span<const BirdRouteState> Routes() const noexcept;
         [[nodiscard]] std::span<const BirdRouteRegion> RouteRegions() const noexcept;
+        [[nodiscard]] std::span<const BirdPerchSite> PerchSites() const noexcept
+        {
+            return perchSites_;
+        }
+        [[nodiscard]] int ApproachingCount() const noexcept { return approachingCount_; }
+        [[nodiscard]] int PerchedCount() const noexcept { return perchedCount_; }
+        [[nodiscard]] int DepartingCount() const noexcept { return departingCount_; }
         [[nodiscard]] int FullSimulationCount() const noexcept { return fullSimulationCount_; }
         [[nodiscard]] int ReducedSimulationCount() const noexcept {
             return reducedSimulationCount_;
@@ -107,21 +129,31 @@ namespace island
             float flapPhase = 0.0f;
             float flapSpeed = 0.0f;
             float accumulatedSeconds = 0.0f;
+            float behaviorSeconds = 0.0f;
+            float nextPerchSeconds = 0.0f;
+            std::uint32_t perchCycle = 0U;
+            std::size_t index = 0U;
         };
 
         void InitializeAgent(std::size_t index);
         void BuildRouteRegions() noexcept;
-        void UpdateAgent(Agent& agent, float deltaSeconds) noexcept;
+        void UpdateAgent(Agent& agent, float deltaSeconds, bool allowNewPerch) noexcept;
+        void UpdateFlight(Agent& agent, float deltaSeconds) noexcept;
+        void UpdatePerching(Agent& agent, float deltaSeconds) noexcept;
 
         const IslandTerrain& terrain_;
         std::vector<Agent> agents_;
         std::vector<BirdState> states_;
         std::vector<BirdRouteState> routes_;
+        std::vector<BirdPerchSite> perchSites_;
         std::array<BirdRouteRegion, 3> routeRegions_{};
         float elapsedSeconds_ = 0.0f;
         std::uint64_t frameIndex_ = 0U;
         int fullSimulationCount_ = 0;
         int reducedSimulationCount_ = 0;
         int dormantSimulationCount_ = 0;
+        int approachingCount_ = 0;
+        int perchedCount_ = 0;
+        int departingCount_ = 0;
     };
 }

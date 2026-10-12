@@ -263,7 +263,9 @@ otherwise empty build-owned directory to protect the present contract.
    and `MonkeyTroop`
    update steering, terrain/depth
    constraints, behaviour/animation state, and observer-relative full/reduced/dormant cadence
-   independently of their renderers.
+   independently of their renderers. `BirdPerchLayout` derives branch/rock/wreck anchors from
+   existing world geometry; `BirdFlock` admits at most two shore/canopy birds to approach, contact,
+   perch and departure states while high birds remain in uninterrupted flight.
 10. `IslandGame::Draw` submits the camera-centred sky with depth disabled, restores normal depth
    state, then submits opaque terrain and distant scenery. `ContactShadowRenderer` overlays its
    depth-read terrain grounding batch before natural props, the shipwreck, broadleaf jungle, mesh grass, palms,

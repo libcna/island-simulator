@@ -387,6 +387,8 @@ namespace island
               << "  NEAR " << state.nearBirds << " FAR " << state.farBirds
               << "  SIM " << state.fullSimulationBirds << '/'
               << state.reducedSimulationBirds << '/' << state.dormantSimulationBirds
+              << "  LAND " << state.approachingBirds << '/'
+              << state.perchedBirds << '/' << state.departingBirds
               << "  DRAWS " << state.birdDraws;
         lines.push_back(birds.str());
 

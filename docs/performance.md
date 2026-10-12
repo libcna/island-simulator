@@ -1272,6 +1272,15 @@ six. Blocked movement and teleports do not fabricate cadence, and footsteps stop
 Core/audio/WAV tests, the complete 22-stage Chrome/WebGL 2 suite, and an actual x86_64 KVM/GLES 3
 touch-traversal smoke test pass. Subjective material identity and balance remain open.
 
+### Bounded bird perching
+
+Eight static perch records (five branches, two rocks and one wreck beam) are derived once during
+world construction. The 24-agent flock searches those eight records only when an eligible shore or
+canopy bird's infrequent landing timer expires; no more than two birds can be outside ordinary
+flight. Perched feet and folded wings reuse the existing dynamic bird batch, vertex buffer and draw,
+adding at most twelve near-LOD vertices per contacted bird and no texture, buffer, collision proxy
+or submission. High birds do not run landing logic.
+
 ### Generated texture and transparency audit
 
 The game currently owns six generated `Color`/RGBA8 textures and no imported texture assets. The

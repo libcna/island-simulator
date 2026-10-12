@@ -2,6 +2,7 @@
 #include "IslandSimulator/AquaticLightingModel.hpp"
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/BirdPerchLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
@@ -2392,6 +2393,27 @@ int main()
     CheckNear(birds.RouteRegions()[2].maximumRadius, 233.0f, 0.0001f,
               "high-bird route region ends at the authored outer orbit");
 
+    const std::array<island::BirdPerchSite, 8> testPerches = {{
+        {80.0f, terrain.Height(80.0f, 0.0f) + 10.0f, 0.0f, 0.2f,
+         island::BirdPerchKind::Branch},
+        {0.0f, terrain.Height(0.0f, 80.0f) + 10.0f, 80.0f, 1.7f,
+         island::BirdPerchKind::Branch},
+        {-80.0f, terrain.Height(-80.0f, 0.0f) + 10.0f, 0.0f, -2.8f,
+         island::BirdPerchKind::Branch},
+        {0.0f, terrain.Height(0.0f, -80.0f) + 10.0f, -80.0f, -1.4f,
+         island::BirdPerchKind::Branch},
+        {57.0f, terrain.Height(57.0f, 57.0f) + 10.0f, 57.0f, 0.8f,
+         island::BirdPerchKind::Branch},
+        {205.0f, terrain.Height(205.0f, 0.0f) + 2.0f, 0.0f, 1.1f,
+         island::BirdPerchKind::Rock},
+        {-205.0f, terrain.Height(-205.0f, 0.0f) + 2.0f, 0.0f, -1.9f,
+         island::BirdPerchKind::Rock},
+        {0.0f, terrain.Height(0.0f, 205.0f) + 5.0f, 205.0f, -0.7f,
+         island::BirdPerchKind::Wreck},
+    }};
+    birds.SetPerchSites(testPerches);
+    repeatedBirds.SetPerchSites(testPerches);
+
     float maximumObservedBirdRadius = 0.0f;
     float minimumObservedBirdRadius = 1000.0f;
     bool observedWingUp = false;
@@ -2399,6 +2421,10 @@ int main()
     bool observedStrongGlide = false;
     bool observedLeftBank = false;
     bool observedRightBank = false;
+    bool observedBirdApproach = false;
+    bool observedPerchedBird = false;
+    bool observedBirdDeparture = false;
+    bool observedFoldedPerchWings = false;
     constexpr int birdSimulationFrames = 36000;
     for (int frame = 0; frame < birdSimulationFrames; ++frame) {
         birds.Update(1.0f / 30.0f, 0.0f, 15.0f, 0.0f);
@@ -2413,6 +2439,9 @@ int main()
                       && bird.wingPose == repeated.wingPose
                       && bird.bankRadians == repeated.bankRadians
                       && bird.glideAmount == repeated.glideAmount
+                      && bird.perchAmount == repeated.perchAmount
+                      && bird.behavior == repeated.behavior
+                      && bird.perchSiteIndex == repeated.perchSiteIndex
                       && bird.simulationTier == repeated.simulationTier,
                   "bird simulation remains deterministic over a long session");
             const float radius = std::hypot(bird.x, bird.z);
@@ -2424,14 +2453,37 @@ int main()
             Check(std::fabs(bird.bankRadians) <= 0.341f
                       && bird.glideAmount >= 0.0f && bird.glideAmount <= 1.0f,
                   "bird banking and glide blend remain inside portable pose bounds");
-            Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.8f,
-                  "bird flight maintains its minimum terrain clearance");
+            if (bird.behavior == island::BirdBehavior::Fly) {
+                Check(bird.y >= terrain.Height(bird.x, bird.z) + 14.8f,
+                      "free bird flight maintains its minimum terrain clearance");
+            } else {
+                Check(bird.y >= terrain.Height(bird.x, bird.z) + 0.34f,
+                      "landing bird remains clear of terrain");
+            }
+            if (bird.behavior == island::BirdBehavior::Approach) {
+                observedBirdApproach = true;
+            } else if (bird.behavior == island::BirdBehavior::Perched) {
+                observedPerchedBird = true;
+                const auto& site = testPerches[bird.perchSiteIndex];
+                CheckNear(bird.x, site.x, 0.0001f,
+                          "perched bird remains on the selected support x coordinate");
+                CheckNear(bird.z, site.z, 0.0001f,
+                          "perched bird remains on the selected support z coordinate");
+                CheckNear(bird.y, site.y + bird.scale * 0.12f, 0.0001f,
+                          "perched bird body places its feet on the support surface");
+                observedFoldedPerchWings = observedFoldedPerchWings
+                    || (bird.perchAmount > 0.999f && std::abs(bird.wingPose) < 0.04f);
+            } else if (bird.behavior == island::BirdBehavior::Depart) {
+                observedBirdDeparture = true;
+            }
             observedWingUp = observedWingUp || bird.wingPose > 0.55f;
             observedWingDown = observedWingDown || bird.wingPose < -0.55f;
             observedStrongGlide = observedStrongGlide || bird.glideAmount > 0.92f;
             observedLeftBank = observedLeftBank || bird.bankRadians < -0.055f;
             observedRightBank = observedRightBank || bird.bankRadians > 0.055f;
         }
+        Check(birds.ApproachingCount() + birds.PerchedCount() + birds.DepartingCount() <= 2,
+              "bird landing limits the flock to two simultaneous non-flight agents");
     }
     Check(minimumObservedBirdRadius > 35.0f && maximumObservedBirdRadius < 315.0f,
           "all bird route families remain in the authored island airspace");
@@ -2441,6 +2493,9 @@ int main()
           "bird animation enters sustained intermittent glide periods");
     Check(observedLeftBank && observedRightBank,
           "opposed route directions produce visible banking in both directions");
+    Check(observedBirdApproach && observedPerchedBird && observedBirdDeparture
+              && observedFoldedPerchWings,
+          "bird simulation completes approach, contacted perch and departure states");
     Check(birds.FullSimulationCount() + birds.ReducedSimulationCount()
               + birds.DormantSimulationCount() == static_cast<int>(island::BirdFlock::BirdCount),
           "bird simulation tiers account for the complete flock");
@@ -3072,6 +3127,27 @@ int main()
     }
     const island::ShipwreckLayout shipwreck(terrain);
     const island::ShipwreckLayout repeatedShipwreck(terrain);
+    const island::BirdPerchLayout birdPerches(terrain, jungle, props, shipwreck);
+    const island::BirdPerchLayout repeatedBirdPerches(
+        terrain, jungle, props, repeatedShipwreck);
+    Check(birdPerches.Sites().size() == island::BirdPerchLayout::SiteCount
+              && repeatedBirdPerches.Sites().size() == birdPerches.Sites().size(),
+          "bird perch layout derives the bounded requested world-anchor inventory");
+    std::array<int, 3> perchKinds{};
+    for (std::size_t index = 0; index < birdPerches.Sites().size(); ++index) {
+        const auto& site = birdPerches.Sites()[index];
+        const auto& repeatedSite = repeatedBirdPerches.Sites()[index];
+        Check(site.x == repeatedSite.x && site.y == repeatedSite.y
+                  && site.z == repeatedSite.z
+                  && site.headingRadians == repeatedSite.headingRadians
+                  && site.kind == repeatedSite.kind,
+              "bird world perch anchors derive deterministically");
+        Check(site.y >= terrain.Height(site.x, site.z) + 0.35f,
+              "bird world perch anchor remains above terrain");
+        ++perchKinds[static_cast<std::size_t>(site.kind)];
+    }
+    Check(perchKinds[0] == 5 && perchKinds[1] == 2 && perchKinds[2] == 1,
+          "bird perch layout includes five branches, two rocks and one wreck beam");
     const island::ShipwreckPlacement& ship = shipwreck.Ship();
     const island::ShipwreckPlacement& repeatedShip = repeatedShipwreck.Ship();
     std::vector<island::ContactFootprint> coastalFootprints;

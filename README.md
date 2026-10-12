@@ -247,6 +247,9 @@ surface. They alternate slow cruising, seabed foraging, and occasional surfacing
 land and the outer-current region, and respond mildly to a nearby swimmer. Faceted scute-patterned
 shells, articulated flippers, three natural palettes, near/far geometry, and one culled dynamic
 batch keep them readable through the water without making them a constant attraction.
+Twenty-four birds retain their three flight-route families while at most two use bounded approach,
+perch and departure states on real tree branches, land rocks or the wreck beam. Perched near birds
+fold their wings and place small feet on the support without another draw call.
 One non-hostile shark
 occasionally patrols deeper offshore water with matching dive pitch, turn banking, a forked tail,
 depth-integrated colour, and restrained near eye/gill detail.

@@ -153,6 +153,7 @@ namespace island
           grassLayout_(terrain_, canopyLightField_, groundCoverField_),
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
           shipwreckLayout_(terrain_),
+          birdPerchLayout_(terrain_, jungleLayout_, naturalPropLayout_, shipwreckLayout_),
           cameraPosition_(0.0f, 3.0f, -225.0f),
           renderCameraPosition_(cameraPosition_),
           smokeTest_(smokeTest),
@@ -166,6 +167,7 @@ namespace island
           benchmarkPath_(std::move(benchmarkPath)),
           startupReportPath_(std::move(startupReportPath))
     {
+        birdFlock_.SetPerchSites(birdPerchLayout_.Sites());
         std::vector<CrabHabitatCue> crabDebrisCues;
         crabDebrisCues.reserve(naturalPropLayout_.Driftwood().size()
                                + naturalPropLayout_.BeachDetails().size());
@@ -691,13 +693,13 @@ namespace island
             yaw_ = std::atan2(toFrond.X, toFrond.Z);
             pitch_ = std::atan2(toFrond.Y, std::hypot(toFrond.X, toFrond.Z));
         } else if (viewpoint_ == FixedViewpoint::BirdDetail
-                   && birdFlock_.Birds().size() > 10U) {
-            const BirdState& bird = birdFlock_.Birds()[10U];
+                   && !birdFlock_.Birds().empty()) {
+            const BirdState& bird = birdFlock_.Birds().front();
             const Vector3 flightForward(std::cos(bird.headingRadians), 0.0f,
                                         std::sin(bird.headingRadians));
             const Vector3 flightRight(-flightForward.Z, 0.0f, flightForward.X);
             cameraPosition_ = Vector3(bird.x, bird.y, bird.z)
-                - flightForward * 12.0f + flightRight * 3.2f - Vector3::Up * 2.5f;
+                - flightForward * 5.0f + flightRight * 1.6f + Vector3::Up * 0.45f;
             const Vector3 toBird = Vector3(bird.x, bird.y, bird.z) - cameraPosition_;
             yaw_ = std::atan2(toBird.X, toBird.Z);
             pitch_ = std::atan2(toBird.Y, std::hypot(toBird.X, toBird.Z));
@@ -1230,6 +1232,8 @@ namespace island
                   << worldCollisionGrid_.CellCount() << " occupied cells\n"
                   << "island-simulator: birds " << birdFlock_.Birds().size()
                   << " agents in a distance-throttled one-batch simulation\n"
+                  << "island-simulator: birds use " << birdFlock_.PerchSites().size()
+                  << " real branch, rock, and wreck perches with approach and departure\n"
                   << "island-simulator: bird flight uses slow radial drift, banking, and "
                      "intermittent glide\n"
                   << "island-simulator: clearing butterflies "
@@ -2781,6 +2785,9 @@ namespace island
             overlayState.fullSimulationBirds = birdFlock_.FullSimulationCount();
             overlayState.reducedSimulationBirds = birdFlock_.ReducedSimulationCount();
             overlayState.dormantSimulationBirds = birdFlock_.DormantSimulationCount();
+            overlayState.approachingBirds = birdFlock_.ApproachingCount();
+            overlayState.perchedBirds = birdFlock_.PerchedCount();
+            overlayState.departingBirds = birdFlock_.DepartingCount();
             overlayState.birdDraws = birdRenderer_->DrawCallCount();
             overlayState.visibleButterflies =
                 butterflyRenderer_->VisibleButterflyCount();

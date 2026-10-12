@@ -32,11 +32,13 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 255.0f;
-        constexpr int MaximumVerticesPerBird = 54;
+        constexpr int MaximumVerticesPerBird = 66;
         constexpr int MaximumVertexCount = static_cast<int>(BirdFlock::BirdCount)
             * MaximumVerticesPerBird;
         constexpr std::string_view NearBirdFeatherDiagnostic =
             "island-simulator: near birds use layered trailing flight-feather silhouettes";
+        constexpr std::string_view BirdPerchSilhouetteDiagnostic =
+            "island-simulator: perched birds fold wings and add near feet silhouettes";
 
         struct BirdPalette
         {
@@ -117,27 +119,30 @@ namespace island
             AddTriangle(vertices, tail, rightSide, bottom, palette.lowerWing);
             AddTriangle(vertices, tail, bottom, left, palette.lowerWing);
 
-            const float wingLift = bird.wingPose * 0.38f;
+            const float perch = std::clamp(bird.perchAmount, 0.0f, 1.0f);
+            const float wingLift = std::lerp(bird.wingPose * 0.38f, -0.025f, perch);
+            const float wingSpan = std::lerp(1.04f, 0.21f, perch);
+            const float wingRear = std::lerp(-0.06f, -0.29f, perch);
             const Vector3 leftFront = LocalPoint(
                 centre, right, up, forward, -0.06f, 0.035f, 0.20f, scale);
             const Vector3 leftBack = LocalPoint(
                 centre, right, up, forward, -0.08f, 0.015f, -0.24f, scale);
             const Vector3 leftTip = LocalPoint(
-                centre, right, up, forward, -1.04f, wingLift, -0.06f, scale);
+                centre, right, up, forward, -wingSpan, wingLift, wingRear, scale);
             const Vector3 rightFront = LocalPoint(
                 centre, right, up, forward, 0.06f, 0.035f, 0.20f, scale);
             const Vector3 rightBack = LocalPoint(
                 centre, right, up, forward, 0.08f, 0.015f, -0.24f, scale);
             const Vector3 rightTip = LocalPoint(
-                centre, right, up, forward, 1.04f, wingLift, -0.06f, scale);
+                centre, right, up, forward, wingSpan, wingLift, wingRear, scale);
             AddDoubleSidedTriangle(vertices, leftFront, leftTip, leftBack, palette.upperWing);
             AddDoubleSidedTriangle(vertices, rightFront, rightBack, rightTip, palette.upperWing);
             const Vector3 leftFeather = LocalPoint(
-                centre, right, up, forward, -0.54f, wingLift * 0.55f - 0.015f,
-                -0.43f, scale);
+                centre, right, up, forward, -std::lerp(0.54f, 0.15f, perch),
+                wingLift * 0.55f - 0.015f, std::lerp(-0.43f, -0.51f, perch), scale);
             const Vector3 rightFeather = LocalPoint(
-                centre, right, up, forward, 0.54f, wingLift * 0.55f - 0.015f,
-                -0.43f, scale);
+                centre, right, up, forward, std::lerp(0.54f, 0.15f, perch),
+                wingLift * 0.55f - 0.015f, std::lerp(-0.43f, -0.51f, perch), scale);
             AddDoubleSidedTriangle(
                 vertices, leftBack, leftTip, leftFeather, palette.lowerWing);
             AddDoubleSidedTriangle(
@@ -150,6 +155,18 @@ namespace island
             const Vector3 tailRight = LocalPoint(
                 centre, right, up, forward, 0.34f, 0.0f, -0.83f, scale);
             AddDoubleSidedTriangle(vertices, tailRoot, tailLeft, tailRight, palette.tail);
+
+            if (perch > 0.35f) {
+                for (const float side : {-1.0f, 1.0f}) {
+                    const Vector3 leg = LocalPoint(
+                        centre, right, up, forward, side * 0.055f, -0.075f, 0.01f, scale);
+                    const Vector3 foot = LocalPoint(
+                        centre, right, up, forward, side * 0.055f, -0.12f, 0.01f, scale);
+                    const Vector3 toe = LocalPoint(
+                        centre, right, up, forward, side * 0.055f, -0.117f, 0.105f, scale);
+                    AddDoubleSidedTriangle(vertices, leg, foot, toe, palette.tail);
+                }
+            }
         }
 
         void AppendFarBird(std::vector<VertexPositionColor>& vertices,
@@ -165,15 +182,18 @@ namespace island
             const Vector3 right = levelRight * bankCosine + Vector3::Up * bankSine;
             const Vector3 up = Vector3::Up * bankCosine - levelRight * bankSine;
             const float scale = bird.scale;
-            const float wingLift = bird.wingPose * 0.30f;
+            const float perch = std::clamp(bird.perchAmount, 0.0f, 1.0f);
+            const float wingLift = std::lerp(bird.wingPose * 0.30f, -0.02f, perch);
+            const float wingSpan = std::lerp(0.98f, 0.20f, perch);
+            const float wingRear = std::lerp(-0.04f, -0.28f, perch);
             const Vector3 nose = LocalPoint(
                 centre, right, up, forward, 0.0f, 0.0f, 0.60f, scale);
             const Vector3 tail = LocalPoint(
                 centre, right, up, forward, 0.0f, 0.0f, -0.55f, scale);
             const Vector3 leftTip = LocalPoint(
-                centre, right, up, forward, -0.98f, wingLift, -0.04f, scale);
+                centre, right, up, forward, -wingSpan, wingLift, wingRear, scale);
             const Vector3 rightTip = LocalPoint(
-                centre, right, up, forward, 0.98f, wingLift, -0.04f, scale);
+                centre, right, up, forward, wingSpan, wingLift, wingRear, scale);
             AddDoubleSidedTriangle(vertices, nose, leftTip, tail, palette.upperWing);
             AddDoubleSidedTriangle(vertices, nose, tail, rightTip, palette.upperWing);
         }
@@ -198,7 +218,9 @@ namespace island
         effect_->setFogEndProperty(700.0f);
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
         std::cout << NearBirdFeatherDiagnostic << '\n';
+        std::cout << BirdPerchSilhouetteDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(NearBirdFeatherDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(BirdPerchSilhouetteDiagnostic);
     }
 
     BirdRenderer::~BirdRenderer() = default;

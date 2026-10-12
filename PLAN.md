@@ -75,6 +75,20 @@ bytes; the five generated loop periods align only every 290,290 seconds. CPU fie
 tests, full build and independent WAV export pass. Actual spatial listening along the route,
 dry/swim switching, mute lifecycle and Web/Android runtime evidence remain before `[x]`.
 
+## Latest implementation — bounded bird landing and real perches
+
+Ecosystem item 13 is now `[~]`. The 24 existing birds retain their route families, but shore and
+canopy birds can enter deterministic `Fly -> Approach -> Perched -> Depart` states; at most two do
+so concurrently and high birds remain in flight. `BirdPerchLayout` derives exactly five anchors
+from rendered broadleaf branch vertices, two from solid rock caps and one from the shipwreck's
+cross-tree beam. Near perched birds fold the existing wings and add small feet/toes in the same
+dynamic batch; far birds fold their silhouette without new geometry allocation or draws.
+
+Core passes deterministic layout, 5/2/1 counts, terrain clearance, bounded banking, all four
+states, two-agent limit, folded pose and exact foot/support contact. Isolated llvmpipe capture
+`20261012T153950.288712Z-birds` passes and was inspected with the bird on the wreck beam. Moving
+approach/departure visual evidence, branch-wind following and Web/Android runtime remain.
+
 ## New highest-priority ecosystem stage — 2026-10-12
 
 The user's complete ordered 17-point request is recorded as an unchecked execution
