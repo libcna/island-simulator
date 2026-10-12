@@ -186,3 +186,48 @@ in this pass; previous separate climbing evidence does not close these appearanc
 
 The full requested species/resident backlog remains open. These new images neither
 add missing species nor diagnose/fix the unresolved AMD flight incident.
+
+## Actual Web wildlife/foliage follow-up
+
+Current build after `4593dc8`, serial contained Chrome/ANGLE SwiftShader run:
+`build/browser-software/20261012T001634.994190Z-chrome-wildlife-foliage`.
+This is actual browser rendering, not the previously recorded compile-only evidence.
+
+Inspected all six PNGs: initial jungle, boar, monkey and east views, plus boar and
+monkey post-simulation views:
+
+- Jungle: recognizable layers of ground cover and trees, but angular crown silhouettes
+  and repeated leaf shapes remain conspicuous. Technical rendering is not visual realism.
+- Boar initial view: current rounded body, cupped ears, fitted eyes and fuller cheek
+  profile are present. Mouth detail is subtle; grass still obscures much of the feet.
+  The coat looks like broad brown streaks rather than clearly resolved bristles.
+- Boar post-simulation view: the animal has moved to the far left behind vegetation.
+  This demonstrates visible scene change, not correct continuous gait or foot contact.
+  A fixed camera cannot provide sustained whole-animal motion acceptance here.
+- Monkey initial view: directional fur and horizontal trunk are readable; face remains
+  a flat mask with point-like eyes, limbs have abrupt transitions and the tail bends
+  sharply. This is usable facial-detail evidence, not an accepted natural monkey model.
+- Monkey post-simulation view: the tracked subject remains visible with a changed pose;
+  the flat face/point eyes and angular limb transitions remain apparent. Two stills do
+  not establish continuous gait quality, absence of foot sliding, or climbing behavior.
+- East: the steep exposed slope reads as a broad blurry brown/grey smear, lacking clear
+  rock/soil structure. The initial image alone does not identify whether texture scale,
+  projection, filtering or material blending is responsible; inspect those before fixing it.
+
+Next substantive audits/fixes:
+
+- [ ] Improve close boar bristle scale/readability, preserving atlas padding and budget.
+- [ ] Add a tracking motion review that keeps a naturally moving boar in view without
+  freezing/teleporting it or removing vegetation. Record multiple unobscured foot poses.
+- [ ] Refine monkey face relief/lids and limb transitions using the actual close view.
+- [ ] Revisit crown/leaf silhouette repetition in the jungle view.
+- [ ] Diagnose and improve material readability on the steep eastern slope, retaining
+  the established terrain shape/collision and portable texture budget.
+
+Final result: Chrome155.0.8059.39, all four views PASS with60 requestAnimationFrame
+intervals each, GL error0 and contextLost=false. Parent `run.json` also passed;
+`kernel-final.json` is empty. These software timings are not hardware performance
+evidence. No code/build/dependency/emulator/KVM changes were made during this audit.
+All owned processes terminal; hardware stop latch SHA c0bd1704 unchanged. Current
+boar Web appearance is now actually checked, but visual quality/gait/audio, the full
+species/resident backlog and AMD incident remain open.

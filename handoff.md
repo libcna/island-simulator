@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest — actual Web wildlife/foliage audit, current boar appearance verified
+
+After4593dc8, existing serial Chrome SwiftShader scope wildlife-foliage completed:
+build/browser-software/20261012T001634.994190Z-chrome-wildlife-foliage.
+Chrome155.0.8059.39: jungle/boars/monkeys/east each60 intervals PASS, GL0/context live;
+parent run.json passed, kernel-final[]. All six initial/post-simulation PNGs actually
+viewed. This closes compile-only Web evidence for current boar body/ears/eyes/cheeks.
+Not full realism: coat reads as broad streaks; boar walks off to left behind plants,
+so fixed view cannot qualify continuous gait. Monkey stays tracked but has flat face,
+point eyes/angular limbs. Jungle crowns/leaves repetitive; eastern steep slope material
+blurry/smeared. Details and follow-up checklist in docs/wildlife-visual-audit-2026-10-12.md.
+NEXT meaningful work: monkey face relief/lids, boar fine-coat readability/tracked gait
+audit, eastern steep-slope material diagnosis. Missing species/resident/audio and AMD
+incident remain OPEN. No game/build/dependency/Android/KVM changes this audit. All jobs
+terminal; hardware stop latch unchanged; overall goal active, no push.
+
 ## Latest — fuller boar cheeks and fitted closed-mouth crease
 
 Broader cheek/narrower raised nasal bridge in existing21-ring profile; nose anchor,

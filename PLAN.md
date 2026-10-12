@@ -913,6 +913,14 @@ Landmark backlog requested by the operator:
   x86_64 and restored ARM64 build/lint PASS3s each, asset audit PASS84sources.
   Web build/package PASS11,356,327raw/4,334,892gzip bytes; actual browser appearance
   pending. All owned jobs terminal; hardware stop latch unchanged, no AMD fix claim.
+  Actual Web follow-up now PASS: 20261012T001634.994190Z-chrome-wildlife-foliage,
+  Chrome155 SwiftShader, jungle/boars/monkeys/east each60 intervals/GL0/context live,
+  parent passed/kernel[]. All six initial/post-simulation images actually inspected.
+  Current boar appearance is no longer compile-only Web evidence. Quality remains open:
+  broad streak-like coat, boar leaving fixed camera behind foliage, flat monkey face/
+  point eyes/angular limbs, repetitive crowns/leaves and blurry eastern steep-slope
+  material. Next: tracked boar motion audit/finer coat, monkey face relief and slope
+  material diagnosis. Checklist/evidence: docs/wildlife-visual-audit-2026-10-12.md.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars
