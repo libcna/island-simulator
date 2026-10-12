@@ -623,6 +623,8 @@ def main():
                 raise RuntimeError("unexpected grass mesh inventory")
             if "ocean short waves use phased wind packets with analytic envelope gradients" not in diagnostics:
                 raise RuntimeError("current wave packets are missing; check for a stale executable")
+            if "windward ocean waves and foam strengthen east and calm in the west bay" not in diagnostics:
+                raise RuntimeError("current wind-aware ocean response is missing; check for a stale executable")
             if "grass near mesh adds 48 low curved turf blades with height-scaled motion" not in diagnostics:
                 raise RuntimeError("current low turf layer is missing; check for a stale executable")
             if "grass roots sample RGB24 rendered terrain triangles before wind" not in diagnostics:
@@ -647,6 +649,8 @@ def main():
                 raise RuntimeError("current ocean spectrum is missing; check for a stale executable")
             if "shoreline advancing wash uses footprint-filtered porous foam" not in diagnostics:
                 raise RuntimeError("current shoreline foam is missing; check for a stale executable")
+            if "shoreline foam follows bounded east-to-west coastal wind exposure" not in diagnostics:
+                raise RuntimeError("current wind-aware shoreline foam is missing; check for a stale executable")
             if "shared fixed-sun canopy transmission lights terrain and grass" not in diagnostics:
                 raise RuntimeError("current canopy-light feature is missing; check for a stale executable")
             if "jungle ground layers receive shared canopy shade; crowns excluded" not in diagnostics:

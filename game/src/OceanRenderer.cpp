@@ -54,6 +54,8 @@ namespace island
             "island-simulator: ocean bounded grazing contrast and depth-limited filtered breaker foam";
         constexpr const char* WindPacketDiagnostic =
             "island-simulator: ocean short waves use phased wind packets with analytic envelope gradients";
+        constexpr const char* CoastalWindDiagnostic =
+            "island-simulator: windward ocean waves and foam strengthen east and calm in the west bay";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -67,10 +69,20 @@ out vec3 vVertexTint;
 out float vBedHeight;
 out float vShoreDistance;
 
+float coastalWindExposure(vec2 position,float shoreDistance)
+{
+    float radius=length(position);
+    float windward=radius>.001?clamp(position.x/radius,-1.0,1.0):0.0;
+    float side=.25+.75*smoothstep(-.6,.8,windward);
+    float coastal=1.0-smoothstep(12.0,105.0,abs(shoreDistance));
+    return clamp(.5+(side-.5)*coastal,0.0,1.0);
+}
+
 void main()
 {
     vec3 world = aPosition;
-    world.y += oceanHeight(world.xz, uTime);
+    float windExposure=coastalWindExposure(world.xz,aWaterData.y);
+    world.y += oceanHeight(world.xz, uTime)*mix(.78,1.22,windExposure);
     vWorld = world;
     vVertexTint = aColor.rgb;
     vBedHeight = aWaterData.x;
@@ -100,6 +112,15 @@ uniform vec4 uCoastalOptics;
 uniform vec4 uSurfaceAppearance;
 
 out vec4 fragColor;
+
+float coastalWindExposure(vec2 position,float shoreDistance)
+{
+    float radius=length(position);
+    float windward=radius>.001?clamp(position.x/radius,-1.0,1.0):0.0;
+    float side=.25+.75*smoothstep(-.6,.8,windward);
+    float coastal=1.0-smoothstep(12.0,105.0,abs(shoreDistance));
+    return clamp(.5+(side-.5)*coastal,0.0,1.0);
+}
 
 float playerRippleBand(float distanceToPlayer, float phase)
 {
@@ -135,9 +156,11 @@ void main()
     float vShoreFoam = exp(-abs(vShoreDistance) / uSurfaceAppearance.w)
         * (1.0 - smoothstep(uSurfaceAppearance.y, uSurfaceAppearance.z, waterDepth));
     float contactCoverage = smoothstep(0.0, uCoastalOptics.z, waterDepth);
+    float windExposure=coastalWindExposure(vWorld.xz,vShoreDistance);
+    float waveScale=mix(.78,1.22,windExposure);
     vec4 waveSlopes = oceanSlopes(vWorld.xz, uTime, dFdx(vWorld.xz), dFdy(vWorld.xz));
-    vec2 slope = waveSlopes.xy;
-    vec2 surfaceSlope = slope + waveSlopes.zw;
+    vec2 slope = waveSlopes.xy*waveScale;
+    vec2 surfaceSlope = slope + waveSlopes.zw*waveScale;
     vec3 normal = normalize(vec3(-surfaceSlope.x, 1.0, -surfaceSlope.y));
     float distanceToCamera = length(vWorld - uCameraPosition);
     vec3 toEye = (uCameraPosition - vWorld) / max(distanceToCamera, 0.0001);
@@ -206,6 +229,7 @@ void main()
         * smoothstep(0.47, 0.79, crossingWaves + length(slope) * 4.2);
     float foamContinuity = 0.5 + 0.5 * sin(continuityPhase) * continuityWeight;
     foam *= 0.16 + 0.84 * foamContinuity * foamContinuity;
+    foam *= mix(.75,1.25,windExposure);
     if (uPlayerRippleIntensity > 0.001) {
         vec2 playerOffset = vWorld.xz - uPlayerWaterPosition;
         float distanceToPlayer = length(playerOffset);
@@ -336,6 +360,7 @@ void main()
                       << CoastalOpticsDiagnostic << '\n'
                       << SurfaceContrastDiagnostic << '\n'
                       << WindPacketDiagnostic << '\n'
+                      << CoastalWindDiagnostic << '\n'
                       << "island-simulator: ocean shoreline foam uses broken continuity mask\n";
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: ocean sunward ripple crests reuse analytic slope field");
@@ -344,6 +369,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(CoastalOpticsDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(SurfaceContrastDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(WindPacketDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(CoastalWindDiagnostic);
         } else {
             std::cerr << "island-simulator: ocean stock-effect fallback: " << fallbackReason_
                       << '\n';

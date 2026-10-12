@@ -1,5 +1,16 @@
 # island-simulator handoff
 
+## Latest implementation — wind-aware coast and ambience
+
+New `CoastalWindResponse` is neutral away from shore, ~.25 in the western lee and 1 on
+the exposed east. Ocean displacement/slopes use .78–1.22, ocean+shoreline foam .75–1.25,
+and surf+breeze gains .82–1.18; tide pools, jungle and player-water audio stay unchanged.
+Core PASS. Inspected isolated llvmpipe east/bay/headland captures
+`20261012T145730.795098Z-east`, `20261012T145824.100449Z-bay` and
+`20261012T145932.019541Z-headland` all PASS without shader artifacts. East camera faces
+mostly inland, so matched comparative motion/audio and actual Web/Android remain; item11
+is `[~]`. Builds CPUs0-3/-j2; no AMD/KVM changes.
+
 ## Latest implementation — slow prevailing-wind cloud drift
 
 Existing cumulus and high wisps now advance west at 0.00035rad/s through one portable
@@ -11,14 +22,17 @@ the 50-snake hiss fairness fixture. Inspected isolated llvmpipe
 the new uniform path. Item10 remains `[~]` pending separated-time motion comparison and
 actual Web/Android. Builds CPUs0-3/-j2; no AMD/KVM changes.
 
-## Current operator budget — 100 productive hours remaining
+## Current operator target — roughly 100 productive hours
 
-The earlier broad 250–450/roughly-400-hour outlook is superseded. The operator fixed
-the remaining budget at approximately 100 productive hours while retaining the requested
-functional scope. `PLAN.md` now allocates that envelope across stability/controls,
+The earlier broad 250–450/roughly-400-hour implementation outlook is superseded. The
+operator set approximately 100 productive hours as the target for implementing the whole
+remaining functional scope. It is not a stop condition: continue until the operator stops
+the campaign, accept added hours if offered, and use any time saved by early functional
+completion to deepen visual/motion/material quality. `PLAN.md` allocates the target across stability/controls,
 wildlife, reduced-fidelity animal repair, ecosystem links, hut/cave/campfire, resident/
-bear, grounded helicopter and final integration. Simplify model/material/animation
-variety before cutting required behavior. Builds remain limited to CPUs0-3 and `-j2`;
+bear, grounded helicopter and final integration. Simplify initial model/material/animation
+variety before cutting required behavior, but do not stop merely because 100 hours elapsed.
+Builds remain limited to CPUs0-3 and `-j2`;
 do not touch Android emulator/KVM or AMD GPU state.
 
 ## Latest implementation — 50 snakes and 200 spiders

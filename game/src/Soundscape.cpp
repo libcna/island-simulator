@@ -33,6 +33,8 @@ namespace island
             "island-simulator: persistent ambient PCM is DC-centered before quantization";
         constexpr std::string_view AmbientVariationDiagnostic =
             "island-simulator: ambient beds use slow non-amplifying gain drift";
+        constexpr std::string_view CoastalWindMixDiagnostic =
+            "island-simulator: surf and breeze gains follow bounded coastal wind exposure";
         constexpr std::string_view FootstepEnabledDiagnostic =
             "island-simulator: distance-scheduled sand and soil footsteps enabled";
         constexpr std::string_view FootstepPlaybackDiagnostic =
@@ -132,13 +134,14 @@ namespace island
 
     bool Soundscape::Start(const float signedShoreDistance, const bool swimming,
                            const float waterDepth, const float horizontalSpeed,
-                           const float oceanCurrentStrength) noexcept
+                           const float oceanCurrentStrength,
+                           const float coastalWindExposure) noexcept
     {
         if (startAttempted_) {
             return available_;
         }
         startAttempted_ = true;
-        model_.Reset(signedShoreDistance, swimming);
+        model_.Reset(signedShoreDistance, swimming,coastalWindExposure);
         waterMovementModel_.Reset(
             waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         try {
@@ -255,6 +258,7 @@ namespace island
             std::cout << "island-simulator: soundscape started (procedural surf and breeze)\n";
             std::cout << DcCenteringDiagnostic << '\n';
             std::cout << AmbientVariationDiagnostic << '\n';
+            std::cout << CoastalWindMixDiagnostic << '\n';
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
@@ -274,6 +278,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog(BoundedStagingDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(DcCenteringDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(AmbientVariationDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(CoastalWindMixDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(FootstepEnabledDiagnostic);
 #endif
             return true;
@@ -320,7 +325,7 @@ namespace island
     void Soundscape::Update(
         const float signedShoreDistance, const bool swimming, const float waterDepth,
         const float horizontalSpeed, const float oceanCurrentStrength,
-        const float deltaSeconds,
+        const float deltaSeconds,const float coastalWindExposure,
         const SoundscapeListenerState& listenerState,
         const std::span<const BirdState> birds,
         const std::span<const MonkeyState> monkeys,
@@ -401,7 +406,7 @@ namespace island
             }
         }
 
-        (void)model_.Update(signedShoreDistance, swimming, safeDelta);
+        (void)model_.Update(signedShoreDistance, swimming, safeDelta,coastalWindExposure);
         (void)waterMovementModel_.Update(
             waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
         ApplyVolumes();

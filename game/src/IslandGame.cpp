@@ -1,5 +1,6 @@
 #include "IslandSimulator/IslandGame.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
+#include "IslandSimulator/CoastalWindResponse.hpp"
 
 #include "IslandSimulator/FirstPersonInput.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
@@ -1315,13 +1316,15 @@ namespace island
         }
         const PlayerPosition& position = playerMotion_.Position();
         const float shoreDistance = terrain_.SignedShoreDistance(position.x, position.z);
+        const float windExposure=CoastalWindResponse::Exposure(
+            position.x,position.z,shoreDistance);
         const bool swimming = playerMotion_.Mode() == LocomotionMode::Swimming;
         const float waterDepth = std::max(0.0f, -playerMotion_.GroundHeight());
         const float horizontalSpeed = std::hypot(playerMotion_.VelocityX(),
                                                  playerMotion_.VelocityZ());
         (void)soundscape_->Start(
             shoreDistance, swimming, waterDepth, horizontalSpeed,
-            playerMotion_.OceanCurrentStrength(terrain_));
+            playerMotion_.OceanCurrentStrength(terrain_),windExposure);
         soundscapeNeedsGesture_ = false;
     }
 
@@ -2006,6 +2009,11 @@ namespace island
     {
         if (!soundscape_) return;
         const PlayerPosition& position = playerMotion_.Position();
+        const float sampleX=flightMotion_.IsActive()?cameraPosition_.X:position.x;
+        const float sampleZ=flightMotion_.IsActive()?cameraPosition_.Z:position.z;
+        const float shoreDistance=terrain_.SignedShoreDistance(sampleX,sampleZ);
+        const float windExposure=CoastalWindResponse::Exposure(
+            sampleX,sampleZ,shoreDistance);
         const Vector3 forward(std::sin(yaw_), 0.0f, std::cos(yaw_));
         const SoundscapeListenerState listener{
             cameraPosition_.X,
@@ -2020,15 +2028,13 @@ namespace island
                 ? 0.0f : playerMotion_.VelocityZ(),
         };
         soundscape_->Update(
-            terrain_.SignedShoreDistance(
-                flightMotion_.IsActive() ? cameraPosition_.X : position.x,
-                flightMotion_.IsActive() ? cameraPosition_.Z : position.z),
+            shoreDistance,
             !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
             flightMotion_.IsActive() ? 0.0f : std::max(0.0f, -playerMotion_.GroundHeight()),
             flightMotion_.IsActive() ? 0.0f
                 : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
             flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
-            deltaSeconds, listener,
+            deltaSeconds,windExposure,listener,
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
             snakes_->Snakes());
     }

@@ -56,11 +56,13 @@ namespace island
 
         /** @brief Builds PCM and begins the looping layers, or records a graceful device failure. */
         bool Start(float signedShoreDistance, bool swimming, float waterDepth,
-                   float horizontalSpeed, float oceanCurrentStrength) noexcept;
+                   float horizontalSpeed, float oceanCurrentStrength,
+                   float coastalWindExposure=.5f) noexcept;
 
         /** @brief Advances location-driven crossfades for active playback. */
         void Update(float signedShoreDistance, bool swimming, float waterDepth,
                     float horizontalSpeed, float oceanCurrentStrength, float deltaSeconds,
+                    float coastalWindExposure,
                     const SoundscapeListenerState& listener,
                     std::span<const BirdState> birds,
                     std::span<const MonkeyState> monkeys,

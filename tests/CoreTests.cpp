@@ -5,6 +5,7 @@
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
+#include "IslandSimulator/CoastalWindResponse.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/DebugFreeCamera.hpp"
@@ -1199,6 +1200,22 @@ int main()
           "jungle texture is audible inland and explicitly attenuated while swimming");
     Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
           "swimming emphasizes nearby water while softening canopy breeze");
+    const float eastExposure=island::CoastalWindResponse::Exposure(230.0f,0.0f,2.0f);
+    const float westExposure=island::CoastalWindResponse::Exposure(-180.0f,0.0f,2.0f);
+    const auto eastCoastMix=island::SoundscapeModel::TargetMix(2.0f,false,eastExposure);
+    const auto westBayMix=island::SoundscapeModel::TargetMix(2.0f,false,westExposure);
+    Check(eastExposure>.98f&&westExposure<.27f
+        &&island::CoastalWindResponse::WaveScale(eastExposure)>1.20f
+        &&island::CoastalWindResponse::WaveScale(westExposure)<.90f
+        &&island::CoastalWindResponse::FoamScale(eastExposure)>1.24f
+        &&eastCoastMix.surfVolume>westBayMix.surfVolume*1.25f
+        &&eastCoastMix.breezeVolume>westBayMix.breezeVolume*1.25f,
+        "windward east coast has stronger waves, foam, surf and breeze than the west bay");
+    CheckNear(island::CoastalWindResponse::Exposure(0.0f,0.0f,500.0f),.5f,.0001f,
+        "coastal wind modulation returns to neutral away from the shore");
+    CheckNear(island::CoastalWindResponse::AmbientScale(
+        std::numeric_limits<float>::quiet_NaN()),1.0f,.0001f,
+        "invalid coastal wind exposure fails safely to the neutral mix");
     const island::SoundscapeMix invalidPositionMix = island::SoundscapeModel::TargetMix(
         std::numeric_limits<float>::quiet_NaN(), false);
     Check(std::isfinite(invalidPositionMix.surfVolume)

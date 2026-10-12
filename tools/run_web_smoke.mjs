@@ -1137,6 +1137,8 @@ try {
     "island-simulator: persistent ambient PCM is DC-centered before quantization");
   deploymentState.ambientBedVariationEnabled = deploymentState.output?.includes(
     "island-simulator: ambient beds use slow non-amplifying gain drift");
+  deploymentState.coastalWindMixEnabled = deploymentState.output?.includes(
+    "island-simulator: surf and breeze gains follow bounded coastal wind exposure");
   deploymentState.waveAccentsEnabled = deploymentState.output?.includes(
     "island-simulator: sparse stronger-wave accents enabled");
   deploymentState.waterMovementEnabled = deploymentState.output?.includes(
@@ -1165,6 +1167,7 @@ try {
     && deploymentState.audioStagingBounded === true
     && deploymentState.ambientPcmDcCentered === true
     && deploymentState.ambientBedVariationEnabled === true
+    && deploymentState.coastalWindMixEnabled === true
     && deploymentState.waveAccentsEnabled === true
     && deploymentState.waterMovementEnabled === true
     && deploymentState.waterTransitionsEnabled === true
@@ -2589,6 +2592,7 @@ try {
       audioStagingBounded: deploymentState.audioStagingBounded === true,
       ambientPcmDcCentered: deploymentState.ambientPcmDcCentered === true,
       ambientBedVariationEnabled: deploymentState.ambientBedVariationEnabled === true,
+      coastalWindMixEnabled: deploymentState.coastalWindMixEnabled === true,
       waveAccentsEnabled: deploymentState.waveAccentsEnabled === true,
       waterMovementEnabled: deploymentState.waterMovementEnabled === true,
       waterTransitionsEnabled: deploymentState.waterTransitionsEnabled === true,

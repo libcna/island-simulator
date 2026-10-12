@@ -45,6 +45,8 @@ namespace island
     {
         constexpr const char* PorousFoamDiagnostic =
             "island-simulator: shoreline advancing wash uses footprint-filtered porous foam";
+        constexpr const char* WindFoamDiagnostic =
+            "island-simulator: shoreline foam follows bounded east-to-west coastal wind exposure";
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -58,15 +60,25 @@ out float vAcross;
 out float vPhase;
 out float vBaseMask;
 out float vPool;
+out float vWindExposure;
+
+float shorelineWindExposure(vec2 position)
+{
+    float radius=length(position);
+    float windward=radius>.001?clamp(position.x/radius,-1.0,1.0):0.0;
+    return .25+.75*smoothstep(-.6,.8,windward);
+}
 
 void main()
 {
     vec3 world = aPosition;
     vPool = aRibbonData.y < 0.0 ? 1.0 : 0.0;
     if (vPool > 0.5) {
+        vWindExposure=.5;
         world.y += 0.006 * sin(uTime * 0.38 + dot(world.xz, vec2(0.31, -0.23)));
     } else {
-        world.y += oceanHeight(world.xz, uTime) + 0.022;
+        vWindExposure=shorelineWindExposure(world.xz);
+        world.y += oceanHeight(world.xz, uTime)*mix(.78,1.22,vWindExposure) + 0.022;
     }
     vWorld = world;
     vAcross = aRibbonData.x;
@@ -82,6 +94,7 @@ in vec3 vWorld;
 in float vAcross;
 in float vPhase;
 in float vBaseMask;
+in float vWindExposure;
 
 uniform vec3 uCameraPosition;
 uniform float uTime;
@@ -165,6 +178,7 @@ void main()
         * (1.0 - smoothstep(0.80, 0.995, vAcross));
     distanceFade = 1.0 - smoothstep(320.0, 680.0, distanceToCamera);
     float alpha = clamp((crest * 0.76 + wash) * envelope * edgeMask * distanceFade, 0.0, 0.82);
+    alpha *= mix(.75,1.25,vWindExposure);
     alpha *= mix(0.72, 1.0, clamp(vBaseMask * 2.0, 0.0, 1.0));
 
     vec3 foam = mix(vec3(0.78, 0.91, 0.88), vec3(0.96, 0.98, 0.91), crest);
@@ -251,9 +265,11 @@ void main()
                       << "island-simulator: shoreline broken crest mask modulates wash "
                          "continuity\n"
                       << PorousFoamDiagnostic << '\n';
+            std::cout << WindFoamDiagnostic << '\n';
             std::cout << "island-simulator: rocky shore tide pools " << tidePoolCount_
                       << " static basins in the shared shoreline draw\n";
             MirrorRuntimeDiagnosticToPlatformLog(PorousFoamDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(WindFoamDiagnostic);
         } else {
             std::cerr << "island-simulator: shoreline stock-effect fallback: "
                       << fallbackReason_ << '\n';

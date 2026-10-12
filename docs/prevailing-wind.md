@@ -20,9 +20,8 @@ share, so the island reads as a real place with a windward and a leeward side.
 
 Native llvmpipe `build/software-captures/20261010T161635.857589Z-palms`, `161642.176454Z-beach`,
 `161649.189940Z-overview` (pass, inspected): east-coast palms lean visibly to the west, interior
-palms stay upright. Not yet wind-aware: canopy crowns, windward wave height and foam,
-dune orientation, sky wisp direction and the wind bed in the soundscape; these
-are the remaining parts of item 4.
+palms stay upright. Not yet wind-aware: canopy crowns and dune orientation. Ocean/foam,
+sky wisps and the surf/breeze mix are covered by the later stages below.
 
 ## Coastal-debris integration — 2026-10-12
 
@@ -44,7 +43,8 @@ Inspected isolated llvmpipe captures `20261012T140703.574060Z-bay-ground` and
 `20261012T140806.665876Z-headland` pass. The bay frame visibly contains the accumulated logs,
 wrack and small shell cues; the headland retains the sparse rocky character. These are native
 software checks only. Web/Android, interactive coastal walking and performance comparison remain;
-wave/foam, canopy and ambient sound are still not wind-aware.
+At that stage wave/foam, canopy and ambient sound were not yet wind-aware; the later
+sections below supersede the wave/foam and ambient portions of that limitation.
 
 ## Slow fair-weather cloud drift — 2026-10-12
 
@@ -62,3 +62,21 @@ and non-finite-clock fallback. Isolated llvmpipe overview
 207.94 spatial contrast); the inspected frame retains the sunny horizon, wisps and cloud
 masses, and the runtime confirms the new shader uniform path. A true separated-time image
 comparison plus Web/Android runtime remain open, so ecosystem-stage item 10 stays `[~]`.
+
+## Windward ocean, foam and ambience — 2026-10-12
+
+`CoastalWindResponse` now converts the same trade-wind direction into a bounded coastal
+value that is neutral away from shore, approximately 0.25 in the leeward western bay and
+1.0 on the exposed east coast. The ocean shader uses it to scale broad displacement and
+all analytic surface slopes from 0.78 to 1.22. Ocean breaker foam and the separate shared
+shoreline ribbon scale from 0.75 to 1.25. Tide-pool water remains neutral and calm.
+
+The procedural surf and breeze beds reuse the same response through a restrained
+0.82–1.18 gain scale. This adds no audio source, PCM asset, draw or geometry; jungle and
+player-water layers remain unchanged, and existing crossfades smooth movement between
+coastal sectors. Core tests prove east/west ordering, exact bounds, neutral far-field and
+finite fallback. Inspected llvmpipe east/bay/headland captures
+`20261012T145730.795098Z-east`, `20261012T145824.100449Z-bay` and
+`20261012T145932.019541Z-headland` pass and show no shader or foam artifact. The nominal
+east camera faces mostly inland, so it is not accepted as comparative water evidence;
+controlled matched east/west motion and audible runtime review plus Web/Android remain.

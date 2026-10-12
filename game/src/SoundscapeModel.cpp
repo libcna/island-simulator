@@ -1,4 +1,5 @@
 #include "IslandSimulator/SoundscapeModel.hpp"
+#include "IslandSimulator/CoastalWindResponse.hpp"
 
 #include "IslandSimulator/PlayerMotion.hpp"
 
@@ -1069,7 +1070,8 @@ namespace island
     }
 
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,
-                                             const bool swimming) noexcept
+                                             const bool swimming,
+                                             const float coastalWindExposure) noexcept
     {
         if (!std::isfinite(signedShoreDistance)) {
             return {};
@@ -1084,6 +1086,9 @@ namespace island
         result.breezeVolume = 0.075f + canopyPresence * 0.12f;
         result.jungleVolume = SmoothStep(
             JungleFadeStartDistance, JungleFadeEndDistance, inlandDistance) * 0.078f;
+        const float windScale=CoastalWindResponse::AmbientScale(coastalWindExposure);
+        result.surfVolume*=windScale;
+        result.breezeVolume*=windScale;
         if (swimming) {
             result.surfVolume = std::max(result.surfVolume, 0.35f);
             result.breezeVolume *= 0.72f;
@@ -1092,16 +1097,18 @@ namespace island
         return result;
     }
 
-    void SoundscapeModel::Reset(const float signedShoreDistance, const bool swimming) noexcept
+    void SoundscapeModel::Reset(const float signedShoreDistance, const bool swimming,
+                                const float coastalWindExposure) noexcept
     {
-        mix_ = TargetMix(signedShoreDistance, swimming);
+        mix_ = TargetMix(signedShoreDistance, swimming,coastalWindExposure);
         variationSeconds_ = 0.0;
     }
 
     SoundscapeMix SoundscapeModel::Update(const float signedShoreDistance, const bool swimming,
-                                          const float deltaSeconds) noexcept
+                                          const float deltaSeconds,
+                                          const float coastalWindExposure) noexcept
     {
-        SoundscapeMix target = TargetMix(signedShoreDistance, swimming);
+        SoundscapeMix target = TargetMix(signedShoreDistance, swimming,coastalWindExposure);
         const float safeDelta = SafeDeltaSeconds(deltaSeconds);
         variationSeconds_ += static_cast<double>(safeDelta);
         // Long, mismatched periods keep stationary ambience from becoming a fixed wall of sound.

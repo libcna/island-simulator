@@ -333,14 +333,17 @@ namespace island
 
         /** @brief Computes the steady-state mix at one player location. */
         [[nodiscard]] static SoundscapeMix TargetMix(float signedShoreDistance,
-                                                     bool swimming) noexcept;
+                                                     bool swimming,
+                                                     float coastalWindExposure=.5f) noexcept;
 
         /** @brief Jumps to the correct mix, used before playback begins. */
-        void Reset(float signedShoreDistance, bool swimming) noexcept;
+        void Reset(float signedShoreDistance, bool swimming,
+                   float coastalWindExposure=.5f) noexcept;
 
         /** @brief Advances click-free zone crossfades. */
         [[nodiscard]] SoundscapeMix Update(float signedShoreDistance, bool swimming,
-                                           float deltaSeconds) noexcept;
+                                           float deltaSeconds,
+                                           float coastalWindExposure=.5f) noexcept;
 
         [[nodiscard]] const SoundscapeMix& Mix() const noexcept { return mix_; }
 

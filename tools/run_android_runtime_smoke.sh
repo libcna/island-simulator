@@ -194,6 +194,11 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         AUDIO_QUALIFIED=0
     fi
     if [ "$REQUIRE_AUDIO" -eq 1 ] \
+        && ! grep -q "island-simulator: surf and breeze gains follow bounded coastal wind exposure" \
+            "$LOG_FILE"; then
+        AUDIO_QUALIFIED=0
+    fi
+    if [ "$REQUIRE_AUDIO" -eq 1 ] \
         && ! grep -q "island-simulator: persistent ambient PCM is DC-centered before quantization" \
             "$LOG_FILE"; then
         AUDIO_QUALIFIED=0
@@ -636,6 +641,11 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         fi
         if [ "$REQUIRE_AUDIO" -eq 1 ] \
             && ! grep -q "island-simulator: ambient beds use slow non-amplifying gain drift" \
+                "$COLD_RELAUNCH_LOG_FILE"; then
+            COLD_AUDIO_QUALIFIED=0
+        fi
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && ! grep -q "island-simulator: surf and breeze gains follow bounded coastal wind exposure" \
                 "$COLD_RELAUNCH_LOG_FILE"; then
             COLD_AUDIO_QUALIFIED=0
         fi

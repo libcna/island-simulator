@@ -3,9 +3,12 @@
 ## Document purpose
 
 This is the living execution ledger for the original roughly 300-hour development campaign. On
-2026-10-12 the operator replaced the former open-ended visual-realism extension with a hard planning
-limit of approximately 100 remaining productive hours. The requested functional scope is retained,
-but visual fidelity and iteration depth must fit that limit. This is not a feature wish list: checked
+2026-10-12 the operator set approximately 100 productive hours as the target implementation window
+for the remaining plan. This is a planning target, not an automatic stop: work continues until the
+operator stops it. The requested functional scope is retained, but initial visual fidelity and
+iteration depth should fit that target. If the functional plan finishes early, use the remaining
+time to deepen individual items toward the quality of the former roughly 400-hour outlook. This is
+not a feature wish list: checked
 items require the validation named by their phase, and platform claims must be supported by actual
 runtime evidence. New discoveries, regressions, framework workarounds, asset provenance work, and
 deferred polish belong here as soon as they become material.
@@ -22,18 +25,20 @@ CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
 ## Latest operator priorities — 2026-10-12
 
-Remaining-budget constraint: plan all still-open work inside approximately 100 productive hours.
+Target-window constraint: aim to implement all still-open work inside approximately 100 productive
+hours, continue working after that boundary unless the operator stops the campaign, and accept extra
+hours if the operator extends the budget.
 Do not silently remove requested features. Give every retained feature a functional, recognisable,
 integrated implementation, but reduce visual ambition to the smallest coherent version: generally
 one model/material treatment, one motion set, bounded procedural detail and one targeted visual
 iteration. Photorealism, numerous bespoke animation/model variants, extensive texture passes and
-repeated cross-platform art tuning are stretch work only if the functional ledger finishes early.
+repeated cross-platform art tuning follow the functional pass or fill time saved by finishing it early.
 Crash fixes, input correctness, traversal safety, deterministic placement, bounded simulation/render
 cost and representative native runtime evidence keep their normal acceptance bar. Portable Web and
 Android work is consolidated around affected subsystems and final integration rather than repeated
 per-feature polish passes.
 
-Working allocation for the remaining 100-hour envelope (re-estimate after each integrated stage):
+Working allocation for the target 100-hour implementation window (re-estimate after each integrated stage):
 
 - 10 h — stability, controls, fly/dive boundaries and regression work;
 - 20 h — wildlife counts, habitat, motion and missing animal audio;
@@ -44,8 +49,9 @@ Working allocation for the remaining 100-hour envelope (re-estimate after each i
 - 12 h — grounded enterable helicopter at reduced visual-detail target;
 - 8 h — integration, performance budgets, portable smoke coverage and release buffer.
 
-These are control budgets, not permission to leave a feature half-connected: when a stage threatens
-its allocation, simplify its geometry/material/animation variety before cutting its required behavior.
+These are control budgets, not permission to leave a feature half-connected or to stop when the
+window is consumed: simplify geometry/material/animation variety before cutting required behavior,
+then keep improving remaining or shallow items until the operator ends the work.
 
 Build constraint: all future compilations are limited to at most four CPU cores
 by explicit user request. Use `-j4` / `--parallel 4` or fewer workers, bound nested
@@ -159,6 +165,16 @@ uniform, with no new geometry, texture, draw or weather/day-night state. Core ti
 tests pass. Inspected llvmpipe `20261012T144704.173888Z-overview` passes and preserves the
 sunny sky composition; separated-time motion evidence and actual Web/Android shader runs
 remain, so ecosystem-stage item 10 is `[~]`. See [prevailing-wind.md](docs/prevailing-wind.md).
+
+Wind-aware coast progress: one bounded `CoastalWindResponse` returns a neutral value away
+from shore, 0.25 in the leeward western bay and 1.0 on the windward east coast. The ocean
+shader scales displacement and analytic slopes 0.78–1.22, and both ocean plus shoreline
+foam scale 0.75–1.25. Surf and breeze ambient gains share a restrained 0.82–1.18 scale;
+jungle and player-water layers are unchanged. Core response/audio tests pass. Inspected
+llvmpipe `20261012T145730.795098Z-east`, `20261012T145824.100449Z-bay` and
+`20261012T145932.019541Z-headland` all pass without water/foam artifacts. A controlled
+same-scale east/west motion comparison, audible runtime review and actual Web/Android runs
+remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/prevailing-wind.md).
 
 - [~] Increase the production population to exactly 50 ground snakes and 200 ground
   spiders, superseding the former four/twelve and current eight/24 stages, so both

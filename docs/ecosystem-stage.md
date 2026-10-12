@@ -125,9 +125,14 @@ existing features, not a broad redesign.
     handling; inspected native llvmpipe overview `20261012T144704.173888Z-overview`
     passes and retains the sunny composition. A separated-time motion comparison and
     actual Web/Android shader runs remain before completion.
-11. [ ] **Wind-aware ocean and ambient wind.** Somewhat greater waves/foam/breeze
+11. [~] **Wind-aware ocean and ambient wind.** Somewhat greater waves/foam/breeze
     sound on the exposed east side and calmer western bay; roughly ±20–30% modulation
     of existing systems is a starting point, to be tuned from actual observation.
+    One shared bounded response now drives ocean displacement/slopes, ocean and shoreline
+    foam, surf gain and breeze gain. East reaches 1.22/1.25/1.18 wave/foam/ambient scale;
+    the western bay reaches roughly 0.89/0.88/0.91, returning to neutral away from shore.
+    CPU tests and three inspected native llvmpipe views pass. Controlled paired motion,
+    audible review and actual Web/Android runtime remain.
 12. [ ] **Stream audio and local sound biomes.** One distance-attenuated procedural
     stream loop; stronger existing jungle ambience in wet interior, breeze/surf on
     headlands and less wind in sheltered bay. Preserve audio budgets/mute/lifecycle;
