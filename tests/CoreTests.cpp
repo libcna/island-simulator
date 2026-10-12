@@ -418,7 +418,7 @@ int main()
               && mobileQuality.wildlifeMaximumDistanceScale
                   < fullQuality.wildlifeMaximumDistanceScale,
           "mobile quality bounds distant shadows and wildlife");
-    Check(island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes == 9305216U,
+    Check(island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes == 9654740U,
           "runtime texture budget must include floor, leaf, wildlife, hut, resident and bear mip chains");
     Check(mobileQuality.textureByteBudget
               >= island::GeneratedTextureBudget::TotalRuntimeRgba8Bytes,

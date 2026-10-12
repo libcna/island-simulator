@@ -1,0 +1,13 @@
+Generator: built-in OpenAI image generation tool
+Generated: 2026-10-12
+Original generated file: exec-5e81c4e0-79c7-44e4-a4e1-024e840ac162.png
+Source SHA-256: 9fca0839d68b23408a42336564ddf0ed9e19b1eb4c0b319784a5a3b1df64596c
+
+Use case: stylized-concept
+Asset type: seamless square albedo texture for a real-time 3D tropical shipwreck
+Primary request: create a photorealistic, orthographic, evenly lit tileable material atlas of severely weathered tropical sailing-ship timber. The whole image should be continuous wood surface, not a scene.
+Style/medium: realistic game-ready diffuse/albedo texture, fine photographic material detail
+Composition/framing: straight-on flat square texture; long wood grain runs horizontally across the full image; seamless wrapping on all four edges; no perspective
+Lighting/mood: neutral diffuse studio illumination baked as little as possible; no directional shadows, no highlights
+Materials/textures: dark desaturated brown-grey salt-bleached timber, fine longitudinal grain, subtle fibrous splits, narrow cracks, abrasion, small pale salt deposits, restrained green algae staining and darker wet-weathered bands; varied at several scales but without obvious repeated boards
+Constraints: no separate planks or panel borders, no nails, no metal, no objects, no background, no large knots, no deep black gaps, no text, no watermark; preserve readable detail when downsampled to 256x256; color only/albedo, not a normal map or lighting render

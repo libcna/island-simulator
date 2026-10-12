@@ -3,6 +3,18 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "shipwreck-weathered-wood-albedo-v1",
+      "path": "assets/art-studies/shipwreck-weathered-wood-albedo-v1.png",
+      "sha256": "9fca0839d68b23408a42336564ddf0ed9e19b1eb4c0b319784a5a3b1df64596c",
+      "licenseRecord": "AI-generated shipwreck weathered wood"
+    },
+    {
+      "name": "shipwreck-weathered-wood-prompt-v1",
+      "path": "assets/art-studies/shipwreck-weathered-wood-albedo-v1-prompt.txt",
+      "sha256": "9aa36f4c838080c7a6885fe6eac3459664194896065da711f56e3006d17cd290",
+      "licenseRecord": "AI-generated shipwreck weathered wood"
+    },
+    {
       "name": "boar-bristle-albedo-v2",
       "path": "assets/art-studies/boar-bristle-albedo-v2.png",
       "sha256": "79490e2046ba87f0e5260e39981f0e2e29909a2b2ed32326a4b2462b5cd50c15",

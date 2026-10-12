@@ -31,6 +31,7 @@ namespace island
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
+                    + GeneratedTextureBudget::ShipwreckWoodMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
                     + 160U * 1024U, 6, 4};
@@ -53,6 +54,7 @@ namespace island
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
+                    + GeneratedTextureBudget::ShipwreckWoodMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
                     + 160U * 1024U, 6, 2};
@@ -70,6 +72,7 @@ namespace island
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
+                    + GeneratedTextureBudget::ShipwreckWoodMipBytes
                     + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + GeneratedTextureBudget::BearFurMipBytes
                     + 160U * 1024U, 6, 0};

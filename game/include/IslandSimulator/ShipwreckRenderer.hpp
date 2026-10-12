@@ -11,6 +11,7 @@ namespace Microsoft::Xna::Framework::Graphics
     class BasicEffect;
     class GraphicsDevice;
     class ShaderEffect;
+    class Texture2D;
     class VertexBuffer;
 }
 
@@ -49,11 +50,13 @@ namespace island
         Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> fallbackEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::ShaderEffect> agedWoodEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::Texture2D> woodTexture_;
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> vertices_;
         Microsoft::Xna::Framework::BoundingBox bounds_;
         Microsoft::Xna::Framework::Vector3 centre_;
         Microsoft::Xna::Framework::Vector3 woodRight_;
         Microsoft::Xna::Framework::Vector3 woodForward_;
+        Microsoft::Xna::Framework::Vector3 woodMean_;
         int vertexCount_ = 0;
         int primitiveCount_ = 0;
         int debrisCount_ = 0;

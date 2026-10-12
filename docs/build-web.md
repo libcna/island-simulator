@@ -293,11 +293,12 @@ The deployable files are written to `build-probe/`:
 - `island-simulator.wasm`
 - `island-simulator.data`
 
-The required `.data` file preloads the hash-gated v1 forest-floor PNG at
-`/Content/terrain/forest-floor.png`. Serve it alongside the other three files as
+The required `.data` file preloads the prepared material PNGs, including the hash-gated v1
+forest-floor image at `/Content/terrain/forest-floor.png` and the board-local shipwreck wood at
+`/Content/structures/shipwreck-weathered-wood.png`. Serve it alongside the other three files as
 `application/octet-stream`; omitting it blocks Emscripten startup. The runtime material validates
-and reduces this source to a 512-square full mip chain. Other geometry, shaders, small textures,
-animation, font and PCM remain generated from project code. The rejected v2 study and original
+the prepared dimensions and builds complete mip chains. Geometry, shaders, remaining small textures,
+animation, font and PCM are generated from project code. Rejected studies and the original
 Android launcher vector are not included. See `forest-floor-material-review.md` for evidence.
 
 The floor integration passes the serial Chrome/SwiftShader terrain gate (PID 3910489):

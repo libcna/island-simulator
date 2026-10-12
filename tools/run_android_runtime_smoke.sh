@@ -209,7 +209,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         AUDIO_QUALIFIED=0
     fi
     if grep -q "island-simulator: renderer OPENGLES3" "$LOG_FILE" \
-        && grep -q "island-simulator: quality profile mobile grass 112m vegetation 78% shadows 72% wildlife 82% ocean 128x128 textures 9305216/9325432 bytes audio 6/6 sources" \
+        && grep -q "island-simulator: quality profile mobile grass 112m vegetation 78% shadows 72% wildlife 82% ocean 128x128 textures 9654740/9674956 bytes audio 6/6 sources" \
             "$LOG_FILE" \
         && grep -q "island-simulator: viewport 1280x720 logical backbuffer" \
             "$LOG_FILE" \
@@ -239,6 +239,10 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && grep -q "island-simulator: driftwood end caps match irregular body rings" \
             "$LOG_FILE" \
         && grep -q "island-simulator: shipwreck portable aged wood, waterline, and salt-wear material" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas" \
+            "$LOG_FILE" \
+        && grep -q "island-simulator: shipwreck weathered wood follows per-piece board and beam UVs" \
             "$LOG_FILE" \
         && grep -q "island-simulator: shipwreck 20m broken hull, 12 debris pieces, one portable culled batch" \
             "$LOG_FILE" \

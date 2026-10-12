@@ -1,6 +1,7 @@
 #include "IslandSimulator/ShipwreckRenderer.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/OpaqueImageLoader.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 
@@ -30,9 +31,13 @@
 #include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
 #include "Microsoft/Xna/Framework/Graphics/PrimitiveType.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/ShaderEffect.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
+#include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
-#include "Microsoft/Xna/Framework/Graphics/VertexPositionColor.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexPositionColorTexture.hpp"
+#include "Microsoft/Xna/Framework/Vector2.hpp"
 
 using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
@@ -48,6 +53,8 @@ namespace island
         constexpr std::string_view LargeShipDetailDiagnostic =
             "island-simulator: shipwreck large-ship silhouette uses deck rails, hull openings, "
             "keel, rudder, and a broken foremast";
+        constexpr std::string_view BoardTextureDiagnostic =
+            "island-simulator: shipwreck weathered wood follows per-piece board and beam UVs";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -61,18 +68,21 @@ namespace island
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
+layout(location = 2) in vec2 aWoodCoordinate;
 
 uniform mat4 uViewProjection;
 
 out vec3 vColor;
 out vec3 vWorld;
 out float vMaterial;
+out vec2 vWoodCoordinate;
 
 void main()
 {
     vColor = aColor.rgb;
     vWorld = aPosition;
     vMaterial = aColor.a;
+    vWoodCoordinate = aWoodCoordinate;
     gl_Position = uViewProjection * vec4(aPosition, 1.0);
     gl_Position.z = 2.0 * gl_Position.z - gl_Position.w;
 }
@@ -82,12 +92,15 @@ void main()
 in vec3 vColor;
 in vec3 vWorld;
 in float vMaterial;
+in vec2 vWoodCoordinate;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uShipCentre;
 uniform vec3 uShipRight;
 uniform vec3 uShipForward;
 uniform vec3 uToSun;
+uniform sampler2D uWoodTexture;
+uniform vec3 uWoodMean;
 
 out vec4 fragColor;
 
@@ -98,6 +111,13 @@ void main()
     vec3 relative = vWorld - uShipCentre;
     float along = dot(relative, uShipForward);
     float across = dot(relative, uShipRight);
+    vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
+    vec3 faceNormal = normalize(faceVector);
+    vec2 mirrored = abs(fract(vWoodCoordinate * 0.5) * 2.0 - 1.0);
+    vec2 atlasCoordinate = mix(vec2(0.075), vec2(0.925), mirrored);
+    vec3 sampledWood = texture(uWoodTexture, atlasCoordinate).rgb;
+    vec3 woodModulation = clamp(sampledWood / max(uWoodMean, vec3(0.08)),
+                                vec3(0.48), vec3(1.52));
 
     float longGrain = 0.5 + 0.5 * sin(along * 7.4
         + sin(along * 1.31 + across * 0.73) * 0.82
@@ -117,6 +137,8 @@ void main()
     vec3 broken = vColor * (0.95 + 0.075 * fineGrain);
     broken = mix(broken, broken * vec3(1.07, 1.02, 0.90), 0.35 * longGrain);
     vec3 materialColor = mix(aged, broken, freshBreak);
+    float textureInfluence = detailFade * (1.0 - freshBreak * 0.86);
+    materialColor *= mix(vec3(1.0), woodModulation, textureInfluence * 0.58);
     materialColor = mix(vColor, materialColor, detailFade);
 
     float wetBand = (1.0 - smoothstep(-0.14, 0.38, vWorld.y))
@@ -133,8 +155,6 @@ void main()
                         materialColor * vec3(1.13, 1.12, 1.05),
                         saltLine * 0.24);
 
-    vec3 faceVector = cross(dFdx(vWorld), dFdy(vWorld));
-    vec3 faceNormal = normalize(faceVector);
     vec3 toViewer = normalize(uCameraPosition - vWorld);
     if (dot(faceNormal, toViewer) < 0.0) faceNormal = -faceNormal;
     vec3 reflectedSun = reflect(-normalize(uToSun), faceNormal);
@@ -251,25 +271,55 @@ void main()
             return ScaleColor(base, 0.66f + direct * 0.34f + sky * 0.08f);
         }
 
-        void AddTriangle(std::vector<VertexPositionColor>& vertices,
+        enum class GrainAxis
+        {
+            Longest,
+            AlongAB,
+            AlongAD,
+        };
+
+        void AddTriangle(std::vector<VertexPositionColorTexture>& vertices,
+                         const Vector3& a, const Vector3& b, const Vector3& c,
+                         const Color& color, const Vector2& textureA,
+                         const Vector2& textureB, const Vector2& textureC)
+        {
+            const Color lit = LitColor(a, b, c, color);
+            vertices.emplace_back(a, lit, textureA);
+            vertices.emplace_back(b, lit, textureB);
+            vertices.emplace_back(c, lit, textureC);
+        }
+
+        void AddTriangle(std::vector<VertexPositionColorTexture>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
                          const Color& color)
         {
-            const Color lit = LitColor(a, b, c, color);
-            vertices.emplace_back(a, lit);
-            vertices.emplace_back(b, lit);
-            vertices.emplace_back(c, lit);
+            AddTriangle(vertices, a, b, c, color, Vector2(0.0f, 0.0f),
+                        Vector2((b - a).Length() * 0.19f, 0.0f),
+                        Vector2(0.0f, (c - a).Length() * 0.34f));
         }
 
-        void AddQuad(std::vector<VertexPositionColor>& vertices,
+        void AddQuad(std::vector<VertexPositionColorTexture>& vertices,
                      const Vector3& a, const Vector3& b, const Vector3& c,
-                     const Vector3& d, const Color& color)
+                     const Vector3& d, const Color& color,
+                     const GrainAxis grainAxis = GrainAxis::Longest)
         {
-            AddTriangle(vertices, a, b, c, color);
-            AddTriangle(vertices, a, c, d, color);
+            const float lengthAB = (b - a).Length();
+            const float lengthAD = (d - a).Length();
+            const bool alongAB = grainAxis == GrainAxis::AlongAB
+                || (grainAxis == GrainAxis::Longest && lengthAB >= lengthAD);
+            const float along = (alongAB ? lengthAB : lengthAD) * 0.19f;
+            const float acrossLength = (alongAB ? lengthAD : lengthAB) * 0.34f;
+            const Vector2 textureA(0.0f, 0.0f);
+            const Vector2 textureB = alongAB ? Vector2(along, 0.0f)
+                                             : Vector2(0.0f, acrossLength);
+            const Vector2 textureC(along, acrossLength);
+            const Vector2 textureD = alongAB ? Vector2(0.0f, acrossLength)
+                                             : Vector2(along, 0.0f);
+            AddTriangle(vertices, a, b, c, color, textureA, textureB, textureC);
+            AddTriangle(vertices, a, c, d, color, textureA, textureC, textureD);
         }
 
-        void AppendBox(std::vector<VertexPositionColor>& vertices, const Vector3& centre,
+        void AppendBox(std::vector<VertexPositionColorTexture>& vertices, const Vector3& centre,
                        const Axes& axes, const float halfWidth, const float halfHeight,
                        const float halfLength, const Color& color)
         {
@@ -290,7 +340,7 @@ void main()
             AddQuad(vertices, point[4], point[5], point[1], point[0], color);
         }
 
-        void AppendBrokenPlank(std::vector<VertexPositionColor>& vertices,
+        void AppendBrokenPlank(std::vector<VertexPositionColorTexture>& vertices,
                                const Vector3& centre, const Axes& axes,
                                const float halfWidth, const float halfHeight,
                                const float halfLength, const Color& color,
@@ -342,7 +392,7 @@ void main()
                     rightTop.back(), FreshBreak);
         }
 
-        void AppendTaperedBeam(std::vector<VertexPositionColor>& vertices,
+        void AppendTaperedBeam(std::vector<VertexPositionColorTexture>& vertices,
                                const Vector3& start, const Vector3& end,
                                const float startRadius, const float endRadius,
                                const Color& color)
@@ -408,7 +458,7 @@ void main()
         }
 
         template<std::size_t SectionCount>
-        void AppendHullPiece(std::vector<VertexPositionColor>& vertices,
+        void AppendHullPiece(std::vector<VertexPositionColorTexture>& vertices,
                              const ShipwreckPlacement& ship, const Axes& axes,
                              const std::array<float, SectionCount>& sectionZ,
                              const bool capFirst)
@@ -442,7 +492,8 @@ void main()
                 const Vector3 deckNextRight = ShipPoint(
                     ship, axes, nextWidth, 1.16f, sectionZ[section + 1U]);
                 AddQuad(vertices, deckFirstLeft, deckFirstRight, deckNextRight,
-                        deckNextLeft, section % 2U == 0U ? InnerWood : OuterWood);
+                        deckNextLeft, section % 2U == 0U ? InnerWood : OuterWood,
+                        GrainAxis::AlongAD);
 
                 const float centreZ = (sectionZ[section] + sectionZ[section + 1U]) * 0.5f;
                 const float halfLength = (sectionZ[section + 1U] - sectionZ[section]) * 0.5f;
@@ -496,7 +547,7 @@ void main()
             }
         }
 
-        void AppendRib(std::vector<VertexPositionColor>& vertices,
+        void AppendRib(std::vector<VertexPositionColorTexture>& vertices,
                        const ShipwreckPlacement& ship, const Axes& axes, const float z,
                        const float damageLean)
         {
@@ -512,7 +563,7 @@ void main()
             AppendTaperedBeam(vertices, rightBilge, rightTop, 0.13f, 0.10f, InnerWood);
         }
 
-        void AppendShip(std::vector<VertexPositionColor>& vertices,
+        void AppendShip(std::vector<VertexPositionColorTexture>& vertices,
                         const ShipwreckPlacement& ship)
         {
             const Axes axes = ShipAxes(ship);
@@ -636,7 +687,7 @@ void main()
                         Vector3(std::sin(yaw), 0.0f, std::cos(yaw))};
         }
 
-        void AppendDebris(std::vector<VertexPositionColor>& vertices,
+        void AppendDebris(std::vector<VertexPositionColorTexture>& vertices,
                           const ShipwreckDebrisPlacement& debris, const std::size_t index)
         {
             Axes axes = HorizontalAxes(debris.yawRadians);
@@ -676,7 +727,25 @@ void main()
         const Axes shipAxes = ShipAxes(layout.Ship());
         woodRight_ = shipAxes.right;
         woodForward_ = shipAxes.forward;
-        std::vector<VertexPositionColor> vertices;
+        const auto woodLevels = LoadOpaqueImageMips(
+            device_, "Content/structures/shipwreck-weathered-wood.png", 256);
+        const auto& mean = woodLevels.back().pixels[0];
+        woodMean_ = Vector3(mean[0] / 255.0f, mean[1] / 255.0f, mean[2] / 255.0f);
+        woodTexture_ = std::make_unique<Texture2D>(
+            device_, 256, 256, true, SurfaceFormat::Color);
+        for (std::size_t level = 0; level < woodLevels.size(); ++level) {
+            const auto& pixels = woodLevels[level].pixels;
+            woodTexture_->SetData(static_cast<int>(level), nullptr,
+                                  reinterpret_cast<const std::uint8_t*>(pixels.data()),
+                                  0, static_cast<int>(pixels.size() * 4U));
+        }
+        constexpr std::string_view WoodTextureDiagnostic =
+            "island-simulator: shipwreck wood loaded Content/structures/"
+            "shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; "
+            "mirrored interior atlas";
+        std::cout << WoodTextureDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(WoodTextureDiagnostic);
+        std::vector<VertexPositionColorTexture> vertices;
         vertices.reserve(4200U);
         AppendShip(vertices, layout.Ship());
         for (std::size_t index = 0; index < layout.Debris().size(); ++index) {
@@ -687,13 +756,13 @@ void main()
         primitiveCount_ = vertexCount_ / 3;
         debrisCount_ = static_cast<int>(layout.Debris().size());
         vertices_ = std::make_unique<VertexBuffer>(
-            device_, VertexPositionColor::getVertexDeclarationStatic(), vertexCount_,
+            device_, VertexPositionColorTexture::getVertexDeclarationStatic(), vertexCount_,
             BufferUsage::WriteOnly);
         vertices_->SetData(vertices.data(), vertexCount_);
 
         Vector3 minimum(std::numeric_limits<float>::max());
         Vector3 maximum(std::numeric_limits<float>::lowest());
-        for (const VertexPositionColor& vertex : vertices) {
+        for (const VertexPositionColorTexture& vertex : vertices) {
             minimum = Vector3::Min(minimum, vertex.Position);
             maximum = Vector3::Max(maximum, vertex.Position);
         }
@@ -712,7 +781,9 @@ void main()
                 if (agedWoodEffect_->IsEffectValid()) {
                     agedWoodShaderReady_ = true;
                     std::cout << AgedWoodDiagnostic << '\n';
+                    std::cout << BoardTextureDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(AgedWoodDiagnostic);
+                    MirrorRuntimeDiagnosticToPlatformLog(BoardTextureDiagnostic);
                 } else {
                     std::cerr << "island-simulator: shipwreck material fallback: "
                               << agedWoodEffect_->GetCompileErrorEXT() << '\n';
@@ -774,6 +845,11 @@ void main()
                                             woodRight_.Y, woodRight_.Z);
             agedWoodEffect_->SetUniformVec3("uShipForward", woodForward_.X,
                                             woodForward_.Y, woodForward_.Z);
+            device_.getSamplerStatesProperty()[0] = SamplerState::LinearClamp;
+            agedWoodEffect_->SetTexture(0, *woodTexture_);
+            agedWoodEffect_->SetUniformInt("uWoodTexture", 0);
+            agedWoodEffect_->SetUniformVec3("uWoodMean", woodMean_.X,
+                                            woodMean_.Y, woodMean_.Z);
             agedWoodEffect_->SetUniformVec3(
                 "uToSun", environment::SunDirectionX, environment::SunDirectionY,
                 environment::SunDirectionZ);

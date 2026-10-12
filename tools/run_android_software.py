@@ -161,7 +161,9 @@ def validate_guest_renderer(text):
 
 MATERIAL_PATHS = ("Content/terrain/forest-floor.png", "Content/vegetation/leaf-lamina.png",
                   "Content/wildlife/monkey-fur.png", "Content/structures/hut-palm-fibre.png",
-                  "Content/wildlife/goat-fur.png", "Content/wildlife/spider-setae.png")
+                  "Content/wildlife/goat-fur.png", "Content/wildlife/spider-setae.png",
+                  "Content/wildlife/boar-bristle.png",
+                  "Content/structures/shipwreck-weathered-wood.png")
 
 
 def validate_apk(apk, prepared_root=None):
@@ -242,6 +244,10 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm the hut material")
         if viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log:
             raise RuntimeError("application did not confirm the hut material texture")
+        if viewpoint == "shipwreck" and "shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas" not in log:
+            raise RuntimeError("application did not confirm the shipwreck wood texture")
+        if viewpoint == "shipwreck" and "shipwreck weathered wood follows per-piece board and beam UVs" not in log:
+            raise RuntimeError("application did not confirm shipwreck board-local UVs")
         if viewpoint == "monkey-climb":
             validate_monkey_climb_stages(log)
             if "monkey climb held summit presented after eight cycle stages" not in log:

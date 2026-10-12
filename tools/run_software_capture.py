@@ -634,6 +634,10 @@ def main():
                 raise RuntimeError("packaged live-leaf material is missing; check assets and executable")
             if "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" not in diagnostics:
                 raise RuntimeError("packaged forest-floor material is missing; check assets and executable")
+            if args.viewpoint == "shipwreck" and "shipwreck wood loaded Content/structures/shipwreck-weathered-wood.png; 256x256, 9 mips, 349524 RGBA8 bytes; mirrored interior atlas" not in diagnostics:
+                raise RuntimeError("packaged shipwreck wood material is missing; check assets and executable")
+            if args.viewpoint == "shipwreck" and "shipwreck weathered wood follows per-piece board and beam UVs" not in diagnostics:
+                raise RuntimeError("shipwreck board-local UV material is missing; check for a stale executable")
             if not re.search(r"forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped"
                              r"|trilinear, anisotropy unavailable)", diagnostics):
                 raise RuntimeError("forest-floor sampler capability decision is missing")

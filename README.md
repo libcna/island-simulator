@@ -108,7 +108,10 @@ keel and rudder, broken deck rails, dark hull openings, and a splintered foremas
 trail varies its angle strongly in both directions instead of repeating the ship axis. One portable
 GLSL 330 / GLSL ES 300 material adds distance-faded
 longitudinal grain, weathering, restrained cracks, wet/submerged darkening, salt wear, and a small
-waterline sheen. It remains frustum/distance culled and is submitted as one batch before the
+waterline sheen. A prepared 256-square weathered-timber albedo now adds photographic-scale fibre,
+abrasion, salt and restrained algae detail. Per-piece UVs align its grain with individual hull
+boards, deck surfaces, beams and scattered debris; mirrored interior sampling avoids relying on
+the generated source's unqualified edge tiling. It remains frustum/distance culled and is submitted as one batch before the
 transparent ocean colours its submerged portions; it introduces no quest, pickup, or objective.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.

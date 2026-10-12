@@ -32,6 +32,7 @@ namespace island
         static constexpr std::size_t GoatFurMipBytes = 349524U;
         static constexpr int SpiderSetaeSize = 256;
         static constexpr std::size_t SpiderSetaeMipBytes = 349524U;
+        static constexpr std::size_t ShipwreckWoodMipBytes = 349524U;
         static constexpr std::size_t SnakeScaleRgba8Bytes = SnakeScaleSize * SnakeScaleSize * BytesPerPixel;
         // One shared map for grass roots and jungle litter; retain established budget names.
         static constexpr int GrassHeightSize = 241;
@@ -60,7 +61,8 @@ namespace island
         static constexpr std::size_t TotalRuntimeRgba8Bytes =
             TotalRgba8Bytes + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
             + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes + SpiderSetaeMipBytes
-            + BoarCoatRgba8Bytes + ResidentMaterialMipBytes + BearFurMipBytes
+            + BoarCoatRgba8Bytes + ShipwreckWoodMipBytes
+            + ResidentMaterialMipBytes + BearFurMipBytes
             - static_cast<std::size_t>((ResidentMaterialSize * ResidentMaterialSize
                 + BearFurSize * BearFurSize) * BytesPerPixel);
     };

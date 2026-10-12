@@ -41,6 +41,7 @@ readonly packaged_files=(
     lib/libcna.so
     Content/terrain/forest-floor.png
     Content/vegetation/leaf-lamina.png
+    Content/structures/shipwreck-weathered-wood.png
     share/island-simulator/README.md
     share/island-simulator/ASSET_LICENSES.md
     share/island-simulator/dependencies.lock

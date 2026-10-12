@@ -1259,7 +1259,7 @@ Visual rework explicitly requested by the operator (2026-10-11):
   avoid uniformly brown geometric-looking bodies. Review walking, foot contact and material
   detail in close and distant actual game captures on native, Android and Web. Existing
   material-loading and ground-contact checks do not constitute visual acceptance.
-- [ ] Make the shipwreck and scattered ship debris substantially more realistic. Refine the
+- [~] Make the shipwreck and scattered ship debris substantially more realistic. Refine the
   large sailing ship's hull structure, ribs, plank thickness, broken edges and believable
   damage; integrate debris into sand and shallow water without floating or intersections.
   Add suitable weathered wood textures with grain aligned to individual boards, splintered
@@ -1268,6 +1268,19 @@ Visual rework explicitly requested by the operator (2026-10-11):
   mipmaps and distant readability. Preserve collision/traversal and rendering budgets.
   Inspect matched before/after close and wide in-game views on native, Android and Web;
   do not close this task based only on a successful build or texture-loading diagnostics.
+  First material slice implemented: built-in ImageGen source and exact prompt are preserved as
+  `assets/art-studies/shipwreck-weathered-wood-albedo-v1*`, deterministically reduced to 256 square
+  and uploaded with nine mips (349,524 RGBA8 bytes). The source failed the horizontal seamlessness
+  screen (edge/interior MAE ratio 2.013), so the shader samples mirrored interior windows rather
+  than claiming repeatability. Vertex data now carries per-piece UVs; hull planks, deck surfaces,
+  beams and independently rotated debris align the horizontal fibre direction to their own long
+  dimension. Procedural palette, fresh-break suppression, waterline darkening, salt line, sheen,
+  distance fade and BasicEffect fallback remain. Native llvmpipe before
+  `20261012T222715.392938Z-shipwreck` and inspected after
+  `20261012T223828.236728Z-shipwreck` preserve one draw and 3,948 triangles; the after frame has
+  187 colour bins, 38.29 luminance deviation and 163.62 spatial contrast with an empty kernel delta.
+  Further hull/damage geometry, metal fittings/rust, sand/water integration, wide-view comparison
+  and actual Web/Android visual qualification remain open; texture-load markers alone do not close it.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
 progress or require player interaction; dangerous species keep their distance like the shark):
