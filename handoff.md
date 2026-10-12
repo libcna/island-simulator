@@ -1,5 +1,30 @@
 # island-simulator handoff
 
+## Latest — flank coat fold reduced; stale native-test preset repaired
+
+GoatCoatUv now uses sin(angle) for body/head across coordinate, matching loft ring
+height; old cos folded fur through visible flank centres. Sweep UVs/source/geometry/
+draw counts/memory unchanged. Added cardinal-height and bilateral-height UV checks.
+Native llvmpipe020419.131486Z-goats8stage PASS/kernel[]; actual montage and enlarged
+same-stage comparison inspected (build/goat-flank-comparison.png, old left/new right).
+Side flow improved, but rump taper/star pattern and coarse groups remain; anatomy open.
+
+IMPORTANT verification correction: old linux-debug build preset omitted goat tests.
+Source04:03CEST vs binary03:55CEST proved the first current-turn46-test green run used
+a stale GoatMeshTests executable. It is NOT evidence of new flank tests. Older
+preset-only passes likewise cannot alone prove their latest goat edits were compiled;
+explicit goat-target builds/actual runtime captures remain separate valid evidence.
+Fixed debug/sanitize build presets to configured all, CNA EXCLUDE_FROM_ALL retained.
+linux-core test preset now excludes display only (old allowlist omitted many CPU tests).
+New IslandPresetCoverageTests guards4narrow/unsafe mutations. Corrected build log
+build/goat-flank-current-build.log explicitly compiles GoatMeshTests.cpp and preview;
+actual ctest --preset linux-core47/47 PASS87.05s. Includes newest support-plane/flank
+checks; hoof route minimum remains-0.000804901m. See docs/build-linux.md/docs/goats.md.
+No sanitizer run, Web/Android build/runtime or emulator/KVM/dependency changes this
+turn. All owned handles terminal; hardware latch c0bd1704 unchanged. Goal active,
+no push. Next: goat anatomical detail/stance and actual portable runtime; full prior
+species/environment/stability backlog remains open, including unresolved AMD crash.
+
 ## Latest — eight-stage native goat motion audit and per-hoof support rotation
 
 UsesGoatCaptureClock only for nonempty capturePath + GoatDetail; fixed timestep disabled

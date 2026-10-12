@@ -42,9 +42,14 @@ cmake --preset linux-debug
 cmake --build --preset linux-debug
 ```
 
-The preset deliberately builds only the game, project tests, and host report targets. CNA is
-added with `EXCLUDE_FROM_ALL`, so a bare all-target build does not pull unrelated framework tools
-into normal game iteration; explicit project targets remain preferable in automation.
+The native debug and sanitizer build presets use the configured project `all` target,
+so newly registered tests/tools are rebuilt instead of silently running old binaries.
+CNA is added with `EXCLUDE_FROM_ALL`; this does not pull unrelated framework tools into
+normal game iteration. Explicit targets remain useful for a focused intermediate check,
+but rebuild the complete preset before claiming a current full suite.
+`ctest --preset linux-core` includes every configured non-display test and excludes the
+`display` label, equivalent in scope to `ctest --test-dir build -LE display`.
+`IslandPresetCoverageTests` guards against reverting to stale curated target/test lists.
 `IslandTerrainMaterialTests` is a non-display test linked to CNA math: it checks all terrain-grid
 lighting values against the legacy response and verifies the 28-byte upload layout. It does not
 create a graphics context or qualify stock-effect fallback rendering on a physical GPU.

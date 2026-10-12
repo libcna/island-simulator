@@ -106,6 +106,16 @@ int main() {
         vertex.u=.9f;const float high=GoatCoatUv(vertex)[1];
         check(part==GoatPart::Body?high<low:high>low,"goat coat strand direction reversed");
     }
+    for(const auto part:{GoatPart::Body,GoatPart::Head}) {
+        GoatVertex vertex{};vertex.part=part;vertex.u=.5f;
+        for(const auto [angle,expected]:std::array<std::array<float,2>,4>{{{0,.5f},{.25f,.94f},{.5f,.5f},{.75f,.06f}}}) {
+            vertex.v=angle;
+            check(std::abs(GoatCoatUv(vertex)[0]-expected)<1e-6f,"loft coat does not follow ring height");
+        }
+        vertex.v=.1f;const auto left=GoatCoatUv(vertex);
+        vertex.v=.4f;const auto right=GoatCoatUv(vertex);
+        check(std::abs(left[0]-right[0])<1e-6f&&left[1]==right[1],"coat folds across visible flank");
+    }
     GoatGroundPose bad{};bad.bodyBob=std::numeric_limits<float>::quiet_NaN();
     bool rejected=false;
     try {(void)BuildGoatMesh(bad,0,true);}catch(const std::invalid_argument&){rejected=true;}

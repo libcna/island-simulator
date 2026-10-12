@@ -307,6 +307,8 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
 
     find_package(Python3 COMPONENTS Interpreter QUIET)
     if(Python3_Interpreter_FOUND)
+        add_test(NAME IslandPresetCoverageTests
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/PresetCoverageTests.py")
         if(TARGET island_world_report)
             add_test(NAME IslandWorldGoatReportTests
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/WorldGoatReportTests.py"

@@ -284,6 +284,36 @@ Final native build/full46 non-display groups PASS106.71s; capture preflight afte
 last validator changes PASS0.19s. No new Web/Android build/runtime for this hoof/clock
 change, no emulator/KVM/dependency changes, and the hardware stop latch is unchanged.
 
+## Flank coat correction and verification-preset repair
+
+The body/head loft uses x=rx*cos(angle), y=centre+ry*sin(angle). The original coat
+mirror used cos(angle), folding the image through the middle of each visible flank.
+Body/head now use ring height (sin); the mirror lies on back/belly ridges instead.
+Sweep-part mapping, source image, longitudinal direction, geometry, allocations and
+draw count are unchanged. New tests check cardinal coordinates and matching-height
+left/right sides, in addition to the seam/range/direction checks.
+
+Native llvmpipe `20261012T020419.131486Z-goats` passed the8-stage live sequence with
+empty kernel delta. The actual montage and a same-stage enlarged before/after pair
+(`build/goat-flank-comparison.png`, old left/new right) were inspected. Side hair now
+flows more coherently along the body; the central mirrored whorl is reduced. Rump
+taper distortion, coarse strand grouping, angular legs and other anatomy remain open.
+
+Verification correction: the first full-suite run for this change used the old curated
+native build target list, which omitted the three goat test binaries. Their existing
+binaries could therefore pass without compiling the latest test edits. This was proven
+by GoatMeshTests.cpp being newer than its executable; that initial green log is NOT
+evidence of the new flank regression, and older preset-only runs cannot alone establish
+that their latest goat test edits were compiled. Explicit goat-target builds and actual
+runtime captures remain separately recorded evidence.
+Debug/sanitizer build presets now select the configured `all` target (CNA's unrelated
+tools remain EXCLUDE_FROM_ALL); linux-core tests exclude only the display label instead
+of a stale test-name allowlist. New preset regression rejects four narrowed/unsafe
+configurations. The corrected build explicitly compiled GoatMeshTests.cpp and rebuilt
+the preview; the subsequent actual linux-core preset passes47/47 in87.05s, including
+the latest tilted-hoof-plane and flank-map checks. Sampled hoof clearance remains
+-0.000804901m. No sanitizer run or fresh Web/Android build/runtime is claimed here.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

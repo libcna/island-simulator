@@ -855,6 +855,18 @@ progress or require player interaction; dangerous species keep their distance li
   invalid-normal tests added. Bone lengths/root routes unchanged. Full46 CPU groups
   PASS106.71s, latest capture preflight PASS0.19s. Larger visible angular-leg/blocky-hoof
   anatomy and rump coat-swirl defects remain priorities; no fresh portable qualification.
+  Flank mapping corrected: body/head mirror now follows ring height rather than lateral
+  width, removing the image fold through visible sides. Actual020419.131486Z-goats
+  llvmpipe8-stage capture PASS/kernel[], montage and same-stage before/after inspected;
+  side flow improved, rump taper distortion/coarse strands still open. Geometry/assets/
+  draw budgets unchanged. New cardinal/matching-height-side UV regressions added.
+  Verification flaw discovered: old native preset omitted goat test targets and could
+  run stale binaries. Initial green flank run is NOT new-regression evidence. Native
+  debug/sanitize builds now use configured all (CNA extras excluded); linux-core runs
+  all non-display tests. Preset contract+4negative cases added. Corrected build visibly
+  recompiles goat tests, actual linux-core47/47 PASS87.05s including newest checks.
+  This supersedes prior preset-only claims for latest goat test edits; explicit target
+  builds/captures remain separate evidence. No new portable or sanitizer qualification.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)
