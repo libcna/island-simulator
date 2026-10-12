@@ -4,6 +4,7 @@
 #include "IslandSimulator/BoarPose.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
 #include "IslandSimulator/BoarEyeGeometry.hpp"
+#include "IslandSimulator/BoarMouthGeometry.hpp"
 #include "IslandSimulator/BoarGroundPose.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -228,6 +229,18 @@ namespace island
                     mesh.SmoothTriangle(vertex(0),vertex(1),vertex(2));
                 }
                 if (near) {
+                    const auto mouth=BuildBoarMouth(side,dip,bob);
+                    const auto mouthPoint=[&](std::size_t i) {
+                        const auto p=mouth[i];return Vector3(p.x,p.y,p.z);
+                    };
+                    const auto mouthTriangle=[&](std::size_t a,std::size_t b,std::size_t c) {
+                        if(side<0) std::swap(b,c);
+                        mesh.Triangle(mouthPoint(a),mouthPoint(b),mouthPoint(c),
+                            wildlife_render::ScaleColor(coat,0.48f));
+                    };
+                    for(std::size_t i=0;i+3<mouth.size();i+=2) {
+                        mouthTriangle(i,i+1,i+3);mouthTriangle(i,i+3,i+2);
+                    }
                     const auto eye=BuildBoarEye(side,dip,bob);
                     const auto eyePoint=[&](std::size_t i) {
                         const auto p=eye[i];return Vector3(p.x,p.y,p.z);

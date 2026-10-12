@@ -1,6 +1,7 @@
 #include "IslandSimulator/BoarPose.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
 #include "IslandSimulator/BoarEyeGeometry.hpp"
+#include "IslandSimulator/BoarMouthGeometry.hpp"
 #include "IslandSimulator/BoarGroundPose.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
@@ -23,6 +24,29 @@ int main()
         const float dip=static_cast<float>(step)*0.005f;
         const auto profile=MakeBoarBodyProfile(dip);
         const auto eye=BuildBoarEye(1,dip,bob),mirror=BuildBoarEye(-1,dip,bob);
+        const auto mouth=BuildBoarMouth(1,dip,bob),mouthMirror=BuildBoarMouth(-1,dip,bob);
+        for(std::size_t i=0;i<mouth.size();++i) {
+            const auto p=mouth[i],q=mouthMirror[i];
+            check(p.x==-q.x&&p.y==q.y&&p.z==q.z,"mouth must mirror the head");
+            check(std::abs(p.x-BoarHeadSurfaceX(profile,p.y-bob,p.z)-0.002f)<1e-5f,
+                "mouth crease lost head contact");
+            if(i%2==0) check(mouth[i+1].y>p.y,"mouth strip inverted");
+            if(i>=2) check(p.z>mouth[i-2].z,"mouth strip folded backwards");
+        }
+        for(std::size_t i=0;i+3<mouth.size();i+=2) {
+            const auto checkFace=[&](std::size_t a,std::size_t b,std::size_t c) {
+                const auto p=mouth[a],q=mouth[b],r=mouth[c];
+                check((q.y-p.y)*(r.z-p.z)-(q.z-p.z)*(r.y-p.y)>1e-7f,
+                    "mouth face degenerate or inward facing");
+                for(float u:{0.2f,0.5f,0.8f}) for(float v:{0.1f,0.2f}) {
+                    const float x=p.x*(1-u-v)+q.x*u+r.x*v;
+                    const float y=p.y*(1-u-v)+q.y*u+r.y*v-bob;
+                    const float z=p.z*(1-u-v)+q.z*u+r.z*v;
+                    check(x>=BoarHeadSurfaceX(profile,y,z),"mouth face buried in the head");
+                }
+            };
+            checkFace(i,i+1,i+3);checkFace(i,i+3,i+2);
+        }
         for(std::size_t i=0;i<eye.size();++i) {
             const auto p=eye[i],q=mirror[i];
             check(p.x==-q.x&&p.y==q.y&&p.z==q.z,"eye mirror differs from head");
@@ -64,6 +88,11 @@ int main()
             (void)BuildBoarEye(invalid<2?invalid*2:1,invalid==2?bad:0,invalid==3?bad:0);
         } catch(const std::invalid_argument&) { rejected=true; }
         check(rejected,"invalid eye side or nonfinite pose accepted");
+        rejected=false;
+        try {
+            (void)BuildBoarMouth(invalid<2?invalid*2:1,invalid==2?bad:0,invalid==3?bad:0);
+        } catch(const std::invalid_argument&) { rejected=true; }
+        check(rejected,"invalid mouth side or nonfinite pose accepted");
     }
     for(bool detailed:{false,true}) for(float dip:{0.0f,0.15f}) for(float bob:{0.0f,0.018f}) {
         const auto right=BuildBoarEar(1,dip,bob,detailed),left=BuildBoarEar(-1,dip,bob,detailed);

@@ -11,9 +11,12 @@ namespace island
         const std::array<BoarBodyRing,11> anchors{{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.64f, 0.22f, 0.25f},
                  {-0.40f, 0.66f, 0.315f, 0.32f}, {-0.08f, 0.69f, 0.335f, 0.35f},
                  {0.25f, 0.74f, 0.31f, 0.37f}, {0.47f, 0.65f - dip * 0.15f, 0.245f, 0.29f},
-                 {0.62f, 0.60f - dip * 0.45f, 0.21f, 0.245f},
-                 {0.78f, 0.51f - dip * 0.8f, 0.175f, 0.17f},
-                 {0.91f, 0.43f - dip, 0.128f, 0.11f},
+                 // Broad cheek transitions into a narrower nasal bridge instead of one
+                 // straight wedge from the forehead to the nose. Keep the nose anchor,
+                 // body envelope, limb roots and rooting-dip coefficients unchanged.
+                 {0.62f, 0.61f - dip * 0.45f, 0.235f, 0.235f},
+                 {0.78f, 0.535f - dip * 0.8f, 0.19f, 0.155f},
+                 {0.91f, 0.46f - dip, 0.13f, 0.105f},
                  {1.04f, 0.42f - dip, 0.112f, 0.093f},
                  {1.06f, 0.42f - dip, 0.005f, 0.005f}}};
         BoarBodyProfile result{};

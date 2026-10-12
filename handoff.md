@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — fuller boar cheeks and fitted closed-mouth crease
+
+Broader cheek/narrower raised nasal bridge in existing21-ring profile; nose anchor,
+body envelope/limb roots/dip coefficients unchanged. Near crease21paired stations,
+40triangles/side (+240vertices/animal), existing batch/material/no extra draw.
+Initial6station strip had buried face interiors despite vertex tests/image PASS;
+new sampled-face test caught it. Four subdivisions/span fixed it, test unchanged.
+Failed build/boar-mouth-suite.log retained. Final41/41 CPU PASS61.02s.
+Native001239.781186Z-boars PASS/full image viewed/kernel[]. Actual Android SwiftShader
+001308.822363Z-boars PASS/image viewed/kernel-final[] also verifies previous fitted
+eyes. Broader face readable, mouth subtle, feet still obscured; not full realism/gait.
+Archived build/android-software/island-boar-face-x86_64.apk SHA256
+58f81d0d116d21fb263f595ffbf7fee9d1cc81f6754277f97eded70d0a90885a.
+x86_64 and restored ARM64 build/lint PASS3s each; asset audit84sources/12project/0external.
+No hardware renderer/KVM config/dependency changes. AMD incident unresolved, stop
+latch SHA c0bd1704 unchanged. NEXT coat readability/unobscured moving feet, actual Web
+current boars and remaining wildlife/resident/audio backlog. Overall goal active.
+Web build/package PASS11,356,327raw/4,334,892gzip; actual browser current boars pending.
+All owned jobs terminal; local-only work, no push.
+
 ## Latest — surface-fitted boar eyes, modest visual improvement
 
 BoarEyeGeometry.hpp replaces near floating ellipsoids with shallow cornea/8-segment

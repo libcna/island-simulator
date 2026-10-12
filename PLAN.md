@@ -902,6 +902,17 @@ Landmark backlog requested by the operator:
   Android/Web eye runtime pending. See docs/wildlife-visual-audit-2026-10-12.md.
   Web build/package PASS11,354,610raw/4,333,324gzip; asset audit PASS83sources.
   All owned jobs terminal; hardware stop latch unchanged. Full visual task remains open.
+  Cheek/muzzle follow-up: broader cheeks and narrower raised nasal bridge in the
+  same21-ring profile; near closed-mouth crease fitted to actual head triangles,
+  +240vertices/animal in existing batch. Six-station crease failed the new interior
+  face-clearance test; corrected with four subdivisions/span, not a relaxed test.
+  Final41/41 CPU tests PASS61.02s. Native20261012T001239.781186Z-boars and Android
+  20261012T001308.822363Z-boars PASS, actual screenshots inspected, kernel deltas[].
+  This also checks current eyes on Android. Shape improvement is modest, crease is
+  subtle/partly hidden and feet remain grass-obscured; NOT completed realism/gait.
+  x86_64 and restored ARM64 build/lint PASS3s each, asset audit PASS84sources.
+  Web build/package PASS11,356,327raw/4,334,892gzip bytes; actual browser appearance
+  pending. All owned jobs terminal; hardware stop latch unchanged, no AMD fix claim.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

@@ -129,6 +129,44 @@ Web build/package PASS11,354,610raw/4,333,324gzip bytes. Asset validation PASS w
 83generator sources,12project files and0external files. All owned jobs terminal;
 hardware stop latch unchanged. These builds do not replace portable runtime checks.
 
+## Cheek-to-muzzle shape and closed-mouth crease
+
+The existing head profile now has broader cheeks and a raised, narrower nasal
+bridge, rather than a nearly straight forehead-to-nose wedge. Nose anchor, body
+envelope, limb roots, rooting coefficients and21-ring count remain unchanged.
+Both body LODs use the revised anchors. Near animals additionally have a tapered
+closed-mouth crease on each side, fitted to the same actual head triangles as the
+eyes. It uses21 paired stations,40triangles per side (+240vertices per animal),
+the existing batch/material and no extra texture, shader or draw.
+
+Initial6-station crease passed vertex-contact checks and the image gate, but a new
+interior-face sampling test found buried patches during rooting. The failed full
+suite remains in `build/boar-mouth-suite.log`. Subdividing each authored span into
+four segments fixed this without relaxing the test or moving the whole line further
+off the head. Tests cover31 dip poses, both bob extremes, exact mirrored vertex
+contact, strip order/winding/nondegeneracy, sampled face clearance and invalid inputs.
+This is sampled contact coverage, not a continuous mathematical nonintersection proof.
+
+Native cheek pass `20261012T000914.687774Z-boars` and first crease pass
+`20261012T001030.745801Z-boars` technically PASS; before/after crops actually viewed.
+Final subdivided crease `20261012T001239.781186Z-boars` PASS, complete image actually
+inspected, kernel-after empty. Cheek fullness and the narrower muzzle are readable;
+the mouth crease is subtle/partly obscured, not a new prominent black outline.
+Animals remain stylized and these live poses differ, so this is not a pixel-aligned
+comparison or natural-motion acceptance. Nose/nostrils, coat readability and moving
+feet still need review. No population, vegetation, camera or AI changes were made.
+Final full CPU suite PASS41/41 in61.02s. Actual Android SwiftShader run
+`20261012T001308.822363Z-boars` PASS, screenshot actually inspected, kernel-final[].
+It now covers current fitted eyes as well as cheeks/crease; head details remain
+subtle and foliage still occludes the feet. Tested APK retained as
+`build/android-software/island-boar-face-x86_64.apk`, SHA256
+`58f81d0d116d21fb263f595ffbf7fee9d1cc81f6754277f97eded70d0a90885a`.
+x86_64 and restored default ARM64 build/lint both PASS3s. No emulator/KVM configuration
+changes. Asset audit PASS84sources/12project files/0external. Actual Web inspection
+and continuous gait/audio remain open; this does not resolve the AMD flight incident.
+Web build/package PASS11,356,327raw/4,334,892gzip bytes. All owned jobs terminal;
+hardware stop latch unchanged. No push.
+
 ## Monkeys (unchanged baseline)
 
 Evidence: `build/software-captures/20261011T233132.293700Z-monkeys/capture.png`.
