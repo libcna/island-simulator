@@ -84,7 +84,7 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
         if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z))
             throw std::invalid_argument("Nonfinite spider mesh joint");
     Builder b;
-    const int sides=detailed?12:8,rows=detailed?8:6,limbSides=detailed?6:4;
+    const int sides=detailed?24:8,rows=detailed?12:6,limbSides=detailed?6:4;
     b.Ellipsoid(SpiderPose::ThoraxCentre,SpiderPose::ThoraxRadii,rows,sides,
         SpiderPart::FrontBody,SpiderMaterial::Cuticle,detailed);
     b.Ellipsoid(SpiderPose::AbdomenCentre,SpiderPose::AbdomenRadii,rows,sides,

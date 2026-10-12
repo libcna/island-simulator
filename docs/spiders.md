@@ -6,6 +6,26 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## Generated setae material
 
+### Subsequent near-body refinement
+
+Near body ellipsoids now use24 sides/12 rows instead of12/8. This also increases
+vertex-rooted bristle coverage; eyes still fit the actual tessellated front surface.
+Leg/palp sections and the entire far LOD are unchanged. Near/far counts are now
+7920/1632 vertices, within the existing10000-per-animal/120000-batch capacities;
+no texture, buffer-capacity or draw-count increase. Near upload and mesh-generation
+work increase86.4%; portable frame-time acceptance remains unmeasured.
+Mesh regression measures maximum face-centre radial deviation from the intended
+ellipsoids:0.512275mm near versus3.14511mm far, requiring near<0.7mm and<40%of far.
+This is a geometry approximation metric, not screen-space or aesthetic acceptance.
+Pose-stableUV, normals, winding, habitat bounds and far1632budget remain tested.
+Native build and mesh/colony tests PASS8.90s; new mesh regression PASS0.06s.
+Actual llvmpipe run051626.813603Z-spiders: all8images inspected in
+build/spider-silhouette-montage.png; same-stage enlarged before/after inspected in
+build/spider-silhouette-comparison.png. Body outline is rounder, but stiff angular
+limbs, dark view and visible folded-texture pattern remain.1/12visible/2draws,
+contact1/motion+lightingchecks pass/kernel[]. Outer image contrast stillFAILED.
+No threshold changes, hardware or portable runtime. Webs remain absent.
+
 Built-in ImageGen produced the project-authored, reference-free opaque study
 `assets/art-studies/spider-setae-albedo-v1.png` (1254 square); its exact prompt is
 `assets/art-studies/spider-setae-albedo-v1-prompt.txt`. Original and prompt are retained

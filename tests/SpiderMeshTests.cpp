@@ -1,5 +1,6 @@
 #include "IslandSimulator/SpiderMesh.hpp"
 #include "IslandSimulator/SpiderHabitat.hpp"
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -13,6 +14,7 @@ float Dot(island::SpiderPoint a,island::SpiderPoint b){return a.x*b.x+a.y*b.y+a.
 int main() {
     using namespace island;
     std::size_t nearCount=0,farCount=0;
+    float nearBodyError=0,farBodyError=0;
     for(bool detailed:{false,true})for(int step=0;step<9;++step) {
         auto legs=SpiderPose::Rest();
         for(std::size_t i=0;i<legs.size();++i) {
@@ -47,13 +49,29 @@ int main() {
             const auto cross=Cross(Sub(b.position,a.position),Sub(c.position,a.position));
             Check(Dot(cross,cross)>1e-24f,"degenerate triangle");
             Check(Dot(cross,a.normal)+Dot(cross,b.normal)+Dot(cross,c.normal)>0,"inverted winding");
+            if(a.part==SpiderPart::FrontBody||a.part==SpiderPart::Abdomen) {
+                const auto centre=a.part==SpiderPart::FrontBody?SpiderPose::ThoraxCentre:SpiderPose::AbdomenCentre;
+                const auto radii=a.part==SpiderPart::FrontBody?SpiderPose::ThoraxRadii:SpiderPose::AbdomenRadii;
+                const SpiderPoint offset{(a.position.x+b.position.x+c.position.x)/3-centre.x,
+                    (a.position.y+b.position.y+c.position.y)/3-centre.y,
+                    (a.position.z+b.position.z+c.position.z)/3-centre.z};
+                const float radial=std::sqrt(offset.x*offset.x/(radii.x*radii.x)
+                    +offset.y*offset.y/(radii.y*radii.y)+offset.z*offset.z/(radii.z*radii.z));
+                const float error=std::sqrt(Dot(offset,offset))*(1/radial-1);
+                auto& maximum=detailed?nearBodyError:farBodyError;
+                maximum=std::max(maximum,error);
+            }
         }
         for(std::size_t i=0;i<4;++i)Check(parts[i]>0,"missing body/limbs/palps");
         Check((parts[4]>0)==detailed&&(parts[5]>0)==detailed,"eye/hair LOD wrong");
     }
     Check(nearCount>farCount,"far LOD not reduced");
+    Check(farCount==1632,"far mesh budget changed");
+    Check(nearBodyError<.0007f&&nearBodyError<farBodyError*.4f,"near body surface is too faceted");
     auto bad=SpiderPose::Rest();bad[0].knee.x=NAN;
     bool rejected=false;try{(void)BuildSpiderMesh(bad,true);}catch(const std::invalid_argument&){rejected=true;}
     Check(rejected,"nonfinite pose accepted");
-    std::cout<<"Spider mesh near/far vertices "<<nearCount<<'/'<<farCount<<"; not live or visually accepted\n";
+    std::cout<<"Spider mesh near/far vertices "<<nearCount<<'/'<<farCount
+        <<"; max face-centre radial error "<<nearBodyError<<'/'<<farBodyError
+        <<"; not live or visually accepted\n";
 }

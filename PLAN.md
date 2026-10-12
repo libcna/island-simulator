@@ -816,6 +816,11 @@ progress or require player interaction; dangerous species keep their distance li
   check added,41harnessCPUtestsPASS/nativebuildPASS. Eightstages+final byte-identical
   topreviousinspectedrun/kernel[]; outercontraststillFAIL. Notalightingfix/acceptance.
   Compare realhabitats and open-daylightcontrol beforealteringsharedambient/exposure.
+  Nearbody refinement24sides/12rows,7920vertices(+86.4%),far1632unchanged;
+  existingbufferlimits/draws unchanged. Maxfacecentreerror.512275mm near/3.14511mmfar,
+  regression<.7mm and<40%far. Mesh/colonyPASS8.90s/nativebuildPASS. Actual051626.813603Z
+  all8images+beforeafter inspected: rounderbodyoutline,angularlimbs/darkviewstillopen.
+  Motion/lighting/kernel[]; outercontrastFAIL. Portableframetimecostunmeasured.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

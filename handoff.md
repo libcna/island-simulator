@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — rounder near spider bodies, unchanged far LOD
+
+Previous turn measuredlighting (019c2b9), concrete progress. Near ellipsoids now24sides/
+12rows versus12/8, giving7920/1632 near/far vertices. More actual-vertex-rootedbristles;
+eyes still fittedtogeometry. Limbs/farLOD/texture/drawcount/capacities unchanged.
+Near upload+meshwork +86.4%, not a measured portableperformancepass.
+New geometricregression maxfacecentreradialerror.512275mm near/3.14511mmfar,
+requiresnear<.7mm and<40%far, farcount1632. ExistingUV/bounds/windingchecks retained.
+Build+mesh/colonyPASS8.90s (8725 terminal0); finalmeshregressionPASS0.06s.
+Actualnative051626.813603Z-spiders (92828 terminal1): all8frames inspected via
+build/spider-silhouette-montage.png; enlargedmatchingbeforeafter inspected via
+build/spider-silhouette-comparison.png. Bodyoutline rounder, limbsstillangular,
+foldedtexturepatternvisible, viewdark.1/12visible/2draws/contact1,motion+lightingchecks,
+kernel[]; genericimagecontrastFAIL unchanged. No newfull52suite/portablebuild/runtime.
+Logs build/spider-silhouette-*.log. No AMDhardware/AndroidKVM/dependencieschanged.
+Goalactive/no push. NEXT lightinghabitatcomparisons, portablecostaudit, webhabitats,
+remaining fullplan; do not mark visualrealism or AMDflightincident resolved.
+
 ## Latest — measured spider close-view lighting, no visual change or acceptance
 
 Previous turn progressed via generatedmaterial+UVcorrection (6b7465e). This turn
