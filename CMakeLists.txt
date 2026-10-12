@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Record the actual configuration in runtime/CPU evidence; Debug measurements must
+# not be mistaken for the optimized player build. Limit the definition to reporters.
+set_source_files_properties(game/src/IslandGame.cpp tools/WildlifeCpuReport.cpp PROPERTIES
+    COMPILE_DEFINITIONS "ISLAND_BUILD_CONFIGURATION=\"$<CONFIG>\"")
+
 option(ISLAND_BUILD_GAME "Build the graphical island-simulator application" ON)
 option(ISLAND_BUILD_TESTS "Build island-simulator core tests" ON)
 option(ISLAND_BUILD_TOOLS "Build island-simulator host development tools" ON)

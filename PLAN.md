@@ -61,6 +61,14 @@ older uncapped build guidance; existing `-j2` builds remain suitable.
 
 ## Highest priority — native frame-rate regression
 
+Configuration follow-up: the operator was playing the unoptimized Debug binary in `build/`.
+The stale native Release tree is now refreshed at `build-consumer/island-simulator`, keeping
+the same quality/populations. Serial Release/Debug/Release CPU probes reduce the ground snake
+update from 2.8509ms Debug to 0.4035/0.8606ms Release, with host variation; this is not an FPS
+claim. Core/spider/snake/terrain Release tests pass 4/4, software jungle capture passes. Runtime
+logs identify configuration and the capture gate checks it. Use Release for further hardware
+walking feedback before cutting more quality; keep Debug available for development.
+
 CPU follow-up: the 200-spider dormant tier was still replaying up to fifteen IK/terrain steps
 per resident. At the user's recorded flight position this cost 3.372ms per simulation update with
 no visible spiders. True suspension removes that work (0.0211ms in the CPU-only diagnostic), with

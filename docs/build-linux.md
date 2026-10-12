@@ -32,6 +32,13 @@ changed by this project.
 
 ## Configure and build
 
+For ordinary play and hardware FPS comparisons, use the optimized `linux-release` preset
+and run `./build-consumer/island-simulator` from the repository root. The `linux-debug`
+instructions below are for development: `./build/island-simulator` is unoptimized and can
+spend substantially more CPU time updating the same wildlife. Do not compare their FPS as
+if they were the same configuration. Both now record `build configuration` in runtime logs.
+See the release section below for the build and relocatable bundle commands.
+
 Use the shared compiler cache and the two-job ceiling required while compiling Sharp Runtime:
 
 ```bash

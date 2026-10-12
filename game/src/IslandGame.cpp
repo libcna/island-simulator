@@ -1077,6 +1077,10 @@ namespace island
                 "Runtime texture or audio inventory exceeds the selected quality profile");
         }
         std::ostringstream qualityDiagnostic;
+        const std::string buildDiagnostic = "island-simulator: build configuration "
+            ISLAND_BUILD_CONFIGURATION;
+        std::cout << buildDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(buildDiagnostic);
         qualityDiagnostic << "island-simulator: quality profile " << qualityProfile_.name
                           << " grass "
                           << static_cast<int>(qualityProfile_.grassMaximumDistance)

@@ -1,5 +1,40 @@
 # Performance Measurement
 
+## Optimized player build versus Debug — 2026-10-12
+
+The operator's `island-runtime-3538060.log` starts in the `build/` directory. That tree uses
+`CMAKE_BUILD_TYPE=Debug`, `-g`, and no optimization flag. The existing native Release tree
+`build-consumer/` was stale (October 8); it is now rebuilt from current sources using `-O3
+-DNDEBUG`, retaining the same native-performance quality profile, populations and shaders.
+Use `./build-consumer/island-simulator` for ordinary play. Do not overwrite the Debug executable
+or confuse this configuration change with an algorithmic speedup or reduced visual quality.
+
+Both the game and CPU report now print their CMake configuration. The private software capture
+gate requires the runtime marker to match its configured tree, catching missing or mismatched
+build identity. Python runner tests pass 47/47, including Debug/Release/RelWithDebInfo/empty and
+missing/duplicate/wrong markers.
+
+Serial CPU-only Release / Debug / Release runs on CPUs 0–3 retain reports
+`build-consumer/wildlife-cpu-release-a.txt`, `build/wildlife-cpu-debug-comparison.txt`, and
+`build-consumer/wildlife-cpu-release-b.txt`. For the same ground scenario, mean milliseconds per
+simulation update were:
+
+| Species | Release A | Debug | Release B |
+| --- | ---: | ---: | ---: |
+| Spiders | 0.2405 | 1.4113 | 0.4634 |
+| Snakes | 0.4035 | 2.8509 | 0.8606 |
+| Goats | 0.3213 | 1.2859 | 0.6322 |
+| Monkeys | 0.1096 | 0.5211 | 0.2166 |
+
+These are wall-time update costs, not FPS. The two Release runs also show substantial host/clock
+variation, but both substantially reduce CPU cost without population or fidelity changes.
+Release core/spider/snake/rendered-terrain tests pass 4/4 in 36.33s. The inspected isolated
+llvmpipe jungle capture `build-consumer/software-captures/20261012T164826.322843Z-jungle` passes
+and confirms Release/native-performance, textured ground, vegetation and no shader failure.
+Release fullscreen/flight/100m-ceiling/landing and live frame-accounting checks also pass in
+`build-consumer/software-flight/20261012T164855.811504Z`, with no new kernel GPU faults.
+Matched walking FPS on the user's hardware remains unverified; no AMD workload was launched.
+
 ## CPU attribution and live frame logging — 2026-10-12
 
 `build/island-wildlife-cpu-report` runs the actual 200-spider, 50-snake, six-goat and seven-monkey

@@ -340,7 +340,9 @@ can be moved and launched from an unrelated working directory. Compatible system
 SDL_mixer 3, glibc, libstdc++, and an OpenGL 3.3 driver remain explicit host dependencies rather
 than silently copied distribution-specific libraries.
 
-Run `build/island-simulator`. Click inside the window or press a movement key to capture the mouse,
+For ordinary play, run `build-consumer/island-simulator` after the Release build above.
+`build/island-simulator` is the unoptimized Debug version for development, not a representative
+performance build. Runtime logs identify the build configuration. Click inside the window or press a movement key to capture the mouse,
 use WASD or the arrow keys to move, and press Shift to toggle between walking and running on land.
 Each keyboard toggle briefly confirms `WALK MODE  4.3 M/S` or `RUN MODE  8.0 M/S` near the bottom
 of the view; no key must remain held.

@@ -222,6 +222,14 @@ def check_configuration(text):
     return Path(cache["CNA_ROOT_DIR"])
 
 
+def validate_build_configuration(cache_text, log):
+    expected = re.search(r"^CMAKE_BUILD_TYPE:STRING=(.*)$", cache_text, re.M)
+    actual = re.findall(r"^island-simulator: build configuration (.*)$", log, re.M)
+    if not expected or actual != [expected.group(1)]:
+        raise RuntimeError("runtime build configuration does not match the configured capture tree")
+    return actual[0]
+
+
 def software_environment(evidence):
     environment = os.environ.copy()
     environment.update(LIBGL_ALWAYS_SOFTWARE="1", GALLIUM_DRIVER="llvmpipe", LP_NUM_THREADS="8",
@@ -447,7 +455,8 @@ def main():
         parser.error("missing-leaf qualification requires the ordinary ground-broadleaf view")
     build = args.build.resolve()
     root = Path(__file__).resolve().parent.parent
-    dependency = check_configuration((build / "CMakeCache.txt").read_text())
+    cache_text = (build / "CMakeCache.txt").read_text()
+    dependency = check_configuration(cache_text)
     journal = Journal()
     baseline = journal.latest()  # Refuse an empty/inaccessible kernel journal before launch.
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
@@ -482,6 +491,7 @@ def main():
             if result:
                 raise RuntimeError(f"software capture exited {result}")
             log = (evidence / "workload.log").read_text(errors="replace")
+            metadata["build_configuration"] = validate_build_configuration(cache_text, log)
             if 'gl-renderer="llvmpipe ' not in log or 'renderer="OPENGL33"' not in log:
                 raise RuntimeError("runtime did not confirm the expected software renderer")
             diagnostics = log + "".join(p.read_text(errors="replace") for p in evidence.glob("island-runtime-*.log"))

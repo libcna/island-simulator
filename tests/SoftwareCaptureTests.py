@@ -28,9 +28,21 @@ from run_fullscreen_software import (geometry, worker as fullscreen_worker,
                                      validate_boar_audio_trace, validate_snake_audio_trace)
 from run_fullscreen_software import validate_control_transitions, owned_runtime_log
 from run_fullscreen_software import validate_diving_trace, validate_frame_windows
+from run_software_capture import validate_build_configuration
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_runtime_build_configuration_matches_tree(self):
+        for mode in ("Debug", "Release", "RelWithDebInfo", ""):
+            cache = f"CMAKE_BUILD_TYPE:STRING={mode}\n"
+            log = f"island-simulator: build configuration {mode}\n"
+            self.assertEqual(validate_build_configuration(cache, log), mode)
+            for bad in ("", log + log, log.replace(mode or "configuration", "unexpected")):
+                with self.subTest(mode=mode, bad=bad), self.assertRaises(RuntimeError):
+                    validate_build_configuration(cache, bad)
+        with self.assertRaises(RuntimeError):
+            validate_build_configuration("", "island-simulator: build configuration Release\n")
+
     def test_live_frame_accounting_and_corruptions(self):
         good = ("island-simulator: frame-window seconds=5.000 frames=150 fps=30.000 "
                 "updates-per-frame=2.000 update-ms-per-frame=8.000 draw-submit-ms-per-frame=4.000 "

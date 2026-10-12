@@ -2,6 +2,21 @@
 
 ## Current critical work — native FPS regression
 
+Latest finding: user's log3538060 explicitly starts `./island-simulator` in `build/`, which is
+unoptimized Debug (`-g`, no -O). Existing native Release `build-consumer/` was stale Oct8; refreshed
+current sources without changing quality/content. Recommend `./build-consumer/island-simulator`
+from repo root for ordinary play; do not replace Debug. Both now log build configuration, and
+software capture validates it against CMakeCache. Python runner 47/47; Release core/spider/snake/
+rendered-terrain 4/4 PASS36.33s. Serial Release/Debug/Release CPU reports show ground snake update
+0.4035/2.8509/0.8606ms, all-species ground sum1.0749/6.0692/2.1728ms. Host variation, NOT FPS.
+Files `build-consumer/wildlife-cpu-release-{a,b}.txt`, `build/wildlife-cpu-debug-comparison.txt`.
+Inspected Release llvmpipe jungle `20261012T164826.322843Z-jungle` PASS, no shader artifacts.
+Release private fullscreen/flight/ceiling/landing/frame-window gate
+`build-consumer/software-flight/20261012T164855.811504Z` PASS, no new kernel GPU faults.
+Native Release cache now also enables tools/tests for qualification; preset still defaults them
+off. Build CPUs0-3/-j4. No AMD/Android/KVM launched or changed. Actual Release walking FPS remains
+unverified; prioritize that distinction before further reducing graphics quality.
+
 Follow-up CPU attribution: `island-wildlife-cpu-report` (new CMake host tool, no graphics) found all
 200 dormant spiders still replayed up to 15 gait/terrain steps each. Flight mean spider update
 3.372ms before -> 0.0211ms after true suspension. Ground example 4.7281 -> 0.9731ms, but other

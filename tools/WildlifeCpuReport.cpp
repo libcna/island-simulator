@@ -38,7 +38,8 @@ int main()
         Scenario{"flight", {43.8888f, 60.4394f, -113.693f}},
         Scenario{"close", {first.x, first.y + 1.65f, first.z}},
     };
-    std::cout << "CPU-only wildlife update: spiders=" << initial.Spiders().size()
+    std::cout << "CPU-only wildlife update: build=" ISLAND_BUILD_CONFIGURATION
+              << " spiders=" << initial.Spiders().size()
               << " warmup=600 samples=300 dt=1/60; excludes world creation and rendering\n";
     for (const auto& scenario : scenarios) {
         auto colony = initial;
