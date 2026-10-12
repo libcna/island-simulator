@@ -45,6 +45,13 @@ survival systems. The supplied project inventory is context, not audited evidenc
 
 ## Other retained current work
 
+Stream stage progress: actual west-valley survey found99stations/100.559m from
+(-65,-40.05) to(-163,-17.51), ground9.82824m to sea with no sampled rise. Added
+deterministic StreamCourse layout, widths0.9..3m,25cm water depth,<=1m incision
+guard (actual raw candidate0.4m), outlet water clamped0. Native build and CPU
+IslandStreamCourseSurvey PASS0.07s. No terrain/render mutation yet; local geometry
+needed because2.83m terrain cells exceed upper channel width. docs/stream-course.md.
+
 - [ ] Add a realistic continuously burning campfire at a suitable island location:
   stone-ringed fire pit, burning logs/embers, animated flame shape and restrained
   smoke/sparks, local flickering light and crackling audio. Place a distinct pile

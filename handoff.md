@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest — western stream route surveyed and layout foundation
+
+Previousb475e33 was progress. New StreamCourse.hpp and tools/StreamSurvey.cpp plus
+CMake host target/test. Actual westvalley z=-55-.23x sampled x=-65..-163 reaches
+western bay;99stations/100.559m,ground9.82824->-.00209, no sampled uphill,rawcutmax.4m.
+Layout water=ground-.15/minfall.002 then clamp>=0 for sea-connected mouth;bed-.25,
+halfwidth.45..1.5 smooth. Guard>1m incision throws. No terrain/render integration.
+Native survey71623exit0; finalbuild/survey/test72056exit0, testPASS.07s. taskset0-3/
+-j2/cache. Logs build/stream-{survey,course}-build.log, stream-course-tests.log,
+stream-west-profile.csv and -summary.log. CSV is RAWunclampeddiagnostic, layout
+is sea-clamped. docs/stream-course.md describes exactscope/remainingwork.
+NEXT local channel/bank mesh + coherent terrain/collision carve; coarse2.83mgrid
+cannot faithfully represent.9m upper wetwidth by itself. Avoid overlaying uncut
+terrain withwater. Then render/flow/wetmaterials/placement/environment/audio.
+No graphics/AMD/KVM/dependency changes;allhandles terminal;goalactive/fullplanretained.
+
 ## NEW PRIORITY — user's complete 17-point ecosystem stage
 
 Read docs/ecosystem-stage.md: every numbered request preserved as unchecked work,

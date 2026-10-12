@@ -8,11 +8,14 @@ existing features, not a broad redesign.
 
 ## Ordered work ledger
 
-1. [ ] **A small real stream.** Inspect `southValley` / `westValley` and use a
+1. [~] **A small real stream.** Inspect `southValley` / `westValley` and use a
    suitable existing drainage corridor: spring → narrow upper stream → wider lower
    reach → protected western bay. Locally lower terrain by tens of centimetres to
    about a metre where appropriate, with a narrow static water mesh and slow flow.
    Check continuous downhill drainage, banks, mouth and traversal; no hydrology engine.
+   Survey/layout foundation: west corridor99stations/100.559m, no sampled uphill
+   step, candidate incision<=0.4m and sea-level-connected outlet. CPU survey passed;
+   no live water/carve yet. See [stream-course.md](stream-course.md).
 2. [ ] **Shared environmental moisture and drainage.** Extend
    `IslandEnvironmentField` with `moisture` and `drainage`, and evaluate
    `saltExposure`. Derive deterministic values from terrain, valleys, stream and
