@@ -7,7 +7,8 @@
 | Left click or first movement-key press | Capture the mouse for first-person look |
 | Mouse | Look around while captured |
 | W / A / S / D or arrow keys | Move with acceleration and deceleration |
-| Press either Shift | Toggle the 4.3 m/s walk and 8.0 m/s run modes; a 1.4-second notice confirms the selection, it is saved across ordinary launches, and swimming remains unchanged |
+| Press either Shift on land | Toggle the 4.3 m/s walk and 8.0 m/s run modes; a 1.4-second notice confirms the selection and it is saved across ordinary launches |
+| Space / either Shift in water | Ascend / descend; both together hold depth. Diving movement is under development; underwater rendering/audio and runtime qualification remain unfinished. |
 | F1 | Show or hide the developer diagnostics overlay |
 | F2 | Toggle world-space shoreline/current, collision, terrain-contact, cell, wildlife navigation, bird route/spawn, and audio-zone/emitter diagnostics; visible only with F1 |
 | F3 | In debug builds with F1 visible, toggle the bounded inspection camera; use WASD, Q/E, and Shift to fly |

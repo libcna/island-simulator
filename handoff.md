@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest — diving movement integrated, runtime appearance NOT verified
+
+PlayerMotion opt-in SetSwimInput(RenderedTerrainSurface*,up,down) with caller-owned
+lifetime, SwimDepth state. Submerged horizontal substeps reject swept rectangle
+HeightRange maximum+clearance above eye; outside mesh rejects. Conservative whole
+quad-vertex bound, not exact contact distance. Final vertical uses footprint support.
+Teleport/land reset. IslandGame lazy232324-byte rendered surface before PlayerMotion
+member; first Space/Shift in swim allocates, keys refreshed each frame, Shift swimming
+doesn't change ground pace, underwater bob suppressed. Flight reset retained.
+Core regression actual-water descent/held input/inward seabed block/swept support/
+surface/teleport. First run11088 failed ONLY habitat premise (25m shelf not3mdeep);
+changed to actual38moffshore support<-1.3 and .5s descent below-.2, not a relaxed
+collision assertion. Build+Core handle30161 terminal exit0, CorePASS40.77s. Logs
+build/diving-motion-{build,tests}.log. taskset0-3/-j2/cache. No graphics yet.
+Next actual input/runtime underwater audit, underwater side of water/fog/audio,
+deeper routes/shore/safety-correction and depenetration/focus tests. Entire plan
+retained, diving not complete; docs/diving.md has current contracts.
+
 ## Latest — diving vertical controller foundation, NOT live diving
 
 Previousf8c366d was progress. SwimDepth.hpp introduced: surface.58m, floor support+

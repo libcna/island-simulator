@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/WorldCollision.hpp"
+#include "IslandSimulator/SwimDepth.hpp"
 
 #include <array>
 #include <span>
@@ -9,6 +10,7 @@
 namespace island
 {
     class WorldCollisionGrid;
+    class RenderedTerrainSurface;
 
     /** @brief Physical movement state relevant to animation, audio, and camera presentation. */
     enum class LocomotionMode
@@ -96,6 +98,11 @@ namespace island
          * @param z World z coordinate.
          */
         void SetPosition(const IslandTerrain& terrain, float x, float z) noexcept;
+
+        // Surface must outlive this controller. Null disables diving. The caller
+        // refreshes input every frame; teleports clear depth and held input.
+        void SetSwimInput(const RenderedTerrainSurface* surface, bool ascend, bool descend) noexcept;
+        [[nodiscard]] float SubmergedDepth() const noexcept { return swimDepth_.SubmergedDepth(); }
 
         /**
          * @brief Advances movement by one bounded step.
@@ -187,6 +194,9 @@ namespace island
                                   float maximumVerticalDelta) noexcept;
 
         PlayerPosition position_;
+        const RenderedTerrainSurface* swimSurface_ = nullptr;
+        SwimDepth swimDepth_;
+        bool swimAscend_ = false, swimDescend_ = false;
         float velocityX_ = 0.0f;
         float velocityZ_ = 0.0f;
         float groundHeight_ = 0.0f;

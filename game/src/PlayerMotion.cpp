@@ -1,6 +1,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 
 #include "IslandSimulator/WorldCollisionGrid.hpp"
+#include "IslandSimulator/RenderedTerrainSurface.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -138,6 +139,20 @@ namespace island
 
         const float candidateX = position_.x + deltaX;
         const float candidateZ = position_.z + deltaZ;
+        if(swimSurface_ && mode_==LocomotionMode::Swimming
+            && swimDepth_.EyeHeight()<SwimmingEyeHeight-.001f) {
+            const float minX=std::min(position_.x,candidateX)-CapsuleRadius;
+            const float minZ=std::min(position_.z,candidateZ)-CapsuleRadius;
+            const float maxX=std::max(position_.x,candidateX)+CapsuleRadius;
+            const float maxZ=std::max(position_.z,candidateZ)+CapsuleRadius;
+            if(minX<-TerrainMeshLayout::Extent||minZ<-TerrainMeshLayout::Extent
+                ||maxX>TerrainMeshLayout::Extent||maxZ>TerrainMeshLayout::Extent)
+                return HorizontalStepResult::TerrainBlocked;
+            // All intersected triangle vertices bound the complete swept capsule
+            // rectangle, not merely its endpoint. Conservative near cell edges.
+            if(swimSurface_->HeightRange(minX,minZ,maxX,maxZ)[1]+SwimDepth::BottomClearance
+                >swimDepth_.EyeHeight()+.00001f) return HorizontalStepResult::TerrainBlocked;
+        }
         if (collisionGrid) {
             if (collisionGrid->IntersectsCircle(candidateX, candidateZ, CapsuleRadius)) {
                 return HorizontalStepResult::ObstacleBlocked;
@@ -174,6 +189,7 @@ namespace island
 
     void PlayerMotion::SetPosition(const IslandTerrain& terrain, const float x, const float z) noexcept
     {
+        swimDepth_.Reset(); swimAscend_=swimDescend_=false;
         position_.x = std::isfinite(x)
             ? x : (std::isfinite(position_.x) ? position_.x : 0.0f);
         position_.z = std::isfinite(z)
@@ -191,6 +207,14 @@ namespace island
                && std::isfinite(position_.z));
         assert(std::isfinite(groundHeight_) && std::isfinite(groundSlopeRadians_));
 #endif
+    }
+
+    void PlayerMotion::SetSwimInput(const RenderedTerrainSurface* surface,
+                                    bool ascend,bool descend) noexcept
+    {
+        swimSurface_=surface;
+        swimAscend_=ascend; swimDescend_=descend;
+        if(!surface) swimDepth_.Reset();
     }
 
     float PlayerMotion::OffshoreDistance(const IslandTerrain& terrain) const noexcept
@@ -240,6 +264,7 @@ namespace island
         }
 
         if (mode_ == LocomotionMode::Walking) {
+            swimDepth_.Reset();
             const GroundContact contact = SampleGroundContact(terrain, position_.x, position_.z);
             groundHeight_ = contact.height;
             groundSlopeRadians_ = contact.maximumSlopeRadians;
@@ -250,7 +275,7 @@ namespace island
 
         const float target = mode_ == LocomotionMode::Walking
             ? groundHeight_ + EyeHeight
-            : SwimmingEyeHeight;
+            : swimSurface_ ? swimDepth_.EyeHeight() : SwimmingEyeHeight;
         if (target > position_.y) {
             // Never smooth the camera through rising terrain. Downhill motion is eased to avoid
             // a saw-tooth camera path over dense height samples.
@@ -390,6 +415,14 @@ namespace island
             movementTrace_ = trace;
         }
 
+        if(swimSurface_ && mode_==LocomotionMode::Swimming) {
+            constexpr float bound=TerrainMeshLayout::Extent-CapsuleRadius;
+            if(std::abs(position_.x)<=bound && std::abs(position_.z)<=bound) {
+                const float support=swimSurface_->HeightRange(position_.x-CapsuleRadius,
+                    position_.z-CapsuleRadius,position_.x+CapsuleRadius,position_.z+CapsuleRadius)[1];
+                swimDepth_.Update(support,swimAscend_,swimDescend_,dt);
+            } else swimDepth_.Reset();
+        }
         ResolveModeAndHeight(terrain, 1.8f * dt);
 #ifndef NDEBUG
         assert(std::isfinite(position_.x) && std::isfinite(position_.y)

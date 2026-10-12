@@ -2031,6 +2031,53 @@ int main()
           "non-finite display geometry releases all touch ownership safely");
 
     const island::IslandTerrain terrain;
+    {
+        const auto seabed=std::make_unique<island::RenderedTerrainSurface>(terrain);
+        island::PlayerMotion swimmer;
+        bool found=false;
+        for(int angle=0;angle<32&&!found;++angle) {
+            const float a=angle*6.2831853f/32;
+            const float r=terrain.ShoreRadius(a)+38;
+            const float x=std::cos(a)*r,z=std::sin(a)*r;
+            if(std::abs(x)>330||std::abs(z)>330)continue;
+            if(seabed->HeightRange(x-.34f,z-.34f,x+.34f,z+.34f)[1]<-1.3f) {
+                swimmer.SetPosition(terrain,x,z); found=true;
+            }
+        }
+        Check(found,"diving test locates actual water with room below the surface");
+        if(found) {
+            swimmer.SetSwimInput(seabed.get(),false,true);
+            for(int i=0;i<5;++i) swimmer.Update(terrain,0,0,.1f);
+            Check(swimmer.Position().y<-.2f,"player movement now reaches below the water surface");
+            auto before=swimmer.Position();
+            swimmer.SetSwimInput(seabed.get(),true,true);
+            swimmer.Update(terrain,0,0,.1f);
+            Check(std::abs(swimmer.Position().y-before.y)<1e-5f,"opposed dive input holds live player depth");
+            swimmer.SetSwimInput(seabed.get(),false,false);
+            int rejected=0;
+            for(int i=0;i<300;++i) {
+                before=swimmer.Position();
+                const float r=std::hypot(before.x,before.z);
+                swimmer.Update(terrain,-before.x/r,-before.z/r,.1f);
+                const auto p=swimmer.Position();
+                const auto support=seabed->HeightRange(std::min(before.x,p.x)-.34f,
+                    std::min(before.z,p.z)-.34f,std::max(before.x,p.x)+.34f,
+                    std::max(before.z,p.z)+.34f)[1];
+                Check(p.y>=support+island::SwimDepth::BottomClearance-.0001f,
+                    "submerged movement cannot cross rendered seabed along its swept footprint");
+                rejected+=swimmer.MovementTrace().terrainRejections;
+            }
+            Check(rejected>0,"seabed ascent blocks underwater horizontal motion");
+            swimmer.SetSwimInput(seabed.get(),true,false);
+            for(int i=0;i<200;++i)swimmer.Update(terrain,0,0,.1f);
+            Check(swimmer.Position().y==island::PlayerMotion::SwimmingEyeHeight,"player resurfaces");
+            swimmer.SetSwimInput(seabed.get(),false,true);
+            swimmer.Update(terrain,0,0,.1f);
+            const auto p=swimmer.Position();
+            swimmer.SetPosition(terrain,p.x,p.z);
+            Check(swimmer.SubmergedDepth()==0&&swimmer.Position().y==.58f,"teleport clears immersion");
+        }
+    }
 
     const island::DistantSceneryLayout distantScenery;
     const island::DistantSceneryLayout repeatedDistantScenery;

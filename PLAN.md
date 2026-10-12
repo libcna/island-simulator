@@ -43,8 +43,11 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   camera position, seabed/terrain non-penetration, coherent surface entry/exit and
   underwater visibility/audio. Shift must not toggle ground running while diving.
   Preserve flight Tab/Space/Shift controls and bounded sea traversal. Verify actual
-  underwater movement/images, not only a surface haze effect. CPU-only SwimDepth
-  foundation added; not wired into gameplay, no underwater visual/runtime claim.
+  underwater movement/images, not only a surface haze effect. SwimDepth now wired
+  into PlayerMotion/input with lazy rendered-seabed cache and conservative swept
+  footprint rejection; Shift swimming doesn't toggle running. Actual-world CPU
+  descent/hold/seabed-block/return/reset regressions pass with CoreTests40.77s.
+  No underwater visual/runtime claim; rendering/audio and edge-case QA remain.
   See docs/diving.md for controller contracts and required swept-seabed integration.
 
 Boar material follow-up: original ImageGen fine-bristle v2 source and exact prompt

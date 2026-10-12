@@ -1567,7 +1567,8 @@ namespace island
 
         const bool runToggleDown = keyboard.IsKeyDown(Keys::LeftShift)
             || keyboard.IsKeyDown(Keys::RightShift);
-        if (locomotionPaceToggle_.Update(runToggleDown, !IsDebugFreeCameraActive() && !flightMotion_.IsActive())) {
+        if (locomotionPaceToggle_.Update(runToggleDown, !IsDebugFreeCameraActive() && !flightMotion_.IsActive()
+            && playerMotion_.Mode()!=LocomotionMode::Swimming)) {
             userSettings_.runningSelected = locomotionPaceToggle_.IsRunningSelected();
             PersistUserSettings();
             locomotionModeNoticeSeconds_ = LocomotionModeNoticeDuration;
@@ -1868,6 +1869,11 @@ namespace island
 #endif
             const PlayerPosition positionBeforeMovement = playerMotion_.Position();
             const LocomotionMode modeBeforeMovement = playerMotion_.Mode();
+            const bool ascend=keyboard.IsKeyDown(Keys::Space);
+            if(modeBeforeMovement==LocomotionMode::Swimming && (ascend||runToggleDown)
+                && !swimTerrainSurface_)
+                swimTerrainSurface_=std::make_unique<RenderedTerrainSurface>(terrain_);
+            playerMotion_.SetSwimInput(swimTerrainSurface_.get(),ascend,runToggleDown);
             playerMotion_.Update(terrain_, wish.X, wish.Z, deltaSeconds, worldCollisionGrid_);
             const PlayerPosition& position = playerMotion_.Position();
             cameraPosition_ = Vector3(position.x, position.y, position.z);
@@ -1933,7 +1939,8 @@ namespace island
                               std::cos(yaw_) * cosPitch);
         renderCameraPosition_ = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::None && !smokeTest_
-            && !IsDebugFreeCameraActive() && !flightMotion_.IsActive()) {
+            && !IsDebugFreeCameraActive() && !flightMotion_.IsActive()
+            && playerMotion_.SubmergedDepth()==0.0f) {
             const CameraMotionOffset& motion = cameraMotion_.Offset();
             const Vector3 right(std::cos(yaw_), 0.0f, -std::sin(yaw_));
             renderCameraPosition_ = renderCameraPosition_

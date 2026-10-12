@@ -14,7 +14,8 @@ returns to the surface. Nonfinite support rejects the update rather than inventi
 a safe floor. Invalid time produces no input displacement. A changed valid support
 still resolves an existing penetration even with zero elapsed time.
 
-This controller is **not wired into the game yet**. CPU tests cover descent/floor,
+The vertical controller is now wired into `PlayerMotion` and normal-play input.
+CPU tests cover descent/floor,
 ascent/surface, opposing/released keys, invalid inputs, bounded stall steps, rising
 support, dry support and reset. They do not establish underwater collision or visuals.
 Native incremental build and the complete CoreTests executable passed (41.96s);
@@ -22,14 +23,21 @@ no renderer was launched for this controller-only change.
 
 ## Integration still required
 
-Current `PlayerMotion::ResolveModeAndHeight` always targets `SwimmingEyeHeight`;
-its support sampling uses the analytic field, not the exact rendered triangles.
-Do not simply subtract an offset from the camera: that would allow penetration
-of sloping seabed during horizontal movement and leave visual/audio state incorrect.
+`PlayerMotion` accepts a caller-owned immutable rendered surface and refreshable
+vertical input. The game lazily allocates its 232324-byte height cache on the first
+vertical swimming input; it outlives the player controller. Ground movement remains
+unchanged. Submerged horizontal substeps query the maximum vertex height over every
+quad intersecting the swept capsule rectangle; this conservatively bounds all
+rendered triangles in that footprint, but may stop slightly early near grid edges.
+Final vertical motion uses the footprint support. Teleports/land reset depth, and
+normal flight activation already resets the player. Shift no longer toggles running
+while swimming. Camera bob is suppressed when the eye is below mean sea level.
+Native build and CoreTests passed40.77s, including a real terrain route which dives,
+holds depth, attempts inward swimming until blocked by rising seabed, resurfaces
+and resets via teleport. No graphics or audio validation has been run for this stage.
 
-Wire depth into the authoritative movement state, validate the swept horizontal
-footprint against rendered seabed (including triangle boundaries), preserve current
-prop collision and offshore current limits, and reset on teleports/land/flight.
+Validate world-boundary safety corrections, prop-depenetration paths and focus
+transitions while diving, including deeper open-water routes and shore exits.
 The renderer must handle the underwater side of the ocean and depth-dependent
 visibility, and sound must respond to actual immersion. Add a controlled deep-water
 QA route with actual key events and inspect below-surface images. No oxygen/survival

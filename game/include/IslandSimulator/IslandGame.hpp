@@ -251,6 +251,7 @@ namespace island
         std::optional<HutPlacement> hutPlacement_;
         WorldCollisionGrid worldCollisionGrid_;
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
+        std::unique_ptr<RenderedTerrainSurface> swimTerrainSurface_;
         PlayerMotion playerMotion_;
         FlightMotion flightMotion_;
         bool flightToggleWasDown_ = false;
