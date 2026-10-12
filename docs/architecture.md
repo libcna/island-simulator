@@ -582,14 +582,21 @@ The otherwise unused packed vertex-alpha byte carries normalized material height
 the shader explicitly writes alpha one. A transient per-mesh height vector keeps wind weights
 separate: low turf reaches material height one at its tip despite its reduced wind amplitude,
 and seed heads remain at one. Upload checks the vector size and finite normalized range. The
-surface vertex now occupies 40 bytes and uses nine attributes including a signed across-blade
-coordinate; the instance remains 44 bytes. The across coordinate and existing stable blade phase
+surface vertex now occupies 48 bytes and the combined surface/instance layout uses ten attributes,
+including a signed across-blade coordinate and the blade root; the instance remains 44 bytes. The
+across coordinate and existing stable blade phase
 feed footprint-filtered longitudinal veins, midrib and margin modulation. Seed heads use a
 separate tag and skip this detail. No texture or draw is added.
 `GrassMaterial.hpp` supplies CPU reference, validated encoding and locale-independent GLSL
 constants. Tests bound the three/five-level interpolated tint error below 0.0028 per channel.
 Custom RGB retains pigment but no longer includes fixed side/height shading; actual normals
 provide directional light and a separate normalized-height occlusion ranges from 0.62 to 1.
+Three stable olive, yellow-green and cool pigment families broaden close-range leaf identity
+before biome/light modulation. The existing blade-root, wind-phase and colour-variation data also
+drive an area-preserving per-blade planar transform: one axis scales by 0.82--0.94 and the other by
+its reciprocal. Normals use the corresponding inverse transpose, while culling includes the exact
+1/0.82 maximum stretch. This changes repeated cluster outlines without new geometry, instance
+data, texture, uniform or draw; see `grass-footprint-variation.md`.
 Stock-effect mesh colours remain unchanged; the static fallback does not get
 the per-fragment basal pigment. Root colour is artistic material variation, not soil lighting
 or a substitute for cast/contact shadows. Normal deformation and distant density remain limited.
@@ -597,7 +604,8 @@ See `grass-surface-material.md` for cost, filtering and validation scope.
 
 `GrassMotionBounds` derives conservative per-anchor boxes from measured maximum radius/height
 across all three uploaded meshes (including seed stems), instance scale and the shader's exact
-terrain-normal reconstruction. It adds the full bounded player push/lowering, wind vector and
+terrain-normal reconstruction. It first includes the bounded asymmetric-footprint stretch, then
+adds the full player push/lowering, wind vector and
 stature range, with a 1 cm numeric margin. The same constants generate locale-independent GLSL,
 so changing an amplitude changes both motion and bounds. This replaces the insufficient fixed
 x/z +/-1.4 m, y -0.08/+1.35 m box: even a sloped root could lie below the old minimum. Mesh
@@ -633,11 +641,12 @@ association is approximate, not same-frame synchronization. Per-tree switches pr
 coverage, not smooth visual continuity; isolated full-resolution LOD comparisons remain needed.
 
 The custom grass path uses area-weighted shared rest-shape normals from the same indexed mesh,
-including folds, bent tips and seed stems. A 36-byte position/RGBA8/wind/normal vertex replaces
+including folds, bent tips and seed stems. A 48-byte position/RGBA8/wind/normal/across/root vertex
+replaces
 the earlier 24-byte vertex with alpha-packed horizontal facing. Including the new low layer,
 the three meshes total 964 vertices (34,704 vertex bytes; low turf adds 8,640 vertex bytes
-and 864 index bytes). World placement and draw counts are unchanged. Eight attributes include
-the four unchanged instance attributes. Shader normals
+and 864 index bytes). World placement and draw counts are unchanged. Ten combined attributes
+include the six surface and four unchanged instance attributes. Shader normals
 use inverse-transpose height/spread/stature scaling, then yaw and the terrain basis; the fragment
 shader renormalizes interpolation before two-sided lighting. Normal generation rejects nonfinite,
 degenerate or cancelling geometry before upload. CPU tests compare a bent V-fold strip under 36

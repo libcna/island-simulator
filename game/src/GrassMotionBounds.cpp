@@ -1,4 +1,5 @@
 #include "IslandSimulator/GrassMotionBounds.hpp"
+#include "IslandSimulator/GrassBladeProfile.hpp"
 
 #include <algorithm>
 #include <array>
@@ -34,7 +35,7 @@ namespace island::GrassMotion
         const double normalLength = std::sqrt(horizontalNormalSquared+normalY*normalY);
         const double slopeSin = std::sqrt(horizontalNormalSquared)/normalLength;
         const double slopeCos = normalY/normalLength;
-        const double radius = double(meshRadius)*spreadScale;
+        const double radius = double(meshRadius)*spreadScale*GrassMaximumFootprintStretch;
         const double height = double(meshHeight)*heightScale*MaximumStature;
         const double sway = (double(BroadWind)+DetailWind)*heightScale*MaximumWindGain;
         const double horizontalWind = sway*std::hypot(1.0,double(WindZ));

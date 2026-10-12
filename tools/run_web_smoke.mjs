@@ -800,7 +800,7 @@ try {
             && log.includes("jungle ground layers receive shared canopy shade; crowns excluded")
             && log.includes("jungle leaves use smooth normals, filtered veins and restrained wax shading")
             && log.includes("boars receive bilinear per-vertex canopy light in their existing batch")
-            && log.includes("boar directional coat atlas 128x128, opaque stock BasicEffect")
+            && log.includes("boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws")
             && log.includes("boars use connected limb poses, stance contact and body-rooted bristles")
             && log.includes("boar soles fit rendered terrain independently with fixed-length limbs")
             && !log.includes("boar terrain contact limited by limb reach")
@@ -992,7 +992,7 @@ try {
     && result.output?.includes("jungle ground layers receive shared canopy shade; crowns excluded")
     && result.output?.includes("jungle leaves use smooth normals, filtered veins and restrained wax shading")
     && result.output?.includes("boars receive bilinear per-vertex canopy light in their existing batch")
-    && result.output?.includes("boar directional coat atlas 128x128, opaque stock BasicEffect")
+    && result.output?.includes("boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws")
     && result.output?.includes("boars use connected limb poses, stance contact and body-rooted bristles")
     && result.output?.includes("boar soles fit rendered terrain independently with fixed-length limbs")
     && !result.output?.includes("boar terrain contact limited by limb reach")
@@ -1068,6 +1068,8 @@ try {
       "island-simulator: selected near grass blades use a geometric V-fold ridge")
     && result.output?.includes(
       "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
+    && result.output?.includes(
+      "island-simulator: grass instances use area-preserving asymmetric tuft footprints")
     && result.output?.includes(
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && result.output?.includes(
@@ -1351,6 +1353,8 @@ try {
     && beachResult.output?.includes(
       "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
     && beachResult.output?.includes(
+      "island-simulator: grass instances use area-preserving asymmetric tuft footprints")
+    && beachResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && beachResult.output?.includes(
       "island-simulator: terrain authored primary footpath material")
@@ -1410,6 +1414,8 @@ try {
     && grassResult.output?.includes(
       "island-simulator: grass near blades use asymmetric edges and occasional bent tips")
     && grassResult.output?.includes(
+      "island-simulator: grass instances use area-preserving asymmetric tuft footprints")
+    && grassResult.output?.includes(
       "island-simulator: grass biome tint follows coast, path, and authored clearings")
     && grassResult.output?.includes(
       "island-simulator: grass sparse sun-cured tip variation in shared vertex colours")
@@ -1419,7 +1425,7 @@ try {
       "island-simulator: grass sparse near seed heads share blade wind and instancing")
     && grassResult.output?.includes(
       "island-simulator: grass three-tier per-patch LOD transitions 62-78/86-102 metres")
-    && /grass [1-9][0-9]*\/17225 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
+    && /grass [1-9][0-9]*\/16809 patches in [1-9][0-9]* cells, [1-9][0-9]* draws, interaction 1, custom shader 1, biome tint 1, LOD near [1-9][0-9]*, middle [1-9][0-9]*, far [1-9][0-9]*, mixed cells [1-9][0-9]*/.test(
       grassResult.output ?? "")
     && !grassResult.error;
 

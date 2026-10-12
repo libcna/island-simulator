@@ -54,7 +54,10 @@ int TestGrassMotionBounds()
                         Vector world{};
                         for (int axis=0; axis<3; ++axis) {
                             world[axis]=tx[axis]*std::cos(a)*1.2*spread
-                                +tz[axis]*std::sin(a)*1.2*spread+n[axis]*height*scale*stature;
+                                    * island::GrassMaximumFootprintStretch
+                                +tz[axis]*std::sin(a)*1.2*spread
+                                    * island::GrassMaximumFootprintStretch
+                                +n[axis]*height*scale*stature;
                         }
                         const double pushAngle=push*1.570796326794897;
                         world[0]+=std::cos(pushAngle)*MaximumPush*scale;

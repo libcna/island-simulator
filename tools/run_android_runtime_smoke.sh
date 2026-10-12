@@ -227,6 +227,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: grass near blades use asymmetric edges and occasional bent tips" \
             "$LOG_FILE" \
+        && grep -q "island-simulator: grass instances use area-preserving asymmetric tuft footprints" \
+            "$LOG_FILE" \
         && grep -q "island-simulator: grass shared rest-shape normals follow curvature and instance scale" \
             "$LOG_FILE" \
         && grep -q "island-simulator: grass progressive near taper and seed roots share the sampled blade profile" \
@@ -349,7 +351,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: boars receive bilinear per-vertex canopy light in their existing batch" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: boar directional coat atlas 128x128, opaque stock BasicEffect" \
+        && grep -q "island-simulator: boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws" \
             "$LOG_FILE" \
         && grep -q "island-simulator: jungle leaves use smooth normals, filtered veins and restrained wax shading" \
             "$LOG_FILE" \

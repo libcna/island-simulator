@@ -84,7 +84,7 @@ void main(){
         float width=(1.0-q)*(.72+.45*turbulence);
         float fine=noise(p*vec2(16.0,11.0)-vec2(t*.4,t*3.0)+pigment.r*17.0);
         float edge=width-abs(p.x+bend+(turbulence-.5)*.28)+(fine-.5)*.09;
-        alpha=smoothstep(-.03,.14,edge)*smoothstep(0,.07,p.y)*(1.0-smoothstep(.82,1.0,q))
+        alpha=smoothstep(-.03,.14,edge)*smoothstep(0.0,.07,p.y)*(1.0-smoothstep(.82,1.0,q))
             *smoothstep(.20,.66,turbulence)*.74;
         float heat=clamp((1.0-p.y)*.95+(turbulence-.5)*.20,0.0,1.0);
         color=mix(vec3(.88,.055,.003),vec3(1,.65,.08),smoothstep(.15,.75,heat));

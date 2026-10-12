@@ -779,6 +779,8 @@ def main():
                 raise RuntimeError("current low turf layer is missing; check for a stale executable")
             if "grass roots sample RGB24 rendered terrain triangles before wind" not in diagnostics:
                 raise RuntimeError("current grass grounding is missing; check for a stale executable")
+            if "grass instances use area-preserving asymmetric tuft footprints" not in diagnostics:
+                raise RuntimeError("current grass footprint variation is missing; check for a stale executable")
             if "ocean bounded grazing contrast and depth-limited filtered breaker foam" not in diagnostics:
                 raise RuntimeError("current ocean surface response is missing; check for a stale executable")
             if "wood uses outward shared normals and scale-correct fixed-sun lighting" not in diagnostics:

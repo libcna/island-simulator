@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iomanip>
 #include <limits>
+#include <locale>
 #include <numbers>
+#include <sstream>
 #include <stdexcept>
 
 namespace island
@@ -171,5 +174,56 @@ namespace island
             throw std::invalid_argument("Grass blade dimensions overflow geometry");
         }
         return point;
+    }
+
+    GrassFootprintPoint VaryGrassFootprint(
+        const float x, const float z, const float rootX, const float rootZ,
+        const float windPhase, const float colorVariation)
+    {
+        for (const float value : {x, z, rootX, rootZ, windPhase, colorVariation}) {
+            if (!std::isfinite(value)) {
+                throw std::invalid_argument("Non-finite grass footprint variation input");
+            }
+        }
+        if (windPhase < 0.0f || windPhase > 1.0f
+            || colorVariation < 0.0f || colorVariation > 1.0f) {
+            throw std::invalid_argument("Grass footprint variation outside normalized range");
+        }
+        const auto fract = [](const float value) { return value - std::floor(value); };
+        const float hash = fract(std::sin(rootX * 12.9898f + rootZ * 78.233f
+                                          + colorVariation * 37.719f)
+                                 * 43758.5453f);
+        const float angle = (windPhase + hash * 0.38196601125f)
+            * 2.0f * std::numbers::pi_v<float>;
+        const float axisX = std::cos(angle);
+        const float axisZ = std::sin(angle);
+        const float perpendicularX = -axisZ;
+        const float perpendicularZ = axisX;
+        const float axisScale = std::lerp(
+            GrassMinimumFootprintAxisScale, GrassMaximumFootprintAxisScale, hash);
+        const float perpendicularScale = 1.0f / axisScale;
+        const float alongAxis = x * axisX + z * axisZ;
+        const float alongPerpendicular = x * perpendicularX + z * perpendicularZ;
+        const GrassFootprintPoint result{
+            axisX * alongAxis * axisScale
+                + perpendicularX * alongPerpendicular * perpendicularScale,
+            axisZ * alongAxis * axisScale
+                + perpendicularZ * alongPerpendicular * perpendicularScale};
+        if (!std::isfinite(result.x) || !std::isfinite(result.z)) {
+            throw std::invalid_argument("Grass footprint variation overflow");
+        }
+        return result;
+    }
+
+    std::string GrassFootprintShaderConstants()
+    {
+        std::ostringstream source;
+        source.imbue(std::locale::classic());
+        source << std::scientific << std::setprecision(std::numeric_limits<float>::max_digits10)
+               << "const float grassMinimumFootprintAxisScale = "
+               << GrassMinimumFootprintAxisScale << ";\n"
+               << "const float grassMaximumFootprintAxisScale = "
+               << GrassMaximumFootprintAxisScale << ";\n";
+        return source.str();
     }
 }

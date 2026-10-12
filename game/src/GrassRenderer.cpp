@@ -78,6 +78,8 @@ namespace island
             "island-simulator: grass LOD proxies share seven tuft roots, profiles and wind phases";
         constexpr const char* DistanceFadeDiagnostic =
             "island-simulator: grass anchor-distance contraction uses nearest-bound cell culling";
+        constexpr const char* FootprintVariationDiagnostic =
+            "island-simulator: grass instances use area-preserving asymmetric tuft footprints";
 
         struct GrassInstanceData
         {
@@ -198,8 +200,21 @@ void main()
     vec3 tangentZ = normalize(cross(tangentX, surfaceNormal));
     float yawCos = cos(aPlacement.w);
     float yawSin = sin(aPlacement.w);
-    float localX = aPosition.x * yawCos - aPosition.z * yawSin;
-    float localZ = aPosition.x * yawSin + aPosition.z * yawCos;
+    float footprintHash = fract(sin(dot(aBladeRoot, vec2(12.9898, 78.233))
+                                    + aVariation.w * 37.719) * 43758.5453);
+    float footprintAngle = (aVariation.z + footprintHash * 0.38196601125)
+        * 6.28318530718;
+    vec2 footprintAxis = vec2(cos(footprintAngle), sin(footprintAngle));
+    vec2 footprintPerpendicular = vec2(-footprintAxis.y, footprintAxis.x);
+    float footprintAxisScale = mix(grassMinimumFootprintAxisScale,
+                                   grassMaximumFootprintAxisScale, footprintHash);
+    float footprintPerpendicularScale = 1.0 / footprintAxisScale;
+    vec2 localPlanar = footprintAxis
+            * dot(aPosition.xz, footprintAxis) * footprintAxisScale
+        + footprintPerpendicular
+            * dot(aPosition.xz, footprintPerpendicular) * footprintPerpendicularScale;
+    float localX = localPlanar.x * yawCos - localPlanar.y * yawSin;
+    float localZ = localPlanar.x * yawSin + localPlanar.y * yawCos;
     float bladeRandom = fract(sin(aWindData.y * 91.73 + aVariation.w * 37.21 + 0.618)
                               * 43758.5453);
     float bladeStature = mix(grassMinimumStature, grassMaximumStature, bladeRandom);
@@ -242,7 +257,13 @@ void main()
     // Inverse transpose of the rest-shape scale, yaw and terrain basis. Shared mesh normals
     // follow curvature/folds instead of assigning the same artificial tilt to every level.
     // Wind/player deformation of normals is still approximate; positions retain full motion.
-    vec3 scaledNormal = aNormal / vec3(aVariation.y, aVariation.x * bladeStature, aVariation.y);
+    vec2 localPlanarNormal = footprintAxis
+            * dot(aNormal.xz, footprintAxis) / footprintAxisScale
+        + footprintPerpendicular
+            * dot(aNormal.xz, footprintPerpendicular) / footprintPerpendicularScale;
+    vec3 scaledNormal = vec3(localPlanarNormal.x / aVariation.y,
+                            aNormal.y / (aVariation.x * bladeStature),
+                            localPlanarNormal.y / aVariation.y);
     float bladeNormalX = scaledNormal.x * yawCos - scaledNormal.z * yawSin;
     float bladeNormalZ = scaledNormal.x * yawSin + scaledNormal.z * yawCos;
     vBladeNormal = normalize(tangentX * bladeNormalX + tangentZ * bladeNormalZ
@@ -324,11 +345,13 @@ void main()
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\n")
                     + GrassMotion::ShaderConstants()
+                    + GrassFootprintShaderConstants()
                     + GrassMaterialShaderConstants()
                     + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
                     + (canopy ? CampfireLighting::Shader : "") + body;
             }
             return std::string("#version 330 core\n") + GrassMotion::ShaderConstants()
+                + GrassFootprintShaderConstants()
                 + GrassMaterialShaderConstants()
                 + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
                 + (canopy ? CampfireLighting::Shader : "") + body;
@@ -379,13 +402,18 @@ void main()
             const float redCure = 1.0f + curedProfile * 0.75f;
             const float greenCure = 1.0f + curedProfile * 0.06f;
             const float blueCure = 1.0f - curedProfile * 0.82f;
+            // Stable pigment families keep a whole field from reading as one artificial green.
+            const int family = (blade * 5 + 2) % 7;
+            const float baseRed = family < 2 ? 75.0f : (family < 5 ? 64.0f : 56.0f);
+            const float baseGreen = family < 2 ? 127.0f : (family < 5 ? 124.0f : 116.0f);
+            const float baseBlue = family < 2 ? 36.0f : (family < 5 ? 43.0f : 49.0f);
             // Sunlit tropical grasses are yellow-green, not emerald; keep per-blade spread.
             const int red = static_cast<int>(std::lround(
-                (64.0f + bladeShift * 12.0f) * light * redCure));
+                (baseRed + bladeShift * 12.0f) * light * redCure));
             const int green = static_cast<int>(std::lround(
-                (120.0f + bladeShift * 18.0f) * light * greenCure));
+                (baseGreen + bladeShift * 18.0f) * light * greenCure));
             const int blue = static_cast<int>(std::lround(
-                (40.0f + bladeShift * 8.0f) * light * blueCure));
+                (baseBlue + bladeShift * 8.0f) * light * blueCure));
             return Color(static_cast<std::uint8_t>(std::clamp(red, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(green, 0, 255)),
                          static_cast<std::uint8_t>(std::clamp(blue, 0, 255)),
@@ -662,6 +690,7 @@ void main()
                       << SurfaceMaterialDiagnostic << '\n'
                       << SharedLodDiagnostic << '\n'
                       << DistanceFadeDiagnostic << '\n'
+                      << FootprintVariationDiagnostic << '\n'
                       << "island-simulator: grass shared rest-shape normals follow curvature and instance scale\n"
                       << "island-simulator: grass progressive near taper and seed roots share the sampled blade profile\n"
                       << "island-simulator: grass near blades form seven unequal fanned tufts with coherent wind\n"
@@ -691,6 +720,7 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(SurfaceMaterialDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(SharedLodDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(DistanceFadeDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(FootprintVariationDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(
                 "island-simulator: grass shared rest-shape normals follow curvature and instance scale");
             MirrorRuntimeDiagnosticToPlatformLog(

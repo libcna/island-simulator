@@ -1,11 +1,17 @@
 #pragma once
 
+#include <string>
+
 namespace island
 {
     inline constexpr int NearGrassBladeCount = 42;
     inline constexpr int MiddleGrassBladeCount = 10;
     inline constexpr int FarGrassBladeCount = 7;
     inline constexpr int NearGrassTurfBladeCount = 48;
+    inline constexpr float GrassMinimumFootprintAxisScale = 0.82f;
+    inline constexpr float GrassMaximumFootprintAxisScale = 0.94f;
+    inline constexpr float GrassMaximumFootprintStretch =
+        1.0f / GrassMinimumFootprintAxisScale;
     enum class GrassMeshTier { Near, Middle, Far };
 
     struct GrassBladePlacement
@@ -69,4 +75,18 @@ namespace island
     // including terminal bow/drop, and is the attachment point for a seed stem.
     [[nodiscard]] GrassBladePoint SampleGrassBlade(const GrassBladeShape& shape,
                                                    float t, float side);
+
+    struct GrassFootprintPoint
+    {
+        float x;
+        float z;
+    };
+
+    /** @brief Applies the shader's area-preserving per-blade footprint variation. */
+    [[nodiscard]] GrassFootprintPoint VaryGrassFootprint(
+        float x, float z, float rootX, float rootZ,
+        float windPhase, float colorVariation);
+
+    /** @brief Emits locale-independent GLSL constants shared by the footprint model. */
+    [[nodiscard]] std::string GrassFootprintShaderConstants();
 }

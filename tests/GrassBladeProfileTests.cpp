@@ -8,7 +8,9 @@
 #include <cstdint>
 #include <iostream>
 #include <limits>
+#include <locale>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -29,6 +31,59 @@ int main()
 {
     failures += TestGrassMotionBounds();
     failures += TestGrassVisibility();
+    {
+        float maximumStretch = 0.0f;
+        bool observedVariation = false;
+        for (int blade = 0; blade < island::NearGrassBladeCount; ++blade) {
+            const auto placement = island::NearGrassBladePlacement(blade);
+            island::GrassFootprintPoint first{};
+            for (int variant = 0; variant <= 20; ++variant) {
+                const float unit = variant / 20.0f;
+                const auto varied = island::VaryGrassFootprint(
+                    placement.x, placement.z, placement.x, placement.z,
+                    unit, 1.0f - unit);
+                const auto repeated = island::VaryGrassFootprint(
+                    placement.x, placement.z, placement.x, placement.z,
+                    unit, 1.0f - unit);
+                Check(varied.x == repeated.x && varied.z == repeated.z,
+                      "grass footprint variation is deterministic");
+                const float sourceRadius = std::hypot(placement.x, placement.z);
+                const float variedRadius = std::hypot(varied.x, varied.z);
+                if (sourceRadius > 0.0001f) {
+                    maximumStretch = std::max(maximumStretch, variedRadius / sourceRadius);
+                    Check(variedRadius <= sourceRadius * island::GrassMaximumFootprintStretch
+                              + 0.00001f,
+                          "asymmetric footprint stays inside its conservative radial bound");
+                }
+                if (variant == 0) first = varied;
+                else observedVariation = observedVariation
+                    || std::hypot(varied.x - first.x, varied.z - first.z) > 0.001f;
+            }
+        }
+        Check(observedVariation && maximumStretch > 1.02f,
+              "instance identity produces visibly different area-preserving footprints");
+        for (int invalid = 0; invalid < 4; ++invalid) {
+            float x = 0.4f, z = -0.2f, phase = 0.5f, variation = 0.5f;
+            if (invalid == 0) x = std::numeric_limits<float>::quiet_NaN();
+            if (invalid == 1) z = std::numeric_limits<float>::infinity();
+            if (invalid == 2) phase = -0.01f;
+            if (invalid == 3) variation = 1.01f;
+            bool rejected = false;
+            try { (void)island::VaryGrassFootprint(x, z, 0.2f, 0.1f, phase, variation); }
+            catch (const std::invalid_argument&) { rejected = true; }
+            Check(rejected, "invalid footprint variation is rejected before shader use");
+        }
+        const std::string constants = island::GrassFootprintShaderConstants();
+        const auto previousLocale = std::locale();
+        struct Comma final : std::numpunct<char> {
+            char do_decimal_point() const override { return ','; }
+        };
+        std::locale::global(std::locale(previousLocale, new Comma));
+        const std::string localized = island::GrassFootprintShaderConstants();
+        std::locale::global(previousLocale);
+        Check(constants == localized && constants.find(',') == std::string::npos,
+              "footprint GLSL constants ignore the process decimal locale");
+    }
     {
         float previous = 0;
         for (int step = 0; step <= 1000; ++step) {

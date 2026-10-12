@@ -6697,8 +6697,13 @@ improves the requested experience rather than adding quests, combat, survival, o
   first-person gaps and repeated tufts are no longer distracting. The first realism pass narrows
   the shared near blades, adds stable edge/bow asymmetry, and bends a minority of tips without
   changing counts, LOD, shader work, or submissions; its matched OpenGL 3.3, WebGL 2, and GLES 3
-  views pass. Profile overdraw and alpha-free geometry cost on all targets before increasing
-  population; cluster-footprint and transition composition remain open.
+  views pass. A second bounded pass now gives existing blades deterministic area-preserving
+  asymmetric footprints and three restrained pigment families; inverse-transpose normals and
+  culling use the same transform. The inspected Release llvmpipe view passes with unchanged
+  geometry/instances/draws and slightly broader colour/contrast coverage. The matching eight-view
+  Chrome/SwiftShader WebGL 2 vegetation suite passes with zero GL errors/context loss and was
+  inspected. Moving LOD, GLES, physical-device and wider composition review remain open; profile
+  overdraw and alpha-free geometry cost before increasing population.
 - [~] Strengthen the island's authored composition with realistic erosion cues, beach-width
   variation, shallow sandbars, reef groupings, grove structure, denser/sparser jungle rooms,
   landmark sightlines, and controlled openings. Integrate the shipwreck and debris into one chosen
