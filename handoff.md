@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Current work — offshore dolphin first pass inspected
+
+Goal remains active. Four peaceful dolphins are now live beyond the western reef. `DolphinPod`
+uses deterministic 17--21m home ranges in the 34--105m offshore band and cycles cruise/surface/
+dive with smoothed pitch, bank and tail beat; full/reduced/dormant distances are190/520m. The
+original procedural renderer has fusiform body, pale underside, rostrum, eyes, dorsal/pectoral
+fins and horizontal flukes, three depth-lit palettes and one dynamic draw; geometry is498/30
+near/far vertices per visible animal. `IslandDolphinPodTests` covers600s deterministically,
+including habitat, surface/deep travel, motion extremes and tiers. WorldReport now validates and
+hashes all four states/homes, fingerprint049597fca36b232e. Actual contained llvmpipe evidence
+`20261012T205513.019794Z-dolphins` PASS/kernel[], one close dolphin/one draw; image inspected after
+rounding the forehead, lowering/sweeping the dorsal fin and broadening the horizontal flukes.
+Still faceted; melon/mouth/blowhole/fin polish, breach/wake/social behaviour, Web/Android and
+integrated performance remain. PLAN dolphins and aquatic polish remain[~]. Continue whole plan,
+max4 build cores, no AMD/Android/KVM changes.
+
 ## Current work — monkey face/body and hooked-tail second pass inspected
 
 Goal remains active. Monkey trunk now has13 instead of9 loft sections; cranium and rounded

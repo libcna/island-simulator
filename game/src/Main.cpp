@@ -60,6 +60,7 @@ namespace
         case FixedViewpoint::BirdDetail: return "birds";
         case FixedViewpoint::FishDetail: return "fish";
         case FixedViewpoint::SharkDetail: return "shark";
+        case FixedViewpoint::DolphinDetail: return "dolphins";
         case FixedViewpoint::MonkeyDetail: return "monkeys";
         case FixedViewpoint::MonkeyTreeDetail: return "monkey-tree";
         case FixedViewpoint::MonkeyClimbDetail: return "monkey-climb";
@@ -137,7 +138,7 @@ int main(const int argc, char* argv[])
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
-                             "shark, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
+                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -221,6 +222,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::FishDetail;
             } else if (name == "shark") {
                 viewpoint = island::FixedViewpoint::SharkDetail;
+            } else if (name == "dolphins") {
+                viewpoint = island::FixedViewpoint::DolphinDetail;
             } else if (name == "monkeys") {
                 viewpoint = island::FixedViewpoint::MonkeyDetail;
             } else if (name == "monkey-tree") {

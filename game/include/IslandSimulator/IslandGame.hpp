@@ -33,6 +33,8 @@
 #include "IslandSimulator/FlightMotion.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
 #include "IslandSimulator/DistantSceneryRenderer.hpp"
+#include "IslandSimulator/DolphinPod.hpp"
+#include "IslandSimulator/DolphinRenderer.hpp"
 #include "IslandSimulator/FishRenderer.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/FirstPersonCameraMotion.hpp"
@@ -132,6 +134,7 @@ namespace island
         BirdDetail,
         FishDetail,
         SharkDetail,
+        DolphinDetail,
         MonkeyDetail,
         MonkeyTreeDetail,
         MonkeyClimbDetail,
@@ -239,6 +242,9 @@ namespace island
             int minimumSeaTurtles = 0;
             int maximumSeaTurtles = 0;
             std::uint64_t totalSeaTurtles = 0U;
+            int minimumDolphins = 0;
+            int maximumDolphins = 0;
+            std::uint64_t totalDolphins = 0U;
             float minimumShoreDistance = 0.0f;
             float maximumShoreDistance = 0.0f;
             Microsoft::Xna::Framework::Vector3 firstCameraPosition{0.0f, 0.0f, 0.0f};
@@ -260,6 +266,7 @@ namespace island
         FishSchools fishSchools_;
         SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
+        DolphinPod dolphinPod_;
         MonkeyTroop monkeyTroop_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
@@ -326,6 +333,7 @@ namespace island
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SeaTurtleRenderer> seaTurtleRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
+        std::unique_ptr<DolphinRenderer> dolphinRenderer_;
         std::unique_ptr<ShipwreckRenderer> shipwreckRenderer_;
         std::unique_ptr<HutRenderer> hutRenderer_;
         std::unique_ptr<ShorelineRenderer> shorelineRenderer_;

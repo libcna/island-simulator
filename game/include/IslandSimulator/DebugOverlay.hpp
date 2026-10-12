@@ -164,6 +164,17 @@ namespace island
         int sharkSimulationTier = 0;
         int sharkDraws = 0;
         int sharkPresenceCycles = 0;
+        int visibleDolphins = 0;
+        int totalDolphins = 0;
+        int nearDolphins = 0;
+        int farDolphins = 0;
+        int fullSimulationDolphins = 0;
+        int reducedSimulationDolphins = 0;
+        int dormantSimulationDolphins = 0;
+        int cruisingDolphins = 0;
+        int surfacingDolphins = 0;
+        int divingDolphins = 0;
+        int dolphinDraws = 0;
         int visibleMonkeys = 0;
         int totalMonkeys = 0;
         int nearMonkeys = 0;

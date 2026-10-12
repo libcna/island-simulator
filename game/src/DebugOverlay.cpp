@@ -460,6 +460,16 @@ namespace island
               << " DRAWS " << state.sharkDraws;
         lines.push_back(shark.str());
 
+        auto dolphins = DiagnosticLine();
+        dolphins << "DOLPHINS " << state.visibleDolphins << '/' << state.totalDolphins
+                 << "  NEAR " << state.nearDolphins << " FAR " << state.farDolphins
+                 << "  SIM " << state.fullSimulationDolphins << '/'
+                 << state.reducedSimulationDolphins << '/' << state.dormantSimulationDolphins
+                 << "  ST " << state.cruisingDolphins << '/'
+                 << state.surfacingDolphins << '/' << state.divingDolphins
+                 << "  DRAWS " << state.dolphinDraws;
+        lines.push_back(dolphins.str());
+
         auto monkeys = DiagnosticLine();
         monkeys << "MONKEYS " << state.visibleMonkeys << '/' << state.totalMonkeys
                 << "  NEAR " << state.nearMonkeys << " FAR " << state.farMonkeys

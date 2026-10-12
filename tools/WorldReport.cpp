@@ -6,6 +6,7 @@
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
+#include "IslandSimulator/DolphinPod.hpp"
 #include "IslandSimulator/FishSchools.hpp"
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
@@ -115,6 +116,7 @@ namespace
         island::FishSchools fish{terrain};
         island::SeaTurtleGroup seaTurtles{terrain};
         island::SharkPatrol shark{terrain};
+        island::DolphinPod dolphins{terrain};
         island::MonkeyTroop monkeys{terrain};
         island::VegetationLayout palms{terrain};
         island::JungleLayout jungle{terrain};
@@ -425,6 +427,22 @@ namespace
         hash.AddFloat(shark.targetX);
         hash.AddFloat(shark.targetZ);
 
+        hash.AddSize(world.dolphins.Dolphins().size());
+        for(std::size_t index=0;index<world.dolphins.Dolphins().size();++index) {
+            const auto& dolphin=world.dolphins.Dolphins()[index];
+            const auto& home=world.dolphins.Homes()[index];
+            HashPosition(hash,dolphin.x,dolphin.y,dolphin.z);
+            hash.AddFloat(dolphin.headingRadians);
+            hash.AddFloat(dolphin.pitchRadians);
+            hash.AddFloat(dolphin.bankRadians);
+            hash.AddFloat(dolphin.speed);
+            hash.AddFloat(dolphin.tailBeat);
+            hash.AddFloat(dolphin.scale);
+            hash.AddEnum(dolphin.behavior);
+            hash.AddByte(dolphin.colorVariant);
+            hash.AddFloat(home.x);hash.AddFloat(home.z);hash.AddFloat(home.radius);
+        }
+
         hash.AddSize(world.monkeys.Monkeys().size());
         for (const island::MonkeyState& monkey : world.monkeys.Monkeys()) {
             HashPosition(hash, monkey.x, monkey.y, monkey.z);
@@ -586,6 +604,8 @@ namespace
                 == island::SeaTurtleGroup::TurtleCount
             && world.seaTurtles.Homes().size()
                 == island::SeaTurtleGroup::TurtleCount
+            && world.dolphins.Dolphins().size()==island::DolphinPod::DolphinCount
+            && world.dolphins.Homes().size()==island::DolphinPod::DolphinCount
             && world.monkeys.Monkeys().size() == island::MonkeyTroop::MonkeyCount
             && world.shipwreck.Debris().size() == island::ShipwreckLayout::DebrisCount
             && world.shipwreck.Obstacles().size()
@@ -726,6 +746,20 @@ namespace
         finiteSpecializedData = finiteSpecializedData
             && AllFinite(shark.x, shark.y, shark.z, shark.headingRadians, shark.scale,
                          shark.targetX, shark.targetZ);
+        for(std::size_t index=0;index<world.dolphins.Dolphins().size();++index) {
+            const auto& dolphin=world.dolphins.Dolphins()[index];
+            const auto& home=world.dolphins.Homes()[index];
+            const auto sample=world.terrain.Sample(dolphin.x,dolphin.z);
+            finiteSpecializedData=finiteSpecializedData
+                && AllFinite(dolphin.x,dolphin.y,dolphin.z,dolphin.headingRadians,
+                    dolphin.pitchRadians,dolphin.bankRadians,dolphin.speed,dolphin.tailBeat,
+                    dolphin.scale,home.x,home.z,home.radius)
+                && dolphin.scale>0&&home.radius>0
+                && std::hypot(dolphin.x-home.x,dolphin.z-home.z)<=home.radius
+                && sample.signedShoreDistance>=island::DolphinPod::MinimumShoreDistance
+                && sample.signedShoreDistance<=island::DolphinPod::MaximumShoreDistance
+                && sample.height<=-3.0f&&dolphin.y<0;
+        }
         for (const island::MonkeyState& monkey : world.monkeys.Monkeys()) {
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(monkey.x, monkey.y, monkey.z, monkey.headingRadians,
@@ -998,6 +1032,7 @@ namespace
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
                << "    \"sharks\": 1,\n"
+               << "    \"dolphins\": " << world.dolphins.Dolphins().size() << ",\n"
                << "    \"monkeys\": " << world.monkeys.Monkeys().size() << "\n"
                << "  },\n"
                << "  \"groundSnakePopulation\": {\n"

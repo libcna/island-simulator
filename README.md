@@ -273,6 +273,10 @@ fold their wings and place small feet on the support without another draw call.
 One non-hostile shark
 occasionally patrols deeper offshore water with matching dive pitch, turn banking, a forked tail,
 depth-integrated colour, and restrained near eye/gill detail.
+Four peaceful dolphins cruise beyond the western reef in bounded home ranges, alternate cruising,
+surfacing and diving, and use pitch, banking and animated horizontal flukes in one culled batch.
+The fixed `--viewpoint dolphins` camera exposes the current original procedural first pass; see
+[the dolphin implementation and validation notes](docs/dolphins.md).
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,
 three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
 state-transition crossfades. Near animals add restrained crown/cheek fur tufts plus bone-following

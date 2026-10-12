@@ -106,6 +106,7 @@ namespace island
             case FixedViewpoint::BirdDetail: return "birds";
             case FixedViewpoint::FishDetail: return "fish";
             case FixedViewpoint::SharkDetail: return "shark";
+            case FixedViewpoint::DolphinDetail: return "dolphins";
             case FixedViewpoint::MonkeyDetail: return "monkeys";
             case FixedViewpoint::MonkeyTreeDetail: return "monkey-tree";
             case FixedViewpoint::MonkeyClimbDetail: return "monkey-climb";
@@ -153,6 +154,7 @@ namespace island
           fishSchools_(terrain_),
           seaTurtleGroup_(terrain_),
           sharkPatrol_(terrain_),
+          dolphinPod_(terrain_),
           monkeyTroop_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
@@ -804,6 +806,17 @@ namespace island
             const Vector3 toShark = Vector3(shark.x, shark.y, shark.z) - cameraPosition_;
             yaw_ = std::atan2(toShark.X, toShark.Z);
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
+        } else if (viewpoint_ == FixedViewpoint::DolphinDetail
+                   && !dolphinPod_.Dolphins().empty()) {
+            const DolphinState& dolphin = dolphinPod_.Dolphins()[1U];
+            const Vector3 radial = Vector3::Normalize(Vector3(dolphin.x, 0.0f, dolphin.z));
+            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            cameraPosition_ = Vector3(dolphin.x, dolphin.y, dolphin.z)
+                + radial * 7.0f + tangent * 2.0f + Vector3::Up * 3.2f;
+            const Vector3 toDolphin = Vector3(dolphin.x, dolphin.y, dolphin.z)
+                - cameraPosition_;
+            yaw_ = std::atan2(toDolphin.X, toDolphin.Z);
+            pitch_ = std::atan2(toDolphin.Y, std::hypot(toDolphin.X, toDolphin.Z));
         } else if (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail
             || viewpoint_ == FixedViewpoint::MonkeyClimbDetail) {
             if (viewpoint_ == FixedViewpoint::MonkeyTreeDetail) {
@@ -1196,6 +1209,8 @@ namespace island
             device, 190.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         sharkRenderer_ = std::make_unique<SharkRenderer>(
             device, 710.0f * qualityProfile_.wildlifeMaximumDistanceScale);
+        dolphinRenderer_ = std::make_unique<DolphinRenderer>(
+            device, 580.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto monkeyRenderer = std::make_unique<MonkeyRenderer>(
             device, terrain_, canopyLighting->Field(), 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto residentRenderer=std::make_unique<ResidentRenderer>(device,canopyLighting->Field(),
@@ -1336,6 +1351,8 @@ namespace island
                   << "island-simulator: sea turtles " << seaTurtleGroup_.Turtles().size()
                   << " agents in bounded habitat routes, three based in the sheltered western bay\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
+                  << "island-simulator: dolphins " << dolphinPod_.Dolphins().size()
+                  << " agents in a peaceful offshore cruise, surface, and dive pod\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"
                   << "island-simulator: aquatic wildlife uses depth tint and restrained moving "
@@ -1595,6 +1612,7 @@ namespace island
         seaTurtleGroup_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         sharkPatrol_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        dolphinPod_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
         Vector3 monkeyObserver = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
             const MonkeyState& subject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
@@ -2324,7 +2342,8 @@ namespace island
             + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
-            + sharkRenderer_->DrawCallCount() + monkeyRenderer_->DrawCallCount()
+            + sharkRenderer_->DrawCallCount()+dolphinRenderer_->DrawCallCount()
+            + monkeyRenderer_->DrawCallCount()
             + shorelineRenderer_->DrawCallCount() + waterViewOverlay_->DrawCallCount();
     }
 
@@ -2341,6 +2360,7 @@ namespace island
         const int boars = boarRenderer_->VisibleCount();
         const int butterflies = butterflyRenderer_->VisibleButterflyCount();
         const int seaTurtles = seaTurtleRenderer_->VisibleTurtleCount();
+        const int dolphins = dolphinRenderer_->VisibleCount();
         const float shoreDistance = terrain_.SignedShoreDistance(
             cameraPosition_.X, cameraPosition_.Z);
         BenchmarkSceneRanges& ranges = benchmarkSceneRanges_;
@@ -2356,6 +2376,7 @@ namespace island
             ranges.minimumBoars = ranges.maximumBoars = boars;
             ranges.minimumButterflies = ranges.maximumButterflies = butterflies;
             ranges.minimumSeaTurtles = ranges.maximumSeaTurtles = seaTurtles;
+            ranges.minimumDolphins = ranges.maximumDolphins = dolphins;
             ranges.minimumShoreDistance = ranges.maximumShoreDistance = shoreDistance;
             ranges.firstCameraPosition = cameraPosition_;
         } else {
@@ -2387,6 +2408,8 @@ namespace island
                 ranges.minimumSeaTurtles, seaTurtles);
             ranges.maximumSeaTurtles = std::max(
                 ranges.maximumSeaTurtles, seaTurtles);
+            ranges.minimumDolphins = std::min(ranges.minimumDolphins, dolphins);
+            ranges.maximumDolphins = std::max(ranges.maximumDolphins, dolphins);
             ranges.minimumShoreDistance = std::min(
                 ranges.minimumShoreDistance, shoreDistance);
             ranges.maximumShoreDistance = std::max(
@@ -2403,6 +2426,7 @@ namespace island
         ranges.totalBoars += static_cast<std::uint64_t>(boars);
         ranges.totalButterflies += static_cast<std::uint64_t>(butterflies);
         ranges.totalSeaTurtles += static_cast<std::uint64_t>(seaTurtles);
+        ranges.totalDolphins += static_cast<std::uint64_t>(dolphins);
         ranges.lastCameraPosition = cameraPosition_;
         ++ranges.sampleCount;
     }
@@ -2538,7 +2562,11 @@ namespace island
                << "    \"sea_turtles\": {\"min\": "
                << ranges.minimumSeaTurtles << ", \"max\": "
                << ranges.maximumSeaTurtles << ", \"mean\": "
-               << meanCount(ranges.totalSeaTurtles) << "}\n"
+               << meanCount(ranges.totalSeaTurtles) << "},\n"
+               << "    \"dolphins\": {\"min\": "
+               << ranges.minimumDolphins << ", \"max\": "
+               << ranges.maximumDolphins << ", \"mean\": "
+               << meanCount(ranges.totalDolphins) << "}\n"
                << "  },\n"
                << "  \"scene\": {\n"
                << "    \"tracked_draw_submissions\": " << trackedSceneDraws << ",\n"
@@ -2593,6 +2621,7 @@ namespace island
                << "    \"sea_turtles\": "
                << seaTurtleRenderer_->VisibleTurtleCount() << ",\n"
                << "    \"shark\": " << (sharkRenderer_->IsVisible() ? 1 : 0) << ",\n"
+               << "    \"dolphins\": " << dolphinRenderer_->VisibleCount() << ",\n"
                << "    \"player_water_ripple\": "
                << waterRippleModel_.Intensity() << ",\n"
                << "    \"player_water_ripple_phase\": "
@@ -2830,6 +2859,12 @@ namespace island
             GpuDiagnosticScope gpuPass("shark");
             sharkRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                  sharkPatrol_.State(), timeSeconds);
+        }
+
+        {
+            GpuDiagnosticScope gpuPass("dolphins");
+            dolphinRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,
+                dolphinPod_.Dolphins(),timeSeconds);
         }
 
         {
@@ -3085,6 +3120,21 @@ namespace island
             overlayState.sharkDraws = sharkRenderer_->DrawCallCount();
             overlayState.sharkPresenceCycles = static_cast<int>(
                 sharkPatrol_.PresenceCycleCount());
+            overlayState.visibleDolphins = dolphinRenderer_->VisibleCount();
+            overlayState.totalDolphins = static_cast<int>(dolphinPod_.Dolphins().size());
+            overlayState.nearDolphins = dolphinRenderer_->VisibleNearCount();
+            overlayState.farDolphins = dolphinRenderer_->VisibleFarCount();
+            overlayState.fullSimulationDolphins = dolphinPod_.FullSimulationCount();
+            overlayState.reducedSimulationDolphins = dolphinPod_.ReducedSimulationCount();
+            overlayState.dormantSimulationDolphins = dolphinPod_.DormantSimulationCount();
+            for(const DolphinState& dolphin:dolphinPod_.Dolphins()) {
+                switch(dolphin.behavior) {
+                case DolphinBehavior::Cruise:++overlayState.cruisingDolphins;break;
+                case DolphinBehavior::Surface:++overlayState.surfacingDolphins;break;
+                case DolphinBehavior::Dive:++overlayState.divingDolphins;break;
+                }
+            }
+            overlayState.dolphinDraws = dolphinRenderer_->DrawCallCount();
             overlayState.visibleMonkeys = monkeyRenderer_->VisibleMonkeyCount();
             overlayState.totalMonkeys = static_cast<int>(monkeyTroop_.Monkeys().size());
             overlayState.nearMonkeys = monkeyRenderer_->VisibleNearMonkeyCount();
@@ -3304,7 +3354,11 @@ namespace island
                       << seaTurtleRenderer_->DrawCallCount() << " draw; shark "
                       << (sharkRenderer_->IsVisible() ? "visible" : "culled")
                       << " activity " << sharkPatrol_.State().activity << ", "
-                      << sharkRenderer_->DrawCallCount() << " draw; monkeys "
+                      << sharkRenderer_->DrawCallCount() << " draw; dolphins "
+                      << dolphinRenderer_->VisibleCount() << '/' << dolphinPod_.Dolphins().size()
+                      << " visible (near " << dolphinRenderer_->VisibleNearCount() << ", far "
+                      << dolphinRenderer_->VisibleFarCount() << "), "
+                      << dolphinRenderer_->DrawCallCount() << " draw; monkeys "
                       << monkeyRenderer_->VisibleMonkeyCount() << '/'
                       << monkeyTroop_.Monkeys().size() << " visible, "
                       << monkeyRenderer_->DrawCallCount() << " draws, blends "

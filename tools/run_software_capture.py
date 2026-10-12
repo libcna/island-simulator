@@ -729,6 +729,11 @@ def main():
                 raise RuntimeError("current wind-driven cloud drift is missing; check for a stale executable")
             if "sea turtles use domed scute carapaces, beaked heads and bending paddle strokes" not in diagnostics:
                 raise RuntimeError("current sea-turtle form is missing; check for a stale executable")
+            if args.viewpoint == "dolphins":
+                if "dolphins use fusiform bodies, rostrums, curved dorsal fins and horizontal animated flukes" not in diagnostics:
+                    raise RuntimeError("current dolphin form is missing; check for a stale executable")
+                if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):
+                    raise RuntimeError("dolphin capture did not submit a near detailed animal")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("bush camera did not select the intended shrub")
             if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:

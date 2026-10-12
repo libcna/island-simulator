@@ -390,13 +390,19 @@ readable damp log without terrain/water separation. Flow-motion review, richer b
 relief, remaining shared grounding and Web/Android/performance QA remain. See
 docs/stream-course.md and docs/environment-field-design.md.
 
-- [ ] New explicit visual-polish request: fish, shark, dolphins, turtles and crabs.
+- [~] New explicit visual-polish request: fish, shark, dolphins, turtles and crabs.
   Audit real close/side/front/moving views; improve recognizable anatomy/silhouette,
   materials/textures, fins/flippers/legs/claws/eyes and species-appropriate motion.
   Preserve habitat-driven ecosystem priorities and portable geometry/material/LOD
   budgets; technical image gates alone do not mean visual acceptance. Dolphins
-  still require implementation/population integration as well as visual quality;
-  do not imply they already exist in the game.
+  received a first integrated pass on 2026-10-12: four bounded offshore agents, deterministic
+  cruise/surface/dive motion, pitch/bank/tail animation and one-batch near/far procedural anatomy.
+  `IslandDolphinPodTests`, WorldReport fingerprint `049597fca36b232e`, and inspected contained
+  llvmpipe evidence `20261012T205513.019794Z-dolphins` pass. A second image-driven pass rounded the
+  forehead, lowered/swept the dorsal fin, broadened the horizontal flukes and added mouth/blowhole
+  cues. The form remains visibly faceted and
+  Web/Android/performance review is open; fish, shark, turtle and crab polish also remains, so this
+  umbrella item is intentionally not complete. See `docs/dolphins.md`.
 
 Stream bed now live in TerrainRenderer: covered original coarse quads omitted;
 separate16-bit buffers/existing terrain material, one extra culled draw. Player
@@ -1669,7 +1675,13 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)
-- [ ] Dolphins (offshore pod surfacing beyond the reef)
+- [~] Dolphins (offshore pod surfacing beyond the reef). Four original procedural agents now use
+  bounded authoritative-water homes and cruise/surface/dive cycles with depth pitch, turn bank and
+  animated horizontal flukes. One culled dynamic batch uses 498/30 near/far vertices per visible
+  animal. Deterministic 600-second CPU coverage, WorldReport integration and the inspected native
+  `dolphins` capture pass after one image-driven anatomy correction. Breaching/wakes/social motion,
+  further anatomy polish, portable runtime evidence
+  and integrated performance measurement remain open; see `docs/dolphins.md`.
 - [ ] Octopuses (reef/rock shallows)
 
 Human character backlog requested by the operator:

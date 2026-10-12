@@ -102,6 +102,7 @@ add_library(island_core STATIC
     game/src/RenderedTerrainSurface.cpp
     game/src/SurfaceNormals.cpp
     game/src/SeaTurtleGroup.cpp
+    game/src/DolphinPod.cpp
     game/src/SharkPatrol.cpp
     game/src/ShipwreckLayout.cpp
     game/src/SoundscapeModel.cpp
@@ -245,6 +246,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_core_tests)
     island_enable_first_party_sanitizers(island_core_tests)
     add_test(NAME IslandCoreTests COMMAND island_core_tests)
+    add_executable(island_dolphin_tests tests/DolphinPodTests.cpp)
+    target_link_libraries(island_dolphin_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_dolphin_tests)
+    island_enable_first_party_sanitizers(island_dolphin_tests)
+    add_test(NAME IslandDolphinPodTests COMMAND island_dolphin_tests)
     add_executable(island_boar_tests tests/BoarHerdTests.cpp)
     target_link_libraries(island_boar_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_tests)
@@ -572,6 +578,7 @@ if(ISLAND_BUILD_GAME)
         game/src/SpiderRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
+        game/src/DolphinRenderer.cpp
         game/src/FishRenderer.cpp
         game/src/ForestFloorMaterial.cpp
         game/src/OpaqueImageLoader.cpp
