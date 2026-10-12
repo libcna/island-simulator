@@ -782,8 +782,9 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Mice
 - [ ] Rats
 - [ ] Deer
-- [~] Goats (feral island goats on open slopes). CPU foundations only; **no live
-  goats yet**. GoatHabitat proposes six deterministic jittered upland homes from3025
+- [~] Goats (feral island goats on open slopes). **Six live goats now integrated;
+  provisional untextured appearance, not visually accepted.** Earlier foundation
+  milestones below are historical. GoatHabitat proposes six upland homes from3025
   bounded candidates using actual rendered terrain and the complete obstacle grid.
   Dry/sloped footprint, canopy/understory/bush clearance,8m separation/40m herd region;
   rejects impossible worlds instead of clearing vegetation or inventing a fallback.
@@ -819,6 +820,18 @@ progress or require player interaction; dangerous species keep their distance li
   native build and45/45 non-display tests PASS59.51s. No runtime integration or GPU
   use; coat, eye/ear/limb detail, slope/whole-hoof clearance, actual motion/appearance
   acceptance remain open. CPU preview is NOT an island audit. See docs/goats.md.
+  Live integration now constructs/updates the herd in IslandGame and renders normal
+  scenes in one stock BasicEffect batch with smooth CPU daylight/canopy lighting,
+  culling/30m LOD/quality-scaled120m range. Existing contact-shadow batch includes
+  cached goat body patches; no new texture allocation. HUD/console/benchmark and
+  initial WorldReport include goats, fingerprint0a98cb638125508f. Provenance recorded.
+  Native llvmpipe20261012T013223.609582Z-goats PASS, actual image inspected, kernel[].
+  Central goat visible, but plain beige coat/point eyes/crude ears/angular limbs are
+  NOT accepted realism. Native build/46 CPU groups PASS61.98s; report independent
+  JSON tests include five rejected corrupt variants. Next: readable coat/anatomy,
+  continuous gait/foot-grounding audit, CPU profiling and Web/Android qualification.
+  Final current-tree native rebuild/full46 non-display tests PASS70.70s; all owned
+  jobs terminal, hardware latch unchanged, no new portable runtime claim.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

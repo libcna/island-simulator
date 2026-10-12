@@ -15,6 +15,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/GoatHerd.hpp"
 #include "IslandSimulator/SnakeContactShadow.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
@@ -241,7 +242,7 @@ namespace island
             shadow.radius = Vector3::Distance(minimum, maximum) * 0.5f + 0.001f;
         }
         vertexCapacity_ = staticVertices_.size()
-            + (MonkeyTroop::MonkeyCount + BoarHerd::BoarCount) * VerticesPerShadow
+            + (MonkeyTroop::MonkeyCount + BoarHerd::BoarCount + GoatHabitat::Count) * VerticesPerShadow
             + SnakePopulation::Count*SnakeShadowVertexLimit;
         if (vertexCapacity_ > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
             throw std::length_error("Contact-shadow batch exceeds supported vertex capacity");
@@ -256,11 +257,13 @@ namespace island
     void ContactShadowRenderer::Draw(const Matrix& view, const Matrix& projection,
                                      const Vector3& cameraPosition,
                                      const std::span<const MonkeyState> monkeys,
-                                     const std::span<const BoarState> boars, const SnakePopulation& population)
+                                     const std::span<const BoarState> boars, const SnakePopulation& population,
+                                     const std::span<const GoatState> goats)
     {
         const auto snakes=population.Snakes();
         drawCallCount_ = 0;
-        if (monkeys.size() > MonkeyTroop::MonkeyCount || boars.size() > BoarHerd::BoarCount) {
+        if (monkeys.size() > MonkeyTroop::MonkeyCount || boars.size() > BoarHerd::BoarCount
+            || goats.size()>GoatHabitat::Count) {
             throw std::invalid_argument("Contact-shadow population exceeds the reserved GPU capacity");
         }
         // Contact shadows are diffuse enough to tolerate sub-decimetre refresh thresholds. This
@@ -283,6 +286,7 @@ namespace island
                 > ProjectionRefreshThreshold
             || cachedMonkeyPositions_.size() != monkeys.size()
             || cachedBoarPoses_.size() != boars.size()
+            || cachedGoatPoses_.size() != goats.size()
             || cachedSnakePoints_.size() != snakes.size()*SnakeState::StationCount;
         if (!rebuild) {
             for (std::size_t index = 0; index < monkeys.size(); ++index) {
@@ -318,6 +322,15 @@ namespace island
                     rebuild=true;
             }
         }
+        if(!rebuild) {
+            for(std::size_t i=0;i<goats.size();++i) {
+                const auto& goat=goats[i];const auto& cached=cachedGoatPoses_[i];
+                const float dx=goat.x-cached.X,dz=goat.z-cached.Z;
+                if(dx*dx+dz*dz>MonkeyRefreshDistanceSquared||std::abs(goat.y-cached.Y)>.04f
+                    ||std::abs(std::remainder(goat.heading-cached.W,2*std::numbers::pi_v<float>))>.06f)
+                    rebuild=true;
+            }
+        }
         if (rebuild) {
             stagingVertices_.clear();
             visibleShadowCount_ = 0;
@@ -328,6 +341,7 @@ namespace island
             visibleHutShadowCount_ = 0;
             visibleMonkeyShadowCount_ = 0;
             visibleBoarShadowCount_ = 0;
+            visibleGoatShadowCount_ = 0;
             visibleSnakeShadowCount_ = 0;
             visibleCoastalShadowCount_ = 0;
             primitiveCount_ = 0;
@@ -400,6 +414,15 @@ namespace island
                 ++visibleBoarShadowCount_;
             }
 
+            for(const auto& goat:goats) {
+                float fade=0;
+                if(!IsVisible(frustum,cameraPosition,goat.x,goat.y,goat.z,1.8f*goat.scale,
+                    monkeyMaximumDistance_,fade))continue;
+                AppendTerrainEllipse(stagingVertices_,terrain_,goat.x,goat.z,
+                    std::cos(goat.heading),std::sin(goat.heading),
+                    .70f*goat.scale,.30f*goat.scale,.08f*goat.scale,FadedAlpha(70,fade));
+                ++visibleGoatShadowCount_;
+            }
             for(const auto& snake:snakes) {
                 const auto head=snake.body.front();
                 float fade=0;
@@ -413,7 +436,7 @@ namespace island
             visibleShadowCount_ = visiblePalmShadowCount_ + visibleCanopyShadowCount_
                 + visibleRockShadowCount_ + visibleWoodShadowCount_ + visibleHutShadowCount_
                 + visibleMonkeyShadowCount_ + visibleBoarShadowCount_ + visibleCoastalShadowCount_
-                + visibleSnakeShadowCount_;
+                + visibleSnakeShadowCount_ + visibleGoatShadowCount_;
             primitiveCount_ = static_cast<int>(stagingVertices_.size() / 3U);
             if (stagingVertices_.size() > vertexCapacity_) {
                 throw std::length_error("Contact-shadow upload exceeds reserved vertex capacity");
@@ -437,6 +460,8 @@ namespace island
                 cachedBoarPoses_.emplace_back(boar.x, boar.y, boar.z, boar.headingRadians);
             }
             cachedSnakePoints_.clear();
+            cachedGoatPoses_.clear();
+            for(const auto& goat:goats)cachedGoatPoses_.emplace_back(goat.x,goat.y,goat.z,goat.heading);
             for(const auto& snake:snakes) for(const auto& p:snake.body)
                 cachedSnakePoints_.emplace_back(p.x,p.y,p.z);
             cacheValid_ = true;

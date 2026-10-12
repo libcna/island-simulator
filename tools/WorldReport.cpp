@@ -1,5 +1,6 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/GoatHerd.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -117,6 +118,7 @@ namespace
         island::WorldCollisionGrid collisionGrid;
         std::optional<island::HutPlacement> hut;
         std::unique_ptr<island::SnakePopulation> snakes;
+        std::unique_ptr<island::GoatHerd> goats;
 
         WorldSnapshot()
         {
@@ -138,6 +140,7 @@ namespace
             boars.SetObstacles(collisionGrid.Obstacles());
             // Match runtime ordering: snakes use the complete obstacle set, including the hut.
             snakes=std::make_unique<island::SnakePopulation>(terrain,collisionGrid.Obstacles());
+            goats=std::make_unique<island::GoatHerd>(terrain,jungle,collisionGrid.Obstacles());
         }
     };
 
@@ -391,6 +394,11 @@ namespace
             hash.AddByte(monkey.colorVariant);
         }
         hash.AddSize(world.snakes->Snakes().size());
+        hash.AddSize(world.goats->Goats().size());
+        for(const auto& goat:world.goats->Goats()) {
+            HashPosition(hash,goat.x,goat.y,goat.z);
+            hash.AddFloat(goat.heading);hash.AddFloat(goat.scale);
+        }
         for(const auto& snake:world.snakes->Snakes()) {
             hash.AddFloat(snake.homeX);hash.AddFloat(snake.homeZ);
             hash.AddFloat(snake.heading);hash.AddFloat(snake.phase);hash.AddFloat(snake.speed);
@@ -497,6 +505,7 @@ namespace
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
             && world.boars.Boars().size() == island::BoarHerd::BoarCount
             && world.snakes->Snakes().size() == island::SnakePopulation::Count
+            && world.goats->Goats().size() == island::GoatHabitat::Count
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
@@ -646,6 +655,12 @@ namespace
             finiteSpecializedData=finiteSpecializedData
                 && AllFinite(snake.homeX,snake.homeZ,snake.heading,snake.phase,snake.speed)
                 && world.snakes->ValidBody(snake);
+        }
+        std::size_t goatIndex=0;
+        for(const auto& goat:world.goats->Goats()) {
+            finiteSpecializedData=finiteSpecializedData
+                && AllFinite(goat.x,goat.y,goat.z,goat.heading,goat.scale,goat.phase,goat.speed,goat.grazingPose)
+                && world.goats->IsValidPosition(goatIndex++,goat.x,goat.z);
         }
         bool validHut=world.hut.has_value();
         if(world.hut) {
@@ -842,6 +857,7 @@ namespace
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
                << "    \"groundSnakes\": " << world.snakes->Snakes().size() << ",\n"
+               << "    \"goats\": " << world.goats->Goats().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
@@ -865,6 +881,14 @@ namespace
                 output << '[' << p.x << ',' << p.y << ',' << p.z << ']';
             }
             output << "]}" << (i+1<snakes.size()?",":"") << '\n';
+        }
+        output << "    ]\n  },\n  \"goatPopulation\": {\n    \"snapshot\": \"initial\",\n    \"goats\": [\n";
+        const auto goats=world.goats->Goats();
+        for(std::size_t i=0;i<goats.size();++i) {
+            const auto& goat=goats[i];
+            output << "      {\"position\":[" << goat.x << ',' << goat.y << ',' << goat.z
+                   << "],\"headingRadians\":" << goat.heading << ",\"scale\":" << goat.scale << '}'
+                   << (i+1<goats.size()?",":"") << '\n';
         }
         output << "    ]\n  }\n}\n";
     }

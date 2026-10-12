@@ -27,6 +27,7 @@ namespace island
     class VegetationLayout;
     struct MonkeyState;
     struct BoarState;
+    struct GoatState;
     class SnakePopulation;
     struct HutPlacement;
 
@@ -57,7 +58,8 @@ namespace island
                   const Microsoft::Xna::Framework::Matrix& projection,
                   const Microsoft::Xna::Framework::Vector3& cameraPosition,
                   std::span<const MonkeyState> monkeys,
-                  std::span<const BoarState> boars, const SnakePopulation& snakes);
+                  std::span<const BoarState> boars, const SnakePopulation& snakes,
+                  std::span<const GoatState> goats);
 
         [[nodiscard]] int VisibleShadowCount() const noexcept { return visibleShadowCount_; }
         [[nodiscard]] int VisiblePalmShadowCount() const noexcept
@@ -82,6 +84,7 @@ namespace island
         }
         [[nodiscard]] int PrimitiveCount() const noexcept { return primitiveCount_; }
         [[nodiscard]] int VisibleBoarShadowCount() const noexcept { return visibleBoarShadowCount_; }
+        [[nodiscard]] int VisibleGoatShadowCount() const noexcept { return visibleGoatShadowCount_; }
         [[nodiscard]] int VisibleSnakeShadowCount() const noexcept { return visibleSnakeShadowCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
         [[nodiscard]] int VisibleCoastalShadowCount() const noexcept { return visibleCoastalShadowCount_; }
@@ -120,6 +123,7 @@ namespace island
         Microsoft::Xna::Framework::Vector3 cachedCameraPosition_;
         std::vector<Microsoft::Xna::Framework::Vector3> cachedMonkeyPositions_;
         std::vector<Microsoft::Xna::Framework::Vector4> cachedBoarPoses_;
+        std::vector<Microsoft::Xna::Framework::Vector4> cachedGoatPoses_;
         std::vector<Microsoft::Xna::Framework::Vector3> cachedSnakePoints_;
         bool cacheValid_ = false;
         int visibleShadowCount_ = 0;
@@ -130,6 +134,7 @@ namespace island
         int visibleHutShadowCount_ = 0;
         int visibleMonkeyShadowCount_ = 0;
         int visibleBoarShadowCount_ = 0;
+        int visibleGoatShadowCount_ = 0;
         int visibleSnakeShadowCount_ = 0;
         int visibleCoastalShadowCount_ = 0;
         std::size_t vertexCapacity_ = 0;

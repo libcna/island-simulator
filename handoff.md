@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — six goats LIVE in IslandGame, first native image inspected, NOT accepted realism
+
+IslandGame now constructs GoatHerd after full obstacles/hut and updates all six normal
+world agents. GoatRenderer uses fitted poses/CPU smooth daylight+canopy tint, stock
+untextured BasicEffect/fog, frustum/range culling, near/far30m, quality-scaled120m range.
+One draw,49,152 reserved position/colour vertices; current six near meshes37,512.
+Zero added textures. Provisional beige material, not fur; profiling/throttling pending.
+Existing shadow batch includes terrain-conforming goat body ellipses with capacity,
+cache and totals; not hoof-specific/directional shadows. HUD/console/benchmark include
+goats. --viewpoint goats follows first animal translation from initial8.5m offset.
+WorldReport matches full herd construction, six initial positions/headings/scales and
+new fingerprint0a98cb638125508f. Independent WorldGoatReportTests checks JSON and five
+corrupt variants. Procedural provenance:26 records/89 sources/12 project files/0external.
+
+Native contained llvmpipe build/software-captures/20261012T013223.609582Z-goats PASS,
+3/6 visible one draw, kernel-after[]. Converted capture.ppm→capture.png and actually
+inspected: central goat clear, another partly grass-occluded. Smooth body with readable
+horns but plain beige coat, point eyes, crude ears/angular legs. This is first runtime
+baseline, not accepted realism or continuous movement/hoof-contact proof.
+Native full46 non-display groups PASS61.98s; final current-tree rebuild/full46 PASS70.70s
+(build/goat-live-verified-{build,tests}.log). All owned jobs terminal. Hardware latch
+SHA c0bd1704 unchanged; no AMD/Android/KVM/dependency changes. No new Web/Android build
+or runtime qualification. Goal active, no push; AMD crash remains high-priority open.
+Next: readable goat coat/anatomy and actual continuous gait/contact audit, performance
+budget, Web/Android build/runtime; keep all other requested species/backlog open.
+Historical foundation entries below saying no live goats are superseded by this entry.
+
 ## Latest — goat mesh CPU foundation and inspected shape preview, NOT live goats
 
 GoatMesh.hpp/.cpp builds local triangles with normals/UV/material/anatomy tags:

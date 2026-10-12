@@ -115,5 +115,5 @@ int main() {
     bool rejected=false;
     try { GoatHerd impossible(terrain,jungle,blocked); } catch(const std::runtime_error&) { rejected=true; }
     check(rejected,"impossible goat habitat silently accepted");
-    std::cout<<"Goat herd CPU foundation passed; not integrated into the live game\n";
+    std::cout<<"Goat herd CPU tests passed; this is not a live rendering audit\n";
 }

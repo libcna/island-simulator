@@ -110,6 +110,13 @@ counts, body lengths, finite positions, bounded home range and segment spacing a
 four-decimal serialization. Five corrupted-report cases must be rejected. These checks
 cover initial state, not runtime motion, natural appearance or tree climbing.
 
+Goat integration adds `wildlife.goats` and `goatPopulation` (initial positions, headings
+and scales) using the same complete-obstacle herd construction as the game. Six goats,
+including one juvenile, change the current fingerprint to `0a98cb638125508f`.
+Initial finite state/count/placement is validated; independent `IslandWorldGoatReportTests`
+checks the JSON and rejects five corrupt variants. Coat/appearance/motion are not
+qualified by a valid world report. See `docs/goats.md` for current visual limitations.
+
 The fingerprint is a change detector for the qualified host/toolchain, not a promise that different
 standard-library math implementations produce identical floating-point bits. Intentional world
 changes may change it; review the JSON diff rather than replacing it blindly.

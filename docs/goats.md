@@ -1,7 +1,10 @@
 # Feral island goats — implementation in progress
 
-**No goats are present in the running game yet.** This document records the first
-placement, ground-pose, behavior and mesh foundations, not a completed species or visual acceptance.
+**Six goats are now integrated into the running game, with provisional untextured
+materials.** A native software-rendered scene has been inspected; this is not a
+completed species or visual/motion acceptance. Earlier milestone evidence below
+describes foundations before integration; the current runtime section supersedes
+their historical no-renderer/no-live-population statements.
 
 ## Deterministic open-slope homes
 
@@ -146,6 +149,44 @@ All13,824 home poses/43,776 stance contacts still pass. Complete native build an
 45/45 non-display tests PASS59.51s (`build/goat-mesh-complete-tests.log`). No GPU,
 emulator, Android/KVM settings or dependency changes; hardware stop latch unchanged.
 
+## First live integration and native scene audit
+
+`IslandGame` constructs `GoatHerd` after the complete collision grid (including the
+hut), updates its six states and submits `GoatRenderer` in the normal scene. It is
+not restricted to a QA camera. Renderer uses terrain-fitted poses, world-transformed
+smooth normals, CPU daylight/canopy tint and stock untextured vertex-colour BasicEffect
+with fog. Distance/frustum culling, near/far LOD at30m and a quality-scaled120m limit
+bound work. One dynamic batch reserves49,152 vertices (786,432 bytes of position/colour
+vertex storage); the same capacity bounds staging/upload. Texture allocation is zero.
+Six full-detail current meshes use37,512 vertices, not the entire reserved budget.
+Per-frame CPU mesh allocation/lighting and herd simulation still need profiling and
+distance throttling. This is not a hardware performance claim.
+
+Goat body contact ellipses join the existing terrain-conforming shadow batch with
+reserved capacity, pose-aware cache invalidation and count accounting. They are not
+hoof-specific or directional body shadows. Console, benchmark-visible counts and
+debug overlay include goats; WorldReport now constructs the same initial herd and
+exports six initial positions/headings/scales. Its fingerprint becomes
+`0a98cb638125508f` from `b3fde347f77eb5f8`. Independent JSON tests cover count, finite
+positions, separation/herd bounds, one juvenile and five corrupt-report cases.
+Procedural provenance is recorded in the manifest and ASSET_LICENSES.md.
+
+`--viewpoint goats` follows translation of the first live goat, with a telephoto
+camera initially outside the7m retreat trigger. Native contained llvmpipe run
+`build/software-captures/20261012T013223.609582Z-goats` passed, submitted3/6 goats in
+one draw and retained an empty kernel delta. The actual1280×720 image was inspected:
+the central goat is unobscured and another is partly hidden in grass. Horns/head/body
+are readable, but flat beige material, tiny point eyes, crude ears and straight
+angular limb segments remain conspicuous. Foot grounding is not established by this
+single image; continuous all-angle walking/grazing review is still required.
+No AMD hardware was used; Web/Android builds and runtime audits are pending.
+
+Native build and46/46 non-display groups PASS61.98s in the initial integration run.
+Final current-tree rebuild and full46 groups PASS70.70s, retained in
+`build/goat-live-verified-tests.log`; all owned processes terminated normally.
+This proves neither realistic fur nor accepted animal motion. The first capture is
+a baseline for improvement, not completion of the user's goat request.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
@@ -157,15 +198,11 @@ emulator, Android/KVM settings or dependency changes; hardware stop latch unchan
   implemented above. Browsing details, gait transitions and visual acceptance remain.
   The40m grouping radius is NOT a traversable-area guarantee; initial sites do not
   establish connectivity or safe paths between them.
-- [ ] Actual population/update/renderer integration, lighting/contact shadows and budgets.
-- [ ] Live diagnostic counts and WorldReport coverage only after goats really exist.
+- [~] Actual population/update/renderer integration, lighting/contact shadows and vertex
+  capacity implemented above; CPU/performance budgets and portable runtime remain open.
+- [x] Live diagnostic counts and initial WorldReport coverage after runtime integration.
 - [ ] Actual unobscured native/Web/Android appearance and motion audits; CPU placement
   tests and a successful build do not satisfy this acceptance requirement.
 
-No species count, WorldReport fingerprint, rendering, physics or gameplay behavior
-changes merely by adding this currently unreferenced placement component.
-
-Native build and all43 non-display test groups PASS70.22s. WorldReport remains valid
-with fingerprint `b3fde347f77eb5f8` and unchanged live wildlife counts. No renderer,
-Android emulator, KVM or dependency changes were involved; no portable/runtime visual
-qualification is claimed. The AMD hardware stop latch remains unchanged.
+The AMD hardware stop latch remains unchanged. No Android emulator/KVM or dependency
+configuration was changed for this integration.

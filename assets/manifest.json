@@ -226,6 +226,17 @@
       ]
     },
     {
+      "name": "upland-goats",
+      "licenseRecord": "Procedural upland goats",
+      "sources": [
+        "game/src/GoatHabitat.cpp",
+        "game/src/GoatPose.cpp",
+        "game/src/GoatHerd.cpp",
+        "game/src/GoatMesh.cpp",
+        "game/src/GoatRenderer.cpp"
+      ]
+    },
+    {
       "name": "ground-snakes",
       "licenseRecord": "Procedural ground snakes",
       "sources": [

@@ -101,6 +101,7 @@ namespace island
             case FixedViewpoint::HutMaterialDetail: return "hut-material";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
+            case FixedViewpoint::GoatDetail: return "goats";
             case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
@@ -177,6 +178,7 @@ namespace island
         monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
         boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
         snakes_ = std::make_unique<SnakePopulation>(terrain_,worldCollisionGrid_.Obstacles());
+        goats_ = std::make_unique<GoatHerd>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -782,6 +784,13 @@ namespace island
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        } else if (viewpoint_ == FixedViewpoint::GoatDetail) {
+            const auto& goat=goats_->Goats().front();
+            const float x=goat.x+7.5f,z=goat.z+4.0f;
+            cameraPosition_=Vector3(x,std::max(terrain_.Height(x,z)+.4f,goat.y+2.1f),z);
+            const auto direction=Vector3(goat.x,goat.y+.75f,goat.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::BoarDetail) {
             const auto& boar = boarHerd_.Boars().front();
             // Telephoto inspection outside the 6m retreat trigger; habitat stays unchanged.
@@ -986,6 +995,8 @@ namespace island
         auto boarRenderer = std::make_unique<BoarRenderer>(
             device, terrain_, canopyLighting->Field(), 135.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto snakeRenderer = std::make_unique<SnakeRenderer>(device,canopyLighting->Field());
+        auto goatRenderer = std::make_unique<GoatRenderer>(device,terrain_,canopyLighting->Field(),
+            120.0f*qualityProfile_.wildlifeMaximumDistanceScale);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
@@ -1016,6 +1027,9 @@ namespace island
         jungleRenderer_ = std::move(jungleRenderer);
         boarRenderer_ = std::move(boarRenderer);
         snakeRenderer_ = std::move(snakeRenderer);
+        goatRenderer_ = std::move(goatRenderer);
+        std::cout << "island-simulator: goats " << goats_->Goats().size()
+                  << " agents on open slopes, terrain-fitted limbs, provisional untextured coat\n";
         monkeyRenderer_ = std::move(monkeyRenderer);
         canopyLighting_ = std::move(canopyLighting);
         terrainHeightMap_ = std::move(terrainHeightMap);
@@ -1274,6 +1288,12 @@ namespace island
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const auto previousGoat=goats_->Goats().front();
+        goats_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+        if(viewpoint_==FixedViewpoint::GoatDetail) {
+            const auto& current=goats_->Goats().front();
+            cameraPosition_+=Vector3(current.x-previousGoat.x,current.y-previousGoat.y,current.z-previousGoat.z);
+        }
         const auto snakeCentre = [this]() {
             Vector3 centre = Vector3::Zero;
             const auto population = snakes_->Snakes();
@@ -1878,7 +1898,8 @@ namespace island
                                            renderCameraPosition_ + forward,
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
-            viewpoint_==FixedViewpoint::BoarDetail?0.50f:std::numbers::pi_v<float> / 3.0f,
+            (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail)
+                ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
     }
 
@@ -1921,6 +1942,7 @@ namespace island
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
             + crabRenderer_->DrawCallCount()
             + boarRenderer_->DrawCallCount()
+            + goatRenderer_->DrawCallCount()
             + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
@@ -2185,6 +2207,7 @@ namespace island
                << butterflyRenderer_->VisibleButterflyCount() << ",\n"
                << "    \"crabs\": " << crabRenderer_->VisibleCrabCount() << ",\n"
                << "    \"boars\": " << boarRenderer_->VisibleCount() << ",\n"
+               << "    \"goats\": " << goatRenderer_->VisibleCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"sea_turtles\": "
                << seaTurtleRenderer_->VisibleTurtleCount() << ",\n"
@@ -2318,7 +2341,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("contact-shadows");
             contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
-                                         renderedMonkeys, boarHerd_.Boars(),*snakes_);
+                                         renderedMonkeys, boarHerd_.Boars(),*snakes_,goats_->Goats());
         }
 
         const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
@@ -2377,6 +2400,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("snakes");
             snakeRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,snakes_->Snakes());
+        }
+        {
+            GpuDiagnosticScope gpuPass("goats");
+            goatRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,goats_->Goats());
         }
 
         {
@@ -2591,6 +2618,10 @@ namespace island
             overlayState.butterflyDraws = butterflyRenderer_->DrawCallCount();
             overlayState.visibleCrabs = crabRenderer_->VisibleCrabCount();
             overlayState.visibleBoars = boarRenderer_->VisibleCount();
+            overlayState.visibleGoats = goatRenderer_->VisibleCount();
+            overlayState.totalGoats = static_cast<int>(goats_->Goats().size());
+            overlayState.goatDraws = goatRenderer_->DrawCallCount();
+            overlayState.goatShadows = contactShadowRenderer_->VisibleGoatShadowCount();
             overlayState.totalBoars = static_cast<int>(boarHerd_.Boars().size());
             overlayState.boarDraws = boarRenderer_->DrawCallCount();
             overlayState.boarShadows = contactShadowRenderer_->VisibleBoarShadowCount();
@@ -2829,7 +2860,9 @@ namespace island
                       << crabRenderer_->VisibleFarCrabCount() << "), "
                       << crabRenderer_->DrawCallCount() << " draw; boars "
                       << boarRenderer_->VisibleCount() << '/' << boarHerd_.Boars().size()
-                      << " visible, " << boarRenderer_->DrawCallCount() << " draw; snakes "
+                      << " visible, " << boarRenderer_->DrawCallCount() << " draw; goats "
+                      << goatRenderer_->VisibleCount() << '/' << goats_->Goats().size()
+                      << " visible, " << goatRenderer_->DrawCallCount() << " draw; snakes "
                       << snakeRenderer_->VisibleCount() << '/' << snakes_->Snakes().size()
                       << " visible, " << snakeRenderer_->DrawCallCount() << " draw, "
                       << contactShadowRenderer_->VisibleSnakeShadowCount() << " shadows; fish "

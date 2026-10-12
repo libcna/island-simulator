@@ -10,7 +10,7 @@ struct GoatState {
     GoatBehavior behavior=GoatBehavior::Graze;
     bool operator==(const GoatState&) const = default;
 };
-// CPU simulation foundation. Not installed in IslandGame until its renderer exists.
+// Deterministic peaceful herd; simulation remains independent of the renderer.
 class GoatHerd final {
 public:
     static constexpr float HomeRadius=14,MaximumSpeed=1.2f;

@@ -308,6 +308,9 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     find_package(Python3 COMPONENTS Interpreter QUIET)
     if(Python3_Interpreter_FOUND)
         if(TARGET island_world_report)
+            add_test(NAME IslandWorldGoatReportTests
+                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/WorldGoatReportTests.py"
+                    "$<TARGET_FILE:island_world_report>")
             add_test(NAME IslandWorldSnakeReportTests
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/WorldSnakeReportTests.py"
                     "$<TARGET_FILE:island_world_report>")
@@ -459,6 +462,7 @@ if(ISLAND_BUILD_GAME)
         game/src/CrabRenderer.cpp
         game/src/BoarRenderer.cpp
         game/src/SnakeRenderer.cpp
+        game/src/GoatRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp
