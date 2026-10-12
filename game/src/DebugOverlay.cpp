@@ -196,7 +196,7 @@ namespace island
             return;
         }
 
-        const std::string text = flying ? "FLIGHT  Q/E DOWN/UP  SPACE TO LAND"
+        const std::string text = flying ? "FLIGHT  SPACE UP  SHIFT DOWN  TAB TO LAND"
             : (running ? "RUN MODE  8.0 M/S" : "WALK MODE  4.3 M/S");
         constexpr float scale = 1.65f;
         constexpr int horizontalPadding = 13;
@@ -245,7 +245,7 @@ namespace island
 #else
         lines.emplace_back("F1 DEBUG  F2 WORLD  F4 SEEDS  F5-F10/J/K/F12 TELEPORT  F11 FULLSCREEN");
 #endif
-        lines.emplace_back("SPACE FLIGHT  Q/E DOWN/UP  HOLD SHIFT FAST  LIMIT 100M / RADIUS 330M");
+        lines.emplace_back("TAB FLIGHT  SPACE UP  SHIFT DOWN  LIMIT 100M / RADIUS 330M");
 
         auto timing = DiagnosticLine();
         timing << "FPS " << framesPerSecond_ << "  FRAME " << frameMilliseconds_ << " MS";

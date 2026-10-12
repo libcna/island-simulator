@@ -29,6 +29,22 @@ older uncapped build guidance; existing `-j2` builds remain suitable.
 These are additive requirements, not a replacement for the remaining plan. Prioritize
 the renewed boar/monkey and hut requests over unfinished spider-web integration.
 
+- [ ] Add a realistic continuously burning campfire at a suitable island location:
+  stone-ringed fire pit, burning logs/embers, animated flame shape and restrained
+  smoke/sparks, local flickering light and crackling audio. Place a distinct pile
+  of gathered future firewood at a safe visible distance from flames and vegetation.
+  Evaluate CNA-compatible shaders/particles, performance and all portable backends;
+  inspect actual near/far and moving views, not a static orange placeholder. No
+  implementation yet; adding fuel/crafting mechanics was not requested.
+
+- [ ] Add underwater diving: while in water and not flying, Space ascends toward
+  the surface and either Shift descends. WASD/arrows retain horizontal swimming;
+  simultaneous ascent/descent cancels vertical input. Support actual underwater
+  camera position, seabed/terrain non-penetration, coherent surface entry/exit and
+  underwater visibility/audio. Shift must not toggle ground running while diving.
+  Preserve flight Tab/Space/Shift controls and bounded sea traversal. Verify actual
+  underwater movement/images, not only a surface haze effect. No implementation yet.
+
 Boar material follow-up: original ImageGen fine-bristle v2 source and exact prompt
 preserved/manifest recorded; native/Web/Android preparation selects v2 with unchanged
 256square/mips/memory/draws. Native build + asset/preparation tests PASS34.01s.
@@ -36,12 +52,17 @@ Actual071024.005936Z-boars capture passed/kernel[] with identical poseJSON; insp
 stage0 shows finer body fur, remaining head stretching/simplified anatomy. No final
 visual/full-suite/portable acceptance. See docs/boar-coat-material.md.
 
-- [ ] Latest flight controls request: Tab toggles flight; while flying, Space ascends
+- [~] Latest flight controls request: Tab toggles flight; while flying, Space ascends
   and Shift descends. This supersedes the old Space toggle and Q/E vertical controls.
   Update input handling, help/overlay and control tests together; toggle once per
   key press, not per repeat/frame. Preserve ground controls outside flight and all
   terrain/ceiling/island-radius constraints. Check focus changes and simultaneous
-  vertical keys. This is a planned change, not implemented yet.
+  vertical keys. Implemented in native input/help plus Web shell/event handling and
+  QA drivers. Native build/three focused tests PASS1.20s. Actual software flight
+  20261012T071541.812529Z passed: held Tab single toggle, Space ascent/100m ceiling,
+  left/right Shift descent, simultaneous Space+right Shift cancellation, safe landing;
+  kernel-final[]. Actual notice image inspected/readable. Web/Android runtime and
+  gameplay focus-loss checks still open. F3 debug camera Q/E/Shift unchanged.
 
 Boar audit tooling follow-up: fixed0.1s capture-only clock, eight actual stages and
 translation-follow camera; normal game unchanged. Build with affinity0-3/-j2 and

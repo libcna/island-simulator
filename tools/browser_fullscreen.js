@@ -9,6 +9,12 @@ Module['preRun'].push(function () {
         (Module['print'] || console.log)(line);
     };
     document.addEventListener('keydown', function (event) {
+        // Keep gameplay Tab/Space from moving focus or scrolling the document.
+        // Outside the focused/locked canvas, normal page keyboard access remains.
+        if ((event.code === 'Tab' || event.code === 'Space') && Module['canvas'] &&
+            (document.activeElement === Module['canvas'] || document.pointerLockElement === Module['canvas'])) {
+            event.preventDefault();
+        }
         if (event.code !== 'F11') return;
         event.preventDefault();
         if (!event.isTrusted || event.repeat || held) return;

@@ -13,7 +13,7 @@ namespace island {
 enum class ControlTransitionEvent { FlightOn, FlightOff, LandingRefused, FullscreenOn, FullscreenOff };
 inline std::string_view ControlTransitionMessage(ControlTransitionEvent event) noexcept {
     switch(event) {
-    case ControlTransitionEvent::FlightOn: return "island-simulator: flight on; Q/E down/up, 100m terrain ceiling, 330m radius";
+    case ControlTransitionEvent::FlightOn: return "island-simulator: flight on; Space up, Shift down, Tab to land, 100m terrain ceiling, 330m radius";
     case ControlTransitionEvent::FlightOff: return "island-simulator: flight off; safe dry-land return";
     case ControlTransitionEvent::LandingRefused: return "island-simulator: flight remains on; no safe landing found";
     case ControlTransitionEvent::FullscreenOn: return "island-simulator: fullscreen on requested";

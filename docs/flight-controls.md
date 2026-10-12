@@ -1,8 +1,19 @@
 # Bounded player flight
 
-Space toggles flight in normal play (not fixed QA views). WASD/arrows and touch movement
-remain horizontal and camera-yaw-relative; Q/E descend/ascend. Hold Shift for 36 m/s
-instead of 12 m/s. Shift does not change the persisted walk/run selection during flight.
+## Current key mapping and validation — 2026-10-12
+
+Native software run `20261012T071541.812529Z` verifies held Tab toggles once,
+Space ascent to the 100m terrain-relative ceiling, left/right Shift descent,
+simultaneous Space/right Shift cancellation and safe dry-land return. Kernel log
+is empty and the actual new control notice was inspected. Native build and three
+focused CPU/preflight test groups passed. Web driver and canvas keyboard handling
+are updated but not runtime-qualified; focus-loss gameplay and Android remain open.
+Historical evidence below used the previous mapping and is not proof of new keys.
+
+Tab toggles flight in normal play (not fixed QA views). WASD/arrows and touch movement
+remain horizontal and camera-yaw-relative; Space ascends and either Shift descends.
+Holding both cancels vertical motion. Flight speed is 12 m/s; Shift no longer boosts
+flight speed or changes the persisted walk/run selection during flight.
 The existing debug F3 inspection camera is separate and is disabled when player flight
 starts; F3 cannot activate while flying. Diagnostic teleports cancel flight.
 

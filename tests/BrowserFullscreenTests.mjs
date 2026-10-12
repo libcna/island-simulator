@@ -29,6 +29,16 @@ const press = (extras = {}) => {
 const release = () => handlers.keyup({code:'F11'});
 const settle = () => new Promise(resolve => setImmediate(resolve));
 assert.equal(press({code:'J'}), false);
+Module.canvas = {};
+for (const code of ['Tab', 'Space']) {
+  assert.equal(press({code}), false, 'page keyboard navigation remains available');
+  document.activeElement = Module.canvas;
+  assert.equal(press({code}), true, 'focused game consumes flight controls');
+  document.activeElement = null;
+  document.pointerLockElement = Module.canvas;
+  assert.equal(press({code}), true, 'locked game consumes flight controls');
+  document.pointerLockElement = null;
+}
 press({isTrusted:false}); assert.equal(enters, 0);
 assert.equal(press(), true); assert.equal(enters, 1);
 press(); press({repeat:true}); assert.equal(enters, 1);

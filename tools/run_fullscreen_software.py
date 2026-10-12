@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native F11/optional Space flight QA with private display and mandatory kernel supervision."""
+"""Native F11/optional Tab flight QA with private display and mandatory kernel supervision."""
 from __future__ import annotations
 
 import argparse
@@ -248,22 +248,22 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False):
                 def flight_samples():
                     return [tuple(map(float,m)) for m in re.findall(
                         r"flight position ([-+\d.eE]+) ([-+\d.eE]+) ([-+\d.eE]+) above-ground ([-+\d.eE]+)", log())]
-                command("xdotool", "keydown", "space")
+                command("xdotool", "keydown", "Tab")
                 try:
                     wait(lambda: len(flight_samples())>=3,"flight activation presentation")
                     command("import", "-window", window, str(evidence / "flight-notice.png"))
-                    wait(lambda: len(flight_samples())>=4,"held Space flight frames")
+                    wait(lambda: len(flight_samples())>=4,"held Tab flight frames")
                     if log().count("flight on;")!=1 or "flight off;" in log():
-                        raise RuntimeError("held Space toggled flight repeatedly")
+                        raise RuntimeError("held Tab toggled flight repeatedly")
                 finally:
-                    command("xdotool", "keyup", "space")
-                command("xdotool", "keydown", "Shift_L", "e")
+                    command("xdotool", "keyup", "Tab")
+                command("xdotool", "keydown", "space")
                 try:
                     wait(lambda: flight_samples()[-1][3]>99.9,"100m flight ceiling")
                     samples=len(flight_samples())
                     wait(lambda: len(flight_samples())>=samples+4,"held ascent at ceiling")
                 finally:
-                    command("xdotool", "keyup", "e", "Shift_L")
+                    command("xdotool", "keyup", "space")
                 # Look downward using actual relative mouse input for an aerial audit.
                 command("xdotool", "mousemove", "--window", window, "640", "360")
                 command("xdotool", "mousedown", "1")
@@ -276,20 +276,39 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False):
                 samples=len(flight_samples())
                 wait(lambda: len(flight_samples())>=samples+3,"aerial look frames")
                 command("import", "-window", window, str(evidence / "flight-ceiling.png"))
-                command("xdotool", "keydown", "q")
+                command("xdotool", "keydown", "Shift_L")
                 try:
                     wait(lambda: flight_samples()[-1][3]<60,"flight descent")
                 finally:
-                    command("xdotool", "keyup", "q")
+                    command("xdotool", "keyup", "Shift_L")
+                count=len(flight_samples())
+                wait(lambda: len(flight_samples())>=count+2,"released descent frames")
+                start=flight_samples()[-1][1]
+                count=len(flight_samples())
+                command("xdotool", "keydown", "space", "Shift_R")
+                try:
+                    wait(lambda: len(flight_samples())>=count+3,"opposing vertical keys")
+                    if abs(flight_samples()[-1][1]-start)>.1:
+                        raise RuntimeError("Space plus Shift did not cancel vertical movement")
+                finally:
+                    command("xdotool", "keyup", "space", "Shift_R")
+                count=len(flight_samples())
+                command("xdotool", "keydown", "Shift_R")
+                try:
+                    wait(lambda: len(flight_samples())>=count+3,"right Shift descent")
+                    if flight_samples()[-1][1]>=start-.1:
+                        raise RuntimeError("right Shift did not descend")
+                finally:
+                    command("xdotool", "keyup", "Shift_R")
                 samples=flight_samples()
                 if any(not 1.71<=p[3]<=100.001 or (p[0]**2+p[2]**2)**.5>330.001 for p in samples):
                     raise RuntimeError("live flight exceeded terrain/height/radius bounds")
-                keys("space", "flight off; safe dry-land return")
+                keys("Tab", "flight off; safe dry-land return")
                 frames=log().count("input sample captured")
                 wait(lambda: log().count("input sample captured")>=frames+3,"landed frames")
                 command("import", "-window", window, str(evidence / "flight-landed.png"))
                 (evidence / "flight-result.json").write_text(json.dumps({"passed":True,"samples":samples,
-                    "scope":"native Space repeat, vertical ascent/ceiling/descent and safe return; horizontal boundary is CPU tested"},indent=2)+"\n")
+                    "scope":"native Tab repeat, Space ascent/ceiling, Shift descent and safe return; horizontal boundary is CPU tested"},indent=2)+"\n")
             if "debug teleport monkey troop" in log():
                 raise RuntimeError("F11 still teleported to monkeys")
             validate_graphics_log(log(), None)
@@ -324,7 +343,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("--flight", action="store_true", help="also exercise Space flight, ceiling and return")
+    parser.add_argument("--flight", action="store_true", help="also exercise Tab flight, ceiling and return")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--window-manager", type=Path,
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")

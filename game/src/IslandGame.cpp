@@ -1464,7 +1464,7 @@ namespace island
     void IslandGame::UpdateCamera(const float deltaSeconds)
     {
         const KeyboardState keyboard = Keyboard::GetState();
-        const bool flightDown = keyboard.IsKeyDown(Keys::Space);
+        const bool flightDown = keyboard.IsKeyDown(Keys::Tab);
         if (flightDown && !flightToggleWasDown_ && getIsActiveProperty()) {
             if (flightMotion_.IsActive()) {
                 const auto landing=flightMotion_.FindLanding(terrain_,worldCollisionGrid_);
@@ -1844,9 +1844,9 @@ namespace island
         playerMotion_.SetRunning(movementIntent.run);
 
         if (flightMotion_.IsActive()) {
-            const float vertical=(keyboard.IsKeyDown(Keys::E) ? 1.0f : 0.0f)
-                -(keyboard.IsKeyDown(Keys::Q) ? 1.0f : 0.0f);
-            flightMotion_.Update(wish.X,vertical,wish.Z,runToggleDown,deltaSeconds);
+            const float vertical=(keyboard.IsKeyDown(Keys::Space) ? 1.0f : 0.0f)
+                -(runToggleDown ? 1.0f : 0.0f);
+            flightMotion_.Update(wish.X,vertical,wish.Z,false,deltaSeconds);
             const auto p=flightMotion_.Position();
             cameraPosition_=Vector3(p.x,p.y,p.z);
             cameraMotion_.Reset();

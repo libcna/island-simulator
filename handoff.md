@@ -1,5 +1,33 @@
 # island-simulator handoff
 
+## New user requirement — realistic campfire and gathered firewood
+
+Added unchecked PLAN task: suitable location, burning stone-ringed campfire,
+realistic animated flames/embers/light/sound, separate gathered-log pile with safe
+clearance. Evaluate portable CNA shaders/particles, verify actual visual result.
+Not implemented; no fuel interaction/crafting requirement inferred.
+
+## Latest — flight remapping implemented and native tested
+
+Tab toggles, Space ascends, either Shift descends; opposed keys neutral,12m/s no
+Shift speed boost. Ground pace and F3 debug Q/E/Shift controls retained. Updated
+overlay/transition messages/docs/Web shell and native/browser QA drivers. Browser
+Tab/Space default prevented only for focused or pointer-locked canvas; CPU test
+covers page navigation preserved. Native build44320exit0 taskset0-3/-j2/cache;
+FlightMotion/BrowserFullscreen/SoftwareCapturePreflight3PASS1.20s, JS/Python syntax
+passed. Actual73145exit0 software-flight/20261012T071541.812529Z PASS/kernel-final[];
+heldTab single activation, Space ceiling, bothShift descent, simultaneousSpace+
+rightShift neutral, safe return. Notice screenshot ACTUALLY viewed/readable.
+No Web/Android runtime/fullsuite/gameplay focus-loss qualification. All handles
+terminal; AMD stop unchanged. Latest diving/campfire requests remain unimplemented.
+
+## New user requirement — underwater diving
+
+Implement diving below the water surface: Space ascends, Shift descends. Added
+unchecked to PLAN; not implemented. Use real underwater camera/motion with seabed
+collision, surface transitions, underwater view/audio; do not substitute current
+near-surface haze. Separate from flight, preserve existing horizontal swim controls.
+
 ## Latest — finer boar source v2 integrated
 
 Previous94391a7 was progress. Used imagegen skill/built-in tool, no references;
@@ -16,12 +44,12 @@ less contrasted body fur, head still stretched/streaked and anatomy simplified.
 No full or portable qualification; do not claim boar task finished. All handles
 terminal. Full priorities retained; newest flight remap below is planned only.
 
-## Latest user request — flight key remapping (not implemented)
+## Earlier user request — flight key remapping (native implementation above)
 
 Add to tasks: Tab toggles flight, Space ascends during flight, Shift descends.
 Supersedes Space toggle and Q/E vertical movement. Update handling/help/tests;
 retain grounded controls and collision/100m ceiling/island boundary constraints.
-Do not describe this as live until implemented and tested.
+Native implementation tested above; portable/focus qualification remains.
 
 ## Operator build limit — 2026-10-12
 

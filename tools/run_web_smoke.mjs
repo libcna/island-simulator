@@ -474,7 +474,7 @@ try {
   const runFlightReview = async sessionId => {
     const stages = [], held = new Map();
     let result = {passed:false}, failure = "";
-    const keys = {Space:[" ",32], ShiftLeft:["Shift",16], KeyE:["e",69], KeyQ:["q",81]};
+    const keys = {Tab:["Tab",9], Space:[" ",32], ShiftLeft:["Shift",16]};
     const key = async (code,down) => {
       const [name,value]=keys[code];
       await call("Input.dispatchKeyEvent", {type:down ? "keyDown" : "keyUp",key:name,code,
@@ -493,20 +493,20 @@ try {
     try {
       await call("Page.bringToFront",{},sessionId);
       await call("Runtime.evaluate",{expression:"Module.canvas.focus()"},sessionId);
-      await key("Space",true);
-      let samples=await until(s=>s.length>=4,"held Space activation");
+      await key("Tab",true);
+      let samples=await until(s=>s.length>=4,"held Tab activation");
       stages.push({label:"activation",sample:samples[0]});
       if(countOutput(await readSmokeOutput(sessionId),"flight on;")!==1)
-        throw new Error("Held Space repeated flight activation");
-      await key("Space",false);
+        throw new Error("Held Tab repeated flight activation");
+      await key("Tab",false);
       const releasedCount=samples.length;
-      await until(s=>s.length>=releasedCount+2,"released Space frames");
-      await key("ShiftLeft",true); await key("KeyE",true);
+      await until(s=>s.length>=releasedCount+2,"released Tab frames");
+      await key("Space",true);
       samples=await until(s=>s.at(-1)?.height>99.9,"terrain-relative ceiling");
       const ceilingCount=samples.length;
       samples=await until(s=>s.length>=ceilingCount+4,"held ascent at ceiling");
       stages.push({label:"ceiling",sample:samples.at(-1),heldSamples:samples.length-ceilingCount});
-      await key("KeyE",false); await key("ShiftLeft",false);
+      await key("Space",false);
       await dispatchMouseClick(sessionId,640,360);
       const locked=await call("Runtime.evaluate", {
         expression:"document.pointerLockElement===Module.canvas",returnByValue:true},sessionId);
@@ -516,14 +516,14 @@ try {
       const lookCount=samples.length;
       await until(s=>s.length>=lookCount+3,"aerial look presentation");
       await captureVisualFrame(sessionId,"island-browser-flight-ceiling.png");
-      await key("KeyQ",true);
+      await key("ShiftLeft",true);
       samples=await until(s=>s.at(-1)?.height<60,"descent");
       stages.push({label:"descent",sample:samples.at(-1)});
-      await key("KeyQ",false);
-      await key("Space",true);
+      await key("ShiftLeft",false);
+      await key("Tab",true);
       if(!await waitForOutput(sessionId,"flight off; safe dry-land return",240))
         throw new Error("Flight did not return safely to land");
-      await key("Space",false);
+      await key("Tab",false);
       const prior=countOutput(await readSmokeOutput(sessionId),"input sample captured");
       for(let attempt=0;attempt<240;++attempt) {
         if(countOutput(await readSmokeOutput(sessionId),"input sample captured")>=prior+3) break;
@@ -841,7 +841,7 @@ try {
           ? "software WebGL goat coat and intermediate pose images; not continuous stance qualification" : focusedHutCheck
           ? "software WebGL hut overview and material detail; not temporal aliasing or route qualification" : focusedSnakeCheck
           ? "software WebGL ground-snake body/head and intermediate images; real-time, not deterministic native stages" : focusedFlightCheck
-          ? "software WebGL vertical Space flight, ceiling and safe return; not horizontal route qualification" : focusedClimbCheck
+          ? "software WebGL vertical Tab flight, ceiling and safe return; not horizontal route qualification" : focusedClimbCheck
           ? "software WebGL staged climbing diagnostics and held summit; not continuous animation" : focusedMonkeyCheck
           ? "software WebGL monkey close view only" : focusedMaterialsCheck
           ? "software WebGL soil, grass, dry sand and wet sand only" : focusedLitterCheck
