@@ -545,6 +545,7 @@ if(ISLAND_BUILD_GAME)
         game/src/MonkeyRenderer.cpp
         game/src/NaturalPropRenderer.cpp
         game/src/OceanRenderer.cpp
+        game/src/StreamWaterRenderer.cpp
         game/src/PalmRenderer.cpp
         game/src/RuntimeDiagnostics.cpp
         game/src/RenderedTerrainHeightMap.cpp

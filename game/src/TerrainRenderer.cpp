@@ -851,7 +851,7 @@ void main()
             static_cast<int>(streamIndices.size()),BufferUsage::WriteOnly);
         streamIndices_->SetData(streamIndices.data(),static_cast<int>(streamIndices.size()));
         std::cout << "island-simulator: stream bed replacement " << streamVertexCount_ << " vertices, "
-            << streamPrimitiveCount_ << " triangles; original covered terrain removed; no stream water yet\n";
+            << streamPrimitiveCount_ << " triangles; original covered terrain removed\n";
     }
 
     void TerrainRenderer::DrawGeometry(const int firstIndex, const int primitiveCount)

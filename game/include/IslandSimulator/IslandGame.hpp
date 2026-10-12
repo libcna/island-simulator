@@ -48,6 +48,7 @@
 #include "IslandSimulator/GroundCoverField.hpp"
 #include "IslandSimulator/GrassRenderer.hpp"
 #include "IslandSimulator/OceanRenderer.hpp"
+#include "IslandSimulator/StreamWaterRenderer.hpp"
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
@@ -292,6 +293,7 @@ namespace island
         std::unique_ptr<MonkeyRenderer> monkeyRenderer_;
         std::unique_ptr<NaturalPropRenderer> naturalPropRenderer_;
         std::unique_ptr<OceanRenderer> oceanRenderer_;
+        std::unique_ptr<StreamWaterRenderer> streamWaterRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SeaTurtleRenderer> seaTurtleRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;

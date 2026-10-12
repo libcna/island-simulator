@@ -3,6 +3,7 @@
 #include "IslandSimulator/StreamCourse.hpp"
 #include "IslandSimulator/StreamBedPatch.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/StreamWaterMesh.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -16,6 +17,23 @@ int main() {
     const auto surface=std::make_unique<island::RenderedTerrainSurface>(terrain);
     const island::StreamCourse course(terrain),repeat(terrain);
     const island::StreamBedPatch patch(course,*surface);
+    const island::StreamWaterMesh water(course,patch);
+    if(water.vertices.empty()||water.vertices.size()>=65536||water.indices.empty()
+        ||water.indices.size()%3!=0)return 18;
+    for(const auto p:water.vertices)
+        if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z)
+            ||!std::isfinite(p.alpha)||p.alpha<0||p.alpha>.65f
+            ||!patch.Contains(p.x,p.z)||p.y<0)return 19;
+    for(std::size_t i=0;i<water.indices.size();i+=3) {
+        const auto a=water.vertices.at(water.indices[i]),b=water.vertices.at(water.indices[i+1]),c=water.vertices.at(water.indices[i+2]);
+        if((b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z)<=0)return 16;
+        for(float u:{.1f,.4f,.8f})for(float v:{.05f,.1f}) {
+            const float x=a.x*(1-u-v)+b.x*u+c.x*v,z=a.z*(1-u-v)+b.z*u+c.z*v;
+            const float y=a.y*(1-u-v)+b.y*u+c.y*v;
+            if(patch.SampleHeight(x,z)>y-.005f)return 17;
+        }
+    }
+    std::cerr<<"Stream water vertices="<<water.vertices.size()<<" triangles="<<water.indices.size()/3<<'\n';
     float deepestCut=0;
     for(std::size_t i=0;i<patch.Vertices().size();++i) {
         const auto p=patch.Vertices()[i];
@@ -80,7 +98,7 @@ int main() {
     if(course.Station(course.Count()-1).water!=0)return 3;
     std::cerr << "Sea-connected layout stations=" << course.Count() << " length="
         << course.Station(course.Count()-1).distance << " source water=" << course.Station(0).water
-        << "; width0.9..3m; geometry and terrain carving not implemented\n";
+        << "; width0.9..3m; replacement bed and water mesh checked\n";
     std::cout << "x,z,inland,analytic_height,rendered_height,water_candidate,bed_cut\n";
     std::cout << std::fixed << std::setprecision(5);
     float previousWater=100.0f,maximumCut=0.0f,maximumRise=0.0f,previousGround=100.0f;

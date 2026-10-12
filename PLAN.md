@@ -45,6 +45,23 @@ survival systems. The supplied project inventory is context, not audited evidenc
 
 ## Other retained current work
 
+Stream water first pass is now live: static3429vertex/6080triangle ribbon inside
+the carved bed, one culled transparent draw, downstream animated ripple shader
+in GLSL330/GLES300. Native build and focused CPU tests pass; actual isolated
+081415.552173Z-stream image inspected after fixing XNA/OpenGL clip-depth mismatch.
+The lower course is visible but still reads as a uniform green strip: NOT visual
+completion. Wet banks/substrate, placement clearance, shared world grounding,
+motion review and portable tests remain. See docs/stream-course.md. Earlier
+progress notes below describe stages before this water integration.
+
+- [ ] New explicit visual-polish request: fish, shark, dolphins, turtles and crabs.
+  Audit real close/side/front/moving views; improve recognizable anatomy/silhouette,
+  materials/textures, fins/flippers/legs/claws/eyes and species-appropriate motion.
+  Preserve habitat-driven ecosystem priorities and portable geometry/material/LOD
+  budgets; technical image gates alone do not mean visual acceptance. Dolphins
+  still require implementation/population integration as well as visual quality;
+  do not imply they already exist in the game.
+
 Stream bed now live in TerrainRenderer: covered original coarse quads omitted;
 separate16-bit buffers/existing terrain material, one extra culled draw. Player
 walking support and uphill checks use the same patch height. Native build and

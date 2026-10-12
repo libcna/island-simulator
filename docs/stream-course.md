@@ -1,4 +1,31 @@
-# Western stream course — surveyed layout, not live water
+# Western stream course — live bed and first water pass
+
+## Live water integration — 2026-10-12
+
+`StreamWaterMesh` follows the surveyed water elevation, inside 80% of the carved
+channel half-width, starting after the source incision blend. Its 3429 vertices
+and 6080 triangles use one static 16-bit indexed buffer pair and one frustum-culled
+transparent draw. Edge/source/outlet opacity tapers avoid hard ribbon boundaries.
+The desktop GLSL330/GLES300 shader animates downstream ripple normals and restrained
+Fresnel/sun highlights without moving the mesh through the bed. It converts XNA
+clip depth to OpenGL depth, matching the existing terrain/ocean shaders.
+
+Native build passed (CPU affinity0–3, -j2, shared ccache). StreamSurvey/CoreTests
+passed61.32s before the final shader-only correction; the survey checks upward
+winding and sampled triangle interiors against the actual bed. Actual isolated
+llvmpipe capture `20261012T081415.552173Z-stream` passed348colour bins/std23.82/
+spatial114.83 with empty kernel-after log. The image
+`build/stream-water-depth-fixed.png` was viewed: the lower water course now visibly
+reaches the bay, but reads as a soft straight green strip, not a finished natural
+stream. Wet substrate/banks, placement clearance, less uniform edge treatment,
+lighting and actual motion-sequence review remain. No Web/Android/performance or
+art acceptance is claimed. Earlier captures exposed the missing clip-depth
+conversion; a closer forest capture failed its image contrast gate and is retained.
+Final incremental build and survey also pass0.14s after adding finite-value,
+alpha-range, bed-domain and portable-index-capacity guards.
+
+The sections below are chronological implementation evidence, not current-state
+claims that water or terrain integration is still absent.
 
 ## Live bed integration — 2026-10-12
 

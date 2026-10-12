@@ -246,8 +246,8 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
         } else if (viewpoint_ == FixedViewpoint::StreamDetail) {
-            cameraPosition_=Vector3(-110,terrain_.Height(-110,-37)+3.5f,-37);
-            const Vector3 target(-116,terrain_.Height(-116,-28.32f)-.25f,-28.32f);
+            cameraPosition_=Vector3(-137,terrain_.Height(-137,-28)+3.5f,-28);
+            const Vector3 target(-145,terrain_.Height(-145,-21.65f)-.25f,-21.65f);
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
@@ -1056,6 +1056,7 @@ namespace island
         }
         terrainRenderer_ = std::move(terrainRenderer);
         playerMotion_.SetGroundPatch(&terrainRenderer_->StreamBed());
+        streamWaterRenderer_=std::make_unique<StreamWaterRenderer>(device,terrain_,terrainRenderer_->StreamBed());
         grassRenderer_ = std::move(grassRenderer);
         jungleRenderer_ = std::move(jungleRenderer);
         boarRenderer_ = std::move(boarRenderer);
@@ -1997,7 +1998,7 @@ namespace island
 
     int IslandGame::TrackedSceneDrawCount() const noexcept
     {
-        return 2 + terrainRenderer_->DrawCallCount()
+        return 2 + terrainRenderer_->DrawCallCount()+streamWaterRenderer_->DrawCallCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + shipwreckRenderer_->DrawCallCount()
@@ -2523,6 +2524,10 @@ namespace island
             GpuDiagnosticScope gpuPass("shoreline");
             shorelineRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                      timeSeconds);
+        }
+        {
+            GpuDiagnosticScope gpuPass("stream-water");
+            streamWaterRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,timeSeconds);
         }
 
         const auto& viewport = device.getViewportProperty();

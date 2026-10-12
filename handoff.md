@@ -1,5 +1,33 @@
 # island-simulator handoff
 
+## Latest — first stream water live, visual polish still open
+
+Added StreamWaterMesh/Renderer to IslandGame+CMake after shoreline pass. Static
+3429vertices/6080triangles,16bit, one culled transparent draw, GLSL330/GLES300
+downstream ripple normals/Fresnel/glint. Mesh inside.8*bedhalfwidth, alpha ends/edges
+fade; survey checks winding and interior bed clearance. Fixed missing GL clip-depth
+conversion after real captures showed invisible water. First-visible diagnostic.
+Stream QA camera now(-137,ground+3.5,-28),target(-145,ground-.25,-21.65).
+Native build65259exit0, StreamSurvey/CoreTests76083exit0 PASS61.32s before final
+shader-only fix. Final capture95028exit0 evidence081415.552173Z-stream PASS348bins/
+std23.82/spatial114.83/kernel[]. Viewed build/stream-water-depth-fixed.png:
+water visible to bay but unnaturally straight/soft green strip, NOTartacceptance.
+Earlier081023closecamera failedcontrast;080826/081215passedtechnicalgatebutwater
+invisible (depthbug), retained. Need wetbanks/substrate/lessuniformedges, shared
+placement clearance and authoritative grounding, lighting +motionsequence review.
+NoWeb/Android/fullsuite/performanceclaim. Allhandles terminal at this note.
+Added finite/alpha/bounds/index guards to survey after finalcapture; finalbuild
+and focusedtest64140exit0 PASS.14s (stream-water-final-{build,tests}.log).
+Fullgoal remainsactive, noAMD/KVM/dependencychanges. Latest aquatic request below
+retained; no species task marked complete. Prior sections chronological.
+
+## Latest user addition — aquatic/coastal wildlife appearance
+
+Added explicit unchecked PLAN task: improve fish, shark, dolphins, turtles and
+crabs visually (anatomy/material/details/motion and actual view audit). Dolphins
+remain unimplemented, so appearance work does not replace their population task.
+Keep ecosystem stage priorities and all earlier requirements.
+
 ## Latest — stream bed LIVE in terrain, no stream water yet
 
 Previous119a265 progress. TerrainRenderer owns StreamBedPatch, excludes original
