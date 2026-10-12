@@ -195,6 +195,43 @@ class BrowserSoftwareTests(unittest.TestCase):
         for bad in ({"passed": False, "views": report()["views"]}, {"passed": True, "views": []}):
             with self.assertRaises(RuntimeError): gate.validate_goat_report(bad)
 
+    def test_spider_scope_requires_material_shadows_lighting_and_live_frames(self):
+        self.assertIn("spiders", gate.SCOPES)
+        self.assertIn('["spiders", ["--viewpoint", "spiders"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedSpiderCheck ? ["spiders"]', source)
+        self.assertIn('spiderMotionFrames.push(frame)', source)
+        def report():
+            return {"passed": True, "views": [{"mode": "spiders", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "intervals": [16.7]*60, "spiderMotionFrames": [f"pose-{i}.png" for i in range(4)],
+                "result": {"output": "spider render proof: spiders 1/12 visible, 2 draw; contact-shadows=1\n"
+                    "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
+                    "spider lighting ground-transmission=0 body-transmission=0 body-tint=0.46,0.53,0.62\n"}}]}
+        self.assertEqual(len(gate.validate_spider_report(report())), 4)
+        for key, value in (("mode", "goats"), ("passed", False), ("glError", 1282),
+                           ("contextLost", True), ("renderer", "AMD"), ("intervals", []),
+                           ("intervals", [float('nan')]*60), ("intervals", [0]*60),
+                           ("spiderMotionFrames", []), ("spiderMotionFrames", ["same.png"]*4),
+                           ("spiderMotionFrames", ["../escape.png", "a.png", "b.png", "c.png"])):
+            bad=report(); bad["views"][0][key]=value
+            with self.subTest(key=key), self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
+        for old, new in (("1/12", "0/12"), ("2 draw", "1 draw"), ("contact-shadows=1", "contact-shadows=0"),
+                         ("setae loaded", "missing"), ("body-tint=0.46", "body-tint=0.25"),
+                         ("spider lighting", "absent")):
+            bad=report(); result=bad["views"][0]["result"]
+            result["output"]=result["output"].replace(old,new)
+            with self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
+        for flag in ("error", "exited"):
+            bad=report(); bad["views"][0]["result"][flag]=True
+            with self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
+        for marker in ("material fallback: missing", "GL_INVALID_OPERATION", "gl-error 1282"):
+            bad=report(); bad["views"][0]["result"]["output"] += marker
+            with self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
+        for bad in ({"passed": False, "views": report()["views"]}, {"passed": True, "views": []}):
+            with self.assertRaises(RuntimeError): gate.validate_spider_report(bad)
+
     def test_litter_scope_preserves_supervision_and_driver_policy(self):
         environment = gate.browser_environment("chrome", "litter", Path("/evidence"))
         self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "litter")

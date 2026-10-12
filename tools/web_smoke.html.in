@@ -89,6 +89,7 @@
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
       ["goats", ["--viewpoint", "goats"]],
+      ["spiders", ["--viewpoint", "spiders"]],
       ["boars", ["--viewpoint", "boars"]],
     ]);
     var Module = {

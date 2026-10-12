@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — actual WebGL2 spider material/pose audit
+
+Previousturn progressed nearbody (77b520c). AddedspidersfocusedChrome scope/page,
+siximages(initial+four8rAFposes+final),60intervals. Parent independentlychecks live
+SwiftShader/gl0/context,finitepositiveintervals,material/population/shadows,canopy
+transfer,uniquePNGlocalpathsandfiles.21BrowserSoftwareTests+41SoftwareCaptureTests
+PASS, JS/shellsyntaxPASS. Nativegameunchanged thisturn.
+WebGL2incrementalbuild21576exit0,package11803579bytes/gzip4677410. Imagehashmatches
+native06b52958. Firstactual052041.937861Z-chrome-spiders35035exit1: outdatedtexture
+budgetexpectations8496944/8517160. Correctedfocused/fullChrome+Firefox+Androidsmoke
+to8846468/8866684, exactCPU-pinnedtotals; failedreportretained, no thresholdweakening.
+NoFirefox/Androidruntime fromthosesourceedits.
+Repeatactual052259.613764Z-chrome-spiders33829exit0/parentpassed/kernel-final[].
+1/12visible/2draws/contact1,validmaterial+lighting,gl0/contextretained. Allsiximages
+actuallyinspectedvia build/spider-web-montage.png; roundedtexturedbody/movinglegs,
+stillangularlimbs/foldedbodypattern/darkscene. rAF60samplesmean510.258ms,
+min133.4/max1016.6ms: softwareonly, NOT smoothmotion/targetGPUperformanceproof.
+NativecontrastFAILunchanged. Logsbuild/spider-web-{build,package,preflight,native-preflight}.log.
+NoAMDhardware/AndroidKVM/dependencychanges; latchc0bd1704unchanged. Goalactive/no push.
+NEXT Androidspideraudit,realhabitatlightingcomparisons,plant-attachedwebs andfullremaining
+plan; AMDflightrootcause stillopen. Allownedprocesshandles above terminal.
+
 ## Latest — rounder near spider bodies, unchanged far LOD
 
 Previous turn measuredlighting (019c2b9), concrete progress. Near ellipsoids now24sides/

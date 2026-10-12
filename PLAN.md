@@ -821,6 +821,13 @@ progress or require player interaction; dangerous species keep their distance li
   regression<.7mm and<40%far. Mesh/colonyPASS8.90s/nativebuildPASS. Actual051626.813603Z
   all8images+beforeafter inspected: rounderbodyoutline,angularlimbs/darkviewstillopen.
   Motion/lighting/kernel[]; outercontrastFAIL. Portableframetimecostunmeasured.
+  WebGL2build/package andactualChromeSwiftShader focusedspider audit added.
+  First052041.937861Zfailed obsoletepre-spidertexturebudget; expectationscorrected
+  inChrome/Firefox/Androidscripts to8846468/8866684, no thresholdweakening.
+  Repeat052259.613764Z-chrome-spiders PASS1/12visible/2draws/contact1/gl0/kernel[],
+  sixactualimagesinspected.21browser+41nativeharnessCPUtestsPASS. rAFmean510.258ms
+  softwareonly, nottargetperformance. NativecontrastFAIL/visualdeficits unchanged;
+  Android/Firefoxspiderruntime,otherhabitats,webs andcontinuousgait remainopen.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

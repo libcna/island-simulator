@@ -32,15 +32,16 @@ const focusedLitterCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "litter";
 const focusedMaterialsCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "materials";
 const focusedMonkeyCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkeys";
 const focusedGoatCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "goats";
+const focusedSpiderCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "spiders";
 const focusedClimbCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "monkey-climb";
 const focusedFullscreenCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "fullscreen";
 const focusedFlightCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "flight";
 const focusedSnakeCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "snakes";
 const focusedHutCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "hut";
-const focusedCheck = focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
-const focusedArtifactPrefix = focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
+const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedMonkeyCheck;
+const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedSpiderCheck ? ["spiders"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -666,14 +667,15 @@ try {
           }
           const screenshotPath = await captureVisualFrame(sessionId,
             `island-browser-${focusedArtifactPrefix}-${mode}.png`,
-            !["goats", "boars", "monkeys", "monkey-climb", "overview", "flight", "snakes", "snake-head"].includes(mode));
+            !["spiders", "goats", "boars", "monkeys", "monkey-climb", "overview", "flight", "snakes", "snake-head"].includes(mode));
           const motionReview = focusedGrassMotionCheck ? await runGrassMotionReview(sessionId) : null;
           // Preserve intermediate poses for real visual review of the quadrupedal gait;
           // endpoint screenshots alone can hide foot sliding and limb inversion.
           const monkeyMotionFrames = [];
           const snakeMotionFrames = [];
           const goatMotionFrames = [];
-          if (focusedGoatCheck || focusedMonkeyCheck || focusedSnakeCheck) {
+          const spiderMotionFrames = [];
+          if (focusedSpiderCheck || focusedGoatCheck || focusedMonkeyCheck || focusedSnakeCheck) {
             for (let pose = 0; pose < 4; ++pose) {
               await call("Runtime.evaluate", {
                 expression: `new Promise(resolve => {
@@ -684,7 +686,8 @@ try {
               }, sessionId);
               const frame = path.basename(await captureVisualFrame(sessionId,
                 `island-browser-${focusedArtifactPrefix}-${mode}-pose-${pose}.png`, false));
-              if (focusedGoatCheck) goatMotionFrames.push(frame);
+              if (focusedSpiderCheck) spiderMotionFrames.push(frame);
+              else if (focusedGoatCheck) goatMotionFrames.push(frame);
               else if (focusedSnakeCheck) snakeMotionFrames.push(frame);
               else monkeyMotionFrames.push(frame);
               const checkpoint = await call("Runtime.evaluate", {
@@ -695,7 +698,7 @@ try {
               // Keep attribution even if the outer supervisor reaches its deadline
               // before the final 60-interval result. Partial evidence is never a pass.
               await writeFile(path.join(artifactDirectory, `island-browser-${focusedArtifactPrefix}-progress.json`),
-                `${JSON.stringify({ complete: false, goatMotionFrames, monkeyMotionFrames, snakeMotionFrames,
+                `${JSON.stringify({ complete: false, spiderMotionFrames, goatMotionFrames, monkeyMotionFrames, snakeMotionFrames,
                   checkpoint: checkpoint.result.value }, null, 2)}\n`);
             }
           }
@@ -718,7 +721,7 @@ try {
           }, sessionId);
           const state = sampled.result.value;
           if (!state) throw new Error(`${mode} did not return frame evidence`);
-          const afterSimulationScreenshot = focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
+          const afterSimulationScreenshot = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || mode === "boars" || mode === "monkeys" || focusedClimbCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedTerrainCheck
             ? path.basename(await captureVisualFrame(sessionId,
               `island-browser-${focusedArtifactPrefix}-${mode}-after-simulation.png`, false)) : null;
           const log = state.result?.output ?? "";
@@ -726,6 +729,9 @@ try {
             && log.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
             && (!focusedGrassMotionCheck || motionReview?.passed)
             && (!focusedFlightCheck || flightReview?.passed)
+            && (!focusedSpiderCheck || (spiderMotionFrames.length === 4
+              && /spider render proof: spiders (?:[1-9]|1[0-2])\/12 visible, 2 draw; contact-shadows=(?:[1-9]|1[0-2])(?:\s|$)/.test(log)
+              && log.includes("spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
             && (!focusedGoatCheck || (goatMotionFrames.length === 4
               && /goats [1-6]\/6 visible, 2 draw;/.test(log)
               && log.includes("goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
@@ -736,7 +742,7 @@ try {
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")
-            && log.includes("ocean 160x160 textures 8496944/8517160 bytes audio 6/6 sources")
+            && log.includes("ocean 160x160 textures 8846468/8866684 bytes audio 6/6 sources")
             && log.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
             && log.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
             && /forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped|trilinear, anisotropy unavailable)/.test(log)
@@ -809,7 +815,7 @@ try {
           const shadeTransmission = shadeEvent ? Number(shadeEvent[1]) : NaN;
           views.push({ mode, passed, motionReview, monkeyMotionFrames, monkeyShadeTransmission: Number.isFinite(shadeTransmission)
               && shadeTransmission >= 0 && shadeTransmission < 0.95 ? shadeTransmission : null,
-            screenshot: path.basename(screenshotPath), afterSimulationScreenshot, goatMotionFrames, snakeMotionFrames, flightReview, ...state });
+            screenshot: path.basename(screenshotPath), afterSimulationScreenshot, spiderMotionFrames, goatMotionFrames, snakeMotionFrames, flightReview, ...state });
           checkKernel(`after-${mode}`);
           if (!passed) throw new Error(`${mode} failed software WebGL checks; see ${reportPath}`);
           console.log(`Island focused WebGL ${mode}: PASS (${focusedFrameCount} CPU-rendered frame intervals)`);
@@ -830,7 +836,8 @@ try {
         }
       }
     } finally {
-      await writeFile(reportPath, `${JSON.stringify({ scope: focusedGoatCheck
+      await writeFile(reportPath, `${JSON.stringify({ scope: focusedSpiderCheck
+          ? "software WebGL spider material, grounding and intermediate poses; not native image-contrast or continuous gait qualification" : focusedGoatCheck
           ? "software WebGL goat coat and intermediate pose images; not continuous stance qualification" : focusedHutCheck
           ? "software WebGL hut overview and material detail; not temporal aliasing or route qualification" : focusedSnakeCheck
           ? "software WebGL ground-snake body/head and intermediate images; real-time, not deterministic native stages" : focusedFlightCheck
@@ -883,7 +890,7 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes(
-      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 8496944/8517160 bytes audio 6/6 sources")
+      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 8846468/8866684 bytes audio 6/6 sources")
     && result.output?.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
     && result.output?.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
     && result.output?.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")

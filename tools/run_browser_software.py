@@ -6,6 +6,7 @@ import argparse
 import datetime
 import fcntl
 import json
+import math
 import os
 import re
 from pathlib import Path
@@ -14,9 +15,35 @@ import subprocess
 import sys
 
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity
-from run_software_capture import run_monitored_capture, validate_monkey_climb_stages, validate_snake_runtime_samples
+from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
+    validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats", "spiders")
+
+
+def validate_spider_report(report):
+    views = report.get("views", [])
+    if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "spiders":
+        raise RuntimeError("spider report lacks successful focused view")
+    view = views[0]
+    result = view.get("result", {})
+    frames = view.get("spiderMotionFrames", [])
+    intervals = view.get("intervals", [])
+    if (view.get("passed") is not True or view.get("glError") != 0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or "SwiftShader" not in view.get("renderer", "") or len(intervals) != 60
+        or not all(isinstance(v, (int, float)) and not isinstance(v, bool)
+                   and math.isfinite(v) and v > 0 for v in intervals)
+        or len(frames) != 4 or not all(isinstance(f, str) and f.endswith(".png")
+                                     and Path(f).name == f for f in frames)
+        or len(set(frames)) != 4):
+        raise RuntimeError("spider view lacks pose images or live software graphics state")
+    log = result.get("output", "")
+    if re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I):
+        raise RuntimeError("spider runtime reports material or graphics failure")
+    validate_spider_render_log(log)
+    validate_spider_lighting(log)
+    return frames
 
 
 def validate_goat_report(report):
@@ -159,6 +186,12 @@ def main(argv=None):
             if args.scope == "goats":
                 goat_report=json.loads((evidence / "island-browser-goats.json").read_text())
                 metadata["goat_pose_images"]=validate_goat_report(goat_report)
+            if args.scope == "spiders":
+                spider_report=json.loads((evidence / "island-browser-spiders.json").read_text())
+                frames=validate_spider_report(spider_report)
+                if not all((evidence / frame).is_file() for frame in frames):
+                    raise RuntimeError("spider pose image file missing")
+                metadata["spider_pose_images"]=frames
             metadata["result"] = "passed"
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             failure = error

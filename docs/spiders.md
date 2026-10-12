@@ -6,6 +6,34 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## Generated setae material
 
+### Actual WebGL2 material/pose smoke audit
+
+Focused `spiders` mode now exists in the browser harness and page. It retains an
+initial image, four intermediate poses separated by8 requestAnimationFrame callbacks,
+and a final image after60 measured intervals. These are real-time poses, not native
+deterministic100ms stages. Independent parent checks require the population/material/
+shadow proof, valid canopy transfer, live SwiftShader context/glError0,60positivefinite
+intervals, four distinct local PNG paths and actual files. No continuous gait or
+native image-contrast acceptance is implied.21 browser CPU preflight tests pass,
+plus41 native-harness tests and JS/shell syntax checks.
+
+Incremental WebGL2 build/package passes; prepared spider image hash matches native.
+First actual run052041.937861Z-chrome-spiders FAILED: old smoke expectations still
+pinned pre-spider texture totals8496944/8517160. Corrected to the independently
+CPU-pinned8846468/8866684 in focused/fullChrome,Firefox and Android smoke scripts.
+No thresholds were weakened; original failed report remains. Firefox/Android were
+not run, so updating their expected budget is not platform qualification.
+
+Actual repeat `build/browser-software/20261012T052259.613764Z-chrome-spiders`
+parent/child PASS, SwiftShader,1/12visible/2draws/contact1, glError0, context retained,
+kernel-final[]. All six images inspected in `build/spider-web-montage.png`.
+The textured rounded body and changing leg poses render, but angular limbs, folded
+body pattern and dark surroundings remain. Mean rAF interval510.258ms, range
+133.4..1016.6ms (60 samples): software diagnostic timing, NOT target-GPU performance
+or smooth-motion acceptance. Native contrast failure is unchanged. Package payload
+11803579 bytes, gzip4677410 bytes. Android spider runtime, other habitats, webs and
+continuous visual acceptance remain open.
+
 ### Subsequent near-body refinement
 
 Near body ellipsoids now use24 sides/12 rows instead of12/8. This also increases
