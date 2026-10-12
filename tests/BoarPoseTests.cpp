@@ -117,7 +117,7 @@ int main()
     }
     for(bool detailed:{false,true}) for(float dip:{0.0f,0.15f}) for(float bob:{0.0f,0.018f}) {
         const auto right=BuildBoarEar(1,dip,bob,detailed),left=BuildBoarEar(-1,dip,bob,detailed);
-        check(right.count==(detailed?32U:8U)&&left.count==right.count,"ear triangle budget");
+        check(right.count==(detailed?64U:8U)&&left.count==right.count,"ear triangle budget");
         for(std::size_t i=0;i<right.count;++i) {
             const auto& face=right.triangles[i];
             for(std::size_t v=0;v<3;++v) {

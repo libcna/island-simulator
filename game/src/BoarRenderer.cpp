@@ -227,8 +227,12 @@ namespace island
                             (p.z-0.59f)/0.10f);
                         const float tone=face.surface==BoarEarSurface::Back?0.94f:
                             0.88f+0.12f*std::clamp(radius,0.0f,1.0f);
+                        const bool furry=face.surface!=BoarEarSurface::Inner;
+                        const Vector2 uv=furry?Vector2(
+                            .1f+.8f*std::clamp((p.y+dip*.35f-bob-.83f)/.245f,0.0f,1.0f),
+                            .1f+.8f*std::clamp((p.z-.485f)/.20f,0.0f,1.0f)):WhiteUv;
                         return mesh.SmoothVertex(point(p),point(face.normals[v]),
-                            wildlife_render::ScaleColor(coat,tone));
+                            wildlife_render::ScaleColor(furry?furTints[boar.colorVariant%furTints.size()]:coat,tone),uv);
                     };
                     mesh.SmoothTriangle(vertex(0),vertex(1),vertex(2));
                 }

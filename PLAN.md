@@ -36,6 +36,14 @@ kernel journal empty; inspected four-stage montage shows forage-to-walk, remaini
 coarse fur/angular ears and vegetation obscuration. Repeat-run reproducibility and
 further art refinement remain; this is not final visual acceptance.
 
+Repeatability verified:070112.556340Z-boars stateJSON/finalPPM byte-identical to
+065903.868384Z. Near ear outline now16points/64triangles per ear (far8 unchanged),
+outer rim/back sample existing fur, inner cup solid. +192vertices/near animal,
+same GPU capacity/two draws. Native build and pose topology/normal/envelope test
+passed0.64s. Actual matched-stage070439.874400Z-boars passed/kernel[]; inspected
+enlarged image shows fur-covered, slightly rounder ears, but coarse body streaks
+and simplified elongated cheek remain. No full-suite/Web/Android claim.
+
 - [ ] Rework boar appearance and resolve the operator's report of no audible grunting.
   Existing synthesized clips and earlier backend Playing-state tests are NOT evidence
   that the operator hears convincing boars. Reproduce nearby rest/forage/wander cases,

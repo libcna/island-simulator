@@ -117,5 +117,18 @@ visibility, and image presence; these checks do not establish artistic quality.
 Native software run `20261012T065903.868384Z-boars` passed, with an empty kernel
 incident log. Actual stages 0/2/4/7 were inspected: rooting transitions to walking,
 but coarse coat streaks, angular ears and foliage-obscured rear views remain.
-Reproducibility still needs a second run and state comparison. Native build and
+Native build and
 43 harness tests passed; Web/Android were not rebuilt for this change.
+
+Repeat run `20261012T070112.556340Z-boars` produced byte-identical pose JSON and
+final PPM to the first run. Near ears were then refined with 16-point corner-cut
+outlines (64 triangles each, versus 32), retaining eight far triangles. Outer rim
+and back now use the existing fur texture; inner cups remain solid. This adds
+192 vertices per near animal but no texture, draw or GPU capacity increase.
+Closed-mesh, mirror, normal and pose-envelope checks pass (0.64 seconds).
+
+Actual final `20261012T070439.874400Z-boars` passed with an empty kernel log and
+unchanged pose JSON. Matched enlarged stage-zero images were inspected: outer
+ears integrate better with the coat, but the body is still overly streaked and
+the cheek/inner ear remain simplified. No full visual acceptance or portable
+qualification is claimed.

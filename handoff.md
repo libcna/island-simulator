@@ -12,6 +12,26 @@ build guidance; do not change Android/emulator/KVM configuration.
 
 ## Latest — shorter boar muzzle and denser short-hair nasal mapping
 
+Next-turn follow-up: repeated unmodified capture18407exit0 at070112.556340Z-boars
+passed, kernel-after[]. Both boar-motion.json AND finalcapture.ppm byte-identical
+to065903.868384Z (cmp exit0), proving these two runs repeat exactly.
+Near ears now cut original eight outline corners at20/80percent into16points;
+cup/back/root frame unchanged,64triangles/ear vs32 (+192vertices/near animal),
+far8 unchanged, same GPU capacity/two draws. Closed-edge/winding/mirror/unit-normal/
+pose-envelope CPU tests passed0.64s. Native build90540exit0, taskset0-3/-j2/cache.
+Geometry-only capture45686exit0 at070252.098123Z-boars passed/kernel[], same pose
+JSON as baseline. Actual enlarged matched stage0 images boar-ear-{before,after}.png
+inspected: modestly rounder silhouette, still plain pasted-looking colour patches.
+Then mapped existing fur onto outer rim/back (inner cup remains solid), no new
+texture or draws, UVs bounded. Build27156exit0, taskset0-3/-j2. Final fur capture
+97507exit0 at070439.874400Z-boars passed318bins/std46.82/spatial221.77/kernel[].
+PoseJSON still byte-identical to baseline. Actual enlarged stage0
+build/boar-ear-fur-after.png inspected: outer ears now fur rather than flat patches,
+modest improvement; inner cup/face still simplified, coat over-streaked and cheek
+elongated. Not overall artistic completion. All handles terminal, no full/portable
+run for ear changes. Next tackle coarse directional coat/cheek shape, then retained
+monkey/hut/stream/cave/helicopter priorities; do not abandon full plan.
+
 Follow-up: boar capture now advances by0.1s/update with fixed-step catch-up disabled,
 uses that clock for renderer animation, follows subject translation only, and saves
 eight stages at8..64frames. Normal gameplay/audio inspection unchanged. New capture

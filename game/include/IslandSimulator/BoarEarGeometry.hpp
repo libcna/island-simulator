@@ -12,16 +12,27 @@ struct BoarEarTriangle {
     BoarEarSurface surface;
     std::array<BoarJoint,3> normals{};
 };
-struct BoarEarMesh { std::array<BoarEarTriangle,32> triangles; std::size_t count=0; };
+struct BoarEarMesh { std::array<BoarEarTriangle,64> triangles; std::size_t count=0; };
 
 inline BoarEarMesh MakeBoarEarRestMesh(int side,bool detailed) {
-    constexpr std::array<BoarJoint,8> outline{{
+    constexpr std::array<BoarJoint,8> control{{
         {0,0,0},{0.06f,0.015f,-0.035f},{0.115f,0.10f,-0.055f},
         {0.13f,0.20f,-0.035f},{0.10f,0.245f,0.005f},
         {0.05f,0.205f,0.075f},{0.035f,0.11f,0.145f},{0.012f,0.02f,0.12f}}};
     constexpr BoarJoint cup{0.035f,0.105f,0.05f},back{0.010f,0.105f,0.05f};
-    std::array<BoarJoint,8> inner{};
-    for(std::size_t i=0;i<outline.size();++i) {
+    // Cut the eight near silhouette corners into a softly rounded pinna.
+    // Keep the coarse distant outline and the original root/cup placement.
+    std::array<BoarJoint,16> outline{},inner{};
+    const std::size_t count=detailed?16:8;
+    for(std::size_t i=0;i<control.size();++i) {
+        if(!detailed) {outline[i]=control[i];continue;}
+        const auto a=control[i],b=control[(i+1)%control.size()];
+        for(std::size_t j=0;j<2;++j) {
+            const float t=j==0?0.20f:0.80f;
+            outline[i*2+j]={std::lerp(a.x,b.x,t),std::lerp(a.y,b.y,t),std::lerp(a.z,b.z,t)};
+        }
+    }
+    for(std::size_t i=0;i<count;++i) {
         const auto& p=outline[i];
         inner[i]={std::max(0.0f,std::lerp(cup.x,p.x,0.70f)-0.012f),
             std::lerp(cup.y,p.y,0.70f),std::lerp(cup.z,p.z,0.70f)};
@@ -35,8 +46,8 @@ inline BoarEarMesh MakeBoarEarRestMesh(int side,bool detailed) {
         if(side<0) std::swap(b,c);
         result.triangles[result.count++]={{point(a),point(b),point(c)},surface};
     };
-    for(std::size_t i=0;i<outline.size();++i) {
-        const auto j=(i+1)%outline.size();
+    for(std::size_t i=0;i<count;++i) {
+        const auto j=(i+1)%count;
         if(detailed) {
             face(outline[i],outline[j],inner[j],BoarEarSurface::Rim);
             face(outline[i],inner[j],inner[i],BoarEarSurface::Rim);
