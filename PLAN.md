@@ -420,7 +420,8 @@ terrain triangles and share the replacement surface with movement/grounding.
   animated turbulent flame/smoke/spark layers, local flicker on terrain/grass/jungle,
   nineteen-second positional crackling and11 stored logs about6m away. Keeps two culled
   draws and the six-source audio limit. Near/wide four-stage native software views inspected;
-  physics and real-CNA dummy audio tests pass. Listening/live-device encounter, performance,
+  physics and real-CNA dummy audio tests pass. Live keyboard/disk audio182016passes protected
+  approach, actualloop gain, exact mute/resume PCM and24m range release. Speaker listening, performance,
   natural-material polish and consolidated Web/Android remain. See `docs/campfire.md`.
   Adding fuel/crafting mechanics was not requested.
 

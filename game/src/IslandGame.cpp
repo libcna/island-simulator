@@ -1615,6 +1615,14 @@ namespace island
                         << " sources " << audio.playingSourceCount
                         << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type)
                         << " snake-hisses " << soundscape_->PlayedSnakeHissCount() << '\n';
+                    const auto fire=campfireLayout_.Centre();
+                    const float distance=std::hypot(cameraPosition_.X-fire.x,cameraPosition_.Y-fire.y,cameraPosition_.Z-fire.z);
+                    const float clearance=std::hypot(position.x-fire.x,position.z-fire.z)
+                        -CampfireSite::PitRadius-PlayerMotion::CapsuleRadius;
+                    std::cout<<"island-simulator: fire audio available "<<soundscape_->IsAvailable()
+                        <<" muted "<<soundscape_->IsMuted()<<" playing "<<audio.campfirePlaying
+                        <<" gain "<<audio.campfireVolume<<" distance "<<distance<<" clearance "<<clearance
+                        <<" sources "<<audio.playingSourceCount<<'\n';
                 }
                 if (flightMotion_.IsActive())
                     std::cout << "island-simulator: flight position " << cameraPosition_.X << ' '
@@ -1919,12 +1927,12 @@ namespace island
         }
 #endif
 
-        constexpr std::array<Keys, 10> teleportKeys = {
+        constexpr std::array<Keys, 11> teleportKeys = {
             Keys::F5, Keys::F6, Keys::F7, Keys::F8, Keys::F9, Keys::F10, Keys::J,
-            Keys::F12, Keys::K, Keys::L};
-        constexpr std::array<const char*, 10> teleportNames = {
+            Keys::F12, Keys::K, Keys::L, Keys::O};
+        constexpr std::array<const char*, 11> teleportNames = {
             "south beach", "jungle trail", "east clearing", "west clearing",
-            "fish shallows", "offshore shark", "monkey troop", "offshore current", "boar herd", "cave entrance"};
+            "fish shallows", "offshore shark", "monkey troop", "offshore current", "boar herd", "cave entrance", "campfire"};
         for (std::size_t index = 0; index < teleportKeys.size(); ++index) {
             const bool down = keyboard.IsKeyDown(teleportKeys[index]);
             if (debugOverlayVisible_ && down && !debugTeleportWasDown_[index]) {
@@ -1970,6 +1978,9 @@ namespace island
                     z = monkey.z + std::sin(monkey.headingRadians) * 5.0f;
                     yaw_ = std::atan2(monkey.x - x, monkey.z - z);
                     pitch_ = -0.08f;
+                } else if(index==10U) {
+                    x=CampfireSite::X-3.8f;z=CampfireSite::Z;
+                    yaw_=std::numbers::pi_v<float>*.5f;pitch_=-.10f;
                 } else if (index == 9U) {
                     const auto& cave=terrainRenderer_->Cave();
                     const auto start=cave.World(0,0,-8),target=cave.World(0,0,0);

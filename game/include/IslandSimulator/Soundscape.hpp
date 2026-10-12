@@ -39,6 +39,7 @@ namespace island
         int playingSourceCount = 0;
         int sourceBudget = 6;
         bool campfirePlaying = false;
+        float campfireVolume=0;
     };
 
     /** @brief Owns the procedural ambient layers and their CNA playback instances. */

@@ -364,7 +364,7 @@ namespace island
         bool soundscapeNeedsGesture_ = false;
         bool userSettingsEnabled_ = true;
         bool swimmingEntryDiagnosticReported_ = false;
-        std::array<bool, 10> debugTeleportWasDown_{};
+        std::array<bool, 11> debugTeleportWasDown_{};
         std::size_t monkeyTeleportIndex_ = 0U;
         std::size_t boarTeleportIndex_ = 0U;
         bool inputDiagnostics_ = false;

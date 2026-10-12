@@ -30,10 +30,23 @@ from run_fullscreen_software import (geometry, worker as fullscreen_worker,
 from run_fullscreen_software import validate_control_transitions, owned_runtime_log
 from run_fullscreen_software import validate_diving_trace, validate_frame_windows
 from run_fullscreen_software import validate_cave_trace
+from run_fullscreen_software import validate_fire_audio_trace
 from run_software_capture import validate_build_configuration
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_fire_audio_trace_requires_volume_collision_mute_resume_and_range(self):
+        good=[(1,0,1,.26,2.4,.04,4)]*5+[(1,1,1,0,2.4,.04,4)]*25
+        good+=[(1,0,1,.26,2.4,.04,4)]*5+[(1,0,0,.001,27,25,4)]
+        validate_fire_audio_trace(good)
+        for index,point in ((0,(0,0,1,.26,2.4,.04,4)),(7,(1,1,1,.2,2.4,.04,4)),
+                            (9,(1,1,0,0,2.4,.04,4)),(35,(1,0,1,.2,27,25,4)),
+                            (35,(1,0,0,.001,2.4,.04,4)),(0,(1,0,1,.26,2.4,-.1,4)),
+                            (0,(1,0,1,.26,2.4,.04,7)),(2,(1,0,1,float("nan"),2.4,.04,4))):
+            bad=list(good);bad[index]=point
+            with self.assertRaises(RuntimeError):validate_fire_audio_trace(bad)
+        for bad in ([],good[:5],[(1,0,1,0,2.4,.04,4)]*5+good[5:],good[:30]+[good[-1]]):
+            with self.assertRaises(RuntimeError):validate_fire_audio_trace(bad)
     def test_campfire_animation_stages(self):
         good="\n".join(f"campfire motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} draws=2 effect-triangles=42" for i in range(4))
         self.assertEqual(len(validate_campfire_stages(good)),4)

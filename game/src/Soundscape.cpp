@@ -165,6 +165,7 @@ namespace island
         try {
             state.campfirePlaying=available_&&campfireInstance_
                 &&campfireInstance_->getStateProperty()==SoundState::Playing;
+            if(available_&&campfireInstance_)state.campfireVolume=campfireInstance_->getVolumeProperty();
         } catch(const std::exception&) {}
         return state;
     }

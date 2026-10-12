@@ -18,7 +18,11 @@ was an audio diagnostic demanded from deliberately silent capture mode; correcte
 No new kernel faults. Worldfingerprint97cc56c53b547613 now includes cave+fire geometry/proxies.
 Still first-pass/stylized; smoke subtle, rock/wood need polish, live encounter/listening and
 portable/performance qualification open. PLAN campfire[~], whole plan nowhere near complete.
-Next: live campfire keyboard/audio QA, then resident/bear/helicopter and remaining fauna visuals,
+LIVE QA nowPASS `software-campfire/20261012T182016.847082Z`: F1+O/W protected approach,
+actualloopgain,1032192exactzero mute PCM,204800nonzero resume bytes, walking beyond24m
+stops firevoice. Closeimage inspected; no new kernel GPU faults. Debug audiotestPASS2.92s,
+both native binaries refreshed, Python50/50. New O debug teleport and opt-in audio diagnostics.
+Next: resident/bear/helicopter and remaining fauna visuals,
 plus consolidated portable qualification. Keep separate F11 private-window restore finding open.
 
 Shared Sharp Runtime advanced to7805c5dc during work. Gitdiff fromlockedc20373ba contains ONLY

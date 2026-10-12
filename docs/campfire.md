@@ -72,7 +72,15 @@ mode. That scope error was corrected without changing the runtime audio requirem
 World fingerprint including the cave, campfire mesh and both collision proxies:
 `97cc56c53b547613`. WorldReport exports the centres and solid/log counts.
 
-Remaining: live keyboard/audio-device encounter, listening review, smoother natural
+Live native keyboard/disk-audio gate passes at
+`build-consumer/software-campfire/20261012T182016.847082Z`. F1+O places the player nearby;
+W reaches the protected stone ring without crossing its collision boundary. The gate
+queries actual CNA loop Playing state and gain, checks mute with1032192 exact-zero PCM
+bytes, resumes204800 nonzero bytes, then walks beyond24m and verifies voice release.
+The close screenshot was inspected. Both native executable trees are refreshed; Debug
+audio lifecycle tests pass2.92s. CPU-only harness tests50/50. This focused gate omits F11.
+
+Remaining: speaker listening review, smoother natural
 material/smoke refinement, representative performance and consolidated Web/Android runtime.
 Both native executable build trees are refreshed. The separate private F11 restoration
 finding remains open. No AMD, Android emulator or

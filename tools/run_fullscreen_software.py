@@ -169,8 +169,25 @@ def validate_cave_trace(samples, stages):
         raise RuntimeError("cave flight did not reach ceiling or land on floor")
 
 
+def validate_fire_audio_trace(samples):
+    if len(samples)<30:raise RuntimeError("missing live campfire audio/position samples")
+    for p in samples:
+        if (len(p)!=7 or not all(map(math.isfinite,p)) or p[0]!=1 or p[1] not in (0,1)
+                or p[2] not in (0,1) or not 0<=p[3]<=1 or p[4]<0 or p[5]<-.002 or not 4<=p[6]<=6):
+            raise RuntimeError("invalid campfire audio state or player entered firepit")
+    muted=[i for i,p in enumerate(samples) if p[1]]
+    if len(muted)<24 or any(samples[i][3]!=0 or samples[i][2]!=1 for i in muted):
+        raise RuntimeError("campfire mute did not preserve silent ambient playback")
+    if not any(p[2] and p[3]>.15 and p[4]<6 and 0<=p[5]<.2 for p in samples[:muted[0]]):
+        raise RuntimeError("player did not reach the protected firepit with audible loop gain")
+    if not any(p[2] and p[3]>.15 and p[4]<6 for p in samples[muted[-1]+1:]):
+        raise RuntimeError("campfire did not resume after unmute")
+    if not (samples[-1][4]>24 and samples[-1][2]==0 and samples[-1][3]<.005):
+        raise RuntimeError("campfire did not stop beyond its sound range")
+
+
 def worker(build, evidence, window_manager, flight=False, boar_audio=False,
-           diving=False, snake_audio=False, cave=False):
+           diving=False, snake_audio=False, cave=False, campfire=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -231,7 +248,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             keys("F1", "debug overlay disabled")
             # Snake playback has its own focused native gate.  The normal invocation
             # remains the authoritative two-cycle F11/focus regression test.
-            fullscreen_cycles = 0 if snake_audio or cave else 2
+            fullscreen_cycles = 0 if snake_audio or cave or campfire else 2
             for cycle in range(fullscreen_cycles):
                 # Some X11 window managers return focus to their root/desktop while
                 # restoring a non-resizable window from fullscreen.  Reassert focus
@@ -282,7 +299,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 frames = log().count("input sample captured")
                 wait(lambda: log().count("input sample captured") > frames, "windowed released-key frame")
             command("import", "-window", window, str(evidence / "windowed.png"))
-            if not snake_audio and not cave:
+            if not snake_audio and not cave and not campfire:
                 # Only this owned dialog receives the background F11; never another
                 # desktop/client. Restoring focus must not synthesize a game toggle.
                 focus_target = subprocess.Popen(["xmessage", "-title", "island-fullscreen-focus",
@@ -318,6 +335,51 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             if not snake_audio:
                 keys("w", "input sample captured 1 relative 1")
                 keys("Escape", "input sample captured 0 relative 0")
+            if campfire:
+                def fire_samples():
+                    number=r"([-+\d.eE]+)"
+                    return [tuple(map(float,m)) for m in re.findall(
+                        r"fire audio available ([01]) muted ([01]) playing ([01]) gain "+number
+                        +r" distance "+number+r" clearance "+number+r" sources (\d+)",log())]
+                keys("F1","debug overlay enabled")
+                keys("o","debug teleport campfire")
+                keys("F1","debug overlay disabled")
+                wait(lambda: fire_samples() and fire_samples()[-1][2]==1,"actual campfire playback")
+                command("xdotool","keydown","w")
+                try:
+                    wait(lambda: fire_samples()[-1][5]<.2,"approach protected firepit")
+                    count=len(fire_samples())
+                    wait(lambda: len(fire_samples())>=count+4,"held forward at firepit boundary")
+                finally:command("xdotool","keyup","w")
+                command("import","-window",window,str(evidence/"campfire-close.png"))
+                keys("m","soundscape muted")
+                count=len(fire_samples())
+                wait(lambda: len(fire_samples())>=count+4,"drain muted campfire pipeline")
+                recording=evidence/"game-audio.raw"
+                start=recording.stat().st_size
+                count=len(fire_samples())
+                wait(lambda: len(fire_samples())>=count+24,"six simulated seconds of fire silence")
+                end=recording.stat().st_size
+                with recording.open("rb") as pcm:
+                    pcm.seek(start);silent=pcm.read(end-start)
+                if not silent or any(silent):raise RuntimeError("muted fire mix is not exact PCM silence")
+                keys("m","soundscape unmuted")
+                wait(lambda: fire_samples()[-1][3]>.15,"actual campfire volume after unmute")
+                count=len(fire_samples())
+                wait(lambda: len(fire_samples())>=count+4,"resumed fire audio packets")
+                with recording.open("rb") as pcm:
+                    pcm.seek(end);resumed=pcm.read()
+                if not resumed or not any(resumed):raise RuntimeError("resumed campfire mix stayed silent")
+                command("xdotool","keydown","s")
+                try:
+                    wait(lambda: fire_samples()[-1][4]>26,"walk beyond campfire sound range")
+                finally:command("xdotool","keyup","s")
+                wait(lambda: fire_samples()[-1][2]==0 and fire_samples()[-1][3]<.005,"fire voice release/fade")
+                samples=fire_samples();validate_fire_audio_trace(samples)
+                command("import","-window",window,str(evidence/"campfire-away.png"))
+                (evidence/"campfire-result.json").write_text(json.dumps({"passed":True,"samples":samples,
+                    "mutedBytes":len(silent),"resumedBytes":len(resumed),
+                    "scope":"actual firepit approach, CNA loop/gain, disk PCM mute/resume and range exit; not speaker listening"},indent=2)+"\n")
             if cave:
                 def cave_samples():
                     return [tuple(map(float,m)) for m in re.findall(
@@ -565,10 +627,11 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")
             (evidence / "input-result.json").write_text(json.dumps({
                 "passed": True, "stages": stages,
-                "heldRepeatSuppressed": not snake_audio and not cave,
-                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not cave,
+                "heldRepeatSuppressed": not snake_audio and not cave and not campfire,
+                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not cave and not campfire,
                 "flightChecked": flight,
                 "caveChecked": cave,
+                "campfireChecked": campfire,
                 "boarAudioChecked": boar_audio,
                 "snakeAudioChecked": snake_audio,
                 "mouseCapturedAndReleasedAfterToggle": not snake_audio}, indent=2)+"\n")
@@ -592,6 +655,7 @@ def main():
     parser.add_argument("build", type=Path)
     parser.add_argument("--flight", action="store_true", help="also exercise Tab flight, ceiling and return")
     parser.add_argument("--cave", action="store_true", help="focused live cave entry, wall, roof, floor and exit check")
+    parser.add_argument("--campfire", action="store_true", help="focused live firepit approach, crackling mute/resume and range check")
     parser.add_argument("--diving", action="store_true", help="exercise underwater descent and resurfacing")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--snake-audio", action="store_true", help="exercise close snake-hiss playback and mute through SDL disk output")
@@ -599,13 +663,13 @@ def main():
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
-    if args.cave and (args.flight or args.diving or args.boar_audio or args.snake_audio):
-        parser.error("--cave is a separate focused traversal scope")
+    if (args.cave or args.campfire) and sum((args.flight,args.diving,args.boar_audio,args.snake_audio,args.cave,args.campfire))!=1:
+        parser.error("--cave/--campfire use separate focused scopes")
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
         worker(build, args.worker.resolve(strict=True), window_manager, args.flight,
-               args.boar_audio, args.diving, args.snake_audio, args.cave)
+               args.boar_audio, args.diving, args.snake_audio, args.cave, args.campfire)
         return
     if args.boar_audio and args.snake_audio:
         raise RuntimeError("choose only one focused wildlife audio scope")
@@ -620,7 +684,7 @@ def main():
         journal = Journal()
         baseline = journal.latest()
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        evidence = build / ("software-cave" if args.cave else "software-boar-audio" if args.boar_audio else
+        evidence = build / ("software-campfire" if args.campfire else "software-cave" if args.cave else "software-boar-audio" if args.boar_audio else
                             "software-snake-audio" if args.snake_audio else
                             "software-flight" if args.flight else "software-fullscreen") / stamp
         evidence.mkdir(parents=True)
@@ -632,6 +696,8 @@ def main():
             command.append("--flight")
         if args.cave:
             command.append("--cave")
+        if args.campfire:
+            command.append("--campfire")
         if args.diving:
             command.append("--diving")
         if args.boar_audio:
@@ -643,7 +709,7 @@ def main():
             environment.pop(key, None)
         environment["ISLAND_FULLSCREEN_SUPERVISED"] = "1"
         environment["XDG_CONFIG_HOME"] = str(evidence / "config")
-        if args.boar_audio or args.snake_audio:
+        if args.boar_audio or args.snake_audio or args.campfire:
             environment["SDL_AUDIO_DRIVER"] = "disk"
             environment["SDL_AUDIO_DISK_OUTPUT_FILE"] = str(evidence / "game-audio.raw")
             environment["SDL_AUDIO_DISK_TIMESCALE"] = "1.0"
