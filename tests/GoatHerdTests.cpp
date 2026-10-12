@@ -54,12 +54,30 @@ int main() {
             check(std::isfinite(s.phase)&&s.speed>=0&&s.speed<=1.20001f
                 &&s.grazingPose>=0&&s.grazingPose<=1,"invalid goat motion state");
             if(d==0) check(s.phase==p.phase,"blocked/stationary goat advanced stride");
+            int supports=0;
+            for(std::size_t leg=0;leg<4;++leg) {
+                const auto& current=s.pose.legs[leg];const auto& previous=p.pose.legs[leg];
+                supports+=current.stance?1:0;
+                check(!current.reachLimited,"authoritative goat contact pose is unreachable");
+                if(current.stance&&previous.stance) {
+                    const auto a=p.pose.ToWorld({previous.hoof.x,previous.hoof.y-GoatLegPose::HoofHeight,
+                        previous.hoof.z+GoatLegPose::SoleForward});
+                    const auto b=s.pose.ToWorld({current.hoof.x,current.hoof.y-GoatLegPose::HoofHeight,
+                        current.hoof.z+GoatLegPose::SoleForward});
+                    check(std::hypot(b.x-a.x,b.y-a.y,b.z-a.z)<.0001f,"planted goat hoof moved with the body");
+                    const auto local=s.pose.ToLocal(b);
+                    check(std::abs(local.x-current.hoof.x)<.0001f,"goat body inverse transform drifted");
+                }
+            }
+            check(supports>=2,"goat lost two-foot support during stepping");
             if(frame%10==0) {
-                const auto pose=FitGoatGroundPose(terrain,surface,s.x,s.z,s.heading,s.phase,s.speed,s.scale);
+                const auto& pose=s.pose;
                 const auto mesh=BuildGoatMesh(pose,s.grazingPose,true);
-                for(const auto& vertex:mesh.vertices)if(vertex.part==GoatPart::Hoof) {
+                for(const auto& vertex:mesh.vertices) {
                     const auto point=pose.ToWorld(vertex.position);
-                    minimumHoofClearance=std::min(minimumHoofClearance,
+                    check(std::hypot(point.x-s.x,point.z-s.z)<=GoatHabitat::BodyClearance,
+                        "anchored limb mesh exceeds collision clearance envelope");
+                    if(vertex.part==GoatPart::Hoof)minimumHoofClearance=std::min(minimumHoofClearance,
                         point.y-surface.Sample(point.x,point.z).height);
                 }
                 for(const auto& leg:pose.legs) {

@@ -530,6 +530,52 @@ the geometry prerequisite for planted world anchors, NOT a foot-sliding fix. Per
 per-foot state, world-to-body target conversion and swing/plant transitions remain
 to be integrated into herd simulation and rendering. No new runtime visual claim.
 
+## Live persistent world-space foot supports
+
+GoatHerd now retains four world-space sole positions per animal. During stance they
+remain fixed; a swing interpolates from the previous support to a terrain-sampled
+landing using a180ms smoothstep and a90mm-scaled vertical arch. At most two feet
+swing, with at most one new swing per20ms substep. Existing four-beat phase chooses
+walking lifts; displacement-based replants let a stopped/turning body reposition
+its feet. Landings are checked for fixed-length reachability before adoption.
+
+GoatState stores the authoritative GoatGroundPose. Candidate body translations and
+blocked turns check the same contact-fitted legs, and GoatRenderer consumes that
+stored pose rather than reconstructing a sliding speed-dependent one. A body-frame
+helper avoids solving four unrelated ground targets repeatedly during contact checks;
+the renderer's redundant RenderedTerrainSurface cache is removed. No new mesh,
+texture, shader, draw call or GPU allocation. Per-foot world orientation is not yet
+locked: the hoof may pivot about its fixed sole centre as the body turns.
+
+Initial integration failed head-on avoidance: a temporarily unreachable anchored
+foot was treated as a new obstacle, repeatedly changing route intent. TryMove now
+distinguishes waiting for a step from geometry blockage, retaining route intent in
+the former case. A0.1mm contact separation keeps rounding/triangle-boundary effects
+inside the UNCHANGED0.15mm centre-contact and1mm mesh-penetration tolerances.
+Intermediate failure logs (`goat-anchors-{tests,recovery-tests,contact-tests,probe-tests}.log`)
+are retained; neither those failures nor earlier partial passes are final qualification.
+
+Final inclusive build and47/47 CPU tests PASS111.75s
+(`build/goat-anchors-final-{build,tests}.log`). New live-state regressions require
+consecutive planted positions within0.1mm, at least two supports, reachable limbs,
+inverse transforms and actual mesh inside the1.25m collision envelope. Existing
+determinism, invalid inputs, observer/obstacle escape and terrain checks remain.
+Ninety-second per-goat travel8.50997–27.7957m; observer/head-on clearances7.57935/7.01376m.
+Minimum sampled near-hoof mesh clearance-0.000240326m. Initial world fingerprint
+0a98cb638125508f unchanged.
+
+Updated20ms audit uses the SAME authoritative pose as rendering and rejects an
+immobilized herd: quiet25563/observer23569 stance pairs, zero pairs over1mm and zero
+measured horizontal displacement/drift at float precision. Minimum per-goat30s travel
+2.87275/3.09094m. See `build/goat-anchors-final-audit.jsonl`; previous122.717/132.466mm
+jumps are absent in these cases, not proven impossible on every future route.
+
+Contained native `20261012T034322.249615Z-goats` passes all eight motion stages with
+empty kernel delta; every stage was inspected in `build/goat-anchors-montage.png`.
+Walking/grazing/turning still occur with the changed leg poses. Sparse stills do not
+qualify continuous natural gait, hoof rotational locking, self-contact or smooth body
+acceleration; those remain open. No current Web/Android build/runtime qualification.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

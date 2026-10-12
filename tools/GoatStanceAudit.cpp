@@ -39,13 +39,13 @@ struct Audit {
         }
         foot.previous=sole;
     }
-    void Print(const char* scenario) const {
+    void Print(const char* scenario,float minimumBodyTravel=0) const {
         std::cout<<"{\"scenario\":\""<<scenario<<"\",\"dt\":"<<Step
             <<",\"stance_pairs\":"<<samples<<",\"pairs_over_1mm\":"<<sliding
             <<",\"max_step_m\":"<<worstStep<<",\"max_anchor_drift_m\":"<<worstDrift
             <<",\"worst_time_s\":"<<worstTime<<",\"goat\":"<<worstGoat<<",\"leg\":"<<worstLeg
             <<",\"speed_before\":"<<previousSpeed<<",\"speed_after\":"<<currentSpeed
-            <<",\"heading_delta\":"<<turn<<"}\n";
+            <<",\"heading_delta\":"<<turn<<",\"minimum_body_travel_m\":"<<minimumBodyTravel<<"}\n";
     }
 };
 }
@@ -71,8 +71,8 @@ int main() {
         }
     }
     if(flat.samples<200||flat.worstStep>1e-5f)throw std::runtime_error("stance audit straight calibration failed");
-    flat.Print("flat-straight-calibration");
-    const IslandTerrain terrain;const RenderedTerrainSurface surface(terrain);
+    flat.Print("flat-straight-calibration",z);
+    const IslandTerrain terrain;
     const VegetationLayout palms(terrain);const JungleLayout jungle(terrain);
     const NaturalPropLayout props(terrain,palms,jungle);const ShipwreckLayout wreck(terrain);
     std::vector<CircularObstacle> occupied;
@@ -84,6 +84,7 @@ int main() {
     occupied.push_back({hut->x,hut->z,HutLayout::CollisionRadius});
     for(bool retreat:{false,true}) {
         GoatHerd herd(terrain,jungle,occupied);Audit audit;
+        std::array<float,GoatHabitat::Count> travel{};
         const auto first=herd.Goats().front();
         const GoatPoint observer=retreat?GoatPoint{first.x-2.5f,first.y+.8f,first.z}:GoatPoint{1000,1000,1000};
         for(int step=0;step<=1500;++step) {
@@ -91,7 +92,8 @@ int main() {
             if(step)herd.Update(Step,observer);
             for(std::size_t i=0;i<herd.Goats().size();++i) {
                 const auto& s=herd.Goats()[i];
-                const auto pose=FitGoatGroundPose(terrain,surface,s.x,s.z,s.heading,s.phase,s.speed,s.scale);
+                travel[i]+=std::hypot(s.x-before[i].x,s.y-before[i].y,s.z-before[i].z);
+                const auto& pose=s.pose;
                 for(std::size_t leg=0;leg<4;++leg) {
                     const auto& p=pose.legs[leg];
                     const auto sole=pose.ToWorld({p.hoof.x,p.hoof.y-GoatLegPose::HoofHeight,p.hoof.z+GoatLegPose::SoleForward});
@@ -101,7 +103,9 @@ int main() {
             }
         }
         if(audit.samples<10000)throw std::runtime_error("insufficient herd stance evidence");
-        audit.Print(retreat?"observer-retreat-30s":"undisturbed-herd-30s");
+        const float minimum=*std::min_element(travel.begin(),travel.end());
+        if(minimum<.25f)throw std::runtime_error("stance audit cannot qualify an immobilized herd");
+        audit.Print(retreat?"observer-retreat-30s":"undisturbed-herd-30s",minimum);
     }
     // Successful execution means valid measurements, NOT accepted foot locking.
 }

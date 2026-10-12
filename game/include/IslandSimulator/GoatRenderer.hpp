@@ -12,7 +12,7 @@ class CanopyLightField;
 class GoatRenderer final {
 public:
     GoatRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-        const IslandTerrain& terrain,const CanopyLightField& canopy,float maximumDistance);
+        const CanopyLightField& canopy,float maximumDistance);
     ~GoatRenderer();
     void Draw(const Microsoft::Xna::Framework::Matrix& view,
         const Microsoft::Xna::Framework::Matrix& projection,
@@ -21,8 +21,6 @@ public:
     [[nodiscard]] int DrawCallCount() const noexcept {return draws_;}
 private:
     Microsoft::Xna::Framework::Graphics::GraphicsDevice& device_;
-    const IslandTerrain& terrain_;
-    RenderedTerrainSurface surface_;
     const CanopyLightField& canopy_;
     float maximumDistance_;
     std::unique_ptr<Microsoft::Xna::Framework::Graphics::BasicEffect> effect_;

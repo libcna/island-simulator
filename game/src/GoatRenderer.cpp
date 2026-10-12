@@ -37,9 +37,9 @@ Vector3 Point(GoatPoint p){return {p.x,p.y,p.z};}
 const std::array<Color,7> Materials{Color(244,238,222),Color(145,116,92),
     Color(108,91,66),Color(58,54,45),Color(18,16,13),Color(63,57,48),Color(166,122,53)};
 }
-GoatRenderer::GoatRenderer(GraphicsDevice& device,const IslandTerrain& terrain,
+GoatRenderer::GoatRenderer(GraphicsDevice& device,
     const CanopyLightField& canopy,float maximumDistance)
-    :device_(device),terrain_(terrain),surface_(terrain),canopy_(canopy),
+    :device_(device),canopy_(canopy),
      maximumDistance_(maximumDistance),effect_(std::make_unique<BasicEffect>(device)),
      buffer_(std::make_unique<DynamicVertexBuffer>(device,VertexPositionColorTexture::getVertexDeclarationStatic(),
          Capacity,BufferUsage::WriteOnly))
@@ -76,8 +76,7 @@ void GoatRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector
         const float distanceSquared=Vector3::DistanceSquared(centre,camera);
         if(distanceSquared>maximumDistance_*maximumDistance_
             ||!frustum.Intersects(BoundingSphere(centre,1.8f*goat.scale)))continue;
-        const auto pose=FitGoatGroundPose(terrain_,surface_,goat.x,goat.z,goat.heading,
-            goat.phase,goat.speed,goat.scale);
+        const auto& pose=goat.pose;
         const auto mesh=BuildGoatMesh(pose,goat.grazingPose,distanceSquared<30*30);
         for(const auto& vertex:mesh.vertices) {
             const auto world=Point(pose.ToWorld(vertex.position));

@@ -8,6 +8,9 @@
 namespace island {
 namespace {
 constexpr float Pi=std::numbers::pi_v<float>,Tau=2*Pi;
+// Submillimetre contact separation, inside the existing 0.15mm sole tolerance.
+// Keep triangle-boundary rounding from consuming the entire mesh clearance margin.
+constexpr float ContactSeparation=.0001f;
 float Wrap(float angle) { return std::remainder(angle,Tau); }
 std::uint32_t Mix(std::uint32_t x) {
     x^=x>>16;x*=0x7feb352dU;x^=x>>15;x*=0x846ca68bU;return x^(x>>16);
@@ -33,6 +36,15 @@ GoatHerd::GoatHerd(const IslandTerrain& terrain,const JungleLayout& jungle,
         states_[i].scale=i==states_.size()-1?.75f:1;
         intents_[i].remaining=1+static_cast<float>(i)*.7f;
         intents_[i].targetHeading=states_[i].heading;
+        auto& s=states_[i];
+        s.pose=FitGoatGroundPose(terrain_,surface_,s.x,s.z,s.heading,s.phase,0,s.scale);
+        for(std::size_t leg=0;leg<4;++leg) {
+            const auto& p=s.pose.legs[leg];
+            feet_[i][leg].position=s.pose.ToWorld({p.hoof.x,p.hoof.y-GoatLegPose::HoofHeight,
+                p.hoof.z+GoatLegPose::SoleForward});
+            feet_[i][leg].position.y+=ContactSeparation;
+        }
+        s.pose=ContactPose(s,feet_[i]);
     }
 }
 bool GoatHerd::IsValidPosition(std::size_t index,float x,float z) const {
@@ -42,7 +54,8 @@ bool GoatHerd::IsValidPosition(std::size_t index,float x,float z) const {
         &&!clearance_.IntersectsCircle(x,z,GoatHabitat::BodyClearance)
         &&GoatHabitat::AcceptsGround(terrain_,surface_,x,z);
 }
-bool GoatHerd::TryMove(std::size_t index,float heading,float distance) {
+bool GoatHerd::TryMove(std::size_t index,float heading,float distance,bool& waitingForStep) {
+    waitingForStep=false;
     auto& state=states_[index];
     const auto normal=surface_.Sample(state.x,state.z).normal;
     const float gradient=-(normal.x*std::cos(heading)+normal.z*std::sin(heading))/normal.y;
@@ -57,10 +70,74 @@ bool GoatHerd::TryMove(std::size_t index,float heading,float distance) {
     const float y=surface_.Sample(x,z).height;
     const float travelled=std::hypot(x-state.x,y-state.y,z-state.z);
     const float phase=std::fmod(state.phase+GoatPhaseAdvance(travelled,state.speed,state.scale),Tau);
-    const auto pose=FitGoatGroundPose(terrain_,surface_,x,z,heading,phase,state.speed,state.scale);
-    for(const auto& leg:pose.legs) if(leg.reachLimited) return false;
+    auto candidate=state;
+    candidate.x=x;candidate.y=y;candidate.z=z;candidate.heading=heading;candidate.phase=phase;
+    const auto pose=ContactPose(candidate,feet_[index]);
+    for(const auto& leg:pose.legs) if(leg.reachLimited) {waitingForStep=true;return false;}
     state.x=x;state.y=y;state.z=z;state.heading=heading;state.phase=phase;
     return true;
+}
+GoatGroundPose GoatHerd::ContactPose(const GoatState& state,const Feet& feet) const {
+    auto pose=MakeGoatBodyFrame(terrain_,surface_,state.x,state.z,state.heading,state.phase,state.speed,state.scale);
+    for(std::size_t leg=0;leg<4;++leg) {
+        auto local=pose.ToLocal(feet[leg].position);
+        local.y+=GoatLegPose::HoofHeight;local.z-=GoatLegPose::SoleForward;
+        auto reference=EvaluateGoatLeg(0,0,pose.bodyBob,leg);
+        reference.stance=!feet[leg].swinging;
+        pose.legs[leg]=RetargetGoatLeg(reference,local,leg);
+        const auto normal=surface_.Sample(feet[leg].position.x,feet[leg].position.z).normal;
+        const auto project=[&](GoatPoint axis){return normal.x*axis.x+normal.y*axis.y+normal.z*axis.z;};
+        pose.legs[leg].soleNormal={project(pose.right),project(pose.up),project(pose.forward)};
+    }
+    return pose;
+}
+void GoatHerd::AdvanceFeet(std::size_t index,float dt) {
+    auto& state=states_[index];auto& feet=feet_[index];
+    const auto valid=[](const GoatGroundPose& pose) {
+        return std::none_of(pose.legs.begin(),pose.legs.end(),[](const auto& leg){return leg.reachLimited;});
+    };
+    for(std::size_t leg=0;leg<4;++leg)if(feet[leg].swinging) {
+        auto trial=feet;auto& foot=trial[leg];
+        foot.progress=std::min(1.0f,foot.progress+dt/.18f);
+        const float t=foot.progress,u=t*t*(3-2*t),arch=std::sin(Pi*t);
+        foot.position={foot.start.x+(foot.target.x-foot.start.x)*u,
+            foot.start.y+(foot.target.y-foot.start.y)*u,
+            foot.start.z+(foot.target.z-foot.start.z)*u};
+        foot.position.y=std::max(foot.position.y,surface_.Sample(foot.position.x,foot.position.z).height+ContactSeparation)
+            +.09f*state.scale*arch*arch;
+        foot.swinging=t<1;
+        if(valid(ContactPose(state,trial)))feet=trial;
+    }
+    const auto neutral=FitGoatGroundPose(terrain_,surface_,state.x,state.z,state.heading,0,0,state.scale);
+    int active=static_cast<int>(std::count_if(feet.begin(),feet.end(),[](const auto& f){return f.swinging;}));
+    // Start at most one foot per substep and retain at least two grounded supports.
+    std::size_t selected=4;float priority=0;
+    for(std::size_t leg=0;leg<4&&active<2;++leg)if(!feet[leg].swinging) {
+        const auto& p=neutral.legs[leg];
+        const auto sole=neutral.ToWorld({p.hoof.x,p.hoof.y-GoatLegPose::HoofHeight,p.hoof.z+GoatLegPose::SoleForward});
+        const float error=std::hypot(sole.x-feet[leg].position.x,sole.z-feet[leg].position.z)/state.scale;
+        const bool scheduled=state.speed>.05f&&!EvaluateGoatLeg(state.phase,state.speed,0,leg).stance;
+        const float score=error+(scheduled?.10f:0);
+        const float reposition=state.speed<.05f?.025f:.08f;
+        if((error>reposition||scheduled)&&score>priority) {selected=leg;priority=score;}
+    }
+    if(selected<4) {
+        const auto& p=neutral.legs[selected];
+        auto trial=feet;auto& foot=trial[selected];
+        foot.start=foot.position;foot.progress=0;foot.swinging=true;
+        auto local=GoatPoint{p.hoof.x,p.hoof.y-GoatLegPose::HoofHeight,
+            p.hoof.z+GoatLegPose::SoleForward+.18f*state.speed/MaximumSpeed};
+        foot.target=neutral.ToWorld(local);
+        foot.target.y=surface_.Sample(foot.target.x,foot.target.z).height+ContactSeparation;
+        auto landing=trial;landing[selected].position=foot.target;
+        if(!valid(ContactPose(state,landing))) {
+            local.z=p.hoof.z+GoatLegPose::SoleForward;foot.target=neutral.ToWorld(local);
+            foot.target.y=surface_.Sample(foot.target.x,foot.target.z).height+ContactSeparation;
+            landing[selected].position=foot.target;
+        }
+        if(valid(ContactPose(state,landing)))feet=trial;
+    }
+    state.pose=ContactPose(state,feet);
 }
 void GoatHerd::Step(std::size_t index,float dt,GoatPoint observer,bool observerValid) {
     auto& state=states_[index];auto& intent=intents_[index];
@@ -86,9 +163,14 @@ void GoatHerd::Step(std::size_t index,float dt,GoatPoint observer,bool observerV
     state.grazingPose+=std::clamp(graze-state.grazingPose,-2*dt,dt);
     if(state.speed<=.0001f) { state.speed=0;return; }
     const float heading=Wrap(state.heading+std::clamp(Wrap(intent.targetHeading-state.heading),-1.8f*dt,1.8f*dt));
-    if(!TryMove(index,heading,state.speed*dt)) {
+    bool waitingForStep=false;
+    if(!TryMove(index,heading,state.speed*dt,waitingForStep)) {
         state.speed=0;
-        const auto turn=FitGoatGroundPose(terrain_,surface_,state.x,state.z,heading,state.phase,0,state.scale);
+        // Waiting for an anchored foot to step is not a new obstacle. Keep the
+        // route intent; AdvanceFeet continues independently of root translation.
+        if(waitingForStep)return;
+        auto candidate=state;candidate.heading=heading;
+        const auto turn=ContactPose(candidate,feet_[index]);
         if(std::none_of(turn.legs.begin(),turn.legs.end(),[](const auto& leg){return leg.reachLimited;}))
             state.heading=heading;
         // A bounded turn request for later steps, not a teleport or forced obstacle escape.
@@ -104,7 +186,9 @@ void GoatHerd::Update(float dt,GoatPoint observer) {
     dt=std::min(dt,.1f);
     const int steps=std::min(5,static_cast<int>(std::ceil(dt/.02f)));
     const bool observerValid=std::isfinite(observer.x)&&std::isfinite(observer.y)&&std::isfinite(observer.z);
-    for(int step=0;step<steps;++step) for(std::size_t i=0;i<states_.size();++i)
+    for(int step=0;step<steps;++step) for(std::size_t i=0;i<states_.size();++i) {
         Step(i,dt/static_cast<float>(steps),observer,observerValid);
+        AdvanceFeet(i,dt/static_cast<float>(steps));
+    }
 }
 }

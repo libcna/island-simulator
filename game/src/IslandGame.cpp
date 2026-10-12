@@ -995,7 +995,7 @@ namespace island
         auto boarRenderer = std::make_unique<BoarRenderer>(
             device, terrain_, canopyLighting->Field(), 135.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto snakeRenderer = std::make_unique<SnakeRenderer>(device,canopyLighting->Field());
-        auto goatRenderer = std::make_unique<GoatRenderer>(device,terrain_,canopyLighting->Field(),
+        auto goatRenderer = std::make_unique<GoatRenderer>(device,canopyLighting->Field(),
             120.0f*qualityProfile_.wildlifeMaximumDistanceScale);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);

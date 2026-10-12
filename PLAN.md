@@ -930,6 +930,16 @@ progress or require player interaction; dangerous species keep their distance li
   Stance audit remains identical (122.717/132.466mm worst step): no sliding fix yet.
   Next persist world anchors/swing transitions and feed the same fitted pose to
   renderer and collision/IK validity checks; no new visual/platform acceptance.
+  Live world-space foot supports integrated in GoatHerd/GoatState; renderer consumes
+  authoritative pose.180ms bounded swings/terrain landings, at least2supports, reach
+  checks for body travel/turns. Waiting-for-step separated from collision avoidance
+  after head-on regression failed; original escape/tolerance tests retained.0.1mm
+  contact separation inside existing0.15mm sole/1mm mesh tolerance. Full47CPU PASS111.75s,
+  actual mesh envelope/support/determinism tests pass.20ms quiet/observer audit now
+  zero measured stance drift over25563/23569 pairs, minimum30s travel2.87275/3.09094m;
+  previous12–13cm stop jumps absent in these cases. Native034322.249615Z-goats8-stage
+  PASS/kernel[], montage inspected. Hoof rotational locking/body smoothness/self-contact,
+  continuous visual and portable qualification remain open; docs/goats.md retains failures.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

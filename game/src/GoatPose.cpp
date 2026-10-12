@@ -88,7 +88,12 @@ GoatPoint GoatGroundPose::ToWorld(GoatPoint p) const noexcept {
         origin.y+scale*(right.y*p.x+up.y*p.y+forward.y*p.z),
         origin.z+scale*(right.z*p.x+up.z*p.y+forward.z*p.z)};
 }
-GoatGroundPose FitGoatGroundPose(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
+GoatPoint GoatGroundPose::ToLocal(GoatPoint p) const noexcept {
+    const GoatPoint d{p.x-origin.x,p.y-origin.y,p.z-origin.z};
+    return {(d.x*right.x+d.y*right.y+d.z*right.z)/scale,
+        (d.x*up.x+d.y*up.y+d.z*up.z)/scale,(d.x*forward.x+d.y*forward.y+d.z*forward.z)/scale};
+}
+GoatGroundPose MakeGoatBodyFrame(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
     float x,float z,float heading,float phase,float speed,float scale) {
     if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>TerrainMeshLayout::Extent-4
         ||std::abs(z)>TerrainMeshLayout::Extent-4||!std::isfinite(heading)
@@ -103,6 +108,11 @@ GoatGroundPose FitGoatGroundPose(const IslandTerrain& terrain,const RenderedTerr
     pose.forward=Unit(Cross(pose.right,pose.up));
     pose.scale=scale;
     pose.bodyBob=.008f*std::abs(std::sin(2*std::fmod(phase,Tau)))*std::min(speed/GoatLegPose::WalkingSpeed,1.0f);
+    return pose;
+}
+GoatGroundPose FitGoatGroundPose(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
+    float x,float z,float heading,float phase,float speed,float scale) {
+    auto pose=MakeGoatBodyFrame(terrain,surface,x,z,heading,phase,speed,scale);
     for(std::size_t leg=0;leg<4;++leg) {
         const auto flat=EvaluateGoatLeg(phase,speed,pose.bodyBob,leg);
         const auto residual=[&](float height) {

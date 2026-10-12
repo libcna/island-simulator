@@ -1,5 +1,38 @@
 # island-simulator handoff
 
+## Latest — live planted-foot anchors integrated, sampled slide fixed
+
+GoatHerd private Feet retain world sole position/start/target/progress/swinging.
+AdvanceFeet uses180ms smoothstep +.09scale sin² arch; at most2swing/1new per20ms.
+Four-beat phase triggers walking; neutral error>.08m or>.025m near-stationary triggers
+replant. Landing forward bias.18*speed/max; fallback neutral if reach-limited. Candidate
+body moves/turns use ContactPose with RetargetGoatLeg; unreachable progress not adopted.
+GoatState.pose is authoritative (default equality includes pose); renderer, herd tests,
+stance auditor all use it. Added ToLocal/MakeGoatBodyFrame to avoid redundant terrain-leg
+solves; removed renderer's unused terrain ref/height cache. Mesh/assets/GPU budgets same.
+
+Initial regression failed head-on avoidance: foot-reach wait wrongly triggered obstacle
+rerouting. TryMove now sets waitingForStep flag; body pauses but route intent stays and
+feet keep stepping. Smaller stationary-replant threshold enables turn support.0.1mm
+ContactSeparation remains INSIDE unchanged0.15mm sole/1mm mesh tolerances. Intermediate
+CPU failures retained build/goat-anchors-{tests,recovery-tests,contact-tests,probe-tests}.log.
+Final inclusive build+47CPU PASS111.75s: goat-anchors-final-{build,tests}.log. New checks
+stance motion<.1mm,>=2supports, all poses reachable, inverse transform, real mesh1.25m
+clearance envelope.90s travel8.50997–27.7957m, observer7.57935m/head-on7.01376m,
+min near-hoof clearance-.000240326m, initial fingerprint0a98cb638125508f unchanged.
+goat-anchors-final-audit.jsonl quiet25563/observer23569 stance pairs,0over1mm, measured
+step/drift0 at float precision; minimum30s travel2.87275/3.09094m. Auditor now rejects
+immobilized herd. Not proof of all future routes or rotational hoof locking.
+
+Actual contained native034322.249615Z-goats8-stage PASS/kernel[], full montage
+build/goat-anchors-montage.png inspected: graze/turn/walk preserved, changed leg poses.
+Still sparse images, not continuous naturalness acceptance. Body stop/acceleration,
+hoof rotation about fixed centre, self-contact and extended routes remain open.
+No new Web/Android build/runtime; latestAndroid predates 3Dsolver/liveanchors. All owned
+handles terminal (31273full0,70858capture0; earlier targeted failures preserved).
+Goalactive/nopush; no AMD hardware/emulator/KVM/dependency changes. Full prior scope,
+other species/environment tasks and high-priority unresolved AMD flight crash retained.
+
 ## Latest — 3D fixed-length goat leg solver, anchor integration still pending
 
 GoatPose.hpp/.cpp adds RetargetGoatLeg(reference,target,leg). Arbitrary lateral target,
