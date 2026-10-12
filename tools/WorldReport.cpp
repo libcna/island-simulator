@@ -26,6 +26,7 @@
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
+#include "IslandSimulator/ResidentMotion.hpp"
 
 #include <algorithm>
 #include <array>
@@ -127,6 +128,7 @@ namespace
         std::unique_ptr<island::SnakePopulation> snakes;
         std::unique_ptr<island::GoatHerd> goats;
         std::unique_ptr<island::SpiderColony> spiders;
+        std::unique_ptr<island::ResidentMotion> resident;
 
         WorldSnapshot()
         {
@@ -152,6 +154,7 @@ namespace
             hut=island::HutLayout::FindInWorld(terrain,jungle,worldObstacles);
             if(hut) worldObstacles.push_back({hut->x,hut->z,island::HutLayout::CollisionRadius});
             collisionGrid.Reset(worldObstacles);
+            resident=std::make_unique<island::ResidentMotion>(terrain,collisionGrid.Obstacles());
             monkeys.SetObstacles(collisionGrid.Obstacles());
             monkeys.SetCanopy(jungle.Canopy());
             boars.SetObstacles(collisionGrid.Obstacles());
@@ -458,6 +461,10 @@ namespace
                 for(const auto joint:{chain.root,chain.hip,chain.knee,chain.foot})HashPosition(hash,joint.x,joint.y,joint.z);
             }
         }
+        const auto& resident=world.resident->State();
+        HashPosition(hash,resident.x,resident.y,resident.z);hash.AddFloat(resident.heading);
+        hash.AddSize(world.resident->Route().Points().size());
+        for(const auto p:world.resident->Route().Points())HashPosition(hash,p.x,p.y,p.z);
         return hash.Value();
     }
 
@@ -757,11 +764,17 @@ namespace
                 && foot.groundY==surface.Sample(foot.x,foot.z).height
                 && h.floorY-foot.groundY>=island::HutLayout::FloorClearance-0.00001f;
         }
+        const auto& resident=world.resident->State();
+        const bool validResident=world.resident->Route().Points().size()>=5
+            &&world.resident->Route().Length()>400
+            &&AllFinite(resident.x,resident.y,resident.z,resident.heading,resident.pose.pelvisY)
+            &&island::ResidentRoute::SafePoint(world.terrain,world.resident->Ground(),
+                world.collisionGrid,resident.x,resident.z);
         return validHut && terrain.finite && terrain.sampleCount == TerrainReportSampleCount
             && terrain.minimumShoreRadius > 150.0f
             && terrain.maximumShoreRadius < 300.0f
             && expectedPopulations && derivedCountsAgree
-            && finitePlacements && finiteSpecializedData
+            && finitePlacements && finiteSpecializedData && validResident
             && fingerprint == repeatedFingerprint;
     }
 
@@ -830,6 +843,10 @@ namespace
                <<"], \"solidTriangles\": "<<world.campfire.Vertices().size()/3
                <<", \"burningLogs\": "<<island::CampfireLayout::BurningLogCount
                <<", \"storedLogs\": "<<island::CampfireLayout::FirewoodCount<<"},\n"
+               << "  \"resident\": {\"count\": 1, \"position\": ["
+               <<world.resident->State().x<<','<<world.resident->State().y<<','<<world.resident->State().z
+               <<"], \"routePoints\": "<<world.resident->Route().Points().size()
+               <<", \"routeLengthMeters\": "<<world.resident->Route().Length()<<"},\n"
                << "  \"seeds\": {\n"
                << "    \"palms\": \"0x" << std::hex << seeds.palms
                << "\",\n"

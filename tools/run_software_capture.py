@@ -35,6 +35,32 @@ def validate_campfire_stages(log):
     return rows
 
 
+def validate_resident_stages(text):
+    rows=re.findall(r"resident motion stage=(\d+) updates=(\d+) visible=(\d+) position=(\S+) "
+                    r"speed=(\S+) mode=(\d+) feet=(\S+) triangles=(\d+)/(\d+)",text)
+    if len(rows)!=8 or [int(row[0]) for row in rows]!=list(range(8)):
+        raise RuntimeError("resident requires eight ordered gait stages")
+    positions=[];feet=[]
+    for stage,updates,visible,position,speed,mode,encoded_feet,body_triangles,shadow_triangles in rows:
+        try:
+            p=tuple(map(float,position.split(',')))
+            pair=[tuple(map(float,foot.split(',')[:3])) for foot in encoded_feet.split(';')]
+            valid=(int(updates)==(int(stage)+1)*8 and int(visible)==1 and len(p)==3
+                   and all(map(math.isfinite,p)) and math.isfinite(float(speed))
+                   and 0<=float(speed)<=1.01 and 0<=int(mode)<=3 and len(pair)==2
+                   and all(len(foot)==3 and all(map(math.isfinite,foot)) for foot in pair)
+                   and int(body_triangles)>=1000 and int(shadow_triangles)==24)
+        except ValueError:
+            valid=False
+        if not valid:raise RuntimeError("invalid resident pose or bounded render budget")
+        positions.append(p);feet.append(pair)
+    displacement=max(math.dist(positions[0],p) for p in positions[1:])
+    foot_motion=max(math.dist(feet[0][leg],pair[leg]) for pair in feet[1:] for leg in range(2))
+    if displacement<1.0 or foot_motion<0.15:
+        raise RuntimeError("resident did not complete visible body and planted-foot motion")
+    return {"positions":positions,"displacement":displacement,"foot_motion":foot_motion}
+
+
 def validate_snake_runtime_samples(log):
     """Validate sparse live-view motion, not continuous gait or visual quality."""
     rows = re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)", log)
@@ -454,7 +480,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "resident", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -546,6 +572,16 @@ def main():
                 for stage in range(8):
                     if not Path(str(capture)+f".spider-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing spider motion stage image")
+            if args.viewpoint=="resident":
+                motion=validate_resident_stages(log)
+                (evidence/"resident-motion.json").write_text(json.dumps(motion,indent=2)+"\n")
+                for stage in range(8):
+                    if not Path(str(capture)+f".resident-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing resident gait-stage image")
+                for marker in ("one adult resident uses original articulated human geometry",
+                               "resident capture visible 1; draws 2"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"resident integration diagnostic missing: {marker}")
             validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
             validate_antialiasing_log(diagnostics, 0)
             if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:

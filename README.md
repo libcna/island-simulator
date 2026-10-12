@@ -53,6 +53,11 @@ A stone-ringed campfire burns in the eastern clearing, with animated flames, emb
 subtle smoke/sparks, nearby flickering light and positional wood crackling. A separate
 stack of gathered firewood sits about6m away. See [campfire evidence](docs/campfire.md)
 for the native first pass and remaining visual/portable checks.
+Exactly one peaceful adult resident now follows a deterministic688m inland tour with pauses,
+terrain-fitted planted feet and player yielding. The original procedural model has facial and
+hair geometry, woven clothes, a small generated material atlas, sandals and sole shadows. Use
+`--viewpoint resident` for the fixed eight-stage review; [resident evidence](docs/resident.md)
+records the native first pass and its remaining artistic and portable limitations.
 Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
 preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
 An animated tropical

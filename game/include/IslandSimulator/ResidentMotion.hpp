@@ -32,8 +32,8 @@ struct ResidentState {
     ResidentPose pose;
     bool operator==(const ResidentState&)const=default;
 };
-// Exactly one peaceful adult. This CPU controller does not install a visible character;
-// rendering and model provenance must be integrated before claiming a resident in the game.
+// Exactly one peaceful adult. Rendering consumes this authoritative planted-foot pose;
+// the controller itself remains independent of graphics and platform APIs.
 class ResidentMotion final {
 public:
     static constexpr float WalkingSpeed=.95f,SwingSeconds=.45f;

@@ -1657,8 +1657,14 @@ Human character backlog requested by the operator:
   CPU movement foundation implemented:25-point688m deterministic closed tour through actual
   world obstacles, bounded walking/turning/pauses, player yield/resume and planted human
   soles with fixed-length leg IK.20-minute repeated-controller simulation and foot/ground/
-  obstacle tests pass. Model/materials, renderer and actual game actor are NOT implemented
-  yet; see `docs/resident.md`. This is progress toward the character, not visual completion.
+  obstacle tests pass. Exactly one actor is now LIVE in IslandGame: original3638-triangle
+  procedural adult geometry, articulated face/hair/hands, woven clothes, belt and sandals,
+  generated128-square skin/hair/cloth/fibre atlas, two fitted sole shadows and distance culling.
+  Dedicated64-update/eight-stage native capture passed and was visually inspected; measured
+  body/foot motion is1.979m. The second pass corrected oversized eyes, lumpy side hair and
+  bulky sleeves, but face, cloth drape and skin response remain visibly procedural/angular.
+  Sidestepping, representative performance and actual Web/Android visual/lifecycle QA remain;
+  see `docs/resident.md`. This is not final visual completion.
 
 Landmark backlog requested by the operator:
 

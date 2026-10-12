@@ -1,13 +1,22 @@
-# Island resident — movement foundation in progress
+# Island resident — native first pass in progress
 
 The operator requested exactly one dark-skinned adult fictional resident with believable
 human proportions, textured skin/hair and practical woven-cloth/plant-fibre tropical
 clothing. Natural walking/turning, pauses, terrain-aware foot placement and obstacle/player
 avoidance are required. No combat, quests, trading or compulsory interaction is planned.
 
-**There is no visible resident in IslandGame yet.** The renderer-independent controller
-and grounded body pose now exist. They do not satisfy the model, material, appearance or
-supported-platform visual requirements. Do not mark the resident PLAN entry complete.
+Exactly one resident is now simulated and visible in IslandGame. The native first pass has
+an original procedural human mesh driven directly by the grounded pose below. It includes
+an articulated torso, neck/head, facial features, close-cropped hair, hands, jointed limbs,
+woven sleeveless clothes, belt and plant-fibre sandals. A generated128x128 mipmapped atlas
+adds separate restrained skin grain, hair curl, cloth weave and fibre patterns. No downloaded
+human model, cultural costume or third-party character art is used.
+
+The captured model is deliberately recorded as a first pass rather than final realism: its
+silhouette and face now read as an adult human, but the clothing remains angular, skin shading
+is coarse and the procedural facial anatomy needs more refinement. Native evidence does not
+satisfy Web/Android appearance or representative hardware performance requirements. Keep the
+resident PLAN entry in progress.
 
 ## Deterministic tour
 
@@ -29,8 +38,8 @@ The route follows dry, walkable ground. It does not require a new island navigat
 ResidentMotion owns the terrain cache and copied collision grid and refers to an immutable
 IslandTerrain which must outlive it. The usual walking pace is0.95m/s, reduced on slopes;
 heading turns are bounded. Named stops pause6–10s. A nearby grounded player makes the
-resident pause/yield; movement resumes when the player leaves. Sidestepping and visible
-human/player interaction still need integration and review.
+resident pause/yield; movement resumes when the player leaves. The visible actor currently
+stops rather than sidestepping, so stronger player separation still needs integration/review.
 
 The controller keeps two world-space planted soles. One foot swings at a time, with a
 bounded lift and a terrain-fitted landing. Heel/toe/side probes fit the emitted terrain
@@ -43,7 +52,7 @@ This is physical posing, not evidence that the final human animation looks natur
 Large elapsed times are clamped to0.1s and subdivided into at most0.02s steps; invalid
 times do not move the actor. No background worker, graphics context or audio source is used.
 
-## Native CPU evidence
+## Native CPU and visual evidence
 
 IslandResidentTests runs two identical controllers through1200 simulated seconds against
 the actual generated world. Their routes, state and poses are exactly equal. The resident
@@ -59,15 +68,30 @@ The final tests pass in Release1.19s and Debug6.67s, including full foot-obstacl
 The independent world grid also verifies the body's clearance. Timing varies with the host;
 these are CPU test durations, not game FPS measurements.
 
+The dedicated `--viewpoint resident` run advances a fixed0.1s clock for64 updates and captures
+eight ordered stages. Native llvmpipe evidence
+`build-consumer/software-captures/20261012T191806.756957Z-resident` passed the isolated
+kernel-monitored runner. It shows one visible actor, two bounded draws (body plus two sole
+contact shadows),3638 body triangles and24 shadow triangles. The measured actor displacement
+is1.979m and planted/swinging foot motion1.979m. All eight images and the final1280x720 image
+were inspected; the second visual iteration reduced oversized eyes, side hair lumps, sleeve
+bulk and hand/arm thickness. This is software-renderer evidence, not AMD hardware qualification.
+
+Texture accounting now includes the complete87,380-byte resident atlas mip chain. Runtime
+generation is deterministic and the material source is the project-owned algorithm in
+`ResidentRenderer.cpp`. The static mesh budget is40,000 streamed vertices; the current model
+uses10,914 vertices per frame in one body upload/draw, plus72 shadow vertices.
+
 ## Required next work
 
-- Build the human model, facial detail, hair and practical clothes, with explicit material
-  and asset provenance; all new controller code is original project code.
-- Bind the pose to a portable renderer, integrate exactly one actor into IslandGame and
-  WorldReport, and keep simulation/render work bounded by distance.
-- Add close and moving in-world QA cameras, contact shadows and actual appearance review.
-- Check player sidestepping, gait/turn transitions and representative performance.
+- Refine the procedural face, shoulders, cloth drape, hands and skin response beyond the
+  visibly angular native first pass.
+- Add real player sidestepping/separation and review gait/turn transitions and performance.
 - Perform consolidated native/Web/Android model, motion and lifecycle qualification.
 
-The normal game is still the campfire/cave build. No resident visibility, final artistic
-quality or portable runtime claim is made by these CPU results.
+Exactly one actor, native visibility and deterministic movement are now real game behavior.
+Final artistic quality and portable runtime acceptance are not claimed.
+
+The Emscripten Release target also compiles and links the new renderer without native-only
+branches. That is only a portability build result; no browser frame, WebGL lifecycle or motion
+quality claim is based on it.

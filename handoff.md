@@ -1,11 +1,25 @@
 # island-simulator handoff
 
-## Current work — resident movement foundation, visible model next
+## Current work — resident native first pass live and inspected
 
-Goal active. New ResidentRoute/ResidentMotion are original CPU-only modules, NOT wired into
-IslandGame or WorldReport. There is no resident visible yet. Next priority: model/materials,
-portable renderer, game integration and actual close/moving visual audit; then remaining
-bear/helicopter/fauna/portable work. Preserve all human requirements; PLAN resident[~].
+Goal active. Exactly one resident is now wired into IslandGame and WorldReport. New
+ResidentRenderer streams one original3638-triangle articulated adult, driven directly by the
+authoritative planted-foot pose. It has face/ears/nose/eyes/lips, close-cropped hair, hands,
+woven sleeveless clothes/belt and plant-fibre sandals; generated128-square atlas has skin,
+hair, cloth and fibre regions (87,380-byte full mip chain). Two terrain-fitted sole shadows
+bring the visible path to2bounded draws. No downloaded character/cultural asset. Native
+`--viewpoint resident` fixed clock captures8stages/64updates. Final inspected evidence
+20261012T191806.756957Z-resident PASS/kernel clean: one visible actor,3638/24body/shadow
+triangles,1.979m body and foot motion. First frame was too cartoonish; second pass reduces
+eyes, side-hair lumps, sleeve/arm/hand bulk. It is still visibly procedural/angular—face,
+cloth drape and skin lighting need polish; actual Web/Android and hardware performance remain open.
+WorldReport Release/Debug PASS and now exports count1,25points,688.2493m; fingerprint
+26c8147e841cd6a6. Release Core/Resident PASS2/2, Debug Resident/WorldReport PASS2/2,
+software-runner51/51. Emscripten Release target compiles/links with ResidentRenderer; this is
+source portability only, not an actual browser visual result. Next: commit, then continue
+bear/helicopter/fauna/portable work.
+Preserve all human requirements; PLAN resident[~], whole goal active.
+
 The actual-world tour has25points/688.249m through5 landmarks: fire clearing, north corridor,
 west clearing, south corridor, central trail. Deterministic A* with cached3m nodes/edges and
 verified line simplification; refuses disconnected tours, no vegetation deletion/teleports.
@@ -20,7 +34,7 @@ penetration, fixedleg/arm lengths, fullfoot discs clear obstacles, yield/resume 
 world refusal. Final ReleasePASS1.19s/DebugPASS6.67s incl full foot/body obstacle assertions.
 Initial deadlock at body rejection fixed by allowing airborne foot to finish;
 final8 rejectedmicrosteps recover. Do not weaken these tests or claim human visuals complete.
-See docs/resident.md. Current native game still campfire/cave; no model/renderer changes yet.
+See docs/resident.md. Do not mark resident complete until sidestep/art refinement and portable QA.
 
 ## Latest implementation — campfire functional native pass
 

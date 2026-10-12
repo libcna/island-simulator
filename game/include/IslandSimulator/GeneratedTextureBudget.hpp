@@ -22,6 +22,8 @@ namespace island
         static constexpr int CanopyLightSize = 1024;
         static constexpr int BoarCoatSize = 256;
         static constexpr int SnakeScaleSize = 64;
+        static constexpr int ResidentMaterialSize = 128;
+        static constexpr std::size_t ResidentMaterialMipBytes = 87380U;
         static constexpr std::size_t MonkeyFurMipBytes = 1398100U;
         static constexpr std::size_t HutThatchMipBytes = 349524U;
         static constexpr int GoatFurSize = 256;
@@ -46,6 +48,7 @@ namespace island
                                        * SolidWhiteTextureCount)
             + static_cast<std::size_t>(CanopyLightSize * CanopyLightSize)
             + static_cast<std::size_t>(SnakeScaleSize * SnakeScaleSize)
+            + static_cast<std::size_t>(ResidentMaterialSize * ResidentMaterialSize)
             + static_cast<std::size_t>(GrassHeightSize * GrassHeightSize);
         static constexpr std::size_t TotalRgba8Bytes =
             TotalPixelCount * static_cast<std::size_t>(BytesPerPixel);
@@ -53,9 +56,11 @@ namespace island
         // Excludes decoder temporaries, CNA CPU shadows, driver padding and framebuffer storage.
         static constexpr std::size_t TotalRuntimeRgba8Bytes =
             TotalRgba8Bytes + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
-            + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes + SpiderSetaeMipBytes + BoarCoatRgba8Bytes;
+            + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes + SpiderSetaeMipBytes
+            + BoarCoatRgba8Bytes + ResidentMaterialMipBytes
+            - static_cast<std::size_t>(ResidentMaterialSize * ResidentMaterialSize * BytesPerPixel);
     };
 
-    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4586636U,
+    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4652172U,
                   "Update the generated texture audit when the base-level payload changes");
 }

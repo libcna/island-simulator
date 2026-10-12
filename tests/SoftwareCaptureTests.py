@@ -23,6 +23,7 @@ from run_software_capture import (
     validate_spider_lighting,
     validate_spider_habitat_selection,
     validate_campfire_stages,
+    validate_resident_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import (geometry, worker as fullscreen_worker,
@@ -54,6 +55,24 @@ class SoftwareCaptureTests(unittest.TestCase):
                     good.replace("updates=8 ","updates=9 "),good.replace("draws=2","draws=0"),
                     good.replace("triangles=42","triangles=420")):
             with self.assertRaises(RuntimeError):validate_campfire_stages(bad)
+    def test_resident_gait_stages_and_corruptions(self):
+        rows=[]
+        for stage in range(8):
+            distance=max(0,stage-2)*.35
+            speed=0 if stage<3 or stage==7 else .78
+            rows.append(f"resident motion stage={stage} updates={(stage+1)*8} visible=1 "
+                        f"position={42-distance},23.8,{-12+distance} speed={speed} mode={1 if stage<3 else 0} "
+                        f"feet={41.9-distance},23.8,{-12+distance},1;{42.1-distance},23.8,{-11.9+distance},0 "
+                        "triangles=3638/24")
+        good="\n".join(rows)
+        result=validate_resident_stages(good)
+        self.assertGreater(result["displacement"],1)
+        for bad in ("",good+"\n"+good,good.replace("stage=1","stage=0"),
+                    good.replace("updates=8 ","updates=9 "),good.replace("visible=1","visible=0"),
+                    good.replace("triangles=3638/24","triangles=10/24"),
+                    good.replace("triangles=3638/24","triangles=3638/0"),
+                    good.replace("position=42.0,23.8,-12.0","position=nan,23.8,-12.0")):
+            with self.assertRaises(RuntimeError):validate_resident_stages(bad)
     def test_cave_traversal_and_corruptions(self):
         points=[(0,0,-8,0,0),(0,.49,19.65,0,0),(0,1.7,19.65,1,0),
                 (0,.50,19.65,0,0),(0,0,-6,0,0)]

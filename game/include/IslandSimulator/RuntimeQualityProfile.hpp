@@ -31,6 +31,7 @@ namespace island
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
+                    + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + 160U * 1024U, 6, 4};
         }
 
@@ -51,6 +52,7 @@ namespace island
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
+                    + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + 160U * 1024U, 6, 2};
         }
 
@@ -66,6 +68,7 @@ namespace island
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
                     + GeneratedTextureBudget::GoatFurMipBytes
                     + GeneratedTextureBudget::SpiderSetaeMipBytes
+                    + GeneratedTextureBudget::ResidentMaterialMipBytes
                     + 160U * 1024U, 6, 0};
         }
 
