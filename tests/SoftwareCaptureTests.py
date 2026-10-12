@@ -17,6 +17,7 @@ from run_software_capture import (
     inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
     validate_monkey_tree_stages, validate_monkey_climb_stages, validate_snake_motion_stages,
     validate_goat_motion_stages,
+    validate_boar_motion_stages,
     validate_spider_motion_stages,
     validate_spider_render_log,
     validate_spider_lighting,
@@ -28,6 +29,18 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_boar_capture_clock_and_corruptions(self):
+        good = ''.join(f"island-simulator: boar motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} "
+                       "visible=1 position=1,2,3 speed=0 phase=0 rooting=0.5\n" for i in range(8))
+        self.assertEqual(len(validate_boar_motion_stages(good)["samples"]), 8)
+        for bad in ("", good+good, good.replace("stage=7", "stage=6"),
+                    good.replace("updates=8 ", "updates=9 "), good.replace("time=0.8", "time=nan"),
+                    good.replace("visible=1", "visible=0"), good.replace("1,2,3", "1,inf,3"),
+                    good.replace("speed=0", "speed=-1"), good.replace("phase=0", "phase=7"),
+                    good.replace("rooting=0.5", "rooting=2")):
+            with self.subTest(bad=bad), self.assertRaises(RuntimeError):
+                validate_boar_motion_stages(bad)
+
     def test_spider_bright_camera_selects_existing_habitat(self):
         rows = ''.join(f"spider habitat candidate={i} transmission={0.9 if i in (4, 7) else 0.1}\n"
                        for i in range(12))

@@ -2,6 +2,27 @@
 
 ## Runtime integration
 
+### Shorter nasal region and short muzzle fur
+
+The shared `BoarMuzzleZ` now compresses only the region in front of z0.78 by0.70,
+moving the tip from1.060 to0.976m. Cheeks/ear locations and all limb/foot anchors
+remain unchanged. Body rings, fitted mouth, outer eye rim, nose disc, nostrils and
+tusks use the same mapping; nose/nostril/tusk depth dimensions scale consistently.
+Rooting coefficients and vertical positions are unchanged.
+
+`BoarFurAlong` is continuous at the bridge but reverses into a denser interior source
+window toward the nose. The muzzle uses over six times the longitudinal UV density
+of the body, so nasal hair is shorter instead of long trunk-scale streaks. Regression
+checks tip/identity/UV continuity/range/density plus existing fitted face triangles,
+all rooting poses and foot contact. Focused pose/herd/coat PASS11.19s.
+
+Actual contained064822.203943Z-boars PASS332bins/std44.06/spatial195.44/kernel[],
+image `build/boar-muzzle-after.png` inspected. Nose-region fur is finer; the head
+still has coarse cheek streaks and angular ear/limb transitions. This camera's animal
+pose changed with wall time, so it is not an exact pose-matched comparison. A fixed
+boar capture clock and multi-pose review remain desirable before broad visual claims.
+No portable build/runtime, no new texture/allocation/draw count in this refinement.
+
 The game now requires `Content/wildlife/boar-bristle.png`, prepared at256square,
 with9runtime mip levels/349524RGBA8bytes. Missing content fails rather than falling
 back to the rejected procedural coat. Body and upper legs use the RGB source with
@@ -85,3 +106,16 @@ No runtime code, GPU allocation, packaged content or displayed boar changed in t
 earlier source-only step. Current runtime changes are recorded above; visual work remains open.
 Asset manifest validation and prepared-material regression tests PASS9.06s
 (`build/boar-bristle-source-tests.log`). No native/Web/Android runtime test in this step.
+## Repeatable live capture sequence
+
+The `boars` file-capture viewpoint now advances simulation/render animation at
+0.1 seconds per update without wall-time catch-up. It follows only subject
+translation and writes eight poses at frames 8 through 64. Normal gameplay is
+unchanged. The capture harness checks stage order, clocks, finite/ranged state,
+visibility, and image presence; these checks do not establish artistic quality.
+
+Native software run `20261012T065903.868384Z-boars` passed, with an empty kernel
+incident log. Actual stages 0/2/4/7 were inspected: rooting transitions to walking,
+but coarse coat streaks, angular ears and foliage-obscured rear views remain.
+Reproducibility still needs a second run and state comparison. Native build and
+43 harness tests passed; Web/Android were not rebuilt for this change.

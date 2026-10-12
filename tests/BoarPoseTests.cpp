@@ -24,6 +24,15 @@ int main()
     for(int step=0;step<=30;++step) for(float bob:{0.0f,0.018f}) {
         const float dip=static_cast<float>(step)*0.005f;
         const auto profile=MakeBoarBodyProfile(dip);
+        check(std::abs(profile.back().z-.976f)<1e-6f,"short muzzle tip changed");
+        check(BoarMuzzleZ(.75f)==.75f,"nasal shortening moves cheek/eye centre");
+        check(std::abs(BoarFurAlong(.78f-1e-6f)-BoarFurAlong(.78f+1e-6f))<1e-5f,
+            "muzzle UV window disconnects at bridge");
+        for(const auto& ring:profile)check(BoarFurAlong(ring.z)>=.0999f&&BoarFurAlong(ring.z)<=.9001f,
+            "muzzle fur leaves interior texture window");
+        const float muzzleDensity=std::abs((BoarFurAlong(.95f)-BoarFurAlong(.85f))/.10f);
+        const float bodyDensity=(BoarFurAlong(.2f)-BoarFurAlong(0))/.2f;
+        check(muzzleDensity>bodyDensity*6,"nasal hairs remain stretched like body fur");
         check(BoarBackHeight(profile,.25f,0)-BoarBackHeight(profile,-.4f,0)>.16f,
             "boar shoulder lost its distinct rise over the rump");
         for(int index=0;index<BoarBristleCount;++index)for(bool juvenile:{false,true}) {

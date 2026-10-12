@@ -20,7 +20,7 @@ inline std::array<BoarJoint,42> BuildBoarMouth(int side,float dip,float bob) {
         const float halfWidth=std::lerp(width(span),width(span+1),t);
         const float height=std::lerp(y[span],y[span+1],t)
             -dip*std::lerp(dipWeight[span],dipWeight[span+1],t)+(edge==0?-halfWidth:halfWidth);
-        const float depth=std::lerp(z[span],z[span+1],t);
+        const float depth=BoarMuzzleZ(std::lerp(z[span],z[span+1],t));
         result[i*2+edge]={static_cast<float>(side)*(BoarHeadSurfaceX(profile,height,depth)+0.002f),
             height+bob,depth};
     }

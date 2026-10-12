@@ -12,8 +12,8 @@ namespace island
                  {-0.40f, 0.65f, 0.285f, 0.29f}, {-0.08f, 0.68f, 0.300f, 0.31f},
                  {0.25f, 0.74f, 0.31f, 0.37f}, {0.47f, 0.65f - dip * 0.15f, 0.245f, 0.29f},
                  // Broad cheek transitions into a narrower nasal bridge instead of one
-                 // straight wedge from the forehead to the nose. Keep the nose anchor,
-                 // body envelope, limb roots and rooting-dip coefficients unchanged.
+                 // straight wedge from the forehead to the nose. These authored stations
+                 // retain rooting coefficients; the shared nasal shortening is applied below.
                  {0.62f, 0.61f - dip * 0.45f, 0.235f, 0.235f},
                  {0.78f, 0.535f - dip * 0.8f, 0.19f, 0.155f},
                  {0.91f, 0.46f - dip, 0.13f, 0.105f},
@@ -37,6 +37,7 @@ namespace island
                 midpoint(&BoarBodyRing::radiusX),midpoint(&BoarBodyRing::radiusY)};
         }
         result.back()=anchors.back();
+        for(auto& ring:result)ring.z=BoarMuzzleZ(ring.z);
         return result;
     }
 

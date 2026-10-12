@@ -76,6 +76,30 @@ def validate_snake_motion_stages(text):
     return bodies
 
 
+def validate_boar_motion_stages(text):
+    """Validate the capture clock and finite poses, not artistic quality or gait."""
+    rows = re.findall(r"^island-simulator: boar motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
+                      r"position=(\S+) speed=(\S+) phase=(\S+) rooting=(\S+)$", text, re.M)
+    if len(rows) != 8 or text.count("boar motion stage=") != 8 or [int(r[0]) for r in rows] != list(range(8)):
+        raise RuntimeError("boar capture requires eight ordered stages")
+    samples = []
+    for stage, updates, elapsed, visible, point, speed, phase, rooting in rows:
+        try:
+            p = tuple(map(float, point.split(',')))
+            s, ph, root, t = map(float, (speed, phase, rooting, elapsed))
+            expected = (int(stage)+1)*8
+            valid = (int(updates) == expected and math.isclose(t, expected*.1, abs_tol=1e-5)
+                     and 1 <= int(visible) <= 6 and len(p) == 3 and all(map(math.isfinite, p))
+                     and all(map(math.isfinite, (s, ph, root))) and 0 <= s <= 3
+                     and 0 <= ph <= math.tau+1e-5 and 0 <= root <= 1)
+        except ValueError:
+            valid = False
+        if not valid:
+            raise RuntimeError("invalid boar capture state or clock")
+        samples.append(dict(position=p, speed=s, phase=ph, rooting=root, time=t))
+    return {"samples": samples}
+
+
 def validate_goat_motion_stages(text):
     """Eight live samples: presentation/motion evidence, not an anatomy/contact oracle."""
     rows = re.findall(r"^island-simulator: goat motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
@@ -467,6 +491,12 @@ def main():
                 for stage in range(4):
                     if not Path(str(capture)+f".snake-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing snake motion stage image")
+            if args.viewpoint == "boars":
+                motion = validate_boar_motion_stages(log)
+                (evidence / "boar-motion.json").write_text(json.dumps(motion, indent=2) + "\n")
+                for stage in range(8):
+                    if not Path(str(capture)+f".boar-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing boar motion stage image")
             if args.viewpoint == "goats":
                 motion = validate_goat_motion_stages(log)
                 (evidence / "goat-motion.json").write_text(json.dumps(motion, indent=2) + "\n")

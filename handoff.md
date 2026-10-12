@@ -1,5 +1,45 @@
 # island-simulator handoff
 
+## Operator build limit — 2026-10-12
+
+All future compilations must use at most four CPU cores, per explicit user request.
+Use `-j4` / `--parallel 4` or fewer workers; never unbounded parallelism or `-j$(nproc)`.
+Also bound nested compiler/tool workers (Emscripten, Binaryen, Gradle/native builds)
+and serialize builds so their combined compilation load stays within this limit.
+Use CPU affinity to at most four allowed logical CPUs when tools spawn internal
+workers. Existing `-j2` builds remain appropriate. This overrides older uncapped
+build guidance; do not change Android/emulator/KVM configuration.
+
+## Latest — shorter boar muzzle and denser short-hair nasal mapping
+
+Follow-up: boar capture now advances by0.1s/update with fixed-step catch-up disabled,
+uses that clock for renderer animation, follows subject translation only, and saves
+eight stages at8..64frames. Normal gameplay/audio inspection unchanged. New capture
+validator checks ordered clocks/finite states/ranges and all eight image files;
+43 preflight tests PASS0.081s, native incremental build25018exit0 with taskset0-3/-j2.
+Actual contained capture63302exit0:20261012T065903.868384Z-boars PASS318bins/std46.82/
+spatial221.77/kernel[]. Stages0/2/4/7 montage build/boar-clock-stages.png ACTUALLY
+viewed: forage-to-walk/rooting.96->0, speed.11->.85; coarse fur streaks/angular ears,
+rear partly obscured by existing vegetation. No artistic acceptance. Repeat capture
+and compare boar-motion.json to verify reproducibility next; only one deterministic
+run so far. No Web/Android qualification. All owned process handles terminal.
+
+Previousa33958f was progress. BoarMuzzleZ inBoarPose.hpp compresses authoredz>.78
+by.70; tip1.060->.976m. Body profile, fitted mouth/outereye rim, nose/nostrils/tusks
+sharetransform; depth radii .7 too. Feet/limbs/ears/vertical rooting unchanged.
+BoarFurAlong continuous atbridge, reverses into denser sourcewindow towardnose,
+>6x body longitudinal density. No newtexture/buffer/draw change. Regression adds
+tip/identity/UVcontinuity/range/density, originalface-groundcontact tests retained.
+Build14253exit0 and focusedpose/herd/coat PASS11.19s. Actual contained97120exit0
+064822.203943Z-boars PASS332bins/std44.06/spatial195.44/kernel[]. Actual
+build/boar-muzzle-after.png inspected: finer nosefur, stillcoarsecheekstreaks/ears/
+limbjoins. Pose differsfromlastview duewall-timecapture; NOTstrictbeforeafterproof.
+NEXT deterministic boarcaptureclock/multi-poseinspection orremainingrealism fixes;
+fullotherpriorities hut/stream/cave/helicopter etc remainopen. Noportablebuild/runtime.
+Full CPU handle41527 completed with exit0: all55 groups PASS207.54s.
+Logs build/boar-muzzle-{build,tests,full-tests}.log. Reusedbuild/-j2/cache.
+NoAMD/KVM/Android/dependencychanges. Goalactive/no push.
+
 ## Latest — generated boar coat LIVE, muzzle mapping still needs refinement
 
 Previous565ddda was progress. BoarRenderer now requires256squareRGB

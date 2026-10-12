@@ -54,6 +54,7 @@ inline std::array<BoarJoint,17> BuildBoarEye(int side,float dip,float bob) {
     const float centreY=0.61f-dip*0.65f;
     std::array<BoarJoint,17> result{};
     const auto point=[&](float y,float z,float lift) {
+        z=BoarMuzzleZ(z);
         return BoarJoint{static_cast<float>(side)*(BoarHeadSurfaceX(profile,y,z)+lift),y+bob,z};
     };
     for(int ring=0;ring<2;++ring) for(int i=0;i<8;++i) {

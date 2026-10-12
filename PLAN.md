@@ -20,8 +20,21 @@ CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
 ## Latest operator priorities — 2026-10-12
 
+Build constraint: all future compilations are limited to at most four CPU cores
+by explicit user request. Use `-j4` / `--parallel 4` or fewer workers, bound nested
+tool workers, and serialize builds. Where tools use internal threads, restrict
+the build process tree to at most four allowed logical CPUs. This supersedes
+older uncapped build guidance; existing `-j2` builds remain suitable.
+
 These are additive requirements, not a replacement for the remaining plan. Prioritize
 the renewed boar/monkey and hut requests over unfinished spider-web integration.
+
+Boar audit tooling follow-up: fixed0.1s capture-only clock, eight actual stages and
+translation-follow camera; normal game unchanged. Build with affinity0-3/-j2 and
+43 preflight tests passed. Native software20261012T065903.868384Z-boars passed,
+kernel journal empty; inspected four-stage montage shows forage-to-walk, remaining
+coarse fur/angular ears and vegetation obscuration. Repeat-run reproducibility and
+further art refinement remain; this is not final visual acceptance.
 
 - [ ] Rework boar appearance and resolve the operator's report of no audible grunting.
   Existing synthesized clips and earlier backend Playing-state tests are NOT evidence
@@ -57,6 +70,12 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   Actual final064239.018898Z-boars image inspected/PASS/kernel[]: obvious fur, but
   stretched muzzle streaks/coarse limb joins remain. Native build/full55CPU PASS136.47s.
   No Web/Android build/runtime or final visual acceptance; task stays open.
+  Nasal refinement: shared z-compression0.70 beyond bridge0.78 shortens tip8.4cm;
+  fitted mouth/eye edge/nose/nostrils/tusks follow, feet/ears unchanged. Continuous
+  short-hair UV window at>6x body density. Pose/herd/coat PASS11.19s; actual contained
+  064822.203943Z-boars inspected/PASS/kernel[]. Nose fur finer, cheeks/ears/limb joins
+  still coarse. Wall-time pose differs, so not a strict matched comparison; add
+  deterministic boar capture timing/multi-pose review. No portable qualification.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

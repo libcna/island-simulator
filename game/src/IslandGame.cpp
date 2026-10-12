@@ -881,7 +881,7 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         // Capture-only clock: no wall-time catch-up updates between recorded frames.
-        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock());
+        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock() && !UsesBoarCaptureClock());
         InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
@@ -1249,6 +1249,8 @@ namespace island
     {
         const bool snakeCaptureClock=UsesSnakeCaptureClock();
         const bool goatCaptureClock=UsesGoatCaptureClock();
+        const bool boarCaptureClock=UsesBoarCaptureClock();
+        if(boarCaptureClock)++boarCaptureUpdates_;
         const bool spiderCaptureClock=UsesSpiderCaptureClock();
         if(spiderCaptureClock)++spiderCaptureUpdates_;
         if(goatCaptureClock)++goatCaptureUpdates_;
@@ -1258,7 +1260,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
         }
         if(snakeCaptureClock) ++snakeCaptureUpdates_;
-        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock) ? 0.1f : std::min(
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock||boarCaptureClock) ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -1319,7 +1321,12 @@ namespace island
         butterflyMeadow_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const auto previousBoar=boarHerd_.Boars().front();
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        if(boarCaptureClock) {
+            const auto& current=boarHerd_.Boars().front();
+            cameraPosition_+=Vector3(current.x-previousBoar.x,current.y-previousBoar.y,current.z-previousBoar.z);
+        }
         const auto previousGoat=goats_->Goats().front();
         const auto previousSpider=spiders_->Spiders()[spiderViewSubject_];
         spiders_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
@@ -2387,7 +2394,8 @@ namespace island
         const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
             ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
             ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
-            ? static_cast<float>(spiderCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
+            ? static_cast<float>(spiderCaptureUpdates_)*0.1f : UsesBoarCaptureClock()
+            ? static_cast<float>(boarCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         {
             GpuDiagnosticScope gpuPass("natural-props");
@@ -3013,6 +3021,20 @@ namespace island
         }
         const bool snakeCapture = UsesSnakeCaptureClock();
         const bool goatCapture = UsesGoatCaptureClock();
+        const bool boarCapture = UsesBoarCaptureClock();
+        if(boarCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
+            GpuDiagnosticScope gpuPass("capture-readback");
+            CaptureFrame(capturePath_+".boar-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
+            const auto& subject=boarHerd_.Boars().front();
+            std::ostringstream report;report.precision(9);
+            report << "island-simulator: boar motion stage=" << drawnFrames_/8U-1U
+                << " updates=" << boarCaptureUpdates_ << " time=" << timeSeconds
+                << " visible=" << boarRenderer_->VisibleCount() << " position="
+                << subject.x << ',' << subject.y << ',' << subject.z
+                << " speed=" << subject.speed << " phase=" << subject.gaitPhase
+                << " rooting=" << subject.rootingPose;
+            std::cout << report.str() << std::endl;
+        }
         const bool spiderCapture = UsesSpiderCaptureClock();
         if(spiderCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
             GpuDiagnosticScope gpuPass("capture-readback");
@@ -3087,7 +3109,7 @@ namespace island
             std::cout << report << '\n';
             if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
-        const std::uint32_t targetFrames = goatCapture||spiderCapture ? 64U : snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture ? 64U : snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

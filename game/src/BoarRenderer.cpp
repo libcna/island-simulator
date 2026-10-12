@@ -166,7 +166,7 @@ namespace island
                     const float stripe = juvenile && ring.z < 0.45f
                         ? 1.0f + 0.16f * std::pow(std::max(0.0f, std::sin(angle * 6.0f)), 4.0f) : 1.0f;
                     const auto coat = wildlife_render::ScaleColor(color, grain * dorsal * stripe);
-                    const Vector2 uv(MonkeyFurUv::Along((ring.z + 0.72f) / 1.78f),
+                    const Vector2 uv(BoarFurAlong(ring.z),
                         MonkeyFurUv::Around(angle));
                     return SmoothVertex(point, Vector3(nx, ny, nz), coat, uv);
                 };
@@ -193,7 +193,7 @@ namespace island
             const float dip = boar.rootingPose * 0.15f;
             const std::array<Color,3> furTints{Color(245,239,229),Color(211,217,222),Color(255,240,218)};
             mesh.Body(furTints[boar.colorVariant%furTints.size()], dip, bob, boar.scale < 0.8f, sides);
-            mesh.Ellipsoid(Vector3(0, 0.42f - dip + bob, 1.047f), Vector3(0.114f, 0.09f, 0.025f),
+            mesh.Ellipsoid(Vector3(0, 0.42f - dip + bob, BoarMuzzleZ(1.047f)), Vector3(0.114f, 0.09f, 0.0175f),
                            Color(51, 44, 39), near ? 12 : 6, 4);
             for (int side : {-1, 1}) {
                 const float x = static_cast<float>(side);
@@ -260,13 +260,13 @@ namespace island
                         eyeTriangle(i,j,8+j,lid);eyeTriangle(i,8+j,8+i,lid);
                         eyeTriangle(16,8+i,8+j,Color(18,15,11));
                     }
-                    mesh.Ellipsoid(Vector3(x * 0.046f, 0.435f - dip + bob, 1.068f),
-                                   Vector3(0.021f, 0.013f, 0.009f), Color(17, 15, 13), 6, 3);
+                    mesh.Ellipsoid(Vector3(x * 0.046f, 0.435f - dip + bob, BoarMuzzleZ(1.068f)),
+                                   Vector3(0.021f, 0.013f, 0.0063f), Color(17, 15, 13), 6, 3);
                     if (boar.scale > 0.8f) {
-                        const Vector3 root(x * 0.125f, 0.375f - dip + bob, 0.91f);
-                        const Vector3 bend(x * 0.195f, 0.43f - dip + bob, 0.945f);
-                        const Vector3 tip(x * 0.205f, 0.505f - dip + bob, 0.92f);
-                        const Vector3 edge(0.0f, 0.0f, -0.025f);
+                        const Vector3 root(x * 0.125f, 0.375f - dip + bob, BoarMuzzleZ(0.91f));
+                        const Vector3 bend(x * 0.195f, 0.43f - dip + bob, BoarMuzzleZ(0.945f));
+                        const Vector3 tip(x * 0.205f, 0.505f - dip + bob, BoarMuzzleZ(0.92f));
+                        const Vector3 edge(0.0f, 0.0f, -0.0175f);
                         const Color ivory(185, 171, 134);
                         mesh.Triangle(root, bend, root + edge, ivory);
                         mesh.Triangle(root + edge, bend, bend + edge * 0.5f, ivory);
