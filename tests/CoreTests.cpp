@@ -4346,13 +4346,19 @@ int main()
           "east and west clearing grass keep distinct warm and cool biome identities");
 
     const island::JungleLayout repeatedJungle(terrain);
-    Check(jungle.ForestColonies()==repeatedJungle.ForestColonies()
-        && jungle.ForestGroundPlantCount()==repeatedJungle.ForestGroundPlantCount(),
+    Check(jungle.ForestColonies() == repeatedJungle.ForestColonies()
+        && jungle.ForestGroundPlantCount() == repeatedJungle.ForestGroundPlantCount()
+        && jungle.StreamBankGroundPlantCount() == repeatedJungle.StreamBankGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
     Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 576
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2201,
+            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2201,
         "wet-biome redistribution preserves the measured deterministic island populations");
+    Check(jungle.StreamBankGroundPlantCount() >= 20
+        && jungle.StreamBankGroundPlantCount() <= static_cast<std::size_t>(
+            island::JungleLayout::StreamBankColonyCount
+                * island::JungleLayout::StreamBankPlantsPerColony),
+        "stream banks retain a bounded mixed fern and broadleaf population");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
             && layout.ClearingGroundPlantCount() > 0 && layout.ClearingGroundPlantCount() <= 144,
@@ -4611,30 +4617,41 @@ int main()
                   && bush.scale <= island::JungleLayout::BushMaximumScale,
               "low-bush scale remains in the authored range");
     }
+    std::size_t wetBankPlantCount = 0;
     for (std::size_t index = 0; index < jungle.GroundPlants().size(); ++index) {
         const island::GroundPlantPlacement& plant = jungle.GroundPlants()[index];
         const island::GroundPlantPlacement& repeated = repeatedJungle.GroundPlants()[index];
         const island::TerrainSample sample = terrain.Sample(plant.x, plant.z);
         Check(plant.x == repeated.x && plant.y == repeated.y && plant.z == repeated.z
                   && plant.yawRadians == repeated.yawRadians && plant.scale == repeated.scale
-                  && plant.variant == repeated.variant,
+                  && plant.variant == repeated.variant && plant.wetBank == repeated.wetBank,
               "forest-floor plant placement is bitwise deterministic for one seed");
-        Check(sample.signedShoreDistance >= 27.0f
+        Check(sample.signedShoreDistance >= (plant.wetBank ? 8.0f : 27.0f)
                   && sample.signedShoreDistance <= 238.0f,
               "forest-floor plants remain inside their coastal-to-interior belt");
-        Check(sample.height >= 2.5f && sample.slopeRadians <= 0.5585054f,
+        Check(sample.height >= (plant.wetBank ? .7f : 2.5f)
+                  && sample.slopeRadians <= 0.5585054f,
               "forest-floor plants remain on suitable ground");
         Check(!island::VegetationLayout::IsReservedRoute(plant.x, plant.z),
               "forest-floor plants keep paths, clearings, and player spawn open");
         Check(island::IslandEnvironmentField::SampleInland(
                   plant.x,plant.z,sample.signedShoreDistance).drainage<=0.84f,
               "forest-floor plants stay outside flowing stream water");
+        if (plant.wetBank) {
+            const auto field = island::IslandEnvironmentField::SampleInland(
+                plant.x, plant.z, sample.signedShoreDistance);
+            Check(field.moisture >= .38f && field.drainage <= .72f,
+                "authored stream-bank plants remain damp without entering water");
+            ++wetBankPlantCount;
+        }
         Check(plant.variant < island::JungleLayout::GroundPlantVariantCount,
               "forest-floor plant variant index remains in range");
         Check(plant.scale >= island::JungleLayout::GroundPlantMinimumScale
                   && plant.scale <= island::JungleLayout::GroundPlantMaximumScale,
               "forest-floor plant scale remains in the authored range");
     }
+    Check(wetBankPlantCount == jungle.StreamBankGroundPlantCount(),
+        "stream-bank plant inventory matches marked ground plants");
 
     const island::NaturalPropLayout repeatedProps(terrain, vegetation, jungle);
     Check(props.Rocks().size() >= 30U && props.Rocks().size() <= 500U,
@@ -4728,6 +4745,7 @@ int main()
                   island::NaturalPropLayout::AuthoredClearingRockCount),
           "both clearing landmark rock groups remain complete");
     std::size_t clearingLandmarkLogCount = 0U;
+    std::size_t wetBankLogCount = 0U;
     bool eastClearingLogObserved = false;
     bool westClearingLogObserved = false;
     for (std::size_t index = 0; index < props.FallenLogs().size(); ++index) {
@@ -4736,7 +4754,8 @@ int main()
         Check(log.x == repeated.x && log.y == repeated.y && log.z == repeated.z
                   && log.yawRadians == repeated.yawRadians && log.length == repeated.length
                   && log.radius == repeated.radius && log.variant == repeated.variant
-                  && log.clearingLandmark == repeated.clearingLandmark,
+                  && log.clearingLandmark == repeated.clearingLandmark
+                  && log.wetBank == repeated.wetBank,
               "fallen-log placement is bitwise deterministic for one seed");
         Check(log.length >= island::NaturalPropLayout::LogMinimumLength
                   && log.length <= island::NaturalPropLayout::LogMaximumLength,
@@ -4745,6 +4764,15 @@ int main()
               "fallen-log radius remains in the authored range");
         Check(log.variant < island::NaturalPropLayout::LogVariantCount,
               "fallen-log variant index remains in range");
+        if (log.wetBank) {
+            const auto sample = terrain.Sample(log.x, log.z);
+            const auto field = island::IslandEnvironmentField::SampleInland(
+                log.x, log.z, sample.signedShoreDistance);
+            Check(!log.clearingLandmark && field.moisture >= .38f
+                      && field.drainage <= .72f,
+                "damp-bank logs stay beside rather than across the stream");
+            ++wetBankLogCount;
+        }
         const float directionX = std::cos(log.yawRadians);
         const float directionZ = std::sin(log.yawRadians);
         for (int sampleIndex = 0; sampleIndex < 7; ++sampleIndex) {
@@ -4773,11 +4801,15 @@ int main()
                 Check(!island::VegetationLayout::IsReservedRoute(sampleX, sampleZ),
                       "procedural fallen logs stay outside authored routes");
             }
-            Check(terrain.Sample(sampleX, sampleZ).signedShoreDistance >= 30.0f,
-                  "the complete fallen-log footprint stays in the island interior");
+            Check(terrain.Sample(sampleX, sampleZ).signedShoreDistance
+                      >= (log.wetBank ? 8.0f : 30.0f),
+                  "the complete fallen-log footprint stays on suitable island ground");
         }
         if (log.clearingLandmark) ++clearingLandmarkLogCount;
     }
+    Check(wetBankLogCount == props.StreamBankLogCount() && wetBankLogCount >= 2
+        && wetBankLogCount <= island::NaturalPropLayout::StreamBankLogCandidateCount,
+        "stream has a bounded deterministic fallen-wood composition");
     Check(clearingLandmarkLogCount
               == static_cast<std::size_t>(
                   island::NaturalPropLayout::AuthoredClearingLogCount),

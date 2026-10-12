@@ -21,6 +21,13 @@ props, reef habitat, wind exposure and portable evidence remain. Actual llvmpipe
 image `20261012T084525.578398Z-stream` was inspected; the open channel reaches the
 bay, but bank composition and water motion still need polish.
 
+The first explicit bank composition now consumes the same field: 39 marked
+fern/broadleaf plants require moisture>=.38 and drainage<=.72, while two marked
+fallen logs also validate their complete supported footprint outside concentrated
+drainage. Their irregular one-bank colonies were inspected in actual llvmpipe
+capture `20261012T090622.678487Z-stream`; this is evidence for one consumer, not
+completion of the broader wildlife/reef/wind migration.
+
 ## Dependency order
 
 1. A renderer-independent coastal profile describes the authored bay/headland lobes, local

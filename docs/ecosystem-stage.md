@@ -29,8 +29,10 @@ existing features, not a broad redesign.
    grass. Reuse current assets with appropriate distribution/material variation.
    Verify a visibly distinct transition from dry beach, not an island-wide swamp.
    First pass adds damp earth/moss/stone, suppresses channel grass and clears
-   trunks/dense plants from flowing water. Dedicated fern/deadwood composition
-   and further bank/material tuning remain after actual image review.
+   trunks/dense plants from flowing water. A second pass adds 39 irregularly
+   clustered marked fern/broadleaf plants plus two supported darker-bark fallen
+   logs; actual llvmpipe review rejected and replaced an initially regular paired
+   layout. Further bank shape/material tuning and portable/motion review remain.
 4. [ ] **Localized mangroves.** About 15–30 low-crowned, multi-stem trees with
    recognizable stilt roots in one small brackish mouth/protected-bay habitat.
    Prefer a variant of existing jungle/broadleaf geometry and rendering; do not

@@ -313,6 +313,70 @@ namespace island
             }
         }
 
+        // A few damp-bank trunks make the lower stream read as a lived-in forest drainage.
+        // Their long axes mostly follow the channel, so the complete collision footprint stays
+        // on one bank instead of bridging the walkable water.
+        for (int candidate = 0; candidate < StreamBankLogCandidateCount; ++candidate) {
+            const auto random = [&](std::uint32_t channel) {
+                return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
+                    seed ^ (0xa6c7395dU + channel * 0x9e3779b9U)));
+            };
+            constexpr float inverseLength = .97384121f;
+            const float progress = (static_cast<float>(candidate) + .15f + .7f * random(0))
+                / static_cast<float>(StreamBankLogCandidateCount);
+            const float baseX = -82.0f - 68.0f * progress;
+            const float centreZ = -55.0f - .23f * baseX;
+            const float side = random(1) < .48f ? -1.0f : 1.0f;
+            const float bankDistance = 5.7f + 2.4f * random(2);
+            FallenLogPlacement log;
+            log.x = baseX + side * bankDistance * .23f * inverseLength;
+            log.z = centreZ + side * bankDistance * inverseLength;
+            log.yawRadians = std::atan2(.23f, -1.0f) + (random(3) - .5f) * .42f;
+            log.length = 4.0f + 1.8f * random(4);
+            log.radius = .24f + .07f * random(5);
+            log.variant = 1U; // The darker bark reads as damp without another material/draw.
+            log.wetBank = true;
+            const auto centre = terrain.Sample(log.x, log.z);
+            const auto environment = IslandEnvironmentField::SampleInland(
+                log.x, log.z, centre.signedShoreDistance);
+            if (centre.signedShoreDistance < 8.0f || environment.moisture < .38f
+                || environment.drainage > .72f
+                || NearTree(log.x, log.z, 2.2f, palms, jungle)) continue;
+            const float directionX = std::cos(log.yawRadians);
+            const float directionZ = std::sin(log.yawRadians);
+            float maximumSupport = centre.height;
+            float minimumSupport = centre.height;
+            bool valid = true;
+            for (int sampleIndex = 0; sampleIndex < LogCollisionSamples; ++sampleIndex) {
+                const float t = static_cast<float>(sampleIndex)
+                    / (LogCollisionSamples - 1) - .5f;
+                const float x = log.x + directionX * log.length * t;
+                const float z = log.z + directionZ * log.length * t;
+                const auto support = terrain.Sample(x, z);
+                const auto field = IslandEnvironmentField::SampleInland(
+                    x, z, support.signedShoreDistance);
+                maximumSupport = std::max(maximumSupport, support.height);
+                minimumSupport = std::min(minimumSupport, support.height);
+                if (support.signedShoreDistance < 8.0f || support.height < .5f
+                    || support.slopeRadians > .34906585f || field.drainage > .76f
+                    || VegetationLayout::IsReservedRoute(x, z)
+                    || NearTree(x, z, 1.4f, palms, jungle)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid || maximumSupport - minimumSupport > .34f) continue;
+            log.y = maximumSupport + log.radius * .68f;
+            fallenLogs_.push_back(log);
+            ++streamBankLogCount_;
+            for (int sampleIndex = 0; sampleIndex < LogCollisionSamples; ++sampleIndex) {
+                const float t = static_cast<float>(sampleIndex)
+                    / (LogCollisionSamples - 1) - .5f;
+                obstacles_.push_back({log.x + directionX * log.length * t,
+                    log.z + directionZ * log.length * t, log.radius * .92f});
+            }
+        }
+
         struct AuthoredClearingLog
         {
             const ClearingDefinition* clearing;

@@ -45,6 +45,17 @@ survival systems. The supplied project inventory is context, not audited evidenc
 
 ## Other retained current work
 
+- [ ] Give both boars and goats convincing species-appropriate positional sounds.
+  Boars need clearly audible grunts/snorts (including calm rest, forage and wander
+  states), while goats need varied bleats and restrained close breathing/hoof detail.
+  Tie call choice and cadence to behaviour, randomize pitch/timing without sounding
+  synthetic or repetitive, attenuate by distance, cap simultaneous wildlife voices,
+  and avoid masking the calls under surf/jungle ambience. Verify nearby and distant
+  animals, overlapping herds, mute/unmute and native/Web/Android audio lifecycle with
+  actual recorded/listened runtime output. Existing generated boar clips and backend
+  Playing-state diagnostics are partial infrastructure, not acoustic acceptance;
+  goat vocalisations have not yet been accepted as implemented.
+
 - [ ] Add exactly one large, highly realistic bear to a suitable island habitat.
   Prefer an existing high-quality rigged 3D model only after verifying that its
   licence permits inclusion and redistribution of both mesh and textures; retain
@@ -63,11 +74,12 @@ terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowi
 water clears trunks/dense plants/grass; damp soil, moss and sparse stone cues cover
 the bank band. Water width/centre/opacity vary deterministically inside the carved
 bed. Measured inventory remains bounded (326palms,257canopy,1780understory,588bushes,
-2986ground plants,16943grass,9logs). Final focused build and three CPU tests pass
-43.07s. Actual isolated084525.578398Z-stream capture PASS388bins/std50.99/spatial239.36,
-kernel[]; image inspected: open channel reaches bay and is more legible, but still
-too linear/simple for final art acceptance. Dedicated ferns/deadwood, bank shaping,
-motion review, remaining shared grounding and Web/Android QA remain. See
+3023ground plants including39 marked bank plants,16943grass,11logs including2 marked
+bank logs). Final focused StreamSurvey/CoreTests pass2/2 in51.31s. Actual isolated
+090622.678487Z-stream capture PASS392bins/std50.81/spatial238.05/kernel[]; inspected
+image confirms that a rejected paired-row layout was replaced by irregular one-bank
+colonies with gaps. The stream remains too linear/simple and the logs are not prominent
+in this view, so bank shaping, motion, shared grounding and Web/Android QA remain. See
 docs/stream-course.md and docs/environment-field-design.md.
 
 - [ ] New explicit visual-polish request: fish, shark, dolphins, turtles and crabs.

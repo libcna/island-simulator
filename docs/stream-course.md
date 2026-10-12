@@ -40,6 +40,28 @@ an empty kernel-after log. `build/stream-wet-biome-final2.png` was inspected: th
 open channel is readable to the bay, though its form and banks remain visibly
 procedural and require dedicated fern/deadwood composition and further shaping.
 
+### Stream-bank microhabitat composition
+
+The next bounded pass reuses the three existing ground-plant silhouettes to place
+39 marked mixed fern/broadleaf plants in irregular one-sided colonies along the
+lower damp banks. Candidate colonies can be omitted, choose either bank, vary
+their setback and scatter individual plants within the colony; the first paired
+station layout was rejected after its actual image visibly resembled planted rows.
+Two marked fallen logs reuse the darker existing bark variant and follow the bank
+roughly without bridging the flowing channel. Layout tests enforce deterministic
+identity, moisture/drainage, route/tree clearance, support and population bounds;
+the world fingerprint is `965c50c3c8a40e47` (3023 total ground plants, 723 forest
+companions, 11 total logs).
+
+Final native build and StreamSurvey/CoreTests pass (2/2, 51.31s). Actual isolated
+llvmpipe capture `20261012T090622.678487Z-stream` passed 392 colour bins,
+std50.81/spatial238.05 with an empty kernel-after log. The inspected image
+`build/stream-bank-irregular.png` confirms that paired rows are gone and the damp
+foreground has varied colonies and gaps. This qualifies only the first bank
+composition: the water course is still conspicuously straight/simple, the two
+logs are not a strong landmark in this view, and motion/Web/Android/performance
+qualification remains.
+
 ## Live bed integration — 2026-10-12
 
 TerrainRenderer now excludes all original coarse quads whose centres lie in the

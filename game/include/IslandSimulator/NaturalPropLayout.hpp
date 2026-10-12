@@ -45,6 +45,7 @@ namespace island
         float radius = 0.25f;
         std::uint8_t variant = 0U;
         bool clearingLandmark = false;
+        bool wetBank = false;
     };
 
     /** @brief One small non-solid piece of sun-bleached driftwood on the beach. */
@@ -95,6 +96,7 @@ namespace island
         static constexpr int FallenFrondVariantCount = 3;
         static constexpr int AuthoredClearingRockCount = 5;
         static constexpr int AuthoredClearingLogCount = 2;
+        static constexpr int StreamBankLogCandidateCount = 8;
         static constexpr int AuthoredCoveDriftwoodCount = 3;
         static constexpr float AuthoredCoveAngle = -2.35f;
         static constexpr float RockMinimumScale = 0.48f;
@@ -119,6 +121,7 @@ namespace island
         {
             return fallenLogs_;
         }
+        [[nodiscard]] std::size_t StreamBankLogCount() const noexcept { return streamBankLogCount_; }
         [[nodiscard]] const std::vector<DriftwoodPlacement>& Driftwood() const noexcept
         {
             return driftwood_;
@@ -149,5 +152,6 @@ namespace island
         std::vector<BeachDetailPlacement> beachDetails_;
         std::vector<FallenFrondPlacement> fallenFronds_;
         std::vector<CircularObstacle> obstacles_;
+        std::size_t streamBankLogCount_ = 0;
     };
 }

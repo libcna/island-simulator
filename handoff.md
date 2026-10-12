@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Latest user addition — boar and goat sounds
+
+PLAN now explicitly requires convincing positional sounds for both species: audible
+boar grunts/snorts across rest/forage/wander and varied goat bleats with restrained
+close breathing/hoof detail. Calls must follow behaviour, vary without repetition,
+attenuate with distance, respect the shared voice budget and remain audible against
+the ambience. Acceptance requires recorded/listened runtime output plus overlap,
+mute/unmute and native/Web/Android lifecycle checks. Existing boar audio plumbing is
+only partial evidence; goat vocalisations are not yet accepted as implemented.
+
+## Latest implementation — irregular stream-bank microhabitat
+
+Added marked wet-bank plants/logs without a new renderer: 39 mixed existing
+fern/broadleaf plants in deterministic irregular one-bank colonies with gaps, plus
+two supported fallen logs using the darker existing bark. The first 47-plant
+paired-station version was actually captured and rejected because it formed
+obvious double rows. Current world fingerprint965c50c3c8a40e47:3023groundplants,
+723forestcompanions,11logs; base populations remain2201/576. Final
+StreamSurvey+CoreTests2/2 PASS51.31s. Actual isolated llvmpipe090622.678487Z-stream PASS392bins/std50.81/
+spatial238.05/kernel[]; build/stream-bank-irregular.png inspected and rows are gone.
+This is only the first microhabitat composition: stream form still straight/simple,
+logs not prominent, no motion/Web/Android/performance acceptance. All jobs terminal;
+goal active; no AMD/KVM/dependency changes.
+
 ## Latest user addition — one realistic large bear
 
 PLAN now explicitly requires exactly one large realistic bear in a suitable island

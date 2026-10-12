@@ -52,6 +52,7 @@ namespace island
         float yawRadians = 0.0f;
         float scale = 1.0f;
         std::uint8_t variant = 0U;
+        bool wetBank = false;
     };
 
     /** @brief Bounded related floor plants near one canopy tree; indices refer to GroundPlants. */
@@ -92,6 +93,8 @@ namespace island
         static constexpr int ClearingColonyCandidates = 12;
         static constexpr int ClearingPlantsPerColony = 6;
         static constexpr int ForestPlantsPerColony = 8;
+        static constexpr int StreamBankColonyCount = 20;
+        static constexpr int StreamBankPlantsPerColony = 3;
         static constexpr float ForestRootSeparation = 0.72f;
 
         explicit JungleLayout(const IslandTerrain& terrain,
@@ -125,6 +128,10 @@ namespace island
         [[nodiscard]] std::size_t ClearingBushCount() const noexcept { return clearingBushCount_; }
         [[nodiscard]] std::size_t ClearingGroundPlantCount() const noexcept { return clearingGroundPlantCount_; }
         [[nodiscard]] std::size_t ForestGroundPlantCount() const noexcept { return forestGroundPlantCount_; }
+        [[nodiscard]] std::size_t StreamBankGroundPlantCount() const noexcept
+        {
+            return streamBankGroundPlantCount_;
+        }
         [[nodiscard]] const std::vector<ForestFloorColony>& ForestColonies() const noexcept { return forestColonies_; }
 
     private:
@@ -143,6 +150,7 @@ namespace island
         std::size_t clearingBushCount_ = 0;
         std::size_t clearingGroundPlantCount_ = 0;
         std::size_t forestGroundPlantCount_ = 0;
+        std::size_t streamBankGroundPlantCount_ = 0;
         std::vector<ForestFloorColony> forestColonies_;
     };
 }

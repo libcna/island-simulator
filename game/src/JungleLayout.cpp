@@ -303,6 +303,56 @@ namespace island
             });
         };
 
+        // Small mixed colonies make the shared moisture field visible at eye level. Each
+        // colony chooses one bank, a different setback, and an irregular local footprint;
+        // skipped candidates leave readable gaps instead of producing paired planted rows.
+        // They reuse the existing fern/broadleaf meshes and renderer batches.
+        for (int colony = 0; colony < StreamBankColonyCount; ++colony) {
+            const auto colonyRandom = [&](std::uint32_t channel) {
+                return UnitRandom(Hash(colony, static_cast<std::int32_t>(channel),
+                    seed ^ (0x53a93cf1U + channel * 0x9e3779b9U)));
+            };
+            if (colonyRandom(0) < .17f) continue;
+            const float progress = (static_cast<float>(colony) + .18f + .64f * colonyRandom(1))
+                / static_cast<float>(StreamBankColonyCount);
+            const float baseX = -79.0f - 72.0f * progress;
+            const float baseZ = -55.0f - .23f * baseX;
+            const float side = colonyRandom(2) < .47f ? -1.0f : 1.0f;
+            const float bankDistance = 4.3f + 4.1f * colonyRandom(3);
+            constexpr float inverseLength = .97384121f;
+            const float colonyX = baseX + side * bankDistance * .23f * inverseLength;
+            const float colonyZ = baseZ + side * bankDistance * inverseLength;
+            for (int child = 0; child < StreamBankPlantsPerColony; ++child) {
+                const auto random = [&](std::uint32_t channel) {
+                    return UnitRandom(Hash(colony, child,
+                        seed ^ (0x6c8e9cf5U + channel * 0x9e3779b9U)));
+                };
+                const float alongJitter = (random(1) - .5f) * 4.8f;
+                const float acrossJitter = (random(2) - .5f) * 2.5f;
+                const float x = colonyX - alongJitter * inverseLength
+                    + acrossJitter * .23f * inverseLength;
+                const float z = colonyZ + alongJitter * .23f * inverseLength
+                    + acrossJitter * inverseLength;
+                const auto sample = terrain.Sample(x, z);
+                const auto environment = IslandEnvironmentField::SampleInland(
+                    x, z, sample.signedShoreDistance);
+                const float scale = .82f + .34f * random(3);
+                const float footprint = GroundPlantFootprintRadius * scale;
+                if (sample.signedShoreDistance < 8 || sample.height < .7f
+                    || sample.slopeRadians > .5585054f || environment.moisture < .38f
+                    || environment.drainage > .72f
+                    || VegetationLayout::OverlapsReservedRoute(x, z, footprint)
+                    || !clearOfCanopy(x, z, footprint)
+                    || !clearOfRoots(x, z, groundPlants_, .68f)) continue;
+                groundPlants_.push_back({x, sample.height + .009f, z,
+                    random(4) * 2 * std::numbers::pi_v<float>, scale,
+                    static_cast<std::uint8_t>((child
+                        + static_cast<int>(colonyRandom(4) * 3.0f))
+                        % GroundPlantVariantCount), true});
+                ++streamBankGroundPlantCount_;
+            }
+        }
+
         // Seed-sized companions form irregular ellipses near some canopy trees. Do not fill
         // every tree base or overwrite the separately composed clearing-edge accents.
         forestColonies_.reserve(canopy_.size());

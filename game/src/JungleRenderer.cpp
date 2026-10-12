@@ -1361,6 +1361,8 @@ void main()
             +std::to_string(forestFarTriangles);
         std::cout << forestDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(forestDiagnostic);
+        std::cout << "island-simulator: stream-bank mixed fern/broadleaf plants "
+                  << layout.StreamBankGroundPlantCount() << ", shared moisture field\n";
         constexpr const char* crownStructureDiagnostic =
             "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends";
         std::cout << crownStructureDiagnostic << '\n';

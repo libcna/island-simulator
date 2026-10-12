@@ -1049,6 +1049,8 @@ void main()
                   << ", shared authored placement\n";
         std::cout << "island-simulator: cove landmark " << coveDriftwoodCount
                   << " driftwood pieces, shared authored shoreline profile\n";
+        std::cout << "island-simulator: stream-bank fallen logs "
+                  << layout.StreamBankLogCount() << ", darker existing bark variant\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
                   << " shell/pebble/wrack clusters, near-field culled\n";
         std::cout << "island-simulator: dry wrack reuses one of four beach-detail variants\n";
