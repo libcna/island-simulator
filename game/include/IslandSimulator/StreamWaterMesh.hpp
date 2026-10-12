@@ -11,7 +11,6 @@ struct StreamWaterMesh {
     std::vector<std::uint16_t> indices;
     StreamWaterMesh(const StreamCourse& course,const StreamBedPatch& bed) {
         constexpr int acrossCount=9;
-        const float normalX=.23f/std::hypot(1.0f,.23f),normalZ=1/std::hypot(1.0f,.23f);
         const int last=static_cast<int>(course.Count()-1)*4;
         for(int row=12;row<=last;++row) {
             const auto i=std::min(static_cast<std::size_t>(row/4),course.Count()-2);
@@ -19,6 +18,8 @@ struct StreamWaterMesh {
             const auto a=course.Station(i),b=course.Station(i+1);
             const float x=std::lerp(a.x,b.x,t),z=std::lerp(a.z,b.z,t),y=std::lerp(a.water,b.water,t);
             const float halfWidth=std::lerp(a.halfWidth,b.halfWidth,t);
+            const float segmentLength=std::hypot(b.x-a.x,b.z-a.z);
+            const float normalX=(b.z-a.z)/segmentLength,normalZ=-(b.x-a.x)/segmentLength;
             const float phase=static_cast<float>(row);
             const float centreOffset=halfWidth*(.070f*std::sin(phase*.157f)
                 +.032f*std::sin(phase*.047f+1.8f));

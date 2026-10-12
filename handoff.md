@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest implementation — one shared meandering stream route
+
+New StreamRoute is shared by StreamCourse, replacement bed, water mesh, CPU/GLSL
+moisture and wet-bank plant/log placement. Middle course bends -2.1626..+1.4484m
+from the old line but returns exactly to source/mouth; actual polyline101.879m.
+Bed now projects onto nearby real segments. First X-only attempt correctly aborted
+with "Stream water intersects bed"; fixed +/-6 local search passes all sampled
+water/bed clearances. Final patch8696vertices/17282triangles, deepest cut.429558m;
+water3429/6080. Fingerprint583c5a9ba1150779:327palms,1781understory,3028groundplants
+(39bank),12logs(3bank), grass16943. StreamSurvey+Core+RenderedTerrain+
+TerrainMaterial4/4 PASS100.29s.
+Actual final isolated llvmpipe092831.265962Z-stream PASS391bins/std50.48/spatial233.38/
+kernel[]; build/stream-meander-final.png and before/after inspected: visible bend,
+readable damp log, no separation artifact. Motion, richer bank relief and portable/
+performance QA remain. All jobs terminal; goal active; no AMD/KVM/dependency changes.
+
 ## Latest user addition — boar and goat sounds
 
 PLAN now explicitly requires convincing positional sounds for both species: audible

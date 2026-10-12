@@ -1,5 +1,6 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
+#include "IslandSimulator/StreamRoute.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -316,12 +317,19 @@ namespace island
             const float progress = (static_cast<float>(colony) + .18f + .64f * colonyRandom(1))
                 / static_cast<float>(StreamBankColonyCount);
             const float baseX = -79.0f - 72.0f * progress;
-            const float baseZ = -55.0f - .23f * baseX;
+            const float baseZ = StreamRoute::CentreZ(baseX);
             const float side = colonyRandom(2) < .47f ? -1.0f : 1.0f;
             const float bankDistance = 4.3f + 4.1f * colonyRandom(3);
-            constexpr float inverseLength = .97384121f;
-            const float colonyX = baseX + side * bankDistance * .23f * inverseLength;
-            const float colonyZ = baseZ + side * bankDistance * inverseLength;
+            const float nextZ = StreamRoute::CentreZ(baseX - .5f);
+            const float previousZ = StreamRoute::CentreZ(baseX + .5f);
+            const float tangentZ = nextZ - previousZ;
+            const float tangentLength = std::hypot(1.0f, tangentZ);
+            const float tangentX = -1.0f / tangentLength;
+            const float tangentZUnit = tangentZ / tangentLength;
+            const float normalX = tangentZUnit;
+            const float normalZ = -tangentX;
+            const float colonyX = baseX + side * bankDistance * normalX;
+            const float colonyZ = baseZ + side * bankDistance * normalZ;
             for (int child = 0; child < StreamBankPlantsPerColony; ++child) {
                 const auto random = [&](std::uint32_t channel) {
                     return UnitRandom(Hash(colony, child,
@@ -329,10 +337,10 @@ namespace island
                 };
                 const float alongJitter = (random(1) - .5f) * 4.8f;
                 const float acrossJitter = (random(2) - .5f) * 2.5f;
-                const float x = colonyX - alongJitter * inverseLength
-                    + acrossJitter * .23f * inverseLength;
-                const float z = colonyZ + alongJitter * .23f * inverseLength
-                    + acrossJitter * inverseLength;
+                const float x = colonyX + alongJitter * tangentX
+                    + acrossJitter * normalX;
+                const float z = colonyZ + alongJitter * tangentZUnit
+                    + acrossJitter * normalZ;
                 const auto sample = terrain.Sample(x, z);
                 const auto environment = IslandEnvironmentField::SampleInland(
                     x, z, sample.signedShoreDistance);

@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
+#include "IslandSimulator/StreamRoute.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
@@ -321,17 +322,24 @@ namespace island
                 return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
                     seed ^ (0xa6c7395dU + channel * 0x9e3779b9U)));
             };
-            constexpr float inverseLength = .97384121f;
             const float progress = (static_cast<float>(candidate) + .15f + .7f * random(0))
                 / static_cast<float>(StreamBankLogCandidateCount);
             const float baseX = -82.0f - 68.0f * progress;
-            const float centreZ = -55.0f - .23f * baseX;
+            const float centreZ = StreamRoute::CentreZ(baseX);
             const float side = random(1) < .48f ? -1.0f : 1.0f;
             const float bankDistance = 5.7f + 2.4f * random(2);
+            const float tangentZ = StreamRoute::CentreZ(baseX - .5f)
+                - StreamRoute::CentreZ(baseX + .5f);
+            const float tangentLength = std::hypot(1.0f, tangentZ);
+            const float tangentX = -1.0f / tangentLength;
+            const float tangentZUnit = tangentZ / tangentLength;
+            const float normalX = tangentZUnit;
+            const float normalZ = -tangentX;
             FallenLogPlacement log;
-            log.x = baseX + side * bankDistance * .23f * inverseLength;
-            log.z = centreZ + side * bankDistance * inverseLength;
-            log.yawRadians = std::atan2(.23f, -1.0f) + (random(3) - .5f) * .42f;
+            log.x = baseX + side * bankDistance * normalX;
+            log.z = centreZ + side * bankDistance * normalZ;
+            log.yawRadians = std::atan2(tangentZUnit, tangentX)
+                + (random(3) - .5f) * .42f;
             log.length = 4.0f + 1.8f * random(4);
             log.radius = .24f + .07f * random(5);
             log.variant = 1U; // The darker bark reads as damp without another material/draw.

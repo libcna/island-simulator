@@ -28,6 +28,14 @@ drainage. Their irregular one-bank colonies were inspected in actual llvmpipe
 capture `20261012T090622.678487Z-stream`; this is evidence for one consumer, not
 completion of the broader wildlife/reef/wind migration.
 
+The stream component no longer evaluates a separate straight-line approximation.
+CPU and terrain GLSL now use the same smoothly enveloped meandering centreline as
+the carved bed and water. Wet-bank authored placements also derive local tangents
+and normals from that route. The updated measured world has 327 palms, 1781
+understory plants, 3028 ground plants (39 marked bank plants), and 12 logs (3
+marked bank logs); the small population change follows the relocated moisture
+band rather than an unbounded density increase.
+
 ## Dependency order
 
 1. A renderer-independent coastal profile describes the authored bay/headland lobes, local

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IslandSimulator/StreamRoute.hpp"
+
 #include <algorithm>
 #include <cmath>
 
@@ -69,11 +71,10 @@ namespace island
         {
             if (!std::isfinite(x) || !std::isfinite(z) || !std::isfinite(signedShoreDistance))
                 return {};
-            const float along = -x - 65.0f;
+            const float along = StreamRoute::Along(x);
             const float streamRange = Smooth(0.0f, 5.0f, along)
                 * (1.0f - Smooth(98.0f, 104.0f, along));
-            const float streamAcross = std::abs(z + 55.0f + x * 0.23f)
-                / std::sqrt(1.0f + 0.23f * 0.23f);
+            const float streamAcross = std::abs(z - StreamRoute::CentreZ(x));
             const float t = std::clamp(along / 98.0f, 0.0f, 1.0f);
             const float shaped = t * t * (3.0f - 2.0f * t);
             const float halfWidth = std::lerp(0.45f, 1.5f, shaped);
@@ -99,7 +100,10 @@ namespace island
 vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField) {
     float along=-worldPosition.x-65.0;
     float streamRange=smoothstep(0.0,5.0,along)*(1.0-smoothstep(98.0,104.0,along));
-    float streamAcross=abs(worldPosition.y+55.0+worldPosition.x*0.23)/sqrt(1.0+0.23*0.23);
+    float meanderEnvelope=smoothstep(0.0,9.0,along)*(1.0-smoothstep(86.0,98.0,along));
+    float streamCentre=-55.0-worldPosition.x*0.23+meanderEnvelope
+        *(1.55*sin(along*0.117)+0.62*sin(along*0.253+0.7));
+    float streamAcross=abs(worldPosition.y-streamCentre);
     float t=clamp(along/98.0,0.0,1.0);float shaped=t*t*(3.0-2.0*t);
     float halfWidth=mix(0.45,1.5,shaped);
     float streamDrainage=streamRange*(1.0-smoothstep(halfWidth+0.35,halfWidth+8.0,streamAcross));

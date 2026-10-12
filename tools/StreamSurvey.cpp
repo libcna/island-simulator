@@ -87,29 +87,41 @@ int main() {
     }
     std::cerr << "Replacement patch vertices=" << patch.Vertices().size() << " triangles="
         << patch.Indices().size()/3 << " deepest cut=" << deepestCut << '\n';
+    float minimumMeander=0.0f,maximumMeander=0.0f;
     for(std::size_t i=0;i<course.Count();++i) {
         const auto& p=course.Station(i);
         const auto& q=repeat.Station(i);
+        const float meander=p.z-(-55.0f-.23f*p.x);
+        minimumMeander=std::min(minimumMeander,meander);
+        maximumMeander=std::max(maximumMeander,meander);
         if(p.x!=q.x||p.z!=q.z||p.water!=q.water||p.halfWidth!=q.halfWidth
             ||!std::isfinite(p.water)||p.bed>=p.water||p.halfWidth<.45f||p.halfWidth>1.5f
             ||(i>0&&(p.water>course.Station(i-1).water||p.distance<=course.Station(i-1).distance)))
             return 2;
     }
+    if(std::abs(course.Station(0).z-(-55.0f-.23f*course.Station(0).x))>.0001f
+        ||std::abs(course.Station(course.Count()-1).z
+            -(-55.0f-.23f*course.Station(course.Count()-1).x))>.0001f
+        ||minimumMeander> -1.8f||maximumMeander<1.2f)return 20;
     if(course.Station(course.Count()-1).water!=0)return 3;
     std::cerr << "Sea-connected layout stations=" << course.Count() << " length="
         << course.Station(course.Count()-1).distance << " source water=" << course.Station(0).water
-        << "; width0.9..3m; replacement bed and water mesh checked\n";
+        << "; width0.9..3m; meander " << minimumMeander << ".." << maximumMeander
+        << "m; replacement bed and water mesh checked\n";
     std::cout << "x,z,inland,analytic_height,rendered_height,water_candidate,bed_cut\n";
     std::cout << std::fixed << std::setprecision(5);
     float previousWater=100.0f,maximumCut=0.0f,maximumRise=0.0f,previousGround=100.0f;
     bool reachedSea=false;
     for(int step=0;step<=160;++step) {
-        const float x=-65.0f-static_cast<float>(step);
-        const float z=-55.0f-.23f*x;
+        const float x=island::StreamRoute::SourceX-static_cast<float>(step);
+        const float z=island::StreamRoute::CentreZ(x);
         const float inland=terrain.SignedShoreDistance(x,z);
         const float ground=terrain.Height(x,z),rendered=surface->Sample(x,z).height;
         // 15cm freeboard plus 25cm water; minimum 0.2% downstream fall.
-        const float water=std::min(ground-.15f,previousWater-.002f*std::hypot(1.0f,.23f));
+        const float stepLength=step==0?0.0f:std::hypot(1.0f,
+            z-island::StreamRoute::CentreZ(x+1.0f));
+        const float water=std::min(ground-.15f,
+            step==0?previousWater:previousWater-.002f*stepLength);
         const float cut=ground-(water-.25f);
         maximumCut=std::max(maximumCut,cut);
         maximumRise=std::max(maximumRise,ground-previousGround);

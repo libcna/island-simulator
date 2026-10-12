@@ -73,13 +73,16 @@ Stream/wet-biome progress: shared normalized moisture/drainage/salt field now fe
 terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowing
 water clears trunks/dense plants/grass; damp soil, moss and sparse stone cues cover
 the bank band. Water width/centre/opacity vary deterministically inside the carved
-bed. Measured inventory remains bounded (326palms,257canopy,1780understory,588bushes,
-3023ground plants including39 marked bank plants,16943grass,11logs including2 marked
-bank logs). Final focused StreamSurvey/CoreTests pass2/2 in51.31s. Actual isolated
-090622.678487Z-stream capture PASS392bins/std50.81/spatial238.05/kernel[]; inspected
-image confirms that a rejected paired-row layout was replaced by irregular one-bank
-colonies with gaps. The stream remains too linear/simple and the logs are not prominent
-in this view, so bank shaping, motion, shared grounding and Web/Android QA remain. See
+bed. A new shared centreline now drives course, bed, water, CPU/GLSL environment
+field and bank props; it bends -2.1626..+1.4484m, returns to the original source/mouth
+and measures101.879m. Inventory remains bounded (327palms,257canopy,1781understory,
+588bushes,3028ground plants including39 marked bank plants,16943grass,12logs including3
+marked bank logs). Final focused StreamSurvey/Core/RenderedTerrain/TerrainMaterial
+tests pass4/4 in100.29s. Actual
+isolated092831.265962Z-stream capture PASS391bins/std50.48/spatial233.38/kernel[];
+inspected before/after confirms a visible lower bend, irregular bank colonies and a
+readable damp log without terrain/water separation. Flow-motion review, richer bank
+relief, remaining shared grounding and Web/Android/performance QA remain. See
 docs/stream-course.md and docs/environment-field-design.md.
 
 - [ ] New explicit visual-polish request: fish, shark, dolphins, turtles and crabs.

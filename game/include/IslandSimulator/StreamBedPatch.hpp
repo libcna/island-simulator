@@ -3,6 +3,7 @@
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include <vector>
 #include <cstdint>
+#include <limits>
 
 namespace island {
 struct StreamBedVertex {float x,y,z;};
@@ -15,16 +16,21 @@ public:
         constexpr float spacing=2*TerrainMeshLayout::Extent/TerrainMeshLayout::QuadsPerAxis;
         const auto& a=course.Station(0);const auto& b=course.Station(course.Count()-1);
         const auto grid=[](float p){return (p+TerrainMeshLayout::Extent)/spacing;};
+        float routeMinimumZ=a.z,routeMaximumZ=a.z;
+        for(std::size_t i=1;i<course.Count();++i) {
+            routeMinimumZ=std::min(routeMinimumZ,course.Station(i).z);
+            routeMaximumZ=std::max(routeMaximumZ,course.Station(i).z);
+        }
         const int firstX=static_cast<int>(std::floor(grid(b.x-7)));
         const int lastX=static_cast<int>(std::ceil(grid(a.x+7)));
-        const int firstZ=static_cast<int>(std::floor(grid(a.z-7)));
-        const int lastZ=static_cast<int>(std::ceil(grid(b.z+7)));
+        const int firstZ=static_cast<int>(std::floor(grid(routeMinimumZ-7)));
+        const int lastZ=static_cast<int>(std::ceil(grid(routeMaximumZ+7)));
         minX_=TerrainMeshLayout::Coordinate(firstX);minZ_=TerrainMeshLayout::Coordinate(firstZ);
         columns_=(lastX-firstX)*Subdivision+1;rows_=(lastZ-firstZ)*Subdivision+1;
         step_=spacing/Subdivision;
         if(static_cast<std::size_t>(columns_)*rows_>=65536)
             throw std::runtime_error("Stream bed exceeds portable index capacity");
-        const float length=b.distance,dx=(b.x-a.x)/length,dz=(b.z-a.z)/length;
+        const float length=b.distance;
         const int coarseColumns=lastX-firstX,coarseRows=lastZ-firstZ;
         std::vector<bool> refined(static_cast<std::size_t>(coarseColumns*coarseRows),false);
         vertices_.reserve(static_cast<std::size_t>(columns_)*rows_);
@@ -32,15 +38,46 @@ public:
             const float x=minX_+static_cast<float>(col)*step_;
             const float z=minZ_+static_cast<float>(row)*step_;
             const float base=original.Sample(x,z).height;
-            const float along=(x-a.x)*dx+(z-a.z)*dz;
-            const float across=std::abs((x-a.x)*dz-(z-a.z)*dx);
+            const float rawStation=StreamRoute::Along(x);
+            std::size_t i=0;
+            float t=0;
+            if(rawStation<0) {
+                t=rawStation;
+            } else if(rawStation>static_cast<float>(course.Count()-1)) {
+                i=course.Count()-2;
+                t=rawStation-static_cast<float>(i);
+            } else {
+                float nearestSquared=std::numeric_limits<float>::max();
+                const int approximate=static_cast<int>(rawStation);
+                const auto firstCandidate=static_cast<std::size_t>(std::max(0,approximate-6));
+                const auto lastCandidate=static_cast<std::size_t>(std::min(
+                    static_cast<int>(course.Count()-2),approximate+6));
+                for(std::size_t candidate=firstCandidate;candidate<=lastCandidate;++candidate) {
+                    const auto& candidateA=course.Station(candidate);
+                    const auto& candidateB=course.Station(candidate+1);
+                    const float segmentX=candidateB.x-candidateA.x;
+                    const float segmentZ=candidateB.z-candidateA.z;
+                    const float candidateT=std::clamp(((x-candidateA.x)*segmentX
+                        +(z-candidateA.z)*segmentZ)/(segmentX*segmentX+segmentZ*segmentZ),
+                        0.0f,1.0f);
+                    const float deltaX=x-std::lerp(candidateA.x,candidateB.x,candidateT);
+                    const float deltaZ=z-std::lerp(candidateA.z,candidateB.z,candidateT);
+                    const float squared=deltaX*deltaX+deltaZ*deltaZ;
+                    if(squared<nearestSquared) {
+                        nearestSquared=squared;i=candidate;t=candidateT;
+                    }
+                }
+            }
+            const auto& routeA=course.Station(i);const auto& routeB=course.Station(i+1);
+            const float centreX=std::lerp(routeA.x,routeB.x,t);
+            const float centreZ=std::lerp(routeA.z,routeB.z,t);
+            float along=std::lerp(routeA.distance,routeB.distance,t);
+            const float across=std::hypot(x-centreX,z-centreZ);
             float height=base;
             if(along>0&&along<length+4) {
-                const float s=std::clamp(along/length,0.0f,1.0f)*static_cast<float>(course.Count()-1);
-                const auto i=std::min(static_cast<std::size_t>(s),course.Count()-2);
-                const float t=std::clamp(s-static_cast<float>(i),0.0f,1.0f);
-                const float width=std::lerp(course.Station(i).halfWidth,course.Station(i+1).halfWidth,t);
-                const float water=std::lerp(course.Station(i).water,course.Station(i+1).water,t);
+                const float shapeT=std::clamp(t,0.0f,1.0f);
+                const float width=std::lerp(routeA.halfWidth,routeB.halfWidth,shapeT);
+                const float water=std::lerp(routeA.water,routeB.water,shapeT);
                 if(across<width+2) {
                     const auto smooth=[](float v){v=std::clamp(v,0.0f,1.0f);return v*v*(3-2*v);};
                     const float bowl=water-.25f*(1-std::min(1.0f,across*across/(width*width)));

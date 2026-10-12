@@ -14,8 +14,12 @@ existing features, not a broad redesign.
    about a metre where appropriate, with a narrow static water mesh and slow flow.
    Check continuous downhill drainage, banks, mouth and traversal; no hydrology engine.
    Survey/layout foundation: west corridor99stations/100.559m, no sampled uphill
-   step, candidate incision<=0.4m and sea-level-connected outlet. CPU survey passed;
-   no live water/carve yet. See [stream-course.md](stream-course.md).
+   step, candidate incision<=0.4m and sea-level-connected outlet. The live shared
+   route now curves by -2.16..+1.45m, spans101.879m, carves a matching local terrain
+   patch and carries the rendered water to the bay; source/outlet remain fixed.
+   CPU geometry/water/player survey and actual llvmpipe image pass. Flow-motion,
+   richer bank relief and portable/performance review remain. See
+   [stream-course.md](stream-course.md).
 2. [~] **Shared environmental moisture and drainage.** Extend
    `IslandEnvironmentField` with `moisture` and `drainage`, and evaluate
    `saltExposure`. Derive deterministic values from terrain, valleys, stream and
@@ -30,7 +34,7 @@ existing features, not a broad redesign.
    Verify a visibly distinct transition from dry beach, not an island-wide swamp.
    First pass adds damp earth/moss/stone, suppresses channel grass and clears
    trunks/dense plants from flowing water. A second pass adds 39 irregularly
-   clustered marked fern/broadleaf plants plus two supported darker-bark fallen
+   clustered marked fern/broadleaf plants plus three supported darker-bark fallen
    logs; actual llvmpipe review rejected and replaced an initially regular paired
    layout. Further bank shape/material tuning and portable/motion review remain.
 4. [ ] **Localized mangroves.** About 15–30 low-crowned, multi-stem trees with

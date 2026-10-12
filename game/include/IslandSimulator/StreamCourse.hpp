@@ -1,5 +1,6 @@
 #pragma once
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/StreamRoute.hpp"
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -15,15 +16,20 @@ class StreamCourse final {
 public:
     static constexpr std::size_t Capacity=161;
     explicit StreamCourse(const IslandTerrain& terrain) {
-        const float stepLength=std::hypot(1.0f,.23f);
         float previousWater=100;
+        float distance=0;
         for(std::size_t i=0;i<Capacity;++i) {
-            const float x=-65-static_cast<float>(i),z=-55-.23f*x;
+            const float x=StreamRoute::SourceX-static_cast<float>(i);
+            const float z=StreamRoute::CentreZ(x);
+            const float stepLength=i==0?0.0f:std::hypot(
+                x-stations_[i-1].x,z-stations_[i-1].z);
+            distance+=stepLength;
             const float ground=terrain.Height(x,z);
-            const float water=std::max(0.0f,std::min(ground-.15f,previousWater-.002f*stepLength));
+            const float water=std::max(0.0f,std::min(ground-.15f,
+                i==0?previousWater:previousWater-.002f*stepLength));
             const float bed=water-.25f;
             if(ground-bed>1.0f) throw std::runtime_error("Stream course requires excessive incision");
-            stations_[count_++]={x,z,static_cast<float>(i)*stepLength,ground,water,bed,0};
+            stations_[count_++]={x,z,distance,ground,water,bed,0};
             previousWater=water;
             if(terrain.SignedShoreDistance(x,z)<=0)break;
         }

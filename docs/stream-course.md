@@ -1,5 +1,33 @@
 # Western stream course — live bed and first water pass
 
+## Shared meandering route — 2026-10-12
+
+`StreamRoute` now owns the height-independent centreline used by `StreamCourse`,
+the replacement bed, water mesh, CPU/GLSL moisture field and authored wet-bank
+plants/logs. Two smoothly enveloped low-frequency bends move the middle course
+between -2.1626m and +1.4484m from the former straight line while returning
+exactly to the existing source and sea outlet. Course distance is now the actual
+polyline length, 101.879m, rather than a constant straight-line estimate.
+
+The bed projects vertices onto the nearest local route segment; the first X-only
+approximation was rejected because `StreamSurvey` found water within 1.5cm of the
+bed on an inside bend. A bounded +/-6-segment search retains the corrected result
+without scanning all 98 segments per vertex. Final geometry is 8696 vertices / 17282
+triangles, deepest cut .429558m; water remains 3429 vertices / 6080 triangles.
+The survey verifies source/outlet connection, material bends in both directions,
+monotonic water, portable indices, winding, every sampled water triangle above the
+actual bed, boundary preservation and player support.
+
+Final StreamSurvey/Core/RenderedTerrain/TerrainMaterial tests pass 4/4 in
+100.29s. World fingerprint is
+`583c5a9ba1150779`. Actual isolated llvmpipe capture
+`20261012T092831.265962Z-stream` passed 391 colour bins, std50.48/spatial233.38
+with an empty kernel-after log. `build/stream-meander-final.png` and the before/after
+comparison were inspected: the lower course visibly bends and one damp-bank log is
+now readable, without a terrain/water separation artifact. This improves but does
+not finish stream art: animated-flow sequence review, richer bank relief and
+Web/Android/performance qualification remain.
+
 ## Live water integration — 2026-10-12
 
 `StreamWaterMesh` follows the surveyed water elevation, inside 80% of the carved

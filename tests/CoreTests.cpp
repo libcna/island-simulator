@@ -44,6 +44,7 @@
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
+#include "IslandSimulator/StreamRoute.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/UserSettings.hpp"
@@ -3948,7 +3949,11 @@ int main()
     const auto invalidCoast = island::IslandEnvironmentField::SampleCoast(quietNan, 0.0f, 0.0f);
     Check(invalidCoast.rockiness == 0.0f && invalidCoast.beachSuitability == 0.0f,
           "non-finite environment query has safe empty controls");
-    const float streamX=-110.0f,streamZ=-55.0f-0.23f*streamX;
+    const float streamX=-110.0f,streamZ=island::StreamRoute::CentreZ(streamX);
+    CheckNear(island::StreamRoute::CentreZ(island::StreamRoute::SourceX), -40.05f,
+        .0001f, "stream meander preserves the authored source connection");
+    Check(std::abs(streamZ-(-55.0f-.23f*streamX))>1.0f,
+        "shared stream centreline has a material mid-course meander");
     const auto streamCentre=island::IslandEnvironmentField::SampleInland(
         streamX,streamZ,terrain.SignedShoreDistance(streamX,streamZ));
     const auto streamBank=island::IslandEnvironmentField::SampleInland(
@@ -4352,7 +4357,7 @@ int main()
         "forest colony membership and shape are deterministic for one seed");
     Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 576
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2201,
+            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2205,
         "wet-biome redistribution preserves the measured deterministic island populations");
     Check(jungle.StreamBankGroundPlantCount() >= 20
         && jungle.StreamBankGroundPlantCount() <= static_cast<std::size_t>(
@@ -4618,6 +4623,8 @@ int main()
               "low-bush scale remains in the authored range");
     }
     std::size_t wetBankPlantCount = 0;
+    std::size_t wetBankNegativeSideCount = 0;
+    std::size_t wetBankPositiveSideCount = 0;
     for (std::size_t index = 0; index < jungle.GroundPlants().size(); ++index) {
         const island::GroundPlantPlacement& plant = jungle.GroundPlants()[index];
         const island::GroundPlantPlacement& repeated = repeatedJungle.GroundPlants()[index];
@@ -4642,6 +4649,8 @@ int main()
                 plant.x, plant.z, sample.signedShoreDistance);
             Check(field.moisture >= .38f && field.drainage <= .72f,
                 "authored stream-bank plants remain damp without entering water");
+            if (plant.z < island::StreamRoute::CentreZ(plant.x)) ++wetBankNegativeSideCount;
+            else ++wetBankPositiveSideCount;
             ++wetBankPlantCount;
         }
         Check(plant.variant < island::JungleLayout::GroundPlantVariantCount,
@@ -4652,6 +4661,8 @@ int main()
     }
     Check(wetBankPlantCount == jungle.StreamBankGroundPlantCount(),
         "stream-bank plant inventory matches marked ground plants");
+    Check(wetBankNegativeSideCount >= 5 && wetBankPositiveSideCount >= 5,
+        "stream-bank colonies occupy both sides without a single-sided strip");
 
     const island::NaturalPropLayout repeatedProps(terrain, vegetation, jungle);
     Check(props.Rocks().size() >= 30U && props.Rocks().size() <= 500U,
