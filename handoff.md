@@ -1,5 +1,31 @@
 # island-simulator handoff
 
+## Latest — actual Android goat view passed after logcat proof repair
+
+run_android_software.py accepts goats, requires exact coat/mips + actual1–6/6visible,
+two draws; shell waits for goat render proof. Initial030243.275234Z-goats FAIL outer:
+image rendered/inspected but ordinary stdout totals absent from logcat. Preserved
+evidence/kernel[]/emulator0, not a qualified run. IslandGame now mirrors a one-time
+actual count after first GoatDetail draw, no per-frame stream/hardcoded counts.
+AndroidSoftwareTests23PASS incl5negative goat variants, shell syntax/diff pass.
+
+Actual repeat build/android-software/20261012T030631.137902Z-goats outerPASS,
+OPENGLES3 SwiftShader3/6visible2draw, actual1280×720 screenshot inspected, kernel-final[],
+emulator0. Current height-map/ears/eyes/hooves render; coat bands/angular legs remain.
+Single view only, no motion/lifecycle/physical-phone qualification. x86 APK archived
+build/android-software/island-goat-eyes-x86_64.apk SHA
+b4b4db56ae51573093187ddac86881a9e8d5a00a54114c40207d1cb6300bb88c.
+x86 assembly/lint13s then proof rebuild3s; defaultARM64 assembly/lint restored7s.
+Default APK SHA ebfb084604af1286500e7fc8e6c1ca209554c9cc789ad90ee00189def8681fb0.
+Logs build/goat-android-{x86,proof,arm64}-build.log. No fresh native/Web rebuild for
+the log-only marker; previous native47CPU source mechanics unchanged. Latest Web
+runtime predates height-map/ear/eye changes. All handles terminal:41209/67203build0,
+50101initialgate1,29333repeat0,83698ARM64restore0. No emulator/KVM/driver configuration
+change; launcher cleared one stale owned lock after no-live-emulator guard. Hardware
+latch c0bd1704 unchanged. Goal active/no push; full prior species/visual/stability
+scope retained. AMD flight crash remains high-priority unresolved. Next: continuous
+goat gait/stance audit, remaining anatomy/coat and broad missing species backlog.
+
 ## Latest — surface-fitted goat eyes, native visual comparison inspected
 
 Builder::Eye replaces near black-dot loft:52×28mm dark oval border,44×22mm ochre

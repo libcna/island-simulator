@@ -2940,6 +2940,13 @@ namespace island
             }
         }
         ++drawnFrames_;
+        if(viewpoint_==FixedViewpoint::GoatDetail&&drawnFrames_==1U) {
+            std::ostringstream report;
+            report << "island-simulator: goat render proof: goats " << goatRenderer_->VisibleCount()
+                << '/' << goats_->Goats().size() << " visible, " << goatRenderer_->DrawCallCount() << " draw;";
+            std::cout << report.str() << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
         const bool snakeCapture = UsesSnakeCaptureClock();
         const bool goatCapture = UsesGoatCaptureClock();
         if(goatCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {

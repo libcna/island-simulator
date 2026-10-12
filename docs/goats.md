@@ -443,6 +443,34 @@ actually inspected. Iris/dark border are more readable than the previous dot; pu
 detail remains limited at this camera scale. Orbital head shape, muzzle, coat direction,
 joint anatomy and continuous gait remain open. No current Web/Android qualification.
 
+## First actual Android goat view
+
+The isolated Android software supervisor accepts `--viewpoint goats` and requires
+the exact coat/mip marker plus1–6/6 visible goats and two draws. The shell waits for
+that evidence before taking its screenshot. IslandGame emits a one-time goat render
+proof after the first GoatDetail draw, mirroring actual renderer counts to logcat;
+this is not a hard-coded pass or per-frame stream. Twenty-three Android preflight
+tests pass, including missing coat/count/draw/mip/proof-marker rejection.
+
+Initial `20261012T030243.275234Z-goats` rendered a correct-looking image but the outer
+gate FAILED: ordinary stdout visibility totals were absent from Android logcat.
+Its evidence remains; it is not counted as a qualified run. The one-time mirror
+above corrects that diagnostic gap without weakening the gate. Actual repeat
+`build/android-software/20261012T030631.137902Z-goats` passes outer supervisor,
+OPENGLES3/SwiftShader,3/6 visible/two draws, accepted1280×720 image and empty final
+kernel delta. Emulator exits0. Both run images were actually inspected: current
+height-mapped coat, cupped ears, fitted eyes and smaller hooves render with mobile
+touch controls; coarse coat bands and angular legs remain apparent. This is a
+single-view functional/visual check, not continuous movement, lifecycle or phone
+performance acceptance, and does not qualify the unresolved AMD crash.
+
+Verified x86_64 APK retained as `build/android-software/island-goat-eyes-x86_64.apk`,
+SHA256 `b4b4db56ae51573093187ddac86881a9e8d5a00a54114c40207d1cb6300bb88c`.
+x86_64 assembly/lint passes; default ARM64 assembly/lint restored and passes7s.
+No AVD/KVM/driver/dependency configuration changed. Existing launcher removed a stale
+owned AVD lock only after its no-live-emulator check; it did not alter shared AVDs.
+Latest actual Web audit still predates height mapping, ears and eyes.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

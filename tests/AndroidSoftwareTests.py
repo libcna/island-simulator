@@ -264,6 +264,15 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             log = directory / "island-android-logcat.txt"
             log.write_text(good)
             gate.validate_game_logs(directory, False)
+            coat = "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
+            goats = good + coat + "goat render proof: goats 3/6 visible, 2 draw;\n"
+            log.write_text(goats)
+            gate.validate_game_logs(directory, False, "goats")
+            for old, new in ((coat, ""), ("3/6", "0/6"), ("2 draw", "1 draw"),
+                             ("9 mips, 349524", "1 mips, 262144"), ("goat render proof: ", "")):
+                log.write_text(goats.replace(old, new))
+                with self.assertRaises(RuntimeError): gate.validate_game_logs(directory, False, "goats")
+            log.write_text(good)
             for view in ("hut", "hut-material"):
                 with self.assertRaisesRegex(RuntimeError, "hut material"):
                     gate.validate_game_logs(directory, False, view)

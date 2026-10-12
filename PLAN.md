@@ -906,6 +906,14 @@ progress or require player interaction; dangerous species keep their distance li
   clearance. Native47/47CPU PASS66.81s; actual025612.436707Z-goats8-stage PASS/kernel[],
   enlarged before/after and montage inspected. More readable eye, not full orbital/
   muzzle anatomy, continuous gait or portable acceptance. Remaining scope unchanged.
+  Actual Android goat view now qualified:030631.137902Z-goats isolatedSwiftShader
+  OPENGLES3 outerPASS,3/6visible/two draws,1280×720 image inspected,kernel[],emulator0.
+  Initial030243 rendered but failed missing logcat counts; retained failure led to
+  one-time actual renderer count mirror, not a relaxed gate. Android preflight23PASS
+  including goat negative cases; x86_64/ARM64 assembly+lint pass, defaultARM64 restored.
+  Verified x86 APK island-goat-eyes-x86_64.apk SHA b4b4db56... retained. Current coat/
+  ears/eyes/hooves appear, coarse bands/legs remain. Not continuous gait/lifecycle/
+  physical performance or AMD qualification; latest Web predates these visual edits.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

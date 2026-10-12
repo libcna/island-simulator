@@ -397,6 +397,8 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         && { case "${ISLAND_ANDROID_SMOKE_ARGUMENTS:-}" in
                  --viewpoint,snakes|--viewpoint,snake-head)
                      grep -q "snake runtime sample frame=32 " "$LOG_FILE" ;;
+                 --viewpoint,goats)
+                     grep -Eq "goat render proof: goats [1-6]/6 visible, 2 draw;" "$LOG_FILE" ;;
                  *) true ;;
              esac; } \
         && [ "$AUDIO_QUALIFIED" -eq 1 ]; then
