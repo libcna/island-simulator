@@ -19,6 +19,43 @@ int main()
     const auto check = [&](bool value, const char* message) {
         if (!value) { if (failures < 12) std::cerr << message << '\n'; ++failures; }
     };
+    // Search the uploaded coordinates independently at each representable grid edge.
+    // An arithmetic cell lookup must preserve which triangle owns the edge, including
+    // its normal, rather than merely return a continuous-looking height.
+    std::array<float, L::Resolution> coordinates{};
+    for (int i=0;i<L::Resolution;++i) coordinates[i]=L::Coordinate(i);
+    const auto auditBoundary = [&](float x,float z) {
+        const auto quad = [&](float p) {
+            return std::clamp(static_cast<int>(std::upper_bound(
+                coordinates.begin(),coordinates.end(),p)-coordinates.begin())-1,0,L::QuadsPerAxis-1);
+        };
+        const int col=quad(x),row=quad(z),index=row*L::Resolution+col;
+        const double width=double(coordinates[col+1])-coordinates[col];
+        const double depth=double(coordinates[row+1])-coordinates[row];
+        const double u=(double(x)-coordinates[col])/width,v=(double(z)-coordinates[row])/depth;
+        const auto heights=surface.Heights();
+        const double tl=heights[index],tr=heights[index+1];
+        const double bl=heights[index+L::Resolution],br=heights[index+L::Resolution+1];
+        const bool upper=u+v<=1.0;
+        const double h=upper?tl+(tr-tl)*u+(bl-tl)*v:br+(bl-br)*(1-u)+(tr-br)*(1-v);
+        const double dx=upper?(tr-tl)/width:(br-bl)/width;
+        const double dz=upper?(bl-tl)/depth:(br-tr)/depth;
+        const double length=std::hypot(dx,1.0,dz);
+        const auto actual=surface.Sample(x,z);
+        check(actual.height==static_cast<float>(h)
+            &&actual.normal.x==static_cast<float>(-dx/length)
+            &&actual.normal.y==static_cast<float>(1.0/length)
+            &&actual.normal.z==static_cast<float>(-dz/length),
+            "Fast grid lookup changed boundary triangle ownership or height");
+    };
+    for(float edge:coordinates) {
+        for(float value:{std::nextafter(edge,-INFINITY),edge,std::nextafter(edge,INFINITY)}) {
+            if(std::abs(value)>L::Extent)continue;
+            auditBoundary(value,17.123f);
+            auditBoundary(-31.234f,value);
+            auditBoundary(value,value);
+        }
+    }
     for (int row = 0; row < L::Resolution; ++row) for (int col = 0; col < L::Resolution; ++col) {
         const float x = L::Coordinate(col), z = L::Coordinate(row);
         check(std::abs(surface.Sample(x, z).height - terrain.Height(x, z)) < 0.000005f,

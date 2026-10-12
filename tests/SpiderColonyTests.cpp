@@ -26,11 +26,13 @@ int main() {
     check(hut.has_value(),"reference hut absent");
     obstacles.push_back({hut->x,hut->z,HutLayout::CollisionRadius});
     SpiderColony colony(terrain,jungle,obstacles),repeat(terrain,jungle,obstacles);
+    const auto origin=colony.Spiders().front();
+    const SpiderPoint auditObserver{origin.x,origin.y+3.0f,origin.z};
     std::array<float,SpiderHabitat::GroundCount> travel{};
     std::size_t pairs=0,swings=0;float minimumClearance=1;
     for(int step=0;step<1500;++step) {
         const std::vector<SpiderState> previous(colony.Spiders().begin(),colony.Spiders().end());
-        colony.Update(.02f,{1000,1000,1000});repeat.Update(.02f,{1000,1000,1000});
+        colony.Update(.02f,auditObserver);repeat.Update(.02f,auditObserver);
         check(std::equal(colony.Spiders().begin(),colony.Spiders().end(),repeat.Spiders().begin()),"nondeterministic crawling");
         for(std::size_t i=0;i<SpiderHabitat::GroundCount;++i) {
             const auto& state=colony.Spiders()[i];const auto& old=previous[i];const auto home=colony.Homes()[i];
@@ -83,10 +85,10 @@ int main() {
     const auto movingCount=static_cast<std::size_t>(std::count_if(travel.begin(),travel.end(),
         [](const float distance){return distance>.02f;}));
     const float aggregateTravel=std::accumulate(travel.begin(),travel.end(),0.0f);
-    std::cout<<"spider dormant-tier moving/total and travel "<<movingCount<<'/'
+    std::cout<<"spider nearby moving/total and travel "<<movingCount<<'/'
         <<travel.size()<<' '<<aggregateTravel<<std::endl;
-    check(movingCount>=100&&aggregateTravel>15.0f,
-        "distance-throttled spider population lacks broad crawl activity");
+    check(movingCount>=10&&aggregateTravel>1.0f,
+        "nearby spider population lacks crawl activity");
     check(pairs>50000&&swings>1000,"insufficient stance/swing evidence");
     const auto first=colony.Spiders()[0];
     const SpiderPoint observer{first.x-.5f,first.y+.1f,first.z};
@@ -106,8 +108,25 @@ int main() {
     }
     check(lastObserverDistance>initialObserverDistance+.05f,"retreat did not actually move away");
     SpiderColony high(terrain,jungle,obstacles),invalid(terrain,jungle,obstacles);
+    const std::vector<SpiderState> sleepingInitial(high.Spiders().begin(),high.Spiders().end());
     for(int step=0;step<50;++step){high.Update(.02f,{first.x,first.y+100,first.z});invalid.Update(.02f,{NAN,0,0});}
     check(std::equal(high.Spiders().begin(),high.Spiders().end(),invalid.Spiders().begin()),"high/invalid observer affected ground colony");
+    check(std::equal(sleepingInitial.begin(),sleepingInitial.end(),high.Spiders().begin()),
+        "invisible dormant spiders ran detailed gait simulation");
+    // Every one of the 200 residents must wake immediately when approached, with
+    // the retained terrain-safe feet and only one tick's travel (no dormant backlog).
+    for(std::size_t i=0;i<SpiderHabitat::GroundCount;++i) {
+        const auto old=high.Spiders()[i];
+        high.Update(.02f,{old.x-.5f,old.y+.1f,old.z});
+        const auto& awakened=high.Spiders()[i];
+        check(awakened.tier==WildlifeSimulationTier::Full
+                &&awakened.behavior==SpiderBehavior::Retreat,"resident did not wake on approach");
+        check(std::hypot(awakened.x-old.x,awakened.z-old.z)
+                  <=SpiderColony::RetreatSpeed*.02f+.00002f,"wake-up replayed dormant travel");
+        for(std::size_t leg=0;leg<8;++leg)
+            if(old.pose.stance[leg]&&awakened.pose.stance[leg])
+                check(old.pose.feet[leg]==awakened.pose.feet[leg],"wake-up moved a planted foot");
+    }
     const std::vector<SpiderState> before(invalid.Spiders().begin(),invalid.Spiders().end());
     for(bool turning:{false,true}) {
         SpiderColony audit(terrain,jungle,obstacles);

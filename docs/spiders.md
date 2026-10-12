@@ -4,6 +4,21 @@ Status: **200 ground spiders are now integrated in IslandGame. Webs are still ab
 The first actual native software image was inspected, but its generic image-contrast
 gate failed. Natural motion, visual realism and portable qualification remain open.
 
+## Dormant work and wake-up repair — 2026-10-12
+
+The initial population expansion still replayed up to fifteen detailed foot/terrain steps for
+each dormant animal every thirtieth update. Staggering spread this cost across frames but did not
+eliminate it. A CPU-only measurement of the real 200-animal colony found 3.372ms mean per update
+in the reported flight position, where all 200 animals were dormant and none could be rendered.
+
+Dormant animals now preserve their complete planted pose, behavior and intent without simulation
+or accumulated catch-up time. Returning to full detail discards any pending reduced-tier interval,
+so approaching a resident resumes one normal tick without a visible jump. Nearby residents still
+use the original terrain-constrained gait, six-foot minimum support and two-foot swing limit.
+The updated regression audits nearby gait and terrain contact plus activation of every one of the
+200 residents. The initial test exposed a reduced-to-full catch-up jump; that transition is now
+explicitly covered. The older dormant-motion result below describes the superseded implementation.
+
 ## Two-hundred-animal population and tiered simulation — 2026-10-12
 
 The requested live population is now exactly 200 ground spiders, deterministically

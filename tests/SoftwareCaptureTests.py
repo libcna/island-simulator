@@ -27,10 +27,26 @@ from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import (geometry, worker as fullscreen_worker,
                                      validate_boar_audio_trace, validate_snake_audio_trace)
 from run_fullscreen_software import validate_control_transitions, owned_runtime_log
-from run_fullscreen_software import validate_diving_trace
+from run_fullscreen_software import validate_diving_trace, validate_frame_windows
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_live_frame_accounting_and_corruptions(self):
+        good = ("island-simulator: frame-window seconds=5.000 frames=150 fps=30.000 "
+                "updates-per-frame=2.000 update-ms-per-frame=8.000 draw-submit-ms-per-frame=4.000 "
+                "wildlife-ms-per-update(spider,goat,snake,monkey)=1.000,0.500,1.000,0.500 "
+                "flight=1 camera=1,60,3")
+        self.assertEqual(validate_frame_windows(good)[0]["fps"], 30)
+        for bad in ("", good.replace("fps=30.000", "fps=60.000"),
+                    good.replace("seconds=5.000", "seconds=nan"),
+                    good.replace("frames=150", "frames=0"),
+                    good.replace("updates-per-frame=2.000", "updates-per-frame=0"),
+                    good.replace("1.000,0.500,1.000,0.500", "4,4,4,4"),
+                    good.replace("draw-submit-ms-per-frame=4.000", "draw-submit-ms-per-frame=-1"),
+                    good.replace("flight=1", "flight=2"), good.replace("camera=1,60,3", "camera=1,inf,3")):
+            with self.subTest(bad=bad), self.assertRaises(RuntimeError):
+                validate_frame_windows(bad)
+
     def test_diving_trace_and_rejections(self):
         good=[(0,.58,-270,0),(0,-.5,-270,.5),(0,-1,-270,1),(0,.58,-270,0)]
         validate_diving_trace(good)

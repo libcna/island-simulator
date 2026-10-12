@@ -116,6 +116,38 @@ def validate_diving_trace(samples):
         raise RuntimeError("missing surface/dive/resurface sequence")
 
 
+def validate_frame_windows(text):
+    """Check live CPU/whole-frame accounting without imposing a software FPS budget."""
+    records = []
+    for line in text.splitlines():
+        if "island-simulator: frame-window " not in line:
+            continue
+        fields = dict(re.findall(r"(\S+)=([^\s]+)", line.split("frame-window ", 1)[1]))
+        try:
+            seconds, fps = float(fields["seconds"]), float(fields["fps"])
+            frames, flight = int(fields["frames"]), int(fields["flight"])
+            updates = float(fields["updates-per-frame"])
+            update_ms = float(fields["update-ms-per-frame"])
+            draw_ms = float(fields["draw-submit-ms-per-frame"])
+            wildlife = [float(v) for v in fields[
+                "wildlife-ms-per-update(spider,goat,snake,monkey)"].split(",")]
+            camera = [float(v) for v in fields["camera"].split(",")]
+            values = [seconds, fps, updates, update_ms, draw_ms, *wildlife, *camera]
+            if (not all(map(math.isfinite, values)) or seconds < 4.999
+                    or frames <= 0 or updates <= 0 or flight not in (0, 1)
+                    or len(wildlife) != 4 or len(camera) != 3
+                    or any(v < 0 for v in [update_ms, draw_ms, *wildlife])
+                    or not math.isclose(fps, frames / seconds, rel_tol=.001, abs_tol=.002)
+                    or sum(wildlife) > update_ms / updates + .02):
+                raise ValueError("inconsistent frame accounting")
+        except (KeyError, ValueError) as error:
+            raise RuntimeError("invalid persistent frame timing window") from error
+        records.append(dict(seconds=seconds, frames=frames, fps=fps, flight=flight))
+    if not records:
+        raise RuntimeError("missing persistent frame timing windows")
+    return records
+
+
 def worker(build, evidence, window_manager, flight=False, boar_audio=False,
            diving=False, snake_audio=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
@@ -441,6 +473,14 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             # Popen.pid belongs to the private PID namespace. Match its startup identity.
             runtime_path, runtime_text = owned_runtime_log(evidence, game.pid)
             transitions = validate_control_transitions(runtime_text, flight, fullscreen_cycles)
+            if flight:
+                windows = validate_frame_windows(runtime_text)
+                if not any(row["flight"] for row in windows):
+                    raise RuntimeError("flight produced no live performance window")
+                (evidence / "frame-windows-result.json").write_text(json.dumps({
+                    "passed": True, "source": runtime_path.name, "windows": windows,
+                    "scope": "CPU timing instrumentation only; software FPS is not a hardware budget"},
+                    indent=2)+"\n")
             (evidence / "control-transitions-result.json").write_text(json.dumps({
                 "passed": True, "source": runtime_path.name, "records": transitions,
                 "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")

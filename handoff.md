@@ -2,10 +2,31 @@
 
 ## Current critical work — native FPS regression
 
+Follow-up CPU attribution: `island-wildlife-cpu-report` (new CMake host tool, no graphics) found all
+200 dormant spiders still replayed up to 15 gait/terrain steps each. Flight mean spider update
+3.372ms before -> 0.0211ms after true suspension. Ground example 4.7281 -> 0.9731ms, but other
+unchanged species show variable host scheduling/clocks, so only claim the clear dormant-work
+removal. Reports `build/wildlife-cpu-all-before.txt` and `build/wildlife-cpu-final.txt`. Full-tier
+activation discards pending reduced time to avoid catch-up jumps; all 200 wake-up paths tested.
+Also cache authored snake radii and replace binary-search terrain cell lookup with an arithmetic
+candidate corrected against exact rounded vertex coordinates. New representable-boundary tests
+compare exact heights/normals with an independent binary search. Interactive runs now emit
+`frame-window` every5s (FPS, updates/frame, update/draw ms/frame, spider/goat/snake/monkey ms/update).
+Operator subsequently reported about 60 FPS high flight / 30 FPS walking. Read-only runtime
+`island-runtime-3538060.log` already contains the new instrumentation: high-flight windows
+54.751/56.374 FPS, walking windows 17.512–44.708 FPS. At 29.443 FPS walking, update/draw
+submission cost 16.532/16.563ms per frame, 2.047 updates/frame; snakes 4.188ms/update,
+spiders 0.590ms/update. This is an uncontrolled moving run, not a matched historical comparison;
+do not claim the original 60 FPS baseline or that walking performance is solved. Next priority:
+snake update cost and dense near-ground rendering, using fixed comparable views.
+Focused spider/snake/rendered-terrain tests PASS 3/3; software-runner tests PASS 46/46.
+Private llvmpipe flight/fullscreen/landing and frame-window validation PASS in
+`build/software-flight/20261012T163818.420440Z`, no new kernel GPU faults. No AMD workload launched.
+
 User reported about 8 FPS on an otherwise idle host. Read-only AMD runtime evidence
 `island-runtime-3494639.log` confirms about 21 FPS before flight and about 10 FPS in flight, real
-Radeon 780M/Wayland, former full profile and requested/applied 4x MSAA. Do not claim fixed until
-the user retests. Current corrective pass removes snake-body/grass vertex coupling, staggers
+Radeon 780M/Wayland, former full profile and requested/applied 4x MSAA. Later operator feedback
+above confirms partial recovery, not uniform 60 FPS. Current corrective pass removes snake-body/grass vertex coupling, staggers
 reduced-tier snake updates, invalidates snake contact shadows only for nearby motion, and makes
 native Linux default to `native-performance` (grass72m, vegetation55%, shadows50%, wildlife70%,
 ocean96x96, MSAA0). All 50 snakes, 200 spiders and requested features remain. Web stays full;

@@ -61,8 +61,20 @@ older uncapped build guidance; existing `-j2` builds remain suitable.
 
 ## Highest priority — native frame-rate regression
 
-This item is `[~]` and is not solved until the operator verifies the rebuilt binary on the Radeon
-780M. The retained interactive log shows 339 submitted frames in 15.95s before flight (about
+CPU follow-up: the 200-spider dormant tier was still replaying up to fifteen IK/terrain steps
+per resident. At the user's recorded flight position this cost 3.372ms per simulation update with
+no visible spiders. True suspension removes that work (0.0211ms in the CPU-only diagnostic), with
+explicit all-resident wake-up/retained-foot regression coverage. Cached snake radii and an exact
+constant-time terrain-cell lookup reduce repeated scalar work. Ordinary play now logs five-second
+`frame-window` FPS/update/draw summaries and four wildlife update costs. The operator now reports
+60 FPS high flight / 30 FPS walking. Their new live log confirms 55–56 FPS high-flight averages,
+but walking varies 18–45 FPS. A 29.443 FPS walking window spends 16.532ms/frame updating and
+16.563ms submitting draws; snakes alone take 4.188ms/update (spiders 0.590ms). Next investigate
+snake CPU work and dense near-ground rendering; retain all 50 snakes / 200 spiders. No matched
+same-route FPS measurement from before the population expansion exists.
+
+This item remains `[~]`: operator verification confirms partial recovery, not stable 60 FPS
+walking. The earlier retained interactive log shows 339 submitted frames in 15.95s before flight (about
 21 FPS) and 143 frames in 13.83s during flight (about 10 FPS), despite an idle host. The renderer
 was real AMD hardware, not llvmpipe, using the former full profile with 4x MSAA.
 

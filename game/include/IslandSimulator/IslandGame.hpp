@@ -177,6 +177,7 @@ namespace island
         void RecordBenchmarkFrame();
         void RecordBenchmarkSceneSample();
         void RecordStartupTiming(std::chrono::steady_clock::time_point drawStarted);
+        void RecordRuntimeFrameTiming(std::chrono::steady_clock::time_point drawStarted);
         void WriteBenchmarkReport();
         void WriteStartupReport();
         void UpdateBenchmarkTraversal();
@@ -394,6 +395,10 @@ namespace island
         double firstDrawMilliseconds_ = 0.0;
         double totalStartupMilliseconds_ = 0.0;
         bool startupTimingRecorded_ = false;
+        std::chrono::steady_clock::time_point runtimeTimingWindowStarted_{};
+        std::uint64_t runtimeTimingFrames_ = 0, runtimeTimingUpdates_ = 0;
+        double runtimeUpdateMilliseconds_ = 0, runtimeDrawMilliseconds_ = 0;
+        std::array<double,4> runtimeWildlifeMilliseconds_{}; // spiders, goats, snakes, monkeys
         std::chrono::steady_clock::time_point benchmarkPreviousFrameTime_;
         std::vector<double> benchmarkFrameMilliseconds_;
         std::size_t benchmarkWarmupIntervals_ = 0U;

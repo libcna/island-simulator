@@ -18,10 +18,15 @@ namespace island
 
         int Quad(const float position)
         {
-            // Use the renderer's actual rounded coordinates, including exact grid boundaries.
-            return std::clamp(static_cast<int>(std::upper_bound(
-                Coordinates.begin(), Coordinates.end(), position) - Coordinates.begin()) - 1,
+            // The regular grid gives an O(1) candidate. Correct against the actual
+            // rounded vertex coordinates so exact edges still select the same quad
+            // as upper_bound, including negative coordinates and the outer extent.
+            int index = std::clamp(static_cast<int>((double(position) + TerrainMeshLayout::Extent)
+                * (TerrainMeshLayout::QuadsPerAxis / (2.0 * TerrainMeshLayout::Extent))),
                 0, TerrainMeshLayout::QuadsPerAxis - 1);
+            while (index > 0 && position < Coordinates[index]) --index;
+            while (index < TerrainMeshLayout::QuadsPerAxis - 1 && position >= Coordinates[index+1]) ++index;
+            return index;
         }
     }
 

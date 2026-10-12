@@ -156,7 +156,18 @@ void SpiderColony::Update(float dt,SpiderPoint observer) {
         auto& state=states_[i];
         const float distance=valid?std::hypot(state.x-observer.x,state.y+.04f-observer.y,
             state.z-observer.z):std::numeric_limits<float>::infinity();
+        const auto previousTier=state.tier;
         state.tier=WildlifeActivationPolicy::Classify(distance,18.0f,48.0f);
+        // Outside the visible habitat keep the exact planted pose, without accruing
+        // catch-up work. Replaying up to fifteen IK steps for every dormant spider
+        // made aerial views pay for all 200 ground animals even when none was drawn.
+        if(state.tier==WildlifeSimulationTier::Dormant) {
+            accumulatedSeconds_[i]=0;
+            state.speed=0;
+            continue;
+        }
+        if(state.tier==WildlifeSimulationTier::Full && previousTier!=state.tier)
+            accumulatedSeconds_[i]=0; // Do not reveal a deferred reduced-tier jump on approach.
         accumulatedSeconds_[i]=std::min(accumulatedSeconds_[i]+dt,.30f);
         const auto divisor=WildlifeActivationPolicy::UpdateDivisor(state.tier);
         if((frameIndex_+i)%divisor!=0U)continue;

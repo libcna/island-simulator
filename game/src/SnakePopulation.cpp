@@ -21,11 +21,19 @@ namespace island
 
     float SnakePopulation::RadiusAt(const std::size_t station) noexcept
     {
-        if (station == 0) return 0.043f;
-        const float t = static_cast<float>(std::min(station, SnakeState::StationCount-1))
-            / static_cast<float>(SnakeState::StationCount-1);
-        return 0.004f + 0.044f * std::pow(std::max(0.0f,
-            std::sin(std::numbers::pi_v<float> * t)), 0.45f);
+        // The same 41 authored radii are used in every body/body clearance pair.
+        // Compute them once instead of thousands of sin/pow calls per animal tick.
+        static const auto radii = [] {
+            std::array<float, SnakeState::StationCount> result{};
+            result[0] = 0.043f;
+            for (std::size_t i = 1; i < result.size(); ++i) {
+                const float t = static_cast<float>(i) / static_cast<float>(result.size()-1);
+                result[i] = 0.004f + 0.044f * std::pow(std::max(0.0f,
+                    std::sin(std::numbers::pi_v<float> * t)), 0.45f);
+            }
+            return result;
+        }();
+        return radii[std::min(station, radii.size()-1)];
     }
 
     bool SnakePopulation::ValidPoint(const float x, const float z, const float radius) const

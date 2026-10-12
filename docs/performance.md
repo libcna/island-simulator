@@ -1,5 +1,41 @@
 # Performance Measurement
 
+## CPU attribution and live frame logging — 2026-10-12
+
+`build/island-wildlife-cpu-report` runs the actual 200-spider, 50-snake, six-goat and seven-monkey
+updates without creating a graphics context. It uses 600 warm-up and 300 measured 1/60s steps at
+the reported ground and flight coordinates and a close spider home. Construction is excluded.
+Retained before/after reports are `build/wildlife-cpu-all-before.txt` and
+`build/wildlife-cpu-final.txt` (Debug, CPUs 0–3). These measure update costs only; host scheduling
+and CPU clocks varied, so do not interpret small cross-run differences as speedup.
+
+The decisive finding was unnecessary dormant spider gait work: at the flight position all 200
+spiders were dormant, yet cost 3.372ms mean per update before the repair versus 0.0211ms afterward.
+Their poses now sleep without accumulating deferred simulation. Full-detail activation keeps the
+feet and resumes one tick, including transitions from the reduced tier. This directly removes work
+without changing visible geometry. Snake radii are also cached once instead of repeated sin/pow
+inside every self-contact pair; the exact rendered-terrain cell search now uses the regular grid
+plus correction against rounded vertices, preserving boundary ownership.
+
+Ordinary play now emits `frame-window` every five seconds into stdout and the persistent runtime
+log. It records frames/seconds, FPS, updates per frame, total update and draw-submission wall time
+per frame, and spider/goat/snake/monkey wall time per update. The first frame/loading is excluded.
+These values expose fixed-step catch-up: several costly simulation ticks can precede one rendered
+frame. Draw submission can include driver waits and excludes later presentation; it is not GPU
+timer-query data.
+
+The operator subsequently reported approximately 60 FPS high flight and 30 FPS walking.
+Their live Radeon log `island-runtime-3538060.log` contains high-flight five-second averages
+54.751/56.374 FPS and walking averages 17.512–44.708 FPS. One 29.443 FPS walking window has
+2.047 updates/frame, 16.532ms update and 16.563ms draw submission per frame. Within each
+update, snakes cost 4.188ms and spiders 0.590ms. Both simulation and rendering therefore warrant
+further work; draw submission is not an isolated GPU measurement. This moving session is not a
+controlled before/after route, and no matched pre-population-expansion baseline exists.
+
+Focused spider/snake/rendered-terrain regression tests pass 3/3 and Python runner tests 46/46.
+The isolated llvmpipe gate `build/software-flight/20261012T163818.420440Z` passes fullscreen,
+flight/ceiling/landing and frame-window accounting checks without new kernel GPU faults.
+
 ## Active native regression — 2026-10-12
 
 The current user-visible issue is not closed. A retained Radeon 780M interactive log measured
@@ -12,8 +48,8 @@ deformation, staggers reduced-tier snake updates, and avoids distant snake shado
 An isolated llvmpipe overview capture reduced first-draw submission from 311.281ms for the last
 same-world full-profile capture to 200.735ms for the new profile; visible grass was correctly zero
 from the high overview, and visible palm/canopy populations fell to 103/46. This is directional
-software evidence, not hardware qualification or sustained frame pacing. Operator retest on the
-Radeon is required before the regression can be marked resolved.
+software evidence, not hardware qualification or sustained frame pacing. The later operator run
+above confirms partial recovery; repeatable walking frame pacing remains unresolved.
 
 ## Purpose
 

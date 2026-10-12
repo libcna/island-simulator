@@ -1376,6 +1376,13 @@ namespace island
 
     void IslandGame::Update(GameTime& gameTime)
     {
+        const auto updateStarted = std::chrono::steady_clock::now();
+        const auto measureWildlife = [this](std::size_t species, auto&& update) {
+            const auto started = std::chrono::steady_clock::now();
+            update();
+            runtimeWildlifeMilliseconds_[species] += std::chrono::duration<double, std::milli>(
+                std::chrono::steady_clock::now() - started).count();
+        };
         const bool snakeCaptureClock=UsesSnakeCaptureClock();
         const bool goatCaptureClock=UsesGoatCaptureClock();
         const bool boarCaptureClock=UsesBoarCaptureClock();
@@ -1466,12 +1473,16 @@ namespace island
         }
         const auto previousGoat=goats_->Goats().front();
         const auto previousSpider=spiders_->Spiders()[spiderViewSubject_];
-        spiders_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+        measureWildlife(0, [&] {
+            spiders_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+        });
         if(UsesSpiderViewpoint()) {
             const auto& current=spiders_->Spiders()[spiderViewSubject_];
             cameraPosition_+=Vector3(current.x-previousSpider.x,current.y-previousSpider.y,current.z-previousSpider.z);
         }
-        goats_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+        measureWildlife(1, [&] {
+            goats_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+        });
         if(viewpoint_==FixedViewpoint::GoatDetail) {
             const auto& current=goats_->Goats().front();
             cameraPosition_+=Vector3(current.x-previousGoat.x,current.y-previousGoat.y,current.z-previousGoat.z);
@@ -1487,7 +1498,9 @@ namespace island
             return centre/static_cast<float>(SnakeState::StationCount);
         };
         const auto previousSnakeCentre = snakeCentre();
-        snakes_->Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        measureWildlife(2, [&] {
+            snakes_->Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        });
         if (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail) {
             // Follow translation only: preserve the viewing direction and live retreat behavior.
             // Software frames can span many simulation updates; otherwise the close subject exits.
@@ -1509,10 +1522,13 @@ namespace island
             }
         }
         const MonkeyState previousMonkeySubject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];
-        if (viewpoint_ != FixedViewpoint::MonkeyTreeDetail && viewpoint_ != FixedViewpoint::MonkeyClimbDetail)
-            monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z,
-                snakeCaptureClock ? static_cast<float>(snakeCaptureUpdates_)*0.1f
-                    : static_cast<float>(gameTime.getTotalGameTimeProperty().getTotalSecondsProperty()));
+        if (viewpoint_ != FixedViewpoint::MonkeyTreeDetail && viewpoint_ != FixedViewpoint::MonkeyClimbDetail) {
+            measureWildlife(3, [&] {
+                monkeyTroop_.Update(deltaSeconds, monkeyObserver.X, monkeyObserver.Y, monkeyObserver.Z,
+                    snakeCaptureClock ? static_cast<float>(snakeCaptureUpdates_)*0.1f
+                        : static_cast<float>(gameTime.getTotalGameTimeProperty().getTotalSecondsProperty()));
+            });
+        }
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
             // Keep the animated subject in the close QA view even when software rendering
             // requires many simulation updates between captured frames. Preserve the original
@@ -1576,6 +1592,48 @@ namespace island
                 std::cout << std::flush;
             }
         }
+        ++runtimeTimingUpdates_;
+        runtimeUpdateMilliseconds_ += std::chrono::duration<double, std::milli>(
+            std::chrono::steady_clock::now() - updateStarted).count();
+    }
+
+    void IslandGame::RecordRuntimeFrameTiming(const std::chrono::steady_clock::time_point drawStarted)
+    {
+        if (smokeTest_ || !benchmarkPath_.empty()) return;
+        const auto now = std::chrono::steady_clock::now();
+        const auto reset = [&] {
+            runtimeTimingWindowStarted_ = now;
+            runtimeTimingFrames_ = runtimeTimingUpdates_ = 0;
+            runtimeUpdateMilliseconds_ = runtimeDrawMilliseconds_ = 0;
+            runtimeWildlifeMilliseconds_.fill(0);
+        };
+        if (runtimeTimingWindowStarted_ == std::chrono::steady_clock::time_point{}) {
+            reset(); // Exclude world loading and the first shader compilation from play timings.
+            return;
+        }
+        ++runtimeTimingFrames_;
+        runtimeDrawMilliseconds_ += std::chrono::duration<double, std::milli>(now-drawStarted).count();
+        const double seconds = std::chrono::duration<double>(now-runtimeTimingWindowStarted_).count();
+        if (seconds < 5.0) return;
+        const double frames = static_cast<double>(runtimeTimingFrames_);
+        const double updates = static_cast<double>(std::max<std::uint64_t>(1, runtimeTimingUpdates_));
+        std::ostringstream report;
+        report << std::fixed << std::setprecision(3)
+               << "island-simulator: frame-window seconds=" << seconds
+               << " frames=" << runtimeTimingFrames_ << " fps=" << frames/seconds
+               << " updates-per-frame=" << static_cast<double>(runtimeTimingUpdates_)/frames
+               << " update-ms-per-frame=" << runtimeUpdateMilliseconds_/frames
+               << " draw-submit-ms-per-frame=" << runtimeDrawMilliseconds_/frames
+               << " wildlife-ms-per-update(spider,goat,snake,monkey)="
+               << runtimeWildlifeMilliseconds_[0]/updates << ','
+               << runtimeWildlifeMilliseconds_[1]/updates << ','
+               << runtimeWildlifeMilliseconds_[2]/updates << ','
+               << runtimeWildlifeMilliseconds_[3]/updates
+               << " flight=" << flightMotion_.IsActive()
+               << " camera=" << cameraPosition_.X << ',' << cameraPosition_.Y << ',' << cameraPosition_.Z;
+        std::cout << report.str() << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        reset();
     }
 
     void IslandGame::UpdateBenchmarkTraversal()
@@ -3314,6 +3372,7 @@ namespace island
             Exit();
         }
         EndGpuDiagnosticFrame();
+        RecordRuntimeFrameTiming(drawStarted);
     }
 
     GetTypeNameCPP(IslandGame, "IslandSimulator.IslandGame")
