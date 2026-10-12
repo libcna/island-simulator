@@ -29,6 +29,20 @@ older uncapped build guidance; existing `-j2` builds remain suitable.
 These are additive requirements, not a replacement for the remaining plan. Prioritize
 the renewed boar/monkey and hut requests over unfinished spider-web integration.
 
+Boar material follow-up: original ImageGen fine-bristle v2 source and exact prompt
+preserved/manifest recorded; native/Web/Android preparation selects v2 with unchanged
+256square/mips/memory/draws. Native build + asset/preparation tests PASS34.01s.
+Actual071024.005936Z-boars capture passed/kernel[] with identical poseJSON; inspected
+stage0 shows finer body fur, remaining head stretching/simplified anatomy. No final
+visual/full-suite/portable acceptance. See docs/boar-coat-material.md.
+
+- [ ] Latest flight controls request: Tab toggles flight; while flying, Space ascends
+  and Shift descends. This supersedes the old Space toggle and Q/E vertical controls.
+  Update input handling, help/overlay and control tests together; toggle once per
+  key press, not per repeat/frame. Preserve ground controls outside flight and all
+  terrain/ceiling/island-radius constraints. Check focus changes and simultaneous
+  vertical keys. This is a planned change, not implemented yet.
+
 Boar audit tooling follow-up: fixed0.1s capture-only clock, eight actual stages and
 translation-follow camera; normal game unchanged. Build with affinity0-3/-j2 and
 43 preflight tests passed. Native software20261012T065903.868384Z-boars passed,

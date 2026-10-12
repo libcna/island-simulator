@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — finer boar source v2 integrated
+
+Previous94391a7 was progress. Used imagegen skill/built-in tool, no references;
+new assets/art-studies/boar-bristle-albedo-v2.png plus exact sibling prompt, both
+manifest/license recorded. Source1254square4247297bytes preserved; v1 retained.
+SourceSHA79490e2046ba87f0e5260e39981f0e2e29909a2b2ed32326a4b2462b5cd50c15.
+Actual prepared256square153886bytes SHA0b292105904b1337de14a8fdb2323a934aef61f8bf2d3b7066a991fac3fcf880.
+Source and reduced texture viewed; native/Web CMake + Android source selection v2.
+Same runtime349524bytes/9mips and two draws. Build80418exit0 taskset0-3/-j2/cache;
+AssetValidation/PreparedMaterial two testsPASS34.01s. Actual3535exit0 capture
+071024.005936Z-boars PASS320bins/std46.80/spatial221.52/kernel[]. PoseJSON exactly
+matches070439.874400Z; actual stage0crop build/boar-v2-after.png inspected: finer
+less contrasted body fur, head still stretched/streaked and anatomy simplified.
+No full or portable qualification; do not claim boar task finished. All handles
+terminal. Full priorities retained; newest flight remap below is planned only.
+
+## Latest user request — flight key remapping (not implemented)
+
+Add to tasks: Tab toggles flight, Space ascends during flight, Shift descends.
+Supersedes Space toggle and Q/E vertical movement. Update handling/help/tests;
+retain grounded controls and collision/100m ceiling/island boundary constraints.
+Do not describe this as live until implemented and tested.
+
 ## Operator build limit — 2026-10-12
 
 All future compilations must use at most four CPU cores, per explicit user request.

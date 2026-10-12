@@ -1,5 +1,25 @@
 # Boar coat material — live integration, visual refinement open
 
+## Fine-bristle source v2 — 2026-10-12
+
+Built-in ImageGen produced a new original opaque 1254-square source at
+`assets/art-studies/boar-bristle-albedo-v2.png`; exact prompt is the sibling
+`boar-bristle-albedo-v2-prompt.txt`. No external reference images were used.
+The previous source remains preserved. Source SHA256 is
+`79490e2046ba87f0e5260e39981f0e2e29909a2b2ed32326a4b2462b5cd50c15`.
+The source and actual reduced 256-square texture were inspected. Existing material
+preparation produces153886bytes, SHA256
+`0b292105904b1337de14a8fdb2323a934aef61f8bf2d3b7066a991fac3fcf880`.
+Native/Web source selection and Android preparation now select v2; dimensions,
+mips, memory, UVs and draw counts are unchanged. Manifest/license records include
+source and prompt. Asset and pixel-preparation tests pass34.01s; native build passes.
+
+Actual software capture `20261012T071024.005936Z-boars` passed with an empty kernel
+log and byte-identical pose JSON to the previous material run. Enlarged stage0
+`build/boar-v2-after.png` was inspected: finer, less high-contrast body bristles,
+but head UV stretching and simplified face/joints remain. Not final visual
+acceptance. No full-suite or Web/Android runtime qualification for v2.
+
 ## Runtime integration
 
 ### Shorter nasal region and short muzzle fur

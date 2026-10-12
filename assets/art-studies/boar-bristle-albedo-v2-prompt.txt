@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: original game animal RGB albedo texture, square opaque full-bleed surface swatch
+Primary request: realistic wild boar short stiff bristle coat, fine individual hairs, not a photograph of a whole animal.
+Composition: orthographic flat surface swatch representing approximately 1 metre of flank, hundreds of small short hairs across width; no perspective or body contours. Hair shafts mostly lie left-to-right with irregular small angles, each only 1 to 3 percent of image width, sparse slightly longer guard hairs. Fine dense dark undercoat with individually separated muted grey-brown and charcoal bristles. Broad-scale colour and density even across entire square.
+Lighting: neutral diffuse albedo, extremely restrained microcontrast; no baked highlights, shadows, shine, vignette or directional illumination.
+Palette: medium-dark neutral grey-brown, subtly mottled, no bright beige stripes.
+Constraints: original texture only, no text, border, logos or watermark. No long flowing hair, no clumps, no waves, no ridges, no woodgrain, bark, feathers, rope or zebra stripes. Maintain fine short bristle character when reduced to 256 pixels. Opaque background filled with fur.
