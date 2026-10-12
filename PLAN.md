@@ -536,6 +536,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   open, not completion; details and test-selection safety deviation recorded in
   docs/monkey-fur-material.md. Direct display CTests now disabled while stop latch exists.
   Final native incremental build/inclusive55CPU PASS100.52s; no portable qualification.
+  Second follow-up: 13-section trunk replaces the coarse9-section loft; cranium/rounded
+  ears are larger, corneas have explicit raised upper/lower skin lids, and the three-bone
+  tail now curls continuously forward/upward instead of projecting as a straight dog/rat
+  rod. Unit profile/gait/shader/sole tests3/3 plus Debug gait PASS. Actual contained
+  `20261012T202913.511429Z-monkey-tree` nine-frame sequence and
+  `20261012T202959.340747Z-monkeys` PASS, inspected, kernel[]. The sequence visibly shows
+  quadrupedal approach and arm reach to the trunk with a hooked fur tail. Face detail is
+  still small in the ordinary camera and limb/torso anatomy remains procedural; task open.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.

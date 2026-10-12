@@ -154,8 +154,8 @@ namespace island
                     ToVector(rest.limbs[2].root), ToVector(rest.limbs[2].joint),
                     ToVector(rest.limbs[3].root), ToVector(rest.limbs[3].joint),
                     Vector3(0.0f, 0.62f, -0.52f),
-                    Vector3(0.0f, 0.70f, -0.91f),
-                    Vector3(0.0f, 0.86f, -1.25f)},
+                    Vector3(0.0f, 0.76f, -0.82f),
+                    Vector3(0.0f, 0.96f, -1.03f)},
                 .parents = {-1, Pelvis, Spine, Spine, UpperArmLeft, Spine, UpperArmRight,
                             Pelvis, ThighLeft, Pelvis, ThighRight, Pelvis, TailBase,
                             TailMiddle}};
@@ -478,7 +478,8 @@ namespace island
             const auto point = [](Vector3 p) { return Point{p.X, p.Y, p.Z}; };
             const auto vector = [](Point p) { return Vector3(p.x, p.y, p.z); };
             const std::array<Point, 4> anchors{point(rig.heads[TailBase]),
-                point(rig.heads[TailMiddle]), point(rig.heads[TailTip]), {0, .97f, -1.55f*length}};
+                point(rig.heads[TailMiddle]), point(rig.heads[TailTip]),
+                {0, .98f+.16f*length, -1.03f+.15f*length}};
             constexpr std::array<int, 3> bones{TailBase, TailMiddle, TailTip};
             const int rings = near ? 24 : 12, segments = near ? 12 : 8;
             const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
@@ -607,22 +608,26 @@ namespace island
             const auto& shape = SilhouetteParametersByVariant[silhouetteIndex];
             const int segments = near ? 14 : 8;
             const float w = shape.width;
-            const std::array<BodySection, 9> body{{
+            const std::array<BodySection, 13> body{{
                 {Vector3(0, .58f, -.57f), .008f, .015f, Pelvis, Spine, 0},
-                {Vector3(0, .59f, -.48f), .15f*w, .17f, Pelvis, Spine, 0},
-                {Vector3(0, .61f, -.31f), .205f*w, .205f, Pelvis, Spine, .15f},
-                {Vector3(0, .62f, -.10f), .185f*w, .19f, Pelvis, Spine, .55f},
-                {Vector3(0, .63f, .10f), .215f*w, .23f, Pelvis, Spine, 1},
-                {Vector3(0, .67f, .27f), .19f*w, .215f, Spine, Head, .05f},
-                {Vector3(0, .74f, .36f), .13f*w, .17f, Spine, Head, .45f},
-                {Vector3(0, .80f, .45f), .105f*w, .13f, Spine, Head, 1},
+                {Vector3(0, .59f, -.50f), .125f*w, .145f, Pelvis, Spine, 0},
+                {Vector3(0, .60f, -.40f), .19f*w, .195f, Pelvis, Spine, .05f},
+                {Vector3(0, .61f, -.29f), .205f*w, .21f, Pelvis, Spine, .18f},
+                {Vector3(0, .62f, -.16f), .195f*w, .205f, Pelvis, Spine, .42f},
+                {Vector3(0, .625f, -.02f), .195f*w, .21f, Pelvis, Spine, .72f},
+                {Vector3(0, .64f, .12f), .215f*w, .23f, Pelvis, Spine, 1},
+                {Vector3(0, .67f, .24f), .205f*w, .225f, Spine, Head, .03f},
+                {Vector3(0, .71f, .33f), .165f*w, .195f, Spine, Head, .27f},
+                {Vector3(0, .755f, .39f), .13f*w, .165f, Spine, Head, .56f},
+                {Vector3(0, .79f, .44f), .108f*w, .135f, Spine, Head, .86f},
+                {Vector3(0, .81f, .48f), .065f*w, .082f, Spine, Head, 1},
                 {Vector3(0, .82f, .51f), .008f, .015f, Spine, Head, 1}}};
             AddBodyLoft(mesh, body, segments);
             AddEllipsoid(mesh, Vector3(0, .85f, .46f),
-                         Vector3(.166f, .176f, .165f) * shape.headSize, Head, near ? 10 : 6, segments);
+                         Vector3(.178f, .190f, .175f) * shape.headSize, Head, near ? 10 : 6, segments);
             for (float side : {-1.0f, 1.0f})
-                AddEllipsoid(mesh, Vector3(side * .147f, .84f, .425f),
-                             Vector3(.042f, .057f, .023f), Head, 4, near ? 10 : 6);
+                AddEllipsoid(mesh, Vector3(side * .157f, .84f, .425f),
+                             Vector3(.052f, .066f, .026f), Head, 5, near ? 12 : 8);
             const auto rest = MonkeyGroundGait::Sample(0, 0);
             constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
             constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
@@ -676,7 +681,28 @@ namespace island
                 }
             for (float side : {-1.0f, 1.0f})
                 AddEllipsoid(mesh, Vector3(side * .151f, .84f, .445f),
-                             Vector3(.026f, .037f, .013f), Head, 4, 8);
+                             Vector3(.034f, .045f, .016f), Head, 5, 10);
+            // Skin-coloured upper/lower eyelid strips give the eyes an almond-shaped
+            // socket and readable brow transition instead of two isolated black dots.
+            constexpr int lidSegments=10;
+            for(float side:{-1.0f,1.0f}) for(bool upper:{true,false}) {
+                const auto base=static_cast<std::uint16_t>(mesh.vertices.size());
+                for(int step=0;step<=lidSegments;++step) {
+                    const float t=-.92f+1.84f*static_cast<float>(step)/lidSegments;
+                    for(bool outer:{true,false}) {
+                        const auto p=MonkeyFaceProfile::Eyelid(side,t,upper,outer);
+                        AddVertex(mesh,{p.x,p.y,p.z},{0,0,1},Head,Vector2(.5f,-.9f));
+                    }
+                }
+                for(int step=0;step<lidSegments;++step) {
+                    const auto a=static_cast<std::uint16_t>(base+step*2);
+                    const auto b=static_cast<std::uint16_t>(a+1);
+                    const auto c=static_cast<std::uint16_t>(a+2);
+                    const auto d=static_cast<std::uint16_t>(a+3);
+                    if(upper) mesh.indices.insert(mesh.indices.end(),{a,b,c,b,d,c});
+                    else mesh.indices.insert(mesh.indices.end(),{a,c,b,b,c,d});
+                }
+            }
             return mesh;
         }
 
@@ -685,7 +711,8 @@ namespace island
             MeshData mesh;
             for (float side : {-1.0f, 1.0f}) {
                 AddEllipsoid(mesh, Vector3(side * .052f, .867f, MonkeyFaceProfile::EyeCentreZ),
-                             Vector3(.016f, .010f, .007f), Head, 4, 10);
+                             Vector3(MonkeyFaceProfile::EyeRadiusX,MonkeyFaceProfile::EyeRadiusY,
+                                     MonkeyFaceProfile::EyeRadiusZ), Head, 5, 12);
                 AddEllipsoid(mesh, Vector3(side * .015f, .817f, .666f),
                              Vector3(.006f, .004f, .003f), Head, 3, 6);
             }

@@ -1,5 +1,16 @@
 # Current wildlife visual audit — 2026-10-12
 
+## Latest monkey anatomy/tail pass
+
+Actual contained `20261012T202913.511429Z-monkey-tree` (nine sequential frames) and
+`20261012T202959.340747Z-monkeys` both pass, were inspected, and have empty kernel deltas.
+The former shows ordinary quadrupedal approach, a one-arm reach to the trunk and return;
+the tail remains animated and now ends in a forward/upward hook rather than a straight
+projecting rod. A 13-section trunk, modestly larger cranium/rounded ears, enlarged corneas
+and generated skin eyelid rims improve the earlier coarse silhouette without new draws or
+textures. The model remains visibly procedural: face details are small in the ordinary
+camera and limb/trunk transitions still need polish. This is progress, not visual closure.
+
 ## Latest boar shoulder/bristle pass
 
 Current baseline062020.501241Z-boars and revised062718.488953Z-boars were both

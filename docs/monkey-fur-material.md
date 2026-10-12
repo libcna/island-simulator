@@ -33,6 +33,36 @@ is unchanged. This guard is not a driver fix or permission to resume hardware te
 Final incremental build and inclusive55 CPU groups PASS100.52s; logs
 `build/monkey-silhouette-final-build.log` and `build/monkey-silhouette-full-tests.log`.
 
+## Hooked tail, facial rims and smoother trunk — 2026-10-12
+
+The retained `monkey-tree` sequence made the remaining tail defect clearer than the
+single ordinary still: the thicker tube projected nearly straight behind the animal and
+read as a dog-like rod. The three existing tail bones now follow an upward curve and the
+terminal Hermite point turns forward, forming a continuous hook. The rounded fur-bearing
+radius profile, 24/12 near rings/sides, skin weights and animated phase offsets are retained.
+Tests require the terminal centre and tangent to turn forward/upward while preserving C1
+continuity and normalized two-bone blending.
+
+The body loft now has 13 longitudinal sections instead of nine, with additional bounded
+hip, abdomen, shoulder and neck transitions. The cranium grew about 7–8%, and rounded
+outer/inner ears are larger. Each dark cornea is now framed by separate skin-coloured upper
+and lower eyelid strips (40 sampled points and 40 triangles per monkey face) whose profile
+is finite, bilaterally mirrored, nonzero-width and slightly forward of the orbital surface.
+This uses the existing face/eye draws, bone palette, fur texture and materials; no texture,
+shader, animation state or draw call was added.
+
+Actual contained llvmpipe `20261012T202913.511429Z-monkey-tree` passes all nine images;
+selected stages were inspected together. They show the subject walking quadrupedally,
+reaching one arm to the trunk and returning, while the hooked tail remains volumetric and
+animated. Final metrics are 203 colour bins, luminance deviation 44.72 and spatial contrast
+192.54. Ordinary close `20261012T202959.340747Z-monkeys` also passes and was inspected
+(164 bins / 29.02 / 113.80). Both kernel deltas are empty. The new hook is a clear
+silhouette improvement, but the procedural limbs/trunk and small face detail remain
+visibly stylized; this is not final realism or portable qualification.
+
+Release monkey profile/gait, skinning-shader and sole tests pass 3/3; Debug gait and both
+native game builds pass. No AMD GPU, Android emulator/KVM or dependency setting was used.
+
 ## Shorter fur and non-collapsing side UVs (2026-10-11)
 
 The first source and cosine UV projection produced large wood-like streaks on the actual

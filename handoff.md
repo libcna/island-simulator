@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Current work — monkey face/body and hooked-tail second pass inspected
+
+Goal remains active. Monkey trunk now has13 instead of9 loft sections; cranium and rounded
+ears are larger; dark corneas have generated skin-coloured upper/lower eyelid rims. Existing
+three-bone tail anchors now curl upward then forward, retaining the full fur-bearing profile
+instead of the previous straight dog/rat-like rod. No new draw, texture, shader or behavior.
+Release profile/gait/shader/sole tests3/3 and Debug gait PASS; Release/Debug games build.
+Actual llvmpipe `20261012T202913.511429Z-monkey-tree` nine-stage sequence and
+`20261012T202959.340747Z-monkeys` PASS, inspected, kernel[]. Sequence shows quadrupedal
+approach/arm reach/return and stable hooked tail. Still procedural; face remains small at
+gameplay distance and limb/torso realism plus Web/Android review stay open. PLAN monkey remains
+unchecked. Continue whole plan, max4 build cores, no AMD/Android/KVM change.
+
 ## Current work — inland hut relocation and reference facade inspected
 
 Goal remains active; continue the whole plan. Hut moved from the coastal strip to

@@ -101,12 +101,26 @@ try {
         return face::Sample(row,std::asin(.052f/face::Rows[row].halfWidth)/1.57079632679f).z;
     };
     const float orbitalSurface=std::lerp(eyeSurface(4),eyeSurface(3),(.867f-.859f)/(.880f-.859f));
-    Require(face::EyeCentreZ-.007f<orbitalSurface&&face::EyeCentreZ+.007f>orbitalSurface,
+    Require(face::EyeCentreZ-face::EyeRadiusZ<orbitalSurface
+        &&face::EyeCentreZ+face::EyeRadiusZ>orbitalSurface,
         "eye cornea must straddle the recessed orbital surface, not float outside");
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
+    for(float side:{-1.0f,1.0f}) for(bool upper:{false,true}) for(int i=0;i<=10;++i) {
+        const float t=-.92f+1.84f*i/10.0f;
+        const auto outer=face::Eyelid(side,t,upper,true);
+        const auto inner=face::Eyelid(side,t,upper,false);
+        Require(std::isfinite(outer.x)&&std::isfinite(outer.y)&&std::isfinite(outer.z),
+            "eyelid profile must stay finite");
+        Require(outer.z>=.644f&&inner.z<=.647f,"eyelid leaves the facial relief envelope");
+        Require(upper ? outer.y>inner.y : outer.y<inner.y,
+            "upper/lower eyelid bands must retain nonzero ordered width");
+        const auto mirror=face::Eyelid(-side,-t,upper,true);
+        Require(std::abs(outer.x+mirror.x)<1e-6f&&std::abs(outer.y-mirror.y)<1e-6f
+            &&std::abs(outer.z-mirror.z)<1e-6f,"eyelid profile must mirror bilaterally");
+    }
     namespace tail = island::MonkeyTailProfile;
-    const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.70f,-.91f},
-        {0,.86f,-1.25f}, {0,.97f,-1.55f}}};
+    const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.76f,-.82f},
+        {0,.96f,-1.03f}, {0,1.14f,-.88f}}};
     const auto length = [](tail::Point p) { return std::sqrt(p.x*p.x+p.y*p.y+p.z*p.z); };
     for (int i = 0; i <= 300; ++i) {
         const auto section = tail::Sample(anchors, i/300.0f);
@@ -132,6 +146,10 @@ try {
         Require(length(tail::Sample(anchors,t).centre-anchors[joint]) < 1e-5f,
                 "tail centreline passes through rig anchors");
     }
+    Require(anchors.back().z>anchors[2].z&&anchors.back().y>anchors[2].y,
+        "tail tip must curl forward and upward instead of ending as a straight rod");
+    Require(tail::Sample(anchors,1).tangent.z>0,
+        "terminal tail tangent must preserve the visible hook");
     for (int sample = -200; sample <= 400; ++sample) {
         const float phase = static_cast<float>(sample) / 200.0f;
         for (const float amount : {0.0f, 0.25f, 1.0f}) {
