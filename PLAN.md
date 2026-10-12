@@ -536,7 +536,7 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   open, not completion; details and test-selection safety deviation recorded in
   docs/monkey-fur-material.md. Direct display CTests now disabled while stop latch exists.
   Final native incremental build/inclusive55CPU PASS100.52s; no portable qualification.
-- [ ] Move the hut substantially farther inland and rebuild its appearance toward the
+- [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.
   Reference inspected from
@@ -544,6 +544,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   (local reference only: build/hut-user-reference.jpg; not a licensed game texture).
   Preserve reachable access, grounded supports and collision; update report/placement
   tests and inspect actual in-game near/wide views after relocation and redesign.
+  Native relocation/facade pass: hut now at(-137.765,-81.232), 57.061m from the stream,
+  with a 314.243m/4800-step dry spawn route. A dedicated low-foliage clearing preserves
+  trees/rocks/props; the 3.25m proxy covers a new 0.60m veranda. Front now has three steps,
+  split railing/balusters, closed plank door, two framed window recesses and exposed gable
+  framing, still one draw at9988triangles/29964vertices. Actual contained close/wide
+  201625/201645 captures PASS/inspected/kernel[]; focused6/6 PASS and WorldReport valid
+  fingerprint e744bc4e0f3093f6. Portable visuals, route walk and further realism remain,
+  so this stays in progress. Details `docs/island-hut.md`.
 - [ ] Add a river or stream. Initial implementation choice: a small inland-to-coast
   stream with a continuous downhill channel integrated into terrain, suitable banks,
   coherent water height/flow and a plausible mouth. Verify walking/crossing, collision,
@@ -1686,7 +1694,7 @@ Landmark backlog requested by the operator:
   route-blocking site, with collision, grounded footing, weathered materials, contact shadows,
   a capture viewpoint and regression tests. Decorative only: no interiors with inventory,
   crafting, quests or other new game systems.
-  Placement foundation: bounded 576-candidate CPU search, exact
+  Placement foundation, subsequently expanded inland: bounded 1728-candidate CPU search, exact
   rendered-ground six supports, dry local approach and clearance from supplied solid
   obstacles. Tested candidate near(2.582,204.115), level floorY2.517. The following
   entries record subsequent live integration; global access and reporting remain open.

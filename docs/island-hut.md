@@ -6,8 +6,10 @@ complete or fully qualified. Placement uses the renderer-independent `HutLayout:
 ## Placement contract
 
 - A 4.2 × 3.4 m level floor, six supports and 0.55 m roof overhang.
-- At most 576 deterministic candidate sites, 18–38 m inland, with the front facing
-  radially toward the coast. Stable score/order chooses a relatively flat site.
+- At most 1,728 deterministic candidate sites, beginning 38 m inland and extending
+  through the interior in 4 m rings, with the front facing radially toward the coast.
+  Stable score/order favours a relatively flat site around 60 m inland and near the
+  existing freshwater stream without placing the building in its wet bank corridor.
 - A 5 m site-clearance circle must not intersect supplied occupied discs. Existing
   palm, jungle, rock and wreck solids are included, together with conservative discs
   for understory (1.8 × scale), bushes (1.2 × scale) and ground plants (0.5 × scale).
@@ -19,9 +21,13 @@ complete or fully qualified. Placement uses the renderer-independent `HutLayout:
 - Invalid occupancy is rejected. A fully occupied world returns no placement instead
   of forcing an overlapping landmark or modifying terrain/vegetation.
 
-Current solid-obstacle fixture selects approximately x=2.58166, z=204.115, floorY=
-2.51744, yaw=0.0126473 radians. The same search is used by the live game.
-Tests cover determinism, existing-solid clearance, independent support grounding,
+Current solid-obstacle fixture selects approximately x=-137.765, z=-81.232, floorY=
+5.567, yaw=-2.104 radians, 57.061 m from the stream. A deterministic 5 m clearing at
+that surveyed site excludes only non-solid understory, bushes and ground plants; tree,
+rock, prop, terrain and route constraints remain authoritative. The same search is used
+by the live game and world report.
+Tests cover the reserved clearing, minimum inland/stream distance, determinism,
+existing-solid clearance, independent support grounding,
 dense floor terrain clearance, separate posts, reserving the chosen site, blocked
 world and invalid occupancy. No new texture assets are used yet.
 
@@ -270,6 +276,30 @@ markers and exact7/6visible contact patches; parent validation passes, kernel-fi
 Initial and final images actually inspected (final side-by-side review retained).
 Pale fibrous material agrees with native/Android; this does not qualify camera-motion
 aliasing, directional roof shading, global input traversal or hardware performance.
+
+## Inland relocation and reference-guided facade — 2026-10-12
+
+The live hut moved from the south coastal strip to the western interior at
+`(-137.765, -81.232)`. Its verified dry route from the normal spawn is now 314.243 m,
+4,800 continuous ordinary walking steps and 142 waypoints. The enlarged 3.25 m collision
+proxy encloses the 0.60 m veranda; the terrain survey and contact-shadow footprint include
+the extension. WorldReport is valid with fingerprint `e744bc4e0f3093f6`, 807 static
+obstacles and 421 occupied cells.
+
+The user's retained reference is a raised jungle timber house with a frontal veranda,
+door/windows and exposed gable frame. The one-draw procedural model now adds a covered
+deck extension, split timber railing, six balusters, three broad entry steps, a closed
+plank door, two deep framed window recesses and four-member front gable frame. It remains
+bounded at 9,988 triangles / 29,964 vertices in one draw and keeps the existing generated
+palm-fibre roof material. It is still a small uninhabited decorative hut rather than a
+literal copy or enterable house.
+
+Actual contained llvmpipe captures `20261012T201625.232865Z-hut-material` and
+`20261012T201645.805217Z-hut` both pass, have empty kernel deltas and were inspected.
+The close view clearly shows framed dark windows, central door, railing and exposed gable;
+the wide view confirms the steps, grounded posts and vegetation-free building footprint in
+a jungle setting. Focused hut/resident/bear/goat/spider/world-report tests pass 6/6.
+Portable Web/Android images and further weathering/self-shadow polish remain open.
 
 ## Remaining acceptance work
 

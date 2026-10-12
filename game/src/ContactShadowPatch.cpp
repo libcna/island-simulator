@@ -20,7 +20,8 @@ namespace island
         const float x=std::sin(hut.yawRadians),z=std::cos(hut.yawRadians);
         std::array<ContactFootprint,7> result{};
         // Broad soft grounding under the raised floor, not a directional roof silhouette.
-        result[0]={hut.x,hut.z,x,z,HutLayout::Depth/2+0.3f,HutLayout::Width/2+0.3f,0.28f};
+        result[0]={hut.x,hut.z,x,z,HutLayout::Depth/2+HutLayout::VerandaDepth+0.18f,
+            HutLayout::Width/2+0.3f,0.28f};
         for(std::size_t i=0;i<hut.footings.size();++i)
             result[i+1]={hut.footings[i].x,hut.footings[i].z,x,z,0.25f,0.25f,0.34f};
         return result;

@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Current work — inland hut relocation and reference facade inspected
+
+Goal remains active; continue the whole plan. Hut moved from the coastal strip to
+(-137.765,-81.232), 57.061m from the stream. Deterministic 5m clearing removes only low
+non-solid foliage; tree/rock/prop/terrain constraints remain. Dry normal-spawn route PASS:
+314.243m,4800 continuous walking steps,142 waypoints. Collision radius3.25m and contact
+shadow now include the0.60m veranda. Facade adds covered deck, split railing/six balusters,
+three steps, closed plank door, two framed dark window recesses and exposed gable frame;
+9988triangles/29964vertices, still one draw and existing palm-fibre material. Actual contained
+llvmpipe `20261012T201625.232865Z-hut-material` and `201645.805217Z-hut` PASS, images inspected,
+kernel deltas empty. Focused rebuilt hut/resident/bear/goat/spider/world tests6/6 PASS.
+WorldReport fingerprint e744bc4e0f3093f6,807 solids/421 cells. PLAN hut remains[~]: portable
+visuals, full route walk and realism polish open. Max4 CPU builds; no AMD/Android/KVM changes.
+Next continue the highest-value remaining plan work; helicopter is explicitly last.
+
 ## Current work — bear native first pass live, audible and inspected
 
 Goal remains active; continue the whole plan. Exactly one non-hostile adult bear is now in

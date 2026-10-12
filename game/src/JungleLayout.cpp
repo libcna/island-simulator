@@ -1,6 +1,7 @@
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
+#include "IslandSimulator/HutLayout.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -240,6 +241,8 @@ namespace island
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x9fb21c65U));
                 plant.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xb7e15162U) % UnderstoryVariantCount);
+                if (HutLayout::ReservesDecorativeClearing(
+                        plant.x, plant.z, plant.scale * 1.8f)) continue;
                 understory_.push_back(plant);
             }
         }
@@ -288,6 +291,8 @@ namespace island
                     * UnitRandom(Hash(gridX, gridZ, seed ^ 0x1f83d9abU));
                 bush.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0x5be0cd19U) % BushVariantCount);
+                if (HutLayout::ReservesDecorativeClearing(
+                        bush.x, bush.z, bush.scale * 1.2f)) continue;
                 bushes_.push_back(bush);
             }
         }
@@ -339,6 +344,8 @@ namespace island
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x082efa98U));
                 plant.variant = static_cast<std::uint8_t>(
                     Hash(gridX, gridZ, seed ^ 0xec4e6c89U) % GroundPlantVariantCount);
+                if (HutLayout::ReservesDecorativeClearing(
+                        plant.x, plant.z, plant.scale * .5f)) continue;
                 groundPlants_.push_back(plant);
             }
         }
@@ -402,7 +409,8 @@ namespace island
                     || environment.drainage > .72f
                     || VegetationLayout::OverlapsReservedRoute(x, z, footprint)
                     || !clearOfCanopy(x, z, footprint)
-                    || !clearOfRoots(x, z, groundPlants_, .68f)) continue;
+                    || !clearOfRoots(x, z, groundPlants_, .68f)
+                    || HutLayout::ReservesDecorativeClearing(x,z,.5f*scale)) continue;
                 groundPlants_.push_back({x, sample.height + .009f, z,
                     random(4) * 2 * std::numbers::pi_v<float>, scale,
                     static_cast<std::uint8_t>((child
@@ -452,7 +460,8 @@ namespace island
                     || !clearOfCanopy(x,z,footprint)
                     || !clearOfRoots(x,z,groundPlants_,ForestRootSeparation)
                     || !clearOfRoots(x,z,bushes_,0.9f)
-                    || !clearOfRoots(x,z,understory_,0.85f)) continue;
+                    || !clearOfRoots(x,z,understory_,0.85f)
+                    || HutLayout::ReservesDecorativeClearing(x,z,.5f*scale)) continue;
                 bool clearingAccent=false;
                 for (const auto clearing:{VegetationLayout::EastClearing,VegetationLayout::WestClearing})
                     if (std::hypot(x-clearing.x,z-clearing.z)<clearing.radius+16+footprint)
@@ -490,7 +499,8 @@ namespace island
                 if (sample.signedShoreDistance < 38 || sample.signedShoreDistance > 232
                     || sample.height < 3 || sample.slopeRadians > 0.5235988f
                     || VegetationLayout::OverlapsReservedRoute(x, z, footprint)
-                    || !clearOfCanopy(x, z, footprint) || !clearOfRoots(x, z, bushes_, 2.8f)) continue;
+                    || !clearOfCanopy(x, z, footprint) || !clearOfRoots(x, z, bushes_, 2.8f)
+                    || HutLayout::ReservesDecorativeClearing(x,z,1.2f*scale)) continue;
                 bushes_.push_back({x, sample.height + 0.012f, z,
                     random(4) * 2 * std::numbers::pi_v<float>, scale,
                     static_cast<std::uint8_t>(random(5) * BushVariantCount)});
@@ -511,7 +521,8 @@ namespace island
                         || ground.height < 2.5f || ground.slopeRadians > 0.5585054f
                         || VegetationLayout::OverlapsReservedRoute(px, pz, plantFootprint)
                         || !clearOfCanopy(px, pz, plantFootprint)
-                        || !clearOfRoots(px, pz, groundPlants_, 0.72f)) continue;
+                        || !clearOfRoots(px, pz, groundPlants_, 0.72f)
+                        || HutLayout::ReservesDecorativeClearing(px,pz,.5f*plantScale)) continue;
                     // Most companions share a species; an occasional contrasting leaf breaks cloning.
                     const int variant = leaf == 3 ? (family + 1) % GroundPlantVariantCount : family;
                     groundPlants_.push_back({px, ground.height + 0.009f, pz,

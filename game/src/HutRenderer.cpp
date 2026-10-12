@@ -78,7 +78,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     // Level deck with individually separated weathered boards.
     for(int i=0;i<24;++i) {
         const float x=-2.1f+(static_cast<float>(i)+0.5f)*4.2f/24;
-        beam({x,-0.07f,-1.7f},{x,-0.07f,1.7f},0.166f,0.14f,timber+Vector3(static_cast<float>(i%5)*3));
+        beam({x,-0.07f,-1.7f},{x,-0.07f,2.3f},0.166f,0.14f,
+            timber+Vector3(static_cast<float>(i%5)*3));
     }
     std::size_t foot=0;
     for(float x:{-2.1f,2.1f}) for(float z:{-1.7f,0.0f,1.7f}) {
@@ -88,16 +89,55 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     }
     for(float x:{-2.1f,2.1f}) beam({x,2.2f,-1.8f},{x,2.2f,1.8f},0.16f,0.16f,dark);
     for(float z:{-1.7f,1.7f}) beam({-2.18f,2.2f,z},{2.18f,2.2f,z},0.16f,0.16f,dark);
-    // Slatted side/rear walls; front opening, porch rail and a low sill remain readable.
+    // Slatted rear wall and a front facade with a framed central door and two windows.
     for(int i=0;i<20;++i) {
         const float x=-2.0f+static_cast<float>(i)*4.0f/19;
         beam({x,0.08f,-1.7f},{x,1.8f,-1.7f},0.18f,0.055f,timber+Vector3(static_cast<float>(i%4)*5));
-        if(std::abs(x)>0.65f) beam({x,0.08f,1.7f},{x,0.95f,1.7f},0.16f,0.055f,timber);
+        const float ax=std::abs(x);
+        if(ax<0.53f) continue;
+        if(ax>0.82f&&ax<1.72f) {
+            beam({x,0.08f,1.7f},{x,0.55f,1.7f},0.16f,0.055f,timber);
+            beam({x,1.35f,1.7f},{x,1.8f,1.7f},0.16f,0.055f,timber);
+        } else beam({x,0.08f,1.7f},{x,1.8f,1.7f},0.16f,0.055f,timber);
     }
     for(float x:{-2.1f,2.1f}) for(int i=0;i<16;++i) {
         const float z=-1.6f+static_cast<float>(i)*3.2f/15;
         beam({x,0.08f,z},{x,1.8f,z},0.18f,0.055f,timber+Vector3(static_cast<float>(i%3)*5));
     }
+    // Deep, unlit window recesses remain clearly distinct from the timber in bright sun.
+    grainAcross={1,0,0};grainAlong={0,1,0};materialTag=64;
+    for(float x:{-1.26f,1.26f}) {
+        grainOrigin={x-.43f,.55f,1.704f};
+        quad({x-.43f,.55f,1.704f},{x+.43f,.55f,1.704f},
+             {x+.43f,1.35f,1.704f},{x-.43f,1.35f,1.704f},{38,45,37});
+        beam({x-.47f,.50f,1.73f},{x-.47f,1.40f,1.73f},.09f,.09f,dark);
+        beam({x+.47f,.50f,1.73f},{x+.47f,1.40f,1.73f},.09f,.09f,dark);
+        beam({x-.51f,.50f,1.73f},{x+.51f,.50f,1.73f},.09f,.09f,dark);
+        beam({x-.51f,1.40f,1.73f},{x+.51f,1.40f,1.73f},.09f,.09f,dark);
+    }
+    // A closed plank door suits the decorative, uninhabited building contract.
+    for(int i=0;i<5;++i) {
+        const float x=-.40f+static_cast<float>(i)*.20f;
+        beam({x,.08f,1.72f},{x,1.68f,1.72f},.17f,.065f,dark+Vector3(15+3*i,11+2*i,6+i));
+    }
+    beam({-.54f,.04f,1.76f},{-.54f,1.78f,1.76f},.11f,.11f,dark);
+    beam({ .54f,.04f,1.76f},{ .54f,1.78f,1.76f},.11f,.11f,dark);
+    beam({-.59f,1.78f,1.76f},{.59f,1.78f,1.76f},.11f,.11f,dark);
+    // Covered front veranda, split railing and three broad steps.
+    for(const auto& span:{std::pair{-2.04f,-.72f},std::pair{.72f,2.04f}})
+        beam({span.first,.72f,2.24f},{span.second,.72f,2.24f},.08f,.08f,dark);
+    for(float x:{-1.86f,-1.46f,-1.06f,1.06f,1.46f,1.86f})
+        beam({x,.02f,2.24f},{x,.76f,2.24f},.07f,.07f,timber);
+    for(float x:{-2.04f,2.04f})
+        beam({x,.72f,1.76f},{x,.72f,2.24f},.08f,.08f,dark);
+    beam({-.76f,-.16f,2.28f},{.76f,-.16f,2.28f},.34f,.14f,timber);
+    beam({-.76f,-.31f,2.56f},{.76f,-.31f,2.56f},.34f,.14f,timber);
+    beam({-.76f,-.46f,2.84f},{.76f,-.46f,2.84f},.34f,.14f,timber);
+    // The front gable exposes the load-bearing frame seen in the reference house.
+    beam({-2.08f,2.20f,1.74f},{0,3.52f,1.74f},.10f,.10f,dark);
+    beam({ 2.08f,2.20f,1.74f},{0,3.52f,1.74f},.10f,.10f,dark);
+    beam({-2.06f,2.20f,1.74f},{2.06f,2.20f,1.74f},.10f,.10f,dark);
+    beam({0,2.20f,1.74f},{0,3.48f,1.74f},.09f,.09f,timber);
     // Exposed rafters and overlapping narrow thatch bundles, not a single roof pyramid.
     beam({0,3.55f,-2.3f},{0,3.55f,2.3f},0.16f,0.16f,dark);
     for(float side:{-1.0f,1.0f}) {

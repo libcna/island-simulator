@@ -8,6 +8,7 @@
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/ContactShadowPatch.hpp"
 #include "IslandSimulator/HutThatch.hpp"
+#include "IslandSimulator/StreamCourse.hpp"
 #include "HutReachability.hpp"
 #include <cmath>
 #include <algorithm>
@@ -86,6 +87,17 @@ int main() {
         occupied.insert(occupied.end(),obstacles.begin(),obstacles.end());
     const auto live=island::HutLayout::FindInWorld(terrain,jungle,occupied);
     Check(live.has_value(),"live world has no hut");
+    Check(std::hypot(live->x-island::HutLayout::PreferredClearingX,
+        live->z-island::HutLayout::PreferredClearingZ)<0.01f,
+        "hut drifted away from its reserved jungle clearing");
+    Check(terrain.SignedShoreDistance(live->x,live->z)>=island::HutLayout::MinimumInlandDistance-2,
+        "hut remained in the coastal strip instead of moving inland");
+    const island::StreamCourse stream(terrain);float streamDistance=INFINITY;
+    for(std::size_t i=0;i<stream.Count();++i)streamDistance=std::min(streamDistance,
+        std::hypot(live->x-stream.Station(i).x,live->z-stream.Station(i).z));
+    Check(streamDistance>=island::HutLayout::MinimumStreamDistance
+        &&streamDistance<=island::HutLayout::MaximumStreamDistance,
+        "hut is not safely near the freshwater stream");
     CheckHutReachability(terrain,*live,occupied);
     bool blockedRouteRejected=false;
     try { CheckHutReachability(terrain,*live,{{0,0,1000}}); }
@@ -143,7 +155,8 @@ int main() {
     }
     Check(shadowVertices<=12000,"hut shadow exceeded fixed geometry budget");
     const std::array<island::CircularObstacle,1> hutSolid{{{found->x,found->z,island::HutLayout::CollisionRadius}}};
-    Check(std::hypot(island::HutLayout::Width/2+0.08f,island::HutLayout::Depth/2+0.08f)
+    Check(std::hypot(island::HutLayout::Width/2+0.08f,
+        island::HutLayout::Depth/2+island::HutLayout::VerandaDepth+0.08f)
         <island::HutLayout::CollisionRadius,"hut posts extend outside collision proxy");
     for(int direction=0;direction<8;++direction) {
         const float a=static_cast<float>(direction)*0.785398163f,dx=std::cos(a),dz=std::sin(a);
@@ -158,7 +171,7 @@ int main() {
         Check(std::hypot(player.Position().x-found->x,player.Position().z-found->z)<4.0f,
             "hut approach test never reached building");
     }
-    for(int ix=-30;ix<=30;++ix) for(int iz=-25;iz<=25;++iz) {
+    for(int ix=-30;ix<=30;++ix) for(int iz=-22;iz<=31;++iz) {
         const float u=static_cast<float>(ix)*0.08f,v=static_cast<float>(iz)*0.08f;
         const float x=found->x+c*u+s*v,z=found->z-s*u+c*v;
         Check(surface.Sample(x,z).height<found->floorY,"terrain clips hut floor");
@@ -167,7 +180,7 @@ int main() {
     Check(!island::HutLayout::Find(terrain,surface,full),"blocked world created overlapping hut");
     occupied.push_back({found->x,found->z,island::HutLayout::SiteClearance});
     const auto alternate=island::HutLayout::Find(terrain,surface,occupied);
-    Check(alternate&&std::hypot(found->x-alternate->x,found->z-alternate->z)
+    if(alternate) Check(std::hypot(found->x-alternate->x,found->z-alternate->z)
         >=2*island::HutLayout::SiteClearance,"reserved site was not avoided");
     auto invalid=full; invalid[0].radius=std::numeric_limits<float>::quiet_NaN();
     bool rejected=false;
@@ -175,6 +188,9 @@ int main() {
     catch(const std::invalid_argument&) { rejected=true; }
     Check(rejected,"invalid occupancy accepted");
     std::cout<<"Hut candidate "<<found->x<<','<<found->z<<" floor "<<found->floorY
-        <<" yaw "<<found->yawRadians<<"; six grounded supports, eight collision approaches checked; "
+        <<" yaw "<<found->yawRadians<<" inland "
+        <<terrain.SignedShoreDistance(found->x,found->z)
+        <<" stream-distance "<<streamDistance
+        <<"; six grounded supports, eight collision approaches checked; "
         <<shadowVertices<<" shadow vertices\n";
 }
