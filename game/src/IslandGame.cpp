@@ -865,7 +865,7 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         // Capture-only clock: no wall-time catch-up updates between recorded frames.
-        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock());
+        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock());
         InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
@@ -1233,6 +1233,8 @@ namespace island
     {
         const bool snakeCaptureClock=UsesSnakeCaptureClock();
         const bool goatCaptureClock=UsesGoatCaptureClock();
+        const bool spiderCaptureClock=UsesSpiderCaptureClock();
+        if(spiderCaptureClock)++spiderCaptureUpdates_;
         if(goatCaptureClock)++goatCaptureUpdates_;
         if (!snakeFirstDrawReturnReported_ && drawnFrames_ > 0U
             && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail)) {
@@ -1240,7 +1242,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
         }
         if(snakeCaptureClock) ++snakeCaptureUpdates_;
-        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock) ? 0.1f : std::min(
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock) ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -2368,7 +2370,8 @@ namespace island
 
         const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
             ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
-            ? static_cast<float>(goatCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
+            ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
+            ? static_cast<float>(spiderCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         {
             GpuDiagnosticScope gpuPass("natural-props");
@@ -2982,6 +2985,23 @@ namespace island
         }
         const bool snakeCapture = UsesSnakeCaptureClock();
         const bool goatCapture = UsesGoatCaptureClock();
+        const bool spiderCapture = UsesSpiderCaptureClock();
+        if(spiderCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
+            GpuDiagnosticScope gpuPass("capture-readback");
+            CaptureFrame(capturePath_+".spider-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
+            const auto& subject=spiders_->Spiders().front();
+            std::ostringstream report;report.precision(9);
+            report << "island-simulator: spider motion stage=" << drawnFrames_/8U-1U
+                << " updates=" << spiderCaptureUpdates_ << " time=" << timeSeconds
+                << " visible=" << spiderRenderer_->VisibleCount() << " position="
+                << subject.x << ',' << subject.y << ',' << subject.z
+                << " heading=" << subject.heading << " speed=" << subject.speed << " feet=";
+            for(std::size_t leg=0;leg<8;++leg) {
+                const auto p=subject.pose.feet[leg];
+                report << p.x << ',' << p.y << ',' << p.z << ',' << (subject.pose.stance[leg]?1:0) << ';';
+            }
+            std::cout << report.str() << std::endl;
+        }
         if(goatCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".goat-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
@@ -3039,7 +3059,7 @@ namespace island
             std::cout << report << '\n';
             if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
-        const std::uint32_t targetFrames = goatCapture ? 64U : snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        const std::uint32_t targetFrames = goatCapture||spiderCapture ? 64U : snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

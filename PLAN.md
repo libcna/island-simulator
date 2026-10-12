@@ -783,7 +783,13 @@ progress or require player interaction; dangerous species keep their distance li
   JSON validator plus11corruptioncases PASS5.15s. Fullinitialstate fingerprint now
   4c38d1adbddc9c9e (report coverage only, no live placement change).
   Report-step inclusivebuild/full52CPU PASS64.55s; no display/portable run.
-  Motion audit and portable runtime still pending. Earlier live-integration
+  First8stageactualnative motion audit added:0.8..6.4s capture-onlyclock, all8images
+  inspected,1/12visible,6supports,bodytravel.169830m/headingchange1.76554rad/kernel[].
+  Motiondata gate passes; outerimagecontrastgate stillFAIL. Sampledspeed0atstages4/6/7
+  motivates finer pause/foot-scheduler audit; plainbody/sparsehair/contactshadows open.
+  No image threshold/profile changes.39CPUharness checks include14badmotionfixtures.
+  Current inclusivebuild/full52CPU PASS59.42s; noWeb/Androidbuild/runtime.
+  Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current
   absence claims. CPU ground placement foundation

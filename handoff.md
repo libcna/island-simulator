@@ -1,5 +1,38 @@
 # island-simulator handoff
 
+## Latest — actual8stage spider motion inspected; outer dark-image gate still FAILED
+
+Previous turn was progress (WorldReport). Added UsesSpiderCaptureClock/counter:
+capturepath+SpiderDetail only,100ms/update, matching render time, fixedaccumulationoff.
+64frames, images8/16/...64=0.8..6.4s, realcolony/closeobserverretreat, translation-
+followingcamera, noforcedposes/teleport. Logs9digit positions/headings/speed/eight
+worldfootanchors+stance. validate_spider_motion_stages requires8orderedfinite rows,
+exactclock, visible1..12, speed<=.069, sampletravel<=.055/turn<=.481,8distinctfeet
+within.1401horizontal,>=6supports, bodytravel>=.02+foottravel>=.01. SavesmotionJSON,
+requires8imagefiles. Notcontinuousfootlock/terrain/naturalnessproof.
+SoftwareCaptureTests39PASS including14badspiderfixtures. Build/full52CPU PASS59.42s,
+logs build/spider-motion-{build,tests}.log.
+
+Actualisolatedllvmpipe build/software-captures/20261012T044137.963028Z-spiders:
+motiongatePASS, all8actualimagesinspected in build/spider-motion-montage.png.
+1/12visiblethroughout,6supportsatallstages, first→lastbody.169829786m,
+maxstep.033670739m, headingchange-1.76553741rad. Turningandcrawlingvisible, plain
+smoothbody/sparsebristles/missingcontactshadowstillweak. Sampledspeed0atstages0/1
+(initialturn),4/6/7;bodymovesbetweenstages. NEXTmeasurefinerbodypauses/footstep
+scheduling ratherthanassumegaitnatural. Max2swing/120ms/shorttargets maylimitstride
+throughput; causalfixnotprovenyet. Keepworldstanceanchors/clearancechecksstrict.
+
+OuterFAILEDluminancevariation/colorbins/spatialcontrast, kernel-after[]. No image
+gate/profilechanges, no cleanplatform/visualacceptanceclaim. All ownedhandles terminal:
+15268build0,76458capture1(retainedfailure),18340full0. NoWeb/Androidbuild/run, AMD
+latchc0bd1704 unchanged/nohardware/KVM/emulator/dependencychanges. Goalactive/nopush.
+Fullscope/AMDflightrootcause retained. Currentworldfingerprint4c38d1adbddc9c9e unchanged.
+
+NEXT: tangiblematerial/hair/contactrefinement plus pauseaudit/fix; review appropriate
+shaded-small-animalimageacceptance explicitly withoutretroactivelymarkingfailedruns
+green. ThenWeb/Android andplant-attachedwebhabitats(stillabsent). Other14species,
+resident/environment/goatetcstayopen. Do not repeatonlysameunchangeddarkcamera.
+
 ## Latest — live spider WorldReport coverage, visual/motion work remains open
 
 Previous turn was progress (12groundspiders live+actualfailedcontrastcapture).

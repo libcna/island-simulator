@@ -106,6 +106,42 @@ def validate_goat_motion_stages(text):
     return {"positions": positions, "phases": phases, "grazing": grazing}
 
 
+def validate_spider_motion_stages(text):
+    """Sparse actual crawling presentation, not continuous foot-lock/contact proof."""
+    rows = re.findall(r"^island-simulator: spider motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
+                      r"position=(\S+) heading=(\S+) speed=(\S+) feet=(.*)$", text, re.M)
+    if len(rows) != 8 or text.count("spider motion stage=") != 8 or [int(r[0]) for r in rows] != list(range(8)):
+        raise RuntimeError("spider motion requires eight ordered stages")
+    positions, headings, feet_samples = [], [], []
+    for stage, updates, elapsed, visible, position, heading, speed, encoded in rows:
+        try:
+            expected = (int(stage)+1)*8
+            p = tuple(map(float, position.split(',')))
+            h, s, t = map(float, (heading, speed, elapsed))
+            feet = [tuple(map(float, point.split(','))) for point in encoded.rstrip(';').split(';')]
+            valid = (int(updates) == expected and math.isclose(t, expected*.1, abs_tol=1e-5)
+                     and 1 <= int(visible) <= 12 and len(p) == 3 and all(map(math.isfinite, p))
+                     and all(map(math.isfinite, (h, s, t))) and abs(h) <= math.pi+1e-5 and 0 <= s <= .069
+                     and len(feet) == 8 and all(len(f) == 4 and all(map(math.isfinite, f)) and f[3] in (0, 1) for f in feet)
+                     and sum(f[3] for f in feet) >= 6
+                     and all(math.hypot(f[0]-p[0], f[2]-p[2]) <= .1401 for f in feet)
+                     and len({f[:3] for f in feet}) == 8)
+        except ValueError:
+            valid = False
+        if not valid:
+            raise RuntimeError("invalid spider motion state or clock")
+        positions.append(p); headings.append(h); feet_samples.append(feet)
+    if any(math.dist(a, b) > .055 for a, b in zip(positions, positions[1:])):
+        raise RuntimeError("spider exceeded maximum travel between samples")
+    if any(abs(math.remainder(b-a, math.tau)) > .481 for a, b in zip(headings, headings[1:])):
+        raise RuntimeError("spider exceeded maximum turn between samples")
+    if max(math.dist(positions[0], p) for p in positions[1:]) < .02:
+        raise RuntimeError("spider motion sequence did not crawl")
+    if max(math.dist(feet_samples[0][i][:3], feet[i][:3]) for feet in feet_samples[1:] for i in range(8)) < .01:
+        raise RuntimeError("spider feet stayed frozen during crawling review")
+    return {"positions": positions, "headings": headings, "feet": feet_samples}
+
+
 def check_configuration(text):
     cache = dict(re.findall(r"^([^/#\n:]+):[^=\n]+=(.*)$", text, re.M))
     if cache.get("CNA_GRAPHICS_RENDERER") != "OPENGL33" \
@@ -395,6 +431,12 @@ def main():
                 for stage in range(8):
                     if not Path(str(capture)+f".goat-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing goat motion stage image")
+            if args.viewpoint == "spiders":
+                motion = validate_spider_motion_stages(log)
+                (evidence / "spider-motion.json").write_text(json.dumps(motion, indent=2) + "\n")
+                for stage in range(8):
+                    if not Path(str(capture)+f".spider-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing spider motion stage image")
             validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
             validate_antialiasing_log(diagnostics, 4)
             if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:

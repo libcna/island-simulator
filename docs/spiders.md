@@ -36,9 +36,42 @@ capture precedes the subsequent HUD/help/benchmark-count-only edits.
 Current inclusive native build and51/51 CPU groups pass59.58s, logs
 build/spider-live-current-{build,tests}.log. No Web/Android build or run in this step.
 
-Next: multi-stage actual motion views, surface/hair/contact
+Next: refine the body pauses observed in the first motion sequence below, surface/hair/contact
 refinement and explicit review of shaded small-animal capture acceptance; then actual
 Web/Android qualification. Plant-attached webs are still a separate required task.
+
+## Actual native motion sequence
+
+Spider capture now uses a capture-only100ms simulation update and matching render clock,
+with fixed-timestep accumulation disabled, like the existing goat/snake audits.
+Ordinary gameplay is unchanged. Eight images are read back at frames8,16,...64,
+corresponding to0.8..6.4s. Camera translation follows the first normal spider; its
+near observer still triggers the actual retreat behavior. No forced poses or routes.
+Each stage logs update/time, visible count, body position/heading/speed and all eight
+world foot positions/stance flags at nine significant digits.
+
+The harness requires complete ordered stages, the exact clock, finite/limited speed,
+turn and between-sample travel, eight distinct feet inside the body envelope, six
+supports and actual body/foot displacement. It saves spider-motion.json and requires
+all eight image files. Device-free preflight now has39 passing tests, including14
+corrupted spider-motion sequences. Sparse samples cannot prove continuous stance
+locking, terrain contact, self-contact or natural-looking gait.
+
+Actual contained run build/software-captures/20261012T044137.963028Z-spiders satisfies
+the motion checks:1/12visible throughout, six supports at all stages, body displacement
+about0.17m and heading change about1.77rad. All eight actual frames were inspected in
+build/spider-motion-montage.png: rotation and crawling are visible, but the untextured
+smooth body and sparse hairs remain weak. Logged speed is zero at stages0,1 (initial
+turning),4,6,7, despite positive cumulative translation later in the sequence. This
+motivates a finer body pause/foot scheduling audit; sparse images alone do not prove
+how those pauses look continuously.
+
+Kernel-after[]; **outer run again FAILED** the generic image-contrast/color gates.
+No threshold/profile changes, no clean visual/platform qualification claim. Next work
+must address the observed material/contact and motion limitations, not merely repeat
+this same dark camera. Web/Android remain untested for live spiders.
+Current inclusive native build and52/52 CPU groups pass59.42s, logs
+build/spider-motion-{build,tests}.log. World fingerprint4c38d1adbddc9c9e is unchanged.
 
 ## Population reporting
 

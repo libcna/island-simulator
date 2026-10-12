@@ -17,6 +17,7 @@ from run_software_capture import (
     inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
     validate_monkey_tree_stages, validate_monkey_climb_stages, validate_snake_motion_stages,
     validate_goat_motion_stages,
+    validate_spider_motion_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
@@ -24,6 +25,28 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_spider_live_motion_and_corruptions(self):
+        def fixture(frozen=False):
+            rows = []
+            for i in range(8):
+                x = 0 if frozen else i*.025
+                feet = ';'.join(f"{x+(.08 if leg<4 else -.08)},2,{(leg%4-1.5)*.05},1" for leg in range(8))+';'
+                rows.append(f"island-simulator: spider motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} "
+                            f"visible=1 position={x},2,0 heading={i*.2:.1f} speed=0.035 feet={feet}")
+            return '\n'.join(rows)
+        good = fixture()
+        self.assertEqual(len(validate_spider_motion_stages(good)["feet"]), 8)
+        for bad in (fixture(True), good.split('\n', 1)[1], good+'\n'+good.split('\n')[0],
+                    good.replace("stage=1", "stage=0"), good.replace("updates=8 ", "updates=9 "),
+                    good.replace("time=0.8", "time=nan"), good.replace("visible=1", "visible=0"),
+                    good.replace("speed=0.035", "speed=0.1"), good.replace("heading=0.2", "heading=2.0"),
+                    good.replace("heading=0.2", "heading=nan"),
+                    re.sub(r"position=\S+", "position=nan,2,0", good),
+                    good.replace(",1;", ",0;"), good.replace(",1;", ",2;"),
+                    re.sub(r"feet=.*", "feet=0,2,0,1;", good)):
+            with self.subTest(bad=bad), self.assertRaises(RuntimeError):
+                validate_spider_motion_stages(bad)
+
     def test_goat_live_motion_stages_and_corruptions(self):
         rows = [f"island-simulator: goat motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} "
                 f"visible=3 position={i*.2},10,20 speed=0.65 phase={i*.3} grazing={.8 if i==0 else 0}"

@@ -349,6 +349,10 @@ namespace island
         std::uint32_t drawnFrames_ = 0;
         std::uint32_t snakeCaptureUpdates_ = 0;
         std::uint32_t goatCaptureUpdates_ = 0;
+        std::uint32_t spiderCaptureUpdates_ = 0;
+        [[nodiscard]] bool UsesSpiderCaptureClock() const noexcept {
+            return !capturePath_.empty() && viewpoint_==FixedViewpoint::SpiderDetail;
+        }
         [[nodiscard]] bool UsesGoatCaptureClock() const noexcept {
             return !capturePath_.empty() && viewpoint_==FixedViewpoint::GoatDetail;
         }
