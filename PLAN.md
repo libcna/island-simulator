@@ -108,8 +108,9 @@ stream entry throwing `Apply3D cannot be called on a playing instance that is no
 after which Soundscape disables every sound. Stream spatial setup now precedes first Play,
 including near-stream startup. The regression passes in Release and Debug for repeated
 entry/exit/swim/mute, checking actual playing tracks and the six-source cap. Fatal/mute diagnostics
-now persist. Corrected native executables are rebuilt; operator listening confirmation and
-Web/Android runtime remain pending. The FPS work is closed; cave integration can resume.
+now persist. Corrected native executables are rebuilt and the operator confirms the audio
+problem is fixed. Web/Android runtime qualification remains pending. Both reported native
+FPS and complete-audio-dropout incidents are closed; cave integration is in progress.
 
 ## Latest implementation — turtle nesting traces
 
@@ -529,6 +530,9 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   opening. Check outside/inside collision, roof containment, entrance lighting and
   vegetation intersections, plus actual walking and supported-platform captures.
   No quests, combat or new survival systems are implied. A dark rock decal is not a cave.
+  Foundation implemented: 20 m closed rock-shell geometry, grid-aligned terrain replacement,
+  capsule collision and walking/flight controller hooks. It is NOT yet constructed/rendered
+  in the live world. See `docs/cave.md` for measurements and remaining integration gates.
 
 - [ ] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.

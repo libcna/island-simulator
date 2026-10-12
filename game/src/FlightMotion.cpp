@@ -1,5 +1,6 @@
 #include "IslandSimulator/FlightMotion.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
+#include "IslandSimulator/CaveGroundPatch.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -23,14 +24,25 @@ namespace island
         }
     }
 
+    float FlightMotion::GroundHeight(float x,float z) const
+    {
+        return caveGround_&&caveGround_->Contains(x,z)?caveGround_->SampleHeight(x,z)
+            :surface_->Sample(x,z).height;
+    }
+
     void FlightMotion::Activate(const IslandTerrain& terrain, PlayerPosition point)
     {
         if (!surface_) surface_ = std::make_unique<RenderedTerrainSurface>(terrain);
         point = BoundedHorizontal(point);
-        const float ground = surface_->Sample(point.x,point.z).height;
+        const float ground = GroundHeight(point.x,point.z);
         point.y = std::clamp(Finite(point.y),std::max(0.0f,ground)+Clearance+Skin,
                              ground+MaximumHeight-Skin);
         position_ = point;
+        if(cave_&&cave_->IntersectsCapsule({point.x,point.y-Clearance,point.z},
+            PlayerMotion::CapsuleRadius,PlayerMotion::CapsuleHeight)) {
+            const auto safe=cave_->World(0,0,-3);
+            position_={safe.x,GroundHeight(safe.x,safe.z)+Clearance+Skin,safe.z};
+        }
         active_ = true;
     }
 
@@ -50,9 +62,11 @@ namespace island
         };
         // Terrain is piecewise affine. Trace every grid edge and triangle diagonal,
         // not just endpoints or fixed-distance samples that could miss a ridge.
-        std::array<float,32> knots{};
-        std::size_t count=2;
-        knots[0]=0; knots[1]=1;
+        std::vector<float> knots{0,1};
+        if(caveGround_) {
+            const auto patchKnots=caveGround_->TraceParameters(start.x,start.z,end.x,end.z);
+            knots.insert(knots.end(),patchKnots.begin(),patchKnots.end());
+        }
         constexpr double grid=2.0*TerrainMeshLayout::Extent/TerrainMeshLayout::QuadsPerAxis;
         const auto crossings=[&](double a,double b) {
             if (a==b) return;
@@ -60,21 +74,28 @@ namespace island
             const int last=static_cast<int>(std::floor(std::max(a,b)/grid));
             for (int edge=first;edge<=last;++edge) {
                 const float t=static_cast<float>((edge*grid-a)/(b-a));
-                if (t>0 && t<1) knots.at(count++)=t;
+                if (t>0 && t<1) knots.push_back(t);
             }
         };
         crossings(double(start.x)+TerrainMeshLayout::Extent,double(end.x)+TerrainMeshLayout::Extent);
         crossings(double(start.z)+TerrainMeshLayout::Extent,double(end.z)+TerrainMeshLayout::Extent);
         crossings(double(start.x)+start.z+2*TerrainMeshLayout::Extent,double(end.x)+end.z+2*TerrainMeshLayout::Extent);
-        std::sort(knots.begin(),knots.begin()+count);
+        std::sort(knots.begin(),knots.end());
+        const auto resolveRock=[&](PlayerPosition target) {
+            const float t=cave_?cave_->SafeTravelFraction(
+                {start.x,start.y-Clearance,start.z},{target.x,target.y-Clearance,target.z},
+                PlayerMotion::CapsuleRadius,PlayerMotion::CapsuleHeight):1.0f;
+            return PlayerPosition{std::lerp(start.x,target.x,t),std::lerp(start.y,target.y,t),
+                std::lerp(start.z,target.z,t)};
+        };
         const auto gaps=[&](PlayerPosition p) {
-            const float ground=surface_->Sample(p.x,p.z).height;
+            const float ground=GroundHeight(p.x,p.z);
             return std::array<float,3>{p.y-ground-Clearance-Skin,p.y-Clearance-Skin,
                                       ground+MaximumHeight-Skin-p.y};
         };
         auto previous=gaps(start);
         float previousT=0;
-        for (std::size_t i=1;i<count;++i) {
+        for (std::size_t i=1;i<knots.size();++i) {
             const float t=knots[i];
             const auto current=gaps(point(t));
             float stop=t;
@@ -88,12 +109,12 @@ namespace island
                 }
             }
             if (blocked) {
-                position_=point(std::max(0.0f,stop-.00001f));
+                position_=resolveRock(point(std::max(0.0f,stop-.00001f)));
                 return;
             }
             previous=current; previousT=t;
         }
-        position_=end;
+        position_=resolveRock(end);
     }
 
     std::optional<PlayerPosition> FlightMotion::FindLanding(
@@ -106,13 +127,17 @@ namespace island
             const float distance=std::hypot(x-position_.x,z-position_.z);
             if (distance>=bestDistance || std::hypot(x,z)>Radius || terrain.Height(x,z)<.1f) return;
             PlayerMotion landed;
+            landed.SetCave(cave_,caveGround_);
             landed.SetPosition(terrain,x,z);
             landed.Update(terrain,0,0,0,obstacles);
             const auto p=landed.Position();
             if (landed.Mode()!=LocomotionMode::Walking
                 || landed.GroundSlopeRadians()>PlayerMotion::MaximumWalkSlopeRadians
                 || std::hypot(p.x,p.z)>Radius || terrain.Height(p.x,p.z)<.1f
-                || p.y<surface_->Sample(p.x,p.z).height+.2f) return;
+                || p.y<GroundHeight(p.x,p.z)+.2f) return;
+            if(cave_&&cave_->SafeTravelFraction(
+                {position_.x,position_.y-Clearance,position_.z},{p.x,p.y-Clearance,p.z},
+                PlayerMotion::CapsuleRadius,PlayerMotion::CapsuleHeight)<1) return;
             if (obstacles.IntersectsCircle(p.x,p.z,PlayerMotion::CapsuleRadius)) return;
             const float resolvedDistance=std::hypot(p.x-position_.x,p.z-position_.z);
             if (resolvedDistance<bestDistance) { best=p; bestDistance=resolvedDistance; }

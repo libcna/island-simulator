@@ -49,6 +49,8 @@ add_library(island_core STATIC
     game/src/CanopyLightField.cpp
     game/src/CanopyProfile.cpp
     game/src/CrabColony.cpp
+    game/src/CaveLayout.cpp
+    game/src/CaveGroundPatch.cpp
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
     game/src/ContactShadowPatch.cpp
@@ -304,6 +306,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_hut_tests)
     island_enable_first_party_sanitizers(island_hut_tests)
     add_test(NAME IslandHutLayoutTests COMMAND island_hut_tests)
+    add_executable(island_cave_tests tests/CaveLayoutTests.cpp)
+    target_link_libraries(island_cave_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_cave_tests)
+    island_enable_first_party_sanitizers(island_cave_tests)
+    add_test(NAME IslandCaveLayoutTests COMMAND island_cave_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)

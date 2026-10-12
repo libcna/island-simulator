@@ -12,6 +12,8 @@ namespace island
     class WorldCollisionGrid;
     class RenderedTerrainSurface;
     class StreamBedPatch;
+    class CaveLayout;
+    class CaveGroundPatch;
 
     /** @brief Physical movement state relevant to animation, audio, and camera presentation. */
     enum class LocomotionMode
@@ -74,6 +76,7 @@ namespace island
         static constexpr float RunSpeed = 8.0f;
         static constexpr float SwimSpeed = 2.15f;
         static constexpr float CapsuleRadius = 0.34f;
+        static constexpr float CapsuleHeight = 1.9f;
         static constexpr float MaximumStepHeight = 0.38f;
         static constexpr float MaximumWalkSlopeRadians = 0.66322512f; // 38 degrees
         static constexpr float SoftCurrentStart = 42.0f;
@@ -104,6 +107,9 @@ namespace island
         // refreshes input every frame; teleports clear depth and held input.
         void SetSwimInput(const RenderedTerrainSurface* surface, bool ascend, bool descend) noexcept;
         void SetGroundPatch(const StreamBedPatch* patch) noexcept {groundPatch_=patch;}
+        // Both immutable objects must outlive the controller; null disables the cave.
+        void SetCave(const CaveLayout* cave,const CaveGroundPatch* ground) noexcept
+        {cave_=cave;caveGround_=ground;}
         [[nodiscard]] float SubmergedDepth() const noexcept { return swimDepth_.SubmergedDepth(); }
 
         /**
@@ -198,6 +204,8 @@ namespace island
         PlayerPosition position_;
         const RenderedTerrainSurface* swimSurface_ = nullptr;
         const StreamBedPatch* groundPatch_ = nullptr;
+        const CaveLayout* cave_ = nullptr;
+        const CaveGroundPatch* caveGround_ = nullptr;
         SwimDepth swimDepth_;
         bool swimAscend_ = false, swimDescend_ = false;
         float velocityX_ = 0.0f;

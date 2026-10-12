@@ -1,6 +1,20 @@
 # island-simulator handoff
 
-## Latest operator feedback — FPS resolved, audio dropout reproduced
+## Current work — cave foundation, live world integration next
+
+Goal remains active. Operator confirms audio fixed and reiterates continuing the whole plan,
+roughly100 productive hours, not a stop deadline. Do not close the campaign after one feature.
+New CaveLayout/CaveGroundPatch and IslandCaveLayoutTests implement a real20m cavity at
+(184.04,7.63779,115.384),1424 shell triangles,2793 terrain vertices/5376 terrain triangles.
+PlayerMotion/FlightMotion have opt-in non-owning cave hooks, currently unused by IslandGame.
+There is NO cave renderer/live landmark yet. Next: terrain coarse-quad replacement, matching
+floor material without coplanar double drawing, rock renderer, scoped vegetation/prop
+reservation, game wiring, fixed outside/inside captures and actual traversal qualification.
+Survey:5 palms,0 canopy,5 understory,1 bush,7 ground plants,1 rock,0 logs,1 frond within
+conservative footprint margins. No placements have been removed. See docs/cave.md.
+Both walking/flight tests use actual controllers; no GPU/Android/KVM activity. Builds CPUs0-3/-j4.
+
+## Latest operator feedback — FPS and audio dropout resolved
 
 Operator confirms Release59.3FPS; runtime3558619 corroborates ~59FPS walking and flight. Close
 the FPS incident; preserve current profile. Cave planning started but NO cave code was changed.
@@ -14,8 +28,8 @@ Native Release/Debug executables rebuilt with CPUs0-3/-j4. New `IslandSoundscape
 fails before fix (`build-consumer/audio-stream-before.log`), passes after in both trees
 (`audio-stream-after.log`). Python software-runner tests47/47. The runtime test links real CNA,
 forces dummy audio and opens no graphics context. Actual Playing-state counts stay4..6 through
-far/near startup, repeated stream/swim switches and mute/unmute. Operator audible retest and
-portable runtime remain; no need to wait to continue cave/remaining plan work when goal resumes.
+far/near startup, repeated stream/swim switches and mute/unmute. Operator subsequently confirms
+audio fixed and resumes the goal. Portable runtime remains; continue cave/remaining plan work.
 
 ## Historical native FPS regression evidence
 

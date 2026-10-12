@@ -3,6 +3,7 @@
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/StreamBedPatch.hpp"
+#include "IslandSimulator/CaveGroundPatch.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -67,6 +68,13 @@ namespace island
                 sample.height=groundPatch_->SampleHeight(px,pz);
                 const auto height=[&](float sx,float sz){return groundPatch_->Contains(sx,sz)
                     ?groundPatch_->SampleHeight(sx,sz):terrain.Height(sx,sz);};
+                sample.slopeRadians=std::atan(std::hypot(height(px+.1f,pz)-height(px-.1f,pz),
+                    height(px,pz+.1f)-height(px,pz-.1f))/.2f);
+            }
+            if(caveGround_&&caveGround_->Contains(px,pz)) {
+                sample.height=caveGround_->SampleHeight(px,pz);
+                const auto height=[&](float sx,float sz){return caveGround_->Contains(sx,sz)
+                    ?caveGround_->SampleHeight(sx,sz):terrain.Height(sx,sz);};
                 sample.slopeRadians=std::atan(std::hypot(height(px+.1f,pz)-height(px-.1f,pz),
                     height(px,pz+.1f)-height(px,pz-.1f))/.2f);
             }
@@ -180,6 +188,11 @@ namespace island
         if (mode_ == LocomotionMode::Walking) {
             const GroundContact current = SampleGroundContact(terrain, position_.x, position_.z);
             const GroundContact candidate = SampleGroundContact(terrain, candidateX, candidateZ);
+            if(cave_&&cave_->SafeTravelFraction(
+                {position_.x,std::max(current.height+.001f,position_.y-EyeHeight),position_.z},
+                {candidateX,std::max(candidate.height+.001f,position_.y-EyeHeight),candidateZ},
+                CapsuleRadius,CapsuleHeight)<1)
+                return HorizontalStepResult::ObstacleBlocked;
             const float rise = candidate.height - current.height;
             const float pathSlope = std::atan2(std::max(0.0f, rise), distance);
             const bool uphillOnSteepGround = rise > 0.002f
@@ -210,6 +223,12 @@ namespace island
             ? LocomotionMode::Swimming
             : LocomotionMode::Walking;
         ResolveModeAndHeight(terrain, std::numeric_limits<float>::infinity());
+        if(cave_&&cave_->IntersectsCapsule({position_.x,position_.y-EyeHeight,position_.z},
+            CapsuleRadius,CapsuleHeight)) {
+            const auto safe=cave_->World(0,0,-3);
+            position_.x=safe.x;position_.z=safe.z;
+            ResolveModeAndHeight(terrain,std::numeric_limits<float>::infinity());
+        }
 #ifndef NDEBUG
         assert(std::isfinite(position_.x) && std::isfinite(position_.y)
                && std::isfinite(position_.z));
