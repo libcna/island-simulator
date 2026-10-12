@@ -42,9 +42,11 @@ void main(){
     vec3 eye=normalize(uCamera-world);
     float fresnel=.04+.40*pow(1.0-abs(dot(n,eye)),4.0);
     float glint=pow(max(0.0,dot(n,normalize(eye+normalize(vec3(-.4,.8,.3))))),64.0);
-    vec3 water=mix(vec3(.09,.25,.22),vec3(.40,.65,.70),fresnel);
+    float dapple=.5+.5*sin(along*.57+sin(across*1.9-uTime*.12));
+    vec3 water=mix(vec3(.16,.36,.30),vec3(.43,.66,.69),fresnel);
+    water*=mix(.94,1.06,dapple);
     water+=vec3(.35,.36,.29)*glint*.35;
-    float alpha=opacity*(.65+fresnel*.5);
+    float alpha=opacity*(.57+fresnel*.40);
     fragColor=vec4(water*alpha,alpha);
 }
 )";

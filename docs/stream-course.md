@@ -27,6 +27,19 @@ alpha-range, bed-domain and portable-index-capacity guards.
 The sections below are chronological implementation evidence, not current-state
 claims that water or terrain integration is still absent.
 
+### Shared wet corridor pass
+
+The first environment-field migration adds a 10–25m damp influence around the
+stream while keeping concentrated drainage narrow. Grass and solid vegetation no
+longer occupy flowing water; surrounding jungle layers and fallen wood respond to
+moisture. Terrain uses damp earth, moss and sparse stone cues. Water centre,
+width and opacity now vary deterministically while remaining inside the carved
+bed. Focused CPU tests pass43.07s. Actual isolated llvmpipe capture
+`20261012T084525.578398Z-stream` passed388colour bins/std50.99/spatial239.36 with
+an empty kernel-after log. `build/stream-wet-biome-final2.png` was inspected: the
+open channel is readable to the bay, though its form and banks remain visibly
+procedural and require dedicated fern/deadwood composition and further shaping.
+
 ## Live bed integration — 2026-10-12
 
 TerrainRenderer now excludes all original coarse quads whose centres lie in the

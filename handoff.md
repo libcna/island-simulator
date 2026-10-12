@@ -1,5 +1,36 @@
 # island-simulator handoff
 
+## Latest user addition — one realistic large bear
+
+PLAN now explicitly requires exactly one large realistic bear in a suitable island
+habitat. Prefer a high-quality rigged internet model only with verified inclusion
+and redistribution rights for mesh+textures and retained attribution/licence;
+otherwise make an original asset. Required: authentic bear anatomy/layered fur,
+weight/ground contact and quadrupedal idle/walk/trot/turn/forage motion, plus
+restrained positional vocalisations and breathing/snuffling tied to behaviour.
+Keep it non-hostile under the existing peaceful scope and within portable LOD,
+animation/audio/geometry budgets. Require actual close/front/side/moving visual
+and audible runtime evidence. Not implemented or sourced yet; no licence claim.
+
+## Latest implementation — shared wet corridor and cleared live stream
+
+IslandEnvironmentField now has normalized CPU SampleInland moisture/drainage/
+saltExposure plus matching terrain GLSL, derived from weststream/southvalley/coast.
+GroundCover Density takes moisture/drainage; Grass uses it and rejects drainage
+>=.82. Palms reject>.68; canopy>.68; understory>.82; bushes>.78; groundplants>.84.
+Moisture modestly boosts non-channel jungle layers; fallenlogs use moisture and
+reject>.72. Terrain gets damp earth/moss/sparse stones. Stream mesh centre, width,
+opacity vary inside bed; water color/alpha retuned. Camera now(-110,ground+3.5,-37)
+to target(-122,terrain-.18,-26.94). Final corrected south-valley field measured
+world fingerprint0c6b31374962d7d1:326palms/16943grass/257canopy/1780understory/
+588bushes/2986groundplants/9logs. Core base populations now576bushes/2201groundplants.
+Final corrected build23367exit0; StreamSurvey/Core/TerrainMaterial99575exit0 PASS43.07s.
+Actual final capture80000exit0 evidence084525.578398Z-stream PASS388bins/std50.99/
+spatial239.36/kernel[]. Viewed build/stream-wet-biome-final2.png: channel open,
+readable and connected to bay; less harsh after first083733 image, but still
+linear/simple, NOT final art acceptance. No Web/Android/perf/motion proof.
+All handles terminal. Full goal active; no AMD/KVM/dependency changes.
+
 ## Latest — first stream water live, visual polish still open
 
 Added StreamWaterMesh/Renderer to IslandGame+CMake after shoreline pass. Static

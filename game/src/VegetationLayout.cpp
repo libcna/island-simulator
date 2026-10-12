@@ -1,6 +1,7 @@
 #include "IslandSimulator/VegetationLayout.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -142,13 +143,15 @@ namespace island
                 const float x = static_cast<float>(gridX) * CandidateSpacing + jitterX;
                 const float z = static_cast<float>(gridZ) * CandidateSpacing + jitterZ;
                 const TerrainSample sample = terrain.Sample(x, z);
+                const auto environment=IslandEnvironmentField::SampleInland(
+                    x,z,sample.signedShoreDistance);
 
                 // Palms form a broad coastal belt, with sparser groups toward the interior. The
                 // eventual broadleaf canopy will own the deepest central jungle.
                 if (sample.signedShoreDistance < 7.0f || sample.signedShoreDistance > 158.0f
                     || sample.height < 0.55f || sample.slopeRadians > 0.4712389f
                     || sample.coastalRockiness > 0.45f
-                    || IsReservedRoute(x, z)) {
+                    || IsReservedRoute(x, z) || environment.drainage > 0.68f) {
                     continue;
                 }
 
@@ -189,9 +192,12 @@ namespace island
                 const float youngX = x + std::cos(angle) * offset;
                 const float youngZ = z + std::sin(angle) * offset;
                 const TerrainSample youngSample = terrain.Sample(youngX, youngZ);
+                const auto youngEnvironment=IslandEnvironmentField::SampleInland(
+                    youngX,youngZ,youngSample.signedShoreDistance);
                 if (youngSample.signedShoreDistance < 7.0f || youngSample.height < 0.55f
                     || youngSample.coastalRockiness > 0.45f
-                    || youngSample.slopeRadians > 0.4712389f || IsReservedRoute(youngX, youngZ)) {
+                    || youngSample.slopeRadians > 0.4712389f || IsReservedRoute(youngX, youngZ)
+                    || youngEnvironment.drainage > 0.68f) {
                     continue;
                 }
                 bool crowded = false;

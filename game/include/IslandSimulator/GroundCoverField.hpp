@@ -29,7 +29,8 @@ namespace island
         /** @brief Cover in [0,1]; throws on non-finite input or out-of-range light/patch. */
         [[nodiscard]] float Density(float transmission, float patch,
                                     float shoreDistance, float slopeRadians,
-                                    float rockiness = 0.0f, float beachSuitability = 0.0f);
+                                    float rockiness = 0.0f, float beachSuitability = 0.0f,
+                                    float moisture = 0.0f, float drainage = 0.0f);
         /** @brief GLSL 330 / ES 300 groundCoverDensity() with the same constants. */
         [[nodiscard]] std::string Shader();
     }

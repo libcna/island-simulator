@@ -5,6 +5,22 @@ integrated; see `coastal-environment.md`. The broader design below remains the t
 not a claim that every listed field or consumer is implemented.
 This is the next step after `coastal-silhouette.md`, covering macro-geography items 2–3.
 
+## First inland field integration — 2026-10-12
+
+`SampleInland` now returns finite normalized `moisture`, `drainage` and
+`saltExposure`. It combines the authored west stream, broader south valley and
+existing coast, with a GLSL counterpart used by terrain. The lower stream has a
+roughly 25m moisture influence while concentrated drainage stays near the channel.
+
+Grass/turf share drainage suppression and a small damp-bank response. Palm and
+jungle placement reject the flowing core; understory, bush and ground-plant
+density respond to moisture, while fallen-log probability increases modestly on
+damp ground and rejects water. Terrain adds irregular damp earth/moss and sparse
+stones with existing noise. This is a first consumer migration: wildlife, most
+props, reef habitat, wind exposure and portable evidence remain. Actual llvmpipe
+image `20261012T084525.578398Z-stream` was inspected; the open channel reaches the
+bay, but bank composition and water motion still need polish.
+
 ## Dependency order
 
 1. A renderer-independent coastal profile describes the authored bay/headland lobes, local

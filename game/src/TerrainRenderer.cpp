@@ -6,6 +6,7 @@
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/ForestFloorMaterial.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/PrevailingWind.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
@@ -241,6 +242,7 @@ void main()
     float signedShoreDistance = vTerrainData.x;
     float slopeRadians = vTerrainData.y;
     vec2 coastField = coastalGroundField(p);
+    vec3 inlandField = inlandEnvironment(p, signedShoreDistance, coastField);
     float sand = coastField.y * smoothstep(-6.0, -0.2, vWorld.y);
     float interior = smoothstep(8.0, 25.0, signedShoreDistance) * (1.0 - sand);
     float steep = smoothstep(0.30, 0.70, slopeRadians) * interior;
@@ -393,7 +395,8 @@ void main()
     // shaded or patch-poor ground keeps exposed humus and fallen leaves.
     vec2 groundField = canopyGroundField(p);
     float turfAmount = groundCoverDensity(groundField.x, groundField.y,
-        signedShoreDistance, slopeRadians, coastField.x, coastField.y) * 0.86 * (1.0 - steep);
+        signedShoreDistance, slopeRadians, coastField.x, coastField.y,
+        inlandField.x, inlandField.y) * 0.86 * (1.0 - steep);
     // Tropical understory grows through exposed humus; it is not a continuous green lawn.
     // Keep grass/moss islands, and leave the authored sunny clearing and beach palettes intact.
     color = mix(color, vec3(0.300, 0.223, 0.139) * vGroundLight, forestFloorMask * 0.82);
@@ -566,6 +569,18 @@ void main()
     }
     color = mix(color, weatheredRock * vGroundLight, ridgeRock * 0.92);
 
+    // One shared environment field darkens the carved drainage and its irregular damp banks.
+    // Existing broad/medium fields break the straight surveyed valley without moving water
+    // outside the collision-authoritative bed.
+    float streamEdgeNoise = broad * 1.65 + medium * 0.62;
+    float streamWet = smoothstep(0.20, 0.94, inlandField.y + streamEdgeNoise * 0.15)
+        * (0.72 + 0.28 * inlandField.x);
+    vec3 dampEarth = mix(vec3(0.205, 0.155, 0.090), vec3(0.185, 0.265, 0.125),
+        clamp(inlandField.x * 0.62 + max(-medium, 0.0) * 0.30, 0.0, 1.0)) * vGroundLight;
+    color = mix(color, dampEarth, streamWet * 0.55);
+    float streamStone = groundFleck(p, 0.72, vec2(19.1, -3.8), 0.68) * streamWet;
+    color = mix(color, vec3(0.205, 0.220, 0.180) * vGroundLight, streamStone * 0.48);
+
     float wetHeight = vWorld.y + broad * 0.06 + medium * 0.025;
     float wetEdge = (1.0 - smoothstep(0.05, 0.42, wetHeight))
         * smoothstep(-0.12, 0.06, vWorld.y) * sand;
@@ -596,11 +611,13 @@ void main()
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
                     + (canopy ? CanopyLighting::Shader : "")
+                    + (canopy ? IslandEnvironmentField::InlandShader : "")
                     + (canopy ? GroundCover::Shader() : std::string())
                     + (canopy ? TerrainSurfaceFrame::Shader : "")
                     + (canopy ? ForestFloorMaterial::Shader : "") + body;
             }
             return std::string("#version 330 core\n") + (canopy ? CanopyLighting::Shader : "")
+                + (canopy ? IslandEnvironmentField::InlandShader : "")
                 + (canopy ? GroundCover::Shader() : std::string())
                 + (canopy ? TerrainSurfaceFrame::Shader : "")
                 + (canopy ? ForestFloorMaterial::Shader : "") + body;

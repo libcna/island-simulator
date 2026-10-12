@@ -246,8 +246,8 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
         } else if (viewpoint_ == FixedViewpoint::StreamDetail) {
-            cameraPosition_=Vector3(-137,terrain_.Height(-137,-28)+3.5f,-28);
-            const Vector3 target(-145,terrain_.Height(-145,-21.65f)-.25f,-21.65f);
+            cameraPosition_=Vector3(-110,terrain_.Height(-110,-37)+3.5f,-37);
+            const Vector3 target(-122,terrain_.Height(-122,-26.94f)-.18f,-26.94f);
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));

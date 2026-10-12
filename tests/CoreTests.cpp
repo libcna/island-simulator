@@ -3948,6 +3948,28 @@ int main()
     const auto invalidCoast = island::IslandEnvironmentField::SampleCoast(quietNan, 0.0f, 0.0f);
     Check(invalidCoast.rockiness == 0.0f && invalidCoast.beachSuitability == 0.0f,
           "non-finite environment query has safe empty controls");
+    const float streamX=-110.0f,streamZ=-55.0f-0.23f*streamX;
+    const auto streamCentre=island::IslandEnvironmentField::SampleInland(
+        streamX,streamZ,terrain.SignedShoreDistance(streamX,streamZ));
+    const auto streamBank=island::IslandEnvironmentField::SampleInland(
+        streamX,streamZ+14.0f,terrain.SignedShoreDistance(streamX,streamZ+14.0f));
+    const auto dryInterior=island::IslandEnvironmentField::SampleInland(
+        105.0f,80.0f,terrain.SignedShoreDistance(105.0f,80.0f));
+    Check(streamCentre.drainage>0.95f && streamCentre.moisture>0.95f
+        && streamBank.moisture>streamBank.drainage && streamBank.moisture>0.35f
+        && dryInterior.moisture<0.15f && dryInterior.drainage<0.15f,
+        "shared inland field distinguishes wet channel, damp bank and dry interior");
+    const auto invalidInland=island::IslandEnvironmentField::SampleInland(quietNan,0,0);
+    Check(invalidInland.moisture==0 && invalidInland.drainage==0
+        && invalidInland.saltExposure==0,"non-finite inland environment query is safely empty");
+    for(int x=-170;x<=130;x+=10)for(int z=-190;z<=170;z+=10) {
+        const auto field=island::IslandEnvironmentField::SampleInland(
+            static_cast<float>(x),static_cast<float>(z),terrain.SignedShoreDistance(x,z));
+        Check(std::isfinite(field.moisture)&&field.moisture>=0&&field.moisture<=1
+            && std::isfinite(field.drainage)&&field.drainage>=0&&field.drainage<=1
+            && std::isfinite(field.saltExposure)&&field.saltExposure>=0&&field.saltExposure<=1,
+            "inland environment controls stay finite and normalized across the island");
+    }
     for (int angularIndex = 0; angularIndex < 180; ++angularIndex) {
         const float angle = angularIndex * std::numbers::pi_v<float> / 90.0f;
         const float width = island::IslandEnvironmentField::BeachWidth(angle);
@@ -4011,6 +4033,9 @@ int main()
               "palms reject terrain steeper than the placement limit");
         Check(!island::VegetationLayout::IsReservedRoute(palm.x, palm.z),
               "palms keep paths, clearings, and player spawn open");
+        Check(island::IslandEnvironmentField::SampleInland(
+                  palm.x,palm.z,sample.signedShoreDistance).drainage<=0.68f,
+              "palm trunks stay outside the active stream channel");
         Check(palm.variant < island::VegetationLayout::PalmVariantCount,
               "palm variant index remains in range");
         const bool youngPalm = palm.scale < island::VegetationLayout::PalmMinimumScale;
@@ -4139,6 +4164,12 @@ int main()
                   && island::GroundCover::Density(1.0f, 1.0f, 40.0f, 0.1f, 1.0f, 0.0f) == 0.0f
                   && island::GroundCover::Density(1.0f, 1.0f, 40.0f, 0.1f, 0.0f, 0.0f) == 1.0f,
               "sandy apron and bare rock suppress turf independently of distance from shore");
+        const float dryCover=island::GroundCover::Density(1,1,80,.1f,0,0,0,0);
+        const float dampCover=island::GroundCover::Density(1,1,80,.1f,0,0,1,0);
+        const float channelCover=island::GroundCover::Density(1,1,80,.1f,0,0,1,1);
+        Check(dampCover>=dryCover && dampCover<=1
+            && channelCover<dryCover*.25f,
+            "shared moisture supports bank cover while concentrated drainage suppresses channel grass");
         const auto wideBeach = coastalStation(std::numbers::pi_v<float>, 25.0f);
         const auto ordinaryBeach = coastalStation(-1.5f, 25.0f);
         const float bayCover = island::GroundCover::Density(1.0f, 1.0f, 25.0f, 0.1f,
@@ -4221,8 +4252,12 @@ int main()
             for (float x = -240.0f; x <= 240.0f; x += 2.0f) {
                 const auto sample = terrain.Sample(x, z);
                 if (sample.signedShoreDistance < 40.0f || sample.slopeRadians > 0.3f) continue;
+                const auto environment=island::IslandEnvironmentField::SampleInland(
+                    x,z,sample.signedShoreDistance);
                 const float cover = island::GroundCover::Density(canopyLight.Sample(x, z),
-                    groundCover.SamplePatch(x, z), sample.signedShoreDistance, sample.slopeRadians);
+                    groundCover.SamplePatch(x, z), sample.signedShoreDistance, sample.slopeRadians,
+                    sample.coastalRockiness,sample.beachSuitability,
+                    environment.moisture,environment.drainage);
                 if (cover > 0.7f) richSites += 4.0;
                 else if (cover < 0.2f) poorSites += 4.0;
             }
@@ -4231,9 +4266,14 @@ int main()
             const auto sample = terrain.Sample(patch.x, patch.z);
             Check(sample.beachSuitability < island::GroundCover::BeachSuppressionEnd,
                   "grass parents and companions avoid the sandy apron even on reserved routes");
+            const auto environment=island::IslandEnvironmentField::SampleInland(
+                patch.x,patch.z,sample.signedShoreDistance);
+            Check(environment.drainage<0.82f,"grass roots stay outside flowing stream water");
             if (sample.signedShoreDistance < 40.0f || sample.slopeRadians > 0.3f) continue;
             const float cover = island::GroundCover::Density(canopyLight.Sample(patch.x, patch.z),
-                groundCover.SamplePatch(patch.x, patch.z), sample.signedShoreDistance, sample.slopeRadians);
+                groundCover.SamplePatch(patch.x, patch.z), sample.signedShoreDistance, sample.slopeRadians,
+                sample.coastalRockiness,sample.beachSuitability,
+                environment.moisture,environment.drainage);
             if (cover > 0.7f) ++richPatches;
             else if (cover < 0.2f) ++poorPatches;
         }
@@ -4311,8 +4351,8 @@ int main()
         "forest colony membership and shape are deterministic for one seed");
     Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 576
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() == 2174,
-        "clearing colonies preserve the existing island-wide populations");
+            - jungle.ForestGroundPlantCount() == 2201,
+        "wet-biome redistribution preserves the measured deterministic island populations");
     const auto checkColonies = [&](const island::JungleLayout& layout) {
         Check(layout.ClearingBushCount() > 0 && layout.ClearingBushCount() <= 24
             && layout.ClearingGroundPlantCount() > 0 && layout.ClearingGroundPlantCount() <= 144,
@@ -4474,6 +4514,9 @@ int main()
               "broadleaf trees remain on suitable interior ground");
         Check(!island::VegetationLayout::IsReservedRoute(tree.x, tree.z),
               "broadleaf trees keep paths, clearings, and player spawn open");
+        Check(island::IslandEnvironmentField::SampleInland(
+                  tree.x,tree.z,sample.signedShoreDistance).drainage<=0.68f,
+              "broadleaf trunks stay outside the active stream channel");
         Check(tree.variant < island::JungleLayout::CanopyVariantCount,
               "broadleaf canopy variant index remains in range");
         ++canopyFormCounts.at(tree.variant);
@@ -4535,6 +4578,9 @@ int main()
               "understory remains on suitable interior ground");
         Check(!island::VegetationLayout::IsReservedRoute(plant.x, plant.z),
               "understory keeps paths, clearings, and player spawn open");
+        Check(island::IslandEnvironmentField::SampleInland(
+                  plant.x,plant.z,sample.signedShoreDistance).drainage<=0.82f,
+              "understory stays outside flowing stream water");
         Check(plant.variant < island::JungleLayout::UnderstoryVariantCount,
               "understory variant index remains in range");
         Check(plant.scale >= island::JungleLayout::UnderstoryMinimumScale
@@ -4556,6 +4602,9 @@ int main()
               "low bushes remain on suitable interior ground");
         Check(!island::VegetationLayout::IsReservedRoute(bush.x, bush.z),
               "low bushes keep paths, clearings, and player spawn open");
+        Check(island::IslandEnvironmentField::SampleInland(
+                  bush.x,bush.z,sample.signedShoreDistance).drainage<=0.78f,
+              "low bushes stay outside flowing stream water");
         Check(bush.variant < island::JungleLayout::BushVariantCount,
               "low-bush variant index remains in range");
         Check(bush.scale >= island::JungleLayout::BushMinimumScale
@@ -4577,6 +4626,9 @@ int main()
               "forest-floor plants remain on suitable ground");
         Check(!island::VegetationLayout::IsReservedRoute(plant.x, plant.z),
               "forest-floor plants keep paths, clearings, and player spawn open");
+        Check(island::IslandEnvironmentField::SampleInland(
+                  plant.x,plant.z,sample.signedShoreDistance).drainage<=0.84f,
+              "forest-floor plants stay outside flowing stream water");
         Check(plant.variant < island::JungleLayout::GroundPlantVariantCount,
               "forest-floor plant variant index remains in range");
         Check(plant.scale >= island::JungleLayout::GroundPlantMinimumScale

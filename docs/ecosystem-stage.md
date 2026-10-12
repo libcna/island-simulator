@@ -16,15 +16,21 @@ existing features, not a broad redesign.
    Survey/layout foundation: west corridor99stations/100.559m, no sampled uphill
    step, candidate incision<=0.4m and sea-level-connected outlet. CPU survey passed;
    no live water/carve yet. See [stream-course.md](stream-course.md).
-2. [ ] **Shared environmental moisture and drainage.** Extend
+2. [~] **Shared environmental moisture and drainage.** Extend
    `IslandEnvironmentField` with `moisture` and `drainage`, and evaluate
    `saltExposure`. Derive deterministic values from terrain, valleys, stream and
    shoreline. Feed existing `JungleLayout`, `GrassLayout`, `GroundCoverField` and
    `NaturalPropLayout`; keep one coherent source rather than separate biome hacks.
-3. [ ] **Small wet stream-side microhabitat.** A roughly 10–25m band around the
+   First live pass now provides normalized moisture/drainage/salt exposure and
+   feeds terrain turf, grass, palms, jungle layers and fallen-log probability.
+   Broader wildlife/prop consumers and portable qualification remain.
+3. [~] **Small wet stream-side microhabitat.** A roughly 10–25m band around the
    lower reach: darker soil, more ferns/moss/broadleaf plants/fallen branches, less
    grass. Reuse current assets with appropriate distribution/material variation.
    Verify a visibly distinct transition from dry beach, not an island-wide swamp.
+   First pass adds damp earth/moss/stone, suppresses channel grass and clears
+   trunks/dense plants from flowing water. Dedicated fern/deadwood composition
+   and further bank/material tuning remain after actual image review.
 4. [ ] **Localized mangroves.** About 15–30 low-crowned, multi-stem trees with
    recognizable stilt roots in one small brackish mouth/protected-bay habitat.
    Prefer a variant of existing jungle/broadleaf geometry and rendering; do not

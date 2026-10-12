@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
@@ -57,16 +58,22 @@ namespace island
         patches_.reserve(28000U);
         const auto accepted = [&terrain](const float x, const float z, TerrainSample& sample) {
             sample = terrain.Sample(x, z);
+            const auto environment = IslandEnvironmentField::SampleInland(
+                x, z, sample.signedShoreDistance);
             return sample.signedShoreDistance >= 20.0f && sample.height >= 2.1f
                 && sample.slopeRadians <= 0.4886922f && sample.coastalRockiness < 0.60f
-                && sample.beachSuitability < GroundCover::BeachSuppressionEnd;
+                && sample.beachSuitability < GroundCover::BeachSuppressionEnd
+                && environment.drainage < 0.82f;
         };
         const auto coverAt = [&light, &cover](const float x, const float z,
                                               const TerrainSample& sample) {
+            const auto environment = IslandEnvironmentField::SampleInland(
+                x, z, sample.signedShoreDistance);
             return GroundCover::Density(std::clamp(light.Sample(x, z), 0.0f, 1.0f),
                 std::clamp(cover.SamplePatch(x, z), 0.0f, 1.0f),
                 sample.signedShoreDistance, sample.slopeRadians,
-                sample.coastalRockiness, sample.beachSuitability);
+                sample.coastalRockiness, sample.beachSuitability,
+                environment.moisture, environment.drainage);
         };
         for (int gridZ = -CandidateRadius; gridZ <= CandidateRadius; ++gridZ) {
             for (int gridX = -CandidateRadius; gridX <= CandidateRadius; ++gridX) {

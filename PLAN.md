@@ -45,14 +45,30 @@ survival systems. The supplied project inventory is context, not audited evidenc
 
 ## Other retained current work
 
-Stream water first pass is now live: static3429vertex/6080triangle ribbon inside
-the carved bed, one culled transparent draw, downstream animated ripple shader
-in GLSL330/GLES300. Native build and focused CPU tests pass; actual isolated
-081415.552173Z-stream image inspected after fixing XNA/OpenGL clip-depth mismatch.
-The lower course is visible but still reads as a uniform green strip: NOT visual
-completion. Wet banks/substrate, placement clearance, shared world grounding,
-motion review and portable tests remain. See docs/stream-course.md. Earlier
-progress notes below describe stages before this water integration.
+- [ ] Add exactly one large, highly realistic bear to a suitable island habitat.
+  Prefer an existing high-quality rigged 3D model only after verifying that its
+  licence permits inclusion and redistribution of both mesh and textures; retain
+  attribution/source/licence evidence. Otherwise create an original model and
+  materials. Give it recognisable bear anatomy, layered fur, believable weight and
+  ground contact, and authentic quadrupedal idle/walk/trot/turn/forage behaviour
+  rather than a generic human gait. Add restrained positional bear vocalisations
+  and breathing/snuffling appropriate to its current behaviour. Keep the single
+  animal non-hostile to preserve the peaceful experience, within portable LOD,
+  animation, audio-source and geometry budgets. Qualify close/front/side/moving
+  views and actual audible runtime evidence; a technical screenshot alone is not
+  visual or acoustic acceptance.
+
+Stream/wet-biome progress: shared normalized moisture/drainage/salt field now feeds
+terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowing
+water clears trunks/dense plants/grass; damp soil, moss and sparse stone cues cover
+the bank band. Water width/centre/opacity vary deterministically inside the carved
+bed. Measured inventory remains bounded (326palms,257canopy,1780understory,588bushes,
+2986ground plants,16943grass,9logs). Final focused build and three CPU tests pass
+43.07s. Actual isolated084525.578398Z-stream capture PASS388bins/std50.99/spatial239.36,
+kernel[]; image inspected: open channel reaches bay and is more legible, but still
+too linear/simple for final art acceptance. Dedicated ferns/deadwood, bank shaping,
+motion review, remaining shared grounding and Web/Android QA remain. See
+docs/stream-course.md and docs/environment-field-design.md.
 
 - [ ] New explicit visual-polish request: fish, shark, dolphins, turtles and crabs.
   Audit real close/side/front/moving views; improve recognizable anatomy/silhouette,

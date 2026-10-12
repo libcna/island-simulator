@@ -1,4 +1,5 @@
 #include "IslandSimulator/JungleLayout.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -82,11 +83,12 @@ namespace island
                 const float x = static_cast<float>(gridX) * CanopySpacing + jitterX;
                 const float z = static_cast<float>(gridZ) * CanopySpacing + jitterZ;
                 const TerrainSample sample = terrain.Sample(x, z);
+                const auto environment=IslandEnvironmentField::SampleInland(x,z,sample.signedShoreDistance);
                 if (sample.signedShoreDistance < 43.0f
                     || sample.signedShoreDistance > 238.0f
                     || sample.height < 3.8f || sample.slopeRadians > 0.4712389f
                     || sample.coastalRockiness > 0.45f
-                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    || VegetationLayout::IsReservedRoute(x, z) || environment.drainage > 0.68f) {
                     continue;
                 }
 
@@ -154,11 +156,12 @@ namespace island
                 const float x = static_cast<float>(gridX) * UnderstorySpacing + jitterX;
                 const float z = static_cast<float>(gridZ) * UnderstorySpacing + jitterZ;
                 const TerrainSample sample = terrain.Sample(x, z);
+                const auto environment=IslandEnvironmentField::SampleInland(x,z,sample.signedShoreDistance);
                 if (sample.signedShoreDistance < 31.0f
                     || sample.signedShoreDistance > 242.0f
                     || sample.height < 2.8f || sample.slopeRadians > 0.5410521f
                     || sample.coastalRockiness > 0.60f
-                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    || VegetationLayout::IsReservedRoute(x, z) || environment.drainage > 0.82f) {
                     continue;
                 }
 
@@ -167,7 +170,8 @@ namespace island
                 const float fineCluster = ClusterNoise(x, z, seed ^ 0x632be59bU, 17.0f);
                 const float density = std::clamp(
                     (0.32f + 0.46f * interior)
-                        * (0.48f + 0.54f * broadCluster + 0.20f * fineCluster),
+                        * (0.48f + 0.54f * broadCluster + 0.20f * fineCluster)
+                        * (1.0f + 0.34f * environment.moisture),
                     0.0f, 0.92f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x4cf5ad43U)) >= density) {
                     continue;
@@ -198,11 +202,12 @@ namespace island
                 const float x = static_cast<float>(gridX) * BushSpacing + jitterX;
                 const float z = static_cast<float>(gridZ) * BushSpacing + jitterZ;
                 const TerrainSample sample = terrain.Sample(x, z);
+                const auto environment=IslandEnvironmentField::SampleInland(x,z,sample.signedShoreDistance);
                 if (sample.signedShoreDistance < 38.0f
                     || sample.signedShoreDistance > 232.0f
                     || sample.height < 3.0f || sample.slopeRadians > 0.5235988f
                     || sample.coastalRockiness > 0.60f
-                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    || VegetationLayout::IsReservedRoute(x, z) || environment.drainage > 0.78f) {
                     continue;
                 }
 
@@ -214,7 +219,8 @@ namespace island
                     x, z, seed ^ 0xa54ff53aU, 21.0f);
                 const float density = std::clamp(
                     (0.20f + 0.31f * interior)
-                        * (0.52f + 0.62f * broadCluster + 0.18f * fineCluster),
+                        * (0.52f + 0.62f * broadCluster + 0.18f * fineCluster)
+                        * (1.0f + 0.22f * environment.moisture),
                     0.0f, 0.68f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x510e527fU)) >= density) {
                     continue;
@@ -246,11 +252,12 @@ namespace island
                 const float x = static_cast<float>(gridX) * GroundPlantSpacing + jitterX;
                 const float z = static_cast<float>(gridZ) * GroundPlantSpacing + jitterZ;
                 const TerrainSample sample = terrain.Sample(x, z);
+                const auto environment=IslandEnvironmentField::SampleInland(x,z,sample.signedShoreDistance);
                 if (sample.signedShoreDistance < 27.0f
                     || sample.signedShoreDistance > 238.0f
                     || sample.height < 2.5f || sample.slopeRadians > 0.5585054f
                     || sample.coastalRockiness > 0.60f
-                    || VegetationLayout::IsReservedRoute(x, z)) {
+                    || VegetationLayout::IsReservedRoute(x, z) || environment.drainage > 0.84f) {
                     continue;
                 }
 
@@ -262,7 +269,8 @@ namespace island
                     x, z, seed ^ 0x03707344U, 13.0f);
                 const float density = std::clamp(
                     (0.20f + 0.34f * interior)
-                        * (0.50f + 0.58f * broadCluster + 0.23f * fineCluster),
+                        * (0.50f + 0.58f * broadCluster + 0.23f * fineCluster)
+                        * (1.0f + 0.48f * environment.moisture),
                     0.0f, 0.71f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0xa4093822U)) >= density) {
                     continue;
@@ -327,8 +335,10 @@ namespace island
                     +0.36f*(1-0.65f*radial)*(0.75f+0.25f*random(channel+2));
                 const float footprint=GroundPlantFootprintRadius*scale;
                 const auto sample=terrain.Sample(x,z);
+                const auto environment=IslandEnvironmentField::SampleInland(x,z,sample.signedShoreDistance);
                 if (sample.signedShoreDistance<43 || sample.signedShoreDistance>238
                     || sample.height<2.5f || sample.slopeRadians>0.41887902f
+                    || environment.drainage>0.84f
                     || VegetationLayout::OverlapsReservedRoute(x,z,footprint)
                     || !clearOfCanopy(x,z,footprint)
                     || !clearOfRoots(x,z,groundPlants_,ForestRootSeparation)

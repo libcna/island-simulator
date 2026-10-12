@@ -1,6 +1,7 @@
 #include "IslandSimulator/NaturalPropLayout.hpp"
 
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
@@ -248,15 +249,18 @@ namespace island
                 const float x = static_cast<float>(gridX) * LogSpacing + jitterX;
                 const float z = static_cast<float>(gridZ) * LogSpacing + jitterZ;
                 const TerrainSample sample = terrain.Sample(x, z);
+                const auto environment=IslandEnvironmentField::SampleInland(
+                    x,z,sample.signedShoreDistance);
                 if (sample.signedShoreDistance < 34.0f
                     || sample.signedShoreDistance > 205.0f
                     || sample.height < 3.1f || sample.slopeRadians > 0.296706f
                     || VegetationLayout::IsReservedRoute(x, z)
-                    || NearTree(x, z, 3.8f, palms, jungle)) {
+                    || NearTree(x, z, 3.8f, palms, jungle) || environment.drainage > 0.72f) {
                     continue;
                 }
                 const float cluster = ClusterNoise(x, z, seed ^ 0x51ed270bU);
-                const float density = 0.22f + 0.28f * cluster;
+                const float density = (0.22f + 0.28f * cluster)
+                    * (0.88f + 0.38f * environment.moisture);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x632be59bU)) >= density) continue;
 
                 FallenLogPlacement log;
