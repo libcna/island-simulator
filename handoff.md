@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Latest — diving vertical controller foundation, NOT live diving
+
+Previousf8c366d was progress. SwimDepth.hpp introduced: surface.58m, floor support+
+.45m,1.6m/s,dt<=.1, Space/Shift booleans cancel, hold/reset, reject invalid support.
+No game wiring/render/audio yet. CoreTests add floor/surface/opposed/idle/invalid/
+stall/risingground/dry/reset cases. Build+Core handle4485 terminal exit0; CoreTests
+PASS41.96s. Build taskset0-3/-j2/sharedcache; logs build/swim-depth-{build,tests}.log.
+Next integrate into PlayerMotion authoritative state with swept RENDERED seabed
+footprint collision (current height is analytic/always surface), then underwater
+render/audio and real-input images. docs/diving.md details remaining scope.
+No graphics, AMD/KVM/dependency changes. Full animal/hut/stream/cave/helicopter/
+campfire and platform/audit backlog retained; goal active.
+
 ## New user requirement — realistic campfire and gathered firewood
 
 Added unchecked PLAN task: suitable location, burning stone-ringed campfire,

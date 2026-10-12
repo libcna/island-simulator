@@ -33,6 +33,7 @@
 #include "IslandSimulator/OceanMeshLayout.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
+#include "IslandSimulator/SwimDepth.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RockSurface.hpp"
 #include "IslandSimulator/SurfaceNormals.hpp"
@@ -87,6 +88,34 @@ namespace
 
 int main()
 {
+    {
+        island::SwimDepth dive;
+        Check(dive.EyeHeight()==.58f,"diving starts at the swimming surface");
+        for(int step=0;step<200;++step) dive.Update(-12.0f,false,true,.1f);
+        Check(std::abs(dive.EyeHeight()+11.55f)<1e-5f,"descent stops above the seabed");
+        Check(dive.SubmergedDepth()>11.5f,"diving records actual submerged depth");
+        const float held=dive.EyeHeight();
+        dive.Update(-12,true,true,.1f);
+        dive.Update(-12,false,false,.1f);
+        Check(dive.EyeHeight()==held,"opposed or released keys hold depth");
+        Check(!dive.Update(std::numeric_limits<float>::quiet_NaN(),true,false,.1f)
+            &&dive.EyeHeight()==held,"invalid seabed rejects motion");
+        for(float dt:{-1.0f,std::numeric_limits<float>::infinity(),
+                std::numeric_limits<float>::quiet_NaN()}) {
+            dive.Update(-12,true,false,dt);
+            Check(dive.EyeHeight()==held,"invalid dive time is neutral");
+        }
+        dive.Update(-12,true,false,1000);
+        Check(std::abs(dive.EyeHeight()-held-.16f)<1e-5f,"dive stalls clamp to one bounded step");
+        dive.Update(-2,false,false,0);
+        Check(std::abs(dive.EyeHeight()+1.55f)<1e-5f,"rising support cannot bury the swimmer");
+        for(int step=0;step<200;++step) dive.Update(-12,true,false,.1f);
+        Check(dive.EyeHeight()==.58f&&dive.SubmergedDepth()==0,"ascent cannot leave the surface");
+        dive.Update(1,false,true,.1f);
+        Check(dive.EyeHeight()==.58f,"dry support does not allow diving");
+        dive.Update(-12,false,true,.1f); dive.Reset();
+        Check(dive.EyeHeight()==.58f,"teleport/reset clears diving depth");
+    }
     {
         // Bent, tapered V-fold strip; three shared vertices per level, including a centre ridge.
         const std::vector<std::array<float,3>> strip{

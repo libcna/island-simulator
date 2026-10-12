@@ -37,13 +37,15 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   inspect actual near/far and moving views, not a static orange placeholder. No
   implementation yet; adding fuel/crafting mechanics was not requested.
 
-- [ ] Add underwater diving: while in water and not flying, Space ascends toward
+- [~] Add underwater diving: while in water and not flying, Space ascends toward
   the surface and either Shift descends. WASD/arrows retain horizontal swimming;
   simultaneous ascent/descent cancels vertical input. Support actual underwater
   camera position, seabed/terrain non-penetration, coherent surface entry/exit and
   underwater visibility/audio. Shift must not toggle ground running while diving.
   Preserve flight Tab/Space/Shift controls and bounded sea traversal. Verify actual
-  underwater movement/images, not only a surface haze effect. No implementation yet.
+  underwater movement/images, not only a surface haze effect. CPU-only SwimDepth
+  foundation added; not wired into gameplay, no underwater visual/runtime claim.
+  See docs/diving.md for controller contracts and required swept-seabed integration.
 
 Boar material follow-up: original ImageGen fine-bristle v2 source and exact prompt
 preserved/manifest recorded; native/Web/Android preparation selects v2 with unchanged
