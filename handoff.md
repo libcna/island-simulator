@@ -1,5 +1,31 @@
 # island-simulator handoff
 
+## Latest — CPU stance audit proves goat sliding; priority is a real foot-locking fix
+
+New tools/GoatStanceAudit.cpp built as build/island-goat-stance-audit (native tools
+only). Twenty-ms samples, real full world+hut obstacles, six goats,30s quiet and30s
+fixed near observer. Track consecutive stance sole centres in world x/z; reset anchor
+on swing. Calibration10mm slip/reset plus flat constant.65m/s cancellation checks.
+Repeat build/goat-stance-current.jsonl and goat-stance-repeat.jsonl byte-identical.
+Quiet30342stance pairs/5588>1mm; maxstep.122717m/maxanchordrift.948285m.
+Retreat29133pairs/5609>1mm; maxstep.132466m/maxanchordrift.873171m.
+Flat261pairs/0>1mm, maxstep1.19209e-7m/maxdrift7.15256e-7m.
+Worst quiet15.16s goat3/leg2 speed.65→0 headingdelta0; retreat15.44s goat0/leg2
+speed.698→0 headingdelta-.036. Source GoatHerd::Step hard-zeros speed on TryMove
+failure, EvaluateGoatLeg stride scales by speed; blocked heading may rotate feet
+while phase advances only with accepted translation. These explain genuine errors;
+prior height tests/sparse images are NOT stance acceptance. Full evidence docs/goats.md.
+
+NEXT: persistent per-foot world stance anchors, bounded release/swing/replant during
+turns and stops, pose shared by simulation validity/rendering. Preserve fixed IK lengths,
+surface normals/clearance, obstacle safety and determinism. Do not mask metrics or
+relax limits. New auditor is diagnostic: exit0 means valid measurement, NOT good gait.
+Current inclusive build +47CPU PASS71.12s; logs goat-stance-current-{build,tests}.log.
+Native rebuild also includes prior Android one-time render-proof marker. No game motion
+or mesh edits this turn; no actual GPU/browser/Android run. Handles97647 and7849 terminal0.
+Goal active/no push; full prior species/environment scope retained. AMD crash still
+high-priority unresolved; no hardware/emulator/KVM/dependency configuration changes.
+
 ## Latest — actual Android goat view passed after logcat proof repair
 
 run_android_software.py accepts goats, requires exact coat/mips + actual1–6/6visible,

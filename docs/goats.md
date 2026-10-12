@@ -471,6 +471,46 @@ No AVD/KVM/driver/dependency configuration changed. Existing launcher removed a 
 owned AVD lock only after its no-live-emulator check; it did not alter shared AVDs.
 Latest actual Web audit still predates height mapping, ears and eyes.
 
+## Continuous CPU stance audit — confirmed failure, not accepted gait
+
+`build/island-goat-stance-audit` now measures world-space sole-centre movement at
+20ms intervals. It reconstructs the complete world obstacles including the hut,
+runs all six actual herd agents for30s with a distant observer and another30s with
+a fixed nearby observer, and fits the same terrain pose used by the renderer.
+Adjacent samples count only when the same foot is in stance in both; a swing resets
+the anchor. Distances are horizontal x/z, not vertical terrain-fit errors. This is
+continuous CPU sampling, not a video or proof about every rendered hoof triangle.
+
+The auditor first checks a known10mm slip/reset fixture and a straight flat0.65m/s
+calibration, which cancels body translation to within0.00000012m per step. Two actual
+runs are byte-identical (`build/goat-stance-current.jsonl` and `goat-stance-repeat.jsonl`).
+
+| Scenario | Stance pairs | Pairs over1mm | Maximum20ms movement | Maximum distance from stance start |
+|---|---:|---:|---:|---:|
+| Flat straight calibration |261|0|0.000000119209m|0.000000715256m|
+| Undisturbed herd30s |30342|5588|0.122717m|0.948285m|
+| Nearby observer30s |29133|5609|0.132466m|0.873171m|
+
+Worst undisturbed step:15.16s, goat3/right rear leg2, speed0.65→0, no heading change.
+Worst observer step:15.44s, goat0/right rear leg2, speed0.698→0, heading change-0.036rad.
+The source explains a definite mechanism: failed TryMove sets speed=0 immediately,
+while EvaluateGoatLeg's stride amplitude depends on speed; changing to zero moves
+each hoof back below its root regardless of an existing stance. Turning a blocked
+body can also rotate all grounded feet without a swing because phase advances only
+with accepted translation. Small sole-height errors and the earlier straight-speed
+calibration never established foot locking, and the new data explicitly disproves it.
+
+Next fix must retain per-foot world stance anchors, release/replant feet through a
+bounded swing during turns/stops, and preserve fixed limb lengths, terrain support,
+collision clearance and determinism. Share the resulting pose between simulation
+validation and rendering; do not merely hide the measured displacement or relax
+the audit. Rerun both cases plus continuous visual review after implementation.
+Tool exit0 means measurements/calibration succeeded, NOT that gait is acceptable.
+No game movement or mesh was changed in this audit; no GPU/emulator was used.
+Inclusive native build and existing47 CPU tests pass71.12s; logs are
+`build/goat-stance-current-build.log` and `build/goat-stance-current-tests.log`.
+These passes verify existing invariants, not the newly disproved stance requirement.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

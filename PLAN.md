@@ -914,6 +914,15 @@ progress or require player interaction; dangerous species keep their distance li
   Verified x86 APK island-goat-eyes-x86_64.apk SHA b4b4db56... retained. Current coat/
   ears/eyes/hooves appear, coarse bands/legs remain. Not continuous gait/lifecycle/
   physical performance or AMD qualification; latest Web predates these visual edits.
+  Continuous CPU stance audit now CONFIRMS foot sliding: new island-goat-stance-audit
+  samples actual six-agent/full-obstacle herd every20ms for30s quiet +30s near observer.
+  Byte-identical repeat; calibrated straight baseline near-zero. Quiet/observer worst
+  stance step122.717/132.466mm, anchor drift948.285/873.171mm. Worst steps coincide
+  speed→0; source resets stride amplitude on blocked TryMove and allows body rotation
+  without foot lift. This is a failed gait requirement, NOT accepted by prior screenshots
+  or green height tests. Next implement persistent world stance anchors + bounded swing
+  release/replant at turns/stops, shared simulation/render pose; preserve IK/terrain/
+  obstacle/determinism and rerun numerical plus continuous visual audit. docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)
