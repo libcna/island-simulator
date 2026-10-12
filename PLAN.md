@@ -876,6 +876,14 @@ progress or require player interaction; dangerous species keep their distance li
   enlarged before/after and full montage actually inspected: less oversized hooves,
   modest upper-leg improvement; angular joints/ears/eyes/coat distortion remain.
   No continuous stance acceptance or new Web/Android qualification. See docs/goats.md.
+  Actual WebGL goat audit now available via supervised Chrome scope goats, including
+  initial/four intermediate/final images, visible population and coat/two-pass checks.
+  Twenty browser preflight tests pass with negative goat-report cases. Current Web
+  build/package11559073 raw/4499299 gzip bytes. Actual023517.624374Z-chrome-goats
+  Chrome155/SwiftShader PASS60 intervals/glError0/live context/kernel[], all six
+  images inspected. Coat/hooves render, animal turns/moves; rear star-pattern texture,
+  crude ears/eyes and angular legs remain. Not continuous gait or AMD qualification;
+  Android goat runtime still open. Full evidence/command in docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

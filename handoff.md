@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — actual Chrome software goat audit, six images inspected
+
+Added supervised scope goats in run_browser_software.py/run_web_smoke.mjs and real
+--viewpoint goats page mode. Requires coat marker,1–6/6 visible goats,two draws,
+SwiftShader/live GL0, four distinct intermediate captures; outer report validator
+rejects invalid population/material/context/images. BrowserSoftwareTests20PASS,
+JS syntax and diff checks pass. Not deterministic native8-stage clock: real-time
+eight-rAF gaps/four images then60intervals plus final image, not stance-locking proof.
+
+Current Web rebuild/package PASS11559073 raw/4499299 gzip bytes. Actual
+build/browser-software/20261012T023517.624374Z-chrome-goats outer PASS, Chrome155.0.8059.39
+SwiftShader60intervals/glError0/contextLostfalse/kernel-final[]. Initial/final images
+and all four pose images (build/goat-web-motion-montage.png) actually inspected.
+Coat/smaller hooves render; goat turns/moves. Rear taper star-pattern fur remains
+conspicuous, ears crude/eyes barely readable/legs angular. No realism acceptance.
+Build handle9136 and browser97353 terminal0; earlier sandbox build67065 terminal1
+due shared-cache write restriction, resolved by scoped escalation, not cache bypass.
+No fresh native C++ change, Android build/runtime, AMD hardware or KVM changes.
+Hardware latch SHA c0bd1704 unchanged. Goal active, no push. Next: coat taper/anatomy,
+continuous stance and actual Android goat runtime; all prior species/stability scope
+retained, AMD crash remains high-priority unresolved.
+
 ## Latest — goat limb volumes and lower hooves verified
 
 GoatMesh now retains six longitudinal limb stations in both LODs, distinct front/rear

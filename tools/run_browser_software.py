@@ -7,6 +7,7 @@ import datetime
 import fcntl
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,7 +16,26 @@ import sys
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity
 from run_software_capture import run_monitored_capture, validate_monkey_climb_stages, validate_snake_runtime_samples
 
-SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut")
+SCOPES = ("full", "terrain", "wildlife-foliage", "coast", "grounding", "vegetation", "grass-motion", "litter", "materials", "monkeys", "monkey-climb", "fullscreen", "flight", "snakes", "hut", "goats")
+
+
+def validate_goat_report(report):
+    views = report.get("views", [])
+    if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "goats":
+        raise RuntimeError("goat report lacks successful focused view")
+    view = views[0]
+    result = view.get("result", {})
+    log = result.get("output", "")
+    frames = view.get("goatMotionFrames", [])
+    if (view.get("passed") is not True or view.get("glError") != 0
+        or view.get("contextLost") is not False or result.get("error") or result.get("exited")
+        or not re.search(r"goats [1-6]/6 visible, 2 draw;", log)
+        or "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log
+        or "fallback:" in log or len(frames) != 4
+        or not all(isinstance(frame, str) and frame.endswith(".png") for frame in frames)
+        or len(set(frames)) != 4):
+        raise RuntimeError("goat view lacks coat, visible population, pose images or live graphics state")
+    return frames
 
 
 def validate_hut_report(report):
@@ -136,6 +156,9 @@ def main(argv=None):
             if args.scope == "hut":
                 hut_report=json.loads((evidence / "island-browser-hut.json").read_text())
                 metadata["hut_views"]=validate_hut_report(hut_report)
+            if args.scope == "goats":
+                goat_report=json.loads((evidence / "island-browser-goats.json").read_text())
+                metadata["goat_pose_images"]=validate_goat_report(goat_report)
             metadata["result"] = "passed"
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             failure = error

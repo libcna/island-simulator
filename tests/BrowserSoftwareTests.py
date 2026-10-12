@@ -161,6 +161,40 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('monkeyMotionFrames.push', source)
         self.assertIn('motionReview, monkeyMotionFrames,', source)
 
+    def test_goat_scope_requires_coat_population_images_and_live_context(self):
+        self.assertIn("goats", gate.SCOPES)
+        self.assertEqual(gate.browser_environment("chrome", "goats", Path("/evidence"))
+                         ["ISLAND_BROWSER_SUPERVISED"], "chrome")
+        self.assertIn('["goats", ["--viewpoint", "goats"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedGoatCheck ? ["goats"]', source)
+        self.assertIn('goatMotionFrames.push(frame)', source)
+        self.assertIn('goatMotionFrames.length === 4', source)
+        def report():
+            return {"passed": True, "views": [{"mode": "goats", "passed": True,
+                "glError": 0, "contextLost": False,
+                "goatMotionFrames": [f"pose-{i}.png" for i in range(4)],
+                "result": {"output": "goats 3/6 visible, 2 draw;\n"
+                    "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes"}}]}
+        self.assertEqual(len(gate.validate_goat_report(report())), 4)
+        for key, value in (("mode", "monkeys"), ("passed", False), ("glError", 1282),
+                           ("contextLost", True), ("goatMotionFrames", []),
+                           ("goatMotionFrames", ["same.png"] * 4)):
+            bad = report(); bad["views"][0][key] = value
+            with self.subTest(key=key), self.assertRaises(RuntimeError):
+                gate.validate_goat_report(bad)
+        for old, new in (("3/6", "0/6"), ("2 draw", "1 draw"),
+                         ("goat fur loaded", "missing"), ("9 mips", "1 mips")):
+            bad = report()
+            bad["views"][0]["result"]["output"] = bad["views"][0]["result"]["output"].replace(old, new)
+            with self.assertRaises(RuntimeError): gate.validate_goat_report(bad)
+        for flag in ("error", "exited"):
+            bad = report(); bad["views"][0]["result"][flag] = True
+            with self.assertRaises(RuntimeError): gate.validate_goat_report(bad)
+        for bad in ({"passed": False, "views": report()["views"]}, {"passed": True, "views": []}):
+            with self.assertRaises(RuntimeError): gate.validate_goat_report(bad)
+
     def test_litter_scope_preserves_supervision_and_driver_policy(self):
         environment = gate.browser_environment("chrome", "litter", Path("/evidence"))
         self.assertEqual(environment["ISLAND_WEB_SMOKE_SCOPE"], "litter")

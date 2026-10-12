@@ -341,6 +341,35 @@ taper distortion remain visible. Sparse frames do not qualify continuous stance
 locking or natural gait. No current Web/Android build/runtime qualification, hardware
 GPU run, emulator/KVM change or dependency change. AMD incident remains unresolved.
 
+## Focused software WebGL audit
+
+The contained Chrome supervisor now accepts `--scope goats`; the page starts the
+normal `--viewpoint goats` game, not a replacement demo. It captures the initial
+view, four intermediate images separated by eight requestAnimationFrame callbacks,
+and a final image after60 measured frame intervals. These are real-time samples,
+not the deterministic native capture clock or a continuous stance-locking test.
+The gate requires SwiftShader, a live error-free WebGL2 context, loaded256px/9-mip
+coat, visible1–6/6 goats and both coat/bare-part draws. The outer supervisor also
+validates the report's population/material/context and four distinct pose filenames.
+Twenty BrowserSoftwareTests pass, including corrupt goat reports for missing coat,
+zero population, missing draw, duplicate/missing images and dead/error contexts.
+
+Actual run `build/browser-software/20261012T023517.624374Z-chrome-goats` passed on
+Chrome155.0.8059.39/SwiftShader:60 intervals, glError0, contextLost=false, outer
+supervisor passed and final kernel delta empty. All six images (initial, four poses,
+final) were actually inspected, intermediate images together in
+`build/goat-web-motion-montage.png`. Coat and reduced hooves render; the animal turns
+and changes position. Rear coat taper has a conspicuous star pattern; ears remain
+crude, eyes poorly readable and limbs angular. This is functional WebGL evidence,
+not accepted realism, continuous gait, hardware performance or AMD crash resolution.
+Updated Web package11559073 raw/4499299 gzip bytes. No Android build/runtime this turn.
+
+Reproduction (existing Web build, no hardware access):
+
+```sh
+sg systemd-journal -c 'python3 tools/run_browser_software.py build-probe --node /home/robertvokac/emsdk/node/24.19.0_64bit/bin/node --browser chrome --scope goats --timeout 600'
+```
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

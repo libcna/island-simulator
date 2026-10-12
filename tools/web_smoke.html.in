@@ -88,6 +88,7 @@
       ["turtles", ["--viewpoint", "turtles", "--debug-overlay"]],
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
+      ["goats", ["--viewpoint", "goats"]],
       ["boars", ["--viewpoint", "boars"]],
     ]);
     var Module = {
