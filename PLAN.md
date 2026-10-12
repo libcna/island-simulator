@@ -33,6 +33,13 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation
   does not satisfy the user's renewed visual rejection.
+  First follow-up: fuller rounded/closed fur-bearing tail, shorter/wider muzzle with
+  matching nose/mouth, larger cranium and less barrel-like torso. Actual contained
+  before061354.741487Z/after061652.692874Z monkey images inspected; afterPASS/kernel[].
+  Same camera but not exact pose/wind. Smooth tail/limb joins and overall realism still
+  open, not completion; details and test-selection safety deviation recorded in
+  docs/monkey-fur-material.md. Direct display CTests now disabled while stop latch exists.
+  Final native incremental build/inclusive55CPU PASS100.52s; no portable qualification.
 - [ ] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.
@@ -54,7 +61,21 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   vegetation intersections, plus actual walking and supported-platform captures.
   No quests, combat or new survival systems are implied. A dark rock decal is not a cave.
 
-All five items remain incomplete. Stream/cave locations should be coordinated with
+- [ ] Add a realistic grounded helicopter near the centre of the island. It cannot
+  fly, but the player must be able to enter both the pilot cockpit and rear cabin.
+  Prefer a suitable existing 3D model only after verifying its licence permits the
+  intended distribution/use; otherwise build a project-owned procedural or glTF asset.
+  Record provenance/licence and attribution. Model believable fuselage, glazing,
+  cockpit controls/seats, cabin, rotor assembly and landing gear with appropriate
+  textured materials. Keep rotor/flight controls disabled; no flight simulation is
+  implied. Integrate landing/standing footprint with terrain without burying or floating
+  skids/wheels. Door openings, thresholds, seats, floor and ceiling need suitable
+  collision rather than an enclosing solid proxy. Verify actual entry/exit, movement
+  through cockpit/rear cabin, camera clearance, interior/exterior lighting and near/far
+  appearance on supported platforms. A hollow exterior shell or inaccessible model
+  does not satisfy this task. Operator request2026-10-12; not implemented.
+
+All six items remain incomplete. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.
 
 ## Product definition and non-goals

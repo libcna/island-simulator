@@ -9,8 +9,8 @@ namespace island::MonkeyFaceProfile
     inline constexpr std::array<Row, 12> Rows{{
         {.958f,.008f,.572f}, {.928f,.064f,.604f}, {.903f,.096f,.632f},
         {.880f,.113f,.651f}, {.859f,.115f,.650f}, {.837f,.105f,.658f},
-        {.817f,.089f,.685f}, {.797f,.077f,.704f}, {.780f,.072f,.700f},
-        {.762f,.059f,.687f}, {.746f,.033f,.650f}, {.736f,.005f,.592f}
+        {.817f,.098f,.665f}, {.797f,.089f,.678f}, {.780f,.085f,.674f},
+        {.762f,.069f,.663f}, {.746f,.041f,.634f}, {.736f,.005f,.592f}
     }};
     struct Point { float x,y,z; };
     inline constexpr float EyeCentreZ=.635f;

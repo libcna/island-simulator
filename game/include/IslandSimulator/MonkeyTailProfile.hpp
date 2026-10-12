@@ -30,7 +30,10 @@ namespace island::MonkeyTailProfile
                           + b*(-2*u3+3*u2) + mb*(u3-u2);
         const auto tangent = (a*(6*u2-6*u) + ma*(3*u2-4*u+1)
                             + b*(-6*u2+6*u) + mb*(3*u2-2*u))*3.0f;
-        return {centre, tangent, 0.003f + 0.033f*(1-t), u2*(3-2*u),
+        // Fur-bearing tail keeps volume through its length and rounds into a
+        // closed tip, instead of becoming a long hairless-looking needle.
+        const float radius=(.032f+.022f*(1-t))*std::sqrt(std::max(0.0f,1.0f-std::pow(t,12.0f)));
+        return {centre, tangent, radius, u2*(3-2*u),
                 segment, std::min(2, segment+1)};
     }
 }

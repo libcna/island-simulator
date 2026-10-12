@@ -112,8 +112,10 @@ try {
         const auto section = tail::Sample(anchors, i/300.0f);
         Require(std::isfinite(section.centre.y) && length(section.tangent) > .1f,
                 "tail frame must be finite and nondegenerate");
-        Require(section.radius >= .002999f && section.radius <= .036001f,
-                "tail continuously tapers within authored radii");
+        Require(section.radius >= 0 && section.radius <= .054001f,
+                "fur-bearing tail stays within authored radii");
+        if(i<=240)Require(section.radius>.035f,"tail becomes needle-thin before rounded tip");
+        if(i==300)Require(section.radius==0,"tail tip remains open");
         Require(section.secondWeight >= 0 && section.secondWeight <= 1,
                 "tail weights remain normalized and nonnegative");
         Require(section.firstBone >= 0 && section.secondBone <= 2,

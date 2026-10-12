@@ -480,7 +480,7 @@ namespace island
             const std::array<Point, 4> anchors{point(rig.heads[TailBase]),
                 point(rig.heads[TailMiddle]), point(rig.heads[TailTip]), {0, .97f, -1.55f*length}};
             constexpr std::array<int, 3> bones{TailBase, TailMiddle, TailTip};
-            const int rings = near ? 18 : 9, segments = near ? 10 : 6;
+            const int rings = near ? 24 : 12, segments = near ? 12 : 8;
             const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
             for (int ring = 0; ring <= rings; ++ring) {
                 const float t = static_cast<float>(ring) / rings;
@@ -506,7 +506,8 @@ namespace island
                 const auto b = static_cast<std::uint16_t>(a + stride);
                 const auto c = static_cast<std::uint16_t>(b + 1U);
                 const auto d = static_cast<std::uint16_t>(a + 1U);
-                mesh.indices.insert(mesh.indices.end(), {a, b, c, a, c, d});
+                if (ring+1==rings) mesh.indices.insert(mesh.indices.end(), {a, b, d});
+                else mesh.indices.insert(mesh.indices.end(), {a, b, c, a, c, d});
             }
         }
 
@@ -610,15 +611,15 @@ namespace island
                 {Vector3(0, .58f, -.57f), .008f, .015f, Pelvis, Spine, 0},
                 {Vector3(0, .59f, -.48f), .15f*w, .17f, Pelvis, Spine, 0},
                 {Vector3(0, .61f, -.31f), .205f*w, .205f, Pelvis, Spine, .15f},
-                {Vector3(0, .62f, -.10f), .21f*w, .21f, Pelvis, Spine, .55f},
-                {Vector3(0, .63f, .10f), .20f*w, .215f, Pelvis, Spine, 1},
-                {Vector3(0, .67f, .27f), .175f*w, .20f, Spine, Head, .05f},
+                {Vector3(0, .62f, -.10f), .185f*w, .19f, Pelvis, Spine, .55f},
+                {Vector3(0, .63f, .10f), .215f*w, .23f, Pelvis, Spine, 1},
+                {Vector3(0, .67f, .27f), .19f*w, .215f, Spine, Head, .05f},
                 {Vector3(0, .74f, .36f), .13f*w, .17f, Spine, Head, .45f},
                 {Vector3(0, .80f, .45f), .105f*w, .13f, Spine, Head, 1},
                 {Vector3(0, .82f, .51f), .008f, .015f, Spine, Head, 1}}};
             AddBodyLoft(mesh, body, segments);
             AddEllipsoid(mesh, Vector3(0, .85f, .46f),
-                         Vector3(.15f, .16f, .165f) * shape.headSize, Head, near ? 8 : 4, segments);
+                         Vector3(.166f, .176f, .165f) * shape.headSize, Head, near ? 10 : 6, segments);
             for (float side : {-1.0f, 1.0f})
                 AddEllipsoid(mesh, Vector3(side * .147f, .84f, .425f),
                              Vector3(.042f, .057f, .023f), Head, 4, near ? 10 : 6);
@@ -685,14 +686,14 @@ namespace island
             for (float side : {-1.0f, 1.0f}) {
                 AddEllipsoid(mesh, Vector3(side * .052f, .867f, MonkeyFaceProfile::EyeCentreZ),
                              Vector3(.016f, .010f, .007f), Head, 4, 10);
-                AddEllipsoid(mesh, Vector3(side * .015f, .817f, .686f),
+                AddEllipsoid(mesh, Vector3(side * .015f, .817f, .666f),
                              Vector3(.006f, .004f, .003f), Head, 3, 6);
             }
             // Follow the curved muzzle instead of floating a straight mouth bar in front.
             const auto mouthBase = static_cast<std::uint16_t>(mesh.vertices.size());
             for (int step = 0; step <= 8; ++step) {
-                const float x = -.041f + .082f * step / 8.0f;
-                const float z = .55f + .15f * std::sqrt(1.0f-(x/.072f)*(x/.072f)) + .002f;
+                const float x = -.048f + .096f * step / 8.0f;
+                const float z = .55f + .124f * std::sqrt(1.0f-(x/.085f)*(x/.085f)) + .002f;
                 for (float y : {.7785f, .7815f})
                     AddVertex(mesh, Vector3(x,y,z), Vector3(0,0,1), Head, Vector2(.5f,.5f));
             }

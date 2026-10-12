@@ -1,5 +1,38 @@
 # Monkey fur material
 
+## Renewed rat-like silhouette complaint — 2026-10-12
+
+Actual contained native baseline `20261012T061354.741487Z-monkeys` was inspected
+(`build/monkey-rat-review-before.png`): thin pointed tail, projecting narrow muzzle,
+long torso and dark simplified face. This confirms visible defects despite existing
+fur/rig work; previous implementation is not appearance acceptance.
+
+The tail now retains a fuller fur-bearing radius through most of its length and rounds
+to a closed tip, instead of linearly tapering from36mm to3mm. Radius is
+`(.032+.022*(1-t))*sqrt(max(0,1-t^12))`; near24rings/12sides, far12rings/8sides.
+The terminal ring is closed with a single triangle fan rather than collapsed quads.
+Existing three-bone centreline, blending, fur material and UVs remain. Cranial radii
+increase from150/160mm to166/176mm; the muzzle is shortened/widened, nostrils and
+mouth follow it, the abdomen is narrower and shoulders fuller. No gait/AI change.
+
+Contained native after-view `20261012T061652.692874Z-monkeys` PASS322bins/std36.01/
+spatial210.29, kernel-after[]; actual image inspected in
+`build/monkey-rat-review-after.png`. Tail has more volume and face is less pointed.
+Same camera, not an exact pose/wind/frame match. The tail still reads as a smooth
+tube at this distance and limb junctions, facial detail and overall realism remain
+open. No visual completion, full movement/climbing or portable qualification claim.
+
+Safety deviation: the initial `ctest -R Monkey` mistakenly included a direct display
+test and ran on AMD at08:16CEST. It terminated normally, but was NOT authorized by
+the stop latch and is not accepted qualification. Read-only kernel query08:15–08:18
+returned no entries. Subsequent checks use contained software/`linux-core` only.
+CMake now disables direct display-labelled tests when the retained incident stop
+file exists at configuration time; `ctest -N -R IslandGameMonkeyCapture` confirms
+Disabled. This is not a runtime guard on direct executable launches. The latch itself
+is unchanged. This guard is not a driver fix or permission to resume hardware tests.
+Final incremental build and inclusive55 CPU groups PASS100.52s; logs
+`build/monkey-silhouette-final-build.log` and `build/monkey-silhouette-full-tests.log`.
+
 ## Shorter fur and non-collapsing side UVs (2026-10-11)
 
 The first source and cosine UV projection produced large wood-like streaks on the actual

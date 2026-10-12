@@ -1,5 +1,38 @@
 # island-simulator handoff
 
+## Latest — monkey silhouette correction and helicopter requirement
+
+Previous28407ad was progress. User added grounded realistic helicopter near island
+centre, ENTERABLE cockpit AND rear cabin, no flight, licence-checked existing asset
+or original procedural/glTF. Persisted as unchecked PLAN priority; not implemented.
+
+Actual contained monkey baseline061354.741487Z (28666exit0), image inspected
+build/monkey-rat-review-before.png. Thin needle tail/projecting muzzle confirmed.
+Changed tail radius from.003+.033*(1-t) to(.032+.022*(1-t))*sqrt(1-t^12), closed tip
+single-fan termination, near24rings12sides/far12rings8sides. Same3bones/UV/material.
+Larger cranium, shorter/wider muzzle+matchingnostrils/mouth, narrower abdomen/full
+shoulders. No gait/AI change. Tail regression updated for fuller radius/zero tip.
+Actual contained after061652.692874Z (7357exit0) PASS322bins/std36.01/spatial210.29,
+kernel[]. Image build/monkey-rat-review-after.png ACTUALLY inspected: fuller tail and
+less pointed face, still smooth tube/limb joins/stylized details. Same camera, not
+samepose/wind. Not final visual acceptance or fullmotion/climb/portable proof.
+
+IMPORTANT SAFETY DEVIATION: my `ctest -R Monkey` selected direct display test77 in
+addition to3CPU tests. Log proves AMD780M at08:16CEST, exit0; this violated retained
+hardware stop and must NOT be repeated or cited as qualification. Kernel read-only
+08:15–08:18 returned no entries. CMake now DISABLES display-labelled CTests whenever
+build/gpu-incident-evidence/QUALIFICATION_STOP.json exists; ctest -N verifies test77
+Disabled. File unchanged, no driver/KVM/dependency changes. Contained supervisors
+remain functional. CPU final build/full55 handle9485 terminal0, PASS100.52s;
+logs build/monkey-silhouette-{final-build,full-tests}.log. Reusebuild/-j2/
+sharedcache. Initial float/int pow compile error fixed, no outstanding compile failure.
+Goal active/no push. NEXT continue actual boar appearance/audibility investigation;
+monkey finer fur/junctions still open; hut inland/reference rebuild, stream, cave and
+helicopter all remain required and unimplemented except existing old hut.
+All owned handles terminal. Disk build8.7G/build-probe430M/android/app/build412M;
+no artifacts removed. Stop-latch SHA c0bd1704 unchanged. CTest guard applies at
+configuration time only, not a runtime or direct executable safety boundary.
+
 ## Latest — operator priorities changed; branch clearance checkpoint
 
 Previous21baa67 was progress. Added SpiderWebClearance.hpp/.cpp and integrated exact

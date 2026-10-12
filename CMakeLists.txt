@@ -1066,6 +1066,12 @@ if(ISLAND_BUILD_GAME)
         foreach(_island_test IN LISTS _island_configured_tests)
             get_test_property("${_island_test}" LABELS _island_test_labels)
             if("display" IN_LIST _island_test_labels)
+                # A broad name filter (e.g. -R Monkey) must not bypass the retained
+                # hardware stop. Contained software supervisors do not use these
+                # direct display tests. Never clear the incident latch here.
+                if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/build/gpu-incident-evidence/QUALIFICATION_STOP.json")
+                    set_tests_properties("${_island_test}" PROPERTIES DISABLED TRUE)
+                endif()
                 set_property(TEST "${_island_test}" APPEND PROPERTY ENVIRONMENT
                     "ISLAND_RUNTIME_LOG_DIRECTORY=${CMAKE_BINARY_DIR}/runtime-logs")
                 if(NOT ISLAND_ALLOW_PARALLEL_GPU_TESTS)
