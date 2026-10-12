@@ -940,6 +940,14 @@ progress or require player interaction; dangerous species keep their distance li
   previous12–13cm stop jumps absent in these cases. Native034322.249615Z-goats8-stage
   PASS/kernel[], montage inspected. Hoof rotational locking/body smoothness/self-contact,
   continuous visual and portable qualification remain open; docs/goats.md retains failures.
+  Post-anchor portable runtime: Web package11589087raw/4512594gzip,20preflight tests
+  pass. Actual035115.028629Z-chrome-goats Chrome155/SwiftShader outerPASS60intervals,
+  GL0/live context,3/6goats2draws,kernel[]; all6images inspected. Android x86 assembly/
+  lint7s,23preflight tests pass; actual035719.719637Z-goats OPENGLES3/SwiftShader
+  outerPASS,3/6visible2draws,kernel[],emulator0,1280×720 image inspected. Verified
+  island-goat-anchors-x86_64.apk SHA6b3f1133... archived, defaultARM64 restored/lint9s.
+  Current anchors/anatomy appear; sparse Web samples/single Android view are NOT
+  continuous gait, mobile performance, lifecycle or AMD qualification. docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

@@ -576,6 +576,32 @@ Walking/grazing/turning still occur with the changed leg poses. Sparse stills do
 qualify continuous natural gait, hoof rotational locking, self-contact or smooth body
 acceleration; those remain open. No current Web/Android build/runtime qualification.
 
+## Portable runtime check after planted-foot integration
+
+Current Web build/package passes11589087 raw/4512594 gzip bytes. Twenty browser
+preflight tests and JavaScript syntax pass. Actual contained run
+`build/browser-software/20261012T035115.028629Z-chrome-goats` passes on
+Chrome155.0.8059.39/SwiftShader:60 frame intervals, glError0, contextLost=false,
+3/6 goats/two draws and empty final kernel delta. All six images were actually
+inspected (initial, four poses in `build/goat-anchors-web-montage.png`, final).
+Walking/turning continue with the authoritative pose; recent eyes/ears/height-mapped
+coat render too. Rear horizontal hair bands and angular legs remain visible. This
+supersedes the old pre-anchor Web check, not continuous visual gait or hardware
+performance qualification; the quantitative stance proof remains the native CPU audit.
+
+Current x86_64 Android assembly/lint passes7s; all23 Android preflight tests pass.
+Actual isolated `build/android-software/20261012T035719.719637Z-goats` passes the
+outer supervisor on OPENGLES3/SwiftShader, with3/6 visible goats/two draws, empty
+final kernel delta and emulator exit0. Its1280×720 image was actually inspected:
+the current grazing pose, coat, cupped ears, eyes and feet render with mobile controls.
+This is one presented view, not Android continuous gait/lifecycle qualification.
+Verified APK: `build/android-software/island-goat-anchors-x86_64.apk`, SHA256
+`6b3f1133e0b0dfa1bda3580ded05a00c139d2391b1d7a8c39975aca161e0b64c`.
+Default ARM64 assembly/lint restored and passes9s; APK SHA256
+`d1b4b25ca0b9ef3c2e6cee0a0dbbce2f2586d4d89b1bd5f7a1d1f3b5e98ef98f`.
+These packages include code29c23a0. No game-code change, hardware run, dependency
+change or Android/KVM configuration change occurred during this qualification.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

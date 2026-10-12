@@ -1,5 +1,30 @@
 # island-simulator handoff
 
+## Latest — post-anchor Web and Android actual runtime qualification
+
+No code changes this turn; qualified29c23a0 live anchor code plus current coat/ears/eyes.
+Web build/package11589087 raw/4512594 gzip PASS; browser preflight20PASS/JS syntax pass.
+Actual build/browser-software/20261012T035115.028629Z-chrome-goats outerPASS on
+Chrome155.0.8059.39 SwiftShader60intervals/glError0/contextLostfalse/3of6goats2draws,
+kernel-final[]. All6images actually inspected (initial/final +4pose montage
+build/goat-anchors-web-montage.png). Walking/turning continue; rear hair bands and
+angular legs persist. Sparse samples do not establish continuous naturalness.
+
+Android x86 assembly/lint7s,23preflight tests pass. Actual
+build/android-software/20261012T035719.719637Z-goats outerPASS OPENGLES3SwiftShader,
+3of6goats2draws/kernel-final[]/emulator0,1280×720 screenshot actually inspected.
+Current grazing pose/coat/ears/eyes/feet visible; one view, not Android motion/lifecycle.
+Archive build/android-software/island-goat-anchors-x86_64.apk SHA
+6b3f1133e0b0dfa1bda3580ded05a00c139d2391b1d7a8c39975aca161e0b64c.
+DefaultARM64 assembly/lint restored9s; APK SHA
+d1b4b25ca0b9ef3c2e6cee0a0dbbce2f2586d4d89b1bd5f7a1d1f3b5e98ef98f (ARM64 libs verified).
+Logs build/goat-anchors-web-{build,package}.log and goat-anchors-android-{x86,arm64}-build.log.
+All owned handles terminal0:83081Webbuild,35314browser,48184x86build,93251Android,
+53108ARM64restore. No hardware/Android/KVM/dependency configuration changes; latch
+SHA c0bd1704 unchanged. Goalactive/nopush, full prior scope/AMD crash unresolved.
+Next: hoof rotational locking/body smoothness/self-contact and wider animal/environment
+backlog; do not replace remaining requirements with these successful platform views.
+
 ## Latest — live planted-foot anchors integrated, sampled slide fixed
 
 GoatHerd private Feet retain world sole position/start/target/progress/swinging.
