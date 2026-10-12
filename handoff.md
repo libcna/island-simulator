@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Current work — live goat calls and native disk playback verified
+
+Goal remains active. Six original 1.2-second procedural clips now provide paired goat
+breath, bleat and hoof detail. `GoatCallScheduler` reads live Rest/Graze/Walk/Retreat
+state, starts eligible animals with a bleat, uses close quiet detail only when audible,
+rotates fairly with per-animal and 2.8--5.0s herd cooldowns, and varies pitch/gain without
+adding a voice. Soundscape priority is bear/snake/goat/boar after bird/monkey arbitration;
+the active emitter follows the goat and mute/distance/removal stop it. F1/input diagnostics
+expose GOAT count and wildlife type6. The 38-clip report/export passes at5,893,964 PCM
+bytes; goat peaks are .48/.60/.54 for breath/bleat/hoof, exact endpoints and distinct
+fingerprints. Core and real-CNA dummy runtime pass.
+
+New supervised SDL-disk gate `build-consumer/software-goat-audio/
+20261012T220810.661476Z` PASS: three live goat calls, max5/6 sources,991232 exact-zero
+muted bytes,262144 nonzero resumed bytes, llvmpipe and kernel-final[]. Diagnostic image
+inspected; it is audio plumbing evidence, not visual acceptance. SoftwareCaptureTests
+52/52 pass. `PLAN.md`, README, provenance and audio review updated. Subjective listening,
+spatial turn/distance, mixed-herd overlap and Web/Android lifecycle remain open. Max4
+build cores; no AMD GPU, Android emulator, KVM or dependency changes. Continue goal.
+
 ## Current work — sea-turtle head and shell-detail pass inspected
 
 Goal remains active. New side-on QA camera first exposed the existing detailed1728-vertex turtle.
@@ -475,8 +495,9 @@ boar grunts/snorts across rest/forage/wander and varied goat bleats with restrai
 close breathing/hoof detail. Calls must follow behaviour, vary without repetition,
 attenuate with distance, respect the shared voice budget and remain audible against
 the ambience. Acceptance requires recorded/listened runtime output plus overlap,
-mute/unmute and native/Web/Android lifecycle checks. Existing boar audio plumbing is
-only partial evidence; goat vocalisations are not yet accepted as implemented.
+mute/unmute and native/Web/Android lifecycle checks. This intake note is superseded by
+the current implementation entry at the top: goat vocalisations are now live and
+backend-verified, but neither species has subjective or portable acoustic acceptance.
 
 ## Latest implementation — irregular stream-bank microhabitat
 

@@ -1713,7 +1713,8 @@ namespace island
                         << " boars " << soundscape_->PlayedBoarCallCount()
                         << " sources " << audio.playingSourceCount
                         << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type)
-                        << " snake-hisses " << soundscape_->PlayedSnakeHissCount() << '\n';
+                        << " snake-hisses " << soundscape_->PlayedSnakeHissCount()
+                        << " goats " << soundscape_->PlayedGoatCallCount() << '\n';
                     const auto fire=campfireLayout_.Centre();
                     const float distance=std::hypot(cameraPosition_.X-fire.x,cameraPosition_.Y-fire.y,cameraPosition_.Z-fire.z);
                     const float clearance=std::hypot(position.x-fire.x,position.z-fire.z)
@@ -2288,7 +2289,7 @@ namespace island
             flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
             deltaSeconds,windExposure,listener,
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
-            snakes_->Snakes(),&bear_->State());
+            goats_->Goats(),snakes_->Snakes(),&bear_->State());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept
@@ -3217,6 +3218,7 @@ namespace island
                 overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
                 overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
                 overlayState.playedBoarCalls = soundscape_->PlayedBoarCallCount();
+                overlayState.playedGoatCalls = soundscape_->PlayedGoatCallCount();
                 overlayState.playedSnakeHisses = soundscape_->PlayedSnakeHissCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
                 const SoundscapeDebugState soundscapeDebug = soundscape_->DebugState();

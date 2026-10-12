@@ -965,6 +965,152 @@ namespace island
         return {};
     }
 
+    AmbientLoop GenerateGoatCall(const GoatCallKind kind, const std::uint8_t variant)
+    {
+        constexpr std::size_t frames = AmbientSampleRate * 6U / 5U;
+        std::vector<float> samples(frames, 0.0f);
+        if (kind == GoatCallKind::None) return Quantize(samples, 0.0f);
+        const bool alternate = (variant & 1U) != 0U;
+        DeterministicNoise noise(0x60a7b1eaU + static_cast<std::uint32_t>(kind) * 6151U
+            + static_cast<std::uint32_t>(alternate) * 977U);
+        float lowNoise = 0.0f, slowNoise = 0.0f;
+        double phase = 0.0;
+        const auto pulse = [](const float t, const float begin, const float duration) {
+            const float u = (t - begin) / duration;
+            if (u <= 0.0f || u >= 1.0f) return 0.0f;
+            return SmoothStep(0.0f, 0.09f, u) * (1.0f - SmoothStep(0.63f, 1.0f, u));
+        };
+        for (std::size_t i = 0; i < frames; ++i) {
+            const float t = static_cast<float>(i) / static_cast<float>(AmbientSampleRate);
+            const float rawNoise = noise.Next();
+            lowNoise += .13f * (rawNoise - lowNoise);
+            slowNoise += .025f * (lowNoise - slowNoise);
+            float sample = 0.0f;
+            if (kind == GoatCallKind::Bleat) {
+                const float envelope = alternate
+                    ? pulse(t, .07f, .36f) + .88f * pulse(t, .52f, .48f)
+                    : pulse(t, .08f, .88f);
+                const float base = (alternate ? 238.0f : 218.0f)
+                    + 18.0f * std::sin(t * (alternate ? 34.0f : 29.0f))
+                    - 22.0f * t + 5.0f * slowNoise;
+                phase += 2.0 * std::numbers::pi * static_cast<double>(base)
+                    / static_cast<double>(AmbientSampleRate);
+                const float voice = static_cast<float>(std::sin(phase)
+                    + .64 * std::sin(2.0 * phase) + .31 * std::sin(3.0 * phase)
+                    + .17 * std::sin(5.0 * phase));
+                sample = envelope * (voice * (.72f + .12f * slowNoise)
+                    + (lowNoise - slowNoise) * .34f);
+            } else if (kind == GoatCallKind::Breath) {
+                const float envelope = pulse(t, alternate ? .15f : .09f,
+                    alternate ? .70f : .84f);
+                sample = envelope * ((lowNoise - slowNoise) * 2.8f
+                    + rawNoise * .16f);
+            } else {
+                const auto knock = [t](const float begin, const float strength) {
+                    const float u = t - begin;
+                    if (u <= 0.0f || u >= .19f) return 0.0f;
+                    return strength * std::sin(std::numbers::pi_v<float> * u / .19f)
+                        * std::exp(-u * 24.0f);
+                };
+                const float impact = knock(alternate ? .12f : .08f, 1.0f)
+                    + knock(alternate ? .56f : .47f, alternate ? .72f : .82f);
+                const float tone = std::sin(t * 2.0f * std::numbers::pi_v<float>
+                    * (alternate ? 164.0f : 143.0f));
+                sample = impact * (tone * .72f + (lowNoise - slowNoise) * 1.8f);
+            }
+            samples[i] = sample;
+        }
+        const float peak = kind == GoatCallKind::Bleat ? .60f
+            : kind == GoatCallKind::Breath ? .48f : .54f;
+        return Quantize(samples, peak);
+    }
+
+    float GoatCallVolume(const GoatCallKind kind, const float distance) noexcept
+    {
+        if (!std::isfinite(distance) || distance < 0.0f) return 0.0f;
+        const float radius = kind == GoatCallKind::Breath ? 10.0f
+            : kind == GoatCallKind::Hoof ? 20.0f
+            : kind == GoatCallKind::Bleat ? 55.0f : 0.0f;
+        if (distance >= radius) return 0.0f;
+        const float base = kind == GoatCallKind::Breath ? .15f
+            : kind == GoatCallKind::Hoof ? .21f : .40f;
+        const float fade = 1.0f - distance / radius;
+        return base * fade * fade;
+    }
+
+    float GoatCallScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU) / 16777216.0f;
+    }
+
+    void GoatCallScheduler::Reset() noexcept
+    {
+        randomState_ = 0x60a7b1eaU;
+        herdCooldown_ = 1.5f;
+        nextAnimal_ = 0U;
+        callPhases_.fill(0U);
+        for (float& cooldown : cooldowns_) cooldown = 2.0f + 6.0f * NextUnit();
+    }
+
+    GoatCallRequest GoatCallScheduler::Update(const float deltaSeconds,
+        const float listenerX, const float listenerY, const float listenerZ,
+        const std::span<const GoatState> goats, const bool playbackSlotAvailable) noexcept
+    {
+        const float dt = SafeDeltaSeconds(deltaSeconds);
+        if (dt <= 0.0f) return {};
+        herdCooldown_ = std::max(0.0f, herdCooldown_ - dt);
+        for (float& cooldown : cooldowns_) cooldown = std::max(0.0f, cooldown - dt);
+        if (!playbackSlotAvailable || herdCooldown_ > 0.0f
+            || !std::isfinite(listenerX) || !std::isfinite(listenerY)
+            || !std::isfinite(listenerZ)) return {};
+
+        const std::size_t count = std::min(goats.size(), cooldowns_.size());
+        for (std::size_t offset = 0; offset < count; ++offset) {
+            const std::size_t index = (nextAnimal_ + offset) % count;
+            const GoatState& goat = goats[index];
+            if (cooldowns_[index] > 0.0f || !std::isfinite(goat.x)
+                || !std::isfinite(goat.y) || !std::isfinite(goat.z)
+                || !std::isfinite(goat.scale) || goat.scale <= 0.0f) continue;
+            GoatCallKind kind = GoatCallKind::None;
+            float interval = 0.0f;
+            switch (goat.behavior) {
+            case GoatBehavior::Graze:
+                kind = GoatCallKind::Breath; interval = 13.0f; break;
+            case GoatBehavior::Walk:
+                kind = GoatCallKind::Hoof; interval = 7.0f; break;
+            case GoatBehavior::Rest:
+                kind = GoatCallKind::Breath; interval = 17.0f; break;
+            case GoatBehavior::Retreat:
+                kind = GoatCallKind::Bleat; interval = 6.0f; break;
+            }
+            const float sourceY = goat.y + .78f * goat.scale;
+            const float distance = std::hypot(std::hypot(goat.x - listenerX,
+                goat.z - listenerZ), sourceY - listenerY);
+            // Every goat introduces itself with a restrained bleat; later requests retain
+            // close breathing/hoof detail when that detail would actually be audible.
+            if (callPhases_[index] == 0U || GoatCallVolume(kind, distance) < .025f)
+                kind = GoatCallKind::Bleat;
+            const float volume = GoatCallVolume(kind, distance);
+            if (volume < .006f) continue;
+            GoatCallRequest request;
+            request.kind = kind;
+            request.animalIndex = index;
+            request.variant = static_cast<std::uint8_t>(NextUnit() >= .5f);
+            request.volume = volume * (.86f + .14f * NextUnit());
+            request.pitch = -.07f + .15f * NextUnit();
+            request.source = {true, goat.x, sourceY, goat.z};
+            cooldowns_[index] = interval + 8.0f * NextUnit();
+            callPhases_[index] = static_cast<std::uint8_t>((callPhases_[index] + 1U) % 3U);
+            herdCooldown_ = 2.8f + 2.2f * NextUnit();
+            nextAnimal_ = (index + 1U) % count;
+            return request;
+        }
+        return {};
+    }
+
     AmbientLoop GenerateSnakeHiss(const std::uint8_t variant)
     {
         constexpr std::size_t frames = AmbientSampleRate;

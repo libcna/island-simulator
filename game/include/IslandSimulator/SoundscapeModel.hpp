@@ -7,6 +7,7 @@
 #include <vector>
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/BearMotion.hpp"
+#include "IslandSimulator/GoatHerd.hpp"
 #include "IslandSimulator/SnakePopulation.hpp"
 
 namespace island
@@ -213,7 +214,8 @@ namespace island
         Monkey,
         Boar,
         Snake,
-        Bear
+        Bear,
+        Goat
     };
 
     /** @brief Nearest currently eligible world-space source for one wildlife species. */
@@ -258,6 +260,40 @@ namespace island
         std::array<float, BoarHerd::BoarCount> cooldowns_{};
         std::array<std::uint8_t, BoarHerd::BoarCount> callPhases_{};
         std::uint32_t randomState_ = 0xb0a45eedU;
+        float herdCooldown_ = 0.0f;
+        std::size_t nextAnimal_ = 0;
+    };
+
+    enum class GoatCallKind : std::uint8_t { None, Breath, Bleat, Hoof };
+
+    /** @brief Original synthesized mono goat voice/hoof detail, 1.2 seconds. */
+    [[nodiscard]] AmbientLoop GenerateGoatCall(GoatCallKind kind, std::uint8_t variant);
+    [[nodiscard]] float GoatCallVolume(GoatCallKind kind, float distance) noexcept;
+
+    struct GoatCallRequest
+    {
+        GoatCallKind kind = GoatCallKind::None;
+        std::size_t animalIndex = 0;
+        std::uint8_t variant = 0;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        WildlifeAudioSource source;
+    };
+
+    /** @brief Behavior-aware sparse goat bleats, breathing and hoof-scuff detail. */
+    class GoatCallScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] GoatCallRequest Update(float deltaSeconds,
+            float listenerX, float listenerY, float listenerZ,
+            std::span<const GoatState> goats, bool playbackSlotAvailable) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+        std::array<float, GoatHabitat::Count> cooldowns_{};
+        std::array<std::uint8_t, GoatHabitat::Count> callPhases_{};
+        std::uint32_t randomState_ = 0x60a7b1eaU;
         float herdCooldown_ = 0.0f;
         std::size_t nextAnimal_ = 0;
     };

@@ -47,7 +47,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 25 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 38 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -72,8 +72,8 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains five loop beds and twenty one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 4.12 MiB plus headers. Delete the directory after review;
+The directory contains six loop beds and thirty-two one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. Their PCM payload totals 5,893,964 bytes plus WAV headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -97,6 +97,11 @@ Listen first to each source alone:
    broadband prototypes, not recordings. Confirm they read as restrained close snake
    hisses rather than surf, static or steam; then verify direction, attenuation, retreat
    triggering, cooldowns and mute/resume beside several live snakes.
+7. Compare both `goat-breath`, `goat-bleat` and `goat-hoof` variants. Confirm bleats
+   remain recognisably caprine without becoming shrill or repetitive, and that the
+   quieter close details remain audible only at suitable distances. Review grazing,
+   resting, walking and retreating goats, listener rotation, mute/resume and competition
+   with other wildlife calls.
 
 Then perform the authoritative in-game pass with headphones and ordinary speakers. Walk a complete
 beach circuit, both clearings, the main jungle trail, dense interior, shallow water, and the active
@@ -104,6 +109,35 @@ offshore-current field for at least 20 minutes. Record silence, abrupt zone chan
 repetition, directional confusion, and fatigue in `PLAN.md`. Use F1 to observe layer gains and F2
 to compare audible calls with exact source markers. Numerical success alone does not complete this
 subjective task.
+
+## Goat calls and native backend evidence (2026-10-12)
+
+Six original deterministic 1.2-second mono clips add two variants each of breathing,
+bleating and hoof detail; no recording or external audio asset is used. The 38-clip
+report and independent WAV export pass with 5,893,964 PCM bytes. Breath A/B peak at
+0.47998 with RMS 0.09644/0.08438; bleat A/B peak at 0.59998 with RMS
+0.22678/0.20955; hoof A/B peak at 0.53998 with RMS 0.07758/0.07128. All have exact
+silent endpoints and distinct fingerprints. These measurements prove bounded,
+non-silent source data, not natural goat identity.
+
+`GoatCallScheduler` uses the six live goats' actual behaviour. Each eligible animal
+starts with a bleat; graze/rest may then produce close breathing, walk may produce
+hoof detail, and retreat uses a bleat. A quiet detail below the near-listener gain
+threshold is replaced with a bleat instead of becoming inaudible. Per-animal cooldowns,
+a 2.8--5.0 second herd gap, deterministic round-robin selection, pitch/gain variation
+and one pooled wildlife voice prevent a synchronized chorus. The emitter follows the
+selected goat; invalid, removed, distant, paused or muted states cannot accumulate or
+continue a call. Bear and snake requests retain priority, followed by goats and boars,
+without exceeding four persistent plus two transient sources.
+
+The real-CNA dummy-backend regression observes a playing goat source, mute teardown,
+unmute recovery, distance rejection and the six-source cap. A supervised private
+pixman/llvmpipe run at `build-consumer/software-goat-audio/20261012T220810.661476Z`
+used SDL's disk device and a fixed live-goat view. It observed three goat calls,
+wildlife type 6, a maximum of five sources, 991,232 exact-zero muted PCM bytes and
+262,144 nonzero bytes after unmute; the kernel fault delta is empty. The diagnostic
+screenshot was inspected, but is not goat-appearance evidence. Actual speaker/headphone
+naturalness, spatial turn/distance, overlaps and Web/Android lifecycle remain open.
 
 ## Stream loop and local wet sound biome (2026-10-12)
 

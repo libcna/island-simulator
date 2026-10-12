@@ -27,7 +27,8 @@ from run_software_capture import (
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import (geometry, worker as fullscreen_worker,
-                                     validate_boar_audio_trace, validate_snake_audio_trace)
+                                     validate_boar_audio_trace, validate_goat_audio_trace,
+                                     validate_snake_audio_trace)
 from run_fullscreen_software import validate_control_transitions, owned_runtime_log
 from run_fullscreen_software import validate_diving_trace, validate_frame_windows
 from run_fullscreen_software import validate_cave_trace
@@ -295,6 +296,17 @@ class SoftwareCaptureTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):validate_snake_audio_trace(invalid)
         for invalid in ([],valid[:20],[(1,0,0,4,0,2)]*40):
             with self.assertRaises(RuntimeError):validate_snake_audio_trace(invalid)
+
+    def test_goat_audio_trace_rejects_missing_playback_mute_and_budget_failures(self):
+        valid=[(1,0,0,5,6,0,2)]*4+[(1,1,0,4,0,0,2)]*24+[(1,0,0,5,6,0,3)]*4
+        validate_goat_audio_trace(valid)
+        for index,state in ((0,(0,0,0,5,6,0,2)),(4,(1,1,0,4,0,0,3)),
+                            (4,(1,1,0,5,6,0,2)),(0,(1,0,0,7,6,0,2)),
+                            (-1,(1,0,0,4,0,0,2))):
+            invalid=list(valid);invalid[index]=state
+            with self.assertRaises(RuntimeError):validate_goat_audio_trace(invalid)
+        for invalid in ([],valid[:20],[(1,0,0,4,0,0,3)]*40):
+            with self.assertRaises(RuntimeError):validate_goat_audio_trace(invalid)
 
     def test_fullscreen_geometry_rejects_missing_or_invalid_dimensions(self):
         self.assertEqual(geometry("X=-20\nY=10\nWIDTH=960\nHEIGHT=540\n")["WIDTH"], 960)

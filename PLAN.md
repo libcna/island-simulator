@@ -337,16 +337,24 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   naturalness or physical direction. Headphone/speaker listening, spatial turn/distance
   and Web/Android lifecycle remain open, so this is not acoustic acceptance.
 
-- [ ] Give both boars and goats convincing species-appropriate positional sounds.
+- [~] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander
   states), while goats need varied bleats and restrained close breathing/hoof detail.
   Tie call choice and cadence to behaviour, randomize pitch/timing without sounding
   synthetic or repetitive, attenuate by distance, cap simultaneous wildlife voices,
   and avoid masking the calls under surf/jungle ambience. Verify nearby and distant
   animals, overlapping herds, mute/unmute and native/Web/Android audio lifecycle with
-  actual recorded/listened runtime output. Existing generated boar clips and backend
-  Playing-state diagnostics are partial infrastructure, not acoustic acceptance;
-  goat vocalisations have not yet been accepted as implemented.
+  actual recorded/listened runtime output. Boars already have six behaviour-aware
+  breath/snuffle/grunt clips and native disk-backend evidence. Goats now add six original
+  1.2-second breath/bleat/hoof clips selected from Rest/Graze/Walk/Retreat, with per-animal
+  cooldowns, a randomized herd gap, deterministic variants/pitch/gain, distance falloff
+  and a moving emitter in the shared wildlife voice. The 38-clip/5,893,964-byte report,
+  independent WAV export, scheduler/core tests and real-CNA dummy runtime pass. Supervised
+  native SDL-disk evidence `20261012T220810.661476Z` records three goat calls, max five of
+  six sources, 991,232 exact-zero muted bytes and 262,144 nonzero resumed bytes with an
+  empty kernel-fault delta. This proves live playback/mute plumbing, not acoustic realism.
+  Headphone/speaker listening, spatial turn/distance, mixed-herd overlap and Web/Android
+  lifecycle remain open, so neither species is yet accepted as convincingly natural.
 
 - [~] Add exactly one large, highly realistic bear to a suitable island habitat.
   Prefer an existing high-quality rigged 3D model only after verifying that its
@@ -1535,7 +1543,8 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Rats
 - [ ] Deer
 - [~] Goats (feral island goats on open slopes). **Six live goats now integrated;
-  generated coat, detailed eyes/ears and planted-foot motion, not visually accepted.** Earlier foundation
+  generated coat, detailed eyes/ears, planted-foot motion and behaviour-aware positional
+  calls, not visually or acoustically accepted.** Earlier foundation
   milestones below are historical. GoatHabitat proposes six upland homes from3025
   bounded candidates using actual rendered terrain and the complete obstacle grid.
   Dry/sloped footprint, canopy/understory/bush clearance,8m separation/40m herd region;

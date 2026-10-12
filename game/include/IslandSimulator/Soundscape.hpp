@@ -71,6 +71,7 @@ namespace island
                     std::span<const BirdState> birds,
                     std::span<const MonkeyState> monkeys,
                     std::span<const BoarState> boars,
+                    std::span<const GoatState> goats,
                     std::span<const SnakeState> snakes,
                     const BearState* bear=nullptr) noexcept;
 
@@ -115,6 +116,7 @@ namespace island
             return playedMonkeyCallCount_;
         }
         [[nodiscard]] int PlayedBoarCallCount() const noexcept { return playedBoarCallCount_; }
+        [[nodiscard]] int PlayedGoatCallCount() const noexcept { return playedGoatCallCount_; }
         [[nodiscard]] int PlayedSnakeHissCount() const noexcept { return playedSnakeHissCount_; }
         [[nodiscard]] int PlayedBearCallCount() const noexcept{return playedBearCallCount_;}
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
@@ -134,15 +136,19 @@ namespace island
         FootstepScheduler footstepScheduler_;
         WildlifeCallScheduler wildlifeScheduler_;
         BoarCallScheduler boarScheduler_;
+        GoatCallScheduler goatScheduler_;
         SnakeHissScheduler snakeHissScheduler_;
         BearCallScheduler bearCallScheduler_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> goatEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 2> snakeHissEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,6> bearEffects_;
         BoarCallRequest activeBoarCall_;
+        GoatCallRequest activeGoatCall_;
         SnakeHissRequest activeSnakeHiss_;
         BearCallRequest activeBearCall_;
         float boarVoiceGain_ = 1.0f;
+        float goatVoiceGain_ = 1.0f;
         float snakeVoiceGain_ = 1.0f;
         float bearVoiceGain_=1.0f;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
@@ -212,6 +218,7 @@ namespace island
         int playedBirdCallCount_ = 0;
         int playedMonkeyCallCount_ = 0;
         int playedBoarCallCount_ = 0;
+        int playedGoatCallCount_ = 0;
         int playedSnakeHissCount_ = 0;
         int playedBearCallCount_=0;
     };

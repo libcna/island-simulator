@@ -1852,6 +1852,67 @@ int main()
     Check(heldBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, true).kind
         == island::BoarCallKind::None, "resuming boar audio cannot replay a backlog burst");
 
+    for (const auto kind : {island::GoatCallKind::Breath,island::GoatCallKind::Bleat,
+                           island::GoatCallKind::Hoof}) {
+        const auto a=island::GenerateGoatCall(kind,0),b=island::GenerateGoatCall(kind,1);
+        Check(a.sampleRate==22050&&a.samples.size()==26460U&&b.samples.size()==26460U
+            &&a.samples.front()==0&&a.samples.back()==0&&b.samples.front()==0
+            &&b.samples.back()==0&&a.samples==island::GenerateGoatCall(kind,0).samples
+            &&a.samples!=b.samples
+            &&std::any_of(a.samples.begin(),a.samples.end(),[](auto sample){return sample>1000;})
+            &&std::all_of(a.samples.begin(),a.samples.end(),[](auto sample){return std::abs(sample)<21000;}),
+            "goat PCM clips are deterministic, distinct, bounded and silent at endpoints");
+        Check(island::GoatCallVolume(kind,0)>island::GoatCallVolume(kind,5)
+            &&island::GoatCallVolume(kind,60)==0&&island::GoatCallVolume(kind,-1)==0
+            &&island::GoatCallVolume(kind,std::numeric_limits<float>::quiet_NaN())==0,
+            "goat attenuation is bounded and rejects invalid distances");
+    }
+    std::array<island::GoatState,island::GoatHabitat::Count> audioGoats{};
+    for(std::size_t i=0;i<audioGoats.size();++i) {
+        audioGoats[i].x=static_cast<float>(i)*1.25f;
+        audioGoats[i].scale=.82f+static_cast<float>(i)*.04f;
+        audioGoats[i].behavior=static_cast<island::GoatBehavior>(i%4U);
+    }
+    island::GoatCallScheduler goatCalls,repeatedGoatCalls;
+    goatCalls.Reset();repeatedGoatCalls.Reset();
+    std::array<int,island::GoatHabitat::Count> goatCounts{};
+    std::array<bool,4> goatKinds{};
+    std::array<bool,2> goatVariants{};
+    int previousGoatCall=-1000;
+    bool goatDeterministic=true,goatBounds=true;
+    for(int step=0;step<2400;++step) {
+        const auto call=goatCalls.Update(.25f,0,1.72f,0,audioGoats,true);
+        const auto repeated=repeatedGoatCalls.Update(.25f,0,1.72f,0,audioGoats,true);
+        goatDeterministic=goatDeterministic&&call.kind==repeated.kind
+            &&call.animalIndex==repeated.animalIndex&&call.variant==repeated.variant
+            &&call.volume==repeated.volume&&call.pitch==repeated.pitch;
+        if(call.kind==island::GoatCallKind::None)continue;
+        goatBounds=goatBounds&&call.animalIndex<audioGoats.size()
+            &&step-previousGoatCall>=11&&call.volume>0&&call.volume<=.40f
+            &&call.pitch>=-.07f&&call.pitch<=.08f&&call.variant<2U
+            &&call.source.available&&call.source.x==audioGoats[call.animalIndex].x;
+        previousGoatCall=step;++goatCounts[call.animalIndex];
+        goatKinds[static_cast<std::size_t>(call.kind)]=true;goatVariants[call.variant]=true;
+    }
+    Check(goatDeterministic&&goatBounds&&goatVariants[0]&&goatVariants[1]
+        &&goatKinds[static_cast<std::size_t>(island::GoatCallKind::Breath)]
+        &&goatKinds[static_cast<std::size_t>(island::GoatCallKind::Bleat)]
+        &&goatKinds[static_cast<std::size_t>(island::GoatCallKind::Hoof)]
+        &&std::all_of(goatCounts.begin(),goatCounts.end(),[](int count){return count>4;}),
+        "goat calls match behavior, vary, remain bounded and fairly service the herd");
+    const auto noGoatCall=[](const auto& goats,float listenerX,float dt,bool slot) {
+        island::GoatCallScheduler scheduler;scheduler.Reset();
+        for(int step=0;step<200;++step)
+            if(scheduler.Update(dt,listenerX,1.72f,0,goats,slot).kind
+                !=island::GoatCallKind::None)return false;
+        return true;
+    };
+    Check(noGoatCall(audioGoats,0,.25f,false)&&noGoatCall(audioGoats,300,.25f,true)
+        &&noGoatCall(audioGoats,std::numeric_limits<float>::quiet_NaN(),.25f,true)
+        &&noGoatCall(audioGoats,0,0,true)
+        &&noGoatCall(std::span<const island::GoatState>{},0,.25f,true),
+        "goat calls respect shared slots, range, valid listeners, paused time and empty herds");
+
     const auto hissA=island::GenerateSnakeHiss(0),hissB=island::GenerateSnakeHiss(1);
     Check(hissA.sampleRate==22050 && hissA.samples.size()==22050U
         && hissB.sampleRate==22050 && hissB.samples.size()==22050U

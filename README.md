@@ -304,10 +304,15 @@ speed/depth-responsive movement through shallow or swimming water, and two restr
 water-entry/exit textures. The same continuous water layer now develops a subtle deeper undertow
 bed as the 42--72 m offshore current strengthens, without adding another persistent source. Two
 bird phrases and two monkey contact phrases share one positional
-voice attached to actual nearby agents. All five generated loops remove their measured mean
+voice attached to actual nearby agents. All six generated loops remove their measured mean
 before PCM quantization, avoiding long-lived DC bias without altering one-shot silent endpoints.
 Stream and player-water playback share one active voice, so no more than four ambient loops run
 concurrently.
+Behaviour-aware boar grunts/snuffles/breathing, close retreating-snake hisses, peaceful bear
+breathing/snuffling/huffs, and goat bleats/breathing/hoof detail reuse the same bounded positional
+wildlife voice. Calls follow the moving animal, attenuate by distance, vary deterministically and
+respect mute without expanding the six-source ceiling. These are original synthesized prototypes;
+the remaining headphone/speaker naturalness and portable lifecycle review is tracked separately.
 Distance-scheduled player footsteps select paired dry-sand or interior-soil textures from actual
 resolved travel, vary pitch/pan/gain, and remain silent while swimming or blocked.
 All audio is generated without external sound files. The

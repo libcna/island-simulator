@@ -66,6 +66,24 @@ def validate_snake_audio_trace(samples):
         raise RuntimeError("no active snake hiss source observed")
 
 
+def validate_goat_audio_trace(samples):
+    """Validate backend goat playback/mute state, not perceptual animal identity."""
+    if len(samples) < 30 or any(len(s) != 7 for s in samples):
+        raise RuntimeError("missing goat audio trace")
+    if any(s[0] != 1 or s[1] not in (0, 1) or not 4 <= s[3] <= 6
+           or s[4] not in (0, 1, 2, 3, 4, 5, 6) for s in samples):
+        raise RuntimeError("unavailable audio or invalid goat voice budget/state")
+    if any(b[6] < a[6] for a, b in zip(samples, samples[1:])):
+        raise RuntimeError("goat playback counter regressed")
+    muted = [s for s in samples if s[1]]
+    if len(muted) < 24 or any(s[6] != muted[0][6] or s[3] != 4 or s[4] != 0 for s in muted):
+        raise RuntimeError("mute failed to suppress goat playback")
+    if muted[0][6] < 2 or samples[-1][1] or samples[-1][6] <= muted[-1][6]:
+        raise RuntimeError("missing goat playback before/after mute")
+    if not any(s[4] == 6 for s in samples):
+        raise RuntimeError("no active goat source observed")
+
+
 def owned_runtime_log(evidence, namespace_pid):
     logs = [(path, path.read_text()) for path in evidence.glob("island-runtime-*.log")]
     logs = [(path, text) for path, text in logs if re.search(
@@ -187,7 +205,7 @@ def validate_fire_audio_trace(samples):
 
 
 def worker(build, evidence, window_manager, flight=False, boar_audio=False,
-           diving=False, snake_audio=False, cave=False, campfire=False):
+           diving=False, snake_audio=False, goat_audio=False, cave=False, campfire=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -204,6 +222,8 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                       "--debug-overlay", "--input-diagnostics"]
         if snake_audio:
             game_command.extend(["--viewpoint","snake-head"])
+        elif goat_audio:
+            game_command.extend(["--viewpoint","goats"])
         game = subprocess.Popen(game_command, stdout=stream,
                                 stderr=subprocess.STDOUT)
         def log():
@@ -248,7 +268,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             keys("F1", "debug overlay disabled")
             # Snake playback has its own focused native gate.  The normal invocation
             # remains the authoritative two-cycle F11/focus regression test.
-            fullscreen_cycles = 0 if snake_audio or cave or campfire else 2
+            fullscreen_cycles = 0 if snake_audio or goat_audio or cave or campfire else 2
             for cycle in range(fullscreen_cycles):
                 # Some X11 window managers return focus to their root/desktop while
                 # restoring a non-resizable window from fullscreen.  Reassert focus
@@ -299,7 +319,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 frames = log().count("input sample captured")
                 wait(lambda: log().count("input sample captured") > frames, "windowed released-key frame")
             command("import", "-window", window, str(evidence / "windowed.png"))
-            if not snake_audio and not cave and not campfire:
+            if not snake_audio and not goat_audio and not cave and not campfire:
                 # Only this owned dialog receives the background F11; never another
                 # desktop/client. Restoring focus must not synthesize a game toggle.
                 focus_target = subprocess.Popen(["xmessage", "-title", "island-fullscreen-focus",
@@ -332,7 +352,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             # Fixed inspection viewpoints intentionally reject player/mouse capture.
             # The normal fullscreen gate still exercises W capture and Escape release;
             # the snake-audio mode keeps its camera locked to the retreating subject.
-            if not snake_audio:
+            if not snake_audio and not goat_audio:
                 keys("w", "input sample captured 1 relative 1")
                 keys("Escape", "input sample captured 0 relative 0")
             if campfire:
@@ -509,6 +529,43 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 (evidence/"snake-audio-result.json").write_text(json.dumps({
                     "passed":True,"samples":samples(),"mutedBytes":len(silent),
                     "resumedBytes":len(resumed),"scope":"native disk-device hiss playback/mute; not subjective listening"},indent=2)+"\n")
+            if goat_audio:
+                def samples():
+                    return [tuple(map(int, m)) for m in re.findall(
+                        r"audio sample available (\d+) muted (\d+) boars (\d+) sources (\d+) wildlife (\d+) snake-hisses (\d+) goats (\d+)", log())]
+                wait(lambda: samples() and samples()[-1][0] == 1, "available disk audio device")
+                keys("F1", "debug overlay enabled")
+                wait(lambda: samples()[-1][6] >= 2, "two actual goat playbacks")
+                command("import", "-window", window, str(evidence / "goat-audio.png"))
+                keys("m", "soundscape muted")
+                wait(lambda: samples()[-1][1] == 1, "muted audio diagnostics")
+                recording=evidence/"game-audio.raw"
+                start=recording.stat().st_size
+                muted_start=len(samples())
+                wait(lambda: len(samples())>=muted_start+24,"six simulated muted seconds")
+                muted=samples()[muted_start:]
+                if any(s[1]!=1 or s[6]!=muted[0][6] or s[3]!=4 or s[4]!=0 for s in muted):
+                    raise RuntimeError("mute retained a transient or started a goat call")
+                end=recording.stat().st_size
+                with recording.open("rb") as pcm:
+                    pcm.seek(start);silent=pcm.read(end-start)
+                if not silent or any(silent):
+                    raise RuntimeError("muted disk audio is missing or not exact silence")
+                keys("m","soundscape unmuted")
+                previous=muted[-1][6]
+                wait(lambda:samples()[-1][6]>previous,"goat playback after unmute")
+                if any(s[3]>6 for s in samples()):
+                    raise RuntimeError("audio source budget exceeded")
+                if not re.search(r"Writing to file .*format=(?:F32|S16|S32).*channels=2 freq=",log()):
+                    raise RuntimeError("missing signed PCM/stereo disk output identity")
+                with recording.open("rb") as pcm:
+                    pcm.seek(end);resumed=pcm.read()
+                if not resumed or not any(resumed):
+                    raise RuntimeError("unmuted disk audio stayed silent")
+                validate_goat_audio_trace(samples())
+                (evidence/"goat-audio-result.json").write_text(json.dumps({
+                    "passed":True,"samples":samples(),"mutedBytes":len(silent),
+                    "resumedBytes":len(resumed),"scope":"native disk-device goat playback/mute; not subjective listening"},indent=2)+"\n")
             if diving:
                 def swim_samples():
                     return [tuple(map(float,m)) for m in re.findall(
@@ -627,14 +684,15 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")
             (evidence / "input-result.json").write_text(json.dumps({
                 "passed": True, "stages": stages,
-                "heldRepeatSuppressed": not snake_audio and not cave and not campfire,
-                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not cave and not campfire,
+                "heldRepeatSuppressed": not snake_audio and not goat_audio and not cave and not campfire,
+                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not goat_audio and not cave and not campfire,
                 "flightChecked": flight,
                 "caveChecked": cave,
                 "campfireChecked": campfire,
                 "boarAudioChecked": boar_audio,
                 "snakeAudioChecked": snake_audio,
-                "mouseCapturedAndReleasedAfterToggle": not snake_audio}, indent=2)+"\n")
+                "goatAudioChecked": goat_audio,
+                "mouseCapturedAndReleasedAfterToggle": not snake_audio and not goat_audio}, indent=2)+"\n")
         finally:
             game.terminate()
             try:
@@ -659,19 +717,20 @@ def main():
     parser.add_argument("--diving", action="store_true", help="exercise underwater descent and resurfacing")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--snake-audio", action="store_true", help="exercise close snake-hiss playback and mute through SDL disk output")
+    parser.add_argument("--goat-audio", action="store_true", help="exercise goat playback and mute through SDL disk output")
     parser.add_argument("--window-manager", type=Path,
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
-    if (args.cave or args.campfire) and sum((args.flight,args.diving,args.boar_audio,args.snake_audio,args.cave,args.campfire))!=1:
+    if (args.cave or args.campfire) and sum((args.flight,args.diving,args.boar_audio,args.snake_audio,args.goat_audio,args.cave,args.campfire))!=1:
         parser.error("--cave/--campfire use separate focused scopes")
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
         worker(build, args.worker.resolve(strict=True), window_manager, args.flight,
-               args.boar_audio, args.diving, args.snake_audio, args.cave, args.campfire)
+               args.boar_audio, args.diving, args.snake_audio, args.goat_audio, args.cave, args.campfire)
         return
-    if args.boar_audio and args.snake_audio:
+    if sum((args.boar_audio,args.snake_audio,args.goat_audio))>1:
         raise RuntimeError("choose only one focused wildlife audio scope")
     for executable in ("xdotool", "xprop", "import", "xmessage"):
         if not shutil.which(executable):
@@ -686,6 +745,7 @@ def main():
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
         evidence = build / ("software-campfire" if args.campfire else "software-cave" if args.cave else "software-boar-audio" if args.boar_audio else
                             "software-snake-audio" if args.snake_audio else
+                            "software-goat-audio" if args.goat_audio else
                             "software-flight" if args.flight else "software-fullscreen") / stamp
         evidence.mkdir(parents=True)
         command = [str(platform / "wayland_test_server.sh"), "--compositor", "weston", "--renderer", "pixman",
@@ -704,12 +764,14 @@ def main():
             command.append("--boar-audio")
         if args.snake_audio:
             command.append("--snake-audio")
+        if args.goat_audio:
+            command.append("--goat-audio")
         environment = software_environment(evidence)
         for key in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"):
             environment.pop(key, None)
         environment["ISLAND_FULLSCREEN_SUPERVISED"] = "1"
         environment["XDG_CONFIG_HOME"] = str(evidence / "config")
-        if args.boar_audio or args.snake_audio or args.campfire:
+        if args.boar_audio or args.snake_audio or args.goat_audio or args.campfire:
             environment["SDL_AUDIO_DRIVER"] = "disk"
             environment["SDL_AUDIO_DISK_OUTPUT_FILE"] = str(evidence / "game-audio.raw")
             environment["SDL_AUDIO_DISK_TIMESCALE"] = "1.0"

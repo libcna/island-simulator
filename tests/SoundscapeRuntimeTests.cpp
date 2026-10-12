@@ -1,6 +1,7 @@
 #include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -32,7 +33,7 @@ void Exercise(bool startNearStream) {
             listener.y = swimming ? .58f : 4.0f;
             for (int tick = 0; tick < 90; ++tick) {
                 sound.Update(near ? 30 : 2, swimming, swimming ? 1.0f : 0.0f,
-                    1.0f, 0, 1.0f/60, .5f, listener, {}, {}, {}, {});
+                    1.0f, 0, 1.0f/60, .5f, listener, {}, {}, {}, {}, {});
                 Check(sound.IsAvailable(), "Stream transition disabled all audio: " + sound.Error());
                 Check(sound.Error().empty(), "Audio retained an unexpected failure");
                 const auto sources = sound.DebugState().playingSourceCount;
@@ -58,7 +59,7 @@ void ExerciseCampfire(bool nearStartup) {
             listener.z=nearFire||region==4?CampfireSite::Z:region==1?StreamRoute::CentreZ(-90):-225;
             listener.y=CampfireLayout::GroundY()+(region==4?50:1.72f);
             for(int tick=0;tick<60;++tick) {
-                sound.Update(80,swimming,swimming?1:0,0,0,1.0f/60,.5f,listener,{},{},{},{});
+                sound.Update(80,swimming,swimming?1:0,0,0,1.0f/60,.5f,listener,{},{},{},{},{});
                 Check(sound.IsAvailable()&&sound.Error().empty(),"Fire/stream/water transition disabled audio: "+sound.Error());
                 const auto debug=sound.DebugState();
                 Check(debug.campfirePlaying==nearFire,"Actual campfire loop state disagrees with listener region");
@@ -76,7 +77,7 @@ void ExerciseBearVoice() {
         "Bear dummy audio startup failed: "+sound.Error());
     bool active=false;
     for(int tick=0;tick<720;++tick) {
-        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},&bear);
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{},&bear);
         active|=sound.IsWildlifeCallActive();
         Check(sound.IsAvailable()&&sound.Error().empty(),"Bear call disabled the soundscape");
         Check(sound.DebugState().playingSourceCount>=4&&sound.DebugState().playingSourceCount<=6,
@@ -85,13 +86,40 @@ void ExerciseBearVoice() {
     Check(active&&sound.PlayedBearCallCount()>0,"Nearby peaceful bear never entered actual playback");
     const int audible=sound.PlayedBearCallCount();sound.SetMuted(true);
     for(int tick=0;tick<180;++tick)
-        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},&bear);
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{},&bear);
     Check(sound.PlayedBearCallCount()==audible&&!sound.IsWildlifeCallActive(),
         "Muted bear voice retained or created transient playback");
     sound.SetMuted(false);listener.x=100;
     for(int tick=0;tick<720;++tick)
-        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},&bear);
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{},&bear);
     Check(sound.PlayedBearCallCount()==audible,"Out-of-range bear created actual playback");
+}
+void ExerciseGoatVoice() {
+    using namespace island;
+    Soundscape sound;
+    std::array<GoatState,1> goats{};
+    goats[0].x=0;goats[0].y=4;goats[0].z=0;goats[0].behavior=GoatBehavior::Graze;
+    SoundscapeListenerState listener;listener.x=3;listener.y=5.72f;listener.z=0;
+    Check(sound.Start(80,false,0,0,0,.5f,listener.x,listener.z),
+        "Goat dummy audio startup failed: "+sound.Error());
+    bool active=false;
+    for(int tick=0;tick<1200;++tick) {
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},goats,{});
+        active|=sound.IsWildlifeCallActive();
+        Check(sound.IsAvailable()&&sound.Error().empty(),"Goat call disabled the soundscape");
+        Check(sound.DebugState().playingSourceCount>=4&&sound.DebugState().playingSourceCount<=6,
+            "Goat call exceeded the shared six-source budget");
+    }
+    Check(active&&sound.PlayedGoatCallCount()>0,"Nearby goat never entered actual playback");
+    const int audible=sound.PlayedGoatCallCount();sound.SetMuted(true);
+    for(int tick=0;tick<180;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},goats,{});
+    Check(sound.PlayedGoatCallCount()==audible&&!sound.IsWildlifeCallActive(),
+        "Muted goat voice retained or created transient playback");
+    sound.SetMuted(false);listener.x=100;
+    for(int tick=0;tick<1200;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},goats,{});
+    Check(sound.PlayedGoatCallCount()==audible,"Out-of-range goat created actual playback");
 }
 }
 
@@ -105,6 +133,7 @@ int main(int argc, char** argv) {
         ExerciseCampfire(false);
         ExerciseCampfire(true);
         ExerciseBearVoice();
+        ExerciseGoatVoice();
         std::cout << "Soundscape stream startup/entry/swim/mute runtime regression passed\n";
         return 0;
     } catch (const std::exception& error) {

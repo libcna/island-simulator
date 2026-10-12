@@ -499,6 +499,7 @@ namespace island
         wildlifeAudio << "POSITIONAL CALLS  BIRD " << state.playedBirdCalls
                       << " MONKEY " << state.playedMonkeyCalls
                       << " BOAR " << state.playedBoarCalls
+                      << " GOAT " << state.playedGoatCalls
                       << " SNAKE " << state.playedSnakeHisses
                       << "  VOICE " << (state.wildlifeCallActive ? "ACTIVE" : "IDLE")
                       << "  SOURCES " << state.playingAudioSources << '/'

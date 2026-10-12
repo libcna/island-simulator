@@ -212,6 +212,18 @@ namespace
                          island::GenerateBoarCall(island::BoarCallKind::Grunt, 0)});
         clips.push_back({"boar grunt B", "boar-grunt-b.wav", false, 26460U,
                          island::GenerateBoarCall(island::BoarCallKind::Grunt, 1)});
+        clips.push_back({"goat breath A", "goat-breath-a.wav", false, 26460U,
+                         island::GenerateGoatCall(island::GoatCallKind::Breath, 0)});
+        clips.push_back({"goat breath B", "goat-breath-b.wav", false, 26460U,
+                         island::GenerateGoatCall(island::GoatCallKind::Breath, 1)});
+        clips.push_back({"goat bleat A", "goat-bleat-a.wav", false, 26460U,
+                         island::GenerateGoatCall(island::GoatCallKind::Bleat, 0)});
+        clips.push_back({"goat bleat B", "goat-bleat-b.wav", false, 26460U,
+                         island::GenerateGoatCall(island::GoatCallKind::Bleat, 1)});
+        clips.push_back({"goat hoof A", "goat-hoof-a.wav", false, 26460U,
+                         island::GenerateGoatCall(island::GoatCallKind::Hoof, 0)});
+        clips.push_back({"goat hoof B", "goat-hoof-b.wav", false, 26460U,
+                         island::GenerateGoatCall(island::GoatCallKind::Hoof, 1)});
         clips.push_back({"snake hiss A", "snake-hiss-a.wav", false, 22050U,
                          island::GenerateSnakeHiss(0)});
         clips.push_back({"snake hiss B", "snake-hiss-b.wav", false, 22050U,
