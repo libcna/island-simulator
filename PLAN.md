@@ -766,6 +766,13 @@ progress or require player interaction; dangerous species keep their distance li
   Android215811 motionPASS9.372m but imagegateFAIL (luminanceSD12.6251<18,21attempts),
   screenshotinspected: mostbodyvisible, headpartlytrunkoccluded. Forcedownedexit-9,
   kernel[]. Remainingreadability/routeocclusion/Webcameraqualification stillOPEN.
+  Ground-snake audit coverage follow-up (2026-10-12): WorldReport now constructs the
+  live four-snake population after the full obstacle grid/hut, validates initial bodies,
+  exports homes/headings/all41stations, and fingerprints complete initial snake state.
+  Tree habitat explicitly false. Independent actual JSON test plus five corruption
+  cases; full42/42 CPU PASS68.19s. Host fingerprint b3fde347f77eb5f8 replaces a590b7e4fb787269
+  through added coverage only, not a placement change. No renderer/emulator run. This
+  does not implement spiders, tree snakes or any other missing species.
 - [ ] Spiders (webs between plants, ground spiders)
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)

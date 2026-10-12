@@ -16,6 +16,7 @@
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/SeaTurtleGroup.hpp"
 #include "IslandSimulator/SharkPatrol.hpp"
+#include "IslandSimulator/SnakePopulation.hpp"
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/WorldCollisionGrid.hpp"
@@ -33,6 +34,7 @@
 #include <iostream>
 #include <limits>
 #include <locale>
+#include <memory>
 #include <numbers>
 #include <ostream>
 #include <sstream>
@@ -114,6 +116,7 @@ namespace
         std::vector<island::CircularObstacle> worldObstacles;
         island::WorldCollisionGrid collisionGrid;
         std::optional<island::HutPlacement> hut;
+        std::unique_ptr<island::SnakePopulation> snakes;
 
         WorldSnapshot()
         {
@@ -133,6 +136,8 @@ namespace
             collisionGrid.Reset(worldObstacles);
             monkeys.SetObstacles(collisionGrid.Obstacles());
             boars.SetObstacles(collisionGrid.Obstacles());
+            // Match runtime ordering: snakes use the complete obstacle set, including the hut.
+            snakes=std::make_unique<island::SnakePopulation>(terrain,collisionGrid.Obstacles());
         }
     };
 
@@ -385,6 +390,14 @@ namespace
             hash.AddFloat(monkey.homeZ);
             hash.AddByte(monkey.colorVariant);
         }
+        hash.AddSize(world.snakes->Snakes().size());
+        for(const auto& snake:world.snakes->Snakes()) {
+            hash.AddFloat(snake.homeX);hash.AddFloat(snake.homeZ);
+            hash.AddFloat(snake.heading);hash.AddFloat(snake.phase);hash.AddFloat(snake.speed);
+            hash.AddEnum(snake.behavior);hash.AddEnum(snake.tier);
+            hash.AddSize(snake.body.size());
+            for(const auto& point:snake.body) HashPosition(hash,point.x,point.y,point.z);
+        }
         return hash.Value();
     }
 
@@ -483,6 +496,7 @@ namespace
                 == island::ButterflyMeadow::ButterflyCount
             && world.crabs.Crabs().size() == island::CrabColony::CrabCount
             && world.boars.Boars().size() == island::BoarHerd::BoarCount
+            && world.snakes->Snakes().size() == island::SnakePopulation::Count
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
@@ -627,6 +641,11 @@ namespace
             finiteSpecializedData = finiteSpecializedData
                 && AllFinite(monkey.x, monkey.y, monkey.z, monkey.headingRadians,
                              monkey.scale, monkey.homeX, monkey.homeZ);
+        }
+        for(const auto& snake:world.snakes->Snakes()) {
+            finiteSpecializedData=finiteSpecializedData
+                && AllFinite(snake.homeX,snake.homeZ,snake.heading,snake.phase,snake.speed)
+                && world.snakes->ValidBody(snake);
         }
         bool validHut=world.hut.has_value();
         if(world.hut) {
@@ -822,13 +841,32 @@ namespace
                << world.butterflies.Butterflies().size() << ",\n"
                << "    \"beachCrabs\": " << world.crabs.Crabs().size() << ",\n"
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
+               << "    \"groundSnakes\": " << world.snakes->Snakes().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
                << "    \"sharks\": 1,\n"
                << "    \"monkeys\": " << world.monkeys.Monkeys().size() << "\n"
-               << "  }\n"
-               << "}\n";
+               << "  },\n"
+               << "  \"groundSnakePopulation\": {\n"
+               << "    \"snapshot\": \"initial\",\n"
+               << "    \"treeHabitatImplemented\": false,\n"
+               << "    \"stationsPerSnake\": " << island::SnakeState::StationCount << ",\n"
+               << "    \"spacingMeters\": " << island::SnakePopulation::Spacing << ",\n"
+               << "    \"snakes\": [\n";
+        const auto snakes=world.snakes->Snakes();
+        for(std::size_t i=0;i<snakes.size();++i) {
+            const auto& snake=snakes[i];
+            output << "      {\"home\":[" << snake.homeX << ',' << snake.homeZ
+                   << "],\"headingRadians\":" << snake.heading << ",\"body\":[";
+            for(std::size_t j=0;j<snake.body.size();++j) {
+                const auto& p=snake.body[j];
+                if(j) output << ',';
+                output << '[' << p.x << ',' << p.y << ',' << p.z << ']';
+            }
+            output << "]}" << (i+1<snakes.size()?",":"") << '\n';
+        }
+        output << "    ]\n  }\n}\n";
     }
 }
 

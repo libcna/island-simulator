@@ -283,6 +283,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
 
     find_package(Python3 COMPONENTS Interpreter QUIET)
     if(Python3_Interpreter_FOUND)
+        if(TARGET island_world_report)
+            add_test(NAME IslandWorldSnakeReportTests
+                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/WorldSnakeReportTests.py"
+                    "$<TARGET_FILE:island_world_report>")
+        endif()
         add_test(NAME IslandAssetValidation
             COMMAND "${Python3_EXECUTABLE}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_assets.py")

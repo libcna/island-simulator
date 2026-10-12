@@ -93,7 +93,22 @@ It records:
 - initial wildlife populations, including all thirty beach crabs and their six bounded colony
   regions, eighteen butterflies and their three terrain-validated clearing habitats, and five
   sea turtles with bounded near-shore cruise/forage/surface routes;
+- four ground snakes, with initial home/heading and all 41 ordered body stations per
+  snake in `groundSnakePopulation`; `treeHabitatImplemented: false` explicitly preserves
+  the unimplemented tree-habitat scope;
 - a 64-bit fingerprint over sampled terrain and ordered generated world data.
+
+Ground snakes are constructed after the complete collision grid, including the hut,
+matching game startup. Validation checks finite state, population count and each
+terrain-supported, obstacle-cleared connected body via `SnakePopulation::ValidBody`.
+The fingerprint includes their homes, heading, phase, speed, behavior, simulation tier
+and full body positions. Including previously omitted snakes changes the qualified
+host fingerprint from `a590b7e4fb787269` to `b3fde347f77eb5f8` without changing live
+placement or behavior. The JSON extension is additive; `schemaVersion` remains 1.
+`IslandWorldSnakeReportTests` independently parses actual report stdout and validates
+counts, body lengths, finite positions, bounded home range and segment spacing after
+four-decimal serialization. Five corrupted-report cases must be rejected. These checks
+cover initial state, not runtime motion, natural appearance or tree climbing.
 
 The fingerprint is a change detector for the qualified host/toolchain, not a promise that different
 standard-library math implementations produce identical floating-point bits. Intentional world

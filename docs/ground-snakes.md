@@ -1,5 +1,19 @@
 # Ground snake implementation and visual evidence
 
+## World-report coverage — 2026-10-12
+
+The earlier WorldReport omission is resolved: four ground snakes, initial homes and
+headings, and all41 body stations are exported. Reconstruction uses the same complete
+obstacle set as startup, including the hut. Count/finite-state/ValidBody checks and
+full initial-state fingerprinting are included; tree habitat is explicitly marked
+unimplemented. Current host fingerprint `b3fde347f77eb5f8` reflects added audit coverage,
+not a live population/placement change. Independent JSON regression checks five corrupt
+variants as well as real output. Full42/42 non-display tests PASS68.19s. No renderer,
+emulator, KVM or dependency change was involved. This does not close visual, continuous
+motion or tree-habitat work. Details: `docs/asset-pipeline.md`.
+
+## Original implementation record
+
 Four live nonhostile ground snakes are now instantiated after the complete world
 obstacle grid, updated alongside other wildlife and drawn in normal IslandGame play.
 Each body uses 41 terrain-supported stations and a connected 16-sided tube, with a

@@ -1,5 +1,20 @@
 # island-simulator handoff
 
+## Latest — WorldReport now includes the live ground snakes
+
+tools/WorldReport.cpp reconstructs SnakePopulation after complete obstacle grid/hut,
+matching runtime. Exports wildlife.groundSnakes=4 and groundSnakePopulation with
+initial homes/headings/all41 ordered body points, spacing .055, treeHabitatImplemented
+false. Count/finite/ValidBody validation; fingerprint covers full initial state incl
+phase/speed/behavior/tier. Host fingerprint b3fde347f77eb5f8 (was a590b7e4fb787269);
+change is audit coverage, not live placement/behavior. Additive schemaVersion1 fields.
+New independent tests/WorldSnakeReportTests.py parses real stdout and rejects five
+corrupt variants. Registered CTest; full42/42 non-display PASS68.19s. Existing native
+build reused, only report target built; no renderer/emulator/KVM/dependency changes.
+Docs asset-pipeline.md/ground-snakes.md updated. Current monkey shader Web runtime
+still pending; missing species/resident/visual/audio/AMD backlog intact. Goal active.
+All owned jobs terminal; hardware stop latch SHA c0bd1704 unchanged, no push.
+
 ## Latest — monkey orbital relief and restrained socket ambient shading
 
 MonkeyFaceProfile adds compact bilateral orbit/brow/nose/cheek relief to existing
