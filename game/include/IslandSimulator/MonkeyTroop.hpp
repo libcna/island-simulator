@@ -84,6 +84,8 @@ namespace island
         void SetObstacles(std::span<const CircularObstacle> obstacles);
         void SetCanopy(std::span<const CanopyPlacement> trees);
         void SetClimbingEnabled(bool enabled) noexcept { climbingEnabled_=enabled; }
+        [[nodiscard]] static bool IsClosedCanopyTree(
+            std::span<const CanopyPlacement> trees, std::size_t index) noexcept;
         void Update(float deltaSeconds, float observerX, float observerY,
                     float observerZ, float windTime = -1.0f) noexcept;
 
@@ -132,6 +134,7 @@ namespace island
         int preflightSamples_ = 0;
         std::vector<CircularObstacle> obstacles_;
         std::vector<CanopyPlacement> trees_;
+        std::vector<std::uint8_t> closedCanopyTree_;
         std::vector<Agent> agents_;
         std::vector<MonkeyState> states_;
         std::uint64_t frameIndex_ = 0U;

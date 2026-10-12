@@ -78,8 +78,11 @@ than hard-coded sectors, and three of five turtle homes now occupy the sheltered
 western bay. Long deterministic habitat tests pass. Inspected llvmpipe boar and turtle
 captures `102822.874894Z-boars` and `102941.088316Z-turtles` pass. The inspected snake
 capture was correctly rejected for low luminance variation and is not accepted visual
-evidence. Closed-canopy monkey routing, wrack-aware crab bias and portable review keep
-ecosystem-stage item 6 in progress.
+evidence. Monkey tree routes now reject mangroves and isolated trees and require two
+natural canopy neighbours within 20m; the full deterministic climb regression passes.
+A direct closed-canopy home relocation was rejected and removed because it prevented
+the ordinary simulation from completing a safe summit. Ground-home placement,
+wrack-aware crab bias and portable review keep ecosystem-stage item 6 in progress.
 
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander

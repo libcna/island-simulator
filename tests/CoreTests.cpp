@@ -3597,6 +3597,11 @@ int main()
                 || state.behavior == island::MonkeyBehavior::InspectTree) {
                 Check(state.treeIndex >= 0 && static_cast<std::size_t>(state.treeIndex) < jungle.Canopy().size(),
                       "tree behaviour references an installed canopy placement");
+                if (state.treeIndex >= 0) {
+                    Check(island::MonkeyTroop::IsClosedCanopyTree(
+                              jungle.Canopy(), static_cast<std::size_t>(state.treeIndex)),
+                          "monkey selected an isolated or mangrove tree outside closed canopy");
+                }
                 observedMonkeyTreeApproach = true;
                 if (state.behavior == island::MonkeyBehavior::InspectTree) {
                     if (!observedMonkeyTreeArrival) {

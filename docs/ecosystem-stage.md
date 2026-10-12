@@ -73,7 +73,12 @@ existing features, not a broad redesign.
    `20261012T102941.088316Z-turtles` pass validation. The inspected snake image is
    useful but rejected by the generic scene gate for low luminance variation, so it
    is not accepted evidence. Closed-canopy monkey placement, wrack-aware crab bias,
-   portable review and a stronger snake habitat camera remain.
+   Monkey tree selection now also rejects mangroves and isolated trees, requiring
+   at least two neighbouring natural canopy trees within 20m; the full deterministic
+   climb/excursion regression remains reachable. Ground-home placement is not yet
+   closed-canopy-driven: an attempted direct relocation passed rendering but broke
+   the natural summit regression and was removed. Wrack-aware crab bias, portable
+   review and a stronger snake habitat camera remain.
 7. [ ] **Four distinct coastal experiences.** Strengthen the existing broad beach,
    sheltered lagoon/bay, exposed rocky windward shore and mangrove stream mouth.
    Keep island outline/scale; make a coastal walk visibly vary in materials,

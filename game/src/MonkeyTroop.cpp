@@ -90,10 +90,30 @@ namespace island
                 throw std::invalid_argument("Invalid monkey canopy placement");
         }
         trees_.assign(trees.begin(),trees.end());
+        closedCanopyTree_.resize(trees_.size());
+        for (std::size_t index = 0; index < trees_.size(); ++index) {
+            closedCanopyTree_[index] = IsClosedCanopyTree(trees_, index) ? 1U : 0U;
+        }
         for (std::size_t index = 0; index < agents_.size(); ++index) {
             if (agents_[index].state.treeIndex >= 0) EnterState(agents_[index], MonkeyBehavior::Idle);
             states_[index] = agents_[index].state;
         }
+    }
+
+    bool MonkeyTroop::IsClosedCanopyTree(
+        const std::span<const CanopyPlacement> trees, const std::size_t index) noexcept
+    {
+        if (index >= trees.size() || trees[index].variant == MangroveCanopyVariant)
+            return false;
+        int neighbours = 0;
+        for (std::size_t other = 0; other < trees.size(); ++other) {
+            if (other == index || trees[other].variant == MangroveCanopyVariant)
+                continue;
+            const float dx = trees[other].x - trees[index].x;
+            const float dz = trees[other].z - trees[index].z;
+            if (dx * dx + dz * dz < 20.0f * 20.0f) ++neighbours;
+        }
+        return neighbours >= 2;
     }
 
     bool MonkeyTroop::ChooseTreeTarget(Agent& agent) noexcept
@@ -102,6 +122,7 @@ namespace island
         int best = -1;
         float bestX = 0, bestZ = 0;
         for (std::size_t index = 0; index < trees_.size(); ++index) {
+            if (closedCanopyTree_[index] == 0U) continue;
             const auto& tree = trees_[index];
             const float dx = agent.state.x-tree.x, dz = agent.state.z-tree.z;
             const float distance = std::hypot(dx,dz);

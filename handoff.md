@@ -15,9 +15,15 @@ is `77a473eac55bb3e9`. Inspected llvmpipe `20261012T102822.874894Z-boars` PASS
 274bins/std18.04/spatial88.19 and `20261012T102941.088316Z-turtles` PASS
 268bins/std26.31/spatial104.02. Inspected `103005.681421Z-snakes` shows the animal
 between understory leaves but FAILS the generic scene threshold (std13.74), so is not
-accepted evidence. Next within item 6: closed-canopy monkey routing, wrack-aware crab
-bias, a stronger snake habitat camera, then portable/performance review. No AMD/KVM
-changes. Builds remain bounded to CPUs0-3 and `-j2`.
+accepted evidence. Monkey tree targets now reject mangroves/isolated trees and require
+>=2 natural neighbours within20m, with a cached eligibility table; full Core climb and
+excursion regression passes. A direct closed-canopy home relocation was visually
+insufficient and then broke the natural summit test, so it was removed. Generic monkey
+capture `104842.384627Z-monkeys` technically passes but faces out of the grove and is
+not accepted as closed-canopy evidence; `104937.753599Z-monkey-tree` reached the tree
+sequence but failed its paired-grip gate. Next: clearance-aware closed-canopy homes,
+wrack-aware crab bias and stronger habitat cameras, then portable/performance review.
+No AMD/KVM changes. Builds remain bounded to CPUs0-3 and `-j2`.
 
 ## Latest implementation — spatial reef plus habitat-routed fish/turtles
 
