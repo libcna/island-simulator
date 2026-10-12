@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Latest — adaptive stream-bed geometry reduction
+
+Previous253a32a progress. StreamBedPatch marks coarsecells containing ANYmodified
+gridvertex (bothneighbors onedges), keeps8x there. Unmodifiedcells usecenterfans
+onoriginalTR-BLdiagonal, splittingonlyedgesadjacentfinecells; compactunusedvertices.
+Current8510verts/16910tris vs36273/71680 (~76%reduction),samecut.433233m.
+SampleHeight keeps36273scalarheights145092bytes, samefinegridinterpolation; coarse
+fanvalues matchoriginalplanes withinexisting1e-4 checks. New edgeincidence map
+requiresallinterioredges exactlytwice/oppositedirection; onlyouterboundarysingle.
+Tests retainallvertex/trianglecentroid/nonraising/boundary/depth/outside checks,
+also require>50%countsreduction. Build/test19661exit0PASS.10s, taskset0-3/-j2/cache.
+Logs build/stream-adaptive-{build,tests,summary}.log and-profile.csv.
+No live stream/renderer/terrain replacement/collision integration yet. NEXT remove
+coveredcoarseterrainindices, uploadboundedpatch withsame terrainmaterial, and share
+surface withmovement/grounding beforewater mesh. Do not overlay old terrain.
+No graphics/AMD/KVM/dependencychanges;allhandles terminal; fullgoal/planretained.
+
 ## Latest — CPU local stream-bed replacement geometry, not live
 
 Previous226f5fd progress. New StreamBedPatch.hpp subdivides coarse-grid-aligned

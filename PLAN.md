@@ -56,6 +56,12 @@ unchanged original-rendered outer boundary and a matching triangle-height query.
 CPU all-vertex/triangle-centroid/winding/boundary/depth tests PASS.10s; maximum cut
 .433233m. Current rectangular36273vertices/71680triangles needs adaptive reduction
 before game integration. Still no live stream or terrain removal/rendered audit.
+Adaptive follow-up now reduces this to8510vertices/16910triangles (~76%) by keeping
+fine cells only where carved and stitching unchanged-cell fans to fine edges.
+All interior edges paired/oppositely oriented; original height/centroid/boundary/
+depth tests retained, PASS.10s. Scalar query grid145092bytes retained; still no
+runtime upload/performance/collision integration claim. Next replace covered coarse
+terrain triangles and share the replacement surface with movement/grounding.
 
 - [ ] Add a realistic continuously burning campfire at a suitable island location:
   stone-ringed fire pit, burning logs/embers, animated flame shape and restrained

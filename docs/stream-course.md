@@ -41,6 +41,22 @@ fade and outside-domain rejection. Focused test passes0.10s. No runtime mesh upl
 terrain removal, player collision integration, water rendering or visual acceptance
 is claimed; the original terrain still renders unchanged.
 
+### Adaptive reduction
+
+The next version retains8x detail only in coarse cells containing changed vertices
+(including both cells beside a modified shared edge). Unchanged cells use a central
+fan on the original triangle diagonal. Only fan edges bordering refined cells split
+into eight segments. Unreferenced grid vertices are compacted; scalar grid heights
+remain for the same bounded constant-time query (36273floats/145092bytes).
+
+Current output:8510vertices/16910triangles, down from36273/71680 (~76% reduction),
+with unchanged0.433233m maximum carve. Added edge-incidence checks require each
+interior edge to occur exactly twice with opposite direction; only the patch outer
+boundary may have single-use edges. This catches cracks/T-junctions and overlapping
+edge topology. All existing vertex/centroid/height/boundary/depth checks still pass.
+Native build and focused survey pass0.10s. No renderer/physics integration or runtime
+performance claim yet. Evidence: `build/stream-adaptive-{build,tests,summary}.log`.
+
 The global terrain grid is about2.83m across, coarser than the upper wet channel.
 Provide local channel/bank geometry and a coherent authoritative carve/collision
 representation; do not cover an uncut coarse heightfield with a blue strip. Avoid

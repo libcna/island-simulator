@@ -25,6 +25,8 @@ public:
         if(static_cast<std::size_t>(columns_)*rows_>=65536)
             throw std::runtime_error("Stream bed exceeds portable index capacity");
         const float length=b.distance,dx=(b.x-a.x)/length,dz=(b.z-a.z)/length;
+        const int coarseColumns=lastX-firstX,coarseRows=lastZ-firstZ;
+        std::vector<bool> refined(static_cast<std::size_t>(coarseColumns*coarseRows),false);
         vertices_.reserve(static_cast<std::size_t>(columns_)*rows_);
         for(int row=0;row<rows_;++row)for(int col=0;col<columns_;++col) {
             const float x=minX_+static_cast<float>(col)*step_;
@@ -48,19 +50,58 @@ public:
                 }
             }
             vertices_.push_back({x,height,z});
+            heights_.push_back(height);
+            if(height!=base) {
+                // A changed coarse-edge vertex refines both adjacent cells.
+                for(int r=std::max(0,(row-1)/Subdivision);r<=std::min(coarseRows-1,row/Subdivision);++r)
+                    for(int c=std::max(0,(col-1)/Subdivision);c<=std::min(coarseColumns-1,col/Subdivision);++c)
+                        refined[static_cast<std::size_t>(r*coarseColumns+c)]=true;
+            }
         }
-        indices_.reserve(static_cast<std::size_t>(columns_-1)*(rows_-1)*6);
-        for(int row=0;row<rows_-1;++row)for(int col=0;col<columns_-1;++col) {
-            const auto tl=static_cast<std::uint16_t>(row*columns_+col);
-            const auto tr=static_cast<std::uint16_t>(tl+1),bl=static_cast<std::uint16_t>(tl+columns_);
-            const auto br=static_cast<std::uint16_t>(bl+1);
-            indices_.insert(indices_.end(),{tl,bl,tr,tr,bl,br});
+        const auto dense=[&](int row,int col){return row>=0&&col>=0&&row<coarseRows&&col<coarseColumns
+            &&refined[static_cast<std::size_t>(row*coarseColumns+col)];};
+        const auto index=[&](int row,int col){return static_cast<std::uint16_t>(row*columns_+col);};
+        for(int r=0;r<coarseRows;++r)for(int c=0;c<coarseColumns;++c) {
+            const int row=r*Subdivision,col=c*Subdivision;
+            if(dense(r,c)) {
+                for(int y=0;y<Subdivision;++y)for(int x=0;x<Subdivision;++x) {
+                    const auto tl=index(row+y,col+x),tr=index(row+y,col+x+1);
+                    const auto bl=index(row+y+1,col+x),br=index(row+y+1,col+x+1);
+                    indices_.insert(indices_.end(),{tl,bl,tr,tr,bl,br});
+                }
+            } else {
+                // Fan centre lies on the original TR-BL diagonal. Each fan sector
+                // stays in one original plane; only edges next to fine cells split.
+                const auto centre=index(row+Subdivision/2,col+Subdivision/2);
+                const auto edge=[&](int y,int x,int dy,int dx2,bool split) {
+                    const int stride=split?1:Subdivision;
+                    for(int k=0;k<Subdivision;k+=stride)
+                        indices_.insert(indices_.end(),{centre,index(row+y+dy*k,col+x+dx2*k),
+                            index(row+y+dy*(k+stride),col+x+dx2*(k+stride))});
+                };
+                edge(0,0,1,0,dense(r,c-1));
+                edge(Subdivision,0,0,1,dense(r+1,c));
+                edge(Subdivision,Subdivision,-1,0,dense(r,c+1));
+                edge(0,Subdivision,0,-1,dense(r-1,c));
+            }
         }
+        // Compact unused dense-grid vertices; keep only scalar heights for queries.
+        std::vector<int> remap(vertices_.size(),-1);
+        std::vector<StreamBedVertex> compact;
+        for(auto& i:indices_) {
+            if(remap[i]<0) {remap[i]=static_cast<int>(compact.size());compact.push_back(vertices_[i]);}
+            i=static_cast<std::uint16_t>(remap[i]);
+        }
+        vertices_=std::move(compact);
     }
     [[nodiscard]] const auto& Vertices() const noexcept{return vertices_;}
     [[nodiscard]] const auto& Indices() const noexcept{return indices_;}
     [[nodiscard]] int Columns() const noexcept{return columns_;}
     [[nodiscard]] int Rows() const noexcept{return rows_;}
+    [[nodiscard]] bool IsBoundary(StreamBedVertex p) const noexcept {
+        return p.x==minX_||p.z==minZ_||p.x==minX_+static_cast<float>(columns_-1)*step_
+            ||p.z==minZ_+static_cast<float>(rows_-1)*step_;
+    }
     [[nodiscard]] float SampleHeight(float x,float z) const {
         float gx=(x-minX_)/step_,gz=(z-minZ_)/step_;
         // Roundoff at an inclusive stored boundary must not reject its own vertex.
@@ -72,13 +113,14 @@ public:
         const int col=std::min(static_cast<int>(gx),columns_-2),row=std::min(static_cast<int>(gz),rows_-2);
         const float u=gx-static_cast<float>(col),v=gz-static_cast<float>(row);
         const auto i=static_cast<std::size_t>(row*columns_+col);
-        const float tl=vertices_[i].y,tr=vertices_[i+1].y,bl=vertices_[i+columns_].y,br=vertices_[i+columns_+1].y;
+        const float tl=heights_[i],tr=heights_[i+1],bl=heights_[i+columns_],br=heights_[i+columns_+1];
         return u+v<=1?tl+(tr-tl)*u+(bl-tl)*v:br+(bl-br)*(1-u)+(tr-br)*(1-v);
     }
 private:
     float minX_=0,minZ_=0,step_=0;
     int columns_=0,rows_=0;
     std::vector<StreamBedVertex> vertices_;
+    std::vector<float> heights_;
     std::vector<std::uint16_t> indices_;
 };
 }

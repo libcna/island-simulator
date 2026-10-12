@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <map>
 
 // Read-only survey of the authored west drainage corridor. No world mutation.
 int main() {
@@ -21,11 +22,15 @@ int main() {
         if(!std::isfinite(p.y)||p.y>base+.00001f)return 4;
         if(std::abs(patch.SampleHeight(p.x,p.z)-p.y)>.0001f)return 9;
         deepestCut=std::max(deepestCut,base-p.y);
-        const auto col=i%static_cast<std::size_t>(patch.Columns()),row=i/static_cast<std::size_t>(patch.Columns());
-        if((col==0||row==0||col==static_cast<std::size_t>(patch.Columns()-1)
-            ||row==static_cast<std::size_t>(patch.Rows()-1))&&p.y!=base)return 5;
+        if(patch.IsBoundary(p)&&p.y!=base)return 5;
     }
+    std::map<std::pair<std::uint16_t,std::uint16_t>,std::pair<int,int>> edges;
     for(std::size_t i=0;i<patch.Indices().size();i+=3) {
+        for(std::size_t k=0;k<3;++k) {
+            const auto start=patch.Indices()[i+k],end=patch.Indices()[i+(k+1)%3];
+            auto& edge=edges[std::minmax(start,end)];
+            ++edge.first;edge.second+=start<end?1:-1;
+        }
         const auto a=patch.Vertices().at(patch.Indices()[i]);
         const auto b=patch.Vertices().at(patch.Indices()[i+1]);
         const auto c=patch.Vertices().at(patch.Indices()[i+2]);
@@ -33,6 +38,12 @@ int main() {
         const float x=(a.x+b.x+c.x)/3,z=(a.z+b.z+c.z)/3;
         if(std::abs(patch.SampleHeight(x,z)-(a.y+b.y+c.y)/3)>.0001f)return 7;
     }
+    for(const auto& [ends,counts]:edges) {
+        if(counts.first==1) {
+            if(!patch.IsBoundary(patch.Vertices()[ends.first])||!patch.IsBoundary(patch.Vertices()[ends.second]))return 12;
+        } else if(counts.first!=2||counts.second!=0)return 13;
+    }
+    if(patch.Indices().size()/3>=71680/2||patch.Vertices().size()>=36273/2)return 14;
     if(deepestCut<.25f||deepestCut>1)return 8;
     for(std::size_t i=3;i<course.Count();++i) {
         const auto& p=course.Station(i);
