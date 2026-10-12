@@ -85,7 +85,10 @@ int main(int argc,char** argv)
     std::vector<island::CircularObstacle> obstacles(vegetation.Obstacles().begin(),vegetation.Obstacles().end());
     obstacles.insert(obstacles.end(),jungle.Obstacles().begin(),jungle.Obstacles().end());
     obstacles.insert(obstacles.end(),props.Obstacles().begin(),props.Obstacles().end());
-    island::SnakePopulation population(terrain,obstacles), repeated(terrain,obstacles);
+    island::SnakePopulation population(terrain,jungle,obstacles), repeated(terrain,jungle,obstacles);
+    for(const auto& snake:population.Snakes())
+        Check(island::SnakePopulation::IsUnderstoryMargin(jungle,snake.homeX,snake.homeZ),
+            "snake home is not on a dense-understory margin");
     for (std::size_t i=0; i<island::SnakeState::StationCount+2; ++i) {
         const float radius = island::SnakePopulation::RadiusAt(i);
         Check(std::isfinite(radius) && radius>=0.004f && radius<=island::SnakePopulation::MaximumRadius,
@@ -221,7 +224,7 @@ int main(int argc,char** argv)
     const auto before=population.Snakes().front();
     // The former opt-in regression now runs in the default suite too. Keep its CLI alias.
     for(const auto offset:std::array<std::array<float,2>,4>{{{0.35f,0.30f},{0.35f,-0.30f},{0.5f,0},{3,0}}}) {
-        island::SnakePopulation closeObserver(terrain,obstacles);
+        island::SnakePopulation closeObserver(terrain,jungle,obstacles);
         const auto start=closeObserver.Snakes().front().body.front();
         const float observerX=start.x+offset[0],observerZ=start.z+offset[1];
         for(int frame=0;frame<900;++frame) {

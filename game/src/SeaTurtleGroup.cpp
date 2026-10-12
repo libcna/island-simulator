@@ -15,8 +15,11 @@ namespace island
     namespace
     {
         constexpr float TwoPi = 2.0f * std::numbers::pi_v<float>;
+        // Three of five home ranges occupy the sheltered western bay. The remaining two
+        // preserve restrained island-wide encounters while all five still require the
+        // shared reef/seagrass field below.
         constexpr std::array<float, SeaTurtleGroup::TurtleCount> HomeAngles = {
-            -2.54f, -1.34f, -0.18f, 1.16f, 2.48f};
+            -2.92f, -2.62f, 2.72f, -0.18f, 1.16f};
 
         [[nodiscard]] float WrapAngle(float value) noexcept
         {

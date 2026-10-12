@@ -40,6 +40,9 @@ namespace island
         static constexpr float CollisionRadius = 1.30f;
         static constexpr float MinimumShoreDistance = 38.0f;
         static constexpr float MaximumSlope = 0.48f;
+        static constexpr float MinimumHabitatMoisture = 0.16f;
+        static constexpr float MaximumHabitatDrainage = 0.74f;
+        static constexpr float MaximumHabitatSaltExposure = 0.12f;
         static constexpr float FullSimulationDistance = 95.0f;
         static constexpr float ReducedSimulationDistance = 220.0f;
 

@@ -2419,6 +2419,7 @@ int main()
     Check(seaTurtles.Turtles().size() == island::SeaTurtleGroup::TurtleCount
               && seaTurtles.Homes().size() == island::SeaTurtleGroup::TurtleCount,
           "sea-turtle simulation exposes the intended small bounded population");
+    std::size_t shelteredBayTurtleHomes = 0;
     for (std::size_t index = 0; index < seaTurtles.Turtles().size(); ++index) {
         const island::SeaTurtleState& turtle = seaTurtles.Turtles()[index];
         const island::SeaTurtleState& repeated = repeatedSeaTurtles.Turtles()[index];
@@ -2444,7 +2445,12 @@ int main()
               "each sea turtle begins in shared reef or seagrass habitat");
         Check(turtle.y >= sample.height + 0.39f && turtle.y <= -0.09f,
               "each sea turtle begins between seabed clearance and the water surface");
+        if (home.x < 0.0f && std::abs(home.z) < -home.x * .72f) {
+            ++shelteredBayTurtleHomes;
+        }
     }
+    Check(shelteredBayTurtleHomes >= 3,
+          "most sea-turtle homes must occupy the calmer sheltered western bay");
     invalidInputSeaTurtles.Update(quietNan, quietNan, quietNan, quietNan);
     Check(invalidInputSeaTurtles.DormantSimulationCount()
               == static_cast<int>(island::SeaTurtleGroup::TurtleCount)

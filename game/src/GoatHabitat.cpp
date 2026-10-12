@@ -1,4 +1,5 @@
 #include "IslandSimulator/GoatHabitat.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -10,9 +11,14 @@ bool GoatHabitat::AcceptsGround(const IslandTerrain& terrain,const RenderedTerra
 {
     if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>220||std::abs(z)>220) return false;
     const auto centre=surface.Sample(x,z);
+    const auto environment=IslandEnvironmentField::SampleInland(
+        x,z,terrain.SignedShoreDistance(x,z));
     // Sloped inland ground, not a beach, cliff or flat valley floor.
     if(centre.height<6 || centre.normal.y<.90f || centre.normal.y>.997f
-        ||terrain.Sample(x,z).normal.y<.90f) return false;
+        ||terrain.Sample(x,z).normal.y<.90f
+        ||environment.moisture>MaximumHabitatMoisture
+        ||environment.drainage>MaximumHabitatDrainage
+        ||environment.saltExposure>MaximumHabitatSaltExposure) return false;
     for(int i=0;i<9;++i) {
         const float angle=static_cast<float>(i)*std::numbers::pi_v<float>/4;
         const float radius=i==8?0:BodyClearance;

@@ -1,11 +1,24 @@
 #include "IslandSimulator/SnakePopulation.hpp"
+#include "IslandSimulator/JungleLayout.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <numbers>
 #include <stdexcept>
+#include <vector>
 
 namespace island
 {
+    namespace
+    {
+        std::uint32_t Mix(std::uint32_t value) noexcept
+        {
+            value ^= value >> 16U; value *= 0x7feb352dU;
+            value ^= value >> 15U; value *= 0x846ca68bU;
+            return value ^ (value >> 16U);
+        }
+    }
+
     float SnakePopulation::RadiusAt(const std::size_t station) noexcept
     {
         if (station == 0) return 0.043f;
@@ -22,6 +35,27 @@ namespace island
         const auto ground = surface_->Sample(x,z);
         return terrain_.SignedShoreDistance(x,z) >= 20.0f && ground.height >= 1.0f
             && ground.normal.y >= 0.913089f && !obstacles_.IntersectsCircle(x,z,radius);
+    }
+
+    bool SnakePopulation::IsUnderstoryMargin(
+        const JungleLayout& jungle, const float x, const float z) noexcept
+    {
+        if (!std::isfinite(x) || !std::isfinite(z)) return false;
+        float nearestSquared = 1000000.0f;
+        int neighbours = 0;
+        for (const auto& plant : jungle.Understory()) {
+            const float dx = x - plant.x, dz = z - plant.z;
+            const float distanceSquared = dx * dx + dz * dz;
+            nearestSquared = std::min(nearestSquared, distanceSquared);
+            if (distanceSquared <= 100.0f) ++neighbours;
+        }
+        for (const auto& bush : jungle.Bushes()) {
+            const float dx = x - bush.x, dz = z - bush.z;
+            if (dx * dx + dz * dz <= 64.0f) ++neighbours;
+        }
+        // Close enough to read as an understory edge, but not centred on a plant stem.
+        return nearestSquared >= 1.20f * 1.20f
+            && nearestSquared <= 5.25f * 5.25f && neighbours >= 4;
     }
 
     float SnakePopulation::GroundedY(const float x, const float z, const float radius) const
@@ -59,7 +93,65 @@ namespace island
         const std::span<const CircularObstacle> obstacles)
         : terrain_(terrain), obstacles_(obstacles), surface_(std::make_unique<RenderedTerrainSurface>(terrain))
     {
-        constexpr std::array<std::array<float,2>,Count> homes{{{-44,56},{70,-38},{-72,-70},{42,64}}};
+        Initialize(nullptr);
+    }
+
+    SnakePopulation::SnakePopulation(const IslandTerrain& terrain, const JungleLayout& jungle,
+        const std::span<const CircularObstacle> obstacles)
+        : terrain_(terrain), obstacles_(obstacles), surface_(std::make_unique<RenderedTerrainSurface>(terrain))
+    {
+        Initialize(&jungle);
+    }
+
+    void SnakePopulation::Initialize(const JungleLayout* jungle)
+    {
+        std::array<std::array<float,2>,Count> homes{{{-44,56},{70,-38},{-72,-70},{42,64}}};
+        if (jungle) {
+            struct Candidate { float x, z; std::uint32_t rank; };
+            std::vector<Candidate> candidates;
+            // A deterministic coprime stride samples the full authored distribution without
+            // turning startup into an all-pairs vegetation search.
+            candidates.reserve((jungle->Understory().size() / 7U + 1U) * 4U);
+            for (std::size_t plantIndex = 0; plantIndex < jungle->Understory().size(); plantIndex += 7U) {
+                const auto& plant = jungle->Understory()[plantIndex];
+                for (int direction = 0; direction < 4; ++direction) {
+                    const std::uint32_t rank = Mix(0x736e616bU
+                        + static_cast<std::uint32_t>(plantIndex * 4U + direction));
+                    const float angle = static_cast<float>(direction)
+                        * std::numbers::pi_v<float> * .5f
+                        + static_cast<float>(rank & 1023U) / 1023.0f * .42f;
+                    const float radius = 2.7f
+                        + static_cast<float>((rank >> 10U) & 1023U) / 1023.0f * 1.5f;
+                    const float x = plant.x + std::cos(angle) * radius;
+                    const float z = plant.z + std::sin(angle) * radius;
+                    if (!IsUnderstoryMargin(*jungle, x, z)) continue;
+                    SnakeState probe;
+                    probe.homeX = x; probe.homeZ = z;
+                    for (std::size_t station = 0; station < probe.body.size(); ++station) {
+                        const float px = x - static_cast<float>(station) * Spacing;
+                        probe.body[station] = {px, GroundedY(px, z, RadiusAt(station)), z};
+                    }
+                    if (ValidBody(probe)) candidates.push_back({x, z, rank});
+                }
+            }
+            std::stable_sort(candidates.begin(), candidates.end(), [](const auto& a, const auto& b) {
+                return a.rank < b.rank;
+            });
+            std::size_t count = 0;
+            for (const auto& candidate : candidates) {
+                bool separated = true;
+                for (std::size_t previous = 0; previous < count; ++previous) {
+                    separated = separated && std::hypot(candidate.x - homes[previous][0],
+                        candidate.z - homes[previous][1]) >= 52.0f;
+                }
+                if (!separated) continue;
+                homes[count++] = {candidate.x, candidate.z};
+                if (count == Count) break;
+            }
+            if (count != Count) {
+                throw std::runtime_error("No four separated understory-margin snake habitats");
+            }
+        }
         for (std::size_t index=0; index<Count; ++index) {
             bool found = false;
             auto& state = states_[index];

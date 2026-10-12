@@ -10,6 +10,7 @@
 
 namespace island
 {
+    class JungleLayout;
     struct SnakePoint { float x = 0.0f, y = 0.0f, z = 0.0f; };
     enum class SnakeBehavior { Rest, Explore, Retreat };
     struct SnakeState
@@ -33,15 +34,20 @@ namespace island
         static constexpr float MaximumRadius = 0.05f;
         static constexpr float HomeRadius = 18.0f;
         SnakePopulation(const IslandTerrain& terrain, std::span<const CircularObstacle> obstacles = {});
+        SnakePopulation(const IslandTerrain& terrain, const JungleLayout& jungle,
+                        std::span<const CircularObstacle> obstacles = {});
         void Update(float deltaSeconds, float observerX, float observerY, float observerZ);
         [[nodiscard]] std::span<const SnakeState> Snakes() const noexcept { return states_; }
         [[nodiscard]] const RenderedTerrainSurface& Surface() const noexcept { return *surface_; }
         [[nodiscard]] static float RadiusAt(std::size_t station) noexcept;
+        [[nodiscard]] static bool IsUnderstoryMargin(
+            const JungleLayout& jungle, float x, float z) noexcept;
         [[nodiscard]] bool ValidBody(const SnakeState& state) const;
 
     private:
         [[nodiscard]] float GroundedY(float x, float z, float radius) const;
         [[nodiscard]] bool ValidPoint(float x, float z, float radius) const;
+        void Initialize(const JungleLayout* jungle);
         const IslandTerrain& terrain_;
         WorldCollisionGrid obstacles_;
         std::unique_ptr<RenderedTerrainSurface> surface_;

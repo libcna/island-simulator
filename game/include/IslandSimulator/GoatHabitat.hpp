@@ -20,6 +20,9 @@ public:
     static constexpr std::size_t Count=6;
     static constexpr float BodyClearance=1.25f, TreeClearance=9.0f;
     static constexpr float MinimumSeparation=8.0f, HerdRadius=40.0f;
+    static constexpr float MaximumHabitatMoisture=.18f;
+    static constexpr float MaximumHabitatDrainage=.24f;
+    static constexpr float MaximumHabitatSaltExposure=.08f;
     static constexpr int CandidateCount=55*55;
     static constexpr std::uint32_t Seed=0x6f617431U;
     [[nodiscard]] static bool AcceptsGround(const IslandTerrain& terrain,

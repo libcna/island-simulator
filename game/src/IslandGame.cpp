@@ -182,7 +182,8 @@ namespace island
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
         boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
-        snakes_ = std::make_unique<SnakePopulation>(terrain_,worldCollisionGrid_.Obstacles());
+        snakes_ = std::make_unique<SnakePopulation>(
+            terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
         goats_ = std::make_unique<GoatHerd>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
         spiders_ = std::make_unique<SpiderColony>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
@@ -1124,7 +1125,11 @@ namespace island
         std::cout << "island-simulator: ground spiders " << spiders_->Spiders().size()
                   << " agents with retained stance anchors; webs not yet installed\n";
         std::cout << "island-simulator: goats " << goats_->Goats().size()
-                  << " agents on open slopes, terrain-fitted limbs, directional fur material\n";
+                  << " agents on shared-field dry open slopes, terrain-fitted limbs, directional fur material\n";
+        std::cout << "island-simulator: boars " << boarHerd_.Boars().size()
+                  << " agents in moist non-channel interior habitat\n";
+        std::cout << "island-simulator: snakes " << snakes_->Snakes().size()
+                  << " agents with separated dense-understory-margin homes\n";
         monkeyRenderer_ = std::move(monkeyRenderer);
         canopyLighting_ = std::move(canopyLighting);
         terrainHeightMap_ = std::move(terrainHeightMap);
@@ -1213,7 +1218,7 @@ namespace island
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
                   << "island-simulator: sea turtles " << seaTurtleGroup_.Turtles().size()
-                  << " agents in bounded near-shore cruise, forage, and surface routes\n"
+                  << " agents in bounded habitat routes, three based in the sheltered western bay\n"
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"

@@ -1,4 +1,5 @@
 #include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 
 #include <algorithm>
@@ -48,8 +49,13 @@ namespace island
     {
         if (!std::isfinite(x) || !std::isfinite(z)) return false;
         const auto sample = terrain_.Sample(x, z);
+        const auto environment = IslandEnvironmentField::SampleInland(
+            x, z, sample.signedShoreDistance);
         if (sample.signedShoreDistance < MinimumShoreDistance
-            || sample.height < 2.0f || sample.slopeRadians > MaximumSlope) return false;
+            || sample.height < 2.0f || sample.slopeRadians > MaximumSlope
+            || environment.moisture < MinimumHabitatMoisture
+            || environment.drainage > MaximumHabitatDrainage
+            || environment.saltExposure > MaximumHabitatSaltExposure) return false;
         for (const auto& obstacle : obstacles_) {
             if (std::hypot(x - obstacle.x, z - obstacle.z)
                 < obstacle.radius + CollisionRadius) return false;
@@ -59,8 +65,11 @@ namespace island
 
     void BoarHerd::Initialize(const std::size_t index)
     {
+        // Three pairs occupy the vegetated banks of the shared western drainage corridor.
+        // They are offset well outside the channel itself, but remain in genuinely damp
+        // interior ground instead of three arbitrary radial sectors.
         constexpr std::array<std::array<float, 2>, 3> Regions = {{
-            {-48.0f, 58.0f}, {68.0f, -32.0f}, {-66.0f, -72.0f}}};
+            {-72.0f, -49.0f}, {-92.0f, -46.0f}, {-112.0f, -42.0f}}};
         auto& agent = agents_[index];
         auto& state = agent.state;
         const auto& region = Regions[index / 2U];

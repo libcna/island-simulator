@@ -141,7 +141,8 @@ namespace
             monkeys.SetObstacles(collisionGrid.Obstacles());
             boars.SetObstacles(collisionGrid.Obstacles());
             // Match runtime ordering: snakes use the complete obstacle set, including the hut.
-            snakes=std::make_unique<island::SnakePopulation>(terrain,collisionGrid.Obstacles());
+            snakes=std::make_unique<island::SnakePopulation>(
+                terrain,jungle,collisionGrid.Obstacles());
             goats=std::make_unique<island::GoatHerd>(terrain,jungle,collisionGrid.Obstacles());
             spiders=std::make_unique<island::SpiderColony>(terrain,jungle,collisionGrid.Obstacles());
         }

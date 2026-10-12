@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest implementation — ecological wildlife placement, first pass
+
+Ecosystem-stage item 6 is now `[~]`, not complete. Existing crab sand habitat,
+butterfly clearings and canopy-adjacent spider homes were audited; fish already use
+shared reef/seagrass suitability. Boars now require shared-field moisture>=.16,
+drainage<=.74 and salt<=.12 and their three paired regions follow the vegetated western
+stream banks. Goats reject moisture>.18, drainage>.24 and salt>.08. Four production
+snake homes are deterministically selected from sampled dense-understory margins,
+with >=52m separation and fail-closed construction; legacy no-jungle constructors
+remain for isolated locomotion tests. Three of five turtle bases now occupy the
+sheltered western bay, while all five retain reef/seagrass routing. World fingerprint
+is `77a473eac55bb3e9`. Inspected llvmpipe `20261012T102822.874894Z-boars` PASS
+274bins/std18.04/spatial88.19 and `20261012T102941.088316Z-turtles` PASS
+268bins/std26.31/spatial104.02. Inspected `103005.681421Z-snakes` shows the animal
+between understory leaves but FAILS the generic scene threshold (std13.74), so is not
+accepted evidence. Next within item 6: closed-canopy monkey routing, wrack-aware crab
+bias, a stronger snake habitat camera, then portable/performance review. No AMD/KVM
+changes. Builds remain bounded to CPUs0-3 and `-j2`.
+
 ## Latest implementation — spatial reef plus habitat-routed fish/turtles
 
 NaturalPropLayout now has314 non-solid seabed-fitted reef instances selected by new

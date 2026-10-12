@@ -1,4 +1,5 @@
 #include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -45,6 +46,12 @@ int main()
             Check(boar.x == other.x && boar.z == other.z && boar.gaitPhase == other.gaitPhase,
                   "boar simulation must be deterministic");
             Check(herd.IsValidGround(boar.x, boar.z), "boar left valid obstacle-free habitat");
+            const auto inland = island::IslandEnvironmentField::SampleInland(
+                boar.x, boar.z, terrain.SignedShoreDistance(boar.x, boar.z));
+            Check(inland.moisture >= island::BoarHerd::MinimumHabitatMoisture
+                      && inland.drainage <= island::BoarHerd::MaximumHabitatDrainage
+                      && inland.saltExposure <= island::BoarHerd::MaximumHabitatSaltExposure,
+                  "boar left the shared damp, non-channel interior habitat");
             Check(std::hypot(boar.x - boar.homeX, boar.z - boar.homeZ) <= island::BoarHerd::HomeRadius,
                   "boar exceeded its bounded home range");
             Check(boar.y == terrain.Height(boar.x, boar.z), "boar ground contact drifted");

@@ -1,4 +1,5 @@
 #include "IslandSimulator/GoatHabitat.hpp"
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/GoatPose.hpp"
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -37,6 +38,12 @@ int main() {
         const auto p=(*homes)[i];
         check(p.y==surface.Sample(p.x,p.z).height,"home not on rendered ground");
         check(GoatHabitat::Accepts(terrain,surface,jungle,grid,p.x,p.z),"invalid selected home");
+        const auto inland=IslandEnvironmentField::SampleInland(
+            p.x,p.z,terrain.SignedShoreDistance(p.x,p.z));
+        check(inland.moisture<=GoatHabitat::MaximumHabitatMoisture
+                &&inland.drainage<=GoatHabitat::MaximumHabitatDrainage
+                &&inland.saltExposure<=GoatHabitat::MaximumHabitatSaltExposure,
+            "goat home is not in shared dry open-slope habitat");
         for(const auto& tree:jungle.Canopy())
             check(std::hypot(p.x-tree.x,p.z-tree.z)>=GoatHabitat::TreeClearance*tree.scale,
                 "home under nearby canopy tree");

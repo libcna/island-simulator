@@ -70,6 +70,17 @@ llvmpipe `101426.680059Z-reef-habitat` passes and was inspected, with 51/314 hab
 instances, three fish and one turtle submitted. Native performance comparison and
 Web/Android qualification remain. See [reef-seabed.md](docs/reef-seabed.md).
 
+Ecological-placement progress: existing crab, butterfly and spider habitat rules were
+audited; fish already share reef/seagrass suitability. Boars now remain on moist,
+low-salt interior ground outside the drainage channel, goats reject wet/drainage/salt
+ground, four snake homes are selected from separated dense-understory margins rather
+than hard-coded sectors, and three of five turtle homes now occupy the sheltered
+western bay. Long deterministic habitat tests pass. Inspected llvmpipe boar and turtle
+captures `102822.874894Z-boars` and `102941.088316Z-turtles` pass. The inspected snake
+capture was correctly rejected for low luminance variation and is not accepted visual
+evidence. Closed-canopy monkey routing, wrack-aware crab bias and portable review keep
+ecosystem-stage item 6 in progress.
+
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander
   states), while goats need varied bleats and restrained close breathing/hoof detail.

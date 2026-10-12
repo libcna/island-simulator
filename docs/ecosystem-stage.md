@@ -58,11 +58,22 @@ existing features, not a broad redesign.
    regression coverage. Two early captures were visually rejected and iterated;
    inspected `20261012T101426.680059Z-reef-habitat` submits 51 habitat instances,
    three fish and one turtle. Performance and Web/Android review remain.
-6. [ ] **Ecological placement of existing wildlife first.** Crabs on sand/wrack;
+6. [~] **Ecological placement of existing wildlife first.** Crabs on sand/wrack;
    butterflies in sunny clearings; snakes on dense-understory margins; spiders in
    forest/shrubs; boars in wetter interior; goats on dry open slopes; monkeys under
    more closed canopy; fish around reef/seagrass; turtles in calmer bay water.
    Use the shared environment field and preserve bounded valid routes/populations.
+   The first audited pass confirms the existing sand-constrained crab colonies,
+   clearing butterflies and canopy-adjacent spiders; fish already use the shared
+   reef/seagrass field. Boars now require moist, low-salt ground outside the live
+   drainage channel, goats require dry low-salt open slopes, four snake homes are
+   deterministically selected on separated dense-understory margins, and three of
+   five turtle ranges are based in the sheltered western bay. Long deterministic
+   habitat tests pass. Inspected llvmpipe `20261012T102822.874894Z-boars` and
+   `20261012T102941.088316Z-turtles` pass validation. The inspected snake image is
+   useful but rejected by the generic scene gate for low luminance variation, so it
+   is not accepted evidence. Closed-canopy monkey placement, wrack-aware crab bias,
+   portable review and a stronger snake habitat camera remain.
 7. [ ] **Four distinct coastal experiences.** Strengthen the existing broad beach,
    sheltered lagoon/bay, exposed rocky windward shore and mangrove stream mouth.
    Keep island outline/scale; make a coastal walk visibly vary in materials,
