@@ -16,6 +16,7 @@ namespace island
         float surfVolume = 0.0f;
         float breezeVolume = 0.0f;
         float jungleVolume = 0.0f;
+        float streamVolume = 0.0f;
     };
 
     /** @brief Original deterministic mono PCM used by one procedural ambient loop. */
@@ -33,6 +34,9 @@ namespace island
 
     /** @brief Generates a seamless twenty-nine-second subtle daytime-jungle bed. */
     [[nodiscard]] AmbientLoop GenerateJungleLoop();
+
+    /** @brief Generates a seamless thirteen-second close stream-water bed. */
+    [[nodiscard]] AmbientLoop GenerateStreamLoop();
 
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
     [[nodiscard]] AmbientLoop GenerateWaveAccent();
@@ -334,16 +338,19 @@ namespace island
         /** @brief Computes the steady-state mix at one player location. */
         [[nodiscard]] static SoundscapeMix TargetMix(float signedShoreDistance,
                                                      bool swimming,
-                                                     float coastalWindExposure=.5f) noexcept;
+                                                     float coastalWindExposure=.5f,
+                                                     float streamPresence=0.0f) noexcept;
 
         /** @brief Jumps to the correct mix, used before playback begins. */
         void Reset(float signedShoreDistance, bool swimming,
-                   float coastalWindExposure=.5f) noexcept;
+                   float coastalWindExposure=.5f,
+                   float streamPresence=0.0f) noexcept;
 
         /** @brief Advances click-free zone crossfades. */
         [[nodiscard]] SoundscapeMix Update(float signedShoreDistance, bool swimming,
                                            float deltaSeconds,
-                                           float coastalWindExposure=.5f) noexcept;
+                                           float coastalWindExposure=.5f,
+                                           float streamPresence=0.0f) noexcept;
 
         [[nodiscard]] const SoundscapeMix& Mix() const noexcept { return mix_; }
 

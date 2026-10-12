@@ -47,6 +47,7 @@
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
+#include "IslandSimulator/StreamSoundField.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
 #include "IslandSimulator/TidePoolLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
@@ -1003,6 +1004,8 @@ int main()
     const island::AmbientLoop breezeLoop = island::GenerateBreezeLoop();
     const island::AmbientLoop jungleLoop = island::GenerateJungleLoop();
     const island::AmbientLoop repeatedJungleLoop = island::GenerateJungleLoop();
+    const island::AmbientLoop streamLoop = island::GenerateStreamLoop();
+    const island::AmbientLoop repeatedStreamLoop = island::GenerateStreamLoop();
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
     const island::AmbientLoop waveAccentAlternate = island::GenerateWaveAccentAlternate();
     const island::AmbientLoop waterMovementLoop = island::GenerateWaterMovementLoop();
@@ -1030,6 +1033,8 @@ int main()
           "procedural ambient loops have their intended staggered portable lengths");
     Check(jungleLoop.sampleRate == 22050 && jungleLoop.samples.size() == 639450U,
           "daytime-jungle ambience has its intended twenty-nine-second portable format");
+    Check(streamLoop.sampleRate == 22050 && streamLoop.samples.size() == 286650U,
+          "stream ambience has its intended thirteen-second portable format");
     Check(waveAccent.sampleRate == 22050 && waveAccent.samples.size() == 88200U
               && waveAccentAlternate.sampleRate == 22050
               && waveAccentAlternate.samples.size() == 88200U,
@@ -1037,19 +1042,20 @@ int main()
     Check(waterMovementLoop.sampleRate == 22050
               && waterMovementLoop.samples.size() == 154350U,
           "player water movement has its intended seven-second portable format");
-    const std::array<std::size_t, 4> persistentLoopSeconds = {
+    const std::array<std::size_t, 5> persistentLoopSeconds = {
         surfLoop.samples.size() / 22050U,
         breezeLoop.samples.size() / 22050U,
         jungleLoop.samples.size() / 22050U,
         waterMovementLoop.samples.size() / 22050U,
+        streamLoop.samples.size() / 22050U,
     };
     const std::size_t combinedLoopPeriod = std::accumulate(
         persistentLoopSeconds.begin(), persistentLoopSeconds.end(), std::size_t{1U},
         [](const std::size_t left, const std::size_t right) {
             return std::lcm(left, right);
         });
-    Check(combinedLoopPeriod == 22330U,
-          "persistent ambience avoids a complete repeated phase alignment for over six hours");
+    Check(combinedLoopPeriod == 290290U,
+          "persistent ambience avoids complete phase realignment for over eighty hours");
     Check(waterTransitionAccent.sampleRate == 22050
               && waterTransitionAccent.samples.size() == 33075U
               && waterTransitionAccentAlternate.sampleRate == 22050
@@ -1076,6 +1082,8 @@ int main()
           "procedural player water movement generation is deterministic");
     Check(jungleLoop.samples == repeatedJungleLoop.samples,
           "procedural daytime-jungle generation is deterministic");
+    Check(streamLoop.samples == repeatedStreamLoop.samples,
+          "procedural stream generation is deterministic");
     Check(waveAccent.samples != waveAccentAlternate.samples,
           "stronger-wave variants contain genuinely different source PCM");
     Check(waterTransitionAccent.samples != waterTransitionAccentAlternate.samples,
@@ -1113,6 +1121,8 @@ int main()
           "procedural ambience contains meaningful audible energy");
     Check(peakMagnitude(jungleLoop) < 32767 && rootMeanSquare(jungleLoop) > 700.0,
           "daytime-jungle ambience is audible while retaining mixing headroom");
+    Check(peakMagnitude(streamLoop) < 32767 && rootMeanSquare(streamLoop) > 700.0,
+          "stream ambience is audible while retaining mixing headroom");
     Check(peakMagnitude(waveAccent) < 32767 && rootMeanSquare(waveAccent) > 900.0,
           "stronger-wave accent is audible while retaining mixing headroom");
     Check(peakMagnitude(waveAccentAlternate) < 32767
@@ -1178,8 +1188,11 @@ int main()
     Check(std::abs(static_cast<int>(waterMovementLoop.samples.front())
                    - static_cast<int>(waterMovementLoop.samples.back())) < 8000,
           "player water movement loop has no large boundary discontinuity");
+    Check(std::abs(static_cast<int>(streamLoop.samples.front())
+                   - static_cast<int>(streamLoop.samples.back())) < 8000,
+          "stream loop has no large boundary discontinuity");
     for (const island::AmbientLoop* loop : {
-             &surfLoop, &breezeLoop, &jungleLoop, &waterMovementLoop}) {
+             &surfLoop, &breezeLoop, &jungleLoop, &waterMovementLoop, &streamLoop}) {
         Check(std::abs(island::AnalyzeAudioSignal(*loop).mean) <= 0.0001,
               "persistent ambience removes material DC before PCM quantization");
     }
@@ -1189,6 +1202,10 @@ int main()
     const island::SoundscapeMix swimmingMix = island::SoundscapeModel::TargetMix(-8.0f, true);
     const island::SoundscapeMix forcedInlandSwimmingMix =
         island::SoundscapeModel::TargetMix(140.0f, true);
+    const island::SoundscapeMix wetInteriorMix =
+        island::SoundscapeModel::TargetMix(80.0f, false, 0.5f, 1.0f);
+    const island::SoundscapeMix dryInteriorMix =
+        island::SoundscapeModel::TargetMix(80.0f, false, 0.5f, 0.0f);
     Check(beachMix.surfVolume > jungleMix.surfVolume,
           "surf is louder at the beach than deep inland");
     Check(jungleMix.breezeVolume > beachMix.breezeVolume,
@@ -1200,6 +1217,28 @@ int main()
           "jungle texture is audible inland and explicitly attenuated while swimming");
     Check(swimmingMix.surfVolume >= 0.35f && swimmingMix.breezeVolume < beachMix.breezeVolume,
           "swimming emphasizes nearby water while softening canopy breeze");
+    Check(wetInteriorMix.streamVolume >= 0.22f
+              && dryInteriorMix.streamVolume == 0.0f
+              && wetInteriorMix.jungleVolume > dryInteriorMix.jungleVolume
+              && wetInteriorMix.breezeVolume < dryInteriorMix.breezeVolume,
+          "the local stream biome adds flowing water and denser damp-jungle ambience");
+    const auto nearStream = island::StreamSoundField::Sample(
+        island::StreamRoute::SourceX - 48.0f,
+        island::StreamRoute::CentreZ(island::StreamRoute::SourceX - 48.0f));
+    const auto farFromStream = island::StreamSoundField::Sample(120.0f, 120.0f);
+    const auto invalidStream = island::StreamSoundField::Sample(
+        std::numeric_limits<float>::quiet_NaN(), 0.0f);
+    Check(nearStream.valid && nearStream.distance < 0.01f && nearStream.presence > 0.999f
+              && farFromStream.valid && farFromStream.presence == 0.0f
+              && !invalidStream.valid && invalidStream.presence == 0.0f,
+          "stream sound field follows the shared route and fails safely for invalid listeners");
+    Check(island::StreamSoundField::ShouldUseStreamPlayback(false, 0.02f, false)
+              && island::StreamSoundField::ShouldUseStreamPlayback(false, 0.01f, true)
+              && !island::StreamSoundField::ShouldUseStreamPlayback(false, 0.01f, false)
+              && !island::StreamSoundField::ShouldUseStreamPlayback(true, 1.0f, true)
+              && !island::StreamSoundField::ShouldUseStreamPlayback(false,
+                  std::numeric_limits<float>::quiet_NaN(), true),
+          "stream and player-water share one voice with finite hysteretic arbitration");
     const float eastExposure=island::CoastalWindResponse::Exposure(230.0f,0.0f,2.0f);
     const float westExposure=island::CoastalWindResponse::Exposure(-180.0f,0.0f,2.0f);
     const auto eastCoastMix=island::SoundscapeModel::TargetMix(2.0f,false,eastExposure);
@@ -1223,7 +1262,8 @@ int main()
               && std::isfinite(invalidPositionMix.jungleVolume)
               && invalidPositionMix.surfVolume == 0.0f
               && invalidPositionMix.breezeVolume == 0.0f
-              && invalidPositionMix.jungleVolume == 0.0f,
+              && invalidPositionMix.jungleVolume == 0.0f
+              && invalidPositionMix.streamVolume == 0.0f,
           "non-finite soundscape positions fail closed to a finite silent target");
     island::SoundscapeModel soundscapeModel;
     soundscapeModel.Reset(2.0f, false);
@@ -1232,7 +1272,8 @@ int main()
         140.0f, false, std::numeric_limits<float>::infinity());
     Check(afterInvalidDelta.surfVolume == beforeInvalidDelta.surfVolume
               && afterInvalidDelta.breezeVolume == beforeInvalidDelta.breezeVolume
-              && afterInvalidDelta.jungleVolume == beforeInvalidDelta.jungleVolume,
+              && afterInvalidDelta.jungleVolume == beforeInvalidDelta.jungleVolume
+              && afterInvalidDelta.streamVolume == beforeInvalidDelta.streamVolume,
           "non-finite soundscape time cannot poison or advance the current mix");
     const float initialSurfVolume = soundscapeModel.Mix().surfVolume;
     for (int step = 0; step < 300; ++step) {

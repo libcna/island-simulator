@@ -258,12 +258,15 @@ their existing head bone
 toward a nearby player within a restrained angle, then relax or retreat without becoming hostile.
 The current audio pass adds original procedural shoreline surf, two
 varied occasional stronger waves, light canopy breeze, a subtle daytime-jungle texture,
+one positional flowing-stream layer following the shared watercourse,
 speed/depth-responsive movement through shallow or swimming water, and two restrained
 water-entry/exit textures. The same continuous water layer now develops a subtle deeper undertow
 bed as the 42--72 m offshore current strengthens, without adding another persistent source. Two
 bird phrases and two monkey contact phrases share one positional
-voice attached to actual nearby agents. All four persistent loops remove their measured mean
+voice attached to actual nearby agents. All five generated loops remove their measured mean
 before PCM quantization, avoiding long-lived DC bias without altering one-shot silent endpoints.
+Stream and player-water playback share one active voice, so no more than four ambient loops run
+concurrently.
 Distance-scheduled player footsteps select paired dry-sand or interior-soil textures from actual
 resolved travel, vary pitch/pan/gain, and remain silent while swimming or blocked.
 All audio is generated without external sound files. The

@@ -26,7 +26,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 24 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 25 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -51,13 +51,13 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains four loop beds and twenty one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 3.57 MiB plus headers. Delete the directory after review;
+The directory contains five loop beds and twenty one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. They total about 4.12 MiB plus headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
 
-1. Loop `surf.wav`, `breeze.wav`, `jungle.wav`, and `water-movement.wav` for at least two minutes
+1. Loop `surf.wav`, `breeze.wav`, `jungle.wav`, `stream.wav`, and `water-movement.wav` for at least two minutes
    each. Listen specifically for the boundary, tonal whistles, obvious short repetition, harsh
    high-frequency noise, and low-frequency pressure.
 2. Compare both stronger-wave and water-transition variants at matched playback volume. They should
@@ -83,6 +83,24 @@ offshore-current field for at least 20 minutes. Record silence, abrupt zone chan
 repetition, directional confusion, and fatigue in `PLAN.md`. Use F1 to observe layer gains and F2
 to compare audible calls with exact source markers. Numerical success alone does not complete this
 subjective task.
+
+## Stream loop and local wet sound biome (2026-10-12)
+
+One original deterministic thirteen-second loop combines several circularly filtered noise
+bands with restrained pebble-scale modulation. `StreamSoundField` projects the listener onto 32
+segments of the authoritative `StreamRoute`; gain is full within 4m and smoothly reaches silence
+at 34m. The positional emitter follows that nearest route point, so one voice covers the whole
+approximately 102m meandering watercourse without a chain of emitters. Near the stream, the
+existing jungle bed gains at most 0.024 while canopy breeze falls by at most twelve percent.
+
+The stream instance and player-water instance are both allocated, but only one plays: dry land
+near the stream selects the stream, while swimming or leaving its audible field restores player
+water. This preserves the existing four-active-ambient plus two-transient, six-source ceiling and
+therefore does not starve footsteps or animal calls. The report now validates 25 unique clips and
+4,315,184 PCM bytes. Core tests cover route projection, falloff, invalid input, biome mix,
+determinism, DC centering, signal energy and a combined five-loop phase period of 290,290 seconds.
+The independent WAV export passes. These are implementation and numerical results; actual spatial
+listening, full route walking, switch/mute behavior and Web/Android lifecycle remain open.
 
 ## Snake hiss implementation and unverified listening (2026-10-12)
 

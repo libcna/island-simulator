@@ -1,5 +1,16 @@
 # island-simulator handoff
 
+## Latest implementation — positional stream audio and wet local mix
+
+New deterministic 13s procedural stream PCM follows the nearest point of the authoritative
+`StreamRoute` through a finite 4–34m `StreamSoundField`. Near the channel it adds <=.024 to
+jungle ambience and softens breeze <=12%. It shares the otherwise silent land-side player-water
+playback slot: four ambient sources plus at most two transients remain, so wildlife/footsteps are
+not starved. Report inventory is 25 unique clips / 4,315,184 PCM bytes; five loop lengths realign
+after 290,290s. Full build, Core and independent WAV export PASS; actual spatial listening,
+swim/mute switching and Web/Android lifecycle remain, so ecosystem item12 is `[~]`. Build used
+CPUs0-3/-j2; no Android/KVM/AMD changes.
+
 ## Latest implementation — wind-aware coast and ambience
 
 New `CoastalWindResponse` is neutral away from shore, ~.25 in the western lee and 1 on

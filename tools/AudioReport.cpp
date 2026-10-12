@@ -163,13 +163,15 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(24U);
+        clips.reserve(25U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
                          island::GenerateBreezeLoop()});
         clips.push_back({"daytime jungle", "jungle.wav", true, 639450U,
                          island::GenerateJungleLoop()});
+        clips.push_back({"flowing stream", "stream.wav", true, 286650U,
+                         island::GenerateStreamLoop()});
         clips.push_back({"player water movement", "water-movement.wav", true, 154350U,
                          island::GenerateWaterMovementLoop()});
         clips.push_back({"stronger wave A", "stronger-wave-a.wav", false, 88200U,

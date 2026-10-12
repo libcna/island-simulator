@@ -348,6 +348,34 @@ namespace island
         return Quantize(samples, 0.56f, true);
     }
 
+    AmbientLoop GenerateStreamLoop()
+    {
+        constexpr int loopSeconds = 13;
+        constexpr std::size_t frameCount = static_cast<std::size_t>(
+            AmbientSampleRate * loopSeconds);
+        const std::vector<float> noise = Noise(0x57ea6d21U, frameCount);
+        const std::vector<float> droplets = CircularSmooth(noise, 2U);
+        const std::vector<float> trickle = CircularSmooth(noise, 17U);
+        const std::vector<float> bed = CircularSmooth(noise, 240U);
+        const std::vector<float> current = CircularSmooth(noise, 1750U);
+        std::vector<float> samples(frameCount);
+        for (std::size_t index = 0; index < samples.size(); ++index) {
+            const float phase = static_cast<float>(index)
+                / static_cast<float>(samples.size());
+            const float flow = 0.58f
+                + 0.15f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (3.0f * phase + 0.11f))
+                + 0.08f * std::sin(2.0f * std::numbers::pi_v<float>
+                                   * (8.0f * phase + 0.43f));
+            const float pebble = std::sin(2.0f * std::numbers::pi_v<float>
+                                          * (61.0f * phase + 0.2f));
+            samples[index] = ((droplets[index] - trickle[index] * 0.22f) * 0.48f
+                              + trickle[index] * 0.62f + bed[index] * 0.46f) * flow
+                + current[index] * 0.52f + pebble * trickle[index] * 0.035f;
+        }
+        return Quantize(samples, 0.62f, true);
+    }
+
     AmbientLoop GenerateWaveAccent()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 4);
@@ -1071,7 +1099,8 @@ namespace island
 
     SoundscapeMix SoundscapeModel::TargetMix(const float signedShoreDistance,
                                              const bool swimming,
-                                             const float coastalWindExposure) noexcept
+                                             const float coastalWindExposure,
+                                             const float streamPresence) noexcept
     {
         if (!std::isfinite(signedShoreDistance)) {
             return {};
@@ -1086,6 +1115,11 @@ namespace island
         result.breezeVolume = 0.075f + canopyPresence * 0.12f;
         result.jungleVolume = SmoothStep(
             JungleFadeStartDistance, JungleFadeEndDistance, inlandDistance) * 0.078f;
+        const float safeStreamPresence = std::isfinite(streamPresence)
+            ? std::clamp(streamPresence, 0.0f, 1.0f) : 0.0f;
+        result.streamVolume = safeStreamPresence * 0.23f;
+        result.jungleVolume += safeStreamPresence * 0.024f;
+        result.breezeVolume *= 1.0f - safeStreamPresence * 0.12f;
         const float windScale=CoastalWindResponse::AmbientScale(coastalWindExposure);
         result.surfVolume*=windScale;
         result.breezeVolume*=windScale;
@@ -1093,22 +1127,27 @@ namespace island
             result.surfVolume = std::max(result.surfVolume, 0.35f);
             result.breezeVolume *= 0.72f;
             result.jungleVolume *= 0.08f;
+            result.streamVolume *= 0.45f;
         }
         return result;
     }
 
     void SoundscapeModel::Reset(const float signedShoreDistance, const bool swimming,
-                                const float coastalWindExposure) noexcept
+                                const float coastalWindExposure,
+                                const float streamPresence) noexcept
     {
-        mix_ = TargetMix(signedShoreDistance, swimming,coastalWindExposure);
+        mix_ = TargetMix(signedShoreDistance, swimming, coastalWindExposure,
+                         streamPresence);
         variationSeconds_ = 0.0;
     }
 
     SoundscapeMix SoundscapeModel::Update(const float signedShoreDistance, const bool swimming,
                                           const float deltaSeconds,
-                                          const float coastalWindExposure) noexcept
+                                          const float coastalWindExposure,
+                                          const float streamPresence) noexcept
     {
-        SoundscapeMix target = TargetMix(signedShoreDistance, swimming,coastalWindExposure);
+        SoundscapeMix target = TargetMix(signedShoreDistance, swimming,
+                                         coastalWindExposure, streamPresence);
         const float safeDelta = SafeDeltaSeconds(deltaSeconds);
         variationSeconds_ += static_cast<double>(safeDelta);
         // Long, mismatched periods keep stationary ambience from becoming a fixed wall of sound.
@@ -1116,11 +1155,13 @@ namespace island
         target.surfVolume *= SlowBedGain(variationSeconds_, 0.035f, 0.033, 0.071);
         target.breezeVolume *= SlowBedGain(variationSeconds_, 0.075f, 0.024, 0.055);
         target.jungleVolume *= SlowBedGain(variationSeconds_, 0.055f, 0.029, 0.063);
+        target.streamVolume *= SlowBedGain(variationSeconds_, 0.045f, 0.026, 0.067);
         const float blend = 1.0f - std::exp(-safeDelta / 1.8f);
         const float jungleBlend = 1.0f - std::exp(-safeDelta / 2.6f);
         mix_.surfVolume += (target.surfVolume - mix_.surfVolume) * blend;
         mix_.breezeVolume += (target.breezeVolume - mix_.breezeVolume) * blend;
         mix_.jungleVolume += (target.jungleVolume - mix_.jungleVolume) * jungleBlend;
+        mix_.streamVolume += (target.streamVolume - mix_.streamVolume) * blend;
         return mix_;
     }
 }

@@ -1324,7 +1324,8 @@ namespace island
                                                  playerMotion_.VelocityZ());
         (void)soundscape_->Start(
             shoreDistance, swimming, waterDepth, horizontalSpeed,
-            playerMotion_.OceanCurrentStrength(terrain_),windExposure);
+            playerMotion_.OceanCurrentStrength(terrain_), windExposure,
+            position.x, position.z);
         soundscapeNeedsGesture_ = false;
     }
 

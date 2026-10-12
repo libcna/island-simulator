@@ -59,6 +59,22 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Latest implementation — positional stream audio and wet local mix
+
+Ecosystem item 12 is now `[~]`. One original deterministic thirteen-second flowing-water
+loop follows the nearest projection onto the same 32-segment `StreamRoute` used by terrain
+and water. Presence is full inside 4m and fades smoothly to silence at 34m; the local mix
+adds at most 0.024 jungle gain and removes at most twelve percent of canopy breeze. Existing
+coastal-wind response already distinguishes exposed headland from sheltered bay.
+
+The stream dynamically exchanges playback with the land-silent player-water instance, so the
+runtime still has exactly four active ambient voices and at most two transients. Footsteps,
+bird/monkey/boar/snake calls and water transitions therefore retain their previous arbitration
+and the six-source cap. The deterministic report now covers 25 unique clips / 4,315,184 PCM
+bytes; the five generated loop periods align only every 290,290 seconds. CPU field/mix/signal
+tests, full build and independent WAV export pass. Actual spatial listening along the route,
+dry/swim switching, mute lifecycle and Web/Android runtime evidence remain before `[x]`.
+
 ## New highest-priority ecosystem stage — 2026-10-12
 
 The user's complete ordered 17-point request is recorded as an unchecked execution

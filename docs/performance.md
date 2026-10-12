@@ -1233,8 +1233,9 @@ The first audio implementation generated all sixteen sources, retained their com
 PCM bytes, converted all sixteen into another 3,336,164 bytes, and only then constructed CNA audio
 objects. Those source and conversion vectors remained alive together even though the backend
 copies each submitted buffer. The revised path generates, converts, uploads, and releases one
-source before beginning the next. The exact source PCM, effects, four persistent instances, twelve
-one-shot effects, and six-voice runtime ceiling are unchanged.
+source before beginning the next. The current inventory is 25 sources / 4,315,184 PCM bytes:
+five loop effects (stream and player-water are mutually exclusive at playback), twenty one-shot
+effects, four concurrent ambient voices, and the unchanged six-voice runtime ceiling.
 
 This removes 6,672,328 bytes of simultaneously retained whole-set game staging. The largest
 remaining source-plus-conversion pair is the 29-second jungle bed at 2,557,800 bytes, a reduction
@@ -1247,10 +1248,10 @@ runtime memory are not newly claimed while the operator-visible Linux build rema
 
 ### Persistent-loop DC centering
 
-The four persistent procedural beds now subtract their generated floating-point mean before
+The five procedural loop beds now subtract their generated floating-point mean before
 deriving peak normalization and PCM16 samples. This is one additional bounded read pass per loop
 during startup; it allocates no buffer, adds no PCM byte, source, voice, or per-frame work, and
-leaves the twelve silent-ended one-shots unchanged. The measured normalized loop means fall from as
+leaves the twenty silent-ended one-shots unchanged. The measured normalized loop means fall from as
 much as 0.00646980 to at most approximately 0.00000002, while peak, RMS, seam, and zero-crossing
 checks remain valid.
 

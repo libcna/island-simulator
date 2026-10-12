@@ -253,9 +253,10 @@ otherwise empty build-owned directory to protect the present contract.
    depth and horizontal speed. The same finite-safe model detects moving wet/dry crossings with
    7.5/2.5 cm hysteresis, a 1.6-second cooldown, and a bounded 1.6-second transition phase; the
    ocean shader consumes both states without another render submission.
-8. `SoundscapeModel` derives surf/breeze/jungle targets and player-water gain/pitch/undertow from
-   authoritative shoreline, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
-   to four persistent CNA loop instances and schedules bounded wave/water accents, resolved-travel
+8. `SoundscapeModel` derives surf/breeze/jungle/stream targets and player-water gain/pitch/undertow from
+   authoritative shoreline, the shared stream route, support-depth, locomotion, velocity, and current state; `Soundscape` applies smoothed changes
+   to four concurrently active CNA loop instances (stream and player-water dynamically share one
+   active voice) and schedules bounded wave/water accents, resolved-travel
    sand/soil footsteps, plus one pooled positional bird/monkey call voice from nearby wildlife
    state.
 9. `BirdFlock`, `CrabColony`, `ButterflyMeadow`, `SeaTurtleGroup`, `FishSchools`, `SharkPatrol`,
@@ -1375,12 +1376,13 @@ or startup work. The drift depths are capped at 3.5, 7.5, and 5.5 percent respec
 to unity, so existing maximum volume budgets remain unchanged and zone crossfades still prevent
 hard edges.
 
-The four persistent beds use 10, 11, 29, and 7 second loop lengths. Their combined sample-aligned
-pattern therefore does not recur for 22,330 seconds (6 hours, 12 minutes, 10 seconds). The longer
-jungle source deliberately spends a modest additional 749,700 PCM bytes on reducing the most
+The five generated beds use 10, 11, 29, 7, and 13 second loop lengths. Their combined sample-aligned
+pattern therefore does not recur for 290,290 seconds (over 80 hours). Only four play concurrently:
+the local stream and player-water loops exchange one voice according to proximity and swimming.
+The longer jungle source deliberately spends a modest additional 749,700 PCM bytes on reducing the most
 recognizable local repetition rather than adding another simultaneous source.
 
-Before PCM16 quantization, each persistent bed measures and subtracts its generated floating-point
+Before PCM16 quantization, each generated loop bed measures and subtracts its floating-point
 mean. The quantizer then derives peak normalization from the centred samples in a second bounded
 pass, adding no intermediate allocation or PCM payload. One-shots deliberately retain their
 separate path so their explicitly silent first and last samples cannot be shifted away from zero.
@@ -1399,10 +1401,10 @@ bed capped at 0.08 gain, so the safety feedback does not consume a fifth persist
 persistent loop avoids the rapid repeated one-shot cadence common to footstep-style water effects,
 while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
 state-transition chatter. All current procedural
-PCM payloads total 3,336,164 bytes (about 3.18 MiB) before backend bookkeeping, including the
+PCM payloads total 4,315,184 bytes (about 4.12 MiB) before backend bookkeeping, including the
 wildlife phrases described below. `Soundscape::Start` generates, converts, uploads, and releases
-one source at a time. It therefore no longer retains all 3,336,164 PCM bytes and a second
-3,336,164-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
+one source at a time. It therefore does not retain all 4,315,184 PCM bytes and a second
+4,315,184-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
 bed at 2,557,800 bytes. Backend-owned decoded audio remains unchanged.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water

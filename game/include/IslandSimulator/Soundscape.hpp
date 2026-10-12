@@ -7,6 +7,7 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/SoundscapeModel.hpp"
+#include "IslandSimulator/StreamSoundField.hpp"
 
 namespace Microsoft::Xna::Framework::Audio
 {
@@ -57,7 +58,8 @@ namespace island
         /** @brief Builds PCM and begins the looping layers, or records a graceful device failure. */
         bool Start(float signedShoreDistance, bool swimming, float waterDepth,
                    float horizontalSpeed, float oceanCurrentStrength,
-                   float coastalWindExposure=.5f) noexcept;
+                   float coastalWindExposure=.5f,
+                   float playerX=0.0f, float playerZ=0.0f) noexcept;
 
         /** @brief Advances location-driven crossfades for active playback. */
         void Update(float signedShoreDistance, bool swimming, float waterDepth,
@@ -155,6 +157,10 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> breezeInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> jungleEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> jungleInstance_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> streamEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> streamInstance_;
+        StreamSoundSample streamSound_;
+        bool streamPlaybackActive_ = false;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> waveInstance_;

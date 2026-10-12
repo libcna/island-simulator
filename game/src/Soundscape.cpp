@@ -35,6 +35,8 @@ namespace island
             "island-simulator: ambient beds use slow non-amplifying gain drift";
         constexpr std::string_view CoastalWindMixDiagnostic =
             "island-simulator: surf and breeze gains follow bounded coastal wind exposure";
+        constexpr std::string_view StreamSoundDiagnostic =
+            "island-simulator: positional stream loop follows the nearest shared-route point";
         constexpr std::string_view FootstepEnabledDiagnostic =
             "island-simulator: distance-scheduled sand and soil footsteps enabled";
         constexpr std::string_view FootstepPlaybackDiagnostic =
@@ -135,18 +137,21 @@ namespace island
     bool Soundscape::Start(const float signedShoreDistance, const bool swimming,
                            const float waterDepth, const float horizontalSpeed,
                            const float oceanCurrentStrength,
-                           const float coastalWindExposure) noexcept
+                           const float coastalWindExposure,
+                           const float playerX, const float playerZ) noexcept
     {
         if (startAttempted_) {
             return available_;
         }
         startAttempted_ = true;
-        model_.Reset(signedShoreDistance, swimming,coastalWindExposure);
+        streamSound_ = StreamSoundField::Sample(playerX, playerZ);
+        model_.Reset(signedShoreDistance, swimming, coastalWindExposure,
+                     streamSound_.presence);
         waterMovementModel_.Reset(
             waterDepth, swimming, horizontalSpeed, oceanCurrentStrength);
         try {
-            // Generate, upload, and release one source at a time. Retaining all sixteen PCM
-            // vectors plus all sixteen byte copies here raised transient startup memory for no
+            // Generate, upload, and release one source at a time. Retaining every PCM vector
+            // plus every byte copy here raised transient startup memory for no
             // playback benefit, especially on Web and Android.
             surfEffect_ = CreateLoopedSoundEffect(GenerateSurfLoop());
             surfEffect_->setNameProperty("Procedural shoreline surf");
@@ -164,6 +169,12 @@ namespace island
             jungleInstance_ = std::make_unique<SoundEffectInstance>(
                 jungleEffect_->CreateInstance());
             jungleInstance_->setIsLoopedProperty(true);
+
+            streamEffect_ = CreateLoopedSoundEffect(GenerateStreamLoop());
+            streamEffect_->setNameProperty("Procedural flowing stream");
+            streamInstance_ = std::make_unique<SoundEffectInstance>(
+                streamEffect_->CreateInstance());
+            streamInstance_->setIsLoopedProperty(true);
 
             waveEffect_ = CreateOneShotSoundEffect(GenerateWaveAccent());
             waveEffect_->setNameProperty("Procedural stronger wave");
@@ -233,11 +244,19 @@ namespace island
             surfInstance_->Play();
             breezeInstance_->Play();
             jungleInstance_->Play();
-            waterMovementInstance_->Play();
+            streamPlaybackActive_ = StreamSoundField::ShouldUseStreamPlayback(
+                swimming, streamSound_.presence, false);
+            if (streamPlaybackActive_) {
+                streamInstance_->Play();
+            } else {
+                waterMovementInstance_->Play();
+            }
             if (surfInstance_->getStateProperty() != SoundState::Playing
                 || breezeInstance_->getStateProperty() != SoundState::Playing
                 || jungleInstance_->getStateProperty() != SoundState::Playing
-                || waterMovementInstance_->getStateProperty() != SoundState::Playing) {
+                || (streamPlaybackActive_
+                    ? streamInstance_->getStateProperty() != SoundState::Playing
+                    : waterMovementInstance_->getStateProperty() != SoundState::Playing)) {
                 throw std::runtime_error("CNA did not transition all looping tracks to Playing");
             }
             waveScheduler_.Reset();
@@ -260,6 +279,7 @@ namespace island
             std::cout << AmbientVariationDiagnostic << '\n';
             std::cout << CoastalWindMixDiagnostic << '\n';
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
+            std::cout << StreamSoundDiagnostic << '\n';
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
             std::cout << "island-simulator: two water-transition variants enabled\n";
@@ -279,6 +299,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog(DcCenteringDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(AmbientVariationDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(CoastalWindMixDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(StreamSoundDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(FootstepEnabledDiagnostic);
 #endif
             return true;
@@ -288,6 +309,9 @@ namespace island
             breezeInstance_.reset();
             jungleInstance_.reset();
             jungleEffect_.reset();
+            streamInstance_.reset();
+            streamEffect_.reset();
+            streamPlaybackActive_ = false;
             waterMovementInstance_.reset();
             waterTransitionInstance_.reset();
             footstepInstance_.reset();
@@ -406,9 +430,28 @@ namespace island
             }
         }
 
-        (void)model_.Update(signedShoreDistance, swimming, safeDelta,coastalWindExposure);
+        streamSound_ = StreamSoundField::Sample(listenerState.x, listenerState.z);
+        (void)model_.Update(signedShoreDistance, swimming, safeDelta,
+                            coastalWindExposure, streamSound_.presence);
         (void)waterMovementModel_.Update(
             waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
+        const bool wantsStreamPlayback = StreamSoundField::ShouldUseStreamPlayback(
+            swimming, streamSound_.presence, streamPlaybackActive_);
+        if (available_ && wantsStreamPlayback != streamPlaybackActive_) {
+            try {
+                if (wantsStreamPlayback) {
+                    waterMovementInstance_->Stop();
+                    streamInstance_->Play();
+                } else {
+                    streamInstance_->Stop();
+                    waterMovementInstance_->Play();
+                }
+                streamPlaybackActive_ = wantsStreamPlayback;
+            } catch (const std::exception& exception) {
+                DisableAfterRuntimeFailure(exception.what());
+                return;
+            }
+        }
         ApplyVolumes();
 
         AudioListener listener;
@@ -419,6 +462,19 @@ namespace island
         listener.setUpProperty(Vector3::Up);
         listener.setVelocityProperty(Vector3(
             listenerState.velocityX, 0.0f, listenerState.velocityZ));
+
+        if (available_ && streamPlaybackActive_ && streamInstance_ && streamSound_.valid) {
+            try {
+                AudioEmitter emitter;
+                emitter.setPositionProperty(Vector3(
+                    streamSound_.x, listenerState.y, streamSound_.z));
+                emitter.setDopplerScaleProperty(0.0f);
+                streamInstance_->Apply3D(listener, emitter);
+            } catch (const std::exception& exception) {
+                DisableAfterRuntimeFailure(exception.what());
+                return;
+            }
+        }
 
         if (wildlifeInstance_) {
             try {
@@ -791,7 +847,7 @@ namespace island
     void Soundscape::ApplyVolumes() noexcept
     {
         if (!available_ || !surfInstance_ || !breezeInstance_ || !jungleInstance_
-            || !waterMovementInstance_) {
+            || !streamInstance_ || !waterMovementInstance_) {
             return;
         }
         try {
@@ -799,6 +855,7 @@ namespace island
             surfInstance_->setVolumeProperty(model_.Mix().surfVolume * gain);
             breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume * gain);
             jungleInstance_->setVolumeProperty(model_.Mix().jungleVolume * gain);
+            streamInstance_->setVolumeProperty(model_.Mix().streamVolume * gain);
             waterMovementInstance_->setVolumeProperty(
                 waterMovementModel_.Mix().volume * gain);
             waterMovementInstance_->setPitchProperty(waterMovementModel_.Mix().pitch);
@@ -814,6 +871,9 @@ namespace island
         breezeInstance_.reset();
         jungleInstance_.reset();
         jungleEffect_.reset();
+        streamInstance_.reset();
+        streamEffect_.reset();
+        streamPlaybackActive_ = false;
         waterMovementInstance_.reset();
         waterTransitionInstance_.reset();
         footstepInstance_.reset();

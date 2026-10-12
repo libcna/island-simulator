@@ -133,10 +133,17 @@ existing features, not a broad redesign.
     the western bay reaches roughly 0.89/0.88/0.91, returning to neutral away from shore.
     CPU tests and three inspected native llvmpipe views pass. Controlled paired motion,
     audible review and actual Web/Android runtime remain.
-12. [ ] **Stream audio and local sound biomes.** One distance-attenuated procedural
+12. [~] **Stream audio and local sound biomes.** One distance-attenuated procedural
     stream loop; stronger existing jungle ambience in wet interior, breeze/surf on
     headlands and less wind in sheltered bay. Preserve audio budgets/mute/lifecycle;
-    no replacement audio engine.
+    no replacement audio engine. A deterministic thirteen-second stream loop now follows
+    the nearest point on the shared meandering route, fades through a 4–34m field and
+    modestly strengthens jungle texture while softening canopy breeze in that wet corridor.
+    It dynamically shares the otherwise inaudible land-side player-water voice, retaining
+    four active ambient sources plus at most two transients. Wind-aware headland/bay surf
+    and breeze remain integrated through item 11. Core signal/field/mix tests and the
+    independent 25-file WAV export pass; actual spatial listening, route walk, mute/
+    swim switching and Web/Android lifecycle evidence remain.
 13. [ ] **Bird landing/perching.** Before adding more birds/species, implement
     bounded Fly → Approach → Perched → Depart behavior on real branches, rocks or
     the wreck's broken mast, with verified feet/perch contact and takeoff/landing.
