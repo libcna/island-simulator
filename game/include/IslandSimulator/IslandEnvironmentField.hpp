@@ -95,6 +95,55 @@ namespace island
                 std::clamp(salt, 0.0f, 1.0f)};
         }
 
+        /** @brief Bounded shallow-water habitat potential shared by reef props and fauna. */
+        [[nodiscard]] static float ReefSuitability(float x, float z,
+                                                   float signedShoreDistance,
+                                                   float terrainHeight) noexcept
+        {
+            if (!std::isfinite(x) || !std::isfinite(z)
+                || !std::isfinite(signedShoreDistance) || !std::isfinite(terrainHeight)) {
+                return 0.0f;
+            }
+            const float offshore = -signedShoreDistance;
+            const float depth = -terrainHeight;
+            const float band = Smooth(13.0f, 25.0f, offshore)
+                * (1.0f - Smooth(82.0f, 96.0f, offshore))
+                * Smooth(0.35f, 0.90f, depth)
+                * (1.0f - Smooth(5.2f, 7.5f, depth));
+            const float angle = std::atan2(z, x);
+            const float patch = 0.50f + 0.28f * std::sin(angle * 5.0f + 0.7f)
+                + 0.22f * std::sin(angle * 11.0f - 1.1f);
+            return std::clamp(band * Smooth(0.20f, 0.74f, patch), 0.0f, 1.0f);
+        }
+
+        /** @brief Shallow sand/grass meadow potential beside and inside reef patches. */
+        [[nodiscard]] static float SeagrassSuitability(float x, float z,
+                                                       float signedShoreDistance,
+                                                       float terrainHeight) noexcept
+        {
+            if (!std::isfinite(x) || !std::isfinite(z)
+                || !std::isfinite(signedShoreDistance) || !std::isfinite(terrainHeight)) {
+                return 0.0f;
+            }
+            const float offshore = -signedShoreDistance;
+            const float depth = -terrainHeight;
+            const float band = Smooth(5.0f, 11.0f, offshore)
+                * (1.0f - Smooth(39.0f, 54.0f, offshore))
+                * Smooth(0.42f, 0.82f, depth)
+                * (1.0f - Smooth(2.6f, 3.5f, depth));
+            const float patch = 0.62f + 0.22f * std::sin(x * .041f + z * .027f)
+                + 0.16f * std::sin(x * .083f - z * .061f + .8f);
+            return std::clamp(band * Smooth(0.30f, 0.76f, patch), 0.0f, 1.0f);
+        }
+
+        [[nodiscard]] static float AquaticHabitatSuitability(float x, float z,
+                                                             float signedShoreDistance,
+                                                             float terrainHeight) noexcept
+        {
+            return std::max(ReefSuitability(x, z, signedShoreDistance, terrainHeight),
+                            SeagrassSuitability(x, z, signedShoreDistance, terrainHeight));
+        }
+
         /** @brief GLSL counterpart used by terrain material consumers. */
         inline static constexpr const char* InlandShader = R"(
 vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField) {

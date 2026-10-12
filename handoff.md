@@ -1,5 +1,19 @@
 # island-simulator handoff
 
+## Latest implementation — spatial reef plus habitat-routed fish/turtles
+
+NaturalPropLayout now has314 non-solid seabed-fitted reef instances selected by new
+shared ReefSuitability: staghorn/compound-round/stacked-plate/underwater-rock forms.
+NaturalPropRenderer reuses cells, instancing and shader; all4 forms have near/far LOD,
+138m cull and underwater material. Total prop meshes3904vertices/109312bytes. New
+SeagrassSuitability + combined AquaticHabitatSuitability anchor all8 fish schools and
+all5 turtle home/range checks; Core long routes remain deterministic/in habitat.
+First100513 image rejected sparse/simple;100813 rejected rock-focused;100923 improved
+branching; final isolated llvmpipe101426.680059Z-reef-habitat PASS165bins/std24.98/
+spatial128.65/kernel[], VIEWED:51/314 reef habitat,3fish,1turtle submitted. World
+fingerprint4c0ea30b6c5aaac1. Native perf/motion and Web/Android remain; stage [~].
+Goal active; no AMD/KVM/dependency changes.
+
 ## Latest implementation — localized mangrove mouth habitat
 
 Exactly15 deterministic mangroves now occupy only the lower shared stream/mouth.

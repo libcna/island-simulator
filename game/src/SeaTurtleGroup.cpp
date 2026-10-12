@@ -1,5 +1,6 @@
 #include "IslandSimulator/SeaTurtleGroup.hpp"
 
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 
 #include <algorithm>
@@ -48,23 +49,29 @@ namespace island
     void SeaTurtleGroup::InitializeAgent(const std::size_t index)
     {
         Agent& agent = agents_[index];
-        const float angle = HomeAngles[index];
-        const float radialX = std::cos(angle);
-        const float radialZ = std::sin(angle);
-        const float tangentX = -radialZ;
-        const float tangentZ = radialX;
-        float offshoreDistance = 15.0f + static_cast<float>(index % 3U) * 4.0f;
-        float radius = terrain_.ShoreRadius(angle) + offshoreDistance;
-        agent.home.x = radialX * radius + tangentX * (static_cast<float>(index) - 2.0f);
-        agent.home.z = radialZ * radius + tangentZ * (static_cast<float>(index) - 2.0f);
+        const float baseAngle = HomeAngles[index];
         agent.home.radius = 11.5f + static_cast<float>(index % 3U) * 1.8f;
-        for (int attempt = 0;
-             attempt < 8 && !IsValidHabitat(agent.home.x, agent.home.z, agent.home);
-             ++attempt) {
-            offshoreDistance += 2.0f;
-            radius = terrain_.ShoreRadius(angle) + offshoreDistance;
-            agent.home.x = radialX * radius;
-            agent.home.z = radialZ * radius;
+        float angle = baseAngle;
+        float bestScore = -1.0f;
+        for (int offset = -4; offset <= 4; ++offset) {
+            const float candidateAngle = baseAngle + static_cast<float>(offset) * .10f;
+            for (const float offshore : {11.0f, 18.0f, 26.0f, 35.0f}) {
+                const float radius = terrain_.ShoreRadius(candidateAngle) + offshore;
+                const float x = std::cos(candidateAngle) * radius;
+                const float z = std::sin(candidateAngle) * radius;
+                const auto sample = terrain_.Sample(x, z);
+                if (sample.signedShoreDistance < MinimumShoreDistance
+                    || sample.signedShoreDistance > MaximumShoreDistance
+                    || sample.height > -.72f) continue;
+                const float score = IslandEnvironmentField::AquaticHabitatSuitability(
+                    x, z, sample.signedShoreDistance, sample.height);
+                if (score > bestScore) {
+                    bestScore = score;
+                    angle = candidateAngle;
+                    agent.home.x = x;
+                    agent.home.z = z;
+                }
+            }
         }
 
         agent.state.x = agent.home.x;
@@ -95,7 +102,9 @@ namespace island
         const float homeDistance = std::hypot(x - home.x, z - home.z);
         return sample.signedShoreDistance >= MinimumShoreDistance
             && sample.signedShoreDistance <= MaximumShoreDistance
-            && sample.height <= -0.72f && homeDistance <= home.radius;
+            && sample.height <= -0.72f && homeDistance <= home.radius
+            && IslandEnvironmentField::AquaticHabitatSuitability(
+                x, z, sample.signedShoreDistance, sample.height) >= .025f;
     }
 
     float SeaTurtleGroup::DesiredDepth(const Agent& agent,

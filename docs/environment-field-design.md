@@ -44,6 +44,14 @@ placements against palm collision footprints. This is a local mouth habitat rath
 than a new coast-wide vegetation band. The measured world now has 272 canopy trees
 including those 15 mangroves; see `mangroves.md`.
 
+The first marine consumer adds finite `ReefSuitability`, `SeagrassSuitability` and
+their combined aquatic habitat score. Reef prop placement uses the reef component;
+fish-school route centres and sea-turtle home/range checks use the combined score.
+This keeps the 314 spatial habitat props, eight schools and five turtles on one
+deterministic shallow-water definition rather than three independent radial bands.
+The field is currently CPU-side because the terrain shader retains its established
+material noise; exact CPU/GLSL material-mask unification remains follow-up work.
+
 ## Dependency order
 
 1. A renderer-independent coastal profile describes the authored bay/headland lobes, local

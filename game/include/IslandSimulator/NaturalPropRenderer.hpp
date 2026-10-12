@@ -56,6 +56,10 @@ namespace island
         {
             return totalFallenFrondCount_;
         }
+        [[nodiscard]] int TotalReefHabitatCount() const noexcept
+        {
+            return totalReefHabitatCount_;
+        }
         [[nodiscard]] int VisibleRockCount() const noexcept { return visibleRockCount_; }
         [[nodiscard]] int VisibleReefRockCount() const noexcept { return visibleReefRockCount_; }
         [[nodiscard]] int VisibleLogCount() const noexcept { return visibleLogCount_; }
@@ -75,6 +79,10 @@ namespace island
         [[nodiscard]] int VisibleFallenFrondCount() const noexcept
         {
             return visibleFallenFrondCount_;
+        }
+        [[nodiscard]] int VisibleReefHabitatCount() const noexcept
+        {
+            return visibleReefHabitatCount_;
         }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
@@ -107,6 +115,7 @@ namespace island
             std::vector<DrawInstance> driftwood;
             std::vector<DrawInstance> beachDetails;
             std::vector<DrawInstance> fallenFronds;
+            std::vector<DrawInstance> reefHabitat;
             bool occupied = false;
         };
 
@@ -128,6 +137,8 @@ namespace island
         std::array<PropMesh, NaturalPropLayout::DriftwoodVariantCount> driftwoodFarMeshes_;
         std::array<PropMesh, NaturalPropLayout::BeachDetailVariantCount> beachDetailMeshes_;
         std::array<PropMesh, NaturalPropLayout::FallenFrondVariantCount> fallenFrondMeshes_;
+        std::array<PropMesh, NaturalPropLayout::ReefHabitatVariantCount> reefHabitatNearMeshes_;
+        std::array<PropMesh, NaturalPropLayout::ReefHabitatVariantCount> reefHabitatFarMeshes_;
         std::array<PropCell, TerrainMeshLayout::CellCount> cells_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    NaturalPropLayout::RockVariantCount> visibleRockNear_;
@@ -145,6 +156,10 @@ namespace island
                    NaturalPropLayout::BeachDetailVariantCount> visibleBeachDetails_;
         std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
                    NaturalPropLayout::FallenFrondVariantCount> visibleFallenFronds_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   NaturalPropLayout::ReefHabitatVariantCount> visibleReefHabitatNear_;
+        std::array<std::vector<Microsoft::Xna::Framework::Matrix>,
+                   NaturalPropLayout::ReefHabitatVariantCount> visibleReefHabitatFar_;
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
@@ -154,6 +169,7 @@ namespace island
         int totalDriftwoodCount_ = 0;
         int totalBeachDetailCount_ = 0;
         int totalFallenFrondCount_ = 0;
+        int totalReefHabitatCount_ = 0;
         int visibleRockCount_ = 0;
         int visibleReefRockCount_ = 0;
         int visibleLogCount_ = 0;
@@ -162,6 +178,7 @@ namespace island
         int visibleDriftwoodFarCount_ = 0;
         int visibleBeachDetailCount_ = 0;
         int visibleFallenFrondCount_ = 0;
+        int visibleReefHabitatCount_ = 0;
         int visibleCellCount_ = 0;
         int drawCallCount_ = 0;
     };

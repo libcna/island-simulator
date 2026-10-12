@@ -1,5 +1,6 @@
 #include "IslandSimulator/FishSchools.hpp"
 
+#include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 
 #include <algorithm>
@@ -71,10 +72,24 @@ namespace island
     void FishSchools::InitializeSchool(const std::size_t schoolIndex)
     {
         School& school = schools_[schoolIndex];
-        school.routeAngle = WrapAngle(-std::numbers::pi_v<float> * 0.5f
+        const float baseAngle = WrapAngle(-std::numbers::pi_v<float> * 0.5f
             + static_cast<float>(schoolIndex) * TwoPi / static_cast<float>(SchoolCount)
             + static_cast<float>(schoolIndex % 3U) * 0.037f);
         school.offshoreDistance = 17.0f + static_cast<float>(schoolIndex % 4U) * 3.4f;
+        float bestScore = -1.0f;
+        for (int offset = -6; offset <= 6; ++offset) {
+            const float candidate = WrapAngle(baseAngle + static_cast<float>(offset) * .085f);
+            const float radius = terrain_.ShoreRadius(candidate) + school.offshoreDistance;
+            const float x = std::cos(candidate) * radius;
+            const float z = std::sin(candidate) * radius;
+            const auto sample = terrain_.Sample(x, z);
+            const float score = IslandEnvironmentField::AquaticHabitatSuitability(
+                x, z, sample.signedShoreDistance, sample.height);
+            if (score > bestScore) {
+                bestScore = score;
+                school.routeAngle = candidate;
+            }
+        }
         school.routeSpeed = 0.30f + static_cast<float>(schoolIndex % 3U) * 0.075f;
         school.direction = schoolIndex % 2U == 0U ? 1 : -1;
         ResolveSchoolCentre(school);
@@ -116,7 +131,23 @@ namespace island
 
     void FishSchools::ResolveSchoolCentre(School& school) const noexcept
     {
-        float radius = terrain_.ShoreRadius(school.routeAngle) + school.offshoreDistance;
+        float bestDistance = school.offshoreDistance;
+        float bestScore = -1.0f;
+        for (const float distance : {12.0f, 20.0f, 30.0f, 42.0f}) {
+            const float candidateRadius = terrain_.ShoreRadius(school.routeAngle) + distance;
+            const float candidateX = std::cos(school.routeAngle) * candidateRadius;
+            const float candidateZ = std::sin(school.routeAngle) * candidateRadius;
+            const auto candidateSample = terrain_.Sample(candidateX, candidateZ);
+            const float score = IslandEnvironmentField::AquaticHabitatSuitability(
+                candidateX, candidateZ, candidateSample.signedShoreDistance,
+                candidateSample.height);
+            if (candidateSample.height <= -MinimumSeabedDepth && score > bestScore) {
+                bestScore = score;
+                bestDistance = distance;
+            }
+        }
+        school.offshoreDistance = bestDistance;
+        float radius = terrain_.ShoreRadius(school.routeAngle) + bestDistance;
         float x = std::cos(school.routeAngle) * radius;
         float z = std::sin(school.routeAngle) * radius;
         TerrainSample sample = terrain_.Sample(x, z);
@@ -210,10 +241,20 @@ namespace island
         }
         School& school = schools_[schoolIndex];
         const float routeRadius = std::max(1.0f, std::hypot(school.centreX, school.centreZ));
-        school.routeAngle = WrapAngle(school.routeAngle
-            + static_cast<float>(school.direction) * school.routeSpeed
-                / routeRadius * deltaSeconds);
+        const float oldAngle = school.routeAngle;
+        const float angleStep = static_cast<float>(school.direction) * school.routeSpeed
+            / routeRadius * deltaSeconds;
+        school.routeAngle = WrapAngle(oldAngle + angleStep);
         ResolveSchoolCentre(school);
+        const auto habitatSample = terrain_.Sample(school.centreX, school.centreZ);
+        const float habitat = IslandEnvironmentField::AquaticHabitatSuitability(
+            school.centreX, school.centreZ, habitatSample.signedShoreDistance,
+            habitatSample.height);
+        if (habitat < .04f) {
+            school.direction = -school.direction;
+            school.routeAngle = WrapAngle(oldAngle - angleStep);
+            ResolveSchoolCentre(school);
+        }
         const float radialLength = std::max(1.0f, std::hypot(school.centreX, school.centreZ));
         const float radialX = school.centreX / radialLength;
         const float radialZ = school.centreZ / radialLength;

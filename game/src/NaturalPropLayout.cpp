@@ -100,6 +100,7 @@ namespace island
                                          const std::uint32_t seed)
     {
         rocks_.reserve(280U);
+        reefHabitat_.reserve(320U);
         obstacles_.reserve(460U);
         for (int gridZ = -RockRadius; gridZ <= RockRadius; ++gridZ) {
             for (int gridX = -RockRadius; gridX <= RockRadius; ++gridX) {
@@ -196,6 +197,38 @@ namespace island
             rocks_.push_back(rock);
             obstacles_.push_back(CircularObstacle{
                 rock.x, rock.z, 0.63f * std::max(rock.scaleX, rock.scaleZ)});
+        }
+
+        // Cheap non-solid coral/rock habitat follows the existing shallow reef material belt.
+        // A shared analytic suitability field keeps later fish/turtle routing tied to exactly
+        // the same patches instead of adding another unrelated radial band.
+        for (int site = 0; site < ReefHabitatSiteCount; ++site) {
+            const auto random = [&](const std::uint32_t channel) {
+                return UnitRandom(Hash(site, static_cast<std::int32_t>(channel),
+                    seed ^ (0x6a09e667U + channel * 0x9e3779b9U)));
+            };
+            // Random rather than evenly stratified angles allow real patch/gap structure; the
+            // suitability field still bounds the accepted coastal sectors and depths.
+            const float angle = random(0) * 2.0f * std::numbers::pi_v<float>;
+            const float offshoreDistance = 18.0f + 70.0f * std::pow(random(1), .84f);
+            const float radius = terrain.ShoreRadius(angle) + offshoreDistance;
+            ReefHabitatPlacement habitat;
+            habitat.x = std::cos(angle) * radius;
+            habitat.z = std::sin(angle) * radius;
+            const auto support = terrain.Sample(habitat.x, habitat.z);
+            const float suitability = IslandEnvironmentField::ReefSuitability(
+                habitat.x, habitat.z, support.signedShoreDistance, support.height);
+            if (suitability < .12f || random(2) > .18f + .68f * suitability) continue;
+            habitat.y = support.height + .025f;
+            habitat.yawRadians = random(3) * 2.0f * std::numbers::pi_v<float>;
+            habitat.variant = static_cast<std::uint8_t>(
+                Hash(site, 97, seed ^ 0xbb67ae85U) % ReefHabitatVariantCount);
+            habitat.scale = ReefHabitatMinimumScale
+                + (ReefHabitatMaximumScale - ReefHabitatMinimumScale)
+                    * (.20f + .80f * std::pow(random(4), 1.35f));
+            habitat.scale = std::clamp(habitat.scale * (habitat.variant == 3U ? .78f : 1.14f),
+                ReefHabitatMinimumScale, ReefHabitatMaximumScale);
+            reefHabitat_.push_back(habitat);
         }
 
         struct AuthoredClearingRock

@@ -58,6 +58,8 @@ namespace island
         constexpr float DriftwoodMaximumDistance = 145.0f;
         constexpr float BeachDetailMaximumDistance = 52.0f;
         constexpr float FallenFrondMaximumDistance = 76.0f;
+        constexpr float ReefHabitatNearDistance = 46.0f;
+        constexpr float ReefHabitatMaximumDistance = 138.0f;
         constexpr std::string_view RockFacetDiagnostic =
             "island-simulator: rocks use shared smooth normals, scale-correct daylight and filtered mineral weathering";
         constexpr std::string_view RockTintDiagnostic =
@@ -194,7 +196,15 @@ void main()
     float distanceToCamera = length(vWorld - uCameraPosition);
     float fog = smoothstep(235.0, 610.0, distanceToCamera);
     vec3 materialColor = vColor;
-    if (vMaterialDetail < 0.375) {
+    if (vMaterialDetail < 0.125) {
+        vec3 normal = vNormal * inversesqrt(max(dot(vNormal,vNormal), 0.000001));
+        float direct = max(dot(normal, normalize(uToSun)), 0.0);
+        float sky = max(normal.y, 0.0);
+        float depth = max(-vWorld.y, 0.0);
+        vec3 underwater = mix(vec3(1.0), vec3(0.70,0.86,0.82),
+                              smoothstep(0.4,6.5,depth)*0.34);
+        materialColor = vColor * underwater * (0.56 + 0.34*direct + 0.14*sky);
+    } else if (vMaterialDetail < 0.375) {
         vec3 normal = vNormal * inversesqrt(max(dot(vNormal,vNormal), 0.000001));
         float direct = max(dot(normal, normalize(uToSun)), 0.0);
         float sky = max(normal.y, 0.0);
@@ -374,6 +384,186 @@ void main()
             for (const auto& normal : BuildSurfaceNormals(positions, geometry.indices)) {
                 geometry.normals.emplace_back(normal[0], normal[1], normal[2]);
             }
+        }
+
+        void AppendReefTube(PropGeometry& geometry, const Vector3& start,
+                            const Vector3& end, const float baseRadius,
+                            const float tipRadius, const int sides, const Color& color)
+        {
+            const Vector3 axis = Vector3::Normalize(end - start);
+            Vector3 right = Vector3::Cross(Vector3::Up, axis);
+            if (right.LengthSquared() < 1.0e-6f) right = Vector3::Right;
+            else right = Vector3::Normalize(right);
+            const Vector3 around = Vector3::Normalize(Vector3::Cross(right, axis));
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int ring = 0; ring < 2; ++ring) {
+                const Vector3 centre = ring == 0 ? start : end;
+                const float radius = ring == 0 ? baseRadius : tipRadius;
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    geometry.vertices.emplace_back(centre + radius
+                        * (right * std::cos(angle) + around * std::sin(angle)), color);
+                    geometry.albedos.push_back(color);
+                }
+            }
+            for (int side = 0; side < sides; ++side) {
+                const int next = (side + 1) % sides;
+                const auto lower = static_cast<std::uint16_t>(base + side);
+                const auto lowerNext = static_cast<std::uint16_t>(base + next);
+                const auto upper = static_cast<std::uint16_t>(base + sides + side);
+                const auto upperNext = static_cast<std::uint16_t>(base + sides + next);
+                geometry.indices.insert(geometry.indices.end(),
+                    {lower, upper, lowerNext, lowerNext, upper, upperNext});
+            }
+        }
+
+        void AppendReefPlate(PropGeometry& geometry, const Vector3& centre,
+                             const float radius, const int sides, const float phase,
+                             const Color& color)
+        {
+            const float halfThickness = .055f;
+            const auto topCentre = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(centre + Vector3::Up * halfThickness, color);
+            geometry.albedos.push_back(color);
+            const auto bottomCentre = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(centre - Vector3::Up * halfThickness, color);
+            geometry.albedos.push_back(color);
+            const auto rim = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int layer = 0; layer < 2; ++layer) {
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const float irregular = radius * (1.0f + .10f
+                        * std::sin(angle * 3.0f + phase) + .055f * std::sin(angle * 5.0f));
+                    geometry.vertices.emplace_back(centre + Vector3(std::cos(angle) * irregular,
+                        (layer == 0 ? halfThickness : -halfThickness)
+                            + .025f * std::sin(angle * 2.0f + phase),
+                        std::sin(angle) * irregular), color);
+                    geometry.albedos.push_back(color);
+                }
+            }
+            for (int side = 0; side < sides; ++side) {
+                const int next = (side + 1) % sides;
+                const auto top = static_cast<std::uint16_t>(rim + side);
+                const auto topNext = static_cast<std::uint16_t>(rim + next);
+                const auto bottom = static_cast<std::uint16_t>(rim + sides + side);
+                const auto bottomNext = static_cast<std::uint16_t>(rim + sides + next);
+                geometry.indices.insert(geometry.indices.end(),
+                    {topCentre, topNext, top, bottomCentre, bottom, bottomNext,
+                     top, topNext, bottom, bottom, topNext, bottomNext});
+            }
+        }
+
+        void AppendReefMound(PropGeometry& geometry, const Vector3& centre,
+                             const float radius, const float height, const int rings,
+                             const int slices, const float phase, const Color& color)
+        {
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            for (int ring = 0; ring < rings; ++ring) {
+                const float t = static_cast<float>(ring) / static_cast<float>(rings);
+                const float latitude = t * std::numbers::pi_v<float> * .5f;
+                for (int slice = 0; slice < slices; ++slice) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(slice) / static_cast<float>(slices);
+                    const float radial = radius * std::cos(latitude)
+                        * (1.0f + .075f * std::sin(angle * 5.0f + phase));
+                    geometry.vertices.emplace_back(centre + Vector3(std::cos(angle) * radial,
+                        .025f + height * std::sin(latitude), std::sin(angle) * radial), color);
+                    geometry.albedos.push_back(color);
+                }
+            }
+            const auto top = static_cast<std::uint16_t>(geometry.vertices.size());
+            geometry.vertices.emplace_back(centre + Vector3::Up * (height + .025f), color);
+            geometry.albedos.push_back(color);
+            for (int ring = 0; ring + 1 < rings; ++ring) {
+                for (int slice = 0; slice < slices; ++slice) {
+                    const int next = (slice + 1) % slices;
+                    const auto a = static_cast<std::uint16_t>(base + ring*slices + slice);
+                    const auto b = static_cast<std::uint16_t>(base + (ring+1)*slices + slice);
+                    const auto c = static_cast<std::uint16_t>(base + ring*slices + next);
+                    const auto d = static_cast<std::uint16_t>(base + (ring+1)*slices + next);
+                    geometry.indices.insert(geometry.indices.end(), {a,b,c,c,b,d});
+                }
+            }
+            const int lastRing = rings - 1;
+            for (int slice = 0; slice < slices; ++slice) {
+                geometry.indices.insert(geometry.indices.end(),
+                    {static_cast<std::uint16_t>(base + lastRing*slices + slice), top,
+                     static_cast<std::uint16_t>(base + lastRing*slices + (slice+1)%slices)});
+            }
+        }
+
+        [[nodiscard]] PropGeometry CreateReefHabitatGeometry(const int variant,
+                                                              const bool farMesh)
+        {
+            if (variant == 3) {
+                PropGeometry rock = CreateRockGeometry(2, farMesh);
+                const Color underwaterRock(79, 94, 84, 64);
+                for (auto& vertex : rock.vertices) vertex.Color = underwaterRock;
+                std::fill(rock.albedos.begin(), rock.albedos.end(), underwaterRock);
+                return rock;
+            }
+
+            PropGeometry geometry;
+            const int sides = farMesh ? 5 : 7;
+            if (variant == 0) {
+                const Color coral(205, 151, 98, 16);
+                AppendReefTube(geometry, Vector3(0,-.05f,0), Vector3(0,.76f,0),
+                    .18f, .115f, sides, coral);
+                const int branches = farMesh ? 4 : 8;
+                for (int branch = 0; branch < branches; ++branch) {
+                    const float angle = .42f + static_cast<float>(branch)
+                        * 2.0f * std::numbers::pi_v<float> / static_cast<float>(branches);
+                    const float startY = .24f + .075f * static_cast<float>(branch % 4);
+                    const Vector3 start(0, startY, 0);
+                    const float reach = .34f + .07f * static_cast<float>(branch % 3);
+                    const Vector3 end(std::cos(angle) * reach,
+                        .78f + .10f * static_cast<float>(branch % 3),
+                        std::sin(angle) * reach);
+                    AppendReefTube(geometry, start, end, .105f, .045f, sides, coral);
+                    if (!farMesh && branch < 7) {
+                        const Vector3 direction = Vector3::Normalize(end - start);
+                        const Vector3 fork = end - direction * .05f;
+                        const float split = branch % 2 == 0 ? .54f : -.54f;
+                        const Vector3 tipA = end + Vector3(std::cos(angle + split) * .25f,
+                            .27f, std::sin(angle + split) * .25f);
+                        const Vector3 tipB = end + Vector3(std::cos(angle - split) * .21f,
+                            .20f, std::sin(angle - split) * .21f);
+                        AppendReefTube(geometry, fork, tipA, .056f, .030f, 6, coral);
+                        AppendReefTube(geometry, fork, tipB, .052f, .027f, 6, coral);
+                        AppendReefMound(geometry, tipA - Vector3::Up * .025f,
+                            .052f, .085f, 2, 6, angle, ShadeColor(coral, 1.08f));
+                        AppendReefMound(geometry, tipB - Vector3::Up * .022f,
+                            .046f, .075f, 2, 6, angle + 1.1f, ShadeColor(coral, 1.06f));
+                    } else if (farMesh) {
+                        AppendReefMound(geometry, end - Vector3::Up * .025f,
+                            .055f, .085f, 2, 5, angle, ShadeColor(coral, 1.07f));
+                    }
+                }
+            } else if (variant == 1) {
+                const Color coral(183, 113, 111, 16);
+                const int rings = farMesh ? 2 : 4;
+                const int slices = farMesh ? 7 : 11;
+                AppendReefMound(geometry, Vector3(-.16f,0,.02f), .56f, .67f,
+                    rings, slices, .3f, coral);
+                AppendReefMound(geometry, Vector3(.30f,0,.10f), .43f, .51f,
+                    rings, slices, 1.7f, ShadeColor(coral, .94f));
+                if (!farMesh) AppendReefMound(geometry, Vector3(.05f,0,-.35f),
+                    .36f, .45f, 3, 9, 2.8f, ShadeColor(coral, 1.06f));
+            } else {
+                const Color coral(196, 153, 112, 16);
+                AppendReefTube(geometry, Vector3(0,-.04f,0), Vector3(0,.58f,0),
+                    .14f, .10f, sides, coral);
+                AppendReefPlate(geometry, Vector3(-.10f,.37f,.06f), .43f,
+                    farMesh ? 7 : 11, .8f, ShadeColor(coral, .92f));
+                AppendReefPlate(geometry, Vector3(.11f,.68f,-.05f), farMesh ? .62f : .70f,
+                    farMesh ? 8 : 13, 2.1f, coral);
+                if (!farMesh) AppendReefPlate(geometry, Vector3(-.20f,.91f,.12f),
+                    .48f, 11, 3.4f, ShadeColor(coral, 1.07f));
+            }
+            BuildWoodNormals(geometry);
+            return geometry;
         }
 
         [[nodiscard]] PropGeometry CreateLogGeometry(const int variant, const bool farMesh)
@@ -1039,6 +1229,7 @@ void main()
             [](const DriftwoodPlacement& wood) { return wood.coveLandmark; }));
         std::cout << "island-simulator: natural props " << totalRockCount_ << " rocks, "
                   << totalReefRockCount_ << " reef outcrops, "
+                  << totalReefHabitatCount_ << " submerged reef habitat instances, "
                   << totalLogCount_ << " fallen logs, " << totalDriftwoodCount_
                   << " driftwood pieces, " << totalFallenFrondCount_
                   << " fallen palm fronds, "
@@ -1081,6 +1272,10 @@ void main()
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondDiagnostic);
             std::cout << FallenFrondFoldDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(FallenFrondFoldDiagnostic);
+            constexpr std::string_view reefDiagnostic =
+                "island-simulator: spatial reef uses branching, rounded, plate coral and underwater-rock LOD forms";
+            std::cout << reefDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(reefDiagnostic);
         } else {
             std::cerr << "island-simulator: natural-prop stock-effect fallback: "
                       << fallbackReason_ << '\n';
@@ -1155,6 +1350,12 @@ void main()
         for (std::size_t variant = 0; variant < fallenFrondMeshes_.size(); ++variant) {
             upload(CreateFallenFrondGeometry(static_cast<int>(variant)),
                    fallenFrondMeshes_[variant], "fallen-frond");
+        }
+        for (std::size_t variant = 0; variant < reefHabitatNearMeshes_.size(); ++variant) {
+            upload(CreateReefHabitatGeometry(static_cast<int>(variant), false),
+                   reefHabitatNearMeshes_[variant], "reef habitat near LOD");
+            upload(CreateReefHabitatGeometry(static_cast<int>(variant), true),
+                   reefHabitatFarMeshes_[variant], "reef habitat far LOD");
         }
         std::cout << "island-simulator: prop mesh inventory " << uploadedVertices << " vertices, "
                   << uploadedVertices * (customShaderReady_ ? sizeof(PropGpuVertex) : sizeof(VertexPositionColor))
@@ -1240,6 +1441,20 @@ void main()
                                  frond.z + radius));
             ++totalFallenFrondCount_;
         }
+        for (const ReefHabitatPlacement& habitat : layout.ReefHabitat()) {
+            PropCell& cell = cells_[CellIndex(habitat.x, habitat.z)];
+            cell.reefHabitat.push_back({
+                Matrix::CreateScale(habitat.scale)
+                    * Matrix::CreateRotationY(habitat.yawRadians)
+                    * Matrix::CreateTranslation(habitat.x, habitat.y, habitat.z),
+                habitat.variant, habitat.x, habitat.z});
+            const float radius = habitat.scale * .82f;
+            extendBounds(cell, Vector3(habitat.x - radius, habitat.y - .08f,
+                                       habitat.z - radius),
+                         Vector3(habitat.x + radius, habitat.y + habitat.scale * 1.05f,
+                                 habitat.z + radius));
+            ++totalReefHabitatCount_;
+        }
         for (auto& transforms : visibleRockNear_) transforms.reserve(layout.Rocks().size());
         for (auto& transforms : visibleRockFar_) transforms.reserve(layout.Rocks().size());
         for (auto& transforms : visibleLogNear_) transforms.reserve(layout.FallenLogs().size());
@@ -1255,6 +1470,12 @@ void main()
         }
         for (auto& transforms : visibleFallenFronds_) {
             transforms.reserve(layout.FallenFronds().size());
+        }
+        for (auto& transforms : visibleReefHabitatNear_) {
+            transforms.reserve(layout.ReefHabitat().size());
+        }
+        for (auto& transforms : visibleReefHabitatFar_) {
+            transforms.reserve(layout.ReefHabitat().size());
         }
     }
 
@@ -1307,6 +1528,8 @@ void main()
         for (auto& transforms : visibleDriftwoodFar_) transforms.clear();
         for (auto& transforms : visibleBeachDetails_) transforms.clear();
         for (auto& transforms : visibleFallenFronds_) transforms.clear();
+        for (auto& transforms : visibleReefHabitatNear_) transforms.clear();
+        for (auto& transforms : visibleReefHabitatFar_) transforms.clear();
         visibleRockCount_ = 0;
         visibleReefRockCount_ = 0;
         visibleLogCount_ = 0;
@@ -1315,6 +1538,7 @@ void main()
         visibleDriftwoodFarCount_ = 0;
         visibleBeachDetailCount_ = 0;
         visibleFallenFrondCount_ = 0;
+        visibleReefHabitatCount_ = 0;
         visibleCellCount_ = 0;
         drawCallCount_ = 0;
 
@@ -1409,6 +1633,22 @@ void main()
                 ++visibleFallenFrondCount_;
                 cellVisible = true;
             }
+            if (distanceSquared <= ReefHabitatMaximumDistance * ReefHabitatMaximumDistance) {
+                for (const DrawInstance& instance : cell.reefHabitat) {
+                    const float reefDeltaX = instance.x - cameraPosition.X;
+                    const float reefDeltaZ = instance.z - cameraPosition.Z;
+                    const float reefDistanceSquared = reefDeltaX * reefDeltaX
+                        + reefDeltaZ * reefDeltaZ;
+                    if (reefDistanceSquared
+                        > ReefHabitatMaximumDistance * ReefHabitatMaximumDistance) continue;
+                    const bool nearLod = reefDistanceSquared
+                        <= ReefHabitatNearDistance * ReefHabitatNearDistance;
+                    (nearLod ? visibleReefHabitatNear_ : visibleReefHabitatFar_)
+                        [instance.variant].push_back(instance.transform);
+                    ++visibleReefHabitatCount_;
+                    cellVisible = true;
+                }
+            }
             if (cellVisible) ++visibleCellCount_;
         }
 
@@ -1447,6 +1687,10 @@ void main()
         }
         for (std::size_t variant = 0; variant < fallenFrondMeshes_.size(); ++variant) {
             DrawInstances(fallenFrondMeshes_[variant], visibleFallenFronds_[variant]);
+        }
+        for (std::size_t variant = 0; variant < reefHabitatNearMeshes_.size(); ++variant) {
+            DrawInstances(reefHabitatNearMeshes_[variant], visibleReefHabitatNear_[variant]);
+            DrawInstances(reefHabitatFarMeshes_[variant], visibleReefHabitatFar_[variant]);
         }
         device_.SetVertexBuffers({});
         device_.setIndicesProperty(nullptr);

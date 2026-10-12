@@ -112,6 +112,7 @@ namespace island
         PropDetail,
         DriftwoodDetail,
         ReefDetail,
+        ReefHabitatDetail,
         FallenFrondDetail,
         BirdDetail,
         FishDetail,

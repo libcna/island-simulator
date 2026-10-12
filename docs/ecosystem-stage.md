@@ -48,10 +48,16 @@ existing features, not a broad redesign.
    an inverted procedural support frame that caused the operator's startup failure;
    it is fixed and `20261012T095538.769586Z-mangroves` passes and was inspected.
    Portable, performance and moving-view review remain; see [mangroves.md](mangroves.md).
-5. [ ] **Spatial reef habitat.** Extend natural props with cheap branching, rounded
+5. [~] **Spatial reef habitat.** Extend natural props with cheap branching, rounded
    and plate coral variants plus underwater rocks. A bounded few hundred instances
    in appropriate shallow reef zones, with culling/LOD and actual underwater review.
-   Connect existing fish schools and turtles to reef/seagrass habitat.
+   Connect existing fish schools and turtles to reef/seagrass habitat. The native
+   first pass now has 314 seabed-fitted non-solid instances across four near/far LOD
+   forms in the existing natural-prop renderer. Shared reef/seagrass suitability
+   anchors eight fish schools and five turtle home ranges, including long-route
+   regression coverage. Two early captures were visually rejected and iterated;
+   inspected `20261012T101426.680059Z-reef-habitat` submits 51 habitat instances,
+   three fish and one turtle. Performance and Web/Android review remain.
 6. [ ] **Ecological placement of existing wildlife first.** Crabs on sand/wrack;
    butterflies in sunny clearings; snakes on dense-understory margins; spiders in
    forest/shrubs; boars in wetter interior; goats on dry open slopes; monkeys under

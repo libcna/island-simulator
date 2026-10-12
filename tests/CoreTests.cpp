@@ -2439,6 +2439,9 @@ int main()
                       <= island::SeaTurtleGroup::MaximumShoreDistance
                   && sample.height <= -0.72f,
               "each sea turtle begins in submerged water inside the current limit");
+        Check(island::IslandEnvironmentField::AquaticHabitatSuitability(
+                  turtle.x, turtle.z, sample.signedShoreDistance, sample.height) >= .025f,
+              "each sea turtle begins in shared reef or seagrass habitat");
         Check(turtle.y >= sample.height + 0.39f && turtle.y <= -0.09f,
               "each sea turtle begins between seabed clearance and the water surface");
     }
@@ -2482,6 +2485,9 @@ int main()
                       && turtle.y >= sample.height + 0.38f
                       && turtle.y <= -0.09f,
                   "sea turtles remain between seabed and surface inside near-shore ranges");
+            Check(island::IslandEnvironmentField::AquaticHabitatSuitability(
+                      turtle.x, turtle.z, sample.signedShoreDistance, sample.height) >= .025f,
+                  "sea turtles remain inside shared reef or seagrass habitat");
             Check(std::isfinite(turtle.speed) && turtle.speed >= 0.0f
                       && std::isfinite(turtle.flipperStroke)
                       && std::fabs(turtle.flipperStroke) <= 1.001f
@@ -2692,6 +2698,10 @@ int main()
                   && sample.signedShoreDistance <= -2.8f
                   && sample.signedShoreDistance >= -48.2f,
               "fish school centres stay in the authored water belt");
+        Check(island::IslandEnvironmentField::AquaticHabitatSuitability(
+                  school.centreX, school.centreZ,
+                  sample.signedShoreDistance, sample.height) >= .04f,
+              "fish school centres initialize in shared reef or seagrass habitat");
     }
     std::array<int, island::FishSchools::SchoolCount> fishPerSchool{};
     for (std::size_t index = 0; index < fishSchools.Fish().size(); ++index) {
@@ -2747,6 +2757,11 @@ int main()
                       && school.direction == repeated.direction
                       && school.simulationTier == repeated.simulationTier,
                   "fish school navigation remains deterministic over a long session");
+            const auto schoolSample = terrain.Sample(school.centreX, school.centreZ);
+            Check(island::IslandEnvironmentField::AquaticHabitatSuitability(
+                      school.centreX, school.centreZ, schoolSample.signedShoreDistance,
+                      schoolSample.height) >= .04f,
+                  "fish school routes remain tied to shared reef or seagrass habitat");
         }
         for (std::size_t index = 0; index < fishStates.size(); ++index) {
             const island::FishState& fish = fishStates[index];
@@ -4703,12 +4718,40 @@ int main()
           "shell/pebble/wrack clusters stay inside their near-field beach-detail budget");
     Check(props.FallenFronds().size() >= 30U && props.FallenFronds().size() <= 180U,
           "fallen palm fronds stay inside their near-field composition budget");
+    Check(props.ReefHabitat().size() >= 180U && props.ReefHabitat().size() <= 380U,
+          "spatial reef habitat stays inside its bounded instance budget");
     Check(props.Rocks().size() == repeatedProps.Rocks().size()
               && props.FallenLogs().size() == repeatedProps.FallenLogs().size()
               && props.Driftwood().size() == repeatedProps.Driftwood().size()
               && props.BeachDetails().size() == repeatedProps.BeachDetails().size()
-              && props.FallenFronds().size() == repeatedProps.FallenFronds().size(),
+              && props.FallenFronds().size() == repeatedProps.FallenFronds().size()
+              && props.ReefHabitat().size() == repeatedProps.ReefHabitat().size(),
           "natural-prop populations are deterministic");
+    std::array<std::size_t, island::NaturalPropLayout::ReefHabitatVariantCount>
+        reefHabitatVariants{};
+    for (std::size_t index = 0; index < props.ReefHabitat().size(); ++index) {
+        const auto& habitat = props.ReefHabitat()[index];
+        const auto& repeated = repeatedProps.ReefHabitat()[index];
+        const auto support = terrain.Sample(habitat.x, habitat.z);
+        Check(habitat.x == repeated.x && habitat.y == repeated.y
+                  && habitat.z == repeated.z && habitat.yawRadians == repeated.yawRadians
+                  && habitat.scale == repeated.scale && habitat.variant == repeated.variant,
+              "reef habitat placement is bitwise deterministic for one seed");
+        CheckNear(habitat.y, support.height + .025f, .0001f,
+                  "reef habitat roots remain fitted to the seabed");
+        Check(island::IslandEnvironmentField::ReefSuitability(
+                  habitat.x, habitat.z, support.signedShoreDistance, support.height) >= .12f,
+              "reef habitat remains inside the shared shallow-water suitability field");
+        Check(habitat.scale >= island::NaturalPropLayout::ReefHabitatMinimumScale
+                  && habitat.scale <= island::NaturalPropLayout::ReefHabitatMaximumScale,
+              "reef habitat scale remains inside the portable geometry budget");
+        Check(habitat.variant < island::NaturalPropLayout::ReefHabitatVariantCount,
+              "reef habitat variant index remains in range");
+        ++reefHabitatVariants.at(habitat.variant);
+    }
+    Check(std::all_of(reefHabitatVariants.begin(), reefHabitatVariants.end(),
+                      [](const std::size_t count) { return count >= 30U; }),
+          "branching, rounded, plate coral and underwater-rock forms all populate the reef");
     std::size_t solidRockCount = 0U;
     std::size_t reefRockCount = 0U;
     std::size_t clearingLandmarkRockCount = 0U;

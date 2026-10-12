@@ -83,6 +83,17 @@ namespace island
         std::uint8_t variant = 0U;
     };
 
+    /** @brief One non-solid coral head or low underwater reef rock rooted in the seabed. */
+    struct ReefHabitatPlacement
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yawRadians = 0.0f;
+        float scale = 1.0f;
+        std::uint8_t variant = 0U;
+    };
+
     /** @brief Deterministic beach, shallow-reef, interior-rock, and fallen-wood composition. */
     class NaturalPropLayout final
     {
@@ -94,6 +105,8 @@ namespace island
         static constexpr int DriftwoodVariantCount = 3;
         static constexpr int BeachDetailVariantCount = 4;
         static constexpr int FallenFrondVariantCount = 3;
+        static constexpr int ReefHabitatVariantCount = 4;
+        static constexpr int ReefHabitatSiteCount = 640;
         static constexpr int AuthoredClearingRockCount = 5;
         static constexpr int AuthoredClearingLogCount = 2;
         static constexpr int StreamBankLogCandidateCount = 8;
@@ -110,6 +123,8 @@ namespace island
         static constexpr float BeachDetailMaximumScale = 1.30f;
         static constexpr float FallenFrondMinimumScale = 2.45f;
         static constexpr float FallenFrondMaximumScale = 3.75f;
+        static constexpr float ReefHabitatMinimumScale = 0.42f;
+        static constexpr float ReefHabitatMaximumScale = 1.38f;
 
         NaturalPropLayout(const IslandTerrain& terrain,
                           const VegetationLayout& palms,
@@ -134,6 +149,10 @@ namespace island
         {
             return fallenFronds_;
         }
+        [[nodiscard]] const std::vector<ReefHabitatPlacement>& ReefHabitat() const noexcept
+        {
+            return reefHabitat_;
+        }
         [[nodiscard]] const std::vector<CircularObstacle>& Obstacles() const noexcept
         {
             return obstacles_;
@@ -151,6 +170,7 @@ namespace island
         std::vector<DriftwoodPlacement> driftwood_;
         std::vector<BeachDetailPlacement> beachDetails_;
         std::vector<FallenFrondPlacement> fallenFronds_;
+        std::vector<ReefHabitatPlacement> reefHabitat_;
         std::vector<CircularObstacle> obstacles_;
         std::size_t streamBankLogCount_ = 0;
     };

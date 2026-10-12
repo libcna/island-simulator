@@ -51,3 +51,32 @@ The current shelf limits how clearly the outer reef is visible through the exist
   suite. Web release refreshed: 10,339,183 raw / 3,525,279 gzip bytes.
 
 Hardware qualification remains stopped. Software captures do not qualify the host AMD GPU.
+
+## Spatial habitat follow-up — 2026-10-12
+
+The material-only limitation now has a first three-dimensional implementation in the
+existing `NaturalPropLayout` / `NaturalPropRenderer` path. A shared bounded reef field
+places 314 non-solid objects on the actual seabed: multi-level staghorn branches with
+secondary tips, compound rounded colonies, irregular stacked plate colonies and low
+underwater rocks. All four forms have separate near/far geometry, cell/frustum and
+138m distance culling, existing hardware instancing and an underwater daylight/depth
+response. The combined prop mesh inventory is 3,904 vertices / 109,312 bytes.
+
+`IslandEnvironmentField` also exposes seagrass suitability and a combined aquatic
+habitat score. Fish schools choose and remain on suitable reef/seagrass route centres;
+sea turtles choose suitable home centres and reject route samples outside the field.
+The existing populations and behaviour remain bounded at eight schools / 48 fish and
+five turtles.
+
+The first capture was rejected because even angular spacing produced a sparse row and
+simple Y-shaped branches. The second was rejected because the camera selected a large
+underwater rock. Randomized patch/gap placement, compound coral geometry, secondary
+branching and a coral-only underwater target replaced both. Final isolated llvmpipe
+evidence `20261012T101426.680059Z-reef-habitat` passes at 1280x720 with 165 colour bins,
+24.98 luminance deviation, 128.65 spatial contrast and an empty kernel incident set.
+The inspected frame contains branching, rounded and plate silhouettes; runtime reports
+51/314 habitat instances, three fish and one turtle in view. World fingerprint:
+`4c0ea30b6c5aaac1`.
+
+This is not final reef photorealism or portable acceptance. Native performance
+comparison, near/far motion review and Web/Android runtime qualification remain.

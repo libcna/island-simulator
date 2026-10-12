@@ -535,6 +535,13 @@ def main():
                     raise RuntimeError("mangrove colony population/form diagnostic missing")
                 if "mangrove QA target exposes stilt roots and low crown" not in diagnostics:
                     raise RuntimeError("mangrove detail camera did not select its target")
+            if args.viewpoint == "reef-habitat":
+                if "spatial reef uses branching, rounded, plate coral and underwater-rock LOD forms" not in diagnostics:
+                    raise RuntimeError("spatial reef form diagnostic missing")
+                if not re.search(r"reef habitat QA camera underwater with [1-9][0-9]* neighbours", diagnostics):
+                    raise RuntimeError("reef-habitat camera did not select a populated patch")
+                if not re.search(r"[1-9][0-9]*/[1-9][0-9]* reef habitat", diagnostics):
+                    raise RuntimeError("reef-habitat capture did not submit enough instances")
             if "terrain substrate persists at distance with footprint-filtered noise" not in diagnostics:
                 raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
             if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:

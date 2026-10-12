@@ -59,6 +59,17 @@ and correctly failed startup; reversing the local frame fixed the reported fatal
 pass; Web/Android, motion-sequence and performance acceptance remain. See
 [mangroves.md](docs/mangroves.md).
 
+Spatial-reef progress: the existing natural-prop renderer now carries 314 non-solid,
+seabed-fitted instances selected by a shared reef suitability field: multi-level
+staghorn branches, compound rounded coral, irregular stacked plates and low underwater
+rocks, each with near/far LOD and underwater material response. A companion seagrass
+suitability function plus their maximum now anchors all eight fish-school routes and
+all five turtle home ranges; long deterministic route tests keep them inside valid
+habitat. The first two real images were rejected as sparse/over-simple; final isolated
+llvmpipe `101426.680059Z-reef-habitat` passes and was inspected, with 51/314 habitat
+instances, three fish and one turtle submitted. Native performance comparison and
+Web/Android qualification remain. See [reef-seabed.md](docs/reef-seabed.md).
+
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander
   states), while goats need varied bleats and restrained close breathing/hoof detail.

@@ -91,6 +91,7 @@ namespace island
             case FixedViewpoint::PropDetail: return "props";
             case FixedViewpoint::DriftwoodDetail: return "driftwood";
             case FixedViewpoint::ReefDetail: return "reef";
+            case FixedViewpoint::ReefHabitatDetail: return "reef-habitat";
             case FixedViewpoint::FallenFrondDetail: return "fronds";
             case FixedViewpoint::BirdDetail: return "birds";
             case FixedViewpoint::FishDetail: return "fish";
@@ -610,6 +611,38 @@ namespace island
                 yaw_ = std::atan2(toReef.X, toReef.Z);
                 pitch_ = std::atan2(toReef.Y, std::hypot(toReef.X, toReef.Z));
             }
+        } else if (viewpoint_ == FixedViewpoint::ReefHabitatDetail) {
+            const ReefHabitatPlacement* selected = nullptr;
+            int selectedNeighbours = -1;
+            for (const auto& candidate : naturalPropLayout_.ReefHabitat()) {
+                if (candidate.variant >= 3U) continue;
+                int neighbours = 0;
+                for (const auto& other : naturalPropLayout_.ReefHabitat()) {
+                    if (&candidate != &other && other.variant < 3U
+                        && std::hypot(candidate.x - other.x, candidate.z - other.z) < 16.0f) {
+                        ++neighbours;
+                    }
+                }
+                if (neighbours > selectedNeighbours
+                    || (neighbours == selectedNeighbours
+                        && (!selected || candidate.scale > selected->scale))) {
+                    selected = &candidate;
+                    selectedNeighbours = neighbours;
+                }
+            }
+            if (!selected) throw std::runtime_error("Reef-habitat QA camera found no target");
+            const Vector3 radial = Vector3::Normalize(Vector3(selected->x, 0, selected->z));
+            const Vector3 tangent(-radial.Z, 0, radial.X);
+            cameraPosition_ = Vector3(selected->x - radial.X * 1.4f + tangent.X * 4.3f,
+                                      std::min(-.35f, selected->y + 1.05f),
+                                      selected->z - radial.Z * 1.4f + tangent.Z * 4.3f);
+            const Vector3 target(selected->x, selected->y + .42f * selected->scale,
+                                 selected->z);
+            const auto direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: reef habitat QA camera underwater with "
+                      << selectedNeighbours << " neighbours\n";
         } else if (viewpoint_ == FixedViewpoint::FallenFrondDetail
                    && !naturalPropLayout_.FallenFronds().empty()) {
             const auto closestToShore = std::min_element(
@@ -1125,6 +1158,7 @@ namespace island
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
             || viewpoint_ == FixedViewpoint::WaterlineDetail
             || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail
+            || viewpoint_ == FixedViewpoint::ReefHabitatDetail
             || viewpoint_ == FixedViewpoint::BenchmarkTraversal;
         waterViewModel_.Reset(waterViewAllowed
                                   && playerMotion_.Mode() == LocomotionMode::Swimming,
@@ -1332,6 +1366,7 @@ namespace island
         const bool waterViewAllowed = viewpoint_ == FixedViewpoint::None
             || viewpoint_ == FixedViewpoint::WaterlineDetail
             || viewpoint_ == FixedViewpoint::CurrentBoundaryDetail
+            || viewpoint_ == FixedViewpoint::ReefHabitatDetail
             || viewpoint_ == FixedViewpoint::BenchmarkTraversal;
         (void)waterViewModel_.Update(
             waterViewAllowed && !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
@@ -2287,6 +2322,8 @@ namespace island
                << "    \"rocks\": " << naturalPropRenderer_->VisibleRockCount() << ",\n"
                << "    \"reef_outcrops\": "
                << naturalPropRenderer_->VisibleReefRockCount() << ",\n"
+               << "    \"reef_habitat\": "
+               << naturalPropRenderer_->VisibleReefHabitatCount() << ",\n"
                << "    \"fallen_logs\": " << naturalPropRenderer_->VisibleLogCount() << ",\n"
                << "    \"driftwood\": " << naturalPropRenderer_->VisibleDriftwoodCount()
                << ",\n"
@@ -2923,6 +2960,8 @@ namespace island
                       << naturalPropRenderer_->TotalRockCount() << " rocks, "
                       << naturalPropRenderer_->VisibleReefRockCount() << '/'
                       << naturalPropRenderer_->TotalReefRockCount() << " reef outcrops, "
+                      << naturalPropRenderer_->VisibleReefHabitatCount() << '/'
+                      << naturalPropRenderer_->TotalReefHabitatCount() << " reef habitat, "
                       << naturalPropRenderer_->VisibleLogCount() << '/'
                       << naturalPropRenderer_->TotalLogCount() << " logs, "
                       << naturalPropRenderer_->VisibleDriftwoodCount() << '/'

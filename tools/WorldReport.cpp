@@ -257,6 +257,7 @@ namespace
         }
         HashScaledPlacements(hash, std::span(world.props.BeachDetails()));
         HashScaledPlacements(hash, std::span(world.props.FallenFronds()));
+        HashScaledPlacements(hash, std::span(world.props.ReefHabitat()));
 
         const island::ShipwreckPlacement& ship = world.shipwreck.Ship();
         HashPosition(hash, ship.x, ship.y, ship.z);
@@ -513,7 +514,9 @@ namespace
             && world.props.BeachDetails().size() >= 120U
             && world.props.BeachDetails().size() <= 600U
             && world.props.FallenFronds().size() >= 30U
-            && world.props.FallenFronds().size() <= 180U;
+            && world.props.FallenFronds().size() <= 180U
+            && world.props.ReefHabitat().size() >= 180U
+            && world.props.ReefHabitat().size() <= 380U;
         const bool derivedCountsAgree = world.palms.Obstacles().size() == world.palms.Palms().size()
             && world.jungle.Obstacles().size() == world.jungle.Canopy().size()
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
@@ -548,7 +551,8 @@ namespace
             && ScaledPlacementsAreFinite(std::span(world.jungle.Bushes()))
             && ScaledPlacementsAreFinite(std::span(world.jungle.GroundPlants()))
             && ScaledPlacementsAreFinite(std::span(world.props.BeachDetails()))
-            && ScaledPlacementsAreFinite(std::span(world.props.FallenFronds()));
+            && ScaledPlacementsAreFinite(std::span(world.props.FallenFronds()))
+            && ScaledPlacementsAreFinite(std::span(world.props.ReefHabitat()));
         bool finiteSpecializedData = true;
         for (const island::GrassPlacement& placement : world.grass.Patches()) {
             finiteSpecializedData = finiteSpecializedData
@@ -831,6 +835,7 @@ namespace
                << "    \"grassPatches\": " << world.grass.Patches().size() << ",\n"
                << "    \"canopyTrees\": " << world.jungle.Canopy().size() << ",\n";
         output << "    \"mangroves\": " << world.jungle.MangroveCount() << ",\n";
+        output << "    \"reefHabitat\": " << world.props.ReefHabitat().size() << ",\n";
         // Outermost representatives reduce foreground canopy obstruction for the explicit
         // elevated LOD camera. Actual screenshots must still establish visible coverage.
         output << "    \"canopyReviewTargets\": [";
