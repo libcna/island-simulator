@@ -1,4 +1,5 @@
 #include "IslandSimulator/BoarCoatTexture.hpp"
+#include "IslandSimulator/MonkeyFurUv.hpp"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -6,6 +7,16 @@
 int main()
 {
     using Coat = island::BoarCoatTexture;
+    for(int i=0;i<=100;++i) {
+        const float t=static_cast<float>(i)/100;
+        const float u=island::MonkeyFurUv::Along(t);
+        const float v=island::MonkeyFurUv::Around(t*6.28318530718f);
+        if(u<.09999f||u>.90001f||v<.09999f||v>.90001f)
+            throw std::runtime_error("live RGB fur UV left interior source window");
+    }
+    if(std::abs(island::MonkeyFurUv::Around(0)-island::MonkeyFurUv::Around(6.28318530718f))>1e-6f)
+        throw std::runtime_error("live RGB fur circumference seam mismatch");
+    // Historical procedural source remains tested, but is no longer a runtime fallback.
     const auto pixels = Coat::Generate();
     const auto check = [](const bool condition, const char* message) {
         if (!condition) throw std::runtime_error(message);

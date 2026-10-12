@@ -581,6 +581,9 @@ if(ISLAND_BUILD_GAME)
     set(_island_spider_path "Content/wildlife/spider-setae.png")
     set(_island_goat_prepared "${CMAKE_BINARY_DIR}/${_island_goat_path}")
     set(_island_spider_prepared "${CMAKE_BINARY_DIR}/${_island_spider_path}")
+    set(_island_boar_source "${CMAKE_CURRENT_SOURCE_DIR}/assets/art-studies/boar-bristle-albedo-v1.png")
+    set(_island_boar_path "Content/wildlife/boar-bristle.png")
+    set(_island_boar_prepared "${CMAKE_BINARY_DIR}/${_island_boar_path}")
     set(_island_thatch_prepared "${CMAKE_BINARY_DIR}/${_island_thatch_path}")
     set(_island_fur_prepared "${CMAKE_BINARY_DIR}/${_island_fur_path}")
     set(_island_floor_prepared "${CMAKE_BINARY_DIR}/${_island_floor_path}")
@@ -617,7 +620,11 @@ if(ISLAND_BUILD_GAME)
             COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
                 "${_island_spider_source}" "${_island_spider_prepared}" --size 256
             DEPENDS "${_island_spider_source}" "${_island_material_tool}" VERBATIM)
-        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}" "${_island_thatch_prepared}" "${_island_goat_prepared}" "${_island_spider_prepared}")
+        add_custom_command(OUTPUT "${_island_boar_prepared}"
+            COMMAND "${Python3_EXECUTABLE}" "${_island_material_tool}"
+                "${_island_boar_source}" "${_island_boar_prepared}" --size 256
+            DEPENDS "${_island_boar_source}" "${_island_material_tool}" VERBATIM)
+        add_custom_target(island_material_assets DEPENDS "${_island_floor_prepared}" "${_island_leaf_prepared}" "${_island_fur_prepared}" "${_island_thatch_prepared}" "${_island_goat_prepared}" "${_island_spider_prepared}" "${_island_boar_prepared}")
         add_dependencies(island-simulator island_material_assets)
     endif()
 
@@ -669,6 +676,7 @@ if(ISLAND_BUILD_GAME)
             "SHELL:--preload-file '${_island_thatch_prepared}@/${_island_thatch_path}'"
             "SHELL:--preload-file '${_island_goat_prepared}@/${_island_goat_path}'"
             "SHELL:--preload-file '${_island_spider_prepared}@/${_island_spider_path}'"
+            "SHELL:--preload-file '${_island_boar_prepared}@/${_island_boar_path}'"
             -sALLOW_MEMORY_GROWTH=1
             -sSTACK_SIZE=1048576
             -sINITIAL_MEMORY=134217728
@@ -699,6 +707,8 @@ if(ISLAND_BUILD_GAME)
             RENAME goat-fur.png COMPONENT Runtime)
         install(FILES "${_island_spider_prepared}" DESTINATION Content/wildlife
             RENAME spider-setae.png COMPONENT Runtime)
+        install(FILES "${_island_boar_prepared}" DESTINATION Content/wildlife
+            RENAME boar-bristle.png COMPONENT Runtime)
         if(TARGET cna_shared)
             install(TARGETS cna_shared
                 LIBRARY DESTINATION lib

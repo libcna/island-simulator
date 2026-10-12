@@ -1,6 +1,8 @@
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/BoarRenderer.hpp"
-#include "IslandSimulator/BoarCoatTexture.hpp"
+#include "IslandSimulator/MonkeyFurUv.hpp"
+#include "IslandSimulator/OpaqueImageLoader.hpp"
+#include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
 #include "IslandSimulator/BoarPose.hpp"
 #include "IslandSimulator/BoarBristle.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
@@ -42,8 +44,7 @@ namespace island
     {
         constexpr int MaximumVertices = static_cast<int>(BoarHerd::BoarCount) * 6000;
         constexpr float Pi = std::numbers::pi_v<float>;
-        const Vector2 WhiteUv(BoarCoatTexture::WhiteU, BoarCoatTexture::WhiteV);
-        static_assert(BoarCoatTexture::Size == GeneratedTextureBudget::BoarCoatSize);
+        const Vector2 WhiteUv(-1,-1); // Solid anatomy marker, never sampled as fur.
 
         struct ModelBuilder
         {
@@ -123,7 +124,7 @@ namespace island
             }
 
             void Limb(const Vector3& start, const Vector3& end, float startRadius,
-                      float endRadius, const Color& color, int sides)
+                      float endRadius, const Color& color, int sides, bool fur=false)
             {
                 const Vector3 axis = Vector3::Normalize(end - start);
                 const Vector3 across(1, 0, 0);
@@ -133,7 +134,8 @@ namespace island
                     const float angle = static_cast<float>(side) * 2.0f * Pi / sides;
                     const Vector3 radial = across * std::cos(angle) + around * std::sin(angle);
                     return SmoothVertex((lower ? end : start) + radial * (lower ? endRadius : startRadius),
-                                        radial + axis * taper, color);
+                                        radial + axis * taper, color,fur?
+                                        Vector2(MonkeyFurUv::Along(lower?1.0f:0.0f),MonkeyFurUv::Around(angle)):WhiteUv);
                 };
                 for (int side = 0; side < sides; ++side) {
                     const auto a = vertex(side, false), b = vertex(side, true);
@@ -164,8 +166,8 @@ namespace island
                     const float stripe = juvenile && ring.z < 0.45f
                         ? 1.0f + 0.16f * std::pow(std::max(0.0f, std::sin(angle * 6.0f)), 4.0f) : 1.0f;
                     const auto coat = wildlife_render::ScaleColor(color, grain * dorsal * stripe);
-                    const Vector2 uv(BoarCoatTexture::BodyU((ring.z + 0.72f) / 1.78f),
-                        BoarCoatTexture::BodyV(static_cast<float>(side) / sides));
+                    const Vector2 uv(MonkeyFurUv::Along((ring.z + 0.72f) / 1.78f),
+                        MonkeyFurUv::Around(angle));
                     return SmoothVertex(point, Vector3(nx, ny, nz), coat, uv);
                 };
                 const std::size_t rowStep=sides<16?2U:1U; // Far mesh retains authored anchor count.
@@ -189,7 +191,8 @@ namespace island
             const int sides = near ? 16 : 6;
             const float bob = grounded.bodyBob;
             const float dip = boar.rootingPose * 0.15f;
-            mesh.Body(coat, dip, bob, boar.scale < 0.8f, sides);
+            const std::array<Color,3> furTints{Color(245,239,229),Color(211,217,222),Color(255,240,218)};
+            mesh.Body(furTints[boar.colorVariant%furTints.size()], dip, bob, boar.scale < 0.8f, sides);
             mesh.Ellipsoid(Vector3(0, 0.42f - dip + bob, 1.047f), Vector3(0.114f, 0.09f, 0.025f),
                            Color(51, 44, 39), near ? 12 : 6, 4);
             for (int side : {-1, 1}) {
@@ -199,7 +202,7 @@ namespace island
                     const Vector3 root(pose.root.x, pose.root.y, pose.root.z);
                     const Vector3 knee(pose.knee.x, pose.knee.y, pose.knee.z);
                     const Vector3 hoof(pose.hoof.x, pose.hoof.y, pose.hoof.z);
-                    mesh.Limb(root, knee, 0.105f, 0.057f, coat, near ? 8 : 5);
+                    mesh.Limb(root, knee, 0.105f, 0.057f, furTints[boar.colorVariant%furTints.size()], near ? 8 : 5,true);
                     mesh.Limb(knee, hoof, 0.057f, 0.034f, dark, near ? 8 : 5);
                     if (near) {
                         mesh.Ellipsoid(knee, Vector3(0.059f, 0.059f, 0.059f), dark, 6, 3);
@@ -290,7 +293,8 @@ namespace island
                                const float maximumDistance)
         : device_(device), terrain_(terrain), canopyLight_(canopyLight),
           renderedTerrain_(terrain),
-          coatTexture_(std::make_unique<Texture2D>(device, BoarCoatTexture::Size, BoarCoatTexture::Size)),
+          coatTexture_(std::make_unique<Texture2D>(device, GeneratedTextureBudget::BoarCoatSize,
+              GeneratedTextureBudget::BoarCoatSize,true,SurfaceFormat::Color)),
           effect_(std::make_unique<BasicEffect>(device)),
           buffer_(std::make_unique<DynamicVertexBuffer>(device,
               VertexPositionColorTexture::getVertexDeclarationStatic(), MaximumVertices, BufferUsage::WriteOnly)),
@@ -300,13 +304,13 @@ namespace island
             throw std::invalid_argument("Boar render distance must be finite and positive");
         }
         staging_.reserve(MaximumVertices);
-        const auto texels = BoarCoatTexture::Generate();
-        std::vector<Color> pixels;
-        pixels.reserve(texels.size());
-        for (const auto value : texels) {
-            pixels.emplace_back(value, value, value, static_cast<std::uint8_t>(255));
+        const auto levels=LoadOpaqueImageMips(device,"Content/wildlife/boar-bristle.png",GeneratedTextureBudget::BoarCoatSize);
+        for(std::size_t level=0;level<levels.size();++level) {
+            const auto& pixels=levels[level].pixels;
+            coatTexture_->SetData(static_cast<int>(level),nullptr,reinterpret_cast<const std::uint8_t*>(pixels.data()),0,static_cast<int>(pixels.size()*4));
         }
-        coatTexture_->SetData(pixels.data(), static_cast<int>(pixels.size()));
+        const char* material="island-simulator: boar bristle loaded Content/wildlife/boar-bristle.png; 256x256, 9 mips, 349524 RGBA8 bytes";
+        std::cout<<material<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(material);
         effect_->setTextureEnabledProperty(true);
         effect_->setTextureProperty(coatTexture_.get());
         effect_->setVertexColorEnabledProperty(true);
@@ -320,7 +324,7 @@ namespace island
         std::cout << diagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         constexpr const char* coatDiagnostic =
-            "island-simulator: boar directional coat atlas 128x128, opaque stock BasicEffect";
+            "island-simulator: boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws";
         std::cout << coatDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(coatDiagnostic);
         constexpr const char* poseDiagnostic =
@@ -372,14 +376,28 @@ namespace island
         device_.setBlendStateProperty(BlendState::Opaque);
         device_.setDepthStencilStateProperty(DepthStencilState::Default);
         device_.getSamplerStatesProperty()[0] = SamplerState::LinearClamp;
+        // Every triangle has a homogeneous material marker; stable partition retains
+        // vertex order within each triangle and keeps one bounded upload.
+        for(std::size_t i=0;i<staging_.size();i+=3) {
+            const bool fur=staging_[i].TextureCoordinate.X>=0;
+            if((staging_[i+1].TextureCoordinate.X>=0)!=fur||(staging_[i+2].TextureCoordinate.X>=0)!=fur)
+                throw std::runtime_error("Mixed boar triangle material");
+        }
+        const auto split=std::stable_partition(staging_.begin(),staging_.end(),
+            [](const auto& vertex){return vertex.TextureCoordinate.X>=0;});
+        const int texturedCount=static_cast<int>(std::distance(staging_.begin(),split));
+        if(texturedCount%3)throw std::runtime_error("Mixed boar triangle material");
         buffer_->SetData(staging_.data(), 0, static_cast<int>(staging_.size()), SetDataOptions::Discard);
         device_.SetVertexBuffer(buffer_.get());
         device_.setIndicesProperty(nullptr);
         effect_->setWorldProperty(Matrix::getIdentityProperty());
         effect_->setViewProperty(view);
         effect_->setProjectionProperty(projection);
-        effect_->Apply();
-        device_.DrawPrimitives(PrimitiveType::TriangleList, 0, static_cast<int>(staging_.size() / 3));
-        drawCalls_ = 1;
+        effect_->setTextureEnabledProperty(true);effect_->Apply();
+        device_.DrawPrimitives(PrimitiveType::TriangleList,0,texturedCount/3);
+        effect_->setTextureEnabledProperty(false);effect_->Apply();
+        device_.DrawPrimitives(PrimitiveType::TriangleList,texturedCount,
+            (static_cast<int>(staging_.size())-texturedCount)/3);
+        drawCalls_ = 2;
     }
 }

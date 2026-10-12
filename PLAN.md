@@ -50,6 +50,13 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   preview actually inspected. Not live: needs RGB material/solid-anatomy split,
   suitable UVs, mips, packaging/budget updates and actual island comparison.
   See docs/boar-coat-material.md; source generation does not complete visual quality.
+  Runtime integration now requires256-square RGB coat/9mips349524bytes, body+upper
+  legs with interior directional UVs/neutral variant tint, separate solid anatomy
+  in2opaque draws/one bounded upload. Newruntime9130456bytes/caps9150672; native
+  install/Webpreload/Androidpreparation and exact smoke-budget checks updated.
+  Actual final064239.018898Z-boars image inspected/PASS/kernel[]: obvious fur, but
+  stretched muzzle streaks/coarse limb joins remain. Native build/full55CPU PASS136.47s.
+  No Web/Android build/runtime or final visual acceptance; task stays open.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

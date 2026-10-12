@@ -20,7 +20,7 @@ namespace island
         static constexpr int SolidWhiteTextureSize = 1;
         static constexpr int SolidWhiteTextureCount = 2;
         static constexpr int CanopyLightSize = 1024;
-        static constexpr int BoarCoatSize = 128;
+        static constexpr int BoarCoatSize = 256;
         static constexpr int SnakeScaleSize = 64;
         static constexpr std::size_t MonkeyFurMipBytes = 1398100U;
         static constexpr std::size_t HutThatchMipBytes = 349524U;
@@ -33,7 +33,7 @@ namespace island
         static constexpr int GrassHeightSize = 241;
         static constexpr std::size_t GrassHeightRgba8Bytes =
             static_cast<std::size_t>(GrassHeightSize) * GrassHeightSize * BytesPerPixel;
-        static constexpr std::size_t BoarCoatRgba8Bytes = BoarCoatSize * BoarCoatSize * BytesPerPixel;
+        static constexpr std::size_t BoarCoatRgba8Bytes = 349524U; // File-backed full mip chain.
         static constexpr std::size_t CanopyLightRgba8Bytes =
             static_cast<std::size_t>(CanopyLightSize) * CanopyLightSize * BytesPerPixel;
 
@@ -45,7 +45,6 @@ namespace island
             + static_cast<std::size_t>(SolidWhiteTextureSize * SolidWhiteTextureSize
                                        * SolidWhiteTextureCount)
             + static_cast<std::size_t>(CanopyLightSize * CanopyLightSize)
-            + static_cast<std::size_t>(BoarCoatSize * BoarCoatSize)
             + static_cast<std::size_t>(SnakeScaleSize * SnakeScaleSize)
             + static_cast<std::size_t>(GrassHeightSize * GrassHeightSize);
         static constexpr std::size_t TotalRgba8Bytes =
@@ -54,9 +53,9 @@ namespace island
         // Excludes decoder temporaries, CNA CPU shadows, driver padding and framebuffer storage.
         static constexpr std::size_t TotalRuntimeRgba8Bytes =
             TotalRgba8Bytes + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
-            + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes + SpiderSetaeMipBytes;
+            + MonkeyFurMipBytes + HutThatchMipBytes + GoatFurMipBytes + SpiderSetaeMipBytes + BoarCoatRgba8Bytes;
     };
 
-    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4652172U,
+    static_assert(GeneratedTextureBudget::TotalRgba8Bytes == 4586636U,
                   "Update the generated texture audit when the base-level payload changes");
 }

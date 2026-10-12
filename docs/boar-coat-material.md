@@ -1,4 +1,42 @@
-# Boar coat material — generated source, not live yet
+# Boar coat material — live integration, visual refinement open
+
+## Runtime integration
+
+The game now requires `Content/wildlife/boar-bristle.png`, prepared at256square,
+with9runtime mip levels/349524RGBA8bytes. Missing content fails rather than falling
+back to the rejected procedural coat. Body and upper legs use the RGB source with
+near-neutral variant tints; eyes/nose/hooves and remaining solid anatomy keep their
+own colours. One shared upload is partitioned into two opaque BasicEffect draws.
+Every triangle's material marker is checked before partition; old white-strip atlas
+coordinates are no longer sampled. `stable_partition` may use bounded temporary CPU
+storage up to the existing36000vertex batch; no new permanent GPU vertex allocation.
+
+Interior UVs use longitudinal0.1..0.9 and mirrored angular0.1..0.9 windows, reusing
+the existing MonkeyFurUv mapping. Fold lines remain at top/bottom rather than broad
+sides; this avoids assuming seamless source edges. Old procedural coat code/tests
+remain historical utility, not a runtime fallback.
+
+Replacing128square/no-mip65536bytes with the new349524byte material adds283988bytes.
+Generated-only textures now4586636bytes; total runtime9130456bytes and full/mobile
+quality caps9150672bytes. Native install, Web preload and Android preparation include
+the required source/output; compile/package changes alone are not portable runtime proof.
+Browser/Android exact-budget checks have been updated without weakening thresholds.
+
+First actual contained native063826.490440Z-boars was inspected in
+`build/boar-bristle-live-first.png`, PASS326bins/std44.03/spatial195.59. Fur is visible,
+but conspicuous long streaks on the head and plain upper legs were exposed. Upper
+legs then received matching fur UVs/tint. Muzzle scale/stretch, body/leg joints and
+naturalness remain open; this is NOT completed boar appearance.
+Final contained064239.018898Z-boars PASS324bins/std44.05/spatial195.52/kernel-after[];
+`build/boar-bristle-live-final.png` actually inspected. Upper legs now share the coat,
+while eyes/nose/hooves stay solid; required material and1/6visible/two draws confirmed.
+Fur reads clearly but the long muzzle still produces conspicuous streaks and the
+coarse limb junctions remain. No overall realism acceptance.
+Native build/inclusive55CPU PASS136.47s, including actual boar-source host/C++ pixel
+comparison and exact budget checks. Logs build/boar-material-{final-build,full-tests}.log.
+JS smoke-script syntax and Android shell syntax pass. No Web/Android build/runtime.
+
+## Source creation history
 
 The operator rejected the current smooth, procedural-looking boars. The actual
 062718.488953Z native image still shows a plain flank despite a refined dorsal
@@ -29,7 +67,7 @@ Preview154913bytes, SHA256
 `7dc6d99d98c9e2c5ef9801971dee828b4de72ea3785ee2a9959b09ed454bdc1e`.
 This is a preview only, not a packaged runtime texture or successful game capture.
 
-## Required integration
+## Integration checklist recorded at source creation (historical)
 
 - Replace the current128-square grayscale body multiplier with required file-backed
   RGB coat content and mip levels; do not silently fall back to the rejected material.
@@ -43,7 +81,7 @@ This is a preview only, not a packaged runtime texture or successful game captur
 - Inspect actual close and distant before/after island views; then qualify portable
   build/runtime. An attractive texture swatch is not a realistic animal by itself.
 
-No runtime code, GPU allocation, packaged content or displayed boar changed in this
-source-only step. The full visual task remains open.
+No runtime code, GPU allocation, packaged content or displayed boar changed in the
+earlier source-only step. Current runtime changes are recorded above; visual work remains open.
 Asset manifest validation and prepared-material regression tests PASS9.06s
 (`build/boar-bristle-source-tests.log`). No native/Web/Android runtime test in this step.

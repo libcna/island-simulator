@@ -20,7 +20,7 @@ namespace Microsoft::Xna::Framework::Graphics
 namespace island
 {
     class CanopyLightField;
-    /** @brief Original articulated boars in one bounded, culled portable geometry batch. */
+    /** @brief Articulated boars: one bounded upload, textured coat and solid-anatomy draws. */
     class BoarRenderer final
     {
     public:

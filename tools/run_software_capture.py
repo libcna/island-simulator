@@ -618,8 +618,10 @@ def main():
                 validate_spider_render_log(diagnostics)
             if args.viewpoint == "goats" and "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("goat fur material was not loaded")
-            if "boar directional coat atlas 128x128, opaque stock BasicEffect" not in diagnostics:
+            if "boar bristle loaded Content/wildlife/boar-bristle.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("current boar coat is missing; check for a stale executable")
+            if args.viewpoint=="boars" and not re.search(r"boars [1-6]/6 visible, 2 draw", diagnostics):
+                raise RuntimeError("boar coat/solid anatomy draw split missing")
             if "boars use connected limb poses, stance contact and body-rooted bristles" not in diagnostics:
                 raise RuntimeError("current boar pose is missing; check for a stale executable")
             if "monkeys receive footprint-averaged canopy light through 14-bone skinning" not in diagnostics:

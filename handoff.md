@@ -1,5 +1,31 @@
 # island-simulator handoff
 
+## Latest — generated boar coat LIVE, muzzle mapping still needs refinement
+
+Previous565ddda was progress. BoarRenderer now requires256squareRGB
+Content/wildlife/boar-bristle.png,9mips349524bytes, no procedural fallback. Prepared
+hash7dc6d99d... matches preview. Body+upperlegs use near-neutral variant tint and
+MonkeyFurUv Along/Around interior mirrored windows; all other anatomy solid marker
+(-1,-1). Validate homogeneous triangle material before stable_partition, one bounded
+36000vertex upload/two opaque BasicEffect draws. Partition may allocate bounded CPU
+temporary, no new permanentGPUvertexbuffer. Old proceduralcoat code/tests historical.
+Generated-only4586636bytes; runtime9130456/caps9150672 (delta+283988). CMake native
+install/Webpreload andAndroid materialprep updated; exactChrome/Firefox/Androidsmoke
+budget strings updated. Boar capture requires newmaterial diagnostic and2draws.
+RGB UV regression and actualsource host/C++pixelcomparison added. Final nativebuild
+andfull55CPU PASS136.47s (2257exit0); logs build/boar-material-{final-build,full-tests}.log.
+JS/shellsyntaxPASS. No Web/Android build/runtime. Final unusedinclude cleanup rebuild
+PASS (52536exit0), build/boar-material-cleanup-build.log; no executable semantics change.
+Actual first063826.490440Z (24976exit0) inspected build/boar-bristle-live-first.png:
+clearfur/plainupperlegs/headstreaks. Addedupperlegfur. Final064239.018898Z (23306exit0)
+PASS324bins/std44.05/spatial195.52/kernel[], actual build/boar-bristle-live-final.png
+inspected: upperlegsnowfur, stilllongmuzzlestreaks/coarselimbs. NOTfinalrealismacceptance.
+NEXT correct muzzle UV scale/stretch and head anatomy; furtherboar/monkeyrefinement,
+hut inland/reference rebuild, stream,cave,enterablegroundedhelicopter/fullplan remain.
+Reused build/-j2/sharedcache. NoAMD/AndroidKVM/dependencychanges. Goalactive/no push.
+All owned handles terminal; stop latch unchanged.
+Disk build8.8G/build-probe430M/android/app/build412M; no artifacts removed.
+
 ## Latest — original boar bristle source prepared, runtime integration NEXT
 
 Previous12274a6 was progress. Used imagegen skill (read SKILL and both shared prompt
