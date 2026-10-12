@@ -41,6 +41,8 @@ namespace island
             "island-simulator: sea turtles use faceted shells and articulated flippers in one culled batch";
         constexpr std::string_view TurtleFormDiagnostic =
             "island-simulator: sea turtles use domed scute carapaces, beaked heads and bending paddle strokes";
+        constexpr std::string_view TurtleDetailDiagnostic =
+            "island-simulator: near turtles use subdued scute seams, fuller heads, nostrils and mouth creases";
 
         struct TurtlePalette
         {
@@ -175,6 +177,7 @@ namespace island
                 + CarapaceRows * PlastronColumns * 2 + PlastronColumns * 2    // plastron and caps
                 + HeadSegments * (HeadRings - 1) * 2 + HeadSegments * 2       // neck/skull/brow/snout strips, nose, neck cap
                 + 4                                                           // eyes
+                + 4                                                           // paired nostrils and mouth creases
                 + 2 * ((FrontSamples - 1) * 2 * 2)                            // front paddles, two faces
                 + 2 * ((RearSamples - 1) * 2 * 2)                             // rear paddles, two faces
                 + 4;                                                          // tail, two faces
@@ -246,11 +249,11 @@ namespace island
             // Scute seams: narrow dark strips lifted 3 mm off the dome along the boundaries
             // between the five scute rows and at the vertebral/costal and costal/marginal edges.
             {
-                const Color seam = ToneColor(palette.shell, 0.70f);
+                const Color seam = ToneColor(palette.shell, 0.82f);
                 const auto lifted = [&](const Vector3& point) {
                     return point + (point - bodyInside) * 0.0f + axes.up * (0.003f * scale);
                 };
-                constexpr float seamHalfWidth = 0.0055f;
+                constexpr float seamHalfWidth = 0.0035f;
                 for (int boundary = 1; boundary <= NearTurtleBudget::SeamRows; ++boundary) {
                     const auto r = static_cast<std::size_t>(boundary * 2); // rows pair up per scute
                     const Vector3 along = (dome[r + 1][4] - dome[r - 1][4]);
@@ -315,8 +318,8 @@ namespace island
             struct Ring { float y, z, radiusX, radiusY; };
             // Neck, skull (widest behind the eyes), brow and a narrowing beaked snout.
             constexpr std::array<Ring, NearTurtleBudget::HeadRings> rings{{
-                {0.02f, 0.50f, 0.072f, 0.062f}, {0.038f, 0.66f, 0.094f, 0.082f},
-                {0.028f, 0.76f, 0.078f, 0.066f}, {-0.004f, 0.86f, 0.046f, 0.038f}}};
+                {0.025f, 0.50f, 0.082f, 0.070f}, {0.047f, 0.66f, 0.110f, 0.095f},
+                {0.035f, 0.77f, 0.094f, 0.076f}, {0.002f, 0.88f, 0.062f, 0.046f}}};
             std::array<std::array<Vector3, HeadSegments>, NearTurtleBudget::HeadRings> head{};
             for (std::size_t r = 0; r < rings.size(); ++r) {
                 for (int segment = 0; segment < HeadSegments; ++segment) {
@@ -341,7 +344,7 @@ namespace island
                     AddOutwardTriangle(vertices, head[r][s0], head[r + 1][s1], head[r][s1], color, inside);
                 }
             }
-            const Vector3 nose = local(0.0f, -0.014f, 0.905f);
+            const Vector3 nose = local(0.0f, -0.010f, 0.930f);
             const Vector3 neckBase = local(0.0f, 0.02f, 0.42f);
             for (int segment = 0; segment < HeadSegments; ++segment) {
                 const auto s0 = static_cast<std::size_t>(segment);
@@ -354,14 +357,24 @@ namespace island
             const Color eyeShine(96, 112, 108, 255);
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
-                const Vector3 e0 = local(side * 0.094f, 0.085f, 0.690f);
-                const Vector3 e1 = local(side * 0.098f, 0.036f, 0.728f);
-                const Vector3 e2 = local(side * 0.098f, 0.042f, 0.652f);
+                const Vector3 e0 = local(side * 0.111f, 0.101f, 0.695f);
+                const Vector3 e1 = local(side * 0.115f, 0.040f, 0.738f);
+                const Vector3 e2 = local(side * 0.115f, 0.046f, 0.648f);
                 AddTriangle(vertices, e0, side > 0.0f ? e2 : e1, side > 0.0f ? e1 : e2, eye);
-                const Vector3 h0 = local(side * 0.100f, 0.068f, 0.698f);
-                const Vector3 h1 = local(side * 0.101f, 0.056f, 0.712f);
-                const Vector3 h2 = local(side * 0.101f, 0.054f, 0.688f);
+                const Vector3 h0 = local(side * 0.117f, 0.080f, 0.703f);
+                const Vector3 h1 = local(side * 0.118f, 0.064f, 0.718f);
+                const Vector3 h2 = local(side * 0.118f, 0.062f, 0.692f);
                 AddTriangle(vertices, h0, side > 0.0f ? h2 : h1, side > 0.0f ? h1 : h2, eyeShine);
+                const Vector3 n0 = local(side * 0.043f, 0.025f, 0.908f);
+                const Vector3 n1 = local(side * 0.058f, 0.010f, 0.890f);
+                const Vector3 n2 = local(side * 0.035f, 0.008f, 0.914f);
+                AddTriangle(vertices, n0, side > 0.0f ? n2 : n1,
+                            side > 0.0f ? n1 : n2, eye);
+                const Vector3 m0 = local(side * 0.064f, -0.018f, 0.885f);
+                const Vector3 m1 = local(side * 0.082f, -0.022f, 0.820f);
+                const Vector3 m2 = local(side * 0.060f, -0.030f, 0.873f);
+                AddTriangle(vertices, m0, side > 0.0f ? m2 : m1,
+                            side > 0.0f ? m1 : m2, eye);
             }
 
             // Paddles: thin surfaces with a dark scaled upper face and a pale underside. Lit
@@ -466,6 +479,8 @@ namespace island
         MirrorRuntimeDiagnosticToPlatformLog(TurtleDiagnostic);
         std::cout << TurtleFormDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(TurtleFormDiagnostic);
+        std::cout << TurtleDetailDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(TurtleDetailDiagnostic);
     }
 
     SeaTurtleRenderer::~SeaTurtleRenderer() = default;

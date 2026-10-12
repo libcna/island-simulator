@@ -791,9 +791,12 @@ namespace island
                    && !seaTurtleGroup_.Turtles().empty()) {
             const SeaTurtleState& turtle = seaTurtleGroup_.Turtles()[2U];
             const Vector3 radial = Vector3::Normalize(Vector3(turtle.x, 0.0f, turtle.z));
-            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            const Vector3 forward(std::cos(turtle.headingRadians), 0.0f,
+                                  std::sin(turtle.headingRadians));
+            Vector3 side(-forward.Z, 0.0f, forward.X);
+            if (Vector3::Dot(side, radial) < 0.0f) side = -side;
             cameraPosition_ = Vector3(turtle.x, turtle.y, turtle.z)
-                + radial * 4.1f + tangent * 1.1f + Vector3::Up * 1.75f;
+                + side * 3.0f - forward * 0.25f + Vector3::Up * 1.4f;
             const Vector3 toTurtle = Vector3(turtle.x, turtle.y, turtle.z) - cameraPosition_;
             yaw_ = std::atan2(toTurtle.X, toTurtle.Z);
             pitch_ = std::atan2(toTurtle.Y, std::hypot(toTurtle.X, toTurtle.Z));

@@ -39,7 +39,7 @@ point inside 1.20 × scale.
   offset hexagons.
 - Wet sheen: carapace facets gain a narrow glossy lobe toward the fixed sun (half-vector of
   sun and up, exponent 12, up to +35 %), so the dome catches light where a wet shell would.
-- Near tier is now 576 triangles / 1,728 vertices per turtle (86,400 bytes for five).
+- Near tier is now 576 triangles / 1,728 vertices per turtle (138,240 bytes for five).
   Evidence: native llvmpipe `build/software-captures/20261010T161349.542896Z-turtles` (pass,
   inspected; first tuning in `161322.077668Z`). Open: hexagonal scute layout, surface
   reflections when the shell breaks the water, the shared underwater tint.
@@ -58,3 +58,22 @@ draw 4,994.452 ms, total 10,885.404 ms, image inspected, empty kernel deltas). R
 20,402,427 bytes (`98716929b85ca8d677fb88b5b786517b910d4695e7466b6129825af6241459eb`); Web
 package 10,364,549 raw / 3,526,469 gzip bytes. Default ARM64 APK restored: 20,491,236 bytes
 (`103b7bc1514ae06a61ebe3deb3b0160e17c90094008524da524103b48ae5e870`), runtime untested.
+
+## Third image-driven detail pass (2026-10-12)
+
+The new deterministic side-on camera exposed that the shell and paddle silhouette were already
+substantially better than the old rejected asset, while the head remained undersized and the dark
+straight seam strips read as a cage around the shell. The head rings are now fuller through the
+neck, skull, brow and beak; eyes sit on the enlarged skull surface and the snout adds paired
+nostrils plus a short mouth crease. Existing dark seam strips shrink from 5.5 to 3.5 mm half-width
+and move from 70% to 82% of the shell tone. This keeps the scute organization readable without
+overpowering the domed carapace.
+
+Four added detail triangles raise the close tier to 580 triangles / 1,740 vertices per turtle.
+The five-agent fixed dynamic capacity is 139,200 bytes assuming the 16-byte
+`VertexPositionColor`; population, simulation, paddle articulation, far LOD and one-draw batching
+are unchanged. Contained llvmpipe evidence
+`build-consumer/software-captures/20261012T211746.659012Z-turtles` passed image, OpenGL, runtime
+and kernel-delta checks with one near turtle in one draw. The image was inspected. The seams still
+form a simplified grid rather than fully interlocking natural scutes, and flipper scale pattern,
+portable runtime captures and further material polish remain open.

@@ -409,7 +409,11 @@ docs/stream-course.md and docs/environment-field-design.md.
   mouth and three gill slits per side. Inspected contained evidence
   `20261012T211055.205953Z-shark` shows the single near shark in one draw; see
   `docs/shark-form.md`. All three forms remain visibly faceted and Web/Android/performance review
-  is open; turtle and crab polish also remains, so this
+  is open. Turtle review retained the existing detailed shell/paddle foundation but enlarged the
+  four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
+  cage-like scute seams for +12 near vertices. Inspected contained
+  `20261012T211746.659012Z-turtles` shows one near turtle/one draw; see
+  `docs/sea-turtle-form.md`. Crab polish also remains, so this
   umbrella item is intentionally not complete. See `docs/dolphins.md`.
 
 Stream bed now live in TerrainRenderer: covered original coarse quads omitted;

@@ -1,5 +1,17 @@
 # island-simulator handoff
 
+## Current work — sea-turtle head and shell-detail pass inspected
+
+Goal remains active. New side-on QA camera first exposed the existing detailed1728-vertex turtle.
+The shell/paddle silhouette was retained; head rings/neck/skull/brow/beak are fuller, eye triangles
+move to the surface, paired nostrils and mouth creases add4triangles, and cage-like scute seam strips
+narrow5.5→3.5mm while lightening70→82% shell tone. Near budget1740vertices/turtle, fixed five-agent
+capacity139200bytes, far LOD/population/simulation/one-draw unchanged. Actual contained llvmpipe
+`20261012T211746.659012Z-turtles` PASS/kernel[], one near turtle/one draw, image inspected. Natural
+interlocking scutes, skin-scale material, further flipper/head art, Web/Android and performance
+remain; PLAN aquatic umbrella stays[~]. See docs/sea-turtle-form.md. Next crab visual audit. Max4
+build cores; no AMD/Android/KVM changes.
+
 ## Current work — offshore shark volumetric form inspected
 
 Goal remains active. Baseline `20261012T210613.753528Z-shark` exposed the old51-vertex diamond

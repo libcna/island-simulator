@@ -268,7 +268,9 @@ Five non-hostile sea turtles follow separate bounded near-shore routes between t
 surface. They alternate slow cruising, seabed foraging, and occasional surfacing, remain outside
 land and the outer-current region, and respond mildly to a nearby swimmer. Faceted scute-patterned
 shells, articulated flippers, three natural palettes, near/far geometry, and one culled dynamic
-batch keep them readable through the water without making them a constant attraction.
+batch keep them readable through the water without making them a constant attraction. The current
+close pass uses subdued geometric scute seams, a fuller four-ring head, surface eyes, nostrils and
+a mouth crease; see [the sea-turtle form review](docs/sea-turtle-form.md).
 Twenty-four birds retain their three flight-route families while at most two use bounded approach,
 perch and departure states on real tree branches, land rocks or the wreck beam. Perched near birds
 fold their wings and place small feet on the support without another draw call.

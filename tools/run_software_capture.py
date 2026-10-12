@@ -729,6 +729,11 @@ def main():
                 raise RuntimeError("current wind-driven cloud drift is missing; check for a stale executable")
             if "sea turtles use domed scute carapaces, beaked heads and bending paddle strokes" not in diagnostics:
                 raise RuntimeError("current sea-turtle form is missing; check for a stale executable")
+            if args.viewpoint == "turtles":
+                if "near turtles use subdued scute seams, fuller heads, nostrils and mouth creases" not in diagnostics:
+                    raise RuntimeError("current close sea-turtle detail is missing; check for a stale executable")
+                if not re.search(r"turtles [1-5]/5 visible \(near [1-5], far [0-5]\), 1 draw", diagnostics):
+                    raise RuntimeError("sea-turtle capture did not submit a near detailed animal")
             if args.viewpoint == "fish":
                 if "near fish use six-station volumetric bodies, caudal peduncles and progressive rear-body bends" not in diagnostics:
                     raise RuntimeError("current close fish form is missing; check for a stale executable")
