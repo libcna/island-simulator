@@ -1384,6 +1384,13 @@ namespace island
                       << (debugOverlayVisible_ ? "enabled" : "disabled") << '\n';
         }
         debugOverlayToggleWasDown_ = debugOverlayToggleDown;
+        const bool muteToggleDown = frameKeyboard.IsKeyDown(Keys::M);
+        if (muteToggleDown && !muteToggleWasDown_ && soundscape_) {
+            soundscape_->ToggleMuted();
+            userSettings_.audioMuted = soundscape_->IsMuted();
+            PersistUserSettings();
+        }
+        muteToggleWasDown_ = muteToggleDown;
         if (!benchmarkPath_.empty()
             && viewpoint_ == FixedViewpoint::BenchmarkTraversal) {
             UpdateBenchmarkTraversal();
@@ -1482,6 +1489,7 @@ namespace island
                                        subject.y - previousMonkeySubject.y,
                                        subject.z - previousMonkeySubject.z);
         }
+        UpdateSoundscape(deltaSeconds);
         if (soundscape_ && worldDebugVisible_) {
             soundscape_->RefreshDebugSources(
                 cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z,
@@ -1520,7 +1528,8 @@ namespace island
                         << " muted " << soundscape_->IsMuted()
                         << " boars " << soundscape_->PlayedBoarCallCount()
                         << " sources " << audio.playingSourceCount
-                        << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type) << '\n';
+                        << " wildlife " << static_cast<int>(audio.activeWildlifeCall.type)
+                        << " snake-hisses " << soundscape_->PlayedSnakeHissCount() << '\n';
                 }
                 if (flightMotion_.IsActive())
                     std::cout << "island-simulator: flight position " << cameraPosition_.X << ' '
@@ -1697,14 +1706,6 @@ namespace island
                 || !touchContacts.empty() || movementKeyDown)) {
             TryStartSoundscape();
         }
-
-        const bool muteToggleDown = keyboard.IsKeyDown(Keys::M);
-        if (muteToggleDown && !muteToggleWasDown_ && soundscape_) {
-            soundscape_->ToggleMuted();
-            userSettings_.audioMuted = soundscape_->IsMuted();
-            PersistUserSettings();
-        }
-        muteToggleWasDown_ = muteToggleDown;
 
         const bool cameraMotionToggleDown = keyboard.IsKeyDown(Keys::B);
         if (cameraMotionToggleDown && !cameraMotionToggleWasDown_) {
@@ -1999,27 +2000,37 @@ namespace island
         }
 #endif
         }
-        if (soundscape_) {
-            const PlayerPosition& position = playerMotion_.Position();
-            const SoundscapeListenerState listener{
-                cameraPosition_.X,
-                cameraPosition_.Y,
-                cameraPosition_.Z,
-                forward.X * std::cos(pitch_),
-                std::sin(pitch_),
-                forward.Z * std::cos(pitch_),
-                IsDebugFreeCameraActive() || flightMotion_.IsActive() ? 0.0f : playerMotion_.VelocityX(),
-                IsDebugFreeCameraActive() || flightMotion_.IsActive() ? 0.0f : playerMotion_.VelocityZ(),
-            };
-            soundscape_->Update(terrain_.SignedShoreDistance(flightMotion_.IsActive() ? cameraPosition_.X : position.x,
-                                                            flightMotion_.IsActive() ? cameraPosition_.Z : position.z),
-                                !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
-                                flightMotion_.IsActive() ? 0.0f : std::max(0.0f, -playerMotion_.GroundHeight()),
-                                flightMotion_.IsActive() ? 0.0f : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
-                                flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
-                                deltaSeconds, listener,
-                                birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars());
-        }
+    }
+
+    void IslandGame::UpdateSoundscape(const float deltaSeconds) noexcept
+    {
+        if (!soundscape_) return;
+        const PlayerPosition& position = playerMotion_.Position();
+        const Vector3 forward(std::sin(yaw_), 0.0f, std::cos(yaw_));
+        const SoundscapeListenerState listener{
+            cameraPosition_.X,
+            cameraPosition_.Y,
+            cameraPosition_.Z,
+            forward.X * std::cos(pitch_),
+            std::sin(pitch_),
+            forward.Z * std::cos(pitch_),
+            IsDebugFreeCameraActive() || flightMotion_.IsActive()
+                ? 0.0f : playerMotion_.VelocityX(),
+            IsDebugFreeCameraActive() || flightMotion_.IsActive()
+                ? 0.0f : playerMotion_.VelocityZ(),
+        };
+        soundscape_->Update(
+            terrain_.SignedShoreDistance(
+                flightMotion_.IsActive() ? cameraPosition_.X : position.x,
+                flightMotion_.IsActive() ? cameraPosition_.Z : position.z),
+            !flightMotion_.IsActive() && playerMotion_.Mode() == LocomotionMode::Swimming,
+            flightMotion_.IsActive() ? 0.0f : std::max(0.0f, -playerMotion_.GroundHeight()),
+            flightMotion_.IsActive() ? 0.0f
+                : std::hypot(playerMotion_.VelocityX(), playerMotion_.VelocityZ()),
+            flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
+            deltaSeconds, listener,
+            birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
+            snakes_->Snakes());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept
@@ -2887,6 +2898,7 @@ namespace island
                 overlayState.playedBirdCalls = soundscape_->PlayedBirdCallCount();
                 overlayState.playedMonkeyCalls = soundscape_->PlayedMonkeyCallCount();
                 overlayState.playedBoarCalls = soundscape_->PlayedBoarCallCount();
+                overlayState.playedSnakeHisses = soundscape_->PlayedSnakeHissCount();
                 overlayState.wildlifeCallActive = soundscape_->IsWildlifeCallActive();
                 const SoundscapeDebugState soundscapeDebug = soundscape_->DebugState();
                 overlayState.playingAudioSources = soundscapeDebug.playingSourceCount;

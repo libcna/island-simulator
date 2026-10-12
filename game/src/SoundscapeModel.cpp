@@ -909,6 +909,100 @@ namespace island
         return {};
     }
 
+    AmbientLoop GenerateSnakeHiss(const std::uint8_t variant)
+    {
+        constexpr std::size_t frames = AmbientSampleRate;
+        std::vector<float> samples(frames, 0.0f);
+        const bool alternate = (variant & 1U) != 0U;
+        DeterministicNoise noise(0x51a6e55eU + static_cast<std::uint32_t>(alternate) * 7919U);
+        float low = 0.0f, slower = 0.0f;
+        const auto pulse = [](const float t, const float begin, const float length) {
+            const float u = (t - begin) / length;
+            if (u <= 0.0f || u >= 1.0f) return 0.0f;
+            const float attack = SmoothStep(0.0f, 0.09f, u);
+            const float release = 1.0f - SmoothStep(0.62f, 1.0f, u);
+            return attack * release;
+        };
+        for (std::size_t i = 0; i < frames; ++i) {
+            const float t = static_cast<float>(i) / static_cast<float>(AmbientSampleRate);
+            const float raw = noise.Next();
+            low += 0.11f * (raw - low);
+            slower += 0.018f * (low - slower);
+            const float bright = raw - low;
+            const float mid = low - slower;
+            const float envelope = alternate
+                ? pulse(t, .06f, .35f) + .84f * pulse(t, .49f, .43f)
+                : pulse(t, .07f, .82f);
+            const float breathFlutter = .90f + .10f * std::sin(
+                2.0f * std::numbers::pi_v<float> * (alternate ? 17.0f : 13.0f) * t);
+            samples[i] = envelope * breathFlutter * (bright * .82f + mid * 1.35f);
+        }
+        return Quantize(samples, .56f);
+    }
+
+    float SnakeHissVolume(const float distance) noexcept
+    {
+        if (!std::isfinite(distance) || distance < 0.0f || distance >= 16.0f) return 0.0f;
+        const float fade = 1.0f - distance / 16.0f;
+        return .31f * fade * fade;
+    }
+
+    float SnakeHissScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU) / 16777216.0f;
+    }
+
+    void SnakeHissScheduler::Reset() noexcept
+    {
+        randomState_ = 0x51a6e55eU;
+        populationCooldown_ = .75f;
+        nextAnimal_ = 0;
+        for (float& cooldown : cooldowns_) cooldown = 1.0f + 3.5f * NextUnit();
+    }
+
+    SnakeHissRequest SnakeHissScheduler::Update(const float deltaSeconds,
+        const float listenerX, const float listenerY, const float listenerZ,
+        const std::span<const SnakeState> snakes, const bool playbackSlotAvailable) noexcept
+    {
+        const float dt = SafeDeltaSeconds(deltaSeconds);
+        if (dt <= 0.0f) return {};
+        populationCooldown_ = std::max(0.0f, populationCooldown_ - dt);
+        for (float& cooldown : cooldowns_) cooldown = std::max(0.0f, cooldown - dt);
+        if (!playbackSlotAvailable || populationCooldown_ > 0.0f
+            || !std::isfinite(listenerX) || !std::isfinite(listenerY)
+            || !std::isfinite(listenerZ)) return {};
+
+        const std::size_t count = std::min(snakes.size(), cooldowns_.size());
+        for (std::size_t offset = 0; offset < count; ++offset) {
+            const std::size_t index = (nextAnimal_ + offset) % count;
+            const SnakeState& snake = snakes[index];
+            const SnakePoint head = snake.body.front();
+            if (cooldowns_[index] > 0.0f || snake.tier == WildlifeSimulationTier::Dormant
+                || snake.behavior != SnakeBehavior::Retreat
+                || !std::isfinite(head.x) || !std::isfinite(head.y) || !std::isfinite(head.z))
+                continue;
+            const float distance = std::hypot(std::hypot(head.x-listenerX,head.z-listenerZ),
+                                               head.y-listenerY);
+            const float volume = SnakeHissVolume(distance);
+            if (volume < .008f) continue;
+            SnakeHissRequest request;
+            request.trigger = true;
+            request.animalIndex = index;
+            request.variant = static_cast<std::uint8_t>(NextUnit() >= .5f);
+            request.volume = volume * (.86f + .14f * NextUnit());
+            request.pitch = -.08f + .16f * NextUnit();
+            request.source = {true,head.x,head.y,head.z};
+            cooldowns_[index] = 7.0f + 8.0f * NextUnit();
+            populationCooldown_ = 3.0f + 2.0f * NextUnit();
+            nextAnimal_ = (index + 1U) % count;
+            return request;
+        }
+        return {};
+    }
+
     void WildlifeCallScheduler::Reset() noexcept
     {
         randomState_ = 0x6c8e9cf5U;

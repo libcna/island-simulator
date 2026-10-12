@@ -179,6 +179,7 @@ namespace island
         void WriteStartupReport();
         void UpdateBenchmarkTraversal();
         void UpdateCamera(float deltaSeconds);
+        void UpdateSoundscape(float deltaSeconds) noexcept;
         void TryStartSoundscape() noexcept;
         void ReportControlTransition(ControlTransitionEvent event) noexcept;
         void InitializeUserSettings();

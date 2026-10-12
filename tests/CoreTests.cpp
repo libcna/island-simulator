@@ -1781,6 +1781,77 @@ int main()
     Check(heldBoar.Update(0.25f, 0.0f, 1.72f, 0.0f, loneBoar, true).kind
         == island::BoarCallKind::None, "resuming boar audio cannot replay a backlog burst");
 
+    const auto hissA=island::GenerateSnakeHiss(0),hissB=island::GenerateSnakeHiss(1);
+    Check(hissA.sampleRate==22050 && hissA.samples.size()==22050U
+        && hissB.sampleRate==22050 && hissB.samples.size()==22050U
+        && hissA.samples!=hissB.samples && hissA.samples.front()==0
+        && hissA.samples.back()==0 && hissB.samples.front()==0 && hissB.samples.back()==0
+        && hissA.samples==island::GenerateSnakeHiss(0).samples,
+        "snake hiss PCM is deterministic, distinct, bounded and silent at endpoints");
+    Check(island::SnakeHissVolume(0)>.25f
+        && island::SnakeHissVolume(8)<island::SnakeHissVolume(2)
+        && island::SnakeHissVolume(16)==0 && island::SnakeHissVolume(-1)==0
+        && island::SnakeHissVolume(std::numeric_limits<float>::quiet_NaN())==0,
+        "snake hiss attenuation is local and rejects invalid distances");
+    std::array<island::SnakeState,island::SnakePopulation::Count> audioSnakes{};
+    for(std::size_t i=0;i<audioSnakes.size();++i) {
+        auto& snake=audioSnakes[i];
+        snake.body.front()={static_cast<float>(i)*1.35f,.05f,0};
+        snake.behavior=island::SnakeBehavior::Retreat;
+        snake.tier=island::WildlifeSimulationTier::Full;
+    }
+    island::SnakeHissScheduler snakeHisses,repeatedSnakeHisses;
+    snakeHisses.Reset();repeatedSnakeHisses.Reset();
+    std::array<int,island::SnakePopulation::Count> hissCounts{};
+    std::array<bool,2> hissVariants{};
+    int lastHiss=-1000;
+    bool hissDeterministic=true,hissBounded=true;
+    for(int step=0;step<1600;++step) {
+        const auto hiss=snakeHisses.Update(.25f,0,1.7f,0,audioSnakes,true);
+        const auto repeat=repeatedSnakeHisses.Update(.25f,0,1.7f,0,audioSnakes,true);
+        hissDeterministic=hissDeterministic&&hiss.trigger==repeat.trigger
+            &&hiss.animalIndex==repeat.animalIndex&&hiss.variant==repeat.variant
+            &&hiss.volume==repeat.volume&&hiss.pitch==repeat.pitch;
+        if(!hiss.trigger)continue;
+        hissBounded=hissBounded&&hiss.animalIndex<audioSnakes.size()
+            &&step-lastHiss>=12&&hiss.volume>0&&hiss.volume<=.31f
+            &&hiss.pitch>=-.08f&&hiss.pitch<=.08f&&hiss.source.available
+            &&hiss.source.x==audioSnakes[hiss.animalIndex].body.front().x;
+        lastHiss=step;++hissCounts[hiss.animalIndex];hissVariants[hiss.variant]=true;
+    }
+    Check(hissDeterministic&&hissBounded&&hissVariants[0]&&hissVariants[1]
+        &&std::all_of(hissCounts.begin(),hissCounts.end(),[](int count){return count>2;}),
+        "snake hisses are deterministic, varied, sparse and fairly service nearby snakes");
+    const auto noSnakeHiss=[](auto snakes,float listenerX,float dt,bool slot) {
+        island::SnakeHissScheduler scheduler;scheduler.Reset();
+        for(int step=0;step<80;++step)
+            if(scheduler.Update(dt,listenerX,1.7f,0,snakes,slot).trigger)return false;
+        return true;
+    };
+    Check(noSnakeHiss(audioSnakes,0,.25f,false)
+        &&noSnakeHiss(audioSnakes,100,.25f,true)
+        &&noSnakeHiss(audioSnakes,std::numeric_limits<float>::quiet_NaN(),.25f,true)
+        &&noSnakeHiss(audioSnakes,0,0,true),
+        "snake hisses respect shared slots, local range, valid listeners and paused time");
+    for(auto& snake:audioSnakes)snake.behavior=island::SnakeBehavior::Explore;
+    Check(noSnakeHiss(audioSnakes,0,.25f,true),"non-retreating snakes hissed without close awareness");
+    auto oneEligibleSnake=audioSnakes;
+    oneEligibleSnake.front().behavior=island::SnakeBehavior::Retreat;
+    oneEligibleSnake.front().tier=island::WildlifeSimulationTier::Full;
+    for(std::size_t i=1;i<oneEligibleSnake.size();++i)
+        oneEligibleSnake[i].tier=island::WildlifeSimulationTier::Dormant;
+    island::SnakeHissScheduler oneSnakeScheduler;
+    oneSnakeScheduler.Reset();
+    bool oneSnakeTriggered=false;
+    for(int step=0;step<100&&!oneSnakeTriggered;++step)
+        oneSnakeTriggered=oneSnakeScheduler.Update(.1f,0,1.7f,0,oneEligibleSnake,true).trigger;
+    Check(oneSnakeTriggered,"one close retreating snake never received a hiss request");
+    for(auto& snake:audioSnakes) {
+        snake.behavior=island::SnakeBehavior::Retreat;
+        snake.tier=island::WildlifeSimulationTier::Dormant;
+    }
+    Check(noSnakeHiss(audioSnakes,0,.25f,true),"dormant snakes hissed");
+
     island::SoundscapeModel longSoundscapeModel;
     island::WaterMovementModel longWaterMovementModel;
     island::WaveAccentScheduler longWaveScheduler;

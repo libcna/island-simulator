@@ -624,7 +624,9 @@ namespace island
         const WildlifeCallRequest& activeCall = soundscape.activeWildlifeCall;
         if (activeCall.type != WildlifeCallType::None && activeCall.source.available) {
             const Color activeColor = activeCall.type == WildlifeCallType::Bird
-                ? Color(225, 250, 255, 255) : Color(255, 215, 105, 255);
+                ? Color(225, 250, 255, 255)
+                : activeCall.type == WildlifeCallType::Snake
+                    ? Color(145, 255, 120, 255) : Color(255, 215, 105, 255);
             AddAudioSourceMarker(overlayVertices, activeCall.source, 2.8f, activeColor);
             AddCircle(overlayVertices, activeCall.source.x, activeCall.source.y,
                       activeCall.source.z, 3.6f, AudioMarkerSegments, activeColor);

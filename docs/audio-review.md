@@ -26,7 +26,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 22 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 24 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -51,8 +51,8 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains four loop beds and eighteen one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. They total about 3.48 MiB plus headers. Delete the directory after review;
+The directory contains four loop beds and twenty one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. They total about 3.57 MiB plus headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -72,6 +72,10 @@ Listen first to each source alone:
    not a pitched oscillator or generic hiss. Test resting, foraging and moving animals,
    listener rotation, approaching/leaving range, multiple animals, mute and resume.
    Replace or refine the synthesis if listening does not support natural boar identity.
+6. Compare `snake-hiss-a.wav` and `snake-hiss-b.wav`. They are original synthesized
+   broadband prototypes, not recordings. Confirm they read as restrained close snake
+   hisses rather than surf, static or steam; then verify direction, attenuation, retreat
+   triggering, cooldowns and mute/resume beside several live snakes.
 
 Then perform the authoritative in-game pass with headphones and ordinary speakers. Walk a complete
 beach circuit, both clearings, the main jungle trail, dense interior, shallow water, and the active
@@ -79,6 +83,36 @@ offshore-current field for at least 20 minutes. Record silence, abrupt zone chan
 repetition, directional confusion, and fatigue in `PLAN.md`. Use F1 to observe layer gains and F2
 to compare audible calls with exact source markers. Numerical success alone does not complete this
 subjective task.
+
+## Snake hiss implementation and unverified listening (2026-10-12)
+
+Two original one-second mono procedural hisses use filtered broadband noise with
+different sustained/double-pulse envelopes. The 24-clip report and independent WAV
+export pass at 3,741,884 PCM bytes. Variant A/B fingerprints are
+`587c135aae098175` / `968b26b9548758cd`, peaks are both 0.56 and RMS is
+0.18884 / 0.17045. These numerical values prove bounded non-silent distinct PCM, not
+that the result sounds like a real snake.
+
+The renderer-independent scheduler only admits non-dormant snakes whose current
+behaviour is Retreat. Gain falls quadratically to silence at 16m. Each snake receives
+a randomized 7–15s cooldown and the whole population a 3–5s cooldown; variant, pitch
+and gain vary deterministically. Hisses use the existing single wildlife voice, after
+due bird/monkey calls and before boars, so the six-source maximum is unchanged and
+multiple snakes cannot hiss simultaneously. While playing, the emitter follows the
+selected head and stops when the snake is dormant or no longer retreating.
+
+Core tests cover deterministic PCM, exact endpoints, variants, attenuation, fairness,
+cooldowns, busy voice, invalid/paused input, range, dormant and non-retreat states.
+F1 and the input-sample diagnostic expose the played hiss count. A supervised private-
+llvmpipe native run in `build/software-snake-audio/20261012T133332.612520Z` used SDL's
+disk backend with a close retreating live snake. It observed wildlife type 4, one hiss
+before mute and another after resume, 1,482,752 exact-zero muted bytes, 2,277,376 nonzero
+resumed bytes, at most five of six sources, and no new kernel GPU fault. That run also
+exposed and fixed a real integration defect: fixed inspection cameras did not advance
+the soundscape or process M, because both lived inside interactive camera movement.
+Soundscape advancement and mute input now run from the common update path. This is
+backend/playback evidence only; subjective listening, spatial turn/distance and
+Web/Android runtime lifecycle have not yet been accepted.
 
 ## Boar audio implementation and unverified listening (2026-10-11)
 

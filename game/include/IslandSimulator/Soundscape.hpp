@@ -64,7 +64,8 @@ namespace island
                     const SoundscapeListenerState& listener,
                     std::span<const BirdState> birds,
                     std::span<const MonkeyState> monkeys,
-                    std::span<const BoarState> boars) noexcept;
+                    std::span<const BoarState> boars,
+                    std::span<const SnakeState> snakes) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -107,6 +108,7 @@ namespace island
             return playedMonkeyCallCount_;
         }
         [[nodiscard]] int PlayedBoarCallCount() const noexcept { return playedBoarCallCount_; }
+        [[nodiscard]] int PlayedSnakeHissCount() const noexcept { return playedSnakeHissCount_; }
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
@@ -138,9 +140,13 @@ namespace island
         FootstepScheduler footstepScheduler_;
         WildlifeCallScheduler wildlifeScheduler_;
         BoarCallScheduler boarScheduler_;
+        SnakeHissScheduler snakeHissScheduler_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 2> snakeHissEffects_;
         BoarCallRequest activeBoarCall_;
+        SnakeHissRequest activeSnakeHiss_;
         float boarVoiceGain_ = 1.0f;
+        float snakeVoiceGain_ = 1.0f;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
@@ -200,5 +206,6 @@ namespace island
         int playedBirdCallCount_ = 0;
         int playedMonkeyCallCount_ = 0;
         int playedBoarCallCount_ = 0;
+        int playedSnakeHissCount_ = 0;
     };
 }

@@ -148,12 +148,26 @@ so ecosystem-stage item 8 is `[~]`. See [tide-pools.md](docs/tide-pools.md).
   inspected stages in `20261012T121151.377464Z-snakes` visibly change position and body
   curvature. Ordinary walking-distance and portable continuous-motion review remain.
 
-- [ ] Give snakes restrained positional hissing. Trigger it chiefly during close player
+- [~] Give snakes restrained positional hissing. Trigger it chiefly during close player
   awareness and retreat, with randomized timing/pitch, distance attenuation, cooldowns
   and a shared wildlife voice limit so a larger population never hisses in unison or
   overwhelms the peaceful ambience. Respect mute/settings and audio lifecycle. Record
   source/provenance and verify the hiss is actually audible, directional and natural in
   native, Web and Android runtime; scheduler diagnostics alone are not acceptance.
+  Two original one-second broadband procedural hiss variants now pass the 24-clip
+  audio-report/export gate (3,741,884 PCM bytes total). A deterministic scheduler only
+  considers non-dormant snakes in Retreat, attenuates to silence by 16m, randomizes
+  variant/pitch/gain, enforces 7–15s per-animal and 3–5s population cooldowns, and uses
+  the existing single pooled wildlife voice after bird/monkey priority but before boars.
+  The active emitter follows the moving head and stops if retreat/activation ends; mute,
+  source count and six-source budget remain shared. Core scheduler/PCM tests pass and F1
+  reports hiss count. The supervised private-llvmpipe SDL disk-device run
+  `20261012T133332.612520Z` exercised a live retreating snake, observed wildlife type 4,
+  recorded one hiss before mute and a second after resume, wrote 1,482,752 exact-zero
+  muted bytes and 2,277,376 nonzero resumed bytes, stayed within five of six sources and
+  found no new kernel GPU fault. This proves native playback/mute plumbing, not subjective
+  naturalness or physical direction. Headphone/speaker listening, spatial turn/distance
+  and Web/Android lifecycle remain open, so this is not acoustic acceptance.
 
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander

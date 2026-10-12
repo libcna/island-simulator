@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 #include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/SnakePopulation.hpp"
 
 namespace island
 {
@@ -203,7 +204,8 @@ namespace island
         None,
         Bird,
         Monkey,
-        Boar
+        Boar,
+        Snake
     };
 
     /** @brief Nearest currently eligible world-space source for one wildlife species. */
@@ -249,6 +251,37 @@ namespace island
         std::array<std::uint8_t, BoarHerd::BoarCount> callPhases_{};
         std::uint32_t randomState_ = 0xb0a45eedU;
         float herdCooldown_ = 0.0f;
+        std::size_t nextAnimal_ = 0;
+    };
+
+    /** @brief One original broadband hiss; two variants share a one-second budget. */
+    [[nodiscard]] AmbientLoop GenerateSnakeHiss(std::uint8_t variant);
+    [[nodiscard]] float SnakeHissVolume(float distance) noexcept;
+
+    struct SnakeHissRequest
+    {
+        bool trigger = false;
+        std::size_t animalIndex = 0;
+        std::uint8_t variant = 0;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+        WildlifeAudioSource source;
+    };
+
+    /** @brief Close-retreat hisses with per-snake and population-wide cooldowns. */
+    class SnakeHissScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] SnakeHissRequest Update(float deltaSeconds,
+            float listenerX, float listenerY, float listenerZ,
+            std::span<const SnakeState> snakes, bool playbackSlotAvailable) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+        std::array<float, SnakePopulation::Count> cooldowns_{};
+        std::uint32_t randomState_ = 0x51a6e55eU;
+        float populationCooldown_ = 0.0f;
         std::size_t nextAnimal_ = 0;
     };
 

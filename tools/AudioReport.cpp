@@ -163,7 +163,7 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(22U);
+        clips.reserve(24U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
@@ -208,6 +208,10 @@ namespace
                          island::GenerateBoarCall(island::BoarCallKind::Grunt, 0)});
         clips.push_back({"boar grunt B", "boar-grunt-b.wav", false, 26460U,
                          island::GenerateBoarCall(island::BoarCallKind::Grunt, 1)});
+        clips.push_back({"snake hiss A", "snake-hiss-a.wav", false, 22050U,
+                         island::GenerateSnakeHiss(0)});
+        clips.push_back({"snake hiss B", "snake-hiss-b.wav", false, 22050U,
+                         island::GenerateSnakeHiss(1)});
         return clips;
     }
 }

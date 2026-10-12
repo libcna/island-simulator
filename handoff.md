@@ -3838,4 +3838,18 @@ rest window later in the cycle. Focused CPU/WorldReport tests pass, fingerprint
 `02d44fab27a0b823`. Inspected llvmpipe evidence `121151.377464Z-snakes` and
 `121332.031522Z-spiders` shows both subjects moving, but both generic scene gates fail,
 so portable/performance/encounter and final appearance acceptance remain open. Hissing
-is still unimplemented.
+now has a tested procedural implementation, but still lacks actual disk-device/listened
+and Web/Android acoustic acceptance.
+
+Snake-hiss follow-up: two original one-second variants pass the 24-clip/3,741,884-byte
+audio report and preview export. Only active retreating snakes inside 16m are eligible;
+per-animal and population cooldowns prevent chorus/repetition. The moving head remains
+the positional emitter and playback reuses the one wildlife voice, preserving the
+six-source cap. Core scheduler tests pass. Supervised private-llvmpipe/SDL disk evidence
+`build/software-snake-audio/20261012T133332.612520Z` PASS: live wildlife type4, hiss count
+0->1 before mute and 1->2 after resume, 1,482,752 exact-zero muted bytes, 2,277,376 nonzero
+resumed bytes, max5/6 sources, kernel-final[]. Root cause found/fixed: soundscape advance
+and M mute were nested in interactive UpdateCamera, so fixed QA views never advanced
+cooldowns or muted. Both now run in the common update path. Screenshot inspected: close
+snake/head and F1 state visible; it is functional evidence, not visual/acoustic realism.
+No subjective listening, Web or Android claim has been made.

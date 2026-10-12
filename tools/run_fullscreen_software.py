@@ -48,6 +48,24 @@ def validate_boar_audio_trace(samples):
         raise RuntimeError("no active boar source observed")
 
 
+def validate_snake_audio_trace(samples):
+    """Validate backend hiss playback/mute state, not perceptual snake identity."""
+    if len(samples) < 30 or any(len(s) != 6 for s in samples):
+        raise RuntimeError("missing snake audio trace")
+    if any(s[0] != 1 or s[1] not in (0, 1) or not 4 <= s[3] <= 6
+           or s[4] not in (0, 1, 2, 3, 4) for s in samples):
+        raise RuntimeError("unavailable audio or invalid snake voice budget/state")
+    if any(b[5] < a[5] for a, b in zip(samples, samples[1:])):
+        raise RuntimeError("snake hiss playback counter regressed")
+    muted = [s for s in samples if s[1]]
+    if len(muted) < 24 or any(s[5] != muted[0][5] or s[3] != 4 or s[4] != 0 for s in muted):
+        raise RuntimeError("mute failed to suppress snake hiss playback")
+    if muted[0][5] < 1 or samples[-1][1] or samples[-1][5] <= muted[-1][5]:
+        raise RuntimeError("missing snake hiss playback before/after mute")
+    if not any(s[4] == 4 for s in samples):
+        raise RuntimeError("no active snake hiss source observed")
+
+
 def owned_runtime_log(evidence, namespace_pid):
     logs = [(path, path.read_text()) for path in evidence.glob("island-runtime-*.log")]
     logs = [(path, text) for path, text in logs if re.search(
@@ -57,8 +75,10 @@ def owned_runtime_log(evidence, namespace_pid):
     return logs[0]
 
 
-def validate_control_transitions(text, flight=False):
+def validate_control_transitions(text, flight=False, fullscreen_cycles=2):
     """Require the exact scripted transitions from the persistent file, not stdout."""
+    if fullscreen_cycles not in (0, 1, 2):
+        raise RuntimeError("invalid fullscreen transition cycle count")
     records = []
     for line in text.splitlines():
         if "island-simulator: control-transition " not in line:
@@ -79,7 +99,8 @@ def validate_control_transitions(text, flight=False):
         except (KeyError, ValueError) as error:
             raise RuntimeError("malformed persistent control transition") from error
         records.append({"event": event, "frame": frame})
-    if [r["event"] for r in records] != [3, 4, 3, 4] + ([0, 1] if flight else []):
+    expected = [3, 4] * fullscreen_cycles + ([0, 1] if flight else [])
+    if [r["event"] for r in records] != expected:
         raise RuntimeError("missing, duplicate or reordered persistent control transitions")
     if any(b["frame"] <= a["frame"] for a, b in zip(records, records[1:])):
         raise RuntimeError("persistent transition frame counter did not advance")
@@ -95,7 +116,8 @@ def validate_diving_trace(samples):
         raise RuntimeError("missing surface/dive/resurface sequence")
 
 
-def worker(build, evidence, window_manager, flight=False, boar_audio=False, diving=False):
+def worker(build, evidence, window_manager, flight=False, boar_audio=False,
+           diving=False, snake_audio=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -108,8 +130,11 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
         manager = subprocess.Popen([str(window_manager), "--sm-disable", "--config-file",
                                     str(Path(__file__).with_name("fullscreen_openbox.xml"))],
                                    stdout=wm_log, stderr=subprocess.STDOUT)
-        game = subprocess.Popen([str(build / "island-simulator"), "--no-user-settings",
-                                 "--debug-overlay", "--input-diagnostics"], stdout=stream,
+        game_command=[str(build / "island-simulator"), "--no-user-settings",
+                      "--debug-overlay", "--input-diagnostics"]
+        if snake_audio:
+            game_command.extend(["--viewpoint","snake-head"])
+        game = subprocess.Popen(game_command, stdout=stream,
                                 stderr=subprocess.STDOUT)
         def log():
             return log_path.read_text(errors="replace")
@@ -124,6 +149,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
                 time.sleep(.1)
             raise RuntimeError(f"timeout waiting for {description}")
         def keys(key, marker):
+            command("xdotool", "windowfocus", "--sync", window)
             previous = log().count(marker)
             command("xdotool", "keydown", key)
             try:
@@ -150,7 +176,15 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
             # WM size hints to invent a state users cannot enter. Compare the real original.
             before = snapshot("windowed-before")
             keys("F1", "debug overlay disabled")
-            for cycle in range(2):
+            # Snake playback has its own focused native gate.  The normal invocation
+            # remains the authoritative two-cycle F11/focus regression test.
+            fullscreen_cycles = 0 if snake_audio else 2
+            for cycle in range(fullscreen_cycles):
+                # Some X11 window managers return focus to their root/desktop while
+                # restoring a non-resizable window from fullscreen.  Reassert focus
+                # before each independent key edge so the second cycle exercises the
+                # game instead of intermittently delivering F11 to the desktop.
+                command("xdotool", "windowfocus", "--sync", window)
                 command("xdotool", "keydown", "F11")
                 try:
                     wait(lambda: log().count("fullscreen on requested") == cycle+1, "fullscreen request")
@@ -173,6 +207,12 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
                 keys("F11", "fullscreen off requested")
                 wait(lambda: "_NET_WM_STATE_FULLSCREEN" not in command("xprop", "-id", window, "_NET_WM_STATE"),
                      "windowed state")
+                # The WM may move focus during the fullscreen-off transition before
+                # keys() sends its release.  Focus the client and resend the harmless
+                # release so SDL observes an up frame and the next cycle has a real
+                # rising edge.
+                command("xdotool", "windowfocus", "--sync", window)
+                command("xdotool", "keyup", "F11")
                 after = snapshot(f"windowed-{cycle}")
                 if (after["WIDTH"], after["HEIGHT"]) != (before["WIDTH"], before["HEIGHT"]):
                     raise RuntimeError("fullscreen did not restore the original windowed size")
@@ -181,36 +221,42 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
                 frames = log().count("input sample captured")
                 wait(lambda: log().count("input sample captured") > frames, "windowed released-key frame")
             command("import", "-window", window, str(evidence / "windowed.png"))
-            # Only this owned dialog receives the background F11; never another
-            # desktop/client. Restoring focus must not synthesize a game toggle.
-            focus_target = subprocess.Popen(["xmessage", "-title", "island-fullscreen-focus",
-                                             "-buttons", "OK:0", "Owned fullscreen QA focus target"],
-                                            stdout=stream, stderr=subprocess.STDOUT)
-            try:
-                def find_focus_target():
-                    result = subprocess.run(["xdotool", "search", "--onlyvisible", "--pid", str(focus_target.pid),
-                                             "--name", "^island-fullscreen-focus$"],
-                                            text=True, capture_output=True, timeout=5)
-                    return result.stdout.splitlines()[0] if result.returncode == 0 else None
-                target = wait(find_focus_target, "owned focus target")
-                command("xdotool", "windowactivate", "--sync", target)
-                command("xdotool", "keydown", "F11")
-                command("xdotool", "keyup", "F11")
-                command("xdotool", "windowactivate", "--sync", window)
-                frames = log().count("input sample captured")
-                wait(lambda: log().count("input sample captured") >= frames+3, "restored-focus frames")
-                if log().count("fullscreen on requested") != 2 or log().count("fullscreen off requested") != 2:
-                    raise RuntimeError("background key or focus restoration toggled fullscreen")
-                snapshot("focus-restored")
-            finally:
-                focus_target.terminate()
+            if not snake_audio:
+                # Only this owned dialog receives the background F11; never another
+                # desktop/client. Restoring focus must not synthesize a game toggle.
+                focus_target = subprocess.Popen(["xmessage", "-title", "island-fullscreen-focus",
+                                                 "-buttons", "OK:0", "Owned fullscreen QA focus target"],
+                                                stdout=stream, stderr=subprocess.STDOUT)
                 try:
-                    focus_target.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    focus_target.kill()
-                    focus_target.wait(timeout=5)
-            keys("w", "input sample captured 1 relative 1")
-            keys("Escape", "input sample captured 0 relative 0")
+                    def find_focus_target():
+                        result = subprocess.run(["xdotool", "search", "--onlyvisible", "--pid", str(focus_target.pid),
+                                                 "--name", "^island-fullscreen-focus$"],
+                                                text=True, capture_output=True, timeout=5)
+                        return result.stdout.splitlines()[0] if result.returncode == 0 else None
+                    target = wait(find_focus_target, "owned focus target")
+                    command("xdotool", "windowactivate", "--sync", target)
+                    command("xdotool", "keydown", "F11")
+                    command("xdotool", "keyup", "F11")
+                    command("xdotool", "windowactivate", "--sync", window)
+                    frames = log().count("input sample captured")
+                    wait(lambda: log().count("input sample captured") >= frames+3, "restored-focus frames")
+                    if (log().count("fullscreen on requested") != fullscreen_cycles
+                            or log().count("fullscreen off requested") != fullscreen_cycles):
+                        raise RuntimeError("background key or focus restoration toggled fullscreen")
+                    snapshot("focus-restored")
+                finally:
+                    focus_target.terminate()
+                    try:
+                        focus_target.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        focus_target.kill()
+                        focus_target.wait(timeout=5)
+            # Fixed inspection viewpoints intentionally reject player/mouse capture.
+            # The normal fullscreen gate still exercises W capture and Escape release;
+            # the snake-audio mode keeps its camera locked to the retreating subject.
+            if not snake_audio:
+                keys("w", "input sample captured 1 relative 1")
+                keys("Escape", "input sample captured 0 relative 0")
             if boar_audio:
                 def samples():
                     return [tuple(map(int, m)) for m in re.findall(
@@ -253,6 +299,43 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
                 (evidence / "boar-audio-result.json").write_text(json.dumps({
                     "passed":True,"samples":samples(),"mutedBytes":len(silent),
                     "resumedBytes":len(resumed),"scope":"native disk-device playback/mute; not subjective listening"},indent=2)+"\n")
+            if snake_audio:
+                def samples():
+                    return [tuple(map(int, m)) for m in re.findall(
+                        r"audio sample available (\d+) muted (\d+) boars (\d+) sources (\d+) wildlife (\d+) snake-hisses (\d+)", log())]
+                wait(lambda: samples() and samples()[-1][0] == 1, "available disk audio device")
+                keys("F1", "debug overlay enabled")
+                wait(lambda: samples()[-1][5] >= 1, "actual snake hiss playback")
+                command("import", "-window", window, str(evidence / "snake-audio.png"))
+                keys("m", "soundscape muted")
+                wait(lambda: samples()[-1][1] == 1, "muted audio diagnostics")
+                recording=evidence/"game-audio.raw"
+                start=recording.stat().st_size
+                muted_start=len(samples())
+                wait(lambda: len(samples())>=muted_start+24,"six simulated muted seconds")
+                muted=samples()[muted_start:]
+                if any(s[1]!=1 or s[5]!=muted[0][5] or s[3]!=4 or s[4]!=0 for s in muted):
+                    raise RuntimeError("mute retained a transient or started a snake hiss")
+                end=recording.stat().st_size
+                with recording.open("rb") as pcm:
+                    pcm.seek(start);silent=pcm.read(end-start)
+                if not silent or any(silent):
+                    raise RuntimeError("muted disk audio is missing or not exact silence")
+                keys("m","soundscape unmuted")
+                previous=muted[-1][5]
+                wait(lambda:samples()[-1][5]>previous,"snake hiss playback after unmute")
+                if any(s[3]>6 for s in samples()):
+                    raise RuntimeError("audio source budget exceeded")
+                if not re.search(r"Writing to file .*format=(?:F32|S16|S32).*channels=2 freq=",log()):
+                    raise RuntimeError("missing signed PCM/stereo disk output identity")
+                with recording.open("rb") as pcm:
+                    pcm.seek(end);resumed=pcm.read()
+                if not resumed or not any(resumed):
+                    raise RuntimeError("unmuted disk audio stayed silent")
+                validate_snake_audio_trace(samples())
+                (evidence/"snake-audio-result.json").write_text(json.dumps({
+                    "passed":True,"samples":samples(),"mutedBytes":len(silent),
+                    "resumedBytes":len(resumed),"scope":"native disk-device hiss playback/mute; not subjective listening"},indent=2)+"\n")
             if diving:
                 def swim_samples():
                     return [tuple(map(float,m)) for m in re.findall(
@@ -357,16 +440,18 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False, divi
             # Runtime filenames deliberately use outer procfs IDs for kernel correlation;
             # Popen.pid belongs to the private PID namespace. Match its startup identity.
             runtime_path, runtime_text = owned_runtime_log(evidence, game.pid)
-            transitions = validate_control_transitions(runtime_text, flight)
+            transitions = validate_control_transitions(runtime_text, flight, fullscreen_cycles)
             (evidence / "control-transitions-result.json").write_text(json.dumps({
                 "passed": True, "source": runtime_path.name, "records": transitions,
                 "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")
             (evidence / "input-result.json").write_text(json.dumps({
-                "passed": True, "stages": stages, "heldRepeatSuppressed": True,
-                "backgroundKeyIgnoredAfterFocusReturn": True,
+                "passed": True, "stages": stages,
+                "heldRepeatSuppressed": not snake_audio,
+                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio,
                 "flightChecked": flight,
                 "boarAudioChecked": boar_audio,
-                "mouseCapturedAndReleasedAfterToggle": True}, indent=2)+"\n")
+                "snakeAudioChecked": snake_audio,
+                "mouseCapturedAndReleasedAfterToggle": not snake_audio}, indent=2)+"\n")
         finally:
             game.terminate()
             try:
@@ -388,6 +473,7 @@ def main():
     parser.add_argument("--flight", action="store_true", help="also exercise Tab flight, ceiling and return")
     parser.add_argument("--diving", action="store_true", help="exercise underwater descent and resurfacing")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
+    parser.add_argument("--snake-audio", action="store_true", help="exercise close snake-hiss playback and mute through SDL disk output")
     parser.add_argument("--window-manager", type=Path,
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
@@ -395,8 +481,11 @@ def main():
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
-        worker(build, args.worker.resolve(strict=True), window_manager, args.flight, args.boar_audio, args.diving)
+        worker(build, args.worker.resolve(strict=True), window_manager, args.flight,
+               args.boar_audio, args.diving, args.snake_audio)
         return
+    if args.boar_audio and args.snake_audio:
+        raise RuntimeError("choose only one focused wildlife audio scope")
     for executable in ("xdotool", "xprop", "import", "xmessage"):
         if not shutil.which(executable):
             raise RuntimeError(f"missing {executable}")
@@ -408,7 +497,9 @@ def main():
         journal = Journal()
         baseline = journal.latest()
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        evidence = build / ("software-boar-audio" if args.boar_audio else "software-flight" if args.flight else "software-fullscreen") / stamp
+        evidence = build / ("software-boar-audio" if args.boar_audio else
+                            "software-snake-audio" if args.snake_audio else
+                            "software-flight" if args.flight else "software-fullscreen") / stamp
         evidence.mkdir(parents=True)
         command = [str(platform / "wayland_test_server.sh"), "--compositor", "weston", "--renderer", "pixman",
                    str(platform / "run_gpu_tests_private.sh"), "--inside-private-compositor", "exec",
@@ -420,12 +511,14 @@ def main():
             command.append("--diving")
         if args.boar_audio:
             command.append("--boar-audio")
+        if args.snake_audio:
+            command.append("--snake-audio")
         environment = software_environment(evidence)
         for key in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"):
             environment.pop(key, None)
         environment["ISLAND_FULLSCREEN_SUPERVISED"] = "1"
         environment["XDG_CONFIG_HOME"] = str(evidence / "config")
-        if args.boar_audio:
+        if args.boar_audio or args.snake_audio:
             environment["SDL_AUDIO_DRIVER"] = "disk"
             environment["SDL_AUDIO_DISK_OUTPUT_FILE"] = str(evidence / "game-audio.raw")
             environment["SDL_AUDIO_DISK_TIMESCALE"] = "1.0"
