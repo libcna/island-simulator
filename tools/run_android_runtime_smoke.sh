@@ -248,7 +248,7 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
             "$LOG_FILE" \
         && grep -q "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies" \
             "$LOG_FILE" \
-        && grep -q "island-simulator: beach crabs use articulated legs, claws, and one culled batch" \
+        && grep -q "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch" \
             "$LOG_FILE" \
         && grep -q "island-simulator: clearing butterflies 18 agents in deterministic low-altitude habitats" \
             "$LOG_FILE" \

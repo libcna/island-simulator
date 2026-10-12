@@ -1013,10 +1013,11 @@ namespace island
             const float outwardZ = crab.z / radius;
             const float tangentX = -outwardZ;
             const float tangentZ = outwardX;
-            const float cameraX = crab.x - outwardX * 6.0f + tangentX * 1.5f;
-            const float cameraZ = crab.z - outwardZ * 6.0f + tangentZ * 1.5f;
-            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ)
-                                                   + PlayerMotion::EyeHeight,
+            // Stay low and close enough to make the palm-sized anatomy auditable. The
+            // crab may still exercise its ordinary retreat behaviour during the capture.
+            const float cameraX = crab.x - outwardX * 1.75f + tangentX * 0.38f;
+            const float cameraZ = crab.z - outwardZ * 1.75f + tangentZ * 0.38f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ) + 0.62f,
                                       cameraZ);
             const Vector3 toCrab = Vector3(crab.x, crab.y + 0.16f, crab.z)
                 - cameraPosition_;

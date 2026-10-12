@@ -33,29 +33,37 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 38.0f;
-        constexpr int MaximumVerticesPerCrab = 192;
+        constexpr int NearCrabVertexCount = 594;
+        constexpr int FarCrabVertexCount = 12;
+        constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
             * MaximumVerticesPerCrab;
         constexpr std::string_view CrabDiagnostic =
-            "island-simulator: beach crabs use articulated legs, claws, and one culled batch";
+            "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
 
         struct CrabPalette
         {
             Color shellTop;
+            Color shellHighlight;
             Color shellSide;
             Color limb;
+            Color joint;
             Color claw;
         };
 
         const std::array<CrabPalette, 4> Palettes = {{
-            {Color(139, 61, 39, 255), Color(91, 43, 33, 255),
-             Color(116, 50, 35, 255), Color(164, 75, 47, 255)},
-            {Color(177, 91, 46, 255), Color(111, 57, 38, 255),
-             Color(145, 70, 42, 255), Color(202, 111, 58, 255)},
-            {Color(111, 72, 52, 255), Color(75, 53, 42, 255),
-             Color(92, 61, 45, 255), Color(142, 88, 57, 255)},
-            {Color(187, 126, 80, 255), Color(117, 79, 58, 255),
-             Color(153, 98, 65, 255), Color(213, 149, 93, 255)}
+            {Color(139, 61, 39, 255), Color(167, 79, 50, 255),
+             Color(91, 43, 33, 255), Color(116, 50, 35, 255),
+             Color(72, 35, 30, 255), Color(171, 80, 50, 255)},
+            {Color(177, 91, 46, 255), Color(208, 119, 63, 255),
+             Color(111, 57, 38, 255), Color(145, 70, 42, 255),
+             Color(91, 49, 36, 255), Color(211, 119, 61, 255)},
+            {Color(111, 72, 52, 255), Color(143, 96, 67, 255),
+             Color(75, 53, 42, 255), Color(92, 61, 45, 255),
+             Color(61, 43, 36, 255), Color(148, 93, 60, 255)},
+            {Color(187, 126, 80, 255), Color(218, 158, 102, 255),
+             Color(117, 79, 58, 255), Color(153, 98, 65, 255),
+             Color(96, 65, 51, 255), Color(220, 154, 96, 255)}
         }};
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
@@ -75,6 +83,30 @@ namespace island
             AddTriangle(vertices, c, b, a, color);
         }
 
+        void AddQuad(std::vector<VertexPositionColor>& vertices,
+                     const Vector3& a, const Vector3& b,
+                     const Vector3& c, const Vector3& d, const Color& color)
+        {
+            AddTriangle(vertices, a, b, c, color);
+            AddTriangle(vertices, a, c, d, color);
+        }
+
+        void AppendCrossedSegment(std::vector<VertexPositionColor>& vertices,
+                                  const Vector3& a, const Vector3& b,
+                                  const float halfWidth, const Color& color)
+        {
+            const Vector3 delta = b - a;
+            const float horizontalLength = std::hypot(delta.X, delta.Z);
+            const Vector3 side = horizontalLength > 0.0001f
+                ? Vector3(-delta.Z * halfWidth / horizontalLength, 0.0f,
+                          delta.X * halfWidth / horizontalLength)
+                : Vector3(halfWidth, 0.0f, 0.0f);
+            const Vector3 vertical(0.0f, halfWidth * 0.62f, 0.0f);
+            AddQuad(vertices, a + side, a - side, b - side, b + side, color);
+            AddQuad(vertices, a + vertical, a - vertical,
+                    b - vertical, b + vertical, color);
+        }
+
         [[nodiscard]] Vector3 LocalPoint(const Vector3& centre, const Vector3& right,
                                          const Vector3& up, const Vector3& forward,
                                          const float x, const float y, const float z,
@@ -82,6 +114,28 @@ namespace island
         {
             return centre + right * (x * scale) + up * (y * scale)
                 + forward * (z * scale);
+        }
+
+        void AppendOctahedron(std::vector<VertexPositionColor>& vertices,
+                              const Vector3& centre, const Vector3& right,
+                              const Vector3& up, const Vector3& forward,
+                              const float halfX, const float halfY, const float halfZ,
+                              const Color& topColor, const Color& sideColor)
+        {
+            const Vector3 top = centre + up * halfY;
+            const Vector3 bottom = centre - up * halfY;
+            const Vector3 left = centre - right * halfX;
+            const Vector3 rightPoint = centre + right * halfX;
+            const Vector3 front = centre + forward * halfZ;
+            const Vector3 back = centre - forward * halfZ;
+            AddTriangle(vertices, top, front, rightPoint, topColor);
+            AddTriangle(vertices, top, rightPoint, back, topColor);
+            AddTriangle(vertices, top, back, left, topColor);
+            AddTriangle(vertices, top, left, front, topColor);
+            AddTriangle(vertices, bottom, rightPoint, front, sideColor);
+            AddTriangle(vertices, bottom, back, rightPoint, sideColor);
+            AddTriangle(vertices, bottom, left, back, sideColor);
+            AddTriangle(vertices, bottom, front, left, sideColor);
         }
 
         void AppendNearCrab(std::vector<VertexPositionColor>& vertices,
@@ -95,24 +149,39 @@ namespace island
             const Vector3 up = Vector3::Up;
             const float scale = crab.scale;
             const Vector3 top = LocalPoint(
-                centre, right, up, forward, 0.0f, 0.23f, 0.0f, scale);
-            std::array<Vector3, 8> upper{};
-            std::array<Vector3, 8> lower{};
-            for (std::size_t index = 0; index < upper.size(); ++index) {
+                centre, right, up, forward, 0.0f, 0.245f, -0.01f, scale);
+            std::array<Vector3, 10> crown{};
+            std::array<Vector3, 10> shoulder{};
+            std::array<Vector3, 10> rim{};
+            std::array<Vector3, 10> lower{};
+            for (std::size_t index = 0; index < crown.size(); ++index) {
                 const float angle = static_cast<float>(index) * 2.0f
-                    * std::numbers::pi_v<float> / static_cast<float>(upper.size());
-                const float x = std::cos(angle) * 0.34f;
-                const float z = std::sin(angle) * 0.24f;
-                upper[index] = LocalPoint(
-                    centre, right, up, forward, x, 0.12f, z, scale);
+                    * std::numbers::pi_v<float> / static_cast<float>(crown.size());
+                const float cosine = std::cos(angle);
+                const float sine = std::sin(angle);
+                const float frontTaper = sine > 0.0f ? 0.94f : 1.0f;
+                crown[index] = LocalPoint(centre, right, up, forward,
+                    cosine * 0.105f, 0.232f, sine * 0.071f - 0.01f, scale);
+                shoulder[index] = LocalPoint(centre, right, up, forward,
+                    cosine * 0.255f, 0.192f,
+                    sine * 0.168f * frontTaper - 0.005f, scale);
+                rim[index] = LocalPoint(centre, right, up, forward,
+                    cosine * 0.36f, 0.105f, sine * 0.245f * frontTaper, scale);
                 lower[index] = LocalPoint(
-                    centre, right, up, forward, x * 0.90f, 0.025f, z * 0.90f, scale);
+                    centre, right, up, forward, cosine * 0.33f, 0.035f,
+                    sine * 0.22f * frontTaper, scale);
             }
-            for (std::size_t index = 0; index < upper.size(); ++index) {
-                const std::size_t next = (index + 1U) % upper.size();
-                AddTriangle(vertices, top, upper[index], upper[next], palette.shellTop);
-                AddTriangle(vertices, upper[index], lower[index], lower[next], palette.shellSide);
-                AddTriangle(vertices, upper[index], lower[next], upper[next], palette.shellSide);
+            for (std::size_t index = 0; index < crown.size(); ++index) {
+                const std::size_t next = (index + 1U) % crown.size();
+                const Color panel = index % 3U == 0U
+                    ? palette.shellHighlight : palette.shellTop;
+                AddTriangle(vertices, top, crown[index], crown[next], panel);
+                AddQuad(vertices, crown[index], shoulder[index], shoulder[next], crown[next],
+                        panel);
+                AddQuad(vertices, shoulder[index], rim[index], rim[next], shoulder[next],
+                        palette.shellTop);
+                AddQuad(vertices, rim[index], lower[index], lower[next], rim[next],
+                        palette.shellSide);
             }
 
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
@@ -130,41 +199,77 @@ namespace island
                     const Vector3 foot = LocalPoint(
                         centre, right, up, forward, side * 0.58f, -0.015f,
                         z + bend * 1.35f + stride * 1.55f, scale);
-                    AddDoubleSidedTriangle(vertices, root, knee, foot, palette.limb);
+                    AppendCrossedSegment(vertices, root, knee, 0.018f * scale,
+                                         palette.limb);
+                    AppendCrossedSegment(vertices, knee, foot, 0.012f * scale,
+                                         palette.joint);
                 }
 
-                const float clawSpread = 0.035f + crab.clawPose * 0.035f;
+                const float clawSpread = 0.025f + crab.clawPose * 0.035f;
                 const Vector3 clawRoot = LocalPoint(
-                    centre, right, up, forward, side * 0.25f, 0.11f, 0.18f, scale);
+                    centre, right, up, forward, side * 0.24f, 0.11f, 0.16f, scale);
                 const Vector3 clawJoint = LocalPoint(
-                    centre, right, up, forward, side * 0.40f, 0.13f, 0.29f, scale);
+                    centre, right, up, forward, side * 0.40f, 0.13f, 0.28f, scale);
+                AppendCrossedSegment(vertices, clawRoot, clawJoint, 0.027f * scale,
+                                     palette.limb);
+                const Vector3 palm = LocalPoint(
+                    centre, right, up, forward, side * 0.47f, 0.15f, 0.345f, scale);
+                AppendOctahedron(vertices, palm, right, up, forward,
+                                 0.075f * scale, 0.052f * scale, 0.082f * scale,
+                                 palette.claw, palette.shellSide);
                 const Vector3 outerTip = LocalPoint(
                     centre, right, up, forward, side * (0.46f + clawSpread),
-                    0.16f, 0.39f, scale);
+                    0.165f, 0.485f, scale);
                 const Vector3 innerTip = LocalPoint(
-                    centre, right, up, forward, side * (0.39f - clawSpread * 0.20f),
-                    0.12f, 0.42f, scale);
-                AddDoubleSidedTriangle(vertices, clawRoot, clawJoint, outerTip, palette.claw);
-                AddDoubleSidedTriangle(vertices, clawJoint, innerTip, outerTip, palette.claw);
+                    centre, right, up, forward, side * (0.44f - clawSpread * 0.45f),
+                    0.125f, 0.49f, scale);
+                const Vector3 outerBase = palm + right * (side * 0.035f * scale)
+                    + forward * (0.035f * scale);
+                const Vector3 innerBase = palm - right * (side * 0.025f * scale)
+                    + forward * (0.035f * scale);
+                AddDoubleSidedTriangle(vertices, outerBase, palm, outerTip, palette.claw);
+                AddDoubleSidedTriangle(vertices, palm, innerBase, innerTip,
+                                       palette.shellHighlight);
             }
 
             for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
                 const float side = static_cast<float>(sideIndex);
                 const Vector3 eyeRoot = LocalPoint(
-                    centre, right, up, forward, side * 0.12f, 0.18f, 0.19f, scale);
-                const Vector3 stalkLeft = LocalPoint(
-                    centre, right, up, forward, side * 0.12f - 0.014f,
-                    0.275f, 0.22f, scale);
-                const Vector3 stalkRight = LocalPoint(
-                    centre, right, up, forward, side * 0.12f + 0.014f,
-                    0.275f, 0.22f, scale);
-                const Vector3 eyeTop = LocalPoint(
+                    centre, right, up, forward, side * 0.12f, 0.19f, 0.19f, scale);
+                const Vector3 eyeCentre = LocalPoint(
                     centre, right, up, forward, side * 0.12f,
-                    0.305f, 0.225f, scale);
+                    0.255f, 0.225f, scale);
+                AppendCrossedSegment(vertices, eyeRoot, eyeCentre,
+                                     0.012f * scale, palette.shellSide);
+                AppendOctahedron(vertices, eyeCentre, right, up, forward,
+                                 0.018f * scale, 0.018f * scale, 0.018f * scale,
+                                 Color(38, 30, 24, 255), Color(20, 18, 17, 255));
+            }
+
+            const Vector3 mouthCentre = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.072f, 0.236f, scale);
+            const Vector3 mouthLeft = LocalPoint(
+                centre, right, up, forward, -0.07f, 0.068f, 0.244f, scale);
+            const Vector3 mouthRight = LocalPoint(
+                centre, right, up, forward, 0.07f, 0.068f, 0.244f, scale);
+            const Vector3 mouthLow = LocalPoint(
+                centre, right, up, forward, 0.0f, 0.035f, 0.255f, scale);
+            AddDoubleSidedTriangle(vertices, mouthLeft, mouthCentre, mouthLow,
+                                   palette.joint);
+            AddDoubleSidedTriangle(vertices, mouthCentre, mouthRight, mouthLow,
+                                   palette.joint);
+
+            for (int sideIndex = -1; sideIndex <= 1; sideIndex += 2) {
+                const float side = static_cast<float>(sideIndex);
                 AddDoubleSidedTriangle(
-                    vertices, eyeRoot, stalkLeft, stalkRight, palette.shellSide);
-                AddDoubleSidedTriangle(
-                    vertices, stalkLeft, eyeTop, stalkRight, Color(31, 25, 22, 255));
+                    vertices,
+                    LocalPoint(centre, right, up, forward, side * 0.30f, 0.11f,
+                               -0.16f, scale),
+                    LocalPoint(centre, right, up, forward, side * 0.41f, 0.085f,
+                               -0.10f, scale),
+                    LocalPoint(centre, right, up, forward, side * 0.34f, 0.10f,
+                               -0.035f, scale),
+                    palette.shellSide);
             }
         }
 
@@ -233,10 +338,18 @@ namespace island
                 continue;
             }
             if (distanceSquared <= NearLodDistance * NearLodDistance) {
+                const std::size_t firstVertex = stagingVertices_.size();
                 AppendNearCrab(stagingVertices_, crab);
+                if (stagingVertices_.size() - firstVertex != NearCrabVertexCount) {
+                    throw std::logic_error("Near crab geometry violated its exact vertex budget");
+                }
                 ++visibleNearCrabCount_;
             } else {
+                const std::size_t firstVertex = stagingVertices_.size();
                 AppendFarCrab(stagingVertices_, crab);
+                if (stagingVertices_.size() - firstVertex != FarCrabVertexCount) {
+                    throw std::logic_error("Far crab geometry violated its exact vertex budget");
+                }
                 ++visibleFarCrabCount_;
             }
             ++visibleCrabCount_;

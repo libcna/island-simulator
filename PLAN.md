@@ -413,8 +413,14 @@ docs/stream-course.md and docs/environment-field-design.md.
   four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
   cage-like scute seams for +12 near vertices. Inspected contained
   `20261012T211746.659012Z-turtles` shows one near turtle/one draw; see
-  `docs/sea-turtle-form.md`. Crab polish also remains, so this
-  umbrella item is intentionally not complete. See `docs/dolphins.md`.
+  `docs/sea-turtle-form.md`. The crab pass replaces the pointed fan shell and single-triangle
+  legs with a 594-vertex rounded four-ring carapace, crossed two-segment legs, volumetric palms,
+  split claws, shortened eye stalks, mouthparts and lateral shell teeth. The 12-vertex far LOD,
+  thirty-agent population and one batch remain unchanged. Inspected contained evidence
+  `20261012T212449.173818Z-crabs` shows five near animals in one draw with empty kernel deltas;
+  see `docs/crab-form.md`. All five requested species now have a first native visual pass, but
+  the umbrella item is intentionally not complete because they remain visibly procedural and
+  Web/Android/performance review is open. See `docs/dolphins.md`.
 
 Stream bed now live in TerrainRenderer: covered original coarse quads omitted;
 separate16-bit buffers/existing terrain material, one extra culled draw. Player

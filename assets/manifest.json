@@ -322,6 +322,14 @@
       ]
     },
     {
+      "name": "offshore-dolphins",
+      "licenseRecord": "Procedural offshore dolphins",
+      "sources": [
+        "game/src/DolphinPod.cpp",
+        "game/src/DolphinRenderer.cpp"
+      ]
+    },
+    {
       "name": "monkey-troop",
       "licenseRecord": "Procedural monkey troop",
       "sources": [

@@ -601,7 +601,7 @@ try {
     [
       "island-simulator: renderer WEBGL2",
       "island-simulator: beach crabs 30 agents in deterministic sand-constrained colonies",
-      "island-simulator: beach crabs use articulated legs, claws, and one culled batch",
+      "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch",
       "island-simulator: crab QA camera views an active beach colony",
     ],
     /crabs [1-9][0-9]*\/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw/);

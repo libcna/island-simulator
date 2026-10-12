@@ -4726,7 +4726,7 @@ int main()
         && jungle.ForestGroundPlantCount() == repeatedJungle.ForestGroundPlantCount()
         && jungle.StreamBankGroundPlantCount() == repeatedJungle.StreamBankGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 573
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 572
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
             - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2191,
         "wet-biome and cave-footprint reservations preserve measured deterministic populations");

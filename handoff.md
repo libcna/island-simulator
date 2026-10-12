@@ -4213,6 +4213,26 @@ and M mute were nested in interactive UpdateCamera, so fixed QA views never adva
 cooldowns or muted. Both now run in the common update path. Screenshot inspected: close
 snake/head and F1 state visible; it is functional evidence, not visual/acoustic realism.
 No subjective listening, Web or Android claim has been made.
+
+# Latest — beach-crab close-form pass
+
+The fifth requested aquatic/coastal animal now has a first native visual pass. A new low
+`crabs` QA camera exposed the old pointed fan bodies, hairline single-triangle legs and
+arrow claws. `CrabRenderer` now emits an exact594-vertex/198-triangle near animal: four-ring
+ten-sector rounded carapace, varied upper panels/dark side plates, crossed two-segment walking
+legs, thick claw arms, octahedral palms, split fingers, shortened volumetric eye stalks,
+mouthparts and lateral shell teeth. Far remains12 vertices/4 triangles; population30, habitat,
+simulation,38m LOD and one batch/draw are unchanged. Runtime guards verify both exact budgets;
+worst-case buffer17820 vertices/285120 bytes. All native/Web/Firefox/Android diagnostic pins
+were updated. Final isolated pixman/llvmpipe `build-consumer/software-captures/
+20261012T212449.173818Z-crabs` PASS:166 bins/std28.25/spatial175.93, five near/one draw,
+kernel-live/final empty; image inspected. No AMD GPU. Release and Debug builds pass. The first
+parallel62-group non-display run passed59 groups; the known load-sensitive supervisor fixture,
+a stale post-hut ordinary-bush expectation (573 instead of measured572), and the missing dolphin
+manifest record failed. The expectation and manifest were corrected, then all three groups passed
+serially in58.64s; asset gate is27 procedural records/92 generator sources/20 project files/zero
+external. Web/Android/performance/material review remains, so aquatic polish stays `[~]`. See
+`docs/crab-form.md`.
 # Latest — prevailing-wind debris accumulation native pass
 
 Ecosystem item9 progressed to `[~]`. `IslandEnvironmentField::SampleCoastalDebris`

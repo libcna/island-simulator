@@ -1025,7 +1025,7 @@ if(ISLAND_BUILD_GAME)
             TIMEOUT 30
             LABELS display
             PASS_REGULAR_EXPRESSION
-                "beach crabs use articulated legs, claws, and one culled batch.*beach crabs 30 agents.*crabs [1-9][0-9]*/30 visible.*1 draw")
+                "beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch.*beach crabs 30 agents.*crabs [1-9][0-9]*/30 visible.*1 draw")
         add_test(NAME IslandGameButterflyCapture
             COMMAND island-simulator
                     --capture "${CMAKE_BINARY_DIR}/island-butterfly-capture.ppm"
