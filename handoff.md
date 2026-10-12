@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — ground-spider habitat foundation, NOT live spiders
+
+Moved forward the explicitly requested missing spider species while retaining all
+remaining goat issues. New SpiderHabitat.hpp/.cpp + SpiderHabitatTests in island_core:
+12 ground homes,16candidates/canopy (2.7/4.2scale radii×8directions), hashed stable
+order seed0x73706964,8m spacing. .60m patrol+.14m body disk excludes full solids/hut
+plus groundplant.18scale/understory.25scale/bush.30scale root bases.9rendered-ground
+samples requireheight>=2,shore>=30,normalY>=.95,heightdelta<=.25. Canopy association
+is not shadow/humidity proof; sampled patch is not full route/leaf-volume proof.
+No fallback/vegetation clearing/invisible collisions. FindGround returns nullopt if
+no complete set. Tests determinism, independent solid/plant clearances, terrain height,
+spacing, invalid coordinates/index, inserted local obstacle and fully blocked world.
+Reference coordinates and full remaining ground+web requirements in docs/spiders.md.
+
+Inclusive native build/full48CPU PASS97.63s (spider1.58s), logs
+build/spider-habitat-current-{build,tests}.log; initial focused1.17s earlier. Native
+build config regenerated normally for new core source/test; existing build/cache used.
+No IslandGame population/renderer integration or WorldReport spider count: spiders and
+webs are STILL ABSENT in the live game. No visual/portable acceptance, GPU/emulator
+run, Android/KVM/dependency changes. Corrected stale goat PLAN header saying untextured;
+current coat/eyes/ears/planted feet are already live, other goat issues stay open.
+Handles86383 and79236 terminal0. Goalactive/nopush; full prior backlog retained,
+AMD flight crash remains high-priority unresolved. NEXT: spider articulated anatomy/
+ground locomotion and live renderer, plus genuine plant-attached web habitats; do not
+mark species done based on placement tests. Goat rotational feet/body smoothness and
+all other requested species/environment/resident tasks remain open.
+
 ## Latest — post-anchor Web and Android actual runtime qualification
 
 No code changes this turn; qualified29c23a0 live anchor code plus current coat/ears/eyes.

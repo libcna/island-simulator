@@ -773,7 +773,16 @@ progress or require player interaction; dangerous species keep their distance li
   cases; full42/42 CPU PASS68.19s. Host fingerprint b3fde347f77eb5f8 replaces a590b7e4fb787269
   through added coverage only, not a placement change. No renderer/emulator run. This
   does not implement spiders, tree snakes or any other missing species.
-- [ ] Spiders (webs between plants, ground spiders)
+- [~] Spiders (webs between plants, ground spiders). CPU ground placement foundation
+  now proposes12 deterministic forest homes,16bounded candidates per existing canopy,
+  minimum8m spacing and.60m patrol+.14m body envelope. Full static obstacles including
+  hut plus non-solid plant root/stem exclusions; rendered height/dry inland/slope patch
+  samples. No unsafe fallback or vegetation removal. Determinism, independent clearance,
+  invalid/local-block/fully-blocked tests added. **No live spiders or webs yet.**
+  Next: recognizable eight-leg model, grounded motion, actual renderer/population and
+  plant-attached webs. Full requirements/evidence in docs/spiders.md.
+  Inclusive native build/full48CPU PASS97.63s, spider test1.58s. No renderer or
+  portable build/runtime qualification and no live population/world-report change.
 - [ ] Parrots (flocks, perching in canopy, calls)
 - [ ] Pigeons/doves (tropical fruit doves and ground doves)
 - [ ] Crocodiles (saltwater crocodile in a suitable estuary/shore area, basking, keeps away)
@@ -783,7 +792,7 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Rats
 - [ ] Deer
 - [~] Goats (feral island goats on open slopes). **Six live goats now integrated;
-  provisional untextured appearance, not visually accepted.** Earlier foundation
+  generated coat, detailed eyes/ears and planted-foot motion, not visually accepted.** Earlier foundation
   milestones below are historical. GoatHabitat proposes six upland homes from3025
   bounded candidates using actual rendered terrain and the complete obstacle grid.
   Dry/sloped footprint, canopy/understory/bush clearance,8m separation/40m herd region;
