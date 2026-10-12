@@ -120,6 +120,7 @@ namespace island
         int visibleCrabs = 0;
         int visibleBoars = 0;
         int visibleGoats = 0, totalGoats = 0, goatDraws = 0, goatShadows = 0;
+        int visibleSpiders = 0, totalSpiders = 0, spiderDraws = 0;
         int totalBoars = 0;
         int boarDraws = 0;
         int boarShadows = 0;

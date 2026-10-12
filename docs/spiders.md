@@ -1,10 +1,47 @@
 # Spiders — implementation and verification
 
-Status: CPU ground population/motion and first mesh only. **No live spiders or webs are installed
-in IslandGame yet.** Both ground spiders and webs between plants remain required.
-This is not a rendered model, movement, visual or platform acceptance claim.
+Status: **12 ground spiders are now integrated in IslandGame. Webs are still absent.**
+The first actual native software image was inspected, but its generic image-contrast
+gate failed. Natural motion, visual realism and portable qualification remain open.
 
-## Ground colony simulation (not integrated into IslandGame)
+## First live integration and actual native inspection
+
+IslandGame constructs SpiderColony after the full static collision grid/hut, updates
+it with the real camera observer and sends the authoritative pose to SpiderRenderer.
+The renderer uses one opaque vertex-color BasicEffect batch, CPU normal/daylight and
+shared canopy transmission. Near meshes apply within4m, far to18m; a0.16m frustum
+sphere surrounds each body. Capacity120000 VertexPositionColor vertices (1,920,000
+GPU bytes plus the same reserved CPU staging payload), with population/upload guards.
+No custom shader, texture or special GPU feature. No spider contact-shadow pass yet.
+Visible counts appear in the HUD and benchmark; draw totals include the batch.
+WorldReport population/fingerprint coverage is still pending: its old fingerprint
+does NOT describe this newly added live population.
+
+The spiders viewpoint targets the first normal habitat with a low close camera
+(.36,.28,.45m offset,0.5rad FOV) and follows its translation. It is inside the normal
+observer retreat radius; the simulation is not frozen or forced into a special pose.
+One-time platform-mirrored render proof must report1..12 visible spiders in one draw
+for the native capture harness. This first view uses the ordinary four-frame capture,
+not a deterministic multi-stage crawling audit.
+
+Actual contained llvmpipe run
+build/software-captures/20261012T043243.618050Z-spiders rendered1/12 in1draw,
+kernel-after[] and a1280x720 image (inspected via build/spider-live-first.png).
+The spider is visibly present on textured forest floor, with eight leg silhouettes,
+two-part body, eyes and sparse bristles. It remains too smooth/plain, and contact
+shadows are missing. Deep shade makes it low contrast. **Outer run FAILED** because
+the generic image validator rejected luminance variation, color bins and spatial
+contrast. No thresholds/profile exceptions were changed to turn that into a pass.
+This is actual rendering evidence, not clean visual/platform qualification. That
+capture precedes the subsequent HUD/help/benchmark-count-only edits.
+Current inclusive native build and51/51 CPU groups pass59.58s, logs
+build/spider-live-current-{build,tests}.log. No Web/Android build or run in this step.
+
+Next: world-report coverage, multi-stage actual motion views, surface/hair/contact
+refinement and explicit review of shaded small-animal capture acceptance; then actual
+Web/Android qualification. Plant-attached webs are still a separate required task.
+
+## Ground colony simulation
 
 `SpiderColony` constructs the12 habitat homes against the full static world obstacle
 set. Its renderer-independent states expose an authoritative `SpiderGroundPose`,

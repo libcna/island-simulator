@@ -499,6 +499,7 @@ if(ISLAND_BUILD_GAME)
         game/src/BoarRenderer.cpp
         game/src/SnakeRenderer.cpp
         game/src/GoatRenderer.cpp
+        game/src/SpiderRenderer.cpp
         game/src/DebugOverlay.cpp
         game/src/DistantSceneryRenderer.cpp
         game/src/FishRenderer.cpp

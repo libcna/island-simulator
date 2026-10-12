@@ -332,7 +332,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"hut", "hut-material", "boars", "goats", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"hut", "hut-material", "boars", "goats", "spiders", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -525,6 +525,8 @@ def main():
                 raise RuntimeError("snake capture did not submit the live population")
             if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")
+            if args.viewpoint == "spiders" and not re.search(r"spider render proof: spiders (?:[1-9]|1[0-2])/12 visible, 1 draw;", diagnostics):
+                raise RuntimeError("spider capture did not submit the live population")
             if args.viewpoint == "goats" and "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("goat fur material was not loaded")
             if "boar directional coat atlas 128x128, opaque stock BasicEffect" not in diagnostics:

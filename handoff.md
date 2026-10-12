@@ -1,5 +1,40 @@
 # island-simulator handoff
 
+## Latest —12 ground spiders LIVE, first actual native view inspected but image gate FAILED
+
+Previous turn was progress (CPUcolony). IslandGame now owns SpiderColony after full
+worldsolidgrid/hut, updates real observer, renders authoritative pose via new
+SpiderRenderer.hpp/.cpp. One opaque VertexPositionColor BasicEffect batch, CPU normals/
+sun/sky plus shared canopy transmission, no customshader/texture; near<4m/far<=18m,
+frustumsphere.16m atground+.04. Capacity120000vertices×16=1920000GPUbytes plus equal
+CPUreservedpayload; population/uploadguards. No spider contactshadows yet.
+New --viewpoint spiders/FOV.5, camera firstspider+(.36,.28,.45), target+.035,
+translationfollowsnormal simulation; closeobserver triggers ordinary retreat.
+Nativeharness accepts spiders and requires mirroredactualrenderproof1..12of12/1draw.
+HUD+benchmarkvisiblecounts anddrawsum added; Mainhelpupdated. WorldReport coverage
+NOTyetadded: oldfingerprint0a98cb638125508f is incomplete for newlivepopulation.
+
+Actual contained llvmpipe capture:
+build/software-captures/20261012T043243.618050Z-spiders,1/12visible1draw/kernel-after[].
+Actual1280x720PNG inspected (build/spider-live-first.png): recognizable eightlegs,
+rounded2body/eyes onforestfloor, plain/smoothsurface+sparsebristles, missingcontact
+shadows, deepcanopyshade. OuterFAILED genericluminance/colorbins/spatialcontrast
+gates. Noimage thresholds/profiles changed to forcepass. NOTqualifiedruntime/
+realism/motionacceptance. Usesordinary4framecapture, nodeterministicmotionstages.
+CapturepredatesHUD/help/benchmark-onlyedits; renderssameworld/model/motion.
+
+Currentinclusivebuild+51CPU PASS59.58s:
+build/spider-live-current-{build,tests}.log. Firstbuildspider-live-build.log.
+Allhandles terminal:51415build0,17575capture1(retainedfailure),80399build0,
+57143tests0. NoWeb/Androidbuild/runtime. AMDlatchSHA c0bd1704 unchanged; noAMD
+hardware/KVM/emulator/dependencychanges. Goalactive/nopush/fullpriorbacklogretained,
+includinghighpriorityunresolvedAMDflightcrash.
+
+NEXT: WorldReportlivepopulationcoverage; deterministicmulti-stageactualspidermotion
+views; bodymaterial/hairs/contactshadowrefinement and explicitreviewofdarksmall-animal
+captureacceptance withoutcallingfailedgatesgreen. ThenactualWeb/Android. Plant-attached
+webs are stillABSENT/required. Other14species/resident/environment/goatetcstayopen.
+
 ## Latest — grounded spider colony simulation, NOT yet live in IslandGame
 
 Previous turn was progress (mesh+inspected CPU preview). Added SpiderColony.hpp/.cpp

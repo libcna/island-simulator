@@ -418,6 +418,10 @@ namespace island
         goats << "GOATS " << state.visibleGoats << '/' << state.totalGoats
               << "  SHADOWS " << state.goatShadows << "  DRAWS " << state.goatDraws;
         lines.push_back(goats.str());
+        auto spiders = DiagnosticLine();
+        spiders << "SPIDERS " << state.visibleSpiders << '/' << state.totalSpiders
+                << "  DRAWS " << state.spiderDraws;
+        lines.push_back(spiders.str());
         auto snakes = DiagnosticLine();
         snakes << "SNAKES " << state.visibleSnakes << '/' << state.totalSnakes
                << "  SHADOWS " << state.snakeShadows << "  DRAWS " << state.snakeDraws;

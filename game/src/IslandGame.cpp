@@ -102,6 +102,7 @@ namespace island
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
+            case FixedViewpoint::SpiderDetail: return "spiders";
             case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
@@ -179,6 +180,7 @@ namespace island
         boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
         snakes_ = std::make_unique<SnakePopulation>(terrain_,worldCollisionGrid_.Obstacles());
         goats_ = std::make_unique<GoatHerd>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
+        spiders_ = std::make_unique<SpiderColony>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -784,6 +786,12 @@ namespace island
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        } else if (viewpoint_ == FixedViewpoint::SpiderDetail) {
+            const auto& spider=spiders_->Spiders().front();
+            cameraPosition_=Vector3(spider.x+.36f,spider.y+.28f,spider.z+.45f);
+            const auto direction=Vector3(spider.x,spider.y+.035f,spider.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::GoatDetail) {
             const auto& goat=goats_->Goats().front();
             const float x=goat.x+7.5f,z=goat.z+4.0f;
@@ -997,6 +1005,7 @@ namespace island
         auto snakeRenderer = std::make_unique<SnakeRenderer>(device,canopyLighting->Field());
         auto goatRenderer = std::make_unique<GoatRenderer>(device,canopyLighting->Field(),
             120.0f*qualityProfile_.wildlifeMaximumDistanceScale);
+        auto spiderRenderer = std::make_unique<SpiderRenderer>(device,canopyLighting->Field());
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
@@ -1028,6 +1037,9 @@ namespace island
         boarRenderer_ = std::move(boarRenderer);
         snakeRenderer_ = std::move(snakeRenderer);
         goatRenderer_ = std::move(goatRenderer);
+        spiderRenderer_ = std::move(spiderRenderer);
+        std::cout << "island-simulator: ground spiders " << spiders_->Spiders().size()
+                  << " agents with retained stance anchors; webs not yet installed\n";
         std::cout << "island-simulator: goats " << goats_->Goats().size()
                   << " agents on open slopes, terrain-fitted limbs, directional fur material\n";
         monkeyRenderer_ = std::move(monkeyRenderer);
@@ -1291,6 +1303,12 @@ namespace island
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         const auto previousGoat=goats_->Goats().front();
+        const auto previousSpider=spiders_->Spiders().front();
+        spiders_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
+        if(viewpoint_==FixedViewpoint::SpiderDetail) {
+            const auto& current=spiders_->Spiders().front();
+            cameraPosition_+=Vector3(current.x-previousSpider.x,current.y-previousSpider.y,current.z-previousSpider.z);
+        }
         goats_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
         if(viewpoint_==FixedViewpoint::GoatDetail) {
             const auto& current=goats_->Goats().front();
@@ -1900,7 +1918,7 @@ namespace island
                                            renderCameraPosition_ + forward,
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
-            (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail)
+            (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail||viewpoint_==FixedViewpoint::SpiderDetail)
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
     }
@@ -1945,6 +1963,7 @@ namespace island
             + crabRenderer_->DrawCallCount()
             + boarRenderer_->DrawCallCount()
             + goatRenderer_->DrawCallCount()
+            + spiderRenderer_->DrawCallCount()
             + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
@@ -2210,6 +2229,7 @@ namespace island
                << "    \"crabs\": " << crabRenderer_->VisibleCrabCount() << ",\n"
                << "    \"boars\": " << boarRenderer_->VisibleCount() << ",\n"
                << "    \"goats\": " << goatRenderer_->VisibleCount() << ",\n"
+               << "    \"spiders\": " << spiderRenderer_->VisibleCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"sea_turtles\": "
                << seaTurtleRenderer_->VisibleTurtleCount() << ",\n"
@@ -2407,6 +2427,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("goats");
             goatRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,goats_->Goats());
+        }
+        {
+            GpuDiagnosticScope gpuPass("spiders");
+            spiderRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,spiders_->Spiders());
         }
 
         {
@@ -2623,6 +2647,9 @@ namespace island
             overlayState.visibleBoars = boarRenderer_->VisibleCount();
             overlayState.visibleGoats = goatRenderer_->VisibleCount();
             overlayState.totalGoats = static_cast<int>(goats_->Goats().size());
+            overlayState.visibleSpiders = spiderRenderer_->VisibleCount();
+            overlayState.totalSpiders = static_cast<int>(spiders_->Spiders().size());
+            overlayState.spiderDraws = spiderRenderer_->DrawCallCount();
             overlayState.goatDraws = goatRenderer_->DrawCallCount();
             overlayState.goatShadows = contactShadowRenderer_->VisibleGoatShadowCount();
             overlayState.totalBoars = static_cast<int>(boarHerd_.Boars().size());
@@ -2940,6 +2967,12 @@ namespace island
             }
         }
         ++drawnFrames_;
+        if(viewpoint_==FixedViewpoint::SpiderDetail&&drawnFrames_==1U) {
+            std::ostringstream report;
+            report << "island-simulator: spider render proof: spiders " << spiderRenderer_->VisibleCount()
+                << '/' << spiders_->Spiders().size() << " visible, " << spiderRenderer_->DrawCallCount() << " draw;";
+            std::cout << report.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(report.str());
+        }
         if(viewpoint_==FixedViewpoint::GoatDetail&&drawnFrames_==1U) {
             std::ostringstream report;
             report << "island-simulator: goat render proof: goats " << goatRenderer_->VisibleCount()

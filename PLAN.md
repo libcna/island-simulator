@@ -773,7 +773,15 @@ progress or require player interaction; dangerous species keep their distance li
   cases; full42/42 CPU PASS68.19s. Host fingerprint b3fde347f77eb5f8 replaces a590b7e4fb787269
   through added coverage only, not a placement change. No renderer/emulator run. This
   does not implement spiders, tree snakes or any other missing species.
-- [~] Spiders (webs between plants, ground spiders). CPU ground placement foundation
+- [~] Spiders (webs between plants, ground spiders). **Current:12 ground spiders live
+  in IslandGame; webs still absent.** One opaque near/far batch, normal colony updates,
+  camera/HUD/benchmark counts. First actual native llvmpipe image inspected:
+  1/12visible/1draw/kernel[], recognizable but dark/smooth, sparse bristles, no contact
+  shadows. Outer image gate FAILED contrast/color thresholds; not qualification.
+  No thresholds weakened. WorldReport coverage, motion audit and portable runtime
+  still pending. Current inclusivebuild/51CPU PASS59.58s. Earlier foundation
+  milestones below are historical, not current
+  absence claims. CPU ground placement foundation
   now proposes12 deterministic forest homes,16bounded candidates per existing canopy,
   minimum8m spacing and.60m patrol+.14m body envelope. Full static obstacles including
   hut plus non-solid plant root/stem exclusions; rendered height/dry inland/slope patch

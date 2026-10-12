@@ -19,6 +19,7 @@
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/BoarRenderer.hpp"
 #include "IslandSimulator/GoatRenderer.hpp"
+#include "IslandSimulator/SpiderRenderer.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/RenderedTerrainHeightMap.hpp"
 #include "IslandSimulator/CrabRenderer.hpp"
@@ -121,6 +122,7 @@ namespace island
         CrabDetail,
         BoarDetail,
         GoatDetail,
+        SpiderDetail,
         SnakeDetail,
         SnakeHeadDetail,
         ButterflyDetail,
@@ -232,6 +234,7 @@ namespace island
         BoarHerd boarHerd_;
         std::unique_ptr<SnakePopulation> snakes_;
         std::unique_ptr<GoatHerd> goats_;
+        std::unique_ptr<SpiderColony> spiders_;
         FishSchools fishSchools_;
         SeaTurtleGroup seaTurtleGroup_;
         SharkPatrol sharkPatrol_;
@@ -276,6 +279,7 @@ namespace island
         std::unique_ptr<CrabRenderer> crabRenderer_;
         std::unique_ptr<BoarRenderer> boarRenderer_;
         std::unique_ptr<GoatRenderer> goatRenderer_;
+        std::unique_ptr<SpiderRenderer> spiderRenderer_;
         std::unique_ptr<SnakeRenderer> snakeRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;
