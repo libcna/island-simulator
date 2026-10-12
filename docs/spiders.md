@@ -42,6 +42,30 @@ post-correction native build and focused mesh regression passed0.05s. Logs:
 
 ## First live integration and actual native inspection
 
+### Shaded close-view investigation after setae integration
+
+Actual contained run `build/software-captures/20261012T051411.829809Z-spiders`
+records ground direct-light transmission0.00488045858 and body-centre
+transmission0.00512093166. Shared RGB canopy tint is
+(0.462765306,0.532406807,0.621945977). The first home is therefore nearly fully
+occluded from direct sunlight in the current canopy model, not unlit by ambient.
+SpiderRenderer uses the same .61 ambient/.37 sun/.10 upward-fill expression as
+GoatRenderer, multiplied once by the shared tint; BasicEffect lighting is disabled,
+and its default diffuse/emissive/alpha are unity/zero/one. No additional spider-only
+lighting multiplier was found. This does not establish correct exposure, colour
+space, ecological placement or visual acceptance of the common lighting model.
+
+The harness now saves `spider-lighting.json` before image validation, rejects
+missing/duplicate/nonfinite/out-of-range/inconsistent diagnostics, and independently
+checks the shared tint transfer.41 device-free harness tests pass, including eight
+bad lighting records and fully shaded/half/full transmission. Native build passes.
+All eight stage images and the final PPM compare byte-identically to051053.143139Z;
+the earlier actual visual inspection therefore still applies. Kernel delta is empty.
+The outer contrast gate remains FAILED, with no thresholds or viewpoint exceptions.
+Next lighting work should compare different real habitats and an open-daylight control
+before changing the shared ambient/exposure model; do not brighten only this audit
+camera, move spiders out of habitat solely to pass, or label this a lighting fix.
+
 IslandGame constructs SpiderColony after the full static collision grid/hut, updates
 it with the real camera observer and sends the authoritative pose to SpiderRenderer.
 The renderer uses one opaque vertex-color BasicEffect batch, CPU normal/daylight and

@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — measured spider close-view lighting, no visual change or acceptance
+
+Previous turn progressed via generatedmaterial+UVcorrection (6b7465e). This turn
+investigated darkcapture and added actual first-frame ground/bodytransmission/tint
+diagnostic plus independent harness transfer validation/save spider-lighting.json.
+41CPUpreflight PASS0.038s including8badlightingrecords; nativeincrementalbuildPASS.
+Actual contained run051411.829809Z-spiders (70387 terminal1) measures direct
+transmission ground.00488045858/body.00512093166,RGBtint.462765306/.532406807/.621945977.
+Near-totaldirectocclusion, ambientretained. Spider/goat light expressions match;
+BasicEffectlightingdisabled/defaultdiffuseunity, no additional spideronlyfactorfound.
+This is not proof of correct exposure/colourspace/commonlighting or habitatquality.
+All8stageimages+final are byte-identical to051053.143139Z already visuallyinspected.
+FinalPPM SHAe119fde805467132cb976d0da520c987915260a39fb12855315bc4e20f568899.
+Kernel[]; outercontraststillFAIL. No gateexceptions/threshold/renderingchanges.
+Logs build/spider-lighting-{preflight,build}.log; build49352 terminal0.
+NEXT: compare other realhabitats and open-daylightcontrol before anysharedlightchange;
+portableaudits, webs, remaining fullplan andAMDrootcause stillopen. No hardware,
+Android/KVM/dependencychanges, latchSHAc0bd1704 unchanged. Goalactive/no push.
+
 ## Latest — spider setae material integrated and inspected, visual gate still fails
 
 The preceding response merely confirmed the existing AMD task (no implementation

@@ -19,6 +19,7 @@ from run_software_capture import (
     validate_goat_motion_stages,
     validate_spider_motion_stages,
     validate_spider_render_log,
+    validate_spider_lighting,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
@@ -26,6 +27,22 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_spider_lighting_transfer_and_rejections(self):
+        for transmission in (0, 0.5, 1):
+            tint = ','.join(str(a + (1-a)*transmission) for a in (0.46, 0.53, 0.62))
+            good = (f"spider lighting ground-transmission={transmission} "
+                    f"body-transmission={transmission} body-tint={tint}\n")
+            self.assertEqual(validate_spider_lighting(good)["bodyTransmission"], transmission)
+        good = "spider lighting ground-transmission=0 body-transmission=0 body-tint=0.46,0.53,0.62\n"
+        for bad in ("", good+good, good.replace("ground-transmission=0", "ground-transmission=nan"),
+                    good.replace("body-transmission=0", "body-transmission=1.1"),
+                    good.replace("0.46,0.53,0.62", "0.46,0.53"),
+                    good.replace("0.46,0.53,0.62", "0.46,inf,0.62"),
+                    good.replace("0.46,0.53,0.62", "0.46,0.53,0.32"),
+                    good.replace("ground-transmission=0", "ground-transmission=bad")):
+            with self.subTest(bad=bad), self.assertRaises(RuntimeError):
+                validate_spider_lighting(bad)
+
     def test_spider_render_requires_grounding(self):
         good = ("island-simulator: spider render proof: spiders 1/12 visible, 2 draw; contact-shadows=1\n"
                 "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n")

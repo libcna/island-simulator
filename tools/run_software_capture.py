@@ -113,6 +113,24 @@ def validate_spider_render_log(text):
         raise RuntimeError("spider capture lacks the setae albedo")
 
 
+def validate_spider_lighting(text):
+    rows = re.findall(r"spider lighting ground-transmission=(\S+) body-transmission=(\S+) body-tint=(\S+)", text)
+    if len(rows) != 1:
+        raise RuntimeError("spider lighting diagnostic missing or duplicated")
+    try:
+        ground, body = map(float, rows[0][:2])
+        tint = tuple(map(float, rows[0][2].split(',')))
+    except ValueError as error:
+        raise RuntimeError("malformed spider lighting diagnostic") from error
+    if len(tint) != 3 or not all(math.isfinite(v) and 0 <= v <= 1 for v in (ground, body, *tint)):
+        raise RuntimeError("invalid spider lighting range")
+    # Independent check of the shared canopy transfer, not a visual acceptance rule.
+    if any(abs(actual - (ambient + (1 - ambient) * body)) > 0.00001
+           for actual, ambient in zip(tint, (0.46, 0.53, 0.62))):
+        raise RuntimeError("spider lighting differs from the shared canopy transfer")
+    return {"groundTransmission": ground, "bodyTransmission": body, "bodyTint": tint}
+
+
 def validate_spider_motion_stages(text):
     """Sparse actual crawling presentation, not continuous foot-lock/contact proof."""
     rows = re.findall(r"^island-simulator: spider motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
@@ -439,6 +457,8 @@ def main():
                     if not Path(str(capture)+f".goat-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing goat motion stage image")
             if args.viewpoint == "spiders":
+                lighting = validate_spider_lighting(log)
+                (evidence / "spider-lighting.json").write_text(json.dumps(lighting, indent=2) + "\n")
                 motion = validate_spider_motion_stages(log)
                 (evidence / "spider-motion.json").write_text(json.dumps(motion, indent=2) + "\n")
                 for stage in range(8):

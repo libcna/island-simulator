@@ -810,6 +810,12 @@ progress or require player interaction; dangerous species keep their distance li
   Full52CPU PASS74.94s; finalUV-only focusedmesh PASS0.05s andnativebuildPASS.
   Web/Android packaging updated butnotbuilt/run; bodyfaceting/sparsebristles,
   darksceneacceptance, naturalcontinuousmotion andwebs remainopen.
+  Closeview lighting investigation051411.829809Z: ground/bodydirecttransmission
+  .00488046/.00512093, sharedRGBtint(.462765,.532407,.621946). No extra spider-only
+  multiplier found; same normal/daylight model asgoats. Diagnostic+independenttransfer
+  check added,41harnessCPUtestsPASS/nativebuildPASS. Eightstages+final byte-identical
+  topreviousinspectedrun/kernel[]; outercontraststillFAIL. Notalightingfix/acceptance.
+  Compare realhabitats and open-daylightcontrol beforealteringsharedambient/exposure.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

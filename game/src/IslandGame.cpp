@@ -2977,6 +2977,16 @@ namespace island
                 << '/' << spiders_->Spiders().size() << " visible, " << spiderRenderer_->DrawCallCount() << " draw;"
                 << " contact-shadows=" << contactShadowRenderer_->VisibleSpiderShadowCount();
             std::cout << report.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(report.str());
+            const auto& subject=spiders_->Spiders().front();
+            const float groundTransmission=canopyLightField_.Sample(subject.x,subject.z);
+            const float bodyTransmission=canopyLightField_.SampleReceiver(
+                subject.x,subject.y+.04f,subject.z,subject.y);
+            const auto tint=CanopyTransmissionTint(bodyTransmission);
+            std::ostringstream lighting;lighting.precision(9);
+            lighting << "island-simulator: spider lighting ground-transmission=" << groundTransmission
+                << " body-transmission=" << bodyTransmission
+                << " body-tint=" << tint.red << ',' << tint.green << ',' << tint.blue;
+            std::cout << lighting.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(lighting.str());
         }
         if(viewpoint_==FixedViewpoint::GoatDetail&&drawnFrames_==1U) {
             std::ostringstream report;
