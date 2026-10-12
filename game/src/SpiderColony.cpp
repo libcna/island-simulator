@@ -1,4 +1,5 @@
 #include "IslandSimulator/SpiderColony.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -40,7 +41,7 @@ SpiderGroundPose SpiderColony::Pose(const SpiderState& state,const Feet& feet) c
     return pose;
 }
 bool SpiderColony::Valid(const SpiderGroundPose& pose) const {
-    if(pose.up.y<.95f)return false;
+    if(pose.up.y<.95f||CaveSite::Reserves(pose.origin.x,pose.origin.z,SpiderHabitat::BodyRadius))return false;
     for(const auto& leg:pose.legs) {
         if(leg.reachLimited)return false;
         const std::array<SpiderPoint,4> joints{leg.root,leg.hip,leg.knee,leg.foot};

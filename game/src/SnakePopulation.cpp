@@ -1,4 +1,5 @@
 #include "IslandSimulator/SnakePopulation.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include <algorithm>
 #include <cmath>
@@ -38,7 +39,8 @@ namespace island
 
     bool SnakePopulation::ValidPoint(const float x, const float z, const float radius) const
     {
-        if (!std::isfinite(x) || !std::isfinite(z) || std::abs(x) > 300.0f || std::abs(z) > 300.0f)
+        if (!std::isfinite(x) || !std::isfinite(z) || std::abs(x) > 300.0f || std::abs(z) > 300.0f
+            || CaveSite::Reserves(x,z,radius))
             return false;
         const auto ground = surface_->Sample(x,z);
         return terrain_.SignedShoreDistance(x,z) >= 20.0f && ground.height >= 1.0f

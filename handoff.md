@@ -22,10 +22,14 @@ NEW live keyboard QA PASS `build-consumer/software-cave/20261012T173950.239540Z`
 debug teleport8m outside, W todepth19.6597 and held againstbackwall, Tab/Space ceiling,
 Shift floor, Tab land, S exitdepth-6.527.88samples, all capsule-solid0. Back/exit PNGs inspected.
 `tools/run_fullscreen_software.py --cave` is separate scope with no F11; parser tests48/48.
-Next: wildlife intersections (Boar/Goat/Snake/Spider habitat does NOT currently consult CaveSite;
-monkeys already use reserved-route checks), full outer-shell footprint coverage, further
-natural-shape polish and portable checks. Outer rock half-width now can exceed the6m core
-reserve; plants use extra5m, but land wildlife needs a conservative full-shell margin.
+Wildlife integration follow-up: CaveSite half-width8m now covers all emitted shell vertices
+(analytic bound7.62m). Boar/Goat/Snake/Spider now consult it during placement/movement;
+spider live pose and snake connecting segments also guarded.18s simulation tests all bodies
+and spider feet, counts6/6/50/200 retained. Ordinary bushes/ground plants573/2191.
+WorldReport now fingerprints cave shell+ground geometry and exports counts/entrance/length.
+Core/cave/spider-habitat/snake/WorldReport PASS5/5 in36.64s. Source/core current; native
+binaries will be refreshed with next integrated build. Next: campfire functional integration,
+then further natural-shape polish, portable checks and remaining whole-plan items.
 No AMD/Android/KVM activity. Builds CPUs0-3/-j4. See docs/cave.md.
 Both native Release and Debug executables are rebuilt; Debug CaveLayoutTests PASS6.06s.
 

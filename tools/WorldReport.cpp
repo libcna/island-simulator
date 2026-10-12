@@ -24,6 +24,7 @@
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
 #include "IslandSimulator/HutLayout.hpp"
+#include "IslandSimulator/CaveGroundPatch.hpp"
 
 #include <algorithm>
 #include <array>
@@ -99,6 +100,9 @@ namespace
     struct WorldSnapshot final
     {
         island::IslandTerrain terrain;
+        island::CaveLayout cave{terrain};
+        island::RenderedTerrainSurface caveOriginal{terrain};
+        island::CaveGroundPatch caveGround{cave,caveOriginal};
         island::DistantSceneryLayout distantScenery;
         island::BirdFlock birds{terrain};
         island::ButterflyMeadow butterflies{terrain};
@@ -211,6 +215,15 @@ namespace
         hash.AddUint32(seeds.jungle);
         hash.AddUint32(seeds.naturalProps);
         HashSnapshotTerrain(hash, world.terrain);
+        hash.AddSize(world.cave.Triangles().size());
+        for(const auto& triangle:world.cave.Triangles()) {
+            hash.AddEnum(triangle.surface);
+            for(const auto p:triangle.points)HashPosition(hash,p.x,p.y,p.z);
+            HashPosition(hash,triangle.normal.x,triangle.normal.y,triangle.normal.z);
+        }
+        hash.AddSize(world.caveGround.Vertices().size());
+        for(const auto p:world.caveGround.Vertices())HashPosition(hash,p.x,p.y,p.z);
+        for(const auto index:world.caveGround.Indices())hash.AddUint32(index);
 
         HashScaledPlacements(hash, std::span(world.palms.Palms()));
 
@@ -795,6 +808,12 @@ namespace
                << "  \"schemaVersion\": 1,\n"
                << "  \"valid\": " << (valid ? "true" : "false") << ",\n"
                << "  \"fingerprint\": \"" << FingerprintString(fingerprint) << "\",\n"
+               << "  \"cave\": {\"entrance\": [" << world.cave.Entrance().x << ','
+               << world.cave.Entrance().y << ',' << world.cave.Entrance().z
+               << "], \"lengthMeters\": " << island::CaveLayout::Length
+               << ", \"shellTriangles\": " << world.cave.Triangles().size()
+               << ", \"groundVertices\": " << world.caveGround.Vertices().size()
+               << ", \"groundTriangles\": " << world.caveGround.Indices().size()/3 << "},\n"
                << "  \"seeds\": {\n"
                << "    \"palms\": \"0x" << std::hex << seeds.palms
                << "\",\n"

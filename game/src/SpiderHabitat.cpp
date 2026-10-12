@@ -1,4 +1,5 @@
 #include "IslandSimulator/SpiderHabitat.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -18,6 +19,7 @@ bool SpiderHabitat::AcceptsPatch(const IslandTerrain& terrain,const RenderedTerr
     const float distance=std::hypot(x-tree.x,z-tree.z);
     if(distance<2*tree.scale||distance>5.5f*tree.scale)return false;
     constexpr float radius=BodyRadius+PatrolRadius;
+    if(CaveSite::Reserves(x,z,radius))return false;
     if(obstacles.IntersectsCircle(x,z,radius))return false;
     const float height=surface.Sample(x,z).height;
     for(int i=0;i<9;++i) {

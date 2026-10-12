@@ -1,6 +1,7 @@
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -47,7 +48,7 @@ namespace island
 
     bool BoarHerd::IsValidGround(const float x, const float z) const noexcept
     {
-        if (!std::isfinite(x) || !std::isfinite(z)) return false;
+        if (!std::isfinite(x) || !std::isfinite(z) || CaveSite::Reserves(x,z,CollisionRadius)) return false;
         const auto sample = terrain_.Sample(x, z);
         const auto environment = IslandEnvironmentField::SampleInland(
             x, z, sample.signedShoreDistance);

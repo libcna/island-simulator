@@ -7,6 +7,10 @@
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
+#include "IslandSimulator/GoatHerd.hpp"
+#include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/SnakePopulation.hpp"
+#include "IslandSimulator/SpiderColony.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -88,6 +92,8 @@ int main() {
     std::array<int,5> parts{};
     double volume=0;
     for(const auto& triangle:cave.Triangles()) {
+        for(const auto p:triangle.points)
+            Check(CaveSite::Reserves(p.x,p.z),"wildlife reserve does not contain the complete rock shell");
         ++parts[static_cast<int>(triangle.surface)];
         const auto a=triangle.points[0],b=triangle.points[1],c=triangle.points[2],n=triangle.normal;
         const double nx=(b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y);
@@ -171,6 +177,32 @@ int main() {
     solids.insert(solids.end(),jungle.Obstacles().begin(),jungle.Obstacles().end());
     solids.insert(solids.end(),props.Obstacles().begin(),props.Obstacles().end());
     const WorldCollisionGrid worldSolids(solids);
+    // Keep all live populations and check complete bodies through nearby simulation,
+    // not merely their spawn centres against a nominal cave axis.
+    GoatHerd goats(terrain,jungle,solids);
+    BoarHerd boars(terrain,solids);
+    SnakePopulation snakes(terrain,jungle,solids);
+    SpiderColony spiders(terrain,jungle,solids);
+    Check(goats.Goats().size()==6&&boars.Boars().size()==6&&snakes.Snakes().size()==50
+        &&spiders.Spiders().size()==200,"cave reservation reduced a requested animal population");
+    for(int step=0;step<180;++step) {
+        const auto observer=cave.World(step%2?9.0f:-9.0f,1.7f,static_cast<float>(step%24)-2);
+        goats.Update(.1f,{observer.x,observer.y,observer.z});
+        boars.Update(.1f,observer.x,observer.y,observer.z);
+        snakes.Update(.1f,observer.x,observer.y,observer.z);
+        spiders.Update(.1f,{observer.x,observer.y,observer.z});
+        for(const auto& goat:goats.Goats())
+            Check(!CaveSite::Reserves(goat.x,goat.z,GoatHabitat::BodyClearance),"goat entered the cave rock footprint");
+        for(const auto& boar:boars.Boars())
+            Check(!CaveSite::Reserves(boar.x,boar.z,BoarHerd::CollisionRadius),"boar entered the cave rock footprint");
+        for(const auto& snake:snakes.Snakes())for(const auto p:snake.body)
+            Check(!CaveSite::Reserves(p.x,p.z,SnakePopulation::MaximumRadius),"snake body crossed the cave rock footprint");
+        for(const auto& spider:spiders.Spiders()) {
+            Check(!CaveSite::Reserves(spider.x,spider.z,SpiderHabitat::BodyRadius),"spider body entered cave rock");
+            for(const auto p:spider.pose.feet)
+                Check(!CaveSite::Reserves(p.x,p.z),"spider foot entered cave rock");
+        }
+    }
     const auto approach=cave.World(0,0,-3),forward=cave.World(0,0,1);
     const float dx=forward.x-entrance.x,dz=forward.z-entrance.z;
     walker.SetPosition(terrain,approach.x,approach.z);

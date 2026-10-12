@@ -90,3 +90,18 @@ Next gates:
 - Verify live outer-roof containment, performance and supported Web/Android runtime.
 
 No AMD workload, Android emulator or KVM change is needed for the CPU foundation.
+
+## Wildlife integration follow-up
+
+The original6m half-width reserve did not include the expanded exterior. CaveSite now
+reserves8m, exceeding the shell's analytical7.62m maximum. Tests check every emitted
+triangle vertex against this footprint. Boars and goats reject it with their whole-body
+clearance radius; snakes check every body point and connecting segment, and spiders
+check both homes/patrol clearance and live body poses. Existing population counts remain
+6 boars,6 goats,50 snakes,200 spiders. An18s nearby simulation verifies bodies and spider
+feet remain outside the rock footprint. No rendering cost is added by these CPU checks.
+
+The wider plant reserve changes the ordinary bush/ground-plant fixture to573/2191.
+The WorldReport now fingerprints the actual shell and replacement mesh and exports its
+entrance, length and geometry counts. Cave/core/spider-habitat/snake/WorldReport checks
+pass5/5 in36.64s. Native binaries will be refreshed with the next integrated build.

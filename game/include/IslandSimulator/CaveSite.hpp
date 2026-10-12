@@ -10,6 +10,9 @@ struct CaveSite final {
     static constexpr float Inset=38.0f;
     static constexpr float Length=20.0f;
     static constexpr float OuterLength=22.0f;
+    // Outer rings reach 6+.8+.6+.22 = 7.62 m from the axis. Reserve the whole
+    // emitted rock shell, not just the narrower excavation underneath it.
+    static constexpr float HalfWidth=8.0f;
     [[nodiscard]] static std::array<float,2> Centre() noexcept {
         static const std::array<float,2> result=[] {
             const float radius=IslandTerrain{}.ShoreRadius(Angle)-Inset;
@@ -23,7 +26,7 @@ struct CaveSite final {
         const auto centre=Centre();const float dx=x-centre[0],dz=z-centre[1];
         const float across=-std::sin(Angle)*dx+std::cos(Angle)*dz;
         const float depth=-std::cos(Angle)*dx-std::sin(Angle)*dz;
-        return std::abs(across)<6+margin&&depth>-6-margin&&depth<OuterLength+3+margin;
+        return std::abs(across)<HalfWidth+margin&&depth>-6-margin&&depth<OuterLength+3+margin;
     }
 };
 }

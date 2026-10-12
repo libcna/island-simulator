@@ -1,5 +1,6 @@
 #include "IslandSimulator/GoatHabitat.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -9,7 +10,8 @@ namespace island {
 bool GoatHabitat::AcceptsGround(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
     float x,float z)
 {
-    if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>220||std::abs(z)>220) return false;
+    if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>220||std::abs(z)>220
+        ||CaveSite::Reserves(x,z,BodyClearance)) return false;
     const auto centre=surface.Sample(x,z);
     const auto environment=IslandEnvironmentField::SampleInland(
         x,z,terrain.SignedShoreDistance(x,z));
