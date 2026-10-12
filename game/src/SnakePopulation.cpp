@@ -105,7 +105,10 @@ namespace island
 
     void SnakePopulation::Initialize(const JungleLayout* jungle)
     {
-        std::array<std::array<float,2>,Count> homes{{{-44,56},{70,-38},{-72,-70},{42,64}}};
+        std::array<std::array<float,2>,Count> homes{{
+            {-44,56},{70,-38},{-72,-70},{42,64},
+            {-116,48},{106,24},{-18,-112},{92,94}
+        }};
         if (jungle) {
             struct Candidate { float x, z; std::uint32_t rank; };
             std::vector<Candidate> candidates;
@@ -142,14 +145,14 @@ namespace island
                 bool separated = true;
                 for (std::size_t previous = 0; previous < count; ++previous) {
                     separated = separated && std::hypot(candidate.x - homes[previous][0],
-                        candidate.z - homes[previous][1]) >= 52.0f;
+                        candidate.z - homes[previous][1]) >= MinimumHomeSeparation;
                 }
                 if (!separated) continue;
                 homes[count++] = {candidate.x, candidate.z};
                 if (count == Count) break;
             }
             if (count != Count) {
-                throw std::runtime_error("No four separated understory-margin snake habitats");
+                throw std::runtime_error("No complete separated understory-margin snake population");
             }
         }
         for (std::size_t index=0; index<Count; ++index) {
@@ -172,7 +175,10 @@ namespace island
             auto beyondTail = state.body.back();
             beyondTail.x -= Spacing;
             trails_[index].push_back(beyondTail);
-            clocks_[index] = static_cast<float>(index)*4.3f;
+            // Start QA and ordinary encounters in staggered active phases. Rest remains
+            // part of the long cycle, but a newly discovered animal no longer resembles
+            // a permanently static prop during the first few seconds.
+            clocks_[index] = std::fmod(12.0f+static_cast<float>(index)*5.9f,60.0f);
         }
     }
 
@@ -193,7 +199,7 @@ namespace island
             clocks_[index] = std::fmod(clocks_[index]+dt,60.0f);
             const bool retreat = distance < 8.0f;
             state.behavior = retreat ? SnakeBehavior::Retreat
-                : clocks_[index] < 9.0f ? SnakeBehavior::Rest : SnakeBehavior::Explore;
+                : clocks_[index] < 5.0f ? SnakeBehavior::Rest : SnakeBehavior::Explore;
             if (state.behavior == SnakeBehavior::Rest) continue;
             float target = 0.7f*std::sin(clocks_[index]*0.17f+static_cast<float>(index));
             if (std::hypot(head.x-state.homeX,head.z-state.homeZ) > HomeRadius-3.0f)

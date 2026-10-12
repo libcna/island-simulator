@@ -29,10 +29,11 @@ namespace island
     class SnakePopulation final
     {
     public:
-        static constexpr std::size_t Count = 4;
+        static constexpr std::size_t Count = 8;
         static constexpr float Spacing = 0.055f;
         static constexpr float MaximumRadius = 0.05f;
         static constexpr float HomeRadius = 18.0f;
+        static constexpr float MinimumHomeSeparation = 34.0f;
         SnakePopulation(const IslandTerrain& terrain, std::span<const CircularObstacle> obstacles = {});
         SnakePopulation(const IslandTerrain& terrain, const JungleLayout& jungle,
                         std::span<const CircularObstacle> obstacles = {});

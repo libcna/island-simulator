@@ -3827,5 +3827,15 @@ Rules that bit this session:
 - Snakes must visibly crawl rather than appear static, including convincing propagated
   S-curves, terrain contact and smooth bounded turns/retreats.
 - Add restrained positional snake hissing with behavioural triggers, cooldowns and actual
-  listened native/Web/Android evidence. These requirements are recorded unchecked in
-  `PLAN.md`; none is implemented or accepted merely by this documentation update.
+  listened native/Web/Android evidence. These requirements were first recorded unchecked
+  in `PLAN.md`; documentation by itself was not treated as implementation or acceptance.
+
+Implementation follow-up: ground snakes are now 8 and ground spiders 24. Snake homes
+remain >=34m apart and spider homes >=8m apart. All retain deterministic simulation,
+render/shadow bounds; the grass shader selects the nearest four snakes to preserve its
+portable uniform budget. Snake startup phases now crawl immediately with a five-second
+rest window later in the cycle. Focused CPU/WorldReport tests pass, fingerprint
+`02d44fab27a0b823`. Inspected llvmpipe evidence `121151.377464Z-snakes` and
+`121332.031522Z-spiders` shows both subjects moving, but both generic scene gates fail,
+so portable/performance/encounter and final appearance acceptance remain open. Hissing
+is still unimplemented.

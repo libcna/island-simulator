@@ -73,7 +73,7 @@ Web/Android qualification remain. See [reef-seabed.md](docs/reef-seabed.md).
 Ecological-placement progress: existing crab, butterfly and spider habitat rules were
 audited; fish already share reef/seagrass suitability. Boars now remain on moist,
 low-salt interior ground outside the drainage channel, goats reject wet/drainage/salt
-ground, four snake homes are selected from separated dense-understory margins rather
+ground, eight snake homes are selected from separated dense-understory margins rather
 than hard-coded sectors, and three of five turtle homes now occupy the sheltered
 western bay. Long deterministic habitat tests pass. Inspected llvmpipe boar and turtle
 captures `102822.874894Z-boars` and `102941.088316Z-turtles` pass. The inspected snake
@@ -113,7 +113,7 @@ separate from the ocean. The first three camera/location attempts were rejected.
 roundness/detail, optional small-crab use, Web/Android and performance review remain,
 so ecosystem-stage item 8 is `[~]`. See [tide-pools.md](docs/tide-pools.md).
 
-- [ ] Increase the production snake and ground-spider populations beyond the current
+- [~] Increase the production snake and ground-spider populations beyond the former
   four snakes and twelve spiders so both animals are encountered more often while
   exploring. Keep placement deterministic, separated and habitat-driven: snakes belong
   on dense-understory margins and suitable trees, while ground spiders remain in safe
@@ -121,14 +121,32 @@ so ecosystem-stage item 8 is `[~]`. See [tide-pools.md](docs/tide-pools.md).
   budgets rather than merely raising constants; keep animals away from player spawn and
   required routes. Validate actual encounter frequency, crowding and frame cost in long
   native walks plus Web/Android runtime. A larger reported count alone is not acceptance.
+  Native implementation now contains eight ground snakes and 24 ground spiders. Snake
+  homes remain at least 34m apart on qualified understory margins; spider homes remain
+  at least 8m apart beside qualified canopy. All animals retain simulation, culling,
+  renderer and shared contact-shadow capacity. The portable grass shader selects the
+  four snakes nearest the camera from the eight live animals, preserving its existing
+  fragment-uniform budget. Focused population/motion tests and independent WorldReport
+  validators pass; current fingerprint is `02d44fab27a0b823`. Inspected llvmpipe
+  captures `20261012T121151.377464Z-snakes` and `20261012T121332.031522Z-spiders`
+  show live moving subjects and report 1/8 and 1/24 visible. Both generic scene gates
+  still fail because of the intentionally dark, tightly cropped habitat, so neither is
+  final appearance acceptance. Long-walk encounter frequency, performance comparison
+  and Web/Android runtime remain open.
 
-- [ ] Make every ground snake visibly crawl instead of reading as a static prop. Preserve
+- [~] Make every ground snake visibly crawl instead of reading as a static prop. Preserve
   terrain and obstacle contact along the full body while the head advances, the body
   propagates recognisable lateral S-curves, and turns/idle-to-move/retreat transitions
   remain smooth inside a bounded habitat. Revisit camera-independent update/LOD cadence
   if distant or partially occluded snakes appear frozen. Accept only after continuous
   in-game motion review from close and ordinary walking distances; isolated pose changes
-  or logged displacement are insufficient.
+  or logged displacement are insufficient. Startup clocks now begin in staggered active
+  phases and the rest window is reduced from nine to five seconds, so a newly encountered
+  or QA-focused snake starts crawling rather than remaining straight and motionless.
+  The eight-snake deterministic test exercises rest/explore/retreat, records 10.2246m
+  aggregate focused-head travel and 2,337 propagated opposing-wave frames. All four
+  inspected stages in `20261012T121151.377464Z-snakes` visibly change position and body
+  curvature. Ordinary walking-distance and portable continuous-motion review remain.
 
 - [ ] Give snakes restrained positional hissing. Trigger it chiefly during close player
   awareness and retreat, with randomized timing/pitch, distance attenuation, cooldowns
@@ -1109,9 +1127,14 @@ progress or require player interaction; dangerous species keep their distance li
   cases; full42/42 CPU PASS68.19s. Host fingerprint b3fde347f77eb5f8 replaces a590b7e4fb787269
   through added coverage only, not a placement change. No renderer/emulator run. This
   does not implement spiders, tree snakes or any other missing species.
-- [~] Spiders (webs between plants, ground spiders). **Current:12 ground spiders live
+- [~] Spiders (webs between plants, ground spiders). **Current:24 ground spiders live
   in IslandGame; webs still absent.** One opaque near/far batch, normal colony updates,
-  camera/HUD/benchmark counts. First actual native llvmpipe image inspected:
+  camera/HUD/benchmark counts. The density expansion retains deterministic homes at
+  least 8m apart, full articulated locomotion and bounded renderer/shadow capacity.
+  All 24 travel 0.63–0.98m in the 30-second focused simulation. Latest actual native
+  llvmpipe `20261012T121332.031522Z-spiders` was inspected: 1/24 visible, two material
+  draws and one contact shadow; its eight stages visibly move and turn, but the generic
+  scene gate still fails. Earlier evidence follows. First actual native llvmpipe image inspected:
   1/12visible/1draw/kernel[], recognizable but dark/smooth, sparse bristles, no contact
   shadows. Outer image gate FAILED contrast/color thresholds; not qualification.
   No thresholds weakened. WorldReport now covers12spiders with96worldfootanchors,

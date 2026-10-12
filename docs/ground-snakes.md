@@ -1,5 +1,29 @@
 # Ground snake implementation and visual evidence
 
+## Population and first-encounter motion expansion — 2026-10-12
+
+The live ground population is now eight rather than four. Deterministic selection
+retains qualified dense-understory-margin homes, full-body clearance and at least 34m
+between homes. All eight simulate, cull, render and contribute to the shared contact-
+shadow capacity. To retain portable WebGL fragment-uniform limits, the existing grass
+interaction upload now chooses the four snakes nearest the camera each frame; this is
+a bounded visual interaction subset, not a reduction of the live population.
+
+Startup clocks begin in staggered active phases and the natural rest window is five
+seconds rather than nine. This prevents the first focused or player encounter from
+showing a straight motionless animal while retaining rest/explore/retreat behaviour.
+The focused test covers all eight animals, 10.2246m aggregate focused-head travel and
+2,337 frames with opposing lateral bends propagated beyond the neck. WorldReport and
+its independent validator export all eight complete 41-station bodies; fingerprint is
+`02d44fab27a0b823`.
+
+Actual llvmpipe `20261012T121151.377464Z-snakes` reports 1/8 visible in one draw with
+one shadow. All four inspected stages visibly translate and develop different S-curves.
+The generic scene gate still fails luminance deviation (13.7352 < 18) despite passing
+colour-bin and spatial-contrast thresholds, so this is motion evidence, not final
+appearance acceptance. Web/Android, long-walk encounter rate and measured performance
+remain open. Positional hissing and tree snakes are not implemented.
+
 ## World-report coverage — 2026-10-12
 
 The earlier WorldReport omission is resolved: four ground snakes, initial homes and

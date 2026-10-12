@@ -66,7 +66,7 @@ existing features, not a broad redesign.
    The first audited pass confirms the existing sand-constrained crab colonies,
    clearing butterflies and canopy-adjacent spiders; fish already use the shared
    reef/seagrass field. Boars now require moist, low-salt ground outside the live
-   drainage channel, goats require dry low-salt open slopes, four snake homes are
+   drainage channel, goats require dry low-salt open slopes, eight snake homes are
    deterministically selected on separated dense-understory margins, and three of
    five turtle ranges are based in the sheltered western bay. Long deterministic
    habitat tests pass. Inspected llvmpipe `20261012T102822.874894Z-boars` and

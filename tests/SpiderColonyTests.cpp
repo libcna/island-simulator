@@ -25,13 +25,13 @@ int main() {
     check(hut.has_value(),"reference hut absent");
     obstacles.push_back({hut->x,hut->z,HutLayout::CollisionRadius});
     SpiderColony colony(terrain,jungle,obstacles),repeat(terrain,jungle,obstacles);
-    std::array<float,12> travel{};
+    std::array<float,SpiderHabitat::GroundCount> travel{};
     std::size_t pairs=0,swings=0;float minimumClearance=1;
     for(int step=0;step<1500;++step) {
         const std::vector<SpiderState> previous(colony.Spiders().begin(),colony.Spiders().end());
         colony.Update(.02f,{1000,1000,1000});repeat.Update(.02f,{1000,1000,1000});
         check(std::equal(colony.Spiders().begin(),colony.Spiders().end(),repeat.Spiders().begin()),"nondeterministic crawling");
-        for(std::size_t i=0;i<12;++i) {
+        for(std::size_t i=0;i<SpiderHabitat::GroundCount;++i) {
             const auto& state=colony.Spiders()[i];const auto& old=previous[i];const auto home=colony.Homes()[i];
             const float distance=std::hypot(state.x-old.x,state.y-old.y,state.z-old.z);
             travel[i]+=distance;

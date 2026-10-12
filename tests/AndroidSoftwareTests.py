@@ -264,12 +264,12 @@ LOG_FILE="$1"; emit_swim="$2"; emit_audio="$3"
             log = directory / "island-android-logcat.txt"
             log.write_text(good)
             gate.validate_game_logs(directory, False)
-            spiders = good + ("spider render proof: spiders 1/12 visible, 2 draw; contact-shadows=1\n"
+            spiders = good + ("spider render proof: spiders 1/24 visible, 2 draw; contact-shadows=1\n"
                 "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
                 "spider lighting ground-transmission=0 body-transmission=0 body-tint=0.46,0.53,0.62\n")
             log.write_text(spiders)
             gate.validate_game_logs(directory, False, "spiders")
-            for old, new in (("1/12", "0/12"), ("2 draw", "1 draw"),
+            for old, new in (("1/24", "0/24"), ("2 draw", "1 draw"),
                              ("contact-shadows=1", "contact-shadows=0"), ("setae loaded", "missing"),
                              ("body-tint=0.46", "body-tint=0.1"), ("spider lighting", "missing")):
                 log.write_text(spiders.replace(old, new))

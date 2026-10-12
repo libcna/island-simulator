@@ -3,24 +3,39 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <stdexcept>
 
 namespace island {
-// One fixed upload for all four ground snakes. Bounds avoid segment work away from bodies.
+// One fixed portable upload for the four snakes nearest the camera. The full population
+// still simulates/renders; bounding the grass subset preserves WebGL fragment uniforms.
 struct SnakeGrassContact {
-    static_assert(SnakePopulation::Count==4 && SnakeState::StationCount==41);
-    std::array<float,4*41*3> points{}; // x,z,radius
-    std::array<std::array<float,4>,4> bounds{}; // min x/z, max x/z
+    static constexpr std::size_t Capacity=4;
+    static_assert(SnakePopulation::Count>=Capacity && SnakeState::StationCount==41);
+    std::array<float,Capacity*41*3> points{}; // x,z,radius
+    std::array<std::array<float,4>,Capacity> bounds{}; // min x/z, max x/z
     std::size_t count=0;
     static constexpr float Margin=0.015f, Fade=0.14f;
-    static SnakeGrassContact Build(std::span<const SnakeState> snakes) {
-        if(snakes.size()>4) throw std::invalid_argument("Snake grass contact capacity exceeded");
-        SnakeGrassContact result; result.count=snakes.size();
-        for(std::size_t s=0;s<snakes.size();++s) {
+    static SnakeGrassContact Build(std::span<const SnakeState> snakes,
+                                   float focusX=std::numeric_limits<float>::quiet_NaN(),
+                                   float focusZ=std::numeric_limits<float>::quiet_NaN()) {
+        if(snakes.size()>SnakePopulation::Count)
+            throw std::invalid_argument("Snake population exceeds grass selection capacity");
+        std::array<std::size_t,SnakePopulation::Count> order{};
+        std::iota(order.begin(),order.end(),0U);
+        if(std::isfinite(focusX)&&std::isfinite(focusZ)) {
+            std::stable_sort(order.begin(),order.begin()+snakes.size(),[&](std::size_t a,std::size_t b) {
+                const auto& pa=snakes[a].body.front();const auto& pb=snakes[b].body.front();
+                return std::hypot(pa.x-focusX,pa.z-focusZ)<std::hypot(pb.x-focusX,pb.z-focusZ);
+            });
+        }
+        SnakeGrassContact result; result.count=std::min(snakes.size(),Capacity);
+        for(std::size_t s=0;s<result.count;++s) {
+            const auto& snake=snakes[order[s]];
             auto& bounds=result.bounds[s];
             bounds={300,300,-300,-300};
             for(std::size_t j=0;j<41;++j) {
-                const auto p=snakes[s].body[j];
+                const auto p=snake.body[j];
                 if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z)
                     ||std::abs(p.x)>300||std::abs(p.z)>300)
                     throw std::invalid_argument("Invalid snake grass contact point");

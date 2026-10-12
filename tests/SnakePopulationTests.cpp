@@ -86,9 +86,17 @@ int main(int argc,char** argv)
     obstacles.insert(obstacles.end(),jungle.Obstacles().begin(),jungle.Obstacles().end());
     obstacles.insert(obstacles.end(),props.Obstacles().begin(),props.Obstacles().end());
     island::SnakePopulation population(terrain,jungle,obstacles), repeated(terrain,jungle,obstacles);
-    for(const auto& snake:population.Snakes())
+    Check(population.Snakes().size()==8,"expanded snake population missing");
+    for(std::size_t index=0;index<population.Snakes().size();++index) {
+        const auto& snake=population.Snakes()[index];
         Check(island::SnakePopulation::IsUnderstoryMargin(jungle,snake.homeX,snake.homeZ),
             "snake home is not on a dense-understory margin");
+        for(std::size_t previous=0;previous<index;++previous)
+            Check(std::hypot(snake.homeX-population.Snakes()[previous].homeX,
+                    snake.homeZ-population.Snakes()[previous].homeZ)
+                    >=island::SnakePopulation::MinimumHomeSeparation,
+                "expanded snake homes are crowded");
+    }
     for (std::size_t i=0; i<island::SnakeState::StationCount+2; ++i) {
         const float radius = island::SnakePopulation::RadiusAt(i);
         Check(std::isfinite(radius) && radius>=0.004f && radius<=island::SnakePopulation::MaximumRadius,
@@ -108,9 +116,11 @@ int main(int argc,char** argv)
         repeated.Update(dt,x,head.y+1.7f,z);
         if(frame%60==0) {
             const auto contact=island::SnakeGrassContact::Build(population.Snakes());
-            Check(contact.count==population.Count,"grass contact lost snake population");
+            Check(contact.count==island::SnakeGrassContact::Capacity,
+                "grass contact did not retain its bounded nearest-snake budget");
             // Whole-cell rejection must preserve every pressure sample, including soft edges.
-            for(const auto& s:population.Snakes()) {
+            for(std::size_t snakeIndex=0;snakeIndex<contact.count;++snakeIndex) {
+                const auto& s=population.Snakes()[snakeIndex];
                 const auto h=s.body.front();
                 for(int cx=-4;cx<=4;++cx) for(int cz=-4;cz<=4;++cz) {
                     const float left=h.x+cx*0.7f, back=h.z+cz*0.7f;
@@ -122,11 +132,14 @@ int main(int argc,char** argv)
                     }
                 }
             }
-            for(const auto& s:population.Snakes()) for(std::size_t j=1;j<s.body.size();++j) {
+            for(std::size_t snakeIndex=0;snakeIndex<contact.count;++snakeIndex) {
+                const auto& s=population.Snakes()[snakeIndex];
+                for(std::size_t j=1;j<s.body.size();++j) {
                 const auto a=s.body[j-1],b=s.body[j];
                 for(const float t:{0.0f,0.25f,0.5f,0.75f,1.0f})
                     Check(contact.Pressure(a.x+(b.x-a.x)*t,a.z+(b.z-a.z)*t)>0.999f,
                         "grass contact has a gap along snake body");
+                }
             }
             Check(contact.Pressure(299,299)==0,"snake contact flattened distant grass");
             Check(contact.Pressure(std::numeric_limits<float>::quiet_NaN(),0)==0,
@@ -314,6 +327,10 @@ int main(int argc,char** argv)
             Check(invalid,"invalid cell bounds accepted");
         }
         Check(island::SnakeGrassContact::Build({}).Pressure(0,0)==0,"empty contact flattened grass");
+        const auto focus=population.Snakes().back().body.front();
+        const auto nearest=island::SnakeGrassContact::Build(population.Snakes(),focus.x,focus.z);
+        Check(std::hypot(nearest.points[0]-focus.x,nearest.points[1]-focus.z)<.0001f,
+            "grass interaction did not prioritize the nearest snake");
         bool rejected=false;
         auto bad=fixture; bad[0].body[0].z=std::numeric_limits<float>::quiet_NaN();
         try { (void)island::SnakeGrassContact::Build(bad); } catch(const std::invalid_argument&) { rejected=true; }
