@@ -1645,7 +1645,7 @@ progress or require player interaction; dangerous species keep their distance li
 
 Human character backlog requested by the operator:
 
-- [ ] Add one dark-skinned adult island resident who peacefully walks around the island.
+- [~] Add one dark-skinned adult island resident who peacefully walks around the island.
   Create a believable human model with natural proportions, textured skin, hair and practical
   tropical jungle clothing made from woven cloth and plant fibres. This is a fictional local
   resident, not a caricature or a claim to represent a particular real indigenous culture.
@@ -1654,6 +1654,11 @@ Human character backlog requested by the operator:
   of the player's way. No combat, quests, trading or required interaction. Include a close QA
   viewpoint, movement/contact regression tests, explicit asset provenance and visual review
   on native, Android and Web before marking the character complete.
+  CPU movement foundation implemented:25-point688m deterministic closed tour through actual
+  world obstacles, bounded walking/turning/pauses, player yield/resume and planted human
+  soles with fixed-length leg IK.20-minute repeated-controller simulation and foot/ground/
+  obstacle tests pass. Model/materials, renderer and actual game actor are NOT implemented
+  yet; see `docs/resident.md`. This is progress toward the character, not visual completion.
 
 Landmark backlog requested by the operator:
 

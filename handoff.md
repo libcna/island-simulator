@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Current work — resident movement foundation, visible model next
+
+Goal active. New ResidentRoute/ResidentMotion are original CPU-only modules, NOT wired into
+IslandGame or WorldReport. There is no resident visible yet. Next priority: model/materials,
+portable renderer, game integration and actual close/moving visual audit; then remaining
+bear/helicopter/fauna/portable work. Preserve all human requirements; PLAN resident[~].
+The actual-world tour has25points/688.249m through5 landmarks: fire clearing, north corridor,
+west clearing, south corridor, central trail. Deterministic A* with cached3m nodes/edges and
+verified line simplification; refuses disconnected tours, no vegetation deletion/teleports.
+Release constructor setup~135ms. Terrain/collision cache copied, immutable terrain ref must
+outlive controller. Cave and stream modified terrain excluded. Usual pace.95m/s, hill-aware
+shorter steps, boundedturns,6–10s landmark pauses, close-player yield/resume (sidestep pending).
+Two planted world-space soles, one swinging foot, exact rendered-ground sole probes,
+fixed.43/.44m legIK, armcounter-swing tied to actualfoot phase. Delta clamped.1/substeps.02.
+Native tests use actual full obstacle set inclhut/fire/wreck, repeated1200s simulation reaches
+847.907m/6pauses/atleast1lap, exactstate equality, bothlegsteps, nofoot sliding/floating/ground
+penetration, fixedleg/arm lengths, fullfoot discs clear obstacles, yield/resume and blocked
+world refusal. Final ReleasePASS1.19s/DebugPASS6.67s incl full foot/body obstacle assertions.
+Initial deadlock at body rejection fixed by allowing airborne foot to finish;
+final8 rejectedmicrosteps recover. Do not weaken these tests or claim human visuals complete.
+See docs/resident.md. Current native game still campfire/cave; no model/renderer changes yet.
+
 ## Latest implementation — campfire functional native pass
 
 Goal active. Campfire at46,24.7219,-16 in east clearing,11 stored logs ~6m away at51.5,-18.5.

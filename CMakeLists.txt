@@ -52,6 +52,8 @@ add_library(island_core STATIC
     game/src/CaveLayout.cpp
     game/src/CaveGroundPatch.cpp
     game/src/CampfireLayout.cpp
+    game/src/ResidentRoute.cpp
+    game/src/ResidentMotion.cpp
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
     game/src/ContactShadowPatch.cpp
@@ -317,6 +319,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_campfire_tests)
     island_enable_first_party_sanitizers(island_campfire_tests)
     add_test(NAME IslandCampfireTests COMMAND island_campfire_tests)
+    add_executable(island_resident_tests tests/ResidentTests.cpp)
+    target_link_libraries(island_resident_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_resident_tests)
+    island_enable_first_party_sanitizers(island_resident_tests)
+    add_test(NAME IslandResidentTests COMMAND island_resident_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
