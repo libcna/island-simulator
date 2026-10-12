@@ -867,6 +867,15 @@ progress or require player interaction; dangerous species keep their distance li
   recompiles goat tests, actual linux-core47/47 PASS87.05s including newest checks.
   This supersedes prior preset-only claims for latest goat test edits; explicit target
   builds/captures remain separate evidence. No new portable or sanitizer qualification.
+  Limb/hoof refinement: both LODs preserve six longitudinal limb stations with
+  distinct front/rear upper volume and lower taper; counts6636/3756, batch capacity
+  unchanged49152. Hoof wall110→70mm and width114→96mm, same sole pivot/support
+  rotation/IK chain. Actual geometry regression checks plus current inclusive native
+  build/linux-core47/47 PASS54.47s; sampled terrain clearance minimum-0.736237mm,
+  unchanged1mm tolerance. Contained022306.275860Z-goats8-stage PASS/kernel[],
+  enlarged before/after and full montage actually inspected: less oversized hooves,
+  modest upper-leg improvement; angular joints/ears/eyes/coat distortion remain.
+  No continuous stance acceptance or new Web/Android qualification. See docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

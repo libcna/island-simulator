@@ -314,6 +314,33 @@ the preview; the subsequent actual linux-core preset passes47/47 in87.05s, inclu
 the latest tilted-hoof-plane and flank-map checks. Sampled hoof clearance remains
 -0.000804901m. No sanitizer run or fresh Web/Android build/runtime is claimed here.
 
+## Limb volumes and lower cloven hooves
+
+Both LODs now retain six longitudinal limb stations: distinct front/rear upper
+volumes and a tapered lower segment follow the existing two-link chain. Joint
+positions, bone lengths, sole pivots, gait and herd routes are unchanged. Near/far
+counts are now6636/3756 vertices (formerly6252/3516); six near animals use39816 vertices.
+The per-animal8192 and batch49152 guards, allocations, textures and two draws remain
+unchanged. Hoof walls are70mm high rather than110mm, with paired width96mm rather
+than114mm and a minimum8mm toe gap. The flat sole remains55mm below the ankle and
+retains the individual terrain-normal rotation.
+
+Regression checks measure actual upper-ring radii in both LODs and bound hoof wall
+height/width, alongside existing winding, normals, support-plane and terrain tests.
+Current inclusive native build plus linux-core passes47/47 in54.47s; logs are
+`build/goat-leg-hoof-build.log` and `build/goat-leg-hoof-tests.log`. The90s sampled
+herd route has minimum actual near-hoof vertex clearance-0.000736237m, within the
+unchanged1mm tolerance; this does not establish zero penetration everywhere.
+
+Contained llvmpipe `20261012T022306.275860Z-goats` passes all eight motion stages;
+kernel-after.json is empty. Both `build/goat-leg-hoof-comparison.png` (previous
+flank-only model left/current right) and `build/goat-leg-hoof-motion-montage.png`
+were actually inspected. Smaller hooves remove much of the oversized-boot silhouette;
+upper limb volume improves modestly, but angular joints, crude ears/eyes and coat
+taper distortion remain visible. Sparse frames do not qualify continuous stance
+locking or natural gait. No current Web/Android build/runtime qualification, hardware
+GPU run, emulator/KVM change or dependency change. AMD incident remains unresolved.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

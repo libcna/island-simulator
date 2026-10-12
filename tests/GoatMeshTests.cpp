@@ -40,6 +40,16 @@ int main() {
             maximumRadius=std::max(maximumRadius,std::max(radial,bound));
             check(std::max(radial,bound)<=GoatHabitat::BodyClearance,"goat geometry exceeds motion clearance");
             ++materials[static_cast<std::size_t>(vertex.material)];
+            if(vertex.part==GoatPart::Hoof) {
+                const auto leg=std::min_element(pose.legs.begin(),pose.legs.end(),[&](const auto& a,const auto& b){
+                    const auto da=sub(p,a.hoof),db=sub(p,b.hoof);
+                    return dot(da,da)<dot(db,db);
+                });
+                check(p.y-leg->hoof.y+GoatLegPose::HoofHeight<=.07001f,
+                    "goat hoof wall reverted to oversized boot height");
+                check(std::abs(p.x-leg->hoof.x)<=.04801f,
+                    "goat hoof pair exceeds authored narrow footprint");
+            }
             const auto uv=GoatCoatUv(vertex);
             if(vertex.part==GoatPart::Body&&vertex.v!=.5f) {
                 // End-cap poles use a separate centre UV; side rings follow physical z.
@@ -67,6 +77,22 @@ int main() {
                     surface=std::max(surface,a.x+u*(b.x-a.x)+v*(c.x-a.x));
             }
             check(surface>=std::abs(leg.root.x)+.01f,"goat leg root detached from torso");
+        }
+        if(graze==0)for(std::size_t legIndex=0;legIndex<pose.legs.size();++legIndex) {
+            const auto& leg=pose.legs[legIndex];
+            const auto delta=sub(leg.knee,leg.root);
+            const float length=std::sqrt(dot(delta,delta));
+            const GoatPoint axis{delta.x/length,delta.y/length,delta.z/length};
+            const GoatPoint centre{leg.root.x+.36f*delta.x,leg.root.y+.36f*delta.y,leg.root.z+.36f*delta.z};
+            float largestRadius=0;
+            for(const auto& vertex:mesh.vertices)if(vertex.part==GoatPart::Leg) {
+                const auto offset=sub(vertex.position,centre);
+                const float radius=std::sqrt(dot(offset,offset));
+                if(std::abs(dot(offset,axis))<1e-5f&&radius<.15f)
+                    largestRadius=std::max(largestRadius,radius);
+            }
+            check(std::abs(largestRadius-(legIndex%2==1?.059f:.076f))<1e-5f,
+                "goat upper limb volume missing or inconsistent between LODs");
         }
         for(std::size_t i=0;i<mesh.vertices.size();i+=3) {
             const auto a=mesh.vertices[i],b=mesh.vertices[i+1],c=mesh.vertices[i+2];

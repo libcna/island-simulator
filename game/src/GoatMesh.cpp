@@ -140,18 +140,28 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
         {.56f,1.035f,.112f,.13f},{.64f,.97f,.09f,.105f},{.70f,.90f,.075f,.085f},
         {.755f,.855f,.071f,.06f},{.777f,.85f,.055f,.05f}}};
     b.part=GoatPart::Head;b.Loft(head,sides,GoatMaterial::Coat,Attachment::Head);
-    for(const auto& leg:pose.legs) {
+    for(std::size_t legIndex=0;legIndex<pose.legs.size();++legIndex) {
+        const auto& leg=pose.legs[legIndex];
         b.part=GoatPart::Leg;
-        const std::array<Tube,4> limb{{{Add(leg.root,{0,.10f,0}),.050f},{leg.root,.065f},{leg.knee,.039f},{leg.hoof,.024f}}};
+        const bool front=legIndex%2==1;
+        // Flesh follows the existing fixed-length chain; no foot or joint displacement.
+        // Preserve longitudinal masses in both LODs, reducing only ring tessellation.
+        const auto upper=Add(leg.root,Mul(Sub(leg.knee,leg.root),.36f));
+        const auto lower=Add(leg.knee,Mul(Sub(leg.hoof,leg.knee),.55f));
+        const std::array<Tube,6> limb{{{Add(leg.root,{0,.10f,0}),.050f},
+            {leg.root,front?.065f:.073f},{upper,front?.059f:.076f},
+            {leg.knee,.039f},{lower,.027f},{leg.hoof,.024f}}};
         b.Sweep(limb,detailed?8:5,GoatMaterial::Coat,Attachment::Leg);
         b.part=GoatPart::Hoof;
         b.hoofPivot=Add(leg.hoof,{0,-GoatLegPose::HoofHeight,GoatLegPose::SoleForward});
         b.hoofNormal=leg.soleNormal;
         for(float side:{-1.0f,1.0f}) {
-            const std::array<Ring,5> hoof{{{-.055f,0,.018f,.040f},{-.025f,0,.026f,.055f},
-                {.030f,0,.027f,.055f},{.075f,.004f,.024f,.049f},{.085f,.008f,.007f,.03f}}};
+            // Keep the sole at -.055 but avoid a hoof extending equally far above
+            // the ankle: a low tapered wall and two separated toes, not round boots.
+            const std::array<Ring,5> hoof{{{-.055f,-.012f,.016f,.027f},{-.025f,-.020f,.021f,.035f},
+                {.030f,-.020f,.022f,.035f},{.075f,-.018f,.020f,.030f},{.085f,-.014f,.007f,.020f}}};
             b.Loft(hoof,detailed?8:5,GoatMaterial::Hoof,Attachment::Hoof,
-                Add(leg.hoof,{side*.030f,0,GoatLegPose::SoleForward}));
+                Add(leg.hoof,{side*.026f,0,GoatLegPose::SoleForward}));
         }
     }
     for(float side:{-1.0f,1.0f}) {

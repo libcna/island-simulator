@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — goat limb volumes and lower hooves verified
+
+GoatMesh now retains six longitudinal limb stations in both LODs, distinct front/rear
+upper volume and tapered lower legs. Near/far6636/3756 (+384/+240), six near39816;
+8192/animal and49152/batch guards unchanged. Hoof wall110→70mm, pair width114→96mm,
+minimum toe gap8mm; flat sole, terrain-normal rotation, IK chain and gait unchanged.
+Actual-geometry tests cover upper ring radii in both LODs and hoof height/width.
+Current inclusive native build/linux-core47/47 PASS54.47s, logs
+build/goat-leg-hoof-{build,tests}.log; LastTest.log minimum actual near-hoof terrain
+clearance-0.000736237m (unchanged1mm tolerance), world fingerprint0a98cb638125508f.
+
+Final native contained capture20261012T022306.275860Z-goats PASS8stages/kernel[].
+build/goat-leg-hoof-comparison.png and goat-leg-hoof-motion-montage.png actually
+inspected after recovering the previously truncated image result. Smaller hooves
+improve the silhouette; upper-leg improvement modest. Angular joints, crude ears/eyes,
+coat taper distortion and continuous stance quality remain open, not accepted realism.
+No fresh Web/Android build/runtime, no AMD/Android/KVM/dependency changes. Stop latch
+SHA c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1 unchanged.
+All owned jobs terminal. Goal active, no push. Latest user crash request was confirmed
+already high-priority OPEN in PLAN/docs/flight-amdgpu-incident-2026-10-11.md; previous
+status-only turn was no implementation progress. Root cause/fix still unknown.
+Next: actual portable goat runtime, anatomy/stance refinement, and full prior backlog.
+
 ## Latest — flank coat fold reduced; stale native-test preset repaired
 
 GoatCoatUv now uses sin(angle) for body/head across coordinate, matching loft ring
