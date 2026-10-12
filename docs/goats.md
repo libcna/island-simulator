@@ -511,6 +511,25 @@ Inclusive native build and existing47 CPU tests pass71.12s; logs are
 `build/goat-stance-current-build.log` and `build/goat-stance-current-tests.log`.
 These passes verify existing invariants, not the newly disproved stance requirement.
 
+## Three-dimensional fixed-length leg targeting foundation
+
+RetargetGoatLeg now solves a target with lateral as well as vertical/longitudinal
+offset from the leg root. Both39/38cm bones keep their lengths; unreachable targets
+are clamped to the reachable shell and explicitly marked reachLimited. The reference
+root, stance flag and sole normal are preserved. A projected fore/hind bend direction
+matches the old sagittal solver, with an axis-aligned fallback. EvaluateGoatLeg now
+uses the shared solver after its existing ground-height constraint.
+
+Tests cover180 reachable lateral targets, zero-distance/too-far/axis-aligned targets,
+nonfinite input, bone lengths, metadata and128 legacy sagittal knee comparisons.
+Inclusive native47/47 CPU PASS64.07s (`build/goat-retarget-{build,tests}.log`). Existing
+world fingerprint0a98cb638125508f and sampled hoof clearance-0.000736237m unchanged.
+The complete stance audit (`build/goat-retarget-stance.jsonl`) remains byte-for-byte
+equal to its prior baseline: worst122.717/132.466mm steps are still present. This is
+the geometry prerequisite for planted world anchors, NOT a foot-sliding fix. Persistent
+per-foot state, world-to-body target conversion and swing/plant transitions remain
+to be integrated into herd simulation and rendering. No new runtime visual claim.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

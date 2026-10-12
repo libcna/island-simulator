@@ -18,6 +18,36 @@ GoatPoint Unit(GoatPoint p) {
     return {p.x/d,p.y/d,p.z/d};
 }
 }
+GoatLegPose RetargetGoatLeg(const GoatLegPose& reference,GoatPoint target,std::size_t leg) {
+    const auto finite=[](GoatPoint p){return std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z);};
+    if(leg>=4||!finite(reference.root)||!finite(target))
+        throw std::invalid_argument("Invalid goat leg target");
+    auto result=reference;
+    GoatPoint direction{target.x-reference.root.x,target.y-reference.root.y,target.z-reference.root.z};
+    const float requested=std::hypot(direction.x,direction.y,direction.z);
+    if(!std::isfinite(requested))throw std::invalid_argument("Unbounded goat leg target");
+    constexpr float upper=GoatLegPose::UpperLength,lower=GoatLegPose::LowerLength;
+    const float distance=std::clamp(requested,upper-lower+.0001f,upper+lower-.0001f);
+    if(requested>1e-7f)direction={direction.x/requested,direction.y/requested,direction.z/requested};
+    else direction={0,-1,0};
+    result.reachLimited=reference.reachLimited||requested!=distance;
+    result.hoof={reference.root.x+direction.x*distance,reference.root.y+direction.y*distance,
+        reference.root.z+direction.z*distance};
+    // Preserve the existing sagittal bend for ordinary walking, but allow lateral
+    // placement when the body turns above a planted world-space foot.
+    const float sign=leg%2==1?-1.0f:1.0f;
+    GoatPoint bend{-sign*direction.z*direction.x,-sign*direction.z*direction.y,
+        sign*(1-direction.z*direction.z)};
+    if(std::hypot(bend.x,bend.y,bend.z)<1e-5f)
+        bend={-direction.y*direction.x,1-direction.y*direction.y,-direction.y*direction.z};
+    bend=Unit(bend);
+    const float along=(upper*upper-lower*lower+distance*distance)/(2*distance);
+    const float offset=std::sqrt(std::max(0.0f,upper*upper-along*along));
+    result.knee={reference.root.x+direction.x*along+bend.x*offset,
+        reference.root.y+direction.y*along+bend.y*offset,
+        reference.root.z+direction.z*along+bend.z*offset};
+    return result;
+}
 GoatLegPose EvaluateGoatLeg(float phase,float speed,float bob,std::size_t leg,float groundHeight) {
     if(leg>=4||!std::isfinite(phase)||!std::isfinite(speed)||speed<0
         ||!std::isfinite(bob)||!std::isfinite(groundHeight))
@@ -42,13 +72,7 @@ GoatLegPose EvaluateGoatLeg(float phase,float speed,float bob,std::size_t leg,fl
     const float minY=root.y-std::sqrt(maximum*maximum-(hoof.z-root.z)*(hoof.z-root.z));
     const float requestedY=hoof.y;
     hoof.y=std::clamp(hoof.y,minY,root.y-.10f);
-    const float dy=hoof.y-root.y,dz=hoof.z-root.z,d=std::hypot(dy,dz);
-    const float upper=GoatLegPose::UpperLength,lower=GoatLegPose::LowerLength;
-    const float along=(upper*upper-lower*lower+d*d)/(2*d);
-    const float bend=std::sqrt(std::max(0.0f,upper*upper-along*along));
-    const float direction=front?1.0f:-1.0f;
-    return {root,{root.x,root.y+dy*along/d-direction*dz*bend/d,
-        root.z+dz*along/d+direction*dy*bend/d},hoof,stance,hoof.y!=requestedY};
+    return RetargetGoatLeg({root,root,hoof,stance,hoof.y!=requestedY},hoof,leg);
 }
 float GoatPhaseAdvance(float distance,float speed,float scale) {
     if(!std::isfinite(distance)||distance<0||!std::isfinite(speed)||speed<0

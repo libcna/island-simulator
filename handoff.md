@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — 3D fixed-length goat leg solver, anchor integration still pending
+
+GoatPose.hpp/.cpp adds RetargetGoatLeg(reference,target,leg). Arbitrary lateral target,
+fixed.39/.38m bones, reachable shell[upper-lower+.0001,upper+lower-.0001], clamps+flags
+unreachable; preserves root/stance/soleNormal/reference reachLimited. Fore/hind bend
+hint ±z projected perpendicular to root→hoof, fallback projected up for axial goals.
+EvaluateGoatLeg delegates after existing ground-height clamp; old sagittal knee shape
+preserved within1e-5. No persistent world anchors yet, so NOT a foot-sliding fix.
+GoatHabitatTests180lateral targets, bone/metadata checks,16singular/far/axial cases,
+128legacy knee samples, nonfinite target; existing all-pose/herd/mesh tests retained.
+
+Inclusive native build+47CPU PASS64.07s, build/goat-retarget-{build,tests}.log.
+build/goat-retarget-stance.jsonl equals prior goat-stance-current.jsonl byte-for-byte:
+quiet/observer maxstep.122717/.132466m still unfixed. Worldfingerprint0a98cb638125508f
+and sampledhoofclearance-.000736237m unchanged. Handle20634 terminal0. No actual
+visual/browser/Android run or fresh portable build; latestAndroid predates solver.
+Goalactive/nopush; latchc0bd1704 unchanged/no hardware/KVM/dependency changes.
+NEXT: per-foot world anchor state, transform anchors into current body frame and use
+RetargetGoatLeg, bounded swing/replant at turns/stops. Share pose between simulation
+validity and rendering. Keep stance audit strict, don't mistake solver foundation for
+the requested natural gait. All prior species/environment/AMD-crash scope retained.
+
 ## Latest — CPU stance audit proves goat sliding; priority is a real foot-locking fix
 
 New tools/GoatStanceAudit.cpp built as build/island-goat-stance-audit (native tools

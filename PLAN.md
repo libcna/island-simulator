@@ -923,6 +923,13 @@ progress or require player interaction; dangerous species keep their distance li
   or green height tests. Next implement persistent world stance anchors + bounded swing
   release/replant at turns/stops, shared simulation/render pose; preserve IK/terrain/
   obstacle/determinism and rerun numerical plus continuous visual audit. docs/goats.md.
+  Foot-locking prerequisite added: RetargetGoatLeg supports3D lateral targets with
+  fixed39/38cm bones, explicit reach-limit flags, preserved support metadata and
+  matching sagittal bend. EvaluateGoatLeg uses this solver. Tests180lateral targets,
+  singular/unreachable inputs and128old-knee comparisons; native47/47 PASS64.07s.
+  Stance audit remains identical (122.717/132.466mm worst step): no sliding fix yet.
+  Next persist world anchors/swing transitions and feed the same fitted pose to
+  renderer and collision/IK validity checks; no new visual/platform acceptance.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

@@ -105,7 +105,52 @@ int main() {
         }
     }
     check(EvaluateGoatLeg(0,1,0,0,-10).reachLimited,"unreachable ground must be flagged");
+    std::size_t retargeted=0;
+    for(std::size_t leg=0;leg<4;++leg) {
+        auto reference=EvaluateGoatLeg(.7f,.6f,.003f,leg);
+        reference.soleNormal={.1f,std::sqrt(.99f),0};
+        for(float dx:{-.20f,-.10f,0.0f,.10f,.20f})
+            for(float dy:{-.65f,-.55f,-.45f})for(float dz:{-.20f,0.0f,.20f}) {
+                const GoatPoint target{reference.root.x+dx,reference.root.y+dy,reference.root.z+dz};
+                const auto pose=RetargetGoatLeg(reference,target,leg);
+                check(!pose.reachLimited&&length(pose.hoof,target)<1e-6f,"reachable lateral hoof missed its target");
+                check(length(pose.root,reference.root)==0&&pose.stance==reference.stance
+                    &&length(pose.soleNormal,reference.soleNormal)==0,"retarget changed support/root metadata");
+                check(std::abs(length(pose.root,pose.knee)-GoatLegPose::UpperLength)<1e-5f
+                    &&std::abs(length(pose.knee,pose.hoof)-GoatLegPose::LowerLength)<1e-5f,
+                    "lateral retarget stretched a bone");
+                ++retargeted;
+            }
+        for(const auto target:std::array<GoatPoint,4>{{reference.root,
+                {reference.root.x+2,reference.root.y,reference.root.z},
+                {reference.root.x,reference.root.y,reference.root.z+.4f},
+                {reference.root.x,reference.root.y,reference.root.z-.4f}}}) {
+            const auto pose=RetargetGoatLeg(reference,target,leg);
+            check(pose.reachLimited==(length(target,reference.root)<.01f||length(target,reference.root)>1),
+                "retarget failed to distinguish unreachable/axis-aligned target");
+            check(std::abs(length(pose.root,pose.knee)-GoatLegPose::UpperLength)<1e-5f
+                &&std::abs(length(pose.knee,pose.hoof)-GoatLegPose::LowerLength)<1e-5f,
+                "singular/limited target produced invalid bones");
+        }
+        // Regression against the old sagittal solver: new 3D capability must not
+        // silently change the existing gait's knee bend or stance calibration.
+        for(int sample=0;sample<32;++sample) {
+            const auto pose=EvaluateGoatLeg(sample*tau/32,1.2f,.004f,leg);
+            const float dy=pose.hoof.y-pose.root.y,dz=pose.hoof.z-pose.root.z,d=std::hypot(dy,dz);
+            const float along=(.39f*.39f-.38f*.38f+d*d)/(2*d);
+            const float bend=std::sqrt(std::max(0.0f,.39f*.39f-along*along));
+            const float direction=leg%2==1?1.0f:-1.0f;
+            const GoatPoint expected{pose.root.x,pose.root.y+dy*along/d-direction*dz*bend/d,
+                pose.root.z+dz*along/d+direction*dy*bend/d};
+            check(length(pose.knee,expected)<1e-5f,"3D solver changed legacy sagittal bend");
+        }
+    }
+    std::cout<<"goat lateral fixed-length targets="<<retargeted<<'\n';
     bool rejected=false;
+    try { (void)RetargetGoatLeg(EvaluateGoatLeg(0,0,0,0),
+        {std::numeric_limits<float>::quiet_NaN(),0,0},0); }
+    catch(const std::invalid_argument&) { rejected=true; }
+    check(rejected,"nonfinite retarget accepted");rejected=false;
     try { (void)EvaluateGoatLeg(0,1,0,4); } catch(const std::invalid_argument&) { rejected=true; }
     check(rejected,"invalid leg index accepted");
     rejected=false;

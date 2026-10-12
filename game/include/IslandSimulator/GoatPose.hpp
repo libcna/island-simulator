@@ -16,6 +16,10 @@ struct GoatLegPose {
 // Leg order: left rear, left front, right rear, right front.
 [[nodiscard]] GoatLegPose EvaluateGoatLeg(float phase,float speed,float bob,
     std::size_t leg,float groundHeight=0);
+// Retarget in three dimensions without stretching either bone. Unreachable targets
+// are clamped and flagged; callers must not silently accept that as a locked foot.
+[[nodiscard]] GoatLegPose RetargetGoatLeg(const GoatLegPose& reference,
+    GoatPoint target,std::size_t leg);
 // Modulo-cycle constant-speed straight travel calibration; not world-space foot locking.
 [[nodiscard]] float GoatPhaseAdvance(float travelledDistance,float speed,float scale);
 struct GoatGroundPose {
