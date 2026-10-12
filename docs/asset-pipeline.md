@@ -61,6 +61,14 @@ listed explicitly in `projectFiles`.
 
 ## Validation commands
 
+Goat coat source and exact built-in ImageGen prompt are retained as hash-gated project
+files `assets/art-studies/goat-fur-albedo-v1*`. The shared area reducer stages
+`Content/wildlife/goat-fur.png` at256square;9runtime mips add349,524RGBA8bytes. Native
+install, Web preload and Android material tasks include it. Source edges are not
+claimed seamless; runtime uses mirrored interior windows and excludes bare parts.
+Current total runtime texture payload is8,496,944bytes against8,517,160policy bytes.
+See `docs/goats.md` for visual evidence and unresolved anatomy/motion work.
+
 Validate provenance without compiling:
 
 ```bash

@@ -1,7 +1,7 @@
 # Feral island goats — implementation in progress
 
-**Six goats are now integrated into the running game, with provisional untextured
-materials.** A native software-rendered scene has been inspected; this is not a
+**Six goats are now integrated into the running game; a generated short-coat material
+has replaced the initial untextured baseline.** Native software-rendered scenes have been inspected; this is not a
 completed species or visual/motion acceptance. Earlier milestone evidence below
 describes foundations before integration; the current runtime section supersedes
 their historical no-renderer/no-live-population statements.
@@ -186,6 +186,62 @@ Final current-tree rebuild and full46 groups PASS70.70s, retained in
 `build/goat-live-verified-tests.log`; all owned processes terminated normally.
 This proves neither realistic fur nor accepted animal motion. The first capture is
 a baseline for improvement, not completion of the user's goat request.
+
+## Goat coat source and material integration
+
+Built-in ImageGen produced original opaque artwork in
+`assets/art-studies/goat-fur-albedo-v1.png`; its exact prompt is retained in
+`assets/art-studies/goat-fur-albedo-v1-prompt.txt`. The source was visually inspected:
+warm ivory/grey-beige fine hair with mild directional variation, no silhouette/text.
+This is AI-generated project artwork, not a photograph/scan or a claim of an exclusive
+license. Both files are hash-gated in the manifest and attributed in ASSET_LICENSES.md.
+Original3,986,448-byte PNG stays unchanged. The existing deterministic area reducer
+prepares a256-square139,062-byte PNG; runtime loads9mips totaling349,524 RGBA8 bytes.
+Missing or invalid material is a named startup error, not silent plain-colour fallback.
+
+`GoatCoatUv` maps into the interior6–94% of the source. Circumferential coordinates
+mirror continuously through a cosine window rather than wrapping unverified source
+edges; body hair flows head-to-tail and limb/head coordinates flow toward their tips.
+This is an authored mapping, not anatomically qualified groom direction at every
+joint. The first runtime texture capture exposed unequal station-index stretching:
+loft UVs now follow physical longitudinal distance and sweep UVs follow path arc length.
+The body-distance regression guards this; circumferential compression and joint seams
+still need close/moving inspection.
+Mesh tests cover interior ranges, seam continuity and directional ordering; prepared
+artwork is compared pixel-for-pixel with the existing C++ area-filter oracle.
+
+Coat geometry and bare horn/hoof/eye/nose parts share one dynamic upload but draw in
+two opaque stock BasicEffect passes. Bare parts do not sample the coat image. No
+custom shader, transparent shells or additional skeletal uniforms are introduced.
+Vertex layout now includes UVs:49,152×24=1,179,648 reserved GPU vertex bytes. The main
+and solid staging vectors each reserve that capacity; this CPU overhead remains a
+profiling target. Current near/far geometry counts are unchanged.
+
+CMake stages/installs the texture and preloads it for Web; Android's existing material
+task stages the same path. Runtime texture payload is now8,496,944bytes, with an explicit
+349,524-byte addition to both full/mobile policy (8,517,160bytes). Generated-only
+payload stays4,652,172bytes. These exclude driver padding, decoder/shadow copies and
+framebuffers; changing the accounting is not a mobile memory/performance qualification.
+Web/Android runtime qualification remains pending; build evidence is recorded below.
+
+Native textured baseline `20261012T014053.532859Z-goats` and corrected length mapping
+`20261012T014251.605524Z-goats` both passed contained llvmpipe capture, with actual images
+inspected and empty kernel deltas. The latter confirms3/6 goats in2draws, coat PNG
+loaded and8,496,944/8,517,160 texture accounting. Hair variation is visible on body,
+head and legs; bare parts remain dark/untextured. The source's directional groups and
+mirrored mapping still read as overly broad streaks/swirl around the neck at this
+distance; point eyes, crude ears and joint anatomy remain unfinished. This is an
+improvement over the plain baseline, not accepted realism or motion quality.
+Final native build/full46 non-display groups PASS63.57s; initial material run also
+passed46/46 in68.52s. Original, first textured and corrected captures are retained.
+WebGL2 build/package passes:11,551,789bytes raw/4,497,328gzip. ARM64 Android assembly
+and lint pass10s; APK SHA256 `e2363bdbb5ceeb7063f63f4a75ff6bc40fdb10f50cf3f148489cfe2be40a791f`.
+APK includes139,062-byte goat PNG; prepared native/Android PNG SHA256 both
+`66ecf3800685de5613d5d155d58f264179945b70fe4a087c122c81d5036ad316`.
+Chrome/Firefox/Android texture-accounting pins now match the new inventory, Android
+APK preflight requires the coat asset. Android/browser CPU preflight2/2 PASS2.29s;
+both JavaScript launchers and shell launcher pass syntax checks. No actual browser
+or Android goat runtime is claimed, and no emulator/KVM configuration was touched.
 
 ## Remaining implementation
 

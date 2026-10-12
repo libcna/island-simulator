@@ -28,6 +28,7 @@ namespace island
                     + GeneratedTextureBudget::GrassHeightRgba8Bytes
                     + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
+                    + GeneratedTextureBudget::GoatFurMipBytes
                     + 160U * 1024U, 6, 4};
         }
 
@@ -46,6 +47,7 @@ namespace island
                     + GeneratedTextureBudget::GrassHeightRgba8Bytes
                     + forest_floor::RuntimeFullMipBytes + leaf_surface::FullMipBytes
                     + GeneratedTextureBudget::MonkeyFurMipBytes + GeneratedTextureBudget::HutThatchMipBytes
+                    + GeneratedTextureBudget::GoatFurMipBytes
                     + 160U * 1024U, 6, 2};
         }
 

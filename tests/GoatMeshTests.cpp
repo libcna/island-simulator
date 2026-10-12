@@ -1,4 +1,5 @@
 #include "IslandSimulator/GoatMesh.hpp"
+#include "IslandSimulator/GoatCoatUv.hpp"
 #include "IslandSimulator/GoatHabitat.hpp"
 #include <algorithm>
 #include <cmath>
@@ -39,6 +40,14 @@ int main() {
             maximumRadius=std::max(maximumRadius,std::max(radial,bound));
             check(std::max(radial,bound)<=GoatHabitat::BodyClearance,"goat geometry exceeds motion clearance");
             ++materials[static_cast<std::size_t>(vertex.material)];
+            const auto uv=GoatCoatUv(vertex);
+            if(vertex.part==GoatPart::Body&&vertex.v!=.5f) {
+                // End-cap poles use a separate centre UV; side rings follow physical z.
+                check(std::abs(vertex.u-(vertex.position.z+.58f)/1.12f)<1e-5f,
+                    "goat body coat stretches according to ring index rather than physical length");
+            }
+            check(uv[0]>=.05999f&&uv[0]<=.94001f&&uv[1]>=.05999f&&uv[1]<=.94001f,
+                "goat fur UV leaves interior source window");
         }
         check(materials[static_cast<std::size_t>(GoatMaterial::Horn)]>0
             &&materials[static_cast<std::size_t>(GoatMaterial::Hoof)]>0
@@ -69,6 +78,15 @@ int main() {
         }
     }
     check(nearCount>farCount,"goat far LOD did not reduce geometry");
+    for(const auto part:{GoatPart::Body,GoatPart::Head,GoatPart::Leg,GoatPart::Neck}) {
+        GoatVertex vertex{};vertex.part=part;vertex.u=.3f;vertex.v=0;
+        const auto start=GoatCoatUv(vertex);vertex.v=1;
+        const auto end=GoatCoatUv(vertex);
+        check(std::abs(start[0]-end[0])<1e-6f&&start[1]==end[1],"goat coat circumferential seam");
+        vertex.u=.1f;const float low=GoatCoatUv(vertex)[1];
+        vertex.u=.9f;const float high=GoatCoatUv(vertex)[1];
+        check(part==GoatPart::Body?high<low:high>low,"goat coat strand direction reversed");
+    }
     GoatGroundPose bad{};bad.bodyBob=std::numeric_limits<float>::quiet_NaN();
     bool rejected=false;
     try {(void)BuildGoatMesh(bad,0,true);}catch(const std::invalid_argument&){rejected=true;}

@@ -832,6 +832,18 @@ progress or require player interaction; dangerous species keep their distance li
   continuous gait/foot-grounding audit, CPU profiling and Web/Android qualification.
   Final current-tree native rebuild/full46 non-display tests PASS70.70s; all owned
   jobs terminal, hardware latch unchanged, no new portable runtime claim.
+  Original built-in ImageGen goat-fur source/exact prompt preserved and hash-gated;
+  256square/9mips349,524bytes now applied only to coat, with bare parts in a second
+  opaque stock pass. Interior mirrored UVs, physical-distance/arc-length longitudinal
+  mapping (initial station-index stretching found in actual capture and corrected).
+  Runtime texture inventory8,496,944/policy8,517,160bytes; geometry unchanged. Native
+  llvmpipe014053 and014251 goat captures PASS/actually inspected/kernel[]. Fur is
+  visible but coarse directional streaks around neck remain; not visual acceptance.
+  Native46/46 CPU PASS63.57s; source-reduction oracle, seam/range/direction tests pass.
+  Web build/package11,551,789raw/4,497,328gzip and Android ARM64 build/lint10s pass;
+  APK contains matching prepared coat PNG. Platform diagnostic pins/preflight updated,
+  2/2 preflight tests and launcher syntax checks pass. Actual Web/Android appearance
+  and continuous native gait remain open; no emulator/KVM changes. See docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

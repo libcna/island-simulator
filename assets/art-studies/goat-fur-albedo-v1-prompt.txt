@@ -1,0 +1,6 @@
+Use case: photorealistic-natural
+Asset type: opaque albedo texture for a real-time 3D feral goat coat, square flat material swatch.
+Primary request: dense short straight goat hair, natural warm ivory and light grey-beige, individually readable fine guard hairs over soft undercoat. Entire image is only the coat surface at uniform scale, representing roughly a 30 cm patch. Hair lies predominantly from top to bottom with small natural directional variation, layered tapered tips and subtle irregular strand groups, not long wool, curls, ropes, bark, brush strokes or broad stripes.
+Composition: orthographic close-up perpendicular to a flat patch, edge-to-edge material, no animal silhouette, eyes, ears, skin, objects, border or background.
+Lighting: neutral diffuse even albedo-like illumination, no cast shadows, specular shine, vignette or directional brightness gradient. Fine local hair variation must remain readable after downsampling.
+Constraints: no text, symbols, watermark or logos; opaque image; quiet low-frequency colour variation, avoid large dark patches and conspicuous repeating motifs. Original game artwork, not a photo or scan claim.

@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — generated goat coat live, native images inspected; portable builds only
+
+Used imagegen skill/built-in tool; original1254square goat-fur-albedo-v1.png and exact
+prompt preserved in assets/art-studies, manifest hashes/ASSET_LICENSES record added.
+Original SHA90ad4035...,3,986,448bytes;256 prepared139,062bytes/9mips349,524RGBA8.
+Coat-only textured stock BasicEffect pass, bare horns/eyes/nose/hooves second opaque
+pass. One dynamic upload, VPColorTexture now24bytes×49,152capacity; two staging vectors.
+No shader/uniform/geometry-count change. GoatCoatUv mirrored6–94% window avoids source
+edge wrapping. First actual image revealed station-index stretching; loft UV now
+physical z, sweep UV arc length, regression tests plus seam/direction/range guards.
+Runtime texture total8,496,944/policy8,517,160 (both policies add exact349,524bytes).
+Chrome/Firefox/Android expected diagnostics updated, APK gate requires goat PNG.
+
+Native captures20261012T014053.532859Z-goats and014251.605524Z-goats PASS; actual1280×720
+images inspected, kernel-after[]. Visible3/6,2draws, coat-load marker confirmed.
+Visible hair improves plain coat, but neck streaks/swirl too coarse; tiny eyes/crude
+ears/angular joints and live continuous gait/hoof-grounding remain unaccepted.
+Native full46 CPU PASS63.57s (initial68.52s); prepared artwork tested pixel-for-pixel
+against C++ area filter. Tools preflight2/2 PASS2.29s, JS/shell syntax pass.
+Web build/package11,551,789raw/4,497,328gzip PASS; NO actual new goat browser runtime.
+ARM64 Android assemble/lint PASS10s, default APK SHA
+e2363bdbb5ceeb7063f63f4a75ff6bc40fdb10f50cf3f148489cfe2be40a791f;
+goatPNG present, native/Android prepared SHA66ecf380... equal. No x86/Android runtime
+this turn, no emulator/KVM/dependency changes. All owned jobs terminal. Hardware latch
+unchanged c0bd1704. Goal active, no push. Next: continuous live goat gait/contact audit,
+anatomy/mapping refinement and actual Web/Android qualification; all prior scope open.
+
 ## Latest — six goats LIVE in IslandGame, first native image inspected, NOT accepted realism
 
 IslandGame now constructs GoatHerd after full obstacles/hut and updates all six normal

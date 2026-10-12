@@ -52,7 +52,8 @@ struct Builder {
             const float nx=c/a.rx,ny=s/a.ry,inv=1/(after.z-before.z);
             return Vertex(Add({c*a.rx,a.y+s*a.ry,a.z},offset),
                 {nx,ny,-nx*c*(after.rx-before.rx)*inv-ny*((after.y-before.y)+s*(after.ry-before.ry))*inv},
-                material,static_cast<float>(row)/(rings.size()-1),static_cast<float>(side)/sides,attachment);
+                material,(a.z-rings.front().z)/(rings.back().z-rings.front().z),
+                static_cast<float>(side)/sides,attachment);
         };
         for(std::size_t row=0;row+1<rings.size();++row)for(int side=0;side<sides;++side) {
             const auto a=vertex(row,side),b=vertex(row+1,side),c=vertex(row+1,side+1),d=vertex(row,side+1);
@@ -69,6 +70,11 @@ struct Builder {
         }
     }
     void Sweep(std::span<const Tube> path,int sides,GoatMaterial material,Attachment attachment) {
+        std::vector<float> arc(path.size(),0);
+        for(std::size_t row=1;row<path.size();++row) {
+            const auto step=Sub(path[row].centre,path[row-1].centre);
+            arc[row]=arc[row-1]+std::sqrt(Dot(step,step));
+        }
         const auto vertex=[&](std::size_t row,int side) {
             const auto a=path[row],before=path[row==0?0:row-1],after=path[std::min(row+1,path.size()-1)];
             const auto tangent=Unit(Sub(after.centre,before.centre));
@@ -79,7 +85,7 @@ struct Builder {
             const float length=std::sqrt(Dot(Sub(after.centre,before.centre),Sub(after.centre,before.centre)));
             return Vertex(Add(a.centre,Mul(radial,a.radius)),
                 Sub(radial,Mul(tangent,(after.radius-before.radius)/length)),material,
-                static_cast<float>(row)/(path.size()-1),static_cast<float>(side)/sides,attachment);
+                arc[row]/arc.back(),static_cast<float>(side)/sides,attachment);
         };
         for(std::size_t row=0;row+1<path.size();++row)for(int side=0;side<sides;++side) {
             const auto a=vertex(row,side),b=vertex(row+1,side),c=vertex(row+1,side+1),d=vertex(row,side+1);

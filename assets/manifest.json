@@ -3,6 +3,18 @@
   "externalFiles": [],
   "projectFiles": [
     {
+      "name": "goat-fur-albedo-v1",
+      "path": "assets/art-studies/goat-fur-albedo-v1.png",
+      "sha256": "90ad403580cba033f0309de43d3e26d544f94e3204823a825d72bd361596ae13",
+      "licenseRecord": "AI-generated goat-fur study"
+    },
+    {
+      "name": "goat-fur-generation-prompt-v1",
+      "path": "assets/art-studies/goat-fur-albedo-v1-prompt.txt",
+      "sha256": "8921be8361bfe8be85f15bc3a3de1a196afa2c847e03b62d1b6604a711bf78d2",
+      "licenseRecord": "AI-generated goat-fur study"
+    },
+    {
       "name": "hut-palm-fibre-v1",
       "path": "assets/art-studies/hut-palm-fibre-v1.png",
       "sha256": "06a30db54159f52dd268f2d6fa174bcc02d680004ea889a3f2e4138502889fc0",
@@ -233,6 +245,7 @@
         "game/src/GoatPose.cpp",
         "game/src/GoatHerd.cpp",
         "game/src/GoatMesh.cpp",
+        "game/include/IslandSimulator/GoatCoatUv.hpp",
         "game/src/GoatRenderer.cpp"
       ]
     },

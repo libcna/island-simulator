@@ -487,8 +487,10 @@ def main():
                 raise RuntimeError("current boar lighting is missing; check for a stale executable")
             if args.viewpoint in ("snakes","snake-head") and not re.search(r"snakes [1-4]/4 visible, 1 draw",diagnostics):
                 raise RuntimeError("snake capture did not submit the live population")
-            if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 1 draw", diagnostics):
+            if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")
+            if args.viewpoint == "goats" and "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
+                raise RuntimeError("goat fur material was not loaded")
             if "boar directional coat atlas 128x128, opaque stock BasicEffect" not in diagnostics:
                 raise RuntimeError("current boar coat is missing; check for a stale executable")
             if "boars use connected limb poses, stance contact and body-rooted bristles" not in diagnostics:

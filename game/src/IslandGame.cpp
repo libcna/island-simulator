@@ -1029,7 +1029,7 @@ namespace island
         snakeRenderer_ = std::move(snakeRenderer);
         goatRenderer_ = std::move(goatRenderer);
         std::cout << "island-simulator: goats " << goats_->Goats().size()
-                  << " agents on open slopes, terrain-fitted limbs, provisional untextured coat\n";
+                  << " agents on open slopes, terrain-fitted limbs, directional fur material\n";
         monkeyRenderer_ = std::move(monkeyRenderer);
         canopyLighting_ = std::move(canopyLighting);
         terrainHeightMap_ = std::move(terrainHeightMap);

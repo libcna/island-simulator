@@ -244,9 +244,11 @@ and graphics checks. Android archive validation includes the new packaged PNG.
 
 Resource audit also found existing monkey fur omitted from TotalRuntimeRgba8Bytes.
 Added its1,398,100bytes plus the new thatch349,524bytes; actual texture payload accounting
-now8,147,420bytes against8,167,636policy bytes, excluding driver/decoder overhead as
+at this hut milestone8,147,420bytes against8,167,636policy bytes, excluding driver/decoder overhead as
 before. This is partly corrected accounting, not1.75MB newly allocated by this pass.
 Browser/Android diagnostic pins and CPU budget expectation updated accordingly.
+Later goat fur adds349,524bytes to both totals; current inventory is documented in
+`docs/goats.md` and `docs/asset-pipeline.md`.
 
 Actual native `20261011T231908.276787Z-hut-material/capture.png` PASS and inspected:
 roof now visibly pale/fibrous and distinct from timber, not the old brown slat surface.
