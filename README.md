@@ -58,6 +58,11 @@ terrain-fitted planted feet and player yielding. The original procedural model h
 hair geometry, woven clothes, a small generated material atlas, sandals and sole shadows. Use
 `--viewpoint resident` for the fixed eight-stage review; [resident evidence](docs/resident.md)
 records the native first pass and its remaining artistic and portable limitations.
+Exactly one large peaceful bear now roams a bounded inland habitat with planted four-foot
+terrain contact, quadrupedal idle/walk/trot/turn/forage/rest/withdraw behavior, near/far
+procedural anatomy, generated directional fur and sparse positional breath/snuffle/huff
+audio. Use `--viewpoint bear`; [bear evidence](docs/bear.md) records the native first pass
+and explicitly open visual, listening and portable work.
 Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
 preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
 An animated tropical

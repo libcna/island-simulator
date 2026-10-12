@@ -1,6 +1,28 @@
 # island-simulator handoff
 
-## Current work — resident native first pass live and inspected
+## Current work — bear native first pass live, audible and inspected
+
+Goal remains active; continue the whole plan. Exactly one non-hostile adult bear is now in
+IslandGame and WorldReport. Original procedural near/far model: heavy brown-bear torso/hump,
+short tail, muzzle/nose/eyes/ears, four articulated legs, broad paws and claws, generated128
+directional-fur atlas (87,380-byte mip chain), one body draw plus18-triangle shadow. No external
+asset. BearMotion finds safe interior habitat and keeps a34m home range; idle/walk/trot/turn/
+forage/rest/withdraw, max1.65m/s, max two swinging feet, at least two supports, fixed.48/.46m
+IK, exact rendered-ground soles, world-locked stance feet, non-hostile12m player withdrawal.
+Release+Debug600s tests PASS:219.719m travel, all behaviors/feet, max update.16559m, deterministic,
+actual obstacles and blocked-world refusal. Final inspected llvmpipe/pixman/kernel-clean evidence
+`20261012T195558.674888Z-bear` PASS: eight stages,5904/18 body/shadow triangles, natural walk
+instead of forced QA withdrawal. Earlier dark hump/boots/large tail were visually corrected.
+
+Original two-variant breath/snuffle/huff clips use existing single wildlife voice; six-source
+limit unchanged. Audio inventory32clips/5,576,444PCM bytes. Release+Debug exporter and real-CNA
+dummy playback/mute/range tests PASS; first positional peaceful bear call enters playback.
+WorldReport PASS fingerprint d0edd20a977a3eaf. Runtime texture bytes9,305,216/9,325,432.
+PLAN bear is only[~]: still procedural rather than photoreal, subjective listening and actual
+Web/Android/physical performance open. Next continue helicopter, hut relocation/upgrade and
+remaining fauna/portable work. Do not mark goal complete or stop early.
+
+## Previous work — resident native first pass live and inspected
 
 Goal active. Exactly one resident is now wired into IslandGame and WorldReport. New
 ResidentRenderer streams one original3638-triangle articulated adult, driven directly by the
@@ -42,7 +64,7 @@ Goal active. Campfire at46,24.7219,-16 in east clearing,11 stored logs ~6m away 
 12 stones/5 burning logs/10 embers;1992 solid triangles plus42 moving flame/smoke/spark
 triangles in2 culled draws, no frame vertex uploads or new textures. Local6m flicker shared
 by terrain/grass/jungle. World collision proxies1.25/1.4m, shared vegetation/grass reservation.
-Original19s fire PCM adds837900bytes (26clips/5153084bytes), shares fourth persistent voice
+Original19s fire PCM adds837900bytes (current32clips/5576444bytes), shares fourth persistent voice
 with stream/player-water; full3D24m attenuation. FirstApply3D precedesPlay. Real-CNA dummy
 fire/stream/swim/high-flight/mute tests pass, actualfirePlaying and4–6source budget checked.
 Release Core/Campfire/World/AudioReport/AudioPreviewExport/SoundscapeRuntime PASS6/6 in17.07s;

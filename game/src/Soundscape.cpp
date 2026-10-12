@@ -284,6 +284,11 @@ namespace island
                 snakeHissEffects_[i]->setNameProperty(
                     "Original procedural snake hiss " + std::to_string(i));
             }
+            for(std::size_t i=0;i<bearEffects_.size();++i) {
+                bearEffects_[i]=CreateOneShotSoundEffect(GenerateBearCall(
+                    static_cast<BearCallKind>(1U+i/2U),static_cast<std::uint8_t>(i%2U)));
+                bearEffects_[i]->setNameProperty("Original procedural bear voice "+std::to_string(i));
+            }
 
             // CNA's 3D approximation uses this as the full-volume radius before inverse falloff.
             // Island world units are meters, so 24 m keeps calls local without disappearing.
@@ -328,6 +333,7 @@ namespace island
             wildlifeScheduler_.Reset();
             boarScheduler_.Reset();
             snakeHissScheduler_.Reset();
+            bearCallScheduler_.Reset();
             waveAccentsEnabled_ = true;
             waterTransitionsEnabled_ = true;
             footstepsEnabled_ = true;
@@ -358,6 +364,8 @@ namespace island
                          "(shared wildlife voice, six original clips)\n";
             std::cout << "island-simulator: positional close-retreat snake hissing enabled "
                          "(shared wildlife voice, two original clips)\n";
+            std::cout<<"island-simulator: positional peaceful bear breathing/snuffling/huffing enabled "
+                         "(shared wildlife voice, six original clips)\n";
 #ifdef __ANDROID__
             // SDLActivity does not expose stdout through logcat. Mirror only the bounded set
             // consumed by Android runtime qualification without adding no-op calls elsewhere.
@@ -392,6 +400,7 @@ namespace island
             monkeyCallAlternateEffect_.reset();
             for (auto& effect : boarEffects_) effect.reset();
             for (auto& effect : snakeHissEffects_) effect.reset();
+            for(auto& effect:bearEffects_)effect.reset();
             monkeyCallEffect_.reset();
             birdCallAlternateEffect_.reset();
             birdCallEffect_.reset();
@@ -423,7 +432,8 @@ namespace island
         const std::span<const BirdState> birds,
         const std::span<const MonkeyState> monkeys,
         const std::span<const BoarState> boars,
-        const std::span<const SnakeState> snakes) noexcept
+        const std::span<const SnakeState> snakes,
+        const BearState* bear) noexcept
     {
         const float safeDelta = std::isfinite(deltaSeconds)
             ? std::clamp(deltaSeconds, 0.0f, 0.25f) : 0.0f;
@@ -594,6 +604,17 @@ namespace island
                                 wildlifeInstance_->setVolumeProperty(snakeVoiceGain_
                                     * SnakeHissVolume(distance));
                             }
+                        }
+                    } else if(activeWildlifeCall_.type==WildlifeCallType::Bear) {
+                        const float y=bear?bear->y+1.15f:0;
+                        const float distance=bear?std::hypot(std::hypot(bear->x-listenerState.x,
+                            bear->z-listenerState.z),y-listenerState.y):std::numeric_limits<float>::infinity();
+                        const float volume=BearCallVolume(activeBearCall_.kind,distance);
+                        if(!bear||!std::isfinite(distance)||volume<=0) {
+                            wildlifeInstance_->Stop();wildlifeSecondsRemaining_=0;
+                        } else {
+                            activeWildlifeCall_.source={true,bear->x,y,bear->z};
+                            wildlifeInstance_->setVolumeProperty(bearVoiceGain_*volume);
                         }
                     }
                     AudioEmitter emitter;
@@ -778,8 +799,13 @@ namespace island
         WildlifeCallRequest wildlifeCall = wildlifeScheduler_.Update(
             safeDelta, swimming, signedShoreDistance, listenerState.x, listenerState.y,
             listenerState.z, nearestBirdSource_, nearestMonkeySource_, wildlifeSlotAvailable);
-        // Due birds/monkeys get first refusal. A nearby retreating snake then gets
-        // priority over boars; all species share the same single transient voice.
+        // Due birds/monkeys get first refusal. The single bear, a nearby retreating snake and
+        // boars then share the same transient voice without raising the six-source limit.
+        const BearCallRequest bearCall=bear?bearCallScheduler_.Update(safeDelta,listenerState.x,
+            listenerState.y,listenerState.z,*bear,
+            wildlifeSlotAvailable&&wildlifeCall.type==WildlifeCallType::None):BearCallRequest{};
+        if(bearCall.kind!=BearCallKind::None)wildlifeCall={WildlifeCallType::Bear,bearCall.variant,
+            bearCall.volume,bearCall.pitch,bearCall.source};
         const SnakeHissRequest snakeHiss = snakeHissScheduler_.Update(safeDelta,
             listenerState.x,listenerState.y,listenerState.z,snakes,
             wildlifeSlotAvailable && wildlifeCall.type == WildlifeCallType::None);
@@ -811,6 +837,9 @@ namespace island
             wildlifeEffect = boarEffects_.at(index).get();
         } else if (wildlifeCall.type == WildlifeCallType::Snake) {
             wildlifeEffect = snakeHissEffects_.at(wildlifeCall.variant).get();
+        } else if(wildlifeCall.type==WildlifeCallType::Bear) {
+            const std::size_t index=(static_cast<std::size_t>(bearCall.kind)-1U)*2U+bearCall.variant;
+            wildlifeEffect=bearEffects_.at(index).get();
         }
         if (!wildlifeEffect) {
             return;
@@ -842,9 +871,15 @@ namespace island
                     snakeHiss.source.z-listenerState.z),snakeHiss.source.y-listenerState.y);
                 snakeVoiceGain_ = snakeHiss.volume
                     / std::max(.0001f,SnakeHissVolume(distance));
+            } else if(wildlifeCall.type==WildlifeCallType::Bear) {
+                activeBearCall_=bearCall;
+                const float distance=std::hypot(std::hypot(bearCall.source.x-listenerState.x,
+                    bearCall.source.z-listenerState.z),bearCall.source.y-listenerState.y);
+                bearVoiceGain_=bearCall.volume/std::max(.0001f,BearCallVolume(bearCall.kind,distance));
             }
             wildlifeSecondsRemaining_ = wildlifeCall.type == WildlifeCallType::Monkey
-                ? 2.35f : wildlifeCall.type == WildlifeCallType::Snake ? 1.05f : 1.50f;
+                ? 2.35f : wildlifeCall.type == WildlifeCallType::Snake ? 1.05f
+                :wildlifeCall.type==WildlifeCallType::Bear?1.60f:1.50f;
             if (wildlifeCall.type == WildlifeCallType::Bird) {
                 ++playedBirdCallCount_;
                 if (playedBirdCallCount_ == 1) {
@@ -864,12 +899,16 @@ namespace island
                               << boarCall.animalIndex << " kind " << static_cast<int>(boarCall.kind)
                               << '\n' << std::flush;
                 }
-            } else {
+            } else if(wildlifeCall.type==WildlifeCallType::Snake) {
                 ++playedSnakeHissCount_;
                 if (playedSnakeHissCount_ == 1) {
                     std::cout << "island-simulator: first positional snake hiss played; animal "
                               << snakeHiss.animalIndex << '\n' << std::flush;
                 }
+            } else {
+                ++playedBearCallCount_;
+                if(playedBearCallCount_==1)std::cout<<"island-simulator: first positional peaceful bear call played; kind "
+                    <<static_cast<int>(bearCall.kind)<<'\n'<<std::flush;
             }
         } catch (const std::exception& exception) {
             wildlifeInstance_.reset();
@@ -964,6 +1003,7 @@ namespace island
         monkeyCallAlternateEffect_.reset();
         for (auto& effect : boarEffects_) effect.reset();
         for (auto& effect : snakeHissEffects_) effect.reset();
+        for(auto& effect:bearEffects_)effect.reset();
         monkeyCallEffect_.reset();
         birdCallAlternateEffect_.reset();
         birdCallEffect_.reset();

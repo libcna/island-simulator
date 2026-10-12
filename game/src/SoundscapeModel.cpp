@@ -1059,6 +1059,83 @@ namespace island
         return {};
     }
 
+    AmbientLoop GenerateBearCall(const BearCallKind kind,const std::uint8_t variant)
+    {
+        constexpr std::size_t frames=AmbientSampleRate*8U/5U;
+        std::vector<float> samples(frames,0.0f);
+        if(kind==BearCallKind::None)return Quantize(samples,0);
+        const bool alternate=(variant&1U)!=0U;
+        DeterministicNoise noise(0xbea401ceU+static_cast<std::uint32_t>(kind)*6151U
+            +static_cast<std::uint32_t>(alternate)*977U);
+        float low=0,slower=0;double phase=0;
+        const auto pulse=[](float t,float begin,float duration) {
+            const float u=(t-begin)/duration;
+            if(u<=0||u>=1)return 0.0f;
+            return SmoothStep(0,.12f,u)*(1-SmoothStep(.55f,1,u));
+        };
+        for(std::size_t i=0;i<frames;++i) {
+            const float t=static_cast<float>(i)/AmbientSampleRate;
+            const float raw=noise.Next();low+=.10f*(raw-low);slower+=.022f*(low-slower);
+            float envelope=0;
+            if(kind==BearCallKind::Breath)envelope=pulse(t,.12f,1.16f);
+            else if(kind==BearCallKind::Snuffle)envelope=pulse(t,.10f,.35f)
+                +.82f*pulse(t,alternate?.63f:.56f,.30f)+.48f*pulse(t,1.03f,.22f);
+            else envelope=pulse(t,.09f,.54f)+(alternate?.58f:.36f)*pulse(t,.72f,.42f);
+            const float frequency=(kind==BearCallKind::Huff?58.0f:kind==BearCallKind::Snuffle?92.0f:47.0f)
+                +(alternate?5.0f:-3.0f)+4.0f*slower;
+            phase+=2*std::numbers::pi*frequency/AmbientSampleRate;
+            const float chest=static_cast<float>(std::sin(phase)+.48*std::sin(2*phase)+.21*std::sin(3*phase));
+            const float breath=2.2f*low+1.25f*(raw-low);
+            const float voice=kind==BearCallKind::Breath?breath*.64f+chest*.035f
+                :kind==BearCallKind::Snuffle?breath*.93f+chest*.10f
+                :breath*.72f+chest*.62f;
+            samples[i]=envelope*voice;
+        }
+        return Quantize(samples,kind==BearCallKind::Huff?.62f:kind==BearCallKind::Snuffle?.48f:.46f);
+    }
+
+    float BearCallVolume(const BearCallKind kind,const float distance) noexcept
+    {
+        if(!std::isfinite(distance)||distance<0)return 0;
+        const float radius=kind==BearCallKind::Breath?12.0f:kind==BearCallKind::Snuffle?26.0f:
+            kind==BearCallKind::Huff?55.0f:0.0f;
+        if(distance>=radius)return 0;
+        const float base=kind==BearCallKind::Breath?.13f:kind==BearCallKind::Snuffle?.28f:.46f;
+        const float fade=1-distance/radius;return base*fade*fade;
+    }
+
+    float BearCallScheduler::NextUnit() noexcept
+    {
+        randomState_^=randomState_<<13U;randomState_^=randomState_>>17U;randomState_^=randomState_<<5U;
+        return static_cast<float>(randomState_&0x00ffffffU)/16777216.0f;
+    }
+    void BearCallScheduler::Reset() noexcept
+    {
+        randomState_=0xbea401ceU;cooldown_=1.5f+NextUnit()*1.5f;callPhase_=0;
+    }
+    BearCallRequest BearCallScheduler::Update(float deltaSeconds,float listenerX,float listenerY,
+        float listenerZ,const BearState& bear,bool playbackSlotAvailable) noexcept
+    {
+        const float dt=SafeDeltaSeconds(deltaSeconds);
+        if(dt<=0)return {};
+        cooldown_=std::max(0.0f,cooldown_-dt);
+        if(!playbackSlotAvailable||cooldown_>0||!std::isfinite(listenerX)||!std::isfinite(listenerY)
+            ||!std::isfinite(listenerZ)||!std::isfinite(bear.x)||!std::isfinite(bear.y)||!std::isfinite(bear.z))return {};
+        BearCallKind kind=BearCallKind::Breath;float interval=11;
+        if(bear.behavior==BearBehavior::Withdraw){kind=BearCallKind::Huff;interval=6;}
+        else if(bear.behavior==BearBehavior::Forage){kind=BearCallKind::Snuffle;interval=5;}
+        else if(bear.behavior==BearBehavior::Trot||bear.behavior==BearBehavior::Walk){interval=8;}
+        if(callPhase_==0&&kind!=BearCallKind::Huff)kind=BearCallKind::Snuffle;
+        const float sourceY=bear.y+1.15f;
+        const float distance=std::hypot(std::hypot(bear.x-listenerX,bear.z-listenerZ),sourceY-listenerY);
+        const float volume=BearCallVolume(kind,distance);
+        if(volume<.006f)return {};
+        BearCallRequest request;request.kind=kind;request.variant=static_cast<std::uint8_t>(NextUnit()>=.5f);
+        request.volume=volume*(.88f+.12f*NextUnit());request.pitch=-.08f+.11f*NextUnit();
+        request.source={true,bear.x,sourceY,bear.z};cooldown_=interval+NextUnit()*7;
+        callPhase_=static_cast<std::uint8_t>((callPhase_+1U)%3U);return request;
+    }
+
     void WildlifeCallScheduler::Reset() noexcept
     {
         randomState_ = 0x6c8e9cf5U;

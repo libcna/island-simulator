@@ -348,7 +348,7 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   Playing-state diagnostics are partial infrastructure, not acoustic acceptance;
   goat vocalisations have not yet been accepted as implemented.
 
-- [ ] Add exactly one large, highly realistic bear to a suitable island habitat.
+- [~] Add exactly one large, highly realistic bear to a suitable island habitat.
   Prefer an existing high-quality rigged 3D model only after verifying that its
   licence permits inclusion and redistribution of both mesh and textures; retain
   attribution/source/licence evidence. Otherwise create an original model and
@@ -360,6 +360,19 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   animation, audio-source and geometry budgets. Qualify close/front/side/moving
   views and actual audible runtime evidence; a technical screenshot alone is not
   visual or acoustic acceptance.
+  Native first pass 2026-10-12: exactly one deterministic, non-hostile adult now roams a
+  34m interior habitat with bounded idle/walk/trot/turn/forage/rest/withdraw states. Four
+  world-locked feet use fixed-length two-link IK against emitted terrain and retain at least
+  two supports. The original near/far procedural model has a shoulder hump, short tail,
+  broad paws/claws, muzzle/nose, small eyes and rounded ears, plus a generated directional-fur
+  atlas; no third-party bear asset is shipped. It uses one body draw plus one 18-triangle
+  terrain shadow. Original breath/snuffle/huff pairs share the existing wildlife voice and
+  keep the six-source cap. Release/Debug CPU, WorldReport, WAV export and real-CNA dummy audio
+  playback pass. Inspected kernel-monitored llvmpipe evidence
+  `20261012T195558.674888Z-bear` shows 5904/18 body/shadow triangles and 2.24m motion over
+  eight ordered stages. The form is still recognisably procedural rather than photoreal;
+  actual Web/Android rendering, physical-device performance, headphone listening and further
+  fur/face/gait polish remain open, so this entry is intentionally not complete.
 
 Stream/wet-biome progress: shared normalized moisture/drainage/salt field now feeds
 terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowing

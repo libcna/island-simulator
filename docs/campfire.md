@@ -38,7 +38,7 @@ region or the cave. Existing vegetation outside these small reserves remains gen
 
 An original19s mono PCM16 loop combines soft ember hiss, lower fire noise and173 uneven
 wood crackles/pops. It is generated at22050Hz, mean centred and loop checked. It adds
-837900 PCM bytes; the audio inventory is26 clips/5153084 bytes. No new playing voice is
+837900 PCM bytes; the current audio inventory is32 clips/5576444 bytes. No new playing voice is
 added: fire, stream and player-water playback share the fourth persistent slot. This
 clearing lies beyond the stream's audible region. Swimming takes priority, and fire
 audibility uses a bounded3D24m distance with smoothed gain and transition hysteresis.
@@ -47,7 +47,7 @@ Spatial mode is configured before the first Play, preserving the prior dropout f
 Real-CNA dummy-audio tests cover far/near startup, repeated fire→stream→far→swim→high
 flight→fire transitions and mute/unmute, querying actual Playing state and the4–6 source
 budget. This establishes backend operation, not speaker listening or perceived naturalness.
-The independent WAV exporter also checks all26 clips and their complete PCM footprint.
+The independent WAV exporter also checks all32 clips and their complete PCM footprint.
 
 ## Native evidence
 

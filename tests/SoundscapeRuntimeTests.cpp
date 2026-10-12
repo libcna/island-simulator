@@ -67,6 +67,32 @@ void ExerciseCampfire(bool nearStartup) {
         }
     }
 }
+void ExerciseBearVoice() {
+    using namespace island;
+    Soundscape sound;
+    BearState bear;bear.x=0;bear.y=4;bear.z=0;bear.behavior=BearBehavior::Forage;
+    SoundscapeListenerState listener;listener.x=2;listener.y=5.72f;listener.z=0;
+    Check(sound.Start(80,false,0,0,0,.5f,listener.x,listener.z),
+        "Bear dummy audio startup failed: "+sound.Error());
+    bool active=false;
+    for(int tick=0;tick<720;++tick) {
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},&bear);
+        active|=sound.IsWildlifeCallActive();
+        Check(sound.IsAvailable()&&sound.Error().empty(),"Bear call disabled the soundscape");
+        Check(sound.DebugState().playingSourceCount>=4&&sound.DebugState().playingSourceCount<=6,
+            "Bear call exceeded the shared six-source budget");
+    }
+    Check(active&&sound.PlayedBearCallCount()>0,"Nearby peaceful bear never entered actual playback");
+    const int audible=sound.PlayedBearCallCount();sound.SetMuted(true);
+    for(int tick=0;tick<180;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},&bear);
+    Check(sound.PlayedBearCallCount()==audible&&!sound.IsWildlifeCallActive(),
+        "Muted bear voice retained or created transient playback");
+    sound.SetMuted(false);listener.x=100;
+    for(int tick=0;tick<720;++tick)
+        sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},&bear);
+    Check(sound.PlayedBearCallCount()==audible,"Out-of-range bear created actual playback");
+}
 }
 
 int main(int argc, char** argv) {
@@ -78,6 +104,7 @@ int main(int argc, char** argv) {
         Exercise(true);
         ExerciseCampfire(false);
         ExerciseCampfire(true);
+        ExerciseBearVoice();
         std::cout << "Soundscape stream startup/entry/swim/mute runtime regression passed\n";
         return 0;
     } catch (const std::exception& error) {

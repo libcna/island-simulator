@@ -77,6 +77,7 @@ namespace island
             case FixedViewpoint::CampfireDetail: return "campfire";
             case FixedViewpoint::CampfireWide: return "campfire-wide";
             case FixedViewpoint::ResidentDetail: return "resident";
+            case FixedViewpoint::BearDetail: return "bear";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -201,6 +202,7 @@ namespace island
         if(hutPlacement_) worldObstacles.push_back({hutPlacement_->x,hutPlacement_->z,HutLayout::CollisionRadius});
         worldCollisionGrid_.Reset(worldObstacles);
         resident_=std::make_unique<ResidentMotion>(terrain_,worldCollisionGrid_.Obstacles());
+        bear_=std::make_unique<BearMotion>(terrain_,worldCollisionGrid_.Obstacles());
         monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
         monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
         boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
@@ -257,6 +259,16 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: resident QA camera frames one peaceful adult at tour start\n";
+        } else if(viewpoint_==FixedViewpoint::BearDetail) {
+            const auto& subject=bear_->State();
+            const Vector3 forward(std::sin(subject.heading),0,std::cos(subject.heading));
+            const Vector3 right(std::cos(subject.heading),0,-std::sin(subject.heading));
+            cameraPosition_=Vector3(subject.x,subject.y+2.05f,subject.z)+forward*5.3f+right*2.35f;
+            const Vector3 target(subject.x,subject.y+1.03f,subject.z+.22f);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: bear QA camera frames the single peaceful adult\n";
         } else if (viewpoint_ == FixedViewpoint::CaveExterior || viewpoint_ == FixedViewpoint::CaveInterior) {
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
@@ -1031,7 +1043,7 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         // Capture-only clock: no wall-time catch-up updates between recorded frames.
-        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock() && !UsesBoarCaptureClock()&&!UsesCampfireCaptureClock()&&!UsesResidentCaptureClock());
+        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock() && !UsesBoarCaptureClock()&&!UsesCampfireCaptureClock()&&!UsesResidentCaptureClock()&&!UsesBearCaptureClock());
         InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
@@ -1188,6 +1200,8 @@ namespace island
             device, terrain_, canopyLighting->Field(), 235.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         auto residentRenderer=std::make_unique<ResidentRenderer>(device,canopyLighting->Field(),
             180.0f*qualityProfile_.wildlifeMaximumDistanceScale);
+        auto bearRenderer=std::make_unique<BearRenderer>(device,canopyLighting->Field(),
+            190.0f*qualityProfile_.wildlifeMaximumDistanceScale);
         auto grassRenderer = std::make_unique<GrassRenderer>(
             device, terrain_, grassLayout_, *canopyLighting, *terrainHeightMap, qualityProfile_.grassMaximumDistance);
         auto jungleRenderer = std::make_unique<JungleRenderer>(device, terrain_, jungleLayout_,
@@ -1229,6 +1243,7 @@ namespace island
                   << " agents with separated dense-understory-margin homes\n";
         monkeyRenderer_ = std::move(monkeyRenderer);
         residentRenderer_=std::move(residentRenderer);
+        bearRenderer_=std::move(bearRenderer);
         canopyLighting_ = std::move(canopyLighting);
         terrainHeightMap_ = std::move(terrainHeightMap);
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
@@ -1437,6 +1452,8 @@ namespace island
         if(campfireCaptureClock)++campfireCaptureUpdates_;
         const bool residentCaptureClock=UsesResidentCaptureClock();
         if(residentCaptureClock)++residentCaptureUpdates_;
+        const bool bearCaptureClock=UsesBearCaptureClock();
+        if(bearCaptureClock)++bearCaptureUpdates_;
         const bool goatCaptureClock=UsesGoatCaptureClock();
         const bool boarCaptureClock=UsesBoarCaptureClock();
         if(boarCaptureClock)++boarCaptureUpdates_;
@@ -1449,7 +1466,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
         }
         if(snakeCaptureClock) ++snakeCaptureUpdates_;
-        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock||boarCaptureClock||campfireCaptureClock||residentCaptureClock) ? 0.1f : std::min(
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock||boarCaptureClock||campfireCaptureClock||residentCaptureClock||bearCaptureClock) ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -1521,6 +1538,13 @@ namespace island
             const auto& current=resident_->State();
             cameraPosition_+=Vector3(current.x-previousResident.x,current.y-previousResident.y,
                 current.z-previousResident.z);
+        }
+        const auto previousBear=bear_->State();
+        bear_->Update(deltaSeconds,bearCaptureClock?BearPoint{NAN,NAN,NAN}
+            :BearPoint{observer.x,observer.y,observer.z});
+        if(bearCaptureClock) {
+            const auto& current=bear_->State();
+            cameraPosition_+=Vector3(current.x-previousBear.x,current.y-previousBear.y,current.z-previousBear.z);
         }
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         butterflyMeadow_.Update(
@@ -2214,7 +2238,7 @@ namespace island
             flightMotion_.IsActive() ? 0.0f : playerMotion_.OceanCurrentStrength(terrain_),
             deltaSeconds,windExposure,listener,
             birdFlock_.Birds(), monkeyTroop_.Monkeys(), boarHerd_.Boars(),
-            snakes_->Snakes());
+            snakes_->Snakes(),&bear_->State());
     }
 
     bool IslandGame::IsDebugFreeCameraActive() const noexcept
@@ -2248,7 +2272,7 @@ namespace island
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
             (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail
-                ||viewpoint_==FixedViewpoint::ResidentDetail||UsesSpiderViewpoint())
+                ||viewpoint_==FixedViewpoint::ResidentDetail||viewpoint_==FixedViewpoint::BearDetail||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
     }
@@ -2296,6 +2320,7 @@ namespace island
             + goatRenderer_->DrawCallCount()
             + spiderRenderer_->DrawCallCount()
             + residentRenderer_->DrawCallCount()
+            + bearRenderer_->DrawCallCount()
             + snakeRenderer_->DrawCallCount()
             + fishRenderer_->DrawCallCount()
             + seaTurtleRenderer_->DrawCallCount()
@@ -2671,7 +2696,8 @@ namespace island
             ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
             ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
             ? static_cast<float>(spiderCaptureUpdates_)*0.1f : UsesBoarCaptureClock()
-            ? static_cast<float>(boarCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
+            ? static_cast<float>(boarCaptureUpdates_)*0.1f : UsesBearCaptureClock()
+            ? static_cast<float>(bearCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         auto& device = getGraphicsDeviceProperty();
         BeginGpuDiagnosticFrame(drawnFrames_, drawnFrames_ < 2U
@@ -2708,6 +2734,7 @@ namespace island
             contactShadowRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                          renderedMonkeys, boarHerd_.Boars(),*snakes_,goats_->Goats(),spiders_->Spiders());
             residentRenderer_->DrawShadow(cameraView_,cameraProjection_,renderCameraPosition_,resident_->State());
+            bearRenderer_->DrawShadow(cameraView_,cameraProjection_,renderCameraPosition_,bear_->State());
         }
 
         {
@@ -2775,6 +2802,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("resident");
             residentRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,resident_->State());
+        }
+        {
+            GpuDiagnosticScope gpuPass("bear");
+            bearRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,bear_->State());
         }
 
         {
@@ -3254,7 +3285,10 @@ namespace island
                       << " visible, " << goatRenderer_->DrawCallCount() << " draw; resident "
                       << residentRenderer_->VisibleCount() << "/1 visible, "
                       << residentRenderer_->DrawCallCount() << " draws, "
-                      << residentRenderer_->TriangleCount() << " body triangles; snakes "
+                      << residentRenderer_->TriangleCount() << " body triangles; bear "
+                      << bearRenderer_->VisibleCount() << "/1 visible, "
+                      << bearRenderer_->DrawCallCount() << " draws, "
+                      << bearRenderer_->TriangleCount() << " body triangles; snakes "
                       << snakeRenderer_->VisibleCount() << '/' << snakes_->Snakes().size()
                       << " visible, " << snakeRenderer_->DrawCallCount() << " draw, "
                       << contactShadowRenderer_->VisibleSnakeShadowCount() << " shadows; fish "
@@ -3357,6 +3391,7 @@ namespace island
         const bool goatCapture = UsesGoatCaptureClock();
         const bool boarCapture = UsesBoarCaptureClock();
         const bool residentCapture=UsesResidentCaptureClock();
+        const bool bearCapture=UsesBearCaptureClock();
         if(boarCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".boar-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
@@ -3413,6 +3448,20 @@ namespace island
                 <<" triangles="<<residentRenderer_->TriangleCount()<<'/'
                 <<residentRenderer_->ShadowTriangleCount()<<'\n';
         }
+        if(bearCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
+            GpuDiagnosticScope gpuPass("capture-readback");
+            CaptureFrame(capturePath_+".bear-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
+            const auto& subject=bear_->State();
+            std::cout<<"island-simulator: bear motion stage="<<drawnFrames_/8U-1U
+                <<" updates="<<bearCaptureUpdates_<<" visible="<<bearRenderer_->VisibleCount()
+                <<" position="<<subject.x<<','<<subject.y<<','<<subject.z
+                <<" speed="<<subject.speed<<" behavior="<<static_cast<int>(subject.behavior)
+                <<" forage="<<subject.foragePose<<" feet=";
+            for(const auto& leg:subject.pose.legs)
+                std::cout<<leg.paw.x<<','<<leg.paw.y<<','<<leg.paw.z<<','<<(leg.stance?1:0)<<';';
+            std::cout<<" triangles="<<bearRenderer_->TriangleCount()<<'/'
+                <<bearRenderer_->ShadowTriangleCount()<<'\n';
+        }
         if(!snakeCapture && (viewpoint_==FixedViewpoint::SnakeDetail || viewpoint_==FixedViewpoint::SnakeHeadDetail)
             && drawnFrames_%8U==0 && drawnFrames_<=32U) {
             const auto& subject=snakes_->Snakes().front();
@@ -3466,7 +3515,7 @@ namespace island
                 <<" draws="<<campfireRenderer_->DrawCallCount()<<" effect-triangles="
                 <<campfireRenderer_->EffectTriangleCount()<<'\n';
         }
-        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture||residentCapture ? 64U : snakeCapture||UsesCampfireCaptureClock() ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture||residentCapture||bearCapture ? 64U : snakeCapture||UsesCampfireCaptureClock() ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {
@@ -3492,6 +3541,12 @@ namespace island
                 std::cout<<"island-simulator: resident capture visible "<<residentRenderer_->VisibleCount()
                     <<"; draws "<<residentRenderer_->DrawCallCount()<<"; body/shadow triangles "
                     <<residentRenderer_->TriangleCount()<<'/'<<residentRenderer_->ShadowTriangleCount()<<'\n';
+            }
+            if(viewpoint_==FixedViewpoint::BearDetail) {
+                std::cout<<"island-simulator: bear capture visible "<<bearRenderer_->VisibleCount()
+                    <<"; draws "<<bearRenderer_->DrawCallCount()<<"; body/shadow triangles "
+                    <<bearRenderer_->TriangleCount()<<'/'<<bearRenderer_->ShadowTriangleCount()
+                    <<"; near-detail "<<bearRenderer_->UsesNearDetail()<<'\n';
             }
         }
         if (smokeTest_ && drawnFrames_ >= targetFrames) {

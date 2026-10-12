@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 #include "IslandSimulator/BoarHerd.hpp"
+#include "IslandSimulator/BearMotion.hpp"
 #include "IslandSimulator/SnakePopulation.hpp"
 
 namespace island
@@ -211,7 +212,8 @@ namespace island
         Bird,
         Monkey,
         Boar,
-        Snake
+        Snake,
+        Bear
     };
 
     /** @brief Nearest currently eligible world-space source for one wildlife species. */
@@ -289,6 +291,31 @@ namespace island
         std::uint32_t randomState_ = 0x51a6e55eU;
         float populationCooldown_ = 0.0f;
         std::size_t nextAnimal_ = 0;
+    };
+
+    enum class BearCallKind : std::uint8_t {None,Breath,Snuffle,Huff};
+    /** Original low, non-aggressive adult bear breath, snuffle or warning huff. */
+    [[nodiscard]] AmbientLoop GenerateBearCall(BearCallKind kind,std::uint8_t variant);
+    [[nodiscard]] float BearCallVolume(BearCallKind kind,float distance) noexcept;
+
+    struct BearCallRequest {
+        BearCallKind kind=BearCallKind::None;
+        std::uint8_t variant=0;
+        float volume=0,pitch=0;
+        WildlifeAudioSource source;
+    };
+
+    /** Behavior-aware sparse voice for the island's one peaceful bear. */
+    class BearCallScheduler final {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] BearCallRequest Update(float deltaSeconds,float listenerX,float listenerY,
+            float listenerZ,const BearState& bear,bool playbackSlotAvailable) noexcept;
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+        std::uint32_t randomState_=0xbea401ceU;
+        float cooldown_=0;
+        std::uint8_t callPhase_=0;
     };
 
     /** @brief One bounded, mono positional call request selected from visible wildlife. */

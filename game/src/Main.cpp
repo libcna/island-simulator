@@ -31,6 +31,7 @@ namespace
         case FixedViewpoint::CampfireDetail: return "campfire";
         case FixedViewpoint::CampfireWide: return "campfire-wide";
         case FixedViewpoint::ResidentDetail: return "resident";
+        case FixedViewpoint::BearDetail: return "bear";
         case FixedViewpoint::BeachPath: return "beach";
         case FixedViewpoint::JungleTrail: return "jungle";
         case FixedViewpoint::EastClearingDetail: return "east";
@@ -134,7 +135,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
-                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, campfire, campfire-wide, resident, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
+                             "east, headland, tide-pools, turtle-nest, cave, cave-inside, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
                              "shark, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
@@ -160,6 +161,8 @@ int main(const int argc, char* argv[])
                 viewpoint=island::FixedViewpoint::CampfireWide;
             } else if(name=="resident") {
                 viewpoint=island::FixedViewpoint::ResidentDetail;
+            } else if(name=="bear") {
+                viewpoint=island::FixedViewpoint::BearDetail;
             } else if (name == "bay-ground") {
                 viewpoint = island::FixedViewpoint::BayBeachDetail;
             } else if (name == "beach") {

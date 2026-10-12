@@ -1,4 +1,5 @@
 #include "IslandSimulator/BirdFlock.hpp"
+#include "IslandSimulator/BearMotion.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/GoatHerd.hpp"
 #include "IslandSimulator/SpiderColony.hpp"
@@ -129,6 +130,7 @@ namespace
         std::unique_ptr<island::GoatHerd> goats;
         std::unique_ptr<island::SpiderColony> spiders;
         std::unique_ptr<island::ResidentMotion> resident;
+        std::unique_ptr<island::BearMotion> bear;
 
         WorldSnapshot()
         {
@@ -155,6 +157,7 @@ namespace
             if(hut) worldObstacles.push_back({hut->x,hut->z,island::HutLayout::CollisionRadius});
             collisionGrid.Reset(worldObstacles);
             resident=std::make_unique<island::ResidentMotion>(terrain,collisionGrid.Obstacles());
+            bear=std::make_unique<island::BearMotion>(terrain,collisionGrid.Obstacles());
             monkeys.SetObstacles(collisionGrid.Obstacles());
             monkeys.SetCanopy(jungle.Canopy());
             boars.SetObstacles(collisionGrid.Obstacles());
@@ -465,6 +468,13 @@ namespace
         HashPosition(hash,resident.x,resident.y,resident.z);hash.AddFloat(resident.heading);
         hash.AddSize(world.resident->Route().Points().size());
         for(const auto p:world.resident->Route().Points())HashPosition(hash,p.x,p.y,p.z);
+        const auto& bear=world.bear->State();
+        HashPosition(hash,bear.x,bear.y,bear.z);hash.AddFloat(bear.heading);
+        hash.AddFloat(bear.homeX);hash.AddFloat(bear.homeZ);hash.AddEnum(bear.behavior);
+        for(const auto& leg:bear.pose.legs) {
+            for(const auto p:{leg.root,leg.joint,leg.paw})HashPosition(hash,p.x,p.y,p.z);
+            hash.AddByte(leg.stance?1:0);hash.AddByte(leg.reachLimited?1:0);
+        }
         return hash.Value();
     }
 
@@ -770,11 +780,17 @@ namespace
             &&AllFinite(resident.x,resident.y,resident.z,resident.heading,resident.pose.pelvisY)
             &&island::ResidentRoute::SafePoint(world.terrain,world.resident->Ground(),
                 world.collisionGrid,resident.x,resident.z);
+        const auto& bear=world.bear->State();
+        bool validBear=world.bear->IsValidPosition(bear.x,bear.z)
+            &&AllFinite(bear.x,bear.y,bear.z,bear.heading,bear.homeX,bear.homeZ);
+        for(const auto& leg:bear.pose.legs)validBear=validBear&&!leg.reachLimited
+            &&AllFinite(leg.root.x,leg.root.y,leg.root.z,leg.joint.x,leg.joint.y,leg.joint.z,
+                leg.paw.x,leg.paw.y,leg.paw.z);
         return validHut && terrain.finite && terrain.sampleCount == TerrainReportSampleCount
             && terrain.minimumShoreRadius > 150.0f
             && terrain.maximumShoreRadius < 300.0f
             && expectedPopulations && derivedCountsAgree
-            && finitePlacements && finiteSpecializedData && validResident
+            && finitePlacements && finiteSpecializedData && validResident && validBear
             && fingerprint == repeatedFingerprint;
     }
 
@@ -847,6 +863,10 @@ namespace
                <<world.resident->State().x<<','<<world.resident->State().y<<','<<world.resident->State().z
                <<"], \"routePoints\": "<<world.resident->Route().Points().size()
                <<", \"routeLengthMeters\": "<<world.resident->Route().Length()<<"},\n"
+               << "  \"bear\": {\"count\": 1, \"position\": ["
+               <<world.bear->State().x<<','<<world.bear->State().y<<','<<world.bear->State().z
+               <<"], \"home\": ["<<world.bear->State().homeX<<','<<world.bear->State().homeZ
+               <<"], \"peaceful\": true},\n"
                << "  \"seeds\": {\n"
                << "    \"palms\": \"0x" << std::hex << seeds.palms
                << "\",\n"

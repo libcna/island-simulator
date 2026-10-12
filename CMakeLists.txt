@@ -37,6 +37,7 @@ add_library(island_core STATIC
     game/src/AquaticLightingModel.cpp
     game/src/AudioAnalysis.cpp
     game/src/BenchmarkTraversalRoute.cpp
+    game/src/BearMotion.cpp
     game/src/BirdFlock.cpp
     game/src/BirdPerchLayout.cpp
     game/src/BoarHerd.cpp
@@ -324,6 +325,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_resident_tests)
     island_enable_first_party_sanitizers(island_resident_tests)
     add_test(NAME IslandResidentTests COMMAND island_resident_tests)
+    add_executable(island_bear_motion_tests tests/BearMotionTests.cpp)
+    target_link_libraries(island_bear_motion_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_bear_motion_tests)
+    island_enable_first_party_sanitizers(island_bear_motion_tests)
+    add_test(NAME IslandBearMotionTests COMMAND island_bear_motion_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
@@ -555,6 +561,7 @@ if(ISLAND_BUILD_GAME)
 
     set(_island_game_sources
         game/src/CanopyLighting.cpp
+        game/src/BearRenderer.cpp
         game/src/BirdRenderer.cpp
         game/src/ButterflyRenderer.cpp
         game/src/ContactShadowRenderer.cpp

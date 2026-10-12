@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "IslandSimulator/BenchmarkTraversalRoute.hpp"
+#include "IslandSimulator/BearMotion.hpp"
+#include "IslandSimulator/BearRenderer.hpp"
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BirdPerchLayout.hpp"
 #include "IslandSimulator/BirdRenderer.hpp"
@@ -101,6 +103,7 @@ namespace island
         CampfireDetail,
         CampfireWide,
         ResidentDetail,
+        BearDetail,
         BeachPath,
         JungleTrail,
         EastClearingDetail,
@@ -271,6 +274,7 @@ namespace island
         CampfireLayout campfireLayout_{terrain_};
         WorldCollisionGrid worldCollisionGrid_;
         std::unique_ptr<ResidentMotion> resident_;
+        std::unique_ptr<BearMotion> bear_;
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
         std::unique_ptr<RenderedTerrainSurface> swimTerrainSurface_;
         PlayerMotion playerMotion_;
@@ -318,6 +322,7 @@ namespace island
         std::unique_ptr<CaveRenderer> caveRenderer_;
         std::unique_ptr<CampfireRenderer> campfireRenderer_;
         std::unique_ptr<ResidentRenderer> residentRenderer_;
+        std::unique_ptr<BearRenderer> bearRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SeaTurtleRenderer> seaTurtleRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
@@ -381,11 +386,15 @@ namespace island
         std::uint32_t boarCaptureUpdates_ = 0;
         std::uint32_t campfireCaptureUpdates_=0;
         std::uint32_t residentCaptureUpdates_=0;
+        std::uint32_t bearCaptureUpdates_=0;
         [[nodiscard]] bool UsesCampfireCaptureClock() const noexcept {
             return !capturePath_.empty()&&(viewpoint_==FixedViewpoint::CampfireDetail||viewpoint_==FixedViewpoint::CampfireWide);
         }
         [[nodiscard]] bool UsesResidentCaptureClock() const noexcept {
             return !capturePath_.empty()&&viewpoint_==FixedViewpoint::ResidentDetail;
+        }
+        [[nodiscard]] bool UsesBearCaptureClock() const noexcept {
+            return !capturePath_.empty()&&viewpoint_==FixedViewpoint::BearDetail;
         }
         [[nodiscard]] bool UsesBoarCaptureClock() const noexcept {
             return !capturePath_.empty() && viewpoint_==FixedViewpoint::BoarDetail;

@@ -61,6 +61,32 @@ def validate_resident_stages(text):
     return {"positions":positions,"displacement":displacement,"foot_motion":foot_motion}
 
 
+def validate_bear_stages(text):
+    rows=re.findall(r"bear motion stage=(\d+) updates=(\d+) visible=(\d+) position=(\S+) "
+                    r"speed=(\S+) behavior=(\d+) forage=(\S+) feet=(\S+) triangles=(\d+)/(\d+)",text)
+    if len(rows)!=8 or [int(row[0]) for row in rows]!=list(range(8)):
+        raise RuntimeError("bear requires eight ordered locomotion stages")
+    positions=[];feet=[]
+    for stage,updates,visible,position,speed,behavior,forage,encoded_feet,body_triangles,shadow_triangles in rows:
+        try:
+            p=tuple(map(float,position.split(',')))
+            paws=[tuple(map(float,foot.split(',')[:3])) for foot in encoded_feet.rstrip(';').split(';')]
+            valid=(int(updates)==(int(stage)+1)*8 and int(visible)==1 and len(p)==3
+                   and all(map(math.isfinite,p)) and 0<=float(speed)<=1.651
+                   and 0<=int(behavior)<=5 and 0<=float(forage)<=1 and len(paws)==4
+                   and all(len(paw)==3 and all(map(math.isfinite,paw)) for paw in paws)
+                   and 1000<=int(body_triangles)<=12000 and int(shadow_triangles)==18)
+        except ValueError:
+            valid=False
+        if not valid:raise RuntimeError("invalid bear pose or bounded render budget")
+        positions.append(p);feet.append(paws)
+    displacement=max(math.dist(positions[0],p) for p in positions[1:])
+    paw_motion=max(math.dist(feet[0][leg],paws[leg]) for paws in feet[1:] for leg in range(4))
+    if displacement<.35 or paw_motion<.10:
+        raise RuntimeError("bear did not complete visible quadrupedal body and paw motion")
+    return {"positions":positions,"displacement":displacement,"paw_motion":paw_motion}
+
+
 def validate_snake_runtime_samples(log):
     """Validate sparse live-view motion, not continuous gait or visual quality."""
     rows = re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)", log)
@@ -480,7 +506,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "resident", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -582,6 +608,16 @@ def main():
                                "resident capture visible 1; draws 2"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"resident integration diagnostic missing: {marker}")
+            if args.viewpoint=="bear":
+                motion=validate_bear_stages(log)
+                (evidence/"bear-motion.json").write_text(json.dumps(motion,indent=2)+"\n")
+                for stage in range(8):
+                    if not Path(str(capture)+f".bear-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing bear locomotion-stage image")
+                for marker in ("one large peaceful bear uses original articulated quadruped anatomy",
+                               "bear capture visible 1; draws 2"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"bear integration diagnostic missing: {marker}")
             validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
             validate_antialiasing_log(diagnostics, 0)
             if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:

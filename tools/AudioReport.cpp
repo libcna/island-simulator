@@ -163,7 +163,7 @@ namespace
     [[nodiscard]] std::vector<AudioClip> GenerateClips()
     {
         std::vector<AudioClip> clips;
-        clips.reserve(26U);
+        clips.reserve(32U);
         clips.push_back({"shoreline surf", "surf.wav", true, 220500U,
                          island::GenerateSurfLoop()});
         clips.push_back({"canopy breeze", "breeze.wav", true, 242550U,
@@ -216,6 +216,18 @@ namespace
                          island::GenerateSnakeHiss(0)});
         clips.push_back({"snake hiss B", "snake-hiss-b.wav", false, 22050U,
                          island::GenerateSnakeHiss(1)});
+        clips.push_back({"bear breath A","bear-breath-a.wav",false,35280U,
+                         island::GenerateBearCall(island::BearCallKind::Breath,0)});
+        clips.push_back({"bear breath B","bear-breath-b.wav",false,35280U,
+                         island::GenerateBearCall(island::BearCallKind::Breath,1)});
+        clips.push_back({"bear snuffle A","bear-snuffle-a.wav",false,35280U,
+                         island::GenerateBearCall(island::BearCallKind::Snuffle,0)});
+        clips.push_back({"bear snuffle B","bear-snuffle-b.wav",false,35280U,
+                         island::GenerateBearCall(island::BearCallKind::Snuffle,1)});
+        clips.push_back({"bear huff A","bear-huff-a.wav",false,35280U,
+                         island::GenerateBearCall(island::BearCallKind::Huff,0)});
+        clips.push_back({"bear huff B","bear-huff-b.wav",false,35280U,
+                         island::GenerateBearCall(island::BearCallKind::Huff,1)});
         return clips;
     }
 }

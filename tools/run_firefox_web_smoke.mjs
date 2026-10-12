@@ -316,7 +316,7 @@ try {
     "island-simulator: broadleaf paddle and lance laminae share cupped profiles and asymmetric margins across LOD",
     "island-simulator: pinnate understory shares rachis attachment knots and retained leaflet wind across LOD",
     "island-simulator: renderer WEBGL2",
-    "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 9130456/9150672 bytes audio 6/6 sources",
+    "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 9305216/9325432 bytes audio 6/6 sources",
     "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows",
     "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes",
     "grass pigment uses separate height occlusion and filtered longitudinal veins",

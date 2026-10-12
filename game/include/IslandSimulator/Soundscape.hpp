@@ -71,7 +71,8 @@ namespace island
                     std::span<const BirdState> birds,
                     std::span<const MonkeyState> monkeys,
                     std::span<const BoarState> boars,
-                    std::span<const SnakeState> snakes) noexcept;
+                    std::span<const SnakeState> snakes,
+                    const BearState* bear=nullptr) noexcept;
 
         /** @brief Refreshes diagnostic emitter candidates even when audio playback is disabled. */
         void RefreshDebugSources(float listenerX, float listenerY, float listenerZ,
@@ -115,6 +116,7 @@ namespace island
         }
         [[nodiscard]] int PlayedBoarCallCount() const noexcept { return playedBoarCallCount_; }
         [[nodiscard]] int PlayedSnakeHissCount() const noexcept { return playedSnakeHissCount_; }
+        [[nodiscard]] int PlayedBearCallCount() const noexcept{return playedBearCallCount_;}
         [[nodiscard]] bool IsWildlifeCallActive() const noexcept
         {
             return wildlifeSecondsRemaining_ > 0.0f;
@@ -133,12 +135,16 @@ namespace island
         WildlifeCallScheduler wildlifeScheduler_;
         BoarCallScheduler boarScheduler_;
         SnakeHissScheduler snakeHissScheduler_;
+        BearCallScheduler bearCallScheduler_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 6> boarEffects_;
         std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>, 2> snakeHissEffects_;
+        std::array<std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>,6> bearEffects_;
         BoarCallRequest activeBoarCall_;
         SnakeHissRequest activeSnakeHiss_;
+        BearCallRequest activeBearCall_;
         float boarVoiceGain_ = 1.0f;
         float snakeVoiceGain_ = 1.0f;
+        float bearVoiceGain_=1.0f;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> surfEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> surfInstance_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> breezeEffect_;
@@ -207,5 +213,6 @@ namespace island
         int playedMonkeyCallCount_ = 0;
         int playedBoarCallCount_ = 0;
         int playedSnakeHissCount_ = 0;
+        int playedBearCallCount_=0;
     };
 }

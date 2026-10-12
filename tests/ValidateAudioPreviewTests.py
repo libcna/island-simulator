@@ -35,6 +35,12 @@ EXPECTED_FRAMES = {
     "boar-grunt-b.wav": 26460,
     "snake-hiss-a.wav": 22050,
     "snake-hiss-b.wav": 22050,
+    "bear-breath-a.wav": 35280,
+    "bear-breath-b.wav": 35280,
+    "bear-snuffle-a.wav": 35280,
+    "bear-snuffle-b.wav": 35280,
+    "bear-huff-a.wav": 35280,
+    "bear-huff-b.wav": 35280,
 }
 
 
@@ -59,7 +65,7 @@ def main() -> int:
         report = json.loads(report_path.read_text(encoding="utf-8"))
         if not report.get("valid") or report.get("clipCount") != len(EXPECTED_FRAMES):
             raise AssertionError("audio report summary does not describe all valid clips")
-        if report.get("totalPcmBytes") != 5_153_084:
+        if report.get("totalPcmBytes") != 5_576_444:
             raise AssertionError("audio report PCM footprint changed unexpectedly")
 
         written_files = {path.name for path in wave_directory.iterdir() if path.is_file()}
