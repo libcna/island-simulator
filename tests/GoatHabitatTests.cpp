@@ -115,8 +115,12 @@ int main() {
     for(int field=0;field<7;++field) {
         float x=0,z=0,heading=0,phase=0,speed=1,scale=1;
         const float nan=std::numeric_limits<float>::quiet_NaN();
-        if(field==0)x=nan;if(field==1)z=nan;if(field==2)heading=nan;
-        if(field==3)phase=nan;if(field==4)speed=-1;if(field==5)scale=nan;
+        if(field==0)x=nan;
+        if(field==1)z=nan;
+        if(field==2)heading=nan;
+        if(field==3)phase=nan;
+        if(field==4)speed=-1;
+        if(field==5)scale=nan;
         if(field==6)x=1000;
         rejected=false;
         try { (void)FitGoatGroundPose(terrain,surface,x,z,heading,phase,speed,scale); }

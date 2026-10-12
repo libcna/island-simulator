@@ -1,7 +1,7 @@
 # Feral island goats — implementation in progress
 
 **No goats are present in the running game yet.** This document records the first
-placement, ground-pose and behavior foundations, not a completed species or visual acceptance.
+placement, ground-pose, behavior and mesh foundations, not a completed species or visual acceptance.
 
 ## Deterministic open-slope homes
 
@@ -16,11 +16,13 @@ Acceptance requires:
 
 - inland terrain at least6m high and35m inside the shoreline;
 - centre normal Y in0.90..0.997 (sloped ground, excluding flat floors and steep cliffs);
-- a proposed1.1m body-clearance disc outside every static obstacle;
+- a1.25m body-clearance disc outside every static obstacle, enlarged after measuring
+  the grazing horn envelope; analytic centre normal Y must also be at least0.90,
+  matching the body-frame tilt bound rather than only the rendered triangle normal;
 - centre/eight perimeter terrain samples above6m with normal Y≥0.90 and no sampled
   height difference exceeding0.55m from the centre;
-- separation from canopy trunks by9m×tree scale, understory by1.1m+1.8m×plant scale,
-  and bushes by1.1m+1.2m×bush scale.
+- separation from canopy trunks by9m×tree scale, understory by1.25m+1.8m×plant scale,
+  and bushes by1.25m+1.2m×bush scale.
 
 These are conservative layout proxies, not measured goat anatomy or a proof that no
 leaf overlaps any future model. They must be checked against the eventual goat mesh.
@@ -35,7 +37,7 @@ Current reference sites (x,y,z metres, rounded):
 | -72.1349 | 36.9021 | 56.3421 |
 | -71.7322 | 35.7253 | 46.1564 |
 | -72.1036 | 35.4725 | 80.1896 |
-| -80.5767 | 34.0256 | 64.2600 |
+| -81.2493 | 33.7004 | 70.7155 |
 | -80.0528 | 32.9791 | 81.4526 |
 
 The tests check deterministic reconstruction, exact rendered height, independent
@@ -110,12 +112,47 @@ Native build and all44 non-display groups PASS73.92s; herd regression3.90s. Worl
 remains valid with unchanged fingerprint `b3fde347f77eb5f8` and no live goats reported.
 No renderer, emulator, KVM or dependency changes; hardware stop latch unchanged.
 
+## Mesh foundation and CPU shape review
+
+`GoatMesh` builds local-space triangle lists with smooth normals, UVs, material and
+anatomical-part tags. Body, deforming neck, head, paired curved horns, ears, beard,
+tail and independently fitted legs include split hoof geometry. Grazing lowers and
+rotates the head while the neck follows; this is not a verified feeding animation.
+Near/far meshes have6252/3516 vertices, each below the8192-vertex guard. There is no
+runtime renderer, coat texture or final material yet.
+
+`IslandGoatMeshTests` checks both LODs across16 walking phases and11 grazing amounts:
+finite coordinates, unit normals, UV ranges, nondegenerate consistently wound faces,
+flat-ground clearance, required anatomy/eye LOD and leg-root coverage by actual torso
+triangles. For each sampled vertex, the maximum horizontal projection over all tilt
+azimuths up to acos(0.90) is bounded; the largest measured radius is1.17903m at scale1.
+The1.25m collision disc covers that sampled envelope and the herd's smaller juvenile,
+not arbitrary larger scales or every continuous animation state. Whole-hoof terrain
+penetration, persistent planted feet and full body clearance on slopes remain open.
+
+Native tool `island-goat-mesh-preview` writes a CPU-only orthographic SVG, converted
+locally to `build/goat-mesh-preview.png` for inspection. The initial inspected image
+exposed detached foreleg caps: the chest was too short. Extending the chest and
+burying the upper limb attachment corrected the visible gap; the new actual-triangle
+root test guards it in both LODs. The revised two-pose image was inspected as well.
+It still shows coarse ears, tiny eyes and angular limbs/hooves. Temporary flat
+triangle shading exaggerates facets; it is not the game's interpolated lighting,
+depth buffer, fur, shadowing or a live animation audit. This is not visual acceptance.
+
+After the clearance change, current90s herd travel is17.36–32.09m per agent; observer
+clearance is8.69m and the head-on obstacle case7.95m. The fifth home changed as listed
+above; older behavior metrics in this document describe the preceding1.1m envelope.
+All13,824 home poses/43,776 stance contacts still pass. Complete native build and
+45/45 non-display tests PASS59.51s (`build/goat-mesh-complete-tests.log`). No GPU,
+emulator, Android/KVM settings or dependency changes; hardware stop latch unchanged.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
   Whole cloven-hoof contact, persistent stance behavior and the final body envelope
   still need validation with the actual model and live motion.
-- [ ] Recognizable goat head/body/ears, horns/beard and cloven hooves, with readable coat.
+- [~] First head/body/ears, horns/beard and cloven-hoof mesh with CPU shape review above.
+  Improve anatomy and add readable coat; actual in-game visual acceptance remains open.
 - [~] Grazing/walking/rest/retreat CPU controller and bounded collision-aware movement
   implemented above. Browsing details, gait transitions and visual acceptance remain.
   The40m grouping radius is NOT a traversable-area guarantee; initial sites do not

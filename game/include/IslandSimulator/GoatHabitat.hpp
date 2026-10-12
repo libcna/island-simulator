@@ -18,7 +18,7 @@ struct GoatHome {
 class GoatHabitat final {
 public:
     static constexpr std::size_t Count=6;
-    static constexpr float BodyClearance=1.1f, TreeClearance=9.0f;
+    static constexpr float BodyClearance=1.25f, TreeClearance=9.0f;
     static constexpr float MinimumSeparation=8.0f, HerdRadius=40.0f;
     static constexpr int CandidateCount=55*55;
     static constexpr std::uint32_t Seed=0x6f617431U;

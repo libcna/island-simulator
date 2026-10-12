@@ -66,6 +66,7 @@ add_library(island_core STATIC
     game/src/GoatHabitat.cpp
     game/src/GoatPose.cpp
     game/src/GoatHerd.cpp
+    game/src/GoatMesh.cpp
     game/src/JungleLayout.cpp
     game/src/LeafBladeProfile.cpp
     game/src/UnderstoryLeafProfile.cpp
@@ -139,6 +140,11 @@ island_enable_first_party_warnings(island_core)
 island_enable_first_party_sanitizers(island_core)
 
 if(ISLAND_BUILD_TOOLS AND NOT CMAKE_CROSSCOMPILING)
+    add_executable(island_goat_mesh_preview tools/GoatMeshPreview.cpp)
+    set_target_properties(island_goat_mesh_preview PROPERTIES OUTPUT_NAME island-goat-mesh-preview)
+    target_link_libraries(island_goat_mesh_preview PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_goat_mesh_preview)
+    island_enable_first_party_sanitizers(island_goat_mesh_preview)
     add_executable(island_audio_report tools/AudioReport.cpp)
     set_target_properties(island_audio_report PROPERTIES OUTPUT_NAME island-audio-report)
     target_link_libraries(island_audio_report PRIVATE IslandSimulator::Core)
@@ -209,6 +215,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_goat_herd_tests)
     island_enable_first_party_sanitizers(island_goat_herd_tests)
     add_test(NAME IslandGoatHerdTests COMMAND island_goat_herd_tests)
+    add_executable(island_goat_mesh_tests tests/GoatMeshTests.cpp)
+    target_link_libraries(island_goat_mesh_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_goat_mesh_tests)
+    island_enable_first_party_sanitizers(island_goat_mesh_tests)
+    add_test(NAME IslandGoatMeshTests COMMAND island_goat_mesh_tests)
     add_executable(island_snake_tests tests/SnakePopulationTests.cpp)
     target_link_libraries(island_snake_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_snake_tests)

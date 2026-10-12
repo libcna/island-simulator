@@ -11,7 +11,8 @@ bool GoatHabitat::AcceptsGround(const IslandTerrain& terrain,const RenderedTerra
     if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>220||std::abs(z)>220) return false;
     const auto centre=surface.Sample(x,z);
     // Sloped inland ground, not a beach, cliff or flat valley floor.
-    if(centre.height<6 || centre.normal.y<.90f || centre.normal.y>.997f) return false;
+    if(centre.height<6 || centre.normal.y<.90f || centre.normal.y>.997f
+        ||terrain.Sample(x,z).normal.y<.90f) return false;
     for(int i=0;i<9;++i) {
         const float angle=static_cast<float>(i)*std::numbers::pi_v<float>/4;
         const float radius=i==8?0:BodyClearance;

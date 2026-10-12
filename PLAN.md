@@ -782,7 +782,7 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Mice
 - [ ] Rats
 - [ ] Deer
-- [~] Goats (feral island goats on open slopes). Placement foundation only; **no live
+- [~] Goats (feral island goats on open slopes). CPU foundations only; **no live
   goats yet**. GoatHabitat proposes six deterministic jittered upland homes from3025
   bounded candidates using actual rendered terrain and the complete obstacle grid.
   Dry/sloped footprint, canopy/understory/bush clearance,8m separation/40m herd region;
@@ -809,6 +809,16 @@ progress or require player interaction; dangerous species keep their distance li
   in IslandGame; model/renderer/live integration and actual visual audit still pending.
   Native build/full44 non-display groups PASS73.92s; WorldReport valid/unchanged
   b3fde347f77eb5f8. No renderer/emulator/KVM/dependency changes or hardware qualification.
+  GoatMesh near/far6252/3516 vertices now provides body/head/deforming neck, horns,
+  ears/beard/tail and fitted legs with split hooves. CPU two-pose preview inspected:
+  initial detached forelegs corrected by chest/root overlap, actual torso-triangle
+  regression added. Both LODs/16 phases/11 grazing amounts check normals/UVs/winding,
+  flat clearance and sampled tilt envelope1.17903m. Motion disc enlarged1.1→1.25m,
+  analytic terrain tilt constrained too; fifth home changed, no vegetation removed.
+  Current herd travel17.36–32.09m/90s, observer/head-on clearance8.69/7.95m. Complete
+  native build and45/45 non-display tests PASS59.51s. No runtime integration or GPU
+  use; coat, eye/ear/limb detail, slope/whole-hoof clearance, actual motion/appearance
+  acceptance remain open. CPU preview is NOT an island audit. See docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

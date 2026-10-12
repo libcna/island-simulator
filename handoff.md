@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — goat mesh CPU foundation and inspected shape preview, NOT live goats
+
+GoatMesh.hpp/.cpp builds local triangles with normals/UV/material/anatomy tags:
+near6252/far3516 vertices, budget8192. Body, deforming grazing neck/head, horns,
+ears, beard, tail, fitted limbs and split hooves. Native CPU SVG preview tool added;
+build/goat-mesh-preview.png actually inspected. Initial detached foreleg caps led
+to chest extension/buried upper limbs and actual torso-triangle root regression.
+Revised image shows connected forelegs but still coarse ears, tiny eyes and angular
+limbs/hooves; no coat texture or runtime renderer. Do not call this visual acceptance.
+Mesh tests both LODs×16 phases×11 grazing amounts: finite/unit/UV/winding/flat ground,
+required anatomy, root coverage and sampled tilt envelope max1.17903m. BodyClearance
+1.1→1.25m and analytic centre normalY>=.90 now align placement with sampled geometry;
+fifth home changed (docs/goats.md), raw habitat/herd tests still agree. Current90s
+travel17.36–32.09m, observer8.69m/head-on7.95m;13,824 poses/43,776 contacts pass.
+Complete native build and45/45 non-display tests PASS59.51s. Logs:
+build/goat-mesh-complete-{build,tests}.log. All owned jobs terminal. Hardware latch
+SHA c0bd1704 unchanged; no GPU/emulator/KVM/dependency change. Goal remains active.
+Next: renderer/live goat integration and readable coat/anatomy, then actual platform
+audits including motion and whole-hoof/slope clearance. No live goat counts yet;
+entire prior backlog and HIGH PRIORITY unresolved AMD flight crash remain open.
+
 ## Latest — deterministic goat herd CPU simulation, NOT live game integration
 
 GoatHerd.hpp/.cpp in core, six agents from existing homes (one .75scale juvenile).
