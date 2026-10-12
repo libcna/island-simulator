@@ -201,6 +201,12 @@ The later large-ship package repeated the gate with the shipwreck camera. The ex
 archive selected `OPENGL33`, required the large-ship marker, retained the 3,948-triangle wreck in
 one draw, and completed first draw in 408.252 ms. Its inspected 1280 by 720 frame passed capture
 validation with 183 colour bins, 36.34 luminance deviation, and 146.84 spatial contrast.
+The current board-local material and iron-fitting package contains 14,752,032 installed bytes;
+its 7,880,492-byte archive has SHA-256
+`0ce8ba429a69200952cbeceed15a3e295c73a730fb85ffa0410924cb15d6e0bf`. A temporary extraction
+launched from an unrelated directory through the private pixman/llvmpipe harness, required the
+texture, per-piece UV and iron-fitting diagnostics, retained one 4,628-triangle wreck draw, and
+passed at 1280 by 720 with 185 colour bins, 38.37 luminance deviation and 163.78 spatial contrast.
 The subsequent palm-detail package repeated the unrelated-working-directory gate with the close
 palm camera. The exact `08cbaddf` archive selected `OPENGL33`, required the sparse hanging dry-
 frond marker, retained 293 palms in eight submissions, and completed first draw in 321.558 ms. Its

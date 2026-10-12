@@ -248,6 +248,8 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm the shipwreck wood texture")
         if viewpoint == "shipwreck" and "shipwreck weathered wood follows per-piece board and beam UVs" not in log:
             raise RuntimeError("application did not confirm shipwreck board-local UVs")
+        if viewpoint == "shipwreck" and "shipwreck restrained rusted iron straps, rivets, hinges and rudder braces" not in log:
+            raise RuntimeError("application did not confirm shipwreck iron fittings")
         if viewpoint == "monkey-climb":
             validate_monkey_climb_stages(log)
             if "monkey climb held summit presented after eight cycle stages" not in log:

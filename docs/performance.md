@@ -1694,9 +1694,11 @@ guard for the complete scene, not isolated attribution to a position-only mesh c
 
 ### Shipwreck landmark baseline
 
-The complete 20.0 m broken ship is one static batch containing 3,948 triangles. Its texture-free
-portable shader adds longitudinal grain, broad weathering, restrained cracks, wet/submerged
+The current complete 20.0 m broken ship is one static batch containing 4,628 triangles. Its
+prepared 256-square weathered-wood texture and portable shader add board-local grain, broad weathering, restrained cracks, wet/submerged
 darkening, salt wear, and a bounded waterline sheen; prelit vertex colours provide the fallback.
+Sparse iron straps, rivets, hinges and rudder braces add 680 triangles, bounded procedural rust and
+no draw call. The following timing measurements predate both the file-backed wood and iron pass.
 The denser cross-section, localized missing boards, split broken keel, rudder, broken rails, hull
 openings, and broken foremast preserve one draw, frustum rejection, and the 310 m distance limit.
 Six circular collision proxies represent only the major hull sections; the twelve beachward debris

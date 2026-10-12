@@ -55,15 +55,20 @@ namespace island
             "keel, rudder, and a broken foremast";
         constexpr std::string_view BoardTextureDiagnostic =
             "island-simulator: shipwreck weathered wood follows per-piece board and beam UVs";
+        constexpr std::string_view IronFittingDiagnostic =
+            "island-simulator: shipwreck restrained rusted iron straps, rivets, hinges and rudder braces";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
+        constexpr int AgedIronMaterial = 232;
         const Color OuterWood(112, 79, 45, AgedWoodMaterial);
         const Color DarkWood(77, 52, 33, AgedWoodMaterial);
         const Color InnerWood(137, 103, 66, InnerWoodMaterial);
         const Color FreshBreak(154, 121, 78, FreshBreakMaterial);
         const Color WetWood(63, 59, 47, AgedWoodMaterial);
         const Color DeepWood(43, 31, 22, AgedWoodMaterial);
+        const Color AgedIron(49, 47, 42, AgedIronMaterial);
+        const Color RustedIron(77, 47, 31, AgedIronMaterial);
 
         constexpr const char* VertexBody = R"(
 layout(location = 0) in vec3 aPosition;
@@ -130,16 +135,25 @@ void main()
     float split = 1.0 - smoothstep(0.028, 0.15,
         abs(sin(along * 2.82 + sin(across * 1.71 + vWorld.y) * 0.44)));
 
-    float freshBreak = smoothstep(0.52, 0.72, vMaterial);
+    float metal = smoothstep(0.84, 0.90, vMaterial);
+    float freshBreak = smoothstep(0.52, 0.72, vMaterial) * (1.0 - metal);
     vec3 aged = vColor * (0.925 + 0.105 * longGrain + 0.035 * fineGrain);
     aged *= 1.0 - darkWeather * 0.14 - split * 0.055;
     aged = mix(aged, aged * vec3(0.78, 0.85, 0.82), darkWeather * 0.22);
     vec3 broken = vColor * (0.95 + 0.075 * fineGrain);
     broken = mix(broken, broken * vec3(1.07, 1.02, 0.90), 0.35 * longGrain);
     vec3 materialColor = mix(aged, broken, freshBreak);
-    float textureInfluence = detailFade * (1.0 - freshBreak * 0.86);
+    float textureInfluence = detailFade * (1.0 - freshBreak * 0.86) * (1.0 - metal);
     materialColor *= mix(vec3(1.0), woodModulation, textureInfluence * 0.58);
     materialColor = mix(vColor, materialColor, detailFade);
+
+    float rustField = sin(along * 5.17 + vWorld.y * 3.41)
+        * sin(across * 6.23 - vWorld.y * 4.09);
+    float rust = smoothstep(0.36, 0.89, rustField) * detailFade;
+    vec3 iron = vColor * (0.84 + 0.12 * fineGrain);
+    iron = mix(iron, vec3(0.29, 0.13, 0.065), rust * 0.58);
+    iron = mix(vColor, iron, detailFade);
+    materialColor = mix(materialColor, iron, metal);
 
     float wetBand = (1.0 - smoothstep(-0.14, 0.38, vWorld.y))
         * (1.0 - freshBreak * 0.25);
@@ -150,7 +164,7 @@ void main()
     materialColor = mix(materialColor, wetColor, wetBand * (0.74 + 0.18 * detailFade));
 
     float saltLine = exp(-abs(vWorld.y - 0.18) * 13.0) * detailFade
-        * (1.0 - freshBreak) * (0.68 + 0.32 * fineGrain);
+        * (1.0 - freshBreak) * (1.0 - metal * 0.72) * (0.68 + 0.32 * fineGrain);
     materialColor = mix(materialColor,
                         materialColor * vec3(1.13, 1.12, 1.05),
                         saltLine * 0.24);
@@ -159,8 +173,11 @@ void main()
     if (dot(faceNormal, toViewer) < 0.0) faceNormal = -faceNormal;
     vec3 reflectedSun = reflect(-normalize(uToSun), faceNormal);
     float wetSheen = pow(max(dot(reflectedSun, toViewer), 0.0), 42.0)
-        * wetBand * (1.0 - submerged) * 0.12;
+        * wetBand * (1.0 - submerged) * (0.12 + metal * 0.10);
     materialColor += vec3(1.00, 0.91, 0.70) * wetSheen;
+    float ironSheen = pow(max(dot(reflectedSun, toViewer), 0.0), 22.0)
+        * metal * detailFade * (1.0 - rust) * 0.085;
+    materialColor += vec3(0.76, 0.78, 0.75) * ironSheen;
 
     float fog = smoothstep(190.0, 520.0, distanceToCamera);
     vec3 color = mix(materialColor, vec3(0.53, 0.78, 0.88), fog);
@@ -563,6 +580,44 @@ void main()
             AppendTaperedBeam(vertices, rightBilge, rightTop, 0.13f, 0.10f, InnerWood);
         }
 
+        void AppendIronFittings(std::vector<VertexPositionColorTexture>& vertices,
+                                const ShipwreckPlacement& ship, const Axes& axes)
+        {
+            constexpr std::array<float, 4> StrapPositions = {
+                -7.25f, -4.25f, 4.15f, 7.15f};
+            for (std::size_t strap = 0; strap < StrapPositions.size(); ++strap) {
+                const float z = StrapPositions[strap];
+                const float width = HullWidthAtHeight(ship, z, 0.28f);
+                for (const float side : {-1.0f, 1.0f}) {
+                    const Color& iron = (strap + (side > 0.0f ? 1U : 0U)) % 3U == 0U
+                        ? RustedIron : AgedIron;
+                    AppendBox(vertices,
+                              ShipPoint(ship, axes, side * (width + 0.035f), 0.28f, z),
+                              axes, 0.030f, 0.67f, 0.070f, iron);
+                    for (const float rivetY : {-0.20f, 0.76f}) {
+                        const float innerX = side * (width + 0.060f);
+                        const float outerX = side * (width + 0.135f);
+                        AppendTaperedBeam(
+                            vertices, ShipPoint(ship, axes, innerX, rivetY, z),
+                            ShipPoint(ship, axes, outerX, rivetY, z),
+                            0.047f, 0.042f, AgedIron);
+                    }
+                }
+            }
+
+            for (const float side : {-1.0f, 1.0f}) {
+                for (const float hingeZ : {-7.30f, -6.55f}) {
+                    AppendBox(vertices,
+                              ShipPoint(ship, axes, side * 1.525f, 2.08f, hingeZ),
+                              axes, 0.030f, 0.045f, 0.19f, RustedIron);
+                }
+            }
+            for (const float braceY : {-0.84f, 0.06f}) {
+                AppendBox(vertices, ShipPoint(ship, axes, 0.0f, braceY, -10.37f), axes,
+                          0.50f, 0.055f, 0.030f, AgedIron);
+            }
+        }
+
         void AppendShip(std::vector<VertexPositionColorTexture>& vertices,
                         const ShipwreckPlacement& ship)
         {
@@ -573,6 +628,7 @@ void main()
                 1.15f, 2.0f, 3.25f, 4.8f, 6.35f, 7.65f, 8.7f, 9.4f, 10.0f};
             AppendHullPiece(vertices, ship, axes, aftSections, true);
             AppendHullPiece(vertices, ship, axes, bowSections, false);
+            AppendIronFittings(vertices, ship, axes);
 
             AppendRib(vertices, ship, axes, -0.88f, -0.12f);
             AppendRib(vertices, ship, axes, 0.05f, 0.18f);
@@ -746,7 +802,7 @@ void main()
         std::cout << WoodTextureDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(WoodTextureDiagnostic);
         std::vector<VertexPositionColorTexture> vertices;
-        vertices.reserve(4200U);
+        vertices.reserve(4800U);
         AppendShip(vertices, layout.Ship());
         for (std::size_t index = 0; index < layout.Debris().size(); ++index) {
             AppendDebris(vertices, layout.Debris()[index], index);
@@ -782,8 +838,10 @@ void main()
                     agedWoodShaderReady_ = true;
                     std::cout << AgedWoodDiagnostic << '\n';
                     std::cout << BoardTextureDiagnostic << '\n';
+                    std::cout << IronFittingDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(AgedWoodDiagnostic);
                     MirrorRuntimeDiagnosticToPlatformLog(BoardTextureDiagnostic);
+                    MirrorRuntimeDiagnosticToPlatformLog(IronFittingDiagnostic);
                 } else {
                     std::cerr << "island-simulator: shipwreck material fallback: "
                               << agedWoodEffect_->GetCompileErrorEXT() << '\n';

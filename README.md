@@ -103,7 +103,7 @@ boat. Its exact 20 m hull is grounded and heeled in the water with a central bre
 partial deck, cabin, snapped mast, bowsprit, and rigging. Twelve planks and substantial fragments
 form a separate trail toward the sand. Six conservative hull proxies keep the player out of the
 major structure while the smaller debris remains non-solid and traversal-friendly. The complete
-3,948-triangle landmark uses a finer curved hull section, localized missing planks, a split broken
+4,628-triangle landmark uses a finer curved hull section, localized missing planks, a split broken
 keel and rudder, broken deck rails, dark hull openings, and a splintered foremast stump. The debris
 trail varies its angle strongly in both directions instead of repeating the ship axis. One portable
 GLSL 330 / GLSL ES 300 material adds distance-faded
@@ -111,7 +111,9 @@ longitudinal grain, weathering, restrained cracks, wet/submerged darkening, salt
 waterline sheen. A prepared 256-square weathered-timber albedo now adds photographic-scale fibre,
 abrasion, salt and restrained algae detail. Per-piece UVs align its grain with individual hull
 boards, deck surfaces, beams and scattered debris; mirrored interior sampling avoids relying on
-the generated source's unqualified edge tiling. It remains frustum/distance culled and is submitted as one batch before the
+the generated source's unqualified edge tiling. Sparse aged-iron hull straps, rivets, cabin hinges
+and rudder braces use a separate bounded rust and sheen response rather than receiving wood grain.
+It remains frustum/distance culled and is submitted as one batch before the
 transparent ocean colours its submerged portions; it introduces no quest, pickup, or objective.
 Nearby mesh grass bends away from the player: a small stationary body radius expands smoothly with
 walking speed and releases after movement stops, entirely inside the existing instanced shader.

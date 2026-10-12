@@ -40,17 +40,24 @@ the existing vertex-colour `BasicEffect` path remains the visual fallback.
 ## Evidence and remaining work
 
 The untextured native llvmpipe reference is
-`build-consumer/software-captures/20261012T222715.392938Z-shipwreck`. The inspected board-local UV
-result is `build-consumer/software-captures/20261012T223828.236728Z-shipwreck`: 1280 by 720,
-187 colour bins, luminance deviation 38.29, spatial contrast 163.62, one wreck draw, and no kernel
-event. Both use the deterministic close wreck camera.
+`build-consumer/software-captures/20261012T222715.392938Z-shipwreck`. The final inspected
+board-local UV and iron-fitting result is
+`build-consumer/software-captures/20261012T224035.100025Z-shipwreck`: 1280 by 720,
+183 colour bins, luminance deviation 38.36, spatial contrast 163.64, one wreck draw, 4,628
+triangles, and no kernel event. Both use the deterministic close wreck camera.
+
+Eight narrow hull straps, sixteen volumetric rivets, four cabin hinges and two rudder braces carry
+a dedicated material tag. The fragment path excludes these faces from wood sampling, adds bounded
+large-scale rust mottling and a slightly broader fixed-sun sheen, and retains waterline wetness.
+All fittings stay in the existing static batch; this pass adds 680 triangles and no draw call.
 
 This material slice does not complete the broader realism item. Hull damage and plank geometry,
-metal fittings and restrained rust, debris burial/water intersections, matched wide views, plus
+debris burial/water intersections, matched wide views, plus
 actual WebGL 2 and Android GLES 3 visual inspection remain required.
 
-The self-contained Linux archive built after this slice contains 14,746,090 installed bytes and
-7,879,261 compressed bytes, with SHA-256
-`c0d37680cdbc721992f63c14f24a99472994944624c4cf2b9cde4c86c7eb1618`. A temporary extraction
+The self-contained Linux archive built after the texture and fitting slices contains 14,752,032
+installed bytes and 7,880,492 compressed bytes, with SHA-256
+`0ce8ba429a69200952cbeceed15a3e295c73a730fb85ffa0410924cb15d6e0bf`. A temporary extraction
 launched from outside the repository through the private pixman/llvmpipe harness and reproduced
-the exact 186-bin wreck frame without a material fallback or kernel event.
+the strict wreck scene without a material fallback or kernel event. That package frame passed at
+1280 by 720 with 185 colour bins, 38.37 luminance deviation and 163.78 spatial contrast.

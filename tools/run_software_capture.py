@@ -638,6 +638,8 @@ def main():
                 raise RuntimeError("packaged shipwreck wood material is missing; check assets and executable")
             if args.viewpoint == "shipwreck" and "shipwreck weathered wood follows per-piece board and beam UVs" not in diagnostics:
                 raise RuntimeError("shipwreck board-local UV material is missing; check for a stale executable")
+            if args.viewpoint == "shipwreck" and "shipwreck restrained rusted iron straps, rivets, hinges and rudder braces" not in diagnostics:
+                raise RuntimeError("shipwreck iron fittings are missing; check for a stale executable")
             if not re.search(r"forest-floor filter (?:anisotropic, requested maximum 4x, device-clamped"
                              r"|trilinear, anisotropy unavailable)", diagnostics):
                 raise RuntimeError("forest-floor sampler capability decision is missing")

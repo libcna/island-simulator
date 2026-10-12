@@ -151,13 +151,14 @@ shore field, samples terrain support for the heeled hull and twelve beachward de
 publishes only six conservative circular proxies for major structure. Small debris is intentionally
 non-solid. The renderer derives its complete broken hull, exposed frames, partial deck, cabin,
 snapped main mast, broken foremast, bowsprit, rigging, and debris from that immutable layout in one
-3,948-triangle static batch; it does not own an independent position or scale. A denser cross-
+4,628-triangle static batch; it does not own an independent position or scale. A denser cross-
 section rounds the lower hull, two localized missing-board openings expose the break, and a keel,
 rudder, broken deck rails, plus dark side openings provide readable large-ship scale. The beach
 debris uses irregular splintered prism outlines and stable bidirectional angle variation instead
-of plain parallel boxes. Its portable GLSL 330 / GLSL ES 300 material
-projects longitudinal grain along the authored ship axis and adds bounded weathering, waterline
-darkening, salt wear, and wet sheen. Vertex-colour lighting remains an actionable fallback when
+of plain parallel boxes. Per-piece UVs align a prepared weathered-wood material with individual
+boards and beams. Its portable GLSL 330 / GLSL ES 300 path adds bounded weathering, waterline
+darkening, salt wear and wet sheen, while tagged iron straps, rivets, hinges and rudder braces
+receive restrained rust and a separate sheen. Vertex-colour lighting remains an actionable fallback when
 custom effects are unavailable.
 
 The public terrain-query contract accepts horizontal coordinates whose absolute components are at

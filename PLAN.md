@@ -1277,9 +1277,11 @@ Visual rework explicitly requested by the operator (2026-10-11):
   dimension. Procedural palette, fresh-break suppression, waterline darkening, salt line, sheen,
   distance fade and BasicEffect fallback remain. Native llvmpipe before
   `20261012T222715.392938Z-shipwreck` and inspected after
-  `20261012T223828.236728Z-shipwreck` preserve one draw and 3,948 triangles; the after frame has
-  187 colour bins, 38.29 luminance deviation and 163.62 spatial contrast with an empty kernel delta.
-  Further hull/damage geometry, metal fittings/rust, sand/water integration, wide-view comparison
+  `20261012T224035.100025Z-shipwreck` preserve one draw; the after frame has 4,628 triangles,
+  183 colour bins, 38.36 luminance deviation and 163.64 spatial contrast with an empty kernel delta.
+  Eight sparse hull straps with rivets, four cabin hinges and two rudder braces add a separately
+  tagged aged-iron material with restrained procedural rust and wet sheen inside the same batch.
+  Further hull/damage geometry, sand/water integration, wide-view comparison
   and actual Web/Android visual qualification remain open; texture-load markers alone do not close it.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
@@ -5867,7 +5869,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
   response, wet/submerged colour treatment, a dedicated first-person QA viewpoint, F1/F2 counts,
   tests for dimensions/depth/debris bounds/collision, and matched OpenGL 3.3, WebGL 2, and GLES 3
-  runtime evidence. The 3,948-triangle one-draw batch is distance/frustum culled, provenance is
+  runtime evidence. The current 4,628-triangle one-draw batch is distance/frustum culled, provenance is
   manifest-gated, and native, Chrome, Firefox, and accelerated-Android captures were inspected.
 
 ### Ocean and shoreline
@@ -6741,7 +6743,7 @@ improves the requested experience rather than adding quests, combat, survival, o
   4.5776--4.6285 ms p95, and 9.4118--10.4471 ms p99 with zero 60 Hz misses; the additional-wildlife
   combined worst case remains to be defined. The isolated Release turtle view records 2.1252 ms
   mean, 3.2192 ms p95, 9.5893 ms p99, two 60 Hz misses, and no 30 Hz miss across 600 intervals.
-  The current 3,948-triangle/material-shader shipwreck Release view recorded 1.4082 ms mean,
+  The pre-texture 3,948-triangle/material-shader shipwreck Release view recorded 1.4082 ms mean,
   1.8133 ms p95, 8.1463 ms p99, zero 60 Hz/30 Hz misses, 46 tracked submissions, and one wreck draw
   across 600 intervals.
 - [ ] Run matched native, Chrome, Firefox, and accelerated-Android captures for every new shader or
