@@ -660,7 +660,10 @@ namespace island
                     const Vector3 along = point(std::min(row+1,MonkeyFaceProfile::Rows.size()-1),u)
                         - point(row == 0 ? 0 : row-1,u);
                     const Vector3 normal = Vector3::Normalize(Vector3::Cross(along,across));
-                    AddVertex(mesh, point(row,u), normal, Head, Vector2(.5f+.4f*u,.5f));
+                    const auto p=point(row,u);
+                    // Negative V marks untextured facial skin with socket ambient retention.
+                    AddVertex(mesh, p, normal, Head, Vector2(.5f+.4f*u,
+                        -MonkeyFaceProfile::AmbientRetention(p.X,p.Y)));
                 }
             }
             for (std::size_t row = 0; row+1 < MonkeyFaceProfile::Rows.size(); ++row)
@@ -680,7 +683,7 @@ namespace island
         {
             MeshData mesh;
             for (float side : {-1.0f, 1.0f}) {
-                AddEllipsoid(mesh, Vector3(side * .052f, .867f, .645f),
+                AddEllipsoid(mesh, Vector3(side * .052f, .867f, MonkeyFaceProfile::EyeCentreZ),
                              Vector3(.016f, .010f, .007f), Head, 4, 10);
                 AddEllipsoid(mesh, Vector3(side * .015f, .817f, .686f),
                              Vector3(.006f, .004f, .003f), Head, 3, 6);

@@ -59,6 +59,8 @@ try {
         require(vertex.find("uBones[int(aBoneIndices.y)] * aBoneWeights.y") != std::string::npos);
         require(vertex.find("gl_Position.z = 2.0 * gl_Position.z - gl_Position.w") != std::string::npos);
         require(vertex.find("vDiffuse = clamp") != std::string::npos);
+        require(vertex.find("aTexCoord.y < 0.0 ? clamp(-aTexCoord.y, 0.8, 1.0) : 1.0") != std::string::npos);
+        require(vertex.find("vec3(0.47, 0.50, 0.42) * faceAmbient") != std::string::npos);
         require(vertex.find("vSpecular = clamp") != std::string::npos);
         require(vertex.find("float depth = -(uView * world).z") != std::string::npos);
         require(vertex.find("layout(location=2) in vec2 aTexCoord") != std::string::npos);

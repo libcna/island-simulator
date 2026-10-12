@@ -921,6 +921,18 @@ Landmark backlog requested by the operator:
   point eyes/angular limbs, repetitive crowns/leaves and blurry eastern steep-slope
   material. Next: tracked boar motion audit/finer coat, monkey face relief and slope
   material diagnosis. Checklist/evidence: docs/wildlife-visual-audit-2026-10-12.md.
+  Monkey face relief follow-up: sculpted orbital recesses/brows/nasal bridge/cheeks
+  in existing grid, eye centres10mm deeper. Reserved negative skin V encodes0.8..1
+  ambient retention only in sockets; fur/direct sun/specular unchanged. No new
+  geometry/draws/textures/attributes/uniforms, same14bones/92vectors. Full41/41 CPU
+  PASS56.96s including envelope/mirror/feature/seating/shader contracts. Native
+  20261012T003001.503299Z-monkeys and Android003122.519072Z-monkeys PASS; full images
+  and enlarged comparison actually inspected, kernel deltas[]. Difference modest,
+  face still simplified; eyelids/skin-fur boundary/ears/limb transitions remain open.
+  x86_64 and restored ARM64 build/lint PASS3s each; asset audit84sources. Actual Web
+  of this latest shader/profile pending; not an AMD fix or whole-monkey acceptance.
+  Web build/package PASS11,358,303raw/4,335,409gzip; all owned jobs terminal, hardware
+  stop latch unchanged. No push.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

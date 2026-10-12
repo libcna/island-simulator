@@ -86,8 +86,23 @@ try {
             Require(std::fabs(p.x+mirror.x) < 1e-6f && std::fabs(p.z-mirror.z) < 1e-6f,
                     "continuous bilateral face profile");
             Require(p.z >= .5499f && p.z <= .705f, "face stays within authored head envelope");
+            const float ambient=face::AmbientRetention(p.x,p.y);
+            Require(ambient>=.8f&&ambient<=1,"socket ambient retention outside bounded range");
+            Require(std::abs(ambient-face::AmbientRetention(-p.x,p.y))<1e-6f,
+                    "socket ambient retention must be bilateral");
         }
     }
+    Require(face::Relief(.052f,.865f)<-.004f,"orbit must be recessed");
+    Require(face::Relief(.052f,.893f)>.007f,"brow must project beyond socket");
+    Require(face::Relief(0,.844f)>.007f,"nose bridge must have relief");
+    Require(face::AmbientRetention(.052f,.865f)<.81f
+        &&face::AmbientRetention(0,.780f)==1,"ambient occlusion restricted to sockets");
+    const auto eyeSurface=[](std::size_t row) {
+        return face::Sample(row,std::asin(.052f/face::Rows[row].halfWidth)/1.57079632679f).z;
+    };
+    const float orbitalSurface=std::lerp(eyeSurface(4),eyeSurface(3),(.867f-.859f)/(.880f-.859f));
+    Require(face::EyeCentreZ-.007f<orbitalSurface&&face::EyeCentreZ+.007f>orbitalSurface,
+        "eye cornea must straddle the recessed orbital surface, not float outside");
     Require(face::Rows[7].front > face::Rows[4].front, "muzzle projects beyond orbital plane");
     namespace tail = island::MonkeyTailProfile;
     const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.70f,-.91f},

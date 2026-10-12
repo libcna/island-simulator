@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — monkey orbital relief and restrained socket ambient shading
+
+MonkeyFaceProfile adds compact bilateral orbit/brow/nose/cheek relief to existing
+face grid; perimeter/head envelope retained. Eye centre Z .645→.635 seats eyes in
+new sockets. Reserved negative skin V encodes0.8..1 ambient retention; shader affects
+ambient only, ordinary positive fur UV/direct sun/specular unchanged. No extra mesh/
+draw/texture/attribute/uniform,14bones/92vectors unchanged. Full41/41 CPU PASS56.96s.
+Native20261012T003001.503299Z-monkeys PASS/full image+enlarged comparison viewed/kernel[].
+Comparison uses prior Web/current native and differing poses, not pixel equivalence.
+Android003122.519072Z-monkeys actual SwiftShader PASS/image viewed/parent passed/kernel[].
+Archive build/android-software/island-monkey-orbits-x86_64.apk SHA256
+61502971ca76ad607c78ddf578bfc06534de5218042b1baf3c841456c45de34a.
+x86_64/restored ARM64 build/lint PASS3s each, asset audit84sources/12project/0external.
+Modest visible orbital shading, still simplified face. Eyelids/skin-fur boundary/ears/
+limb transitions and continuous gait/climb remain OPEN. Latest Web runtime pending.
+No hardware/KVM/dependency changes; AMD incident unresolved; overall goal active.
+Web build/package PASS11,358,303raw/4,335,409gzip; all owned jobs terminal. Hardware
+stop latch SHA c0bd1704 unchanged, no push.
+
 ## Latest — actual Web wildlife/foliage audit, current boar appearance verified
 
 After4593dc8, existing serial Chrome SwiftShader scope wildlife-foliage completed:

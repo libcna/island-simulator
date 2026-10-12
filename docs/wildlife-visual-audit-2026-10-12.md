@@ -231,3 +231,42 @@ evidence. No code/build/dependency/emulator/KVM changes were made during this au
 All owned processes terminal; hardware stop latch SHA c0bd1704 unchanged. Current
 boar Web appearance is now actually checked, but visual quality/gait/audio, the full
 species/resident backlog and AMD incident remain open.
+
+## Monkey orbital relief follow-up
+
+`MonkeyFaceProfile` now sculpts bilateral recessed orbits, raised brow arcs, a nasal
+bridge and cheek relief into the existing connected face grid. Compact smooth bumps
+fade to zero at their limits and are multiplied by the transverse arc, retaining
+the fur-joining perimeter and existing head envelope. The eye centres move10mm back
+to remain seated in the recessed surface rather than floating ahead of it.
+
+Because the inspected face is largely in shade, the skin vertices also carry bounded
+0.8..1 ambient retention in the eye sockets, encoded by reserved negative V values.
+The existing skinning shader applies this only to ambient light; direct sun/specular
+are unchanged. Ordinary fur UVs remain positive and unaffected. This is an authored
+local-occlusion approximation, not dynamic self-shadowing. No additional triangles,
+draws, textures, vertex attributes or uniforms; existing14bones/92uniform-vector
+budget, animations, population and camera remain unchanged.
+
+CPU tests verify bilateral bounded relief/ambient retention, brow/orbit/nasal shape,
+the authored envelope, approximate orbital eye seating and both shader dialect
+contracts. Eye seating uses interpolation of the sampled profile, not an exhaustive
+triangle/eyeball intersection proof. Full41/41 non-display tests PASS56.96s.
+Actual native `20261012T003001.503299Z-monkeys` PASS, complete image and enlarged
+comparison actually inspected, kernel-after[]. Comparison
+`build/monkey-face-relief-comparison.png` uses the previous Web image and current
+native image; poses/backends differ, so it is not a pixel-equivalence test.
+The brow/orbital shading is now faintly readable, but the change is modest at the
+ordinary inspection distance. The face is still simplified; eyelid detail, cheek/fur
+boundary, ears and limb transitions remain open, as do continuous walking/climbing
+and the full species/resident/audio backlog. No AMD qualification or fix is claimed.
+Actual Android SwiftShader `20261012T003122.519072Z-monkeys` PASS; complete screenshot
+actually inspected, parent passed/kernel-final[]. It renders the current orbital
+profile and skinning shader, but does not establish natural motion or climbing.
+Archived `build/android-software/island-monkey-orbits-x86_64.apk`, SHA256
+`61502971ca76ad607c78ddf578bfc06534de5218042b1baf3c841456c45de34a`.
+x86_64 and restored default ARM64 build/lint both PASS3s. Asset audit PASS84sources/
+12project files/0external. No Android/KVM/dependency configuration changes.
+Web build/package PASS11,358,303raw/4,335,409gzip bytes; actual Web runtime of this
+latest shader/profile remains pending. All owned jobs terminal, hardware stop latch
+unchanged. Local-only work, no push.

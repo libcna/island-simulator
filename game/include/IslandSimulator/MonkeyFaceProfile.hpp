@@ -13,12 +13,33 @@ namespace island::MonkeyFaceProfile
         {.762f,.059f,.687f}, {.746f,.033f,.650f}, {.736f,.005f,.592f}
     }};
     struct Point { float x,y,z; };
+    inline constexpr float EyeCentreZ=.635f;
+    inline float Bump(float value,float centre,float radius)
+    {
+        const float t=(value-centre)/radius;
+        if(std::abs(t)>=1) return 0;
+        const float q=1-t*t;return q*q;
+    }
+    inline float Orbit(float x,float y)
+    {
+        return Bump(std::abs(x),.052f,.035f)*Bump(y,.865f,.040f);
+    }
+    inline float Relief(float x,float y)
+    {
+        return -.008f*Orbit(x,y)
+            +.011f*Bump(std::abs(x),.052f,.050f)*Bump(y,.893f,.025f)
+            +.008f*Bump(x,0,.025f)*Bump(y,.844f,.035f)
+            +.006f*Bump(std::abs(x),.078f,.040f)*Bump(y,.832f,.050f);
+    }
+    // Restrained ambient occlusion in the eye sockets, not a painted sun highlight.
+    inline float AmbientRetention(float x,float y) { return 1-.20f*Orbit(x,y); }
     inline Point Sample(std::size_t row, float across)
     {
         const auto& profile = Rows[row];
         // Rounded transverse sections, with narrower skin joining the hairy cheeks.
         const float arc = std::cos(across * 1.57079632679f);
-        return {profile.halfWidth * std::sin(across * 1.57079632679f), profile.y,
-                .55f + (profile.front - .55f) * arc};
+        const float x=profile.halfWidth * std::sin(across * 1.57079632679f);
+        return {x, profile.y,
+                .55f + (profile.front - .55f) * arc + Relief(x,profile.y)*arc};
     }
 }

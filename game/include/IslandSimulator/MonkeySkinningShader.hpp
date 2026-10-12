@@ -52,7 +52,9 @@ void main() {
     float specular = pow(max(dot(halfDirection, normal), 0.0) * step(0.0, sunDot),
                          uSpecularPower);
     // Same one-light Gouraud material as the authored stock effect, white texture and alpha 1.
-    vDiffuse = clamp(uDiffuse * (vec3(0.47, 0.50, 0.42)
+    // Negative V is reserved for untextured face skin; ordinary fur UVs are positive.
+    float faceAmbient = aTexCoord.y < 0.0 ? clamp(-aTexCoord.y, 0.8, 1.0) : 1.0;
+    vDiffuse = clamp(uDiffuse * (vec3(0.47, 0.50, 0.42) * faceAmbient
                      + vec3(0.78, 0.74, 0.62) * max(sunDot, 0.0)), 0.0, 1.0);
     vSpecular = clamp(uSpecular * uLightSpecular * specular, 0.0, 1.0);
     float depth = -(uView * world).z;
