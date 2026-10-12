@@ -4,6 +4,34 @@ Status: **12 ground spiders are now integrated in IslandGame. Webs are still abs
 The first actual native software image was inspected, but its generic image-contrast
 gate failed. Natural motion, visual realism and portable qualification remain open.
 
+## World-space web site proposals — not live or foliage-qualified
+
+`SpiderWebLayout::Propose` selects at most six three-branch frames from existing
+canopy instances. Deterministic hashed tree ordering avoids the initial sequential
+selection's concentration on one side of the island. Sites retain the actual branch,
+triangle and barycentric attachment identities. `Sample` applies matching local wind,
+instance scale/yaw and the same rendered-terrain grounding as JungleRenderer.
+
+Candidate frames are bounded to 0.08–1.5 square metres and 0.3–2.5 metre edges,
+with centres at least two metres above rendered ground and twelve metres apart.
+Interior sample points exclude the trunk envelope and coarse foliage-core ellipsoids
+at three wind times. This is NOT individual-leaf, other-branch or neighbouring-plant
+intersection qualification, nor continuous-wind clearance. No vegetation is removed
+and no unsafe fallback forces the requested count.
+
+The default world proposes six trees: 1, 229, 138, 23, 184 and 189. Regression tests
+verify repeatability, distinct supports, spacing/height, finite area/span bounds over
+twenty wind times, independent barycentric reconstruction and inverse instance
+transforms, actual anchor motion and four invalid-input cases. Focused test passes
+0.36s; inclusive native build and all 54 CPU groups pass, 89.68s
+(`build/web-layout-final-build.log`, `build/web-layout-full-tests.log`).
+
+This API is not yet consumed by IslandGame or WorldReport. There are still no visible
+webs, new web occupants or web rendering costs. No renderer was launched for this
+proposal-only step, and no Web/Android runtime qualification is claimed. Next: bounded
+strand geometry and stronger clearance checks, then live rendering/occupants and
+actual close/moving-camera inspection. The proposals alone do not complete webs.
+
 ## Web attachment foundation — no live webs yet
 
 CanopyBranchProfile.hpp/.cpp now exposes the actual seven bent support branches

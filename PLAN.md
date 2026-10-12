@@ -856,6 +856,15 @@ progress or require player interaction; dangerous species keep their distance li
   Actual054755.576838Z-jungle overviewinspected/PASS/kernel[]; NOTlivewebacceptance.
   Websremainabsent; noWeb/Androidbuild/runtimeforthisfoundation.
   Inclusive53CPUgroups PASS163.64s; branchgeometrychangesstillneedportablequalification.
+  World-space web proposals now select up to six existing canopy instances using
+  deterministic hashed order, actual branch triangles, renderer-matching grounding,
+  scale/yaw and wind. Default trees: 1,229,138,23,184,189; minimum12m separation,
+  centre height>=2m, area0.08–1.5m² and edge0.3–2.5m. Three-time sampled trunk/core
+  exclusions are NOT full leaf/branch/nearby-plant or continuous-wind clearance.
+  No forced count, vegetation removal, live web or web occupant. Twenty-time anchor/
+  transform/size tests plus determinism and four bad inputs pass; full54CPU PASS89.68s.
+  No renderer/Web/Android run for this proposal-only step. Next: bounded strands,
+  stronger clearance, live integration/occupancy and actual moving visual inspection.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

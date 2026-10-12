@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — bounded world-space web site proposals, not live webs
+
+Previous turn answered an ETA question only (no implementation progress). Resumed
+owned build/test handle53872 to authoritative exit0: all54 CPU groups PASS89.68s.
+Current SpiderWebLayout.hpp/.cpp and test/CMake changes complete the previously
+unfinished proposal step. At most six sites, deterministic hash-ranked tree order
+instead of sequential southern concentration; default trees1,229,138,23,184,189.
+Anchors store three distinct actual branch triangles/barycentric coordinates and
+sample shared wind, rendered-terrain grounding, instance scale/yaw/translation.
+Bounds: area0.08–1.5m², edges0.3–2.5m, centre>=2m above terrain, centres>=12m apart.
+Three wind-time interior grids exclude trunk/coarse crown cores only. NOT individual
+leaf/other-branch/nearby-plant or continuous-wind clearance. No forced count/fallback
+and no vegetation removal. Twenty-time world-transform/area/span checks, determinism,
+spacing/height/motion and four invalid cases pass; focused0.36s/full54CPU89.68s.
+Logs build/web-layout-{ranked-tests,final-build,full-tests}.log. Build reused build/
+with shared ccache and -j2. No renderer launched: proposals NOT integrated in game
+or report, websImplemented=false remains correct. No new web population or visuals.
+NEXT bounded strand geometry/stronger clearance, then actual live rendering and
+occupants plus close/moving visual inspection. Full plan remains open, goal active.
+No AMD hardware, Android/KVM/AVD or dependency changes; latch SHA c0bd1704 unchanged.
+Disk check: build8.7G/build-probe430M/android/app/build412M; no artifacts removed.
+No push. ETA given to user250–450 work hours is rough, not a deadline or reduced scope.
+
 ## Latest — actual branch geometry shared for future web attachment
 
 Previousacd23c1nearlegs wasprogress. Added CanopyBranchProfile.hpp/.cpp, consumed by
