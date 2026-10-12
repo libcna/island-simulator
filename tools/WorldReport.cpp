@@ -1,6 +1,7 @@
 #include "IslandSimulator/BirdFlock.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/GoatHerd.hpp"
+#include "IslandSimulator/SpiderColony.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -119,6 +120,7 @@ namespace
         std::optional<island::HutPlacement> hut;
         std::unique_ptr<island::SnakePopulation> snakes;
         std::unique_ptr<island::GoatHerd> goats;
+        std::unique_ptr<island::SpiderColony> spiders;
 
         WorldSnapshot()
         {
@@ -141,6 +143,7 @@ namespace
             // Match runtime ordering: snakes use the complete obstacle set, including the hut.
             snakes=std::make_unique<island::SnakePopulation>(terrain,collisionGrid.Obstacles());
             goats=std::make_unique<island::GoatHerd>(terrain,jungle,collisionGrid.Obstacles());
+            spiders=std::make_unique<island::SpiderColony>(terrain,jungle,collisionGrid.Obstacles());
         }
     };
 
@@ -406,6 +409,23 @@ namespace
             hash.AddSize(snake.body.size());
             for(const auto& point:snake.body) HashPosition(hash,point.x,point.y,point.z);
         }
+        hash.AddSize(world.spiders->Spiders().size());
+        for(std::size_t i=0;i<world.spiders->Spiders().size();++i) {
+            const auto& spider=world.spiders->Spiders()[i];
+            const auto home=world.spiders->Homes()[i];
+            HashPosition(hash,home.x,home.y,home.z);hash.AddSize(home.canopyIndex);
+            HashPosition(hash,spider.x,spider.y,spider.z);
+            hash.AddFloat(spider.heading);hash.AddFloat(spider.speed);hash.AddEnum(spider.behavior);
+            const auto& pose=spider.pose;
+            for(const auto p:{pose.origin,pose.right,pose.up,pose.forward})HashPosition(hash,p.x,p.y,p.z);
+            for(std::size_t leg=0;leg<8;++leg) {
+                const auto p=pose.feet[leg];HashPosition(hash,p.x,p.y,p.z);
+                hash.AddByte(pose.stance[leg]?1:0);
+                const auto& chain=pose.legs[leg];
+                hash.AddByte(chain.reachLimited?1:0);
+                for(const auto joint:{chain.root,chain.hip,chain.knee,chain.foot})HashPosition(hash,joint.x,joint.y,joint.z);
+            }
+        }
         return hash.Value();
     }
 
@@ -506,6 +526,8 @@ namespace
             && world.boars.Boars().size() == island::BoarHerd::BoarCount
             && world.snakes->Snakes().size() == island::SnakePopulation::Count
             && world.goats->Goats().size() == island::GoatHabitat::Count
+            && world.spiders->Spiders().size() == island::SpiderHabitat::GroundCount
+            && world.spiders->Homes().size() == island::SpiderHabitat::GroundCount
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
@@ -663,6 +685,25 @@ namespace
                 && world.goats->IsValidPosition(goatIndex++,goat.x,goat.z);
         }
         bool validHut=world.hut.has_value();
+        {
+            const island::RenderedTerrainSurface surface(world.terrain);
+            for(std::size_t i=0;i<world.spiders->Spiders().size();++i) {
+                const auto& s=world.spiders->Spiders()[i];const auto h=world.spiders->Homes()[i];
+                finiteSpecializedData=finiteSpecializedData
+                    && AllFinite(s.x,s.y,s.z,s.heading,s.speed)
+                    && s.x==h.x&&s.y==h.y&&s.z==h.z
+                    && island::SpiderHabitat::AcceptsPatch(world.terrain,surface,world.jungle,
+                        world.collisionGrid,h.x,h.z,h.canopyIndex);
+                for(std::size_t leg=0;leg<8;++leg) {
+                    const auto foot=s.pose.feet[leg],actual=s.pose.ToWorld(s.pose.legs[leg].foot);
+                    finiteSpecializedData=finiteSpecializedData
+                        && AllFinite(foot.x,foot.y,foot.z)
+                        && s.pose.stance[leg]&&!s.pose.legs[leg].reachLimited
+                        && std::abs(foot.y-surface.Sample(foot.x,foot.z).height-.0001f)<.00002f
+                        && std::hypot(actual.x-foot.x,actual.y-foot.y,actual.z-foot.z)<.00003f;
+                }
+            }
+        }
         if(world.hut) {
             const auto& h=*world.hut;
             validHut=AllFinite(h.x,h.z,h.floorY,h.yawRadians)
@@ -858,6 +899,7 @@ namespace
                << "    \"wildBoars\": " << world.boars.Boars().size() << ",\n"
                << "    \"groundSnakes\": " << world.snakes->Snakes().size() << ",\n"
                << "    \"goats\": " << world.goats->Goats().size() << ",\n"
+               << "    \"groundSpiders\": " << world.spiders->Spiders().size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
@@ -890,7 +932,45 @@ namespace
                    << "],\"headingRadians\":" << goat.heading << ",\"scale\":" << goat.scale << '}'
                    << (i+1<goats.size()?",":"") << '\n';
         }
-        output << "    ]\n  }\n}\n";
+        output << R"json(    ]
+  },
+  "groundSpiderPopulation": {
+    "snapshot": "initial",
+    "websImplemented": false,
+    "spiders": [
+)json";
+        output << std::setprecision(7); // Submillimetre appendages need more than four decimals.
+        const auto writePoint=[&output](island::SpiderPoint p) {
+            output << '[' << p.x << ',' << p.y << ',' << p.z << ']';
+        };
+        const auto spiders=world.spiders->Spiders();
+        for(std::size_t i=0;i<spiders.size();++i) {
+            const auto& s=spiders[i];const auto home=world.spiders->Homes()[i];
+            output << R"({"position":)";
+            writePoint({s.x,s.y,s.z});
+            output << R"(,"home":)";writePoint({home.x,home.y,home.z});
+            output << R"(,"canopyIndex":)" << home.canopyIndex
+                   << R"(,"headingRadians":)" << s.heading
+                   << R"(,"speed":)" << s.speed
+                   << R"(,"behavior":)" << static_cast<int>(s.behavior) << R"(,"basis":[)";
+            writePoint(s.pose.right);output << ',';writePoint(s.pose.up);output << ',';writePoint(s.pose.forward);
+            output << R"(],"feet":[)";
+            for(std::size_t leg=0;leg<8;++leg) {
+                if(leg)output << ',';
+                output << R"({"position":)";writePoint(s.pose.feet[leg]);
+                output << R"(,"stance":)" << (s.pose.stance[leg]?"true":"false")
+                       << R"(,"reachLimited":)" << (s.pose.legs[leg].reachLimited?"true":"false")
+                       << R"(,"joints":[)";
+                const auto& p=s.pose.legs[leg];
+                writePoint(p.root);output << ',';writePoint(p.hip);output << ',';
+                writePoint(p.knee);output << ',';writePoint(p.foot);output << "]}";
+            }
+            output << "]}" << (i+1<spiders.size()?",":"") << std::endl;
+        }
+        output << R"json(    ]
+  }
+}
+)json";
     }
 }
 

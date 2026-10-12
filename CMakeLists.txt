@@ -344,6 +344,9 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         add_test(NAME IslandPresetCoverageTests
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/PresetCoverageTests.py")
         if(TARGET island_world_report)
+            add_test(NAME IslandWorldSpiderReportTests
+                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/WorldSpiderReportTests.py"
+                    "$<TARGET_FILE:island_world_report>")
             add_test(NAME IslandWorldGoatReportTests
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/WorldGoatReportTests.py"
                     "$<TARGET_FILE:island_world_report>")

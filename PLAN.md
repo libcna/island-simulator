@@ -778,8 +778,13 @@ progress or require player interaction; dangerous species keep their distance li
   camera/HUD/benchmark counts. First actual native llvmpipe image inspected:
   1/12visible/1draw/kernel[], recognizable but dark/smooth, sparse bristles, no contact
   shadows. Outer image gate FAILED contrast/color thresholds; not qualification.
-  No thresholds weakened. WorldReport coverage, motion audit and portable runtime
-  still pending. Current inclusivebuild/51CPU PASS59.58s. Earlier foundation
+  No thresholds weakened. WorldReport now covers12spiders with96worldfootanchors,
+  locallegchains/bodybases/homecanopyindices and explicitwebs=false. Independent actual
+  JSON validator plus11corruptioncases PASS5.15s. Fullinitialstate fingerprint now
+  4c38d1adbddc9c9e (report coverage only, no live placement change).
+  Report-step inclusivebuild/full52CPU PASS64.55s; no display/portable run.
+  Motion audit and portable runtime still pending. Earlier live-integration
+  inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current
   absence claims. CPU ground placement foundation
   now proposes12 deterministic forest homes,16bounded candidates per existing canopy,

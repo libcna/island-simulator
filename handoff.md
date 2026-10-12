@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — live spider WorldReport coverage, visual/motion work remains open
+
+Previous turn was progress (12groundspiders live+actualfailedcontrastcapture).
+WorldReport now constructs same SpiderColony afterfullgrid/hut. wildlife.groundSpiders=12;
+groundSpiderPopulation initial snapshot contains positions/homes/canopyindices,
+heading/speed/behavior enum,3basisvectors,8worldfootanchors/stance/reachflags and
+fourlocaljoints perleg. Seven decimalplaces onlyinnewspidersection. websImplemented=false.
+Validity rechecks accepted habitats/homeposition, finite state, stance/reach/contact
+and worldreconstruction. Fingerprint adds entireinitialspiderstate/home/basis/feet/
+chains: reference4c38d1adbddc9c9e replaces0a98cb638125508f. NOliveplacement/model/motion
+change. Actual report build/spider-world-report.json valid; all othercountpins retained.
+
+Independent tests/WorldSpiderReportTests.py runsrealreport, checks12homes96feet,
+spacing/canopyindices/orthonormalbasis/18,50,65mmbones/reconstructedanchors and11bad
+cases(count,missing,nonfinite,overlap,falsewebclaim,missingfoot,anchor,bone,basis,stance,
+canopy). FocusedPASS5.15s; inclusivebuild+52CPU PASS64.55s.
+Logs build/spider-report-{build,tests}.log. Ownedhandles92785build/55244focused/
+72856report/33965full allterminal0. No new GPU/display/Web/Androidbuild/run.
+AMDlatchSHA c0bd1704 unchanged; nohardware/KVM/emulator/dependencychange.
+Goalactive/nopush, fullremainingbacklog/highpriorityAMDflightrootcause retained.
+
+NEXT: deterministicmulti-stageactualspidermotionview and actualimageinspection,
+bodymaterial/hairs/contactshadowrefinement, carefuldarksmallanimalcaptureacceptance.
+Prior043243.618050Z-spiders remainsFAILEDimagegate, notretroactivelyqualified.
+ThenWeb/Android. Webhabitats/pavučiny stillABSENT/required; other14species/resident/
+environment/goatrefinementetcstayopen. Do not stop afterreporting or callwholegoal done.
+
 ## Latest —12 ground spiders LIVE, first actual native view inspected but image gate FAILED
 
 Previous turn was progress (CPUcolony). IslandGame now owns SpiderColony after full

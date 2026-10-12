@@ -14,8 +14,7 @@ sphere surrounds each body. Capacity120000 VertexPositionColor vertices (1,920,0
 GPU bytes plus the same reserved CPU staging payload), with population/upload guards.
 No custom shader, texture or special GPU feature. No spider contact-shadow pass yet.
 Visible counts appear in the HUD and benchmark; draw totals include the batch.
-WorldReport population/fingerprint coverage is still pending: its old fingerprint
-does NOT describe this newly added live population.
+WorldReport now covers this live population (see the reporting section below).
 
 The spiders viewpoint targets the first normal habitat with a low close camera
 (.36,.28,.45m offset,0.5rad FOV) and follows its translation. It is inside the normal
@@ -37,9 +36,34 @@ capture precedes the subsequent HUD/help/benchmark-count-only edits.
 Current inclusive native build and51/51 CPU groups pass59.58s, logs
 build/spider-live-current-{build,tests}.log. No Web/Android build or run in this step.
 
-Next: world-report coverage, multi-stage actual motion views, surface/hair/contact
+Next: multi-stage actual motion views, surface/hair/contact
 refinement and explicit review of shaded small-animal capture acceptance; then actual
 Web/Android qualification. Plant-attached webs are still a separate required task.
+
+## Population reporting
+
+WorldReport constructs the same SpiderColony after the full obstacle grid/hut.
+wildlife.groundSpiders reports12; groundSpiderPopulation exports initial positions,
+homes with canopy indices, heading/speed/behavior, orthonormal body basis and all eight
+world foot anchors, stance/reach-limit flags and local root/hip/knee/foot chains.
+This section uses seven decimal places to preserve submillimetre appendage data.
+websImplemented:false explicitly keeps missing web habitats visible.
+
+The world validity pass rechecks actual habitat acceptance, finite state, home
+agreement, grounded stance endpoints and reconstructed mesh endpoints. The fingerprint
+now includes homes, body state/basis and complete initial foot/leg state. Host reference
+fingerprint4c38d1adbddc9c9e replaces0a98cb638125508f due to this added coverage, not a
+placement/simulation/mesh change. Saved actual output: build/spider-world-report.json.
+
+WorldSpiderReportTests.py independently parses real generated JSON, verifies count,
+home spacing, canopy references, finite orthonormal basis, eight distinct feet and
+fixed18/50/65mm chain lengths, then reconstructs world feet from the exported transform.
+Eleven corrupted cases exercise wrong count, missing spider, nonfinite heading,
+overlapping homes, a false claim of implemented webs, missing foot, displaced anchor,
+stretched bone, invalid basis, missing stance and invalid canopy index. Focused test
+passes5.15s. This is initial-state reporting coverage, not a terrain/visual/motion oracle.
+Inclusive native build and52/52 CPU tests pass64.55s, logs
+build/spider-report-{build,tests}.log. No display/portable build or run for this report step.
 
 ## Ground colony simulation
 
