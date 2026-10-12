@@ -1,5 +1,20 @@
 # Performance Measurement
 
+## Active native regression — 2026-10-12
+
+The current user-visible issue is not closed. A retained Radeon 780M interactive log measured
+about 21 submitted FPS before flight and about 10 FPS during flight with the former full/4x-MSAA
+profile. The first corrective pass preserves content and populations but introduces a Linux-native
+performance profile: 72m grass, 55% palm/jungle distance, 50% contact-shadow distance, 70%
+wildlife distance, a 96x96 ocean grid and no MSAA. It also removes snake-driven grass vertex
+deformation, staggers reduced-tier snake updates, and avoids distant snake shadow-cache rebuilds.
+
+An isolated llvmpipe overview capture reduced first-draw submission from 311.281ms for the last
+same-world full-profile capture to 200.735ms for the new profile; visible grass was correctly zero
+from the high overview, and visible palm/canopy populations fell to 103/46. This is directional
+software evidence, not hardware qualification or sustained frame pacing. Operator retest on the
+Radeon is required before the regression can be marked resolved.
+
 ## Purpose
 
 Performance decisions must use repeatable scene evidence rather than the short-lived F1 FPS

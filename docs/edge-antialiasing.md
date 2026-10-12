@@ -1,5 +1,10 @@
 # Portable geometric-edge antialiasing — 2026-10-09
 
+> Update 2026-10-12: Web still requests 4x and Android still requests 2x. Native Linux now defaults
+> to 0x through the performance-first profile after a severe interactive flight regression. The
+> original evidence below remains historical validation of the 4x path, not the current Linux
+> default.
+
 ## Finding and scope
 
 The grass/canopy geometry has thin diagonal silhouettes, but the game left CNA's

@@ -154,9 +154,11 @@ draw or texture; physical Android GPU cost and native hardware qualification rem
 | Touch UI | Hidden until a touch is observed | Hidden until a touch is observed; the finite-safe interpreter and batched three-dot sensitivity selector share the same compiled path | Premultiplied generated movement/look rings and sensitivity selector are enabled by default and visibly translucent; KVM gates exercise high selection through the aspect-fit viewport, preserve it across hot resume and an app-private cold-process settings reload, select hysteretic running, play a footstep, and cross into swimming, while physical-device feel remains open |
 | Presentation | 1280 by 720 preferred window/logical backbuffer | 1280 by 720 logical backbuffer and canvas with aspect-preserving CSS fit | 1280 by 720 logical backbuffer scaled into a centred 1920 by 1080 region of the fixed landscape/fullscreen 2400 by 1080 surface |
 
-Android now selects one conservative mobile default through the game-owned
-`RuntimeQualityProfile`; Linux and Web select the full profile. The mobile profile reduces only
-distance-dependent work and ocean grid density. It retains all materials, shader layers,
+Android selects one conservative mobile default through the game-owned `RuntimeQualityProfile`;
+Web selects the full profile, and native Linux now selects `native-performance` after a measured
+flight-frame-rate regression. The native profile disables MSAA and more strongly bounds distant
+grass, palm/jungle, shadow, wildlife and ocean-grid work without reducing populations or close
+models. The mobile profile reduces distance-dependent work and ocean grid density. It retains all materials, shader layers,
 wildlife populations, 42-blade near grass, the 143,624-byte generated texture set, and the complete
 six-source soundscape. The exact choice is logged and required by each platform smoke gate.
 

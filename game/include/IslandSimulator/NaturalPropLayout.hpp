@@ -72,6 +72,8 @@ namespace island
         float scale = 1.0f;
         std::uint8_t variant = 0U;
         bool tidePoolLandmark = false;
+        bool turtleTrace = false;
+        bool turtleNest = false;
     };
 
     /** @brief One non-solid fallen palm frond resting near its source grove. */
@@ -105,7 +107,7 @@ namespace island
         static constexpr int LogVariantCount = 3;
         static constexpr int LogCollisionSamples = 7;
         static constexpr int DriftwoodVariantCount = 3;
-        static constexpr int BeachDetailVariantCount = 4;
+        static constexpr int BeachDetailVariantCount = 6;
         static constexpr int FallenFrondVariantCount = 3;
         static constexpr int ReefHabitatVariantCount = 4;
         static constexpr int ReefHabitatSiteCount = 640;
@@ -115,6 +117,8 @@ namespace island
         static constexpr int AuthoredCoveDriftwoodCount = 3;
         static constexpr int WindSortedBayDriftwoodCount = 10;
         static constexpr int WindSortedBayDetailCount = 24;
+        static constexpr int TurtleNestingTrackCount = 2;
+        static constexpr int TurtleTrackSegmentsPerNest = 7;
         static constexpr float AuthoredCoveAngle = -2.35f;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;

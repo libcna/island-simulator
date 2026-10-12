@@ -39,7 +39,8 @@ namespace island
     public:
         JungleRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
                        const IslandTerrain& terrain, const JungleLayout& layout,
-                       CanopyLighting& canopyLighting, RenderedTerrainHeightMap& terrainHeightMap);
+                       CanopyLighting& canopyLighting, RenderedTerrainHeightMap& terrainHeightMap,
+                       float maximumDistanceScale = 1.0f);
         ~JungleRenderer();
 
         JungleRenderer(const JungleRenderer&) = delete;
@@ -179,6 +180,7 @@ namespace island
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
+        float maximumDistanceScale_ = 1.0f;
         int totalCanopyCount_ = 0;
         int totalUnderstoryCount_ = 0;
         int totalBushCount_ = 0;

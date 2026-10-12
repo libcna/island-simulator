@@ -435,7 +435,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"stream", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"stream", "turtle-nest", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -516,7 +516,7 @@ def main():
                     if not Path(str(capture)+f".spider-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing spider motion stage image")
             validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
-            validate_antialiasing_log(diagnostics, 4)
+            validate_antialiasing_log(diagnostics, 0)
             if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("packaged live-leaf material is missing; check assets and executable")
             if "forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows" not in diagnostics:
@@ -536,6 +536,11 @@ def main():
                     raise RuntimeError("mangrove colony population/form diagnostic missing")
                 if "mangrove QA target exposes stilt roots and low crown" not in diagnostics:
                     raise RuntimeError("mangrove detail camera did not select its target")
+            if args.viewpoint == "turtle-nest":
+                if "two turtle nesting traces use paired flipper tracks and disturbed dry-sand nests" not in diagnostics:
+                    raise RuntimeError("turtle nesting trace geometry is missing")
+                if "turtle-nest QA camera follows paired tracks from disturbed dry sand toward the sea" not in diagnostics:
+                    raise RuntimeError("turtle nesting trace camera did not select its target")
             if args.viewpoint == "reef-habitat":
                 if "spatial reef uses branching, rounded, plate coral and underwater-rock LOD forms" not in diagnostics:
                     raise RuntimeError("spatial reef form diagnostic missing")

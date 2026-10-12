@@ -890,7 +890,7 @@ try {
     && result.exitCode === 0
     && result.output?.includes("island-simulator: renderer WEBGL2")
     && result.output?.includes(
-      "island-simulator: quality profile full grass 135m shadows 100% wildlife 100% ocean 160x160 textures 9130456/9150672 bytes audio 6/6 sources")
+      "island-simulator: quality profile full grass 135m vegetation 100% shadows 100% wildlife 100% ocean 160x160 textures 9130456/9150672 bytes audio 6/6 sources")
     && result.output?.includes("forest-floor material loaded Content/terrain/forest-floor.png; 512x512, 10 mips, 1398100 RGBA8 bytes; interior windows")
     && result.output?.includes("leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes")
     && result.output?.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")

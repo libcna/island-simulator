@@ -59,6 +59,34 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
+## Highest priority — native frame-rate regression
+
+This item is `[~]` and is not solved until the operator verifies the rebuilt binary on the Radeon
+780M. The retained interactive log shows 339 submitted frames in 15.95s before flight (about
+21 FPS) and 143 frames in 13.83s during flight (about 10 FPS), despite an idle host. The renderer
+was real AMD hardware, not llvmpipe, using the former full profile with 4x MSAA.
+
+The first corrective pass removes the unrequested per-grass-vertex search through animated snake
+segments, staggers reduced-tier snake simulation, and stops distant snake motion from rebuilding
+the shared contact-shadow batch. A new native-performance profile keeps all populations and close
+models but uses a 72m grass cutoff, 55% palm/jungle range, 50% shadow range, 70% wildlife range,
+a 96x96 ocean grid and single-sample rendering. Web keeps the full profile and Android keeps its
+mobile profile. The elevated llvmpipe overview first draw fell from 311.281ms to 200.735ms while
+rendering the expanded current world; this is directional evidence, not an AMD frame-rate claim.
+Core, snake, software-supervisor tests and native jungle/overview captures pass. Await an operator
+hardware retest before closing or relaxing this profile.
+
+## Latest implementation — turtle nesting traces
+
+Ecosystem item 14 is now `[~]`. One suitable western dry beach contains two deterministic approach
+traces, each with seven paired flipper sweeps and one disturbed-sand nest. They reuse the existing
+beach-detail batch, add no collision or simulation, and preserve turtle behavior/population.
+Core placement/count/support tests and isolated llvmpipe capture
+`20261012T155227.429400Z-turtle-nest` pass; the inspected image reads as a stylized route from nest
+to water. Current authoritative world fingerprint is `b35db8900977389a`; the layout contains 233
+beach-detail instances including the 16 trace/nest marks. More organic silhouettes plus Web/Android
+review remain.
+
 ## Latest implementation — positional stream audio and wet local mix
 
 Ecosystem item 12 is now `[~]`. One original deterministic thirteen-second flowing-water

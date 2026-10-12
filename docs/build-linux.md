@@ -163,9 +163,11 @@ it from that unrelated working directory on a private Weston/Xwayland display, s
 `OPENGL33`, compiled every current scene shader, rendered four overview frames, and exited cleanly.
 Its first-draw report was 497.137 ms total. This validates relocation and first rendering, not
 compatibility with every Linux distribution or GPU driver.
-The current settings-enabled package repeated this extraction/launch gate, required the full Linux
+The historical settings-enabled package repeated this extraction/launch gate, required the then-current full Linux
 profile, retained the 25,921-vertex/51,200-triangle ocean, and completed first draw in 1058.594 ms
 total. This one-run value is functional evidence, not a startup-performance regression claim.
+Native development builds now default to the documented `native-performance` profile; Web retains
+the full profile. Release relocation must be requalified after the current FPS repair is committed.
 The later shipwreck package repeated the unrelated-working-directory gate with
 `--viewpoint shipwreck`, selected `OPENGL33`, rendered four frames with the landmark visible, and
 exited cleanly in approximately 400 ms total.

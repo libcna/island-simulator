@@ -321,10 +321,25 @@ namespace island
         }
 
         if(!rebuild) {
-            std::size_t i=0;
-            for(const auto& snake:snakes) for(const auto& p:snake.body) {
-                if(Vector3::DistanceSquared(Vector3(p.x,p.y,p.z),cachedSnakePoints_[i++])>0.000064f)
-                    rebuild=true;
+            const float snakeShadowDistance = monkeyMaximumDistance_ * (60.0f / 105.0f);
+            const float snakeShadowDistanceSquared = snakeShadowDistance * snakeShadowDistance;
+            for(std::size_t snakeIndex=0;snakeIndex<snakes.size()&&!rebuild;++snakeIndex) {
+                const auto& snake=snakes[snakeIndex];
+                const std::size_t first=snakeIndex*SnakeState::StationCount;
+                const auto head=snake.body.front();
+                const Vector3 currentHead(head.x,head.y,head.z);
+                const Vector3& oldHead=cachedSnakePoints_[first];
+                if(Vector3::DistanceSquared(cameraPosition,currentHead)>snakeShadowDistanceSquared
+                    &&Vector3::DistanceSquared(cameraPosition,oldHead)>snakeShadowDistanceSquared)
+                    continue;
+                for(std::size_t pointIndex=0;pointIndex<SnakeState::StationCount;++pointIndex) {
+                    const auto p=snake.body[pointIndex];
+                    if(Vector3::DistanceSquared(Vector3(p.x,p.y,p.z),
+                        cachedSnakePoints_[first+pointIndex])>0.000064f) {
+                        rebuild=true;
+                        break;
+                    }
+                }
             }
         }
         if(!rebuild) {

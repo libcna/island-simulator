@@ -398,14 +398,22 @@ int main()
         island::RuntimeQualityProfile::Full();
     constexpr island::RuntimeQualityProfile mobileQuality =
         island::RuntimeQualityProfile::Mobile();
-    Check(fullQuality.IsValid() && mobileQuality.IsValid(),
+    constexpr island::RuntimeQualityProfile nativeQuality =
+        island::RuntimeQualityProfile::NativePerformance();
+    Check(fullQuality.IsValid() && mobileQuality.IsValid() && nativeQuality.IsValid(),
           "runtime quality profiles expose valid renderer settings");
-    Check(fullQuality.name == "full" && mobileQuality.name == "mobile",
+    Check(fullQuality.name == "full" && mobileQuality.name == "mobile"
+              && nativeQuality.name == "native-performance",
           "runtime quality profiles retain stable diagnostic names");
     CheckNear(fullQuality.grassMaximumDistance, 135.0f, 0.0f,
               "full quality retains the authored grass distance");
     CheckNear(mobileQuality.grassMaximumDistance, 112.0f, 0.0f,
               "mobile quality reduces only distant grass work");
+    CheckNear(nativeQuality.grassMaximumDistance, 72.0f, 0.0f,
+              "native performance quality strongly bounds distant grass work");
+    Check(nativeQuality.vegetationMaximumDistanceScale
+              < mobileQuality.vegetationMaximumDistanceScale,
+          "native performance quality bounds elevated-view vegetation");
     Check(mobileQuality.contactShadowDistanceScale < fullQuality.contactShadowDistanceScale
               && mobileQuality.wildlifeMaximumDistanceScale
                   < fullQuality.wildlifeMaximumDistanceScale,
@@ -419,6 +427,9 @@ int main()
           "mobile quality preserves the bounded full soundscape");
     Check(fullQuality.preferredBackBufferSamples == 4 && mobileQuality.preferredBackBufferSamples == 2,
           "portable antialiasing requests bound full and mobile sample counts");
+    Check(nativeQuality.preferredBackBufferSamples == 0
+              && nativeQuality.oceanQuadsPerAxis == 96,
+          "native performance quality removes multisampling and reduces the ocean grid");
     for (const int samples : {-1, 1, 3, 8, 1024}) {
         auto invalid = fullQuality;
         invalid.preferredBackBufferSamples = samples;
@@ -5345,6 +5356,8 @@ int main()
     std::size_t shelteredBayWrackDetailCount=0U,mangroveMouthWrackDetailCount=0U;
     std::size_t tidePoolShellDetailCount=0U;
     std::size_t shelteredBeachDetailCount=0U,exposedBeachDetailCount=0U;
+    std::size_t turtleTrackMarkCount=0U,turtleNestCount=0U;
+    std::vector<std::array<float,2>> turtleNestPositions;
     for (std::size_t index = 0; index < props.BeachDetails().size(); ++index) {
         const island::BeachDetailPlacement& detail = props.BeachDetails()[index];
         const island::BeachDetailPlacement& repeated = repeatedProps.BeachDetails()[index];
@@ -5353,7 +5366,9 @@ int main()
                   && detail.z == repeated.z
                   && detail.yawRadians == repeated.yawRadians
                   && detail.scale == repeated.scale && detail.variant == repeated.variant
-                  && detail.tidePoolLandmark == repeated.tidePoolLandmark,
+                  && detail.tidePoolLandmark == repeated.tidePoolLandmark
+                  && detail.turtleTrace == repeated.turtleTrace
+                  && detail.turtleNest == repeated.turtleNest,
               "shell/pebble/wrack placement is bitwise deterministic for one seed");
         if (detail.tidePoolLandmark) {
             ++tidePoolShellDetailCount;
@@ -5361,6 +5376,22 @@ int main()
                     && sample.signedShoreDistance<=40.0f
                     && sample.coastalRockiness>.50f && detail.variant<3U,
                 "tide-pool shell accents remain on rocky rims and never use wrack");
+        } else if (detail.turtleTrace) {
+            Check(sample.signedShoreDistance >= 3.0f
+                      && sample.signedShoreDistance <= 18.0f
+                      && sample.height >= 0.22f
+                      && sample.slopeRadians <= 0.20943951f
+                      && detail.x < -100.0f,
+                  "turtle nesting traces stay on one dry low-slope western beach");
+            Check((detail.turtleNest && detail.variant == 5U)
+                      || (!detail.turtleNest && detail.variant == 4U),
+                  "turtle trace kind selects its dedicated track or nest silhouette");
+            if (detail.turtleNest) {
+                ++turtleNestCount;
+                turtleNestPositions.push_back({detail.x,detail.z});
+            } else {
+                ++turtleTrackMarkCount;
+            }
         } else {
             Check(sample.signedShoreDistance >= 3.0f
                       && sample.signedShoreDistance <= 18.0f,
@@ -5368,7 +5399,8 @@ int main()
             Check(sample.height >= 0.22f && sample.slopeRadians <= 0.2617994f,
                   "shell/pebble/wrack clusters stay on dry low-slope support");
         }
-        CheckNear(detail.y, sample.height + 0.012f, 0.0001f,
+        CheckNear(detail.y, sample.height + (detail.turtleTrace ? 0.008f : 0.012f),
+                  0.0001f,
                   "shell/pebble/wrack clusters rest just above authoritative terrain");
         Check(!island::VegetationLayout::IsReservedRoute(detail.x, detail.z),
               "shell/pebble/wrack clusters keep authored routes and spawn clear");
@@ -5379,18 +5411,18 @@ int main()
         }
         const auto experience=island::IslandEnvironmentField::SampleCoastalExperience(
             detail.x,detail.z,sample.signedShoreDistance);
-        if (experience.broadBeach>.50f) {
+        if (!detail.turtleTrace && experience.broadBeach>.50f) {
             if (detail.variant==3U) ++broadBeachWrackDetailCount;
             else ++broadBeachShellDetailCount;
         }
-        if (experience.shelteredBay>.50f && detail.variant==3U)
+        if (!detail.turtleTrace && experience.shelteredBay>.50f && detail.variant==3U)
             ++shelteredBayWrackDetailCount;
-        if (experience.mangroveMouth>.35f && detail.variant==3U)
+        if (!detail.turtleTrace && experience.mangroveMouth>.35f && detail.variant==3U)
             ++mangroveMouthWrackDetailCount;
-        if (!detail.tidePoolLandmark
+        if (!detail.tidePoolLandmark && !detail.turtleTrace
                 && std::max(experience.shelteredBay,experience.mangroveMouth)>.35f)
             ++shelteredBeachDetailCount;
-        if (!detail.tidePoolLandmark && experience.rockyShore>.35f)
+        if (!detail.tidePoolLandmark && !detail.turtleTrace && experience.rockyShore>.35f)
             ++exposedBeachDetailCount;
         Check(detail.scale >= island::NaturalPropLayout::BeachDetailMinimumScale
                   && detail.scale <= island::NaturalPropLayout::BeachDetailMaximumScale,
@@ -5398,7 +5430,17 @@ int main()
     }
     Check(std::ranges::all_of(observedBeachDetailVariants,
                               [](const bool value) { return value; }),
-          "shell/pebble/wrack population exercises all four mesh variants");
+          "beach detail population exercises shell, wrack, track and nest variants");
+    Check(turtleTrackMarkCount == static_cast<std::size_t>(
+              island::NaturalPropLayout::TurtleNestingTrackCount
+                  * island::NaturalPropLayout::TurtleTrackSegmentsPerNest)
+              && turtleNestCount
+                  == static_cast<std::size_t>(island::NaturalPropLayout::TurtleNestingTrackCount),
+          "one western nesting beach has two complete turtle approaches and nests");
+    Check(turtleNestPositions.size()==2U
+              && std::hypot(turtleNestPositions[0][0]-turtleNestPositions[1][0],
+                            turtleNestPositions[0][1]-turtleNestPositions[1][1])>=18.0f,
+          "the two subtle turtle nests remain separately readable on the same beach");
     std::cout << "Coastal identity props rocky/south-shell/south-wrack/bay-wrack/mouth-wrack: "
         << rockyShoreRockCount << '/' << broadBeachShellDetailCount << '/'
         << broadBeachWrackDetailCount << '/' << shelteredBayWrackDetailCount << '/'

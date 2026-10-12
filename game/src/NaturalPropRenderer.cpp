@@ -1009,6 +1009,73 @@ void main()
             PropGeometry geometry;
             geometry.vertices.reserve(64U);
             geometry.indices.reserve(168U);
+            const auto appendFlatQuad = [&geometry](const float minimumX,
+                                                    const float minimumZ,
+                                                    const float maximumX,
+                                                    const float maximumZ,
+                                                    const float skew,
+                                                    const Color& color) {
+                const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                geometry.vertices.emplace_back(
+                    Vector3(minimumX - skew, 0.008f, minimumZ), color);
+                geometry.vertices.emplace_back(
+                    Vector3(maximumX - skew, 0.008f, minimumZ), color);
+                geometry.vertices.emplace_back(
+                    Vector3(minimumX + skew, 0.008f, maximumZ), color);
+                geometry.vertices.emplace_back(
+                    Vector3(maximumX + skew, 0.008f, maximumZ), color);
+                geometry.indices.insert(geometry.indices.end(),
+                                        {base, static_cast<std::uint16_t>(base + 2U),
+                                         static_cast<std::uint16_t>(base + 1U),
+                                         static_cast<std::uint16_t>(base + 1U),
+                                         static_cast<std::uint16_t>(base + 2U),
+                                         static_cast<std::uint16_t>(base + 3U)});
+            };
+            if (variant == 4) {
+                const Color compressedSand(150, 127, 83, 255);
+                const Color flipperSand(165, 139, 91, 255);
+                appendFlatQuad(-0.045f, -0.70f, 0.045f, 0.70f, 0.0f,
+                               compressedSand);
+                for (int sweep = 0; sweep < 4; ++sweep) {
+                    const float z = -0.56f + static_cast<float>(sweep) * 0.36f;
+                    const float alternate = sweep % 2 == 0 ? 1.0f : -1.0f;
+                    appendFlatQuad(-0.58f, z - 0.055f, -0.16f, z + 0.055f,
+                                   -0.075f * alternate, flipperSand);
+                    appendFlatQuad(0.16f, z - 0.055f, 0.58f, z + 0.055f,
+                                   0.075f * alternate, flipperSand);
+                }
+                return geometry;
+            }
+            if (variant == 5) {
+                constexpr int sides = 14;
+                const Color innerSand(170, 143, 94, 255);
+                const Color outerSand(202, 173, 116, 255);
+                const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const float uneven = 1.0f + 0.08f * std::sin(angle * 5.0f + 0.4f);
+                    geometry.vertices.emplace_back(
+                        Vector3(std::cos(angle) * 0.32f,
+                                0.007f, std::sin(angle) * 0.25f), innerSand);
+                    geometry.vertices.emplace_back(
+                        Vector3(std::cos(angle) * 0.72f * uneven,
+                                0.014f + 0.010f * (side % 3),
+                                std::sin(angle) * 0.57f * uneven), outerSand);
+                }
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto inner = static_cast<std::uint16_t>(base + side * 2);
+                    const auto outer = static_cast<std::uint16_t>(inner + 1U);
+                    const auto innerNext = static_cast<std::uint16_t>(base + next * 2);
+                    const auto outerNext = static_cast<std::uint16_t>(innerNext + 1U);
+                    geometry.indices.insert(geometry.indices.end(),
+                                            {inner, innerNext, outer,
+                                             outer, innerNext, outerNext});
+                }
+                appendFlatQuad(-0.31f, -0.24f, 0.31f, 0.24f, 0.0f, innerSand);
+                return geometry;
+            }
             if (variant == 3) {
                 const std::array<Color, 4> wrackColors = {
                     Color(104, 92, 46, 255),
@@ -1244,7 +1311,9 @@ void main()
                   << layout.StreamBankLogCount() << ", darker existing bark variant\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
                   << " shell/pebble/wrack clusters, near-field culled\n";
-        std::cout << "island-simulator: dry wrack reuses one of four beach-detail variants\n";
+        std::cout << "island-simulator: dry wrack keeps its dedicated beach-detail variant\n";
+        std::cout << "island-simulator: two turtle nesting traces use paired flipper tracks "
+                     "and disturbed dry-sand nests\n";
         std::cout << "island-simulator: prevailing-wind shelter adds "
                   << NaturalPropLayout::WindSortedBayDriftwoodCount << " driftwood and "
                   << NaturalPropLayout::WindSortedBayDetailCount
@@ -1422,7 +1491,7 @@ void main()
                     * Matrix::CreateRotationY(detail.yawRadians)
                     * Matrix::CreateTranslation(detail.x, detail.y, detail.z),
                 detail.variant, detail.x, detail.z});
-            const float radius = detail.scale * 0.58f;
+            const float radius = detail.scale * (detail.turtleTrace ? 0.82f : 0.58f);
             extendBounds(cell,
                          Vector3(detail.x - radius, detail.y - 0.02f,
                                  detail.z - radius),

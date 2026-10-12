@@ -71,6 +71,7 @@ namespace island
             case FixedViewpoint::BayBeachDetail: return "bay-ground";
             case FixedViewpoint::HeadlandDetail: return "headland";
             case FixedViewpoint::TidePoolDetail: return "tide-pools";
+            case FixedViewpoint::TurtleNestDetail: return "turtle-nest";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -240,6 +241,26 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout << "island-simulator: tide-pool QA camera targets rocky basin water\n";
+        } else if (viewpoint_ == FixedViewpoint::TurtleNestDetail) {
+            const auto nest = std::ranges::find_if(
+                naturalPropLayout_.BeachDetails(),
+                [](const BeachDetailPlacement& detail) { return detail.turtleNest; });
+            if (nest == naturalPropLayout_.BeachDetails().end())
+                throw std::runtime_error("Turtle-nest QA camera found no target");
+            const float radialLength = std::hypot(nest->x, nest->z);
+            const Vector3 outward(nest->x / radialLength, 0.0f, nest->z / radialLength);
+            const Vector3 tangent(-outward.Z, 0.0f, outward.X);
+            const float cameraX = nest->x - outward.X * 3.2f + tangent.X * 2.2f;
+            const float cameraZ = nest->z - outward.Z * 3.2f + tangent.Z * 2.2f;
+            cameraPosition_ = Vector3(cameraX, terrain_.Height(cameraX, cameraZ) + 2.4f,
+                                      cameraZ);
+            const Vector3 target = Vector3(nest->x, nest->y, nest->z)
+                + outward * 3.4f + Vector3::Up * 0.05f;
+            const Vector3 direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: turtle-nest QA camera follows paired tracks from "
+                         "disturbed dry sand toward the sea\n";
         } else if (viewpoint_ == FixedViewpoint::BeachPath) {
             constexpr float pathZ = -190.0f;
             const float pathX = VegetationLayout::PrimaryPathCenterX(pathZ);
@@ -1059,7 +1080,9 @@ namespace island
         qualityDiagnostic << "island-simulator: quality profile " << qualityProfile_.name
                           << " grass "
                           << static_cast<int>(qualityProfile_.grassMaximumDistance)
-                          << "m shadows "
+                          << "m vegetation "
+                          << static_cast<int>(qualityProfile_.vegetationMaximumDistanceScale * 100.0f)
+                          << "% shadows "
                           << static_cast<int>(qualityProfile_.contactShadowDistanceScale * 100.0f)
                           << "% wildlife "
                           << static_cast<int>(qualityProfile_.wildlifeMaximumDistanceScale * 100.0f)
@@ -1124,7 +1147,8 @@ namespace island
         auto grassRenderer = std::make_unique<GrassRenderer>(
             device, terrain_, grassLayout_, *canopyLighting, *terrainHeightMap, qualityProfile_.grassMaximumDistance);
         auto jungleRenderer = std::make_unique<JungleRenderer>(device, terrain_, jungleLayout_,
-                                                              *canopyLighting, *terrainHeightMap);
+                                                              *canopyLighting, *terrainHeightMap,
+                                                              qualityProfile_.vegetationMaximumDistanceScale);
         if (canopyLodInspection_) {
             const auto camera = jungleRenderer->SetLodInspection(*canopyLodInspection_);
             if (viewpoint_ == FixedViewpoint::CanopyInspection) {
@@ -1161,7 +1185,8 @@ namespace island
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         shipwreckRenderer_ = std::make_unique<ShipwreckRenderer>(device, shipwreckLayout_);
         if(hutPlacement_) hutRenderer_=std::make_unique<HutRenderer>(device,*hutPlacement_);
-        palmRenderer_ = std::make_unique<PalmRenderer>(device, vegetationLayout_);
+        palmRenderer_ = std::make_unique<PalmRenderer>(
+            device, vegetationLayout_, qualityProfile_.vegetationMaximumDistanceScale);
         oceanRenderer_ = std::make_unique<OceanRenderer>(
             device, terrain_, qualityProfile_.oceanQuadsPerAxis);
         shorelineRenderer_ = std::make_unique<ShorelineRenderer>(device, terrain_);
@@ -2555,8 +2580,7 @@ namespace island
             grassRenderer_->Draw(
                 cameraView_, cameraProjection_, renderCameraPosition_,
                 Vector3(grassPlayer.x, grassPlayer.y, grassPlayer.z),
-                grassInteractionModel_.Strength(), timeSeconds,
-                SnakeGrassContact::Build(snakes_->Snakes(),renderCameraPosition_.X,renderCameraPosition_.Z));
+                grassInteractionModel_.Strength(), timeSeconds);
         }
 
         {

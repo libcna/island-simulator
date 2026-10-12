@@ -30,7 +30,8 @@ namespace island
     {
     public:
         PalmRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
-                     const VegetationLayout& layout);
+                     const VegetationLayout& layout,
+                     float maximumDistanceScale = 1.0f);
         ~PalmRenderer();
 
         PalmRenderer(const PalmRenderer&) = delete;
@@ -99,6 +100,7 @@ namespace island
         std::string fallbackReason_;
         bool instancingSupported_ = false;
         bool customShaderReady_ = false;
+        float maximumDistance_ = 0.0f;
         int totalPalmCount_ = 0;
         int visiblePalmCount_ = 0;
         int visibleNearPalmCount_ = 0;

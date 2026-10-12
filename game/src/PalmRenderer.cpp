@@ -762,9 +762,14 @@ void main()
         return declaration;
     }
 
-    PalmRenderer::PalmRenderer(GraphicsDevice& device, const VegetationLayout& layout)
-        : device_(device)
+    PalmRenderer::PalmRenderer(GraphicsDevice& device, const VegetationLayout& layout,
+                               const float maximumDistanceScale)
+        : device_(device), maximumDistance_(MaximumDistance * maximumDistanceScale)
     {
+        if (!std::isfinite(maximumDistanceScale) || maximumDistanceScale <= 0.0f
+            || maximumDistanceScale > 1.0f) {
+            throw std::invalid_argument("Palm maximum distance scale must be in (0, 1]");
+        }
         instancingSupported_ = device_.SupportsCapability(CNA::GraphicsCapability::Instancing);
         effect_ = std::make_unique<BasicEffect>(device_);
         effect_->setVertexColorEnabledProperty(true);
@@ -1000,7 +1005,7 @@ void main()
             const float deltaX = centre.X - cameraPosition.X;
             const float deltaZ = centre.Z - cameraPosition.Z;
             const float distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
-            if (distanceSquared > MaximumDistance * MaximumDistance) {
+            if (distanceSquared > maximumDistance_ * maximumDistance_) {
                 continue;
             }
             ++visibleCellCount_;

@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Current critical work — native FPS regression
+
+User reported about 8 FPS on an otherwise idle host. Read-only AMD runtime evidence
+`island-runtime-3494639.log` confirms about 21 FPS before flight and about 10 FPS in flight, real
+Radeon 780M/Wayland, former full profile and requested/applied 4x MSAA. Do not claim fixed until
+the user retests. Current corrective pass removes snake-body/grass vertex coupling, staggers
+reduced-tier snake updates, invalidates snake contact shadows only for nearby motion, and makes
+native Linux default to `native-performance` (grass72m, vegetation55%, shadows50%, wildlife70%,
+ocean96x96, MSAA0). All 50 snakes, 200 spiders and requested features remain. Web stays full;
+Android stays mobile. Core, snake and 45 software-runner tests PASS. Isolated llvmpipe jungle and
+overview captures PASS; overview first draw 200.735ms versus 311.281ms at the last same-world full
+capture, but this is directional software evidence only. Builds used CPUs0-3/-j4; no AMD,
+Android or KVM workload was launched.
+
+## Latest implementation — turtle nesting traces
+
+One western dry beach now has 2 deterministic traces, each 7 paired flipper sweep marks ending in
+one disturbed-sand nest. Existing beach-detail renderer/batch, no collision/simulation. Core PASS.
+Inspected llvmpipe `20261012T155227.429400Z-turtle-nest` PASS and visibly links nest to sea; first
+pass remains intentionally stylized under the 100h budget. Dedicated fixed camera/runner included.
+Current world fingerprint `b35db8900977389a`, beach details 233.
+
 ## Latest implementation — bounded bird landing and real perches
 
 Existing shore/canopy birds now use Fly/Approach/Perched/Depart with at most two non-flying;
@@ -62,7 +84,9 @@ The exact requested live populations are now implemented. Fifty snake homes are 
 deterministically on understory margins with >=14m separation; 200 spider homes use the
 existing qualified forest habitat with >=4.5m separation. Spiders now use distance-tiered,
 staggered simulation. GPU work is independently bounded: nearest 16 snakes, 24 spiders,
-and 16 contact shadows per species, with the grass shader still using four snakes.
+and 16 contact shadows per species. The later FPS repair removes snake-driven grass deformation;
+snakes still move, render, hiss and cast nearby shadows without making dense-grass vertices search
+animated body segments.
 WorldReport fingerprint `b0f0ae75a88ce3c3` exports 50/200. Focused population/motion,
 WorldReport validators and portable preflight tests pass 11/11 in 241.75s. Inspected
 llvmpipe `20261012T143710.846753Z-snakes` and `20261012T143753.699776Z-spiders` each

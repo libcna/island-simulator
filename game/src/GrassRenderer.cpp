@@ -238,19 +238,6 @@ void main()
     world.z += sway * grassWindZ;
     world.y -= abs(sway) * grassWindLowering * heightWeight;
 
-    // Press contacted grass below the supported snake belly; preserve planted roots.
-    // Sweep from each blade's planted root to its wind/player-deformed vertex: endpoints
-    // can both miss the snake while the slanted blade between them intersects it.
-    vec2 rootLocal=vec2(aBladeRoot.x*yawCos-aBladeRoot.y*yawSin,
-                       aBladeRoot.x*yawSin+aBladeRoot.y*yawCos);
-    vec3 bladeRoot=aPlacement.xyz+(tangentX*rootLocal.x+tangentZ*rootLocal.y)*aVariation.y*visibility;
-    float snakePressure=snakeGrassPressure(bladeRoot.xz,world.xz);
-    if(snakePressure>0.0) {
-        float floorHeight=grassTerrainHeight(world.xz);
-        float aboveGround=max(0.0,world.y-floorHeight);
-        world.y=floorHeight+mix(aboveGround,min(aboveGround,0.002),snakePressure);
-    }
-
     // Inverse transpose of the rest-shape scale, yaw and terrain basis. Shared mesh normals
     // follow curvature/folds instead of assigning the same artificial tilt to every level.
     // Wind/player deformation of normals is still approximate; positions retain full motion.
@@ -336,13 +323,11 @@ void main()
                 return std::string("#version 300 es\nprecision highp float;\n")
                     + GrassMotion::ShaderConstants()
                     + GrassMaterialShaderConstants()
-                    + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
-                    + (canopy ? "" : SnakeGrassContact::Shader) + body;
+                    + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader) + body;
             }
             return std::string("#version 330 core\n") + GrassMotion::ShaderConstants()
                 + GrassMaterialShaderConstants()
-                + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
-                + (canopy ? "" : SnakeGrassContact::Shader) + body;
+                + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader) + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -910,8 +895,7 @@ void main()
 
     void GrassRenderer::Draw(const Matrix& view, const Matrix& projection,
                              const Vector3& cameraPosition, const Vector3& playerPosition,
-                             const float playerInteractionStrength, const float timeSeconds,
-                             const SnakeGrassContact& snakeContact)
+                             const float playerInteractionStrength, const float timeSeconds)
     {
         visiblePatchCount_ = 0;
         visibleNearPatchCount_ = 0;
@@ -936,13 +920,6 @@ void main()
             canopyLighting_.Bind(*customEffect_);
             terrainHeightMap_.Bind(*customEffect_);
             customEffect_->SetUniformMat4("uViewProjection", viewProjection);
-            customEffect_->SetUniformFloat("uSnakeGrassCount",static_cast<float>(snakeContact.count));
-            customEffect_->SetUniformVec3Array("uSnakeGrassPoints",snakeContact.points.data(),164);
-            for(std::size_t i=0;i<4;++i) {
-                const auto& b=snakeContact.bounds[i];
-                const auto name="uSnakeGrassBounds["+std::to_string(i)+"]";
-                customEffect_->SetUniformVec4(name.c_str(),b[0],b[1],b[2],b[3]);
-            }
             customEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                           cameraPosition.Y, cameraPosition.Z);
             customEffect_->SetUniformVec2("uGrassFadeRange",
@@ -996,9 +973,6 @@ void main()
                 ++mixedLodCellCount_;
             }
             if (customShaderReady_) {
-                const auto mask=snakeContact.CellMask(cell.bounds.Min.X,cell.bounds.Min.Z,
-                                                     cell.bounds.Max.X,cell.bounds.Max.Z);
-                customEffect_->SetUniformVec4("uSnakeGrassCellMask",mask[0],mask[1],mask[2],mask[3]);
                 DrawInstancedMesh(nearMesh_, cell, 0, split.nearCount);
                 DrawInstancedMesh(
                     middleMesh_, cell, split.nearCount, split.middleCount);

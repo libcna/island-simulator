@@ -355,6 +355,21 @@ int main(int argc,char** argv)
     population.Update(0.1f,std::numeric_limits<float>::quiet_NaN(),0,0);
     Check(population.Snakes()[0].tier==island::WildlifeSimulationTier::Dormant,
         "invalid observer activated snake");
+    {
+        island::SnakePopulation reduced(terrain);
+        const auto start = reduced.Snakes()[0].body.front();
+        const float observerX = start.x + 90.0f;
+        for (int frame = 0; frame < 3; ++frame)
+            reduced.Update(0.02f, observerX, start.y, start.z);
+        Check(reduced.Snakes()[0].tier == island::WildlifeSimulationTier::Reduced
+                  && reduced.Snakes()[0].body.front().x == start.x
+                  && reduced.Snakes()[0].body.front().z == start.z,
+              "reduced-tier snake ignored its four-frame update cadence");
+        reduced.Update(0.02f, observerX, start.y, start.z);
+        const auto moved = reduced.Snakes()[0].body.front();
+        Check(std::hypot(moved.x - start.x, moved.z - start.z) > 0.001f,
+              "reduced-tier snake discarded accumulated simulation time");
+    }
     bool refused=false;
     try {
         const std::array<island::CircularObstacle,1> blocked{{{0,0,1000}}};

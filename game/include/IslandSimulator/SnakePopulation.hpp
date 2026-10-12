@@ -54,6 +54,8 @@ namespace island
         std::unique_ptr<RenderedTerrainSurface> surface_;
         std::array<SnakeState, Count> states_{};
         std::array<float, Count> clocks_{};
+        std::array<float, Count> accumulatedSeconds_{};
+        std::uint64_t frameIndex_ = 0;
         // Newest first, >=6 mm between committed samples; bounded independently of dt.
         std::array<std::deque<SnakePoint>, Count> trails_{};
     };

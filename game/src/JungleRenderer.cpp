@@ -1310,9 +1310,16 @@ void main()
 
     JungleRenderer::JungleRenderer(GraphicsDevice& device, const IslandTerrain& terrain,
                                    const JungleLayout& layout,
-                                   CanopyLighting& canopyLighting, RenderedTerrainHeightMap& terrainHeightMap)
-        : device_(device), canopyLighting_(canopyLighting), terrainHeightMap_(terrainHeightMap)
+                                   CanopyLighting& canopyLighting,
+                                   RenderedTerrainHeightMap& terrainHeightMap,
+                                   const float maximumDistanceScale)
+        : device_(device), canopyLighting_(canopyLighting), terrainHeightMap_(terrainHeightMap),
+          maximumDistanceScale_(maximumDistanceScale)
     {
+        if (!std::isfinite(maximumDistanceScale_) || maximumDistanceScale_ <= 0.0f
+            || maximumDistanceScale_ > 1.0f) {
+            throw std::invalid_argument("Jungle maximum distance scale must be in (0, 1]");
+        }
         instancingSupported_ = device_.SupportsCapability(CNA::GraphicsCapability::Instancing);
         fallbackEffect_ = std::make_unique<BasicEffect>(device_);
         fallbackEffect_->setVertexColorEnabledProperty(true);
@@ -1848,6 +1855,10 @@ void main()
 
         int inspectionSubmissions = 0;
         const BoundingFrustum frustum(view * projection);
+        const float canopyMaximumDistance = CanopyMaximumDistance * maximumDistanceScale_;
+        const float understoryMaximumDistance = UnderstoryMaximumDistance * maximumDistanceScale_;
+        const float bushMaximumDistance = BushMaximumDistance * maximumDistanceScale_;
+        const float groundPlantMaximumDistance = GroundPlantMaximumDistance * maximumDistanceScale_;
         for (const JungleCell& cell : cells_) {
             if (!cell.occupied || frustum.Contains(cell.bounds) == ContainmentType::Disjoint) {
                 continue;
@@ -1861,7 +1872,7 @@ void main()
             const float cellDistanceSquared = cellDeltaX * cellDeltaX
                 + cellDeltaZ * cellDeltaZ;
             bool cellVisible = false;
-            if (cellDistanceSquared <= CanopyMaximumDistance * CanopyMaximumDistance) {
+            if (cellDistanceSquared <= canopyMaximumDistance * canopyMaximumDistance) {
                 for (const CanopyInstance& tree : cell.canopy) {
                     const DrawInstance& instance = tree.draw;
                     const float instanceDeltaX = instance.x - cameraPosition.X;
@@ -1869,7 +1880,7 @@ void main()
                     const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
                         + instanceDeltaZ * instanceDeltaZ;
                     if (instanceDistanceSquared
-                        > CanopyMaximumDistance * CanopyMaximumDistance) {
+                        > canopyMaximumDistance * canopyMaximumDistance) {
                         continue;
                     }
                     if (frustum.Contains(tree.bounds) == ContainmentType::Disjoint) {
@@ -1897,14 +1908,14 @@ void main()
                     cellVisible = true;
                 }
             }
-            if (cellDistanceSquared <= UnderstoryMaximumDistance * UnderstoryMaximumDistance) {
+            if (cellDistanceSquared <= understoryMaximumDistance * understoryMaximumDistance) {
                 for (const DrawInstance& instance : cell.understory) {
                     const float instanceDeltaX = instance.x - cameraPosition.X;
                     const float instanceDeltaZ = instance.z - cameraPosition.Z;
                     const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
                         + instanceDeltaZ * instanceDeltaZ;
                     if (instanceDistanceSquared
-                        > UnderstoryMaximumDistance * UnderstoryMaximumDistance) {
+                        > understoryMaximumDistance * understoryMaximumDistance) {
                         continue;
                     }
                     const bool nearLod = instanceDistanceSquared
@@ -1920,13 +1931,13 @@ void main()
                     cellVisible = true;
                 }
             }
-            if (cellDistanceSquared <= BushMaximumDistance * BushMaximumDistance) {
+            if (cellDistanceSquared <= bushMaximumDistance * bushMaximumDistance) {
                 for (const DrawInstance& instance : cell.bushes) {
                     const float instanceDeltaX = instance.x - cameraPosition.X;
                     const float instanceDeltaZ = instance.z - cameraPosition.Z;
                     const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
                         + instanceDeltaZ * instanceDeltaZ;
-                    if (instanceDistanceSquared > BushMaximumDistance * BushMaximumDistance) {
+                    if (instanceDistanceSquared > bushMaximumDistance * bushMaximumDistance) {
                         continue;
                     }
                     const bool nearLod = instanceDistanceSquared
@@ -1942,14 +1953,14 @@ void main()
                     cellVisible = true;
                 }
             }
-            if (cellDistanceSquared <= GroundPlantMaximumDistance * GroundPlantMaximumDistance) {
+            if (cellDistanceSquared <= groundPlantMaximumDistance * groundPlantMaximumDistance) {
                 for (const DrawInstance& instance : cell.groundPlants) {
                     const float instanceDeltaX = instance.x - cameraPosition.X;
                     const float instanceDeltaZ = instance.z - cameraPosition.Z;
                     const float instanceDistanceSquared = instanceDeltaX * instanceDeltaX
                         + instanceDeltaZ * instanceDeltaZ;
                     if (instanceDistanceSquared
-                        > GroundPlantMaximumDistance * GroundPlantMaximumDistance) {
+                        > groundPlantMaximumDistance * groundPlantMaximumDistance) {
                         continue;
                     }
                     const bool nearLod = instanceDistanceSquared

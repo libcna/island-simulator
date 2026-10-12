@@ -91,6 +91,7 @@ namespace island
         BayBeachDetail,
         HeadlandDetail,
         TidePoolDetail,
+        TurtleNestDetail,
         BeachPath,
         JungleTrail,
         EastClearingDetail,
@@ -277,8 +278,10 @@ namespace island
         WaterViewModel waterViewModel_;
 #if defined(__ANDROID__)
         RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::Mobile();
-#else
+#elif defined(__EMSCRIPTEN__)
         RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::Full();
+#else
+        RuntimeQualityProfile qualityProfile_ = RuntimeQualityProfile::NativePerformance();
 #endif
         // Declared first so it outlives all rendering consumers during member destruction.
         std::unique_ptr<CanopyLighting> canopyLighting_;

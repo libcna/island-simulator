@@ -192,8 +192,9 @@ namespace island
         const float observerY, const float observerZ)
     {
         if (!std::isfinite(deltaSeconds) || deltaSeconds <= 0.0f) return;
-        const float dt = std::min(deltaSeconds,0.1f);
+        const float frameDt = std::min(deltaSeconds,0.1f);
         const bool observerValid = std::isfinite(observerX) && std::isfinite(observerY) && std::isfinite(observerZ);
+        ++frameIndex_;
         for (std::size_t index=0; index<Count; ++index) {
             auto& state = states_[index];
             const auto head = state.body.front();
@@ -201,7 +202,15 @@ namespace island
                 head.z-observerZ),head.y-observerY) : 1000.0f;
             state.tier = WildlifeActivationPolicy::Classify(distance,65.0f,120.0f);
             state.speed = 0.0f;
-            if (state.tier == WildlifeSimulationTier::Dormant) continue;
+            if (state.tier == WildlifeSimulationTier::Dormant) {
+                accumulatedSeconds_[index] = 0.0f;
+                continue;
+            }
+            accumulatedSeconds_[index] = std::min(accumulatedSeconds_[index] + frameDt, 0.1f);
+            const std::uint32_t divisor = WildlifeActivationPolicy::UpdateDivisor(state.tier);
+            if ((frameIndex_ + index) % divisor != 0U) continue;
+            const float dt = accumulatedSeconds_[index];
+            accumulatedSeconds_[index] = 0.0f;
             clocks_[index] = std::fmod(clocks_[index]+dt,60.0f);
             const bool retreat = distance < 8.0f;
             state.behavior = retreat ? SnakeBehavior::Retreat

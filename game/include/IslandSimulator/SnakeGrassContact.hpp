@@ -106,46 +106,5 @@ struct SnakeGrassContact {
         const float t=std::clamp(nearest/Fade,0.0f,1.0f);
         return 1-t*t*(3-2*t);
     }
-    static constexpr const char* Shader=R"(
-uniform vec3 uSnakeGrassPoints[164];
-uniform vec4 uSnakeGrassBounds[4];
-uniform float uSnakeGrassCount;
-uniform vec4 uSnakeGrassCellMask;
-float snakePointSegmentSquared(vec2 p,vec2 a,vec2 b) {
-    vec2 d=b-a;
-    vec2 offset=p-a-d*clamp(dot(p-a,d)/max(dot(d,d),0.000001),0.0,1.0);
-    return dot(offset,offset);
-}
-float snakeCross(vec2 a,vec2 b) { return a.x*b.y-a.y*b.x; }
-float snakeGrassPressure(vec2 root,vec2 position) {
-    if(!any(greaterThan(uSnakeGrassCellMask,vec4(0.0)))) return 0.0;
-    float nearest = 0.14;
-    for(int s=0;s<4;++s) {
-        if(float(s)>=uSnakeGrassCount) break;
-        if(uSnakeGrassCellMask[s]<0.5) continue;
-        vec4 bounds=uSnakeGrassBounds[s];
-        if(any(lessThan(max(root,position),bounds.xy)) || any(greaterThan(min(root,position),bounds.zw))) continue;
-        for(int j=1;j<41;++j) {
-            vec3 a=uSnakeGrassPoints[s*41+j-1], b=uSnakeGrassPoints[s*41+j];
-            float reach=max(a.z,b.z)+0.015+0.14+0.0001;
-            if(any(lessThan(max(root,position),min(a.xy,b.xy)-vec2(reach)))
-                ||any(greaterThan(min(root,position),max(a.xy,b.xy)+vec2(reach)))) continue;
-            vec2 d=position-root, direction=b.xy-a.xy;
-            float denominator=snakeCross(d,direction);
-            if(abs(denominator)>0.00000001) {
-                float t=snakeCross(a.xy-root,direction)/denominator;
-                float u=snakeCross(a.xy-root,d)/denominator;
-                if(t>=0.0&&t<=1.0&&u>=0.0&&u<=1.0) return 1.0;
-            }
-            float distanceSquared=min(min(snakePointSegmentSquared(root,a.xy,b.xy),
-                snakePointSegmentSquared(position,a.xy,b.xy)),
-                min(snakePointSegmentSquared(a.xy,root,position),snakePointSegmentSquared(b.xy,root,position)));
-            nearest=min(nearest,sqrt(distanceSquared)-max(a.z,b.z)-0.015);
-            if(nearest<=0.0) return 1.0;
-        }
-    }
-    return 1.0-smoothstep(0.0,0.14,nearest);
-}
-)";
 };
 }
