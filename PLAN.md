@@ -524,15 +524,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   vegetation/animal placement and native/Web/Android visuals. A painted blue strip is
   not completion. This supersedes the earlier preference against a permanent river;
   the small damp biome can coexist but does not substitute for the requested stream.
-- [ ] Add an accessible cave and adapt the island terrain around it. Choose a rocky
+- [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding
   rock/terrain transition, with player clearance and no terrain sheet sealing the
   opening. Check outside/inside collision, roof containment, entrance lighting and
   vegetation intersections, plus actual walking and supported-platform captures.
   No quests, combat or new survival systems are implied. A dark rock decal is not a cave.
-  Foundation implemented: 20 m closed rock-shell geometry, grid-aligned terrain replacement,
-  capsule collision and walking/flight controller hooks. It is NOT yet constructed/rendered
-  in the live world. See `docs/cave.md` for measurements and remaining integration gates.
+  Native first pass implemented: 20 m rock-shell geometry, grid-aligned terrain replacement,
+  capsule collision, walking/flight integration and scoped habitat reservation. The first
+  outside capture required shape/material revision; not visually accepted as finished.
+  See `docs/cave.md` for measurements and remaining live/portable integration gates.
 
 - [ ] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.

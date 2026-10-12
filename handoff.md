@@ -1,18 +1,26 @@
 # island-simulator handoff
 
-## Current work — cave foundation, live world integration next
+## Current work — cave live integration and visual revision
 
 Goal remains active. Operator confirms audio fixed and reiterates continuing the whole plan,
 roughly100 productive hours, not a stop deadline. Do not close the campaign after one feature.
 New CaveLayout/CaveGroundPatch and IslandCaveLayoutTests implement a real20m cavity at
 (184.04,7.63779,115.384),1424 shell triangles,2793 terrain vertices/5376 terrain triangles.
-PlayerMotion/FlightMotion have opt-in non-owning cave hooks, currently unused by IslandGame.
-There is NO cave renderer/live landmark yet. Next: terrain coarse-quad replacement, matching
-floor material without coplanar double drawing, rock renderer, scoped vegetation/prop
-reservation, game wiring, fixed outside/inside captures and actual traversal qualification.
-Survey:5 palms,0 canopy,5 understory,1 bush,7 ground plants,1 rock,0 logs,1 frond within
-conservative footprint margins. No placements have been removed. See docs/cave.md.
-Both walking/flight tests use actual controllers; no GPU/Android/KVM activity. Builds CPUs0-3/-j4.
+PlayerMotion/FlightMotion hooks now wired into IslandGame; TerrainRenderer removes coarse
+quads and draws the2793-vertex replacement. CaveRenderer draws1384 shell triangles, skipping
+the40 floor triangles to avoid coplanar duplication. Lightweight CaveSite reservation keeps
+plants/props/grass out of the footprint. Survey before:5 palms,0 canopy,5 understory,1 bush,
+7 plants,1 rock,0 logs,1 frond; after all0. Core fixture bushes574/ordinary ground plants2193.
+Both actual-controller walking/flight and Core tests PASS2/2 in24.36s; runner tests47/47.
+Flight/spider-habitat/snake-population/WorldReport PASS4/4 in18.40s, fingerprint8d45b4d307bfeff3.
+First outside llvmpipe capture172702 passes mechanical gate but visually rejected as too
+manufactured, patterned floor. Broader irregular1286.82m³ shell, projecting lip, soil shoulder
+and noise floor now implemented. Inspected revised llvmpipe captures173120cave and173129inside
+both PASS; floor aliasing gone, no sealing terrain, sea visible from inside. Still stylized/
+tunnel-like, especially strata and rear blend; do not claim finished realism. Next: live
+entry/exit/flight, wildlife intersections, further natural-shape polish and portable checks.
+No AMD/Android/KVM activity. Builds CPUs0-3/-j4. See docs/cave.md.
+Both native Release and Debug executables are rebuilt; Debug CaveLayoutTests PASS6.06s.
 
 ## Latest operator feedback — FPS and audio dropout resolved
 

@@ -1,4 +1,5 @@
 #include "IslandSimulator/GrassLayout.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 
 #include "IslandSimulator/CanopyLightField.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
@@ -60,7 +61,7 @@ namespace island
             sample = terrain.Sample(x, z);
             const auto environment = IslandEnvironmentField::SampleInland(
                 x, z, sample.signedShoreDistance);
-            return sample.signedShoreDistance >= 20.0f && sample.height >= 2.1f
+            return !CaveSite::Reserves(x,z,1) && sample.signedShoreDistance >= 20.0f && sample.height >= 2.1f
                 && sample.slopeRadians <= 0.4886922f && sample.coastalRockiness < 0.60f
                 && sample.beachSuitability < GroundCover::BeachSuppressionEnd
                 && environment.drainage < 0.82f;

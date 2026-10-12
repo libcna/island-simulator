@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IslandSimulator/IslandTerrain.hpp"
+#include "IslandSimulator/CaveSite.hpp"
 #include <array>
 #include <span>
 #include <vector>
@@ -19,8 +20,8 @@ struct CaveTriangle {
 // the covered terrain with GroundTarget before publishing this landmark to the player.
 class CaveLayout final {
 public:
-    static constexpr float Length=20.0f;
-    static constexpr float OuterLength=22.0f;
+    static constexpr float Length=CaveSite::Length;
+    static constexpr float OuterLength=CaveSite::OuterLength;
     static constexpr int DepthSegments=20;
     static constexpr int ArchSegments=16;
     explicit CaveLayout(const IslandTerrain& terrain);

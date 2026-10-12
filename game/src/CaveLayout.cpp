@@ -83,9 +83,9 @@ CavePoint CaveLayout::Local(CavePoint point) const noexcept {
 
 CaveLayout::CaveLayout(const IslandTerrain& terrain) {
     // South of the eastern tide pools, on the shoulder of the rocky headland.
-    constexpr float angle=.56f;
+    constexpr float angle=CaveSite::Angle;
     cosine_=std::cos(angle);sine_=std::sin(angle);
-    const float radial=terrain.ShoreRadius(angle)-38.0f;
+    const float radial=terrain.ShoreRadius(angle)-CaveSite::Inset;
     entrance_={cosine_*radial,0,sine_*radial};
     entrance_.y=terrain.Height(entrance_.x,entrance_.z);
     using Ring=std::array<CavePoint,ArchSegments+1>;
@@ -98,12 +98,19 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
             // Exact basal endpoints keep floor/back/entrance seams welded.
             const float arc=(slice==0||slice==ArchSegments)?0.0f:std::sin(theta);
             const float w=std::cos(theta);
-            const float height=3.35f+.16f*std::sin(depth*.37f+theta*3);
-            inner[row][slice]=World(Centre(depth)+Width(depth)*w,Floor(depth)+height*arc,depth);
-            const float outerWidth=4.2f+.28f*std::sin(outerDepth*.29f+theta*2);
-            const float outerHeight=5.3f+.32f*std::sin(outerDepth*.41f+theta*3+.6f);
+            const float height=3.45f+.25f*std::sin(depth*.37f+theta*3)
+                +.12f*std::sin(depth*1.3f+theta*7);
+            const float innerWidth=Width(depth)*(1+.07f*std::sin(depth*.9f+theta*5+.4f)*arc);
+            inner[row][slice]=World(Centre(depth)+innerWidth*w,Floor(depth)+height*arc,depth);
+            const float outerWidth=6.0f+.8f*std::sin(outerDepth*.38f+theta*2)
+                +.6f*std::sin(theta*5+outerDepth*.83f);
+            const float outerHeight=7.4f+.6f*std::sin(outerDepth*.41f+theta*3+.6f)
+                +.4f*std::sin(theta*7+outerDepth*.7f);
+            // Broken projecting lip instead of a planar, manufactured arch face.
+            const float rimDepth=outerDepth-(1.1f+.8f*std::sin(theta*3+.4f))
+                *std::exp(-outerDepth*.4f);
             outer[row][slice]=World(Centre(outerDepth)+outerWidth*w,
-                Floor(outerDepth)-.8f+outerHeight*arc,outerDepth);
+                Floor(outerDepth)-1.3f+outerHeight*arc,rimDepth);
         }
     }
     const auto add=[&](CavePoint a,CavePoint b,CavePoint c,V desired,CaveSurface surface) {
@@ -155,13 +162,14 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
     const float across=std::abs(p.x-Centre(p.z));
     const float influence=(1-Smooth((across-Width(p.z))/2.5f))*Smooth((p.z+6)/6)
         *(1-Smooth((p.z-Length)/3));
-    return std::lerp(original,entrance_.y+Floor(p.z),influence);
+    // A modest buried shoulder ties the broad outcrop into the hill. The cavity stays
+    // excavated, while all patch-border samples remain exactly the original terrain.
+    const float shoulder=Smooth((p.z-1)/4)*(1-Smooth((p.z-Length)/5))
+        *(1-Smooth((across-3.5f)/3))*Smooth((across-Width(p.z))/1.5f);
+    return std::lerp(original+3.0f*shoulder,entrance_.y+Floor(p.z),influence);
 }
 bool CaveLayout::ReservesHabitat(float x,float z,float margin) const noexcept {
-    if(!std::isfinite(x)||!std::isfinite(z)||!std::isfinite(margin)) return false;
-    margin=std::max(0.0f,margin);
-    const auto p=Local({x,entrance_.y,z});
-    return std::abs(p.x)<6+margin&&p.z>-6-margin&&p.z<OuterLength+3+margin;
+    return CaveSite::Reserves(x,z,margin);
 }
 bool CaveLayout::InsideRock(CavePoint point) const noexcept {
     // Oblique ray avoids aligning the common centreline queries with mesh rings.

@@ -23,9 +23,11 @@ hardware qualification failure latch.
 
 ![A sunny overview of the complete procedural tropical island](assets/presentation/island-overview.png)
 
-The project remains under an active long-form development and polish campaign. The current
-rendering policy requests 4x geometric-edge antialiasing on Linux/Web and 2x on Android through
+The project remains under an active long-form development and polish campaign. The full
+rendering profile requests 4x geometric-edge antialiasing on Linux/Web and 2x on Android through
 CNA's existing backbuffer path, with explicit applied-sample diagnostics and device fallback.
+Native Linux now defaults to the bounded `native-performance` profile without MSAA;
+use the Release executable in `build-consumer/` for ordinary performance evaluation.
 See [antialiasing evidence and cost](docs/edge-antialiasing.md); software results do not qualify
 hardware performance or resolve the GPU incident. The current
 playable slice renders a deterministic approximately 500 m island with
@@ -43,6 +45,9 @@ one project-owned floor image with a 512-square mip chain and edge-safe rotated 
 preserving the authored paths and clearing palettes. It is packaged on all targets; missing data
 logs a diagnostic and retains procedural soil. See [material review](docs/forest-floor-material-review.md)
 for provenance, software-only runtime evidence and remaining visual limitations.
+A first-pass20m headland cave now has a real interior, replacement terrain, capsule collision
+and flight roof containment. Native software exterior/interior captures are inspected, but
+natural-shape polish, live traversal and portable qualification remain; see [cave status](docs/cave.md).
 Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
 preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
 An animated tropical

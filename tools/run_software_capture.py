@@ -443,7 +443,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"stream", "turtle-nest", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -551,6 +551,12 @@ def main():
                     raise RuntimeError("turtle nesting trace geometry is missing")
                 if "turtle-nest QA camera follows paired tracks from disturbed dry sand toward the sea" not in diagnostics:
                     raise RuntimeError("turtle nesting trace camera did not select its target")
+            if args.viewpoint in {"cave", "cave-inside"}:
+                side = "inside" if args.viewpoint == "cave-inside" else "outside"
+                for marker in (f"cave QA camera {side}", "cave ground replacement",
+                               "cave rock first visible draw", "20m walkable interior"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"cave integration diagnostic missing: {marker}")
             if args.viewpoint == "reef-habitat":
                 if "spatial reef uses branching, rounded, plate coral and underwater-rock LOD forms" not in diagnostics:
                     raise RuntimeError("spatial reef form diagnostic missing")

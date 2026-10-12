@@ -32,11 +32,15 @@ int main() {
     const auto survey=[&](const char* name,const auto& placements,float margin) {
         int count=0;for(const auto& p:placements)if(cave.ReservesHabitat(p.x,p.z,margin))++count;
         std::cout<<"cave footprint survey "<<name<<' '<<count<<'\n';
+        Check(count==0,"generated placement intersects reserved cave footprint");
     };
     survey("palms",palms.Palms(),5);survey("canopy",jungle.Canopy(),6);
     survey("understory",jungle.Understory(),2);survey("bushes",jungle.Bushes(),2);
     survey("plants",jungle.GroundPlants(),1);survey("rocks",props.Rocks(),3);
     survey("logs",props.FallenLogs(),4);survey("fronds",props.FallenFronds(),2);
+    std::cout<<"baseline bushes/plants "<<jungle.Bushes().size()-jungle.ClearingBushCount()<<'/'
+        <<jungle.GroundPlants().size()-jungle.ClearingGroundPlantCount()
+            -jungle.ForestGroundPlantCount()-jungle.StreamBankGroundPlantCount()<<'\n';
     std::cout<<"cave entrance "<<entrance.x<<','<<entrance.y<<','<<entrance.z
              <<" triangles "<<cave.Triangles().size()<<'\n';
     Check(cave.Triangles().size()<1600,"cave geometry budget exceeded");
@@ -105,7 +109,7 @@ int main() {
         Check(edge.first==2&&edge.second==0,"cave solid has an open or inconsistently wound seam");
     }
     Check(std::all_of(parts.begin(),parts.end(),[](int n){return n>0;}),"missing cave surface group");
-    Check(volume/6>100&&volume/6<1500,"rock shell has inverted winding or implausible volume");
+    Check(volume/6>100&&volume/6<2500,"rock shell has inverted winding or implausible volume");
     constexpr float radius=PlayerMotion::CapsuleRadius,height=1.9f;
     for(int step=-30;step<=195;++step) {
         const float depth=step*.1f;
@@ -163,16 +167,20 @@ int main() {
     // Actual controller integration, not just isolated shell queries.
     PlayerMotion walker;
     walker.SetCave(&cave,&ground);
+    std::vector<CircularObstacle> solids=palms.Obstacles();
+    solids.insert(solids.end(),jungle.Obstacles().begin(),jungle.Obstacles().end());
+    solids.insert(solids.end(),props.Obstacles().begin(),props.Obstacles().end());
+    const WorldCollisionGrid worldSolids(solids);
     const auto approach=cave.World(0,0,-3),forward=cave.World(0,0,1);
     const float dx=forward.x-entrance.x,dz=forward.z-entrance.z;
     walker.SetPosition(terrain,approach.x,approach.z);
-    for(int i=0;i<350;++i)walker.Update(terrain,dx,dz,1.0f/60);
+    for(int i=0;i<350;++i)walker.Update(terrain,dx,dz,1.0f/60,worldSolids);
     auto local=cave.Local({walker.Position().x,walker.Position().y-PlayerMotion::EyeHeight,walker.Position().z});
     std::cout<<"walked cave depth "<<local.z<<'\n';
     Check(local.z>18&&local.z<20,"walking controller cannot reach cave back or escaped through it");
-    for(int i=0;i<100;++i)walker.Update(terrain,dx,dz,.1f);
+    for(int i=0;i<100;++i)walker.Update(terrain,dx,dz,.1f,worldSolids);
     Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<20,"walking controller crossed back wall");
-    for(int i=0;i<380;++i)walker.Update(terrain,-dx,-dz,1.0f/60);
+    for(int i=0;i<380;++i)walker.Update(terrain,-dx,-dz,1.0f/60,worldSolids);
     Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<0,"walking controller cannot exit cave");
     const auto solid=cave.World(3.7f,0,10);
     walker.SetPosition(terrain,solid.x,solid.z);
@@ -195,7 +203,7 @@ int main() {
     for(int i=0;i<20;++i)flight.Update(0,-1,0,true,.1f);
     local=cave.Local({flight.Position().x,flight.Position().y-PlayerMotion::EyeHeight,flight.Position().z});
     std::cout<<"outer roof stopped feet height "<<local.y<<'\n';
-    Check(local.y>4&&local.y<7,"downward flight pierced exterior roof");
+    Check(local.y>5&&local.y<9,"downward flight pierced exterior roof");
     Check(!cave.IntersectsCapsule({flight.Position().x,flight.Position().y-PlayerMotion::EyeHeight,
           flight.Position().z},radius,height),"flight stopped inside exterior roof");
     std::cout<<"cave ground "<<ground.Vertices().size()<<" vertices "<<ground.Indices().size()/3

@@ -1,6 +1,7 @@
 #include "IslandSimulator/TerrainRenderer.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/StreamBedPatch.hpp"
+#include "IslandSimulator/CaveGroundPatch.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
@@ -108,6 +109,8 @@ in vec3 vWorld;
 in vec3 vBaseColor;
 in vec2 vTerrainData;
 in float vGroundLight;
+uniform vec3 uCaveEntrance;
+uniform vec2 uCaveForward;
 
 uniform vec3 uCameraPosition;
 uniform vec3 uToSun;
@@ -599,6 +602,18 @@ void main()
 
     // Same texel as the cover sample above; retains cool skylight in canopy shade.
     color *= mix(uCanopyAmbient, vec3(1.0), groundField.x);
+    // The replacement mesh is also the cave floor: no coplanar rock-floor overlay.
+    vec2 caveOffset=vWorld.xz-uCaveEntrance.xz;
+    float caveDepth=dot(caveOffset,uCaveForward);
+    float caveAcross=dot(caveOffset,vec2(uCaveForward.y,-uCaveForward.x));
+    float caveWidth=2.65+.18*sin(caveDepth*.42+.3);
+    float caveFloor=(1.0-smoothstep(caveWidth-.5,caveWidth+.3,
+        abs(caveAcross-.22*sin(caveDepth*.31))))
+        *smoothstep(-1.5,1.0,caveDepth)*(1.0-smoothstep(20.0,21.0,caveDepth));
+    float caveGrain=valueNoise(vWorld.xz*4.0)*.65+valueNoise(vWorld.xz*17.0)*.35;
+    vec3 caveStone=mix(vec3(.24,.25,.24),vec3(.34,.32,.28),caveGrain);
+    caveStone*=mix(.85,.24,smoothstep(0.0,14.0,caveDepth));
+    color=mix(color,caveStone,caveFloor);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
     color = mix(color, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
@@ -761,6 +776,8 @@ void main()
     {
         const auto original=std::make_unique<RenderedTerrainSurface>(terrain);
         streamBed_=std::make_unique<StreamBedPatch>(StreamCourse(terrain),*original);
+        cave_=std::make_unique<CaveLayout>(terrain);
+        caveGround_=std::make_unique<CaveGroundPatch>(*cave_,*original);
         cells_.clear();
         cells_.reserve(TerrainMeshLayout::CellCount);
         std::vector<TerrainMaterialVertex> vertices;
@@ -809,7 +826,7 @@ void main()
                         +TerrainMeshLayout::Coordinate(layout.firstGridColumn+column+1))*.5f;
                     const float midZ=(TerrainMeshLayout::Coordinate(layout.firstGridRow+row)
                         +TerrainMeshLayout::Coordinate(layout.firstGridRow+row+1))*.5f;
-                    if(streamBed_->Contains(midX,midZ))continue;
+                    if(streamBed_->Contains(midX,midZ)||caveGround_->Contains(midX,midZ))continue;
                     const auto topLeft = static_cast<std::uint16_t>(
                         (layout.firstGridRow + row) * TerrainMeshLayout::Resolution
                         + layout.firstGridColumn + column);
@@ -869,6 +886,30 @@ void main()
         streamIndices_->SetData(streamIndices.data(),static_cast<int>(streamIndices.size()));
         std::cout << "island-simulator: stream bed replacement " << streamVertexCount_ << " vertices, "
             << streamPrimitiveCount_ << " triangles; original covered terrain removed\n";
+        vertices.clear();minimum=Vector3(1000,1000,1000);maximum=Vector3(-1000,-1000,-1000);
+        for(const auto p:caveGround_->Vertices()) {
+            auto sample=terrain.Sample(p.x,p.z);sample.height=p.y;
+            const auto height=[&](float x,float z){return caveGround_->Contains(x,z)
+                ?caveGround_->SampleHeight(x,z):original->Sample(x,z).height;};
+            sample.normal=TerrainSurfaceFrame::Normalize({height(p.x-.1f,p.z)-height(p.x+.1f,p.z),
+                .2f,height(p.x,p.z-.1f)-height(p.x,p.z+.1f)});
+            sample.slopeRadians=std::acos(std::clamp(sample.normal.y,-1.0f,1.0f));
+            const float light=TerrainDaylight(sample.normal);const auto color=TerrainColor(sample,light);
+            vertices.push_back({{p.x,p.y,p.z},{color.getRProperty(),color.getGProperty(),color.getBProperty(),255},
+                {sample.signedShoreDistance,sample.slopeRadians,light}});
+            minimum=Vector3::Min(minimum,Vector3(p.x,p.y,p.z));maximum=Vector3::Max(maximum,Vector3(p.x,p.y,p.z));
+        }
+        const auto caveIndices=caveGround_->Indices();
+        ValidateProceduralTriangleMeshOrThrow(vertices.size(),caveIndices,"cave ground");
+        caveVertexCount_=static_cast<int>(vertices.size());cavePrimitiveCount_=static_cast<int>(caveIndices.size()/3);
+        caveBounds_=BoundingBox(minimum-Vector3(.1f,.1f,.1f),maximum+Vector3(.1f,.1f,.1f));
+        caveVertices_=std::make_unique<VertexBuffer>(device_,TerrainDeclaration(),caveVertexCount_,BufferUsage::WriteOnly);
+        caveVertices_->SetData(vertices.data(),caveVertexCount_);
+        caveIndices_=std::make_unique<IndexBuffer>(device_,IndexElementSize::SixteenBits,
+            static_cast<int>(caveIndices.size()),BufferUsage::WriteOnly);
+        caveIndices_->SetData(caveIndices.data(),static_cast<int>(caveIndices.size()));
+        std::cout<<"island-simulator: cave ground replacement "<<caveVertexCount_<<" vertices, "
+            <<cavePrimitiveCount_<<" triangles; original covered terrain removed\n";
     }
 
     void TerrainRenderer::DrawGeometry(const int firstIndex, const int primitiveCount)
@@ -888,6 +929,9 @@ void main()
             canopyLighting_.Bind(*materialEffect_);
             forestFloor_->Bind(*materialEffect_);
             materialEffect_->SetUniformMat4("uViewProjection", viewProjection);
+            const auto entrance=cave_->Entrance(),forward=cave_->World(0,0,1);
+            materialEffect_->SetUniformVec3("uCaveEntrance",entrance.x,entrance.y,entrance.z);
+            materialEffect_->SetUniformVec2("uCaveForward",forward.x-entrance.x,forward.z-entrance.z);
             materialEffect_->SetUniformVec3("uCameraPosition", cameraPosition.X,
                                             cameraPosition.Y, cameraPosition.Z);
             materialEffect_->SetUniformVec3(
@@ -941,6 +985,11 @@ void main()
             if(frustum.Intersects(streamBounds_)) {
                 device_.SetVertexBuffer(streamVertices_.get());device_.setIndicesProperty(streamIndices_.get());
                 device_.DrawIndexedPrimitives(PrimitiveType::TriangleList,0,0,streamVertexCount_,0,streamPrimitiveCount_);
+                ++drawCallCount_;
+            }
+            if(frustum.Intersects(caveBounds_)) {
+                device_.SetVertexBuffer(caveVertices_.get());device_.setIndicesProperty(caveIndices_.get());
+                device_.DrawIndexedPrimitives(PrimitiveType::TriangleList,0,0,caveVertexCount_,0,cavePrimitiveCount_);
                 ++drawCallCount_;
             }
         };

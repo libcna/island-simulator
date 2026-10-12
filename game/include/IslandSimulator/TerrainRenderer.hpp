@@ -22,6 +22,8 @@ namespace island
     class CanopyLighting;
     class ForestFloorMaterial;
     class StreamBedPatch;
+    class CaveLayout;
+    class CaveGroundPatch;
     /** @brief Frustum-culled island terrain with portable procedural material variation. */
     class TerrainRenderer final
     {
@@ -45,9 +47,11 @@ namespace island
         {
             return static_cast<int>(cells_.size());
         }
-        [[nodiscard]] int VertexCount() const noexcept { return vertexCount_+streamVertexCount_; }
-        [[nodiscard]] int PrimitiveCount() const noexcept { return primitiveCount_+streamPrimitiveCount_; }
+        [[nodiscard]] int VertexCount() const noexcept { return vertexCount_+streamVertexCount_+caveVertexCount_; }
+        [[nodiscard]] int PrimitiveCount() const noexcept { return primitiveCount_+streamPrimitiveCount_+cavePrimitiveCount_; }
         [[nodiscard]] const StreamBedPatch& StreamBed() const noexcept {return *streamBed_;}
+        [[nodiscard]] const CaveLayout& Cave() const noexcept {return *cave_;}
+        [[nodiscard]] const CaveGroundPatch& CaveGround() const noexcept {return *caveGround_;}
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
 
     private:
@@ -73,6 +77,12 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> streamIndices_;
         Microsoft::Xna::Framework::BoundingBox streamBounds_;
         int streamVertexCount_=0,streamPrimitiveCount_=0;
+        std::unique_ptr<CaveLayout> cave_;
+        std::unique_ptr<CaveGroundPatch> caveGround_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::VertexBuffer> caveVertices_;
+        std::unique_ptr<Microsoft::Xna::Framework::Graphics::IndexBuffer> caveIndices_;
+        Microsoft::Xna::Framework::BoundingBox caveBounds_;
+        int caveVertexCount_=0,cavePrimitiveCount_=0;
         std::vector<RenderCell> cells_;
         bool materialReady_ = false;
         int visibleCellCount_ = 0;

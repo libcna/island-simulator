@@ -72,6 +72,8 @@ namespace island
             case FixedViewpoint::HeadlandDetail: return "headland";
             case FixedViewpoint::TidePoolDetail: return "tide-pools";
             case FixedViewpoint::TurtleNestDetail: return "turtle-nest";
+            case FixedViewpoint::CaveExterior: return "cave";
+            case FixedViewpoint::CaveInterior: return "cave-inside";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -229,6 +231,16 @@ namespace island
             cameraPosition_ = Vector3(300.0f, 28.0f, 110.0f);
             yaw_ = std::atan2(-63.0f, -23.0f);
             pitch_ = -0.33f;
+        } else if (viewpoint_ == FixedViewpoint::CaveExterior || viewpoint_ == FixedViewpoint::CaveInterior) {
+            const CaveLayout cave(terrain_);
+            const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
+            const auto p=inside?cave.World(.6f,CaveLayout::Floor(12)+PlayerMotion::EyeHeight,12)
+                :cave.World(7,5,-15);
+            const auto target=inside?cave.World(0,1.6f,-3):cave.World(0,1.8f,4);
+            cameraPosition_=Vector3(p.x,p.y,p.z);
+            yaw_=std::atan2(target.x-p.x,target.z-p.z);
+            pitch_=std::atan2(target.y-p.y,std::hypot(target.x-p.x,target.z-p.z));
+            std::cout<<"island-simulator: cave QA camera "<<(inside?"inside":"outside")<<'\n';
         } else if (viewpoint_ == FixedViewpoint::TidePoolDetail) {
             const auto [poolX,poolZ]=TidePoolLayout::Centre(terrain_,0U);
             const float radialLength=std::hypot(poolX,poolZ);
@@ -1168,6 +1180,9 @@ namespace island
         }
         terrainRenderer_ = std::move(terrainRenderer);
         playerMotion_.SetGroundPatch(&terrainRenderer_->StreamBed());
+        playerMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
+        flightMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
+        caveRenderer_=std::make_unique<CaveRenderer>(device,terrainRenderer_->Cave());
         streamWaterRenderer_=std::make_unique<StreamWaterRenderer>(device,terrain_,terrainRenderer_->StreamBed());
         grassRenderer_ = std::move(grassRenderer);
         jungleRenderer_ = std::move(jungleRenderer);
@@ -2200,7 +2215,7 @@ namespace island
 
     int IslandGame::TrackedSceneDrawCount() const noexcept
     {
-        return 2 + terrainRenderer_->DrawCallCount()+streamWaterRenderer_->DrawCallCount()
+        return 2 + terrainRenderer_->DrawCallCount()+streamWaterRenderer_->DrawCallCount()+caveRenderer_->DrawCallCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + shipwreckRenderer_->DrawCallCount()
@@ -2611,6 +2626,7 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("terrain");
             terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+            caveRenderer_->Draw(cameraView_,cameraProjection_);
         }
         {
             GpuDiagnosticScope gpuPass("distant-scenery");
