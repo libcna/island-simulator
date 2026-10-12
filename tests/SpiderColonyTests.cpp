@@ -78,6 +78,41 @@ int main() {
     for(int step=0;step<50;++step){high.Update(.02f,{first.x,first.y+100,first.z});invalid.Update(.02f,{NAN,0,0});}
     check(std::equal(high.Spiders().begin(),high.Spiders().end(),invalid.Spiders().begin()),"high/invalid observer affected ground colony");
     const std::vector<SpiderState> before(invalid.Spiders().begin(),invalid.Spiders().end());
+    for(bool turning:{false,true}) {
+        SpiderColony audit(terrain,jungle,obstacles);
+        int eligible=0,paused=0,reachBlocked=0;
+        float moved=0;
+        for(int step=0;step<400;++step) {
+            const auto old=audit.Spiders()[0];
+            const SpiderPoint close{old.x+(turning?.36f:-.5f),old.y+.28f,old.z+(turning?.45f:0)};
+            audit.Update(.02f,close);
+            const auto& s=audit.Spiders()[0];
+            moved+=std::hypot(s.x-old.x,s.z-old.z);
+            const float away=std::atan2(old.z-close.z,old.x-close.x);
+            const auto home=audit.Homes()[0];
+            if(step>10&&std::abs(std::remainder(away-old.heading,6.283185307f))<1.03f
+                    &&std::hypot(old.x-home.x,old.z-home.z)<.55f) {
+                ++eligible;
+                if(s.x==old.x&&s.z==old.z) {
+                    ++paused;
+                    // Reconstruct the blocked translation with the retained pose.
+                    // This checks reach only, not other possible validity failures.
+                    auto predicted=s.pose;
+                    predicted.origin.x+=std::cos(s.heading)*SpiderColony::RetreatSpeed*.02f;
+                    predicted.origin.z+=std::sin(s.heading)*SpiderColony::RetreatSpeed*.02f;
+                    predicted.origin.y=surface.Sample(predicted.origin.x,predicted.origin.z).height;
+                    bool limited=false;
+                    for(std::size_t leg=0;leg<8;++leg)
+                        limited|=SpiderPose::Solve(leg,predicted.ToLocal(s.pose.feet[leg])).reachLimited;
+                    if(limited)++reachBlocked;
+                }
+            }
+        }
+        std::cout<<"spider pause audit turning="<<turning<<" eligible="<<eligible
+                 <<" paused="<<paused<<" reachBlocked="<<reachBlocked<<" travel="<<moved<<std::endl;
+        check(eligible>200,"too few eligible retreat samples");
+        check(paused==0,"eligible retreat stalls while waiting for foot reach");
+    }
     for(float dt:{0.0f,-1.0f,INFINITY,NAN})invalid.Update(dt,{0,0,0});
     check(std::equal(before.begin(),before.end(),invalid.Spiders().begin()),"invalid dt changed spiders");
     std::cout<<"stance pairs "<<pairs<<", swing samples "<<swings<<", min mesh clearance "<<minimumClearance<<'\n';

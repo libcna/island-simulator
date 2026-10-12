@@ -1,5 +1,42 @@
 # island-simulator handoff
 
+## Latest — spider reach-wait pauses fixed on measured routes, actual8stage post-fix inspected
+
+Previous turn was progress (actualmotionfoundpauses). Extended SpiderColonyTests with
+8s/.02 directretreat andclosecameraoffsetretreat audits. Eligible onlyafter10steps,
+awayangle<1.03rad,home<.55m excludesintentionalturn/boundarystops. Baseline389eligible/
+165paused/165nexttranslationIKlimited direct;298/117/113 turning. Full oldlog
+build/spider-pause-baseline.log. Confirmed realreachwaits.
+
+AdvanceFeet now scorespositivebackwardlag duringmovement pluslateralerror for turns;
+retains newlyplantedforwardfeet instead of immediatelyliftingagain. Rest symmetric.
+Lead.004→.012m reducedpausecounts66/56 (spider-pause-directed.log), then swing.12→.08s
+producedzero/zero(spider-pause-fast.log). Max2swing/>=6supports,8mmlift,stanceanchors,
+fixedbones/Validchecks/envelope/terrain tolerances unchanged. Added paused==0 regression
+forboth reference routes,notallfutureterrain.8stravel .518799/.390786.
+Quiet30stravel .643225–.984048m,111499fixedstancepairs/26020swings,
+minsampledmeshclearance .0000991821m. Currentinclusivebuild/full52CPU PASS58.03s:
+build/spider-pause-current-{build,tests}.log. Fingerprint4c38d1adbddc9c9e unchanged.
+
+Actualpostfixllvmpipe:
+build/software-captures/20261012T044909.500088Z-spiders, motiondatagatePASS,
+1of12visible/6supports allstages, displacement .272804163m. Stage0/1intentionalturn
+speed0;stage2..7 .064899.. .065013m/s. All8actualimages inspected in
+build/spider-pause-fixed-montage.png. Bodyturn/crawl/footposechangesvisible, but
+plainbody/sparsehair/missingcontactshadowsunchanged. OuterFAILEDgenericimagecontrast/
+color gates, kernel-after[]. Noimagegate/profilechanges; sparseviewsnotcontinuous
+naturalness/platformqualification. Priorfailedrunsretained.
+
+Handles terminal:41612baseline0,44459build0,55464directed0,76333build0,
+46215fast0,59247full0,9040capture1. Finalbuildterminal0. NoWeb/Androidbuild/run,
+nohardware/KVM/emulator/dependencychanges. Latchc0bd1704 unchanged. Goalactive/nopush;
+fullpriorother14species/webs/resident/environment/goat/AMDflightbacklogretained.
+
+NEXT: tangible spider material/hair/contact refinement, then actualWeb/Android and
+plant-attachedwebs(stillabsent). Don't keep reauditing unchanged dark material while
+neglecting these actual visual deficits; capture-image acceptance stillneeds explicit
+appropriate review without retroactivelylabeling failedruns green.
+
 ## Latest — actual8stage spider motion inspected; outer dark-image gate still FAILED
 
 Previous turn was progress (WorldReport). Added UsesSpiderCaptureClock/counter:

@@ -789,6 +789,12 @@ progress or require player interaction; dangerous species keep their distance li
   motivates finer pause/foot-scheduler audit; plainbody/sparsehair/contactshadows open.
   No image threshold/profile changes.39CPUharness checks include14badmotionfixtures.
   Current inclusivebuild/full52CPU PASS59.42s; noWeb/Androidbuild/runtime.
+  Follow-up pauseaudit confirmed reach-limited bodywaits: direct165/389, turning117/298.
+  Directedlag selection retains forwardplantedfeet;12mm lead+80ms recovery stroke
+  yields0/389 and0/298 without changing6supports/anchor/reach/terrainlimits.
+  Regression now requireszero eligiblepauses onbothroutes. Full52CPU PASS58.03s.
+  Actualpostfix8frames inspected: .272804m displacement, stage2..7speed~.065m/s,
+  kernel[]/motiondatapass; outerimagecontraststillFAIL/material/contactissuesopen.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

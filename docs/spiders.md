@@ -116,12 +116,45 @@ invisible colliders. High/nonfinite observers do not trigger ground retreat.
 
 Updates clamp to100ms and subdivide to20ms. World-space stance feet stay fixed while
 the body moves/turns. At most two feet swing, leaving at least six supports; the most
-displaced eligible foot is selected above3.5mm error. A120ms smoothstep swing has an
-8mm sine-squared lift and ground-aware height; moving landing targets lead by4mm,
+displaced eligible foot is selected above3.5mm error. A80ms smoothstep swing has an
+8mm sine-squared lift and ground-aware height; moving landing targets lead by12mm,
 resting ones return to neutral. Feet sit0.1mm above rendered ground. The IK solver
 must reach every accepted body/foot pose. Candidate legs are sampled at five points
 per segment for radius-aware ground clearance and140mm horizontal envelope. This
 is not continuous triangle/terrain intersection or complete self-contact proof.
+
+### Body pause correction
+
+An8s/20ms audit compares direct retreat and the actual close-camera observer offset.
+It counts only translation-eligible samples (heading within1.03rad of away, root inside
+0.55m of home, after initial settling), excluding intentional turn/boundary stops.
+The original120ms/4mm/unsigned-error scheduler paused165/389 direct samples and117/298
+turning samples; next-translation IK was reach-limited in165 and113 respectively.
+This confirmed a real limb-reach wait rather than an image illusion.
+
+Selection now uses backward lag only along the forward axis during movement, plus
+lateral error for turning. A foot planted ahead is retained instead of immediately
+lifting again just because its absolute distance from neutral exceeds3.5mm. Rest
+still uses symmetric error. Increasing landing lead to12mm cut pauses to66/389 and
+56/298. Shortening the swing to80ms then produced0/389 and0/298, with8s travel
+0.518799/0.390786m. The committed regression requires zero eligible pauses for these
+two reference routes. All six-support, fixed-anchor, reach, mesh-clearance and habitat
+bounds remain unchanged; this is not a guarantee of every future route or naturalness.
+Baseline/intermediate evidence remains build/spider-pause-{baseline,directed,fast}.log.
+
+Current30s quiet test travels0.643225–0.984048m per animal,111499 unchanged consecutive
+stance pairs,26020 swing samples, minimum sampled detailed-mesh ground clearance
+0.0000991821m. Initial population/fingerprint are unchanged.
+
+Inclusive current build and52/52 CPU groups pass58.03s, logs
+build/spider-pause-current-{build,tests}.log. Actual post-fix llvmpipe sequence
+build/software-captures/20261012T044909.500088Z-spiders passes motion-data checks:
+six supports throughout, body displacement0.272804m, stage2..7 speeds0.064899..0.065013m/s
+after the two initial turning-only samples. All eight actual frames were inspected
+in build/spider-pause-fixed-montage.png. Rotation/crawling and updated foot poses remain
+visible; sparse images still do not prove continuous naturalness or all routes.
+Kernel-after[]; outer image-contrast/color gate stillFAILED. Plain material, sparse
+hairs and missing contact shadows remain unchanged; no thresholds were relaxed.
 
 `SpiderColonyTests` builds actual terrain/palms/jungle/props/wreck/hut obstacles,
 compares two deterministic colonies over30s at20ms, requires each animal to travel,

@@ -77,7 +77,7 @@ void SpiderColony::AdvanceFeet(std::size_t index,float dt) {
     auto& state=states_[index];auto& feet=feet_[index];
     for(std::size_t leg=0;leg<8;++leg)if(feet[leg].swinging) {
         auto trial=feet;auto& foot=trial[leg];
-        foot.progress=std::min(1.0f,foot.progress+dt/.12f);
+        foot.progress=std::min(1.0f,foot.progress+dt/.08f);
         const float t=foot.progress,u=t*t*(3-2*t),arch=std::sin(Pi*t);
         foot.position=Add(Mul(foot.start,1-u),Mul(foot.target,u));
         foot.position.y=std::max(foot.position.y,surface_.Sample(foot.position.x,foot.position.z).height+Contact)
@@ -89,14 +89,19 @@ void SpiderColony::AdvanceFeet(std::size_t index,float dt) {
     const auto active=std::count_if(feet.begin(),feet.end(),[](const auto& f){return f.swinging;});
     std::size_t selected=8;float largest=.0035f;
     if(active<2)for(std::size_t leg=0;leg<8;++leg)if(!feet[leg].swinging) {
-        const auto neutral=frame.ToWorld(SpiderPose::NeutralFoot(leg));
-        const float error=std::hypot(neutral.x-feet[leg].position.x,neutral.z-feet[leg].position.z);
+        const auto neutral=SpiderPose::NeutralFoot(leg);
+        const auto local=frame.ToLocal(feet[leg].position);
+        // A freshly planted foot ahead of its neutral point is useful support,
+        // not an error to immediately lift again. Sideways error still allows turns.
+        const float lag=state.behavior==SpiderBehavior::Rest?neutral.z-local.z:
+            std::max(0.0f,neutral.z-local.z);
+        const float error=std::hypot(neutral.x-local.x,lag);
         if(error>largest){largest=error;selected=leg;}
     }
     if(selected<8) {
         auto trial=feet;auto& foot=trial[selected];
         auto local=SpiderPose::NeutralFoot(selected);
-        if(state.behavior!=SpiderBehavior::Rest)local.z+=.004f;
+        if(state.behavior!=SpiderBehavior::Rest)local.z+=.012f;
         foot.target=frame.ToWorld(local);
         foot.target.y=surface_.Sample(foot.target.x,foot.target.z).height+Contact;
         auto landing=trial;landing[selected].position=foot.target;
