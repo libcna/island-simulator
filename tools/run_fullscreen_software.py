@@ -148,8 +148,29 @@ def validate_frame_windows(text):
     return records
 
 
+def validate_cave_trace(samples, stages):
+    if len(samples)<20 or set(stages)!={"start","back","ceiling","landed","exit"}:
+        raise RuntimeError("incomplete live cave traversal")
+    if any(len(p)!=5 or not all(map(math.isfinite,p)) or p[3] not in (0,1) or p[4]!=0 for p in samples):
+        raise RuntimeError("invalid or rock-penetrating cave capsule")
+    indices=[stages[key] for key in ("start","back","ceiling","landed","exit")]
+    if any(type(i) is not int or not 0<=i<len(samples) for i in indices):
+        raise RuntimeError("invalid cave stage index")
+    start,back,ceiling,landed,exit_point=(samples[i] for i in indices)
+    if not all(a<b for a,b in zip(indices,indices[1:])):
+        raise RuntimeError("cave stages are out of order")
+    if not (-9<start[2]<-6 and 18<back[2]<20 and exit_point[2]<-4):
+        raise RuntimeError("cave entry/back wall/exit not reached")
+    if any(abs(p[0])>.6 for p in samples):
+        raise RuntimeError("cave traversal left its intended corridor")
+    if any(p[3]!=0 for p in (start,back,landed,exit_point)) or ceiling[3]!=1:
+        raise RuntimeError("cave walking and flight stages disagree")
+    if not (.7<ceiling[1]-.025*ceiling[2]<2.0 and abs(landed[1]-.025*landed[2])<.08):
+        raise RuntimeError("cave flight did not reach ceiling or land on floor")
+
+
 def worker(build, evidence, window_manager, flight=False, boar_audio=False,
-           diving=False, snake_audio=False):
+           diving=False, snake_audio=False, cave=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -210,7 +231,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             keys("F1", "debug overlay disabled")
             # Snake playback has its own focused native gate.  The normal invocation
             # remains the authoritative two-cycle F11/focus regression test.
-            fullscreen_cycles = 0 if snake_audio else 2
+            fullscreen_cycles = 0 if snake_audio or cave else 2
             for cycle in range(fullscreen_cycles):
                 # Some X11 window managers return focus to their root/desktop while
                 # restoring a non-resizable window from fullscreen.  Reassert focus
@@ -245,6 +266,14 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 # rising edge.
                 command("xdotool", "windowfocus", "--sync", window)
                 command("xdotool", "keyup", "F11")
+                # Removing the EWMH fullscreen atom precedes some window managers'
+                # configure events. Keep the exact restoration requirement, but wait
+                # for that asynchronous operation rather than judging an intermediate frame.
+                expected_geometry = tuple(before[k] for k in ("X", "Y", "WIDTH", "HEIGHT"))
+                def restored_geometry():
+                    actual = geometry(command("xdotool", "getwindowgeometry", "--shell", window))
+                    return tuple(actual[k] for k in ("X", "Y", "WIDTH", "HEIGHT")) == expected_geometry
+                wait(restored_geometry, "exact original window position and size restoration")
                 after = snapshot(f"windowed-{cycle}")
                 if (after["WIDTH"], after["HEIGHT"]) != (before["WIDTH"], before["HEIGHT"]):
                     raise RuntimeError("fullscreen did not restore the original windowed size")
@@ -253,7 +282,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 frames = log().count("input sample captured")
                 wait(lambda: log().count("input sample captured") > frames, "windowed released-key frame")
             command("import", "-window", window, str(evidence / "windowed.png"))
-            if not snake_audio:
+            if not snake_audio and not cave:
                 # Only this owned dialog receives the background F11; never another
                 # desktop/client. Restoring focus must not synthesize a game toggle.
                 focus_target = subprocess.Popen(["xmessage", "-title", "island-fullscreen-focus",
@@ -289,6 +318,56 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             if not snake_audio:
                 keys("w", "input sample captured 1 relative 1")
                 keys("Escape", "input sample captured 0 relative 0")
+            if cave:
+                def cave_samples():
+                    return [tuple(map(float,m)) for m in re.findall(
+                        r"cave sample local ([-+\d.eE]+) ([-+\d.eE]+) ([-+\d.eE]+) flight ([01]) solid ([01])",log())]
+                cave_stages={}
+                def save_cave_stage(name):
+                    count=len(cave_samples())
+                    wait(lambda: len(cave_samples())>=count+2,f"cave {name} presentation")
+                    cave_stages[name]=len(cave_samples())-1
+                    command("import","-window",window,str(evidence/f"cave-{name}.png"))
+                keys("F1","debug overlay enabled")
+                keys("l","debug teleport cave entrance")
+                keys("F1","debug overlay disabled")
+                wait(lambda: cave_samples(),"cave approach diagnostics")
+                save_cave_stage("start")
+                command("xdotool","keydown","w")
+                try:
+                    wait(lambda: cave_samples()[-1][2]>19.5,"walking into cave back wall")
+                    count=len(cave_samples())
+                    wait(lambda: len(cave_samples())>=count+4,"held forward against cave wall")
+                finally:
+                    command("xdotool","keyup","w")
+                save_cave_stage("back")
+                keys("Tab","flight on;")
+                command("xdotool","keydown","space")
+                try:
+                    wait(lambda: cave_samples()[-1][1]>.025*cave_samples()[-1][2]+.75,"inner ceiling ascent")
+                    count=len(cave_samples())
+                    wait(lambda: len(cave_samples())>=count+4,"held ascent against roof")
+                finally:
+                    command("xdotool","keyup","space")
+                save_cave_stage("ceiling")
+                command("xdotool","keydown","Shift_L")
+                try:
+                    wait(lambda: cave_samples()[-1][1]<.025*cave_samples()[-1][2]+.05,"cave floor descent")
+                finally:
+                    command("xdotool","keyup","Shift_L")
+                keys("Tab","flight off; safe dry-land return")
+                save_cave_stage("landed")
+                command("xdotool","keydown","s")
+                try:
+                    wait(lambda: cave_samples()[-1][2]<-5,"walking out of cave")
+                finally:
+                    command("xdotool","keyup","s")
+                save_cave_stage("exit")
+                samples=cave_samples()
+                validate_cave_trace(samples,cave_stages)
+                (evidence/"cave-result.json").write_text(json.dumps({"passed":True,
+                    "samples":samples,"stages":cave_stages,
+                    "scope":"actual keyboard entry/back wall/inner roof/floor/exit; not portable qualification"},indent=2)+"\n")
             if boar_audio:
                 def samples():
                     return [tuple(map(int, m)) for m in re.findall(
@@ -472,7 +551,7 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
             # Runtime filenames deliberately use outer procfs IDs for kernel correlation;
             # Popen.pid belongs to the private PID namespace. Match its startup identity.
             runtime_path, runtime_text = owned_runtime_log(evidence, game.pid)
-            transitions = validate_control_transitions(runtime_text, flight, fullscreen_cycles)
+            transitions = validate_control_transitions(runtime_text, flight or cave, fullscreen_cycles)
             if flight:
                 windows = validate_frame_windows(runtime_text)
                 if not any(row["flight"] for row in windows):
@@ -486,9 +565,10 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False,
                 "scope": "persistent native scripted transitions; not GPU crash qualification"}, indent=2)+"\n")
             (evidence / "input-result.json").write_text(json.dumps({
                 "passed": True, "stages": stages,
-                "heldRepeatSuppressed": not snake_audio,
-                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio,
+                "heldRepeatSuppressed": not snake_audio and not cave,
+                "backgroundKeyIgnoredAfterFocusReturn": not snake_audio and not cave,
                 "flightChecked": flight,
+                "caveChecked": cave,
                 "boarAudioChecked": boar_audio,
                 "snakeAudioChecked": snake_audio,
                 "mouseCapturedAndReleasedAfterToggle": not snake_audio}, indent=2)+"\n")
@@ -511,6 +591,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
     parser.add_argument("--flight", action="store_true", help="also exercise Tab flight, ceiling and return")
+    parser.add_argument("--cave", action="store_true", help="focused live cave entry, wall, roof, floor and exit check")
     parser.add_argument("--diving", action="store_true", help="exercise underwater descent and resurfacing")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--snake-audio", action="store_true", help="exercise close snake-hiss playback and mute through SDL disk output")
@@ -518,11 +599,13 @@ def main():
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
     parser.add_argument("--worker", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.cave and (args.flight or args.diving or args.boar_audio or args.snake_audio):
+        parser.error("--cave is a separate focused traversal scope")
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
         worker(build, args.worker.resolve(strict=True), window_manager, args.flight,
-               args.boar_audio, args.diving, args.snake_audio)
+               args.boar_audio, args.diving, args.snake_audio, args.cave)
         return
     if args.boar_audio and args.snake_audio:
         raise RuntimeError("choose only one focused wildlife audio scope")
@@ -537,7 +620,7 @@ def main():
         journal = Journal()
         baseline = journal.latest()
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        evidence = build / ("software-boar-audio" if args.boar_audio else
+        evidence = build / ("software-cave" if args.cave else "software-boar-audio" if args.boar_audio else
                             "software-snake-audio" if args.snake_audio else
                             "software-flight" if args.flight else "software-fullscreen") / stamp
         evidence.mkdir(parents=True)
@@ -547,6 +630,8 @@ def main():
                    "--window-manager", str(window_manager)]
         if args.flight:
             command.append("--flight")
+        if args.cave:
+            command.append("--cave")
         if args.diving:
             command.append("--diving")
         if args.boar_audio:
@@ -570,7 +655,7 @@ def main():
                     "scope":"private llvmpipe fullscreen/optional flight or disk-audio input; not hardware qualification"}
         report = evidence / "run.json"
         report.write_text(json.dumps(metadata, indent=2)+"\n")
-        print(f"Native fullscreen evidence: {evidence}", flush=True)
+        print(f"Native input evidence: {evidence}", flush=True)
         failure = None
         try:
             result = run_monitored_capture(command, evidence, environment, evidence, journal, baseline, timeout=240)
@@ -594,7 +679,7 @@ def main():
             report.write_text(json.dumps(metadata, indent=2)+"\n")
         if failure:
             raise failure
-        print("Native software fullscreen input passed; no new kernel GPU faults")
+        print("Native software input passed; no new kernel GPU faults")
 
 
 if __name__ == "__main__":

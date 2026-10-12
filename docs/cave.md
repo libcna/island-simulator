@@ -1,8 +1,8 @@
 # Small headland cave — implementation in progress
 
 This is a project-owned procedural mesh, without imported assets or licence dependencies.
-The native Release game now constructs and renders the cave and terrain replacement.
-Do not mark the PLAN entry complete: live traversal and portable runtime gates remain.
+The native game now constructs and renders the cave and terrain replacement.
+Do not mark the PLAN entry complete: wildlife/visual polish and portable runtime gates remain.
 
 ## Geometry and siting
 
@@ -67,10 +67,26 @@ Flight, spider habitat, snake population and WorldReport regressions pass4/4 in1
 world fingerprint after the reserved footprint is `8d45b4d307bfeff3`.
 Both existing native build trees are refreshed; Debug cave tests pass in6.06s.
 
+## Native live keyboard traversal
+
+`python3 tools/run_fullscreen_software.py build-consumer --cave` uses the existing supervised
+private llvmpipe/pixman display. F1+L places the player8m outside the cave. Real W input walks
+to the back wall at depth19.6597 and remains held there; Tab/Space tests inner-roof blocking,
+Shift descends, Tab lands, and S walks out to depth-6.527. Evidence
+`build-consumer/software-cave/20261012T173950.239540Z` passes with88diagnostic capsule samples,
+none intersecting solid rock. Back/exit screenshots were inspected. The very near back-wall
+image is intentionally dark and does not substitute for the separate inward/outward visual views.
+The validator rejects missing/out-of-order stages, invalid data, rock penetration and incorrect
+wall/roof/floor/exit positions; Python runner tests48/48.
+
+This focused gate excludes F11. The separate fullscreen regression currently fails exact window
+position restoration in private Xwayland/Openbox, including after35s; it is an open finding,
+not a reason to claim cave traversal failed or fullscreen passed.
+
 Next gates:
 
 - Check exterior silhouette/terrain transition, vegetation, contact shadows and animal routes.
 - Inspect fixed `cave` and `cave-inside` captures after every material/shape revision.
-- Verify live entry/exit and flight containment, performance and supported Web/Android runtime.
+- Verify live outer-roof containment, performance and supported Web/Android runtime.
 
 No AMD workload, Android emulator or KVM change is needed for the CPU foundation.

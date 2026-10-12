@@ -241,9 +241,9 @@ namespace island
         lines.reserve(27U);
 #ifndef NDEBUG
         lines.emplace_back(
-            "F1 DEBUG  F2 WORLD  F3 FREECAM  F4 SEEDS  F5-F10/J/K/F12 TELEPORT  F11 FULLSCREEN");
+            "F1 DEBUG  F2 WORLD  F3 FREECAM  F4 SEEDS  F5-F10/J/K/L/F12 TELEPORT  F11 FULLSCREEN");
 #else
-        lines.emplace_back("F1 DEBUG  F2 WORLD  F4 SEEDS  F5-F10/J/K/F12 TELEPORT  F11 FULLSCREEN");
+        lines.emplace_back("F1 DEBUG  F2 WORLD  F4 SEEDS  F5-F10/J/K/L/F12 TELEPORT  F11 FULLSCREEN");
 #endif
         lines.emplace_back("TAB FLIGHT  SPACE UP  SHIFT DOWN  LIMIT 100M / RADIUS 330M");
 

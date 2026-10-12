@@ -28,10 +28,28 @@ from run_fullscreen_software import (geometry, worker as fullscreen_worker,
                                      validate_boar_audio_trace, validate_snake_audio_trace)
 from run_fullscreen_software import validate_control_transitions, owned_runtime_log
 from run_fullscreen_software import validate_diving_trace, validate_frame_windows
+from run_fullscreen_software import validate_cave_trace
 from run_software_capture import validate_build_configuration
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_cave_traversal_and_corruptions(self):
+        points=[(0,0,-8,0,0),(0,.49,19.65,0,0),(0,1.7,19.65,1,0),
+                (0,.50,19.65,0,0),(0,0,-6,0,0)]
+        samples=[p for p in points for _ in range(5)]
+        stages=dict(zip(("start","back","ceiling","landed","exit"),(4,9,14,19,24)))
+        validate_cave_trace(samples,stages)
+        for index,point in ((0,(0,0,-8,0,1)),(4,(0,0,0,0,0)),(9,(0,.5,21,0,0)),
+                            (14,(0,7,19.65,1,0)),(14,(0,1.7,19.65,0,0)),
+                            (19,(0,1.7,19.65,0,0)),(24,(0,0,4,0,0)),
+                            (2,(float("nan"),0,0,0,0)),(3,(2,0,0,0,0))):
+            bad=list(samples);bad[index]=point
+            with self.subTest(index=index,point=point),self.assertRaises(RuntimeError):
+                validate_cave_trace(bad,stages)
+        for bad_stages in ({},dict(stages,back=3),dict(stages,exit=25),dict(stages,start=-1)):
+            with self.assertRaises(RuntimeError):validate_cave_trace(samples,bad_stages)
+        with self.assertRaises(RuntimeError):validate_cave_trace(samples[:5],stages)
+
     def test_runtime_build_configuration_matches_tree(self):
         for mode in ("Debug", "Release", "RelWithDebInfo", ""):
             cache = f"CMAKE_BUILD_TYPE:STRING={mode}\n"

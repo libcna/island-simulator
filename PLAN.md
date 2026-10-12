@@ -112,6 +112,12 @@ now persist. Corrected native executables are rebuilt and the operator confirms 
 problem is fixed. Web/Android runtime qualification remains pending. Both reported native
 FPS and complete-audio-dropout incidents are closed; cave integration is in progress.
 
+Separate QA finding: native private Xwayland/Openbox F11 restores window size but not position
+(561,326→2,36) on two2026-10-12 runs (`software-flight/173501` and `173646`), the second
+with35s allowed for asynchronous completion. No crash/new kernel GPU fault. Cause is not yet
+attributed to game/CNA/SDL/window manager; keep the exact restoration gate and investigate.
+The focused cave keyboard gate deliberately does not exercise F11, so cannot close this finding.
+
 ## Latest implementation — turtle nesting traces
 
 Ecosystem item 14 is now `[~]`. One suitable western dry beach contains two deterministic approach
@@ -534,6 +540,8 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   capsule collision, walking/flight integration and scoped habitat reservation. The first
   outside capture required shape/material revision; not visually accepted as finished.
   See `docs/cave.md` for measurements and remaining live/portable integration gates.
+  Native live keyboard gate now passes entry, back-wall stop, inner-roof containment,
+  descent/landing and exit (`software-cave/20261012T173950.239540Z`); portable and polish remain.
 
 - [ ] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.

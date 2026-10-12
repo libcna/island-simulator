@@ -46,8 +46,9 @@ preserving the authored paths and clearing palettes. It is packaged on all targe
 logs a diagnostic and retains procedural soil. See [material review](docs/forest-floor-material-review.md)
 for provenance, software-only runtime evidence and remaining visual limitations.
 A first-pass20m headland cave now has a real interior, replacement terrain, capsule collision
-and flight roof containment. Native software exterior/interior captures are inspected, but
-natural-shape polish, live traversal and portable qualification remain; see [cave status](docs/cave.md).
+and flight roof containment. Native software exterior/interior captures and a live keyboard
+entry/flight/exit test pass; natural-shape polish and portable qualification remain;
+see [cave status](docs/cave.md).
 Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
 preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
 An animated tropical
@@ -388,7 +389,8 @@ The overlay also shows the four authoritative procedural-layout seeds. Press F4 
 to copy a stable seed report; the panel reports `COPIED` only after reading back the same text and
 otherwise reports `UNAVAILABLE`.
 Press M to mute or unmute the soundscape. Press B to toggle locomotion camera motion. While the
-overlay is visible, F5–F10, J, K, and F12 teleport among QA locations (K cycles through boars), including views toward
+overlay is visible, F5–F10, J, K, L, and F12 teleport among QA locations (K cycles through boars,
+L goes to the cave entrance), including views toward
 the south fish shallows, offshore shark, monkey troop, and the active offshore-current field.
 F11 toggles fullscreen on desktop/Web (subject to browser permissions); Android stays immersive.
 Tab toggles player flight: WASD stays horizontal, Space ascends and either Shift descends.

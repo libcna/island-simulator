@@ -17,10 +17,24 @@ First outside llvmpipe capture172702 passes mechanical gate but visually rejecte
 manufactured, patterned floor. Broader irregular1286.82m³ shell, projecting lip, soil shoulder
 and noise floor now implemented. Inspected revised llvmpipe captures173120cave and173129inside
 both PASS; floor aliasing gone, no sealing terrain, sea visible from inside. Still stylized/
-tunnel-like, especially strata and rear blend; do not claim finished realism. Next: live
-entry/exit/flight, wildlife intersections, further natural-shape polish and portable checks.
+tunnel-like, especially strata and rear blend; do not claim finished realism.
+NEW live keyboard QA PASS `build-consumer/software-cave/20261012T173950.239540Z`: F1+L
+debug teleport8m outside, W todepth19.6597 and held againstbackwall, Tab/Space ceiling,
+Shift floor, Tab land, S exitdepth-6.527.88samples, all capsule-solid0. Back/exit PNGs inspected.
+`tools/run_fullscreen_software.py --cave` is separate scope with no F11; parser tests48/48.
+Next: wildlife intersections (Boar/Goat/Snake/Spider habitat does NOT currently consult CaveSite;
+monkeys already use reserved-route checks), full outer-shell footprint coverage, further
+natural-shape polish and portable checks. Outer rock half-width now can exceed the6m core
+reserve; plants use extra5m, but land wildlife needs a conservative full-shell margin.
 No AMD/Android/KVM activity. Builds CPUs0-3/-j4. See docs/cave.md.
 Both native Release and Debug executables are rebuilt; Debug CaveLayoutTests PASS6.06s.
+
+Separate unresolved QA: private F11 gate failed173501 (originalposition561,326→2,36) and
+173646 (same even after35s). Exact original size/position gate retained, now waits forasync
+configure before judging. No crash or new kernelfault; no evidence cave caused it. CNA SDL
+fullscreen source read only, no dependency edits. Cause may involve exclusive displaymode
+1920x1080→1280x720 and Openbox; do NOT call it fixed or weaken the assertion. Continue safe
+in-scope work, no goal-block/goal-complete transition. New live cave gate does not test F11.
 
 ## Latest operator feedback — FPS and audio dropout resolved
 
