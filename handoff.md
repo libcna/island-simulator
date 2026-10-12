@@ -1,5 +1,36 @@
 # island-simulator handoff
 
+## Latest — grounded spider colony simulation, NOT yet live in IslandGame
+
+Previous turn was progress (mesh+inspected CPU preview). Added SpiderColony.hpp/.cpp
+and tests.12CPUagents use accepted SpiderHabitat homes/fullworld+hut obstacle set;
+reserved.60m patrol+.14m envelope. Authoritative SpiderGroundPose carries rendered
+triangle basis/local8legIK/worldfeet/stance flags with ToWorld/ToLocal. Static stance
+anchors, atmost2swing(>=6supports),120ms smoothstep8mm sin² lift; largest foot error
+>3.5mm triggers replant, moving target4mm ahead/rest neutral. Ground contact+.1mm.
+Valid samples5points/legsegment with taper radii, refuses reachlimit/envelope/ground
+penetration. Not continuous whole-mesh/self-contact proof. State rest/crawl/retreat,
+deterministic intents; .035/.065m/s horizontal speeds,.6rad/s turn; 3Dobserver<2.5m
+retreat waits for headingwithin60degaway. At patrolboundary translationstops but
+turnretained; no inventedcolliders/teleport. dtcap.1/substeps.02. No GPU changes.
+
+Focused6.05s PASS: two equal colonies30s/20ms, per-agenttravel.625706–.940732m,
+110443consecutive stancepairs exactanchorzerochange,28773swings, >=6supports, actual
+reconstructed endpoints,1s detailedmesh samples minclearance.0000991821m; another
+10s fixedobserver test nondecreasingdistance+actualretreat; high/invalidobserver and
+invaliddt checks. Current inclusivebuild+51CPU PASS55.93s, logs
+build/spider-colony-current-{build,tests}.log. Older initial stats in tool output are
+pre-rest/boundary/retreat refinements, not current. All handles terminal0:88751,39272,
+41237,85714,15246,90805. No actual display/browser/Androidrun or portablebuild.
+Latchc0bd1704 unchanged/no hardware/KVM/emulator/dependency changes. Goalactive/nopush.
+
+NEXT: actually wire SpiderColony and SpiderMesh into IslandGame/renderer, visibility
+budget/counts/worldreport, close camera and contained runtime inspection. Spiders
+remain ABSENT in live world until that integration; webs remainabsent andrequired.
+Body acceleration/supportpolygon/normaljumps/selfcontact/longerroutes remainopen;
+CPU anchors do not prove natural-lookinggait. All prior species/resident/environment/
+goat work and high-priority unresolved AMD flight crash retained.
+
 ## Latest — first spider mesh plus inspected CPU shape preview, NOT live spiders
 
 Previous turn was progress (eight-leg kinematics). Added SpiderMesh.hpp/.cpp and

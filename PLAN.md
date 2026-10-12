@@ -792,6 +792,13 @@ progress or require player interaction; dangerous species keep their distance li
   recognizable spider silhouette, faceted body and sparse bristles remain. This is
   not an island screenshot or final realism approval. Next: planted-foot ground
   locomotion and live integration, then actual island views plus plant-attached webs.
+  SpiderColony now implements CPU-only12-agent rest/crawl/retreat with retained world
+  feet,120ms lifted replant, at most2swing, ground-fitted basis/IK reach checks and
+  bounded0.60m patrol. Focused30s determinism/terrain/mesh/stance test plus10s observer
+  retreat passes6.05s; travel0.625706–0.940732m,110443 fixed stance pairs, sampled mesh
+  clearance>=0.099mm. Not yet wired into IslandGame/renderer; webs and visual gait
+  acceptance remain open. Current details and limitations in docs/spiders.md.
+  Current inclusive native build/full51CPU PASS55.93s. No GPU or portable runtime.
   Next: recognizable eight-leg model, grounded motion, actual renderer/population and
   plant-attached webs. Full requirements/evidence in docs/spiders.md.
   Inclusive native build/full48CPU PASS97.63s, spider test1.58s. No renderer or

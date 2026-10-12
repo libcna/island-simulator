@@ -1,8 +1,48 @@
 # Spiders — implementation and verification
 
-Status: CPU ground habitat, articulated legs and first mesh only. **No live spiders or webs are installed
+Status: CPU ground population/motion and first mesh only. **No live spiders or webs are installed
 in IslandGame yet.** Both ground spiders and webs between plants remain required.
 This is not a rendered model, movement, visual or platform acceptance claim.
+
+## Ground colony simulation (not integrated into IslandGame)
+
+`SpiderColony` constructs the12 habitat homes against the full static world obstacle
+set. Its renderer-independent states expose an authoritative `SpiderGroundPose`,
+including the rendered-triangle body basis, eight local leg solutions, eight world
+foot positions and stance flags. Ground basis transforms are shared with the intended
+renderer; it must not reconstruct a different stateless gait.
+
+Each home retains its pre-cleared0.60m patrol disk plus0.14m body envelope. Quiet
+decisions deterministically alternate rest/crawl and headings, with inward intent
+near the boundary. Crawl speed is0.035m/s horizontal, retreat0.065m/s, turning0.6rad/s.
+An observer within2.5m in3D triggers non-hostile retreat; translation waits until the
+heading is within60degrees of the direction away. At the patrol boundary translation
+stops but turning remains possible. No escaping the reserved disk, teleports or
+invisible colliders. High/nonfinite observers do not trigger ground retreat.
+
+Updates clamp to100ms and subdivide to20ms. World-space stance feet stay fixed while
+the body moves/turns. At most two feet swing, leaving at least six supports; the most
+displaced eligible foot is selected above3.5mm error. A120ms smoothstep swing has an
+8mm sine-squared lift and ground-aware height; moving landing targets lead by4mm,
+resting ones return to neutral. Feet sit0.1mm above rendered ground. The IK solver
+must reach every accepted body/foot pose. Candidate legs are sampled at five points
+per segment for radius-aware ground clearance and140mm horizontal envelope. This
+is not continuous triangle/terrain intersection or complete self-contact proof.
+
+`SpiderColonyTests` builds actual terrain/palms/jungle/props/wreck/hut obstacles,
+compares two deterministic colonies over30s at20ms, requires each animal to travel,
+checks six supports, exact retained stance anchors, reconstructed rendered endpoints,
+bounded speed/home disk and actual detailed-mesh terrain clearance at1s intervals.
+Current focused test passes6.05s: per-animal travel0.625706–0.940732m,
+110443 consecutive stance pairs with no changed world position,28773 swing samples,
+minimum sampled mesh clearance0.0000991821m. A further10s fixed-observer test requires
+nondecreasing observer distance and actual retreat travel; invalid/high observer and
+invalid dt checks pass. Sparse mesh samples and CPU metrics are not visual gait proof.
+Acceleration, support-polygon stability, terrain-normal transitions, limb self-contact,
+longer/other routes and actual native/Web/Android presentation still need review.
+Current inclusive native build and51/51 CPU tests pass55.93s, logs
+`build/spider-colony-current-{build,tests}.log`. No actual renderer/browser/emulator
+or portable build was run for this simulation step.
 
 ## First mesh (not yet rendered in the game)
 

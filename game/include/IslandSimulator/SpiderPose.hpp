@@ -10,6 +10,7 @@ struct SpiderPoint {
 struct SpiderLegPose {
     SpiderPoint root,hip,knee,foot;
     bool reachLimited;
+    bool operator==(const SpiderLegPose&) const = default;
     static constexpr float CoxaLength=.018f,UpperLength=.050f,LowerLength=.065f;
 };
 // Metres, +z forward. Four pairs attach to the front body, not the abdomen.

@@ -67,6 +67,7 @@ add_library(island_core STATIC
     game/src/SpiderHabitat.cpp
     game/src/SpiderPose.cpp
     game/src/SpiderMesh.cpp
+    game/src/SpiderColony.cpp
     game/src/GoatPose.cpp
     game/src/GoatHerd.cpp
     game/src/GoatMesh.cpp
@@ -234,6 +235,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_spider_mesh_tests)
     island_enable_first_party_sanitizers(island_spider_mesh_tests)
     add_test(NAME IslandSpiderMeshTests COMMAND island_spider_mesh_tests)
+    add_executable(island_spider_colony_tests tests/SpiderColonyTests.cpp)
+    target_link_libraries(island_spider_colony_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_spider_colony_tests)
+    island_enable_first_party_sanitizers(island_spider_colony_tests)
+    add_test(NAME IslandSpiderColonyTests COMMAND island_spider_colony_tests)
     target_link_libraries(island_goat_habitat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_habitat_tests)
     island_enable_first_party_sanitizers(island_goat_habitat_tests)
