@@ -511,7 +511,10 @@ namespace island
                 }
 
                 const float cluster = ClusterNoise(x, z, seed ^ 0xc2b2ae3dU);
-                const float density = 0.20f + 0.22f * cluster;
+                const auto debris = IslandEnvironmentField::SampleCoastalDebris(
+                    x, z, sample.signedShoreDistance);
+                const float density = std::clamp(0.20f + 0.22f * cluster
+                    + 0.30f * debris.accumulation, 0.0f, 0.72f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0x27d4eb29U)) >= density) {
                     continue;
                 }
@@ -614,6 +617,65 @@ namespace island
             driftwood_.push_back(wood);
         }
 
+        // A short, irregular accumulation line makes the prevailing east-to-west wind
+        // legible in the protected western bay. These are ordinary existing silhouettes,
+        // selected from many deterministic candidates rather than authored coordinates.
+        int windSortedBayWoodCount=0;
+        for (int candidate=0;candidate<160
+                && windSortedBayWoodCount<WindSortedBayDriftwoodCount;++candidate) {
+            const std::uint32_t candidateHash=Hash(candidate,-candidate,seed^0x8f1bbcdcU);
+            const float angle=std::numbers::pi_v<float>
+                +(UnitRandom(candidateHash)-.5f)*.86f;
+            const float inland=5.8f+11.5f*UnitRandom(
+                Hash(candidate,candidate,seed^0x4cf5ad43U));
+            const float radius=terrain.ShoreRadius(angle)-inland;
+            DriftwoodPlacement wood;
+            wood.x=std::cos(angle)*radius;
+            wood.z=std::sin(angle)*radius;
+            const auto centre=terrain.Sample(wood.x,wood.z);
+            const auto debris=IslandEnvironmentField::SampleCoastalDebris(
+                wood.x,wood.z,centre.signedShoreDistance);
+            if (debris.accumulation<.58f || centre.signedShoreDistance<2.0f
+                    || centre.signedShoreDistance>25.0f || centre.height<.12f
+                    || centre.slopeRadians>.34906585f
+                    || VegetationLayout::IsReservedRoute(wood.x,wood.z)
+                    || NearTree(wood.x,wood.z,1.8f,palms,jungle)) continue;
+            wood.length=DriftwoodMinimumLength+(DriftwoodMaximumLength-DriftwoodMinimumLength)
+                *UnitRandom(Hash(candidate,1,seed^0x6c8e9cf5U));
+            wood.radius=.09f+.09f*UnitRandom(Hash(candidate,2,seed^0x2d98f3a9U));
+            wood.variant=static_cast<std::uint8_t>(Hash(candidate,3,seed^0x71b34d65U)
+                %DriftwoodVariantCount);
+            wood.yawRadians=angle+std::numbers::pi_v<float>*.5f
+                +(UnitRandom(Hash(candidate,4,seed^0x9e3779b9U))-.5f)*.74f;
+            const float directionX=std::cos(wood.yawRadians);
+            const float directionZ=std::sin(wood.yawRadians);
+            float maximumSupportHeight=centre.height,minimumSupportHeight=centre.height;
+            bool validFootprint=true;
+            for (int sampleIndex=0;sampleIndex<DriftwoodSupportSamples;++sampleIndex) {
+                const float t=static_cast<float>(sampleIndex)
+                    /static_cast<float>(DriftwoodSupportSamples-1)-.5f;
+                const float sampleX=wood.x+directionX*wood.length*t;
+                const float sampleZ=wood.z+directionZ*wood.length*t;
+                const auto support=terrain.Sample(sampleX,sampleZ);
+                maximumSupportHeight=std::max(maximumSupportHeight,support.height);
+                minimumSupportHeight=std::min(minimumSupportHeight,support.height);
+                if (support.signedShoreDistance<1.5f || support.signedShoreDistance>27.0f
+                        || support.slopeRadians>.40142573f
+                        || VegetationLayout::IsReservedRoute(sampleX,sampleZ)
+                        || NearTree(sampleX,sampleZ,1.05f,palms,jungle)) {
+                    validFootprint=false;
+                    break;
+                }
+            }
+            if (!validFootprint || maximumSupportHeight-minimumSupportHeight>.22f) continue;
+            if (std::ranges::any_of(driftwood_,[&wood](const DriftwoodPlacement& existing) {
+                    return DistanceSquared(wood.x,wood.z,existing.x,existing.z)<10.24f;
+                })) continue;
+            wood.y=maximumSupportHeight+wood.radius*.58f;
+            driftwood_.push_back(wood);
+            ++windSortedBayWoodCount;
+        }
+
         beachDetails_.reserve(420U);
         for (int gridZ = -BeachDetailRadius; gridZ <= BeachDetailRadius; ++gridZ) {
             for (int gridX = -BeachDetailRadius; gridX <= BeachDetailRadius; ++gridX) {
@@ -636,9 +698,16 @@ namespace island
                 const float cluster = ClusterNoise(x, z, seed ^ 0x3c6ef372U);
                 const auto experience=IslandEnvironmentField::SampleCoastalExperience(
                     x,z,sample.signedShoreDistance);
-                const float density = std::clamp(.22f + cluster*.26f
+                const auto debris=IslandEnvironmentField::SampleCoastalDebris(
+                    x,z,sample.signedShoreDistance);
+                const float unsortedDensity = std::clamp(.22f + cluster*.26f
                     + experience.broadBeach*.24f + experience.shelteredBay*.18f
                     + experience.mangroveMouth*.26f,0.0f,.90f);
+                // Preserve every established crab-habitat cue around the walkable coast;
+                // sorting adds shell/pebble deposition in shelter instead of hollowing out
+                // previously inhabited shore sectors.
+                const float density=std::clamp(unsortedDensity
+                    *(1.0f+.18f*debris.accumulation),0.0f,.92f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0xa54ff53aU)) >= density) {
                     continue;
                 }
@@ -653,14 +722,47 @@ namespace island
                 detail.scale = BeachDetailMinimumScale
                     + (BeachDetailMaximumScale - BeachDetailMinimumScale)
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x9b05688cU));
-                const float wrackAffinity=std::clamp(experience.shelteredBay*.42f
-                    + experience.mangroveMouth*.58f,0.0f,1.0f);
+                const float wrackAffinity=experience.broadBeach>.35f ? 0.0f
+                    : SmoothStep((debris.accumulation-.34f)/.48f);
                 const float variantRoll=UnitRandom(Hash(gridX,gridZ,seed^0x1f83d9abU));
                 if (variantRoll < wrackAffinity) detail.variant=3U;
                 else detail.variant=static_cast<std::uint8_t>(
                     Hash(gridX,gridZ,seed^0x5be0cd19U)%3U);
                 beachDetails_.push_back(detail);
             }
+        }
+
+        int windSortedBayDetailCount=0;
+        for (int candidate=0;candidate<240
+                && windSortedBayDetailCount<WindSortedBayDetailCount;++candidate) {
+            const float angle=std::numbers::pi_v<float>
+                +(UnitRandom(Hash(candidate,5,seed^0xa4093822U))-.5f)*.90f;
+            const float inland=4.0f+13.0f*UnitRandom(Hash(candidate,6,seed^0x299f31d0U));
+            const float radius=terrain.ShoreRadius(angle)-inland;
+            const float x=std::cos(angle)*radius,z=std::sin(angle)*radius;
+            const auto sample=terrain.Sample(x,z);
+            const auto debris=IslandEnvironmentField::SampleCoastalDebris(
+                x,z,sample.signedShoreDistance);
+            if (debris.accumulation<.58f || sample.signedShoreDistance<3.0f
+                    || sample.signedShoreDistance>18.0f || sample.height<.22f
+                    || sample.slopeRadians>.2617994f
+                    || VegetationLayout::IsReservedRoute(x,z)) continue;
+            if (std::ranges::any_of(beachDetails_,[x,z](const BeachDetailPlacement& existing) {
+                    return DistanceSquared(x,z,existing.x,existing.z)<3.24f;
+                })) continue;
+            BeachDetailPlacement detail;
+            detail.x=x;
+            detail.y=sample.height+.012f;
+            detail.z=z;
+            detail.yawRadians=UnitRandom(Hash(candidate,7,seed^0x082efa98U))
+                *2.0f*std::numbers::pi_v<float>;
+            detail.scale=BeachDetailMinimumScale
+                +(BeachDetailMaximumScale-BeachDetailMinimumScale)
+                    *UnitRandom(Hash(candidate,8,seed^0xec4e6c89U));
+            detail.variant=windSortedBayDetailCount%2==0 ? 3U
+                : static_cast<std::uint8_t>(Hash(candidate,9,seed^0x452821e6U)%3U);
+            beachDetails_.push_back(detail);
+            ++windSortedBayDetailCount;
         }
 
         for (std::size_t poolIndex=0;poolIndex<TidePoolLayout::Definitions.size();++poolIndex) {
@@ -683,7 +785,6 @@ namespace island
             const auto palmX = static_cast<std::int32_t>(std::lround(palm.x * 8.0f));
             const auto palmZ = static_cast<std::int32_t>(std::lround(palm.z * 8.0f));
             const std::uint32_t siteHash = Hash(palmX, palmZ, seed ^ 0x5be0cd19U);
-            if (UnitRandom(siteHash) >= 0.46f) continue;
 
             const float radialAngle = UnitRandom(Hash(palmX, palmZ, seed ^ 0xcbbb9d5dU))
                 * 2.0f * std::numbers::pi_v<float>;
@@ -692,6 +793,13 @@ namespace island
             const float x = palm.x + std::cos(radialAngle) * offset;
             const float z = palm.z + std::sin(radialAngle) * offset;
             const TerrainSample centre = terrain.Sample(x, z);
+            const auto debris=IslandEnvironmentField::SampleCoastalDebris(
+                x,z,centre.signedShoreDistance);
+            const float coastalInfluence=1.0f-SmoothStep(
+                (centre.signedShoreDistance-35.0f)/55.0f);
+            const float frondDensity=std::lerp(.46f,
+                .08f+.68f*debris.accumulation,coastalInfluence);
+            if (UnitRandom(siteHash) >= frondDensity) continue;
             if (centre.signedShoreDistance < 7.0f
                 || centre.signedShoreDistance > 188.0f
                 || centre.height < 0.45f || centre.slopeRadians > 0.31415927f

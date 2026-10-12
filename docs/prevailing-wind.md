@@ -20,6 +20,28 @@ share, so the island reads as a real place with a windward and a leeward side.
 
 Native llvmpipe `build/software-captures/20261010T161635.857589Z-palms`, `161642.176454Z-beach`,
 `161649.189940Z-overview` (pass, inspected): east-coast palms lean visibly to the west, interior
-palms stay upright. Not yet wind-aware: canopy crowns, windward wave height and foam, driftwood
-accumulation, dune orientation, sky wisp direction and the wind bed in the soundscape; these
+palms stay upright. Not yet wind-aware: canopy crowns, windward wave height and foam,
+dune orientation, sky wisp direction and the wind bed in the soundscape; these
 are the remaining parts of item 4.
+
+## Coastal-debris integration — 2026-10-12
+
+`IslandEnvironmentField::SampleCoastalDebris` now combines the same prevailing-wind exposure
+with the shared sheltered-bay, mangrove-mouth and rocky-shore identities. It returns normalized
+exposure, shelter and accumulation controls. `NaturalPropLayout` consumes the accumulation for
+driftwood, shell/pebble/dry-wrack detail and coastal fallen-frond density. Ten supported,
+tree/route-cleared driftwood pieces and 24 spaced shell/wrack clusters form a deterministic
+irregular deposition belt in the western bay using only existing geometry.
+
+The default world measures sheltered/exposed counts of 11/4 driftwood, 47/26 beach-detail
+clusters and 2/0 coastal fallen fronds. Total inventories remain bounded at 33 driftwood,
+217 beach details and 35 fallen fronds; all six debris-guided crab colonies remain valid.
+Core tests pin the field ordering, finite failure behavior, exact placement determinism,
+support/clearance and at least 2:1 driftwood plus 5:3 detail bias. WorldReport is valid with
+fingerprint `ec61dbf7e9ab7adb`.
+
+Inspected isolated llvmpipe captures `20261012T140703.574060Z-bay-ground` and
+`20261012T140806.665876Z-headland` pass. The bay frame visibly contains the accumulated logs,
+wrack and small shell cues; the headland retains the sparse rocky character. These are native
+software checks only. Web/Android, interactive coastal walking and performance comparison remain;
+wave/foam, canopy, clouds and ambient sound are still not wind-aware.

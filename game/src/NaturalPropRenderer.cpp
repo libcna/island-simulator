@@ -1245,6 +1245,10 @@ void main()
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
                   << " shell/pebble/wrack clusters, near-field culled\n";
         std::cout << "island-simulator: dry wrack reuses one of four beach-detail variants\n";
+        std::cout << "island-simulator: prevailing-wind shelter adds "
+                  << NaturalPropLayout::WindSortedBayDriftwoodCount << " driftwood and "
+                  << NaturalPropLayout::WindSortedBayDetailCount
+                  << " shell/wrack placements to the leeward bay\n";
         if (customShaderReady_) {
             std::cout << "island-simulator: natural-prop portable shader with near/far LOD\n";
             std::cout << "island-simulator: near rocks use filtered mineral grain and restrained lichen patches\n";

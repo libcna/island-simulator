@@ -113,8 +113,21 @@ separate from the ocean. The first three camera/location attempts were rejected.
 roundness/detail, optional small-crab use, Web/Android and performance review remain,
 so ecosystem-stage item 8 is `[~]`. See [tide-pools.md](docs/tide-pools.md).
 
-- [~] Increase the production snake and ground-spider populations beyond the former
-  four snakes and twelve spiders so both animals are encountered more often while
+Wind-sorted debris progress: one shared coastal-debris sample combines `PrevailingWind`
+exposure with sheltered-bay, mangrove-mouth and rocky-shore identities. Driftwood,
+shell/pebble/dry-wrack detail and coastal fallen-frond density now consume it. A bounded
+western-bay deposition belt reuses existing models and adds ten supported/cleared driftwood
+pieces plus 24 spaced detail clusters. The deterministic world measures sheltered/exposed
+counts of 11/4 driftwood, 47/26 beach details and 2/0 coastal fronds; totals are 33/217/35,
+all six crab habitats remain valid and WorldReport fingerprint is `ec61dbf7e9ab7adb`.
+Inspected isolated llvmpipe `20261012T140703.574060Z-bay-ground` and
+`20261012T140806.665876Z-headland` pass and visibly establish the rich/sparse contrast.
+Web/Android, interactive coastal walking and performance comparison remain, so ecosystem-stage
+item 9 is `[~]`. See [prevailing-wind.md](docs/prevailing-wind.md).
+
+- [~] Increase the production population to exactly 50 ground snakes and 200 ground
+  spiders, superseding the former four/twelve and current eight/24 stages, so both
+  animals are encountered much more often while
   exploring. Keep placement deterministic, separated and habitat-driven: snakes belong
   on dense-understory margins and suitable trees, while ground spiders remain in safe
   forest/brush patches. Extend simulation, visibility/LOD, contact-shadow and draw-call
@@ -133,6 +146,10 @@ so ecosystem-stage item 8 is `[~]`. See [tide-pools.md](docs/tide-pools.md).
   still fail because of the intentionally dark, tightly cropped habitat, so neither is
   final appearance acceptance. Long-walk encounter frequency, performance comparison
   and Web/Android runtime remain open.
+  Operator count target clarified 2026-10-12: 50 snakes and 200 spiders. Do not mark
+  this complete at any smaller population; rework habitat packing and simulation,
+  renderer/contact-shadow/diagnostic capacities, visibility budgets and tests before
+  raising the live constants.
 
 - [~] Make every ground snake visibly crawl instead of reading as a static prop. Preserve
   terrain and obstacle contact along the full body while the head advances, the body

@@ -3853,3 +3853,18 @@ and M mute were nested in interactive UpdateCamera, so fixed QA views never adva
 cooldowns or muted. Both now run in the common update path. Screenshot inspected: close
 snake/head and F1 state visible; it is functional evidence, not visual/acoustic realism.
 No subjective listening, Web or Android claim has been made.
+# Latest — prevailing-wind debris accumulation native pass
+
+Ecosystem item9 progressed to `[~]`. `IslandEnvironmentField::SampleCoastalDebris`
+combines existing `PrevailingWind` exposure with bay/mouth/rock identities; driftwood,
+beach detail and coastal fallen-frond density share it. NaturalPropLayout adds a bounded
+deterministic western-bay belt of10 supported/tree+route-cleared driftwood and24 spaced
+shell/wrack clusters, reusing all existing meshes/draw paths. Initial removal-biased
+attempts correctly failed because one of six crab debris habitats disappeared; final
+additive sorting preserves every old cue and all crab habitats. Core PASS105.8s; measured
+sheltered/exposed wood/detail/fronds11/4,47/26,2/0; totals33/217/35. WorldReport valid,
+fingerprintec61dbf7e9ab7adb. Native game build max4cores PASS. Actual isolated llvmpipe
+`20261012T140703.574060Z-bay-ground` and `140806.665876Z-headland` PASS/kernel[]; both
+images inspected, bay visibly richer and headland sparse/rocky. Web/Android, interactive
+walk and performance remain, so no completion claim. Next ecosystem item10 cloud drift.
+No AMD/KVM/dependency changes.

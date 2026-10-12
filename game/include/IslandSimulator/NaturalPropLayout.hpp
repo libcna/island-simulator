@@ -113,6 +113,8 @@ namespace island
         static constexpr int AuthoredClearingLogCount = 2;
         static constexpr int StreamBankLogCandidateCount = 8;
         static constexpr int AuthoredCoveDriftwoodCount = 3;
+        static constexpr int WindSortedBayDriftwoodCount = 10;
+        static constexpr int WindSortedBayDetailCount = 24;
         static constexpr float AuthoredCoveAngle = -2.35f;
         static constexpr float RockMinimumScale = 0.48f;
         static constexpr float RockMaximumScale = 1.85f;

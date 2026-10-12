@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IslandSimulator/PrevailingWind.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
 
 #include <algorithm>
@@ -26,6 +27,13 @@ namespace island
         float shelteredBay = 0.0f;
         float rockyShore = 0.0f;
         float mangroveMouth = 0.0f;
+    };
+
+    struct CoastalDebrisSample
+    {
+        float windExposure = 0.0f;
+        float shelter = 0.0f;
+        float accumulation = 0.0f;
     };
 
     /** @brief Shared coastal and first inland abiotic controls; canopy light remains separate. */
@@ -97,6 +105,28 @@ namespace island
                 coast.rockiness,
                 mouth,
             };
+        }
+
+        /** @brief Wind/wave sorting shared by coastal wood, fronds, shells and dry wrack. */
+        [[nodiscard]] static CoastalDebrisSample SampleCoastalDebris(
+            float x, float z, float signedShoreDistance) noexcept
+        {
+            if (!std::isfinite(x) || !std::isfinite(z) || !std::isfinite(signedShoreDistance))
+                return {};
+            const auto experience = SampleCoastalExperience(x, z, signedShoreDistance);
+            const float coastalIdentity = std::max({experience.broadBeach,
+                experience.shelteredBay, experience.rockyShore, experience.mangroveMouth});
+            const float exposure = wind::Exposure(x, z, std::max(signedShoreDistance, 0.0f));
+            const float leeward = 1.0f - exposure;
+            const float protectedWater = std::max(experience.shelteredBay,
+                                                   experience.mangroveMouth);
+            const float shelter = std::clamp(protectedWater * 0.82f
+                + leeward * coastalIdentity * 0.24f
+                - experience.rockyShore * 0.48f, 0.0f, 1.0f);
+            const float accumulation = coastalIdentity * std::clamp(0.06f
+                + shelter * 0.66f + leeward * 0.26f
+                - experience.rockyShore * 0.72f, 0.0f, 1.0f);
+            return {exposure, shelter, accumulation};
         }
 
         /** @brief Shared valley/stream moisture, drainage concentration and coastal salt field. */

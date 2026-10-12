@@ -4074,6 +4074,16 @@ int main()
     const float mouthZ=island::StreamRoute::CentreZ(mouthX);
     const auto mouthExperience=island::IslandEnvironmentField::SampleCoastalExperience(
         mouthX,mouthZ,terrain.SignedShoreDistance(mouthX,mouthZ));
+    const auto broadBeachDebris=island::IslandEnvironmentField::SampleCoastalDebris(
+        0.0f,-terrain.ShoreRadius(-std::numbers::pi_v<float>*.5f)+12.0f,
+        coastalStation(-std::numbers::pi_v<float>*.5f,12.0f).signedShoreDistance);
+    const float bayDebrisRadius=terrain.ShoreRadius(std::numbers::pi_v<float>)-12.0f;
+    const auto bayDebris=island::IslandEnvironmentField::SampleCoastalDebris(
+        -bayDebrisRadius,0.0f,bayStation.signedShoreDistance);
+    const float headlandDebrisRadius=terrain.ShoreRadius(.35f)-12.0f;
+    const auto headlandDebris=island::IslandEnvironmentField::SampleCoastalDebris(
+        std::cos(.35f)*headlandDebrisRadius,std::sin(.35f)*headlandDebrisRadius,
+        rockyStation.signedShoreDistance);
     Check(broadBeachExperience.broadBeach>.90f
             && broadBeachExperience.broadBeach>broadBeachExperience.shelteredBay,
         "southern Robinson beach has a dominant shared coastal identity");
@@ -4085,6 +4095,14 @@ int main()
     Check(mouthExperience.mangroveMouth>.80f
             && mouthExperience.mangroveMouth>mouthExperience.shelteredBay,
         "stream outlet has a localized mangrove-mouth coastal identity");
+    Check(bayDebris.windExposure<headlandDebris.windExposure*.45f
+            && bayDebris.shelter>.70f && headlandDebris.shelter<.10f,
+        "shared debris field distinguishes leeward bay shelter from windward headland exposure");
+    Check(bayDebris.accumulation>.70f
+            && broadBeachDebris.accumulation>.10f
+            && broadBeachDebris.accumulation<bayDebris.accumulation
+            && headlandDebris.accumulation<.05f,
+        "shared debris accumulation is strongest in the bay and minimal on rocky headlands");
     Check(island::TidePoolLayout::Definitions.size()==5U,
         "rocky shore has a small bounded tide-pool set");
     for (std::size_t index=0;index<island::TidePoolLayout::Definitions.size();++index) {
@@ -4129,6 +4147,11 @@ int main()
     Check(invalidExperience.broadBeach==0.0f && invalidExperience.shelteredBay==0.0f
             && invalidExperience.rockyShore==0.0f && invalidExperience.mangroveMouth==0.0f,
         "non-finite coastal-experience query has safe empty controls");
+    const auto invalidDebris=island::IslandEnvironmentField::SampleCoastalDebris(
+        quietNan,0.0f,0.0f);
+    Check(invalidDebris.windExposure==0.0f && invalidDebris.shelter==0.0f
+            && invalidDebris.accumulation==0.0f,
+        "non-finite coastal-debris query has safe empty controls");
     const float streamX=-110.0f,streamZ=island::StreamRoute::CentreZ(streamX);
     CheckNear(island::StreamRoute::CentreZ(island::StreamRoute::SourceX), -40.05f,
         .0001f, "stream meander preserves the authored source connection");
@@ -5091,6 +5114,7 @@ int main()
     std::array<bool, island::NaturalPropLayout::DriftwoodVariantCount>
         observedDriftwoodVariants{};
     std::size_t coveLandmarkDriftwoodCount = 0U;
+    std::size_t shelteredDriftwoodCount=0U,exposedDriftwoodCount=0U;
     std::array<bool, island::NaturalPropLayout::DriftwoodVariantCount>
         coveLandmarkVariants{};
     for (std::size_t index = 0; index < props.Driftwood().size(); ++index) {
@@ -5111,6 +5135,11 @@ int main()
         if (wood.variant < observedDriftwoodVariants.size()) {
             observedDriftwoodVariants[wood.variant] = true;
         }
+        const auto woodExperience=island::IslandEnvironmentField::SampleCoastalExperience(
+            wood.x,wood.z,terrain.SignedShoreDistance(wood.x,wood.z));
+        if (std::max(woodExperience.shelteredBay,woodExperience.mangroveMouth)>.35f)
+            ++shelteredDriftwoodCount;
+        if (woodExperience.rockyShore>.35f) ++exposedDriftwoodCount;
         if (wood.coveLandmark) {
             ++coveLandmarkDriftwoodCount;
             const float angle = std::atan2(wood.z, wood.x);
@@ -5167,6 +5196,7 @@ int main()
     std::size_t broadBeachShellDetailCount=0U,broadBeachWrackDetailCount=0U;
     std::size_t shelteredBayWrackDetailCount=0U,mangroveMouthWrackDetailCount=0U;
     std::size_t tidePoolShellDetailCount=0U;
+    std::size_t shelteredBeachDetailCount=0U,exposedBeachDetailCount=0U;
     for (std::size_t index = 0; index < props.BeachDetails().size(); ++index) {
         const island::BeachDetailPlacement& detail = props.BeachDetails()[index];
         const island::BeachDetailPlacement& repeated = repeatedProps.BeachDetails()[index];
@@ -5209,6 +5239,11 @@ int main()
             ++shelteredBayWrackDetailCount;
         if (experience.mangroveMouth>.35f && detail.variant==3U)
             ++mangroveMouthWrackDetailCount;
+        if (!detail.tidePoolLandmark
+                && std::max(experience.shelteredBay,experience.mangroveMouth)>.35f)
+            ++shelteredBeachDetailCount;
+        if (!detail.tidePoolLandmark && experience.rockyShore>.35f)
+            ++exposedBeachDetailCount;
         Check(detail.scale >= island::NaturalPropLayout::BeachDetailMinimumScale
                   && detail.scale <= island::NaturalPropLayout::BeachDetailMaximumScale,
               "shell/pebble/wrack cluster scale remains in the authored range");
@@ -5229,6 +5264,7 @@ int main()
         "each tide pool retains one lightweight shell/pebble rim accent");
     std::array<bool, island::NaturalPropLayout::FallenFrondVariantCount>
         observedFallenFrondVariants{};
+    std::size_t shelteredCoastalFrondCount=0U,exposedCoastalFrondCount=0U;
     for (std::size_t index = 0; index < props.FallenFronds().size(); ++index) {
         const island::FallenFrondPlacement& frond = props.FallenFronds()[index];
         const island::FallenFrondPlacement& repeated = repeatedProps.FallenFronds()[index];
@@ -5244,6 +5280,14 @@ int main()
         if (frond.variant < observedFallenFrondVariants.size()) {
             observedFallenFrondVariants[frond.variant] = true;
         }
+        const auto frondSample=terrain.Sample(frond.x,frond.z);
+        const auto frondExperience=island::IslandEnvironmentField::SampleCoastalExperience(
+            frond.x,frond.z,frondSample.signedShoreDistance);
+        if (frondSample.signedShoreDistance<68.0f
+                && std::max(frondExperience.shelteredBay,frondExperience.mangroveMouth)>.35f)
+            ++shelteredCoastalFrondCount;
+        if (frondSample.signedShoreDistance<68.0f && frondExperience.rockyShore>.35f)
+            ++exposedCoastalFrondCount;
         const float directionX = std::cos(frond.yawRadians);
         const float directionZ = std::sin(frond.yawRadians);
         float maximumSupportHeight = -std::numeric_limits<float>::infinity();
@@ -5272,6 +5316,17 @@ int main()
     Check(std::ranges::all_of(observedFallenFrondVariants,
                               [](const bool value) { return value; }),
           "fallen-frond population exercises all three colour/shape variants");
+    std::cout << "Wind-sorted coastal debris sheltered/exposed wood,detail,fronds: "
+        << shelteredDriftwoodCount << '/' << exposedDriftwoodCount << ", "
+        << shelteredBeachDetailCount << '/' << exposedBeachDetailCount << ", "
+        << shelteredCoastalFrondCount << '/' << exposedCoastalFrondCount << '\n';
+    Check(shelteredDriftwoodCount>=island::NaturalPropLayout::AuthoredCoveDriftwoodCount
+            && shelteredDriftwoodCount>=exposedDriftwoodCount*2U,
+        "driftwood is more frequent in the leeward bay than on exposed rocky headlands");
+    Check(shelteredBeachDetailCount*3U>=exposedBeachDetailCount*5U,
+        "shell, pebble and wrack detail accumulates more strongly in sheltered shore sectors");
+    Check(shelteredCoastalFrondCount>exposedCoastalFrondCount,
+        "coastal fallen fronds accumulate more strongly in shelter than on rocky headlands");
     Check(props.Obstacles().size() == solidRockCount + props.FallenLogs().size() * 7U,
           "natural-prop collision excludes small decorative props and matches solid spans");
 

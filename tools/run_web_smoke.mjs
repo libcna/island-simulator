@@ -1015,12 +1015,13 @@ try {
       "jungle near ground plants include upright and split-leaf silhouettes")
     && result.output?.includes(
       "jungle near ground plants reuse one variant for sparse fallen-leaf silhouettes")
-    && result.output?.includes("island-simulator: natural props 165 rocks, 14 reef outcrops, 10 fallen logs, 21 driftwood pieces, 92 fallen palm fronds, hardware instancing")
+    && result.output?.includes("island-simulator: natural props 185 rocks, 14 reef outcrops, 314 submerged reef habitat instances, 11 fallen logs, 33 driftwood pieces, 35 fallen palm fronds, hardware instancing")
     && result.output?.includes(
       "island-simulator: clearing landmarks 5 rocks and 2 fallen logs, shared authored placement")
     && result.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
-    && result.output?.includes("island-simulator: beach detail 184 shell/pebble/wrack clusters, near-field culled")
+    && result.output?.includes("island-simulator: beach detail 217 shell/pebble/wrack clusters, near-field culled")
+    && result.output?.includes("island-simulator: prevailing-wind shelter adds 10 driftwood and 24 shell/wrack placements to the leeward bay")
     && result.output?.includes("island-simulator: dry wrack reuses one of four beach-detail variants")
     && result.output?.includes(
       "island-simulator: near-surface swimming view uses generated depth haze, surface scatter, and peripheral veil in one draw")
@@ -1684,7 +1685,7 @@ try {
     && propResult.output?.includes(
       "island-simulator: rock per-instance tint reuses existing transforms")
     && propResult.output?.includes("jungle portable wind shader with canopy/understory/bush/ground LOD")
-    && /props [0-9]+\/165 rocks, [0-9]+\/14 reef outcrops, [1-9][0-9]*\/10 logs/.test(
+    && /props [0-9]+\/185 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/314 reef habitat, [1-9][0-9]*\/11 logs/.test(
       propResult.output ?? "")
     && /contact shadows [1-9][0-9]*, [1-9][0-9]* triangles, 1 draw/.test(
       propResult.output ?? "")
@@ -1725,7 +1726,7 @@ try {
       "island-simulator: all near driftwood variants use tapered three-dimensional branches")
     && driftwoodResult.output?.includes(
       "island-simulator: driftwood end caps match irregular body rings")
-    && /props [0-9]+\/165 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/10 logs, [1-9][0-9]*\/21 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/184 shell\/pebble\/wrack clusters/.test(
+    && /props [0-9]+\/185 rocks, [0-9]+\/14 reef outcrops, [0-9]+\/314 reef habitat, [0-9]+\/11 logs, [1-9][0-9]*\/33 driftwood \(near [1-9][0-9]*, far [0-9]+\), [1-9][0-9]*\/217 shell\/pebble\/wrack clusters/.test(
       driftwoodResult.output ?? "")
     && driftwoodResult.output?.includes(
       "island-simulator: cove landmark 3 driftwood pieces, shared authored shoreline profile")
@@ -2019,7 +2020,7 @@ try {
       "island-simulator: fallen fronds use curved asymmetric leaflet silhouettes")
     && frondResult.output?.includes(
       "island-simulator: fallen frond leaflets use geometric central folds")
-    && /[1-9][0-9]*\/92 fallen fronds/.test(frondResult.output ?? "")
+    && /[1-9][0-9]*\/35 fallen fronds/.test(frondResult.output ?? "")
     && !frondResult.error;
 
   await call("Page.navigate", {

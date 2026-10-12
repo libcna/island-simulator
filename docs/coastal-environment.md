@@ -100,3 +100,17 @@ contrast. `20261012T113111.792460Z-beach` technically passes but is rejected as 
 evidence because the fixed camera points inland and does not expose the beach details.
 This remains a partial stage: close prop proof, wind-aware accumulation, water/audio
 contrast and Web/Android qualification are still open.
+
+## Prevailing-wind debris follow-up — 2026-10-12
+
+The prior coastal identities now feed a shared wind/shelter accumulation sample rather than
+controlling dry-wrack choice alone. Existing driftwood, shell/pebble/wrack clusters and fallen
+palm fronds use it; a bounded western-bay deposition belt adds ten supported driftwood and 24
+spaced beach-detail placements without a new mesh, texture or draw path. Established debris cues
+remain available around the full sandy coast, so all six crab colonies still find separated
+habitat anchors.
+
+The deterministic default distribution is 11/4 sheltered/exposed driftwood, 47/26 beach details
+and 2/0 coastal fallen fronds. Current totals are 33/217/35 and WorldReport fingerprint is
+`ec61dbf7e9ab7adb`. Native llvmpipe bay/headland evidence is recorded in
+[prevailing-wind.md](prevailing-wind.md). Portable runtime and performance acceptance remain open.

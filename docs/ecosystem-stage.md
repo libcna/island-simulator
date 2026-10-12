@@ -107,9 +107,16 @@ existing features, not a broad redesign.
    `20261012T115636.611276Z-tide-pools` passes and visibly separates the foreground
    pool from the sea. Three earlier camera/location attempts were rejected. Further
    rim refinement, optional crab use, Web/Android and performance review remain.
-9. [ ] **Wind/wave-organized wrack.** Use `PrevailingWind` and shelter to accumulate
+9. [~] **Wind/wave-organized wrack.** Use `PrevailingWind` and shelter to accumulate
    existing driftwood, fallen fronds, shells and wrack in the leeward bay, with much
    less on exposed headlands. Reuse models; verify deterministic placement/clearance.
+   A shared wind/shelter field now drives all four existing prop groups. A bounded
+   western-bay deposition belt adds ten driftwood and 24 shell/wrack placements after
+   support, route, tree and spacing checks. Core measures sheltered/exposed counts of
+   11/4 driftwood, 47/26 beach details and 2/0 coastal fronds; all crab debris habitats
+   remain valid. Inspected llvmpipe `140703.574060Z-bay-ground` visibly shows the
+   accumulation while `140806.665876Z-headland` remains sparse and rocky. Deterministic
+   native evidence passes; Web/Android, interactive walking and performance remain.
 10. [ ] **Very slow fair-weather cloud drift.** Move existing cumulus and wisps
     gently along prevailing wind, retaining a permanent sunny day. Avoid conspicuous
     wrapping/popping on long walks; no new weather or volumetric cloud system.
