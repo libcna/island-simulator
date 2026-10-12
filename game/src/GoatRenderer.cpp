@@ -34,8 +34,8 @@ namespace {
 constexpr int Capacity=static_cast<int>(GoatHabitat::Count*GoatMesh::MaximumVertices);
 Vector3 Point(GoatPoint p){return {p.x,p.y,p.z};}
 // Coat artwork supplies local strand albedo; bare parts must not sample fur.
-const std::array<Color,6> Materials{Color(244,238,222),Color(145,116,92),
-    Color(108,91,66),Color(58,54,45),Color(18,16,13),Color(63,57,48)};
+const std::array<Color,7> Materials{Color(244,238,222),Color(145,116,92),
+    Color(108,91,66),Color(58,54,45),Color(18,16,13),Color(63,57,48),Color(166,122,53)};
 }
 GoatRenderer::GoatRenderer(GraphicsDevice& device,const IslandTerrain& terrain,
     const CanopyLightField& canopy,float maximumDistance)

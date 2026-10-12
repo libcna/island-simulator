@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace island {
-enum class GoatMaterial { Coat,Skin,Horn,Hoof,Eye,Nose };
+enum class GoatMaterial { Coat,Skin,Horn,Hoof,Eye,Nose,Iris };
 enum class GoatPart { Body,Neck,Head,Leg,Hoof,Horn,Ear,Eye,Beard,Tail,Nose };
 // Body UVs are physical longitudinal/height coordinates before body bob;
 // other parts retain longitudinal/circumferential coordinates.

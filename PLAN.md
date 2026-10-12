@@ -899,6 +899,13 @@ progress or require player interaction; dangerous species keep their distance li
   passes. Native024656.529510Z-goats8-stage PASS/kernel[], enlarged same-stage A/B and
   montage actually inspected: thinner/readable ear interiors, still angular; point eyes,
   joints/coat/gait and portable runtime remain open. See docs/goats.md.
+  Near eyes now have surface-fitted dark oval lids, ochre iris and horizontal pupil,
+  fitted against actual head triangles after grazing deformation. New bare Iris colour
+  shares existing draw, no added texture/shader/buffer. Near/far7140/3996 vertices;
+  per-eye triangle vertices/centroids checked at11 grazing amounts for0.1–7mm head
+  clearance. Native47/47CPU PASS66.81s; actual025612.436707Z-goats8-stage PASS/kernel[],
+  enlarged before/after and montage inspected. More readable eye, not full orbital/
+  muzzle anatomy, continuous gait or portable acceptance. Remaining scope unchanged.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

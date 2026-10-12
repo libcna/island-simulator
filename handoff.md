@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — surface-fitted goat eyes, native visual comparison inspected
+
+Builder::Eye replaces near black-dot loft:52×28mm dark oval border,44×22mm ochre
+Iris,30×5mm horizontal pupil. Side-ray fit against actual transformed head triangles,
+interpolated head normals, contour lifts1.5/3.5/4.5mm pluscentre5.5mm. No eye in far LOD.
+Iris appended to GoatMaterial; renderer/CPU preview palettes now7, same bare draw.
+Near/far7140/3996, six near42840,8192/animal49152/batch/layout/assets unchanged.
+Tests near-eye/iris LOD and all eye triangle vertices+centroids at11graze amounts
+against head,0.1–7mm clearance; not exhaustive continuous triangle-interior proof.
+
+Inclusive build+full47CPU PASS66.81s, build/goat-eye-{build,tests}.log; mesh1.12s.
+Build/tests completed BEFORE capture (avoids previous concurrent fixture load).
+Native025612.436707Z-goats PASS8stages/kernel[], actual same-stage1 comparison
+build/goat-eye-comparison.png and8-stage goat-eye-montage.png inspected: iris/rim
+more readable than dot, pupil detail limited at this scale. Orbital/muzzle shape,
+coat direction/joints/continuous stance remain open. Hoof clearance-0.000736237m and
+fingerprint0a98cb638125508f unchanged. Handles77211 and17853 terminal0.
+No new Web/Android build/runtime; latest Web predates body-height UV/ears/eyes.
+No AMD hardware/Android/KVM/dependency changes; latch c0bd1704 unchanged. Goal active,
+no push, full previous backlog and high-priority unresolved AMD flight crash retained.
+
 ## Latest — thin cupped goat ears with visible bare interiors
 
 GoatMesh Builder::Ear replaces circular tubes: seven longitudinal rows,5/3 transverse

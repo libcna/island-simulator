@@ -25,7 +25,7 @@ int main() {
         check(!mesh.vertices.empty()&&mesh.vertices.size()%3==0&&mesh.vertices.size()<=GoatMesh::MaximumVertices,
             "goat mesh triangle budget invalid");
         if(detailed)nearCount=mesh.vertices.size();else farCount=mesh.vertices.size();
-        std::array<std::size_t,6> materials{};
+        std::array<std::size_t,7> materials{};
         std::array<std::size_t,2> innerEars{};
         for(const auto& vertex:mesh.vertices) {
             const auto p=vertex.position,n=vertex.normal;
@@ -78,6 +78,7 @@ int main() {
             &&materials[static_cast<std::size_t>(GoatMaterial::Hoof)]>0
             &&materials[static_cast<std::size_t>(GoatMaterial::Nose)]>0,"goat anatomy component missing");
         check((materials[static_cast<std::size_t>(GoatMaterial::Eye)]>0)==detailed,"eye LOD mismatch");
+        check((materials[static_cast<std::size_t>(GoatMaterial::Iris)]>0)==detailed,"iris LOD mismatch");
         check(innerEars[0]>0&&innerEars[0]==innerEars[1],"paired goat ear interiors missing or asymmetric");
         for(const auto& leg:pose.legs) {
             float surface=-1;
@@ -117,6 +118,26 @@ int main() {
             const GoatPoint average{a.normal.x+b.normal.x+c.normal.x,a.normal.y+b.normal.y+c.normal.y,
                 a.normal.z+b.normal.z+c.normal.z};
             check(dot(normal,average)>0,"goat winding disagrees with normals");
+            if(a.part==GoatPart::Eye&&step==0) {
+                const GoatPoint centre{(a.position.x+b.position.x+c.position.x)/3,
+                    (a.position.y+b.position.y+c.position.y)/3,(a.position.z+b.position.z+c.position.z)/3};
+                for(const auto p:{a.position,b.position,c.position,centre}) {
+                    float surface=-1;const float side=p.x>0?1.0f:-1.0f;
+                    for(std::size_t j=0;j<mesh.vertices.size();j+=3) {
+                        if(mesh.vertices[j].part!=GoatPart::Head)continue;
+                        const auto h=mesh.vertices[j].position,d=sub(mesh.vertices[j+1].position,h),e=sub(mesh.vertices[j+2].position,h);
+                        const float determinant=d.y*e.z-d.z*e.y;
+                        if(std::abs(determinant)<1e-9f)continue;
+                        const auto q=sub(p,h);
+                        const float u=(q.y*e.z-q.z*e.y)/determinant,v=(d.y*q.z-d.z*q.y)/determinant;
+                        if(u>=-1e-5f&&v>=-1e-5f&&u+v<=1.00001f)
+                            surface=std::max(surface,side*(h.x+u*d.x+v*e.x));
+                    }
+                    check(surface>0,"eye triangle has no underlying head");
+                    const float gap=std::abs(p.x)-surface;
+                    check(gap>.0001f&&gap<.007f,"eye is buried in head or detached from it");
+                }
+            }
         }
     }
     check(nearCount>farCount,"goat far LOD did not reduce geometry");

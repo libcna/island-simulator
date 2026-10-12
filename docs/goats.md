@@ -421,6 +421,28 @@ are7068/3996 near/far vertices (+432/+240), six all-near42408, below the unchang
 8192/animal and49152/batch guards. Sampled hoof clearance remains-0.000736237m and
 world fingerprint0a98cb638125508f. No new Web/Android build/runtime or hardware run.
 
+## Surface-fitted near eyes
+
+The near model now has a52×28mm oval dark lid border,44×22mm ochre iris and30×5mm
+horizontal pupil, replacing the tiny black loft. The three contours and centre fit
+the actual head triangle surface by side-ray intersection after grazing deformation;
+their1.5/3.5/4.5/5.5mm side offsets give shallow relief. Head normals are interpolated.
+The Iris material is a new bare vertex colour, added to renderer and CPU preview
+palettes; it shares the existing bare-part draw. No new texture/shader/draw/buffer.
+Near/far7140/3996 vertices, six near42840, below unchanged budgets.
+
+Tests require near-only eye/iris materials and check every eye triangle's vertices
+and centroid against the underlying head at11 grazing amounts: clearance must remain
+between0.1 and7mm. This is sampled triangle contact, not a complete raster-depth or
+continuous surface proof. Existing pose/budget/winding/unit-normal checks remain.
+Full native47/47 PASS66.81s (`build/goat-eye-{build,tests}.log`); goat mesh test1.12s.
+Hoof clearance/world fingerprint unchanged. Actual contained native8-stage capture
+`20261012T025612.436707Z-goats` PASS/kernel[], same-stage enlarged comparison
+`build/goat-eye-comparison.png` and all stages in `build/goat-eye-montage.png`
+actually inspected. Iris/dark border are more readable than the previous dot; pupil
+detail remains limited at this camera scale. Orbital head shape, muzzle, coat direction,
+joint anatomy and continuous gait remain open. No current Web/Android qualification.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

@@ -117,6 +117,45 @@ struct Builder {
             }
         }
     }
+    void Eye(float side) {
+        // Fit to the actual tessellated head, not its enclosing ellipse. The
+        // head pitch leaves x unchanged, so a side ray works in every graze pose.
+        const auto fitted=[&](float y,float z,float lift,GoatMaterial material) {
+            auto p=HeadPoint({0,y,z});p.y+=bob;
+            float surface=-1;GoatPoint normal{};
+            for(std::size_t i=0;i<mesh.vertices.size();i+=3) {
+                const auto& a=mesh.vertices[i];if(a.part!=GoatPart::Head)continue;
+                const auto& b=mesh.vertices[i+1];const auto& c=mesh.vertices[i+2];
+                const auto d=Sub(b.position,a.position),e=Sub(c.position,a.position),q=Sub(p,a.position);
+                const float determinant=d.y*e.z-d.z*e.y;
+                if(std::abs(determinant)<1e-9f)continue;
+                const float u=(q.y*e.z-q.z*e.y)/determinant,v=(d.y*q.z-d.z*q.y)/determinant;
+                if(u< -1e-5f||v< -1e-5f||u+v>1.00001f)continue;
+                const float x=side*(a.position.x+u*d.x+v*e.x);
+                if(x>surface) {surface=x;normal=Add(a.normal,Add(Mul(Sub(b.normal,a.normal),u),Mul(Sub(c.normal,a.normal),v)));}
+            }
+            if(surface<0)throw std::runtime_error("Goat eye has no head surface support");
+            p.x=side*(surface+lift);
+            return GoatVertex{p,Unit(normal),.5f,.5f,material,GoatPart::Eye};
+        };
+        constexpr int count=12;
+        std::array<GoatVertex,count> outer,iris,pupil;
+        for(int i=0;i<count;++i) {
+            const float a=Tau*i/count,c=std::cos(a),s=std::sin(a);
+            outer[i]=fitted(1.061f+.014f*s,.568f+.026f*c,.0015f,GoatMaterial::Eye);
+            iris[i]=fitted(1.061f+.011f*s,.568f+.022f*c,.0035f,GoatMaterial::Iris);
+            pupil[i]=fitted(1.061f+.0025f*s,.568f+.015f*c,.0045f,GoatMaterial::Eye);
+        }
+        const auto centre=fitted(1.061f,.568f,.0055f,GoatMaterial::Eye);
+        for(int i=0;i<count;++i) {
+            const int j=(i+1)%count;
+            auto a=iris[i],b=iris[j];a.material=b.material=GoatMaterial::Eye;
+            Triangle(outer[i],outer[j],b);Triangle(outer[i],b,a);
+            a=pupil[i];b=pupil[j];a.material=b.material=GoatMaterial::Iris;
+            Triangle(iris[i],iris[j],b);Triangle(iris[i],b,a);
+            Triangle(pupil[i],pupil[j],centre);
+        }
+    }
     void Ear(float side,bool detailed) {
         // Thin cupped pinna: a recessed forward face, furred back and closed rim.
         // Skin is part of the surface, never a coplanar overlay.
@@ -215,9 +254,7 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
         b.Sweep(horn,detailed?8:5,GoatMaterial::Horn,Attachment::Head);
         b.part=GoatPart::Ear;b.Ear(side,detailed);
         if(detailed) {
-            b.part=GoatPart::Eye;
-            const std::array<Ring,3> eye{{{-.007f,0,.006f,.005f},{0,0,.014f,.010f},{.007f,0,.006f,.005f}}};
-            b.Loft(eye,8,GoatMaterial::Eye,Attachment::Head,{side*.099f,1.068f,.569f});
+            b.part=GoatPart::Eye;b.Eye(side);
         }
     }
     const std::array<Tube,4> beard{{{{0,.83f,.68f},.046f},{{0,.74f,.68f},.04f},

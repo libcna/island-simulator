@@ -17,8 +17,8 @@ int main(int argc,char** argv) {
     out<<"<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='640' viewBox='0 0 1000 640'>"
        <<"<rect width='1000' height='640' fill='#e7e5de'/>"
        <<"<text x='24' y='30' font-family='sans-serif' font-size='18'>Goat geometry only - CPU orthographic preview, no coat texture</text>";
-    constexpr std::array<std::array<int,3>,6> colors{{{184,165,134},{145,116,92},{108,91,66},
-        {58,54,45},{18,16,13},{63,57,48}}};
+    constexpr std::array<std::array<int,3>,7> colors{{{184,165,134},{145,116,92},{108,91,66},
+        {58,54,45},{18,16,13},{63,57,48},{166,122,53}}};
     for(int panel=0;panel<2;++panel) {
         GoatGroundPose pose{};pose.scale=1;
         for(std::size_t leg=0;leg<4;++leg)pose.legs[leg]=EvaluateGoatLeg(0,0,0,leg);
