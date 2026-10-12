@@ -1,5 +1,6 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
+#include "IslandSimulator/TidePoolLayout.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -177,7 +178,9 @@ namespace island
         const float headland = IslandEnvironmentField::CoastalRockPotential(std::atan2(z, x));
         const float coastalRelief = 7.5f * headland * SmoothStep((inland - 2.0f) / 10.0f)
             * (1.0f - SmoothStep((inland - 32.0f) / 38.0f));
-        return beach + coastalRelief + interiorBlend * (foothills + erodedRidges + localRelief);
+        const float landHeight=beach + coastalRelief
+            + interiorBlend * (foothills + erodedRidges + localRelief);
+        return landHeight-TidePoolLayout::Depression(*this,x,z);
     }
 
     TerrainSample IslandTerrain::Sample(const float x, const float z) const noexcept

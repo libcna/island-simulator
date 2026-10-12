@@ -6,7 +6,8 @@ New `SampleCoastalExperience` provides finite shared weights for the broad south
 sheltered west bay, exposed rocky shore and localized stream/mangrove mouth. Natural
 props use it without new draws/assets: exposed sectors gain rock density, the main
 beach selects shell/pebble clusters without wrack, and bay/mouth sites bias toward the
-existing wrack form. Core default counts are 26 rocky-shore rocks, 41 main-beach
+existing wrack form. Core default counts are 36 rocky-shore rocks including ten
+tide-pool rim accents, 41 main-beach
 shell/pebble clusters, zero main-beach wrack, three bay wrack and two mouth wrack.
 Current fingerprint `18ba6c1fe51b097f`; Core, WorldReport and capture preflight pass.
 Inspected llvmpipe bay `113137`, headland `113202` and bay-ground `113228` pass and
@@ -3818,3 +3819,13 @@ Rules that bit this session:
   Pillow on the host only).
 - Commit on `develop`; push only when the operator asks. The push on 2026-10-10 included all
   work up to the forest-stands pass.
+
+# Operator additions — 2026-10-12 (snake/spider density and snake behaviour)
+
+- Increase the island's production populations beyond the current four snakes and
+  twelve ground spiders, with habitat-aware separation and measured performance/encounters.
+- Snakes must visibly crawl rather than appear static, including convincing propagated
+  S-curves, terrain contact and smooth bounded turns/retreats.
+- Add restrained positional snake hissing with behavioural triggers, cooldowns and actual
+  listened native/Web/Android evidence. These requirements are recorded unchecked in
+  `PLAN.md`; none is implemented or accepted merely by this documentation update.

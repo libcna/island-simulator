@@ -6,6 +6,7 @@
 #include "IslandSimulator/GpuDiagnostics.hpp"
 #include "IslandSimulator/PerformanceStatistics.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/TidePoolLayout.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
 
 #include <algorithm>
@@ -68,6 +69,7 @@ namespace island
             case FixedViewpoint::BayOverview: return "bay";
             case FixedViewpoint::BayBeachDetail: return "bay-ground";
             case FixedViewpoint::HeadlandDetail: return "headland";
+            case FixedViewpoint::TidePoolDetail: return "tide-pools";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -223,6 +225,18 @@ namespace island
             cameraPosition_ = Vector3(300.0f, 28.0f, 110.0f);
             yaw_ = std::atan2(-63.0f, -23.0f);
             pitch_ = -0.33f;
+        } else if (viewpoint_ == FixedViewpoint::TidePoolDetail) {
+            const auto [poolX,poolZ]=TidePoolLayout::Centre(terrain_,0U);
+            const float radialLength=std::hypot(poolX,poolZ);
+            const float outwardX=poolX/radialLength,outwardZ=poolZ/radialLength;
+            const float cameraX=poolX-outwardX*8.0f-outwardZ*6.0f;
+            const float cameraZ=poolZ-outwardZ*8.0f+outwardX*6.0f;
+            cameraPosition_=Vector3(cameraX,terrain_.Height(cameraX,cameraZ)+4.5f,cameraZ);
+            const Vector3 target(poolX,TidePoolLayout::WaterLevel(terrain_,0U),poolZ);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout << "island-simulator: tide-pool QA camera targets rocky basin water\n";
         } else if (viewpoint_ == FixedViewpoint::BeachPath) {
             constexpr float pathZ = -190.0f;
             const float pathX = VegetationLayout::PrimaryPathCenterX(pathZ);

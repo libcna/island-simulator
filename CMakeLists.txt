@@ -94,6 +94,7 @@ add_library(island_core STATIC
     game/src/ShipwreckLayout.cpp
     game/src/SoundscapeModel.cpp
     game/src/TouchControls.cpp
+    game/src/TidePoolLayout.cpp
     game/src/UserSettings.cpp
     game/src/VegetationLayout.cpp
     game/src/WaterRippleModel.cpp

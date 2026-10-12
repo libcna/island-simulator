@@ -96,11 +96,46 @@ Coastal-experience progress: one shared finite field now identifies the broad so
 beach, sheltered west bay, exposed rocky shore and localized mangrove mouth. Natural
 props use it without new assets or draws: exposed sectors gain rock density, the main
 beach selects shell/pebble detail without wrack, and sheltered bay/mouth sites bias
-toward existing dry wrack. The deterministic world measures 26 rocky-shore rocks,
+toward existing dry wrack. With tide-pool rim accents, the deterministic world measures
+36 rocky-shore rocks,
 41 main-beach shell/pebble clusters, zero main-beach wrack, three bay wrack clusters
 and two mouth wrack clusters. Inspected llvmpipe bay/headland/bay-ground captures pass;
 the nominal beach camera was rejected because it faces inland. Ecosystem-stage item 7
 is `[~]`; stronger close prop proof, water/sound differentiation and portable review remain.
+
+Tide-pool progress: five separated authored depressions now occupy the exposed rocky
+bench 24–34m inland. Each holds a calm water disc below its undepressed rim and reuses
+the shoreline buffer/shader, adding no draw call; ten non-solid rim stones and five
+shell/pebble accents reuse existing prop batches. Long native core tests pass and the
+inspected llvmpipe `20261012T115636.611276Z-tide-pools` capture passes (195 colour bins,
+40.29 luminance deviation, 193.56 spatial contrast) and clearly shows a closed pool
+separate from the ocean. The first three camera/location attempts were rejected. Rim
+roundness/detail, optional small-crab use, Web/Android and performance review remain,
+so ecosystem-stage item 8 is `[~]`. See [tide-pools.md](docs/tide-pools.md).
+
+- [ ] Increase the production snake and ground-spider populations beyond the current
+  four snakes and twelve spiders so both animals are encountered more often while
+  exploring. Keep placement deterministic, separated and habitat-driven: snakes belong
+  on dense-understory margins and suitable trees, while ground spiders remain in safe
+  forest/brush patches. Extend simulation, visibility/LOD, contact-shadow and draw-call
+  budgets rather than merely raising constants; keep animals away from player spawn and
+  required routes. Validate actual encounter frequency, crowding and frame cost in long
+  native walks plus Web/Android runtime. A larger reported count alone is not acceptance.
+
+- [ ] Make every ground snake visibly crawl instead of reading as a static prop. Preserve
+  terrain and obstacle contact along the full body while the head advances, the body
+  propagates recognisable lateral S-curves, and turns/idle-to-move/retreat transitions
+  remain smooth inside a bounded habitat. Revisit camera-independent update/LOD cadence
+  if distant or partially occluded snakes appear frozen. Accept only after continuous
+  in-game motion review from close and ordinary walking distances; isolated pose changes
+  or logged displacement are insufficient.
+
+- [ ] Give snakes restrained positional hissing. Trigger it chiefly during close player
+  awareness and retreat, with randomized timing/pitch, distance attenuation, cooldowns
+  and a shared wildlife voice limit so a larger population never hisses in unison or
+  overwhelms the peaceful ambience. Respect mute/settings and audio lifecycle. Record
+  source/provenance and verify the hiss is actually audible, directional and natural in
+  native, Web and Android runtime; scheduler diagnostics alone are not acceptance.
 
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander

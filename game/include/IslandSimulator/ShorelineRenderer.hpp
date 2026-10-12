@@ -44,6 +44,7 @@ namespace island
         [[nodiscard]] int VertexCount() const noexcept { return vertexCount_; }
         [[nodiscard]] int PrimitiveCount() const noexcept { return primitiveCount_; }
         [[nodiscard]] int DrawCallCount() const noexcept { return drawCallCount_; }
+        [[nodiscard]] int TidePoolCount() const noexcept { return tidePoolCount_; }
 
     private:
         void CreateMesh(const IslandTerrain& terrain);
@@ -57,6 +58,7 @@ namespace island
         int vertexCount_ = 0;
         int primitiveCount_ = 0;
         int drawCallCount_ = 0;
+        int tidePoolCount_ = 0;
         bool customShaderReady_ = false;
     };
 }

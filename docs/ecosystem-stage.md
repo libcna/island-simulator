@@ -93,14 +93,20 @@ existing features, not a broad redesign.
    coastal-identity field now distinguishes all four regions. Existing props consume
    it without a new render path: exposed sectors receive denser rock placement, the
    main beach selects only shell/pebble detail, and sheltered bay/mouth sites favor
-   existing dry wrack. Core measures 26/41/0/3/2 rocky rocks, main-beach shells,
+   existing dry wrack. With the tide-pool accents, Core measures 36/41/0/3/2 rocky rocks, main-beach shells,
    main-beach wrack, bay wrack and mouth wrack. Inspected llvmpipe bay/headland/
    bay-ground captures `113137.288194Z`, `113202.517664Z` and `113228.784262Z` pass.
    The `113111.792460Z-beach` image is rejected because its inland-facing camera does
    not show the beach. Close detail, water/sound differentiation and portable review remain.
-8. [ ] **Rocky-shore tide pools.** A few selected depressions with calm static water,
+8. [~] **Rocky-shore tide pools.** A few selected depressions with calm static water,
    rocks/shells and optionally small crabs. Fit water to closed basins and terrain;
-   no physical tidal simulation or disconnected water decals.
+   no physical tidal simulation or disconnected water decals. Five separated basins
+   now deform the real terrain on the exposed rock bench; calm water is below each
+   original rim and shares the shoreline draw. Ten non-solid stones and five shell/
+   pebble accents reuse existing prop batches. Long Core tests pass. Inspected llvmpipe
+   `20261012T115636.611276Z-tide-pools` passes and visibly separates the foreground
+   pool from the sea. Three earlier camera/location attempts were rejected. Further
+   rim refinement, optional crab use, Web/Android and performance review remain.
 9. [ ] **Wind/wave-organized wrack.** Use `PrevailingWind` and shelter to accumulate
    existing driftwood, fallen fronds, shells and wrack in the leeward bay, with much
    less on exposed headlands. Reuse models; verify deterministic placement/clearance.

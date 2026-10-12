@@ -90,7 +90,8 @@ shell/pebble detail without wrack on the main beach and bias the bay/mouth towar
 existing dry-wrack mesh. No new renderer, draw call or asset was introduced.
 
 Core locks the four dominant sample stations and the default composition: 26 qualifying
-rocky-shore rocks, 41 broad-beach shell/pebble clusters, zero broad-beach wrack, three
+rocky-shore rocks before the ten tide-pool rim accents (36 total), 41 broad-beach
+shell/pebble clusters, zero broad-beach wrack, three
 sheltered-bay wrack clusters and two mangrove-mouth wrack clusters. Current world
 fingerprint is `18ba6c1fe51b097f`. Inspected isolated llvmpipe captures
 `20261012T113137.288194Z-bay`, `20261012T113202.517664Z-headland` and

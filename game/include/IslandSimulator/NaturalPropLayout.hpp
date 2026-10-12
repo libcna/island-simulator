@@ -25,6 +25,7 @@ namespace island
         bool solid = true;
         bool offshore = false;
         bool clearingLandmark = false;
+        bool tidePoolLandmark = false;
     };
 
     // Wood placement uses a local-X heading (cos, sin), unlike a model's Y-axis rotation.
@@ -70,6 +71,7 @@ namespace island
         float yawRadians = 0.0f;
         float scale = 1.0f;
         std::uint8_t variant = 0U;
+        bool tidePoolLandmark = false;
     };
 
     /** @brief One non-solid fallen palm frond resting near its source grove. */

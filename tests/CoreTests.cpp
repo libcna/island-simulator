@@ -46,6 +46,7 @@
 #include "IslandSimulator/SoundscapeModel.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
 #include "IslandSimulator/TerrainMeshLayout.hpp"
+#include "IslandSimulator/TidePoolLayout.hpp"
 #include "IslandSimulator/TouchControls.hpp"
 #include "IslandSimulator/UserSettings.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
@@ -4013,6 +4014,30 @@ int main()
     Check(mouthExperience.mangroveMouth>.80f
             && mouthExperience.mangroveMouth>mouthExperience.shelteredBay,
         "stream outlet has a localized mangrove-mouth coastal identity");
+    Check(island::TidePoolLayout::Definitions.size()==5U,
+        "rocky shore has a small bounded tide-pool set");
+    for (std::size_t index=0;index<island::TidePoolLayout::Definitions.size();++index) {
+        const auto& pool=island::TidePoolLayout::Definitions[index];
+        const auto [x,z]=island::TidePoolLayout::Centre(terrain,index);
+        const auto centre=terrain.Sample(x,z);
+        const float water=island::TidePoolLayout::WaterLevel(terrain,index);
+        Check(centre.signedShoreDistance>=23.5f && centre.signedShoreDistance<=34.5f
+                && centre.coastalRockiness>.70f,
+            "tide-pool basin remains on the authored rocky shore");
+        CheckNear(island::TidePoolLayout::Depression(terrain,x,z),pool.depth,.0001f,
+            "tide-pool centre receives its complete authored depression");
+        Check(water>centre.height+.15f && water<centre.height+pool.depth-.12f,
+            "tide-pool water lies above its floor and below the undepressed rim");
+        Check(island::TidePoolLayout::WaterRadius(index)>1.0f
+                && island::TidePoolLayout::WaterRadius(index)<pool.radius,
+            "tide-pool water disc remains visibly broad and inside its basin");
+        for (std::size_t other=index+1;other<island::TidePoolLayout::Definitions.size();++other) {
+            const auto [otherX,otherZ]=island::TidePoolLayout::Centre(terrain,other);
+            Check(std::hypot(x-otherX,z-otherZ)>pool.radius
+                    +island::TidePoolLayout::Definitions[other].radius+3.0f,
+                "tide-pool basins remain separated rocky-shore landmarks");
+        }
+    }
     for (const auto& palm : vegetation.Palms())
         Check(terrain.Sample(palm.x, palm.z).coastalRockiness <= 0.45f,
               "adult and juvenile palms avoid exposed coastal rock");
@@ -4834,6 +4859,7 @@ int main()
     std::size_t reefRockCount = 0U;
     std::size_t clearingLandmarkRockCount = 0U;
     std::size_t rockyShoreRockCount = 0U;
+    std::size_t tidePoolRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
         const island::RockPlacement& rock = props.Rocks()[index];
         const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
@@ -4843,7 +4869,8 @@ int main()
                   && rock.scaleX == repeated.scaleX && rock.scaleY == repeated.scaleY
                   && rock.scaleZ == repeated.scaleZ && rock.variant == repeated.variant
                   && rock.solid == repeated.solid && rock.offshore == repeated.offshore
-                  && rock.clearingLandmark == repeated.clearingLandmark,
+                  && rock.clearingLandmark == repeated.clearingLandmark
+                  && rock.tidePoolLandmark == repeated.tidePoolLandmark,
               "rock placement is bitwise deterministic for one seed");
         if (rock.offshore) {
             ++reefRockCount;
@@ -4859,7 +4886,12 @@ int main()
                       && rock.scaleZ > 0.90f && rock.scaleZ < 3.60f,
                   "reef-outcrop axis scales remain inside their authored bounds");
         } else {
-            if (rock.clearingLandmark) {
+            if (rock.tidePoolLandmark) {
+                ++tidePoolRockCount;
+                Check(!rock.solid && !rock.clearingLandmark
+                        && sample.coastalRockiness>.50f,
+                    "tide-pool accent rocks remain non-solid on rocky support");
+            } else if (rock.clearingLandmark) {
                 Check(sample.signedShoreDistance >= 30.0f,
                       "authored clearing rocks remain on deep interior ground");
             } else {
@@ -4911,6 +4943,8 @@ int main()
           "both clearing landmark rock groups remain complete");
     Check(rockyShoreRockCount>=8U,
         "exposed rocky-shore experience retains a visible procedural rock composition");
+    Check(tidePoolRockCount==island::TidePoolLayout::Definitions.size()*2U,
+        "each tide pool retains two lightweight rim-rock accents");
     std::size_t clearingLandmarkLogCount = 0U;
     std::size_t wetBankLogCount = 0U;
     bool eastClearingLogObserved = false;
@@ -5061,6 +5095,7 @@ int main()
         observedBeachDetailVariants{};
     std::size_t broadBeachShellDetailCount=0U,broadBeachWrackDetailCount=0U;
     std::size_t shelteredBayWrackDetailCount=0U,mangroveMouthWrackDetailCount=0U;
+    std::size_t tidePoolShellDetailCount=0U;
     for (std::size_t index = 0; index < props.BeachDetails().size(); ++index) {
         const island::BeachDetailPlacement& detail = props.BeachDetails()[index];
         const island::BeachDetailPlacement& repeated = repeatedProps.BeachDetails()[index];
@@ -5068,13 +5103,22 @@ int main()
         Check(detail.x == repeated.x && detail.y == repeated.y
                   && detail.z == repeated.z
                   && detail.yawRadians == repeated.yawRadians
-                  && detail.scale == repeated.scale && detail.variant == repeated.variant,
+                  && detail.scale == repeated.scale && detail.variant == repeated.variant
+                  && detail.tidePoolLandmark == repeated.tidePoolLandmark,
               "shell/pebble/wrack placement is bitwise deterministic for one seed");
-        Check(sample.signedShoreDistance >= 3.0f
-                  && sample.signedShoreDistance <= 18.0f,
-              "shell/pebble/wrack clusters remain in the authored dry-sand belt");
-        Check(sample.height >= 0.22f && sample.slopeRadians <= 0.2617994f,
-              "shell/pebble/wrack clusters stay on dry low-slope support");
+        if (detail.tidePoolLandmark) {
+            ++tidePoolShellDetailCount;
+            Check(sample.signedShoreDistance>=20.0f
+                    && sample.signedShoreDistance<=40.0f
+                    && sample.coastalRockiness>.50f && detail.variant<3U,
+                "tide-pool shell accents remain on rocky rims and never use wrack");
+        } else {
+            Check(sample.signedShoreDistance >= 3.0f
+                      && sample.signedShoreDistance <= 18.0f,
+                  "shell/pebble/wrack clusters remain in the authored dry-sand belt");
+            Check(sample.height >= 0.22f && sample.slopeRadians <= 0.2617994f,
+                  "shell/pebble/wrack clusters stay on dry low-slope support");
+        }
         CheckNear(detail.y, sample.height + 0.012f, 0.0001f,
                   "shell/pebble/wrack clusters rest just above authoritative terrain");
         Check(!island::VegetationLayout::IsReservedRoute(detail.x, detail.z),
@@ -5110,6 +5154,8 @@ int main()
         "broad Robinson beach is visually biased toward shell and pebble detail");
     Check(shelteredBayWrackDetailCount>=3U && mangroveMouthWrackDetailCount>=1U,
         "sheltered bay and localized mangrove mouth retain distinct wrack detail");
+    Check(tidePoolShellDetailCount==island::TidePoolLayout::Definitions.size(),
+        "each tide pool retains one lightweight shell/pebble rim accent");
     std::array<bool, island::NaturalPropLayout::FallenFrondVariantCount>
         observedFallenFrondVariants{};
     for (std::size_t index = 0; index < props.FallenFronds().size(); ++index) {

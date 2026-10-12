@@ -6,6 +6,7 @@
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/ShorelineMeshLayout.hpp"
+#include "IslandSimulator/TidePoolLayout.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -56,11 +57,17 @@ out vec3 vWorld;
 out float vAcross;
 out float vPhase;
 out float vBaseMask;
+out float vPool;
 
 void main()
 {
     vec3 world = aPosition;
-    world.y += oceanHeight(world.xz, uTime) + 0.022;
+    vPool = aRibbonData.y < 0.0 ? 1.0 : 0.0;
+    if (vPool > 0.5) {
+        world.y += 0.006 * sin(uTime * 0.38 + dot(world.xz, vec2(0.31, -0.23)));
+    } else {
+        world.y += oceanHeight(world.xz, uTime) + 0.022;
+    }
     vWorld = world;
     vAcross = aRibbonData.x;
     vPhase = aRibbonData.y;
@@ -80,6 +87,7 @@ uniform vec3 uCameraPosition;
 uniform float uTime;
 
 out vec4 fragColor;
+in float vPool;
 
 vec2 cellPoint(vec2 cell)
 {
@@ -118,6 +126,17 @@ void main()
 {
     const float tau = 6.28318530718;
     float footprint = max(length(dFdx(vWorld.xz)), length(dFdy(vWorld.xz)));
+    float distanceToCamera = length(vWorld - uCameraPosition);
+    float distanceFade = 1.0 - smoothstep(95.0, 165.0, distanceToCamera);
+    if (vPool > 0.5) {
+        float edge = 1.0-smoothstep(0.72,1.0,vAcross);
+        float ripple = 0.5+0.5*sin(dot(vWorld.xz,vec2(2.1,-1.7))+uTime*.24);
+        float glint = pow(max(0.0,0.5+0.5*sin(dot(vWorld.xz,vec2(.73,.41))-uTime*.18)),5.0);
+        float alpha = edge*distanceFade*(0.70+0.10*ripple);
+        vec3 pool = mix(vec3(.09,.31,.29),vec3(.30,.61,.54),.28*ripple+.22*glint);
+        fragColor=vec4(pool*alpha,alpha);
+        return;
+    }
     float acrossFootprint = max(fwidth(vAcross), 0.002);
     float phaseOffset = sin(vPhase * tau * 7.0 + 1.2) * 0.11
         + sin(vPhase * tau * 19.0 + 2.4) * 0.025;
@@ -144,8 +163,7 @@ void main()
     crest *= mix(0.12, 0.94, cells) * brokenMask;
     float edgeMask = smoothstep(0.015, 0.16, vAcross)
         * (1.0 - smoothstep(0.80, 0.995, vAcross));
-    float distanceToCamera = length(vWorld - uCameraPosition);
-    float distanceFade = 1.0 - smoothstep(320.0, 680.0, distanceToCamera);
+    distanceFade = 1.0 - smoothstep(320.0, 680.0, distanceToCamera);
     float alpha = clamp((crest * 0.76 + wash) * envelope * edgeMask * distanceFade, 0.0, 0.82);
     alpha *= mix(0.72, 1.0, clamp(vBaseMask * 2.0, 0.0, 1.0));
 
@@ -228,10 +246,13 @@ void main()
         CreateMesh(terrain);
         if (customShaderReady_) {
             std::cout << "island-simulator: shoreline portable animated foam ribbon, "
-                      << vertexCount_ << " vertices, " << primitiveCount_ << " triangles\n"
+                      << ShorelineMeshLayout::VertexCount << " vertices, "
+                      << ShorelineMeshLayout::TriangleCount << " triangles\n"
                       << "island-simulator: shoreline broken crest mask modulates wash "
                          "continuity\n"
                       << PorousFoamDiagnostic << '\n';
+            std::cout << "island-simulator: rocky shore tide pools " << tidePoolCount_
+                      << " static basins in the shared shoreline draw\n";
             MirrorRuntimeDiagnosticToPlatformLog(PorousFoamDiagnostic);
         } else {
             std::cerr << "island-simulator: shoreline stock-effect fallback: "
@@ -245,8 +266,10 @@ void main()
     {
         std::vector<VertexPositionColorTexture> vertices;
         std::vector<std::uint16_t> indices;
-        vertices.reserve(ShorelineMeshLayout::VertexCount);
-        indices.reserve(ShorelineMeshLayout::TriangleCount * 3U);
+        vertices.reserve(ShorelineMeshLayout::VertexCount
+            + TidePoolLayout::Definitions.size()*(TidePoolLayout::RimSegments+1U));
+        indices.reserve((ShorelineMeshLayout::TriangleCount
+            + TidePoolLayout::Definitions.size()*TidePoolLayout::RimSegments)*3U);
 
         for (int segment = 0; segment <= ShorelineMeshLayout::SegmentCount; ++segment) {
             const float phase = static_cast<float>(segment)
@@ -275,6 +298,30 @@ void main()
                 indices.insert(indices.end(), {nearLeft, farLeft, nearRight,
                                                nearRight, farLeft, farRight});
             }
+        }
+
+        for (std::size_t poolIndex=0;poolIndex<TidePoolLayout::Definitions.size();++poolIndex) {
+            const auto [centreX,centreZ]=TidePoolLayout::Centre(terrain,poolIndex);
+            const float level=TidePoolLayout::WaterLevel(terrain,poolIndex);
+            const float radius=TidePoolLayout::WaterRadius(poolIndex);
+            const auto centre=static_cast<std::uint16_t>(vertices.size());
+            const float marker=-.1f-static_cast<float>(poolIndex)*.1f;
+            vertices.emplace_back(Vector3(centreX,level,centreZ),
+                Color::FromNonPremultiplied(51,130,119,158),Vector2(0.0f,marker));
+            for (int segment=0;segment<TidePoolLayout::RimSegments;++segment) {
+                const float angle=2.0f*std::numbers::pi_v<float>
+                    *static_cast<float>(segment)/TidePoolLayout::RimSegments;
+                vertices.emplace_back(Vector3(centreX+std::cos(angle)*radius,level,
+                    centreZ+std::sin(angle)*radius),
+                    Color::FromNonPremultiplied(45,116,108,18),Vector2(1.0f,marker));
+            }
+            for (int segment=0;segment<TidePoolLayout::RimSegments;++segment) {
+                const auto current=static_cast<std::uint16_t>(centre+1U+segment);
+                const auto next=static_cast<std::uint16_t>(centre+1U
+                    +(segment+1)%TidePoolLayout::RimSegments);
+                indices.insert(indices.end(),{centre,next,current});
+            }
+            ++tidePoolCount_;
         }
 
         ValidateProceduralTriangleMeshOrThrow(vertices.size(), indices, "shoreline");

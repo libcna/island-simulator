@@ -89,6 +89,7 @@ namespace island
         BayOverview,
         BayBeachDetail,
         HeadlandDetail,
+        TidePoolDetail,
         BeachPath,
         JungleTrail,
         EastClearingDetail,

@@ -3,6 +3,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
+#include "IslandSimulator/TidePoolLayout.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 
@@ -157,6 +158,30 @@ namespace island
                     obstacles_.push_back(CircularObstacle{
                         rock.x, rock.z, 0.63f * std::max(rock.scaleX, rock.scaleZ)});
                 }
+            }
+        }
+
+        // Two low non-solid stones frame each pool without adding collision or a draw path.
+        for (std::size_t poolIndex=0;poolIndex<TidePoolLayout::Definitions.size();++poolIndex) {
+            const auto [poolX,poolZ]=TidePoolLayout::Centre(terrain,poolIndex);
+            const auto& pool=TidePoolLayout::Definitions[poolIndex];
+            for (int accent=0;accent<2;++accent) {
+                const float angle=.62f+static_cast<float>(poolIndex)*.91f+accent*2.47f;
+                const float radius=pool.radius*(.86f+.08f*accent);
+                RockPlacement rock;
+                rock.x=poolX+std::cos(angle)*radius;
+                rock.z=poolZ+std::sin(angle)*radius;
+                const auto support=terrain.Sample(rock.x,rock.z);
+                const float scale=.48f+.10f*static_cast<float>((poolIndex+accent)%3U);
+                rock.y=support.height-.055f*scale;
+                rock.yawRadians=angle+.4f;
+                rock.scaleX=scale*(1.15f+.12f*accent);
+                rock.scaleY=scale*(.62f+.08f*accent);
+                rock.scaleZ=scale*(.88f+.14f*((poolIndex+1U)%2U));
+                rock.variant=static_cast<std::uint8_t>((poolIndex+accent)%RockVariantCount);
+                rock.solid=false;
+                rock.tidePoolLandmark=true;
+                rocks_.push_back(rock);
             }
         }
 
@@ -636,6 +661,21 @@ namespace island
                     Hash(gridX,gridZ,seed^0x5be0cd19U)%3U);
                 beachDetails_.push_back(detail);
             }
+        }
+
+        for (std::size_t poolIndex=0;poolIndex<TidePoolLayout::Definitions.size();++poolIndex) {
+            const auto [poolX,poolZ]=TidePoolLayout::Centre(terrain,poolIndex);
+            const auto& pool=TidePoolLayout::Definitions[poolIndex];
+            const float angle=2.15f+static_cast<float>(poolIndex)*1.07f;
+            BeachDetailPlacement detail;
+            detail.x=poolX+std::cos(angle)*pool.radius*.82f;
+            detail.z=poolZ+std::sin(angle)*pool.radius*.82f;
+            detail.y=terrain.Height(detail.x,detail.z)+.012f;
+            detail.yawRadians=angle-.7f;
+            detail.scale=.82f+.07f*static_cast<float>(poolIndex%3U);
+            detail.variant=static_cast<std::uint8_t>(poolIndex%3U);
+            detail.tidePoolLandmark=true;
+            beachDetails_.push_back(detail);
         }
 
         fallenFronds_.reserve(150U);
