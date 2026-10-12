@@ -1,5 +1,18 @@
 # island-simulator handoff
 
+## Current work — shallow-water fish volumetric form inspected
+
+Goal remains active. The prior51-vertex close fish visibly read as intersecting flat wedges in
+baseline llvmpipe `20261012T205724.527481Z-fish`. It is now a276-vertex six-station/eight-facet
+loft with rounded snout, deep forward body, narrow caudal peduncle, dark back/pale belly,
+two-facet dorsal, separately rooted pectorals and surface-fitted eye/gill/mouth cues. Rear four
+stations progressively follow existing bodyWave; distant12-vertex LOD,48 population, routes,
+one-draw batch and simulation unchanged. Fixed QA camera is now side-on. Final contained
+`20261012T210406.805334Z-fish` PASS/kernel[], six near fish/one draw, image inspected. Maximum
+near buffer13,248vertices (~212KiB), runtime exact-budget assertion. Web diagnostic pins updated;
+actual Web/Android/performance and texture/fin polish remain. See docs/fish-form.md. Next continue
+shark/turtle/crab visual audit. Max4 build cores; no AMD/Android/KVM changes.
+
 ## Current work — offshore dolphin first pass inspected
 
 Goal remains active. Four peaceful dolphins are now live beyond the western reef. `DolphinPod`

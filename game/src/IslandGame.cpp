@@ -779,10 +779,11 @@ namespace island
         } else if (viewpoint_ == FixedViewpoint::FishDetail
                    && !fishSchools_.Fish().empty()) {
             const FishState& fish = fishSchools_.Fish().front();
-            const Vector3 radial = Vector3::Normalize(Vector3(fish.x, 0.0f, fish.z));
-            const Vector3 tangent(-radial.Z, 0.0f, radial.X);
+            const Vector3 forward(std::cos(fish.headingRadians), 0.0f,
+                                  std::sin(fish.headingRadians));
+            const Vector3 side(-forward.Z, 0.0f, forward.X);
             cameraPosition_ = Vector3(fish.x, fish.y, fish.z)
-                + radial * 8.5f + tangent * 1.5f + Vector3::Up * 3.4f;
+                + side * 3.8f - forward * 0.5f + Vector3::Up * 1.0f;
             const Vector3 toFish = Vector3(fish.x, fish.y, fish.z) - cameraPosition_;
             yaw_ = std::atan2(toFish.X, toFish.Z);
             pitch_ = std::atan2(toFish.Y, std::hypot(toFish.X, toFish.Z));
@@ -1360,6 +1361,8 @@ namespace island
                   << "island-simulator: fish near/far geometry "
                   << FishRenderer::NearVertexCount << '/' << FishRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"
+                  << "island-simulator: near fish use six-station volumetric bodies, caudal "
+                     "peduncles and progressive rear-body bends\n"
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"

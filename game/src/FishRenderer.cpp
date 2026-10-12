@@ -2,8 +2,10 @@
 
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <numbers>
 #include <stdexcept>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -34,6 +36,7 @@ namespace island
 
         struct FishPalette
         {
+            Color back;
             Color body;
             Color belly;
             Color fin;
@@ -47,15 +50,36 @@ namespace island
         };
 
         const std::array<FishPalette, 4> Palettes = {{
-            {Color(126, 166, 166, 255), Color(207, 214, 184, 255),
+            {Color(66, 111, 117, 255), Color(126, 166, 166, 255),
+             Color(207, 214, 184, 255),
              Color(218, 177, 67, 255)},
-            {Color(41, 126, 138, 255), Color(125, 191, 175, 255),
+            {Color(21, 76, 91, 255), Color(41, 126, 138, 255),
+             Color(125, 191, 175, 255),
              Color(35, 83, 102, 255)},
-            {Color(174, 133, 74, 255), Color(223, 194, 129, 255),
+            {Color(102, 79, 51, 255), Color(174, 133, 74, 255),
+             Color(223, 194, 129, 255),
              Color(116, 83, 52, 255)},
-            {Color(59, 82, 126, 255), Color(140, 168, 180, 255),
+            {Color(28, 48, 91, 255), Color(59, 82, 126, 255),
+             Color(140, 168, 180, 255),
              Color(224, 183, 58, 255)}
         }};
+
+        struct BodySection
+        {
+            float z;
+            float halfWidth;
+            float halfHeight;
+        };
+
+        constexpr std::array<BodySection, 6> BodySections = {{
+            {0.49f, 0.025f, 0.030f},
+            {0.34f, 0.125f, 0.115f},
+            {0.10f, 0.185f, 0.180f},
+            {-0.13f, 0.170f, 0.165f},
+            {-0.33f, 0.115f, 0.105f},
+            {-0.45f, 0.050f, 0.052f},
+        }};
+        constexpr int BodySegments = 8;
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -104,33 +128,52 @@ namespace island
         void AppendNearFish(std::vector<VertexPositionColor>& vertices,
                             const FishState& fish, const float timeSeconds)
         {
+            const std::size_t startingVertexCount = vertices.size();
             const Vector3 centre(fish.x, fish.y, fish.z);
             const FishPalette& sourcePalette = Palettes[fish.colorVariant % Palettes.size()];
             const AquaticLightProfile waterLight = AquaticLightAt(
                 centre.X, centre.Y, centre.Z, timeSeconds);
             const FishPalette palette{
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.back, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.body, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.belly, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.fin, waterLight),
             };
             const PoseAxes axes = MakePoseAxes(fish);
             const float scale = fish.scale;
-            const float bend = fish.bodyWave * 0.075f;
-            const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.49f, scale);
-            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.19f, 0.03f, scale);
-            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.15f, 0.03f, scale);
-            const Vector3 left = LocalPoint(centre, axes, -0.17f, 0.0f, 0.03f, scale);
-            const Vector3 rightSide = LocalPoint(centre, axes, 0.17f, 0.0f, 0.03f, scale);
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.42f, scale);
+            const float widthScale = fish.colorVariant % 4U == 1U ? 0.88f : 1.0f;
+            const float heightScale = fish.colorVariant % 4U == 2U ? 1.12f : 1.0f;
+            std::array<std::array<Vector3, BodySegments>, BodySections.size()> rings{};
+            for (std::size_t row = 0; row < BodySections.size(); ++row) {
+                const BodySection& section = BodySections[row];
+                const float rearWeight = std::clamp((0.20f - section.z) / 0.65f, 0.0f, 1.0f);
+                const float bend = fish.bodyWave * 0.105f * rearWeight * rearWeight;
+                for (int segment = 0; segment < BodySegments; ++segment) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                    rings[row][segment] = LocalPoint(
+                        centre, axes,
+                        bend + section.halfWidth * widthScale * std::cos(angle),
+                        section.halfHeight * heightScale * std::sin(angle), section.z, scale);
+                }
+            }
+            for (std::size_t row = 0; row + 1U < BodySections.size(); ++row) {
+                for (int segment = 0; segment < BodySegments; ++segment) {
+                    const int next = (segment + 1) % BodySegments;
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * (static_cast<float>(segment) + 0.5f)
+                        / static_cast<float>(BodySegments);
+                    const Color color = std::sin(angle) > 0.36f ? palette.back
+                        : (std::sin(angle) < -0.20f ? palette.belly : palette.body);
+                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
+                                   rings[row + 1U][next], color);
+                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][next],
+                                   rings[row][next], color);
+                }
+            }
 
-            AddLitTriangle(vertices, nose, top, left, palette.body);
-            AddLitTriangle(vertices, nose, rightSide, top, palette.body);
-            AddLitTriangle(vertices, nose, bottom, rightSide, palette.belly);
-            AddLitTriangle(vertices, nose, left, bottom, palette.belly);
-            AddLitTriangle(vertices, rear, left, top, palette.body);
-            AddLitTriangle(vertices, rear, top, rightSide, palette.body);
-            AddLitTriangle(vertices, rear, rightSide, bottom, palette.belly);
-            AddLitTriangle(vertices, rear, bottom, left, palette.belly);
+            const float bend = fish.bodyWave * 0.105f;
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.45f, scale);
 
             const float tailBend = fish.bodyWave * 0.17f;
             const Vector3 tailTop = LocalPoint(
@@ -148,35 +191,47 @@ namespace island
                 centre, axes, 0.0f, 0.34f, -0.08f, scale);
             const Vector3 dorsalBack = LocalPoint(
                 centre, axes, bend * 0.45f, 0.12f, -0.27f, scale);
-            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, palette.fin);
+            const Vector3 dorsalKnee = LocalPoint(
+                centre, axes, bend * 0.25f, 0.25f, -0.19f, scale);
+            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, palette.fin);
+            AddTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, palette.fin);
 
-            const Vector3 finRoot = LocalPoint(
-                centre, axes, 0.0f, -0.04f, 0.08f, scale);
-            const Vector3 leftFin = LocalPoint(
-                centre, axes, -0.34f, -0.10f, -0.08f, scale);
-            const Vector3 rightFin = LocalPoint(
-                centre, axes, 0.34f, -0.10f, -0.08f, scale);
-            AddTriangle(vertices, finRoot, leftFin, rear, palette.fin);
-            AddTriangle(vertices, finRoot, rear, rightFin, palette.fin);
+            for (const float side : {-1.0f, 1.0f}) {
+                AddTriangle(vertices,
+                            LocalPoint(centre, axes, side * 0.15f, -0.015f, 0.13f, scale),
+                            LocalPoint(centre, axes, side * 0.37f, -0.09f, -0.12f, scale),
+                            LocalPoint(centre, axes, side * 0.13f, -0.06f, -0.20f, scale),
+                            palette.fin);
+            }
 
             const Color eye(19, 31, 33, 255);
             const Color gill(65, 86, 83, 255);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.108f, 0.062f, 0.255f, scale),
-                        LocalPoint(centre, axes, -0.117f, 0.012f, 0.278f, scale),
-                        LocalPoint(centre, axes, -0.121f, 0.014f, 0.214f, scale), eye);
+                        LocalPoint(centre, axes, -0.157f, 0.073f, 0.278f, scale),
+                        LocalPoint(centre, axes, -0.162f, 0.006f, 0.294f, scale),
+                        LocalPoint(centre, axes, -0.164f, 0.010f, 0.205f, scale), eye);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.108f, 0.062f, 0.255f, scale),
-                        LocalPoint(centre, axes, 0.121f, 0.014f, 0.214f, scale),
-                        LocalPoint(centre, axes, 0.117f, 0.012f, 0.278f, scale), eye);
+                        LocalPoint(centre, axes, 0.157f, 0.073f, 0.278f, scale),
+                        LocalPoint(centre, axes, 0.164f, 0.010f, 0.205f, scale),
+                        LocalPoint(centre, axes, 0.162f, 0.006f, 0.294f, scale), eye);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.145f, 0.055f, 0.135f, scale),
-                        LocalPoint(centre, axes, -0.151f, -0.047f, 0.117f, scale),
-                        LocalPoint(centre, axes, -0.147f, -0.035f, 0.145f, scale), gill);
+                        LocalPoint(centre, axes, -0.190f, 0.070f, 0.145f, scale),
+                        LocalPoint(centre, axes, -0.192f, -0.060f, 0.115f, scale),
+                        LocalPoint(centre, axes, -0.193f, -0.042f, 0.158f, scale), gill);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.145f, 0.055f, 0.135f, scale),
-                        LocalPoint(centre, axes, 0.147f, -0.035f, 0.145f, scale),
-                        LocalPoint(centre, axes, 0.151f, -0.047f, 0.117f, scale), gill);
+                        LocalPoint(centre, axes, 0.190f, 0.070f, 0.145f, scale),
+                        LocalPoint(centre, axes, 0.193f, -0.042f, 0.158f, scale),
+                        LocalPoint(centre, axes, 0.192f, -0.060f, 0.115f, scale), gill);
+            for (const float side : {-1.0f, 1.0f}) {
+                AddTriangle(vertices,
+                            LocalPoint(centre, axes, side * 0.035f, -0.027f, 0.486f, scale),
+                            LocalPoint(centre, axes, side * 0.110f, -0.034f, 0.405f, scale),
+                            LocalPoint(centre, axes, side * 0.040f, -0.045f, 0.465f, scale),
+                            gill);
+            }
+            if (vertices.size() - startingVertexCount != FishRenderer::NearVertexCount) {
+                throw std::runtime_error("Fish near mesh does not match its fixed vertex budget");
+            }
         }
 
         void AppendFarFish(std::vector<VertexPositionColor>& vertices,
@@ -187,6 +242,7 @@ namespace island
             const AquaticLightProfile waterLight = AquaticLightAt(
                 centre.X, centre.Y, centre.Z, timeSeconds);
             const FishPalette palette{
+                wildlife_render::ApplyUnderwaterLight(sourcePalette.back, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.body, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.belly, waterLight),
                 wildlife_render::ApplyUnderwaterLight(sourcePalette.fin, waterLight),

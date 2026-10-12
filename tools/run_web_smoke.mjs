@@ -973,7 +973,7 @@ try {
     && result.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && result.output?.includes(
-      "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 276/12 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes(
       "island-simulator: shark near/far geometry 51/15 vertices, single-surface fins and CPU faceted daylight")
     && result.output?.includes("island-simulator: monkeys 7 agents with portable GPU skeletal animation")
@@ -2090,7 +2090,7 @@ try {
     && fishResult.output?.includes(
       "island-simulator: aquatic wildlife uses depth tint and restrained moving sunlight bands in CPU vertex colours")
     && fishResult.output?.includes(
-      "island-simulator: fish near/far geometry 51/12 vertices, single-surface fins and CPU faceted daylight")
+      "island-simulator: fish near/far geometry 276/12 vertices, single-surface fins and CPU faceted daylight")
     && /fish [1-9][0-9]*\/48 visible/.test(fishResult.output ?? "")
     && !fishResult.error;
 

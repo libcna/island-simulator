@@ -400,8 +400,12 @@ docs/stream-course.md and docs/environment-field-design.md.
   `IslandDolphinPodTests`, WorldReport fingerprint `049597fca36b232e`, and inspected contained
   llvmpipe evidence `20261012T205513.019794Z-dolphins` pass. A second image-driven pass rounded the
   forehead, lowered/swept the dorsal fin, broadened the horizontal flukes and added mouth/blowhole
-  cues. The form remains visibly faceted and
-  Web/Android/performance review is open; fish, shark, turtle and crab polish also remains, so this
+  cues. Fish then received an image-driven close-form pass: the 51-vertex diamond body became a
+  276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
+  bend, surface-fitted eyes/gills/mouth and better-rooted fins. Inspected contained evidence
+  `20261012T210406.805334Z-fish` shows six close fish in one draw; see `docs/fish-form.md`.
+  Both forms remain visibly faceted and Web/Android/performance review is open; shark, turtle and
+  crab polish also remains, so this
   umbrella item is intentionally not complete. See `docs/dolphins.md`.
 
 Stream bed now live in TerrainRenderer: covered original coarse quads omitted;
