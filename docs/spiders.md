@@ -6,6 +6,31 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## World-space web site proposals — not live or foliage-qualified
 
+### Connected strand geometry (CPU only)
+
+`SpiderWebGeometry` constructs a fixed graph from a site's three rest anchors:
+three frame corners, a centre, 24 boundary attachments and an eight-turn spiral.
+The default sites each use 220 nodes and 434 strands. Frame edges are subdivided
+at radial attachments, and every spiral/radial crossing shares a node. This avoids
+disconnected endpoints or independently moving coincident lines. Corner hits reuse
+the frame corner instead of creating zero-length boundary segments.
+
+The spiral uses circular directions in the rest triangle's actual plane and a
+steadily increasing radius inside the frame; it is not a stack of triangular rings.
+Stored barycentric nodes deform affinely with the three sampled branch anchors.
+This is a bounded, taut strand scaffold, not a physical silk simulation or a claim
+of species-specific web anatomy. There are no GPU triangles, transparency/line-width
+choices, live integration, occupied webs or new visible island content in this step.
+
+Tests check connectedness, unique/nonzero edges, exact corner attachment, convex
+frame containment, finite interpolation, strand/node budgets, rest spiral radii,
+40 wind samples for each of six proposed sites, 24 additional oriented/asymmetric
+frames, and invalid rest/moving frames. Actual rendering and individual vegetation
+intersections remain required; CPU graph acceptance is not visual acceptance.
+Inclusive native build and all55 CPU groups PASS110.25s, geometry test0.56s;
+`build/web-geometry-final-build.log` and `build/web-geometry-full-tests.log`.
+No renderer or portable build/runtime was run for this unintegrated graph.
+
 `SpiderWebLayout::Propose` selects at most six three-branch frames from existing
 canopy instances. Deterministic hashed tree ordering avoids the initial sequential
 selection's concentration on one side of the island. Sites retain the actual branch,

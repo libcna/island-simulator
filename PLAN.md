@@ -865,6 +865,17 @@ progress or require player interaction; dangerous species keep their distance li
   transform/size tests plus determinism and four bad inputs pass; full54CPU PASS89.68s.
   No renderer/Web/Android run for this proposal-only step. Next: bounded strands,
   stronger clearance, live integration/occupancy and actual moving visual inspection.
+  Connected strand graph added in SpiderWebGeometry: default220nodes/434strands,
+  24radials, eight-turn increasing-radius circular rest spiral, subdivided triangular
+  support frame. Shared crossing/attachment nodes prevent disconnected filaments.
+  Barycentric deformation follows actual moving anchors; bounded taut scaffold,
+  not silk physics/species-specific anatomy. Tests cover graph connectivity, unique/
+  nonzero edges, budgets, exact support corners, convex containment/interpolation,
+  rest radii, six sites*40wind times, 24extra frames and invalid rest/moving anchors.
+  No live web, GPU mesh or occupants yet. Full vegetation clearance, rendering,
+  visibility/line width and actual island visual audit remain required.
+  Native incremental build/all55CPU PASS110.25s (geometry0.56s); no renderer or
+  portable build/runtime for this unintegrated strand graph.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

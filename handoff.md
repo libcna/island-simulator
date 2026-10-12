@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Latest — connected web strand graph, still CPU-only
+
+Previous9f6822e was progress. SpiderWebGeometry now constructs a triangle-supported
+24-spoke/eight-turn spiral graph: default220nodes/434strands per proposed site.
+Frame edges split at radial attachments; radial/spiral intersections share nodes;
+corner hits reuse support vertices. Rest spiral is circular in the actual triangle
+plane, increasing radius0.12..0.88 of bounded radial clearance. Stored barycentric
+nodes follow moving anchors affinely. Taut scaffold, not silk physics or final art.
+Tests: graph connectedness/unique/nonzero edges, exact supports, convex containment,
+finite independent-double interpolation, rest spiral radii, six sites*40wind samples,
+24extra oriented/asymmetric frames and invalid rest/moving frame rejection.
+Initial focused two web groups PASS0.82s; all six sites220nodes/434strands confirmed.
+Build initially failed read-only shared ccache, then approved same incremental build
+with required cache access succeeded (63913exit0). No cache bypass/duplicate build.
+Final build/full CPU handle97949 terminal exit0: all55 groups PASS110.25s, geometry
+test0.56s, no build warnings. Logs build/web-geometry-{final-build,full-tests}.log.
+Reused build/, -j2/shared ccache. No graphics launched or new live web/report flags.
+NEXT vegetation clearance, strand GPU geometry/material/visibility and live occupants,
+then actual close/moving visual audits. Do not call this rendered/accepted wildlife.
+Goal active; full remaining plan including AMD root cause still open. No hardware,
+Android/KVM/AVD or dependency edits, no push.
+Stop latch c0bd1704 unchanged. Disk build8.7G/build-probe430M/android/app/build412M;
+no artifacts removed. All owned handles terminal.
+
 ## Latest — bounded world-space web site proposals, not live webs
 
 Previous turn answered an ETA question only (no implementation progress). Resumed
