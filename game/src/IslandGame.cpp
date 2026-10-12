@@ -163,6 +163,14 @@ namespace island
           benchmarkPath_(std::move(benchmarkPath)),
           startupReportPath_(std::move(startupReportPath))
     {
+        std::vector<CrabHabitatCue> crabDebrisCues;
+        crabDebrisCues.reserve(naturalPropLayout_.Driftwood().size()
+                               + naturalPropLayout_.BeachDetails().size());
+        for (const auto& wood : naturalPropLayout_.Driftwood())
+            crabDebrisCues.push_back({wood.x, wood.z});
+        for (const auto& detail : naturalPropLayout_.BeachDetails())
+            if (detail.variant == 3U) crabDebrisCues.push_back({detail.x, detail.z});
+        crabColony_.SetDebrisHabitats(crabDebrisCues);
         std::vector<CircularObstacle> worldObstacles;
         worldObstacles.reserve(vegetationLayout_.Obstacles().size()
                                + jungleLayout_.Obstacles().size()
@@ -1213,7 +1221,7 @@ namespace island
                   << butterflyMeadow_.Butterflies().size()
                   << " agents in deterministic low-altitude habitats\n"
                   << "island-simulator: beach crabs " << crabColony_.Crabs().size()
-                  << " agents in deterministic sand-constrained colonies\n"
+                  << " agents in deterministic sand-and-debris-constrained colonies\n"
                   << "island-simulator: fish " << fishSchools_.Fish().size()
                   << " agents in " << FishSchools::SchoolCount
                   << " distance-throttled shallow-water schools\n"
@@ -1277,7 +1285,7 @@ namespace island
         std::ostringstream crabPopulationDiagnostic;
         crabPopulationDiagnostic << "island-simulator: beach crabs "
                                  << crabColony_.Crabs().size()
-                                 << " agents in deterministic sand-constrained colonies";
+                                 << " agents in deterministic sand-and-debris-constrained colonies";
         MirrorRuntimeDiagnosticToPlatformLog(crabPopulationDiagnostic.str());
         std::ostringstream seaTurtlePopulationDiagnostic;
         seaTurtlePopulationDiagnostic << "island-simulator: sea turtles "

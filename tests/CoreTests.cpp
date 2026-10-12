@@ -2922,6 +2922,21 @@ int main()
     const island::CanopyLightField canopyLight(terrain, island::MakeCanopyOccluders(jungle.Canopy()));
     const island::GroundCoverField groundCover;
     const island::NaturalPropLayout props(terrain, vegetation, jungle);
+    std::vector<island::CrabHabitatCue> crabDebrisCues;
+    for (const auto& wood : props.Driftwood()) crabDebrisCues.push_back({wood.x, wood.z});
+    for (const auto& detail : props.BeachDetails())
+        if (detail.variant == 3U) crabDebrisCues.push_back({detail.x, detail.z});
+    island::CrabColony debrisCrabs(terrain), repeatedDebrisCrabs(terrain);
+    debrisCrabs.SetDebrisHabitats(crabDebrisCues);
+    repeatedDebrisCrabs.SetDebrisHabitats(crabDebrisCues);
+    for (std::size_t index = 0; index < debrisCrabs.Homes().size(); ++index) {
+        const auto home = debrisCrabs.Homes()[index];
+        Check(home.x == repeatedDebrisCrabs.Homes()[index].x
+                  && home.z == repeatedDebrisCrabs.Homes()[index].z,
+              "debris-guided crab colony placement is deterministic");
+        Check(island::CrabColony::IsNearDebris(home, crabDebrisCues),
+              "crab colony home is not beside driftwood or dry wrack");
+    }
     const island::ShipwreckLayout shipwreck(terrain);
     const island::ShipwreckLayout repeatedShipwreck(terrain);
     const island::ShipwreckPlacement& ship = shipwreck.Ship();

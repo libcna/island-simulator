@@ -124,6 +124,12 @@ namespace
 
         WorldSnapshot()
         {
+            std::vector<island::CrabHabitatCue> crabDebrisCues;
+            for (const auto& wood : props.Driftwood())
+                crabDebrisCues.push_back({wood.x, wood.z});
+            for (const auto& detail : props.BeachDetails())
+                if (detail.variant == 3U) crabDebrisCues.push_back({detail.x, detail.z});
+            crabs.SetDebrisHabitats(crabDebrisCues);
             worldObstacles.reserve(palms.Obstacles().size() + jungle.Obstacles().size()
                                    + props.Obstacles().size()
                                    + shipwreck.Obstacles().size());
@@ -634,6 +640,11 @@ namespace
                 && boar.scale > 0.0f && world.boars.IsValidGround(boar.x, boar.z)
                 && std::hypot(boar.x - boar.homeX, boar.z - boar.homeZ) <= island::BoarHerd::HomeRadius;
         }
+        std::vector<island::CrabHabitatCue> crabDebrisCues;
+        for (const auto& wood : world.props.Driftwood())
+            crabDebrisCues.push_back({wood.x, wood.z});
+        for (const auto& detail : world.props.BeachDetails())
+            if (detail.variant == 3U) crabDebrisCues.push_back({detail.x, detail.z});
         for (std::size_t index = 0; index < world.crabs.Crabs().size(); ++index) {
             const island::CrabState& crab = world.crabs.Crabs()[index];
             const island::CrabHomeRange& home = world.crabs.Homes()[index];
@@ -643,6 +654,7 @@ namespace
                              crab.travelHeadingRadians, crab.speed, crab.legPhase,
                              crab.clawPose, crab.scale, home.x, home.z, home.radius)
                 && crab.scale > 0.0f && home.radius > 0.0f
+                && island::CrabColony::IsNearDebris(home, crabDebrisCues)
                 && sample.signedShoreDistance >= island::CrabColony::MinimumShoreDistance
                 && sample.signedShoreDistance <= island::CrabColony::MaximumShoreDistance;
         }

@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <array>
 #include <span>
 #include <vector>
 
@@ -44,6 +45,8 @@ namespace island
         float radius = 0.0f;
     };
 
+    struct CrabHabitatCue { float x = 0.0f, z = 0.0f; };
+
     /** @brief Deterministic beach-constrained crab simulation with mild player avoidance. */
     class CrabColony final
     {
@@ -55,6 +58,10 @@ namespace island
         static constexpr float ReducedSimulationDistance = 210.0f;
 
         explicit CrabColony(const IslandTerrain& terrain);
+        /** @brief Transactionally reanchors six colonies beside real non-solid beach debris. */
+        void SetDebrisHabitats(std::span<const CrabHabitatCue> cues);
+        [[nodiscard]] static bool IsNearDebris(
+            const CrabHomeRange& home, std::span<const CrabHabitatCue> cues) noexcept;
 
         /** @brief Advances autonomous beach movement and observer-relative activation. */
         void Update(float deltaSeconds, float observerX, float observerY,
@@ -98,5 +105,7 @@ namespace island
         int fullSimulationCount_ = 0;
         int reducedSimulationCount_ = 0;
         int dormantSimulationCount_ = 0;
+        std::array<CrabHabitatCue, 6> debrisAnchors_{};
+        bool debrisAnchored_ = false;
     };
 }

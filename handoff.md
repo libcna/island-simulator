@@ -10,8 +10,8 @@ stream banks. Goats reject moisture>.18, drainage>.24 and salt>.08. Four product
 snake homes are deterministically selected from sampled dense-understory margins,
 with >=52m separation and fail-closed construction; legacy no-jungle constructors
 remain for isolated locomotion tests. Three of five turtle bases now occupy the
-sheltered western bay, while all five retain reef/seagrass routing. World fingerprint
-is `77a473eac55bb3e9`. Inspected llvmpipe `20261012T102822.874894Z-boars` PASS
+sheltered western bay, while all five retain reef/seagrass routing. Current world fingerprint
+is `7362757530e472d9`. Inspected llvmpipe `20261012T102822.874894Z-boars` PASS
 274bins/std18.04/spatial88.19 and `20261012T102941.088316Z-turtles` PASS
 268bins/std26.31/spatial104.02. Inspected `103005.681421Z-snakes` shows the animal
 between understory leaves but FAILS the generic scene threshold (std13.74), so is not
@@ -21,9 +21,17 @@ excursion regression passes. A direct closed-canopy home relocation was visually
 insufficient and then broke the natural summit test, so it was removed. Generic monkey
 capture `104842.384627Z-monkeys` technically passes but faces out of the grove and is
 not accepted as closed-canopy evidence; `104937.753599Z-monkey-tree` reached the tree
-sequence but failed its paired-grip gate. Next: clearance-aware closed-canopy homes,
-wrack-aware crab bias and stronger habitat cameras, then portable/performance review.
+sequence but failed its paired-grip gate. Next: clearance-aware closed-canopy homes
+and stronger habitat cameras, then portable/performance review.
 No AMD/KVM changes. Builds remain bounded to CPUs0-3 and `-j2`.
+
+Crab follow-up: runtime and WorldReport now build habitat cues from every non-solid
+driftwood placement plus beach-detail variant3 dry wrack. `SetDebrisHabitats` selects
+six >=28m-separated sandy anchors transactionally and rehomes five crabs per anchor;
+all 30 homes are <=3.25m from real debris and retain existing bounded sand routes.
+Core and WorldReport pass; fingerprint is now `7362757530e472d9`. Inspected llvmpipe
+`20261012T110201.712430Z-crabs` PASS 402bins/std24.02/spatial145.92 and visibly shows
+the foreground colony surrounding a small piece of beach debris.
 
 ## Latest implementation — spatial reef plus habitat-routed fish/turtles
 

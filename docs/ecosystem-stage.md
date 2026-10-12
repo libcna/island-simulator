@@ -77,8 +77,11 @@ existing features, not a broad redesign.
    at least two neighbouring natural canopy trees within 20m; the full deterministic
    climb/excursion regression remains reachable. Ground-home placement is not yet
    closed-canopy-driven: an attempted direct relocation passed rendering but broke
-   the natural summit regression and was removed. Wrack-aware crab bias, portable
-   review and a stronger snake habitat camera remain.
+   the natural summit regression and was removed. All six crab colonies are now
+   transactionally anchored beside actual non-solid driftwood or dry-wrack sites;
+   all 30 homes remain within 3.25m of a debris cue and inside valid sand. Inspected
+   llvmpipe `20261012T110201.712430Z-crabs` passes and visibly shows the colony around
+   beach debris. Portable review and a stronger snake habitat camera remain.
 7. [ ] **Four distinct coastal experiences.** Strengthen the existing broad beach,
    sheltered lagoon/bay, exposed rocky windward shore and mangrove stream mouth.
    Keep island outline/scale; make a coastal walk visibly vary in materials,

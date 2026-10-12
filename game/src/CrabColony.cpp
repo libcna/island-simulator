@@ -46,6 +46,64 @@ namespace island
         }
     }
 
+    bool CrabColony::IsNearDebris(const CrabHomeRange& home,
+        const std::span<const CrabHabitatCue> cues) noexcept
+    {
+        return std::ranges::any_of(cues, [&](const CrabHabitatCue cue) {
+            return std::isfinite(cue.x) && std::isfinite(cue.z)
+                && std::hypot(home.x - cue.x, home.z - cue.z) <= 3.25f;
+        });
+    }
+
+    void CrabColony::SetDebrisHabitats(const std::span<const CrabHabitatCue> cues)
+    {
+        if (cues.empty()) throw std::invalid_argument("Crab debris habitat requires cues");
+        CrabColony replacement(terrain_);
+        std::array<bool, 6> selected{};
+        for (std::size_t colony = 0; colony < ColonyAngles.size(); ++colony) {
+            float best = std::numeric_limits<float>::infinity();
+            for (std::size_t index = 0; index < cues.size(); ++index) {
+                const auto cue = cues[index];
+                if (!std::isfinite(cue.x) || !std::isfinite(cue.z))
+                    throw std::invalid_argument("Crab debris cue must be finite");
+                const auto sample = terrain_.Sample(cue.x, cue.z);
+                const CrabHomeRange probe{cue.x, cue.z, 1.0f};
+                if (sample.coastalRockiness >= .35f
+                    || !replacement.IsValidHabitat(cue.x, cue.z, probe)) continue;
+                bool separated = true;
+                for (std::size_t previous = 0; previous < colony; ++previous)
+                    separated = separated && std::hypot(cue.x - replacement.debrisAnchors_[previous].x,
+                        cue.z - replacement.debrisAnchors_[previous].z) >= 28.0f;
+                if (!separated) continue;
+                const float difference = std::abs(WrapAngle(
+                    std::atan2(cue.z, cue.x) - ColonyAngles[colony]));
+                if (difference < best) {
+                    best = difference;
+                    replacement.debrisAnchors_[colony] = cue;
+                    selected[colony] = true;
+                }
+            }
+            if (!selected[colony]) throw std::runtime_error(
+                "No separated sandy debris anchor for crab colony");
+        }
+        replacement.debrisAnchored_ = true;
+        for (std::size_t index = 0; index < CrabCount; ++index) {
+            replacement.InitializeAgent(index);
+            const auto anchor = replacement.debrisAnchors_[index / 5U];
+            if (std::hypot(replacement.agents_[index].home.x - anchor.x,
+                           replacement.agents_[index].home.z - anchor.z) > 3.25f)
+                throw std::runtime_error("Crab could not remain beside selected beach debris");
+            replacement.states_[index] = replacement.agents_[index].state;
+            replacement.homes_[index] = replacement.agents_[index].home;
+        }
+        agents_.swap(replacement.agents_);
+        states_.swap(replacement.states_);
+        homes_.swap(replacement.homes_);
+        debrisAnchors_ = replacement.debrisAnchors_;
+        debrisAnchored_ = true;
+        frameIndex_ = 0;
+    }
+
     void CrabColony::InitializeAgent(const std::size_t index)
     {
         Agent& agent = agents_[index];
@@ -58,7 +116,19 @@ namespace island
         const float tangentOffset = (static_cast<float>((index * 7U) % 9U) - 4.0f) * 0.42f;
         agent.home.radius = 5.8f + static_cast<float>(index % 4U) * 0.7f;
         bool foundHabitat = false;
-        for (int attempt = 0; attempt < 97; ++attempt) {
+        if (debrisAnchored_) {
+            const auto anchor = debrisAnchors_[colonyIndex];
+            angle = std::atan2(anchor.z, anchor.x);
+            for (int attempt = 0; attempt < 64 && !foundHabitat; ++attempt) {
+                const float radius = .35f + static_cast<float>(attempt) * .045f;
+                const float theta = static_cast<float>(index) * 1.173f
+                    + static_cast<float>(attempt) * 2.399963f;
+                agent.home.x = anchor.x + std::cos(theta) * radius;
+                agent.home.z = anchor.z + std::sin(theta) * radius;
+                foundHabitat = IsValidHabitat(agent.home.x, agent.home.z, agent.home);
+            }
+        }
+        for (int attempt = 0; attempt < 97 && !foundHabitat; ++attempt) {
             const float offset = static_cast<float>((attempt + 1) / 2) * 0.025f
                 * (attempt % 2 == 0 ? -1.0f : 1.0f);
             angle = authoredAngle + offset;

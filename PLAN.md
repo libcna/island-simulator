@@ -81,8 +81,11 @@ capture was correctly rejected for low luminance variation and is not accepted v
 evidence. Monkey tree routes now reject mangroves and isolated trees and require two
 natural canopy neighbours within 20m; the full deterministic climb regression passes.
 A direct closed-canopy home relocation was rejected and removed because it prevented
-the ordinary simulation from completing a safe summit. Ground-home placement,
-wrack-aware crab bias and portable review keep ecosystem-stage item 6 in progress.
+the ordinary simulation from completing a safe summit. All six crab colonies now
+derive their homes from real driftwood/dry-wrack cues, with every home within 3.25m
+of debris while retaining sand and route bounds. Inspected llvmpipe
+`110201.712430Z-crabs` passes and shows the foreground colony around beach debris.
+Monkey ground-home placement and portable review keep ecosystem-stage item 6 in progress.
 
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander
