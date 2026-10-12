@@ -20,6 +20,14 @@ namespace island
         float saltExposure = 0.0f;
     };
 
+    struct CoastalExperienceSample
+    {
+        float broadBeach = 0.0f;
+        float shelteredBay = 0.0f;
+        float rockyShore = 0.0f;
+        float mangroveMouth = 0.0f;
+    };
+
     /** @brief Shared coastal and first inland abiotic controls; canopy light remains separate. */
     class IslandEnvironmentField final
     {
@@ -63,6 +71,32 @@ namespace island
                 * (1.0f - Smooth(25.0f, 65.0f, signedShoreDistance));
             return {regional * band, (1.0f - regional)
                 * (1.0f - Smooth(beachWidth * 0.40f, beachWidth * 1.05f, signedShoreDistance))};
+        }
+
+        /** @brief Four overlapping but locally dominant identities for coastal composition. */
+        [[nodiscard]] static CoastalExperienceSample SampleCoastalExperience(
+            float x, float z, float signedShoreDistance) noexcept
+        {
+            if (!std::isfinite(x) || !std::isfinite(z) || !std::isfinite(signedShoreDistance))
+                return {};
+            const float angle = std::atan2(z, x);
+            const auto direction = [angle](float centre, float width) {
+                return std::exp((std::cos(angle-centre)-1.0f)/(width*width));
+            };
+            const float coastalBand = Smooth(-6.0f, 1.0f, signedShoreDistance)
+                * (1.0f-Smooth(42.0f, 68.0f, signedShoreDistance));
+            const auto coast = SampleCoast(x,z,signedShoreDistance);
+            const float mouthX = StreamRoute::SourceX-StreamRoute::NominalLength;
+            const float mouthZ = StreamRoute::CentreZ(mouthX);
+            const float mouth = coastalBand
+                * (1.0f-Smooth(8.0f, 28.0f,std::hypot(x-mouthX,z-mouthZ)));
+            const float sand = 1.0f-coast.rockiness;
+            return {
+                coastalBand*sand*direction(-1.57079632679f,.48f),
+                coastalBand*sand*direction(3.14159265359f,.45f)*(1.0f-.72f*mouth),
+                coast.rockiness,
+                mouth,
+            };
         }
 
         /** @brief Shared valley/stream moisture, drainage concentration and coastal salt field. */

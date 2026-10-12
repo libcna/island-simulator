@@ -3988,6 +3988,31 @@ int main()
           "wide bay beach has both sandy material potential and low physical relief");
     CheckNear(island::IslandEnvironmentField::BeachWidth(-std::numbers::pi_v<float>), bayWidth,
               0.0001f, "bay beach width stays continuous across the polar seam");
+    const auto coastalExperienceStation = [&](const float angle, const float inland) {
+        const float radius=terrain.ShoreRadius(angle)-inland;
+        const float x=std::cos(angle)*radius,z=std::sin(angle)*radius;
+        return island::IslandEnvironmentField::SampleCoastalExperience(
+            x,z,terrain.SignedShoreDistance(x,z));
+    };
+    const auto broadBeachExperience=coastalExperienceStation(
+        -std::numbers::pi_v<float>*.5f,12.0f);
+    const auto bayExperience=coastalExperienceStation(std::numbers::pi_v<float>,12.0f);
+    const auto headlandExperience=coastalExperienceStation(.35f,12.0f);
+    const float mouthX=island::StreamRoute::SourceX-island::StreamRoute::NominalLength;
+    const float mouthZ=island::StreamRoute::CentreZ(mouthX);
+    const auto mouthExperience=island::IslandEnvironmentField::SampleCoastalExperience(
+        mouthX,mouthZ,terrain.SignedShoreDistance(mouthX,mouthZ));
+    Check(broadBeachExperience.broadBeach>.90f
+            && broadBeachExperience.broadBeach>broadBeachExperience.shelteredBay,
+        "southern Robinson beach has a dominant shared coastal identity");
+    Check(bayExperience.shelteredBay>.75f
+            && bayExperience.shelteredBay>bayExperience.mangroveMouth,
+        "protected western bay remains distinct from its localized stream mouth");
+    Check(headlandExperience.rockyShore>.90f,
+        "exposed eastern headland has a dominant rocky-shore identity");
+    Check(mouthExperience.mangroveMouth>.80f
+            && mouthExperience.mangroveMouth>mouthExperience.shelteredBay,
+        "stream outlet has a localized mangrove-mouth coastal identity");
     for (const auto& palm : vegetation.Palms())
         Check(terrain.Sample(palm.x, palm.z).coastalRockiness <= 0.45f,
               "adult and juvenile palms avoid exposed coastal rock");
@@ -4003,6 +4028,11 @@ int main()
     const auto invalidCoast = island::IslandEnvironmentField::SampleCoast(quietNan, 0.0f, 0.0f);
     Check(invalidCoast.rockiness == 0.0f && invalidCoast.beachSuitability == 0.0f,
           "non-finite environment query has safe empty controls");
+    const auto invalidExperience=island::IslandEnvironmentField::SampleCoastalExperience(
+        quietNan,0.0f,0.0f);
+    Check(invalidExperience.broadBeach==0.0f && invalidExperience.shelteredBay==0.0f
+            && invalidExperience.rockyShore==0.0f && invalidExperience.mangroveMouth==0.0f,
+        "non-finite coastal-experience query has safe empty controls");
     const float streamX=-110.0f,streamZ=island::StreamRoute::CentreZ(streamX);
     CheckNear(island::StreamRoute::CentreZ(island::StreamRoute::SourceX), -40.05f,
         .0001f, "stream meander preserves the authored source connection");
@@ -4043,6 +4073,15 @@ int main()
             if (inland == 80.0f)
                 Check(station.coastalRockiness == 0.0f,
                       "coastal rock field does not override interior ridge geology");
+            const float radius=terrain.ShoreRadius(angle)-inland;
+            const auto experience=island::IslandEnvironmentField::SampleCoastalExperience(
+                std::cos(angle)*radius,std::sin(angle)*radius,
+                station.signedShoreDistance);
+            for (const float weight : {experience.broadBeach,experience.shelteredBay,
+                                      experience.rockyShore,experience.mangroveMouth}) {
+                Check(std::isfinite(weight) && weight>=0.0f && weight<=1.0f,
+                    "coastal experience weights remain finite and normalized");
+            }
         }
     }
 
@@ -4794,6 +4833,7 @@ int main()
     std::size_t solidRockCount = 0U;
     std::size_t reefRockCount = 0U;
     std::size_t clearingLandmarkRockCount = 0U;
+    std::size_t rockyShoreRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
         const island::RockPlacement& rock = props.Rocks()[index];
         const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
@@ -4849,6 +4889,10 @@ int main()
             } else {
                 Check(!island::VegetationLayout::IsReservedRoute(rock.x, rock.z),
                       "procedural land rocks keep authored routes and clearings open");
+                if (island::IslandEnvironmentField::SampleCoastalExperience(
+                        rock.x,rock.z,sample.signedShoreDistance).rockyShore>.50f) {
+                    ++rockyShoreRockCount;
+                }
             }
             Check(rock.scaleX > 0.35f && rock.scaleX < 2.30f
                       && rock.scaleY > 0.24f && rock.scaleY < 1.70f
@@ -4865,6 +4909,8 @@ int main()
               == static_cast<std::size_t>(
                   island::NaturalPropLayout::AuthoredClearingRockCount),
           "both clearing landmark rock groups remain complete");
+    Check(rockyShoreRockCount>=8U,
+        "exposed rocky-shore experience retains a visible procedural rock composition");
     std::size_t clearingLandmarkLogCount = 0U;
     std::size_t wetBankLogCount = 0U;
     bool eastClearingLogObserved = false;
@@ -5013,6 +5059,8 @@ int main()
           "the authored cove landmark uses all three driftwood silhouettes");
     std::array<bool, island::NaturalPropLayout::BeachDetailVariantCount>
         observedBeachDetailVariants{};
+    std::size_t broadBeachShellDetailCount=0U,broadBeachWrackDetailCount=0U;
+    std::size_t shelteredBayWrackDetailCount=0U,mangroveMouthWrackDetailCount=0U;
     for (std::size_t index = 0; index < props.BeachDetails().size(); ++index) {
         const island::BeachDetailPlacement& detail = props.BeachDetails()[index];
         const island::BeachDetailPlacement& repeated = repeatedProps.BeachDetails()[index];
@@ -5036,6 +5084,16 @@ int main()
         if (detail.variant < observedBeachDetailVariants.size()) {
             observedBeachDetailVariants[detail.variant] = true;
         }
+        const auto experience=island::IslandEnvironmentField::SampleCoastalExperience(
+            detail.x,detail.z,sample.signedShoreDistance);
+        if (experience.broadBeach>.50f) {
+            if (detail.variant==3U) ++broadBeachWrackDetailCount;
+            else ++broadBeachShellDetailCount;
+        }
+        if (experience.shelteredBay>.50f && detail.variant==3U)
+            ++shelteredBayWrackDetailCount;
+        if (experience.mangroveMouth>.35f && detail.variant==3U)
+            ++mangroveMouthWrackDetailCount;
         Check(detail.scale >= island::NaturalPropLayout::BeachDetailMinimumScale
                   && detail.scale <= island::NaturalPropLayout::BeachDetailMaximumScale,
               "shell/pebble/wrack cluster scale remains in the authored range");
@@ -5043,6 +5101,15 @@ int main()
     Check(std::ranges::all_of(observedBeachDetailVariants,
                               [](const bool value) { return value; }),
           "shell/pebble/wrack population exercises all four mesh variants");
+    std::cout << "Coastal identity props rocky/south-shell/south-wrack/bay-wrack/mouth-wrack: "
+        << rockyShoreRockCount << '/' << broadBeachShellDetailCount << '/'
+        << broadBeachWrackDetailCount << '/' << shelteredBayWrackDetailCount << '/'
+        << mangroveMouthWrackDetailCount << '\n';
+    Check(broadBeachShellDetailCount>=12U
+            && broadBeachShellDetailCount>broadBeachWrackDetailCount*3U,
+        "broad Robinson beach is visually biased toward shell and pebble detail");
+    Check(shelteredBayWrackDetailCount>=3U && mangroveMouthWrackDetailCount>=1U,
+        "sheltered bay and localized mangrove mouth retain distinct wrack detail");
     std::array<bool, island::NaturalPropLayout::FallenFrondVariantCount>
         observedFallenFrondVariants{};
     for (std::size_t index = 0; index < props.FallenFronds().size(); ++index) {

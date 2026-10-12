@@ -122,8 +122,12 @@ namespace island
                 const float coast = 1.0f - SmoothStep(
                     (sample.signedShoreDistance - 7.0f) / 58.0f);
                 const float cluster = ClusterNoise(x, z, seed ^ 0x243f6a88U);
+                const auto experience=IslandEnvironmentField::SampleCoastalExperience(
+                    x,z,sample.signedShoreDistance);
                 const float density = std::clamp(
-                    0.035f + coast * 0.21f + cluster * 0.095f, 0.0f, 0.30f);
+                    0.035f + coast * 0.21f + cluster * 0.095f
+                        + experience.rockyShore*.14f,
+                    0.0f, 0.44f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0xb7e15162U)) >= density) {
                     continue;
                 }
@@ -605,7 +609,11 @@ namespace island
                 }
 
                 const float cluster = ClusterNoise(x, z, seed ^ 0x3c6ef372U);
-                const float density = 0.28f + cluster * 0.34f;
+                const auto experience=IslandEnvironmentField::SampleCoastalExperience(
+                    x,z,sample.signedShoreDistance);
+                const float density = std::clamp(.22f + cluster*.26f
+                    + experience.broadBeach*.24f + experience.shelteredBay*.18f
+                    + experience.mangroveMouth*.26f,0.0f,.90f);
                 if (UnitRandom(Hash(gridX, gridZ, seed ^ 0xa54ff53aU)) >= density) {
                     continue;
                 }
@@ -620,8 +628,12 @@ namespace island
                 detail.scale = BeachDetailMinimumScale
                     + (BeachDetailMaximumScale - BeachDetailMinimumScale)
                         * UnitRandom(Hash(gridX, gridZ, seed ^ 0x9b05688cU));
-                detail.variant = static_cast<std::uint8_t>(
-                    Hash(gridX, gridZ, seed ^ 0x1f83d9abU) % BeachDetailVariantCount);
+                const float wrackAffinity=std::clamp(experience.shelteredBay*.42f
+                    + experience.mangroveMouth*.58f,0.0f,1.0f);
+                const float variantRoll=UnitRandom(Hash(gridX,gridZ,seed^0x1f83d9abU));
+                if (variantRoll < wrackAffinity) detail.variant=3U;
+                else detail.variant=static_cast<std::uint8_t>(
+                    Hash(gridX,gridZ,seed^0x5be0cd19U)%3U);
                 beachDetails_.push_back(detail);
             }
         }

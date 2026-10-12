@@ -92,6 +92,16 @@ of debris while retaining sand and route bounds. Inspected llvmpipe
 Monkey visual redesign, portable review and stronger snake evidence keep
 ecosystem-stage item 6 in progress.
 
+Coastal-experience progress: one shared finite field now identifies the broad south
+beach, sheltered west bay, exposed rocky shore and localized mangrove mouth. Natural
+props use it without new assets or draws: exposed sectors gain rock density, the main
+beach selects shell/pebble detail without wrack, and sheltered bay/mouth sites bias
+toward existing dry wrack. The deterministic world measures 26 rocky-shore rocks,
+41 main-beach shell/pebble clusters, zero main-beach wrack, three bay wrack clusters
+and two mouth wrack clusters. Inspected llvmpipe bay/headland/bay-ground captures pass;
+the nominal beach camera was rejected because it faces inland. Ecosystem-stage item 7
+is `[~]`; stronger close prop proof, water/sound differentiation and portable review remain.
+
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander
   states), while goats need varied bleats and restrained close breathing/hoof detail.

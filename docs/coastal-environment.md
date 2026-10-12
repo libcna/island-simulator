@@ -78,3 +78,24 @@ drainage/moisture, reef suitability and habitat-driven prop distribution remain.
 regions still share their old broad geometric profile; a deliberately wider dominant beach,
 wave-energy response, broken rock strata and local talus are future stages. No full coast-
 type or environment backlog item is marked complete. AMD hardware remains stopped.
+
+## Four-experience composition follow-up — 2026-10-12
+
+`SampleCoastalExperience` now exposes four normalized, fail-closed composition weights:
+the broad southern Robinson beach, sheltered western bay, exposed rocky shore and a
+localized stream/mangrove mouth. The mouth uses the shared `StreamRoute` endpoint and
+attenuates the broader bay identity locally, so it is not a second unrelated shoreline
+mask. `NaturalPropLayout` uses these weights to increase headland rock density, retain
+shell/pebble detail without wrack on the main beach and bias the bay/mouth toward the
+existing dry-wrack mesh. No new renderer, draw call or asset was introduced.
+
+Core locks the four dominant sample stations and the default composition: 26 qualifying
+rocky-shore rocks, 41 broad-beach shell/pebble clusters, zero broad-beach wrack, three
+sheltered-bay wrack clusters and two mangrove-mouth wrack clusters. Current world
+fingerprint is `18ba6c1fe51b097f`. Inspected isolated llvmpipe captures
+`20261012T113137.288194Z-bay`, `20261012T113202.517664Z-headland` and
+`20261012T113228.784262Z-bay-ground` pass and establish the macro bay/headland/sand
+contrast. `20261012T113111.792460Z-beach` technically passes but is rejected as visual
+evidence because the fixed camera points inland and does not expose the beach details.
+This remains a partial stage: close prop proof, wind-aware accumulation, water/audio
+contrast and Web/Android qualification are still open.

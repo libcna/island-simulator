@@ -86,10 +86,18 @@ existing features, not a broad redesign.
    llvmpipe `20261012T110201.712430Z-crabs` passes and visibly shows the colony around
    beach debris. Monkey visual redesign, portable review and a stronger snake habitat
    camera remain.
-7. [ ] **Four distinct coastal experiences.** Strengthen the existing broad beach,
+7. [~] **Four distinct coastal experiences.** Strengthen the existing broad beach,
    sheltered lagoon/bay, exposed rocky windward shore and mangrove stream mouth.
    Keep island outline/scale; make a coastal walk visibly vary in materials,
-   vegetation, props, water and sound instead of increasing map size.
+   vegetation, props, water and sound instead of increasing map size. A first shared
+   coastal-identity field now distinguishes all four regions. Existing props consume
+   it without a new render path: exposed sectors receive denser rock placement, the
+   main beach selects only shell/pebble detail, and sheltered bay/mouth sites favor
+   existing dry wrack. Core measures 26/41/0/3/2 rocky rocks, main-beach shells,
+   main-beach wrack, bay wrack and mouth wrack. Inspected llvmpipe bay/headland/
+   bay-ground captures `113137.288194Z`, `113202.517664Z` and `113228.784262Z` pass.
+   The `113111.792460Z-beach` image is rejected because its inland-facing camera does
+   not show the beach. Close detail, water/sound differentiation and portable review remain.
 8. [ ] **Rocky-shore tide pools.** A few selected depressions with calm static water,
    rocks/shells and optionally small crabs. Fit water to closed basins and terrain;
    no physical tidal simulation or disconnected water decals.

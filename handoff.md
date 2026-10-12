@@ -1,5 +1,19 @@
 # island-simulator handoff
 
+## Latest implementation — four coastal identities, first composition pass
+
+New `SampleCoastalExperience` provides finite shared weights for the broad south beach,
+sheltered west bay, exposed rocky shore and localized stream/mangrove mouth. Natural
+props use it without new draws/assets: exposed sectors gain rock density, the main
+beach selects shell/pebble clusters without wrack, and bay/mouth sites bias toward the
+existing wrack form. Core default counts are 26 rocky-shore rocks, 41 main-beach
+shell/pebble clusters, zero main-beach wrack, three bay wrack and two mouth wrack.
+Current fingerprint `18ba6c1fe51b097f`; Core, WorldReport and capture preflight pass.
+Inspected llvmpipe bay `113137`, headland `113202` and bay-ground `113228` pass and
+show macro contrast. The technically passing `113111` beach image was rejected because
+it points inland. Item 7 remains `[~]`: close prop proof, water/audio contrast and
+portable qualification remain. No AMD/KVM changes; builds CPUs0-3 and `-j2`.
+
 ## Latest implementation — deep closed-canopy monkey homes
 
 All seven production monkey homes now use scale-specific stages beside closed-canopy
