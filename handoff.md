@@ -1,6 +1,21 @@
 # island-simulator handoff
 
-## Latest implementation — ecological wildlife placement, first pass
+## Latest implementation — deep closed-canopy monkey homes
+
+All seven production monkey homes now use scale-specific stages beside closed-canopy
+trees at least 90m inland and at least 7m apart. The stages were found offline by
+running the existing 1502-sample attachment and 1951-sample full-excursion clearance
+validators, then are installed only when their tree indices, headings, terrain and
+closed-canopy predicates still match. Runtime tree choices continue to exclude
+mangroves and isolated canopy. Core retains >900m ground travel plus natural climb,
+summit and interruption coverage. WorldReport now calls `SetCanopy` in runtime order.
+Current authoritative world fingerprint is `f6d038aec99ebb57`.
+Inspected isolated llvmpipe `20261012T111900.787421Z-monkeys` PASS 272bins/std20.03/
+spatial69.07 and clearly shows dense interior undergrowth. It also clearly shows that
+the long-tailed model still reads as rat-like: habitat accepted, monkey appearance
+rejected and still planned. No AMD/KVM changes; builds remain CPUs0-3 and `-j2`.
+
+## Earlier implementation — ecological wildlife placement, first pass
 
 Ecosystem-stage item 6 is now `[~]`, not complete. Existing crab sand habitat,
 butterfly clearings and canopy-adjacent spider homes were audited; fish already use
@@ -10,26 +25,24 @@ stream banks. Goats reject moisture>.18, drainage>.24 and salt>.08. Four product
 snake homes are deterministically selected from sampled dense-understory margins,
 with >=52m separation and fail-closed construction; legacy no-jungle constructors
 remain for isolated locomotion tests. Three of five turtle bases now occupy the
-sheltered western bay, while all five retain reef/seagrass routing. Current world fingerprint
-is `7362757530e472d9`. Inspected llvmpipe `20261012T102822.874894Z-boars` PASS
+sheltered western bay, while all five retain reef/seagrass routing. The fingerprint
+at that earlier stage was `7362757530e472d9`. Inspected llvmpipe `20261012T102822.874894Z-boars` PASS
 274bins/std18.04/spatial88.19 and `20261012T102941.088316Z-turtles` PASS
 268bins/std26.31/spatial104.02. Inspected `103005.681421Z-snakes` shows the animal
 between understory leaves but FAILS the generic scene threshold (std13.74), so is not
 accepted evidence. Monkey tree targets now reject mangroves/isolated trees and require
->=2 natural neighbours within20m, with a cached eligibility table; full Core climb and
-excursion regression passes. A direct closed-canopy home relocation was visually
-insufficient and then broke the natural summit test, so it was removed. Generic monkey
-capture `104842.384627Z-monkeys` technically passes but faces out of the grove and is
-not accepted as closed-canopy evidence; `104937.753599Z-monkey-tree` reached the tree
-sequence but failed its paired-grip gate. Next: clearance-aware closed-canopy homes
-and stronger habitat cameras, then portable/performance review.
+>=2 natural neighbours within20m, with a cached eligibility table. The initially
+attempted direct relocation was rejected; its replacement is documented in the newer
+section above. Generic capture `104842.384627Z-monkeys` faces out of the grove and is
+not accepted evidence; `104937.753599Z-monkey-tree` failed its paired-grip gate.
+Portable/performance review and the monkey visual redesign remain.
 No AMD/KVM changes. Builds remain bounded to CPUs0-3 and `-j2`.
 
 Crab follow-up: runtime and WorldReport now build habitat cues from every non-solid
 driftwood placement plus beach-detail variant3 dry wrack. `SetDebrisHabitats` selects
 six >=28m-separated sandy anchors transactionally and rehomes five crabs per anchor;
 all 30 homes are <=3.25m from real debris and retain existing bounded sand routes.
-Core and WorldReport pass; fingerprint is now `7362757530e472d9`. Inspected llvmpipe
+Core and WorldReport passed at fingerprint `7362757530e472d9`. Inspected llvmpipe
 `20261012T110201.712430Z-crabs` PASS 402bins/std24.02/spatial145.92 and visibly shows
 the foreground colony surrounding a small piece of beach debris.
 

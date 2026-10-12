@@ -86,6 +86,8 @@ namespace island
         void SetClimbingEnabled(bool enabled) noexcept { climbingEnabled_=enabled; }
         [[nodiscard]] static bool IsClosedCanopyTree(
             std::span<const CanopyPlacement> trees, std::size_t index) noexcept;
+        [[nodiscard]] static bool HomeHasClosedCanopy(
+            std::span<const CanopyPlacement> trees, float x, float z) noexcept;
         void Update(float deltaSeconds, float observerX, float observerY,
                     float observerZ, float windTime = -1.0f) noexcept;
 

@@ -3249,6 +3249,11 @@ int main()
     float minimumMonkeyScale = 10.0f;
     float maximumMonkeyScale = 0.0f;
     for (const island::MonkeyState& monkey : monkeys.Monkeys()) {
+        Check(island::MonkeyTroop::HomeHasClosedCanopy(
+                  jungle.Canopy(),monkey.homeX,monkey.homeZ),
+              "monkey home is not beside a clearance-qualified closed-canopy tree");
+        Check(terrain.SignedShoreDistance(monkey.homeX,monkey.homeZ)>=90.0f,
+              "monkey home is not in the deep interior canopy");
         Check(monkey.colorVariant < observedMonkeyVariants.size(),
               "monkey material variant remains inside the renderer palette");
         if (monkey.colorVariant < observedMonkeyVariants.size()) {
@@ -3256,6 +3261,14 @@ int main()
         }
         minimumMonkeyScale = std::min(minimumMonkeyScale, monkey.scale);
         maximumMonkeyScale = std::max(maximumMonkeyScale, monkey.scale);
+    }
+    for (std::size_t first=0;first<monkeys.Monkeys().size();++first) {
+        for (std::size_t second=first+1;second<monkeys.Monkeys().size();++second) {
+            const auto& a=monkeys.Monkeys()[first];
+            const auto& b=monkeys.Monkeys()[second];
+            Check(std::hypot(a.homeX-b.homeX,a.homeZ-b.homeZ)>=7.0f,
+                  "deep-interior monkey homes are not sufficiently separated");
+        }
     }
     Check(std::ranges::all_of(observedMonkeyVariants, [](const bool value) { return value; }),
           "monkey troop exercises all four material palettes");

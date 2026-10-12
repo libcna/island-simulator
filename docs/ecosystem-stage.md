@@ -72,16 +72,20 @@ existing features, not a broad redesign.
    habitat tests pass. Inspected llvmpipe `20261012T102822.874894Z-boars` and
    `20261012T102941.088316Z-turtles` pass validation. The inspected snake image is
    useful but rejected by the generic scene gate for low luminance variation, so it
-   is not accepted evidence. Closed-canopy monkey placement, wrack-aware crab bias,
-   Monkey tree selection now also rejects mangroves and isolated trees, requiring
-   at least two neighbouring natural canopy trees within 20m; the full deterministic
-   climb/excursion regression remains reachable. Ground-home placement is not yet
-   closed-canopy-driven: an attempted direct relocation passed rendering but broke
-   the natural summit regression and was removed. All six crab colonies are now
+   is not accepted evidence. Monkey tree selection now also rejects mangroves and
+   isolated trees, requiring at least two neighbouring natural canopy trees within
+   20m. Seven scale-specific homes selected by exhaustive attachment and full-route
+   clearance checks are at least 90m inland beside qualified trees and at least 7m
+   apart. The deterministic long session retains over 900m of ground travel plus
+   natural climb, summit and interruption coverage. Inspected llvmpipe
+   `20261012T111900.787421Z-monkeys` passes and proves dense interior habitat, but its
+   long-tailed silhouette still looks rat-like and is explicitly rejected as visual
+   monkey acceptance. All six crab colonies are now
    transactionally anchored beside actual non-solid driftwood or dry-wrack sites;
    all 30 homes remain within 3.25m of a debris cue and inside valid sand. Inspected
    llvmpipe `20261012T110201.712430Z-crabs` passes and visibly shows the colony around
-   beach debris. Portable review and a stronger snake habitat camera remain.
+   beach debris. Monkey visual redesign, portable review and a stronger snake habitat
+   camera remain.
 7. [ ] **Four distinct coastal experiences.** Strengthen the existing broad beach,
    sheltered lagoon/bay, exposed rocky windward shore and mangrove stream mouth.
    Keep island outline/scale; make a coastal walk visibly vary in materials,

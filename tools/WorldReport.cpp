@@ -145,6 +145,7 @@ namespace
             if(hut) worldObstacles.push_back({hut->x,hut->z,island::HutLayout::CollisionRadius});
             collisionGrid.Reset(worldObstacles);
             monkeys.SetObstacles(collisionGrid.Obstacles());
+            monkeys.SetCanopy(jungle.Canopy());
             boars.SetObstacles(collisionGrid.Obstacles());
             // Match runtime ordering: snakes use the complete obstacle set, including the hut.
             snakes=std::make_unique<island::SnakePopulation>(

@@ -94,8 +94,35 @@ namespace island
         for (std::size_t index = 0; index < trees_.size(); ++index) {
             closedCanopyTree_[index] = IsClosedCanopyTree(trees_, index) ? 1U : 0U;
         }
+        struct QualifiedHome { float x, z, heading; std::size_t tree; };
+        constexpr std::array<QualifiedHome,MonkeyCount> qualifiedHomes{{
+            {-53.3773f,-123.851f,-1.57080f,32U},
+            {-18.1238f,-137.141f,2.61800f,25U},
+            {20.9232f,-133.307f,3.14159f,29U},
+            {-52.6264f,-143.070f,-2.09440f,18U},
+            {-32.6298f,-123.603f,-2.61799f,33U},
+            {-46.4451f,-112.747f,0.0f,39U},
+            {-82.3522f,-117.479f,0.523596f,36U},
+        }};
+        const bool installQualifiedHomes = trees_.size() > 200U
+            && std::ranges::all_of(qualifiedHomes, [&](const QualifiedHome& home) {
+                if (home.tree >= trees_.size() || closedCanopyTree_[home.tree] == 0U
+                    || !IsValidGround(home.x, home.z)) return false;
+                if (terrain_.SignedShoreDistance(home.x,home.z) < 90.0f) return false;
+                const auto& tree = trees_[home.tree];
+                const float heading = std::atan2(tree.z-home.z,tree.x-home.x);
+                return std::abs(WrapAngle(heading-home.heading)) < .002f;
+            });
         for (std::size_t index = 0; index < agents_.size(); ++index) {
             if (agents_[index].state.treeIndex >= 0) EnterState(agents_[index], MonkeyBehavior::Idle);
+            if (installQualifiedHomes) {
+                EnterState(agents_[index], MonkeyBehavior::Idle);
+                auto& state=agents_[index].state;
+                state.x=state.homeX=state.targetX=qualifiedHomes[index].x;
+                state.z=state.homeZ=state.targetZ=qualifiedHomes[index].z;
+                state.y=terrain_.Height(state.x,state.z);
+                state.headingRadians=qualifiedHomes[index].heading;
+            }
             states_[index] = agents_[index].state;
         }
     }
@@ -116,6 +143,18 @@ namespace island
         return neighbours >= 2;
     }
 
+    bool MonkeyTroop::HomeHasClosedCanopy(
+        const std::span<const CanopyPlacement> trees, const float x, const float z) noexcept
+    {
+        if (!std::isfinite(x) || !std::isfinite(z)) return false;
+        for (std::size_t index=0;index<trees.size();++index) {
+            if (!IsClosedCanopyTree(trees,index)) continue;
+            const float dx=x-trees[index].x,dz=z-trees[index].z;
+            if (dx*dx+dz*dz<=14.0f*14.0f) return true;
+        }
+        return false;
+    }
+
     bool MonkeyTroop::ChooseTreeTarget(Agent& agent) noexcept
     {
         float bestDistance = 14.0f;
@@ -128,7 +167,7 @@ namespace island
             const float distance = std::hypot(dx,dz);
             // Stage outside even the flared base; do not disable the selected tree's collision.
             const float standOff = MonkeyTreeReach::StandOff(tree.scale,agent.state.scale);
-            if (distance <= standOff || distance > bestDistance) continue;
+            if (distance < standOff - .01f || distance > bestDistance) continue;
             const float x = tree.x+dx/distance*standOff, z = tree.z+dz/distance*standOff;
             if (std::hypot(x-agent.state.homeX,z-agent.state.homeZ) > MaximumHomeDistance
                 || !IsValidGround(x,z)
@@ -514,7 +553,7 @@ namespace island
             -0.75f * deltaSeconds, 0.75f * deltaSeconds);
 
         if (agent.state.behavior == MonkeyBehavior::Wander) {
-            if (agent.decisionCounter % 3U == 0U && ChooseTreeTarget(agent)) {
+            if (agent.decisionCounter % 4U == 0U && ChooseTreeTarget(agent)) {
                 EnterState(agent, MonkeyBehavior::ApproachTree);
             } else {
                 ChooseWanderTarget(agent);
