@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — deterministic goat herd CPU simulation, NOT live game integration
+
+GoatHerd.hpp/.cpp in core, six agents from existing homes (one .75scale juvenile).
+Graze/walk/rest and non-hostile retreat for finite observer<7m in3D; high/invalid
+observers do not trigger retreat. Timed deterministic decisions, speed<=1.2, bounded
+acceleration/turn1.8rad/s, update<=.1s/5substeps. GoatHabitat terrain predicate extracted
+without changing placement; indexed solids+same canopy/understory/bush exclusion discs.
+Steps check endpoint/midpoint ground, containing swept disc, other goats,14m individual
+home/40m herd region and fitted-pose reach. Phase only advances with accepted3D travel.
+Blocked steps stop/turn in place if pose valid;1.5s avoidance prevents immediate
+observer steering override. No teleport/attack/unsafe fallback. Rendering absent.
+New GoatHerdTests: duplicate90s deterministic run; all goats move4.75–48.47m, no overlaps,
+raw placement oracle agrees; near observer clearance8.44m/head-on-obstacle7.74m; high/
+invalid observer, dt clamp/no-op, turn bound and moving-route sole contacts checked.
+Details/limits in docs/goats.md. Abrupt blocked gait transitions, full hoof/model
+envelope/world-foot locking, distance throttling/performance and actual visual audits
+remain open. Next: goat model/renderer + live integration; full prior backlog intact.
+Native build/full44 CPU groups PASS73.92s (herd3.90s); WorldReport valid/fingerprint
+b3fde347f77eb5f8 unchanged. All owned jobs terminal; no renderer/Android/KVM/dependency
+changes, hardware stop latch SHA c0bd1704 unchanged. Goal active, no push.
+
 ## Latest — goat fixed-length walking/contact foundation, still NOT live
 
 GoatPose.hpp/.cpp in core, used only by foundation tests. Four-beat68% stance,

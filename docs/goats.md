@@ -1,7 +1,7 @@
 # Feral island goats — implementation in progress
 
 **No goats are present in the running game yet.** This document records the first
-placement and ground-pose foundations, not a completed species or a visual acceptance claim.
+placement, ground-pose and behavior foundations, not a completed species or visual acceptance.
 
 ## Deterministic open-slope homes
 
@@ -75,13 +75,49 @@ WorldReport remains valid with unchanged fingerprint `b3fde347f77eb5f8`; no rend
 emulator, KVM or dependency changes. Portable builds/runtime and visual review of
 goats remain pending because no live goat renderer/population exists yet.
 
+## CPU herd behavior foundation
+
+`GoatHerd` now constructs six simulated agents from the accepted homes, including
+one0.75-scale juvenile. It is not instantiated by `IslandGame`. Deterministic timed
+decisions alternate grazing, walking and resting; a finite observer within7m in3D
+triggers non-hostile retreat. An observer100m above the herd does not trigger retreat.
+The grazing pose eases in only after slowing down. Speed is capped at1.2m/s, with
+bounded acceleration/deceleration and at most1.8rad/s turning.
+
+Each valid update consumes at most0.1s in at most five20ms substeps. Static solids and
+the same canopy/understory/bush exclusion envelopes are indexed once. Proposed steps
+check endpoint/midpoint ground suitability, a containing midpoint collision disc
+covering the swept body disc, other goat discs,14m individual home bounds and the40m
+herd region. Each accepted endpoint also requires a reachable fitted leg pose. Stride
+phase advances only from accepted3D travel, not attempted motion against an obstacle.
+Blocked agents stop and request a bounded alternative turn, with a short avoidance
+interval so direct-away observer steering cannot immediately cancel it.
+There are no teleports, forced penetrations or attacks.
+
+Regression evidence includes90s of duplicated identical-input simulation, all six
+agents moving4.75–48.47m, grazing/walking/rest transitions, unchanged initial placement,
+no overlaps and agreement with the original non-indexed placement predicates. Nearby
+observer clearance reaches8.44m; the added head-on obstacle case reaches7.74m without
+crossing its body-clearance boundary. Tests also cover high/invalid observers, invalid
+and capped frame deltas, turn limits, and sampled hoof contacts along moving routes.
+
+This is not runtime performance qualification or visual behavior acceptance. Abrupt
+blocked-speed changes, persistent world-foot locking, full hoof/mesh contact,
+distance-based update throttling and long all-angle observation remain to review.
+Midpoint ground sampling is not a mathematical proof for every unsampled terrain
+point. The final model must still fit the authored collision/body envelope.
+Native build and all44 non-display groups PASS73.92s; herd regression3.90s. WorldReport
+remains valid with unchanged fingerprint `b3fde347f77eb5f8` and no live goats reported.
+No renderer, emulator, KVM or dependency changes; hardware stop latch unchanged.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
   Whole cloven-hoof contact, persistent stance behavior and the final body envelope
   still need validation with the actual model and live motion.
 - [ ] Recognizable goat head/body/ears, horns/beard and cloven hooves, with readable coat.
-- [ ] Grazing/browsing/walking/turning behavior and terrain/obstacle-safe movement.
+- [~] Grazing/walking/rest/retreat CPU controller and bounded collision-aware movement
+  implemented above. Browsing details, gait transitions and visual acceptance remain.
   The40m grouping radius is NOT a traversable-area guarantee; initial sites do not
   establish connectivity or safe paths between them.
 - [ ] Actual population/update/renderer integration, lighting/contact shadows and budgets.

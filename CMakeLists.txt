@@ -65,6 +65,7 @@ add_library(island_core STATIC
     game/src/HutLayout.cpp
     game/src/GoatHabitat.cpp
     game/src/GoatPose.cpp
+    game/src/GoatHerd.cpp
     game/src/JungleLayout.cpp
     game/src/LeafBladeProfile.cpp
     game/src/UnderstoryLeafProfile.cpp
@@ -203,6 +204,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_goat_habitat_tests)
     island_enable_first_party_sanitizers(island_goat_habitat_tests)
     add_test(NAME IslandGoatHabitatTests COMMAND island_goat_habitat_tests)
+    add_executable(island_goat_herd_tests tests/GoatHerdTests.cpp)
+    target_link_libraries(island_goat_herd_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_goat_herd_tests)
+    island_enable_first_party_sanitizers(island_goat_herd_tests)
+    add_test(NAME IslandGoatHerdTests COMMAND island_goat_herd_tests)
     add_executable(island_snake_tests tests/SnakePopulationTests.cpp)
     target_link_libraries(island_snake_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_snake_tests)

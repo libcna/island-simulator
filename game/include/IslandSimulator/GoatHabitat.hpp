@@ -22,6 +22,8 @@ public:
     static constexpr float MinimumSeparation=8.0f, HerdRadius=40.0f;
     static constexpr int CandidateCount=55*55;
     static constexpr std::uint32_t Seed=0x6f617431U;
+    [[nodiscard]] static bool AcceptsGround(const IslandTerrain& terrain,
+        const RenderedTerrainSurface& surface,float x,float z);
     [[nodiscard]] static bool Accepts(const IslandTerrain& terrain,
         const RenderedTerrainSurface& surface,const JungleLayout& jungle,
         const WorldCollisionGrid& obstacles,float x,float z);

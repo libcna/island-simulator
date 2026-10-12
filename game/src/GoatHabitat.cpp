@@ -5,11 +5,10 @@
 #include <vector>
 
 namespace island {
-bool GoatHabitat::Accepts(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
-    const JungleLayout& jungle,const WorldCollisionGrid& obstacles,float x,float z)
+bool GoatHabitat::AcceptsGround(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
+    float x,float z)
 {
-    if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>220||std::abs(z)>220
-        ||obstacles.IntersectsCircle(x,z,BodyClearance)) return false;
+    if(!std::isfinite(x)||!std::isfinite(z)||std::abs(x)>220||std::abs(z)>220) return false;
     const auto centre=surface.Sample(x,z);
     // Sloped inland ground, not a beach, cliff or flat valley floor.
     if(centre.height<6 || centre.normal.y<.90f || centre.normal.y>.997f) return false;
@@ -22,6 +21,12 @@ bool GoatHabitat::Accepts(const IslandTerrain& terrain,const RenderedTerrainSurf
             ||std::abs(sample.height-centre.height)>.55f
             ||terrain.SignedShoreDistance(px,pz)<35) return false;
     }
+    return true;
+}
+bool GoatHabitat::Accepts(const IslandTerrain& terrain,const RenderedTerrainSurface& surface,
+    const JungleLayout& jungle,const WorldCollisionGrid& obstacles,float x,float z)
+{
+    if(!AcceptsGround(terrain,surface,x,z)||obstacles.IntersectsCircle(x,z,BodyClearance)) return false;
     for(const auto& tree:jungle.Canopy())
         if(std::hypot(x-tree.x,z-tree.z)<TreeClearance*tree.scale) return false;
     for(const auto& plant:jungle.Understory())

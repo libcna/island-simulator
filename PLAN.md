@@ -800,6 +800,15 @@ progress or require player interaction; dangerous species keep their distance li
   NOT live goats, persistent world-foot locking or whole-hoof/visual gait acceptance.
   Native build/43 non-display groups PASS71.25s; WorldReport valid/unchanged. No
   renderer/emulator/KVM/dependency changes; hardware stop latch unchanged.
+  GoatHerd CPU foundation now simulates six agents with graze/walk/rest/retreat,
+  finite3D observer proximity, bounded speeds/turns and<=5 substeps/update. Indexed
+  vegetation/solid exclusion, swept containing disc, inter-goat spacing, home/herd
+  limits and fitted-pose reach checks guard accepted travel; no teleports/attacks.
+  Duplicate90s simulation: each goat travels4.75–48.47m, original habitat predicates
+  agree, no overlaps. Observer retreat8.44m, head-on obstacle case7.74m. NOT installed
+  in IslandGame; model/renderer/live integration and actual visual audit still pending.
+  Native build/full44 non-display groups PASS73.92s; WorldReport valid/unchanged
+  b3fde347f77eb5f8. No renderer/emulator/KVM/dependency changes or hardware qualification.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)
