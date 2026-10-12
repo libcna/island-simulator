@@ -611,6 +611,8 @@ def main():
                 raise RuntimeError("current prevailing wind is missing; check for a stale executable")
             if "sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses" not in diagnostics:
                 raise RuntimeError("current sky atmosphere is missing; check for a stale executable")
+            if "fair-weather cumulus and wisps drift slowly west with prevailing wind" not in diagnostics:
+                raise RuntimeError("current wind-driven cloud drift is missing; check for a stale executable")
             if "sea turtles use domed scute carapaces, beaked heads and bending paddle strokes" not in diagnostics:
                 raise RuntimeError("current sea-turtle form is missing; check for a stale executable")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:

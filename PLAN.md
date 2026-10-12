@@ -152,6 +152,14 @@ Inspected isolated llvmpipe `20261012T140703.574060Z-bay-ground` and
 Web/Android, interactive coastal walking and performance comparison remain, so ecosystem-stage
 item 9 is `[~]`. See [prevailing-wind.md](docs/prevailing-wind.md).
 
+Cloud-drift progress: the existing eleven cumulus masses and high wisps now share a
+0.00035-rad/s westward phase derived from the prevailing trade-wind direction. A
+complete-turn periodic wrap avoids a long-session phase jump and adds only one shader
+uniform, with no new geometry, texture, draw or weather/day-night state. Core timing/wrap
+tests pass. Inspected llvmpipe `20261012T144704.173888Z-overview` passes and preserves the
+sunny sky composition; separated-time motion evidence and actual Web/Android shader runs
+remain, so ecosystem-stage item 10 is `[~]`. See [prevailing-wind.md](docs/prevailing-wind.md).
+
 - [~] Increase the production population to exactly 50 ground snakes and 200 ground
   spiders, superseding the former four/twelve and current eight/24 stages, so both
   animals are encountered much more often while
@@ -1686,8 +1694,8 @@ effort, all within the peaceful fixed-daytime product and existing renderers:
   crown shape, windward ocean/foam, rock exposure, vegetation height, driftwood accumulation, dune
   orientation, cloud wisps and wind audio. 2026-10-10 first pass (`docs/prevailing-wind.md`):
   shared east trade wind, coastal windward exposure, palms lean up to ten degrees; tested;
-  native palms/beach/overview captures inspected. Ocean, foam, crowns, driftwood, wisps and
-  audio remain.
+  native palms/beach/overview captures inspected. Driftwood and cloud/wisp direction now
+  consume the shared wind; ocean, foam, crowns and audio remain.
 - [ ] 5. Make the reef readable from a distance: seabed macro structure with a pale lagoon, sand
   channels, dark reef patches and seagrass, a reef crest and a deep blue drop-off, before any
   detailed coral models.

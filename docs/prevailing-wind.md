@@ -44,4 +44,21 @@ Inspected isolated llvmpipe captures `20261012T140703.574060Z-bay-ground` and
 `20261012T140806.665876Z-headland` pass. The bay frame visibly contains the accumulated logs,
 wrack and small shell cues; the headland retains the sparse rocky character. These are native
 software checks only. Web/Android, interactive coastal walking and performance comparison remain;
-wave/foam, canopy, clouds and ambient sound are still not wind-aware.
+wave/foam, canopy and ambient sound are still not wind-aware.
+
+## Slow fair-weather cloud drift — 2026-10-12
+
+The existing eleven cumulus masses and layered high wisps now share one slowly advancing
+sky phase coupled to the east-to-west trade wind. `SkyCloudDrift` advances 0.00035 rad/s
+(about 1.2 degrees per minute) and wraps only after a complete shader-periodic turn, so
+long sessions do not reset to a different cloud shape. This changes one uniform and the
+existing procedural samples; it adds no geometry, texture, draw call, weather state or
+day/night system. The stock-effect fallback remains the static gradient because it has no
+procedural clouds to animate.
+
+Core tests pin the initial phase, 0.21-radian ten-minute displacement, complete-turn wrap
+and non-finite-clock fallback. Isolated llvmpipe overview
+`20261012T144704.173888Z-overview` passes (377 colour bins, 39.79 luminance deviation,
+207.94 spatial contrast); the inspected frame retains the sunny horizon, wisps and cloud
+masses, and the runtime confirms the new shader uniform path. A true separated-time image
+comparison plus Web/Android runtime remain open, so ecosystem-stage item 10 stays `[~]`.

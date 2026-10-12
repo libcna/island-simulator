@@ -20,7 +20,7 @@ namespace Microsoft::Xna::Framework::Graphics
 
 namespace island
 {
-    /** @brief Fixed sunny tropical sky with a portable procedural shader and static fallback. */
+    /** @brief Sunny tropical sky with slow wind-driven clouds and a static fallback. */
     class SkyRenderer final
     {
     public:
@@ -34,7 +34,8 @@ namespace island
 
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
-                  const Microsoft::Xna::Framework::Vector3& cameraPosition);
+                  const Microsoft::Xna::Framework::Vector3& cameraPosition,
+                  float timeSeconds);
 
         [[nodiscard]] bool UsesCustomShader() const noexcept { return customShaderReady_; }
         [[nodiscard]] const std::string& FallbackReason() const noexcept { return fallbackReason_; }

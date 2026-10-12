@@ -117,9 +117,14 @@ existing features, not a broad redesign.
    remain valid. Inspected llvmpipe `140703.574060Z-bay-ground` visibly shows the
    accumulation while `140806.665876Z-headland` remains sparse and rocky. Deterministic
    native evidence passes; Web/Android, interactive walking and performance remain.
-10. [ ] **Very slow fair-weather cloud drift.** Move existing cumulus and wisps
+10. [~] **Very slow fair-weather cloud drift.** Move existing cumulus and wisps
     gently along prevailing wind, retaining a permanent sunny day. Avoid conspicuous
     wrapping/popping on long walks; no new weather or volumetric cloud system.
+    The portable sky shader now advects both layers west at 0.00035 rad/s using a
+    complete-turn periodic phase. CPU tests pin ten-minute speed, wrap and invalid-clock
+    handling; inspected native llvmpipe overview `20261012T144704.173888Z-overview`
+    passes and retains the sunny composition. A separated-time motion comparison and
+    actual Web/Android shader runs remain before completion.
 11. [ ] **Wind-aware ocean and ambient wind.** Somewhat greater waves/foam/breeze
     sound on the exposed east side and calmer western bay; roughly ±20–30% modulation
     of existing systems is a starting point, to be tuned from actual observation.

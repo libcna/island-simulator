@@ -1,5 +1,6 @@
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/SkyCloudDrift.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
@@ -66,6 +67,7 @@ void main()
 in vec3 vDirection;
 
 uniform vec3 uSunDirection;
+uniform float uCloudDriftRadians;
 
 out vec4 fragColor;
 
@@ -142,12 +144,16 @@ void main()
 
     float cloudAltitude = smoothstep(0.20, 0.38, elevation)
         * (1.0 - smoothstep(0.78, 0.94, elevation));
-    float warp = sin(dot(direction, vec3(7.0, 2.0, -5.0)) * 1.7) * 0.54;
-    float longBand = sin(direction.y * 33.0 + direction.x * 4.2
-                         - direction.z * 3.1 + warp);
-    float fineBand = sin(direction.y * 59.0 - direction.x * 7.0
-                         + direction.z * 5.0 + warp * 1.7);
-    float breakup = sin(dot(direction.xz, vec2(13.0, 9.0)) + 0.35);
+    float driftCos = cos(uCloudDriftRadians);
+    float driftSin = sin(uCloudDriftRadians);
+    vec3 cloudDirection = direction;
+    cloudDirection.xz = mat2(driftCos, -driftSin, driftSin, driftCos) * direction.xz;
+    float warp = sin(dot(cloudDirection, vec3(7.0, 2.0, -5.0)) * 1.7) * 0.54;
+    float longBand = sin(cloudDirection.y * 33.0 + cloudDirection.x * 4.2
+                         - cloudDirection.z * 3.1 + warp);
+    float fineBand = sin(cloudDirection.y * 59.0 - cloudDirection.x * 7.0
+                         + cloudDirection.z * 5.0 + warp * 1.7);
+    float breakup = sin(dot(cloudDirection.xz, vec2(13.0, 9.0)) + 0.35);
     float wisps = smoothstep(0.72, 1.38,
                              longBand * 0.86 + fineBand * 0.28 + breakup * 0.36)
         * cloudAltitude;
@@ -155,7 +161,7 @@ void main()
     color = mix(color, vec3(0.90, 0.95, 0.96), wisps * awayFromSun * 0.14);
 
     // Cumulus masses in azimuth/elevation space; nine low over the sea, two a little higher.
-    float azimuth = atan(direction.z, direction.x);
+    float azimuth = atan(direction.z, direction.x) - uCloudDriftRadians;
     float skyElevation = asin(clamp(direction.y, -1.0, 1.0));
     float sunAzimuth = atan(sun.z, sun.x);
     if (direction.y > -0.02 && direction.y < 0.45) {
@@ -300,6 +306,10 @@ void main()
                 "island-simulator: sky adds shared-haze horizon, warm sun glow and eleven fixed distant cumulus masses";
             std::cout << volumeDiagnostic << '\n';
             MirrorRuntimeDiagnosticToPlatformLog(volumeDiagnostic);
+            constexpr const char* driftDiagnostic =
+                "island-simulator: fair-weather cumulus and wisps drift slowly west with prevailing wind";
+            std::cout << driftDiagnostic << '\n';
+            MirrorRuntimeDiagnosticToPlatformLog(driftDiagnostic);
         } else {
             std::cerr << "island-simulator: gradient sky stock-effect fallback: "
                       << fallbackReason_ << '\n';
@@ -309,7 +319,7 @@ void main()
     SkyRenderer::~SkyRenderer() = default;
 
     void SkyRenderer::Draw(const Matrix& view, const Matrix& projection,
-                           const Vector3& cameraPosition)
+                           const Vector3& cameraPosition,const float timeSeconds)
     {
         device_.setRasterizerStateProperty(RasterizerState::CullNone);
         device_.setBlendStateProperty(BlendState::Opaque);
@@ -329,6 +339,7 @@ void main()
                 environment::SunDirectionY,
                 environment::SunDirectionZ));
             customEffect_->SetUniformVec3("uSunDirection", sun.X, sun.Y, sun.Z);
+            customEffect_->SetUniformFloat("uCloudDriftRadians",sky_cloud::DriftAngle(timeSeconds));
         } else {
             fallbackEffect_->setWorldProperty(Matrix::CreateScale(SkyRadius)
                                                * Matrix::CreateTranslation(cameraPosition));

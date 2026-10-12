@@ -2479,6 +2479,12 @@ namespace island
         const std::span<const MonkeyState> renderedMonkeys = treeQaStage < monkeyTreeQaPoses_.size()
             ? std::span<const MonkeyState>(monkeyTreeQaPoses_[treeQaStage]) : monkeyTroop_.Monkeys();
         const auto drawStarted = std::chrono::steady_clock::now();
+        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
+            ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
+            ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
+            ? static_cast<float>(spiderCaptureUpdates_)*0.1f : UsesBoarCaptureClock()
+            ? static_cast<float>(boarCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
+                                                         .getTotalSecondsProperty());
         auto& device = getGraphicsDeviceProperty();
         BeginGpuDiagnosticFrame(drawnFrames_, drawnFrames_ < 2U
             && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail));
@@ -2494,7 +2500,7 @@ namespace island
         UpdateCameraMatrices();
         {
             GpuDiagnosticScope gpuPass("sky");
-            skyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+            skyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,timeSeconds);
         }
         device.setRasterizerStateProperty(RasterizerState::CullNone);
         device.setBlendStateProperty(BlendState::Opaque);
@@ -2513,12 +2519,6 @@ namespace island
                                          renderedMonkeys, boarHerd_.Boars(),*snakes_,goats_->Goats(),spiders_->Spiders());
         }
 
-        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
-            ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
-            ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
-            ? static_cast<float>(spiderCaptureUpdates_)*0.1f : UsesBoarCaptureClock()
-            ? static_cast<float>(boarCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
-                                                         .getTotalSecondsProperty());
         {
             GpuDiagnosticScope gpuPass("natural-props");
             naturalPropRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);

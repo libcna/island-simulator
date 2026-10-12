@@ -1,5 +1,16 @@
 # island-simulator handoff
 
+## Latest implementation — slow prevailing-wind cloud drift
+
+Existing cumulus and high wisps now advance west at 0.00035rad/s through one portable
+shader uniform; the phase wraps after a complete periodic turn, with no new geometry,
+textures, draws, weather or day/night state. `SkyCloudDrift` CPU checks pin start,
+ten-minute 0.21rad travel, wrap and invalid clocks. Full Core PASS after also correcting
+the 50-snake hiss fairness fixture. Inspected isolated llvmpipe
+`20261012T144704.173888Z-overview` PASS377bins/std39.79/spatial207.94 and runtime logs
+the new uniform path. Item10 remains `[~]` pending separated-time motion comparison and
+actual Web/Android. Builds CPUs0-3/-j2; no AMD/KVM changes.
+
 ## Current operator budget — 100 productive hours remaining
 
 The earlier broad 250–450/roughly-400-hour outlook is superseded. The operator fixed

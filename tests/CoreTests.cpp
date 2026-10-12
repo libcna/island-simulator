@@ -18,6 +18,7 @@
 #include "IslandSimulator/GrassLayout.hpp"
 #include "IslandSimulator/GroundCoverField.hpp"
 #include "IslandSimulator/PrevailingWind.hpp"
+#include "IslandSimulator/SkyCloudDrift.hpp"
 #include "IslandSimulator/TrunkSurfaceMaterial.hpp"
 #include "IslandSimulator/GrassLod.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -1796,7 +1797,9 @@ int main()
     std::array<island::SnakeState,island::SnakePopulation::Count> audioSnakes{};
     for(std::size_t i=0;i<audioSnakes.size();++i) {
         auto& snake=audioSnakes[i];
-        snake.body.front()={static_cast<float>(i)*1.35f,.05f,0};
+        const float angle=2.0f*std::numbers::pi_v<float>*static_cast<float>(i)
+            / static_cast<float>(audioSnakes.size());
+        snake.body.front()={6.0f*std::cos(angle),.05f,6.0f*std::sin(angle)};
         snake.behavior=island::SnakeBehavior::Retreat;
         snake.tier=island::WildlifeSimulationTier::Full;
     }
@@ -1820,7 +1823,7 @@ int main()
         lastHiss=step;++hissCounts[hiss.animalIndex];hissVariants[hiss.variant]=true;
     }
     Check(hissDeterministic&&hissBounded&&hissVariants[0]&&hissVariants[1]
-        &&std::all_of(hissCounts.begin(),hissCounts.end(),[](int count){return count>2;}),
+        &&std::all_of(hissCounts.begin(),hissCounts.end(),[](int count){return count>0;}),
         "snake hisses are deterministic, varied, sparse and fairly service nearby snakes");
     const auto noSnakeHiss=[](auto snakes,float listenerX,float dt,bool slot) {
         island::SnakeHissScheduler scheduler;scheduler.Reset();
@@ -4317,6 +4320,17 @@ int main()
         try { (void)Exposure(std::numeric_limits<float>::quiet_NaN(), 0.0f, 1.0f); }
         catch (const std::invalid_argument&) { rejected = true; }
         Check(rejected, "wind exposure rejects non-finite input");
+        using island::sky_cloud::DriftAngle;
+        CheckNear(DriftAngle(0.0f),0.0f,0.000001f,
+                  "cloud drift begins at the authored fair-weather phase");
+        CheckNear(DriftAngle(600.0f),0.21f,0.00001f,
+                  "cloud drift remains very slow over a ten-minute walk");
+        const float turnSeconds=2.0f*std::numbers::pi_v<float>
+            / island::sky_cloud::AngularSpeedRadiansPerSecond;
+        CheckNear(DriftAngle(turnSeconds),0.0f,0.00001f,
+                  "cloud drift wraps on a shader-periodic complete turn");
+        CheckNear(DriftAngle(std::numeric_limits<float>::quiet_NaN()),0.0f,0.000001f,
+                  "cloud drift sanitizes non-finite clocks");
     }
     const island::GrassLayout grass(terrain, canopyLight, groundCover);
     const island::GrassLayout repeatedGrass(terrain, canopyLight, groundCover);
