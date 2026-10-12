@@ -103,6 +103,7 @@ namespace island
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
             case FixedViewpoint::SpiderDetail: return "spiders";
+            case FixedViewpoint::SpiderBrightDetail: return "spiders-bright";
             case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
@@ -786,8 +787,23 @@ namespace island
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
-        } else if (viewpoint_ == FixedViewpoint::SpiderDetail) {
-            const auto& spider=spiders_->Spiders().front();
+        } else if (UsesSpiderViewpoint()) {
+            if(viewpoint_==FixedViewpoint::SpiderBrightDetail) {
+                float brightest=-1;
+                for(std::size_t i=0;i<spiders_->Spiders().size();++i) {
+                    const auto& candidate=spiders_->Spiders()[i];
+                    const float transmission=canopyLightField_.SampleReceiver(
+                        candidate.x,candidate.y+.04f,candidate.z,candidate.y);
+                    std::ostringstream row;row.precision(9);
+                    row << "island-simulator: spider habitat candidate=" << i
+                        << " transmission=" << transmission;
+                    std::cout << row.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(row.str());
+                    if(transmission>brightest) {brightest=transmission;spiderViewSubject_=i;}
+                }
+                const auto selected="island-simulator: spider habitat selected="+std::to_string(spiderViewSubject_);
+                std::cout << selected << std::endl;MirrorRuntimeDiagnosticToPlatformLog(selected);
+            }
+            const auto& spider=spiders_->Spiders()[spiderViewSubject_];
             cameraPosition_=Vector3(spider.x+.36f,spider.y+.28f,spider.z+.45f);
             const auto direction=Vector3(spider.x,spider.y+.035f,spider.z)-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
@@ -1305,10 +1321,10 @@ namespace island
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         const auto previousGoat=goats_->Goats().front();
-        const auto previousSpider=spiders_->Spiders().front();
+        const auto previousSpider=spiders_->Spiders()[spiderViewSubject_];
         spiders_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
-        if(viewpoint_==FixedViewpoint::SpiderDetail) {
-            const auto& current=spiders_->Spiders().front();
+        if(UsesSpiderViewpoint()) {
+            const auto& current=spiders_->Spiders()[spiderViewSubject_];
             cameraPosition_+=Vector3(current.x-previousSpider.x,current.y-previousSpider.y,current.z-previousSpider.z);
         }
         goats_->Update(deltaSeconds,{cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z});
@@ -1920,7 +1936,7 @@ namespace island
                                            renderCameraPosition_ + forward,
                                            Vector3::Up);
         cameraProjection_ = Matrix::CreatePerspectiveFieldOfView(
-            (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail||viewpoint_==FixedViewpoint::SpiderDetail)
+            (viewpoint_==FixedViewpoint::BoarDetail||viewpoint_==FixedViewpoint::GoatDetail||UsesSpiderViewpoint())
                 ?0.50f:std::numbers::pi_v<float> / 3.0f,
             aspect, 0.08f, 1200.0f);
     }
@@ -2971,13 +2987,13 @@ namespace island
             }
         }
         ++drawnFrames_;
-        if(viewpoint_==FixedViewpoint::SpiderDetail&&drawnFrames_==1U) {
+        if(UsesSpiderViewpoint()&&drawnFrames_==1U) {
             std::ostringstream report;
             report << "island-simulator: spider render proof: spiders " << spiderRenderer_->VisibleCount()
                 << '/' << spiders_->Spiders().size() << " visible, " << spiderRenderer_->DrawCallCount() << " draw;"
                 << " contact-shadows=" << contactShadowRenderer_->VisibleSpiderShadowCount();
             std::cout << report.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(report.str());
-            const auto& subject=spiders_->Spiders().front();
+            const auto& subject=spiders_->Spiders()[spiderViewSubject_];
             const float groundTransmission=canopyLightField_.Sample(subject.x,subject.z);
             const float bodyTransmission=canopyLightField_.SampleReceiver(
                 subject.x,subject.y+.04f,subject.z,subject.y);
@@ -3001,7 +3017,7 @@ namespace island
         if(spiderCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
             GpuDiagnosticScope gpuPass("capture-readback");
             CaptureFrame(capturePath_+".spider-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
-            const auto& subject=spiders_->Spiders().front();
+            const auto& subject=spiders_->Spiders()[spiderViewSubject_];
             std::ostringstream report;report.precision(9);
             report << "island-simulator: spider motion stage=" << drawnFrames_/8U-1U
                 << " updates=" << spiderCaptureUpdates_ << " time=" << timeSeconds

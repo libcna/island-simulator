@@ -6,6 +6,35 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## Generated setae material
 
+### Comparison with an existing fully sunlit habitat
+
+`--viewpoint spiders-bright` selects the first maximum body-centre canopy
+transmission among the twelve existing initial spiders. It changes only the camera
+subject, retaining the same offset/FOV, normal observer retreat, following and
+deterministic capture clock. No animal relocation, canopy/material/light modification
+or image-threshold exception. All twelve candidate transmissions and the selected
+index are logged; the capture harness independently verifies ordered/finite candidates
+and the first-maximum selection and saves spider-habitats.json.42 harness CPU tests
+include eight corrupted comparisons and a tie requiring the lower index.
+
+Actual native llvmpipe run053333.460326Z-spiders-bright selected index1:
+initial body transmissions in index order were .00512093,1,.0309411,1,1,1,1,
+.408079,1,1,.0575958,.722916. Seven are fully sunlit according to the canopy model;
+association with a canopy tree is not actual shade. First-draw ground/body transmission
+and RGB tint all equal1. Eight actual images inspected in build/spider-bright-montage.png.
+The body/material are more readable than in habitat0, but angular legs and the folded
+albedo pattern are clearer defects. Sparse stages still do not prove continuous gait.
+The generic image gate stillFAILED: deviation11.6962<18, bins48<64, spatial
+contrast19.7302<30; mean luminance53.2637. Motion/material/lighting checks pass,
+kernel-after[]. This is comparison evidence, not visual acceptance or a lighting fix.
+It does not justify brightening the shared island light solely to satisfy a close crop.
+
+Original-view regression capture053432.291661Z-spiders has all eight stages and final
+PPM byte-identical to051626.813603Z, kernel[]. Its outer gate stillFAILED as before.
+The new bright camera has not been built/run on Web or Android in this step.
+Current native build and inclusive52CPU groups PASS80.86s; logs
+build/spider-bright-{build,preflight,tests}.log.
+
 ### Actual Android GLES3 inspection — image gate failed
 
 The isolated Android harness now accepts `--viewpoint spiders` and requires the

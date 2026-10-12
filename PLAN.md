@@ -834,6 +834,14 @@ progress or require player interaction; dangerous species keep their distance li
   (deviation9.4266,bins28,contrast23.9878), unchangedthresholds. Kernel[]/emulatorexit0.
   TestAPKarchived; normalARM64build/LintrestoredPASS. NotcleanAndroidvisualqualification,
   continuousmotion/lifecycle/physicaldeviceperformance remainopen.
+  Lightingcomparison camera spiders-bright selects firstbrightest of12existinghomes,
+  withoutrelocation/lightchanges.42harnessCPUtests include8badcomparisons/tiefirst.
+  Actual053333.460326Z selectedindex1/body+groundtransmission1, sevenof12homesfullylit
+  inmodel. All8imagesinspected: morevisiblebody,angularlegs/foldedalbedopatternremain.
+  GenericcontraststillFAIL(deviation11.6962,bins48,contrast19.7302),motion/lighting/kernel[].
+  Original053432.291661Z eightstages+finalbyteidenticaltopre-change; outerFAILunchanged.
+  No basisforglobalbrightnesshack; nextvisualwork onlimbs/materialandwebs,notgateweakening.
+  Currentnativebuild/full52CPU PASS80.86s. BrightcameraWeb/Androidnotbuilt/run.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

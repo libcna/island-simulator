@@ -20,6 +20,7 @@ from run_software_capture import (
     validate_spider_motion_stages,
     validate_spider_render_log,
     validate_spider_lighting,
+    validate_spider_habitat_selection,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
@@ -27,6 +28,20 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_spider_bright_camera_selects_existing_habitat(self):
+        rows = ''.join(f"spider habitat candidate={i} transmission={0.9 if i in (4, 7) else 0.1}\n"
+                       for i in range(12))
+        good = rows + "spider habitat selected=4\n"
+        self.assertEqual(validate_spider_habitat_selection(good)["subject"], 4)
+        for bad in ("", good.replace("selected=4", "selected=7"),
+                    good.replace("selected=4", "selected=12"), good+"spider habitat selected=4\n",
+                    good.replace("candidate=11", "candidate=10"),
+                    good.replace("transmission=0.1", "transmission=nan", 1),
+                    good.replace("transmission=0.1", "transmission=1.1", 1),
+                    good.replace("transmission=0.1", "transmission=bad", 1)):
+            with self.subTest(bad=bad), self.assertRaises(RuntimeError):
+                validate_spider_habitat_selection(bad)
+
     def test_spider_lighting_transfer_and_rejections(self):
         for transmission in (0, 0.5, 1):
             tint = ','.join(str(a + (1-a)*transmission) for a in (0.46, 0.53, 0.62))

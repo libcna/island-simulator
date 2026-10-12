@@ -123,6 +123,7 @@ namespace island
         BoarDetail,
         GoatDetail,
         SpiderDetail,
+        SpiderBrightDetail,
         SnakeDetail,
         SnakeHeadDetail,
         ButterflyDetail,
@@ -350,8 +351,12 @@ namespace island
         std::uint32_t snakeCaptureUpdates_ = 0;
         std::uint32_t goatCaptureUpdates_ = 0;
         std::uint32_t spiderCaptureUpdates_ = 0;
+        std::size_t spiderViewSubject_ = 0;
+        [[nodiscard]] bool UsesSpiderViewpoint() const noexcept {
+            return viewpoint_==FixedViewpoint::SpiderDetail||viewpoint_==FixedViewpoint::SpiderBrightDetail;
+        }
         [[nodiscard]] bool UsesSpiderCaptureClock() const noexcept {
-            return !capturePath_.empty() && viewpoint_==FixedViewpoint::SpiderDetail;
+            return !capturePath_.empty() && UsesSpiderViewpoint();
         }
         [[nodiscard]] bool UsesGoatCaptureClock() const noexcept {
             return !capturePath_.empty() && viewpoint_==FixedViewpoint::GoatDetail;

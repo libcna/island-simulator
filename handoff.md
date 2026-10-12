@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — compared twelve habitats; actual fully-lit spider camera
+
+Previous Androidaudit4de4859 wasprogress. AddedFixedViewpoint::SpiderBrightDetail,
+CLI spiders-bright/help, UsesSpiderViewpoint and retainedsubjectindex. Selectsfirst
+maxbodytransmission among12actualinitialspiders; cameraonly, noanimalrelocation,
+material/lightchange. SameFOV/offset/normalretreat/follow/100msclock/eightstages.
+Logs12candidates+selectedindex; independentharness verifiesorderedfinitecomplete
+rows/tiefirstmax and saves spider-habitats.json.42harnessCPUchecks+8badcomparisoncases.
+Nativebuild44689exit0; full52CPU29925exit0 PASS80.86s.
+Actual053333.460326Z-spiders-bright35470exit1: index1 selected; transmission
+[.00512093,1,.0309411,1,1,1,1,.408079,1,1,.0575958,.722916]. Sevenfullysunlitinmodel.
+Body+groundtransmission/RGBtint1. All8actualimages inspected build/spider-bright-montage.png:
+readablebody,stillangularlegs/foldedpattern. Motion/material/lightingpass/kernel[].
+OutercontrastFAIL(deviation11.6962,bins48,spatial19.7302,mean53.2637), notacceptance.
+Originalviewregression053432.291661Z-spiders46274exit1 all8+finalbyteidentical
+to051626.813603Z/kernel[]; unchangedoutercontrastFAIL. Do not brightenwholeisland
+solelyforclosecropthresholds. No thresholdexceptions/hardware/AndroidKVM/dependencychanges.
+Latchc0bd1704unchanged; noWeb/Androidbuildforthiscamerachange. Logsbuild/spider-bright-*.
+Goalactive/no push. NEXT actualvisualimprovementofangularlegs/foldedpattern orrequired
+plant-attachedwebs, remainingfullplan/AMDrootcause stillopen. Allownedhandles terminal.
+
 ## Latest — actual Android spider image inspected, contrast gate failed
 
 Previous turn Webaudit76fb141 wasprogress. AddedspidersAndroidviewpoint/actualproof

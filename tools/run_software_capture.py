@@ -131,6 +131,23 @@ def validate_spider_lighting(text):
     return {"groundTransmission": ground, "bodyTransmission": body, "bodyTint": tint}
 
 
+def validate_spider_habitat_selection(text):
+    rows = re.findall(r"spider habitat candidate=(\d+) transmission=(\S+)", text)
+    selected = re.findall(r"spider habitat selected=(\d+)", text)
+    if [int(row[0]) for row in rows] != list(range(12)) or len(selected) != 1:
+        raise RuntimeError("incomplete spider habitat comparison")
+    try:
+        values = [float(row[1]) for row in rows]
+    except ValueError as error:
+        raise RuntimeError("malformed spider habitat transmission") from error
+    if not all(math.isfinite(v) and 0 <= v <= 1 for v in values):
+        raise RuntimeError("invalid spider habitat transmission")
+    subject = int(selected[0])
+    if subject != max(range(12), key=values.__getitem__):
+        raise RuntimeError("spider camera did not select first brightest existing habitat")
+    return {"bodyTransmissions": values, "subject": subject}
+
+
 def validate_spider_motion_stages(text):
     """Sparse actual crawling presentation, not continuous foot-lock/contact proof."""
     rows = re.findall(r"^island-simulator: spider motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
@@ -393,7 +410,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"hut", "hut-material", "boars", "goats", "spiders", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -456,7 +473,10 @@ def main():
                 for stage in range(8):
                     if not Path(str(capture)+f".goat-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing goat motion stage image")
-            if args.viewpoint == "spiders":
+            if args.viewpoint in ("spiders", "spiders-bright"):
+                if args.viewpoint == "spiders-bright":
+                    habitats = validate_spider_habitat_selection(log)
+                    (evidence / "spider-habitats.json").write_text(json.dumps(habitats, indent=2) + "\n")
                 lighting = validate_spider_lighting(log)
                 (evidence / "spider-lighting.json").write_text(json.dumps(lighting, indent=2) + "\n")
                 motion = validate_spider_motion_stages(log)
@@ -594,7 +614,7 @@ def main():
                 raise RuntimeError("snake capture did not submit the live population")
             if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")
-            if args.viewpoint == "spiders":
+            if args.viewpoint in ("spiders", "spiders-bright"):
                 validate_spider_render_log(diagnostics)
             if args.viewpoint == "goats" and "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("goat fur material was not loaded")
