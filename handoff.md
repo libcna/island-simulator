@@ -4248,3 +4248,35 @@ fingerprintec61dbf7e9ab7adb. Native game build max4cores PASS. Actual isolated l
 images inspected, bay visibly richer and headland sparse/rocky. Web/Android, interactive
 walk and performance remain, so no completion claim. Next ecosystem item10 cloud drift.
 No AMD/KVM/dependency changes.
+
+# Latest — grounded enterable helicopter native first pass
+
+The retained centre-island helicopter requirement is now `[~]`, not complete. One original
+project-owned procedural utility helicopter is deterministically placed at
+(-50.2571,40.0224,48.7260), clear of the stream and every static solid. Its 5.65m main rotor
+owns a 6.20m vegetation/grass reservation; this intentionally changes the inventory to
+322palms/270canopy/1770understory/582bushes/3008groundplants/16809grass. Four skid contacts
+sample the rendered terrain exactly. WorldReport exports the placement, entry flags and skid
+contacts; fingerprint `76af8e15925526d1`,805 player-static/806 wildlife-avoidance obstacles.
+
+The 1006-triangle one-draw vertex-colour mesh has a sealed faceted glazed nose, centre mullion,
+olive fuselage, tail/fin/stabilizer, stationary main/tail rotors, terrain-following skids, cockpit
+panel/lights, two seats and cyclics, rear bench, floor and two-level thresholds. Both pilot and
+rear door bands are real openings on both sides. A collision defect discovered during review
+(one full left shell rectangle sealing both left doors) was removed. `PlayerMotion` now uses
+detailed shell/seat sweep collision and helicopter floor support; its CPU test actually walks all
+four door paths. Wildlife gets a separate broad proxy, so animals avoid the airframe without
+sealing player entry. There is deliberately no helicopter flight state.
+
+Final isolated llvmpipe/pixman captures were inspected:
+`build-consumer/software-captures/20261012T215230.210248Z-helicopter` (275 bins/std54.49/
+spatial230.02) and `20261012T215239.544205Z-helicopter-inside` (216/32.48/132.84). Both pass,
+show one helicopter draw and triangles=1006 with empty new-kernel-fault evidence. Exterior reads
+clearly as a helicopter and interior exposes seats/panel/open sides; it remains a faceted reduced-
+detail first pass, not photorealism. Texture/material, door/seat interaction, live free-walk,
+Web/Android and performance gates remain open. Debug/Release builds pass max4cores. Focused
+14 groups pass; broad enabled run passed60 groups, with only the known load-sensitive supervisor
+fixture and two orphan validators of disabled display prerequisites failing. Supervisor passed
+serially; the two display validators lack their intentionally disabled report/capture inputs.
+Asset gate passes with the new original procedural record. No AMD GPU, KVM, Android emulator or
+dependency tree was touched. See `docs/helicopter.md`; continue the active full-plan goal.

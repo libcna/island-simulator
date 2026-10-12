@@ -75,6 +75,7 @@ add_library(island_core STATIC
     game/src/BushProfile.cpp
     game/src/IslandTerrain.cpp
     game/src/HutLayout.cpp
+    game/src/HelicopterLayout.cpp
     game/src/GoatHabitat.cpp
     game/src/SpiderHabitat.cpp
     game/src/SpiderPose.cpp
@@ -316,6 +317,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_hut_tests)
     island_enable_first_party_sanitizers(island_hut_tests)
     add_test(NAME IslandHutLayoutTests COMMAND island_hut_tests)
+    add_executable(island_helicopter_tests tests/HelicopterLayoutTests.cpp)
+    target_link_libraries(island_helicopter_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_helicopter_tests)
+    island_enable_first_party_sanitizers(island_helicopter_tests)
+    add_test(NAME IslandHelicopterLayoutTests COMMAND island_helicopter_tests)
     add_executable(island_cave_tests tests/CaveLayoutTests.cpp)
     target_link_libraries(island_cave_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_cave_tests)
@@ -602,6 +608,7 @@ if(ISLAND_BUILD_GAME)
         game/src/SharkRenderer.cpp
         game/src/ShipwreckRenderer.cpp
         game/src/HutRenderer.cpp
+        game/src/HelicopterRenderer.cpp
         game/src/ShorelineRenderer.cpp
         game/src/SkyRenderer.cpp
         game/src/Soundscape.cpp

@@ -1,0 +1,260 @@
+#include "IslandSimulator/HelicopterRenderer.hpp"
+
+#include "IslandSimulator/EnvironmentLighting.hpp"
+#include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
+#include "Microsoft/Xna/Framework/Color.hpp"
+#include "Microsoft/Xna/Framework/ContainmentType.hpp"
+#include "Microsoft/Xna/Framework/Graphics/BasicEffect.hpp"
+#include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/BufferUsage.hpp"
+#include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
+#include "Microsoft/Xna/Framework/Graphics/PrimitiveType.hpp"
+#include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexBuffer.hpp"
+#include "Microsoft/Xna/Framework/Graphics/VertexPositionColor.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <numbers>
+#include <stdexcept>
+#include <vector>
+
+using namespace Microsoft::Xna::Framework;
+using namespace Microsoft::Xna::Framework::Graphics;
+
+namespace island {
+namespace {
+constexpr int FuselageSides=14;
+struct FuselageStation{float z,centreY,radiusX,radiusY;};
+constexpr std::array<FuselageStation,8> Fuselage{{
+    {-2.10f,1.35f,.68f,.64f},{-1.78f,1.38f,.94f,.82f},
+    {-.30f,1.43f,1.07f,.98f},{.18f,1.44f,1.08f,.99f},
+    {1.48f,1.42f,.98f,.93f},{1.92f,1.35f,.82f,.78f},
+    {2.42f,1.25f,.51f,.57f},{2.70f,1.18f,.13f,.22f}}};
+
+bool OpenDoorBand(const float z) {
+    return (z>=.18f&&z<=1.48f)||(z>=-1.70f&&z<=-.30f);
+}
+
+Color ScaleColor(const Color& color,const float scale) {
+    return Color(static_cast<int>(std::clamp(color.getRProperty()*scale,0.0f,255.0f)),
+                 static_cast<int>(std::clamp(color.getGProperty()*scale,0.0f,255.0f)),
+                 static_cast<int>(std::clamp(color.getBProperty()*scale,0.0f,255.0f)),255);
+}
+}
+
+HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPlacement& placement)
+    :device_(device),effect_(std::make_unique<BasicEffect>(device)),
+     centre_(placement.x,placement.groundY+1.5f,placement.z) {
+    std::vector<VertexPositionColor> mesh;
+    mesh.reserve(12000);
+    const float c=std::cos(placement.yawRadians),s=std::sin(placement.yawRadians);
+    const auto world=[&](const Vector3& p){return Vector3(placement.x+c*p.X+s*p.Z,
+        placement.groundY+p.Y,placement.z-s*p.X+c*p.Z);};
+    const Vector3 sun(environment::SunDirectionX,environment::SunDirectionY,
+                      environment::SunDirectionZ);
+    const auto triangle=[&](Vector3 a,Vector3 b,Vector3 d,const Color& pigment) {
+        a=world(a);b=world(b);d=world(d);
+        Vector3 normal=Vector3::Cross(b-a,d-a);
+        if(normal.LengthSquared()<1e-10f)throw std::runtime_error("Degenerate helicopter triangle");
+        normal.Normalize();
+        const float light=.48f+.52f*std::max(0.0f,Vector3::Dot(normal,sun));
+        const Color color=ScaleColor(pigment,light);
+        mesh.emplace_back(a,color);mesh.emplace_back(b,color);mesh.emplace_back(d,color);
+    };
+    const auto quad=[&](const Vector3& a,const Vector3& b,const Vector3& d,const Vector3& e,
+                        const Color& color) {
+        triangle(a,b,d,color);triangle(a,d,e,color);
+    };
+    const auto box=[&](const Vector3& low,const Vector3& high,const Color& color) {
+        const std::array<Vector3,8> p{{{low.X,low.Y,low.Z},{high.X,low.Y,low.Z},
+            {high.X,high.Y,low.Z},{low.X,high.Y,low.Z},{low.X,low.Y,high.Z},
+            {high.X,low.Y,high.Z},{high.X,high.Y,high.Z},{low.X,high.Y,high.Z}}};
+        quad(p[0],p[3],p[2],p[1],color);quad(p[4],p[5],p[6],p[7],color);
+        quad(p[0],p[1],p[5],p[4],color);quad(p[1],p[2],p[6],p[5],color);
+        quad(p[2],p[3],p[7],p[6],color);quad(p[3],p[0],p[4],p[7],color);
+    };
+    const auto beam=[&](const Vector3& a,const Vector3& b,const float width,
+                        const Color& color) {
+        Vector3 along=b-a;along.Normalize();
+        Vector3 across=Vector3::Cross(along,std::abs(along.Y)>.9f?Vector3(0,0,1):Vector3::Up);
+        across.Normalize();Vector3 up=Vector3::Cross(across,along);up.Normalize();
+        const Vector3 r=across*(width*.5f),sizedUp=up*(width*.5f);
+        const std::array<Vector3,8> p{{a-r-sizedUp,a+r-sizedUp,a+r+sizedUp,a-r+sizedUp,
+            b-r-sizedUp,b+r-sizedUp,b+r+sizedUp,b-r+sizedUp}};
+        quad(p[0],p[3],p[2],p[1],color);quad(p[4],p[5],p[6],p[7],color);
+        quad(p[0],p[1],p[5],p[4],color);quad(p[1],p[2],p[6],p[5],color);
+        quad(p[2],p[3],p[7],p[6],color);quad(p[3],p[0],p[4],p[7],color);
+    };
+    const Color olive(101,116,80),oliveLight(136,147,102),oliveDark(61,73,56);
+    const Color glass(54,96,111),glassLight(82,130,145),metal(82,85,81);
+    const Color interior(49,54,50),seat(45,49,43),rubber(30,32,30);
+    constexpr float tau=2.0f*std::numbers::pi_v<float>;
+
+    // Multi-ring fuselage with actual side openings for separate cockpit and rear doors.
+    for(std::size_t band=0;band+1<Fuselage.size();++band) {
+        const float midZ=(Fuselage[band].z+Fuselage[band+1].z)*.5f;
+        for(int slice=0;slice<FuselageSides;++slice) {
+            const int next=(slice+1)%FuselageSides;
+            const float a=tau*slice/FuselageSides,b=tau*next/FuselageSides,mid=(a+b)*.5f;
+            const bool sidePanel=std::abs(std::cos(mid))>.72f;
+            if(sidePanel&&OpenDoorBand(midZ))continue;
+            const auto point=[](const FuselageStation& station,const float angle) {
+                return Vector3(std::cos(angle)*station.radiusX,
+                    station.centreY+std::sin(angle)*station.radiusY,station.z);
+            };
+            Color color=(slice%4==0)?oliveLight:olive;
+            if(midZ>1.50f&&std::sin(mid)>-.08f)color=(slice%2)?glass:glassLight;
+            if(std::sin(mid)<-.72f)color=oliveDark;
+            quad(point(Fuselage[band],a),point(Fuselage[band+1],a),
+                 point(Fuselage[band+1],b),point(Fuselage[band],b),color);
+        }
+    }
+    // Seal the pointed nose. Without this small fan the rear-cabin sightline could
+    // expose a bright terrain pinhole through the final fuselage ring.
+    const auto fuselagePoint=[](const FuselageStation& station,const float angle) {
+        return Vector3(std::cos(angle)*station.radiusX,
+            station.centreY+std::sin(angle)*station.radiusY,station.z);
+    };
+    const Vector3 noseTip(0,1.17f,2.84f);
+    for(int slice=0;slice<FuselageSides;++slice) {
+        const float a=tau*slice/FuselageSides;
+        const float b=tau*((slice+1)%FuselageSides)/FuselageSides;
+        const float mid=(a+b)*.5f;
+        const Color color=std::sin(mid)>-.08f?glass:oliveDark;
+        triangle(fuselagePoint(Fuselage.back(),a),noseTip,
+                 fuselagePoint(Fuselage.back(),b),color);
+    }
+    // A narrow centre mullion makes the faceted windshield read as glazing rather
+    // than an open hole when the player stands in the rear cabin.
+    beam({0,1.11f,2.67f},{0,2.12f,1.70f},.075f,oliveDark);
+
+    // Flat walkable floor, two-stage door sills and visible frames match collision support.
+    box({-.78f,.405f,-1.78f},{.78f,.455f,1.48f},interior);
+    for(const float side:{-1.0f,1.0f})for(const auto& door:
+        {std::pair{-1.70f,-.30f},std::pair{.18f,1.48f}}) {
+        const float lowX=side>0?.78f:-1.23f,highX=side>0?1.23f:-.78f;
+        box({lowX,.205f,door.first},{highX,.245f,door.second},oliveDark);
+        const float outerLow=side>0?1.23f:-1.58f,outerHigh=side>0?1.58f:-1.23f;
+        box({outerLow,.025f,door.first+.08f},{outerHigh,.065f,door.second-.08f},metal);
+        beam({side*.93f,.45f,door.first},{side*.93f,2.17f,door.first},.075f,oliveLight);
+        beam({side*.93f,.45f,door.second},{side*.93f,2.17f,door.second},.075f,oliveLight);
+        beam({side*.93f,2.15f,door.first},{side*.93f,2.15f,door.second},.075f,oliveLight);
+    }
+
+    // Two pilot seats, rear bench, instrument panel and paired cyclic controls.
+    for(const float x:{-.46f,.46f}) {
+        box({x-.27f,.46f,.08f},{x+.27f,.76f,.66f},seat);
+        box({x-.28f,.72f,.08f},{x+.28f,1.43f,.25f},seat);
+        beam({x,.58f,.79f},{x,.95f,1.03f},.045f,metal);
+        box({x-.055f,.91f,.98f},{x+.055f,1.01f,1.08f},rubber);
+    }
+    box({-.72f,.48f,-1.72f},{.72f,.79f,-1.43f},seat);
+    box({-.72f,.75f,-1.70f},{.72f,1.38f,-1.52f},seat);
+    box({-.72f,1.05f,1.30f},{.72f,1.39f,1.52f},rubber);
+    for(int row=0;row<2;++row)for(int column=0;column<6;++column) {
+        const Color lamp=(column+row)%3==0?Color(194,91,57):
+            ((column+row)%3==1?Color(89,157,105):Color(204,177,80));
+        box({-.54f+column*.18f,1.18f+row*.10f,1.285f},
+            {-.49f+column*.18f,1.23f+row*.10f,1.295f},lamp);
+    }
+
+    // Tail boom, empennage and clearly horizontal tail-rotor disc.
+    constexpr int tailSides=8;
+    constexpr std::array<FuselageStation,4> tail{{
+        {-2.02f,1.53f,.46f,.43f},{-3.55f,1.62f,.35f,.32f},
+        {-5.25f,1.78f,.25f,.24f},{-6.85f,1.92f,.14f,.15f}}};
+    for(std::size_t band=0;band+1<tail.size();++band)for(int slice=0;slice<tailSides;++slice) {
+        const int next=(slice+1)%tailSides;const float a=tau*slice/tailSides,b=tau*next/tailSides;
+        const auto point=[](const FuselageStation& station,const float angle){return Vector3(
+            std::cos(angle)*station.radiusX,station.centreY+std::sin(angle)*station.radiusY,
+            station.z);};
+        quad(point(tail[band],a),point(tail[band+1],a),point(tail[band+1],b),
+             point(tail[band],b),(slice%3==0)?oliveLight:olive);
+    }
+    // Vertical fin and horizontal stabilizer.
+    quad({-.06f,1.82f,-6.35f},{-.06f,3.18f,-6.72f},{-.06f,1.93f,-6.94f},
+         {-.06f,1.62f,-6.18f},oliveLight);
+    quad({.06f,1.62f,-6.18f},{.06f,1.93f,-6.94f},{.06f,3.18f,-6.72f},
+         {.06f,1.82f,-6.35f},olive);
+    box({-1.18f,1.72f,-5.72f},{1.18f,1.79f,-5.22f},oliveDark);
+    beam({.18f,1.92f,-6.84f},{.30f,1.92f,-6.84f},.10f,metal);
+    for(int blade=0;blade<4;++blade) {
+        const float angle=blade*std::numbers::pi_v<float>*.5f;
+        const Vector3 radial(std::cos(angle),std::sin(angle),0);
+        beam({.31f,1.92f,-6.84f},{.31f+radial.X*.78f,1.92f+radial.Y*.78f,-6.84f},
+             .075f,Color(49,52,48));
+    }
+
+    // Ground-following skid rails and four struts. Each endpoint comes from the
+    // authoritative rendered terrain sample retained by the layout.
+    for(int rail=0;rail<2;++rail) {
+        const auto& rear=placement.skidContacts[static_cast<std::size_t>(rail*2)];
+        const auto& front=placement.skidContacts[static_cast<std::size_t>(rail*2+1)];
+        const float side=rail==0?-1.0f:1.0f;
+        const float rearY=rear.groundY-placement.groundY+.11f;
+        const float frontY=front.groundY-placement.groundY+.11f;
+        beam({side*1.24f,rearY,-1.82f},{side*1.24f,frontY,1.70f},.105f,metal);
+        beam({side*.82f,.68f,-1.30f},{side*1.24f,rearY,-1.30f},.09f,metal);
+        beam({side*.82f,.67f,1.18f},{side*1.24f,frontY,1.18f},.09f,metal);
+    }
+
+    // Stationary mast, hub and four broad blades; there is deliberately no flight state.
+    beam({0,2.22f,-.12f},{0,2.98f,-.12f},.17f,metal);
+    box({-.25f,2.91f,-.37f},{.25f,3.08f,.13f},oliveDark);
+    for(int blade=0;blade<4;++blade) {
+        const float angle=.18f+blade*std::numbers::pi_v<float>*.5f;
+        const Vector3 radial(std::cos(angle),0,std::sin(angle));
+        const Vector3 perpendicular(-radial.Z,0,radial.X);
+        const Vector3 inner=radial*.25f+Vector3(0,3.02f,-.12f);
+        const Vector3 outer=radial*HelicopterLayout::MainRotorRadius+Vector3(0,3.01f,-.12f);
+        const float half=.15f;
+        quad(inner-perpendicular*half,outer-perpendicular*(half*.70f),
+             outer+perpendicular*(half*.70f),inner+perpendicular*half,
+             blade%2?Color(48,51,48):Color(62,66,60));
+    }
+    // Exhausts, navigation lights and a small belly lamp improve exterior scale cues.
+    beam({-.36f,2.18f,-1.54f},{-.48f,2.25f,-1.98f},.15f,Color(55,55,52));
+    beam({ .36f,2.18f,-1.54f},{ .48f,2.25f,-1.98f},.15f,Color(55,55,52));
+    box({-1.10f,1.50f,-.20f},{-1.04f,1.61f,-.08f},Color(188,54,43));
+    box({ 1.04f,1.50f,-.20f},{ 1.10f,1.61f,-.08f},Color(55,162,91));
+    box({-.08f,.30f,.92f},{.08f,.39f,1.08f},Color(221,211,161));
+
+    if(mesh.empty()||mesh.size()>18000)throw std::runtime_error("Helicopter mesh exceeds budget");
+    Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
+    for(const auto& vertex:mesh){low=Vector3::Min(low,vertex.Position);high=Vector3::Max(high,vertex.Position);}
+    bounds_=BoundingBox(low,high);triangles_=static_cast<int>(mesh.size()/3);
+    vertices_=std::make_unique<VertexBuffer>(device,
+        VertexPositionColor::getVertexDeclarationStatic(),static_cast<int>(mesh.size()),
+        BufferUsage::WriteOnly);
+    vertices_->SetData(mesh.data(),static_cast<int>(mesh.size()));
+    effect_->setVertexColorEnabledProperty(true);effect_->setLightingEnabledProperty(false);
+    effect_->setFogEnabledProperty(true);
+    effect_->setFogColorProperty(Vector3(environment::FogColorRed,environment::FogColorGreen,
+                                         environment::FogColorBlue));
+    effect_->setFogStartProperty(190.0f);effect_->setFogEndProperty(330.0f);
+    const std::string message="island-simulator: grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors; triangles="
+        +std::to_string(triangles_);
+    std::cout<<message<<'\n';MirrorRuntimeDiagnosticToPlatformLog(message);
+}
+
+HelicopterRenderer::~HelicopterRenderer()=default;
+
+void HelicopterRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera) {
+    drawCalls_=0;
+    if((centre_-camera).LengthSquared()>360.0f*360.0f
+        ||BoundingFrustum(view*projection).Contains(bounds_)==ContainmentType::Disjoint)return;
+    device_.setRasterizerStateProperty(RasterizerState::CullNone);
+    device_.setBlendStateProperty(BlendState::Opaque);
+    device_.setDepthStencilStateProperty(DepthStencilState::Default);
+    device_.SetVertexBuffer(vertices_.get());device_.setIndicesProperty(nullptr);
+    effect_->setWorldProperty(Matrix::getIdentityProperty());effect_->setViewProperty(view);
+    effect_->setProjectionProperty(projection);effect_->Apply();
+    device_.DrawPrimitives(PrimitiveType::TriangleList,0,triangles_);drawCalls_=1;
+}
+}

@@ -506,7 +506,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "helicopter", "helicopter-inside", "resident", "bear", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -570,6 +570,16 @@ def main():
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
             if args.viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("hut fibre texture is missing; check packaged assets")
+            if args.viewpoint in ("helicopter", "helicopter-inside"):
+                camera_marker=("helicopter QA camera frames rear cabin toward accessible cockpit"
+                               if args.viewpoint=="helicopter-inside" else
+                               "helicopter QA camera frames grounded exterior and open doors")
+                for marker in (camera_marker,
+                               "grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors"):
+                    if marker not in diagnostics:
+                        raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
+                if not re.search(r"helicopter 1 draw", diagnostics):
+                    raise RuntimeError("helicopter viewpoint did not retain its one-draw model")
             if args.viewpoint in ("snakes", "snake-head"):
                 validate_snake_motion_stages(log)
                 for stage in range(4):

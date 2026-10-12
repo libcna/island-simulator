@@ -67,6 +67,8 @@ namespace
         case FixedViewpoint::ShipwreckDetail: return "shipwreck";
         case FixedViewpoint::HutDetail: return "hut";
         case FixedViewpoint::HutMaterialDetail: return "hut-material";
+        case FixedViewpoint::HelicopterDetail: return "helicopter";
+        case FixedViewpoint::HelicopterInteriorDetail: return "helicopter-inside";
         case FixedViewpoint::CrabDetail: return "crabs";
         case FixedViewpoint::BoarDetail: return "boars";
         case FixedViewpoint::GoatDetail: return "goats";
@@ -138,7 +140,7 @@ int main(const int argc, char* argv[])
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
-                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
+                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -236,6 +238,10 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::HutDetail;
             } else if (name == "hut-material") {
                 viewpoint = island::FixedViewpoint::HutMaterialDetail;
+            } else if (name == "helicopter") {
+                viewpoint = island::FixedViewpoint::HelicopterDetail;
+            } else if (name == "helicopter-inside") {
+                viewpoint = island::FixedViewpoint::HelicopterInteriorDetail;
             } else if (name == "crabs") {
                 viewpoint = island::FixedViewpoint::CrabDetail;
             } else if (name == "snakes") {

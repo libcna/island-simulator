@@ -4,6 +4,7 @@
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/StreamBedPatch.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
+#include "IslandSimulator/HelicopterLayout.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -78,6 +79,8 @@ namespace island
                 sample.slopeRadians=std::atan(std::hypot(height(px+.1f,pz)-height(px-.1f,pz),
                     height(px,pz+.1f)-height(px,pz-.1f))/.2f);
             }
+            if(helicopter_)
+                sample.height=helicopter_->SupportHeight(px,pz,sample.height);
             contact.height = std::max(contact.height, sample.height);
             contact.maximumSlopeRadians = std::max(contact.maximumSlopeRadians,
                                                     sample.slopeRadians);
@@ -193,6 +196,9 @@ namespace island
                 {candidateX,std::max(candidate.height+.001f,position_.y-EyeHeight),candidateZ},
                 CapsuleRadius,CapsuleHeight)<1)
                 return HorizontalStepResult::ObstacleBlocked;
+            if(helicopter_&&helicopter_->SafeTravelFraction(
+                position_.x,position_.z,candidateX,candidateZ,CapsuleRadius)<1.0f)
+                return HorizontalStepResult::ObstacleBlocked;
             const float rise = candidate.height - current.height;
             const float pathSlope = std::atan2(std::max(0.0f, rise), distance);
             const bool uphillOnSteepGround = rise > 0.002f
@@ -226,6 +232,11 @@ namespace island
         if(cave_&&cave_->IntersectsCapsule({position_.x,position_.y-EyeHeight,position_.z},
             CapsuleRadius,CapsuleHeight)) {
             const auto safe=cave_->World(0,0,-3);
+            position_.x=safe.x;position_.z=safe.z;
+            ResolveModeAndHeight(terrain,std::numeric_limits<float>::infinity());
+        }
+        if(helicopter_&&helicopter_->IntersectsCapsule(position_.x,position_.z,CapsuleRadius)) {
+            const auto safe=helicopter_->World(2.2f,0.0f,-.95f);
             position_.x=safe.x;position_.z=safe.z;
             ResolveModeAndHeight(terrain,std::numeric_limits<float>::infinity());
         }

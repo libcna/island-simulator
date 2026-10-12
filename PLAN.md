@@ -603,7 +603,7 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Native live keyboard gate now passes entry, back-wall stop, inner-roof containment,
   descent/landing and exit (`software-cave/20261012T173950.239540Z`); portable and polish remain.
 
-- [ ] Add a realistic grounded helicopter near the centre of the island. It cannot
+- [~] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.
   Prefer a suitable existing 3D model only after verifying its licence permits the
   intended distribution/use; otherwise build a project-owned procedural or glTF asset.
@@ -615,9 +615,19 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   collision rather than an enclosing solid proxy. Verify actual entry/exit, movement
   through cockpit/rear cabin, camera clearance, interior/exterior lighting and near/far
   appearance on supported platforms. A hollow exterior shell or inaccessible model
-  does not satisfy this task. Operator request2026-10-12; not implemented.
+  does not satisfy this task. Operator request2026-10-12. Native first pass now uses an
+  original project-owned procedural asset: a 1,006-triangle one-draw utility helicopter at
+  (-50.257,48.726), with four rendered-terrain-fitted skids, stationary main/tail rotors,
+  coloured glazing, two pilot seats/controls, a rear bench and genuinely open paired pilot/rear
+  doorways. `PlayerMotion` supports the cabin floor and two-stage thresholds while detailed
+  shell/seat collision permits entry from either side; a CPU controller regression walks all
+  four door paths. Wildlife receives a separate broad avoidance proxy without blocking player
+  access. WorldReport records the placement and has fingerprint `76af8e15925526d1`.
+  Native exterior/interior software captures pass and are inspected; textured materials,
+  door/seat interaction, portable Web/Android qualification and further realism remain, so this
+  is intentionally still in progress. See `docs/helicopter.md`.
 
-All six items remain incomplete. Stream/cave/helicopter locations should be coordinated with
+All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.
 
 ## Product definition and non-goals

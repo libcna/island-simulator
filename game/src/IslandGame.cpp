@@ -113,6 +113,8 @@ namespace island
             case FixedViewpoint::ShipwreckDetail: return "shipwreck";
             case FixedViewpoint::HutDetail: return "hut";
             case FixedViewpoint::HutMaterialDetail: return "hut-material";
+            case FixedViewpoint::HelicopterDetail: return "helicopter";
+            case FixedViewpoint::HelicopterInteriorDetail: return "helicopter-inside";
             case FixedViewpoint::CrabDetail: return "crabs";
             case FixedViewpoint::BoarDetail: return "boars";
             case FixedViewpoint::GoatDetail: return "goats";
@@ -202,16 +204,21 @@ namespace island
         worldObstacles.insert(worldObstacles.end(),fireObstacles.begin(),fireObstacles.end());
         hutPlacement_=HutLayout::FindInWorld(terrain_,jungleLayout_,worldObstacles);
         if(hutPlacement_) worldObstacles.push_back({hutPlacement_->x,hutPlacement_->z,HutLayout::CollisionRadius});
+        helicopterPlacement_=HelicopterLayout::FindInWorld(terrain_,jungleLayout_,worldObstacles);
+        if(!helicopterPlacement_)throw std::runtime_error("No valid central helicopter site");
         worldCollisionGrid_.Reset(worldObstacles);
-        resident_=std::make_unique<ResidentMotion>(terrain_,worldCollisionGrid_.Obstacles());
-        bear_=std::make_unique<BearMotion>(terrain_,worldCollisionGrid_.Obstacles());
-        monkeyTroop_.SetObstacles(worldCollisionGrid_.Obstacles());
+        playerMotion_.SetHelicopter(&*helicopterPlacement_);
+        std::vector<CircularObstacle> wildlifeObstacles(worldObstacles);
+        wildlifeObstacles.push_back({helicopterPlacement_->x,helicopterPlacement_->z,3.2f});
+        resident_=std::make_unique<ResidentMotion>(terrain_,wildlifeObstacles);
+        bear_=std::make_unique<BearMotion>(terrain_,wildlifeObstacles);
+        monkeyTroop_.SetObstacles(wildlifeObstacles);
         monkeyTroop_.SetCanopy(jungleLayout_.Canopy());
-        boarHerd_.SetObstacles(worldCollisionGrid_.Obstacles());
+        boarHerd_.SetObstacles(wildlifeObstacles);
         snakes_ = std::make_unique<SnakePopulation>(
-            terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
-        goats_ = std::make_unique<GoatHerd>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
-        spiders_ = std::make_unique<SpiderColony>(terrain_,jungleLayout_,worldCollisionGrid_.Obstacles());
+            terrain_,jungleLayout_,wildlifeObstacles);
+        goats_ = std::make_unique<GoatHerd>(terrain_,jungleLayout_,wildlifeObstacles);
+        spiders_ = std::make_unique<SpiderColony>(terrain_,jungleLayout_,wildlifeObstacles);
         if (smokeTest_ && viewpoint_ == FixedViewpoint::None) {
             viewpoint_ = FixedViewpoint::Overview;
         }
@@ -271,6 +278,21 @@ namespace island
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
             std::cout<<"island-simulator: bear QA camera frames the single peaceful adult\n";
+        } else if(viewpoint_==FixedViewpoint::HelicopterDetail
+                  ||viewpoint_==FixedViewpoint::HelicopterInteriorDetail) {
+            const bool inside=viewpoint_==FixedViewpoint::HelicopterInteriorDetail;
+            const auto camera=inside
+                ?helicopterPlacement_->World(0.0f,HelicopterLayout::FloorClearance
+                    +PlayerMotion::EyeHeight,-1.03f)
+                :helicopterPlacement_->World(-6.1f,2.8f,4.0f);
+            const auto target=inside?helicopterPlacement_->World(0.0f,1.18f,1.42f)
+                :helicopterPlacement_->World(0.0f,1.40f,-.25f);
+            cameraPosition_=Vector3(camera.x,camera.y,camera.z);
+            const Vector3 direction=Vector3(target.x,target.y,target.z)-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: helicopter QA camera frames "
+                <<(inside?"rear cabin toward accessible cockpit":"grounded exterior and open doors")<<'\n';
         } else if (viewpoint_ == FixedViewpoint::CaveExterior || viewpoint_ == FixedViewpoint::CaveInterior) {
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
@@ -1269,6 +1291,7 @@ namespace island
         naturalPropRenderer_ = std::make_unique<NaturalPropRenderer>(device, naturalPropLayout_);
         shipwreckRenderer_ = std::make_unique<ShipwreckRenderer>(device, shipwreckLayout_);
         if(hutPlacement_) hutRenderer_=std::make_unique<HutRenderer>(device,*hutPlacement_);
+        helicopterRenderer_=std::make_unique<HelicopterRenderer>(device,*helicopterPlacement_);
         palmRenderer_ = std::make_unique<PalmRenderer>(
             device, vegetationLayout_, qualityProfile_.vegetationMaximumDistanceScale);
         oceanRenderer_ = std::make_unique<OceanRenderer>(
@@ -2339,6 +2362,7 @@ namespace island
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + shipwreckRenderer_->DrawCallCount()
             + (hutRenderer_?hutRenderer_->DrawCallCount():0)
+            + helicopterRenderer_->DrawCallCount()
             + distantSceneryRenderer_->DrawCallCount()
             + contactShadowRenderer_->DrawCallCount()
             + birdRenderer_->DrawCallCount() + butterflyRenderer_->DrawCallCount()
@@ -2786,6 +2810,10 @@ namespace island
         if(hutRenderer_) {
             GpuDiagnosticScope gpuPass("hut");
             hutRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_);
+        }
+        {
+            GpuDiagnosticScope gpuPass("helicopter");
+            helicopterRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_);
         }
 
         {
@@ -3311,7 +3339,8 @@ namespace island
                       << shipwreckRenderer_->DebrisCount() << " debris, "
                       << shipwreckRenderer_->DrawCallCount() << " draw; hut "
                       << (hutRenderer_?hutRenderer_->DrawCallCount():0) << " draw, "
-                      << contactShadowRenderer_->VisibleHutShadowCount() << " contact patches; grass "
+                      << contactShadowRenderer_->VisibleHutShadowCount() << " contact patches; helicopter "
+                      << helicopterRenderer_->DrawCallCount() << " draw; grass "
                       << grassRenderer_->VisiblePatchCount() << '/'
                       << grassRenderer_->TotalPatchCount() << " patches in "
                       << grassRenderer_->VisibleCellCount() << " cells, "

@@ -63,6 +63,12 @@ terrain contact, quadrupedal idle/walk/trot/turn/forage/rest/withdraw behavior, 
 procedural anatomy, generated directional fur and sparse positional breath/snuffle/huff
 audio. Use `--viewpoint bear`; [bear evidence](docs/bear.md) records the native first pass
 and explicitly open visual, listening and portable work.
+A grounded original procedural utility helicopter now occupies a vegetation-cleared inland
+summit site. It cannot fly: both sides instead have open pilot and rear-cabin doors, stepped
+thresholds, a supported walkable floor, seats and cockpit controls. Its four skid contacts follow
+the rendered terrain while wildlife avoids the airframe. Use `--viewpoint helicopter` or
+`--viewpoint helicopter-inside`; [helicopter evidence](docs/helicopter.md) records the native
+first pass and remaining material, interaction and portable review work.
 Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
 preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
 An animated tropical
@@ -78,8 +84,8 @@ The sea floor uses continuous sand colours across the waterline, with filtered s
 water tint and opacity increase with local depth instead of baking turquoise into the substrate.
 An exact shore-following foam/wash ribbon uses advancing, fading crests and
 pixel-footprint-filtered porous foam instead of a continuous white stripe. The landscape contains
-322 procedural coconut palms in coastal groves, 272 broadleaf canopy trees, 1,771 ferns/large-leaf plants, 584 low
-bushes, 3,012 small forest-floor plants, and 16,830 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 184
+322 procedural coconut palms in coastal groves, 270 broadleaf canopy trees, 1,770 ferns/large-leaf plants, 582 low
+bushes, 3,008 small forest-floor plants, and 16,809 mesh-grass clusters placed from a shared canopy-light and ground-cover field. It also composes 184
 irregular land rocks, 14 emergent near-shore reef outcrops, 11 mossy fallen logs with irregular
 near broken-end contours,
 33 pieces of sun-bleached beach driftwood, 33 curved fallen palm fronds with asymmetric leaflets,

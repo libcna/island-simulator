@@ -4726,10 +4726,10 @@ int main()
         && jungle.ForestGroundPlantCount() == repeatedJungle.ForestGroundPlantCount()
         && jungle.StreamBankGroundPlantCount() == repeatedJungle.StreamBankGroundPlantCount(),
         "forest colony membership and shape are deterministic for one seed");
-    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 572
+    Check(jungle.Bushes().size() - jungle.ClearingBushCount() == 570
         && jungle.GroundPlants().size() - jungle.ClearingGroundPlantCount()
-            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2191,
-        "wet-biome and cave-footprint reservations preserve measured deterministic populations");
+            - jungle.ForestGroundPlantCount() - jungle.StreamBankGroundPlantCount() == 2187,
+        "wet-biome, cave and helicopter reservations preserve measured deterministic populations");
     Check(jungle.StreamBankGroundPlantCount() >= 20
         && jungle.StreamBankGroundPlantCount() <= static_cast<std::size_t>(
             island::JungleLayout::StreamBankColonyCount

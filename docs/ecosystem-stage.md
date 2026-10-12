@@ -162,10 +162,14 @@ existing features, not a broad redesign.
 16. [ ] **Hut farther inland.** Preserve the user's visual reference requirement;
     relocate/rebuild along an inland jungle path near fresh water. Beach emphasis
     stays on wreck/driftwood and traces of habitation. Check access and placement.
-17. [ ] **Enterable helicopter last.** Keep the previously requested realistic,
+17. [~] **Enterable helicopter last.** Keep the previously requested realistic,
     grounded helicopter near the island centre, with accessible pilot and rear
     spaces and licensed/original asset provenance, but defer until ecosystem work.
-    No flight capability. This is a retained requirement, not cancellation.
+    No flight capability. A native reduced-detail procedural first pass now supplies
+    four open doors, walkable cockpit/rear floor, terrain-fitted skids, original-asset
+    provenance, CPU entry checks and inspected exterior/interior software captures.
+    Material/geometry polish and portable qualification remain; see
+    [helicopter.md](helicopter.md).
 
 ## Next implementation stage and constraints
 

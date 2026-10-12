@@ -68,6 +68,8 @@
 #include "IslandSimulator/ShipwreckLayout.hpp"
 #include "IslandSimulator/ShipwreckRenderer.hpp"
 #include "IslandSimulator/HutRenderer.hpp"
+#include "IslandSimulator/HelicopterLayout.hpp"
+#include "IslandSimulator/HelicopterRenderer.hpp"
 #include "IslandSimulator/ShorelineRenderer.hpp"
 #include "IslandSimulator/SkyRenderer.hpp"
 #include "IslandSimulator/Soundscape.hpp"
@@ -141,6 +143,8 @@ namespace island
         ShipwreckDetail,
         HutDetail,
         HutMaterialDetail,
+        HelicopterDetail,
+        HelicopterInteriorDetail,
         CrabDetail,
         BoarDetail,
         GoatDetail,
@@ -278,6 +282,7 @@ namespace island
         ShipwreckLayout shipwreckLayout_;
         BirdPerchLayout birdPerchLayout_;
         std::optional<HutPlacement> hutPlacement_;
+        std::optional<HelicopterPlacement> helicopterPlacement_;
         CampfireLayout campfireLayout_{terrain_};
         WorldCollisionGrid worldCollisionGrid_;
         std::unique_ptr<ResidentMotion> resident_;
@@ -336,6 +341,7 @@ namespace island
         std::unique_ptr<DolphinRenderer> dolphinRenderer_;
         std::unique_ptr<ShipwreckRenderer> shipwreckRenderer_;
         std::unique_ptr<HutRenderer> hutRenderer_;
+        std::unique_ptr<HelicopterRenderer> helicopterRenderer_;
         std::unique_ptr<ShorelineRenderer> shorelineRenderer_;
         std::unique_ptr<SkyRenderer> skyRenderer_;
         std::unique_ptr<Soundscape> soundscape_;

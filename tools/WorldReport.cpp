@@ -26,6 +26,7 @@
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/WorldIdentity.hpp"
 #include "IslandSimulator/HutLayout.hpp"
+#include "IslandSimulator/HelicopterLayout.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
 #include "IslandSimulator/ResidentMotion.hpp"
@@ -127,7 +128,9 @@ namespace
         island::ShipwreckLayout shipwreck{terrain};
         std::vector<island::CircularObstacle> worldObstacles;
         island::WorldCollisionGrid collisionGrid;
+        island::WorldCollisionGrid wildlifeCollisionGrid;
         std::optional<island::HutPlacement> hut;
+        std::optional<island::HelicopterPlacement> helicopter;
         std::unique_ptr<island::SnakePopulation> snakes;
         std::unique_ptr<island::GoatHerd> goats;
         std::unique_ptr<island::SpiderColony> spiders;
@@ -157,17 +160,22 @@ namespace
             worldObstacles.insert(worldObstacles.end(),fireObstacles.begin(),fireObstacles.end());
             hut=island::HutLayout::FindInWorld(terrain,jungle,worldObstacles);
             if(hut) worldObstacles.push_back({hut->x,hut->z,island::HutLayout::CollisionRadius});
+            helicopter=island::HelicopterLayout::FindInWorld(terrain,jungle,worldObstacles);
+            if(!helicopter)throw std::runtime_error("No valid central helicopter site");
             collisionGrid.Reset(worldObstacles);
-            resident=std::make_unique<island::ResidentMotion>(terrain,collisionGrid.Obstacles());
-            bear=std::make_unique<island::BearMotion>(terrain,collisionGrid.Obstacles());
-            monkeys.SetObstacles(collisionGrid.Obstacles());
+            std::vector<island::CircularObstacle> wildlifeObstacles(worldObstacles);
+            wildlifeObstacles.push_back({helicopter->x,helicopter->z,3.2f});
+            wildlifeCollisionGrid.Reset(wildlifeObstacles);
+            resident=std::make_unique<island::ResidentMotion>(terrain,wildlifeCollisionGrid.Obstacles());
+            bear=std::make_unique<island::BearMotion>(terrain,wildlifeCollisionGrid.Obstacles());
+            monkeys.SetObstacles(wildlifeCollisionGrid.Obstacles());
             monkeys.SetCanopy(jungle.Canopy());
-            boars.SetObstacles(collisionGrid.Obstacles());
-            // Match runtime ordering: snakes use the complete obstacle set, including the hut.
+            boars.SetObstacles(wildlifeCollisionGrid.Obstacles());
+            // Match runtime ordering: wildlife avoids both the hut and helicopter.
             snakes=std::make_unique<island::SnakePopulation>(
-                terrain,jungle,collisionGrid.Obstacles());
-            goats=std::make_unique<island::GoatHerd>(terrain,jungle,collisionGrid.Obstacles());
-            spiders=std::make_unique<island::SpiderColony>(terrain,jungle,collisionGrid.Obstacles());
+                terrain,jungle,wildlifeCollisionGrid.Obstacles());
+            goats=std::make_unique<island::GoatHerd>(terrain,jungle,wildlifeCollisionGrid.Obstacles());
+            spiders=std::make_unique<island::SpiderColony>(terrain,jungle,wildlifeCollisionGrid.Obstacles());
         }
     };
 
@@ -331,6 +339,15 @@ namespace
             HashPosition(hash,world.hut->x,world.hut->floorY,world.hut->z);
             hash.AddFloat(world.hut->yawRadians);
             for(const auto& foot:world.hut->footings) HashPosition(hash,foot.x,foot.groundY,foot.z);
+        }
+        hash.AddByte(world.helicopter?1U:0U);
+        if(world.helicopter) {
+            const auto& helicopter=*world.helicopter;
+            HashPosition(hash,helicopter.x,helicopter.groundY,helicopter.z);
+            hash.AddFloat(helicopter.yawRadians);
+            hash.AddFloat(helicopter.floorY);
+            for(const auto& contact:helicopter.skidContacts)
+                HashPosition(hash,contact.x,contact.groundY,contact.z);
         }
         hash.AddSize(world.worldObstacles.size());
         for (const island::CircularObstacle& obstacle : world.worldObstacles) {
@@ -586,6 +603,7 @@ namespace
         const bool derivedCountsAgree = world.palms.Obstacles().size() == world.palms.Palms().size()
             && world.jungle.Obstacles().size() == world.jungle.Canopy().size()
             && world.collisionGrid.Obstacles().size() == world.worldObstacles.size()
+            && world.wildlifeCollisionGrid.Obstacles().size() == world.worldObstacles.size()+1U
             && world.birds.Birds().size() == island::BirdFlock::BirdCount
             && world.butterflies.Butterflies().size()
                 == island::ButterflyMeadow::ButterflyCount
@@ -785,7 +803,7 @@ namespace
                     && AllFinite(s.x,s.y,s.z,s.heading,s.speed)
                     && s.x==h.x&&s.y==h.y&&s.z==h.z
                     && island::SpiderHabitat::AcceptsPatch(world.terrain,surface,world.jungle,
-                        world.collisionGrid,h.x,h.z,h.canopyIndex);
+                        world.wildlifeCollisionGrid,h.x,h.z,h.canopyIndex);
                 for(std::size_t leg=0;leg<8;++leg) {
                     const auto foot=s.pose.feet[leg],actual=s.pose.ToWorld(s.pose.legs[leg].foot);
                     finiteSpecializedData=finiteSpecializedData
@@ -808,19 +826,55 @@ namespace
                 && foot.groundY==surface.Sample(foot.x,foot.z).height
                 && h.floorY-foot.groundY>=island::HutLayout::FloorClearance-0.00001f;
         }
+        bool validHelicopter=world.helicopter.has_value();
+        if(world.helicopter) {
+            const auto& h=*world.helicopter;
+            const float centreRadius=std::hypot(h.x,h.z);
+            validHelicopter=AllFinite(h.x,h.z,h.groundY,h.floorY,h.yawRadians)
+                && centreRadius>=island::HelicopterLayout::MinimumCentreRadius
+                && centreRadius<=island::HelicopterLayout::MaximumCentreRadius
+                && world.terrain.SignedShoreDistance(h.x,h.z)
+                    >=island::HelicopterLayout::MinimumShoreDistance
+                && h.floorY==h.groundY+island::HelicopterLayout::FloorClearance
+                && !world.wildlifeCollisionGrid.Obstacles().empty()
+                && world.wildlifeCollisionGrid.Obstacles().back().x==h.x
+                && world.wildlifeCollisionGrid.Obstacles().back().z==h.z
+                && world.wildlifeCollisionGrid.Obstacles().back().radius==3.2f;
+            const island::RenderedTerrainSurface surface(world.terrain);
+            for(const auto& contact:h.skidContacts) validHelicopter=validHelicopter
+                && AllFinite(contact.x,contact.groundY,contact.z)
+                && contact.groundY==surface.Sample(contact.x,contact.z).height;
+            for(const auto& obstacle:world.worldObstacles) validHelicopter=validHelicopter
+                && std::hypot(h.x-obstacle.x,h.z-obstacle.z)
+                    >=island::HelicopterLayout::SiteClearance+obstacle.radius;
+            const auto pilotOutside=h.World(1.72f,0.0f,1.02f);
+            const auto pilotInside=h.World(0.0f,0.0f,1.02f);
+            const auto rearOutside=h.World(1.72f,0.0f,-.92f);
+            const auto rearInside=h.World(.45f,0.0f,-.92f);
+            validHelicopter=validHelicopter
+                && h.SafeTravelFraction(pilotOutside.x,pilotOutside.z,
+                    pilotInside.x,pilotInside.z,.32f)==1.0f
+                && h.SafeTravelFraction(rearOutside.x,rearOutside.z,
+                    rearInside.x,rearInside.z,.32f)==1.0f
+                && h.InPilotFootwell(pilotInside.x,pilotInside.z)
+                && h.InRearCabin(rearInside.x,rearInside.z)
+                && h.SupportHeight(pilotInside.x,pilotInside.z,-100.0f)==h.floorY
+                && h.SupportHeight(rearInside.x,rearInside.z,-100.0f)==h.floorY;
+        }
         const auto& resident=world.resident->State();
         const bool validResident=world.resident->Route().Points().size()>=5
             &&world.resident->Route().Length()>400
             &&AllFinite(resident.x,resident.y,resident.z,resident.heading,resident.pose.pelvisY)
             &&island::ResidentRoute::SafePoint(world.terrain,world.resident->Ground(),
-                world.collisionGrid,resident.x,resident.z);
+                world.wildlifeCollisionGrid,resident.x,resident.z);
         const auto& bear=world.bear->State();
         bool validBear=world.bear->IsValidPosition(bear.x,bear.z)
             &&AllFinite(bear.x,bear.y,bear.z,bear.heading,bear.homeX,bear.homeZ);
         for(const auto& leg:bear.pose.legs)validBear=validBear&&!leg.reachLimited
             &&AllFinite(leg.root.x,leg.root.y,leg.root.z,leg.joint.x,leg.joint.y,leg.joint.z,
                 leg.paw.x,leg.paw.y,leg.paw.z);
-        return validHut && terrain.finite && terrain.sampleCount == TerrainReportSampleCount
+        return validHut && validHelicopter && terrain.finite
+            && terrain.sampleCount == TerrainReportSampleCount
             && terrain.minimumShoreRadius > 150.0f
             && terrain.maximumShoreRadius < 300.0f
             && expectedPopulations && derivedCountsAgree
@@ -988,6 +1042,7 @@ namespace
                << "    \"fallenFronds\": " << world.props.FallenFronds().size() << ",\n"
                << "    \"distantIslets\": " << world.distantScenery.Islets().size() << ",\n"
                << "    \"huts\": " << (world.hut?1:0) << ",\n"
+               << "    \"helicopters\": " << (world.helicopter?1:0) << ",\n"
                << "    \"shipwrecks\": 1,\n"
                << "    \"shipwreckDebris\": " << world.shipwreck.Debris().size() << "\n"
                << "  },\n"
@@ -1014,8 +1069,29 @@ namespace
             }
             output << "]\n  }";
         } else output << "null";
+        output << ",\n  \"helicopter\": ";
+        if(world.helicopter) {
+            const auto& h=*world.helicopter;
+            output << "{\n    \"x\": " << h.x << ", \"z\": " << h.z
+                   << ", \"groundY\": " << h.groundY << ", \"floorY\": " << h.floorY
+                   << ", \"yawRadians\": " << h.yawRadians
+                   << ",\n    \"mainRotorRadiusMeters\": "
+                   << island::HelicopterLayout::MainRotorRadius
+                   << ",\n    \"grounded\": true, \"canFly\": false,"
+                   << " \"pilotEnterable\": true, \"rearCabinEnterable\": true,"
+                   << "\n    \"skidContacts\": [";
+            for(std::size_t i=0;i<h.skidContacts.size();++i) {
+                const auto& contact=h.skidContacts[i];
+                if(i)output << ',';
+                output << "{\"x\":" << contact.x << ",\"groundY\":" << contact.groundY
+                       << ",\"z\":" << contact.z << '}';
+            }
+            output << "]\n  }";
+        } else output << "null";
         output << ",\n  \"collision\": {\n"
                << "    \"staticObstacles\": " << world.worldObstacles.size() << ",\n"
+               << "    \"wildlifeAvoidanceObstacles\": "
+               << world.wildlifeCollisionGrid.Obstacles().size() << ",\n"
                << "    \"occupiedCells\": " << world.collisionGrid.CellCount() << ",\n"
                << "    \"cellSizeMeters\": " << island::WorldCollisionGrid::CellSize << "\n"
                << "  },\n"

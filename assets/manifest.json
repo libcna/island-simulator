@@ -213,6 +213,15 @@
       ]
     },
     {
+      "name": "grounded-helicopter",
+      "licenseRecord": "Procedural grounded helicopter",
+      "sources": [
+        "game/include/IslandSimulator/HelicopterSite.hpp",
+        "game/src/HelicopterLayout.cpp",
+        "game/src/HelicopterRenderer.cpp"
+      ]
+    },
+    {
       "name": "fixed-sky",
       "licenseRecord": "Procedural fixed sky",
       "sources": [
