@@ -117,6 +117,42 @@ struct Builder {
             }
         }
     }
+    void Ear(float side,bool detailed) {
+        // Thin cupped pinna: a recessed forward face, furred back and closed rim.
+        // Skin is part of the surface, never a coplanar overlay.
+        constexpr std::array<float,7> widths{.014f,.030f,.038f,.034f,.026f,.014f,.002f};
+        const int columns=detailed?5:3;
+        const auto point=[&](int row,int column,bool front) {
+            const float t=static_cast<float>(row)/6,q=2.0f*column/(columns-1)-1;
+            return GoatPoint{side*(.102f+.22f*t),1.095f+.025f*std::sin(t*std::numbers::pi_v<float>)-.045f*t+widths[row]*q,
+                .44f-.02f*t+(front?.006f:-.006f)+.018f*q*q};
+        };
+        const auto vertex=[&](int row,int column,bool front,GoatMaterial material) {
+            const auto longitudinal=Sub(point(std::min(row+1,6),column,front),point(std::max(row-1,0),column,front));
+            const auto transverse=Sub(point(row,std::min(column+1,columns-1),front),point(row,std::max(column-1,0),front));
+            return Vertex(point(row,column,front),Mul(Cross(longitudinal,transverse),front?side:-side),
+                material,static_cast<float>(row)/6,static_cast<float>(column)/(columns-1),Attachment::Head);
+        };
+        for(bool front:{false,true})for(int row=0;row<6;++row)for(int column=0;column<columns-1;++column) {
+            const bool inner=front&&row>=1&&row<=4&&(columns==3||column==1||column==2);
+            const auto material=inner?GoatMaterial::Skin:GoatMaterial::Coat;
+            const auto a=vertex(row,column,front,material),b=vertex(row+1,column,front,material),
+                c=vertex(row+1,column+1,front,material),d=vertex(row,column+1,front,material);
+            Triangle(a,b,c);Triangle(a,c,d);
+        }
+        const auto rim=[&](int r0,int c0,int r1,int c1) {
+            auto a=vertex(r0,c0,true,GoatMaterial::Coat),b=vertex(r1,c1,true,GoatMaterial::Coat),
+                c=vertex(r1,c1,false,GoatMaterial::Coat),d=vertex(r0,c0,false,GoatMaterial::Coat);
+            auto normal=Unit(Cross(Sub(b.position,a.position),Sub(d.position,a.position)));
+            // Point away from the leaf centre, including its short root/tip edges.
+            const auto centre=HeadPoint({side*.212f,1.09f,.43f});
+            if(Dot(normal,Sub(a.position,Add(centre,{0,bob,0})))<0)normal=Mul(normal,-1);
+            a.normal=b.normal=c.normal=d.normal=normal;
+            Triangle(a,b,c);Triangle(a,c,d);
+        };
+        for(int row=0;row<6;++row) {rim(row,0,row+1,0);rim(row,columns-1,row+1,columns-1);}
+        for(int column=0;column<columns-1;++column) {rim(0,column,0,column+1);rim(6,column,6,column+1);}
+    }
 };
 }
 GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
@@ -177,9 +213,7 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
             {{side*.090f,1.39f,.30f},.025f},{{side*.11f,1.45f,.20f},.018f},
             {{side*.13f,1.46f,.10f},.012f},{{side*.15f,1.42f,.015f},.007f},{{side*.16f,1.37f,-.03f},.002f}}};
         b.Sweep(horn,detailed?8:5,GoatMaterial::Horn,Attachment::Head);
-        const std::array<Tube,4> ear{{{{side*.105f,1.095f,.44f},.033f},{{side*.19f,1.10f,.43f},.047f},
-            {{side*.27f,1.075f,.42f},.03f},{{side*.30f,1.055f,.42f},.003f}}};
-        b.part=GoatPart::Ear;b.Sweep(ear,detailed?8:5,GoatMaterial::Coat,Attachment::Head);
+        b.part=GoatPart::Ear;b.Ear(side,detailed);
         if(detailed) {
             b.part=GoatPart::Eye;
             const std::array<Ring,3> eye{{{-.007f,0,.006f,.005f},{0,0,.014f,.010f},{.007f,0,.006f,.005f}}};

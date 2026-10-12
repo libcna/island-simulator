@@ -26,6 +26,7 @@ int main() {
             "goat mesh triangle budget invalid");
         if(detailed)nearCount=mesh.vertices.size();else farCount=mesh.vertices.size();
         std::array<std::size_t,6> materials{};
+        std::array<std::size_t,2> innerEars{};
         for(const auto& vertex:mesh.vertices) {
             const auto p=vertex.position,n=vertex.normal;
             check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite goat mesh");
@@ -40,6 +41,17 @@ int main() {
             maximumRadius=std::max(maximumRadius,std::max(radial,bound));
             check(std::max(radial,bound)<=GoatHabitat::BodyClearance,"goat geometry exceeds motion clearance");
             ++materials[static_cast<std::size_t>(vertex.material)];
+            if(vertex.material==GoatMaterial::Skin) {
+                check(vertex.part==GoatPart::Ear,"goat inner-ear skin assigned to another part");
+                ++innerEars[p.x>0?1:0];
+                if(graze==0)check(n.z>.3f,"goat ear opening faces into the head or backwards");
+            }
+            if(vertex.part==GoatPart::Ear&&graze==0) {
+                check(std::abs(p.x)>=.10199f&&std::abs(p.x)<=.32201f,
+                    "goat ear lost authored attachment or tapered length");
+                check(p.z>=.41399f&&p.z<=.46401f,
+                    "goat ear reverted to thick cylindrical silhouette");
+            }
             if(vertex.part==GoatPart::Hoof) {
                 const auto leg=std::min_element(pose.legs.begin(),pose.legs.end(),[&](const auto& a,const auto& b){
                     const auto da=sub(p,a.hoof),db=sub(p,b.hoof);
@@ -66,6 +78,7 @@ int main() {
             &&materials[static_cast<std::size_t>(GoatMaterial::Hoof)]>0
             &&materials[static_cast<std::size_t>(GoatMaterial::Nose)]>0,"goat anatomy component missing");
         check((materials[static_cast<std::size_t>(GoatMaterial::Eye)]>0)==detailed,"eye LOD mismatch");
+        check(innerEars[0]>0&&innerEars[0]==innerEars[1],"paired goat ear interiors missing or asymmetric");
         for(const auto& leg:pose.legs) {
             float surface=-1;
             for(std::size_t i=0;i<mesh.vertices.size();i+=3) {

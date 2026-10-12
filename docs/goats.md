@@ -391,6 +391,36 @@ produces overly horizontal rear hair bands; directional rear mapping and a finer
 coat remain open. No final realism/continuous-gait acceptance. Latest actual Web
 audit above predates this mapping change; no fresh Web/Android build/runtime here.
 
+## Thin cupped ears
+
+The original circular ear tubes are replaced by a seven-station leaf with paired
+front/back surfaces and a closed12mm-thick rim. Front centre is recessed relative
+to its edges; the existing bare Skin material occupies the interior, not an overlay.
+Both LODs retain the tapered longitudinal shape (five/three transverse samples).
+Head attachment, grazing transform and body bob are shared with the existing head;
+the rest of the anatomy/animation is unchanged. No texture, shader or draw added.
+Tests require symmetric nonempty interiors, forward-facing skin, attachment/length
+and depth bounds, plus the existing all-pose winding/normal/budget validation.
+
+Actual contained native `20261012T024656.529510Z-goats` passes eight stages with empty
+kernel delta. The enlarged same-stage comparison `build/goat-ear-comparison.png`
+and all eight images in `build/goat-ear-montage.png` were inspected. The forward
+view has thinner readable ears with a contrasting inset; rear still has furred backs.
+They remain angular, while point eyes and crude leg joints remain larger anatomy
+defects. No full goat realism, continuous animation or portable acceptance claimed.
+
+The first CPU run failed one supervisor fixture because its marker was absent after
+the4s startup deadline (test_supervisor_sigkill_stops_detached_descendants). Evidence
+is retained in `build/goat-ear-tests.log`; this is not a GPU fault. The runtime capture
+was concurrent with that CPU suite, so the repeat runs without it. The new ear-specific
+assertions were added after the first build and are compiled explicitly in
+`build/goat-ear-current-build.log`; only the subsequent run qualifies those assertions.
+That current full47-test run passes in80.77s (`build/goat-ear-current-tests.log`),
+including the supervisor in1.78s; its startup limit was not relaxed. Current meshes
+are7068/3996 near/far vertices (+432/+240), six all-near42408, below the unchanged
+8192/animal and49152/batch guards. Sampled hoof clearance remains-0.000736237m and
+world fingerprint0a98cb638125508f. No new Web/Android build/runtime or hardware run.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

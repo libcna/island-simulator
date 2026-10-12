@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Latest — thin cupped goat ears with visible bare interiors
+
+GoatMesh Builder::Ear replaces circular tubes: seven longitudinal rows,5/3 transverse
+near/far samples, recessed front, furred back, closed12mm-separated rim; Skin occupies
+actual front surface, not overlay. Existing head deformation/bob and two draw passes.
+Near/far7068/3996 (+432/+240), six near42408,8192/animal49152/batch unchanged. No new
+asset/shader/animation/layout allocation. Ear tests paired Skin, forward normals and
+attachment/depth bounds; existing all-pose finite/winding/normal/terrain tests retained.
+
+Native024656.529510Z-goats PASS8stages/kernel[]. Enlarged same-stage1 before/after
+build/goat-ear-comparison.png and all8 stages in goat-ear-montage.png actually viewed:
+thinner/readable front inset and furred back; still angular, eyes/joints/coat/gait open.
+Initial full47 run failed supervisor CPU fixture startup marker after4s (not GPU fault),
+retained build/goat-ear-tests.log. Capture was concurrent. Subsequent build explicitly
+compiles newly added GoatMeshTests assertions (goat-ear-current-build.log), rerun without
+capture full47PASS80.77s (goat-ear-current-tests.log); supervisor1.78s, limit unchanged.
+No evidence proving exact startup-delay cause; do not call initial run green.
+Current sampled hoof clearance-0.000736237m/fingerprint0a98cb638125508f unchanged.
+All handles terminal:28125 failure8,28788capture0,22339currentbuild/tests0.
+No new Web/Android build/runtime; latest Web precedes body-height UV and ear changes.
+No hardware/Android/KVM/dependency changes; latch c0bd1704 unchanged. Goal active,
+no push. Next: eye/head/joint/coat/stance detail, actual Android goat runtime; retain
+full prior species/environment backlog and unresolved high-priority AMD flight crash.
+
 ## Latest — physical-height goat body coat, native rear comparison inspected
 
 GoatMesh Builder::Vertex authors Body u=(z+.58)/1.12 and v=(y-.52)/.56 before bob,

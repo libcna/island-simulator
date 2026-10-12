@@ -891,6 +891,14 @@ progress or require player interaction; dangerous species keep their distance li
   024124.340743Z-goats8-stage capture PASS/kernel[], montage and same-stage rear
   comparison actually inspected. Star pattern removed, rear hair now too horizontal;
   directional rear mapping/finer coat/anatomy remain open. No new portable qualification.
+  Ear refinement replaces circular tubes with thin closed cupped leaves and integrated
+  bare interiors, both LODs/head animation; no extra texture/shader/draw. Near/far
+  7068/3996 vertices, unchanged8192/animal and49152/batch guards. New paired interior,
+  orientation and extent checks plus full47CPU PASS80.77s. First run had supervisor
+  fixture startup timeout under concurrent capture; retained log, unrelaxed repeat
+  passes. Native024656.529510Z-goats8-stage PASS/kernel[], enlarged same-stage A/B and
+  montage actually inspected: thinner/readable ear interiors, still angular; point eyes,
+  joints/coat/gait and portable runtime remain open. See docs/goats.md.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)
