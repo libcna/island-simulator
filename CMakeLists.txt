@@ -64,6 +64,7 @@ add_library(island_core STATIC
     game/src/IslandTerrain.cpp
     game/src/HutLayout.cpp
     game/src/GoatHabitat.cpp
+    game/src/GoatPose.cpp
     game/src/JungleLayout.cpp
     game/src/LeafBladeProfile.cpp
     game/src/UnderstoryLeafProfile.cpp

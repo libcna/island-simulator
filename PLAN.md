@@ -793,6 +793,13 @@ progress or require player interaction; dangerous species keep their distance li
   native/Web/Android motion/appearance. Full scope and limits: docs/goats.md.
   Native build/43 CPU groups PASS70.22s; WorldReport valid/unchanged fingerprint
   b3fde347f77eb5f8 and live counts. No renderer/emulator/KVM/dependency changes.
+  GoatPose foundation: fixed39/38cm limb chains, four-beat68%-stance cycle, bounded
+  rendered-terrain sole-centre fit, explicit reach-limit flags and distance/scale
+  calibrated phase.13,824 home/heading/phase/speed/scale poses and43,776 stance contacts
+  pass0.15mm tolerance without bone stretch. Cycle/wrap/flat-stance/invalid-input tests.
+  NOT live goats, persistent world-foot locking or whole-hoof/visual gait acceptance.
+  Native build/43 non-display groups PASS71.25s; WorldReport valid/unchanged. No
+  renderer/emulator/KVM/dependency changes; hardware stop latch unchanged.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

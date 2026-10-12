@@ -1,7 +1,7 @@
 # Feral island goats — implementation in progress
 
 **No goats are present in the running game yet.** This document records the first
-placement foundation, not a completed species or a visual acceptance claim.
+placement and ground-pose foundations, not a completed species or a visual acceptance claim.
 
 ## Deterministic open-slope homes
 
@@ -44,9 +44,42 @@ a completely blocked island, nonfinite input and offshore input. The first test 
 found mismatched obstacle-container types; explicit spans corrected the test assembly.
 The accepted-site criteria were not weakened to obtain six sites.
 
+## Grounded walking-pose foundation
+
+`GoatPose` provides a four-beat walking cycle with68% stance, an authored1.2m/s walk
+reference, up to25cm stride amplitude and12cm swing lift. Its provisional two-link
+leg chains have fixed39/38cm lengths,55mm hoof height and a25mm forward sole-centre
+offset. Front/rear bends differ. These are authored modeling dimensions, not a claim
+that two links reproduce every anatomical joint of a goat.
+
+The body frame uses smooth analytic terrain orientation and rendered-triangle root
+height. Each hoof target is fitted along body-up with18 bounded bisection iterations
+against actual rendered triangles. Unreachable targets remain explicitly flagged;
+bone lengths do not stretch to hide them. Nonfinite inputs, invalid leg indices,
+negative speeds and invalid scale/mesh-range queries are rejected.
+
+`GoatPhaseAdvance` calibrates phase from travelled distance, speed and scale so a
+constant-speed straight root translation cancels local stance travel on a flat surface.
+Its result is modulo one cycle. This is NOT persistent world-space foot locking:
+turns, acceleration, changes in ground basis and continuous slope traversal still
+need simulation-level tests and visual review.
+
+Tests exercise13,824 fitted poses across all six homes, eight headings,32 cycle phases,
+three speeds and three scales (0.75/1/1.1). All43,776 sampled stance sole centres match
+rendered ground within0.15mm, with no unreachable target or stretched bone. Further
+tests cover full-cycle/wrap continuity, flat constant-speed no-slip calibration at
+three scales, invalid inputs and explicit unreachable-ground reporting. A centre
+contact check does not prove that an entire cloven hoof footprint clears all triangles.
+Final native build and all43 non-display groups PASS71.25s after this pose addition.
+WorldReport remains valid with unchanged fingerprint `b3fde347f77eb5f8`; no renderer,
+emulator, KVM or dependency changes. Portable builds/runtime and visual review of
+goats remain pending because no live goat renderer/population exists yet.
+
 ## Remaining implementation
 
-- [ ] Fixed-length terrain-fitted goat legs and hooves; validate the proposed body envelope.
+- [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.
+  Whole cloven-hoof contact, persistent stance behavior and the final body envelope
+  still need validation with the actual model and live motion.
 - [ ] Recognizable goat head/body/ears, horns/beard and cloven hooves, with readable coat.
 - [ ] Grazing/browsing/walking/turning behavior and terrain/obstacle-safe movement.
   The40m grouping radius is NOT a traversable-area guarantee; initial sites do not

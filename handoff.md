@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — goat fixed-length walking/contact foundation, still NOT live
+
+GoatPose.hpp/.cpp in core, used only by foundation tests. Four-beat68% stance,
+1.2m/s walk reference, stride<=.25m/lift<=.12m; provisional upper/lower .39/.38m,
+hoofheight .055/soleforward .025m. Front/rear bends differ, no bone stretch; unreachable
+targets flagged. Smooth analytic body basis/rendered root height; each sole target
+uses18-step body-up bisection against rendered triangles. Invalid inputs rejected.
+GoatPhaseAdvance(distance,speed,scale) modulo cycle calibrates flat constant-speed
+stance; NOT persistent world-space foot locking/turning/acceleration acceptance.
+Foundation tests now13,824 poses at six homes/eight headings/32phases/three speeds/
+three scales;43,776 stance centres within0.15mm, no reach limits. Continuity/wrap,
+flat no-slip across scales, invalid input/unreachable ground tests added. Whole-hoof
+footprint/fetlock anatomy/model envelope/live routes/visual gait remain unqualified.
+No runtime population/renderer or count change. Next: goat model and live motion/
+renderer integration, then actual platform audits; full prior backlog unchanged.
+Native build/full43 CPU groups PASS71.25s. WorldReport valid/fingerprint b3fde347f77eb5f8
+unchanged. All owned jobs terminal; no renderer/emulator/KVM/dependency changes,
+hardware stop latch SHA c0bd1704 unchanged. Goal active, no push.
+
 ## Latest — goat open-slope placement foundation, NOT live goats
 
 New GoatHabitat.hpp/.cpp in island_core; currently used only by new GoatHabitatTests.
