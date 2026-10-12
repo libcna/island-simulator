@@ -4,9 +4,30 @@ The operator explicitly rejected the upright brown primitive assembly and reques
 fur texture, monkey-like locomotion and tree climbing. These are separate necessary parts of
 one unfinished overhaul. The shader portability repair did not satisfy them.
 
+## Current sculpted trunk and grasping extremities — 2026-10-12
+
+The current near/far body has 2,017/797 vertices and 3,100/1,208 triangles per
+silhouette. The thirteen-section trunk now separates a fuller rump and shoulder/chest
+from a narrower waist instead of carrying one barrel radius along its length. The
+cranium is slightly less spherical and better separated from the facial relief. Near
+palms/soles are wider, the four forward digits are shorter and thicker, and each has a
+short lateral opposable digit. All extremity vertices retain the existing rigid sole
+frame, so ground-normal fitting and live bark grips move the complete hand rather than
+leaving decoration behind. No bone, texture, shader, draw call or population was added.
+
+The contained ordinary view `20261012T221906.711225Z-monkeys` passes with five of
+seven animals visible, one current near subject, the geometry diagnostic above and an
+empty kernel delta. The complete image was inspected. The preceding same-geometry
+nine-stage tree sequence `20261012T221727.352629Z-monkey-tree` also passes and was
+inspected at approach, grip and return stages. The hand silhouette and torso masses are
+clearer, but the face remains small at ordinary distance, limb/trunk surfaces still
+overlap rather than forming one manifold skin, and continuous natural gait is not
+accepted. This is another bounded anatomy pass, not completion of monkey realism.
+
 ## Live first anatomy/ground-pose pass
 
-- Horizontal, nine-section continuous torso/neck loft replaces the upright torso ellipsoid.
+- Horizontal, initially nine-section and now thirteen-section continuous torso/neck loft
+  replaces the upright torso ellipsoid.
 - Reduced head, narrow orbital skin, lower projecting muzzle, small eyes, paired nostrils and
   a mouth line replace the large two-lobed pale mask and button nose.
 - Each arm/leg is one nine-ring tapered surface across its two joints, with blended skin
@@ -46,8 +67,10 @@ state and no phase advance while stationary. Asset manifest validation passes (6
 4. Replace inherited run/head/tail clip compromises with coordinated primate movement; inspect
    timed image sequences. Ground phase is distance-driven, but turning and flight/bounding
    behaviour are not final.
-5. Tree approach, trunk grips, ascent, supported arboreal rest/movement and descent remain
-   UNIMPLEMENTED. Use actual tree geometry and reachable contacts, not vertical teleportation.
+5. Tree approach, reachable wind-deformed bark grips, bounded ascent, supported summit and
+   descent are now live and natively/Web/Android exercised. Broader branch-to-branch travel,
+   canopy rest/foraging and continuous natural climbing quality remain open; do not mistake
+   the fixed QA excursion for a complete arboreal repertoire.
 6. Update body-shaped contact shadows/collision extent for the horizontal silhouette.
 7. Qualify this anatomy/pose revision on Android and Web; prior shader-fix captures do not
    qualify it. The complete island audit and other plan items remain open too.

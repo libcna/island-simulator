@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Current work — monkey trunk and grasping-extremity pass inspected
+
+Goal remains active. Image review of the latest monkey still showed a barrel torso and
+thin parallel finger/toe rods despite the already-live fur, quadrupedal gait and tree
+excursions. The13-section trunk now has separate fuller rump and shoulder/chest masses
+with a narrower waist; cranium depth/width is slightly reduced. Near palms/soles are
+wider, their four forward digits shorter/thicker, and a lateral opposable digit gives a
+readable grasp. All vertices retain the existing sole-frame transform,14 bones, texture,
+three near draws and population. New diagnostic measures2017/797 vertices and3100/1208
+triangles near/far.
+
+Gait/shader/sole tests3/3 PASS. Actual `20261012T221727.352629Z-monkey-tree` nine-stage
+sequence and final current-binary `20261012T221906.711225Z-monkeys` PASS; images inspected,
+kernel deltas empty. The result is more recognisably primate, but face scale, manifold
+shoulder/hip transitions, continuous gait naturalness and fresh Web/Android review remain;
+PLAN stays unchecked. Corrected stale overhaul documentation that still called climbing
+unimplemented. Max4 build cores; no AMD GPU, Android emulator, KVM or dependency changes.
+
 ## Current work — live goat calls and native disk playback verified
 
 Goal remains active. Six original 1.2-second procedural clips now provide paired goat

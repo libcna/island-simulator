@@ -1,15 +1,18 @@
 # Current wildlife visual audit — 2026-10-12
 
-## Latest monkey anatomy/tail pass
+## Latest monkey trunk/hand anatomy pass
 
-Actual contained `20261012T202913.511429Z-monkey-tree` (nine sequential frames) and
-`20261012T202959.340747Z-monkeys` both pass, were inspected, and have empty kernel deltas.
-The former shows ordinary quadrupedal approach, a one-arm reach to the trunk and return;
-the tail remains animated and now ends in a forward/upward hook rather than a straight
-projecting rod. A 13-section trunk, modestly larger cranium/rounded ears, enlarged corneas
-and generated skin eyelid rims improve the earlier coarse silhouette without new draws or
-textures. The model remains visibly procedural: face details are small in the ordinary
-camera and limb/trunk transitions still need polish. This is progress, not visual closure.
+Actual contained `20261012T221727.352629Z-monkey-tree` (nine sequential frames) and
+final current-binary `20261012T221906.711225Z-monkeys` pass, were inspected, and have
+empty kernel deltas. The former shows ordinary quadrupedal approach, a one-arm bark grip
+and return; the hooked fur tail remains stable. The thirteen trunk sections now describe
+separate rump, waist and shoulder/chest masses. Wider palms/soles, four shorter thicker
+digits and a lateral opposable digit replace the narrow parallel rod silhouette. The
+existing generated fur, 14-bone palette, sole frames, three draws per near monkey and
+population are unchanged. Geometry is 2,017/797 vertices and 3,100/1,208 triangles for
+near/far. The model remains visibly procedural: face details are small in the ordinary
+camera and limb/trunk surfaces still overlap rather than forming one continuous skin.
+This is progress, not visual closure.
 
 ## Latest boar shoulder/bristle pass
 

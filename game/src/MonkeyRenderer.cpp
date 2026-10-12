@@ -610,24 +610,24 @@ namespace island
             const float w = shape.width;
             const std::array<BodySection, 13> body{{
                 {Vector3(0, .58f, -.57f), .008f, .015f, Pelvis, Spine, 0},
-                {Vector3(0, .59f, -.50f), .125f*w, .145f, Pelvis, Spine, 0},
-                {Vector3(0, .60f, -.40f), .19f*w, .195f, Pelvis, Spine, .05f},
-                {Vector3(0, .61f, -.29f), .205f*w, .21f, Pelvis, Spine, .18f},
-                {Vector3(0, .62f, -.16f), .195f*w, .205f, Pelvis, Spine, .42f},
-                {Vector3(0, .625f, -.02f), .195f*w, .21f, Pelvis, Spine, .72f},
-                {Vector3(0, .64f, .12f), .215f*w, .23f, Pelvis, Spine, 1},
-                {Vector3(0, .67f, .24f), .205f*w, .225f, Spine, Head, .03f},
-                {Vector3(0, .71f, .33f), .165f*w, .195f, Spine, Head, .27f},
-                {Vector3(0, .755f, .39f), .13f*w, .165f, Spine, Head, .56f},
-                {Vector3(0, .79f, .44f), .108f*w, .135f, Spine, Head, .86f},
+                {Vector3(0, .59f, -.50f), .150f*w, .170f, Pelvis, Spine, 0},
+                {Vector3(0, .60f, -.40f), .220f*w, .215f, Pelvis, Spine, .05f},
+                {Vector3(0, .61f, -.29f), .235f*w, .230f, Pelvis, Spine, .18f},
+                {Vector3(0, .62f, -.16f), .210f*w, .205f, Pelvis, Spine, .42f},
+                {Vector3(0, .625f, -.02f), .175f*w, .190f, Pelvis, Spine, .72f},
+                {Vector3(0, .64f, .12f), .195f*w, .210f, Pelvis, Spine, 1},
+                {Vector3(0, .67f, .24f), .235f*w, .240f, Spine, Head, .03f},
+                {Vector3(0, .71f, .33f), .215f*w, .220f, Spine, Head, .27f},
+                {Vector3(0, .755f, .39f), .165f*w, .180f, Spine, Head, .56f},
+                {Vector3(0, .79f, .44f), .115f*w, .140f, Spine, Head, .86f},
                 {Vector3(0, .81f, .48f), .065f*w, .082f, Spine, Head, 1},
                 {Vector3(0, .82f, .51f), .008f, .015f, Spine, Head, 1}}};
             AddBodyLoft(mesh, body, segments);
-            AddEllipsoid(mesh, Vector3(0, .85f, .46f),
-                         Vector3(.178f, .190f, .175f) * shape.headSize, Head, near ? 10 : 6, segments);
+            AddEllipsoid(mesh, Vector3(0, .855f, .445f),
+                         Vector3(.165f, .185f, .150f) * shape.headSize, Head, near ? 10 : 6, segments);
             for (float side : {-1.0f, 1.0f})
-                AddEllipsoid(mesh, Vector3(side * .157f, .84f, .425f),
-                             Vector3(.052f, .066f, .026f), Head, 5, near ? 12 : 8);
+                AddEllipsoid(mesh, Vector3(side * .150f, .84f, .425f),
+                             Vector3(.048f, .062f, .022f), Head, 5, near ? 12 : 8);
             const auto rest = MonkeyGroundGait::Sample(0, 0);
             constexpr std::array<int, 4> upper{UpperArmLeft, UpperArmRight, ThighLeft, ThighRight};
             constexpr std::array<int, 4> lower{ForearmLeft, ForearmRight, ShinLeft, ShinRight};
@@ -637,12 +637,18 @@ namespace island
                 const Vector3 sole = ToVector(rest.limbs[limb].sole);
                 const std::size_t soleStart = mesh.vertices.size();
                 AddEllipsoid(mesh, sole + Vector3(0, 0, .027f),
-                             Vector3(.048f, .031f, .076f), lower[limb], 3, near ? 10 : 6);
-                if (near)
+                             Vector3(.060f, .031f, .082f), lower[limb], 3, near ? 10 : 6);
+                if (near) {
                     for (int digit = 0; digit < 4; ++digit)
-                        AddEllipsoid(mesh, sole + Vector3((digit - 1.5f) * .021f, -.006f, .095f),
-                                     Vector3(.010f, .012f, .043f - .003f * std::abs(digit - 1)),
+                        AddEllipsoid(mesh, sole + Vector3((digit - 1.5f) * .023f, -.004f, .096f),
+                                     Vector3(.0115f, .012f, .038f - .003f * std::abs(digit - 1)),
                                      lower[limb], 3, 6);
+                    // A short lateral thumb makes the close hand/foot read as a grasping
+                    // primate extremity rather than four parallel rod-like toes.
+                    const float thumbSide = limb % 2U == 0U ? -1.0f : 1.0f;
+                    AddEllipsoid(mesh, sole + Vector3(thumbSide * .067f, .010f, .055f),
+                                 Vector3(.030f, .013f, .014f), lower[limb], 3, 6);
+                }
                 for (std::size_t vertex = soleStart; vertex < mesh.vertices.size(); ++vertex)
                     mesh.vertices[vertex].BlendIndices[3] = static_cast<std::uint8_t>(limb + 1);
             }
@@ -948,6 +954,13 @@ namespace island
             farIndices_[variant]->SetData(
                 farMesh.indices.data(), static_cast<int>(farMesh.indices.size()));
         }
+        const std::string geometryDiagnostic = "island-simulator: monkey near/far geometry "
+            + std::to_string(nearVertexCounts_[0]) + "/" + std::to_string(farVertexCounts_[0])
+            + " vertices, " + std::to_string(nearPrimitiveCounts_[0]) + "/"
+            + std::to_string(farPrimitiveCounts_[0])
+            + " triangles with sculpted trunk and grasping extremities";
+        std::cout << geometryDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(geometryDiagnostic.c_str());
 
         faceVertices_ = std::make_unique<VertexBuffer>(
             device_, SkinnedVertex::getVertexDeclarationStatic(), faceVertexCount_,

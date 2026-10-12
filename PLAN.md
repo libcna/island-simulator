@@ -576,6 +576,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   `20261012T202959.340747Z-monkeys` PASS, inspected, kernel[]. The sequence visibly shows
   quadrupedal approach and arm reach to the trunk with a hooked fur tail. Face detail is
   still small in the ordinary camera and limb/torso anatomy remains procedural; task open.
+  Third follow-up: the thirteen-section trunk now separates fuller rump and shoulder/chest
+  masses with a narrower waist; the cranium is less spherical. Near hands/feet have wider
+  palms/soles, four shorter thicker digits and a lateral opposable digit, all following the
+  existing terrain/bark sole transform. Geometry is 2017/797 vertices and3100/1208 triangles
+  near/far with unchanged bones, textures, draws and population. Actual contained nine-stage
+  `20261012T221727.352629Z-monkey-tree` and final current-binary
+  `20261012T221906.711225Z-monkeys` PASS, inspected, kernel[]. The subject reads more clearly
+  as a grasping quadrupedal primate, but face scale, manifold shoulder/hip transitions,
+  continuous gait realism and current Web/Android review remain open; task stays unchecked.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.
