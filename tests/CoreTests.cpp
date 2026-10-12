@@ -4510,33 +4510,53 @@ int main()
           "every broadleaf canopy trunk has one collision proxy");
     std::array<std::size_t, island::JungleLayout::CanopyVariantCount> canopyFormCounts{};
     std::size_t emergentCount = 0U;
+    std::size_t mangroveCount = 0U;
     for (std::size_t index = 0; index < jungle.Canopy().size(); ++index) {
         const island::CanopyPlacement& tree = jungle.Canopy()[index];
         const island::CanopyPlacement& repeated = repeatedJungle.Canopy()[index];
         const island::TerrainSample sample = terrain.Sample(tree.x, tree.z);
+        const bool mangrove = tree.variant == island::MangroveCanopyVariant;
         Check(tree.x == repeated.x && tree.y == repeated.y && tree.z == repeated.z
                   && tree.yawRadians == repeated.yawRadians && tree.scale == repeated.scale
                   && tree.variant == repeated.variant,
               "broadleaf canopy placement is bitwise deterministic for one seed");
-        Check(sample.signedShoreDistance >= 43.0f
-                  && sample.signedShoreDistance <= 238.0f,
-              "broadleaf trees remain in the interior jungle belt");
-        Check(sample.height >= 3.8f && sample.slopeRadians <= 0.4712389f,
-              "broadleaf trees remain on suitable interior ground");
+        Check(sample.signedShoreDistance >= (mangrove ? .4f : 43.0f)
+                  && sample.signedShoreDistance <= (mangrove ? 24.0f : 238.0f),
+              "canopy trees remain in their authored coastal or interior belt");
+        Check(sample.height >= (mangrove ? -.05f : 3.8f)
+                  && sample.height <= (mangrove ? 3.4f : 100.0f)
+                  && sample.slopeRadians <= (mangrove ? .38f : .4712389f),
+              "canopy trees remain on suitable ground for their habitat");
         Check(!island::VegetationLayout::IsReservedRoute(tree.x, tree.z),
               "broadleaf trees keep paths, clearings, and player spawn open");
-        Check(island::IslandEnvironmentField::SampleInland(
-                  tree.x,tree.z,sample.signedShoreDistance).drainage<=0.68f,
-              "broadleaf trunks stay outside the active stream channel");
+        const auto environment = island::IslandEnvironmentField::SampleInland(
+            tree.x, tree.z, sample.signedShoreDistance);
+        Check(environment.drainage <= (mangrove ? .76f : .68f),
+              "canopy trunks stay outside the active stream channel");
+        if (mangrove) {
+            Check(environment.moisture >= .30f && environment.saltExposure >= .06f
+                      && sample.coastalRockiness <= .38f,
+                  "mangroves remain in the localized damp brackish mouth habitat");
+            for (const island::CircularObstacle& palm : vegetation.Obstacles()) {
+                Check(std::hypot(tree.x - palm.x, tree.z - palm.z)
+                          >= jungle.Obstacles()[index].radius + palm.radius,
+                      "mangrove stilt roots do not intersect a palm collision footprint");
+            }
+            ++mangroveCount;
+        }
         Check(tree.variant < island::JungleLayout::CanopyVariantCount,
               "broadleaf canopy variant index remains in range");
         ++canopyFormCounts.at(tree.variant);
-        const bool emergent = tree.scale > island::JungleLayout::CanopyMaximumScale;
-        Check(tree.scale >= island::JungleLayout::CanopyMinimumScale
-                  && (tree.scale <= island::JungleLayout::CanopyMaximumScale
-                      || (tree.scale >= island::JungleLayout::CanopyEmergentMinimumScale
-                          && tree.scale <= island::JungleLayout::CanopyEmergentScale)),
-              "broadleaf canopy scale remains in the authored or emergent range");
+        const bool emergent = !mangrove
+            && tree.scale > island::JungleLayout::CanopyMaximumScale;
+        Check(mangrove
+                  ? tree.scale >= island::JungleLayout::MangroveMinimumScale
+                      && tree.scale <= island::JungleLayout::MangroveMaximumScale
+                  : tree.scale >= island::JungleLayout::CanopyMinimumScale
+                      && (tree.scale <= island::JungleLayout::CanopyMaximumScale
+                          || (tree.scale >= island::JungleLayout::CanopyEmergentMinimumScale
+                              && tree.scale <= island::JungleLayout::CanopyEmergentScale)),
+              "canopy scale remains in its authored habitat or emergent range");
         emergentCount += emergent ? 1U : 0U;
         if (emergent) {
             int standNeighbours = 0;
@@ -4550,11 +4570,19 @@ int main()
                   "broadleaf obstacle shares its visual x coordinate");
         CheckNear(obstacle.z, tree.z, 0.0001f,
                   "broadleaf obstacle shares its visual z coordinate");
-        Check(obstacle.radius > 0.30f
-                  && obstacle.radius < 0.43f * island::JungleLayout::CanopyEmergentScale + 0.01f
-                  && (emergent || obstacle.radius < 0.56f),
-              "broadleaf collision radius stays close to the visible trunk");
+        if (mangrove) {
+            CheckNear(obstacle.radius, 1.08f * tree.scale, .0001f,
+                "mangrove collision covers its visible stilt-root spread");
+        } else {
+            Check(obstacle.radius > 0.30f
+                      && obstacle.radius < 0.43f * island::JungleLayout::CanopyEmergentScale + 0.01f
+                      && (emergent || obstacle.radius < 0.56f),
+                  "broadleaf collision radius stays close to the visible trunk");
+        }
     }
+    Check(mangroveCount == jungle.MangroveCount() && mangroveCount >= 15
+              && mangroveCount <= 30,
+          "one localized mangrove colony stays inside its requested population budget");
     {
         // Forest masses, not a park: most trees stand in closed groups, a few stand alone.
         std::size_t grouped = 0U, solitary = 0U;

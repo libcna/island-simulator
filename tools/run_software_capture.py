@@ -530,6 +530,11 @@ def main():
             if args.viewpoint == "canopy" and not re.search(
                     r"elevated canopy inspection camera position=[^\n]+ full-scene=1", diagnostics):
                 raise RuntimeError("targeted canopy camera was not established")
+            if args.viewpoint == "mangroves":
+                if not re.search(r"localized mangrove colony (1[5-9]|2[0-9]|30) trees, low crowns, multiple stems, stilt roots, canopy variant 8", diagnostics):
+                    raise RuntimeError("mangrove colony population/form diagnostic missing")
+                if "mangrove QA target exposes stilt roots and low crown" not in diagnostics:
+                    raise RuntimeError("mangrove detail camera did not select its target")
             if "terrain substrate persists at distance with footprint-filtered noise" not in diagnostics:
                 raise RuntimeError("current terrain distance policy is missing; check for a stale executable")
             if "terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices" not in diagnostics:

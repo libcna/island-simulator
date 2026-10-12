@@ -36,6 +36,14 @@ understory plants, 3028 ground plants (39 marked bank plants), and 12 logs (3
 marked bank logs); the small population change follows the relocated moisture
 band rather than an unbounded density increase.
 
+The first woody brackish consumer is now live. Fifteen mangroves are selected only
+along the final shared stream reach where moisture is at least 0.30, salt exposure
+at least 0.06 and drainage at most 0.76. Terrain slope/rockiness, routes, existing
+canopy further constrain the colony, and a whole-world regression checks its default
+placements against palm collision footprints. This is a local mouth habitat rather
+than a new coast-wide vegetation band. The measured world now has 272 canopy trees
+including those 15 mangroves; see `mangroves.md`.
+
 ## Dependency order
 
 1. A renderer-independent coastal profile describes the authored bay/headland lobes, local

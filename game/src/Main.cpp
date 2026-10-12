@@ -31,6 +31,7 @@ namespace
         case FixedViewpoint::CanopyInspection: return "canopy";
         case FixedViewpoint::WestClearingDetail: return "west";
         case FixedViewpoint::StreamDetail: return "stream";
+        case FixedViewpoint::MangroveDetail: return "mangroves";
         case FixedViewpoint::GrassDetail: return "grass";
         case FixedViewpoint::GroundPlantDetail: return "ground";
         case FixedViewpoint::GroundBroadleafDetail: return "ground-broadleaf";
@@ -125,7 +126,7 @@ int main(const int argc, char* argv[])
         } else if (argument == "--viewpoint") {
             if (++index >= argc) {
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
-                             "east, headland, clearing-edge, canopy (inspection only), west, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
+                             "east, headland, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, fronds, birds, fish, "
                              "shark, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
@@ -153,6 +154,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::WestClearingDetail;
             } else if (name == "stream") {
                 viewpoint = island::FixedViewpoint::StreamDetail;
+            } else if (name == "mangroves") {
+                viewpoint = island::FixedViewpoint::MangroveDetail;
             } else if (name == "grass") {
                 viewpoint = island::FixedViewpoint::GrassDetail;
             } else if (name == "ground") {

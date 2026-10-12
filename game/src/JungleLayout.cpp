@@ -124,7 +124,7 @@ namespace island
                         && UnitRandom(Hash(gridX, gridZ, seed ^ 0x3c6ef372U)) < CanopyEmergentChance,
                     UnitRandom(Hash(gridX, gridZ, seed ^ 0x7f4a7c15U))});
                 tree.variant = static_cast<std::uint8_t>(
-                    Hash(gridX, gridZ, seed ^ 0xd3a2646cU) % CanopyVariantCount);
+                    Hash(gridX, gridZ, seed ^ 0xd3a2646cU) % NaturalCanopyFormCount);
                 canopy_.push_back(tree);
                 obstacles_.push_back(CircularObstacle{tree.x, tree.z, 0.43f * tree.scale});
             }
@@ -145,6 +145,57 @@ namespace island
             tree.scale = CanopyEmergentMinimumScale
                 + (CanopyEmergentScale - CanopyEmergentMinimumScale) * candidate.scaleRandom;
             obstacles_[candidate.index].radius = 0.43f * tree.scale;
+        }
+
+        // One compact brackish colony follows the final stream reach. Low crowns and wide
+        // root collision proxies distinguish these trees from the interior canopy without
+        // spreading mangroves around unrelated coasts.
+        for (int candidate = 0; candidate < MangroveCandidateCount; ++candidate) {
+            const auto random = [&](std::uint32_t channel) {
+                return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
+                    seed ^ (0xd7b71e49U + channel * 0x9e3779b9U)));
+            };
+            const int station = candidate / 2;
+            const float baseX = -141.0f - static_cast<float>(station) * .98f
+                - random(0) * .55f;
+            const float centreZ = StreamRoute::CentreZ(baseX);
+            const float tangentZ = StreamRoute::CentreZ(baseX - .5f)
+                - StreamRoute::CentreZ(baseX + .5f);
+            const float tangentLength = std::hypot(1.0f, tangentZ);
+            const float tangentX = -1.0f / tangentLength;
+            const float tangentZUnit = tangentZ / tangentLength;
+            const float normalX = tangentZUnit;
+            const float normalZ = -tangentX;
+            const float side = candidate % 2 == 0 ? -1.0f : 1.0f;
+            const float bankDistance = 3.8f + 3.8f * random(1);
+            const float alongJitter = (random(2) - .5f) * 1.8f;
+            CanopyPlacement tree;
+            tree.x = baseX + alongJitter * tangentX + side * bankDistance * normalX;
+            tree.z = centreZ + alongJitter * tangentZUnit + side * bankDistance * normalZ;
+            const auto sample = terrain.Sample(tree.x, tree.z);
+            const auto environment = IslandEnvironmentField::SampleInland(
+                tree.x, tree.z, sample.signedShoreDistance);
+            tree.scale = MangroveMinimumScale
+                + (MangroveMaximumScale - MangroveMinimumScale) * random(3);
+            const float rootRadius = 1.08f * tree.scale;
+            if (sample.signedShoreDistance < .4f || sample.signedShoreDistance > 24.0f
+                || sample.height < -.05f || sample.height > 3.4f
+                || sample.slopeRadians > .38f || sample.coastalRockiness > .38f
+                || environment.moisture < .30f || environment.saltExposure < .06f
+                || environment.drainage > .76f
+                || VegetationLayout::OverlapsReservedRoute(tree.x, tree.z, rootRadius)) continue;
+            const bool clear = std::none_of(obstacles_.begin(), obstacles_.end(),
+                [&](const CircularObstacle& obstacle) {
+                    return std::hypot(tree.x - obstacle.x, tree.z - obstacle.z)
+                        < rootRadius + obstacle.radius + 1.15f;
+                });
+            if (!clear) continue;
+            tree.y = sample.height;
+            tree.yawRadians = random(4) * 2.0f * std::numbers::pi_v<float>;
+            tree.variant = static_cast<std::uint8_t>(MangroveCanopyVariant);
+            canopy_.push_back(tree);
+            obstacles_.push_back({tree.x, tree.z, rootRadius});
+            ++mangroveCount_;
         }
 
         understory_.reserve(2600U);

@@ -5,7 +5,9 @@
 
 namespace island
 {
-    inline constexpr int CanopyFormCount = 8;
+    inline constexpr int NaturalCanopyFormCount = 8;
+    inline constexpr int MangroveCanopyVariant = NaturalCanopyFormCount;
+    inline constexpr int CanopyFormCount = NaturalCanopyFormCount + 1;
     [[nodiscard]] inline float CanopyNearLodDistance(float yaw) noexcept
     {
         return 105.0f+24.0f*yaw/6.28318530718f;

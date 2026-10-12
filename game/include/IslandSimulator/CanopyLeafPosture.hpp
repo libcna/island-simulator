@@ -42,9 +42,12 @@ namespace island
             ? -1.0f + 2.0f*(identity+0.5f)/CanopySprigCount
             : (identity == CanopySprigCount ? -0.15f : -0.8f);
         const float phase = identity*2.39996323f+cluster*1.71f+variant*0.93f+member*2.17f;
-        constexpr std::array<float,CanopyFormCount> pitchBias{-0.02f,0.12f,-0.10f,0.04f,-0.08f,0.10f,-0.10f,0.07f};
-        constexpr std::array<float,CanopyFormCount> lengths{0.95f,1.04f,1.08f,0.90f,0.94f,1.01f,1.08f,0.92f};
-        constexpr std::array<float,CanopyFormCount> widths{1.12f,0.85f,0.97f,1.16f,1.10f,0.86f,0.97f,1.10f};
+        constexpr std::array<float,CanopyFormCount> pitchBias{
+            -0.02f,0.12f,-0.10f,0.04f,-0.08f,0.10f,-0.10f,0.07f,-0.04f};
+        constexpr std::array<float,CanopyFormCount> lengths{
+            0.95f,1.04f,1.08f,0.90f,0.94f,1.01f,1.08f,0.92f,0.91f};
+        constexpr std::array<float,CanopyFormCount> widths{
+            1.12f,0.85f,0.97f,1.16f,1.10f,0.86f,0.97f,1.10f,1.14f};
         return {shellY*0.54f+std::sin(phase)*0.20f+pitchBias[variant],
                 std::sin(phase*1.37f+member*0.7f)*0.52f,
                 lengths[variant]*(0.94f+0.05f*(1+std::cos(phase))),

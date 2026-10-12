@@ -1,5 +1,23 @@
 # island-simulator handoff
 
+## Latest implementation — localized mangrove mouth habitat
+
+Exactly15 deterministic mangroves now occupy only the lower shared stream/mouth.
+Jungle canopy variant8 adds low broad foliage, 3 secondary stems and 8 curved stilt
+roots near (2/5 far), lighter grey bark and existing instanced material/wind/LOD.
+Placement requires moisture>=.30, salt>=.06, drainage<=.76 plus shore/height/slope/
+rock/route/canopy clearance; Core additionally proves no palm collision overlap and
+root-radius coverage. World fingerprint32d95c2a1819702e:327palms,272canopy including
+15mangroves,1781understory,588bushes,3026groundplants(37bank),16943grass,11logs(2bank).
+First actual094932 capture reproduced the user's fatal startup error: curved support
+frame used reversed cross-product, so procedural outward-normal validation aborted.
+Frame fixed; second095137 passed but visual inspection rejected nearly black bark/
+inside-colony camera. Final isolated llvmpipe095538.769586Z-mangroves PASS410bins/
+std49.05/spatial204.42/kernel[]; image inspected and shows readable stilt roots,
+multiple stems, low crowns, mouth water and inland context. Core PASS after added
+palm/root assertions. Web/Android/performance/motion review remains; goal active;
+no AMD/KVM/dependency changes. See docs/mangroves.md.
+
 ## Latest implementation — one shared meandering stream route
 
 New StreamRoute is shared by StreamCourse, replacement bed, water mesh, CPU/GLSL

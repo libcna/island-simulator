@@ -74,6 +74,9 @@ namespace island
         static constexpr int UnderstoryVariantCount = 4;
         static constexpr int BushVariantCount = 3;
         static constexpr int GroundPlantVariantCount = 3;
+        static constexpr int MangroveCandidateCount = 44;
+        static constexpr float MangroveMinimumScale = 0.72f;
+        static constexpr float MangroveMaximumScale = 0.92f;
         static constexpr float CanopyMinimumScale = 0.78f;
         static constexpr float CanopyMaximumScale = 1.28f;
         // A few emergents rise above the closed canopy only inside dense stands.
@@ -132,6 +135,7 @@ namespace island
         {
             return streamBankGroundPlantCount_;
         }
+        [[nodiscard]] std::size_t MangroveCount() const noexcept { return mangroveCount_; }
         [[nodiscard]] const std::vector<ForestFloorColony>& ForestColonies() const noexcept { return forestColonies_; }
 
     private:
@@ -151,6 +155,7 @@ namespace island
         std::size_t clearingGroundPlantCount_ = 0;
         std::size_t forestGroundPlantCount_ = 0;
         std::size_t streamBankGroundPlantCount_ = 0;
+        std::size_t mangroveCount_ = 0;
         std::vector<ForestFloorColony> forestColonies_;
     };
 }

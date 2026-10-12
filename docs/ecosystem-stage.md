@@ -37,10 +37,17 @@ existing features, not a broad redesign.
    clustered marked fern/broadleaf plants plus three supported darker-bark fallen
    logs; actual llvmpipe review rejected and replaced an initially regular paired
    layout. Further bank shape/material tuning and portable/motion review remain.
-4. [ ] **Localized mangroves.** About 15–30 low-crowned, multi-stem trees with
+4. [~] **Localized mangroves.** About 15–30 low-crowned, multi-stem trees with
    recognizable stilt roots in one small brackish mouth/protected-bay habitat.
    Prefer a variant of existing jungle/broadleaf geometry and rendering; do not
    spread them around the whole coast or create a separate engine by default.
+   The first native pass now places exactly 15 environment-field-selected trees
+   along the final stream reach. Canopy variant 8 adds a low broad crown, multiple
+   stems, curved stilt roots and lighter grey bark in both LODs. Collision covers
+   the visible roots and tests reject palm overlap. The first real capture caught
+   an inverted procedural support frame that caused the operator's startup failure;
+   it is fixed and `20261012T095538.769586Z-mangroves` passes and was inspected.
+   Portable, performance and moving-view review remain; see [mangroves.md](mangroves.md).
 5. [ ] **Spatial reef habitat.** Extend natural props with cheap branching, rounded
    and plate coral variants plus underwater rocks. A bounded few hundred instances
    in appropriate shallow reef zones, with culling/LOD and actual underwater review.

@@ -10,8 +10,10 @@ namespace island
     CanopyTrunkProfile MakeCanopyTrunkProfile(const int variant)
     {
         if (variant < 0 || variant >= CanopyFormCount) throw std::invalid_argument("Invalid canopy variant");
-        constexpr std::array<float,CanopyFormCount> heights{8.4f,9.2f,9.8f,10.5f,8.2f,10.6f,9.4f,10.0f};
-        constexpr std::array<float,CanopyFormCount> leans{0.75f,0.40f,1.35f,0.80f,0.90f,0.55f,1.40f,0.30f};
+        constexpr std::array<float,CanopyFormCount> heights{
+            8.4f,9.2f,9.8f,10.5f,8.2f,10.6f,9.4f,10.0f,7.2f};
+        constexpr std::array<float,CanopyFormCount> leans{
+            0.75f,0.40f,1.35f,0.80f,0.90f,0.55f,1.40f,0.30f,0.48f};
         return {heights[variant], 0.63f + variant * 1.49f, leans[variant]};
     }
 
@@ -175,7 +177,9 @@ namespace island
             {{{-0.7f,0.35f,0.4f,2.1f,1.35f},{1.8f,-1.2f,1.45f,1.8f,1.65f},
               {-1.7f,-0.65f,-1.65f,1.6f,1.5f},{1.0f,1.35f,-0.6f,1.5f,1.2f}}},
             {{{-2.05f,0.35f,1.25f,1.45f,1.55f},{2.05f,1.65f,-0.95f,1.35f,1.75f},
-              {-2.75f,2.45f,-0.65f,1.15f,1.3f},{0.65f,3.55f,0.5f,1.25f,1.15f}}}
+              {-2.75f,2.45f,-0.65f,1.15f,1.3f},{0.65f,3.55f,0.5f,1.25f,1.15f}}},
+            {{{-0.3f,-0.15f,0.2f,2.35f,1.15f},{-2.0f,0.05f,0.55f,2.0f,1.05f},
+              {2.05f,0.25f,-0.7f,2.15f,1.15f},{0.2f,1.25f,1.75f,1.75f,1.2f}}}
         }};
         const auto& group=groups[variant][cluster/2];
         const float angle=std::atan2(group.z,group.x);

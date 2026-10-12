@@ -75,6 +75,7 @@ namespace island
             case FixedViewpoint::CanopyInspection: return "canopy";
             case FixedViewpoint::WestClearingDetail: return "west";
             case FixedViewpoint::StreamDetail: return "stream";
+            case FixedViewpoint::MangroveDetail: return "mangroves";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
             case FixedViewpoint::GroundBroadleafDetail: return "ground-broadleaf";
@@ -251,6 +252,30 @@ namespace island
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);
             pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        } else if (viewpoint_ == FixedViewpoint::MangroveDetail) {
+            const auto selected = std::max_element(jungleLayout_.Canopy().begin(),
+                jungleLayout_.Canopy().end(), [](const CanopyPlacement& left,
+                                                  const CanopyPlacement& right) {
+                    const float leftRadius = left.variant == MangroveCanopyVariant
+                        ? std::hypot(left.x, left.z) : -1.0f;
+                    const float rightRadius = right.variant == MangroveCanopyVariant
+                        ? std::hypot(right.x, right.z) : -1.0f;
+                    return leftRadius < rightRadius;
+                });
+            if (selected == jungleLayout_.Canopy().end()
+                || selected->variant != MangroveCanopyVariant)
+                throw std::runtime_error("Mangrove QA camera found no target");
+            const float radius = std::hypot(selected->x, selected->z);
+            const float outwardX = selected->x / radius;
+            const float outwardZ = selected->z / radius;
+            const float cameraX = selected->x + outwardX * 8.5f - outwardZ * 2.2f;
+            const float cameraZ = selected->z + outwardZ * 8.5f + outwardX * 2.2f;
+            cameraPosition_ = Vector3(cameraX, selected->y + PlayerMotion::EyeHeight, cameraZ);
+            const Vector3 target(selected->x, selected->y + 3.4f * selected->scale, selected->z);
+            const auto direction = target - cameraPosition_;
+            yaw_ = std::atan2(direction.X, direction.Z);
+            pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+            std::cout << "island-simulator: mangrove QA target exposes stilt roots and low crown\n";
         } else if (viewpoint_ == FixedViewpoint::WestClearingDetail) {
             const ClearingDefinition& clearing = VegetationLayout::WestClearing;
             cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)

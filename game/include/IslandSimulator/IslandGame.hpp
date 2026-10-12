@@ -96,6 +96,7 @@ namespace island
         CanopyInspection,
         WestClearingDetail,
         StreamDetail,
+        MangroveDetail,
         GrassDetail,
         GroundPlantDetail,
         GroundBroadleafDetail,

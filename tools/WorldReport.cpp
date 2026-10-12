@@ -830,6 +830,7 @@ namespace
                << "    \"palms\": " << world.palms.Palms().size() << ",\n"
                << "    \"grassPatches\": " << world.grass.Patches().size() << ",\n"
                << "    \"canopyTrees\": " << world.jungle.Canopy().size() << ",\n";
+        output << "    \"mangroves\": " << world.jungle.MangroveCount() << ",\n";
         // Outermost representatives reduce foreground canopy obstruction for the explicit
         // elevated LOD camera. Actual screenshots must still establish visible coverage.
         output << "    \"canopyReviewTargets\": [";

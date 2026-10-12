@@ -406,13 +406,101 @@ void main()
                 geometry.leaves[firstVertex+i].normal = Vector3(normals[i][0], normals[i][1], normals[i][2]);
         }
 
+        [[nodiscard]] Color CanopyBarkColor(int variant);
+
+        void AppendMangroveSupport(PlantGeometry& geometry, const Vector3& start,
+                                   const Vector3& control, const Vector3& end,
+                                   const float startRadius, const float endRadius,
+                                   const float windWeight, const bool farMesh,
+                                   const float phase)
+        {
+            const int rings = farMesh ? 3 : 5;
+            const int sides = farMesh ? 5 : 8;
+            const Color bark = CanopyBarkColor(MangroveCanopyVariant);
+            const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
+            const auto firstIndex = geometry.indices.size();
+            std::vector<Vector3> outwardDirections;
+            float along = 0.0f;
+            Vector3 previous = start;
+            for (int ring = 0; ring < rings; ++ring) {
+                const float t = static_cast<float>(ring) / static_cast<float>(rings - 1);
+                const Vector3 centre = start * ((1.0f - t) * (1.0f - t))
+                    + control * (2.0f * (1.0f - t) * t) + end * (t * t);
+                const float aheadT = std::min(1.0f, t + .01f);
+                const float behindT = std::max(0.0f, t - .01f);
+                const auto point = [&](const float value) {
+                    return start * ((1.0f - value) * (1.0f - value))
+                        + control * (2.0f * (1.0f - value) * value) + end * (value * value);
+                };
+                const Vector3 axis = Vector3::Normalize(point(aheadT) - point(behindT));
+                Vector3 right = Vector3::Cross(Vector3::Up, axis);
+                if (right.LengthSquared() < 1.0e-6f) right = Vector3::Right;
+                else right = Vector3::Normalize(right);
+                const Vector3 up = Vector3::Normalize(Vector3::Cross(right, axis));
+                if (ring > 0) along += Vector3::Distance(previous, centre);
+                previous = centre;
+                const float radius = std::lerp(startRadius, endRadius, t);
+                for (int side = 0; side < sides; ++side) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(side) / static_cast<float>(sides);
+                    const Vector3 outward = right * std::cos(angle) + up * std::sin(angle);
+                    geometry.vertices.emplace_back(centre + outward * radius,
+                        ShadeColor(bark, .76f + .20f * std::max(0.0f, outward.Y)),
+                        Vector2(windWeight * t, phase));
+                    SetWoodAlbedo(geometry, bark, angle, along);
+                    outwardDirections.push_back(outward);
+                }
+            }
+            for (int ring = 0; ring + 1 < rings; ++ring) {
+                for (int side = 0; side < sides; ++side) {
+                    const int next = (side + 1) % sides;
+                    const auto lower = static_cast<std::uint16_t>(base + ring * sides + side);
+                    const auto lowerNext = static_cast<std::uint16_t>(base + ring * sides + next);
+                    const auto upper = static_cast<std::uint16_t>(lower + sides);
+                    const auto upperNext = static_cast<std::uint16_t>(lowerNext + sides);
+                    geometry.indices.insert(geometry.indices.end(),
+                        {lower, upper, lowerNext, lowerNext, upper, upperNext});
+                }
+            }
+            FinishWoodNormals(geometry, base, firstIndex, outwardDirections, false);
+        }
+
+        void AppendMangroveRootsAndStems(PlantGeometry& geometry, const bool farMesh)
+        {
+            const int rootCount = farMesh ? 5 : 8;
+            for (int root = 0; root < rootCount; ++root) {
+                const float angle = .31f + static_cast<float>(root)
+                    * 2.0f * std::numbers::pi_v<float> / static_cast<float>(rootCount);
+                const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+                const Vector3 side(-direction.Z, 0.0f, direction.X);
+                const float length = 1.18f + .18f * std::sin(root * 2.17f);
+                AppendMangroveSupport(geometry, direction * length + Vector3::Up * .035f,
+                    direction * (.72f + .08f * std::cos(root * 1.7f))
+                        + side * (.12f * std::sin(root * 2.9f)) + Vector3::Up * .48f,
+                    direction * .18f + Vector3::Up * (1.82f + .18f * (root % 3)),
+                    .13f, .105f, 0.0f, farMesh, .11f * static_cast<float>(root));
+            }
+            const int stemCount = farMesh ? 2 : 3;
+            for (int stem = 0; stem < stemCount; ++stem) {
+                const float angle = 1.1f + static_cast<float>(stem)
+                    * 2.0f * std::numbers::pi_v<float> / 3.0f;
+                const Vector3 direction(std::cos(angle), 0.0f, std::sin(angle));
+                AppendMangroveSupport(geometry, direction * .30f + Vector3::Up * .04f,
+                    direction * (.48f + .08f * stem) + Vector3::Up * (2.55f + .14f * stem),
+                    direction * (.72f + .11f * stem) + Vector3::Up * (5.65f + .16f * stem),
+                    .20f, .105f, .52f, farMesh, .23f + .19f * stem);
+            }
+        }
+
         // Neutral grey-brown tropical bark, from smooth pale fig-like trunks to darker fissured
         // ones. Saturated orange-brown read as painted wood under the fixed afternoon sun.
         [[nodiscard]] Color CanopyBarkColor(const int variant)
         {
             constexpr std::array<std::array<std::uint8_t, 3>, CanopyFormCount> barks{{
                 {112, 100, 84}, {128, 122, 110}, {98, 82, 66}, {120, 106, 88},
-                {104, 92, 78}, {136, 128, 114}, {94, 80, 68}, {116, 98, 80}}};
+                {104, 92, 78}, {136, 128, 114}, {94, 80, 68}, {116, 98, 80},
+                // Sun-bleached grey bark remains legible under the compact colony's shade.
+                {142, 136, 121}}};
             const auto& bark = barks.at(static_cast<std::size_t>(variant));
             return Color(bark[0], bark[1], bark[2], static_cast<std::uint8_t>(255));
         }
@@ -744,7 +832,9 @@ void main()
             PlantGeometry geometry;
             geometry.vertices.reserve(farMesh ? 1100U : 5200U);
             geometry.indices.reserve(farMesh ? 3200U : 13200U);
-            if (!farMesh) {
+            if (variant == MangroveCanopyVariant) {
+                AppendMangroveRootsAndStems(geometry, farMesh);
+            } else if (!farMesh) {
                 AppendCanopyButtresses(geometry, variant);
             }
             AppendCanopyTrunk(geometry, variant, farMesh);
@@ -752,7 +842,8 @@ void main()
             constexpr int clusterCount = 8;
             const std::array<Color, CanopyFormCount> foliageColors{
                 Color(34,104,48), Color(42,123,52), Color(34,114,48), Color(42,131,52),
-                Color(55,105,45), Color(42,98,59), Color(59,112,42), Color(42,110,51)};
+                Color(55,105,45), Color(42,98,59), Color(59,112,42), Color(42,110,51),
+                Color(37,94,48)};
             const Color leafBase = foliageColors.at(static_cast<std::size_t>(variant));
             for (int cluster = 0; cluster < clusterCount; ++cluster) {
                 const auto profile = MakeCanopyCrownProfile(variant, cluster);
@@ -1363,6 +1454,9 @@ void main()
         MirrorRuntimeDiagnosticToPlatformLog(forestDiagnostic);
         std::cout << "island-simulator: stream-bank mixed fern/broadleaf plants "
                   << layout.StreamBankGroundPlantCount() << ", shared moisture field\n";
+        std::cout << "island-simulator: localized mangrove colony " << layout.MangroveCount()
+                  << " trees, low crowns, multiple stems, stilt roots, canopy variant "
+                  << MangroveCanopyVariant << '\n';
         constexpr const char* crownStructureDiagnostic =
             "island-simulator: eight structural crown forms share eight LOD lobe anchors and supported trunk bends";
         std::cout << crownStructureDiagnostic << '\n';

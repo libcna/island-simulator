@@ -45,6 +45,20 @@ survival systems. The supplied project inventory is context, not audited evidenc
 
 ## Other retained current work
 
+Mangrove progress: one deterministic colony now places exactly 15 trees beside the
+shared lower stream/mouth. A dedicated ninth canopy form reuses the existing jungle
+renderer but adds low broad crowns, three secondary stems, eight curved stilt roots,
+sun-bleached grey bark and matching near/far geometry. Placement requires the shared
+moisture/drainage/salt fields, remains inside the coastal mouth belt, clears routes,
+interior canopy, and exposes the root spread through its collision proxy; the measured
+default colony is also verified not to overlap palm collision footprints. The first
+real capture exposed an inverted support-frame normal
+and correctly failed startup; reversing the local frame fixed the reported fatal
+`Procedural surface normal is not outward` exception. Actual isolated llvmpipe
+`095538.769586Z-mangroves` capture passes and was visually inspected. Native tests
+pass; Web/Android, motion-sequence and performance acceptance remain. See
+[mangroves.md](docs/mangroves.md).
+
 - [ ] Give both boars and goats convincing species-appropriate positional sounds.
   Boars need clearly audible grunts/snorts (including calm rest, forage and wander
   states), while goats need varied bleats and restrained close breathing/hoof detail.
