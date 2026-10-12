@@ -3,6 +3,7 @@
 #include "IslandSimulator/BoarCoatTexture.hpp"
 #include "IslandSimulator/BoarPose.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
+#include "IslandSimulator/BoarEyeGeometry.hpp"
 #include "IslandSimulator/BoarGroundPose.hpp"
 #include "IslandSimulator/GeneratedTextureBudget.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
@@ -227,8 +228,21 @@ namespace island
                     mesh.SmoothTriangle(vertex(0),vertex(1),vertex(2));
                 }
                 if (near) {
-                    mesh.Ellipsoid(Vector3(x * 0.18f, 0.61f - dip * 0.65f + bob, 0.75f),
-                                   Vector3(0.020f, 0.018f, 0.025f), Color(18, 16, 12), 8, 4);
+                    const auto eye=BuildBoarEye(side,dip,bob);
+                    const auto eyePoint=[&](std::size_t i) {
+                        const auto p=eye[i];return Vector3(p.x,p.y,p.z);
+                    };
+                    const auto eyeTriangle=[&](std::size_t a,std::size_t b,std::size_t c,const Color& tint) {
+                        // Ring angles run around Y/Z with outward -X winding.
+                        if(side>0) std::swap(b,c);
+                        mesh.Triangle(eyePoint(a),eyePoint(b),eyePoint(c),tint);
+                    };
+                    const auto lid=wildlife_render::ScaleColor(coat,0.74f);
+                    for(std::size_t i=0;i<8;++i) {
+                        const auto j=(i+1)%8;
+                        eyeTriangle(i,j,8+j,lid);eyeTriangle(i,8+j,8+i,lid);
+                        eyeTriangle(16,8+i,8+j,Color(18,15,11));
+                    }
                     mesh.Ellipsoid(Vector3(x * 0.046f, 0.435f - dip + bob, 1.068f),
                                    Vector3(0.021f, 0.013f, 0.009f), Color(17, 15, 13), 6, 3);
                     if (boar.scale > 0.8f) {

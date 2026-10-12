@@ -1,5 +1,6 @@
 #include "IslandSimulator/BoarPose.hpp"
 #include "IslandSimulator/BoarEarGeometry.hpp"
+#include "IslandSimulator/BoarEyeGeometry.hpp"
 #include "IslandSimulator/BoarGroundPose.hpp"
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
@@ -18,6 +19,52 @@ int main()
         return std::hypot(a.y - b.y, a.z - b.z);
     };
     constexpr float Tau = 2.0f * std::numbers::pi_v<float>;
+    for(int step=0;step<=30;++step) for(float bob:{0.0f,0.018f}) {
+        const float dip=static_cast<float>(step)*0.005f;
+        const auto profile=MakeBoarBodyProfile(dip);
+        const auto eye=BuildBoarEye(1,dip,bob),mirror=BuildBoarEye(-1,dip,bob);
+        for(std::size_t i=0;i<eye.size();++i) {
+            const auto p=eye[i],q=mirror[i];
+            check(p.x==-q.x&&p.y==q.y&&p.z==q.z,"eye mirror differs from head");
+            const float expected=i<8?0.0015f:(i<16?0.004f:0.009f);
+            check(std::abs(p.x-BoarHeadSurfaceX(profile,p.y-bob,p.z)-expected)<0.00001f,
+                "eye detached from body triangle surface");
+        }
+        for(const auto& ring:profile)
+            check(std::abs(BoarHeadSurfaceX(profile,ring.centreY,ring.z)-ring.radiusX)<0.00001f,
+                "body-side intersection misses authored ring side");
+        for(int side:{-1,1}) {
+            const auto points=BuildBoarEye(side,dip,bob);
+            const auto triangle=[&](std::size_t a,std::size_t b,std::size_t c) {
+                if(side>0) std::swap(b,c);
+                const auto p=points[a],q=points[b],r=points[c];
+                const float nx=(q.y-p.y)*(r.z-p.z)-(q.z-p.z)*(r.y-p.y);
+                check(static_cast<float>(side)*nx>1e-7f,"eye triangle degenerate or inward facing");
+            };
+            for(std::size_t i=0;i<8;++i) {
+                const auto j=(i+1)%8;
+                triangle(i,j,8+j);triangle(i,8+j,8+i);triangle(16,8+i,8+j);
+            }
+        }
+        for(std::size_t row=1;row+1<profile.size();++row) for(int side=0;side<4;++side) {
+            const auto vertex=[&](std::size_t r,int angle) {
+                const float a=static_cast<float>(angle)*Tau/16;
+                return BoarJoint{std::cos(a)*profile[r].radiusX,
+                    profile[r].centreY+std::sin(a)*profile[r].radiusY,profile[r].z};
+            };
+            const auto a=vertex(row,side),b=vertex(row+1,side),c=vertex(row+1,side+1);
+            check(std::abs(BoarHeadSurfaceX(profile,(a.y+b.y+c.y)/3,(a.z+b.z+c.z)/3)
+                -(a.x+b.x+c.x)/3)<0.00003f,"head intersection disagrees with actual triangle centroid");
+        }
+    }
+    for(int invalid=0;invalid<4;++invalid) {
+        bool rejected=false;
+        const float bad=std::numeric_limits<float>::quiet_NaN();
+        try {
+            (void)BuildBoarEye(invalid<2?invalid*2:1,invalid==2?bad:0,invalid==3?bad:0);
+        } catch(const std::invalid_argument&) { rejected=true; }
+        check(rejected,"invalid eye side or nonfinite pose accepted");
+    }
     for(bool detailed:{false,true}) for(float dip:{0.0f,0.15f}) for(float bob:{0.0f,0.018f}) {
         const auto right=BuildBoarEar(1,dip,bob,detailed),left=BuildBoarEar(-1,dip,bob,detailed);
         check(right.count==(detailed?32U:8U)&&left.count==right.count,"ear triangle budget");

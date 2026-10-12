@@ -101,6 +101,34 @@ configuration changes. This is a still-image/material check, not natural-gait pr
 Web build/package PASS11,350,607raw/4,331,592gzip bytes. Actual browser audit remains
 pending for current boar geometry/framing; all owned jobs terminal, stop latch unchanged.
 
+## Surface-fitted boar eyes
+
+`BoarEyeGeometry.hpp` replaces near-eye ellipsoids with a shallow dark cornea and
+eight-segment eyelid rim. Each point is fitted against the actual16-sided head
+triangles, not an analytic ellipse that differs from the rendered surface. Outer
+rim, inner rim and cornea centre sit1.5/4/9mm outward in local X; rooting dip and
+body bob are included and both sides mirror exactly. Circular head directions are
+cached. Existing BasicEffect, coat material, batch and vertex guards remain unchanged;
+far geometry and nostrils are unchanged. This does not add a new texture or shader.
+
+Tests cover31 rooting poses at both bob extremes, exact mirror/contact, independently
+constructed head-triangle centroids, outward/nondegenerate eye triangles and invalid
+side/nonfinite pose rejection. Full41/41 non-display tests PASS68.62s. Native build
+and Android ARM64 assemble/lint PASS (5s); no Android eye runtime is claimed.
+
+Actual native `20261012T000031.761433Z-boars` PASS; complete image and comparison
+`build/boar-eye-comparison.png` inspected. Final cached-direction build capture
+`20261012T000617.039228Z-boars` also PASS and full image inspected; both kernel deltas
+empty. The eye is flatter and less button-like, but the visual difference is modest:
+the rim remains poorly readable at this distance, the head still looks stylized,
+and grass hides much of the feet. These live captures are not pose-identical images.
+This is a surface-contact improvement, not completed face realism or gait acceptance.
+Next: muzzle/cheek shape, readable eyelids/coat and unobscured moving-foot review.
+Actual Android/Web eye appearance remains unverified; the AMD incident stays open.
+Web build/package PASS11,354,610raw/4,333,324gzip bytes. Asset validation PASS with
+83generator sources,12project files and0external files. All owned jobs terminal;
+hardware stop latch unchanged. These builds do not replace portable runtime checks.
+
 ## Monkeys (unchanged baseline)
 
 Evidence: `build/software-captures/20261011T233132.293700Z-monkeys/capture.png`.

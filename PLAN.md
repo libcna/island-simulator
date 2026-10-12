@@ -893,6 +893,15 @@ Landmark backlog requested by the operator:
   Full41/41testsPASS59.05s, x86buildlint5s/ARM64restored2s, assetauditPASS82sources.
   NEXT muzzle/eyes/coat plusunobscuredmovingfeet andWebactual; fullbacklog remainsOPEN.
   Webbuild/packagePASS11,350,607raw/4,331,592gzip; actualWebpending/alljobs terminal.
+  Eye follow-up: near shallow cornea and8-segment lid fitted to actual head triangles
+  through rooting dip/bob, replacing independent ellipsoids. Far eyes/nose unchanged;
+  no extra shader/texture/draw. Mirror/contact/independent triangle-centroid/winding/
+  invalid-input tests; full41/41 PASS68.62s. Native000031 comparison and final000617
+  actually inspected/PASS/kernel[]: modest reduction of button-like protrusion, lid
+  still weakly readable; NOT face-realism acceptance. ARM64 build/lintPASS5s; actual
+  Android/Web eye runtime pending. See docs/wildlife-visual-audit-2026-10-12.md.
+  Web build/package PASS11,354,610raw/4,333,324gzip; asset audit PASS83sources.
+  All owned jobs terminal; hardware stop latch unchanged. Full visual task remains open.
 
 Macro-geography realism backlog from the operator-supplied analysis (full Czech original kept
 outside the repository at `../island_improvements.md`). Operator decision: **monkeys and wild boars

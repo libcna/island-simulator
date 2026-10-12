@@ -219,6 +219,7 @@
         "game/src/BoarCoatTexture.cpp",
         "game/src/BoarPose.cpp",
         "game/include/IslandSimulator/BoarEarGeometry.hpp",
+        "game/include/IslandSimulator/BoarEyeGeometry.hpp",
         "game/src/BoarGroundPose.cpp",
         "game/src/BoarRenderer.cpp"
       ]

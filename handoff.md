@@ -1,5 +1,22 @@
 # island-simulator handoff
 
+## Latest — surface-fitted boar eyes, modest visual improvement
+
+BoarEyeGeometry.hpp replaces near floating ellipsoids with shallow cornea/8-segment
+lid, exact16-sided head triangle intersections for31 tested rooting poses and both
+bob extremes. Cached circular directions; outer/inner/centre X lifts1.5/4/9mm.
+Exact mirrored sides, outward/nondegenerate triangles, independent triangle-centroid
+and invalid-input tests. Existing BasicEffect/material/batch/guards; far/nose unchanged.
+Full41/41 non-display tests PASS68.62s; native build PASS; ARM64 build/lint PASS5s.
+Actual native000031 comparison and final20261012T000617.039228Z-boars PASS, full PNGs
+and comparison actually viewed, kernel[]. Eye flatter, difference modest, lids still
+poorly readable. Stylized head/coat and grass-obscured feet remain; NOT complete anatomy.
+Android/Web actual eye runtime still pending. No hardware/KVM/dependency changes.
+NEXT muzzle/cheek/lid readability, coat and moving-foot review; full species/resident/
+audio/AMD incident backlog stays OPEN. Goal active; no push.
+Web build/package PASS11,354,610raw/4,333,324gzip; asset audit PASS83sources/12project/
+0external. All owned jobs terminal, hardware stop latch SHA c0bd1704 unchanged.
+
 ## Latest — cupped boar ears, actual native + Android audit PASS
 
 New BoarEarGeometry.hpp gives8point curvedoutline, near32tri/ear rim+inner+closedback,
