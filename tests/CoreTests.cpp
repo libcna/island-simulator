@@ -1020,6 +1020,10 @@ int main()
     const island::AmbientLoop repeatedStreamLoop = island::GenerateStreamLoop();
     const island::AmbientLoop waveAccent = island::GenerateWaveAccent();
     const island::AmbientLoop waveAccentAlternate = island::GenerateWaveAccentAlternate();
+    const island::AmbientLoop shipwreckCreak = island::GenerateShipwreckCreak();
+    const island::AmbientLoop shipwreckCreakAlternate =
+        island::GenerateShipwreckCreakAlternate();
+    const island::AmbientLoop repeatedShipwreckCreak = island::GenerateShipwreckCreak();
     const island::AmbientLoop waterMovementLoop = island::GenerateWaterMovementLoop();
     const island::AmbientLoop repeatedWaterMovementLoop = island::GenerateWaterMovementLoop();
     const island::AmbientLoop waterTransitionAccent = island::GenerateWaterTransitionAccent();
@@ -1051,6 +1055,11 @@ int main()
               && waveAccentAlternate.sampleRate == 22050
               && waveAccentAlternate.samples.size() == 88200U,
           "both stronger-wave accents have the intended four-second portable format");
+    Check(shipwreckCreak.sampleRate == 22050
+              && shipwreckCreak.samples.size() == 39690U
+              && shipwreckCreakAlternate.sampleRate == 22050
+              && shipwreckCreakAlternate.samples.size() == 39690U,
+          "both shipwreck creaks have the intended 1.8-second portable format");
     Check(waterMovementLoop.sampleRate == 22050
               && waterMovementLoop.samples.size() == 154350U,
           "player water movement has its intended seven-second portable format");
@@ -1098,6 +1107,9 @@ int main()
           "procedural stream generation is deterministic");
     Check(waveAccent.samples != waveAccentAlternate.samples,
           "stronger-wave variants contain genuinely different source PCM");
+    Check(shipwreckCreak.samples != shipwreckCreakAlternate.samples
+              && shipwreckCreak.samples == repeatedShipwreckCreak.samples,
+          "shipwreck creaks are distinct variants and regenerate deterministically");
     Check(waterTransitionAccent.samples != waterTransitionAccentAlternate.samples,
           "water-transition variants contain genuinely different source PCM");
     Check(sandFootstep.samples != sandFootstepAlternate.samples
@@ -1623,6 +1635,44 @@ int main()
     }
     Check(!waveVariantOutOfRange && observedWaveVariants[0] && observedWaveVariants[1],
           "deterministic stronger-wave scheduling reaches both source variants");
+
+    island::ShipwreckCreakScheduler creakScheduler;
+    creakScheduler.Reset();
+    bool distantCreak = false;
+    for (int step = 0; step < 240; ++step) {
+        distantCreak = distantCreak || creakScheduler.Update(
+            0.25f, beachMix.surfVolume, 60.0f, true).trigger;
+    }
+    Check(!distantCreak, "shipwreck creaks remain inaudible away from the wreck");
+    bool busyCreak = false;
+    for (int step = 0; step < 120; ++step) {
+        busyCreak = busyCreak || creakScheduler.Update(
+            0.25f, beachMix.surfVolume, 8.0f, false).trigger;
+    }
+    Check(!busyCreak,
+          "shipwreck creaks cannot escape a busy shared shoreline voice");
+    const island::ShipwreckCreakRequest releasedCreak = creakScheduler.Update(
+        0.01f, beachMix.surfVolume, 8.0f, true);
+    Check(releasedCreak.trigger && releasedCreak.variant <= 1U
+              && releasedCreak.volume >= 0.035f && releasedCreak.volume <= 0.16f
+              && releasedCreak.pitch >= -0.075f && releasedCreak.pitch <= 0.045f,
+          "a due nearby wreck creak resumes with bounded playback parameters");
+    island::ShipwreckCreakScheduler creakVariantScheduler;
+    creakVariantScheduler.Reset();
+    std::array<bool, 2> observedCreakVariants = {false, false};
+    bool invalidCreak = false;
+    for (int step = 0; step < 4000; ++step) {
+        const island::ShipwreckCreakRequest creak = creakVariantScheduler.Update(
+            0.25f, beachMix.surfVolume, 7.0f, true);
+        if (creak.trigger && creak.variant < observedCreakVariants.size()) {
+            observedCreakVariants[creak.variant] = true;
+        }
+        invalidCreak = invalidCreak || creakVariantScheduler.Update(
+            std::numeric_limits<float>::quiet_NaN(), beachMix.surfVolume,
+            std::numeric_limits<float>::infinity(), true).trigger;
+    }
+    Check(!invalidCreak && observedCreakVariants[0] && observedCreakVariants[1],
+          "wreck scheduling rejects invalid input and reaches both sparse variants");
 
     const island::WildlifeAudioSource nearbyBird{true, 28.0f, 16.0f, -8.0f};
     const island::WildlifeAudioSource nearbyMonkey{true, -18.0f, 2.0f, 21.0f};

@@ -428,7 +428,9 @@ try {
   output = await waitForOutput(context, "island-simulator: first distance-scheduled land footstep played");
   const runEnabled = output.includes("island-simulator: run mode enabled (8.0 m/s)");
   const audioInitialized = output.includes(
-    "island-simulator: audio sources use sequential generation and upload with bounded staging memory");
+    "island-simulator: audio sources use sequential generation and upload with bounded staging memory")
+    && output.includes(
+      "island-simulator: sparse positional shipwreck creaks share the stronger-wave voice");
   if (!runEnabled) throw new Error("Firefox did not observe the first persistent Shift edge");
   if (!audioInitialized) throw new Error("Firefox did not initialize audio after the trusted click");
   await capture(context, "island-firefox-esr-input.png");

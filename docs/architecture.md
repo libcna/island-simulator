@@ -1404,10 +1404,10 @@ bed capped at 0.08 gain, so the safety feedback does not consume a fifth persist
 persistent loop avoids the rapid repeated one-shot cadence common to footstep-style water effects,
 while 140 ms attack, 340 ms release, and 650 ms current-cue smoothing prevent hard edges and
 state-transition chatter. All current procedural
-PCM payloads total 4,315,184 bytes (about 4.12 MiB) before backend bookkeeping, including the
+PCM payloads total 6,052,724 bytes (about 5.77 MiB) before backend bookkeeping, including the
 wildlife phrases described below. `Soundscape::Start` generates, converts, uploads, and releases
-one source at a time. It therefore does not retain all 4,315,184 PCM bytes and a second
-4,315,184-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
+one source at a time. It therefore does not retain all 6,052,724 PCM bytes and a second
+6,052,724-byte conversion copy simultaneously; the largest game-owned staging pair is the jungle
 bed at 2,557,800 bytes. Backend-owned decoded audio remains unchanged.
 
 Two genuinely different 1.5-second splash textures handle crossings between dry and shallow-water
@@ -1429,6 +1429,13 @@ supply occasional stronger waves. A deterministic 7--13 second initial delay and
 repeat interval select a source and vary conservative pitch/stereo pan without allowing overlaps.
 The scheduler virtualizes the accent while inland surf is inaudible, so it contributes at most one
 short one-shot to the broader bounded source budget.
+
+Two original 1.8-second loaded-timber creaks add sparse local detail to the grounded shipwreck.
+They require audible surf and a listener within 34 m, use a 10--17 second initial delay and
+17--41 second repeat interval, and discard due events while out of range rather than accumulating
+a backlog. The wreck emitter is immutable and positioned through `Apply3D`. Creaks reuse the
+stronger-wave instance, so they add no persistent track or simultaneous voice and remain within
+the same four-persistent/two-transient ceiling.
 
 Two short bird phrases and two restrained monkey contact phrases are synthesized from deterministic
 oscillators, envelopes, harmonics, and filtered breath texture. A shared scheduler selects the
@@ -1467,7 +1474,9 @@ invalid shoreline state cannot fabricate a crossing, and invalid listener/source
 cannot request a positional call. The next valid update resumes from uncorrupted state; this guard
 does not alter the generated PCM or ordinary finite-input mix.
 Native playback started all four loops, prepared all effects, accepted a scheduled stronger-wave
-one-shot, and played a positional bird call through the real Linux device. Actual Chromium proves
+one-shot, and played a positional bird call through the real Linux device. A separate isolated SDL
+disk-device regression captured nonzero samples from a scheduled positional wreck creak while
+retaining the six-source ceiling. Actual Chromium proves
 first-gesture mixer/track/effect initialization including the wildlife resources, and a
 deterministic shoreline traversal from `(0, -225)` to `(0, -251.332)` successfully played the
 transition effect; a visible hardware-browser listening pass and Android audio focus/lifecycle

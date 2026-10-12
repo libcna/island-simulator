@@ -80,6 +80,9 @@ namespace island
                                  std::span<const BirdState> birds,
                                  std::span<const MonkeyState> monkeys) noexcept;
 
+        /** @brief Supplies the immutable grounded-wreck emitter position. */
+        void SetShipwreckSource(float x, float y, float z) noexcept;
+
         /** @brief Toggles user-requested silence without destroying the active loops. */
         void ToggleMuted() noexcept;
 
@@ -98,6 +101,10 @@ namespace island
         [[nodiscard]] int PlayedWaveAccentCount() const noexcept
         {
             return playedWaveAccentCount_;
+        }
+        [[nodiscard]] int PlayedShipwreckCreakCount() const noexcept
+        {
+            return playedShipwreckCreakCount_;
         }
         [[nodiscard]] int PlayedWaterTransitionCount() const noexcept
         {
@@ -132,6 +139,7 @@ namespace island
         SoundscapeModel model_;
         WaterMovementModel waterMovementModel_;
         WaveAccentScheduler waveScheduler_;
+        ShipwreckCreakScheduler shipwreckCreakScheduler_;
         WaterTransitionScheduler waterTransitionScheduler_;
         FootstepScheduler footstepScheduler_;
         WildlifeCallScheduler wildlifeScheduler_;
@@ -168,6 +176,9 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> waveInstance_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> shipwreckCreakEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect>
+            shipwreckCreakAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waterMovementEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance>
             waterMovementInstance_;
@@ -213,6 +224,7 @@ namespace island
         float footstepSecondsRemaining_ = 0.0f;
         float wildlifeSecondsRemaining_ = 0.0f;
         int playedWaveAccentCount_ = 0;
+        int playedShipwreckCreakCount_ = 0;
         int playedWaterTransitionCount_ = 0;
         int playedFootstepCount_ = 0;
         int playedBirdCallCount_ = 0;
@@ -221,5 +233,9 @@ namespace island
         int playedGoatCallCount_ = 0;
         int playedSnakeHissCount_ = 0;
         int playedBearCallCount_=0;
+        float shipwreckX_ = 0.0f;
+        float shipwreckY_ = 0.0f;
+        float shipwreckZ_ = 0.0f;
+        bool hasShipwreckSource_ = false;
     };
 }

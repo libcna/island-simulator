@@ -1153,6 +1153,8 @@ try {
     "island-simulator: subtle daytime-jungle layer enabled");
   deploymentState.waveVariantsEnabled = deploymentState.output?.includes(
     "island-simulator: two stronger-wave variants enabled");
+  deploymentState.shipwreckCreaksEnabled = deploymentState.output?.includes(
+    "island-simulator: sparse positional shipwreck creaks share the stronger-wave voice");
   deploymentState.positionalWildlifeCallsEnabled = deploymentState.output?.includes(
     "island-simulator: positional bird and monkey calls enabled (one pooled wildlife voice)");
   const deploymentPassed = deploymentState.status === "Ready"
@@ -1175,6 +1177,7 @@ try {
     && deploymentState.landFootstepsEnabled === true
     && deploymentState.jungleAmbienceEnabled === true
     && deploymentState.waveVariantsEnabled === true
+    && deploymentState.shipwreckCreaksEnabled === true
     && deploymentState.positionalWildlifeCallsEnabled === true
     && deploymentState.pointerLocked === true;
 
@@ -2606,6 +2609,7 @@ try {
       landFootstepsEnabled: deploymentState.landFootstepsEnabled === true,
       jungleAmbienceEnabled: deploymentState.jungleAmbienceEnabled === true,
       waveVariantsEnabled: deploymentState.waveVariantsEnabled === true,
+      shipwreckCreaksEnabled: deploymentState.shipwreckCreaksEnabled === true,
       positionalWildlifeCallsEnabled:
         deploymentState.positionalWildlifeCallsEnabled === true,
       output: deploymentState.output ?? "",

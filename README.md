@@ -417,6 +417,8 @@ and the actual logical backbuffer size,
 culling counts, contact-shadow class/draw statistics, vegetation draw statistics, ambient mix
 levels, grass-interaction strength, player-ripple and transition-burst intensity/phase, player-water
 gain, wave/splash counts, undertow cue strength, and positional bird/monkey call activity.
+The wave counter is joined by a separate wreck-creak count; sparse positional hull creaks reuse
+the stronger-wave transient voice only near the grounded ship and never add a persistent source.
 While F1 is visible, F2 toggles an x-ray world diagnostic: the authoritative shoreline and three
 ocean-current thresholds, nearby collision proxies, the player footprint, shared 8 by 8 scene
 cells, all nine terrain-contact samples and normals, wildlife headings, simulation-tier colours,

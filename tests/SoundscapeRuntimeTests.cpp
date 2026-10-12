@@ -2,11 +2,13 @@
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
 #include "IslandSimulator/CampfireLayout.hpp"
 #include <array>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <thread>
 
 namespace {
 void Check(bool condition, const std::string& message) {
@@ -121,11 +123,47 @@ void ExerciseGoatVoice() {
         sound.Update(80,false,0,0,0,1.0f/60,.5f,listener,{},{},{},goats,{});
     Check(sound.PlayedGoatCallCount()==audible,"Out-of-range goat created actual playback");
 }
+void ExerciseShipwreckCreak() {
+    using namespace island;
+    Soundscape sound;
+    sound.SetShipwreckSource(0.0f,0.35f,0.0f);
+    SoundscapeListenerState listener;
+    listener.x=4.0f;listener.y=1.72f;listener.z=0.0f;
+    Check(sound.Start(2.0f,false,0,0,0,.5f,listener.x,listener.z),
+        "Shipwreck-creak dummy audio startup failed: "+sound.Error());
+    for(int tick=0;tick<1800&&sound.PlayedShipwreckCreakCount()==0;++tick) {
+        sound.Update(2.0f,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{});
+        Check(sound.IsAvailable()&&sound.Error().empty(),
+            "Shipwreck creak disabled the soundscape");
+        Check(sound.DebugState().playingSourceCount>=4
+                &&sound.DebugState().playingSourceCount<=6,
+            "Shipwreck creak exceeded the shared six-source budget");
+    }
+    Check(sound.PlayedShipwreckCreakCount()>0,
+        "Nearby wave-exposed shipwreck never entered actual creak playback");
+    if (const char* driver=std::getenv("SDL_AUDIODRIVER");
+        driver&&std::string_view(driver)=="disk") {
+        std::this_thread::sleep_for(std::chrono::milliseconds(650));
+    }
+    const int audible=sound.PlayedShipwreckCreakCount();
+    sound.SetMuted(true);
+    for(int tick=0;tick<300;++tick)
+        sound.Update(2.0f,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{});
+    Check(sound.PlayedShipwreckCreakCount()==audible,
+        "Muted shipwreck created transient playback");
+    sound.SetMuted(false);listener.x=80.0f;
+    for(int tick=0;tick<2400;++tick)
+        sound.Update(2.0f,false,0,0,0,1.0f/60,.5f,listener,{},{},{},{},{});
+    Check(sound.PlayedShipwreckCreakCount()==audible,
+        "Distant shipwreck created actual creak playback");
+}
 }
 
 int main(int argc, char** argv) {
     const char* driver = std::getenv("SDL_AUDIODRIVER");
-    Check(driver && std::string_view(driver) == "dummy", "Test requires the dummy audio driver");
+    Check(driver && (std::string_view(driver) == "dummy"
+                     || std::string_view(driver) == "disk"),
+          "Test requires the isolated dummy or disk audio driver");
     island::InitializeRuntimeDiagnostics(argc, argv);
     try {
         Exercise(false);
@@ -134,6 +172,7 @@ int main(int argc, char** argv) {
         ExerciseCampfire(true);
         ExerciseBearVoice();
         ExerciseGoatVoice();
+        ExerciseShipwreckCreak();
         std::cout << "Soundscape stream startup/entry/swim/mute runtime regression passed\n";
         return 0;
     } catch (const std::exception& error) {

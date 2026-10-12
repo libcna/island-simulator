@@ -47,7 +47,7 @@ The JSON records every source's:
 - stable PCM fingerprint and source identity;
 - per-clip and overall validation state.
 
-The gate requires all 38 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
+The gate requires all 40 sources to remain mono 22.05 kHz PCM16 at their intended duration, retain
 audible energy and mix headroom, avoid material DC bias, and stay finite. A looping source's seam
 must be both absolutely bounded and no worse than 125 percent of its largest ordinary internal
 step, and its normalized absolute mean must remain at or below 0.0001 after PCM quantization. The
@@ -72,8 +72,8 @@ build/island-audio-report \
   --wav-directory /tmp/island-audio-preview
 ```
 
-The directory contains six loop beds and thirty-two one-shots as standard little-endian, mono,
-22.05 kHz PCM16 WAV files. Their PCM payload totals 5,893,964 bytes plus WAV headers. Delete the directory after review;
+The directory contains six loop beds and thirty-four one-shots as standard little-endian, mono,
+22.05 kHz PCM16 WAV files. Their PCM payload totals 6,052,724 bytes plus WAV headers. Delete the directory after review;
 the sources are reproducible from code.
 
 Listen first to each source alone:
@@ -102,6 +102,33 @@ Listen first to each source alone:
    quieter close details remain audible only at suitable distances. Review grazing,
    resting, walking and retreating goats, listener rotation, mute/resume and competition
    with other wildlife calls.
+8. Compare `shipwreck-creak-a.wav` and `shipwreck-creak-b.wav` at quiet playback level. They
+   should read as loaded old hull timber rather than a door hinge, animal voice or tonal effect.
+   In game, verify direction and falloff while circling the wreck and ensure intervals remain
+   unobtrusive beneath surf on both headphones and ordinary speakers.
+
+## Sparse shipwreck creaks (2026-10-12)
+
+Two original deterministic 1.8-second mono clips model low loaded-timber strain with swept
+resonances, inharmonic partials and filtered fibre texture. Variant A/B peak at 0.63998/0.60999,
+RMS is 0.23128/0.21377, normalized mean is 0.00051/-0.00019, endpoints are exact silence, and
+fingerprints are `26ec888679d25c9e` / `a51318948291aa33`. The complete report and independent
+WAV export now pass for 40 distinct clips and 6,052,724 PCM bytes. These measurements prove
+bounded non-silent data, not that the synthesis sounds like real wreck timber.
+
+`ShipwreckCreakScheduler` requires audible surf and a listener within 34m of the immutable wreck
+emitter. Its first delay is 10--17s and subsequent intervals are 17--41s; gain is bounded to
+0.035--0.16 and pitch to -0.075--0.045. Leaving range when due advances to a fresh short wait, so
+missed creaks cannot accumulate. The creak reuses the stronger-wave `SoundEffectInstance`, and
+therefore adds prepared effects but no seventh simultaneous source or persistent loop. Water
+transitions retain their pre-emption priority; mute stops the shared instance immediately.
+
+Core tests cover invalid input, distance, busy-slot holding, both variants and parameter bounds.
+The real CNA runtime test observes actual creak playback, mute and distance suppression while
+holding the four-persistent/two-transient limit. An isolated SDL disk-device run produced 249,856
+stereo S16LE bytes, including 63,398 nonzero samples with peak 10,536, and logged the first creak;
+this proves backend submission, not subjective spatial or naturalness acceptance. Web/Android
+runtime playback and a human listening pass remain open.
 
 Then perform the authoritative in-game pass with headphones and ordinary speakers. Walk a complete
 beach circuit, both clearings, the main jungle trail, dense interior, shallow water, and the active
@@ -113,8 +140,8 @@ subjective task.
 ## Goat calls and native backend evidence (2026-10-12)
 
 Six original deterministic 1.2-second mono clips add two variants each of breathing,
-bleating and hoof detail; no recording or external audio asset is used. The 38-clip
-report and independent WAV export pass with 5,893,964 PCM bytes. Breath A/B peak at
+bleating and hoof detail; no recording or external audio asset is used. At the goat-integration
+checkpoint, the then-38-clip report and independent WAV export passed with 5,893,964 PCM bytes. Breath A/B peak at
 0.47998 with RMS 0.09644/0.08438; bleat A/B peak at 0.59998 with RMS
 0.22678/0.20955; hoof A/B peak at 0.53998 with RMS 0.07758/0.07128. All have exact
 silent endpoints and distinct fingerprints. These measurements prove bounded,
@@ -151,7 +178,8 @@ existing jungle bed gains at most 0.024 while canopy breeze falls by at most twe
 The stream instance and player-water instance are both allocated, but only one plays: dry land
 near the stream selects the stream, while swimming or leaving its audible field restores player
 water. This preserves the existing four-active-ambient plus two-transient, six-source ceiling and
-therefore does not starve footsteps or animal calls. The report now validates 25 unique clips and
+therefore does not starve footsteps or animal calls. At this integration checkpoint the report
+validated 25 unique clips and
 4,315,184 PCM bytes. Core tests cover route projection, falloff, invalid input, biome mix,
 determinism, DC centering, signal energy and a combined five-loop phase period of 290,290 seconds.
 The independent WAV export passes. These are implementation and numerical results; actual spatial

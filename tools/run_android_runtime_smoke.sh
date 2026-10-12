@@ -189,6 +189,11 @@ while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         AUDIO_QUALIFIED=0
     fi
     if [ "$REQUIRE_AUDIO" -eq 1 ] \
+        && ! grep -q "island-simulator: sparse positional shipwreck creaks share the stronger-wave voice" \
+            "$LOG_FILE"; then
+        AUDIO_QUALIFIED=0
+    fi
+    if [ "$REQUIRE_AUDIO" -eq 1 ] \
         && ! grep -q "island-simulator: ambient beds use slow non-amplifying gain drift" \
             "$LOG_FILE"; then
         AUDIO_QUALIFIED=0
@@ -637,6 +642,11 @@ if [ "$REQUIRE_LIFECYCLE" -eq 1 ]; then
         COLD_SETTINGS_QUALIFIED=1
         if [ "$REQUIRE_AUDIO" -eq 1 ] \
             && ! grep -q "island-simulator: audio sources use sequential generation and upload with bounded staging memory" \
+                "$COLD_RELAUNCH_LOG_FILE"; then
+            COLD_AUDIO_QUALIFIED=0
+        fi
+        if [ "$REQUIRE_AUDIO" -eq 1 ] \
+            && ! grep -q "island-simulator: sparse positional shipwreck creaks share the stronger-wave voice" \
                 "$COLD_RELAUNCH_LOG_FILE"; then
             COLD_AUDIO_QUALIFIED=0
         fi

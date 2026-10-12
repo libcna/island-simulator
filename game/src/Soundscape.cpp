@@ -45,6 +45,8 @@ namespace island
             "island-simulator: first distance-scheduled land footstep played";
         constexpr std::string_view WaterTransitionPlaybackDiagnostic =
             "island-simulator: first water-transition accent played";
+        constexpr std::string_view ShipwreckCreakEnabledDiagnostic =
+            "island-simulator: sparse positional shipwreck creaks share the stronger-wave voice";
 
         void PositionStream(SoundEffectInstance& instance, const AudioListener& listener,
                             const StreamSoundSample& source)
@@ -141,6 +143,18 @@ namespace island
 
     Soundscape::~Soundscape() = default;
 
+    void Soundscape::SetShipwreckSource(const float x, const float y, const float z) noexcept
+    {
+        if (std::isfinite(x) && std::isfinite(y) && std::isfinite(z)) {
+            shipwreckX_ = x;
+            shipwreckY_ = y;
+            shipwreckZ_ = z;
+            hasShipwreckSource_ = true;
+        } else {
+            hasShipwreckSource_ = false;
+        }
+    }
+
     SoundscapeDebugState Soundscape::DebugState() const noexcept
     {
         SoundscapeDebugState state;
@@ -234,6 +248,12 @@ namespace island
             waveEffect_->setNameProperty("Procedural stronger wave");
             waveAlternateEffect_ = CreateOneShotSoundEffect(GenerateWaveAccentAlternate());
             waveAlternateEffect_->setNameProperty("Procedural stronger wave alternate");
+            shipwreckCreakEffect_ = CreateOneShotSoundEffect(GenerateShipwreckCreak());
+            shipwreckCreakEffect_->setNameProperty("Procedural grounded shipwreck creak");
+            shipwreckCreakAlternateEffect_ = CreateOneShotSoundEffect(
+                GenerateShipwreckCreakAlternate());
+            shipwreckCreakAlternateEffect_->setNameProperty(
+                "Procedural grounded shipwreck creak alternate");
 
             waterMovementEffect_ = CreateLoopedSoundEffect(GenerateWaterMovementLoop());
             waterMovementEffect_->setNameProperty("Procedural player water movement");
@@ -333,6 +353,7 @@ namespace island
                 throw std::runtime_error("CNA did not transition all looping tracks to Playing");
             }
             waveScheduler_.Reset();
+            shipwreckCreakScheduler_.Reset();
             waterTransitionScheduler_.Reset(waterDepth, swimming);
             footstepScheduler_.Reset();
             wildlifeScheduler_.Reset();
@@ -364,6 +385,7 @@ namespace island
             std::cout << FootstepEnabledDiagnostic << '\n';
             std::cout << "island-simulator: sparse stronger-wave accents enabled\n";
             std::cout << "island-simulator: two stronger-wave variants enabled\n";
+            std::cout << ShipwreckCreakEnabledDiagnostic << '\n';
             std::cout << "island-simulator: positional bird and monkey calls enabled "
                          "(one pooled wildlife voice)\n";
             std::cout << "island-simulator: positional boar breath/snuffle/grunt enabled "
@@ -383,6 +405,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog(CoastalWindMixDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(StreamSoundDiagnostic);
             MirrorRuntimeDiagnosticToPlatformLog(FootstepEnabledDiagnostic);
+            MirrorRuntimeDiagnosticToPlatformLog(ShipwreckCreakEnabledDiagnostic);
 #endif
             return true;
         } catch (const std::exception& exception) {
@@ -417,6 +440,8 @@ namespace island
             waveInstance_.reset();
             waveAlternateEffect_.reset();
             waveEffect_.reset();
+            shipwreckCreakAlternateEffect_.reset();
+            shipwreckCreakEffect_.reset();
             breezeEffect_.reset();
             surfInstance_.reset();
             surfEffect_.reset();
@@ -782,29 +807,56 @@ namespace island
             }
         }
 
-        const WaveAccentRequest accent = waveScheduler_.Update(
-            safeDelta, model_.Mix().surfVolume);
-        SoundEffect* waveEffect = accent.variant == 1U
-            ? waveAlternateEffect_.get() : waveEffect_.get();
         const int activeTransientVoices = (waterTransitionInstance_ ? 1 : 0)
             + (footstepInstance_ ? 1 : 0)
             + (wildlifeInstance_ ? 1 : 0);
-        if (available_ && !muted_ && waveAccentsEnabled_ && accent.trigger && waveEffect
-            && activeTransientVoices < 2) {
+        const float shipwreckDistance = hasShipwreckSource_
+            ? std::hypot(std::hypot(shipwreckX_ - listenerState.x,
+                                    shipwreckZ_ - listenerState.z),
+                         shipwreckY_ - listenerState.y)
+            : std::numeric_limits<float>::infinity();
+        const bool shorelineSlotAvailable = available_ && !muted_
+            && waveAccentsEnabled_ && !waveInstance_ && activeTransientVoices < 2;
+        const ShipwreckCreakRequest creak = shipwreckCreakScheduler_.Update(
+            safeDelta, model_.Mix().surfVolume, shipwreckDistance,
+            shorelineSlotAvailable);
+        const WaveAccentRequest accent = creak.trigger ? WaveAccentRequest{}
+            : waveScheduler_.Update(safeDelta, model_.Mix().surfVolume);
+        SoundEffect* shorelineEffect = creak.trigger
+            ? (creak.variant == 1U ? shipwreckCreakAlternateEffect_.get()
+                                   : shipwreckCreakEffect_.get())
+            : (accent.variant == 1U ? waveAlternateEffect_.get() : waveEffect_.get());
+        if (shorelineSlotAvailable && shorelineEffect && (creak.trigger || accent.trigger)) {
             try {
                 waveInstance_ = std::make_unique<SoundEffectInstance>(
-                    waveEffect->CreateInstance());
-                waveInstance_->setVolumeProperty(accent.volume);
-                waveInstance_->setPitchProperty(accent.pitch);
-                waveInstance_->setPanProperty(accent.pan);
+                    shorelineEffect->CreateInstance());
+                waveInstance_->setVolumeProperty(creak.trigger ? creak.volume : accent.volume);
+                waveInstance_->setPitchProperty(creak.trigger ? creak.pitch : accent.pitch);
+                if (creak.trigger) {
+                    AudioEmitter emitter;
+                    emitter.setPositionProperty(Vector3(
+                        shipwreckX_, shipwreckY_, shipwreckZ_));
+                    emitter.setDopplerScaleProperty(0.0f);
+                    waveInstance_->Apply3D(listener, emitter);
+                } else {
+                    waveInstance_->setPanProperty(accent.pan);
+                }
                 waveInstance_->Play();
                 if (waveInstance_->getStateProperty() != SoundState::Playing) {
                     throw std::runtime_error(
-                        "CNA did not start the stronger-wave playback instance");
+                        "CNA did not start the shoreline transient playback instance");
                 }
-                waveSecondsRemaining_ = 4.25f;
-                ++playedWaveAccentCount_;
-                if (playedWaveAccentCount_ == 1) {
+                waveSecondsRemaining_ = creak.trigger ? 1.85f : 4.25f;
+                if (creak.trigger) {
+                    ++playedShipwreckCreakCount_;
+                    if (playedShipwreckCreakCount_ == 1) {
+                        std::cout << "island-simulator: first positional shipwreck creak played\n"
+                                  << std::flush;
+                    }
+                } else {
+                    ++playedWaveAccentCount_;
+                }
+                if (!creak.trigger && playedWaveAccentCount_ == 1) {
                     std::cout << "island-simulator: first stronger-wave accent played\n"
                               << std::flush;
                 }
@@ -814,7 +866,7 @@ namespace island
                 waveAccentsEnabled_ = false;
                 if (!waveFailureReported_) {
                     waveFailureReported_ = true;
-                    std::cerr << "island-simulator: stronger-wave accents disabled; ambient beds "
+                    std::cerr << "island-simulator: shoreline transients disabled; ambient beds "
                                  "continue: " << exception.what() << '\n';
                 }
             }

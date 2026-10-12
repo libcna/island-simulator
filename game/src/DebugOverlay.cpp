@@ -491,6 +491,7 @@ namespace island
         audio << " WATER " << state.waterMovementVolume
               << " UNDERTOW " << state.oceanCurrentAudioCue
               << " WAVES " << state.playedWaveAccents
+              << " CREAKS " << state.playedShipwreckCreaks
               << " SPLASHES " << state.playedWaterTransitions
               << " STEPS " << state.playedFootsteps;
         lines.push_back(audio.str());

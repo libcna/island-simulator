@@ -453,6 +453,58 @@ namespace island
         return Quantize(samples, 0.84f);
     }
 
+    namespace
+    {
+        [[nodiscard]] AmbientLoop GenerateShipwreckCreakClip(const bool alternate)
+        {
+            constexpr std::size_t frameCount = static_cast<std::size_t>(
+                AmbientSampleRate * 9 / 5);
+            const std::vector<float> texture = CircularSmooth(
+                Noise(alternate ? 0x71de92b3U : 0xc8ea517dU, frameCount),
+                alternate ? 23U : 17U);
+            std::vector<float> samples(frameCount, 0.0f);
+            for (std::size_t index = 0; index < samples.size(); ++index) {
+                const float unit = static_cast<float>(index)
+                    / static_cast<float>(samples.size() - 1U);
+                const float seconds = static_cast<float>(index)
+                    / static_cast<float>(AmbientSampleRate);
+                const float attack = SmoothStep(0.0f, alternate ? 0.10f : 0.075f, unit);
+                const float release = 1.0f - SmoothStep(
+                    alternate ? 0.49f : 0.57f, 1.0f, unit);
+                const float startFrequency = alternate ? 73.0f : 96.0f;
+                const float endFrequency = alternate ? 108.0f : 58.0f;
+                const float sweep = endFrequency - startFrequency;
+                const float phase = 2.0f * std::numbers::pi_v<float>
+                    * (startFrequency * seconds
+                       + 0.5f * sweep * seconds * seconds / 1.8f);
+                const float strain = std::sin(phase)
+                    + 0.31f * std::sin(phase * 2.013f + 0.37f)
+                    + 0.12f * std::sin(phase * 3.071f + 0.81f);
+                const float secondary = alternate
+                    ? SmoothStep(0.31f, 0.43f, unit)
+                        * (1.0f - SmoothStep(0.62f, 0.86f, unit))
+                    : SmoothStep(0.18f, 0.29f, unit)
+                        * (1.0f - SmoothStep(0.46f, 0.72f, unit));
+                samples[index] = attack * release
+                    * (strain * (0.64f + secondary * 0.28f)
+                       + texture[index] * (0.18f + secondary * 0.16f));
+            }
+            samples.front() = 0.0f;
+            samples.back() = 0.0f;
+            return Quantize(samples, alternate ? 0.61f : 0.64f);
+        }
+    }
+
+    AmbientLoop GenerateShipwreckCreak()
+    {
+        return GenerateShipwreckCreakClip(false);
+    }
+
+    AmbientLoop GenerateShipwreckCreakAlternate()
+    {
+        return GenerateShipwreckCreakClip(true);
+    }
+
     AmbientLoop GenerateWaterMovementLoop()
     {
         constexpr int loopSeconds = 7;
@@ -629,6 +681,52 @@ namespace island
         request.pitch = -0.06f + NextUnit() * 0.12f;
         request.pan = -0.32f + NextUnit() * 0.64f;
         secondsUntilAccent_ = 14.0f + NextUnit() * 18.0f;
+        return request;
+    }
+
+    void ShipwreckCreakScheduler::Reset() noexcept
+    {
+        randomState_ = 0xc8ea41f7U;
+        secondsUntilCreak_ = 10.0f + NextUnit() * 7.0f;
+    }
+
+    float ShipwreckCreakScheduler::NextUnit() noexcept
+    {
+        randomState_ ^= randomState_ << 13U;
+        randomState_ ^= randomState_ >> 17U;
+        randomState_ ^= randomState_ << 5U;
+        return static_cast<float>(randomState_ & 0x00ffffffU)
+            / static_cast<float>(0x01000000U);
+    }
+
+    ShipwreckCreakRequest ShipwreckCreakScheduler::Update(
+        const float deltaSeconds, const float surfVolume,
+        const float distanceToShipwreck, const bool playbackSlotAvailable) noexcept
+    {
+        secondsUntilCreak_ -= SafeDeltaSeconds(deltaSeconds);
+        if (!std::isfinite(surfVolume) || !std::isfinite(distanceToShipwreck)
+            || distanceToShipwreck < 0.0f) {
+            return {};
+        }
+        const bool audible = surfVolume >= 0.12f && distanceToShipwreck <= 34.0f;
+        if (!audible) {
+            if (secondsUntilCreak_ <= 0.0f) {
+                secondsUntilCreak_ = 4.0f + NextUnit() * 6.0f;
+            }
+            return {};
+        }
+        if (secondsUntilCreak_ > 0.0f || !playbackSlotAvailable) {
+            return {};
+        }
+
+        const float proximity = 1.0f - SmoothStep(5.0f, 34.0f, distanceToShipwreck);
+        ShipwreckCreakRequest request;
+        request.trigger = true;
+        request.variant = NextUnit() < 0.5f ? 0U : 1U;
+        request.volume = std::clamp(
+            0.035f + proximity * (0.055f + surfVolume * 0.15f), 0.035f, 0.16f);
+        request.pitch = -0.075f + NextUnit() * 0.12f;
+        secondsUntilCreak_ = 17.0f + NextUnit() * 24.0f;
         return request;
     }
 

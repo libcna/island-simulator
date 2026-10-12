@@ -198,6 +198,7 @@ namespace island
         float waterMovementVolume = 0.0f;
         float oceanCurrentAudioCue = 0.0f;
         int playedWaveAccents = 0;
+        int playedShipwreckCreaks = 0;
         int playedWaterTransitions = 0;
         int playedFootsteps = 0;
         int playedBirdCalls = 0;

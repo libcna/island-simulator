@@ -6727,9 +6727,15 @@ improves the requested experience rather than adding quests, combat, survival, o
   small clearing-edge butterfly habitats now provide localized motion with asynchronous state
   timing. Five sparse near-shore turtles now add asynchronous cruise/forage/surface motion without
   entering the current region; whole-scene activity-rhythm critique remains.
-- [ ] Add only subtle shipwreck ambience that can reuse the bounded soundscape budget, such as
+- [~] Add only subtle shipwreck ambience that can reuse the bounded soundscape budget, such as
   wave wash/wood creak scheduling from existing water layers; do not create a permanently loud
   global loop or imply a quest.
+  Two deterministic 1.8s loaded-timber variants now play only within 34m of the grounded wreck,
+  only with audible surf and at irregular 17--41s repeat intervals. They share the stronger-wave
+  transient instance, add no loop or seventh source, do not queue missed out-of-range events, and
+  stop on mute. The 40-clip report/export passes at 6,052,724 PCM bytes; native real-CNA dummy and
+  SDL disk-device runs prove playback, mute/range suppression and the six-source ceiling. Actual
+  listening/naturalness plus Web and Android runtime playback remain open.
 - [ ] Tune camera motion, movement acceleration, slope response, swimming, shoreline transitions,
   and collision against the improved scale/detail so the player remains grounded rather than
   moving through a static diorama.

@@ -1344,6 +1344,8 @@ namespace island
             cameraPosition_ = Vector3(position.x, position.y, position.z);
         }
         soundscape_ = std::make_unique<Soundscape>();
+        const ShipwreckPlacement& shipwreck = shipwreckLayout_.Ship();
+        soundscape_->SetShipwreckSource(shipwreck.x, shipwreck.y + 0.35f, shipwreck.z);
         if (userSettings_.audioMuted) soundscape_->SetMuted(true);
         if (!smokeTest_ && !soundscapeNeedsGesture_) {
             TryStartSoundscape();
@@ -3212,6 +3214,8 @@ namespace island
                 overlayState.waterMovementVolume = soundscape_->WaterMix().volume;
                 overlayState.oceanCurrentAudioCue = soundscape_->WaterMix().currentCue;
                 overlayState.playedWaveAccents = soundscape_->PlayedWaveAccentCount();
+                overlayState.playedShipwreckCreaks =
+                    soundscape_->PlayedShipwreckCreakCount();
                 overlayState.playedWaterTransitions =
                     soundscape_->PlayedWaterTransitionCount();
                 overlayState.playedFootsteps = soundscape_->PlayedFootstepCount();

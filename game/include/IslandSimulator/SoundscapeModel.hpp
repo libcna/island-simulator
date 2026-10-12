@@ -48,6 +48,12 @@ namespace island
     /** @brief Generates a second four-second wave shape for repetition control. */
     [[nodiscard]] AmbientLoop GenerateWaveAccentAlternate();
 
+    /** @brief Generates a short low wooden hull-creak phrase near the grounded wreck. */
+    [[nodiscard]] AmbientLoop GenerateShipwreckCreak();
+
+    /** @brief Generates a second structurally distinct wreck-creak phrase. */
+    [[nodiscard]] AmbientLoop GenerateShipwreckCreakAlternate();
+
     /** @brief Generates a seamless seven-second water-motion bed for wading and swimming. */
     [[nodiscard]] AmbientLoop GenerateWaterMovementLoop();
 
@@ -104,6 +110,31 @@ namespace island
 
         std::uint32_t randomState_ = 0x78d2f9a5U;
         float secondsUntilAccent_ = 0.0f;
+    };
+
+    /** @brief One sparse positional wreck-creak request sharing the wave transient voice. */
+    struct ShipwreckCreakRequest
+    {
+        bool trigger = false;
+        std::uint8_t variant = 0;
+        float volume = 0.0f;
+        float pitch = 0.0f;
+    };
+
+    /** @brief Deterministic proximity/wave scheduler with no missed-event backlog. */
+    class ShipwreckCreakScheduler final
+    {
+    public:
+        void Reset() noexcept;
+        [[nodiscard]] ShipwreckCreakRequest Update(
+            float deltaSeconds, float surfVolume, float distanceToShipwreck,
+            bool playbackSlotAvailable) noexcept;
+
+    private:
+        [[nodiscard]] float NextUnit() noexcept;
+
+        std::uint32_t randomState_ = 0xc8ea41f7U;
+        float secondsUntilCreak_ = 0.0f;
     };
 
     /** @brief Smoothed gain and pitch for the player's continuous movement through water. */
