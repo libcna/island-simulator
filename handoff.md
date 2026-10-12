@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## Latest — actual branch geometry shared for future web attachment
+
+Previousacd23c1nearlegs wasprogress. Added CanopyBranchProfile.hpp/.cpp, consumed by
+JungleRenderer inbothcanopytiers:7branches/form,three6-sidedrings/18vertices/24outward
+triangles, samebend/taper/woodcoords/windweights/phase. Renderer-privatecopyremoved;
+sharedindicesalreadyoutward so FinishWoodNormals no longerreversesthem. No newGPU
+geometry/draws/webpopulation. This is attachmentfoundation, NOTlivewebimplementation.
+SampleCanopyBranchAnchor usestriangleid+barycentricu/v, deforms3actualvertices with
+matchinglocalwind beforeinterpolation. Stilltree-local; futureworldsite/transform,
+windtime/clearance/strands/occupancy/visualproof required. WorldReportwebs=false remains.
+BranchAnchorTests all8forms*7branches*24triangles*5times=6720anchors versusindependent
+doublewindreference, outwardtriangles/restvertex and7badinputs. Build62885terminal0,
+focusedbranch/light/visibilityPASS3.17s, no warnings. Actualnativejungle054755.576838Z
+22938terminal0 PASS356bins/luminancedeviation47.10/spatial214.05/kernel[]. Actualimage
+inspected build/web-branch-anchor-jungle.png; supports/foliagepresent,noobviousgross
+break. Overviewdoesnotproveexactbeforeafter,webattachmentormaturejunglevisualquality.
+FullCPU53groups PASS163.64s (18068terminal0), build/web-branch-anchor-full-tests.log.
+NoWeb/Androidbuild/runtime, noAMDhardware/KVM/AVD/dependencychanges;latchc0bd1704unchanged.
+Goalactive/no push. NEXT world-spaceboundedwebsitesusingtheseactualtriangles, then
+wind-stablewebgeometry/liveoccupants/renderaudit; fullremainingplan/AMDrootcause open.
+
 ## Latest — shaped near spider limbs within existing collision/buffer limits
 
 Previous0487722habitatcomparison wasprogress. Nearleg/palpTube now8sides+midring,

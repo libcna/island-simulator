@@ -18,6 +18,7 @@
 #include "IslandSimulator/SplitGroundLeaf.hpp"
 #include "IslandSimulator/BushProfile.hpp"
 #include "IslandSimulator/CanopyProfile.hpp"
+#include "IslandSimulator/CanopyBranchProfile.hpp"
 #include "IslandSimulator/CanopyLeafPosture.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/ProceduralMeshValidation.hpp"
@@ -590,60 +591,25 @@ void main()
             }
         }
 
-        void AppendCanopyBranch(PlantGeometry& geometry, const Vector3& start,
-                                const Vector3& end, const Color& baseColor,
-                                const float windPhase)
+        void AppendCanopyBranch(PlantGeometry& geometry, const CanopyBranchProfile& branch,
+                                const Color& baseColor)
         {
-            constexpr int sides = 6;
-            const Vector3 axis = Vector3::Normalize(end - start);
-            const Vector3 reference = std::fabs(axis.Y) < 0.88f
-                ? Vector3::Up : Vector3::Right;
-            const Vector3 right = Vector3::Normalize(Vector3::Cross(reference, axis));
-            const Vector3 up = Vector3::Normalize(Vector3::Cross(axis, right));
-            const float phaseAngle = windPhase * 2.0f * std::numbers::pi_v<float>;
-            const Vector3 bendCentre = start + (end - start) * 0.56f
-                + right * (0.14f + 0.075f * std::sin(phaseAngle))
-                + up * (0.065f * std::cos(phaseAngle * 1.31f));
             const auto base = static_cast<std::uint16_t>(geometry.vertices.size());
-            constexpr int Rings = 3;
             const auto firstIndex = geometry.indices.size();
             std::vector<Vector3> outwardDirections;
-            for (int ring = 0; ring < Rings; ++ring) {
-                const Vector3 centre = ring == 0 ? start : (ring == 1 ? bendCentre : end);
-                const float radius = ring == 0 ? 0.17f : (ring == 1 ? 0.115f : 0.070f);
-                const float windWeight = ring == 0 ? 0.12f : (ring == 1 ? 0.34f : 0.58f);
-                const float along = ring == 0 ? 0.0f : Vector3::Distance(start, bendCentre)
-                    + (ring == 2 ? Vector3::Distance(bendCentre, end) : 0.0f);
-                for (int side = 0; side < sides; ++side) {
-                    const float angle = 2.0f * std::numbers::pi_v<float>
-                        * static_cast<float>(side) / static_cast<float>(sides);
-                    const Vector3 outward = right * std::cos(angle) + up * std::sin(angle);
-                    geometry.vertices.emplace_back(
-                        centre + outward * radius,
-                        ShadeColor(baseColor, 0.76f + 0.06f * static_cast<float>(side)),
-                        Vector2(windWeight, windPhase));
-                    SetWoodAlbedo(geometry, baseColor, angle, along);
-                    outwardDirections.push_back(outward);
-                }
+            for (std::size_t i=0;i<branch.vertices.size();++i) {
+                const auto& vertex=branch.vertices[i];
+                const auto& p=vertex.position;
+                geometry.vertices.emplace_back(Vector3(p[0],p[1],p[2]),
+                    ShadeColor(baseColor,0.76f+0.06f*static_cast<float>(i%6)),
+                    Vector2(vertex.weight,vertex.phase));
+                SetWoodAlbedo(geometry,baseColor,vertex.angle,vertex.along);
+                outwardDirections.emplace_back(vertex.outward[0],vertex.outward[1],vertex.outward[2]);
             }
-            for (int segment = 0; segment < Rings - 1; ++segment) {
-                for (int side = 0; side < sides; ++side) {
-                    const int next = (side + 1) % sides;
-                    const auto lower = static_cast<std::uint16_t>(
-                        base + segment * sides + side);
-                    const auto lowerNext = static_cast<std::uint16_t>(
-                        base + segment * sides + next);
-                    const auto upper = static_cast<std::uint16_t>(
-                        base + (segment + 1) * sides + side);
-                    const auto upperNext = static_cast<std::uint16_t>(
-                        base + (segment + 1) * sides + next);
-                    geometry.indices.insert(geometry.indices.end(),
-                                            {lower, upper, lowerNext,
-                                             lowerNext, upper, upperNext});
-                }
-            }
-            // right/up/axis is right-handed; the previous strip winding pointed into the branch.
-            FinishWoodNormals(geometry, base, firstIndex, outwardDirections, true);
+            for (const auto& triangle:branch.triangles)
+                for (const auto index:triangle)
+                    geometry.indices.push_back(static_cast<std::uint16_t>(base+index));
+            FinishWoodNormals(geometry,base,firstIndex,outwardDirections,false);
         }
 
         void AppendPointedLeaf(PlantGeometry& geometry, const Vector3& root,
@@ -797,16 +763,8 @@ void main()
                 // Primary crown supports still occupy visible pixels at the LOD boundary.
                 // Share their exact geometry/material/wind instead of dropping all branches.
                 if (cluster > 0) {
-                    const auto attachment = SampleCanopyTrunk(variant,
-                        0.65f + 0.065f * static_cast<float>(cluster / 2));
-                    const Vector3 branchStart(attachment[0] + std::cos(angle) * 0.10f,
-                                              attachment[1],
-                                              attachment[2] + std::sin(angle) * 0.10f);
-                    const Vector3 branchEnd = centre - Vector3::Up * 0.62f
-                        - Vector3(std::cos(angle) * 0.48f, 0.0f,
-                                  std::sin(angle) * 0.48f);
-                    AppendCanopyBranch(geometry, branchStart, branchEnd,
-                                       ShadeColor(CanopyBarkColor(variant), 0.86f), phase);
+                    AppendCanopyBranch(geometry, MakeCanopyBranchProfile(variant,cluster),
+                                       ShadeColor(CanopyBarkColor(variant), 0.86f));
                 }
                 const float crownHeight = profile.height;
                 // A small opaque core represents unresolved inner foliage. Individual folded

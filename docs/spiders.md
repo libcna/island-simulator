@@ -4,6 +4,35 @@ Status: **12 ground spiders are now integrated in IslandGame. Webs are still abs
 The first actual native software image was inspected, but its generic image-contrast
 gate failed. Natural motion, visual realism and portable qualification remain open.
 
+## Web attachment foundation — no live webs yet
+
+CanopyBranchProfile.hpp/.cpp now exposes the actual seven bent support branches
+per canopy form. JungleRenderer consumes this shared profile for both LOD tiers:
+three six-sided rings,18 vertices/24 outward triangles, the original taper, bend,
+wood coordinates and wind weights/phases. No extra foliage/GPU geometry or web
+population was added. This removes a renderer-private geometry copy before choosing
+web sites; it does NOT yet select valid gaps or place any web.
+
+SampleCanopyBranchAnchor stores an attachment as triangle index plus barycentric
+coordinates. It deforms the three vertices with the existing local wind model before
+interpolating, rather than applying nonlinear wind at an approximate cylinder point.
+The result is still tree-local: the future web must apply the real tree instance
+transform, use matching wind time and retain the branch/triangle identity. Open end
+caps are not invented. World-space gap clearance, plant intersections, wind-stable
+strand geometry, occupancy and actual rendering remain required.
+
+BranchAnchorTests covers all8forms×7branches×24triangles×5times=6720 attachments,
+independent double-precision wind/interpolation checks, outward/nondegenerate triangles,
+exact vertex attachment at rest, and seven invalid variant/cluster/coordinate/time cases.
+Native build and branch/light-field/visibility focused tests PASS3.17s. Actual contained
+llvmpipe jungle capture054755.576838Z-jungle PASS, kernel-after[]; the1280x720 image
+was inspected in build/web-branch-anchor-jungle.png. Supports/foliage are present with
+no obvious gross geometry break. This overview is NOT a visual proof of moving web
+attachment, exact before/after equivalence or overall realistic jungle acceptance.
+No Web/Android build/runtime in this step. Webs are still absent in IslandGame and
+WorldReport must continue reporting websImplemented=false.
+Inclusive53 CPU groups pass163.64s (`build/web-branch-anchor-full-tests.log`).
+
 ## Generated setae material
 
 ### Near limb-profile refinement

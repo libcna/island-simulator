@@ -849,6 +849,13 @@ progress or require player interaction; dangerous species keep their distance li
   Actual054117.864733Z-bright8images+earlierbeforeafter inspected: subtleimprovement,
   jointseams/simpleanatomy/foldedbodypatternremain. OutercontrastFAIL/motion+lighting/kernel[].
   Noportablebuild/runtimeforthisrefinement; targetperformance stillunmeasured.
+  Webattachmentfoundation: sharedCanopyBranchProfile drives actualrenderer bothLODs,
+  7supports/form,18vertices/24triangleseach, unchangedgeometrybudget. Trianglebarycentric
+  anchor samples wind-deformedvertices; tree-localonly, worldtransform/siteclearance/
+  strands/occupancy/rendering stillTODO.6720anchorchecks+7invalidcases,focusedCPU3.17s.
+  Actual054755.576838Z-jungle overviewinspected/PASS/kernel[]; NOTlivewebacceptance.
+  Websremainabsent; noWeb/Androidbuild/runtimeforthisfoundation.
+  Inclusive53CPUgroups PASS163.64s; branchgeometrychangesstillneedportablequalification.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current
