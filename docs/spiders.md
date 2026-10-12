@@ -6,6 +6,23 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## World-space web site proposals — not live or foliage-qualified
 
+### Exact support-branch crossing rejection
+
+Site selection now additionally rejects any strand crossing the seven actual shared
+branch side meshes at wind times 0, 4 and 13. The segment/triangle predicate handles
+ordinary crossings and coplanar overlap using double-precision plane/barycentric
+calculations and an AABB broad phase. Only intentional endpoint contact with the
+owning support is trimmed by 0.1mm in tree-local units; the rest of that support is
+still tested. This is zero-thickness surface clearance, not an expanded wood volume.
+
+The stronger check changes the default proposals to trees229,191,84,139,105,223;
+even tree229 uses a different frame. Earlier tree lists below are historical.
+Both web test groups pass2.40s, including seven synthetic intersection cases and
+twenty additional wind instants per accepted site independent of selection times.
+Logs: build/web-clearance-final-{build,tests}.log. No renderer or portable run.
+Leaves, trunk, vines, nearby plants, branch end volumes and continuous-time clearance
+remain unqualified. Live integration is deferred behind the renewed operator priorities.
+
 ### Connected strand geometry (CPU only)
 
 `SpiderWebGeometry` constructs a fixed graph from a site's three rest anchors:

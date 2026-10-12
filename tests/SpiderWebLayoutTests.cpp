@@ -1,4 +1,5 @@
 #include "IslandSimulator/SpiderWebLayout.hpp"
+#include "IslandSimulator/SpiderWebClearance.hpp"
 #include "IslandSimulator/IslandTerrain.hpp"
 #include <cmath>
 #include <iostream>
@@ -7,6 +8,14 @@
 namespace { void Check(bool value,const char* message){if(!value)throw std::runtime_error(message);} }
 int main() {
     using namespace island;
+    const std::array<BranchPoint,3> triangle{{{0,0,0},{1,0,0},{0,1,0}}};
+    Check(WebSegmentHitsTriangle({.2f,.2f,-1},{.2f,.2f,1},triangle),"missed perpendicular crossing");
+    Check(!WebSegmentHitsTriangle({.8f,.8f,-1},{.8f,.8f,1},triangle),"false triangle-plane crossing");
+    Check(WebSegmentHitsTriangle({-.2f,.2f,0},{.8f,.2f,0},triangle),"missed coplanar crossing");
+    Check(WebSegmentHitsTriangle({.2f,.2f,0},{.3f,.3f,0},triangle),"missed coplanar interior");
+    Check(!WebSegmentHitsTriangle({.8f,.8f,0},{1,1,0},triangle),"false coplanar crossing");
+    Check(!WebSegmentHitsTriangle({.2f,.2f,.01f},{.3f,.3f,.01f},triangle),"false parallel intersection");
+    Check(WebSegmentHitsTriangle({-1,0,0},{0,0,0},triangle),"missed triangle vertex contact");
     const IslandTerrain terrain;const RenderedTerrainSurface surface(terrain);const JungleLayout jungle(terrain);
     const auto sites=SpiderWebLayout::Propose(jungle,surface);
     Check(!sites.empty()&&sites.size()<=SpiderWebLayout::MaximumSites,"no bounded web proposals");
@@ -18,6 +27,7 @@ int main() {
         Check(site.anchors[0].branch!=site.anchors[1].branch&&site.anchors[1].branch!=site.anchors[2].branch
             &&site.anchors[0].branch!=site.anchors[2].branch,"web lacks distinct branch supports");
         const auto rest=SpiderWebLayout::Sample(site,jungle,surface,0);
+        for(int i=0;i<20;++i)Check(!WebIntersectsCanopyBranches(site,tree.variant,float(i)*1.37f),"accepted branch intersection at independent wind sample");
         BranchPoint centre{};for(const auto p:rest)for(std::size_t k=0;k<3;++k)centre[k]+=p[k]/3;
         for(const auto old:centres)Check(std::hypot(centre[0]-old[0],centre[2]-old[2])>=SpiderWebLayout::MinimumSeparation,"webs overlap homes");
         centres.push_back(centre);

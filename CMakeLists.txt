@@ -72,6 +72,7 @@ add_library(island_core STATIC
     game/src/CanopyBranchProfile.cpp
     game/src/SpiderWebLayout.cpp
     game/src/SpiderWebGeometry.cpp
+    game/src/SpiderWebClearance.cpp
     game/src/GoatPose.cpp
     game/src/GoatHerd.cpp
     game/src/GoatMesh.cpp

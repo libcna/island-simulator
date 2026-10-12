@@ -18,6 +18,45 @@ Status markers:
 Repository content, source, diagnostics, UI text, documentation, and commit messages are English.
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
+## Latest operator priorities — 2026-10-12
+
+These are additive requirements, not a replacement for the remaining plan. Prioritize
+the renewed boar/monkey and hut requests over unfinished spider-web integration.
+
+- [ ] Rework boar appearance and resolve the operator's report of no audible grunting.
+  Existing synthesized clips and earlier backend Playing-state tests are NOT evidence
+  that the operator hears convincing boars. Reproduce nearby rest/forage/wander cases,
+  inspect scheduling, attenuation and ambient masking, and verify audible results.
+  Improve anatomy/materials with actual matched close-view comparisons; retain this
+  requirement until appearance and sound have both been reviewed.
+- [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
+  tail. Rework head/body proportions and a fur-covered tail together, not just a colour
+  change. Inspect actual island images and movement; previous fur/rig implementation
+  does not satisfy the user's renewed visual rejection.
+- [ ] Move the hut substantially farther inland and rebuild its appearance toward the
+  user's reference: raised timber house, front veranda/railing, broad pitched roof,
+  exposed framing/braces, plank walls and framed door/windows in a jungle setting.
+  Reference inspected from
+  https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA8JzXAgr0qQjz-dKn0RzxgNdZ8aOJmQeWYhmBt6ruQg&s=10
+  (local reference only: build/hut-user-reference.jpg; not a licensed game texture).
+  Preserve reachable access, grounded supports and collision; update report/placement
+  tests and inspect actual in-game near/wide views after relocation and redesign.
+- [ ] Add a river or stream. Initial implementation choice: a small inland-to-coast
+  stream with a continuous downhill channel integrated into terrain, suitable banks,
+  coherent water height/flow and a plausible mouth. Verify walking/crossing, collision,
+  vegetation/animal placement and native/Web/Android visuals. A painted blue strip is
+  not completion. This supersedes the earlier preference against a permanent river;
+  the small damp biome can coexist but does not substitute for the requested stream.
+- [ ] Add an accessible cave and adapt the island terrain around it. Choose a rocky
+  hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding
+  rock/terrain transition, with player clearance and no terrain sheet sealing the
+  opening. Check outside/inside collision, roof containment, entrance lighting and
+  vegetation intersections, plus actual walking and supported-platform captures.
+  No quests, combat or new survival systems are implied. A dark rock decal is not a cave.
+
+All five items remain incomplete. Stream/cave locations should be coordinated with
+hut access and existing wildlife; do not remove vegetation or relocate animals blindly.
+
 ## Product definition and non-goals
 
 `island-simulator` is a peaceful first-person tropical island walking and near-shore swimming

@@ -1,5 +1,6 @@
 #include "IslandSimulator/SpiderWebLayout.hpp"
 #include "IslandSimulator/JungleGrounding.hpp"
+#include "IslandSimulator/SpiderWebClearance.hpp"
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -95,6 +96,8 @@ std::vector<SpiderWebSite> SpiderWebLayout::Propose(const JungleLayout& jungle,c
             }
             bool valid=true;
             for(float time:{0.0f,4.0f,13.0f})valid=valid&&ClearFrame(Local(site,tree.variant,time),tree.variant,tree.scale);
+            if(!valid)continue;
+            for(float time:{0.0f,4.0f,13.0f})valid=valid&&!WebIntersectsCanopyBranches(site,tree.variant,time);
             if(!valid)continue;
             const auto world=Sample(site,jungle,surface,0);
             const auto worldCentre=Centre(world);

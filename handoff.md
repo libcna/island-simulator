@@ -1,5 +1,33 @@
 # island-simulator handoff
 
+## Latest — operator priorities changed; branch clearance checkpoint
+
+Previous21baa67 was progress. Added SpiderWebClearance.hpp/.cpp and integrated exact
+seven-branch side-triangle/strand intersection rejection at times0,4,13 into Propose.
+Double plane/barycentric test includes coplanar overlap; AABB broad phase. Only own
+support endpoints trimmed0.1mm tree-local. No whole-support exemption. Stronger check
+changes proposals to229,191,84,139,105,223. Tests seven synthetic cases plus20 independent
+wind instants/site pass; native build/focused web groups PASS2.40s, handles90509/87730
+terminal0. Logs build/web-clearance-final-{build,tests}.log. No new full55 suite, GPU,
+Web/Android or actual web rendering; leaf/trunk/vine/nearby-plant/end-volume clearance
+still open. Reused build/, shared ccache/-j2; no dependency or hardware/Android changes.
+
+NEW USER MESSAGES reprioritize work: pigs look poor and no grunts heard; monkey looks
+like a rat with a rat tail; hut must move farther inland and resemble supplied photo;
+add stream/river; add cave with terrain adaptation. All persisted in PLAN top section.
+Reference downloaded to build/hut-user-reference.jpg and ACTUALLY inspected: timber
+house on supports, veranda/railing, plank walls, windows/door, broad pitched roof,
+exposed framing/braces, jungle backdrop. Not a game texture/license grant.
+NEXT prioritize these requests over further web integration. Inspect actual boar/monkey
+views before changes. Sound sources/scheduler exist but audible naturalness NOT proven:
+BoarCallVolume breath9m/base.14, snuffle23m/.29, grunt42m/.40 with squared fade;
+rest emits only breath. Shared wildlife slot gives due bird/monkey calls first refusal,
+also blocked by wave/water voices. Global sound distance scale24. No cause confirmed
+for user's silence; do not assert missing playback or a fix from source alone.
+MonkeyTailProfile radius currently .003+.033*(1-t); AddTail uses existing fur UVs.
+Hut Find currently576candidates only18..38m inland; new farther-inland constraint not
+implemented. Stream/cave wholly unimplemented. All remain open, goal active/no push.
+
 ## Latest — connected web strand graph, still CPU-only
 
 Previous9f6822e was progress. SpiderWebGeometry now constructs a triangle-supported
