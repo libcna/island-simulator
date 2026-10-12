@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — physical-height goat body coat, native rear comparison inspected
+
+GoatMesh Builder::Vertex authors Body u=(z+.58)/1.12 and v=(y-.52)/.56 before bob,
+including cap centres. GoatCoatUv uses body v directly; head sin/sweep cos unchanged.
+This prevents full fur-window squeeze on shrinking rump rings. Geometry/animation/
+source assets/draws/layout/memory unchanged. Actual body-vertex tests cover both LODs,
+sampled poses, physical z/y and bob compensation; body no longer angular seam contract.
+Inclusive native build +47/47 CPU PASS94.68s (build/goat-height-uv-{build,tests}.log).
+Only subsequent source edit was comment clarification, no executable change.
+
+Contained capture20261012T024124.340743Z-goats PASS8stages/kernel-after[]. Actual
+build/goat-height-uv-comparison.png (same stage7 old left/new right) and full8-stage
+goat-height-uv-montage.png inspected. Rear star pattern removed; replacement rear
+hair too horizontal, so directional rear projection/finer coat still open. Head/ears/
+eyes/joints/continuous stance remain unaccepted. No current Web/Android build/runtime;
+previous023517 Chrome audit predates this UV change. Build73052/capture87827 terminal0.
+Goal active/no push, no AMD hardware/Android/KVM/dependency changes. Full prior scope
+and unresolved high-priority flight crash retained. Next: rear hair direction/anatomy
+and actual Android goat runtime; do not treat this partial visual correction as done.
+
 ## Latest — actual Chrome software goat audit, six images inspected
 
 Added supervised scope goats in run_browser_software.py/run_web_smoke.mjs and real

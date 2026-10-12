@@ -884,6 +884,13 @@ progress or require player interaction; dangerous species keep their distance li
   images inspected. Coat/hooves render, animal turns/moves; rear star-pattern texture,
   crude ears/eyes and angular legs remain. Not continuous gait or AMD qualification;
   Android goat runtime still open. Full evidence/command in docs/goats.md.
+  Body coat taper correction: physical-height UV authored before bob replaces
+  normalized ring height, preventing full fur-window compression on shrinking rings.
+  Geometry/assets/draws/memory unchanged; head/sweep mappings retained. Actual body
+  vertex UV checks cover both LODs/all sampled poses. Native47/47 CPU PASS94.68s;
+  024124.340743Z-goats8-stage capture PASS/kernel[], montage and same-stage rear
+  comparison actually inspected. Star pattern removed, rear hair now too horizontal;
+  directional rear mapping/finer coat/anatomy remain open. No new portable qualification.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

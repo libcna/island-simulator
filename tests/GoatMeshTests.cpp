@@ -51,10 +51,13 @@ int main() {
                     "goat hoof pair exceeds authored narrow footprint");
             }
             const auto uv=GoatCoatUv(vertex);
-            if(vertex.part==GoatPart::Body&&vertex.v!=.5f) {
-                // End-cap poles use a separate centre UV; side rings follow physical z.
+            if(vertex.part==GoatPart::Body) {
                 check(std::abs(vertex.u-(vertex.position.z+.58f)/1.12f)<1e-5f,
                     "goat body coat stretches according to ring index rather than physical length");
+                check(std::abs(vertex.v-(vertex.position.y-pose.bodyBob-.52f)/.56f)<1e-5f,
+                    "goat body coat squeezes around taper or swims with body bob");
+                check(std::abs(uv[0]-(.06f+.88f*vertex.v))<1e-6f,
+                    "body coat lost physical height projection");
             }
             check(uv[0]>=.05999f&&uv[0]<=.94001f&&uv[1]>=.05999f&&uv[1]<=.94001f,
                 "goat fur UV leaves interior source window");
@@ -127,12 +130,15 @@ int main() {
         GoatVertex vertex{};vertex.part=part;vertex.u=.3f;vertex.v=0;
         const auto start=GoatCoatUv(vertex);vertex.v=1;
         const auto end=GoatCoatUv(vertex);
-        check(std::abs(start[0]-end[0])<1e-6f&&start[1]==end[1],"goat coat circumferential seam");
+        if(part!=GoatPart::Body)
+            check(std::abs(start[0]-end[0])<1e-6f&&start[1]==end[1],"goat coat circumferential seam");
+        else check(std::abs(start[0]-.06f)<1e-6f&&std::abs(end[0]-.94f)<1e-6f,
+            "body physical height window changed");
         vertex.u=.1f;const float low=GoatCoatUv(vertex)[1];
         vertex.u=.9f;const float high=GoatCoatUv(vertex)[1];
         check(part==GoatPart::Body?high<low:high>low,"goat coat strand direction reversed");
     }
-    for(const auto part:{GoatPart::Body,GoatPart::Head}) {
+    for(const auto part:{GoatPart::Head}) {
         GoatVertex vertex{};vertex.part=part;vertex.u=.5f;
         for(const auto [angle,expected]:std::array<std::array<float,2>,4>{{{0,.5f},{.25f,.94f},{.5f,.5f},{.75f,.06f}}}) {
             vertex.v=angle;

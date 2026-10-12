@@ -370,6 +370,27 @@ Reproduction (existing Web build, no hardware access):
 sg systemd-journal -c 'python3 tools/run_browser_software.py build-probe --node /home/robertvokac/emsdk/node/24.19.0_64bit/bin/node --browser chrome --scope goats --timeout 600'
 ```
 
+## Physical-height body coat projection
+
+The actual native/Web rear views exposed a star-shaped fur squeeze: normalized ring
+height still mapped the full source width onto each shrinking rump ring. Body UVs
+now use physical longitudinal position and physical height (`(y-.52)/.56`) before
+body bob, including cap centres. GoatCoatUv consumes that body coordinate directly;
+head/sweep mappings are unchanged. This removes ring-radius-dependent hair spacing
+without modifying geometry, animation, assets, draw calls, vertex layout or memory.
+Tests cover actual body vertices in both LODs/all sampled poses, physical z/height,
+bob compensation, source window and the separate non-body circumferential seam.
+
+Inclusive native build and47/47 CPU tests PASS94.68s, logs
+`build/goat-height-uv-{build,tests}.log`. Contained native8-stage sequence
+`20261012T024124.340743Z-goats` PASS, empty kernel delta. All eight images and the
+same-stage rear before/after were actually inspected in
+`build/goat-height-uv-montage.png` and `build/goat-height-uv-comparison.png`.
+The rear star pattern is removed in that comparison, but the planar projection
+produces overly horizontal rear hair bands; directional rear mapping and a finer
+coat remain open. No final realism/continuous-gait acceptance. Latest actual Web
+audit above predates this mapping change; no fresh Web/Android build/runtime here.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

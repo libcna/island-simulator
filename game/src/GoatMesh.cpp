@@ -35,6 +35,13 @@ struct Builder {
         return {p.x,.72f+c*y-s*z-headLower,.25f+s*y+c*z};
     }
     GoatVertex Vertex(GoatPoint p,GoatPoint n,GoatMaterial material,float u,float v,Attachment attachment) {
+        if(part==GoatPart::Body) {
+            // Physical-height projection preserves hair spacing through the rump
+            // taper. Angular ring coordinates squeeze a full fur window into every
+            // shrinking ring. Author before body bob so the coat cannot swim.
+            u=(p.z+.58f)/1.12f;
+            v=std::clamp((p.y-.52f)/.56f,0.0f,1.0f);
+        }
         if(attachment==Attachment::Head) {
             const float c=std::cos(pitch),s=std::sin(pitch);
             p=HeadPoint(p);
