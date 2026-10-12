@@ -42,6 +42,23 @@ int main() {
                 &&v.v>=.05999f&&v.v<=.94001f,"spider albedo UV outside interior window");
             Check(p.y>=-1e-7f,"flat mesh penetrates ground");
             Check(std::hypot(p.x,p.z)<=SpiderHabitat::BodyRadius,"mesh exceeds habitat envelope");
+            if(v.part==SpiderPart::Leg) {
+                bool withinEnvelope=false;
+                constexpr std::array<float,4> radii{.0038f,.0032f,.0023f,0};
+                for(const auto& leg:legs) {
+                    const std::array<SpiderPoint,4> joints{leg.root,leg.hip,leg.knee,leg.foot};
+                    for(std::size_t segment=0;segment<3;++segment) {
+                        const auto axis=Sub(joints[segment+1],joints[segment]);
+                        const auto offset=Sub(p,joints[segment]);
+                        const float t=Dot(offset,axis)/Dot(axis,axis);
+                        const SpiderPoint radial{offset.x-t*axis.x,offset.y-t*axis.y,offset.z-t*axis.z};
+                        const float radius=std::lerp(radii[segment],radii[segment+1],std::clamp(t,0.0f,1.0f));
+                        withinEnvelope|=t>=-.00001f&&t<=1.00001f
+                            &&std::sqrt(Dot(radial,radial))<=radius+.0000001f;
+                    }
+                }
+                Check(withinEnvelope,"shaped limb exceeds the collision taper envelope");
+            }
             ++parts[static_cast<std::size_t>(v.part)];
         }
         for(std::size_t i=0;i<mesh.vertices.size();i+=3) {

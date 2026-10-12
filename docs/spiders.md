@@ -6,6 +6,29 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## Generated setae material
 
+### Near limb-profile refinement
+
+Near leg/palp sections now use eight instead of six radial sides and an intermediate
+ring. The radius is the previous linear taper multiplied by
+`0.72 + 0.28*sin(pi*t)`: narrower articulations, fuller middle, still inside the old
+collision taper. Smooth normals use the profile derivative. Exact segment endpoints,
+bone lengths, foot anchors and zero-radius ground tips are retained. Far geometry
+remains1632 vertices; near count9840 versus7920 (+24.2% upload/geometry work).
+Existing10000/animal and120000/batch capacities, texture and two near draws unchanged;
+only160 vertices/animal budget headroom remains. Portable performance is unmeasured.
+
+Mesh regression independently checks every leg vertex against the union of original
+bone taper envelopes across nine poses, in addition to normals/winding/UVs/bounds.
+Final native build+mesh/colony tests PASS9.59s, including actual posed terrain checks.
+Logs build/spider-limbs-final-{build,tests}.log; earlier profile/envelope checks also pass.
+Actual final llvmpipe054117.864733Z-spiders-bright: all eight images inspected in
+build/spider-limbs-final-montage.png; earlier same-stage before/after comparison in
+build/spider-limbs-comparison.png shows subtly rounder, slimmer articulations.
+Still separate simple bone sections, not a fully anatomical multi-segment leg model;
+joint seams and the folded body-texture pattern remain.1/12visible/2draws/contact1,
+habitat+motion+lighting checks pass/kernel[]. Outer image contrast stillFAILED;
+no thresholds or lighting changed. No Web/Android build/runtime for this refinement.
+
 ### Comparison with an existing fully sunlit habitat
 
 `--viewpoint spiders-bright` selects the first maximum body-centre canopy

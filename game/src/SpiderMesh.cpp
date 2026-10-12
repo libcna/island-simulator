@@ -28,21 +28,33 @@ struct Builder {
         mesh.vertices.insert(mesh.vertices.end(),{a,b,c});
     }
     void Tube(SpiderPoint a,SpiderPoint b,float radiusA,float radiusB,int sides,
-            SpiderPart part,SpiderMaterial material) {
+            SpiderPart part,SpiderMaterial material,bool shaped=false) {
         const auto axis=Unit(Sub(b,a));
         const auto right=Unit(Cross(axis,std::abs(axis.y)<.9f?SpiderPoint{0,1,0}:SpiderPoint{1,0,0}));
         const auto up=Cross(axis,right);
-        const float slope=(radiusB-radiusA)/std::hypot(b.x-a.x,b.y-a.y,b.z-a.z);
-        const auto vertex=[&](bool end,int i) {
+        const float length=std::hypot(b.x-a.x,b.y-a.y,b.z-a.z);
+        const auto vertex=[&](float t,int i) {
             const float angle=2*Pi*static_cast<float>(i)/sides;
             const auto radial=Add(Mul(right,std::cos(angle)),Mul(up,std::sin(angle)));
-            return SpiderVertex{Add(end?b:a,Mul(radial,end?radiusB:radiusA)),
+            // Narrow articulations and a full middle stay inside the previous
+            // linear tapered collision envelope, including the zero-radius tip.
+            const float profile=shaped?.72f+.28f*std::sin(Pi*t):1;
+            const float baseRadius=std::lerp(radiusA,radiusB,t);
+            const float derivative=(radiusB-radiusA)*profile
+                +(shaped?baseRadius*.28f*Pi*std::cos(Pi*t):0);
+            const float slope=derivative/length;
+            const auto centre=t==0?a:t==1?b:Add(a,Mul(Sub(b,a),t));
+            return SpiderVertex{Add(centre,Mul(radial,baseRadius*profile)),
                 Unit(Sub(radial,Mul(axis,slope))),part,material,
-                .06f+.88f*(.5f-.5f*std::cos(angle)),end?.94f:.06f};
+                .06f+.88f*(.5f-.5f*std::cos(angle)),.06f+.88f*t};
         };
         for(int i=0;i<sides;++i) {
-            Triangle(vertex(false,i),vertex(true,i),vertex(true,i+1));
-            Triangle(vertex(false,i),vertex(true,i+1),vertex(false,i+1));
+            const int rings=shaped?2:1;
+            for(int ring=0;ring<rings;++ring) {
+                const float t0=static_cast<float>(ring)/rings,t1=static_cast<float>(ring+1)/rings;
+                Triangle(vertex(t0,i),vertex(t1,i),vertex(t1,i+1));
+                Triangle(vertex(t0,i),vertex(t1,i+1),vertex(t0,i+1));
+            }
             for(bool end:{false,true}) {
                 const auto normal=Mul(axis,end?1.0f:-1.0f);
                 auto v=vertex(end,i),w=vertex(end,i+1);v.normal=w.normal=normal;
@@ -84,21 +96,21 @@ SpiderMesh BuildSpiderMesh(const std::array<SpiderLegPose,SpiderPose::LegCount>&
         if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z))
             throw std::invalid_argument("Nonfinite spider mesh joint");
     Builder b;
-    const int sides=detailed?24:8,rows=detailed?12:6,limbSides=detailed?6:4;
+    const int sides=detailed?24:8,rows=detailed?12:6,limbSides=detailed?8:4;
     b.Ellipsoid(SpiderPose::ThoraxCentre,SpiderPose::ThoraxRadii,rows,sides,
         SpiderPart::FrontBody,SpiderMaterial::Cuticle,detailed);
     b.Ellipsoid(SpiderPose::AbdomenCentre,SpiderPose::AbdomenRadii,rows,sides,
         SpiderPart::Abdomen,SpiderMaterial::Cuticle,detailed);
     for(const auto& leg:legs) {
-        b.Tube(leg.root,leg.hip,.0038f,.0032f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle);
-        b.Tube(leg.hip,leg.knee,.0032f,.0023f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle);
+        b.Tube(leg.root,leg.hip,.0038f,.0032f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
+        b.Tube(leg.hip,leg.knee,.0032f,.0023f,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
         // Point contact: no cylindrical cap extends below a foot planted on y=0.
-        b.Tube(leg.knee,leg.foot,.0023f,0,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle);
+        b.Tube(leg.knee,leg.foot,.0023f,0,limbSides,SpiderPart::Leg,SpiderMaterial::Cuticle,detailed);
     }
     for(float side:{-1.0f,1.0f}) {
         const SpiderPoint root{side*.008f,.029f,.037f},elbow{side*.014f,.023f,.049f};
-        b.Tube(root,elbow,.0026f,.002f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle);
-        b.Tube(elbow,{side*.011f,.015f,.057f},.002f,.0007f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle);
+        b.Tube(root,elbow,.0026f,.002f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
+        b.Tube(elbow,{side*.011f,.015f,.057f},.002f,.0007f,limbSides,SpiderPart::Palp,SpiderMaterial::Cuticle,detailed);
     }
     if(detailed) {
         // Eight small embedded eye volumes; four forward, four higher/lateral.

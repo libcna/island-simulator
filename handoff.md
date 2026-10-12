@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — shaped near spider limbs within existing collision/buffer limits
+
+Previous0487722habitatcomparison wasprogress. Nearleg/palpTube now8sides+midring,
+radiuslineartaper*(.72+.28sin(pi*t)), analyticprofilenormals. Exactendpoints/lengths/
+anchors/zeroradiusfoot retained; no collision/colonymotionchange. Near9840vertices
+vs7920(+24.2%),far1632unchanged. Existing10000cap hasonly160headroom; GPU/CPUbuffer
+capacities/texture/2draws unchanged. Notportableperformancequalification.
+Testchecks eachposedlegvertex againstoriginalbonetaperunion plusoldUV/winding/bounds.
+Finalnativebuild+mesh/colonyPASS9.59s (57527terminal0); initial84098terminal0 PASS8.95s.
+Firstcapture053956.140126Z-bright73154terminal1, comparedsame-stagebeforeafter in
+build/spider-limbs-comparison.png. Thenexactendpointarithmeticpreserved; finalactual
+054117.864733Z-spiders-bright37493terminal1 all8imagesinspected in
+build/spider-limbs-final-montage.png. Slightlyrounder/slimmerarticulations, stillsimple
+separatebones/jointseams/foldedbodypattern.1/12visible/2draws/contact1,habitat+motion+
+lightingpass/kernel[], outergenericcontrastFAILunchanged. No newfull52suite orportable
+build/runtime; nohardware/AndroidKVM/dependencychanges; latchc0bd1704unchanged.
+Logsbuild/spider-limbs-*.log. Goalactive/no push. NEXT requiredplant-attachedwebs or
+bodypatternrefinement,fullremainingspecies/resident/environment/AMDrootcause remainopen.
+
 ## Latest — compared twelve habitats; actual fully-lit spider camera
 
 Previous Androidaudit4de4859 wasprogress. AddedFixedViewpoint::SpiderBrightDetail,

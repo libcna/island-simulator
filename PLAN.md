@@ -842,6 +842,13 @@ progress or require player interaction; dangerous species keep their distance li
   Original053432.291661Z eightstages+finalbyteidenticaltopre-change; outerFAILunchanged.
   No basisforglobalbrightnesshack; nextvisualwork onlimbs/materialandwebs,notgateweakening.
   Currentnativebuild/full52CPU PASS80.86s. BrightcameraWeb/Androidnotbuilt/run.
+  Nearlimbs/palps now8radialsides+midring, smoothnormals for narrowedjoint/fullmiddle
+  profileinsideoldtapercollisionenvelope. Exactboneendpoints/footanchors preserved.
+  Near9840vertices(+24.2%),far1632unchanged;10000cap retained(160headroom).
+  Independentposedvertex-envelopecheck added; finalmesh/colonyPASS9.59s/nativebuildPASS.
+  Actual054117.864733Z-bright8images+earlierbeforeafter inspected: subtleimprovement,
+  jointseams/simpleanatomy/foldedbodypatternremain. OutercontrastFAIL/motion+lighting/kernel[].
+  Noportablebuild/runtimeforthisrefinement; targetperformance stillunmeasured.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current
