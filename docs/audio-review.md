@@ -82,6 +82,37 @@ subjective task.
 
 ## Boar audio implementation and unverified listening (2026-10-11)
 
+### Quiet-behaviour grunts — operator silence report follow-up (2026-10-12)
+
+Source inspection found a concrete limitation: Rest could only breathe and Forage
+could only snuffle; neither could ever grunt without changing behaviour. Rest breath
+gain at seven metres was only about0.0069 before clip amplitude/spatial mixing.
+This can explain absent grunting/very weak nearby detail, but does not establish the
+cause of all silence on the operator's device.
+
+Each animal now starts its scheduled vocal sequence with a grunt, then cycles through
+two behaviour-specific details. When a breath/snuffle would have model gain below0.03,
+it uses a grunt instead, retaining the same behaviour cooldown and42m grunt cutoff.
+Per-animal phase resets deterministically and advances only on a returned request;
+mute/busy slots cannot accumulate bursts. Voice count, PCM clips, gain curves and
+bird/monkey arbitration remain unchanged. This is not simply global volume boosting.
+
+Regression simulates Rest and Forage separately for120seconds at2/7/15/30m: each
+must produce repeated grunts, first within11seconds with an available voice slot;
+at2m it must also retain breathing/snuffling variation. Existing deterministic herd,
+range, dormant, mute/busy-slot and cooldown tests remain. A busy real soundscape may
+delay a due call; the CPU deadline is not a runtime scheduling guarantee.
+Naturalness, actual speaker audibility and portable listening remain unqualified.
+Final native incremental build and all55 CPU groups PASS87.77s
+(`build/boar-grunts-{build,full-tests}.log`). Actual contained llvmpipe/SDL-disk run
+`build/software-boar-audio/20261012T062340.029253Z` parent/worker PASS, kernel-final[].
+First boar call logs animal0/kind3 (grunt); three calls total across101 diagnostic
+samples, maximum6/6 sources. Mute produced991232 exact-zero bytes; resumed output
+contained114688 bytes with nonzero samples. Actual diagnostic screenshot inspected;
+foliage obscures the animals, so it is not boar appearance evidence. Separate current
+boar capture062020.501241Z was inspected in `build/boar-current-review.png`: plain
+smooth torso/long muzzle remain visual defects; no model/material change this step.
+
 Six original synthesized 1.2-second mono clips now join the live Soundscape: two each
 for breath, snuffle and grunt. Filtered deterministic noise, irregular low harmonic
 voicing and separate exhalation envelopes generate the clips; no third-party recordings

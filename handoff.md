@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Latest — quiet boars now grunt; actual disk output/mute verified
+
+Previous1be0bd4 was progress. Current actual boar image062020.501241Z (29191exit0)
+PASS/kernel[], inspected build/boar-current-review.png: smooth barrel-like body and
+long snout remain visual defects. No model/material change this turn.
+Found Rest only breath/Forage only snuffle, never grunt; rest7m gain~.0069. This is
+a source-level limitation, not proven explanation of all silence on user's device.
+BoarCallScheduler per-animal phase now grunt/detail/detail, initialized/reset0; if
+detail gain<.03 substitute grunt. Same behaviour cooldowns, herd gap,42m range, clips,
+voice budget and bird/monkey arbitration. Phase advances only when request emitted.
+CPU tests isolate Rest/Forage at2/7/15/30m for120s, repeated grunts/first<11s given
+available slot, retained2m details; original deterministic/range/budget tests retained.
+Build/full55CPU PASS87.77s (57830exit0), logs build/boar-grunts-{build,full-tests}.log.
+Actual contained software/disk audio062340.029253Z (75614exit0), parent/workerPASS,
+kernel-final[], firstboar animal0kind3/grunt, total3calls/101samples,max6sources;
+mute991232exactzero bytes, resumed114688bytes withnonzero PCM. Diagnostic screenshot
+ACTUALLY inspected; animals obscured byfoliage, not appearance evidence. Test does not
+prove naturalness/speaker output/spatial listening or Web/Android lifecycle.
+NEXT improve actual boar silhouette/coat and investigate audio perceptual naturalness;
+monkey refinements/hut relocation+reference/stream/cave/helicopter and fullplan remain.
+Reused build/-j2/sharedcache. No hardware/AndroidKVM/dependency changes. Stop latch
+c0bd1704 unchanged; direct display tests remain Disabled. All owned handles terminal.
+Goal active/no push.
+
 ## Latest — monkey silhouette correction and helicopter requirement
 
 Previous28407ad was progress. User added grounded realistic helicopter near island

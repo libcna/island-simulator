@@ -1673,7 +1673,8 @@ int main()
         const auto expected = behavior == island::BoarBehavior::Rest ? island::BoarCallKind::Breath
             : behavior == island::BoarBehavior::Forage ? island::BoarCallKind::Snuffle
             : island::BoarCallKind::Grunt;
-        boarBounds = boarBounds && call.kind == expected && step - previousHerdCall >= 10
+        boarBounds = boarBounds && (call.kind == expected || call.kind == island::BoarCallKind::Grunt)
+            && step - previousHerdCall >= 10
             && step - previousBoarCall[i] >= 24 && call.volume > 0.0f && call.volume <= 0.40f
             && call.pitch >= -0.07f && call.pitch <= 0.07f && call.variant < 2U
             && call.source.available && call.source.x == audioBoars[i].x
@@ -1684,6 +1685,23 @@ int main()
     Check(boarBounds && boarDeterminism && boarVariants[0] && boarVariants[1]
         && std::all_of(boarCallCounts.begin(), boarCallCounts.end(), [](int n) { return n > 5; }),
         "boar calls match behavior, vary, remain bounded and fairly service each animal");
+    for(const auto behavior:{island::BoarBehavior::Rest,island::BoarBehavior::Forage}) {
+        for(float distance:{2.0f,7.0f,15.0f,30.0f}) {
+            std::array<island::BoarState,1> animals{};
+            animals[0].scale=1;animals[0].behavior=behavior;
+            animals[0].simulationTier=island::WildlifeSimulationTier::Full;
+            island::BoarCallScheduler scheduler;scheduler.Reset();
+            int grunts=0,details=0,firstGrunt=-1;
+            for(int step=0;step<480;++step) {
+                const auto call=scheduler.Update(.25f,distance,.55f,0,animals,true);
+                if(call.kind==island::BoarCallKind::Grunt){++grunts;if(firstGrunt<0)firstGrunt=step;}
+                if(call.kind==island::BoarCallKind::Breath||call.kind==island::BoarCallKind::Snuffle)++details;
+            }
+            Check(grunts>=2&&firstGrunt>=0&&firstGrunt<44,
+                "resting/foraging boar must grunt without requiring movement or player approach");
+            if(distance==2)Check(details>=2,"near boar lost its breathing/snuffling variation");
+        }
+    }
     const auto noBoarCall = [](const auto& animals, float x, float dt, bool slot) {
         island::BoarCallScheduler scheduler;
         scheduler.Reset();

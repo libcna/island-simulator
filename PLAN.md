@@ -29,6 +29,16 @@ the renewed boar/monkey and hut requests over unfinished spider-web integration.
   inspect scheduling, attenuation and ambient masking, and verify audible results.
   Improve anatomy/materials with actual matched close-view comparisons; retain this
   requirement until appearance and sound have both been reviewed.
+  2026-10-12 follow-up: Rest/Forage previously could never grunt, only breath/snuffle;
+  rest gain at7m was~0.0069. Added per-animal grunt/detail/detail cycle and substitute
+  a sparse grunt when detail gain<0.03, retaining cooldown/range/voice budgets.
+  Tests cover each quiet behaviour at2/7/15/30m; not proof of operator-device audibility.
+  Actual current boar image062020.501241Z inspected/PASS/kernel[]: still smooth
+  barrel-like torso and elongated snout. No boar visual change/acceptance this step.
+  Native build/full55CPU PASS87.77s. Actual software/disk audio062340.029253Z PASS:
+  firstcallkind3/grunt, threecalls/101samples, max6sources, mute991232zero bytes and
+  restored114688nonzero-output bytes, kernel-final[]. Screenshot inspected, animals
+  obscured. Does not establish speaker audibility, naturalness or portable lifecycle.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

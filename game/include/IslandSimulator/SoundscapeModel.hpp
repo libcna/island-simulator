@@ -246,6 +246,7 @@ namespace island
     private:
         [[nodiscard]] float NextUnit() noexcept;
         std::array<float, BoarHerd::BoarCount> cooldowns_{};
+        std::array<std::uint8_t, BoarHerd::BoarCount> callPhases_{};
         std::uint32_t randomState_ = 0xb0a45eedU;
         float herdCooldown_ = 0.0f;
         std::size_t nextAnimal_ = 0;

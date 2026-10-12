@@ -844,6 +844,7 @@ namespace island
         randomState_ = 0xb0a45eedU;
         herdCooldown_ = 2.0f;
         nextAnimal_ = 0;
+        callPhases_.fill(0);
         for (float& cooldown : cooldowns_) {
             cooldown = 3.0f + 8.0f * NextUnit();
         }
@@ -885,6 +886,11 @@ namespace island
             const float sourceY = boar.y + 0.55f * boar.scale;
             const float distance = std::hypot(std::hypot(boar.x - listenerX,
                 boar.z - listenerZ), sourceY - listenerY);
+            // Quiet animals still vocalize: start with a contact grunt, then
+            // alternate two close-range behavior details. If those details would
+            // be virtually inaudible, retain a sparse grunt at the same cooldown.
+            if(kind!=BoarCallKind::Grunt&&(callPhases_[index]==0
+                ||BoarCallVolume(kind,distance)<.03f))kind=BoarCallKind::Grunt;
             const float volume = BoarCallVolume(kind, distance);
             if (volume < 0.005f) continue;
             BoarCallRequest request;
@@ -895,6 +901,7 @@ namespace island
             request.pitch = -0.07f + 0.14f * NextUnit();
             request.source = {true, boar.x, sourceY, boar.z};
             cooldowns_[index] = interval + 9.0f * NextUnit();
+            callPhases_[index]=static_cast<std::uint8_t>((callPhases_[index]+1U)%3U);
             herdCooldown_ = 2.5f + 2.0f * NextUnit();
             nextAnimal_ = (index + 1U) % count;
             return request;
