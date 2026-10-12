@@ -782,7 +782,17 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Mice
 - [ ] Rats
 - [ ] Deer
-- [ ] Goats (feral island goats on open slopes)
+- [~] Goats (feral island goats on open slopes). Placement foundation only; **no live
+  goats yet**. GoatHabitat proposes six deterministic jittered upland homes from3025
+  bounded candidates using actual rendered terrain and the complete obstacle grid.
+  Dry/sloped footprint, canopy/understory/bush clearance,8m separation/40m herd region;
+  rejects impossible worlds instead of clearing vegetation or inventing a fallback.
+  Tests check determinism, independent obstacle/plant clearances, blocked/nonfinite/
+  offshore inputs. No runtime integration, render acceptance or live population claim.
+  Next: terrain-fitted goat anatomy/coat/locomotion, runtime integration and actual
+  native/Web/Android motion/appearance. Full scope and limits: docs/goats.md.
+  Native build/43 CPU groups PASS70.22s; WorldReport valid/unchanged fingerprint
+  b3fde347f77eb5f8 and live counts. No renderer/emulator/KVM/dependency changes.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

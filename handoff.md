@@ -1,5 +1,25 @@
 # island-simulator handoff
 
+## Latest — goat open-slope placement foundation, NOT live goats
+
+New GoatHabitat.hpp/.cpp in island_core; currently used only by new GoatHabitatTests.
+3025 candidates, bounded deterministic ±2m jitter seed0x6f617431, prefers higher sites.
+Six homes: altitude>=6m/interior>=35m, centre normalY .90.. .997, centre/eight footprint
+samples normalY>=.90/height delta<=.55; proposed1.1m body disc; canopy9m*scale and
+understory/bush envelopes excluded. Homes>=8m apart and<=40m from first. No unsafe
+fallback, terrain/vegetation edits or invisible collisions. Six reference homes near
+ridge x-64..-81,z46..81,y33..38.4m. Actual coordinates/criteria in docs/goats.md.
+Tests use full palms/canopy/props/wreck/hut obstacles, check determinism and independent
+distances, occupied home/blocked island/nonfinite/offshore rejection. Initial test
+container-type compile error fixed with explicit spans; habitat criteria not relaxed.
+Goats marked in-progress in PLAN, explicitly NOT in running game. No count/fingerprint
+or live behavior change. Next: grounded anatomy/coat, locomotion/path validation,
+runtime renderer/population and actual platform audits. Initial homes do not prove
+route connectivity or final mesh clearance. Full existing backlog remains intact.
+Native build/full43 non-display groups PASS70.22s; report valid/unchanged fingerprint
+b3fde347f77eb5f8/live counts. All owned jobs terminal, no renderer/Android/KVM/dependency
+changes, hardware stop latch unchanged, no push. Overall goal active.
+
 ## Latest — WorldReport now includes the live ground snakes
 
 tools/WorldReport.cpp reconstructs SnakePopulation after complete obstacle grid/hut,
