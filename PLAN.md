@@ -779,6 +779,11 @@ progress or require player interaction; dangerous species keep their distance li
   hut plus non-solid plant root/stem exclusions; rendered height/dry inland/slope patch
   samples. No unsafe fallback or vegetation removal. Determinism, independent clearance,
   invalid/local-block/fully-blocked tests added. **No live spiders or webs yet.**
+  Added SpiderPose two-body dimensions and eight fixed-length articulated leg chains
+  (18/50/65mm), upward-knee 3D inverse kinematics with explicit reach-limit flags.
+  CPU tests cover216 local targets,32 singular/far targets, neutral symmetry/envelope
+  and invalid inputs. No stride/stance state, mesh, contact or live motion yet.
+  Current inclusive build/full49CPU PASS68.36s; logs spider-pose-{build,tests}.log.
   Next: recognizable eight-leg model, grounded motion, actual renderer/population and
   plant-attached webs. Full requirements/evidence in docs/spiders.md.
   Inclusive native build/full48CPU PASS97.63s, spider test1.58s. No renderer or

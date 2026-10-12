@@ -1,8 +1,35 @@
 # Spiders — implementation and verification
 
-Status: CPU ground-habitat foundation only. **No live spiders or webs are installed
+Status: CPU ground-habitat and articulated-leg foundations only. **No live spiders or webs are installed
 in IslandGame yet.** Both ground spiders and webs between plants remain required.
-This is not a model, movement, visual or platform acceptance claim.
+This is not a rendered model, movement, visual or platform acceptance claim.
+
+## Articulated anatomy foundation
+
+`SpiderPose` defines two body ellipsoids in metres (+z forward): the front body
+centre (0,.036,.018), radii (.018,.014,.024), and abdomen centre (0,.039,-.025),
+radii (.025,.021,.034). These are design dimensions, not a scanned specimen.
+Four pairs of legs attach along the front body; left front-to-rear indices0..3,
+right front-to-rear4..7. Each chain has root, hip, knee and foot: fixed18mm coxa,
+50mm upper and65mm lower links. The coxa points toward the neutral landing point;
+the distal two-link solver projects an upward bend perpendicular to the target
+direction, with a radial fallback for vertical targets. Neutral knees arch above
+the floor and all neutral joint centres fit inside the existing140mm habitat radius.
+
+The solver accepts arbitrary finite 3D landing targets, clamps the reachable shell
+with a10-micrometre margin and explicitly marks reach-limited results. Coincident,
+vertical and distant targets retain bone lengths; invalid indices/nonfinite or
+overflowing distances throw. It does not silently stretch limbs. There is deliberately
+no speed-scaled stride here: future simulation must retain world-space stance anchors
+and supply their body-local targets to avoid repeating the earlier goat sliding bug.
+This code is not yet called by IslandGame, and contains no crawling state machine,
+terrain contact, skin mesh, fine hairs, renderer, collision acceptance or web mechanics.
+
+`SpiderPoseTests` checks eight neutral legs, mirrored knees, fixed segment lengths,
+216 nearby 3D landing targets,32 singular/far targets and six invalid inputs.
+Focused native CPU test and inclusive49/49 CPU suite pass (68.36s total), with logs
+`build/spider-pose-{build,tests}.log`. It establishes kinematics only: joint-centre envelope
+checks do not establish the later mesh envelope or self-contact safety.
 
 ## Ground placement
 

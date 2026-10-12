@@ -1,5 +1,28 @@
 # island-simulator handoff
 
+## Latest — eight-leg spider kinematics foundation, NOT live spiders
+
+Previous goal turn was progress (12 deterministic ground homes); this turn adds
+SpiderPose.hpp/.cpp and SpiderPoseTests. Two body ellipsoid dimensions, eight front-body
+attachments, fixed18mm coxa/50mm upper/65mm lower chains; arbitrary3D foot targets,
+upward knee bend with vertical fallback, explicit reachable-shell clamping/flags.
+Tests eight neutral poses/mirrors/140mm joint-centre envelope,216 local landing targets,
+32 coincident/vertical/far targets and6 invalid cases. No gait/speed-scaled stride:
+future crawling must retain world stance anchors and use this solver for the resulting
+local targets. No mesh, fine hairs, live animation/population/renderer, world-report
+change or webs yet. Next: actual two-part mesh and eight tapered articulated limbs,
+then bounded ground crawling with planted feet and live integration; plant-attached
+webs remain an explicit separate requirement. Do not claim species/realism acceptance.
+
+Inclusive native build and49/49 CPU tests PASS68.36s; logs
+build/spider-pose-{build,tests}.log. Initial build hit sandbox read-only shared ccache;
+narrow escalated build succeeded without changing cache configuration. Build62770 and
+test26759 terminal0. No visual/browser/Android run or portable build this turn.
+AMD latch SHA c0bd170489321c8d497eae0f1211e1553e30aef9ee02ac01774269300e6ee6f1
+unchanged; no hardware/KVM/emulator/dependency changes. Goal active, no push, full
+remaining species/resident/environment/goat refinement scope retained; AMD flight
+crash root cause remains high-priority unresolved.
+
 ## Latest — ground-spider habitat foundation, NOT live spiders
 
 Moved forward the explicitly requested missing spider species while retaining all
