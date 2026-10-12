@@ -93,6 +93,10 @@ GoatGroundPose FitGoatGroundPose(const IslandTerrain& terrain,const RenderedTerr
         }
         pose.legs[leg]=EvaluateGoatLeg(phase,speed,pose.bodyBob,leg,(low+high)*.5f);
         pose.legs[leg].reachLimited|=!bracketed;
+        const auto sole=pose.ToWorld({flat.hoof.x,(low+high)*.5f,flat.hoof.z+GoatLegPose::SoleForward});
+        const auto ground=surface.Sample(sole.x,sole.z).normal;
+        const auto project=[&](GoatPoint axis){return ground.x*axis.x+ground.y*axis.y+ground.z*axis.z;};
+        pose.legs[leg].soleNormal=Unit({project(pose.right),project(pose.up),project(pose.forward)});
     }
     return pose;
 }

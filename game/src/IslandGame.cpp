@@ -857,7 +857,7 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         // Capture-only clock: no wall-time catch-up updates between recorded frames.
-        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock());
+        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock());
         InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
@@ -1220,13 +1220,15 @@ namespace island
     void IslandGame::Update(GameTime& gameTime)
     {
         const bool snakeCaptureClock=UsesSnakeCaptureClock();
+        const bool goatCaptureClock=UsesGoatCaptureClock();
+        if(goatCaptureClock)++goatCaptureUpdates_;
         if (!snakeFirstDrawReturnReported_ && drawnFrames_ > 0U
             && (viewpoint_ == FixedViewpoint::SnakeDetail || viewpoint_ == FixedViewpoint::SnakeHeadDetail)) {
             snakeFirstDrawReturnReported_ = true;
             MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
         }
         if(snakeCaptureClock) ++snakeCaptureUpdates_;
-        const float deltaSeconds = canopyLodInspection_ ? 0.0f : snakeCaptureClock ? 0.1f : std::min(
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock) ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -2345,7 +2347,8 @@ namespace island
         }
 
         const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
-            ? static_cast<float>(snakeCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
+            ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
+            ? static_cast<float>(goatCaptureUpdates_)*0.1f : static_cast<float>(gameTime.getTotalGameTimeProperty()
                                                          .getTotalSecondsProperty());
         {
             GpuDiagnosticScope gpuPass("natural-props");
@@ -2938,6 +2941,18 @@ namespace island
         }
         ++drawnFrames_;
         const bool snakeCapture = UsesSnakeCaptureClock();
+        const bool goatCapture = UsesGoatCaptureClock();
+        if(goatCapture&&drawnFrames_%8U==0&&drawnFrames_<=64U) {
+            GpuDiagnosticScope gpuPass("capture-readback");
+            CaptureFrame(capturePath_+".goat-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
+            const auto& subject=goats_->Goats().front();
+            std::cout << "island-simulator: goat motion stage=" << drawnFrames_/8U-1U
+                << " updates=" << goatCaptureUpdates_ << " time=" << timeSeconds
+                << " visible=" << goatRenderer_->VisibleCount() << " position="
+                << subject.x << ',' << subject.y << ',' << subject.z
+                << " speed=" << subject.speed << " phase=" << subject.phase
+                << " grazing=" << subject.grazingPose << '\n';
+        }
         if(!snakeCapture && (viewpoint_==FixedViewpoint::SnakeDetail || viewpoint_==FixedViewpoint::SnakeHeadDetail)
             && drawnFrames_%8U==0 && drawnFrames_<=32U) {
             const auto& subject=snakes_->Snakes().front();
@@ -2984,7 +2999,7 @@ namespace island
             std::cout << report << '\n';
             if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
-        const std::uint32_t targetFrames = snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        const std::uint32_t targetFrames = goatCapture ? 64U : snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

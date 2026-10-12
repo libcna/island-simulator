@@ -17,13 +17,19 @@ GoatPoint Unit(GoatPoint p){const float n=std::sqrt(Dot(p,p));
     if(!std::isfinite(n)||n<1e-7f)throw std::invalid_argument("Degenerate goat mesh direction");
     return Mul(p,1/n);}
 bool Finite(GoatPoint p){return std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z);}
-enum class Attachment { Body,Head,Leg };
+enum class Attachment { Body,Head,Leg,Hoof };
 struct Ring {float z,y,rx,ry;};
 struct Tube {GoatPoint centre;float radius;};
 struct Builder {
     GoatMesh mesh;
     float bob,pitch,headLower;
     GoatPart part=GoatPart::Body;
+    GoatPoint hoofPivot{0,0,0},hoofNormal{0,1,0};
+    GoatPoint HoofDirection(GoatPoint p) const {
+        // Minimal rotation from local up to this hoof's actual triangle support normal.
+        const auto axis=Cross({0,1,0},hoofNormal);
+        return Add(Add(p,Cross(axis,p)),Mul(Cross(axis,Cross(axis,p)),1/(1+hoofNormal.y)));
+    }
     GoatPoint HeadPoint(GoatPoint p) const {
         const float c=std::cos(pitch),s=std::sin(pitch),y=p.y-.72f,z=p.z-.25f;
         return {p.x,.72f+c*y-s*z-headLower,.25f+s*y+c*z};
@@ -34,7 +40,11 @@ struct Builder {
             p=HeadPoint(p);
             n={n.x,c*n.y-s*n.z,s*n.y+c*n.z};
         }
-        if(attachment!=Attachment::Leg)p.y+=bob;
+        if(attachment==Attachment::Hoof) {
+            p=Add(hoofPivot,HoofDirection(Sub(p,hoofPivot)));
+            n=HoofDirection(n);
+        }
+        if(attachment==Attachment::Body||attachment==Attachment::Head)p.y+=bob;
         return {p,Unit(n),u,v,material,part};
     }
     void Triangle(GoatVertex a,GoatVertex b,GoatVertex c) {
@@ -105,7 +115,8 @@ struct Builder {
 GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
     if(!std::isfinite(grazing)||!std::isfinite(pose.bodyBob))throw std::invalid_argument("Invalid goat mesh pose");
     for(const auto& leg:pose.legs)
-        if(!Finite(leg.root)||!Finite(leg.knee)||!Finite(leg.hoof)||leg.reachLimited)
+        if(!Finite(leg.root)||!Finite(leg.knee)||!Finite(leg.hoof)||leg.reachLimited
+            ||!Finite(leg.soleNormal)||std::abs(Dot(leg.soleNormal,leg.soleNormal)-1)>.001f||leg.soleNormal.y<.5f)
             throw std::invalid_argument("Unrenderable goat limb pose");
     grazing=std::clamp(grazing,0.0f,1.0f);
     Builder b{{},pose.bodyBob,grazing*.85f,grazing*.18f};
@@ -134,10 +145,12 @@ GoatMesh BuildGoatMesh(const GoatGroundPose& pose,float grazing,bool detailed) {
         const std::array<Tube,4> limb{{{Add(leg.root,{0,.10f,0}),.050f},{leg.root,.065f},{leg.knee,.039f},{leg.hoof,.024f}}};
         b.Sweep(limb,detailed?8:5,GoatMaterial::Coat,Attachment::Leg);
         b.part=GoatPart::Hoof;
+        b.hoofPivot=Add(leg.hoof,{0,-GoatLegPose::HoofHeight,GoatLegPose::SoleForward});
+        b.hoofNormal=leg.soleNormal;
         for(float side:{-1.0f,1.0f}) {
             const std::array<Ring,5> hoof{{{-.055f,0,.018f,.040f},{-.025f,0,.026f,.055f},
                 {.030f,0,.027f,.055f},{.075f,.004f,.024f,.049f},{.085f,.008f,.007f,.03f}}};
-            b.Loft(hoof,detailed?8:5,GoatMaterial::Hoof,Attachment::Leg,
+            b.Loft(hoof,detailed?8:5,GoatMaterial::Hoof,Attachment::Hoof,
                 Add(leg.hoof,{side*.030f,0,GoatLegPose::SoleForward}));
         }
     }

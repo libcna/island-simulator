@@ -3,6 +3,7 @@
 from pathlib import Path
 from contextlib import ExitStack
 import json
+import re
 import signal
 import subprocess
 import sys
@@ -15,6 +16,7 @@ from run_software_capture import (
     check_configuration, software_environment, validate_graphics_log, run_monitored_capture,
     inspection_arguments, validate_antialiasing_log, validate_monkey_capture_log,
     validate_monkey_tree_stages, validate_monkey_climb_stages, validate_snake_motion_stages,
+    validate_goat_motion_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
@@ -22,6 +24,21 @@ from run_fullscreen_software import validate_control_transitions, owned_runtime_
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_goat_live_motion_stages_and_corruptions(self):
+        rows = [f"island-simulator: goat motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} "
+                f"visible=3 position={i*.2},10,20 speed=0.65 phase={i*.3} grazing={.8 if i==0 else 0}"
+                for i in range(8)]
+        good = "\n".join(rows)
+        self.assertEqual(len(validate_goat_motion_stages(good)["positions"]), 8)
+        for bad in ("\n".join(rows[:-1]), good+"\n"+rows[0], good.replace("stage=1", "stage=0"),
+                    good.replace("updates=8 ", "updates=9 "), good.replace("visible=3", "visible=0"),
+                    good.replace("speed=0.65", "speed=nan"), good.replace("phase=0.3", "phase=inf"),
+                    good.replace("phase=0.3", "phase=9"), good.replace("position=0.2,10,20", "position=50,10,20"),
+                    good.replace("grazing=0.8", "grazing=0"),
+                    re.sub(r"position=\S+", "position=0,10,20", good),
+                    re.sub(r"phase=\S+", "phase=0", good)):
+            with self.subTest(bad=bad), self.assertRaises(RuntimeError):
+                validate_goat_motion_stages(bad)
     def test_runtime_log_uses_namespace_identity_not_filename_pid(self):
         evidence = Mock()
         matching, unrelated = Mock(), Mock()

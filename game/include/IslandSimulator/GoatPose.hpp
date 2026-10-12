@@ -9,6 +9,7 @@ struct GoatPoint { float x,y,z; };
 struct GoatLegPose {
     GoatPoint root,knee,hoof;
     bool stance,reachLimited;
+    GoatPoint soleNormal{0,1,0}; // Rendered ground normal expressed in the body frame.
     static constexpr float UpperLength=.39f,LowerLength=.38f,HoofHeight=.055f;
     static constexpr float SoleForward=.025f,StanceFraction=.68f,WalkingSpeed=1.2f;
 };

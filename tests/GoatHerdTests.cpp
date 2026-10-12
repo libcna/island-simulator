@@ -1,4 +1,5 @@
 #include "IslandSimulator/GoatHerd.hpp"
+#include "IslandSimulator/GoatMesh.hpp"
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/VegetationLayout.hpp"
 #include "IslandSimulator/NaturalPropLayout.hpp"
@@ -34,6 +35,7 @@ int main() {
     const GoatPoint distant{1000,1000,1000};
     std::array<float,GoatHabitat::Count> travelled{};
     std::array<bool,4> behaviors{};
+    float minimumHoofClearance=1;
     for(int frame=0;frame<900;++frame) {
         const auto before=copy(herd);
         herd.Update(.1f,distant);repeat.Update(.1f,distant);
@@ -54,6 +56,12 @@ int main() {
             if(d==0) check(s.phase==p.phase,"blocked/stationary goat advanced stride");
             if(frame%10==0) {
                 const auto pose=FitGoatGroundPose(terrain,surface,s.x,s.z,s.heading,s.phase,s.speed,s.scale);
+                const auto mesh=BuildGoatMesh(pose,s.grazingPose,true);
+                for(const auto& vertex:mesh.vertices)if(vertex.part==GoatPart::Hoof) {
+                    const auto point=pose.ToWorld(vertex.position);
+                    minimumHoofClearance=std::min(minimumHoofClearance,
+                        point.y-surface.Sample(point.x,point.z).height);
+                }
                 for(const auto& leg:pose.legs) {
                     check(!leg.reachLimited,"moving goat lost reachable hoof support");
                     const auto sole=pose.ToWorld({leg.hoof.x,leg.hoof.y-GoatLegPose::HoofHeight,
@@ -68,6 +76,8 @@ int main() {
                     "goats overlap");
         }
     }
+    std::cout<<"goat minimum actual hoof vertex clearance="<<minimumHoofClearance<<std::endl;
+    check(minimumHoofClearance>=-.001f,"goat hoof mesh penetrates rendered terrain");
     for(float distance:travelled) {
         std::cout<<"goat 90s travelled="<<distance<<'\n';
         check(distance>1,"goat stayed stuck throughout 90s");

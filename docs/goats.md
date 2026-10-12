@@ -243,6 +243,47 @@ APK preflight requires the coat asset. Android/browser CPU preflight2/2 PASS2.29
 both JavaScript launchers and shell launcher pass syntax checks. No actual browser
 or Android goat runtime is claimed, and no emulator/KVM configuration was touched.
 
+## First multi-stage motion audit and hoof support correction
+
+Native `--capture ... --viewpoint goats` now uses one0.1s simulation step per presented
+frame and64frames, retaining8images at0.8s intervals. This deterministic clock is
+capture-only; ordinary play and the existing snake capture clock are unchanged.
+The ordinary herd/controller is used without teleporting agents or forcing behavior.
+Following-camera translation keeps the first animal in view while its heading changes.
+The log records position/speed/stride phase/grazing state and update count. The validator
+requires ordered finite states, the exact clock, visibility, bounded travel, walking
+phase change and a grazing transition;12corrupted fixtures are rejected. It is not a
+visual naturalness oracle or a continuous stance-locking proof.
+
+Actual llvmpipe runs `20261012T015104.568755Z-goats` (before hoof correction) and
+`20261012T015711.270483Z-goats` (after) passed with empty kernel deltas. Both8-stage
+montages were inspected; the corrected stage3 leg detail was additionally enlarged
+and inspected (`build/goat-contact-stage3-detail.png`). The first goat raises its head,
+turns and walks down the slope, with2.44m net displacement over the sampled interval.
+Initial grazing amount0.8 becomes0 and stride phases advance. The final log also
+passes the strengthened validator after its travel/phase bounds were added.
+These sparse stills do NOT establish smooth real-time motion from every viewpoint.
+
+The audit prompted a new check of actual near-hoof mesh vertices along the existing
+90s six-goat CPU route, sampled once per simulated second, rather than only sole centres.
+It failed at1.75476mm terrain penetration (`build/goat-hoof-audit.log`, retained).
+This was an intentional CPU regression-test failure, not an AMD/GPU incident.
+Each fitted leg now carries the rendered support normal in body coordinates. The hoof
+mesh rotates minimally about its sole-centre pivot to that normal, including its shading
+normals; the limb IK/bone lengths, sole centre, gait and world placement are unchanged.
+Worst sampled penetration falls to0.804901mm, within the unchanged1mm vertex tolerance.
+Residuals near adjacent terrain triangles are not zero. Analytic tilted-plane tests
+cover both LODs, unit normals and invalid normal rejection. Arbitrary mesh/terrain
+triangle interiors, full continuous trajectories and persistent planted-foot locking
+are still not proven by the vertex samples.
+
+Visual priorities from the enlarged review: limbs remain overly angular and uniform,
+hooves look blocky, eyes tiny; mirrored coat flow forms a conspicuous swirl on the rump.
+Those larger appearance defects are not excused by the sub-millimetre contact result.
+Final native build/full46 non-display groups PASS106.71s; capture preflight after the
+last validator changes PASS0.19s. No new Web/Android build/runtime for this hoof/clock
+change, no emulator/KVM/dependency changes, and the hardware stop latch is unchanged.
+
 ## Remaining implementation
 
 - [~] Fixed-length terrain-fitted goat legs: numerical foundation above implemented.

@@ -76,6 +76,36 @@ def validate_snake_motion_stages(text):
     return bodies
 
 
+def validate_goat_motion_stages(text):
+    """Eight live samples: presentation/motion evidence, not an anatomy/contact oracle."""
+    rows = re.findall(r"^island-simulator: goat motion stage=(\d+) updates=(\d+) time=(\S+) visible=(\d+) "
+                      r"position=(\S+) speed=(\S+) phase=(\S+) grazing=(\S+)$", text, re.M)
+    if len(rows) != 8 or text.count("goat motion stage=") != 8 or [int(r[0]) for r in rows] != list(range(8)):
+        raise RuntimeError("goat motion requires eight ordered stages")
+    positions, phases, grazing = [], [], []
+    for stage, updates, elapsed, visible, point, speed, phase, graze in rows:
+        try:
+            p = tuple(map(float, point.split(',')))
+            s, ph, g, t = map(float, (speed, phase, graze, elapsed))
+            expected = (int(stage)+1)*8
+            valid = (int(updates) == expected and math.isclose(t, expected*.1, abs_tol=1e-5)
+                     and 1 <= int(visible) <= 6 and len(p) == 3 and all(map(math.isfinite, p))
+                     and all(map(math.isfinite, (s, ph, g))) and 0 <= s <= 1.20001
+                     and 0 <= ph <= math.tau+1e-5 and 0 <= g <= 1)
+        except ValueError:
+            valid = False
+        if not valid:
+            raise RuntimeError("invalid goat motion state or clock")
+        positions.append(p); phases.append(ph); grazing.append(g)
+    if any(math.dist(a, b) > .961 for a, b in zip(positions, positions[1:])):
+        raise RuntimeError("goat motion exceeds maximum travel between samples")
+    if max(math.dist(positions[0], p) for p in positions[1:]) < .15 or max(phases)-min(phases) < .1:
+        raise RuntimeError("goat motion sequence did not walk")
+    if max(grazing)-min(grazing) < .3:
+        raise RuntimeError("goat motion sequence did not transition from grazing")
+    return {"positions": positions, "phases": phases, "grazing": grazing}
+
+
 def check_configuration(text):
     cache = dict(re.findall(r"^([^/#\n:]+):[^=\n]+=(.*)$", text, re.M))
     if cache.get("CNA_GRAPHICS_RENDERER") != "OPENGL33" \
@@ -359,6 +389,12 @@ def main():
                 for stage in range(4):
                     if not Path(str(capture)+f".snake-stage-{stage}.ppm").is_file():
                         raise RuntimeError("missing snake motion stage image")
+            if args.viewpoint == "goats":
+                motion = validate_goat_motion_stages(log)
+                (evidence / "goat-motion.json").write_text(json.dumps(motion, indent=2) + "\n")
+                for stage in range(8):
+                    if not Path(str(capture)+f".goat-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing goat motion stage image")
             validate_graphics_log(diagnostics, args.canopy_lod_inspection, missing_leaf=args.missing_leaf)
             validate_antialiasing_log(diagnostics, 4)
             if not args.missing_leaf and "leaf material loaded Content/vegetation/leaf-lamina.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:

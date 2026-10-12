@@ -1,5 +1,35 @@
 # island-simulator handoff
 
+## Latest — eight-stage native goat motion audit and per-hoof support rotation
+
+UsesGoatCaptureClock only for nonempty capturePath + GoatDetail; fixed timestep disabled
+there, exactly.1s/update, goatCaptureUpdates counter and matching vegetation/render time.
+Capture64frames, images at8/16/...64 with position/speed/phase/grazing/updates/time.
+Normal herd decisions/terrain/observers retained; no forced poses or teleport. Validator
+requires8ordered finite/live samples, exact clock,<=.961m per.8s, phase0..Tau, walking
+and grazing transition;12corrupt cases tested. Normal gameplay/snake QA unchanged.
+
+Actual contained native runs015104.568755Z-goats pre-fix and015711.270483Z-goats post-fix
+PASS/kernel[]. Both8-stage montages actually inspected; post stage3 enlarged leg detail
+also viewed. First goat grazes/lifts head/turns/walks,2.44m net displacement, all stages
+visible; sparse stills do not qualify smooth continuous foot locking. Logs/images under
+build/software-captures/20261012T...; build/goat-contact-motion-montage.png and
+build/goat-contact-stage3-detail.png. Final actual log revalidated with latest bounds.
+
+New near-hoof actual vertex check along90s six-goat CPU route/1s samples found minimum
+-0.00175476m (retained build/goat-hoof-audit.log; CPU test abort, NOT GPU crash).
+GoatLegPose.soleNormal now rendered support normal in body frame; BuildGoatMesh rotates
+hooves and normals about sole-centre pivot. IK lengths/pivot/gait/root placement unchanged.
+Worst measured clearance now-0.000804901m, under UNCHANGED1mm test tolerance; not zero
+penetration or all triangle-interior proof. Both LODs analytical tilted planes/unit
+normals/invalid-normal tests added. Full native46 groups PASS106.71s; latest capture
+preflight PASS0.19s. All owned handles terminal.
+Visible bigger issues: angular uniform legs/blocky hooves, tiny eyes, obvious rump fur
+swirl. Prioritize anatomy/mapping/stance transitions; don't call goats completed.
+No Web/Android build/runtime for this latest change (prior62a2bd5 packages remain),
+no emulator/KVM/dependency changes, hardware latch c0bd1704 unchanged. Goal active,
+AMD flight crash and all prior species/visual backlog remain open; no push.
+
 ## Latest — generated goat coat live, native images inspected; portable builds only
 
 Used imagegen skill/built-in tool; original1254square goat-fur-albedo-v1.png and exact

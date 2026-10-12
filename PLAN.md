@@ -844,6 +844,17 @@ progress or require player interaction; dangerous species keep their distance li
   APK contains matching prepared coat PNG. Platform diagnostic pins/preflight updated,
   2/2 preflight tests and launcher syntax checks pass. Actual Web/Android appearance
   and continuous native gait remain open; no emulator/KVM changes. See docs/goats.md.
+  Native goat capture now64frames/6.4simulated seconds with8stages, normal live herd,
+  logged position/phase/graze and strict CPU-tested clock/motion validator (12negative
+  cases). Actual015104 and015711 llvmpipe sequences PASS/montages inspected/kernel[];
+  corrected stage3 leg detail inspected too. Pasture→head lift→turn/walk,2.44m net
+  displacement verified, not full continuous stance-locking/naturalness acceptance.
+  Actual hoof-vertex route audit found1.75476mm penetration despite passing sole-centre
+  checks. Per-hoof rendered-normal rotation about sole pivot reduces worst sampled
+  penetration to0.804901mm under unchanged1mm tolerance; near/far support-plane and
+  invalid-normal tests added. Bone lengths/root routes unchanged. Full46 CPU groups
+  PASS106.71s, latest capture preflight PASS0.19s. Larger visible angular-leg/blocky-hoof
+  anatomy and rump coat-swirl defects remain priorities; no fresh portable qualification.
 - [ ] Ants (trails on ground and trunks, close-range detail only)
 - [ ] Flies (small insect swarms, close-range detail only)
 - [ ] Stingrays (shallow sandy water)

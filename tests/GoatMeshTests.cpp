@@ -78,6 +78,25 @@ int main() {
         }
     }
     check(nearCount>farCount,"goat far LOD did not reduce geometry");
+    // Sloped support planes rotate the actual hoof, not the limb chain or sole pivot.
+    for(bool detailed:{false,true})for(float tilt:{-.12f,.12f}) {
+        GoatGroundPose pose{};pose.scale=1;
+        const GoatPoint support{tilt,std::sqrt(1-2*tilt*tilt),tilt};
+        for(std::size_t i=0;i<4;++i) {
+            pose.legs[i]=EvaluateGoatLeg(0,0,0,i);
+            pose.legs[i].soleNormal=support;
+        }
+        const auto mesh=BuildGoatMesh(pose,0,detailed);
+        for(const auto& vertex:mesh.vertices)if(vertex.part==GoatPart::Hoof) {
+            const auto leg=std::min_element(pose.legs.begin(),pose.legs.end(),[&](const auto& a,const auto& b){
+                const auto da=sub(vertex.position,a.hoof),db=sub(vertex.position,b.hoof);
+                return dot(da,da)<dot(db,db);
+            });
+            const GoatPoint pivot{leg->hoof.x,leg->hoof.y-GoatLegPose::HoofHeight,leg->hoof.z+GoatLegPose::SoleForward};
+            check(dot(sub(vertex.position,pivot),support)>=-1e-6f,"rotated hoof penetrates its support plane");
+            check(std::abs(dot(vertex.normal,vertex.normal)-1)<1e-5f,"rotated hoof normal not unit length");
+        }
+    }
     for(const auto part:{GoatPart::Body,GoatPart::Head,GoatPart::Leg,GoatPart::Neck}) {
         GoatVertex vertex{};vertex.part=part;vertex.u=.3f;vertex.v=0;
         const auto start=GoatCoatUv(vertex);vertex.v=1;
@@ -91,6 +110,9 @@ int main() {
     bool rejected=false;
     try {(void)BuildGoatMesh(bad,0,true);}catch(const std::invalid_argument&){rejected=true;}
     check(rejected,"invalid mesh pose accepted");
+    bad.bodyBob=0;bad.legs[0].soleNormal={0,-1,0};rejected=false;
+    try {(void)BuildGoatMesh(bad,0,true);}catch(const std::invalid_argument&){rejected=true;}
+    check(rejected,"invalid hoof support normal accepted");
     std::cout<<"goat mesh near/far vertices="<<nearCount<<'/'<<farCount
         <<" maximum conservative horizontal radius="<<maximumRadius<<'\n';
 }
