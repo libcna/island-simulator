@@ -11,6 +11,7 @@ namespace island {
 class CanopyLightField;
 class SpiderRenderer final {
 public:
+    static constexpr std::size_t MaximumVisibleCount=24;
     SpiderRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,const CanopyLightField& canopy);
     ~SpiderRenderer();
     void Draw(const Microsoft::Xna::Framework::Matrix& view,const Microsoft::Xna::Framework::Matrix& projection,

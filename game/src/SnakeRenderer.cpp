@@ -26,7 +26,7 @@ using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
 namespace island {
 namespace {
-    constexpr int Capacity=static_cast<int>(SnakePopulation::Count)*5000;
+    constexpr int Capacity=static_cast<int>(SnakeRenderer::MaximumVisibleCount)*5000;
     constexpr int Sides=16;
     constexpr float Tau=2.0f*std::numbers::pi_v<float>;
     Vector3 Point(SnakePoint p) { return {p.x,p.y,p.z}; }
@@ -61,12 +61,23 @@ SnakeRenderer::~SnakeRenderer()=default;
 void SnakeRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,
                          const std::span<const SnakeState> snakes)
 {
+    if(snakes.size()>SnakePopulation::Count)throw std::length_error("Snake population exceeds render capacity");
     vertices_.clear(); visible_=draws_=0;
     const BoundingFrustum frustum(view*projection);
-    for (const auto& snake:snakes) {
+    std::vector<std::pair<float,const SnakeState*>> candidates;
+    candidates.reserve(snakes.size());
+    for(const auto& snake:snakes) {
         const auto origin=Point(snake.body[0]);
-        if (Vector3::DistanceSquared(origin,camera)>70.0f*70.0f
+        const float distance=Vector3::DistanceSquared(origin,camera);
+        if (distance>70.0f*70.0f
             || !frustum.Intersects(BoundingSphere(origin,2.5f))) continue;
+        candidates.emplace_back(distance,&snake);
+    }
+    std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.first<b.first;});
+    if(candidates.size()>SnakeRenderer::MaximumVisibleCount)candidates.resize(SnakeRenderer::MaximumVisibleCount);
+    for (const auto& candidate:candidates) {
+        const auto& snake=*candidate.second;
+        const auto origin=Point(snake.body[0]);
         using Ring=std::array<VertexPositionColorTexture,Sides+1>;
         std::array<Ring,SnakeState::StationCount> rings;
         auto vertex=[&](Vector3 point,Vector3 normal,Color color,Vector2 uv) {

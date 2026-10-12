@@ -1,5 +1,26 @@
 # Ground snake implementation and visual evidence
 
+## Fifty-animal population and bounded rendering — 2026-10-12
+
+The requested live population is now exactly 50 ground snakes. Deterministic habitat
+selection searches the authored understory more densely and retains at least 14m between
+homes, whole-body terrain/obstacle clearance and the existing 18m home patrol radius.
+The focused population test exercises all 50 animals and passes its motion, retreat,
+terrain and obstacle invariants. WorldReport exports all 50 complete 41-station bodies;
+the shared world fingerprint is `b0f0ae75a88ce3c3`.
+
+Population size no longer determines GPU-buffer size. The renderer sorts visible snakes
+by camera distance and submits at most the nearest 16 in its existing single draw. The
+contact-shadow batch likewise admits at most 16 visible snakes, while the grass shader
+keeps its existing nearest-four interaction budget. This preserves encounters across the
+island without attempting to draw all 50 when several habitats overlap a view.
+
+Actual isolated llvmpipe `20261012T143710.846753Z-snakes` was inspected and reports
+1/50 visible in one draw with one shadow. The live animal is recognisable and curved;
+the generic image gate still rejects this deliberately dark top-down habitat for low
+luminance variation. This is population/integration evidence, not final visual-polish
+acceptance. Web/Android and a controlled before/after performance comparison remain open.
+
 ## Population and first-encounter motion expansion — 2026-10-12
 
 The live ground population is now eight rather than four. Deterministic selection

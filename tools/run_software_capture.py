@@ -131,7 +131,8 @@ def validate_goat_motion_stages(text):
 
 
 def validate_spider_render_log(text):
-    if not re.search(r"spider render proof: spiders (?:[1-9]|1[0-9]|2[0-4])/24 visible, 2 draw; contact-shadows=(?:[1-9]|1[0-9]|2[0-4])(?:\s|$)", text):
+    count = r"(?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)"
+    if not re.search(rf"spider render proof: spiders {count}/200 visible, 2 draw; contact-shadows={count}(?:\s|$)", text):
         raise RuntimeError("spider capture lacks a live population or grounding shadows")
     if "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in text:
         raise RuntimeError("spider capture lacks the setae albedo")
@@ -652,7 +653,7 @@ def main():
                 raise RuntimeError("current leaf material is missing; check for a stale executable")
             if "boars receive bilinear per-vertex canopy light in their existing batch" not in diagnostics:
                 raise RuntimeError("current boar lighting is missing; check for a stale executable")
-            if args.viewpoint in ("snakes","snake-head") and not re.search(r"snakes [1-8]/8 visible, 1 draw",diagnostics):
+            if args.viewpoint in ("snakes","snake-head") and not re.search(r"snakes (?:[1-9]|[1-4][0-9]|50)/50 visible, 1 draw",diagnostics):
                 raise RuntimeError("snake capture did not submit the live population")
             if args.viewpoint == "goats" and not re.search(r"goats [1-6]/6 visible, 2 draw", diagnostics):
                 raise RuntimeError("goat capture did not submit the live population")

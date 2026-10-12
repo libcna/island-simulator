@@ -1,6 +1,8 @@
 #pragma once
 #include "IslandSimulator/SpiderHabitat.hpp"
 #include "IslandSimulator/SpiderPose.hpp"
+#include "IslandSimulator/WildlifeSimulation.hpp"
+#include <cstdint>
 
 namespace island {
 struct SpiderGroundPose {
@@ -16,6 +18,7 @@ enum class SpiderBehavior { Rest,Crawl,Retreat };
 struct SpiderState {
     float x=0,y=0,z=0,heading=0,speed=0;
     SpiderBehavior behavior=SpiderBehavior::Rest;
+    WildlifeSimulationTier tier=WildlifeSimulationTier::Dormant;
     SpiderGroundPose pose{};
     bool operator==(const SpiderState&) const = default;
 };
@@ -42,5 +45,7 @@ private:
     std::array<SpiderState,SpiderHabitat::GroundCount> states_{};
     std::array<Feet,SpiderHabitat::GroundCount> feet_{};
     std::array<Intent,SpiderHabitat::GroundCount> intents_{};
+    std::array<float,SpiderHabitat::GroundCount> accumulatedSeconds_{};
+    std::uint64_t frameIndex_=0;
 };
 }

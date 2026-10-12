@@ -29,7 +29,7 @@ using namespace Microsoft::Xna::Framework;
 using namespace Microsoft::Xna::Framework::Graphics;
 namespace island {
 namespace {
-constexpr int Capacity=static_cast<int>(SpiderHabitat::GroundCount*SpiderMesh::MaximumVertices);
+constexpr int Capacity=static_cast<int>(SpiderRenderer::MaximumVisibleCount*SpiderMesh::MaximumVertices);
 Vector3 Point(SpiderPoint p){return {p.x,p.y,p.z};}
 const std::array<Color,4> Materials{Color(220,211,195),Color(255,247,223),Color(15,13,11),Color(87,71,51)};
 }
@@ -56,10 +56,19 @@ void SpiderRenderer::Draw(const Matrix& view,const Matrix& projection,const Vect
     if(spiders.size()>SpiderHabitat::GroundCount)throw std::length_error("Spider population exceeds render capacity");
     vertices_.clear();solid_.clear();visible_=draws_=0;
     const BoundingFrustum frustum(view*projection);
+    std::vector<std::pair<float,const SpiderState*>> candidates;
+    candidates.reserve(spiders.size());
     for(const auto& spider:spiders) {
         const Vector3 centre(spider.x,spider.y+.04f,spider.z);
         const float distance=Vector3::DistanceSquared(centre,camera);
         if(distance>18*18||!frustum.Intersects(BoundingSphere(centre,.16f)))continue;
+        candidates.emplace_back(distance,&spider);
+    }
+    std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return a.first<b.first;});
+    if(candidates.size()>SpiderRenderer::MaximumVisibleCount)candidates.resize(SpiderRenderer::MaximumVisibleCount);
+    for(const auto& candidate:candidates) {
+        const auto distance=candidate.first;
+        const auto& spider=*candidate.second;
         const auto& pose=spider.pose;
         const auto mesh=BuildSpiderMesh(pose.legs,distance<4*4);
         for(const auto& vertex:mesh.vertices) {

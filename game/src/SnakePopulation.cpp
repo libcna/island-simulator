@@ -105,17 +105,23 @@ namespace island
 
     void SnakePopulation::Initialize(const JungleLayout* jungle)
     {
-        std::array<std::array<float,2>,Count> homes{{
-            {-44,56},{70,-38},{-72,-70},{42,64},
-            {-116,48},{106,24},{-18,-112},{92,94}
-        }};
+        std::array<std::array<float,2>,Count> homes{};
+        // The terrain-only constructor is used by focused motion tests. Give it the same
+        // broad deterministic distribution instead of stacking expanded agents at (0,0).
+        constexpr float goldenAngle=2.39996322973f;
+        for(std::size_t index=0;index<Count;++index) {
+            const float t=(static_cast<float>(index)+.5f)/static_cast<float>(Count);
+            const float radius=28.0f+118.0f*std::sqrt(t);
+            const float angle=static_cast<float>(index)*goldenAngle;
+            homes[index]={radius*std::cos(angle),radius*std::sin(angle)};
+        }
         if (jungle) {
             struct Candidate { float x, z; std::uint32_t rank; };
             std::vector<Candidate> candidates;
             // A deterministic coprime stride samples the full authored distribution without
             // turning startup into an all-pairs vegetation search.
-            candidates.reserve((jungle->Understory().size() / 7U + 1U) * 4U);
-            for (std::size_t plantIndex = 0; plantIndex < jungle->Understory().size(); plantIndex += 7U) {
+            candidates.reserve((jungle->Understory().size() / 3U + 1U) * 4U);
+            for (std::size_t plantIndex = 0; plantIndex < jungle->Understory().size(); plantIndex += 3U) {
                 const auto& plant = jungle->Understory()[plantIndex];
                 for (int direction = 0; direction < 4; ++direction) {
                     const std::uint32_t rank = Mix(0x736e616bU

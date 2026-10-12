@@ -1,6 +1,7 @@
 #include "IslandSimulator/SpiderColony.hpp"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numbers>
 #include <stdexcept>
 
@@ -150,8 +151,19 @@ void SpiderColony::Update(float dt,SpiderPoint observer) {
     if(!std::isfinite(dt)||dt<=0)return;
     dt=std::min(dt,.1f);
     const bool valid=std::isfinite(observer.x)&&std::isfinite(observer.y)&&std::isfinite(observer.z);
-    const int steps=static_cast<int>(std::ceil(dt/.02f));
-    for(int step=0;step<steps;++step)for(std::size_t i=0;i<states_.size();++i)
-        Step(i,dt/static_cast<float>(steps),observer,valid);
+    ++frameIndex_;
+    for(std::size_t i=0;i<states_.size();++i) {
+        auto& state=states_[i];
+        const float distance=valid?std::hypot(state.x-observer.x,state.y+.04f-observer.y,
+            state.z-observer.z):std::numeric_limits<float>::infinity();
+        state.tier=WildlifeActivationPolicy::Classify(distance,18.0f,48.0f);
+        accumulatedSeconds_[i]=std::min(accumulatedSeconds_[i]+dt,.30f);
+        const auto divisor=WildlifeActivationPolicy::UpdateDivisor(state.tier);
+        if((frameIndex_+i)%divisor!=0U)continue;
+        const float elapsed=accumulatedSeconds_[i];accumulatedSeconds_[i]=0;
+        const int steps=static_cast<int>(std::ceil(elapsed/.02f));
+        for(int step=0;step<steps;++step)
+            Step(i,elapsed/static_cast<float>(steps),observer,valid);
+    }
 }
 }

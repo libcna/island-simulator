@@ -40,7 +40,8 @@ int main() {
         for(const auto& bush:jungle.Bushes())
             check(std::hypot(h.x-bush.x,h.z-bush.z)>=radius+.30f*bush.scale,"patrol crosses bush root");
         for(std::size_t j=0;j<i;++j)
-            check(std::hypot(h.x-(*homes)[j].x,h.z-(*homes)[j].z)>=8,"spider homes overlap");
+            check(std::hypot(h.x-(*homes)[j].x,h.z-(*homes)[j].z)
+                >=SpiderHabitat::MinimumSeparation,"spider homes overlap");
         std::cout<<"spider ground candidate "<<h.x<<','<<h.y<<','<<h.z<<" canopy="<<h.canopyIndex<<'\n';
     }
     const auto h=homes->front();

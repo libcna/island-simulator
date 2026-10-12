@@ -13,6 +13,7 @@ namespace island {
     class CanopyLightField;
     class SnakeRenderer final {
     public:
+        static constexpr std::size_t MaximumVisibleCount=16;
         SnakeRenderer(Microsoft::Xna::Framework::Graphics::GraphicsDevice& device,
                       const CanopyLightField& canopyLight);
         ~SnakeRenderer();

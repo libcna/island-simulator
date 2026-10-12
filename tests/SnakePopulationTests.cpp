@@ -86,7 +86,7 @@ int main(int argc,char** argv)
     obstacles.insert(obstacles.end(),jungle.Obstacles().begin(),jungle.Obstacles().end());
     obstacles.insert(obstacles.end(),props.Obstacles().begin(),props.Obstacles().end());
     island::SnakePopulation population(terrain,jungle,obstacles), repeated(terrain,jungle,obstacles);
-    Check(population.Snakes().size()==8,"expanded snake population missing");
+    Check(population.Snakes().size()==50,"requested fifty-snake population missing");
     for(std::size_t index=0;index<population.Snakes().size();++index) {
         const auto& snake=population.Snakes()[index];
         Check(island::SnakePopulation::IsUnderstoryMargin(jungle,snake.homeX,snake.homeZ),

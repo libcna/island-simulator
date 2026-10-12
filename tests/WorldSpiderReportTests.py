@@ -25,13 +25,13 @@ def validate(report):
     assert population["snapshot"] == "initial"
     assert population["websImplemented"] is False
     spiders = population["spiders"]
-    assert report["wildlife"]["groundSpiders"] == len(spiders) == 24
+    assert report["wildlife"]["groundSpiders"] == len(spiders) == 200
     seen = []
     for spider in spiders:
         position, home = point(spider["position"]), point(spider["home"])
         assert position == home and position[1] >= 2
         assert abs(position[0]) <= 220 and abs(position[2]) <= 220
-        assert all(math.hypot(position[0]-p[0], position[2]-p[2]) >= 7.999 for p in seen)
+        assert all(math.hypot(position[0]-p[0], position[2]-p[2]) >= 4.499 for p in seen)
         seen.append(position)
         assert isinstance(spider["canopyIndex"], int) and 0 <= spider["canopyIndex"] < report["placements"]["canopyTrees"]
         assert math.isfinite(spider["headingRadians"])
@@ -96,4 +96,4 @@ if __name__ == "__main__":
         except AssertionError:
             continue
         raise AssertionError(f"validator accepted {fault}")
-    print("World spider JSON: twenty-four initial spiders, eight anchored feet each, eleven negative cases passed")
+    print("World spider JSON: two hundred initial spiders, eight anchored feet each, eleven negative cases passed")

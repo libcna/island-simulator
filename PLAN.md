@@ -2,11 +2,13 @@
 
 ## Document purpose
 
-This is the living execution ledger for the original roughly 300-hour development campaign plus a
-user-directed visual-realism extension of up to roughly 100 additional productive hours. It is not
-a feature wish list: checked items require the validation named by their phase, and platform claims
-must be supported by actual runtime evidence. New discoveries, regressions, framework workarounds,
-asset provenance work, and deferred polish belong here as soon as they become material.
+This is the living execution ledger for the original roughly 300-hour development campaign. On
+2026-10-12 the operator replaced the former open-ended visual-realism extension with a hard planning
+limit of approximately 100 remaining productive hours. The requested functional scope is retained,
+but visual fidelity and iteration depth must fit that limit. This is not a feature wish list: checked
+items require the validation named by their phase, and platform claims must be supported by actual
+runtime evidence. New discoveries, regressions, framework workarounds, asset provenance work, and
+deferred polish belong here as soon as they become material.
 
 Status markers:
 
@@ -19,6 +21,31 @@ Repository content, source, diagnostics, UI text, documentation, and commit mess
 CNA and Sharp Runtime are read-only dependencies for the entire campaign.
 
 ## Latest operator priorities — 2026-10-12
+
+Remaining-budget constraint: plan all still-open work inside approximately 100 productive hours.
+Do not silently remove requested features. Give every retained feature a functional, recognisable,
+integrated implementation, but reduce visual ambition to the smallest coherent version: generally
+one model/material treatment, one motion set, bounded procedural detail and one targeted visual
+iteration. Photorealism, numerous bespoke animation/model variants, extensive texture passes and
+repeated cross-platform art tuning are stretch work only if the functional ledger finishes early.
+Crash fixes, input correctness, traversal safety, deterministic placement, bounded simulation/render
+cost and representative native runtime evidence keep their normal acceptance bar. Portable Web and
+Android work is consolidated around affected subsystems and final integration rather than repeated
+per-feature polish passes.
+
+Working allocation for the remaining 100-hour envelope (re-estimate after each integrated stage):
+
+- 10 h — stability, controls, fly/dive boundaries and regression work;
+- 20 h — wildlife counts, habitat, motion and missing animal audio;
+- 12 h — recognisable visual repairs for existing animals and aquatic wildlife;
+- 10 h — stream biome, local ambience and remaining low-cost ecosystem links;
+- 14 h — inland hut, small cave and campfire landmarks;
+- 14 h — one resident and one bear with bounded movement/audio;
+- 12 h — grounded enterable helicopter at reduced visual-detail target;
+- 8 h — integration, performance budgets, portable smoke coverage and release buffer.
+
+These are control budgets, not permission to leave a feature half-connected: when a stage threatens
+its allocation, simplify its geometry/material/animation variety before cutting its required behavior.
 
 Build constraint: all future compilations are limited to at most four CPU cores
 by explicit user request. Use `-j4` / `--parallel 4` or fewer workers, bound nested
@@ -134,22 +161,22 @@ item 9 is `[~]`. See [prevailing-wind.md](docs/prevailing-wind.md).
   budgets rather than merely raising constants; keep animals away from player spawn and
   required routes. Validate actual encounter frequency, crowding and frame cost in long
   native walks plus Web/Android runtime. A larger reported count alone is not acceptance.
-  Native implementation now contains eight ground snakes and 24 ground spiders. Snake
-  homes remain at least 34m apart on qualified understory margins; spider homes remain
-  at least 8m apart beside qualified canopy. All animals retain simulation, culling,
-  renderer and shared contact-shadow capacity. The portable grass shader selects the
-  four snakes nearest the camera from the eight live animals, preserving its existing
-  fragment-uniform budget. Focused population/motion tests and independent WorldReport
-  validators pass; current fingerprint is `02d44fab27a0b823`. Inspected llvmpipe
-  captures `20261012T121151.377464Z-snakes` and `20261012T121332.031522Z-spiders`
-  show live moving subjects and report 1/8 and 1/24 visible. Both generic scene gates
-  still fail because of the intentionally dark, tightly cropped habitat, so neither is
-  final appearance acceptance. Long-walk encounter frequency, performance comparison
-  and Web/Android runtime remain open.
-  Operator count target clarified 2026-10-12: 50 snakes and 200 spiders. Do not mark
-  this complete at any smaller population; rework habitat packing and simulation,
-  renderer/contact-shadow/diagnostic capacities, visibility budgets and tests before
-  raising the live constants.
+  Native implementation now contains the requested 50 ground snakes and 200 ground
+  spiders. Snake homes are selected at least 14m apart on qualified understory margins;
+  spider homes remain at least 4.5m apart beside qualified canopy. All animals retain
+  live state, while spiders use full/reduced/dormant distance tiers and divided update
+  cadence. The snake renderer submits at most the nearest 16 visible animals, the spider
+  renderer at most 24, and shared contact shadows at most 16 of each, replacing unsafe
+  population-sized dynamic GPU buffers. The portable grass shader still selects only
+  the four nearest snakes, preserving its fragment-uniform budget. Focused habitat,
+  motion, renderer-build, independent WorldReport and three portable preflight groups
+  pass 11/11; current fingerprint is `b0f0ae75a88ce3c3`. Inspected llvmpipe captures
+  `20261012T143710.846753Z-snakes` and `20261012T143753.699776Z-spiders` each report one
+  live subject from totals 50/200 with its contact shadow. Their intentionally dark,
+  tightly cropped views still fail generic scene-contrast gates, so they are integration
+  and visual-inspection evidence rather than final appearance acceptance. Long-walk
+  encounter frequency, controlled performance comparison and Web/Android runtime remain
+  open; the exact population target itself is implemented.
 
 - [~] Make every ground snake visibly crawl instead of reading as a static prop. Preserve
   terrain and obstacle contact along the full body while the head advances, the body

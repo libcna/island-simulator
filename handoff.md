@@ -1,5 +1,29 @@
 # island-simulator handoff
 
+## Current operator budget — 100 productive hours remaining
+
+The earlier broad 250–450/roughly-400-hour outlook is superseded. The operator fixed
+the remaining budget at approximately 100 productive hours while retaining the requested
+functional scope. `PLAN.md` now allocates that envelope across stability/controls,
+wildlife, reduced-fidelity animal repair, ecosystem links, hut/cave/campfire, resident/
+bear, grounded helicopter and final integration. Simplify model/material/animation
+variety before cutting required behavior. Builds remain limited to CPUs0-3 and `-j2`;
+do not touch Android emulator/KVM or AMD GPU state.
+
+## Latest implementation — 50 snakes and 200 spiders
+
+The exact requested live populations are now implemented. Fifty snake homes are chosen
+deterministically on understory margins with >=14m separation; 200 spider homes use the
+existing qualified forest habitat with >=4.5m separation. Spiders now use distance-tiered,
+staggered simulation. GPU work is independently bounded: nearest 16 snakes, 24 spiders,
+and 16 contact shadows per species, with the grass shader still using four snakes.
+WorldReport fingerprint `b0f0ae75a88ce3c3` exports 50/200. Focused population/motion,
+WorldReport validators and portable preflight tests pass 11/11 in 241.75s. Inspected
+llvmpipe `20261012T143710.846753Z-snakes` and `20261012T143753.699776Z-spiders` each
+show one live grounded subject and report 1/50 and 1/200. Both retain their known dark
+close-view generic-contrast failures, so visual polish, long-walk encounter/performance
+review and actual Web/Android runtime remain open. No AMD/KVM changes.
+
 ## Latest implementation — four coastal identities, first composition pass
 
 New `SampleCoastalExperience` provides finite shared weights for the broad south beach,
@@ -621,7 +645,8 @@ NEXT bounded strand geometry/stronger clearance, then actual live rendering and
 occupants plus close/moving visual inspection. Full plan remains open, goal active.
 No AMD hardware, Android/KVM/AVD or dependency changes; latch SHA c0bd1704 unchanged.
 Disk check: build8.7G/build-probe430M/android/app/build412M; no artifacts removed.
-No push. ETA given to user250–450 work hours is rough, not a deadline or reduced scope.
+No push. The earlier 250–450-hour estimate is superseded by the operator's fixed
+approximately 100-hour remaining budget and reduced visual-fidelity target above.
 
 ## Latest — actual branch geometry shared for future web attachment
 

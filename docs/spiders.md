@@ -1,8 +1,30 @@
 # Spiders — implementation and verification
 
-Status: **24 ground spiders are now integrated in IslandGame. Webs are still absent.**
+Status: **200 ground spiders are now integrated in IslandGame. Webs are still absent.**
 The first actual native software image was inspected, but its generic image-contrast
 gate failed. Natural motion, visual realism and portable qualification remain open.
+
+## Two-hundred-animal population and tiered simulation — 2026-10-12
+
+The requested live population is now exactly 200 ground spiders, deterministically
+placed at least 4.5m apart in the existing qualified forest/brush habitat. Each keeps
+its articulated feet, patrol state and movement intent. Per-frame work is bounded by
+full/reduced/dormant distance tiers and staggered update divisors; accumulated time is
+substepped when an animal's turn arrives so movement and foot constraints remain stable.
+
+The renderer chooses at most the nearest 24 visible spiders for its existing two material
+draws, and the shared shadow batch chooses at most the nearest 16. Thus the new population
+does not reserve or upload geometry for all 200. Focused habitat and motion tests pass;
+the dormant-tier audit observed 102/200 animals move over the long deterministic run and
+22.1356m aggregate travel. WorldReport exports all 200 articulated initial states and
+passes its independent corruptions; shared fingerprint is `b0f0ae75a88ce3c3`.
+
+Actual isolated llvmpipe `20261012T143753.699776Z-spiders` was inspected and reports
+1/200 visible in two draws with one contact shadow. The subject remains recognisable and
+grounded. The deliberately close, dark forest-floor image still fails the generic scene
+contrast gates, so this is population/integration evidence rather than final appearance
+acceptance. Web/Android, long-walk encounter review and controlled performance comparison
+remain open.
 
 ## Population expansion — 2026-10-12
 

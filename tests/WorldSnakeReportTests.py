@@ -11,7 +11,7 @@ def validate(report):
     population = report["groundSnakePopulation"]
     assert population["snapshot"] == "initial"
     assert population["treeHabitatImplemented"] is False
-    assert report["wildlife"]["groundSnakes"] == len(population["snakes"]) == 8
+    assert report["wildlife"]["groundSnakes"] == len(population["snakes"]) == 50
     assert population["stationsPerSnake"] == 41
     assert population["spacingMeters"] == 0.055
     homes = []
@@ -28,7 +28,7 @@ def validate(report):
         for a, b in zip(body, body[1:]):
             # 0.1mm JSON rounding adds at most sqrt(2)*0.1mm to horizontal distance.
             assert abs(math.hypot(a[0] - b[0], a[2] - b[2]) - .055) < .0018
-    assert len(set(homes)) == 8
+    assert len(set(homes)) == 50
 
 
 if __name__ == "__main__":
@@ -53,4 +53,4 @@ if __name__ == "__main__":
         except AssertionError:
             continue
         raise AssertionError(f"validator accepted {fault}")
-    print("World snake JSON: eight ground snakes, complete bodies and five negative cases passed")
+    print("World snake JSON: fifty ground snakes, complete bodies and five negative cases passed")

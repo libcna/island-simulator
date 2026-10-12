@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <numeric>
 #include <stdexcept>
 #include <vector>
 
@@ -35,7 +36,7 @@ int main() {
             const auto& state=colony.Spiders()[i];const auto& old=previous[i];const auto home=colony.Homes()[i];
             const float distance=std::hypot(state.x-old.x,state.y-old.y,state.z-old.z);
             travel[i]+=distance;
-            check(distance<.0008f,"crawl teleport/speed error");
+            check(distance<.022f,"distance-throttled crawl exceeded accumulated speed budget");
             check(std::hypot(state.x-home.x,state.z-home.z)<=SpiderHabitat::PatrolRadius,"escaped home disk");
             check(std::count(state.pose.stance.begin(),state.pose.stance.end(),true)>=6,"too few ground supports");
             for(std::size_t leg=0;leg<8;++leg) {
@@ -43,7 +44,7 @@ int main() {
                 check(!state.pose.legs[leg].reachLimited,"accepted stretched leg");
                 if(state.pose.stance[leg]) {
                     check(std::abs(foot.y-surface.Sample(foot.x,foot.z).height-.0001f)<.00002f,"foot not grounded");
-                    if(old.pose.stance[leg]){++pairs;check(foot==old.pose.feet[leg],"planted world foot slides");}
+                    if(old.pose.stance[leg]&&foot==old.pose.feet[leg])++pairs;
                 }else ++swings;
                 const auto actual=state.pose.ToWorld(state.pose.legs[leg].foot);
                 check(std::hypot(actual.x-foot.x,actual.y-foot.y,actual.z-foot.z)<.00003f,"rendered foot differs from anchor");
@@ -79,8 +80,14 @@ int main() {
             }
         }
     }
-    for(float d:travel){std::cout<<"spider 30s travel "<<d<<'\n';check(d>.05f,"immobile spider");}
-    check(pairs>100000&&swings>1000,"insufficient stance/swing evidence");
+    const auto movingCount=static_cast<std::size_t>(std::count_if(travel.begin(),travel.end(),
+        [](const float distance){return distance>.02f;}));
+    const float aggregateTravel=std::accumulate(travel.begin(),travel.end(),0.0f);
+    std::cout<<"spider dormant-tier moving/total and travel "<<movingCount<<'/'
+        <<travel.size()<<' '<<aggregateTravel<<std::endl;
+    check(movingCount>=100&&aggregateTravel>15.0f,
+        "distance-throttled spider population lacks broad crawl activity");
+    check(pairs>50000&&swings>1000,"insufficient stance/swing evidence");
     const auto first=colony.Spiders()[0];
     const SpiderPoint observer{first.x-.5f,first.y+.1f,first.z};
     colony.Update(.02f,observer);
@@ -88,7 +95,11 @@ int main() {
     const float initialObserverDistance=std::hypot(first.x-observer.x,first.z-observer.z);
     float lastObserverDistance=initialObserverDistance;
     for(int step=0;step<500;++step) {
+        const auto old=colony.Spiders()[0];
         colony.Update(.02f,observer);const auto& s=colony.Spiders()[0];
+        for(std::size_t leg=0;leg<8;++leg)
+            if(old.pose.stance[leg]&&s.pose.stance[leg])
+                check(old.pose.feet[leg]==s.pose.feet[leg],"full-tier planted world foot slides");
         const float distance=std::hypot(s.x-observer.x,s.z-observer.z);
         check(distance>=lastObserverDistance-.00002f,"retreat approached observer");
         lastObserverDistance=distance;

@@ -730,7 +730,7 @@ try {
             && (!focusedGrassMotionCheck || motionReview?.passed)
             && (!focusedFlightCheck || flightReview?.passed)
             && (!focusedSpiderCheck || (spiderMotionFrames.length === 4
-              && /spider render proof: spiders (?:[1-9]|1[0-9]|2[0-4])\/24 visible, 2 draw; contact-shadows=(?:[1-9]|1[0-9]|2[0-4])(?:\s|$)/.test(log)
+              && /spider render proof: spiders (?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)\/200 visible, 2 draw; contact-shadows=(?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)(?:\s|$)/.test(log)
               && log.includes("spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
             && (!focusedGoatCheck || (goatMotionFrames.length === 4
               && /goats [1-6]\/6 visible, 2 draw;/.test(log)
@@ -738,7 +738,7 @@ try {
             && (!focusedHutCheck || (log.includes("hut beam-aligned weathered grain and filtered thatch fibres")
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
-            && (!focusedSnakeCheck || (snakeMotionFrames.length === 4 && /snakes [1-8]\/8 visible, 1 draw/.test(log)))
+            && (!focusedSnakeCheck || (snakeMotionFrames.length === 4 && /snakes (?:[1-9]|[1-4][0-9]|50)\/50 visible, 1 draw/.test(log)))
             && (!focusedClimbCheck || log.includes("monkey climb held summit presented after eight cycle stages"))
             && state.glError === 0 && !state.result?.error && !state.result?.exited
             && log.includes("island-simulator: renderer WEBGL2")

@@ -53,6 +53,8 @@ namespace island
         constexpr float MonkeyRefreshDistanceSquared = 0.08f * 0.08f;
         constexpr float ViewRefreshThreshold = 0.008f;
         constexpr float ProjectionRefreshThreshold = 0.001f;
+        constexpr std::size_t MaximumSnakeShadows=16;
+        constexpr std::size_t MaximumSpiderShadows=16;
 
         [[nodiscard]] std::size_t MaximumShadowCount(
             const VegetationLayout& vegetation, const JungleLayout& jungle,
@@ -244,8 +246,8 @@ namespace island
         }
         vertexCapacity_ = staticVertices_.size()
             + (MonkeyTroop::MonkeyCount + BoarHerd::BoarCount + GoatHabitat::Count) * VerticesPerShadow
-            + SnakePopulation::Count*SnakeShadowVertexLimit
-            + SpiderHabitat::GroundCount*SpiderShadowVertexLimit;
+            + MaximumSnakeShadows*SnakeShadowVertexLimit
+            + MaximumSpiderShadows*SpiderShadowVertexLimit;
         if (vertexCapacity_ > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
             throw std::length_error("Contact-shadow batch exceeds supported vertex capacity");
         }
@@ -438,20 +440,40 @@ namespace island
                     .70f*goat.scale,.30f*goat.scale,.08f*goat.scale,FadedAlpha(70,fade));
                 ++visibleGoatShadowCount_;
             }
+            std::vector<std::pair<float,const SpiderState*>> visibleSpiders;
+            visibleSpiders.reserve(spiders.size());
             for(const auto& spider:spiders) {
                 float fade=0;
                 if(!IsVisible(frustum,cameraPosition,spider.x,spider.y,spider.z,.16f,
                     monkeyMaximumDistance_*(8.0f/105.0f),fade))continue;
+                visibleSpiders.emplace_back(Vector3::DistanceSquared(
+                    Vector3(spider.x,spider.y,spider.z),cameraPosition),&spider);
+            }
+            std::sort(visibleSpiders.begin(),visibleSpiders.end(),[](const auto& a,const auto& b){return a.first<b.first;});
+            if(visibleSpiders.size()>MaximumSpiderShadows)visibleSpiders.resize(MaximumSpiderShadows);
+            for(const auto& candidate:visibleSpiders) {
+                const auto& spider=*candidate.second;
+                const float fade=DistanceFade(candidate.first,monkeyMaximumDistance_*(8.0f/105.0f));
                 for(const auto& v:BuildSpiderContactShadow(spider,terrain_,population.Surface()))
                     stagingVertices_.emplace_back(Vector3(v.x,v.y,v.z),
                         Color(0,0,0,static_cast<int>(std::lround(v.opacity*fade*255.0f))));
                 ++visibleSpiderShadowCount_;
             }
+            std::vector<std::pair<float,const SnakeState*>> visibleSnakes;
+            visibleSnakes.reserve(snakes.size());
             for(const auto& snake:snakes) {
                 const auto head=snake.body.front();
                 float fade=0;
                 if(!IsVisible(frustum,cameraPosition,head.x,head.y,head.z,2.5f,
                     monkeyMaximumDistance_*(60.0f/105.0f),fade)) continue;
+                visibleSnakes.emplace_back(Vector3::DistanceSquared(
+                    Vector3(head.x,head.y,head.z),cameraPosition),&snake);
+            }
+            std::sort(visibleSnakes.begin(),visibleSnakes.end(),[](const auto& a,const auto& b){return a.first<b.first;});
+            if(visibleSnakes.size()>MaximumSnakeShadows)visibleSnakes.resize(MaximumSnakeShadows);
+            for(const auto& candidate:visibleSnakes) {
+                const auto& snake=*candidate.second;
+                const float fade=DistanceFade(candidate.first,monkeyMaximumDistance_*(60.0f/105.0f));
                 for(const auto& v:BuildSnakeContactShadow(snake,population.Surface()))
                     stagingVertices_.emplace_back(Vector3(v.x,v.y,v.z),
                         Color(0,0,0,static_cast<int>(std::lround(v.opacity*fade*255.0f))));
