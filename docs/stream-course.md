@@ -25,6 +25,22 @@ Native build and `IslandStreamCourseSurvey` pass0.07s. Evidence:
 
 ## Next integration requirements
 
+Local geometry foundation now exists in `StreamBedPatch.hpp`: a coarse-grid-aligned
+replacement rectangle with8x finer spacing (~0.354m), parabolic wet bed and2m bank
+blends. Source incision fades in over2m; outlet influence fades4m past the course.
+It starts from the exact existing rendered surface and never raises it. Boundary
+vertices retain that surface exactly. Shared `SampleHeight` evaluates the same
+triangle split as the mesh, including inclusive boundary roundoff handling.
+
+The current full rectangular prototype has36273vertices/71680triangles and maximum
+cut0.433233m. This is too costly relative to the narrow channel: adaptively retain
+coarse geometry outside the cut region before live integration. CPU checks verify
+all vertex heights, every triangle centroid against the query, positive/upward
+winding, unchanged boundary, non-raising carve, centreline depth>=10cm after source
+fade and outside-domain rejection. Focused test passes0.10s. No runtime mesh upload,
+terrain removal, player collision integration, water rendering or visual acceptance
+is claimed; the original terrain still renders unchanged.
+
 The global terrain grid is about2.83m across, coarser than the upper wet channel.
 Provide local channel/bank geometry and a coherent authoritative carve/collision
 representation; do not cover an uncut coarse heightfield with a blue strip. Avoid

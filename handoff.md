@@ -1,5 +1,21 @@
 # island-simulator handoff
 
+## Latest — CPU local stream-bed replacement geometry, not live
+
+Previous226f5fd progress. New StreamBedPatch.hpp subdivides coarse-grid-aligned
+route rectangle8x (~.354m), samples exactoriginalRenderedTerrainSurface then lowers
+parabolic wetbed with2mbanks/source2mfade/outlet4mfade. Outerboundary unchanged;
+indices upward,16bit. SampleHeight uses same triangle interpolation, inclusive
+boundary tolerance. NEVER layer this over old terrain: replace covered triangles
+and route collision/grounding through same surface when integrating.
+Current fullrectangle36273verts/71680tris,maxcut.433233: TOOcostly; next adaptive
+refinement only cutregion/stitched coarse surround before live renderer integration.
+Survey validates everyvertex+trianglecentroid, boundary, winding, cutbound, station
+wetdepth>=.1 aftersource, outsidequery rejection. Finalbuild/test52905exit0PASS.10s;
+initial72941exit0. Logs build/stream-bed-{build,tests}.log and -summary.log/rawprofile.
+taskset0-3/-j2/sharedcache; nofullsuite/graphics/AMD/KVM/dependencychanges. No stream
+in game yet. Allhandles terminal; new ecosystem ordering/fullpriorrequirements remain.
+
 ## Latest — western stream route surveyed and layout foundation
 
 Previousb475e33 was progress. New StreamCourse.hpp and tools/StreamSurvey.cpp plus

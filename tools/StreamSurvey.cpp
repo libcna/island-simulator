@@ -1,6 +1,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/StreamCourse.hpp"
+#include "IslandSimulator/StreamBedPatch.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -12,6 +13,39 @@ int main() {
     const island::IslandTerrain terrain;
     const auto surface=std::make_unique<island::RenderedTerrainSurface>(terrain);
     const island::StreamCourse course(terrain),repeat(terrain);
+    const island::StreamBedPatch patch(course,*surface);
+    float deepestCut=0;
+    for(std::size_t i=0;i<patch.Vertices().size();++i) {
+        const auto p=patch.Vertices()[i];
+        const float base=surface->Sample(p.x,p.z).height;
+        if(!std::isfinite(p.y)||p.y>base+.00001f)return 4;
+        if(std::abs(patch.SampleHeight(p.x,p.z)-p.y)>.0001f)return 9;
+        deepestCut=std::max(deepestCut,base-p.y);
+        const auto col=i%static_cast<std::size_t>(patch.Columns()),row=i/static_cast<std::size_t>(patch.Columns());
+        if((col==0||row==0||col==static_cast<std::size_t>(patch.Columns()-1)
+            ||row==static_cast<std::size_t>(patch.Rows()-1))&&p.y!=base)return 5;
+    }
+    for(std::size_t i=0;i<patch.Indices().size();i+=3) {
+        const auto a=patch.Vertices().at(patch.Indices()[i]);
+        const auto b=patch.Vertices().at(patch.Indices()[i+1]);
+        const auto c=patch.Vertices().at(patch.Indices()[i+2]);
+        if((b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z)<=0)return 6;
+        const float x=(a.x+b.x+c.x)/3,z=(a.z+b.z+c.z)/3;
+        if(std::abs(patch.SampleHeight(x,z)-(a.y+b.y+c.y)/3)>.0001f)return 7;
+    }
+    if(deepestCut<.25f||deepestCut>1)return 8;
+    for(std::size_t i=3;i<course.Count();++i) {
+        const auto& p=course.Station(i);
+        if(patch.SampleHeight(p.x,p.z)>p.water-.1f)return 10;
+    }
+    for(const auto point:std::array<std::array<float,2>,3>{{{{0,0}},{{-1000,0}},{{0,1000}}}}) {
+        bool rejected=false;
+        try {(void)patch.SampleHeight(point[0],point[1]);}
+        catch(const std::out_of_range&) {rejected=true;}
+        if(!rejected)return 11;
+    }
+    std::cerr << "Replacement patch vertices=" << patch.Vertices().size() << " triangles="
+        << patch.Indices().size()/3 << " deepest cut=" << deepestCut << '\n';
     for(std::size_t i=0;i<course.Count();++i) {
         const auto& p=course.Station(i);
         const auto& q=repeat.Station(i);

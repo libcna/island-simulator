@@ -51,6 +51,11 @@ deterministic StreamCourse layout, widths0.9..3m,25cm water depth,<=1m incision
 guard (actual raw candidate0.4m), outlet water clamped0. Native build and CPU
 IslandStreamCourseSurvey PASS0.07s. No terrain/render mutation yet; local geometry
 needed because2.83m terrain cells exceed upper channel width. docs/stream-course.md.
+Local replacement-bed prototype now uses.354m spacing, parabolic bed/2m banks,
+unchanged original-rendered outer boundary and a matching triangle-height query.
+CPU all-vertex/triangle-centroid/winding/boundary/depth tests PASS.10s; maximum cut
+.433233m. Current rectangular36273vertices/71680triangles needs adaptive reduction
+before game integration. Still no live stream or terrain removal/rendered audit.
 
 - [ ] Add a realistic continuously burning campfire at a suitable island location:
   stone-ringed fire pit, burning logs/embers, animated flame shape and restrained
