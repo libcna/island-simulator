@@ -1,8 +1,38 @@
 # Spiders — implementation and verification
 
-Status: CPU ground-habitat and articulated-leg foundations only. **No live spiders or webs are installed
+Status: CPU ground habitat, articulated legs and first mesh only. **No live spiders or webs are installed
 in IslandGame yet.** Both ground spiders and webs between plants remain required.
 This is not a rendered model, movement, visual or platform acceptance claim.
+
+## First mesh (not yet rendered in the game)
+
+`BuildSpiderMesh` consumes the eight solved leg chains. Two smooth-normal ellipsoids
+form the front body and abdomen; three tapered, capped tubes follow each leg's
+root/hip/knee/foot. The lower segment ends at a point, so there is no flat-ground
+penetrating foot cap. Two short two-segment palps sit in front. Near geometry uses
+12-sided/8-row bodies and6-sided limbs; far uses8-sided/6-row bodies and4-sided limbs.
+Near-only eight small eye volumes have their centre rays fitted to the actual front
+body triangles, not the larger analytic ellipse, with0.6mm embedding. Near-only
+2.4mm bristles start at actual body tessellation vertices, with0.18mm root radius.
+These are geometric details, not a fur texture or photorealistic material claim.
+Cuticle/dorsal marking/eye/hair material tags await renderer shading.
+
+Near/far meshes contain4248/1632 vertices (1416/544 triangles), guarded by a10000
+vertex hard ceiling. CPU tests exercise both LODs over nine raised/longitudinal target
+sets and check finite positions, unit normals, nondegenerate outward winding, required
+parts, reduced far detail, flat-ground clearance and140mm horizontal habitat envelope.
+This is not uneven-terrain clearance or limb self-contact proof. No live batch/LOD
+selection, in-game camera, motion capture or portable runtime is claimed yet.
+
+Inclusive native build and50/50 CPU tests pass61.84s after the polygon-fitted eye change
+(`build/spider-mesh-current-{build,tests}.log`). The earlier pre-eye-fit50/50 suite
+passes69.78s (`build/spider-mesh-{build,tests}.log`). A subsequent inclusive build adds
+`island-spider-mesh-preview`; all three spider groups pass1.10s after that build.
+The tool exports a CPU painter-sorted SVG with fixed demonstration colors and flat
+per-face lighting, not the game's shading/depth path. `build/spider-mesh-preview.png`
+(rasterized from its SVG) was actually inspected: eight-legged/two-body silhouette is
+recognizable from elevated front and side, but faceting and sparse bristles remain.
+This preview is deliberately not material/photorealism or live-island acceptance.
 
 ## Articulated anatomy foundation
 

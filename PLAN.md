@@ -784,6 +784,14 @@ progress or require player interaction; dangerous species keep their distance li
   CPU tests cover216 local targets,32 singular/far targets, neutral symmetry/envelope
   and invalid inputs. No stride/stance state, mesh, contact or live motion yet.
   Current inclusive build/full49CPU PASS68.36s; logs spider-pose-{build,tests}.log.
+  First SpiderMesh now follows those joints: two rounded bodies, eight tapered
+  three-segment legs, paired palps, near-only fitted eyes and short vertex-rooted
+  body bristles. Near/far4248/1632 vertices; CPU topology/envelope/flat-ground tests.
+  Still no live crawling, renderer/population or web integration; no visual acceptance.
+  Current50CPU PASS61.84s; offline CPU front/side mesh preview actually inspected:
+  recognizable spider silhouette, faceted body and sparse bristles remain. This is
+  not an island screenshot or final realism approval. Next: planted-foot ground
+  locomotion and live integration, then actual island views plus plant-attached webs.
   Next: recognizable eight-leg model, grounded motion, actual renderer/population and
   plant-attached webs. Full requirements/evidence in docs/spiders.md.
   Inclusive native build/full48CPU PASS97.63s, spider test1.58s. No renderer or

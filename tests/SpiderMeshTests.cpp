@@ -1,0 +1,51 @@
+#include "IslandSimulator/SpiderMesh.hpp"
+#include "IslandSimulator/SpiderHabitat.hpp"
+#include <cmath>
+#include <iostream>
+#include <stdexcept>
+
+namespace {
+void Check(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
+island::SpiderPoint Sub(island::SpiderPoint a,island::SpiderPoint b){return {a.x-b.x,a.y-b.y,a.z-b.z};}
+island::SpiderPoint Cross(island::SpiderPoint a,island::SpiderPoint b){return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};}
+float Dot(island::SpiderPoint a,island::SpiderPoint b){return a.x*b.x+a.y*b.y+a.z*b.z;}
+}
+int main() {
+    using namespace island;
+    std::size_t nearCount=0,farCount=0;
+    for(bool detailed:{false,true})for(int step=0;step<9;++step) {
+        auto legs=SpiderPose::Rest();
+        for(std::size_t i=0;i<legs.size();++i) {
+            auto target=SpiderPose::NeutralFoot(i);
+            target.y=.002f*static_cast<float>(step);
+            target.z+=.001f*static_cast<float>(step-4);
+            legs[i]=SpiderPose::Solve(i,target);
+            Check(!legs[i].reachLimited,"mesh fixture target unreachable");
+        }
+        const auto mesh=BuildSpiderMesh(legs,detailed);
+        Check(!mesh.vertices.empty()&&mesh.vertices.size()%3==0&&mesh.vertices.size()<=SpiderMesh::MaximumVertices,"mesh budget invalid");
+        (detailed?nearCount:farCount)=mesh.vertices.size();
+        std::array<std::size_t,6> parts{};
+        for(const auto& v:mesh.vertices) {
+            const auto p=v.position;
+            Check(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z),"nonfinite vertex");
+            Check(std::abs(Dot(v.normal,v.normal)-1)<1e-5f,"non-unit normal");
+            Check(p.y>=-1e-7f,"flat mesh penetrates ground");
+            Check(std::hypot(p.x,p.z)<=SpiderHabitat::BodyRadius,"mesh exceeds habitat envelope");
+            ++parts[static_cast<std::size_t>(v.part)];
+        }
+        for(std::size_t i=0;i<mesh.vertices.size();i+=3) {
+            const auto& a=mesh.vertices[i];const auto& b=mesh.vertices[i+1];const auto& c=mesh.vertices[i+2];
+            const auto cross=Cross(Sub(b.position,a.position),Sub(c.position,a.position));
+            Check(Dot(cross,cross)>1e-24f,"degenerate triangle");
+            Check(Dot(cross,a.normal)+Dot(cross,b.normal)+Dot(cross,c.normal)>0,"inverted winding");
+        }
+        for(std::size_t i=0;i<4;++i)Check(parts[i]>0,"missing body/limbs/palps");
+        Check((parts[4]>0)==detailed&&(parts[5]>0)==detailed,"eye/hair LOD wrong");
+    }
+    Check(nearCount>farCount,"far LOD not reduced");
+    auto bad=SpiderPose::Rest();bad[0].knee.x=NAN;
+    bool rejected=false;try{(void)BuildSpiderMesh(bad,true);}catch(const std::invalid_argument&){rejected=true;}
+    Check(rejected,"nonfinite pose accepted");
+    std::cout<<"Spider mesh near/far vertices "<<nearCount<<'/'<<farCount<<"; not live or visually accepted\n";
+}

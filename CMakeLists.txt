@@ -66,6 +66,7 @@ add_library(island_core STATIC
     game/src/GoatHabitat.cpp
     game/src/SpiderHabitat.cpp
     game/src/SpiderPose.cpp
+    game/src/SpiderMesh.cpp
     game/src/GoatPose.cpp
     game/src/GoatHerd.cpp
     game/src/GoatMesh.cpp
@@ -148,6 +149,11 @@ if(ISLAND_BUILD_TOOLS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_goat_stance_audit)
     island_enable_first_party_sanitizers(island_goat_stance_audit)
     add_executable(island_goat_mesh_preview tools/GoatMeshPreview.cpp)
+    add_executable(island_spider_mesh_preview tools/SpiderMeshPreview.cpp)
+    set_target_properties(island_spider_mesh_preview PROPERTIES OUTPUT_NAME island-spider-mesh-preview)
+    target_link_libraries(island_spider_mesh_preview PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_spider_mesh_preview)
+    island_enable_first_party_sanitizers(island_spider_mesh_preview)
     set_target_properties(island_goat_mesh_preview PROPERTIES OUTPUT_NAME island-goat-mesh-preview)
     target_link_libraries(island_goat_mesh_preview PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_mesh_preview)
@@ -223,6 +229,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_spider_pose_tests)
     island_enable_first_party_sanitizers(island_spider_pose_tests)
     add_test(NAME IslandSpiderPoseTests COMMAND island_spider_pose_tests)
+    add_executable(island_spider_mesh_tests tests/SpiderMeshTests.cpp)
+    target_link_libraries(island_spider_mesh_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_spider_mesh_tests)
+    island_enable_first_party_sanitizers(island_spider_mesh_tests)
+    add_test(NAME IslandSpiderMeshTests COMMAND island_spider_mesh_tests)
     target_link_libraries(island_goat_habitat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_goat_habitat_tests)
     island_enable_first_party_sanitizers(island_goat_habitat_tests)

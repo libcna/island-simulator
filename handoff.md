@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest — first spider mesh plus inspected CPU shape preview, NOT live spiders
+
+Previous turn was progress (eight-leg kinematics). Added SpiderMesh.hpp/.cpp and
+SpiderMeshTests: two smooth-normal ellipsoids, eight tapered3segment legs driven by
+SpiderPose, point-contact feet, two2segment palps. Near12sides/8rows bodies+6sidedlimbs;
+far8sides/6rows+4sidedlimbs. Near8eyeellipsoids with centre-ray fit to actual front-body
+triangles and0.6mm embedding, plus2.4mm vertex-rooted body bristles0.18mmrootradius.
+Cuticle/marking/eye/hair tags, no texture/shader yet. Near/far4248/1632 vertices under
+10000hardcap. Tests2LODs×9raised/longitudinal foot sets, finite/unit normals, winding,
+nondegenerate triangles, flatground clearance,140mm horizontal envelope, parts/LOD and
+invalid pose. Not roughground/selfintersection/foot anchoring proof.
+
+Initial inclusive build+50CPU PASS69.78s beforeeye-fit; current eye-fit inclusivebuild
+and50CPU PASS61.84s (build/spider-mesh-current-{build,tests}.log). Then added CPUonly
+island-spider-mesh-preview tools/SpiderMeshPreview.cpp, inclusivebuildPASS plus3spider
+groupsPASS1.10s. build/spider-mesh-preview.svg rasterized withMagick; actualPNG inspected:
+recognizable spider from elevatedfront/side, but angular facets/sparsebristles remain.
+Preview uses painter sorting/flatface light/democolors, NOTlivegame/realismacceptance.
+No GPU/display/browser/Androidrun; no hardware/KVM/emulator/dependency changes.
+Latch SHA c0bd1704 unchanged. All owned handles terminal0 (98637,11981,86083,16960,
+88638,13403). Full remaining scope/AMD flight incident unresolved, goalactive/nopush.
+
+NEXT: bounded ground locomotion retaining world-space feet, ground fitting and retreat,
+then live IslandGame population/renderer/counts/worldreport and contained actual views.
+No live spiders or webs yet; plant-attached webs remain required. Do not stop at mesh
+tests or mistake offline preview for actual island visuals. Full prior backlog retained.
+
 ## Latest — eight-leg spider kinematics foundation, NOT live spiders
 
 Previous goal turn was progress (12 deterministic ground homes); this turn adds
