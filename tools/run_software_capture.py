@@ -24,6 +24,17 @@ from gpu_incident_qualification import (
 )
 
 
+def validate_campfire_stages(log):
+    rows=re.findall(r"campfire motion stage=(\d+) updates=(\d+) time=(\S+) draws=(\d+) effect-triangles=(\d+)",log)
+    if len(rows)!=4 or [int(row[0]) for row in rows]!=list(range(4)):
+        raise RuntimeError("campfire requires four ordered animation stages")
+    for stage,updates,seconds,draws,triangles in rows:
+        if (int(updates)!=(int(stage)+1)*8 or not math.isclose(float(seconds),int(updates)*.1,abs_tol=1e-5)
+                or int(draws)!=2 or int(triangles)!=42):
+            raise RuntimeError("invalid campfire animation clock or rendering budget")
+    return rows
+
+
 def validate_snake_runtime_samples(log):
     """Validate sparse live-view motion, not continuous gait or visual quality."""
     rows = re.findall(r"snake runtime sample frame=(\d+) head=(\S+) speed=(\S+) visible=(\d+)", log)
@@ -443,7 +454,7 @@ def run_monitored_capture(command, root, environment, evidence, journal, baselin
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
-    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
+    parser.add_argument("viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"campfire", "campfire-wide", "cave", "cave-inside", "stream", "turtle-nest", "hut", "hut-material", "boars", "goats", "spiders", "spiders-bright", "snakes", "snake-head", "canopy", "monkey-tree", "monkey-climb"}))
     parser.add_argument("--canopy-lod-inspection", nargs=3, metavar=("X_MM", "Z_MM", "TIER"))
     parser.add_argument("--missing-leaf", action="store_true",
                         help="test only the leaf-image fallback using a read-only namespace overlay")
@@ -495,6 +506,16 @@ def main():
             if 'gl-renderer="llvmpipe ' not in log or 'renderer="OPENGL33"' not in log:
                 raise RuntimeError("runtime did not confirm the expected software renderer")
             diagnostics = log + "".join(p.read_text(errors="replace") for p in evidence.glob("island-runtime-*.log"))
+            if args.viewpoint in {"campfire", "campfire-wide"}:
+                validate_campfire_stages(log)
+                for stage in range(4):
+                    if not Path(str(capture)+f".fire-stage-{stage}.ppm").is_file():
+                        raise RuntimeError("missing live campfire animation-stage image")
+                # Capture mode intentionally disables audio; real backend switching is
+                # exercised by IslandSoundscapeRuntimeTests, not a visual smoke run.
+                for marker in ("campfire first visible animated draw",
+                               "1992 solid triangles, 42 flame/smoke/spark triangles"):
+                    if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
             if args.viewpoint in ("hut", "hut-material") and "hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in diagnostics:
                 raise RuntimeError("hut fibre texture is missing; check packaged assets")
             if args.viewpoint in ("snakes", "snake-head"):

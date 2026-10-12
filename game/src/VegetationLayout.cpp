@@ -3,6 +3,7 @@
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
 #include "IslandSimulator/CaveSite.hpp"
+#include "IslandSimulator/CampfireSite.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -94,7 +95,7 @@ namespace island
 
     bool VegetationLayout::IsReservedRoute(const float x, const float z) noexcept
     {
-        if(CaveSite::Reserves(x,z,5))return true;
+        if(CaveSite::Reserves(x,z,5)||CampfireSite::Reserves(x,z))return true;
         // A footpath-sized reserve lets the forest approach the walking line.
         // Solid trunks additionally exclude their footprint so the narrow path stays usable.
         const float pathX = PrimaryPathCenterX(z);
@@ -120,7 +121,7 @@ namespace island
     {
         if (!std::isfinite(x) || !std::isfinite(z) || !std::isfinite(radius) || radius < 0)
             return true;
-        if(CaveSite::Reserves(x,z,5+radius))return true;
+        if(CaveSite::Reserves(x,z,5+radius)||CampfireSite::Reserves(x,z,radius))return true;
         for (const auto clearing : {EastClearing, WestClearing, ClearingDefinition{0, -225, 17}}) {
             if (std::hypot(x - clearing.x, z - clearing.z) <= clearing.radius + radius) return true;
         }

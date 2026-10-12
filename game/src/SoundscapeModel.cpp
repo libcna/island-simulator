@@ -376,6 +376,33 @@ namespace island
         return Quantize(samples, 0.62f, true);
     }
 
+    AmbientLoop GenerateCampfireLoop()
+    {
+        constexpr std::size_t count=AmbientSampleRate*19U;
+        const auto noise=Noise(0xcaf17019U,count);
+        const auto soft=CircularSmooth(noise,3U),body=CircularSmooth(noise,130U);
+        std::vector<float> samples(count);
+        for(std::size_t i=0;i<count;++i) {
+            const float phase=static_cast<float>(i)/count;
+            samples[i]=soft[i]*.022f+body[i]*(.26f+.06f*std::sin(phase*6*std::numbers::pi_v<float>));
+        }
+        DeterministicNoise random(0x123ca719U);
+        for(int event=0;event<173;++event) {
+            const auto start=static_cast<std::size_t>((random.Next()+1)*.4999f*count);
+            const float amplitude=.035f+.14f*(random.Next()+1)*.5f;
+            const float decay=42.0f+65.0f*(random.Next()+1)*.5f;
+            const float frequency=650.0f+1300.0f*(random.Next()+1)*.5f;
+            for(int offset=0;offset<AmbientSampleRate/5;++offset) {
+                const auto index=(start+static_cast<std::size_t>(offset))%count;
+                const float seconds=static_cast<float>(offset)/AmbientSampleRate;
+                const float attack=std::min(1.0f,seconds*1900);
+                samples[index]+=amplitude*attack*std::exp(-seconds*decay)
+                    *(soft[index]*2.3f+noise[index]*.14f+.13f*std::sin(2*std::numbers::pi_v<float>*frequency*seconds));
+            }
+        }
+        return Quantize(samples,.68f,true);
+    }
+
     AmbientLoop GenerateWaveAccent()
     {
         constexpr std::size_t frameCount = static_cast<std::size_t>(AmbientSampleRate * 4);

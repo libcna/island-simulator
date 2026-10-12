@@ -2,6 +2,7 @@
 #include "IslandSimulator/CoastalMaterial.hpp"
 #include "IslandSimulator/StreamBedPatch.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
+#include "IslandSimulator/CampfireLighting.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
@@ -614,6 +615,7 @@ void main()
     vec3 caveStone=mix(vec3(.24,.25,.24),vec3(.34,.32,.28),caveGrain);
     caveStone*=mix(.85,.24,smoothstep(0.0,14.0,caveDepth));
     color=mix(color,caveStone,caveFloor);
+    color=applyCampfireLight(color,vWorld);
     float fog = smoothstep(260.0, 720.0, distanceToCamera);
     color = mix(color, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
@@ -629,13 +631,15 @@ void main()
                     + (canopy ? IslandEnvironmentField::InlandShader : "")
                     + (canopy ? GroundCover::Shader() : std::string())
                     + (canopy ? TerrainSurfaceFrame::Shader : "")
-                    + (canopy ? ForestFloorMaterial::Shader : "") + body;
+                    + (canopy ? ForestFloorMaterial::Shader : "")
+                    + (canopy ? CampfireLighting::Shader : "") + body;
             }
             return std::string("#version 330 core\n") + (canopy ? CanopyLighting::Shader : "")
                 + (canopy ? IslandEnvironmentField::InlandShader : "")
                 + (canopy ? GroundCover::Shader() : std::string())
                 + (canopy ? TerrainSurfaceFrame::Shader : "")
-                + (canopy ? ForestFloorMaterial::Shader : "") + body;
+                + (canopy ? ForestFloorMaterial::Shader : "")
+                + (canopy ? CampfireLighting::Shader : "") + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -919,13 +923,14 @@ void main()
     }
 
     void TerrainRenderer::Draw(const Matrix& view, const Matrix& projection,
-                               const Vector3& cameraPosition)
+                               const Vector3& cameraPosition,float seconds)
     {
         const BoundingFrustum frustum(view * projection);
         if (materialReady_) {
             float viewProjection[16];
             (view * projection).ToColumnMajor(viewProjection);
             materialEffect_->Apply();
+            CampfireLighting::Bind(*materialEffect_,seconds);
             canopyLighting_.Bind(*materialEffect_);
             forestFloor_->Bind(*materialEffect_);
             materialEffect_->SetUniformMat4("uViewProjection", viewProjection);

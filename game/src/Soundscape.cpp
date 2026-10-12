@@ -1,4 +1,6 @@
 #include "IslandSimulator/Soundscape.hpp"
+#include "IslandSimulator/CampfireLayout.hpp"
+#include "IslandSimulator/PlayerMotion.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -52,6 +54,12 @@ namespace island
             emitter.setDopplerScaleProperty(0.0f);
             // CNA/XNA require 3D mode before the first Play submits the audio packet.
             instance.Apply3D(listener, emitter);
+        }
+        void PositionCampfire(SoundEffectInstance& instance,const AudioListener& listener) {
+            AudioEmitter emitter;
+            emitter.setPositionProperty(Vector3(CampfireSite::X,CampfireLayout::GroundY()+.25f,CampfireSite::Z));
+            emitter.setDopplerScaleProperty(0);
+            instance.Apply3D(listener,emitter);
         }
 
         [[nodiscard]] std::vector<SharpRuntime::bytecs> ToPcmBytes(const AmbientLoop& loop)
@@ -143,7 +151,7 @@ namespace island
         if (available_) {
             // Query actual playback: an owned instance does not prove an audible/live track.
             for (const auto* instance : {surfInstance_.get(), breezeInstance_.get(),
-                    jungleInstance_.get(), streamInstance_.get(), waterMovementInstance_.get(),
+                    jungleInstance_.get(), streamInstance_.get(), campfireInstance_.get(), waterMovementInstance_.get(),
                     waveInstance_.get(), waterTransitionInstance_.get(), footstepInstance_.get(),
                     wildlifeInstance_.get()}) {
                 try {
@@ -154,6 +162,10 @@ namespace island
                 }
             }
         }
+        try {
+            state.campfirePlaying=available_&&campfireInstance_
+                &&campfireInstance_->getStateProperty()==SoundState::Playing;
+        } catch(const std::exception&) {}
         return state;
     }
 
@@ -179,6 +191,9 @@ namespace island
         }
         startAttempted_ = true;
         streamSound_ = StreamSoundField::Sample(playerX, playerZ);
+        campfirePresence_=CampfireSite::SoundPresence(playerX,CampfireLayout::GroundY()+PlayerMotion::EyeHeight,
+            playerZ,CampfireLayout::GroundY());
+        campfireVolume_=campfirePresence_*.26f;
         model_.Reset(signedShoreDistance, swimming, coastalWindExposure,
                      streamSound_.presence);
         waterMovementModel_.Reset(
@@ -209,6 +224,10 @@ namespace island
             streamInstance_ = std::make_unique<SoundEffectInstance>(
                 streamEffect_->CreateInstance());
             streamInstance_->setIsLoopedProperty(true);
+            campfireEffect_=CreateLoopedSoundEffect(GenerateCampfireLoop());
+            campfireEffect_->setNameProperty("Procedural wood fire crackling");
+            campfireInstance_=std::make_unique<SoundEffectInstance>(campfireEffect_->CreateInstance());
+            campfireInstance_->setIsLoopedProperty(true);
 
             waveEffect_ = CreateOneShotSoundEffect(GenerateWaveAccent());
             waveEffect_->setNameProperty("Procedural stronger wave");
@@ -278,9 +297,15 @@ namespace island
             surfInstance_->Play();
             breezeInstance_->Play();
             jungleInstance_->Play();
-            streamPlaybackActive_ = StreamSoundField::ShouldUseStreamPlayback(
+            campfirePlaybackActive_=!swimming&&campfirePresence_>.015f;
+            streamPlaybackActive_ = !campfirePlaybackActive_&&StreamSoundField::ShouldUseStreamPlayback(
                 swimming, streamSound_.presence, false);
-            if (streamPlaybackActive_) {
+            if(campfirePlaybackActive_) {
+                AudioListener listener;
+                listener.setPositionProperty(Vector3(playerX,CampfireLayout::GroundY()+PlayerMotion::EyeHeight,playerZ));
+                PositionCampfire(*campfireInstance_,listener);
+                campfireInstance_->Play();
+            } else if (streamPlaybackActive_) {
                 AudioListener listener;
                 listener.setPositionProperty(Vector3(playerX, 0.0f, playerZ));
                 PositionStream(*streamInstance_, listener, streamSound_);
@@ -291,7 +316,7 @@ namespace island
             if (surfInstance_->getStateProperty() != SoundState::Playing
                 || breezeInstance_->getStateProperty() != SoundState::Playing
                 || jungleInstance_->getStateProperty() != SoundState::Playing
-                || (streamPlaybackActive_
+                || (campfirePlaybackActive_?campfireInstance_->getStateProperty()!=SoundState::Playing:streamPlaybackActive_
                     ? streamInstance_->getStateProperty() != SoundState::Playing
                     : waterMovementInstance_->getStateProperty() != SoundState::Playing)) {
                 throw std::runtime_error("CNA did not transition all looping tracks to Playing");
@@ -319,6 +344,7 @@ namespace island
             std::cout << CoastalWindMixDiagnostic << '\n';
             std::cout << "island-simulator: subtle daytime-jungle layer enabled\n";
             std::cout << StreamSoundDiagnostic << '\n';
+            std::cout<<"island-simulator: positional campfire crackling shares the stream/player-water voice; four persistent tracks\n";
             std::cout << "island-simulator: player water-movement layer enabled\n";
             std::cout << "island-simulator: water-transition accents enabled\n";
             std::cout << "island-simulator: two water-transition variants enabled\n";
@@ -351,6 +377,7 @@ namespace island
             streamInstance_.reset();
             streamEffect_.reset();
             streamPlaybackActive_ = false;
+            campfireInstance_.reset();campfireEffect_.reset();campfirePlaybackActive_=false;
             waterMovementInstance_.reset();
             waterTransitionInstance_.reset();
             footstepInstance_.reset();
@@ -472,11 +499,14 @@ namespace island
         }
 
         streamSound_ = StreamSoundField::Sample(listenerState.x, listenerState.z);
+        campfirePresence_=CampfireSite::SoundPresence(listenerState.x,listenerState.y,listenerState.z,CampfireLayout::GroundY());
+        campfireVolume_+=(campfirePresence_*.26f-campfireVolume_)*(1-std::exp(-safeDelta*4));
         (void)model_.Update(signedShoreDistance, swimming, safeDelta,
                             coastalWindExposure, streamSound_.presence);
         (void)waterMovementModel_.Update(
             waterDepth, swimming, horizontalSpeed, safeDelta, oceanCurrentStrength);
-        const bool wantsStreamPlayback = StreamSoundField::ShouldUseStreamPlayback(
+        const bool wantsCampfirePlayback=!swimming&&campfirePresence_>(campfirePlaybackActive_?.005f:.015f);
+        const bool wantsStreamPlayback = !wantsCampfirePlayback&&StreamSoundField::ShouldUseStreamPlayback(
             swimming, streamSound_.presence, streamPlaybackActive_);
         AudioListener listener;
         listener.setPositionProperty(Vector3(
@@ -486,6 +516,10 @@ namespace island
         listener.setUpProperty(Vector3::Up);
         listener.setVelocityProperty(Vector3(
             listenerState.velocityX, 0.0f, listenerState.velocityZ));
+        if(available_&&wantsCampfirePlayback&&campfireInstance_) {
+            try {PositionCampfire(*campfireInstance_,listener);}
+            catch(const std::exception& exception){DisableAfterRuntimeFailure(exception.what());return;}
+        }
 
         if (available_ && wantsStreamPlayback && streamInstance_ && streamSound_.valid) {
             try {
@@ -496,16 +530,17 @@ namespace island
                 return;
             }
         }
-        if (available_ && wantsStreamPlayback != streamPlaybackActive_) {
+        if (available_ && (wantsStreamPlayback != streamPlaybackActive_||wantsCampfirePlayback!=campfirePlaybackActive_)) {
             try {
-                if (wantsStreamPlayback) {
-                    waterMovementInstance_->Stop();
+                streamInstance_->Stop();campfireInstance_->Stop();waterMovementInstance_->Stop();
+                if(wantsCampfirePlayback)campfireInstance_->Play();
+                else if (wantsStreamPlayback) {
                     streamInstance_->Play();
                 } else {
-                    streamInstance_->Stop();
                     waterMovementInstance_->Play();
                 }
                 streamPlaybackActive_ = wantsStreamPlayback;
+                campfirePlaybackActive_=wantsCampfirePlayback;
             } catch (const std::exception& exception) {
                 DisableAfterRuntimeFailure(exception.what());
                 return;
@@ -886,7 +921,7 @@ namespace island
     void Soundscape::ApplyVolumes() noexcept
     {
         if (!available_ || !surfInstance_ || !breezeInstance_ || !jungleInstance_
-            || !streamInstance_ || !waterMovementInstance_) {
+            || !streamInstance_ || !campfireInstance_ || !waterMovementInstance_) {
             return;
         }
         try {
@@ -895,6 +930,7 @@ namespace island
             breezeInstance_->setVolumeProperty(model_.Mix().breezeVolume * gain);
             jungleInstance_->setVolumeProperty(model_.Mix().jungleVolume * gain);
             streamInstance_->setVolumeProperty(model_.Mix().streamVolume * gain);
+            campfireInstance_->setVolumeProperty(campfireVolume_*gain);
             waterMovementInstance_->setVolumeProperty(
                 waterMovementModel_.Mix().volume * gain);
             waterMovementInstance_->setPitchProperty(waterMovementModel_.Mix().pitch);
@@ -913,6 +949,7 @@ namespace island
         streamInstance_.reset();
         streamEffect_.reset();
         streamPlaybackActive_ = false;
+        campfireInstance_.reset();campfireEffect_.reset();campfirePlaybackActive_=false;
         waterMovementInstance_.reset();
         waterTransitionInstance_.reset();
         footstepInstance_.reset();

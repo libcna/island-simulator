@@ -49,6 +49,10 @@ A first-pass20m headland cave now has a real interior, replacement terrain, caps
 and flight roof containment. Native software exterior/interior captures and a live keyboard
 entry/flight/exit test pass; natural-shape polish and portable qualification remain;
 see [cave status](docs/cave.md).
+A stone-ringed campfire burns in the eastern clearing, with animated flames, embers,
+subtle smoke/sparks, nearby flickering light and positional wood crackling. A separate
+stack of gathered firewood sits about6m away. See [campfire evidence](docs/campfire.md)
+for the native first pass and remaining visual/portable checks.
 Live jungle leaves now use a small mipmapped image to vary vein and tissue colour,
 preserving species tint and existing lighting; see [leaf material evidence](docs/live-leaf-material.md).
 An animated tropical

@@ -37,6 +37,8 @@ namespace island
 
     /** @brief Generates a seamless thirteen-second close stream-water bed. */
     [[nodiscard]] AmbientLoop GenerateStreamLoop();
+    /** @brief Original nineteen-second ember hiss, wood crackles and sparse pops. */
+    [[nodiscard]] AmbientLoop GenerateCampfireLoop();
 
     /** @brief Generates one four-second stronger-wave wash for sparse shoreline accents. */
     [[nodiscard]] AmbientLoop GenerateWaveAccent();

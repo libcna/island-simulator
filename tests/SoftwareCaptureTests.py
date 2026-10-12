@@ -22,6 +22,7 @@ from run_software_capture import (
     validate_spider_render_log,
     validate_spider_lighting,
     validate_spider_habitat_selection,
+    validate_campfire_stages,
 )
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import (geometry, worker as fullscreen_worker,
@@ -33,6 +34,13 @@ from run_software_capture import validate_build_configuration
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_campfire_animation_stages(self):
+        good="\n".join(f"campfire motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} draws=2 effect-triangles=42" for i in range(4))
+        self.assertEqual(len(validate_campfire_stages(good)),4)
+        for bad in ("",good+"\n"+good,good.replace("stage=1","stage=0"),good.replace("time=0.8","time=nan"),
+                    good.replace("updates=8 ","updates=9 "),good.replace("draws=2","draws=0"),
+                    good.replace("triangles=42","triangles=420")):
+            with self.assertRaises(RuntimeError):validate_campfire_stages(bad)
     def test_cave_traversal_and_corruptions(self):
         points=[(0,0,-8,0,0),(0,.49,19.65,0,0),(0,1.7,19.65,1,0),
                 (0,.50,19.65,0,0),(0,0,-6,0,0)]

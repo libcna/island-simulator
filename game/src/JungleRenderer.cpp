@@ -1,4 +1,5 @@
 #include "IslandSimulator/JungleRenderer.hpp"
+#include "IslandSimulator/CampfireLighting.hpp"
 #include "IslandSimulator/MonkeyTroop.hpp"
 #include "IslandSimulator/CanopyVisibility.hpp"
 #include "IslandSimulator/JungleWind.hpp"
@@ -310,6 +311,7 @@ void main()
     if (uReceiveCanopyLight > 0.5 && !wood) {
         litColor = applyCanopyLight(litColor, canopyGroundReceiver(vWorld, vGroundHeight, uToSun));
     }
+    litColor=applyCampfireLight(litColor,vWorld);
     vec3 color = mix(litColor, vec3(0.53, 0.78, 0.88), fog);
     fragColor = vec4(color, 1.0);
 }
@@ -320,10 +322,12 @@ void main()
         {
             if (embedded) {
                 return std::string("#version 300 es\nprecision highp float;\nprecision highp int;\n")
+                    + (canopy ? CampfireLighting::Shader : "")
                     + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + TrunkSurface::Shader() + LeafSurfaceMaterial::Shader()
                               : JungleWind::ShaderConstants() + std::string(RenderedTerrainSurface::Shader)) + body;
             }
             return std::string("#version 330 core\n")
+                + (canopy ? CampfireLighting::Shader : "")
                 + (canopy ? std::string(CanopyLighting::Shader) + JungleMaterial::Shader() + BarkMaterial::Shader + TrunkSurface::Shader() + LeafSurfaceMaterial::Shader()
                           : JungleWind::ShaderConstants() + std::string(RenderedTerrainSurface::Shader)) + body;
         }
@@ -2000,6 +2004,7 @@ void main()
                 "uToSun", environment::SunDirectionX, environment::SunDirectionY,
                 environment::SunDirectionZ);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
+            CampfireLighting::Bind(*customEffect_,timeSeconds);
         } else {
             fallbackEffect_->setViewProperty(view);
             fallbackEffect_->setProjectionProperty(projection);

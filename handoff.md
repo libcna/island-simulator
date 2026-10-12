@@ -1,5 +1,32 @@
 # island-simulator handoff
 
+## Latest implementation — campfire functional native pass
+
+Goal active. Campfire at46,24.7219,-16 in east clearing,11 stored logs ~6m away at51.5,-18.5.
+12 stones/5 burning logs/10 embers;1992 solid triangles plus42 moving flame/smoke/spark
+triangles in2 culled draws, no frame vertex uploads or new textures. Local6m flicker shared
+by terrain/grass/jungle. World collision proxies1.25/1.4m, shared vegetation/grass reservation.
+Original19s fire PCM adds837900bytes (26clips/5153084bytes), shares fourth persistent voice
+with stream/player-water; full3D24m attenuation. FirstApply3D precedesPlay. Real-CNA dummy
+fire/stream/swim/high-flight/mute tests pass, actualfirePlaying and4–6source budget checked.
+Release Core/Campfire/World/AudioReport/AudioPreviewExport/SoundscapeRuntime PASS6/6 in17.07s;
+supervisor Python49/49. Final Release physical approach PASS0.28s; both native executables
+refreshed. Debug Cave/Campfire/SoundscapeRuntime PASS3/3 in7.34s.
+Inspected llvmpipe near180909.580398Z andwide180918.134168Z PASS, four exact animation stages
+show flame/spark movement, stored wood grounded and distinct. First180516false gate failure
+was an audio diagnostic demanded from deliberately silent capture mode; corrected scope.
+No new kernel faults. Worldfingerprint97cc56c53b547613 now includes cave+fire geometry/proxies.
+Still first-pass/stylized; smoke subtle, rock/wood need polish, live encounter/listening and
+portable/performance qualification open. PLAN campfire[~], whole plan nowhere near complete.
+Next: live campfire keyboard/audio QA, then resident/bear/helicopter and remaining fauna visuals,
+plus consolidated portable qualification. Keep separate F11 private-window restore finding open.
+
+Shared Sharp Runtime advanced to7805c5dc during work. Gitdiff fromlockedc20373ba contains ONLY
+AGENTS.md andCLAUDE.md, parent exactlyc20373ba; all library/build code identical. Updated
+island dependencies.lock deliberately, retaining strict revision gate; no dependency edits,
+reset, new clone or export. Native requalification above. CNA/EasyGL/MetaGL pins unchanged.
+See docs/campfire.md. Compile CPUs0–3/-j4; no AMD/Android/KVM workload/settings.
+
 ## Current work — cave live integration and visual revision
 
 Goal remains active. Operator confirms audio fixed and reiterates continuing the whole plan,

@@ -38,6 +38,7 @@ namespace island
         WildlifeCallRequest activeWildlifeCall;
         int playingSourceCount = 0;
         int sourceBudget = 6;
+        bool campfirePlaying = false;
     };
 
     /** @brief Owns the procedural ambient layers and their CNA playback instances. */
@@ -147,6 +148,10 @@ namespace island
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> streamInstance_;
         StreamSoundSample streamSound_;
         bool streamPlaybackActive_ = false;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> campfireEffect_;
+        std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> campfireInstance_;
+        bool campfirePlaybackActive_ = false;
+        float campfirePresence_=0,campfireVolume_=0;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffect> waveAlternateEffect_;
         std::unique_ptr<Microsoft::Xna::Framework::Audio::SoundEffectInstance> waveInstance_;

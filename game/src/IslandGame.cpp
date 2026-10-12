@@ -74,6 +74,8 @@ namespace island
             case FixedViewpoint::TurtleNestDetail: return "turtle-nest";
             case FixedViewpoint::CaveExterior: return "cave";
             case FixedViewpoint::CaveInterior: return "cave-inside";
+            case FixedViewpoint::CampfireDetail: return "campfire";
+            case FixedViewpoint::CampfireWide: return "campfire-wide";
             case FixedViewpoint::BeachPath: return "beach";
             case FixedViewpoint::JungleTrail: return "jungle";
             case FixedViewpoint::EastClearingDetail: return "east";
@@ -192,6 +194,8 @@ namespace island
                               naturalPropLayout_.Obstacles().end());
         worldObstacles.insert(worldObstacles.end(), shipwreckLayout_.Obstacles().begin(),
                               shipwreckLayout_.Obstacles().end());
+        const auto fireObstacles=campfireLayout_.Obstacles();
+        worldObstacles.insert(worldObstacles.end(),fireObstacles.begin(),fireObstacles.end());
         hutPlacement_=HutLayout::FindInWorld(terrain_,jungleLayout_,worldObstacles);
         if(hutPlacement_) worldObstacles.push_back({hutPlacement_->x,hutPlacement_->z,HutLayout::CollisionRadius});
         worldCollisionGrid_.Reset(worldObstacles);
@@ -231,6 +235,16 @@ namespace island
             cameraPosition_ = Vector3(300.0f, 28.0f, 110.0f);
             yaw_ = std::atan2(-63.0f, -23.0f);
             pitch_ = -0.33f;
+        } else if(viewpoint_==FixedViewpoint::CampfireDetail||viewpoint_==FixedViewpoint::CampfireWide) {
+            const auto fire=campfireLayout_.Centre();
+            const bool wide=viewpoint_==FixedViewpoint::CampfireWide;
+            const float x=fire.x-(wide?12.0f:3.8f),z=fire.z+(wide?15.0f:4.8f);
+            cameraPosition_=Vector3(x,RenderedTerrainSurface(terrain_).Sample(x,z).height+(wide?6.0f:2.4f),z);
+            const Vector3 target(fire.x+(wide?2.0f:0),fire.y+.65f,fire.z-1);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: campfire QA camera "<<(wide?"wide":"near")<<'\n';
         } else if (viewpoint_ == FixedViewpoint::CaveExterior || viewpoint_ == FixedViewpoint::CaveInterior) {
             const CaveLayout cave(terrain_);
             const bool inside=viewpoint_==FixedViewpoint::CaveInterior;
@@ -1005,7 +1019,7 @@ namespace island
         getWindowProperty().setTitleProperty("island-simulator");
         setIsMouseVisibleProperty(true);
         // Capture-only clock: no wall-time catch-up updates between recorded frames.
-        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock() && !UsesBoarCaptureClock());
+        setIsFixedTimeStepProperty(benchmarkPath_.empty() && !UsesSnakeCaptureClock() && !UsesGoatCaptureClock() && !UsesSpiderCaptureClock() && !UsesBoarCaptureClock()&&!UsesCampfireCaptureClock());
         InitializeUserSettings();
 #if defined(__EMSCRIPTEN__)
         soundscapeNeedsGesture_ = true;
@@ -1183,6 +1197,7 @@ namespace island
         playerMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
         flightMotion_.SetCave(&terrainRenderer_->Cave(),&terrainRenderer_->CaveGround());
         caveRenderer_=std::make_unique<CaveRenderer>(device,terrainRenderer_->Cave());
+        campfireRenderer_=std::make_unique<CampfireRenderer>(device,campfireLayout_);
         streamWaterRenderer_=std::make_unique<StreamWaterRenderer>(device,terrain_,terrainRenderer_->StreamBed());
         grassRenderer_ = std::move(grassRenderer);
         jungleRenderer_ = std::move(jungleRenderer);
@@ -1403,6 +1418,8 @@ namespace island
                 std::chrono::steady_clock::now() - started).count();
         };
         const bool snakeCaptureClock=UsesSnakeCaptureClock();
+        const bool campfireCaptureClock=UsesCampfireCaptureClock();
+        if(campfireCaptureClock)++campfireCaptureUpdates_;
         const bool goatCaptureClock=UsesGoatCaptureClock();
         const bool boarCaptureClock=UsesBoarCaptureClock();
         if(boarCaptureClock)++boarCaptureUpdates_;
@@ -1415,7 +1432,7 @@ namespace island
             MirrorRuntimeDiagnosticToPlatformLog("island-simulator: snake QA update resumed after first draw");
         }
         if(snakeCaptureClock) ++snakeCaptureUpdates_;
-        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock||boarCaptureClock) ? 0.1f : std::min(
+        const float deltaSeconds = canopyLodInspection_ ? 0.0f : (snakeCaptureClock||goatCaptureClock||spiderCaptureClock||boarCaptureClock||campfireCaptureClock) ? 0.1f : std::min(
             0.1f, static_cast<float>(gameTime.getElapsedGameTimeProperty().getTotalMillisecondsProperty())
                 / 1000.0f);
         worldSeedCopyFeedbackSeconds_ = std::max(
@@ -2229,6 +2246,7 @@ namespace island
     int IslandGame::TrackedSceneDrawCount() const noexcept
     {
         return 2 + terrainRenderer_->DrawCallCount()+streamWaterRenderer_->DrawCallCount()+caveRenderer_->DrawCallCount()
+            +campfireRenderer_->DrawCallCount()
             + palmRenderer_->DrawCallCount() + jungleRenderer_->DrawCallCount()
             + naturalPropRenderer_->DrawCallCount() + grassRenderer_->DrawCallCount()
             + shipwreckRenderer_->DrawCallCount()
@@ -2610,7 +2628,8 @@ namespace island
         const std::span<const MonkeyState> renderedMonkeys = treeQaStage < monkeyTreeQaPoses_.size()
             ? std::span<const MonkeyState>(monkeyTreeQaPoses_[treeQaStage]) : monkeyTroop_.Monkeys();
         const auto drawStarted = std::chrono::steady_clock::now();
-        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesSnakeCaptureClock()
+        const float timeSeconds = canopyLodInspection_ ? 1.0f : UsesCampfireCaptureClock()
+            ?static_cast<float>(campfireCaptureUpdates_)*.1f:UsesSnakeCaptureClock()
             ? static_cast<float>(snakeCaptureUpdates_)*0.1f : UsesGoatCaptureClock()
             ? static_cast<float>(goatCaptureUpdates_)*0.1f : UsesSpiderCaptureClock()
             ? static_cast<float>(spiderCaptureUpdates_)*0.1f : UsesBoarCaptureClock()
@@ -2638,8 +2657,9 @@ namespace island
         device.setDepthStencilStateProperty(DepthStencilState::Default);
         {
             GpuDiagnosticScope gpuPass("terrain");
-            terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_);
+            terrainRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,timeSeconds);
             caveRenderer_->Draw(cameraView_,cameraProjection_);
+            campfireRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,timeSeconds,false);
         }
         {
             GpuDiagnosticScope gpuPass("distant-scenery");
@@ -2761,6 +2781,10 @@ namespace island
         {
             GpuDiagnosticScope gpuPass("stream-water");
             streamWaterRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,timeSeconds);
+        }
+        {
+            GpuDiagnosticScope gpuPass("campfire-effects");
+            campfireRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,timeSeconds,true);
         }
 
         const auto& viewport = device.getViewportProperty();
@@ -3373,7 +3397,14 @@ namespace island
             std::cout << report << '\n';
             if (capturePath_.empty()) MirrorRuntimeDiagnosticToPlatformLog(report);
         }
-        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture ? 64U : snakeCapture ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
+        if(UsesCampfireCaptureClock()&&drawnFrames_%8U==0&&drawnFrames_<=32U) {
+            CaptureFrame(capturePath_+".fire-stage-"+std::to_string(drawnFrames_/8U-1U)+".ppm");
+            std::cout<<"island-simulator: campfire motion stage="<<drawnFrames_/8U-1U
+                <<" updates="<<campfireCaptureUpdates_<<" time="<<timeSeconds
+                <<" draws="<<campfireRenderer_->DrawCallCount()<<" effect-triangles="
+                <<campfireRenderer_->EffectTriangleCount()<<'\n';
+        }
+        const std::uint32_t targetFrames = goatCapture||spiderCapture||boarCapture ? 64U : snakeCapture||UsesCampfireCaptureClock() ? 32U : !monkeyTreeQaPoses_.empty() ? 36U : !capturePath_.empty()
                 && (viewpoint_ == FixedViewpoint::MonkeyDetail || viewpoint_ == FixedViewpoint::MonkeyTreeDetail || viewpoint_ == FixedViewpoint::MonkeyClimbDetail)
             ? MonkeyCaptureFrames : SmokeTestFrames;
         if (!capturePath_.empty() && drawnFrames_ == targetFrames) {

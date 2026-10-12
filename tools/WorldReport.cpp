@@ -25,6 +25,7 @@
 #include "IslandSimulator/WorldIdentity.hpp"
 #include "IslandSimulator/HutLayout.hpp"
 #include "IslandSimulator/CaveGroundPatch.hpp"
+#include "IslandSimulator/CampfireLayout.hpp"
 
 #include <algorithm>
 #include <array>
@@ -103,6 +104,7 @@ namespace
         island::CaveLayout cave{terrain};
         island::RenderedTerrainSurface caveOriginal{terrain};
         island::CaveGroundPatch caveGround{cave,caveOriginal};
+        island::CampfireLayout campfire{terrain};
         island::DistantSceneryLayout distantScenery;
         island::BirdFlock birds{terrain};
         island::ButterflyMeadow butterflies{terrain};
@@ -145,6 +147,8 @@ namespace
                                   props.Obstacles().end());
             worldObstacles.insert(worldObstacles.end(), shipwreck.Obstacles().begin(),
                                   shipwreck.Obstacles().end());
+            const auto fireObstacles=campfire.Obstacles();
+            worldObstacles.insert(worldObstacles.end(),fireObstacles.begin(),fireObstacles.end());
             hut=island::HutLayout::FindInWorld(terrain,jungle,worldObstacles);
             if(hut) worldObstacles.push_back({hut->x,hut->z,island::HutLayout::CollisionRadius});
             collisionGrid.Reset(worldObstacles);
@@ -224,6 +228,12 @@ namespace
         hash.AddSize(world.caveGround.Vertices().size());
         for(const auto p:world.caveGround.Vertices())HashPosition(hash,p.x,p.y,p.z);
         for(const auto index:world.caveGround.Indices())hash.AddUint32(index);
+        hash.AddSize(world.campfire.Vertices().size());
+        for(const auto v:world.campfire.Vertices()) {
+            HashPosition(hash,v.position.x,v.position.y,v.position.z);
+            HashPosition(hash,v.normal.x,v.normal.y,v.normal.z);
+            hash.AddFloat(v.u);hash.AddFloat(v.v);hash.AddEnum(v.material);
+        }
 
         HashScaledPlacements(hash, std::span(world.palms.Palms()));
 
@@ -814,6 +824,12 @@ namespace
                << ", \"shellTriangles\": " << world.cave.Triangles().size()
                << ", \"groundVertices\": " << world.caveGround.Vertices().size()
                << ", \"groundTriangles\": " << world.caveGround.Indices().size()/3 << "},\n"
+               << "  \"campfire\": {\"centre\": ["<<world.campfire.Centre().x<<','<<world.campfire.Centre().y<<','
+               <<world.campfire.Centre().z<<"], \"woodCentre\": ["<<world.campfire.WoodCentre().x<<','
+               <<world.campfire.WoodCentre().y<<','<<world.campfire.WoodCentre().z
+               <<"], \"solidTriangles\": "<<world.campfire.Vertices().size()/3
+               <<", \"burningLogs\": "<<island::CampfireLayout::BurningLogCount
+               <<", \"storedLogs\": "<<island::CampfireLayout::FirewoodCount<<"},\n"
                << "  \"seeds\": {\n"
                << "    \"palms\": \"0x" << std::hex << seeds.palms
                << "\",\n"

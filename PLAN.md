@@ -410,13 +410,19 @@ depth tests retained, PASS.10s. Scalar query grid145092bytes retained; still no
 runtime upload/performance/collision integration claim. Next replace covered coarse
 terrain triangles and share the replacement surface with movement/grounding.
 
-- [ ] Add a realistic continuously burning campfire at a suitable island location:
+- [~] Add a realistic continuously burning campfire at a suitable island location:
   stone-ringed fire pit, burning logs/embers, animated flame shape and restrained
   smoke/sparks, local flickering light and crackling audio. Place a distinct pile
   of gathered future firewood at a safe visible distance from flames and vegetation.
   Evaluate CNA-compatible shaders/particles, performance and all portable backends;
   inspect actual near/far and moving views, not a static orange placeholder. No
-  implementation yet; adding fuel/crafting mechanics was not requested.
+  Native first pass now integrated: twelve stones, five burning logs, ten embers,
+  animated turbulent flame/smoke/spark layers, local flicker on terrain/grass/jungle,
+  nineteen-second positional crackling and11 stored logs about6m away. Keeps two culled
+  draws and the six-source audio limit. Near/wide four-stage native software views inspected;
+  physics and real-CNA dummy audio tests pass. Listening/live-device encounter, performance,
+  natural-material polish and consolidated Web/Android remain. See `docs/campfire.md`.
+  Adding fuel/crafting mechanics was not requested.
 
 - [~] Add underwater diving: while in water and not flying, Space ascends toward
   the surface and either Shift descends. WASD/arrows retain horizontal swimming;

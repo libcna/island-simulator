@@ -51,6 +51,7 @@ add_library(island_core STATIC
     game/src/CrabColony.cpp
     game/src/CaveLayout.cpp
     game/src/CaveGroundPatch.cpp
+    game/src/CampfireLayout.cpp
     game/src/DebugFreeCamera.cpp
     game/src/DistantSceneryLayout.cpp
     game/src/ContactShadowPatch.cpp
@@ -311,6 +312,11 @@ if(ISLAND_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     island_enable_first_party_warnings(island_cave_tests)
     island_enable_first_party_sanitizers(island_cave_tests)
     add_test(NAME IslandCaveLayoutTests COMMAND island_cave_tests)
+    add_executable(island_campfire_tests tests/CampfireTests.cpp)
+    target_link_libraries(island_campfire_tests PRIVATE IslandSimulator::Core)
+    island_enable_first_party_warnings(island_campfire_tests)
+    island_enable_first_party_sanitizers(island_campfire_tests)
+    add_test(NAME IslandCampfireTests COMMAND island_campfire_tests)
     add_executable(island_boar_coat_tests tests/BoarCoatTextureTests.cpp)
     target_link_libraries(island_boar_coat_tests PRIVATE IslandSimulator::Core)
     island_enable_first_party_warnings(island_boar_coat_tests)
@@ -566,6 +572,7 @@ if(ISLAND_BUILD_GAME)
         game/src/OceanRenderer.cpp
         game/src/StreamWaterRenderer.cpp
         game/src/CaveRenderer.cpp
+        game/src/CampfireRenderer.cpp
         game/src/PalmRenderer.cpp
         game/src/RuntimeDiagnostics.cpp
         game/src/RenderedTerrainHeightMap.cpp

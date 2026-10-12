@@ -1,5 +1,6 @@
 #include "IslandSimulator/Soundscape.hpp"
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/CampfireLayout.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -43,6 +44,29 @@ void Exercise(bool startNearStream) {
         }
     }
 }
+void ExerciseCampfire(bool nearStartup) {
+    using namespace island;
+    Soundscape sound;
+    Check(sound.Start(80,false,0,0,0,.5f,nearStartup?CampfireSite::X:0,nearStartup?CampfireSite::Z:-225),
+        "Campfire dummy audio startup failed: "+sound.Error());
+    for(int cycle=0;cycle<3;++cycle) {
+        sound.SetMuted(cycle==1);
+        for(int region=0;region<6;++region) {
+            const bool nearFire=region==0||region==5,swimming=region==3;
+            SoundscapeListenerState listener;
+            listener.x=nearFire||region==4?CampfireSite::X:region==1?-90:0;
+            listener.z=nearFire||region==4?CampfireSite::Z:region==1?StreamRoute::CentreZ(-90):-225;
+            listener.y=CampfireLayout::GroundY()+(region==4?50:1.72f);
+            for(int tick=0;tick<60;++tick) {
+                sound.Update(80,swimming,swimming?1:0,0,0,1.0f/60,.5f,listener,{},{},{},{});
+                Check(sound.IsAvailable()&&sound.Error().empty(),"Fire/stream/water transition disabled audio: "+sound.Error());
+                const auto debug=sound.DebugState();
+                Check(debug.campfirePlaying==nearFire,"Actual campfire loop state disagrees with listener region");
+                Check(debug.playingSourceCount>=4&&debug.playingSourceCount<=6,"Campfire exceeded shared source budget");
+            }
+        }
+    }
+}
 }
 
 int main(int argc, char** argv) {
@@ -52,6 +76,8 @@ int main(int argc, char** argv) {
     try {
         Exercise(false);
         Exercise(true);
+        ExerciseCampfire(false);
+        ExerciseCampfire(true);
         std::cout << "Soundscape stream startup/entry/swim/mute runtime regression passed\n";
         return 0;
     } catch (const std::exception& error) {

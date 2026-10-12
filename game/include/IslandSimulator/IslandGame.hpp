@@ -51,6 +51,7 @@
 #include "IslandSimulator/OceanRenderer.hpp"
 #include "IslandSimulator/StreamWaterRenderer.hpp"
 #include "IslandSimulator/CaveRenderer.hpp"
+#include "IslandSimulator/CampfireRenderer.hpp"
 #include "IslandSimulator/PalmRenderer.hpp"
 #include "IslandSimulator/PlayerMotion.hpp"
 #include "IslandSimulator/RuntimeQualityProfile.hpp"
@@ -95,6 +96,8 @@ namespace island
         TurtleNestDetail,
         CaveExterior,
         CaveInterior,
+        CampfireDetail,
+        CampfireWide,
         BeachPath,
         JungleTrail,
         EastClearingDetail,
@@ -262,6 +265,7 @@ namespace island
         ShipwreckLayout shipwreckLayout_;
         BirdPerchLayout birdPerchLayout_;
         std::optional<HutPlacement> hutPlacement_;
+        CampfireLayout campfireLayout_{terrain_};
         WorldCollisionGrid worldCollisionGrid_;
         BenchmarkTraversalRoute benchmarkTraversalRoute_;
         std::unique_ptr<RenderedTerrainSurface> swimTerrainSurface_;
@@ -308,6 +312,7 @@ namespace island
         std::unique_ptr<OceanRenderer> oceanRenderer_;
         std::unique_ptr<StreamWaterRenderer> streamWaterRenderer_;
         std::unique_ptr<CaveRenderer> caveRenderer_;
+        std::unique_ptr<CampfireRenderer> campfireRenderer_;
         std::unique_ptr<PalmRenderer> palmRenderer_;
         std::unique_ptr<SeaTurtleRenderer> seaTurtleRenderer_;
         std::unique_ptr<SharkRenderer> sharkRenderer_;
@@ -369,6 +374,10 @@ namespace island
         std::uint32_t snakeCaptureUpdates_ = 0;
         std::uint32_t goatCaptureUpdates_ = 0;
         std::uint32_t boarCaptureUpdates_ = 0;
+        std::uint32_t campfireCaptureUpdates_=0;
+        [[nodiscard]] bool UsesCampfireCaptureClock() const noexcept {
+            return !capturePath_.empty()&&(viewpoint_==FixedViewpoint::CampfireDetail||viewpoint_==FixedViewpoint::CampfireWide);
+        }
         [[nodiscard]] bool UsesBoarCaptureClock() const noexcept {
             return !capturePath_.empty() && viewpoint_==FixedViewpoint::BoarDetail;
         }

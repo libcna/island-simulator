@@ -104,4 +104,5 @@ feet remain outside the rock footprint. No rendering cost is added by these CPU 
 The wider plant reserve changes the ordinary bush/ground-plant fixture to573/2191.
 The WorldReport now fingerprints the actual shell and replacement mesh and exports its
 entrance, length and geometry counts. Cave/core/spider-habitat/snake/WorldReport checks
-pass5/5 in36.64s. Native binaries will be refreshed with the next integrated build.
+pass5/5 in36.64s. Both native binaries were subsequently refreshed with the campfire
+integration; Debug cave/campfire/audio-runtime checks pass3/3 in7.34s.

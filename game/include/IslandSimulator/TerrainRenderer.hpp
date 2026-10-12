@@ -39,7 +39,7 @@ namespace island
 
         void Draw(const Microsoft::Xna::Framework::Matrix& view,
                   const Microsoft::Xna::Framework::Matrix& projection,
-                  const Microsoft::Xna::Framework::Vector3& cameraPosition);
+                  const Microsoft::Xna::Framework::Vector3& cameraPosition,float seconds);
 
         [[nodiscard]] bool UsesMaterialShader() const noexcept { return materialReady_; }
         [[nodiscard]] int VisibleCellCount() const noexcept { return visibleCellCount_; }

@@ -1,4 +1,5 @@
 #include "IslandSimulator/GrassRenderer.hpp"
+#include "IslandSimulator/CampfireLighting.hpp"
 #include "IslandSimulator/GpuDiagnostics.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
@@ -311,6 +312,7 @@ void main()
     // Map elevated blades back along the fixed sun ray to the ground transmission field.
     vec2 receiver = canopyGroundReceiver(vWorld, vGroundHeight, uToSun);
     color = applyCanopyLight(color, receiver);
+    color = applyCampfireLight(color,vWorld);
     color = mix(color, vec3(0.53, 0.78, 0.88), smoothstep(260.0, 720.0, distanceToCamera));
     fragColor = vec4(color, 1.0);
 }
@@ -323,11 +325,13 @@ void main()
                 return std::string("#version 300 es\nprecision highp float;\n")
                     + GrassMotion::ShaderConstants()
                     + GrassMaterialShaderConstants()
-                    + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader) + body;
+                    + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
+                    + (canopy ? CampfireLighting::Shader : "") + body;
             }
             return std::string("#version 330 core\n") + GrassMotion::ShaderConstants()
                 + GrassMaterialShaderConstants()
-                + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader) + body;
+                + (canopy ? CanopyLighting::Shader : RenderedTerrainSurface::Shader)
+                + (canopy ? CampfireLighting::Shader : "") + body;
         }
 
         [[nodiscard]] CNA::Graphics::ShaderPackageEXT CreateShaderPackage()
@@ -936,6 +940,7 @@ void main()
                 std::isfinite(playerInteractionStrength)
                     ? std::clamp(playerInteractionStrength, 0.0f, 1.0f) : 0.0f);
             customEffect_->SetUniformFloat("uTime", timeSeconds);
+            CampfireLighting::Bind(*customEffect_,timeSeconds);
         } else {
             fallbackEffect_->setViewProperty(view);
             fallbackEffect_->setProjectionProperty(projection);
