@@ -3,7 +3,9 @@
 #include "IslandSimulator/WildlifeRenderLighting.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <numbers>
 #include <stdexcept>
 
 #include "Microsoft/Xna/Framework/BoundingFrustum.hpp"
@@ -36,6 +38,24 @@ namespace island
             Vector3 up;
             Vector3 forward;
         };
+
+        struct BodySection
+        {
+            float z;
+            float halfWidth;
+            float halfHeight;
+        };
+
+        constexpr std::array<BodySection, 7> BodySections = {{
+            {0.68f, 0.140f, 0.110f},
+            {0.53f, 0.230f, 0.170f},
+            {0.28f, 0.300f, 0.240f},
+            {0.00f, 0.320f, 0.260f},
+            {-0.28f, 0.260f, 0.210f},
+            {-0.50f, 0.150f, 0.130f},
+            {-0.66f, 0.060f, 0.060f},
+        }};
+        constexpr int BodySegments = 8;
 
         void AddTriangle(std::vector<VertexPositionColor>& vertices,
                          const Vector3& a, const Vector3& b, const Vector3& c,
@@ -99,42 +119,71 @@ namespace island
         void AppendNearShark(std::vector<VertexPositionColor>& vertices,
                              const SharkState& shark, const float timeSeconds)
         {
+            const std::size_t startingVertexCount = vertices.size();
             const Vector3 centre(shark.x, shark.y, shark.z);
             const AquaticLightProfile waterLight = AquaticLightAt(
                 centre.X, centre.Y, centre.Z, timeSeconds);
             const Color body = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(72, 91, 99, 255), shark.activity), waterLight);
+            const Color back = wildlife_render::ApplyUnderwaterLight(
+                ActivityColor(Color(43, 61, 70, 255), shark.activity), waterLight);
             const Color belly = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(147, 159, 156, 255), shark.activity), waterLight);
             const Color fin = wildlife_render::ApplyUnderwaterLight(
                 ActivityColor(Color(58, 76, 84, 255), shark.activity), waterLight);
             const PoseAxes axes = MakePoseAxes(shark);
             const float scale = shark.scale;
-            const float bend = shark.bodyWave * 0.075f;
-            const Vector3 nose = LocalPoint(centre, axes, 0.0f, 0.0f, 0.72f, scale);
-            const Vector3 top = LocalPoint(centre, axes, 0.0f, 0.18f, 0.10f, scale);
-            const Vector3 bottom = LocalPoint(centre, axes, 0.0f, -0.15f, 0.10f, scale);
-            const Vector3 left = LocalPoint(centre, axes, -0.18f, 0.0f, 0.10f, scale);
-            const Vector3 rightSide = LocalPoint(centre, axes, 0.18f, 0.0f, 0.10f, scale);
-            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.56f, scale);
-            AddLitTriangle(vertices, nose, top, left, body);
-            AddLitTriangle(vertices, nose, rightSide, top, body);
-            AddLitTriangle(vertices, nose, bottom, rightSide, belly);
-            AddLitTriangle(vertices, nose, left, bottom, belly);
-            AddLitTriangle(vertices, rear, left, top, body);
-            AddLitTriangle(vertices, rear, top, rightSide, body);
-            AddLitTriangle(vertices, rear, rightSide, bottom, belly);
-            AddLitTriangle(vertices, rear, bottom, left, belly);
+            std::array<std::array<Vector3, BodySegments>, BodySections.size()> rings{};
+            for (std::size_t row = 0; row < BodySections.size(); ++row) {
+                const BodySection& section = BodySections[row];
+                const float rearWeight = std::clamp((0.18f - section.z) / 0.84f, 0.0f, 1.0f);
+                const float bend = shark.bodyWave * 0.125f * rearWeight * rearWeight;
+                for (int segment = 0; segment < BodySegments; ++segment) {
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * static_cast<float>(segment) / static_cast<float>(BodySegments);
+                    rings[row][segment] = LocalPoint(
+                        centre, axes, bend + section.halfWidth * std::cos(angle),
+                        section.halfHeight * std::sin(angle), section.z, scale);
+                }
+            }
+            const Vector3 nose = LocalPoint(centre, axes, 0.0f, -0.012f, 0.78f, scale);
+            for (int segment = 0; segment < BodySegments; ++segment) {
+                AddLitTriangle(vertices, nose, rings.front()[segment],
+                               rings.front()[(segment + 1) % BodySegments], body);
+            }
+            for (std::size_t row = 0; row + 1U < BodySections.size(); ++row) {
+                for (int segment = 0; segment < BodySegments; ++segment) {
+                    const int next = (segment + 1) % BodySegments;
+                    const float angle = 2.0f * std::numbers::pi_v<float>
+                        * (static_cast<float>(segment) + 0.5f)
+                        / static_cast<float>(BodySegments);
+                    const Color color = std::sin(angle) > 0.30f ? back
+                        : (std::sin(angle) < -0.22f ? belly : body);
+                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][segment],
+                                   rings[row + 1U][next], color);
+                    AddLitTriangle(vertices, rings[row][segment], rings[row + 1U][next],
+                                   rings[row][next], color);
+                }
+            }
 
-            const float tailBend = shark.bodyWave * 0.17f;
-            const Vector3 tailTop = LocalPoint(
-                centre, axes, tailBend, 0.34f, -0.94f, scale);
+            const float bend = shark.bodyWave * 0.125f;
+            const Vector3 rear = LocalPoint(centre, axes, bend, 0.0f, -0.66f, scale);
+
+            const float tailBend = shark.bodyWave * 0.21f;
+            const Vector3 upperKnee = LocalPoint(
+                centre, axes, tailBend, 0.31f, -0.86f, scale);
+            const Vector3 upperTip = LocalPoint(
+                centre, axes, tailBend, 0.57f, -1.12f, scale);
             const Vector3 tailNotch = LocalPoint(
-                centre, axes, tailBend * 1.06f, 0.0f, -0.78f, scale);
-            const Vector3 tailBottom = LocalPoint(
-                centre, axes, tailBend, -0.34f, -0.94f, scale);
-            AddTriangle(vertices, rear, tailTop, tailNotch, fin);
-            AddTriangle(vertices, rear, tailNotch, tailBottom, fin);
+                centre, axes, tailBend * 1.05f, 0.02f, -0.92f, scale);
+            const Vector3 lowerKnee = LocalPoint(
+                centre, axes, tailBend, -0.20f, -0.87f, scale);
+            const Vector3 lowerTip = LocalPoint(
+                centre, axes, tailBend, -0.34f, -1.04f, scale);
+            AddTriangle(vertices, rear, upperKnee, tailNotch, fin);
+            AddTriangle(vertices, upperKnee, upperTip, tailNotch, fin);
+            AddTriangle(vertices, rear, tailNotch, lowerKnee, fin);
+            AddTriangle(vertices, lowerKnee, tailNotch, lowerTip, fin);
 
             const Vector3 dorsalFront = LocalPoint(
                 centre, axes, 0.0f, 0.14f, 0.23f, scale);
@@ -142,35 +191,54 @@ namespace island
                 centre, axes, 0.0f, 0.57f, -0.08f, scale);
             const Vector3 dorsalBack = LocalPoint(
                 centre, axes, bend * 0.35f, 0.12f, -0.34f, scale);
-            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalBack, fin);
+            const Vector3 dorsalKnee = LocalPoint(
+                centre, axes, bend * 0.17f, 0.38f, -0.18f, scale);
+            AddTriangle(vertices, dorsalFront, dorsalTip, dorsalKnee, fin);
+            AddTriangle(vertices, dorsalFront, dorsalKnee, dorsalBack, fin);
 
-            const Vector3 finRoot = LocalPoint(
-                centre, axes, 0.0f, -0.02f, 0.14f, scale);
-            const Vector3 leftFin = LocalPoint(
-                centre, axes, -0.52f, -0.12f, -0.08f, scale);
-            const Vector3 rightFin = LocalPoint(
-                centre, axes, 0.52f, -0.12f, -0.08f, scale);
-            AddTriangle(vertices, finRoot, leftFin, rear, fin);
-            AddTriangle(vertices, finRoot, rear, rightFin, fin);
+            for (const float side : {-1.0f, 1.0f}) {
+                AddTriangle(vertices,
+                            LocalPoint(centre, axes, side * 0.27f, -0.015f, 0.19f, scale),
+                            LocalPoint(centre, axes, side * 0.76f, -0.17f, -0.10f, scale),
+                            LocalPoint(centre, axes, side * 0.23f, -0.10f, -0.20f, scale), fin);
+                AddTriangle(vertices,
+                            LocalPoint(centre, axes, side * 0.17f, -0.08f, -0.33f, scale),
+                            LocalPoint(centre, axes, side * 0.36f, -0.13f, -0.53f, scale),
+                            LocalPoint(centre, axes, side * 0.12f, -0.09f, -0.55f, scale), fin);
+            }
+            AddTriangle(vertices,
+                        LocalPoint(centre, axes, 0.0f, 0.13f, -0.31f, scale),
+                        LocalPoint(centre, axes, bend * 0.45f, 0.27f, -0.46f, scale),
+                        LocalPoint(centre, axes, bend * 0.72f, 0.09f, -0.57f, scale), fin);
 
             const Color eye = ActivityColor(Color(15, 24, 27, 255), shark.activity);
             const Color gill = ActivityColor(Color(43, 59, 64, 255), shark.activity);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.128f, 0.064f, 0.458f, scale),
-                        LocalPoint(centre, axes, -0.143f, 0.007f, 0.486f, scale),
-                        LocalPoint(centre, axes, -0.148f, 0.010f, 0.414f, scale), eye);
+                        LocalPoint(centre, axes, -0.236f, 0.082f, 0.505f, scale),
+                        LocalPoint(centre, axes, -0.244f, 0.018f, 0.527f, scale),
+                        LocalPoint(centre, axes, -0.246f, 0.020f, 0.442f, scale), eye);
             AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.128f, 0.064f, 0.458f, scale),
-                        LocalPoint(centre, axes, 0.148f, 0.010f, 0.414f, scale),
-                        LocalPoint(centre, axes, 0.143f, 0.007f, 0.486f, scale), eye);
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, -0.183f, 0.082f, 0.205f, scale),
-                        LocalPoint(centre, axes, -0.190f, -0.078f, 0.178f, scale),
-                        LocalPoint(centre, axes, -0.186f, -0.058f, 0.218f, scale), gill);
-            AddTriangle(vertices,
-                        LocalPoint(centre, axes, 0.183f, 0.082f, 0.205f, scale),
-                        LocalPoint(centre, axes, 0.186f, -0.058f, 0.218f, scale),
-                        LocalPoint(centre, axes, 0.190f, -0.078f, 0.178f, scale), gill);
+                        LocalPoint(centre, axes, 0.236f, 0.082f, 0.505f, scale),
+                        LocalPoint(centre, axes, 0.246f, 0.020f, 0.442f, scale),
+                        LocalPoint(centre, axes, 0.244f, 0.018f, 0.527f, scale), eye);
+            for (const float side : {-1.0f, 1.0f}) {
+                for (int slit = 0; slit < 3; ++slit) {
+                    const float z = 0.30f - static_cast<float>(slit) * 0.085f;
+                    AddTriangle(vertices,
+                                LocalPoint(centre, axes, side * 0.307f, 0.075f, z, scale),
+                                LocalPoint(centre, axes, side * 0.312f, -0.075f,
+                                           z - 0.025f, scale),
+                                LocalPoint(centre, axes, side * 0.314f, -0.045f,
+                                           z + 0.010f, scale), gill);
+                }
+                AddTriangle(vertices,
+                            LocalPoint(centre, axes, side * 0.075f, -0.075f, 0.755f, scale),
+                            LocalPoint(centre, axes, side * 0.175f, -0.090f, 0.625f, scale),
+                            LocalPoint(centre, axes, side * 0.080f, -0.100f, 0.720f, scale), gill);
+            }
+            if (vertices.size() - startingVertexCount != SharkRenderer::NearVertexCount) {
+                throw std::runtime_error("Shark near mesh does not match its fixed vertex budget");
+            }
         }
 
         void AppendFarShark(std::vector<VertexPositionColor>& vertices,

@@ -274,7 +274,9 @@ perch and departure states on real tree branches, land rocks or the wreck beam. 
 fold their wings and place small feet on the support without another draw call.
 One non-hostile shark
 occasionally patrols deeper offshore water with matching dive pitch, turn banking, a forked tail,
-depth-integrated colour, and restrained near eye/gill detail.
+depth-integrated colour, and a seven-station near body with blunt snout, caudal peduncle,
+heterocercal tail, paired fins, eyes and three gill slits per side. See
+[the image-driven shark form review](docs/shark-form.md).
 Four peaceful dolphins cruise beyond the western reef in bounded home ranges, alternate cruising,
 surfacing and diving, and use pitch, banking and animated horizontal flukes in one culled batch.
 The fixed `--viewpoint dolphins` camera exposes the current original procedural first pass; see

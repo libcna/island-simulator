@@ -404,8 +404,12 @@ docs/stream-course.md and docs/environment-field-design.md.
   276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
   bend, surface-fitted eyes/gills/mouth and better-rooted fins. Inspected contained evidence
   `20261012T210406.805334Z-fish` shows six close fish in one draw; see `docs/fish-form.md`.
-  Both forms remain visibly faceted and Web/Android/performance review is open; shark, turtle and
-  crab polish also remains, so this
+  Shark then received the corresponding 51-to-375-vertex pass: seven-station/capped body, blunt
+  snout, progressive rear bend, caudal peduncle, asymmetric heterocercal tail, paired fins, eyes,
+  mouth and three gill slits per side. Inspected contained evidence
+  `20261012T211055.205953Z-shark` shows the single near shark in one draw; see
+  `docs/shark-form.md`. All three forms remain visibly faceted and Web/Android/performance review
+  is open; turtle and crab polish also remains, so this
   umbrella item is intentionally not complete. See `docs/dolphins.md`.
 
 Stream bed now live in TerrainRenderer: covered original coarse quads omitted;

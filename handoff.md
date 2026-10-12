@@ -1,5 +1,19 @@
 # island-simulator handoff
 
+## Current work — offshore shark volumetric form inspected
+
+Goal remains active. Baseline `20261012T210613.753528Z-shark` exposed the old51-vertex diamond
+body/symmetric fish tail. The close shark is now375vertices: capped blunt snout, seven eight-sided
+stations, forward girth, narrow caudal peduncle, progressive rear bend, longer heterocercal upper
+tail lobe, two-facet primary+small secondary dorsal, paired pectoral/pelvic fins, eyes, mouth and
+three gill slits per side. Existing patrol/presence/habitat/pitch/bank/activity tint,15-vertex far
+LOD and one draw unchanged; buffer6000bytes and exact runtime budget assertion. Final contained
+`20261012T211055.205953Z-shark` PASS/kernel[], byte-identical to preceding successful run, image
+inspected. A closer side view was also inspected but correctly remains failed evidence because
+the underwater-only frame had63/64 required colour bins. Web diagnostic pins updated; actual
+Web/Android/performance and teeth/skin/fin polish remain. See docs/shark-form.md. Next continue
+turtle/crab visual audit. Max4 build cores; no AMD/Android/KVM changes.
+
 ## Current work — shallow-water fish volumetric form inspected
 
 Goal remains active. The prior51-vertex close fish visibly read as intersecting flat wedges in

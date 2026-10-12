@@ -803,7 +803,7 @@ namespace island
             const Vector3 radial = Vector3::Normalize(Vector3(shark.x, 0.0f, shark.z));
             const Vector3 tangent(-radial.Z, 0.0f, radial.X);
             cameraPosition_ = Vector3(shark.x, shark.y, shark.z)
-                + radial * 14.0f + tangent * 3.5f + Vector3::Up * 5.8f;
+                + radial * 10.5f + tangent * 2.0f + Vector3::Up * 4.5f;
             const Vector3 toShark = Vector3(shark.x, shark.y, shark.z) - cameraPosition_;
             yaw_ = std::atan2(toShark.X, toShark.Z);
             pitch_ = std::atan2(toShark.Y, std::hypot(toShark.X, toShark.Z));
@@ -1366,6 +1366,8 @@ namespace island
                   << "island-simulator: shark near/far geometry "
                   << SharkRenderer::NearVertexCount << '/' << SharkRenderer::FarVertexCount
                   << " vertices, single-surface fins and CPU faceted daylight\n"
+                  << "island-simulator: near shark uses a seven-station body, blunt snout, "
+                     "caudal peduncle and heterocercal tail\n"
                   << "island-simulator: monkeys " << monkeyTroop_.Monkeys().size()
                   << " agents with portable GPU skeletal animation, "
                   << MonkeyRenderer::SilhouetteCount << " silhouettes, 4 palettes\n"
