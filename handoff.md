@@ -1,5 +1,26 @@
 # island-simulator handoff
 
+## NEW PRIORITY — user's complete 17-point ecosystem stage
+
+Read docs/ecosystem-stage.md: every numbered request preserved as unchecked work,
+including constraints and order. Highest next major stage is stream+moisture/
+drainage+wet habitat+localized mangroves+spatial reef/habitat-driven existing fauna.
+No broad redesign/enlargement/weather/survival. Helicopter retained LAST; prior
+species deferred, not silently cancelled. Other previous requirements retained.
+User asked to record these tasks; no ecosystem implementation claimed this turn.
+
+## Current diving audit — failed before underwater evidence
+
+Added --diving to supervised fullscreen worker: F12 offshore, Shift dive, Space
+resurface, screenshots + trace validator; new swim-position diagnostic in game.
+Build84875exit0;44CPUpreflight PASS0.064s (including8invalid dive traces), taskset0-3/
+-j2/cache. Actual74576terminal exit1, evidence software-fullscreen/20261012T073057.137680Z,
+kernel-final[]. workload.log: "timeout waiting for fullscreen request" during
+the harness fullscreen preamble, BEFORE diving. input-result.json absent. No
+underwater screenshot/success yet. Inspect focus/input in owned logs before retrying;
+process terminal, not pending. Do not claim runtime
+diving proved. New priority request arrived after failure; leave evidence intact.
+
 ## Latest — diving movement integrated, runtime appearance NOT verified
 
 PlayerMotion opt-in SetSwimInput(RenderedTerrainSurface*,up,down) with caller-owned

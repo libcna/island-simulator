@@ -1,5 +1,15 @@
 # Underwater diving — work in progress
 
+## Runtime audit attempt
+
+The supervised native tool now supports `--diving`: actual F12 offshore placement,
+Shift descent, Space ascent, screenshots and finite surface/dive/resurface traces;
+it rejects accidental flight activation or ground-pace toggles. Build and44preflight
+tests pass (0.064s). First run `software-fullscreen/20261012T073057.137680Z` failed
+on a fullscreen-request timeout before reaching the diving stage; kernel log empty.
+This is not evidence that diving works or fails. Underwater runtime audit remains
+open; preserve the failed report and investigate the preamble before retrying.
+
 Required controls: Space ascends; either Shift descends while swimming. Opposing
 keys cancel vertical movement. Ground pace selection must not change in water;
 flight remains separately controlled by Tab. Actual below-surface camera motion,

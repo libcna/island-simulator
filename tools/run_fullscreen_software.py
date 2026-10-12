@@ -86,7 +86,16 @@ def validate_control_transitions(text, flight=False):
     return records
 
 
-def worker(build, evidence, window_manager, flight=False, boar_audio=False):
+def validate_diving_trace(samples):
+    if len(samples)<4 or any(len(p)!=4 for p in samples):
+        raise RuntimeError("missing swimming depth samples")
+    if any(not all(map(math.isfinite,p)) or p[1]>.581 or abs(p[3]-max(0,-p[1]))>.001 for p in samples):
+        raise RuntimeError("invalid swimming depth samples")
+    if samples[0][1]<.57 or samples[-1][1]<.57 or max(p[3] for p in samples)<.8:
+        raise RuntimeError("missing surface/dive/resurface sequence")
+
+
+def worker(build, evidence, window_manager, flight=False, boar_audio=False, diving=False):
     if (os.environ.get("ISLAND_FULLSCREEN_SUPERVISED") != "1"
             or Path("/dev/dri").exists() or not os.environ.get("DISPLAY")
             or os.environ.get("LIBGL_ALWAYS_SOFTWARE") != "1"):
@@ -244,6 +253,39 @@ def worker(build, evidence, window_manager, flight=False, boar_audio=False):
                 (evidence / "boar-audio-result.json").write_text(json.dumps({
                     "passed":True,"samples":samples(),"mutedBytes":len(silent),
                     "resumedBytes":len(resumed),"scope":"native disk-device playback/mute; not subjective listening"},indent=2)+"\n")
+            if diving:
+                def swim_samples():
+                    return [tuple(map(float,m)) for m in re.findall(
+                        r"swim position ([-+\d.eE]+) ([-+\d.eE]+) ([-+\d.eE]+) depth ([-+\d.eE]+)",log())]
+                keys("F1","debug overlay enabled")
+                keys("F12","debug teleport offshore current")
+                keys("F1","debug overlay disabled")
+                wait(lambda: len(swim_samples())>=2,"surface swimming samples")
+                pace=log().count("run mode enabled")+log().count("run mode disabled")
+                command("xdotool","keydown","Shift_L")
+                try:
+                    wait(lambda: swim_samples()[-1][3]>.8,"actual submersion")
+                    count=len(swim_samples())
+                    wait(lambda: len(swim_samples())>=count+3,"underwater presentation")
+                    command("import","-window",window,str(evidence/"diving-underwater.png"))
+                finally:
+                    command("xdotool","keyup","Shift_L")
+                count=len(swim_samples())
+                wait(lambda: len(swim_samples())>=count+2,"released descent")
+                command("xdotool","keydown","space")
+                try:
+                    wait(lambda: swim_samples()[-1][1]>.57,"resurface")
+                finally:
+                    command("xdotool","keyup","space")
+                command("import","-window",window,str(evidence/"diving-surface.png"))
+                samples=swim_samples()
+                validate_diving_trace(samples)
+                if log().count("run mode enabled")+log().count("run mode disabled")!=pace:
+                    raise RuntimeError("diving Shift changed ground running mode")
+                if "flight on;" in log():
+                    raise RuntimeError("swimming Space incorrectly activated flight")
+                (evidence/"diving-result.json").write_text(json.dumps({"passed":True,
+                    "samples":samples,"scope":"actual descent and ascent; not visual/audio acceptance"},indent=2)+"\n")
             if flight:
                 def flight_samples():
                     return [tuple(map(float,m)) for m in re.findall(
@@ -344,6 +386,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("build", type=Path)
     parser.add_argument("--flight", action="store_true", help="also exercise Tab flight, ceiling and return")
+    parser.add_argument("--diving", action="store_true", help="exercise underwater descent and resurfacing")
     parser.add_argument("--boar-audio", action="store_true", help="exercise boar playback and mute through SDL disk output")
     parser.add_argument("--window-manager", type=Path,
                         default=shutil.which("openbox") or Path.home()/"deps/xtools/bin/openbox")
@@ -352,7 +395,7 @@ def main():
     build = args.build.resolve(strict=True)
     window_manager = args.window_manager.resolve(strict=True)
     if args.worker:
-        worker(build, args.worker.resolve(strict=True), window_manager, args.flight, args.boar_audio)
+        worker(build, args.worker.resolve(strict=True), window_manager, args.flight, args.boar_audio, args.diving)
         return
     for executable in ("xdotool", "xprop", "import", "xmessage"):
         if not shutil.which(executable):
@@ -373,6 +416,8 @@ def main():
                    "--window-manager", str(window_manager)]
         if args.flight:
             command.append("--flight")
+        if args.diving:
+            command.append("--diving")
         if args.boar_audio:
             command.append("--boar-audio")
         environment = software_environment(evidence)

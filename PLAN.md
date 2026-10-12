@@ -26,8 +26,24 @@ tool workers, and serialize builds. Where tools use internal threads, restrict
 the build process tree to at most four allowed logical CPUs. This supersedes
 older uncapped build guidance; existing `-j2` builds remain suitable.
 
-These are additive requirements, not a replacement for the remaining plan. Prioritize
-the renewed boar/monkey and hut requests over unfinished spider-web integration.
+## New highest-priority ecosystem stage — 2026-10-12
+
+The user's complete ordered 17-point request is recorded as an unchecked execution
+ledger in [ecosystem-stage.md](docs/ecosystem-stage.md). Next major stage: **real
+stream → shared moisture/drainage → wet stream-side habitat → localized mangroves
+→ spatial reef and habitat-driven existing fauna**. Follow the remaining ordered
+items there: coastal variety, tide pools, organized wrack, slow cloud drift,
+wind-aware ocean/audio, stream/local ambience, bird perching, turtle tracks,
+small cave, inland hut, and the enterable grounded helicopter last.
+
+This supersedes earlier next-feature ordering, not retained requirements. Existing
+animal species requests are deferred behind improving existing wildlife; diving,
+campfire, boar/monkey repairs, stability and portable QA remain. Preserve ~500m
+scale and current architecture; no broad redesign, weather/day-night, simulated
+tides, volumetric clouds, voxel cave, replacement vegetation/hydrology engine or
+survival systems. The supplied project inventory is context, not audited evidence.
+
+## Other retained current work
 
 - [ ] Add a realistic continuously burning campfire at a suitable island location:
   stone-ringed fire pit, burning logs/embers, animated flame shape and restrained

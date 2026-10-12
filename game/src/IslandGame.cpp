@@ -1429,6 +1429,11 @@ namespace island
                     std::cout << "island-simulator: flight position " << cameraPosition_.X << ' '
                               << cameraPosition_.Y << ' ' << cameraPosition_.Z
                               << " above-ground " << flightMotion_.HeightAboveGround() << '\n';
+                if(playerMotion_.Mode()==LocomotionMode::Swimming && !flightMotion_.IsActive()) {
+                    const auto p=playerMotion_.Position();
+                    std::cout << "island-simulator: swim position " << p.x << ' ' << p.y << ' ' << p.z
+                        << " depth " << playerMotion_.SubmergedDepth() << '\n';
+                }
                 std::cout << std::flush;
             }
         }

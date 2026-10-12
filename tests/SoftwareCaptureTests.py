@@ -26,9 +26,21 @@ from run_software_capture import (
 from gpu_incident_qualification import MonitorError, contained_command
 from run_fullscreen_software import geometry, worker as fullscreen_worker, validate_boar_audio_trace
 from run_fullscreen_software import validate_control_transitions, owned_runtime_log
+from run_fullscreen_software import validate_diving_trace
 
 
 class SoftwareCaptureTests(unittest.TestCase):
+    def test_diving_trace_and_rejections(self):
+        good=[(0,.58,-270,0),(0,-.5,-270,.5),(0,-1,-270,1),(0,.58,-270,0)]
+        validate_diving_trace(good)
+        for bad in ([],good[:3],good[1:],[(0,.58,-270,0)]*4,
+                    [good[0],(0,-1,-270,0),*good[2:]],
+                    [good[0],(0,float('nan'),-270,0),*good[2:]],
+                    [good[0],(0,5,-270,0),*good[2:]],
+                    [good[0],(0,-1,-270),*good[2:]]):
+            with self.subTest(bad=bad),self.assertRaises(RuntimeError):
+                validate_diving_trace(bad)
+
     def test_boar_capture_clock_and_corruptions(self):
         good = ''.join(f"island-simulator: boar motion stage={i} updates={(i+1)*8} time={(i+1)*.8:.1f} "
                        "visible=1 position=1,2,3 speed=0 phase=0 rooting=0.5\n" for i in range(8))
