@@ -828,6 +828,12 @@ progress or require player interaction; dangerous species keep their distance li
   sixactualimagesinspected.21browser+41nativeharnessCPUtestsPASS. rAFmean510.258ms
   softwareonly, nottargetperformance. NativecontrastFAIL/visualdeficits unchanged;
   Android/Firefoxspiderruntime,otherhabitats,webs andcontinuousgait remainopen.
+  Androidspider actualinspection052659.737424Z added: x86build/LintPASS,23CPUpreflight
+  PASS, exactAPKmaterialbyteschecked. MobileGLES3/SwiftShader1/12visible/2draws/contact1,
+  material+lightinglogchecksPASS; actualimageinspected. OuterimagegateFAILED17attempts
+  (deviation9.4266,bins28,contrast23.9878), unchangedthresholds. Kernel[]/emulatorexit0.
+  TestAPKarchived; normalARM64build/LintrestoredPASS. NotcleanAndroidvisualqualification,
+  continuousmotion/lifecycle/physicaldeviceperformance remainopen.
   Continuousnaturalness/otherhabitats andportable runtime remainopen. Earlier live-integration
   inclusivebuild/51CPU PASS59.58s. Earlier foundation
   milestones below are historical, not current

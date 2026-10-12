@@ -1,5 +1,27 @@
 # island-simulator handoff
 
+## Latest — actual Android spider image inspected, contrast gate failed
+
+Previous turn Webaudit76fb141 wasprogress. AddedspidersAndroidviewpoint/actualproof
+requirements;23CPUpreflightPASS0.731s including6badspiderlogs,shellsyntaxPASS.
+x86assembleDebug+lintDebugPASS10s (90696terminal0). ExactAPKpreparedmaterialbytes
+verified including141381byte spiderPNGhash06b52958 (sameasnative/Web).
+Actual052659.737424Z-spiders (11685terminal1): mobileGLES3/SwiftShader,1/12visible/
+2draws/contact1,material+lightingcorrect. Retainedlogindependentlypassesvalidator.
+Intermediateandfinalactual1280x720PNGinspected: roundtexturedspider,darkscene,
+angularlegs. OuterimageFAILED17attempts (deviation9.4266<18,bins28<64,contrast23.9878<30).
+Parentfailedunchanged, kernel-final[],ownedemulatorexit0. No thresholdexceptions.
+Oneimage is notmotion/lifecycle/mobileperformancequalification. Worker removed1stale
+ownedAVDlock; no KVM/AVDconfiguration/AMDhardwarechanges.
+TestAPK build/android-software/island-spider-setae-x86_64.apk SHA
+8c8e006bbaebaba7cd9d8d161afab74ed55d772d20c77dc6d9ee697b95f83ec7 retained.
+NormalARM64assemble+lintrestoredPASS7s (87921terminal0), ARMlib+spiderassetverified;
+android/app/build/outputs/apk/debug/app-debug.apk SHA
+6dda4d1761f9acde07d9c9d8a29e11d2a22ef5c517b53ee62a7a2bf8927f5d99.
+Logs build/spider-android-{preflight,x86-build,arm64-build}.log. Latchc0bd1704unchanged.
+Goalactive/no push. NEXT realhabitatlightingcomparison/visualrefinement orrequired
+plant-attachedwebs; fullremainingspecies/resident/environment/AMDrootcausestillopen.
+
 ## Latest — actual WebGL2 spider material/pose audit
 
 Previousturn progressed nearbody (77b520c). AddedspidersfocusedChrome scope/page,

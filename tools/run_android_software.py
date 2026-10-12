@@ -19,7 +19,8 @@ import time
 import zipfile
 
 from gpu_incident_qualification import FAULT, Journal, MonitorError, artifact_identity, CAPTURE_VIEWPOINTS
-from run_software_capture import run_monitored_capture, validate_monkey_climb_stages, validate_snake_runtime_samples
+from run_software_capture import (run_monitored_capture, validate_monkey_climb_stages,
+    validate_snake_runtime_samples, validate_spider_render_log, validate_spider_lighting)
 
 AVD = "IslandSoftwareApi35"
 IMAGE = "system-images/android-35/google_apis_playstore/x86_64"
@@ -229,6 +230,9 @@ def validate_game_logs(directory, lifecycle, viewpoint=None):
             raise RuntimeError("application did not confirm the required monkey fur material")
         if viewpoint in ("snakes", "snake-head"):
             validate_snake_runtime_samples(log)
+        if viewpoint == "spiders":
+            validate_spider_render_log(log)
+            validate_spider_lighting(log)
         if viewpoint == "goats":
             if "goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes" not in log:
                 raise RuntimeError("application did not confirm the goat coat texture")
@@ -374,7 +378,7 @@ def main():
     parser.add_argument("--sdk", type=Path, required=True)
     parser.add_argument("--boot", action="store_true", help="also boot the isolated emulator")
     parser.add_argument("--apk", type=Path, help="install/test this x86_64 APK after software renderer proof")
-    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"goats", "hut", "hut-material", "boars", "snakes", "snake-head", "interactive", "monkey-climb"}),
+    parser.add_argument("--viewpoint", choices=sorted(CAPTURE_VIEWPOINTS | {"spiders", "goats", "hut", "hut-material", "boars", "snakes", "snake-head", "interactive", "monkey-climb"}),
                         default="clearing-edge")
     parser.add_argument("--touch-selector", action="store_true")
     parser.add_argument("--lifecycle", action="store_true")

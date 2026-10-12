@@ -6,6 +6,32 @@ gate failed. Natural motion, visual realism and portable qualification remain op
 
 ## Generated setae material
 
+### Actual Android GLES3 inspection — image gate failed
+
+The isolated Android harness now accepts `--viewpoint spiders` and requires the
+same live population/material/contact-shadow/lighting proof as native.23 CPU preflight
+tests pass, including six corrupted spider logs; shell syntax passes. x86_64
+assembleDebug+lintDebug passes. APK validation verifies exact prepared material bytes,
+including the141381-byte spider image (same SHA06b52958... as native/Web).
+
+Actual `build/android-software/20261012T052659.737424Z-spiders` reached mobile
+OPENGLES3/SwiftShader,1/12visible/2draws/contact1 and the same body light transfer.
+The retained log independently passes the new checks. Both the intermediate and final
+actual1280x720 image were inspected: textured rounded spider is present, with the
+same dark background/angular limbs. This is one retained presentation, NOT a continuous
+motion/lifecycle or mobile-performance audit. **Outer run FAILED** after17 image
+attempts: luminance deviation9.4266<18, colour bins28<64, spatial contrast23.9878<30.
+No threshold/profile exception was added. Parent result remainsfailed; kernel-final[],
+owned emulator exit0. No AMD hardware, KVM configuration or AVD configuration changes.
+
+Tested APK retained as `build/android-software/island-spider-setae-x86_64.apk`,
+SHA256 `8c8e006bbaebaba7cd9d8d161afab74ed55d772d20c77dc6d9ee697b95f83ec7`.
+Then normal ARM64 assembleDebug+lintDebug was restored successfully; lib/arm64-v8a/
+libmain.so and spider asset verified. Current Android output SHA256
+`6dda4d1761f9acde07d9c9d8a29e11d2a22ef5c517b53ee62a7a2bf8927f5d99`.
+Logs `build/spider-android-{preflight,x86-build,arm64-build}.log`. ARM64 build success
+is not an ARM-device runtime test. Shaded lighting/acceptance and webs remain open.
+
 ### Actual WebGL2 material/pose smoke audit
 
 Focused `spiders` mode now exists in the browser harness and page. It retains an
