@@ -94,6 +94,7 @@ namespace island
         ClearingEdgeDetail,
         CanopyInspection,
         WestClearingDetail,
+        StreamDetail,
         GrassDetail,
         GroundPlantDetail,
         GroundBroadleafDetail,

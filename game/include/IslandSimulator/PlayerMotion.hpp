@@ -11,6 +11,7 @@ namespace island
 {
     class WorldCollisionGrid;
     class RenderedTerrainSurface;
+    class StreamBedPatch;
 
     /** @brief Physical movement state relevant to animation, audio, and camera presentation. */
     enum class LocomotionMode
@@ -102,6 +103,7 @@ namespace island
         // Surface must outlive this controller. Null disables diving. The caller
         // refreshes input every frame; teleports clear depth and held input.
         void SetSwimInput(const RenderedTerrainSurface* surface, bool ascend, bool descend) noexcept;
+        void SetGroundPatch(const StreamBedPatch* patch) noexcept {groundPatch_=patch;}
         [[nodiscard]] float SubmergedDepth() const noexcept { return swimDepth_.SubmergedDepth(); }
 
         /**
@@ -179,8 +181,8 @@ namespace island
 
         [[nodiscard]] static float MoveTowards(float current, float target,
                                                float maximumDelta) noexcept;
-        [[nodiscard]] static GroundContact SampleGroundContact(const IslandTerrain& terrain,
-                                                               float x, float z) noexcept;
+        [[nodiscard]] GroundContact SampleGroundContact(const IslandTerrain& terrain,
+                                                               float x, float z) const noexcept;
         int ResolveObstaclePenetration(std::span<const CircularObstacle> obstacles) noexcept;
         [[nodiscard]] HorizontalStepResult TryHorizontalStep(
             const IslandTerrain& terrain,
@@ -195,6 +197,7 @@ namespace island
 
         PlayerPosition position_;
         const RenderedTerrainSurface* swimSurface_ = nullptr;
+        const StreamBedPatch* groundPatch_ = nullptr;
         SwimDepth swimDepth_;
         bool swimAscend_ = false, swimDescend_ = false;
         float velocityX_ = 0.0f;

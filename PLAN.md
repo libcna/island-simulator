@@ -45,6 +45,13 @@ survival systems. The supplied project inventory is context, not audited evidenc
 
 ## Other retained current work
 
+Stream bed now live in TerrainRenderer: covered original coarse quads omitted;
+separate16-bit buffers/existing terrain material, one extra culled draw. Player
+walking support and uphill checks use the same patch height. Native build and
+StreamSurvey/CoreTests PASS45.58s. Actual075212.867607Z-stream capture passed/kernel[];
+inspected image shows subtle dry cut obscured by vegetation/tree. Water is absent;
+wetmaterials/placement/wildlife/shadows/packed-height and portable audits remain.
+
 Stream stage progress: actual west-valley survey found99stations/100.559m from
 (-65,-40.05) to(-163,-17.51), ground9.82824m to sea with no sampled rise. Added
 deterministic StreamCourse layout, widths0.9..3m,25cm water depth,<=1m incision

@@ -1,5 +1,24 @@
 # island-simulator handoff
 
+## Latest — stream bed LIVE in terrain, no stream water yet
+
+Previous119a265 progress. TerrainRenderer owns StreamBedPatch, excludes original
+coarsequads by centre-inside alignedrectangle, percell indexcounts now actual.
+Separate16bit VB/IB avoidglobal58081+8510>65535; newfrustumbounds/existingmaterial,
+oneextra draw ifvisible; getters totalcounts. Patch normals/slope/light sampled.
+PlayerMotion SetGroundPatch borrowed after renderer installed; walking footprint
+height/slope and uphill checks usepatch. StreamSurvey adds actual-player support
+tests alongroute. Build91393exit0 +StreamSurvey/Core PASS45.58s. New --viewpoint
+stream enum/parser/camera/toolchoice; finalcamera build28423exit0. taskset0-3/-j2.
+Actual60227exit0 software-captures/20261012T075212.867607Z-stream PASS350bins/std41.25/
+spatial210.68/kernel[]. Actualbuild/stream-bed-live.png VIEWED: subtle drycut with
+plants/tree obstructing route, NOTvisualcompletion. No water yet. NEXT watermesh/
+flowshader and wetbanks + sharedplacementclearance. Existinggrass/props/wildlife/
+contactshadows/packedRenderedTerrainHeightMap and diving/flight surfacecache still
+oldsurface: must reconcile all, notclaimauthoritativeworldcomplete. Onlyplayerwalking
+wiredthisturn. NoWeb/Android/fullsuite/performanceclaim. Allhandles terminal;
+noAMD/KVM/dependencychanges; fullgoal active.
+
 ## Latest — adaptive stream-bed geometry reduction
 
 Previous253a32a progress. StreamBedPatch marks coarsecells containing ANYmodified

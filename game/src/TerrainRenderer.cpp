@@ -1,5 +1,6 @@
 #include "IslandSimulator/TerrainRenderer.hpp"
 #include "IslandSimulator/CoastalMaterial.hpp"
+#include "IslandSimulator/StreamBedPatch.hpp"
 
 #include "IslandSimulator/EnvironmentLighting.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
@@ -741,6 +742,8 @@ void main()
 
     void TerrainRenderer::CreateMesh(const IslandTerrain& terrain)
     {
+        const auto original=std::make_unique<RenderedTerrainSurface>(terrain);
+        streamBed_=std::make_unique<StreamBedPatch>(StreamCourse(terrain),*original);
         cells_.clear();
         cells_.reserve(TerrainMeshLayout::CellCount);
         std::vector<TerrainMaterialVertex> vertices;
@@ -785,6 +788,11 @@ void main()
             cell.firstIndex = static_cast<int>(indices.size());
             for (int row = 0; row < layout.quadRows; ++row) {
                 for (int column = 0; column < layout.quadColumns; ++column) {
+                    const float midX=(TerrainMeshLayout::Coordinate(layout.firstGridColumn+column)
+                        +TerrainMeshLayout::Coordinate(layout.firstGridColumn+column+1))*.5f;
+                    const float midZ=(TerrainMeshLayout::Coordinate(layout.firstGridRow+row)
+                        +TerrainMeshLayout::Coordinate(layout.firstGridRow+row+1))*.5f;
+                    if(streamBed_->Contains(midX,midZ))continue;
                     const auto topLeft = static_cast<std::uint16_t>(
                         (layout.firstGridRow + row) * TerrainMeshLayout::Resolution
                         + layout.firstGridColumn + column);
@@ -797,7 +805,7 @@ void main()
                 }
             }
 
-            cell.primitiveCount = layout.quadColumns * layout.quadRows * 2;
+            cell.primitiveCount = (static_cast<int>(indices.size())-cell.firstIndex)/3;
             cell.bounds = BoundingBox(
                 Vector3(layout.minimumX, minimumHeight - 0.1f, layout.minimumZ),
                 Vector3(layout.maximumX, maximumHeight + 0.1f, layout.maximumZ));
@@ -818,6 +826,32 @@ void main()
             device_, IndexElementSize::SixteenBits, static_cast<int>(indices.size()),
             BufferUsage::WriteOnly);
         indices_->SetData(indices.data(), static_cast<int>(indices.size()));
+        vertices.clear();
+        Vector3 minimum(1000,1000,1000),maximum(-1000,-1000,-1000);
+        for(const auto p:streamBed_->Vertices()) {
+            auto sample=terrain.Sample(p.x,p.z);sample.height=p.y;
+            const auto height=[&](float x,float z){return streamBed_->Contains(x,z)
+                ?streamBed_->SampleHeight(x,z):original->Sample(x,z).height;};
+            sample.normal=TerrainSurfaceFrame::Normalize({height(p.x-.1f,p.z)-height(p.x+.1f,p.z),
+                .2f,height(p.x,p.z-.1f)-height(p.x,p.z+.1f)});
+            sample.slopeRadians=std::acos(std::clamp(sample.normal.y,-1.0f,1.0f));
+            const float light=TerrainDaylight(sample.normal);const auto color=TerrainColor(sample,light);
+            vertices.push_back({{p.x,p.y,p.z},{color.getRProperty(),color.getGProperty(),color.getBProperty(),255},
+                {sample.signedShoreDistance,sample.slopeRadians,light}});
+            minimum=Vector3::Min(minimum,Vector3(p.x,p.y,p.z));
+            maximum=Vector3::Max(maximum,Vector3(p.x,p.y,p.z));
+        }
+        const auto& streamIndices=streamBed_->Indices();
+        ValidateProceduralTriangleMeshOrThrow(vertices.size(),streamIndices,"stream bed");
+        streamVertexCount_=static_cast<int>(vertices.size());streamPrimitiveCount_=static_cast<int>(streamIndices.size()/3);
+        streamBounds_=BoundingBox(minimum-Vector3(.1f,.1f,.1f),maximum+Vector3(.1f,.1f,.1f));
+        streamVertices_=std::make_unique<VertexBuffer>(device_,TerrainDeclaration(),streamVertexCount_,BufferUsage::WriteOnly);
+        streamVertices_->SetData(vertices.data(),streamVertexCount_);
+        streamIndices_=std::make_unique<IndexBuffer>(device_,IndexElementSize::SixteenBits,
+            static_cast<int>(streamIndices.size()),BufferUsage::WriteOnly);
+        streamIndices_->SetData(streamIndices.data(),static_cast<int>(streamIndices.size()));
+        std::cout << "island-simulator: stream bed replacement " << streamVertexCount_ << " vertices, "
+            << streamPrimitiveCount_ << " triangles; original covered terrain removed; no stream water yet\n";
     }
 
     void TerrainRenderer::DrawGeometry(const int firstIndex, const int primitiveCount)
@@ -876,6 +910,7 @@ void main()
         device_.SetVertexBuffer(vertices_.get());
         device_.setIndicesProperty(indices_.get());
         const auto drawRuns = [&]() {
+            device_.SetVertexBuffer(vertices_.get());device_.setIndicesProperty(indices_.get());
             for (std::size_t runIndex = 0; runIndex < runs.count; ++runIndex) {
                 const TerrainMeshLayout::CellRun& run = runs.values[runIndex];
                 const RenderCell& firstCell = cells_[run.firstCell];
@@ -884,6 +919,11 @@ void main()
                     runPrimitiveCount += cells_[run.firstCell + offset].primitiveCount;
                 }
                 DrawGeometry(firstCell.firstIndex, runPrimitiveCount);
+                ++drawCallCount_;
+            }
+            if(frustum.Intersects(streamBounds_)) {
+                device_.SetVertexBuffer(streamVertices_.get());device_.setIndicesProperty(streamIndices_.get());
+                device_.DrawIndexedPrimitives(PrimitiveType::TriangleList,0,0,streamVertexCount_,0,streamPrimitiveCount_);
                 ++drawCallCount_;
             }
         };

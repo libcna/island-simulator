@@ -30,6 +30,7 @@ namespace
         case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
         case FixedViewpoint::CanopyInspection: return "canopy";
         case FixedViewpoint::WestClearingDetail: return "west";
+        case FixedViewpoint::StreamDetail: return "stream";
         case FixedViewpoint::GrassDetail: return "grass";
         case FixedViewpoint::GroundPlantDetail: return "ground";
         case FixedViewpoint::GroundBroadleafDetail: return "ground-broadleaf";
@@ -150,6 +151,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::CanopyInspection;
             } else if (name == "west") {
                 viewpoint = island::FixedViewpoint::WestClearingDetail;
+            } else if (name == "stream") {
+                viewpoint = island::FixedViewpoint::StreamDetail;
             } else if (name == "grass") {
                 viewpoint = island::FixedViewpoint::GrassDetail;
             } else if (name == "ground") {

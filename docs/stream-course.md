@@ -1,5 +1,25 @@
 # Western stream course — surveyed layout, not live water
 
+## Live bed integration — 2026-10-12
+
+TerrainRenderer now excludes all original coarse quads whose centres lie in the
+grid-aligned patch rectangle and draws the replacement with the existing terrain
+material. Separate16-bit buffers avoid exceeding the global terrain vertex index
+limit; one additional frustum-culled draw is used when the patch is visible.
+Patch vertices use their new height, slope and daylight. Its CPU surface is owned
+by TerrainRenderer; PlayerMotion borrows it after renderer installation and uses
+the same sampled heights for walking footprint support and uphill checks.
+The renderer must outlive controller queries; no destruction-time query occurs.
+
+Native build and StreamSurvey/CoreTests pass45.58s, including player footprint
+placement along the actual stream bed. Camera-only incremental build also passed.
+Actual isolated llvmpipe capture `20261012T075212.867607Z-stream` passed350colour
+bins/std41.25/spatial210.68, kernel log empty. The actual image
+`build/stream-bed-live.png` was inspected: subtle dry cut, still obscured by existing
+plants/tree. Not a finished stream. Water, wet materials, vegetation/prop clearance,
+wildlife grounding, contact shadows, packed terrain-height consumers and underwater
+surface queries still need the shared patch. No full-suite/portable qualification.
+
 The existing `westValley` centreline is `z = -55 - 0.23*x`. A read-only CPU survey
 from x=-65 downstream to x=-163 reaches the sheltered western shoreline near
 (-163,-17.51). The 99 one-metre-x stations span100.559m horizontally; unmodified

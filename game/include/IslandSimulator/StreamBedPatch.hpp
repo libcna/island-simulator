@@ -98,6 +98,11 @@ public:
     [[nodiscard]] const auto& Indices() const noexcept{return indices_;}
     [[nodiscard]] int Columns() const noexcept{return columns_;}
     [[nodiscard]] int Rows() const noexcept{return rows_;}
+    [[nodiscard]] bool Contains(float x,float z) const noexcept {
+        return std::isfinite(x)&&std::isfinite(z)&&x>=minX_&&z>=minZ_
+            &&x<=minX_+static_cast<float>(columns_-1)*step_
+            &&z<=minZ_+static_cast<float>(rows_-1)*step_;
+    }
     [[nodiscard]] bool IsBoundary(StreamBedVertex p) const noexcept {
         return p.x==minX_||p.z==minZ_||p.x==minX_+static_cast<float>(columns_-1)*step_
             ||p.z==minZ_+static_cast<float>(rows_-1)*step_;

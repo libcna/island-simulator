@@ -74,6 +74,7 @@ namespace island
             case FixedViewpoint::ClearingEdgeDetail: return "clearing-edge";
             case FixedViewpoint::CanopyInspection: return "canopy";
             case FixedViewpoint::WestClearingDetail: return "west";
+            case FixedViewpoint::StreamDetail: return "stream";
             case FixedViewpoint::GrassDetail: return "grass";
             case FixedViewpoint::GroundPlantDetail: return "ground";
             case FixedViewpoint::GroundBroadleafDetail: return "ground-broadleaf";
@@ -244,6 +245,12 @@ namespace island
             const auto direction = target - cameraPosition_;
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
+        } else if (viewpoint_ == FixedViewpoint::StreamDetail) {
+            cameraPosition_=Vector3(-110,terrain_.Height(-110,-37)+3.5f,-37);
+            const Vector3 target(-116,terrain_.Height(-116,-28.32f)-.25f,-28.32f);
+            const auto direction=target-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
         } else if (viewpoint_ == FixedViewpoint::WestClearingDetail) {
             const ClearingDefinition& clearing = VegetationLayout::WestClearing;
             cameraPosition_ = Vector3(clearing.x, terrain_.Height(clearing.x, clearing.z)
@@ -1048,6 +1055,7 @@ namespace island
             }
         }
         terrainRenderer_ = std::move(terrainRenderer);
+        playerMotion_.SetGroundPatch(&terrainRenderer_->StreamBed());
         grassRenderer_ = std::move(grassRenderer);
         jungleRenderer_ = std::move(jungleRenderer);
         boarRenderer_ = std::move(boarRenderer);

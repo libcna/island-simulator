@@ -2,6 +2,7 @@
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
 #include "IslandSimulator/StreamCourse.hpp"
 #include "IslandSimulator/StreamBedPatch.hpp"
+#include "IslandSimulator/PlayerMotion.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -45,6 +46,17 @@ int main() {
     }
     if(patch.Indices().size()/3>=71680/2||patch.Vertices().size()>=36273/2)return 14;
     if(deepestCut<.25f||deepestCut>1)return 8;
+    island::PlayerMotion walker;walker.SetGroundPatch(&patch);
+    for(std::size_t i=5;i+8<course.Count();++i) {
+        const auto p=course.Station(i);
+        walker.SetPosition(terrain,p.x,p.z);
+        if(walker.Mode()!=island::LocomotionMode::Walking)continue;
+        float support=-100;
+        for(const auto offset:island::PlayerMotion::GroundContactOffsets)
+            support=std::max(support,patch.SampleHeight(p.x+offset.x*island::PlayerMotion::CapsuleRadius,
+                p.z+offset.z*island::PlayerMotion::CapsuleRadius));
+        if(std::abs(walker.Position().y-support-island::PlayerMotion::EyeHeight)>.0001f)return 15;
+    }
     for(std::size_t i=3;i<course.Count();++i) {
         const auto& p=course.Station(i);
         if(patch.SampleHeight(p.x,p.z)>p.water-.1f)return 10;

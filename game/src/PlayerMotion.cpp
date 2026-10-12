@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/WorldCollisionGrid.hpp"
 #include "IslandSimulator/RenderedTerrainSurface.hpp"
+#include "IslandSimulator/StreamBedPatch.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -55,13 +56,20 @@ namespace island
     }
 
     PlayerMotion::GroundContact PlayerMotion::SampleGroundContact(
-        const IslandTerrain& terrain, const float x, const float z) noexcept
+        const IslandTerrain& terrain, const float x, const float z) const noexcept
     {
         GroundContact contact;
         contact.height = -std::numeric_limits<float>::infinity();
         for (const PlayerGroundOffset& offset : GroundContactOffsets) {
-            const TerrainSample sample = terrain.Sample(x + offset.x * CapsuleRadius,
-                                                        z + offset.z * CapsuleRadius);
+            const float px=x+offset.x*CapsuleRadius,pz=z+offset.z*CapsuleRadius;
+            auto sample=terrain.Sample(px,pz);
+            if(groundPatch_&&groundPatch_->Contains(px,pz)) {
+                sample.height=groundPatch_->SampleHeight(px,pz);
+                const auto height=[&](float sx,float sz){return groundPatch_->Contains(sx,sz)
+                    ?groundPatch_->SampleHeight(sx,sz):terrain.Height(sx,sz);};
+                sample.slopeRadians=std::atan(std::hypot(height(px+.1f,pz)-height(px-.1f,pz),
+                    height(px,pz+.1f)-height(px,pz-.1f))/.2f);
+            }
             contact.height = std::max(contact.height, sample.height);
             contact.maximumSlopeRadians = std::max(contact.maximumSlopeRadians,
                                                     sample.slopeRadians);
