@@ -104,16 +104,19 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         const float z=-1.6f+static_cast<float>(i)*3.2f/15;
         beam({x,0.08f,z},{x,1.8f,z},0.18f,0.055f,timber+Vector3(static_cast<float>(i%3)*5));
     }
-    // Deep, unlit window recesses remain clearly distinct from the timber in bright sun.
-    grainAcross={1,0,0};grainAlong={0,1,0};materialTag=64;
+    // Muted opaque glazing gives the facade readable windows without a sorted
+    // transparency pass. Timber mullions sit slightly forward of the glass.
+    grainAcross={1,0,0};grainAlong={0,1,0};materialTag=176;
     for(float x:{-1.26f,1.26f}) {
         grainOrigin={x-.43f,.55f,1.704f};
         quad({x-.43f,.55f,1.704f},{x+.43f,.55f,1.704f},
-             {x+.43f,1.35f,1.704f},{x-.43f,1.35f,1.704f},{38,45,37});
+             {x+.43f,1.35f,1.704f},{x-.43f,1.35f,1.704f},{52,73,73});
         beam({x-.47f,.50f,1.73f},{x-.47f,1.40f,1.73f},.09f,.09f,dark);
         beam({x+.47f,.50f,1.73f},{x+.47f,1.40f,1.73f},.09f,.09f,dark);
         beam({x-.51f,.50f,1.73f},{x+.51f,.50f,1.73f},.09f,.09f,dark);
         beam({x-.51f,1.40f,1.73f},{x+.51f,1.40f,1.73f},.09f,.09f,dark);
+        beam({x,.53f,1.79f},{x,1.37f,1.79f},.055f,.055f,dark);
+        beam({x-.44f,.95f,1.79f},{x+.44f,.95f,1.79f},.055f,.055f,dark);
     }
     // A closed plank door suits the decorative, uninhabited building contract.
     for(int i=0;i<5;++i) {
@@ -123,6 +126,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
     beam({-.54f,.04f,1.76f},{-.54f,1.78f,1.76f},.11f,.11f,dark);
     beam({ .54f,.04f,1.76f},{ .54f,1.78f,1.76f},.11f,.11f,dark);
     beam({-.59f,1.78f,1.76f},{.59f,1.78f,1.76f},.11f,.11f,dark);
+    beam({-.39f,.30f,1.80f},{.39f,1.48f,1.80f},.065f,.055f,timber);
+    beam({.31f,.82f,1.81f},{.31f,.82f,1.94f},.045f,.045f,Vector3(65,52,38));
     // Covered front veranda, split railing and three broad steps.
     for(const auto& span:{std::pair{-2.04f,-.72f},std::pair{.72f,2.04f}})
         beam({span.first,.72f,2.24f},{span.second,.72f,2.24f},.08f,.08f,dark);
@@ -164,7 +169,7 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
             }
         }
     }
-    if(mesh.empty()||mesh.size()>30000) throw std::runtime_error("Hut mesh exceeds budget");
+    if(mesh.empty()||mesh.size()>30500) throw std::runtime_error("Hut mesh exceeds budget");
     Vector3 low(std::numeric_limits<float>::max()),high(std::numeric_limits<float>::lowest());
     for(const auto& vertex:mesh) {
         if(!std::isfinite(vertex.TextureCoordinate.X)||!std::isfinite(vertex.TextureCoordinate.Y))
@@ -211,6 +216,8 @@ HutRenderer::HutRenderer(GraphicsDevice& device,const HutPlacement& hut)
         if(!material_->IsEffectValid()) throw std::runtime_error(material_->GetCompileErrorEXT());
         const char* message="island-simulator: hut beam-aligned weathered grain and filtered thatch fibres";
         std::cout<<message<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(message);
+        const char* facadeMessage="island-simulator: hut four-pane muted glazing and braced plank door";
+        std::cout<<facadeMessage<<'\n'; MirrorRuntimeDiagnosticToPlatformLog(facadeMessage);
     } catch(const std::exception& error) {
         material_.reset();
         const std::string message=std::string("island-simulator: hut material fallback: ")+error.what();

@@ -44,7 +44,15 @@ void main() {
     vec3 leafVariation=clamp(leafSample/uThatchMean,vec3(0.5),vec3(1.55));
     vec3 thatch=vColor.rgb*mix(vec3(1.0),leafVariation,0.85)
         *(0.98+0.04*fibres+0.015*fineFibres);
+    float glassClass=step(0.65,vColor.a)*(1.0-step(0.7,vColor.a));
+    float reflectedSky=smoothstep(0.12,0.78,v)
+        *(0.82+0.18*resolvedWave(u*7.0+v*2.0));
+    float softGlint=0.5+0.5*resolvedWave((u-v)*18.0+vWorld.y*1.7);
+    vec3 glass=mix(vColor.rgb*vec3(0.56,0.64,0.61),
+        vec3(0.30,0.47,0.51),0.40*reflectedSky);
+    glass+=vec3(0.055,0.075,0.072)*softGlint*reflectedSky;
     vec3 color=vColor.a>0.7?thatch:timber;
+    color=mix(color,glass,glassClass);
     float detail=1.0-smoothstep(35.0,80.0,length(vWorld-uCameraPosition));
     color=mix(vColor.rgb,color,detail);
     float base=(1.0-smoothstep(-0.3,0.25,vWorld.y-uHutCentre.y))*(1.0-step(0.7,vColor.a));

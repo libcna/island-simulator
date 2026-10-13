@@ -626,9 +626,13 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   with a 314.243m/4800-step dry spawn route. A dedicated low-foliage clearing preserves
   trees/rocks/props; the 3.25m proxy covers a new 0.60m veranda. Front now has three steps,
   split railing/balusters, closed plank door, two framed window recesses and exposed gable
-  framing, still one draw at9988triangles/29964vertices. Actual contained close/wide
-  201625/201645 captures PASS/inspected/kernel[]; focused6/6 PASS and WorldReport valid
-  fingerprint e744bc4e0f3093f6. Portable visuals, route walk and further realism remain,
+  framing. A follow-up replaces both black recesses with muted opaque reflective glazing,
+  adds two timber mullions per window plus a diagonal door brace and handle. It remains
+  one draw at10060triangles/30180vertices. Actual contained close/wide
+  020930/021005 captures PASS/inspected/kernel[]; focused hut placement PASS and WorldReport valid
+  fingerprint e744bc4e0f3093f6. Current Chrome/SwiftShader 021704 hut audit passes both
+  views (60 intervals each, GLerror0/context intact/kernel[]); all four images inspected.
+  Android current-source visuals, route walk and further realism remain,
   so this stays in progress. Details `docs/island-hut.md`.
 - [~] Add a river or stream. Initial implementation choice: a small inland-to-coast
   stream with a continuous downhill channel integrated into terrain, suitable banks,

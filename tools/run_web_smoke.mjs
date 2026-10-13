@@ -738,6 +738,7 @@ try {
               && /goats [1-6]\/6 visible, 2 draw;/.test(log)
               && log.includes("goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
             && (!focusedHutCheck || (log.includes("hut beam-aligned weathered grain and filtered thatch fibres")
+              && log.includes("hut four-pane muted glazing and braced plank door")
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")

@@ -301,6 +301,42 @@ the wide view confirms the steps, grounded posts and vegetation-free building fo
 a jungle setting. Focused hut/resident/bear/goat/spider/world-report tests pass 6/6.
 Portable Web/Android images and further weathering/self-shadow polish remain open.
 
+## Four-pane glazing and braced door — 2026-10-13
+
+The two nearly black window recesses now use a dedicated opaque material class in the
+existing hut shader. A restrained blue-green vertical sky band and derivative-filtered
+soft glint make them read as muted glazing without transparency, sorting, another texture
+or another draw. Each window has central horizontal and vertical timber mullions. The
+closed plank door gains a diagonal timber brace and a small projecting dark handle.
+
+Six added beams increase the one-draw static mesh by 216 vertices / 72 triangles, to
+30,180 vertices / 10,060 triangles. The local upload guard is correspondingly 30,500;
+finite coordinates and non-degenerate triangles remain runtime-validated. Release and
+Debug native builds pass. The focused hut placement test passes; a separately invoked
+startup-report validator was inapplicable because its disabled producer had not created
+the JSON input and is not recorded as a product failure.
+
+Actual contained llvmpipe captures
+`20261013T020930.428359Z-hut-material` and
+`20261013T021005.370692Z-hut` both pass and were inspected. The close view clearly shows
+four panes, coloured reflection, brace and handle; the wide view retains a coherent
+raised-house silhouette. Validation reports respectively 241/247 colour bins,
+luminance deviation 44.66/41.87 and spatial contrast 238.03/215.22. Both kernel deltas
+are empty, the custom material has no fallback, and runtime reports exactly 10,060
+triangles. Portable current-source execution remains pending at this checkpoint.
+
+The first current-source Chrome/SwiftShader attempt
+`20261013T021240.035502Z-chrome-hut` rendered both views and wrote successful
+60-interval reports, but its process cleanup exceeded the 240 s supervisor limit. It
+remains recorded as failed rather than being relabelled. An unchanged repeat with only
+the outer timeout raised to 360 s,
+`20261013T021704.941635Z-chrome-hut`, passes cleanly: both views complete 60 intervals,
+`glError=0`, `contextLost=false`, exact seven/six contact-patch counts, required facade,
+wood and fibre markers, and an empty kernel delta. All four initial/final PNGs were
+inspected; glazing, mullions and door brace agree with native. This CPU SwiftShader run
+is functional portability evidence, not a hardware frame-rate claim. Current Android
+runtime imagery remains pending and the emulator/KVM configuration was not touched.
+
 ## Remaining acceptance work
 
 1. Finish weathered wood and natural irregular thatch materials/geometry; the existing
