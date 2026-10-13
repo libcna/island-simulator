@@ -663,7 +663,8 @@ def main():
             if args.viewpoint in {"cave", "cave-inside"}:
                 side = "inside" if args.viewpoint == "cave-inside" else "outside"
                 for marker in (f"cave QA camera {side}", "cave ground replacement",
-                               "cave rock first visible draw", "20m walkable interior"):
+                               "cave rock first visible draw", "20m walkable interior",
+                               "cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"cave integration diagnostic missing: {marker}")
             if args.viewpoint == "reef-habitat":

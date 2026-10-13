@@ -101,8 +101,40 @@ check both homes/patrol clearance and live body poses. Existing population count
 6 boars,6 goats,50 snakes,200 spiders. An18s nearby simulation verifies bodies and spider
 feet remain outside the rock footprint. No rendering cost is added by these CPU checks.
 
-The wider plant reserve changes the ordinary bush/ground-plant fixture to573/2191.
+The current wider-reserve fixture contains570 ordinary bushes and2187 ordinary ground plants
+after later world integrations; all surveyed cave-overlap counts remain zero.
 The WorldReport now fingerprints the actual shell and replacement mesh and exports its
 entrance, length and geometry counts. Cave/core/spider-habitat/snake/WorldReport checks
 pass5/5 in36.64s. Both native binaries were subsequently refreshed with the campfire
 integration; Debug cave/campfire/audio-runtime checks pass3/3 in7.34s.
+
+## Compact outcrop and material pass
+
+The next inspected exterior audit still read the first shell as a freestanding hangar. The
+walkable cavity remains roughly5m wide,3.4m high and20m deep, but the surrounding mantle is now
+lower and narrower: measured signed rock volume is646.184m³ instead of1286.82m³. Entrance-only
+height/width perturbations make the visible opening less symmetric and decay into the interior;
+the outer lip projects less. The replacement terrain now forms only a low bank at the mouth.
+An attempted larger bank produced two obvious heightfield pyramids and was rejected rather than
+retained.
+
+The rock draw still uses1384 triangles and one culled opaque submission. Its project-owned
+40-byte vertex now carries position, face normal, cave-local position and an exterior/interior
+material weight. The fragment shader uses fixed-sun normal lighting, non-horizontal perturbed
+fractures, broad warm/cool mineral variation, restrained upward-facing exterior moss and subtle
+depth-dependent interior dampness. It adds no texture, transparency or draw. Interior ambient
+light remains dark but preserves enough reflected colour to read the surface and exit.
+
+Inspected native llvmpipe captures `20261012T235905.250725Z-cave` (outside:277 colour bins,
+luminance deviation48.99, spatial contrast226.27) and
+`20261012T235910.914031Z-cave-inside` (inside:64 bins, deviation24.33, contrast109.22) both pass;
+live and final kernel deltas are empty. Cave/Core tests pass2/2 after the compact roof collision
+envelope and solid-placement fixture were updated to the emitted shape. The current complete world
+report remains valid with fingerprint `a03613b6a3bbbbab`. This is a bounded visual
+improvement, not a claim of photorealism. The fresh native keyboard run
+`software-cave/20261012T235642.504887Z` again completes entry, back-wall stop, inner-roof block,
+landing and exit across88 non-solid samples. Chrome/SwiftShader WebGL2 run
+`20261012T235501.030155Z-chrome-fullscreen` initializes and draws the complete scene with the new
+cave shader, zero GL error/context loss and an empty kernel delta; it is portability evidence,
+not a cave-view image. GLES3 runtime, moving exterior review, contact treatment and further
+erosion detail remain open.

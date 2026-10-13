@@ -10,8 +10,8 @@ struct CaveSite final {
     static constexpr float Inset=38.0f;
     static constexpr float Length=20.0f;
     static constexpr float OuterLength=22.0f;
-    // Outer rings reach 6+.8+.6+.22 = 7.62 m from the axis. Reserve the whole
-    // emitted rock shell, not just the narrower excavation underneath it.
+    // The compact outer rings remain below this conservative width. Reserve the whole
+    // emitted rock shell and its terrain shoulders, not just the narrower cavity.
     static constexpr float HalfWidth=8.0f;
     [[nodiscard]] static std::array<float,2> Centre() noexcept {
         static const std::array<float,2> result=[] {

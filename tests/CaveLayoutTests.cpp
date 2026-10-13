@@ -91,9 +91,16 @@ int main() {
     std::map<std::array<Point,2>,std::pair<int,int>> edges;
     std::array<int,5> parts{};
     double volume=0;
+    float leftMouthTop=-INFINITY,rightMouthTop=-INFINITY;
     for(const auto& triangle:cave.Triangles()) {
-        for(const auto p:triangle.points)
+        for(const auto p:triangle.points) {
             Check(CaveSite::Reserves(p.x,p.z),"wildlife reserve does not contain the complete rock shell");
+            const auto local=cave.Local(p);
+            if(triangle.surface==CaveSurface::Entrance&&std::abs(local.z)<.0001f) {
+                if(local.x<-.1f)leftMouthTop=std::max(leftMouthTop,local.y);
+                if(local.x>.1f)rightMouthTop=std::max(rightMouthTop,local.y);
+            }
+        }
         ++parts[static_cast<int>(triangle.surface)];
         const auto a=triangle.points[0],b=triangle.points[1],c=triangle.points[2],n=triangle.normal;
         const double nx=(b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y);
@@ -115,7 +122,10 @@ int main() {
         Check(edge.first==2&&edge.second==0,"cave solid has an open or inconsistently wound seam");
     }
     Check(std::all_of(parts.begin(),parts.end(),[](int n){return n>0;}),"missing cave surface group");
-    Check(volume/6>100&&volume/6<2500,"rock shell has inverted winding or implausible volume");
+    Check(volume/6>350&&volume/6<800,"compact rock mantle volume regressed");
+    Check(std::isfinite(leftMouthTop)&&std::isfinite(rightMouthTop)
+          &&std::abs(leftMouthTop-rightMouthTop)>.03f,
+          "cave mouth lost its entrance-local asymmetry");
     constexpr float radius=PlayerMotion::CapsuleRadius,height=1.9f;
     for(int step=-30;step<=195;++step) {
         const float depth=step*.1f;
@@ -214,7 +224,7 @@ int main() {
     Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<20,"walking controller crossed back wall");
     for(int i=0;i<380;++i)walker.Update(terrain,-dx,-dz,1.0f/60,worldSolids);
     Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<0,"walking controller cannot exit cave");
-    const auto solid=cave.World(3.7f,0,10);
+    const auto solid=cave.World(3.0f,0,10);
     walker.SetPosition(terrain,solid.x,solid.z);
     Check(cave.Local({walker.Position().x,0,walker.Position().z}).z<0,
           "invalid placement remained inside rock");
@@ -235,7 +245,7 @@ int main() {
     for(int i=0;i<20;++i)flight.Update(0,-1,0,true,.1f);
     local=cave.Local({flight.Position().x,flight.Position().y-PlayerMotion::EyeHeight,flight.Position().z});
     std::cout<<"outer roof stopped feet height "<<local.y<<'\n';
-    Check(local.y>5&&local.y<9,"downward flight pierced exterior roof");
+    Check(local.y>4.2f&&local.y<7.0f,"downward flight pierced compact exterior roof");
     Check(!cave.IntersectsCapsule({flight.Position().x,flight.Position().y-PlayerMotion::EyeHeight,
           flight.Position().z},radius,height),"flight stopped inside exterior roof");
     std::cout<<"cave ground "<<ground.Vertices().size()<<" vertices "<<ground.Indices().size()/3

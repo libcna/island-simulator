@@ -98,19 +98,26 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
             // Exact basal endpoints keep floor/back/entrance seams welded.
             const float arc=(slice==0||slice==ArchSegments)?0.0f:std::sin(theta);
             const float w=std::cos(theta);
+            const float mouth=std::exp(-depth*.22f);
             const float height=3.45f+.25f*std::sin(depth*.37f+theta*3)
-                +.12f*std::sin(depth*1.3f+theta*7);
-            const float innerWidth=Width(depth)*(1+.07f*std::sin(depth*.9f+theta*5+.4f)*arc);
+                +.12f*std::sin(depth*1.3f+theta*7)
+                +.28f*mouth*std::sin(theta*4.4f+.2f)*arc;
+            const float innerWidth=Width(depth)
+                *(1+(.07f*std::sin(depth*.9f+theta*5+.4f)
+                    +.08f*mouth*std::sin(theta*3.1f+.9f))*arc);
             inner[row][slice]=World(Centre(depth)+innerWidth*w,Floor(depth)+height*arc,depth);
-            const float outerWidth=6.0f+.8f*std::sin(outerDepth*.38f+theta*2)
-                +.6f*std::sin(theta*5+outerDepth*.83f);
-            const float outerHeight=7.4f+.6f*std::sin(outerDepth*.41f+theta*3+.6f)
-                +.4f*std::sin(theta*7+outerDepth*.7f);
+            // A compact rock mantle reads as a cave eroded into an outcrop.  The former
+            // ~8 m crown put almost five metres of rock over a 3.5 m opening and looked
+            // like a freestanding hangar from the authored exterior camera.
+            const float outerWidth=4.9f+.6f*std::sin(outerDepth*.38f+theta*2)
+                +.35f*std::sin(theta*5+outerDepth*.83f);
+            const float outerHeight=5.45f+.5f*std::sin(outerDepth*.41f+theta*3+.6f)
+                +.3f*std::sin(theta*7+outerDepth*.7f);
             // Broken projecting lip instead of a planar, manufactured arch face.
-            const float rimDepth=outerDepth-(1.1f+.8f*std::sin(theta*3+.4f))
+            const float rimDepth=outerDepth-(.75f+.55f*std::sin(theta*3+.4f))
                 *std::exp(-outerDepth*.4f);
             outer[row][slice]=World(Centre(outerDepth)+outerWidth*w,
-                Floor(outerDepth)-1.3f+outerHeight*arc,rimDepth);
+                Floor(outerDepth)-.75f+outerHeight*arc,rimDepth);
         }
     }
     const auto add=[&](CavePoint a,CavePoint b,CavePoint c,V desired,CaveSurface surface) {
@@ -164,9 +171,13 @@ float CaveLayout::GroundTarget(float x,float z,float original) const noexcept {
         *(1-Smooth((p.z-Length)/3));
     // A modest buried shoulder ties the broad outcrop into the hill. The cavity stays
     // excavated, while all patch-border samples remain exactly the original terrain.
-    const float shoulder=Smooth((p.z-1)/4)*(1-Smooth((p.z-Length)/5))
+    // Carry the surrounding ground up both portal shoulders instead of exposing the
+    // outer shell as a freestanding tunnel.  The bank begins outside the walkable
+    // mouth, is already established at depth zero, and still fades to the unchanged
+    // replacement-mesh boundary.  The cavity interpolation below wins inside.
+    const float shoulder=Smooth((p.z+4)/5)*(1-Smooth((p.z-Length)/5))
         *(1-Smooth((across-3.5f)/3))*Smooth((across-Width(p.z))/1.5f);
-    return std::lerp(original+3.0f*shoulder,entrance_.y+Floor(p.z),influence);
+    return std::lerp(original+1.15f*shoulder,entrance_.y+Floor(p.z),influence);
 }
 bool CaveLayout::ReservesHabitat(float x,float z,float margin) const noexcept {
     return CaveSite::Reserves(x,z,margin);

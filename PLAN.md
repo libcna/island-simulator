@@ -618,7 +618,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   outside capture required shape/material revision; not visually accepted as finished.
   See `docs/cave.md` for measurements and remaining live/portable integration gates.
   Native live keyboard gate now passes entry, back-wall stop, inner-roof containment,
-  descent/landing and exit (`software-cave/20261012T173950.239540Z`); portable and polish remain.
+  descent/landing and exit (`software-cave/20261012T173950.239540Z`). A second visual pass
+  compacts the oversized outer mantle from roughly 1,287 to 646 cubic metres without narrowing
+  the usable interior, makes the mouth asymmetry strongest at the entrance, lightly banks the
+  surrounding terrain and replaces heavy horizontal bands with normal-lit fractured stone,
+  sparse exterior moss and depth-dependent interior dampness. Inspected outside/inside llvmpipe
+  captures `20261012T235905.250725Z-cave` and `20261012T235910.914031Z-cave-inside` pass with
+  empty kernel deltas. A fresh live keyboard traversal reaches the back wall, roof, floor and
+  exit without rock penetration, and the Chrome/SwiftShader WebGL2 fullscreen gate initializes
+  the new shader without GL error or context loss. The outcrop remains visibly procedural;
+  Android, moving-view polish and performance remain.
 
 - [~] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.
