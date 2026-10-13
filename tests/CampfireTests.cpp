@@ -21,7 +21,7 @@ int main() {
     Check(std::hypot(wood.x-centre.x,wood.z-centre.z)>5.5f,"stored firewood is too close to flames");
     Check(StreamSoundField::Sample(centre.x,centre.z).distance>58,"fire/stream audible regions overlap");
     Check(fire.Vertices().size()==5976&&fire.Vertices().size()==repeat.Vertices().size(),"fire geometry budget changed");
-    std::array<int,6> materials{};
+    std::array<int,7> materials{};
     for(std::size_t i=0;i<fire.Vertices().size();i+=3) {
         const auto a=fire.Vertices()[i],b=fire.Vertices()[i+1],c=fire.Vertices()[i+2];
         const auto p=a.position,q=b.position,r=c.position;
@@ -48,6 +48,8 @@ int main() {
                 "firepit collision does not contain its mesh");
     }
     Check(std::all_of(materials.begin(),materials.end(),[](int n){return n>0;}),"missing fire material group");
+    Check(materials[static_cast<int>(FireMaterial::Ember)]==240
+        &&materials[static_cast<int>(FireMaterial::Coal)]==360,"ember/charcoal split changed");
     const WorldCollisionGrid fireSolids(fire.Obstacles());
     for(const auto obstacle:fire.Obstacles()) {
         PlayerMotion player;

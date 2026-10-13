@@ -4432,3 +4432,24 @@ fixture and two orphan validators of disabled display prerequisites failing. Sup
 serially; the two display validators lack their intentionally disabled report/capture inputs.
 Asset gate passes with the new original procedural record. No AMD GPU, KVM, Android emulator or
 dependency tree was touched. See `docs/helicopter.md`; continue the active full-plan goal.
+
+# Latest — campfire ash and charcoal readability pass
+
+Active goal continues. The existing campfire solid mesh now renders a pale, two-frequency
+mottled ash centre with a scorched perimeter instead of one brown disk. Its unchanged ten low
+pieces are slightly larger/wider and divided into four bright embers and six dark charcoal
+chunks with sparse pulsing fissures. This adds one material tag but keeps5976 vertices/1992
+solid triangles,42 moving effect triangles, two buffers/two culled draws, no texture and no
+new light/audio/physics state. `CampfireTests` now requires all seven material groups while
+retaining exact geometry, deterministic terrain contact and collision checks.
+
+Release build max4 cores PASS. Core+campfire2/2 PASS30.41s; BrowserSoftwareTests+
+SoftwareCaptureTests88/88 PASS2.009s. Native llvmpipe four-stage
+`20261013T214043.021426Z-campfire` PASS365bins/std39.05/spatial172.00/kernel[]; montage and
+close crop inspected, ash visibly separates from soil and mixed coal is less uniformly red.
+WebGL2 build max4 cores PASS; Chrome/SwiftShader
+`20261013T214342.603885Z-chrome-campfire` PASS60 finite intervals,GL0/context intact/kernel[],
+final image inspected. WorldReport valid fingerprint`0ecd98ad6f56b15b`. Android ARM64 and Debug
+assembleDebug+lintDebug PASS10s without emulator/KVM. Debug build PASS and Core+Campfire2/2
+PASS67.95s. No AMD GPU/KVM/emulator/dependency change. Remaining
+campfire speaker listening, continuous moving-view/performance and broader plan stay open.

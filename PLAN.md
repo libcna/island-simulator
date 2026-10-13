@@ -587,7 +587,13 @@ terrain triangles and share the replacement surface with movement/grounding.
   `20261013T124837.259373Z-campfire` passes366bins/std39.03/spatial172.00/kernel[]. A new focused
   Chrome/SwiftShader gate requires current material/budget markers and distinct separated-time
   images; `20261013T125359.878012Z-chrome-campfire` passes60 intervals,GL0/context intact/kernel[]
-  and both images were inspected. Android, speaker listening, continuous moving view and performance
+  and both images were inspected. A zero-budget solid-material pass then divided the existing ash
+  disk into a pale mottled centre and scorched rim, enlarged the same ten low coal pieces and split
+  them into four glowing embers plus six dark charcoal chunks with restrained pulsing fissures.
+  Geometry remains1992+42 triangles/two draws. Native four-stage
+  `20261013T214043.021426Z-campfire` passes365bins/std39.05/spatial172.00/kernel[] and was inspected;
+  Chrome/SwiftShader `20261013T214342.603885Z-chrome-campfire` passes60 intervals,GL0/context
+  intact/kernel[] and both images were inspected. Android, speaker listening, continuous moving view and performance
   remain. See `docs/campfire.md`.
   Adding fuel/crafting mechanics was not requested.
 

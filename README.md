@@ -67,8 +67,9 @@ and about57m from the stream. It has a layered palm-fibre roof, plank walls, fra
 and door, a railed three-step veranda, an enclosed slatted gable with a four-pane attic light,
 visible rafters and knee-braced posts. Its supports and contact patches follow rendered terrain;
 see [hut evidence](docs/island-hut.md) for exact placement and remaining route/Android review.
-A stone-ringed campfire burns in the eastern clearing, with animated flames, embers,
-subtle smoke/sparks, nearby flickering light and positional wood crackling. A separate
+A stone-ringed campfire burns in the eastern clearing, with animated flames, a pale
+mottled ash bed, mixed glowing charcoal, subtle smoke/sparks, nearby flickering light
+and positional wood crackling. A separate
 stack of gathered firewood sits about6m away. See [campfire evidence](docs/campfire.md)
 for the native first pass and remaining visual/portable checks.
 Exactly one peaceful adult resident now follows a deterministic688m inland tour with pauses,

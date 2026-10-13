@@ -2,7 +2,8 @@
 
 One continuously burning fire is placed at `(46,24.7219,-16)` in the existing eastern
 clearing. A separate stack of11 gathered logs is at `(51.5,groundY,-18.5)`, about6.04m
-away. Twelve irregular stones surround five burning logs, an ash bed and ten embers.
+away. Twelve irregular stones surround five burning logs, a layered ash bed, four bright
+embers and six darker charcoal chunks.
 The woodpile's log ends follow the actual rendered slope, rather than hovering on a
 horizontal shelf. No fuel/crafting controls or damage system are introduced.
 
@@ -105,3 +106,21 @@ A new focused browser scope makes this more than a Web build claim. Chrome/Swift
 60 finite intervals, GL0, an intact context and kernel[]. Static validators require the current
 material diagnostic, exact42-triangle/two-draw budget and both image paths. Android runtime,
 speaker listening, continuous moving-view review and representative performance remain open.
+
+## Ash and charcoal material pass
+
+The existing solid mesh now separates the fire bed into a pale grey-brown, two-frequency
+mottled ash centre and a dark scorched outer rim. The same ten low pieces are spread slightly
+wider and enlarged enough to remain readable between the burning logs: four retain a warm
+ember material, while six use near-black charcoal with sparse pulsing orange fissures. This
+adds one material tag but no vertices, buffers, textures, lights or draw calls; the solid/effect
+budgets remain exactly1992/42 triangles in two draws.
+
+Native llvmpipe `20261013T214043.021426Z-campfire` passes all four animation stages with365
+colour bins,39.05 luminance deviation,172.00 spatial contrast and empty kernel-fault evidence.
+The close crop and four-stage montage were inspected: the ash is now distinct from the soil and
+the coal bed no longer reads as ten identical red stones. Chrome/SwiftShader evidence
+`20261013T214342.603885Z-chrome-campfire` passes two different images,60 finite intervals,
+GL0, intact context and empty live/final kernel reports; the final image was inspected. Release
+core/campfire tests and88 focused Python gate tests pass. The deterministic world fingerprint is
+`0ecd98ad6f56b15b`.

@@ -133,6 +133,7 @@ def validate_campfire_report(report):
         or "campfire QA camera near" not in log
         or "campfire first visible animated draw" not in log
         or "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke" not in log
+        or "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal" not in log
         or "campfire 1992 solid triangles, 42 flame/smoke/spark triangles in two culled draws" not in log
         or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
         raise RuntimeError("campfire view lacks current moving material, frames or clean graphics state")

@@ -69,8 +69,19 @@ void main(){
         }else if(tag==3){
             float rings=.5+.5*sin(length(uv)*53.0+noise(uv*12.0)*2.0);
             color=mix(vec3(.37,.23,.11),vec3(.62,.46,.28),rings*.65);
-        }else if(tag==4){color=mix(vec3(.12,.105,.087),vec3(.29,.26,.22),noise(world.xz*19.0));}
-        else{color=mix(vec3(.37,.035,.004),vec3(1,.30,.015),noise(world.xz*31.0))*campfirePulse(t);}
+        }else if(tag==4){
+            float radius=length(world.xz-uCampfire.xz);
+            float ash=1.0-smoothstep(.72,1.08,radius);
+            float mottle=.62*noise(world.xz*8.0)+.38*noise(world.xz*27.0+7.3);
+            color=mix(vec3(.095,.075,.058),mix(vec3(.27,.255,.23),vec3(.48,.455,.40),mottle),ash);
+        }else if(tag==5){
+            color=mix(vec3(.30,.022,.002),vec3(1,.25,.008),noise(world.xz*31.0))*campfirePulse(t);
+        }else{
+            float grain=noise(world.xz*24.0+world.y*13.0);
+            float fissure=pow(.5+.5*sin(world.x*81.0+world.z*69.0+world.y*37.0),18.0);
+            color=mix(vec3(.012,.010,.009),vec3(.075,.050,.036),grain);
+            color+=vec3(.40,.052,.002)*fissure*campfirePulse(t);
+        }
         if(tag!=5)color=applyCampfireLight(color*pigment.rgb,world);
         fragColor=vec4(color,1);return;
     }
@@ -145,6 +156,7 @@ CampfireRenderer::CampfireRenderer(GraphicsDevice& device,const CampfireLayout& 
     std::cout<<"island-simulator: campfire "<<solidCount_/3<<" solid triangles, "<<effectCount_/3
         <<" flame/smoke/spark triangles in two culled draws; 11 stored logs six metres away\n";
     std::cout<<"island-simulator: campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke\n";
+    std::cout<<"island-simulator: campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal\n";
 }
 CampfireRenderer::~CampfireRenderer()=default;
 void CampfireRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,float seconds,bool effects) {

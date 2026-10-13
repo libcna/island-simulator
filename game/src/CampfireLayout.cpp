@@ -112,11 +112,12 @@ CampfireLayout::CampfireLayout(const IslandTerrain& terrain) {
         b.y=ground.Sample(b.x,b.z).height+radius+.012f+row*.213f;
         log(a,b,radius,FireMaterial::Firewood,static_cast<float>(i)+1);
     }
-    for(int i=0;i<EmberCount;++i) {
-        const float a=i*2.3999632f,r=.13f+.04f*i;
+    for(int i=0;i<CoalPieceCount;++i) {
+        const float a=i*2.3999632f,r=.17f+.043f*i;
         FirePoint p{centre_.x+std::cos(a)*r,0,centre_.z+std::sin(a)*r};
-        p.y=ground.Sample(p.x,p.z).height+.044f;
-        stone(p,{.08f,.036f,.065f},static_cast<float>(i),FireMaterial::Ember);
+        p.y=ground.Sample(p.x,p.z).height+.050f;
+        const FirePoint size{.095f+.008f*(i%3),.043f+.004f*(i%2),.075f+.007f*((i+1)%3)};
+        stone(p,size,static_cast<float>(i),i%3==0?FireMaterial::Ember:FireMaterial::Coal);
     }
     if(vertices_.size()>9000)throw std::runtime_error("Campfire geometry exceeds budget");
 }

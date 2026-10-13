@@ -597,7 +597,8 @@ def main():
                 # exercised by IslandSoundscapeRuntimeTests, not a visual smoke run.
                 for marker in ("campfire first visible animated draw",
                                "1992 solid triangles, 42 flame/smoke/spark triangles",
-                               "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke"):
+                               "campfire flame material uses broken translucent tongues, pale cores, a restrained blue base, and layered smoke",
+                               "campfire bed uses a pale mottled ash centre, scorched rim, and mixed glowing charcoal"):
                     if marker not in diagnostics:raise RuntimeError(f"campfire integration diagnostic missing: {marker}")
             if args.viewpoint == "stream":
                 metadata["stream_stages"]=validate_stream_stages(log)

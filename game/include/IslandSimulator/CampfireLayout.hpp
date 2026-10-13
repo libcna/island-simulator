@@ -7,7 +7,7 @@
 #include <vector>
 namespace island {
 struct FirePoint {float x,y,z;};
-enum class FireMaterial {Stone,CharredWood,Firewood,EndGrain,Ash,Ember};
+enum class FireMaterial {Stone,CharredWood,Firewood,EndGrain,Ash,Ember,Coal};
 struct FireVertex {FirePoint position,normal;float u,v;FireMaterial material;};
 class CampfireLayout final {
 public:
@@ -17,7 +17,7 @@ public:
     [[nodiscard]] FirePoint Centre() const noexcept {return centre_;}
     [[nodiscard]] FirePoint WoodCentre() const noexcept {return woodCentre_;}
     [[nodiscard]] static float GroundY();
-    static constexpr int StoneCount=12,BurningLogCount=5,FirewoodCount=11,EmberCount=10;
+    static constexpr int StoneCount=12,BurningLogCount=5,FirewoodCount=11,CoalPieceCount=10;
 private:
     FirePoint centre_{},woodCentre_{};
     std::array<CircularObstacle,2> obstacles_{};
