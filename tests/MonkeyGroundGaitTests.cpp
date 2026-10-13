@@ -85,14 +85,14 @@ try {
             Require(std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z), "finite face profile");
             Require(std::fabs(p.x+mirror.x) < 1e-6f && std::fabs(p.z-mirror.z) < 1e-6f,
                     "continuous bilateral face profile");
-            Require(p.z >= .5499f && p.z <= .675f, "face stays within authored head envelope");
+            Require(p.z >= .5649f && p.z <= .690f, "face stays within authored head envelope");
             const float ambient=face::AmbientRetention(p.x,p.y);
             Require(ambient>=.8f&&ambient<=1,"socket ambient retention outside bounded range");
             Require(std::abs(ambient-face::AmbientRetention(-p.x,p.y))<1e-6f,
                     "socket ambient retention must be bilateral");
         }
     }
-    Require(face::Rows[4].halfWidth>=.127f&&face::Rows[8].halfWidth>=.095f,
+    Require(face::Rows[4].halfWidth>=.140f&&face::Rows[8].halfWidth>=.108f,
         "short monkey face lost its broad brow and muzzle");
     Require(face::CraniumRadii.x>=.18f&&face::CraniumRadii.y>=.20f
         &&face::EarCentre.x+face::EarRadii.x>face::CraniumRadii.x,
@@ -117,7 +117,7 @@ try {
         const auto inner=face::Eyelid(side,t,upper,false);
         Require(std::isfinite(outer.x)&&std::isfinite(outer.y)&&std::isfinite(outer.z),
             "eyelid profile must stay finite");
-        Require(outer.z>=.6235f&&inner.z<=.627f,"eyelid leaves the facial relief envelope");
+        Require(outer.z>=.6505f&&inner.z<=.654f,"eyelid leaves the facial relief envelope");
         Require(upper ? outer.y>inner.y : outer.y<inner.y,
             "upper/lower eyelid bands must retain nonzero ordered width");
         const auto mirror=face::Eyelid(-side,-t,upper,true);
@@ -125,8 +125,8 @@ try {
             &&std::abs(outer.z-mirror.z)<1e-6f,"eyelid profile must mirror bilaterally");
     }
     namespace tail = island::MonkeyTailProfile;
-    const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.76f,-.82f},
-        {0,.96f,-1.03f}, {0,1.16f,-.80f}}};
+    const std::array<tail::Point, 4> anchors{{{0,.62f,-.48f}, {0,.73f,-.70f},
+        {0,.88f,-.88f}, {0,1.08f,-.72f}}};
     const auto length = [](tail::Point p) { return std::sqrt(p.x*p.x+p.y*p.y+p.z*p.z); };
     float previousRadius=.091f;
     for (int i = 0; i <= 300; ++i) {

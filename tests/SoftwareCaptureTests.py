@@ -398,7 +398,8 @@ class SoftwareCaptureTests(unittest.TestCase):
     def test_monkey_close_subject_must_still_be_submitted_at_capture(self):
         valid = ("island-simulator: monkey capture visible 2; near 1; draws 4; subject 55,19,17\n"
                  "monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes\n"
-                 "near monkey tails keep a muscular furry base and twelve raised clumps through the prehensile hook")
+                 "near monkey tails keep a compact muscular hook and twenty-four low fur clumps\n"
+                 "near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
         validate_monkey_capture_log(valid)
         validate_monkey_capture_log(valid+"\nmonkey subject paired tree grips 1", True)
         for marker in ("", "monkey subject paired tree grips 0", "monkey subject paired tree grips 10"):

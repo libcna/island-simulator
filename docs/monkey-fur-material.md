@@ -1,5 +1,39 @@
 # Monkey fur material
 
+## Compact primate proportion follow-up — 2026-10-13
+
+A renewed current-binary ordinary capture `20261013T090043.364406Z-monkeys` confirmed that the
+previously thickened tail did not solve the user's complaint by itself. The animal still read as
+a long low rodent: nearly level capsule torso, small dark facial mask, thin distal limbs and a
+large smooth hook. This pass changes the connected anatomy and preserves the existing seven-agent
+population, 14-bone GPU skinning, fur atlas, behavior and draw structure.
+
+The 13-section trunk is shorter and deeper, with separately readable rump, pinched waist and
+raised shoulder/chest masses. Limb sleeves keep the same fixed-length ground/bark rig but gain
+broader upper-arm/thigh and distal sections; palms, soles and four digits are also fuller. The
+twelve-row face is wider and more forward without becoming a pointed wedge, the cranium and ears
+move slightly up/back, and lighter skin makes the existing corneas, two added nostrils and curved
+mouth readable against the dark short-fur coat.
+
+The three-bone tail centreline is about one quarter shorter and lower while retaining a forward-
+turning terminal hook and its 90mm muscular root. Twenty-four low, longitudinal three-sided fur
+clumps replace twelve sparse radial spikes. They use the underlying section's two-bone weights and
+the existing fur material, so the outline stays attached throughout turns. Near/far body geometry
+is 2,113/797 vertices and 3,172/1,208 triangles; the change adds no bones, textures or draws.
+
+Inspected native llvmpipe `20261013T091557.189672Z-monkeys` passes at 1280x720 with 174 colour
+bins, 29.11 luminance deviation and 113.30 spatial contrast. The side view now shows a compact
+raised hook rather than the long rat-like cord, a deeper shoulder/rump silhouette, heavier limbs
+and a lighter blunt face. The complete nine-state tree sequence
+`20261013T091711.731086Z-monkey-tree` also passes and was inspected as a montage: both hands reach
+the trunk, the animal returns to ground travel, and the shortened tail stays connected without a
+joint kink. The focused Chrome/SwiftShader run
+`20261013T092049.915559Z-chrome-monkeys` passes all 60 finite intervals with `glError=0`, an intact
+WebGL context and an empty final kernel delta. Its initial, four intermediate and final frames were
+inspected together and retain the broader face, deep trunk and attached compact tail throughout
+the scripted turn. This is a substantial silhouette correction, not final photorealism;
+continuous gait, fine shoulder/hip topology, Android and physical performance remain open.
+
 ## Muscular prehensile-tail volume — 2026-10-13
 
 The preceding pass was directionally better but the 66 mm root and roughly 37 mm

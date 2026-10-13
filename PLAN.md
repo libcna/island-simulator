@@ -679,6 +679,20 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   images and remains failed. Unchanged retry054045.083047Z-chrome-monkeys PASS60intervals/
   GL0/context intact/kernel[]; start/four poses/end all inspected and show the thicker
   tail connected through live turns. Torso/limb joints, continuous gait and Android remain.
+  Sixth follow-up responds to the still-rejected current ordinary side view rather than
+  merely thickening the tail again. The 13-section trunk is shorter/deeper with distinct
+  rump, waist and raised shoulder masses; upper/distal limbs plus palms/digits are fuller;
+  the connected face is broader, lighter and blunter with visible nostrils. The existing
+  three-bone tail is about one quarter shorter/lower and uses24 low longitudinal fur
+  clumps instead of12 sparse radial points. Near/far body geometry is2113/797vertices,
+  3172/1208triangles with unchanged bones, atlas, draws and population. Actual current
+  llvmpipe091557.189672Z-monkeys and nine-state091711.731086Z-monkey-tree PASS and were
+  inspected; tail remains attached through tree reach/release. This is a substantial
+  rat-silhouette correction but not final photorealism. Focused Chrome/SwiftShader
+  092049.915559Z-chrome-monkeys PASS60intervals/GL0/context intact/kernel[]; the
+  initial/four intermediate/final frames were inspected together and retain the broader
+  face, deeper trunk and compact attached tail through the scripted turn. Android,
+  continuous gait and finer shoulder/hip topology remain open.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.

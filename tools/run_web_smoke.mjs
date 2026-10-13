@@ -1034,7 +1034,9 @@ try {
     && result.output?.includes(
       "island-simulator: near monkeys use bone-following finger and toe silhouettes")
     && result.output?.includes(
-      "island-simulator: near monkey tails keep a muscular furry base and twelve raised clumps through the prehensile hook")
+      "island-simulator: near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
+    && result.output?.includes(
+      "island-simulator: near monkey tails keep a compact muscular hook and twenty-four low fur clumps")
     && result.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && result.output?.includes("3 silhouettes, 4 palettes")
@@ -2278,7 +2280,9 @@ try {
     && monkeyResult.output?.includes(
       "island-simulator: near monkeys use bone-following finger and toe silhouettes")
     && monkeyResult.output?.includes(
-      "island-simulator: near monkey tails keep a muscular furry base and twelve raised clumps through the prehensile hook")
+      "island-simulator: near monkeys use an arched shoulder-rump trunk, broad blunt face, robust limbs, and compact tail")
+    && monkeyResult.output?.includes(
+      "island-simulator: near monkey tails keep a compact muscular hook and twenty-four low fur clumps")
     && monkeyResult.output?.includes(
       "island-simulator: calm monkeys use bounded skeletal head attention")
     && /monkeys [1-9]\/7 visible/.test(monkeyResult.output ?? "")

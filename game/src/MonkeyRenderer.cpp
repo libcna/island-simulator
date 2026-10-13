@@ -153,9 +153,9 @@ namespace island
                     ToVector(rest.limbs[1].root), ToVector(rest.limbs[1].joint),
                     ToVector(rest.limbs[2].root), ToVector(rest.limbs[2].joint),
                     ToVector(rest.limbs[3].root), ToVector(rest.limbs[3].joint),
-                    Vector3(0.0f, 0.62f, -0.52f),
-                    Vector3(0.0f, 0.76f, -0.82f),
-                    Vector3(0.0f, 0.96f, -1.03f)},
+                    Vector3(0.0f, 0.62f, -0.48f),
+                    Vector3(0.0f, 0.73f, -0.70f),
+                    Vector3(0.0f, 0.88f, -0.88f)},
                 .parents = {-1, Pelvis, Spine, Spine, UpperArmLeft, Spine, UpperArmRight,
                             Pelvis, ThighLeft, Pelvis, ThighRight, Pelvis, TailBase,
                             TailMiddle}};
@@ -479,7 +479,7 @@ namespace island
             const auto vector = [](Point p) { return Vector3(p.x, p.y, p.z); };
             const std::array<Point, 4> anchors{point(rig.heads[TailBase]),
                 point(rig.heads[TailMiddle]), point(rig.heads[TailTip]),
-                {0, .98f+.18f*length, -1.03f+.23f*length}};
+                {0, .96f+.12f*length, -.88f+.16f*length}};
             constexpr std::array<int, 3> bones{TailBase, TailMiddle, TailTip};
             const int rings = near ? 24 : 12, segments = near ? 12 : 8;
             const std::uint16_t base = static_cast<std::uint16_t>(mesh.vertices.size());
@@ -511,12 +511,12 @@ namespace island
                 else mesh.indices.insert(mesh.indices.end(), {a, b, c, a, c, d});
             }
             if (near) {
-                // Twelve small three-sided clumps break the smooth hose outline without
+                // Twenty-four small three-sided clumps break the smooth hose outline without
                 // a second material or texture. They inherit the same two tail bones,
                 // so their roots cannot detach while the tail curls and sways.
                 constexpr float GoldenAngle=2.39996323f;
-                for(int tuft=0;tuft<12;++tuft) {
-                    const float t=.055f+.071f*tuft;
+                for(int tuft=0;tuft<24;++tuft) {
+                    const float t=.035f+.039f*tuft;
                     const auto section=MonkeyTailProfile::Sample(anchors,t);
                     const Vector3 axis=Vector3::Normalize(vector(section.tangent));
                     const Vector3 right=Vector3::Right;
@@ -525,9 +525,9 @@ namespace island
                     const Vector3 radial=right*std::cos(angle)+up*std::sin(angle);
                     const Vector3 side=Vector3::Normalize(Vector3::Cross(axis,radial));
                     const Vector3 surface=vector(section.centre)+radial*section.radius;
-                    const std::array<Vector3,4> points{{surface-axis*.015f-side*.005f,
-                        surface+axis*.010f-side*.005f,surface+side*.007f,
-                        surface+radial*(.022f+.0025f*(tuft%3))-axis*.005f}};
+                    const std::array<Vector3,4> points{{surface-axis*.026f-side*.010f,
+                        surface+axis*.020f-side*.010f,surface+side*.012f,
+                        surface+radial*(.024f+.002f*(tuft%3))-axis*.006f}};
                     const auto first=static_cast<std::uint16_t>(mesh.vertices.size());
                     for(std::size_t i=0;i<points.size();++i) {
                         AddVertex(mesh,points[i],radial,bones[section.firstBone],
@@ -642,19 +642,19 @@ namespace island
             const int segments = near ? 14 : 8;
             const float w = shape.width;
             const std::array<BodySection, 13> body{{
-                {Vector3(0, .58f, -.57f), .008f, .015f, Pelvis, Spine, 0},
-                {Vector3(0, .59f, -.50f), .150f*w, .170f, Pelvis, Spine, 0},
-                {Vector3(0, .60f, -.40f), .220f*w, .215f, Pelvis, Spine, .05f},
-                {Vector3(0, .61f, -.29f), .235f*w, .230f, Pelvis, Spine, .18f},
-                {Vector3(0, .62f, -.16f), .210f*w, .205f, Pelvis, Spine, .42f},
-                {Vector3(0, .625f, -.02f), .175f*w, .190f, Pelvis, Spine, .72f},
-                {Vector3(0, .64f, .12f), .195f*w, .210f, Pelvis, Spine, 1},
-                {Vector3(0, .67f, .24f), .235f*w, .240f, Spine, Head, .03f},
-                {Vector3(0, .71f, .33f), .215f*w, .220f, Spine, Head, .27f},
-                {Vector3(0, .755f, .39f), .165f*w, .180f, Spine, Head, .56f},
-                {Vector3(0, .79f, .44f), .115f*w, .140f, Spine, Head, .86f},
-                {Vector3(0, .81f, .48f), .065f*w, .082f, Spine, Head, 1},
-                {Vector3(0, .82f, .51f), .008f, .015f, Spine, Head, 1}}};
+                {Vector3(0, .60f, -.50f), .008f, .015f, Pelvis, Spine, 0},
+                {Vector3(0, .61f, -.45f), .170f*w, .195f, Pelvis, Spine, 0},
+                {Vector3(0, .63f, -.36f), .235f*w, .245f, Pelvis, Spine, .05f},
+                {Vector3(0, .65f, -.25f), .250f*w, .265f, Pelvis, Spine, .18f},
+                {Vector3(0, .66f, -.13f), .230f*w, .250f, Pelvis, Spine, .42f},
+                {Vector3(0, .67f, -.01f), .195f*w, .218f, Pelvis, Spine, .72f},
+                {Vector3(0, .68f, .11f), .215f*w, .238f, Pelvis, Spine, 1},
+                {Vector3(0, .70f, .21f), .255f*w, .272f, Spine, Head, .03f},
+                {Vector3(0, .73f, .30f), .245f*w, .260f, Spine, Head, .27f},
+                {Vector3(0, .77f, .37f), .205f*w, .220f, Spine, Head, .56f},
+                {Vector3(0, .80f, .42f), .145f*w, .170f, Spine, Head, .86f},
+                {Vector3(0, .82f, .46f), .080f*w, .100f, Spine, Head, 1},
+                {Vector3(0, .83f, .49f), .008f, .015f, Spine, Head, 1}}};
             AddBodyLoft(mesh, body, segments);
             const auto centre=MonkeyFaceProfile::CraniumCentre;
             const auto radii=MonkeyFaceProfile::CraniumRadii;
@@ -675,11 +675,11 @@ namespace island
                 const Vector3 sole = ToVector(rest.limbs[limb].sole);
                 const std::size_t soleStart = mesh.vertices.size();
                 AddEllipsoid(mesh, sole + Vector3(0, 0, .027f),
-                             Vector3(.060f, .031f, .082f), lower[limb], 3, near ? 10 : 6);
+                             Vector3(.070f, .035f, .090f), lower[limb], 3, near ? 10 : 6);
                 if (near) {
                     for (int digit = 0; digit < 4; ++digit)
                         AddEllipsoid(mesh, sole + Vector3((digit - 1.5f) * .023f, -.004f, .096f),
-                                     Vector3(.0115f, .012f, .038f - .003f * std::abs(digit - 1)),
+                                     Vector3(.014f, .015f, .043f - .003f * std::abs(digit - 1)),
                                      lower[limb], 3, 6);
                     // A short lateral thumb makes the close hand/foot read as a grasping
                     // primate extremity rather than four parallel rod-like toes.
@@ -762,14 +762,17 @@ namespace island
                                            MonkeyFaceProfile::EyeCentreZ),
                              Vector3(MonkeyFaceProfile::EyeRadiusX,MonkeyFaceProfile::EyeRadiusY,
                                      MonkeyFaceProfile::EyeRadiusZ), Head, 5, 12);
-                AddEllipsoid(mesh, Vector3(side * .016f, .824f, .643f),
+                AddEllipsoid(mesh, Vector3(side * .017f, .827f, .681f),
                              Vector3(.006f, .004f, .003f), Head, 3, 6);
             }
+            for (float side : {-1.0f, 1.0f})
+                AddEllipsoid(mesh, Vector3(side * .018f, .814f, .680f),
+                             Vector3(.0065f, .0040f, .0030f), Head, 3, 6);
             // Follow the curved muzzle instead of floating a straight mouth bar in front.
             const auto mouthBase = static_cast<std::uint16_t>(mesh.vertices.size());
             for (int step = 0; step <= 8; ++step) {
                 const float x = -.056f + .112f * step / 8.0f;
-                const float z = .55f + .094f * std::sqrt(1.0f-(x/.096f)*(x/.096f)) + .002f;
+                const float z = .565f + .106f * std::sqrt(1.0f-(x/.096f)*(x/.096f)) + .002f;
                 for (float y : {.7815f, .7845f})
                     AddVertex(mesh, Vector3(x,y,z), Vector3(0,0,1), Head, Vector2(.5f,.5f));
             }
@@ -891,10 +894,10 @@ namespace island
             Vector3(0.29f, 0.21f, 0.16f),
             Vector3(0.50f, 0.35f, 0.22f)};
         const std::array<Vector3, 4> FaceColors = {
-            Vector3(0.43f, 0.32f, 0.27f),
-            Vector3(0.50f, 0.37f, 0.30f),
-            Vector3(0.38f, 0.29f, 0.25f),
-            Vector3(0.54f, 0.40f, 0.33f)};
+            Vector3(0.58f, 0.45f, 0.35f),
+            Vector3(0.65f, 0.49f, 0.38f),
+            Vector3(0.52f, 0.40f, 0.34f),
+            Vector3(0.68f, 0.52f, 0.40f)};
         const Vector3 FurSpecularColor(0.04f, 0.04f, 0.035f);
         const Vector3 EyeSpecularColor(0.42f, 0.37f, 0.28f);
         constexpr float FurSpecularPower = 8.0f;

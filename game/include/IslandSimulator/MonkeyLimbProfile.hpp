@@ -5,7 +5,8 @@ namespace island::MonkeyLimbProfile
 {
     using Point = MonkeyGroundGait::Point;
     inline constexpr std::array<float,10> Fractions{0,.0625f,.125f,.25f,.375f,.5f,.625f,.75f,.875f,1};
-    inline constexpr std::array<float,10> Radii{.040f,.073f,.083f,.077f,.064f,.055f,.048f,.042f,.037f,.034f};
+    inline constexpr std::array<float,10> Radii{
+        .040f,.080f,.095f,.090f,.073f,.063f,.055f,.048f,.042f,.038f};
     struct Section { Point centre; float radius, bodyWeight, lowerWeight; };
     inline Section Sample(const MonkeyGroundGait::Limb& limb, std::size_t row, float thickness)
     {

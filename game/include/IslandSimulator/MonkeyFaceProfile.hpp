@@ -7,21 +7,21 @@ namespace island::MonkeyFaceProfile
 {
     struct Point { float x,y,z; };
     struct Row { float y, halfWidth, front; };
-    // A capuchin-like short face: broad brow and cheeks surround a restrained
-    // muzzle instead of extending into the former narrow rodent/dog wedge.
+    // A capuchin-like short face: broad brow and cheeks surround a projecting
+    // but blunt muzzle instead of the former small rodent-like mask.
     inline constexpr std::array<Row, 12> Rows{{
-        {.972f,.008f,.560f}, {.942f,.070f,.587f}, {.915f,.104f,.610f},
-        {.891f,.124f,.627f}, {.868f,.128f,.625f}, {.846f,.120f,.630f},
-        {.824f,.111f,.637f}, {.803f,.102f,.646f}, {.784f,.096f,.648f},
-        {.766f,.080f,.638f}, {.750f,.048f,.612f}, {.740f,.006f,.575f}
+        {.982f,.008f,.575f}, {.950f,.078f,.606f}, {.920f,.116f,.632f},
+        {.894f,.137f,.648f}, {.870f,.142f,.646f}, {.847f,.134f,.651f},
+        {.825f,.126f,.659f}, {.804f,.117f,.670f}, {.784f,.109f,.675f},
+        {.764f,.091f,.665f}, {.746f,.055f,.635f}, {.735f,.006f,.590f}
     }};
-    inline constexpr Point CraniumCentre{0,.875f,.425f};
-    inline constexpr Point CraniumRadii{.183f,.202f,.168f};
-    inline constexpr Point EarCentre{.169f,.862f,.414f};
-    inline constexpr Point EarRadii{.055f,.067f,.024f};
-    inline constexpr Point InnerEarCentre{.170f,.862f,.424f};
+    inline constexpr Point CraniumCentre{0,.885f,.440f};
+    inline constexpr Point CraniumRadii{.190f,.210f,.160f};
+    inline constexpr Point EarCentre{.176f,.866f,.430f};
+    inline constexpr Point EarRadii{.052f,.064f,.023f};
+    inline constexpr Point InnerEarCentre{.177f,.866f,.440f};
     inline constexpr Point InnerEarRadii{.040f,.051f,.017f};
-    inline constexpr float EyeCentreX=.055f,EyeCentreY=.878f,EyeCentreZ=.615f;
+    inline constexpr float EyeCentreX=.060f,EyeCentreY=.882f,EyeCentreZ=.638f;
     inline constexpr float EyeRadiusX=.0215f,EyeRadiusY=.013f,EyeRadiusZ=.0095f;
     inline float Bump(float value,float centre,float radius)
     {
@@ -50,8 +50,8 @@ namespace island::MonkeyFaceProfile
         const float arc=std::sqrt(std::max(0.0f,1-t*t));
         const float extent=upper ? (outer ? .018f : .008f)
                                  : (outer ? .014f : .007f);
-        return {side*EyeCentreX+t*.030f,EyeCentreY+(upper ? extent : -extent)*arc,
-            .6240f+.0015f*(1-t*t)+(outer ? 0.0f : .0005f)};
+        return {side*EyeCentreX+t*.032f,EyeCentreY+(upper ? extent : -extent)*arc,
+            .6510f+.0015f*(1-t*t)+(outer ? 0.0f : .0005f)};
     }
     inline Point Sample(std::size_t row, float across)
     {
@@ -60,6 +60,6 @@ namespace island::MonkeyFaceProfile
         const float arc = std::cos(across * 1.57079632679f);
         const float x=profile.halfWidth * std::sin(across * 1.57079632679f);
         return {x, profile.y,
-                .55f + (profile.front - .55f) * arc + Relief(x,profile.y)*arc};
+                .565f + (profile.front - .565f) * arc + Relief(x,profile.y)*arc};
     }
 }
