@@ -80,7 +80,8 @@ material atlas, sandals and sole shadows. Use
 records the native first pass and its remaining artistic and portable limitations.
 Exactly one large peaceful bear now roams a bounded inland habitat with planted four-foot
 terrain contact, quadrupedal idle/walk/trot/turn/forage/rest/withdraw behavior, near/far
-procedural anatomy, generated directional fur and sparse positional breath/snuffle/huff
+procedural anatomy, a continuous rump-to-neck torso and shoulder-to-wrist limbs, five-clawed
+broad paws, generated directional fur and sparse positional breath/snuffle/huff
 audio. Use `--viewpoint bear`; [bear evidence](docs/bear.md) records the native first pass
 and explicitly open visual, listening and portable work.
 A grounded original procedural utility helicopter now occupies a vegetation-cleared inland

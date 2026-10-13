@@ -97,6 +97,88 @@ public:
                 b+n1*radiusB,n1,{static_cast<float>(i+1)/segments,1},b+n0*radiusB,n0,{static_cast<float>(i)/segments,1},material);
         }
     }
+    void LimbLoft(Vector3 root,Vector3 joint,Vector3 ankle,bool front,Material material,int segments) {
+        // Keep one continuous surface through shoulder/haunch, knee and wrist. The
+        // previous tube + spherical-joint + tube assembly produced a conspicuous
+        // bead at every knee even though the authoritative IK chain was continuous.
+        constexpr std::array<float,9> fractions{0.0f,.10f,.25f,.42f,.55f,.68f,.82f,.94f,1.0f};
+        const std::array<float,9> frontRadii{.225f,.220f,.202f,.177f,.155f,.146f,.136f,.124f,.116f};
+        const std::array<float,9> rearRadii{.252f,.246f,.225f,.194f,.170f,.158f,.144f,.128f,.118f};
+        const auto& radii=front?frontRadii:rearRadii;
+        std::array<Vector3,fractions.size()> centres{};
+        for(std::size_t ring=0;ring<fractions.size();++ring) {
+            const float t=fractions[ring];
+            centres[ring]=t<=.55f?root+(joint-root)*(t/.55f)
+                :joint+(ankle-joint)*((t-.55f)/.45f);
+        }
+        for(std::size_t ring=0;ring+1<fractions.size();++ring) {
+            const auto ringFrame=[&](std::size_t index,float angle) {
+                const Vector3 before=centres[index==0?0:index-1];
+                const Vector3 after=centres[std::min(index+1,centres.size()-1)];
+                const Vector3 axis=SafeUnit(after-before);
+                const Vector3 across=SafeUnit(Vector3::Right-axis*axis.X);
+                const Vector3 around=SafeUnit(Vector3::Cross(axis,across));
+                const Vector3 radial=across*std::cos(angle)+around*std::sin(angle);
+                const std::size_t prior=index==0?0:index-1;
+                const std::size_t next=std::min(index+1,radii.size()-1);
+                const float span=std::max((centres[next]-centres[prior]).Length(),.001f);
+                const Vector3 normal=SafeUnit(radial-axis*((radii[next]-radii[prior])/span));
+                return std::array<Vector3,2>{centres[index]+radial*radii[index],normal};
+            };
+            for(int segment=0;segment<segments;++segment) {
+                const float a0=2*Pi*segment/segments,a1=2*Pi*(segment+1)/segments;
+                const auto p00=ringFrame(ring,a0),p01=ringFrame(ring,a1);
+                const auto p10=ringFrame(ring+1,a0),p11=ringFrame(ring+1,a1);
+                const float u0=static_cast<float>(segment)/segments;
+                const float u1=static_cast<float>(segment+1)/segments;
+                Quad(p00[0],p00[1],{u0,fractions[ring]},
+                    p01[0],p01[1],{u1,fractions[ring]},
+                    p11[0],p11[1],{u1,fractions[ring+1]},
+                    p10[0],p10[1],{u0,fractions[ring+1]},material);
+            }
+        }
+    }
+    template<std::size_t Count>
+    void BodyLoft(const std::array<Vector3,Count>& centres,
+                  const std::array<Vector2,Count>& radii,Material material,int segments) {
+        static_assert(Count>=2);
+        for(std::size_t ring=0;ring+1<Count;++ring) {
+            const auto ringFrame=[&](std::size_t index,float angle) {
+                const std::size_t prior=index==0?0:index-1;
+                const std::size_t next=std::min(index+1,Count-1);
+                const Vector3 axis=SafeUnit(centres[next]-centres[prior]);
+                const Vector3 across=SafeUnit(Vector3::Right-axis*axis.X);
+                const Vector3 around=SafeUnit(Vector3::Cross(axis,across));
+                const float c=std::cos(angle),s=std::sin(angle);
+                const Vector3 radial=across*(radii[index].X*c)+around*(radii[index].Y*s);
+                const Vector3 circumferential=across*(-radii[index].X*s)
+                    +around*(radii[index].Y*c);
+                const Vector3 longitudinal=centres[next]-centres[prior]
+                    +across*((radii[next].X-radii[prior].X)*c)
+                    +around*((radii[next].Y-radii[prior].Y)*s);
+                Vector3 normal=SafeUnit(Vector3::Cross(circumferential,longitudinal));
+                if(Vector3::Dot(normal,radial)<0)normal*=-1.0f;
+                return std::array<Vector3,2>{centres[index]+radial,normal};
+            };
+            for(int segment=0;segment<segments;++segment) {
+                // Place the non-tileable source-window seam beneath the belly rather
+                // than across either broad flank seen by the player.
+                const float a0=2*Pi*segment/segments-Pi*.5f;
+                const float a1=2*Pi*(segment+1)/segments-Pi*.5f;
+                const auto p00=ringFrame(ring,a0),p01=ringFrame(ring,a1);
+                const auto p10=ringFrame(ring+1,a0),p11=ringFrame(ring+1,a1);
+                const float u0=static_cast<float>(segment)/segments;
+                const float u1=static_cast<float>(segment+1)/segments;
+                const float v0=static_cast<float>(ring)/(Count-1);
+                const float v1=static_cast<float>(ring+1)/(Count-1);
+                // The source guard hairs run along U. Map U down the animal and V
+                // around the cross-section; the opposite assignment stretched whole
+                // clumps into conspicuous horizontal bands along the new long loft.
+                Quad(p00[0],p00[1],{v0,u0},p01[0],p01[1],{v0,u1},
+                    p11[0],p11[1],{v1,u1},p10[0],p10[1],{v1,u0},material);
+            }
+        }
+    }
     void FurTuft(Vector3 root,float halfWidth,float length,float sweep) {
         const Vector3 across=Vector3::Right;
         const Vector3 normal=SafeUnit(Vector3::Up+Vector3(0,0,-.12f));
@@ -136,29 +218,47 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
     BearMeshBuilder mesh(vertices,state.pose,canopy);const int lon=near?22:10,lat=near?14:7;
     const float breath=.014f*std::sin(state.breathPhase),forage=state.foragePose;
     const Vector3 right=Vector3::Right,up=Vector3::Up,forward(0,0,1);
-    mesh.Ellipsoid({0,1.04f+state.pose.bodyBob,-.20f},right,up,forward,.56f+breath,.53f+breath,.93f,
-        Material::Fur,lon,lat);
-    mesh.Ellipsoid({0,1.36f+state.pose.bodyBob,.31f},right,up,forward,.58f,.42f,.57f,
-        Material::Fur,lon,lat);
-    mesh.Ellipsoid({0,1.18f-forage*.18f,.70f+forage*.08f},right,up,forward,.45f,.43f,.52f,
-        Material::Fur,lon,lat);
     const Vector3 head{0,1.28f-forage*.48f,1.12f+forage*.18f};
+    const float bob=state.pose.bodyBob;
+    const std::array<Vector3,13> bodyCentres{{
+        {0,1.08f+bob,-1.10f},{0,1.05f+bob,-.98f},{0,1.04f+bob,-.78f},
+        {0,1.04f+bob,-.52f},{0,1.04f+bob,-.25f},{0,1.10f+bob,.02f},
+        {0,1.25f+bob,.24f},{0,1.34f+bob,.42f},{0,1.32f+bob-forage*.06f,.58f},
+        {0,1.22f-forage*.18f,.70f+forage*.04f},
+        {0,head.Y,head.Z-.30f},{0,head.Y,head.Z-.20f},{0,head.Y,head.Z-.12f}}};
+    const std::array<Vector2,13> bodyRadii{{
+        {.12f+breath*.2f,.14f+breath*.2f},{.36f+breath*.5f,.38f+breath*.5f},
+        {.50f+breath,.48f+breath},{.57f+breath,.53f+breath},
+        {.59f+breath,.55f+breath},{.60f+breath,.54f+breath},
+        {.60f,.50f},{.57f,.45f},{.51f,.43f},{.45f,.41f},
+        {.38f,.35f},{.26f,.26f},{.12f,.13f}}};
+    mesh.BodyLoft(bodyCentres,bodyRadii,Material::Fur,lon);
     mesh.Ellipsoid(head,right,up,forward,.38f,.35f,.39f,Material::Fur,lon,lat);
     if(near) {
         // Short overlapping wedges break the mathematically smooth top outline. Roots
-        // follow the upper envelope of the same body volumes, so breathing, foraging
-        // and the shoulder hump cannot expose floating fur cards.
-        const auto top=[](float z,float centreZ,float centreY,float radiusY,float radiusZ) {
+        // follow the new continuous trunk loft and the overlapping head, so breathing,
+        // foraging and the shoulder hump cannot expose floating fur cards.
+        const auto ellipsoidTop=[](float z,float centreZ,float centreY,float radiusY,float radiusZ) {
             const float t=(z-centreZ)/radiusZ;
             return std::abs(t)<=1.0f?centreY+radiusY*std::sqrt(std::max(0.0f,1.0f-t*t)):-100.0f;
         };
+        const auto trunkTop=[&](float z) {
+            for(std::size_t section=0;section+1<bodyCentres.size();++section) {
+                if(z<bodyCentres[section].Z||z>bodyCentres[section+1].Z)continue;
+                const float span=bodyCentres[section+1].Z-bodyCentres[section].Z;
+                const float t=span>.0001f?(z-bodyCentres[section].Z)/span:0.0f;
+                const float centreY=bodyCentres[section].Y
+                    +(bodyCentres[section+1].Y-bodyCentres[section].Y)*t;
+                const float radiusY=bodyRadii[section].Y
+                    +(bodyRadii[section+1].Y-bodyRadii[section].Y)*t;
+                return centreY+radiusY;
+            }
+            return -100.0f;
+        };
         for(int tuft=0;tuft<22;++tuft) {
             const float z=-1.02f+static_cast<float>(tuft)*.112f;
-            const float y=std::max({
-                top(z,-.20f,1.04f+state.pose.bodyBob,.53f+breath,.93f),
-                top(z,.31f,1.36f+state.pose.bodyBob,.42f,.57f),
-                top(z,.70f,1.18f-forage*.18f,.43f,.52f),
-                top(z,head.Z,head.Y,.35f,.39f)});
+            const float y=std::max(trunkTop(z),
+                ellipsoidTop(z,head.Z,head.Y,.35f,.39f));
             if(y>-50.0f)mesh.FurTuft({0,y-.004f,z},.020f+.003f*(tuft%3),
                 .030f+.006f*(tuft%4),-.014f-.004f*(tuft%2));
         }
@@ -189,18 +289,17 @@ void BuildBear(std::vector<VertexPositionColorTexture>& vertices,const BearState
     for(std::size_t leg=0;leg<4;++leg) {
         const auto& p=state.pose.legs[leg];const Vector3 root=Point(p.root),joint=Point(p.joint),ankle=Point(p.paw);
         const bool front=leg%2==1;
-        mesh.Tube(root,joint,front?.19f:.21f,front?.145f:.16f,Material::Fur,near?14:8);
-        mesh.Ellipsoid(joint,right,up,forward,front?.16f:.18f,.16f,.16f,Material::Fur,near?12:8,near?7:5);
-        mesh.Tube(joint,ankle,front?.145f:.16f,.105f,Material::Fur,near?13:8);
+        mesh.LimbLoft(root,joint,ankle,front,Material::Fur,near?14:8);
         const Vector3 sole=ankle-up*BearLegPose::PawHeight;
         const Vector3 pawUp=SafeUnit(Point(p.soleNormal));
         const Vector3 pawRight=SafeUnit(Vector3::Cross(pawUp,forward));
         const Vector3 pawForward=SafeUnit(Vector3::Cross(pawRight,pawUp));
         const Vector3 paw=sole+pawUp*.075f+pawForward*.055f;
         mesh.Ellipsoid(paw,pawRight,pawUp,pawForward,.145f,.082f,.225f,Material::Fur,near?14:8,near?7:5);
-        if(near)for(int claw=-1;claw<=1;++claw) {
-            const Vector3 base=paw+pawRight*(claw*.075f)+pawForward*.195f-pawUp*.025f;
-            mesh.Tube(base,base+pawForward*.065f-pawUp*.018f,.012f,.003f,Material::Bare,7);
+        if(near)for(int claw=-2;claw<=2;++claw) {
+            const Vector3 base=paw+pawRight*(claw*.048f)+pawForward*.195f-pawUp*.025f;
+            const float length=.068f-.004f*std::abs(claw);
+            mesh.Tube(base,base+pawForward*length-pawUp*.018f,.012f,.003f,Material::Bare,7);
         }
     }
     if(near) {
@@ -257,6 +356,10 @@ BearRenderer::BearRenderer(GraphicsDevice& device,const CanopyLightField& canopy
     std::cout<<faceDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(faceDiagnostic);
     const char* furDiagnostic="island-simulator: near bear uses twenty-two body-envelope fur wedges without another draw";
     std::cout<<furDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(furDiagnostic);
+    const char* limbDiagnostic="island-simulator: bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws";
+    std::cout<<limbDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(limbDiagnostic);
+    const char* torsoDiagnostic="island-simulator: bear torso uses a continuous rump-to-neck loft without overlapping body shells";
+    std::cout<<torsoDiagnostic<<'\n';MirrorRuntimeDiagnosticToPlatformLog(torsoDiagnostic);
 }
 BearRenderer::~BearRenderer()=default;
 

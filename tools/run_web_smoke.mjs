@@ -802,6 +802,8 @@ try {
               && log.includes("bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes")
               && log.includes("near bear uses twenty-two body-envelope fur wedges without another draw")
               && log.includes("near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes")
+              && log.includes("bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws")
+              && log.includes("bear torso uses a continuous rump-to-neck loft without overlapping body shells")
               && /bear 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))
             && (!focusedResidentCheck || (log.includes("resident QA camera frames and follows one peaceful adult")
               && log.includes("resident uses a shoulder-sloped woven tunic with open cap sleeves and anatomically tapered calves")

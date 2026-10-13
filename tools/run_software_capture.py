@@ -690,6 +690,8 @@ def main():
                                "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes",
                                "near bear uses twenty-two body-envelope fur wedges without another draw",
                                "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes",
+                               "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws",
+                               "bear torso uses a continuous rump-to-neck loft without overlapping body shells",
                                "bear capture visible 1; draws 2"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"bear integration diagnostic missing: {marker}")

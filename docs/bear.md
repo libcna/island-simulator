@@ -9,11 +9,41 @@ low-poly models or realistic listings without a simultaneously verifiable downlo
 redistributable artifact. `BearRenderer.cpp` therefore creates original geometry and a
 project-owned ImageGen material now supplies the 128x128 mipmapped directional fur. The close model includes a heavy torso,
 raised shoulders, neck, short tail, muzzle, nose, restrained eyes, rounded outer/inner ears,
-four jointed legs, broad paws and claws. The second visual pass replaces the pale cylindrical
+four jointed legs, broad paws and five claws per paw. The second visual pass replaces the pale cylindrical
 snout with two overlapping tapered muzzle volumes, a smaller volumetric nose, paired nostrils,
-a shallow philtrum/divided mouth crease and highlighted inset eyes. A 55m near tier uses 6734
+a shallow philtrum/divided mouth crease and highlighted inset eyes. A 55m near tier uses 5,578
 triangles; the cheaper far tier omits face/claw detail. Body and one 18-triangle terrain shadow
 remain two bounded draws.
+
+## Continuous trunk and limbs — 2026-10-13
+
+The three overlapping torso, shoulder and neck ellipsoids have been replaced by one thirteen-
+station loft from rump through belly, raised shoulder and neck into the still articulated head.
+Its station centres and elliptical radii respond to breathing, body bob and the forage pose, so
+the former three spherical lighting seams cannot appear while the bear lowers its head. The
+twenty-two existing fur wedges now follow the exact loft upper envelope.
+
+Each leg similarly replaces upper tube + spherical knee + lower tube with one nine-station
+shoulder/haunch-to-wrist loft through the authoritative IK joint and paw target. Fore and hind
+profiles use different muscular radii; the lower limbs remain broad rather than tapering into
+sticks. Every near paw now exposes five restrained claws instead of three. Planted-foot targets,
+fixed bone lengths, behavior, shadow, material, texture and two-draw contract are unchanged.
+
+The old three body shells cost 1,848 near triangles; the continuous torso costs 528. Continuous
+limbs add 8 triangles total and the eight extra claws add 112, so the complete close model falls
+from 6,778 to 5,578 triangles (-1,200 / 17.7%) despite the anatomical additions. An initial Web
+review correctly rejected longitudinally stretched fur and a visible non-tileable atlas seam.
+The final mapping runs guard hairs along the trunk and rotates the source-window seam beneath the
+belly rather than across a broad flank.
+
+Final native llvmpipe evidence `20261013T232603.134747Z-bear` passes at 1280x720 with
+189 colour bins, 36.58 luminance deviation, 168.50 spatial contrast and no new kernel fault.
+All eight poses were inspected. Focused Chrome/SwiftShader
+`20261013T233028.007588Z-chrome-bear` passes 60 finite intervals, two distinct inspected
+frames, `glError=0`, intact context and an empty kernel delta. Release and Debug bear-motion
+tests, 89 focused harness tests, WebAssembly, and ARM64 assemble/lint pass. This removes the
+most conspicuous body/joint assembly seams but does not claim photorealism, Android runtime,
+physical performance or subjective speaker acceptance.
 
 ## Fine fur material and silhouette follow-up — 2026-10-13
 
@@ -106,7 +136,7 @@ for 9,305,216 audited runtime RGBA8 bytes inside a 9,325,432-byte profile limit.
 
 ## Still required
 
-- Refine muzzle/neck joins, fur silhouette and leg-joint volume beyond the current face pass.
+- Refine the remaining head/neck transition, fur silhouette and gait weight transfer.
 - Review longer walk/trot/turn/forage sequences and hear all call kinds on real speakers.
 - Run Android visual/audio lifecycle tests and physical performance checks.
 

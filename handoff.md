@@ -4492,3 +4492,25 @@ context intact/kernel[]; final image inspected. ARM64 assembleDebug+lintDebug PA
 emulator/KVM. Debug build and herd/coat/pose tests PASS7.22s. This does not complete boar
 realism, subjective speaker listening or the larger plan. No AMD GPU, KVM, emulator or
 dependency change.
+
+# Latest — bear continuous anatomy pass
+
+The goal remains active. A current close audit exposed the bear as three visibly intersecting
+body spheres plus tube/ball/tube legs. `BearRenderer` now emits one thirteen-station elliptical
+loft from rump through raised shoulder and neck, and one nine-station loft from each shoulder/
+haunch through its authoritative IK joint to the wrist. Near paws use five claws instead of
+three. Motion, planted targets, fixed bone lengths, behavior, material, texture, buffers, one
+body draw and one18-triangle shadow draw remain unchanged. Replacing1848 body-shell triangles
+with528 while adding8 limb and112 claw triangles changes the near body6778→5578 (-17.7%).
+
+The first Web loft review correctly exposed stretched horizontal fur and then a flank atlas seam;
+both were visually rejected. Final UVs run source guard hairs along the trunk and place the
+non-tileable seam under the belly. Final native llvmpipe
+`20261013T232603.134747Z-bear` PASS189bins/std36.58/spatial168.50/kernel[]; all eight poses and
+old/new comparisons inspected. Final Chrome/SwiftShader
+`20261013T233028.007588Z-chrome-bear` PASS60 finite intervals/two distinct inspected frames/
+GL0/context intact/kernel[]. WebAssembly, ARM64 assembleDebug+lintDebug PASS8s without emulator,
+Release/Debug BearMotionTests and89 focused Python gates pass. This removes the worst body/joint
+assembly seams but not remaining head/neck topology, gait-weight, Android runtime, physical
+performance, subjective listening or the larger plan. No AMD GPU, KVM, emulator or dependency
+change.

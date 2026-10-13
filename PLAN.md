@@ -416,6 +416,17 @@ remain, so ecosystem-stage item 11 is `[~]`. See [prevailing-wind.md](docs/preva
   travel/.4769m paw motion and6778/18 body/shadow triangles in2draws. Focused Chrome/SwiftShader
   103349.512195Z-chrome-bear PASS60intervals/two distinct images/GL0/context intact/kernel[];
   both frames inspected. Volume joins, facial topology, Android and speaker listening remain.
+  Anatomy follow-up replaces three overlapping body ellipsoids with one thirteen-station
+  rump-to-neck loft and every tube+spherical-knee+tube leg with a continuous nine-station
+  shoulder/haunch-to-wrist loft. Near paws now carry five claws rather than three. The directional
+  fur axis follows the trunk and its non-tileable source seam is hidden beneath the belly after
+  an initial technically clean but visually rejected flank-seam Web run. Close geometry falls
+  6778→5578 triangles (-17.7%) with unchanged behavior, IK contacts, texture and two draws.
+  Final llvmpipe232603.134747Z-bear PASS189bins/std36.58/spatial168.50/kernel[]; all eight
+  poses and matched old/new views inspected. Chrome/SwiftShader233028.007588Z-chrome-bear
+  PASS60intervals/two distinct inspected frames/GL0/context intact/kernel[]. ARM64 assemble/lint,
+  WebAssembly, Release+Debug motion tests and89 focused harness tests pass. Remaining head/neck
+  topology, gait weight, Android runtime, physical performance and speaker listening keep `[~]`.
 
 Stream/wet-biome progress: shared normalized moisture/drainage/salt field now feeds
 terrain turf, grass, palms, four jungle layers and fallen-log probability. Flowing

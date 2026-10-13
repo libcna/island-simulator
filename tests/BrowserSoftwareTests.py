@@ -488,6 +488,37 @@ class BrowserSoftwareTests(unittest.TestCase):
             mutate(bad)
             with self.assertRaises(RuntimeError): gate.validate_resident_report(bad)
 
+    def test_bear_scope_requires_continuous_limbs_two_frames_and_live_context(self):
+        self.assertIn("bear", gate.SCOPES)
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('focusedBearCheck ? ["bear"]', source)
+        self.assertIn('bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws',
+                      source)
+        self.assertIn('bear torso uses a continuous rump-to-neck loft without overlapping body shells',
+                      source)
+        log = ("bear QA camera frames and follows the single peaceful adult\n"
+               "bear fur loaded Content/wildlife/bear-fur.png; 128x128, 8 mips, 87380 RGBA8 bytes\n"
+               "near bear uses twenty-two body-envelope fur wedges without another draw\n"
+               "near bear uses a two-volume tapered muzzle, volumetric nose, paired nostrils, divided mouth crease, and highlighted eyes\n"
+               "bear legs use continuous shoulder-to-wrist lofts and five-clawed broad paws\n"
+               "bear torso uses a continuous rump-to-neck loft without overlapping body shells\n"
+               "bear 1/1 visible, 2 draws, 5578 body triangles")
+        report = {"passed":True,"views":[{"mode":"bear","passed":True,"glError":0,
+            "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
+            "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+            "result":{"output":log,"error":"","exited":False}}]}
+        self.assertEqual(gate.validate_bear_report(report), ("before.png", "after.png"))
+        for mutate in (lambda r:r["views"][0].update({"contextLost":True}),
+                       lambda r:r["views"][0].update({"intervals":[1.0]*59}),
+                       lambda r:r["views"][0]["result"].update({"output":"bear 1/1 visible"}),
+                       lambda r:r["views"][0].update({"afterSimulationScreenshot":"before.png"})):
+            bad = {"passed":True,"views":[{"mode":"bear","passed":True,"glError":0,
+                "contextLost":False,"renderer":"ANGLE SwiftShader","intervals":[1.0]*60,
+                "screenshot":"before.png","afterSimulationScreenshot":"after.png",
+                "result":{"output":log,"error":"","exited":False}}]}
+            mutate(bad)
+            with self.assertRaises(RuntimeError): gate.validate_bear_report(bad)
+
     def test_campfire_scope_requires_current_material_two_frames_and_live_context(self):
         self.assertIn("campfire", gate.SCOPES)
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
