@@ -1,8 +1,32 @@
 # Spiders — implementation and verification
 
-Status: **200 ground spiders are now integrated in IslandGame. Webs are still absent.**
-The first actual native software image was inspected, but its generic image-contrast
-gate failed. Natural motion, visual realism and portable qualification remain open.
+Status: **200 ground spiders and six branch-attached canopy webs are integrated in IslandGame.**
+Ground-spider continuous naturalness and further anatomy polish remain open; the live web batch
+has passed inspected native llvmpipe and Chrome/SwiftShader WebGL2 runs.
+
+## Live wind-following canopy webs — 2026-10-13
+
+The six previously CPU-only qualified sites now render in `SpiderWebRenderer`. Each retains the
+existing 220-node/434-strand connected graph and samples its three real branch anchors every
+frame, so the support triangle and every barycentric strand move with the same canopy wind as
+the tree. Camera-facing 1.45–2.6mm translucent silk ribbons keep the graph readable without line
+width extensions; distance/frustum culling limits all visible sites to one dynamic upload and one
+alpha-blended, depth-read draw. At most 15,624 vertices are reserved and none of the 200 ground
+spiders gains additional simulation work.
+
+The dedicated `spider-web` inspection camera selects the best regularity/outward-offset site and
+stands on the outside of its tree rather than inside the crown. Actual native llvmpipe evidence
+`build-consumer/software-captures/20261013T010514.795446Z-spider-web` reports 1/6 visible,
+434 strands and one draw. Its 1280x720 image was inspected: the complete radial/circular spiral
+and triangular branch frame are visibly attached between three supports; kernel delta is empty.
+
+The current Emscripten build also passes the extended focused Chrome 155/SwiftShader WebGL2 run
+`build/browser-software/20261013T005158.377358Z-chrome-spiders`. Both the existing moving ground
+spider and the new web view pass with `glError=0`, no context loss and empty kernel delta. The two
+inspected web images visibly differ as wind moves the attached frame while preserving topology.
+WorldReport now records `websImplemented=true`, six sites, support identities and rest anchors;
+the independent JSON validator rejects missing/inconsistent web inventory. Individual-leaf and
+neighbouring-plant clearance, web occupants, Android runtime and long-walk discovery remain open.
 
 ## Dormant work and wake-up repair — 2026-10-12
 

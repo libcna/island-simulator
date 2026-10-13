@@ -121,6 +121,7 @@ namespace island
             case FixedViewpoint::GoatDetail: return "goats";
             case FixedViewpoint::SpiderDetail: return "spiders";
             case FixedViewpoint::SpiderBrightDetail: return "spiders-bright";
+            case FixedViewpoint::SpiderWebDetail: return "spider-web";
             case FixedViewpoint::SnakeDetail: return "snakes";
             case FixedViewpoint::SnakeHeadDetail: return "snake-head";
             case FixedViewpoint::ButterflyDetail: return "butterflies";
@@ -161,6 +162,7 @@ namespace island
           monkeyTroop_(terrain_),
           vegetationLayout_(terrain_),
           jungleLayout_(terrain_),
+          spiderWebSites_(SpiderWebLayout::Propose(jungleLayout_,RenderedTerrainSurface(terrain_))),
           canopyLightField_(terrain_, MakeCanopyOccluders(jungleLayout_.Canopy())),
           grassLayout_(terrain_, canopyLightField_, groundCoverField_),
           naturalPropLayout_(terrain_, vegetationLayout_, jungleLayout_),
@@ -989,6 +991,42 @@ namespace island
             const Vector3 direction = target-cameraPosition_;
             yaw_ = std::atan2(direction.X,direction.Z);
             pitch_ = std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+        } else if(viewpoint_==FixedViewpoint::SpiderWebDetail) {
+            if(spiderWebSites_.empty())throw std::runtime_error("Spider-web QA found no qualified site");
+            const RenderedTerrainSurface surface(terrain_);
+            std::size_t webViewIndex=0;float bestWebScore=-1;
+            for(std::size_t index=0;index<spiderWebSites_.size();++index) {
+                const auto candidate=SpiderWebLayout::Sample(spiderWebSites_[index],jungleLayout_,surface,1.0f);
+                const Vector3 p0(candidate[0][0],candidate[0][1],candidate[0][2]);
+                const Vector3 p1(candidate[1][0],candidate[1][1],candidate[1][2]);
+                const Vector3 p2(candidate[2][0],candidate[2][1],candidate[2][2]);
+                const float area=Vector3::Cross(p1-p0,p2-p0).Length()*.5f;
+                const float squaredEdges=(p1-p0).LengthSquared()+(p2-p1).LengthSquared()
+                    +(p0-p2).LengthSquared();
+                const auto& candidateTree=jungleLayout_.Canopy()[spiderWebSites_[index].canopyIndex];
+                const Vector3 candidateCentre=(p0+p1+p2)/3.0f;
+                const float radial=std::hypot(candidateCentre.X-candidateTree.x,
+                    candidateCentre.Z-candidateTree.z);
+                const float score=4.0f*std::sqrt(3.0f)*area/squaredEdges+.02f*radial;
+                if(score>bestWebScore){bestWebScore=score;webViewIndex=index;}
+            }
+            const auto anchors=SpiderWebLayout::Sample(spiderWebSites_[webViewIndex],jungleLayout_,surface,1.0f);
+            const Vector3 a(anchors[0][0],anchors[0][1],anchors[0][2]);
+            const Vector3 b(anchors[1][0],anchors[1][1],anchors[1][2]);
+            const Vector3 c(anchors[2][0],anchors[2][1],anchors[2][2]);
+            const Vector3 centre=(a+b+c)/3.0f;
+            Vector3 normal=Vector3::Cross(b-a,c-a);
+            if(normal.LengthSquared()<1e-8f)throw std::runtime_error("Spider-web QA site is degenerate");
+            normal.Normalize();
+            const auto& tree=jungleLayout_.Canopy()[spiderWebSites_[webViewIndex].canopyIndex];
+            const Vector3 outward(centre.X-tree.x,0,centre.Z-tree.z);
+            if(Vector3::Dot(normal,outward)<0)normal=-normal;
+            cameraPosition_=centre+normal*1.05f+Vector3::Up*.06f;
+            const Vector3 direction=centre-cameraPosition_;
+            yaw_=std::atan2(direction.X,direction.Z);
+            pitch_=std::atan2(direction.Y,std::hypot(direction.X,direction.Z));
+            std::cout<<"island-simulator: spider-web QA camera frames qualified canopy site "
+                <<webViewIndex<<" regularity-offset score "<<bestWebScore<<'\n';
         } else if (UsesSpiderViewpoint()) {
             if(viewpoint_==FixedViewpoint::SpiderBrightDetail) {
                 float brightest=-1;
@@ -1231,6 +1269,7 @@ namespace island
         auto goatRenderer = std::make_unique<GoatRenderer>(device,canopyLighting->Field(),
             120.0f*qualityProfile_.wildlifeMaximumDistanceScale);
         auto spiderRenderer = std::make_unique<SpiderRenderer>(device,canopyLighting->Field());
+        auto spiderWebRenderer=std::make_unique<SpiderWebRenderer>(device,terrain_,jungleLayout_,spiderWebSites_);
         fishRenderer_ = std::make_unique<FishRenderer>(
             device, 215.0f * qualityProfile_.wildlifeMaximumDistanceScale);
         seaTurtleRenderer_ = std::make_unique<SeaTurtleRenderer>(
@@ -1276,8 +1315,10 @@ namespace island
         snakeRenderer_ = std::move(snakeRenderer);
         goatRenderer_ = std::move(goatRenderer);
         spiderRenderer_ = std::move(spiderRenderer);
+        spiderWebRenderer_=std::move(spiderWebRenderer);
         std::cout << "island-simulator: ground spiders " << spiders_->Spiders().size()
-                  << " agents with retained stance anchors; webs not yet installed\n";
+                  << " agents with retained stance anchors; canopy webs "
+                  << spiderWebRenderer_->SiteCount()<<" qualified sites in one bounded translucent batch\n";
         std::cout << "island-simulator: goats " << goats_->Goats().size()
                   << " agents on shared-field dry open slopes, terrain-fitted limbs, directional fur material\n";
         std::cout << "island-simulator: boars " << boarHerd_.Boars().size()
@@ -2396,6 +2437,7 @@ namespace island
             + boarRenderer_->DrawCallCount()
             + goatRenderer_->DrawCallCount()
             + spiderRenderer_->DrawCallCount()
+            + spiderWebRenderer_->DrawCallCount()
             + residentRenderer_->DrawCallCount()
             + bearRenderer_->DrawCallCount()
             + snakeRenderer_->DrawCallCount()
@@ -2676,6 +2718,8 @@ namespace island
                << "    \"boars\": " << boarRenderer_->VisibleCount() << ",\n"
                << "    \"goats\": " << goatRenderer_->VisibleCount() << ",\n"
                << "    \"spiders\": " << spiderRenderer_->VisibleCount() << ",\n"
+               << "    \"canopy_webs\": " << spiderWebRenderer_->VisibleCount() << ",\n"
+               << "    \"web_strands\": " << spiderWebRenderer_->StrandCount() << ",\n"
                << "    \"fish\": " << fishRenderer_->VisibleFishCount() << ",\n"
                << "    \"sea_turtles\": "
                << seaTurtleRenderer_->VisibleTurtleCount() << ",\n"
@@ -2935,6 +2979,10 @@ namespace island
             GpuDiagnosticScope gpuPass("monkeys");
             monkeyRenderer_->Draw(cameraView_, cameraProjection_, renderCameraPosition_,
                                   renderedMonkeys,timeSeconds,monkeyQaSubjectIndex_);
+        }
+        {
+            GpuDiagnosticScope gpuPass("spider-webs");
+            spiderWebRenderer_->Draw(cameraView_,cameraProjection_,renderCameraPosition_,timeSeconds);
         }
 
         const PlayerPosition& oceanPlayer = playerMotion_.Position();
@@ -3409,7 +3457,12 @@ namespace island
                       << bearRenderer_->TriangleCount() << " body triangles; snakes "
                       << snakeRenderer_->VisibleCount() << '/' << snakes_->Snakes().size()
                       << " visible, " << snakeRenderer_->DrawCallCount() << " draw, "
-                      << contactShadowRenderer_->VisibleSnakeShadowCount() << " shadows; fish "
+                      << contactShadowRenderer_->VisibleSnakeShadowCount() << " shadows; spiders "
+                      << spiderRenderer_->VisibleCount() << '/' << spiders_->Spiders().size()
+                      << " visible, " << spiderRenderer_->DrawCallCount() << " draws; webs "
+                      << spiderWebRenderer_->VisibleCount() << '/' << spiderWebRenderer_->SiteCount()
+                      << " visible, " << spiderWebRenderer_->StrandCount() << " strands, "
+                      << spiderWebRenderer_->DrawCallCount() << " draw; fish "
                       << fishRenderer_->VisibleFishCount() << '/'
                       << fishSchools_.Fish().size() << " visible (near "
                       << fishRenderer_->VisibleNearFishCount() << ", far "
@@ -3501,6 +3554,14 @@ namespace island
                 << " body-transmission=" << bodyTransmission
                 << " body-tint=" << tint.red << ',' << tint.green << ',' << tint.blue;
             std::cout << lighting.str() << std::endl;MirrorRuntimeDiagnosticToPlatformLog(lighting.str());
+        }
+        if(viewpoint_==FixedViewpoint::SpiderWebDetail&&drawnFrames_==1U) {
+            std::ostringstream report;
+            report<<"island-simulator: spider-web render proof: webs "
+                <<spiderWebRenderer_->VisibleCount()<<'/'<<spiderWebRenderer_->SiteCount()
+                <<" visible, strands "<<spiderWebRenderer_->StrandCount()<<", "
+                <<spiderWebRenderer_->DrawCallCount()<<" draw";
+            std::cout<<report.str()<<std::endl;MirrorRuntimeDiagnosticToPlatformLog(report.str());
         }
         if(viewpoint_==FixedViewpoint::GoatDetail&&drawnFrames_==1U) {
             std::ostringstream report;

@@ -1445,8 +1445,22 @@ progress or require player interaction; dangerous species keep their distance li
   cases; full42/42 CPU PASS68.19s. Host fingerprint b3fde347f77eb5f8 replaces a590b7e4fb787269
   through added coverage only, not a placement change. No renderer/emulator run. This
   does not implement spiders, tree snakes or any other missing species.
-- [~] Spiders (webs between plants, ground spiders). **Current:24 ground spiders live
-  in IslandGame; webs still absent.** One opaque near/far batch, normal colony updates,
+- [~] Spiders (webs between plants, ground spiders). **Current: 200 ground spiders and
+  six wind-following branch-attached canopy webs live in IslandGame.** Ground spiders use two
+  bounded material draws; all visible webs share one translucent dynamic batch. Latest web stage:
+  the existing qualified 220-node/434-strand graphs now sample their three real wind-deformed
+  branch anchors every frame and become 1.45–2.6mm camera-facing silk ribbons. Distance/frustum
+  culling retains a hard 15,624-vertex/one-draw maximum without adding simulation work to the
+  200 ground animals. Actual native llvmpipe
+  `build-consumer/software-captures/20261013T010514.795446Z-spider-web` passes and its inspected
+  1280x720 image clearly shows the complete orb/frame network (1/6 visible, 434 strands, one draw,
+  kernel[]). Emscripten build and focused Chrome155/SwiftShader WebGL2
+  `build/browser-software/20261013T005158.377358Z-chrome-spiders` pass both the moving ground
+  spider and new web view (`glError=0`, no context loss, kernel[]); two web frames were inspected
+  and show wind deformation without detachment. WorldReport now exports six support/rest frames
+  with `websImplemented=true`. Individual-leaf/nearby-plant clearance, web occupants, Android,
+  long-walk discovery and further spider anatomy/gait polish remain open. Historical 24-animal
+  stage follows. One opaque near/far batch, normal colony updates,
   camera/HUD/benchmark counts. The density expansion retains deterministic homes at
   least 8m apart, full articulated locomotion and bounded renderer/shadow capacity.
   All 24 travel 0.63–0.98m in the 30-second focused simulation. Latest actual native

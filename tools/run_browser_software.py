@@ -39,9 +39,10 @@ def validate_stream_report(report):
 
 def validate_spider_report(report):
     views = report.get("views", [])
-    if report.get("passed") is not True or len(views) != 1 or views[0].get("mode") != "spiders":
-        raise RuntimeError("spider report lacks successful focused view")
-    view = views[0]
+    if (report.get("passed") is not True or len(views) != 2
+        or [view.get("mode") for view in views] != ["spiders", "spider-web"]):
+        raise RuntimeError("spider report lacks successful ground and web views")
+    view,web = views
     result = view.get("result", {})
     frames = view.get("spiderMotionFrames", [])
     intervals = view.get("intervals", [])
@@ -59,7 +60,16 @@ def validate_spider_report(report):
         raise RuntimeError("spider runtime reports material or graphics failure")
     validate_spider_render_log(log)
     validate_spider_lighting(log)
-    return frames
+    web_result=web.get("result",{});web_log=web_result.get("output","")
+    web_frame=web.get("screenshot")
+    if (web.get("passed") is not True or web.get("glError") != 0
+        or web.get("contextLost") is not False or web_result.get("error") or web_result.get("exited")
+        or "SwiftShader" not in web.get("renderer","")
+        or not isinstance(web_frame,str) or not web_frame.endswith(".png")
+        or not re.search(r"spider-web render proof: webs [1-6]/6 visible, strands [1-9][0-9]*, 1 draw",web_log)
+        or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high",web_log,re.I)):
+        raise RuntimeError("spider web view lacks visible strands or clean graphics state")
+    return [*frames,web_frame]
 
 
 def validate_goat_report(report):

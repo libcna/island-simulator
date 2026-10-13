@@ -23,7 +23,20 @@ def validate(report):
     assert report["valid"] is True
     population = report["groundSpiderPopulation"]
     assert population["snapshot"] == "initial"
-    assert population["websImplemented"] is False
+    assert population["websImplemented"] is True
+    webs = population["webs"]
+    assert report["wildlife"]["canopyWebs"] == population["webCount"] == len(webs) == 6
+    assert len({web["canopyIndex"] for web in webs}) == 6
+    for web in webs:
+        assert isinstance(web["canopyIndex"], int) and 0 <= web["canopyIndex"] < report["placements"]["canopyTrees"]
+        assert len(web["anchors"]) == len(web["rest"]) == 3
+        for anchor in web["anchors"]:
+            assert len(anchor) == 4 and isinstance(anchor[0], int) and 1 <= anchor[0] <= 7
+            assert isinstance(anchor[1], int) and 0 <= anchor[1] < 24
+            assert 0 <= anchor[2] <= 1 and 0 <= anchor[3] <= 1 and anchor[2]+anchor[3] <= 1
+        rest = [point(p) for p in web["rest"]]
+        assert sum(p[1] for p in rest)/3 >= 2
+        assert all(distance(rest[i], rest[(i+1)%3]) >= .299 for i in range(3))
     spiders = population["spiders"]
     assert report["wildlife"]["groundSpiders"] == len(spiders) == 200
     seen = []
@@ -78,7 +91,7 @@ if __name__ == "__main__":
         elif fault == "overlap":
             spiders[1]["position"] = spiders[1]["home"] = first["position"][:]
         elif fault == "webs":
-            population["websImplemented"] = True
+            population["webCount"] = 0
         elif fault == "feet":
             first["feet"].pop()
         elif fault == "anchor":
@@ -96,4 +109,4 @@ if __name__ == "__main__":
         except AssertionError:
             continue
         raise AssertionError(f"validator accepted {fault}")
-    print("World spider JSON: two hundred initial spiders, eight anchored feet each, eleven negative cases passed")
+    print("World spider JSON: two hundred ground spiders, six canopy webs and eleven negative cases passed")

@@ -74,6 +74,7 @@ namespace
         case FixedViewpoint::GoatDetail: return "goats";
         case FixedViewpoint::SpiderDetail: return "spiders";
         case FixedViewpoint::SpiderBrightDetail: return "spiders-bright";
+        case FixedViewpoint::SpiderWebDetail: return "spider-web";
         case FixedViewpoint::SnakeDetail: return "snakes";
         case FixedViewpoint::SnakeHeadDetail: return "snake-head";
         case FixedViewpoint::ButterflyDetail: return "butterflies";
@@ -140,7 +141,7 @@ int main(const int argc, char* argv[])
                 std::cerr << "island-simulator: --viewpoint requires overview, bay, bay-ground, beach, jungle, "
                              "east, headland, tide-pools, turtle-nest, cave, cave-inside, campfire, campfire-wide, resident, bear, clearing-edge, canopy (inspection only), west, stream, mangroves, grass, ground, ground-broadleaf, bush, litter, contact, movement, palms, water, "
                              "wet-sand, current, distant, props, driftwood, reef, reef-habitat, fronds, birds, fish, "
-                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, boars, goats, spiders, spiders-bright, snakes, snake-head, butterflies, turtles, or traversal\n";
+                             "shark, dolphins, monkeys, monkey-tree, monkey-climb, shipwreck, hut, hut-material, helicopter, helicopter-inside, crabs, boars, goats, spiders, spiders-bright, spider-web, snakes, snake-head, butterflies, turtles, or traversal\n";
                 return 2;
             }
             const std::string_view name(argv[index]);
@@ -254,6 +255,8 @@ int main(const int argc, char* argv[])
                 viewpoint = island::FixedViewpoint::SpiderDetail;
             } else if (name == "spiders-bright") {
                 viewpoint = island::FixedViewpoint::SpiderBrightDetail;
+            } else if(name=="spider-web") {
+                viewpoint=island::FixedViewpoint::SpiderWebDetail;
             } else if (name == "boars") {
                 viewpoint = island::FixedViewpoint::BoarDetail;
             } else if (name == "butterflies") {

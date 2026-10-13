@@ -29,6 +29,16 @@ int main() {
         const auto rest=SpiderWebLayout::Sample(site,jungle,surface,0);
         for(int i=0;i<20;++i)Check(!WebIntersectsCanopyBranches(site,tree.variant,float(i)*1.37f),"accepted branch intersection at independent wind sample");
         BranchPoint centre{};for(const auto p:rest)for(std::size_t k=0;k<3;++k)centre[k]+=p[k]/3;
+        float edgeSquaredSum=0;
+        for(std::size_t i=0;i<3;++i) {
+            const auto next=rest[(i+1)%3];
+            const float dx=rest[i][0]-next[0],dy=rest[i][1]-next[1],dz=rest[i][2]-next[2];
+            edgeSquaredSum+=dx*dx+dy*dy+dz*dz;
+        }
+        BranchPoint qa{},qb{};
+        for(std::size_t k=0;k<3;++k){qa[k]=rest[1][k]-rest[0][k];qb[k]=rest[2][k]-rest[0][k];}
+        const float qaArea=.5f*std::hypot(qa[1]*qb[2]-qa[2]*qb[1],qa[2]*qb[0]-qa[0]*qb[2],qa[0]*qb[1]-qa[1]*qb[0]);
+        const float regularity=4.0f*std::sqrt(3.0f)*qaArea/edgeSquaredSum;
         for(const auto old:centres)Check(std::hypot(centre[0]-old[0],centre[2]-old[2])>=SpiderWebLayout::MinimumSeparation,"webs overlap homes");
         centres.push_back(centre);
         Check(centre[1]>surface.Sample(centre[0],centre[2]).height+2,"web centre underground/too low");
@@ -61,7 +71,10 @@ int main() {
                 motion+=std::hypot(actual[i][0]-rest[i][0],actual[i][1]-rest[i][1],actual[i][2]-rest[i][2]);
             }
         }
-        std::cout<<"web proposal tree "<<site.canopyIndex<<" centre "<<centre[0]<<','<<centre[1]<<','<<centre[2]<<'\n';
+        std::cout<<"web proposal tree "<<site.canopyIndex<<" root "<<tree.x<<','<<tree.z
+            <<" centre "<<centre[0]<<','<<centre[1]<<','<<centre[2]
+            <<" radial "<<std::hypot(centre[0]-tree.x,centre[2]-tree.z)
+            <<" regularity "<<regularity<<'\n';
     }
     Check(motion>.01f,"anchors ignore branch wind");
     for(int fault=0;fault<4;++fault) {

@@ -3,6 +3,7 @@
 #include "IslandSimulator/BoarHerd.hpp"
 #include "IslandSimulator/GoatHerd.hpp"
 #include "IslandSimulator/SpiderColony.hpp"
+#include "IslandSimulator/SpiderWebLayout.hpp"
 #include "IslandSimulator/ButterflyMeadow.hpp"
 #include "IslandSimulator/CrabColony.hpp"
 #include "IslandSimulator/DistantSceneryLayout.hpp"
@@ -121,6 +122,8 @@ namespace
         island::MonkeyTroop monkeys{terrain};
         island::VegetationLayout palms{terrain};
         island::JungleLayout jungle{terrain};
+        std::vector<island::SpiderWebSite> spiderWebs{
+            island::SpiderWebLayout::Propose(jungle,caveOriginal)};
         const island::CanopyLightField canopyLight{terrain, island::MakeCanopyOccluders(jungle.Canopy())};
         const island::GroundCoverField groundCover;
         island::GrassLayout grass{terrain, canopyLight, groundCover};
@@ -499,6 +502,16 @@ namespace
                 for(const auto joint:{chain.root,chain.hip,chain.knee,chain.foot})HashPosition(hash,joint.x,joint.y,joint.z);
             }
         }
+        hash.AddSize(world.spiderWebs.size());
+        for(const auto& web:world.spiderWebs) {
+            hash.AddSize(web.canopyIndex);
+            for(const auto& anchor:web.anchors) {
+                hash.AddUint32(static_cast<std::uint32_t>(anchor.branch));
+                hash.AddSize(anchor.triangle);hash.AddFloat(anchor.u);hash.AddFloat(anchor.v);
+            }
+            for(const auto point:island::SpiderWebLayout::Sample(
+                web,world.jungle,world.caveOriginal,0))HashPosition(hash,point[0],point[1],point[2]);
+        }
         const auto& resident=world.resident->State();
         HashPosition(hash,resident.x,resident.y,resident.z);hash.AddFloat(resident.heading);
         hash.AddSize(world.resident->Route().Points().size());
@@ -615,6 +628,7 @@ namespace
             && world.goats->Goats().size() == island::GoatHabitat::Count
             && world.spiders->Spiders().size() == island::SpiderHabitat::GroundCount
             && world.spiders->Homes().size() == island::SpiderHabitat::GroundCount
+            && world.spiderWebs.size() == island::SpiderWebLayout::MaximumSites
             && world.crabs.Homes().size() == island::CrabColony::CrabCount
             && world.fish.Fish().size() == island::FishSchools::FishCount
             && world.fish.Schools().size() == island::FishSchools::SchoolCount
@@ -812,6 +826,14 @@ namespace
                         && std::abs(foot.y-surface.Sample(foot.x,foot.z).height-.0001f)<.00002f
                         && std::hypot(actual.x-foot.x,actual.y-foot.y,actual.z-foot.z)<.00003f;
                 }
+            }
+            for(const auto& web:world.spiderWebs) {
+                const auto anchors=island::SpiderWebLayout::Sample(web,world.jungle,surface,0);
+                finiteSpecializedData=finiteSpecializedData
+                    && web.canopyIndex<world.jungle.Canopy().size();
+                for(const auto point:anchors)
+                    finiteSpecializedData=finiteSpecializedData
+                        && AllFinite(point[0],point[1],point[2]);
             }
         }
         if(world.hut) {
@@ -1104,6 +1126,7 @@ namespace
                << "    \"groundSnakes\": " << world.snakes->Snakes().size() << ",\n"
                << "    \"goats\": " << world.goats->Goats().size() << ",\n"
                << "    \"groundSpiders\": " << world.spiders->Spiders().size() << ",\n"
+               << "    \"canopyWebs\": " << world.spiderWebs.size() << ",\n"
                << "    \"fishSchools\": " << world.fish.Schools().size() << ",\n"
                << "    \"fish\": " << world.fish.Fish().size() << ",\n"
                << "    \"seaTurtles\": " << world.seaTurtles.Turtles().size() << ",\n"
@@ -1141,7 +1164,27 @@ namespace
   },
   "groundSpiderPopulation": {
     "snapshot": "initial",
-    "websImplemented": false,
+    "websImplemented": true,
+    "webCount": )json" << world.spiderWebs.size() << R"json(,
+    "webs": [
+)json";
+        for(std::size_t i=0;i<world.spiderWebs.size();++i) {
+            const auto& web=world.spiderWebs[i];
+            const auto rest=island::SpiderWebLayout::Sample(web,world.jungle,world.caveOriginal,0);
+            output << "      {\"canopyIndex\":" << web.canopyIndex << ",\"anchors\":[";
+            for(std::size_t j=0;j<web.anchors.size();++j) {
+                if(j)output << ',';
+                const auto& a=web.anchors[j];
+                output << '[' << a.branch << ',' << a.triangle << ',' << a.u << ',' << a.v << ']';
+            }
+            output << "],\"rest\":[";
+            for(std::size_t j=0;j<rest.size();++j) {
+                if(j)output << ',';
+                output << '[' << rest[j][0] << ',' << rest[j][1] << ',' << rest[j][2] << ']';
+            }
+            output << "]}" << (i+1<world.spiderWebs.size()?",":"") << '\n';
+        }
+        output << R"json(    ],
     "spiders": [
 )json";
         output << std::setprecision(7); // Submillimetre appendages need more than four decimals.

@@ -219,8 +219,10 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("spiders", gate.SCOPES)
         self.assertIn('["spiders", ["--viewpoint", "spiders"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
+        self.assertIn('["spider-web", ["--viewpoint", "spider-web"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
-        self.assertIn('focusedSpiderCheck ? ["spiders"]', source)
+        self.assertIn('focusedSpiderCheck ? ["spiders", "spider-web"]', source)
         self.assertIn('spiderMotionFrames.push(frame)', source)
         def report():
             return {"passed": True, "views": [{"mode": "spiders", "passed": True,
@@ -228,8 +230,11 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "intervals": [16.7]*60, "spiderMotionFrames": [f"pose-{i}.png" for i in range(4)],
                 "result": {"output": "spider render proof: spiders 1/200 visible, 2 draw; contact-shadows=1\n"
                     "spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes\n"
-                    "spider lighting ground-transmission=0 body-transmission=0 body-tint=0.46,0.53,0.62\n"}}]}
-        self.assertEqual(len(gate.validate_spider_report(report())), 4)
+                    "spider lighting ground-transmission=0 body-transmission=0 body-tint=0.46,0.53,0.62\n"}},
+                {"mode":"spider-web","passed":True,"glError":0,"contextLost":False,
+                 "renderer":"ANGLE SwiftShader","screenshot":"web.png",
+                 "result":{"output":"spider-web render proof: webs 1/6 visible, strands 434, 1 draw\n"}}]}
+        self.assertEqual(len(gate.validate_spider_report(report())), 5)
         for key, value in (("mode", "goats"), ("passed", False), ("glError", 1282),
                            ("contextLost", True), ("renderer", "AMD"), ("intervals", []),
                            ("intervals", [float('nan')]*60), ("intervals", [0]*60),

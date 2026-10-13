@@ -23,6 +23,7 @@
 #include "IslandSimulator/BoarRenderer.hpp"
 #include "IslandSimulator/GoatRenderer.hpp"
 #include "IslandSimulator/SpiderRenderer.hpp"
+#include "IslandSimulator/SpiderWebRenderer.hpp"
 #include "IslandSimulator/CanopyLighting.hpp"
 #include "IslandSimulator/RenderedTerrainHeightMap.hpp"
 #include "IslandSimulator/CrabRenderer.hpp"
@@ -150,6 +151,7 @@ namespace island
         GoatDetail,
         SpiderDetail,
         SpiderBrightDetail,
+        SpiderWebDetail,
         SnakeDetail,
         SnakeHeadDetail,
         ButterflyDetail,
@@ -274,6 +276,7 @@ namespace island
         MonkeyTroop monkeyTroop_;
         VegetationLayout vegetationLayout_;
         JungleLayout jungleLayout_;
+        std::vector<SpiderWebSite> spiderWebSites_;
         // CPU fields shared by grass placement and the uploaded light/cover texture.
         CanopyLightField canopyLightField_;
         GroundCoverField groundCoverField_;
@@ -321,6 +324,7 @@ namespace island
         std::unique_ptr<BoarRenderer> boarRenderer_;
         std::unique_ptr<GoatRenderer> goatRenderer_;
         std::unique_ptr<SpiderRenderer> spiderRenderer_;
+        std::unique_ptr<SpiderWebRenderer> spiderWebRenderer_;
         std::unique_ptr<SnakeRenderer> snakeRenderer_;
         std::unique_ptr<DebugOverlay> debugOverlay_;
         std::unique_ptr<DistantSceneryRenderer> distantSceneryRenderer_;

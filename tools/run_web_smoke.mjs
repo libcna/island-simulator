@@ -42,7 +42,7 @@ const focusedHutCheck = process.env.ISLAND_WEB_SMOKE_SCOPE === "hut";
 const focusedCheck = focusedSpiderCheck || focusedGoatCheck || focusedHutCheck || focusedSnakeCheck || focusedFlightCheck || focusedFullscreenCheck || focusedClimbCheck || focusedFoliageCheck || focusedCoastCheck || focusedGroundingCheck || focusedVegetationCheck || focusedGrassMotionCheck || focusedTerrainCheck || focusedLitterCheck || focusedMaterialsCheck || focusedStreamCheck || focusedMonkeyCheck;
 const focusedArtifactPrefix = focusedSpiderCheck ? "spiders" : focusedGoatCheck ? "goats" : focusedHutCheck ? "hut" : focusedSnakeCheck ? "snakes" : focusedFlightCheck ? "flight" : focusedFullscreenCheck ? "fullscreen" : focusedClimbCheck ? "monkey-climb" : focusedMonkeyCheck ? "monkeys" : focusedStreamCheck ? "stream" : focusedMaterialsCheck ? "materials" : focusedLitterCheck ? "litter" : focusedTerrainCheck ? "terrain" : focusedGrassMotionCheck ? "grass-motion" : focusedVegetationCheck ? "vegetation"
   : focusedCoastCheck ? "coast" : focusedGroundingCheck ? "grounding" : "foliage";
-const focusedViews = focusedSpiderCheck ? ["spiders"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
+const focusedViews = focusedSpiderCheck ? ["spiders", "spider-web"] : focusedGoatCheck ? ["goats"] : focusedHutCheck ? ["hut", "hut-material"] : focusedSnakeCheck ? ["snakes", "snake-head"] : focusedFlightCheck ? ["flight"] : focusedFullscreenCheck ? ["overview"] : focusedClimbCheck ? ["monkey-climb"] : focusedMonkeyCheck ? ["monkeys"] : focusedStreamCheck ? ["stream"] : focusedMaterialsCheck ? ["litter", "grass", "bay-ground", "wet-sand"]
   : focusedLitterCheck ? ["litter", "grass"] : focusedTerrainCheck ? ["overview", "bay", "bay-ground", "headland", "beach", "east", "jungle"]
   : focusedGrassMotionCheck ? ["grass-motion"] : focusedVegetationCheck ? ["grass", "jungle", "fronds", "east", "clearing-edge", "ground-broadleaf", "ground", "bush"]
   : focusedGroundingCheck ? ["props", "driftwood", "contact", "reef"]
@@ -668,7 +668,7 @@ try {
           }
           const screenshotPath = await captureVisualFrame(sessionId,
             `island-browser-${focusedArtifactPrefix}-${mode}.png`,
-            !["spiders", "goats", "boars", "monkeys", "monkey-climb", "overview", "flight", "snakes", "snake-head"].includes(mode));
+            !["spiders", "spider-web", "goats", "boars", "monkeys", "monkey-climb", "overview", "flight", "snakes", "snake-head"].includes(mode));
           const motionReview = focusedGrassMotionCheck ? await runGrassMotionReview(sessionId) : null;
           // Preserve intermediate poses for real visual review of the quadrupedal gait;
           // endpoint screenshots alone can hide foot sliding and limb inversion.
@@ -676,7 +676,7 @@ try {
           const snakeMotionFrames = [];
           const goatMotionFrames = [];
           const spiderMotionFrames = [];
-          if (focusedSpiderCheck || focusedGoatCheck || focusedMonkeyCheck || focusedSnakeCheck) {
+          if ((focusedSpiderCheck && mode === "spiders") || focusedGoatCheck || focusedMonkeyCheck || focusedSnakeCheck) {
             for (let pose = 0; pose < 4; ++pose) {
               await call("Runtime.evaluate", {
                 expression: `new Promise(resolve => {
@@ -687,7 +687,7 @@ try {
               }, sessionId);
               const frame = path.basename(await captureVisualFrame(sessionId,
                 `island-browser-${focusedArtifactPrefix}-${mode}-pose-${pose}.png`, false));
-              if (focusedSpiderCheck) spiderMotionFrames.push(frame);
+              if (focusedSpiderCheck && mode === "spiders") spiderMotionFrames.push(frame);
               else if (focusedGoatCheck) goatMotionFrames.push(frame);
               else if (focusedSnakeCheck) snakeMotionFrames.push(frame);
               else monkeyMotionFrames.push(frame);
@@ -730,9 +730,10 @@ try {
             && log.includes("island-simulator: edge antialiasing requested 4x renderer-applied 4x")
             && (!focusedGrassMotionCheck || motionReview?.passed)
             && (!focusedFlightCheck || flightReview?.passed)
-            && (!focusedSpiderCheck || (spiderMotionFrames.length === 4
+            && (!focusedSpiderCheck || (mode === "spiders" ? (spiderMotionFrames.length === 4
               && /spider render proof: spiders (?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)\/200 visible, 2 draw; contact-shadows=(?:[1-9]|[1-9][0-9]|1[0-9]{2}|200)(?:\s|$)/.test(log)
-              && log.includes("spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes")))
+              && log.includes("spider setae loaded Content/wildlife/spider-setae.png; 256x256, 9 mips, 349524 RGBA8 bytes"))
+              : /spider-web render proof: webs [1-6]\/6 visible, strands [1-9][0-9]*, 1 draw/.test(log)))
             && (!focusedGoatCheck || (goatMotionFrames.length === 4
               && /goats [1-6]\/6 visible, 2 draw;/.test(log)
               && log.includes("goat fur loaded Content/wildlife/goat-fur.png; 256x256, 9 mips, 349524 RGBA8 bytes")))

@@ -91,6 +91,7 @@
       ["monkeys", ["--viewpoint", "monkeys"]],
       ["goats", ["--viewpoint", "goats"]],
       ["spiders", ["--viewpoint", "spiders"]],
+      ["spider-web", ["--viewpoint", "spider-web"]],
       ["boars", ["--viewpoint", "boars"]],
     ]);
     var Module = {

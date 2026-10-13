@@ -20,6 +20,7 @@ from run_software_capture import (
     validate_boar_motion_stages,
     validate_spider_motion_stages,
     validate_spider_render_log,
+    validate_spider_web_render_log,
     validate_spider_lighting,
     validate_spider_habitat_selection,
     validate_campfire_stages,
@@ -204,6 +205,16 @@ class SoftwareCaptureTests(unittest.TestCase):
                     good.replace(" contact-shadows=1", ""), good.replace("spider setae loaded", "missing")):
             with self.assertRaises(RuntimeError):
                 validate_spider_render_log(bad)
+
+    def test_spider_web_render_requires_bounded_live_batch(self):
+        good="island-simulator: spider-web render proof: webs 1/6 visible, strands 434, 1 draw\n"
+        self.assertEqual(validate_spider_web_render_log(good),
+                         {"visible":1,"total":6,"strands":434,"draws":1})
+        self.assertEqual(validate_spider_web_render_log(good+good)["strands"],434)
+        for bad in ("",good+good.replace("434","868"),good.replace("1/6","0/6"),good.replace("1/6","7/6"),
+                    good.replace("434","433"),good.replace("1 draw","2 draw")):
+            with self.subTest(bad=bad),self.assertRaises(RuntimeError):
+                validate_spider_web_render_log(bad)
 
     def test_spider_live_motion_and_corruptions(self):
         def fixture(frozen=False):
