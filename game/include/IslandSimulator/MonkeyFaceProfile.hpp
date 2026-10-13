@@ -5,17 +5,24 @@
 
 namespace island::MonkeyFaceProfile
 {
-    struct Row { float y, halfWidth, front; };
-    // One connected brow/cheek/muzzle/chin surface, recessed into fur at its perimeter.
-    inline constexpr std::array<Row, 12> Rows{{
-        {.958f,.008f,.572f}, {.928f,.064f,.604f}, {.903f,.096f,.632f},
-        {.880f,.113f,.651f}, {.859f,.115f,.650f}, {.837f,.105f,.658f},
-        {.817f,.098f,.665f}, {.797f,.089f,.678f}, {.780f,.085f,.674f},
-        {.762f,.069f,.663f}, {.746f,.041f,.634f}, {.736f,.005f,.592f}
-    }};
     struct Point { float x,y,z; };
-    inline constexpr float EyeCentreZ=.635f;
-    inline constexpr float EyeRadiusX=.020f,EyeRadiusY=.012f,EyeRadiusZ=.009f;
+    struct Row { float y, halfWidth, front; };
+    // A capuchin-like short face: broad brow and cheeks surround a restrained
+    // muzzle instead of extending into the former narrow rodent/dog wedge.
+    inline constexpr std::array<Row, 12> Rows{{
+        {.972f,.008f,.560f}, {.942f,.070f,.587f}, {.915f,.104f,.610f},
+        {.891f,.124f,.627f}, {.868f,.128f,.625f}, {.846f,.120f,.630f},
+        {.824f,.111f,.637f}, {.803f,.102f,.646f}, {.784f,.096f,.648f},
+        {.766f,.080f,.638f}, {.750f,.048f,.612f}, {.740f,.006f,.575f}
+    }};
+    inline constexpr Point CraniumCentre{0,.875f,.425f};
+    inline constexpr Point CraniumRadii{.183f,.202f,.168f};
+    inline constexpr Point EarCentre{.169f,.862f,.414f};
+    inline constexpr Point EarRadii{.055f,.067f,.024f};
+    inline constexpr Point InnerEarCentre{.170f,.862f,.424f};
+    inline constexpr Point InnerEarRadii{.040f,.051f,.017f};
+    inline constexpr float EyeCentreX=.055f,EyeCentreY=.878f,EyeCentreZ=.615f;
+    inline constexpr float EyeRadiusX=.0215f,EyeRadiusY=.013f,EyeRadiusZ=.0095f;
     inline float Bump(float value,float centre,float radius)
     {
         const float t=(value-centre)/radius;
@@ -24,14 +31,14 @@ namespace island::MonkeyFaceProfile
     }
     inline float Orbit(float x,float y)
     {
-        return Bump(std::abs(x),.052f,.035f)*Bump(y,.865f,.040f);
+        return Bump(std::abs(x),EyeCentreX,.038f)*Bump(y,EyeCentreY,.042f);
     }
     inline float Relief(float x,float y)
     {
         return -.008f*Orbit(x,y)
-            +.011f*Bump(std::abs(x),.052f,.050f)*Bump(y,.893f,.025f)
-            +.008f*Bump(x,0,.025f)*Bump(y,.844f,.035f)
-            +.006f*Bump(std::abs(x),.078f,.040f)*Bump(y,.832f,.050f);
+            +.011f*Bump(std::abs(x),EyeCentreX,.052f)*Bump(y,.907f,.027f)
+            +.008f*Bump(x,0,.027f)*Bump(y,.850f,.038f)
+            +.006f*Bump(std::abs(x),.082f,.044f)*Bump(y,.840f,.052f);
     }
     // Restrained ambient occlusion in the eye sockets, not a painted sun highlight.
     inline float AmbientRetention(float x,float y) { return 1-.20f*Orbit(x,y); }
@@ -43,8 +50,8 @@ namespace island::MonkeyFaceProfile
         const float arc=std::sqrt(std::max(0.0f,1-t*t));
         const float extent=upper ? (outer ? .018f : .008f)
                                  : (outer ? .014f : .007f);
-        return {side*.052f+t*.028f,.867f+(upper ? extent : -extent)*arc,
-            .6445f+.0015f*(1-t*t)+(outer ? 0.0f : .0005f)};
+        return {side*EyeCentreX+t*.030f,EyeCentreY+(upper ? extent : -extent)*arc,
+            .6240f+.0015f*(1-t*t)+(outer ? 0.0f : .0005f)};
     }
     inline Point Sample(std::size_t row, float across)
     {

@@ -1,5 +1,45 @@
 # Monkey fur material
 
+## Short primate face and fur-broken hooked tail — 2026-10-13
+
+The renewed current-binary audit used the complete deterministic tree excursion
+`20261013T014015.873783Z-monkey-tree`. Its inspected side poses still read as a
+dog/rodent hybrid: a small cranium behind a long narrow facial wedge and a uniformly
+smooth hose-like tail. The existing fur material, quadrupedal gait and tree contact
+were retained; this pass changes those two dominant silhouettes rather than another
+colour or locomotion subsystem.
+
+The head now uses a 183×202×168mm cranium (up from 165×185×150mm), moved slightly
+back/up, with larger protruding outer and inner ears. The connected twelve-row facial
+surface is broader through brow, cheeks and muzzle, but its maximum authored front is
+0.648m instead of0.678m. Eyes, eyelids, nostrils and curved mouth follow the shortened
+surface. This aims at a generic capuchin-like short primate profile rather than claiming
+an exact species model.
+
+The continuous tail now retains a66mm furry base and more than35mm radius through
+80 percent of its centreline, then closes progressively. Its terminal Hermite point
+turns another8cm forward. Eight small three-sided fur clumps use the existing texture
+and identical two-bone blend weights at their roots; they add32 near vertices and24
+triangles without a texture, material, draw call, bone or permanent allocation. Current
+near/far geometry is2049/797 vertices and3124/1208 triangles.
+
+Release and Debug gait/profile, skinning-shader and sole tests pass. The profile
+regression covers broad face/head/ear bounds, orbital intersection, bilateral eyelids,
+monotonic tail taper, retained mid-tail volume, closed tip and C1 centre/tangent/weight
+continuity. Native llvmpipe `20261013T015052.930547Z-monkey-tree` passes all nine
+captured states; selected exact-phase before/after pairs against the baseline were
+inspected and the kernel delta is empty. The head is visibly fuller and shorter, while
+the tail is thicker and ends in a stronger forward hook. The fur clumps remain subtle
+rather than producing a spiky cartoon outline.
+
+Release WebAssembly builds. Actual Chrome/SwiftShader
+`20261013T015419.973741Z-chrome-monkeys` passes 60 intervals with `glError=0`, intact
+context and empty final kernel delta. Start, four intermediate and end images were all
+inspected: the revised head/tail stay connected through sampled movement and turns,
+although broad leaves hide much of two intermediate poses. Procedural limb/torso joins,
+front-face simplicity and continuous biological gait quality remain visibly open. No
+Android runtime qualification or final realism acceptance is claimed.
+
 ## Renewed rat-like silhouette complaint — 2026-10-12
 
 Actual contained native baseline `20261012T061354.741487Z-monkeys` was inspected

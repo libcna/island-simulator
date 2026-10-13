@@ -604,6 +604,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   `20261012T221906.711225Z-monkeys` PASS, inspected, kernel[]. The subject reads more clearly
   as a grasping quadrupedal primate, but face scale, manifold shoulder/hip transitions,
   continuous gait realism and current Web/Android review remain open; task stays unchecked.
+  Fourth follow-up: capuchin-like short-face pass expands/moves the cranium back/up,
+  broadens brow/cheeks/muzzle while reducing maximum face projection0.678→0.648m, and
+  enlarges visible ears. The continuous tail retains66mm base/>35mm radius through80%,
+  turns the tip another8cm forward and adds8 two-bone fur clumps. Near/far geometry is
+  2049/797 vertices,3124/1208 triangles; same bones/textures/draws. Release+Debug3/3
+  focused tests pass. Nine-state llvmpipe015052.930547Z-monkey-tree PASS/inspected/kernel[];
+  matched baseline stages show fuller shorter head and stronger furry hook. Actual
+  Chrome/SwiftShader015419.973741Z-chrome-monkeys PASS60 intervals/glError0/context
+  intact/kernel[], all6 images inspected. Manifold joints, front-face detail, continuous
+  natural gait and Android current-model review remain; task stays unchecked.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.

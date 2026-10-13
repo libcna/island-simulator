@@ -85,22 +85,28 @@ try {
             Require(std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z), "finite face profile");
             Require(std::fabs(p.x+mirror.x) < 1e-6f && std::fabs(p.z-mirror.z) < 1e-6f,
                     "continuous bilateral face profile");
-            Require(p.z >= .5499f && p.z <= .705f, "face stays within authored head envelope");
+            Require(p.z >= .5499f && p.z <= .675f, "face stays within authored head envelope");
             const float ambient=face::AmbientRetention(p.x,p.y);
             Require(ambient>=.8f&&ambient<=1,"socket ambient retention outside bounded range");
             Require(std::abs(ambient-face::AmbientRetention(-p.x,p.y))<1e-6f,
                     "socket ambient retention must be bilateral");
         }
     }
-    Require(face::Relief(.052f,.865f)<-.004f,"orbit must be recessed");
-    Require(face::Relief(.052f,.893f)>.007f,"brow must project beyond socket");
-    Require(face::Relief(0,.844f)>.007f,"nose bridge must have relief");
-    Require(face::AmbientRetention(.052f,.865f)<.81f
+    Require(face::Rows[4].halfWidth>=.127f&&face::Rows[8].halfWidth>=.095f,
+        "short monkey face lost its broad brow and muzzle");
+    Require(face::CraniumRadii.x>=.18f&&face::CraniumRadii.y>=.20f
+        &&face::EarCentre.x+face::EarRadii.x>face::CraniumRadii.x,
+        "monkey cranium or visible outer ear became too small");
+    Require(face::Relief(face::EyeCentreX,face::EyeCentreY)<-.004f,"orbit must be recessed");
+    Require(face::Relief(face::EyeCentreX,.907f)>.007f,"brow must project beyond socket");
+    Require(face::Relief(0,.850f)>.007f,"nose bridge must have relief");
+    Require(face::AmbientRetention(face::EyeCentreX,face::EyeCentreY)<.81f
         &&face::AmbientRetention(0,.780f)==1,"ambient occlusion restricted to sockets");
     const auto eyeSurface=[](std::size_t row) {
-        return face::Sample(row,std::asin(.052f/face::Rows[row].halfWidth)/1.57079632679f).z;
+        return face::Sample(row,std::asin(face::EyeCentreX/face::Rows[row].halfWidth)/1.57079632679f).z;
     };
-    const float orbitalSurface=std::lerp(eyeSurface(4),eyeSurface(3),(.867f-.859f)/(.880f-.859f));
+    const float orbitalSurface=std::lerp(eyeSurface(4),eyeSurface(3),
+        (face::EyeCentreY-face::Rows[4].y)/(face::Rows[3].y-face::Rows[4].y));
     Require(face::EyeCentreZ-face::EyeRadiusZ<orbitalSurface
         &&face::EyeCentreZ+face::EyeRadiusZ>orbitalSurface,
         "eye cornea must straddle the recessed orbital surface, not float outside");
@@ -111,7 +117,7 @@ try {
         const auto inner=face::Eyelid(side,t,upper,false);
         Require(std::isfinite(outer.x)&&std::isfinite(outer.y)&&std::isfinite(outer.z),
             "eyelid profile must stay finite");
-        Require(outer.z>=.644f&&inner.z<=.647f,"eyelid leaves the facial relief envelope");
+        Require(outer.z>=.6235f&&inner.z<=.627f,"eyelid leaves the facial relief envelope");
         Require(upper ? outer.y>inner.y : outer.y<inner.y,
             "upper/lower eyelid bands must retain nonzero ordered width");
         const auto mirror=face::Eyelid(-side,-t,upper,true);
@@ -120,16 +126,20 @@ try {
     }
     namespace tail = island::MonkeyTailProfile;
     const std::array<tail::Point, 4> anchors{{{0,.62f,-.52f}, {0,.76f,-.82f},
-        {0,.96f,-1.03f}, {0,1.14f,-.88f}}};
+        {0,.96f,-1.03f}, {0,1.16f,-.80f}}};
     const auto length = [](tail::Point p) { return std::sqrt(p.x*p.x+p.y*p.y+p.z*p.z); };
+    float previousRadius=.067f;
     for (int i = 0; i <= 300; ++i) {
         const auto section = tail::Sample(anchors, i/300.0f);
         Require(std::isfinite(section.centre.y) && length(section.tangent) > .1f,
                 "tail frame must be finite and nondegenerate");
-        Require(section.radius >= 0 && section.radius <= .054001f,
+        Require(section.radius >= 0 && section.radius <= .066001f,
                 "fur-bearing tail stays within authored radii");
+        Require(section.radius<=previousRadius+1e-6f,"tail radius must taper toward the hook");
         if(i<=240)Require(section.radius>.035f,"tail becomes needle-thin before rounded tip");
+        if(i<=270)Require(section.radius>.026f,"tail loses its fur-bearing terminal taper");
         if(i==300)Require(section.radius==0,"tail tip remains open");
+        previousRadius=section.radius;
         Require(section.secondWeight >= 0 && section.secondWeight <= 1,
                 "tail weights remain normalized and nonnegative");
         Require(section.firstBone >= 0 && section.secondBone <= 2,

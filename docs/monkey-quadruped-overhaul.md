@@ -4,25 +4,26 @@ The operator explicitly rejected the upright brown primitive assembly and reques
 fur texture, monkey-like locomotion and tree climbing. These are separate necessary parts of
 one unfinished overhaul. The shader portability repair did not satisfy them.
 
-## Current sculpted trunk and grasping extremities — 2026-10-12
+## Current short face, fur-broken tail and grasping extremities — 2026-10-13
 
-The current near/far body has 2,017/797 vertices and 3,100/1,208 triangles per
+The current near/far body has 2,049/797 vertices and 3,124/1,208 triangles per
 silhouette. The thirteen-section trunk now separates a fuller rump and shoulder/chest
 from a narrower waist instead of carrying one barrel radius along its length. The
-cranium is slightly less spherical and better separated from the facial relief. Near
+larger cranium is separated from a shorter, broader connected facial relief; visible
+ears and a forward-hooked, fur-textured tail with eight raised clumps strengthen the
+primate silhouette. Near
 palms/soles are wider, the four forward digits are shorter and thicker, and each has a
 short lateral opposable digit. All extremity vertices retain the existing rigid sole
 frame, so ground-normal fitting and live bark grips move the complete hand rather than
 leaving decoration behind. No bone, texture, shader, draw call or population was added.
 
-The contained ordinary view `20261012T221906.711225Z-monkeys` passes with five of
-seven animals visible, one current near subject, the geometry diagnostic above and an
-empty kernel delta. The complete image was inspected. The preceding same-geometry
-nine-stage tree sequence `20261012T221727.352629Z-monkey-tree` also passes and was
-inspected at approach, grip and return stages. The hand silhouette and torso masses are
-clearer, but the face remains small at ordinary distance, limb/trunk surfaces still
-overlap rather than forming one manifold skin, and continuous natural gait is not
-accepted. This is another bounded anatomy pass, not completion of monkey realism.
+The current nine-state native tree sequence
+`20261013T015052.930547Z-monkey-tree` and six-image Chrome/SwiftShader movement run
+`20261013T015419.973741Z-chrome-monkeys` pass and were inspected. The shorter fuller
+head and stronger hooked tail remain connected through sampled motion. Limb/trunk
+surfaces still overlap rather than forming one manifold skin, the front face remains
+simple and continuous natural gait is not accepted. This is another bounded anatomy
+pass, not completion of monkey realism.
 
 ## Live first anatomy/ground-pose pass
 
