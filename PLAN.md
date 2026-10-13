@@ -563,6 +563,19 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   064822.203943Z-boars inspected/PASS/kernel[]. Nose fur finer, cheeks/ears/limb joins
   still coarse. Wall-time pose differs, so not a strict matched comparison; add
   deterministic boar capture timing/multi-pose review. No portable qualification.
+  2026-10-13 silhouette pass: nasal scale0.55 gives tip0.934m; forward rings broaden
+  cheek/forehead/shoulder. Straight ellipsoid tail replaced by four connected tapered
+  fur segments forming a raised lateral and side-profile hook with bounded gait twitch.
+  Release herd/coat/pose tests pass. Deterministic eight-pose llvmpipe
+  011157.531270Z-boars PASS211bins/std18.69/spatial89.30/kernel[]; matched stage-two
+  against010653.451649Z inspected and shows shorter/full head plus compact hooked tail.
+  Debug core/herd/coat/pose pass. Actual Chrome/SwiftShader
+  012751.079805Z-chrome-wildlife-foliage passes4views×60 intervals including boars,
+  glError0/contextLostfalse/kernel[]; Web images inspected. Fixed stale browser gate
+  from historical1draw to exact2draw textured/solid contract. Current native SDL-disk
+  audio013459.905512Z observes2 calls before mute +1 after, 1015808 exact-zero muted
+  bytes and40960 nonzero resumed bytes, ≤5/6 sources, kernel[]. Coarse limb junctions,
+  subjective speaker/headphone listening and Android runtime remain; task stays open.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

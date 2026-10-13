@@ -1,5 +1,37 @@
 # Boar coat material — live integration, visual refinement open
 
+## Broader head and profile-readable tail — 2026-10-13
+
+The bridge-to-nose scale is now 0.55 instead of 0.70, moving the authored tip
+from z1.060 to z0.934 while retaining the cheek, eye and ear anchors. Six forward
+body stations have a wider cheek/forehead transition and a slightly fuller shoulder,
+so the textured head no longer narrows into the earlier long rodent-like wedge.
+The former straight ellipsoid tail is replaced by four connected tapered fur segments.
+Their five-point curve rises from the rump, curls laterally and returns forward/down,
+making the short hook visible both from the side and from above; a small gait-driven
+twitch stays continuous around the cycle.
+
+`IslandBoarPoseTests` now covers the revised muzzle length, minimum cheek widths,
+tail attachment, segment lengths, side-profile return, cycle continuity and non-finite
+fallback. Focused release boar herd/coat/pose tests pass. Actual isolated llvmpipe
+capture `20261013T011157.531270Z-boars` passes at 1280x720 with 211 colour bins,
+luminance deviation 18.69 and spatial contrast 89.30; live and final kernel incident
+logs are empty. Eight deterministic forage-to-walk poses were captured. A matched
+stage-two comparison against `20261013T010653.451649Z-boars` was inspected: the head
+is shorter/full-bodied and the tail reads as a compact raised hook rather than the
+old horizontal rod. Fur remains clearly visible, but coarse limb junctions and the
+procedural low-poly anatomy still prevent final realism acceptance.
+
+Debug build and its core/herd/coat/pose groups pass. Release WebAssembly builds, and
+the actual Chrome/SwiftShader wildlife-foliage run
+`20261013T012751.079805Z-chrome-wildlife-foliage` passes all four views with 60
+intervals each, including the boar view; every view reports `glError=0`, no context
+loss and an empty final kernel delta. The first browser attempt exposed a stale
+one-draw harness expectation even though the renderer and its material assertion both
+correctly reported two opaque draws; the gate now requires the exact two-draw
+contract shared with native capture. The actual Web boar before/after-simulation
+images were inspected. Android runtime qualification is not claimed by this entry.
+
 ## Fine-bristle source v2 — 2026-10-12
 
 Built-in ImageGen produced a new original opaque 1254-square source at
@@ -24,11 +56,12 @@ acceptance. No full-suite or Web/Android runtime qualification for v2.
 
 ### Shorter nasal region and short muzzle fur
 
-The shared `BoarMuzzleZ` now compresses only the region in front of z0.78 by0.70,
-moving the tip from1.060 to0.976m. Cheeks/ear locations and all limb/foot anchors
-remain unchanged. Body rings, fitted mouth, outer eye rim, nose disc, nostrils and
-tusks use the same mapping; nose/nostril/tusk depth dimensions scale consistently.
-Rooting coefficients and vertical positions are unchanged.
+The first nasal pass compressed only the region in front of z0.78 by0.70, moving
+the tip from1.060 to0.976m. The later 2026-10-13 pass above uses0.55 and a0.934m tip.
+Cheeks/ear locations and all limb/foot anchors remain unchanged. Body rings, fitted
+mouth, outer eye rim, nose disc, nostrils and tusks use the same mapping;
+nose/nostril/tusk depth dimensions scale consistently. Rooting coefficients and
+vertical positions are unchanged.
 
 `BoarFurAlong` is continuous at the bridge but reverses into a denser interior source
 window toward the nose. The muzzle uses over six times the longitudinal UV density

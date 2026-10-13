@@ -10,14 +10,14 @@ namespace island
         dip = std::isfinite(dip) ? std::clamp(dip, 0.0f, 0.15f) : 0.0f;
         const std::array<BoarBodyRing,11> anchors{{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.64f, 0.22f, 0.25f},
                  {-0.40f, 0.65f, 0.285f, 0.29f}, {-0.08f, 0.68f, 0.300f, 0.31f},
-                 {0.25f, 0.74f, 0.31f, 0.37f}, {0.47f, 0.65f - dip * 0.15f, 0.245f, 0.29f},
+                 {0.25f, 0.74f, 0.325f, 0.385f}, {0.47f, 0.68f - dip * 0.15f, 0.285f, 0.325f},
                  // Broad cheek transitions into a narrower nasal bridge instead of one
                  // straight wedge from the forehead to the nose. These authored stations
                  // retain rooting coefficients; the shared nasal shortening is applied below.
-                 {0.62f, 0.61f - dip * 0.45f, 0.235f, 0.235f},
-                 {0.78f, 0.535f - dip * 0.8f, 0.19f, 0.155f},
-                 {0.91f, 0.46f - dip, 0.13f, 0.105f},
-                 {1.04f, 0.42f - dip, 0.112f, 0.093f},
+                 {0.62f, 0.62f - dip * 0.45f, 0.270f, 0.270f},
+                 {0.78f, 0.545f - dip * 0.8f, 0.225f, 0.185f},
+                 {0.91f, 0.47f - dip, 0.155f, 0.120f},
+                 {1.04f, 0.425f - dip, 0.125f, 0.098f},
                  {1.06f, 0.42f - dip, 0.005f, 0.005f}}};
         BoarBodyProfile result{};
         // Nonuniform Hermite half-stations soften the shoulder/rump/head outline.
@@ -39,6 +39,19 @@ namespace island
         result.back()=anchors.back();
         for(auto& ring:result)ring.z=BoarMuzzleZ(ring.z);
         return result;
+    }
+
+    BoarTailCurve EvaluateBoarTail(float phase,float bob,int curlSide) noexcept
+    {
+        phase=std::isfinite(phase)?phase:0.0f;
+        bob=std::isfinite(bob)?std::clamp(bob,0.0f,0.018f):0.0f;
+        const float side=curlSide<0?-1.0f:1.0f;
+        const float twitch=std::sin(phase*.73f)*.018f;
+        return {{{0.0f,.67f+bob,-.705f},
+                 {side*.018f+twitch,.752f+bob,-.790f},
+                 {side*.064f+twitch*.75f,.817f+bob,-.824f},
+                 {side*.116f+twitch*.48f,.838f+bob,-.773f},
+                 {side*.142f+twitch*.28f,.782f+bob,-.731f}}};
     }
 
     float BoarBackHeight(const BoarBodyProfile& profile, float z, float x) noexcept

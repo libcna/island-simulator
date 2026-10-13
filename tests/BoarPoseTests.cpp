@@ -24,7 +24,7 @@ int main()
     for(int step=0;step<=30;++step) for(float bob:{0.0f,0.018f}) {
         const float dip=static_cast<float>(step)*0.005f;
         const auto profile=MakeBoarBodyProfile(dip);
-        check(std::abs(profile.back().z-.976f)<1e-6f,"short muzzle tip changed");
+        check(std::abs(profile.back().z-.934f)<1e-6f,"short muzzle tip changed");
         check(BoarMuzzleZ(.75f)==.75f,"nasal shortening moves cheek/eye centre");
         check(std::abs(BoarFurAlong(.78f-1e-6f)-BoarFurAlong(.78f+1e-6f))<1e-5f,
             "muzzle UV window disconnects at bridge");
@@ -35,6 +35,8 @@ int main()
         check(muzzleDensity>bodyDensity*6,"nasal hairs remain stretched like body fur");
         check(BoarBackHeight(profile,.25f,0)-BoarBackHeight(profile,-.4f,0)>.16f,
             "boar shoulder lost its distinct rise over the rump");
+        check(profile[12].radiusX>=.269f&&profile[14].radiusX>=.224f,
+            "boar cheek and forehead lost their broad head silhouette");
         for(int index=0;index<BoarBristleCount;++index)for(bool juvenile:{false,true}) {
             const auto bristle=BuildBoarBristle(profile,index,juvenile,bob);
             for(auto p:{bristle.left,bristle.right})check(
@@ -101,6 +103,32 @@ int main()
             check(std::abs(BoarHeadSurfaceX(profile,(a.y+b.y+c.y)/3,(a.z+b.z+c.z)/3)
                 -(a.x+b.x+c.x)/3)<0.00003f,"head intersection disagrees with actual triangle centroid");
         }
+    }
+    for(int curlSide:{-1,1}) {
+        BoarTailCurve previous=EvaluateBoarTail(0,.018f,curlSide);
+        for(int step=0;step<=256;++step) {
+            const float phase=Tau*static_cast<float>(step)/256;
+            const auto tail=EvaluateBoarTail(phase,.018f,curlSide);
+            check(tail[0].x==0&&tail[0].z>=-.71f&&tail[0].z<=-.70f,
+                "boar tail root detached from rump");
+            check(static_cast<float>(curlSide)*tail.back().x>.11f
+                &&tail.back().y>tail.front().y&&tail.back().z<tail.front().z,
+                "boar tail lost its short raised lateral curl");
+            check(tail[2].z<tail[3].z&&tail[3].z<tail[4].z
+                &&tail[3].y>tail[4].y,"boar tail hook is invisible in side profile");
+            for(std::size_t i=1;i<tail.size();++i) {
+                const float segment=std::hypot(tail[i].x-tail[i-1].x,
+                    tail[i].y-tail[i-1].y,tail[i].z-tail[i-1].z);
+                check(segment>.06f&&segment<.16f,"boar tail segment outside bounded anatomy");
+                check(std::hypot(tail[i].x-previous[i].x,tail[i].y-previous[i].y,
+                    tail[i].z-previous[i].z)<.003f,"boar tail twitch is discontinuous");
+            }
+            previous=tail;
+        }
+        const float nan=std::numeric_limits<float>::quiet_NaN();
+        const auto invalid=EvaluateBoarTail(nan,nan,curlSide);
+        check(std::isfinite(invalid.back().x)&&std::isfinite(invalid.back().y),
+            "invalid tail pose lacks finite fallback");
     }
     for(int invalid=0;invalid<4;++invalid) {
         bool rejected=false;
@@ -203,7 +231,7 @@ int main()
         for (int i = 0; i < 1000; ++i) {
             const float z = -0.56f + static_cast<float>(i) * 0.00094f;
             const float y = BoarBackHeight(body, z, 0.03f);
-            check(y > 0.90f && y < 1.12f, "bristle region stays on back");
+            check(y > 0.90f && y < 1.14f, "bristle region stays on back");
         }
     }
     const float nan = std::numeric_limits<float>::quiet_NaN();

@@ -6,7 +6,7 @@ namespace island
 {
     // Shorter nasal region; identity through the cheeks so ears/limb roots stay put.
     [[nodiscard]] constexpr float BoarMuzzleZ(float authoredZ) noexcept {
-        return authoredZ<=.78f?authoredZ:.78f+(authoredZ-.78f)*.70f;
+        return authoredZ<=.78f?authoredZ:.78f+(authoredZ-.78f)*.55f;
     }
     // Continuous source window, with short fur directed back from the nose.
     [[nodiscard]] constexpr float BoarFurAlong(float z) noexcept {
@@ -21,6 +21,9 @@ namespace island
     [[nodiscard]] float BoarBackHeight(const BoarBodyProfile& profile, float z, float x) noexcept;
 
     struct BoarJoint { float x, y, z; };
+    using BoarTailCurve=std::array<BoarJoint,5>;
+    /** @brief Short raised tail with a lateral terminal curl and bounded gait twitch. */
+    [[nodiscard]] BoarTailCurve EvaluateBoarTail(float phase,float bodyBob,int curlSide) noexcept;
     struct BoarLegPose
     {
         BoarJoint root, knee, hoof;

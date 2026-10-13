@@ -287,7 +287,16 @@ namespace island
                     mesh.Triangle(point(bristle.left),point(bristle.tip),point(bristle.right),
                         wildlife_render::ScaleColor(coat,bristle.tone));
                 }
-                mesh.Ellipsoid(Vector3(0.015f, 0.66f, -0.76f), Vector3(0.025f, 0.035f, 0.17f), dark, 6, 3);
+                const auto tail=EvaluateBoarTail(boar.gaitPhase,bob,
+                    boar.colorVariant%2U?1:-1);
+                const auto point=[](BoarJoint p){return Vector3(p.x,p.y,p.z);};
+                mesh.Limb(point(tail[0]),point(tail[1]),.027f,.022f,
+                    furTints[boar.colorVariant%furTints.size()],6,true);
+                mesh.Limb(point(tail[1]),point(tail[2]),.022f,.016f,
+                    furTints[boar.colorVariant%furTints.size()],6,true);
+                mesh.Limb(point(tail[2]),point(tail[3]),.016f,.012f,
+                    furTints[boar.colorVariant%furTints.size()],6,true);
+                mesh.Limb(point(tail[3]),point(tail[4]),.012f,.008f,dark,6,true);
             }
         }
     }

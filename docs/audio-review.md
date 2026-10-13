@@ -277,6 +277,17 @@ unqualified. Keep the user task open until those checks are actually performed.
 
 ### Actual native disk-device playback and mute
 
+The current Release binary was re-audited after the 2026-10-13 boar silhouette pass
+at `build-consumer/software-boar-audio/20261013T013459.905512Z`. The private
+llvmpipe/SDL-disk run observes three boar calls: two before mute and one after resume.
+During 24 muted diagnostic samples the counter stays at two, the wildlife voice is
+released, four ambient source slots remain bounded, and 1,015,808 captured bytes are
+exactly zero. After resume, 40,960 captured bytes already contain a nonzero mixed
+signal. The run stays below the six-source cap, its diagnostic image was inspected,
+and both live and final kernel deltas are empty. This reconfirms the current audio
+transport and mute lifecycle; it is still not speaker/headphone listening or proof
+that the synthesized calls sound natural.
+
 `build/software-boar-audio/20261011T174853.374413Z` passes the owned display/PID/device
 supervisor with llvmpipe and the SDL disk audio backend. The installed SDL headers and
 source define this backend as writing real playback buffers to a file; the actual

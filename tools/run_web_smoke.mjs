@@ -812,7 +812,7 @@ try {
             && log.includes("monkey fur loaded Content/wildlife/monkey-fur.png; 512x512, 10 mips, 1398100 RGBA8 bytes")
             // Curved leaf budgets are unchanged; flared trunks, rounded buttresses and six-sided branches.
             && /canopy mesh variant=0 near-vertices=4818 near-triangles=4640 far-vertices=1071 far-triangles=1120/.test(log)
-            && (mode !== "boars" || /boars [1-6]\/6 visible, 1 draw/.test(log))
+            && (mode !== "boars" || /boars [1-6]\/6 visible, 2 draw/.test(log))
             && (mode !== "monkeys" || /monkeys [1-7]\/7 visible/.test(log))
             && !/(?:stock-effect|material) fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high/i.test(log);
           const shadeEvent = log.match(/visible monkey entered canopy shade, transmission ([0-9.eE+-]+)/);

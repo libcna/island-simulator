@@ -181,6 +181,13 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('monkeyMotionFrames.push', source)
         self.assertIn('motionReview, monkeyMotionFrames,', source)
 
+    def test_wildlife_foliage_boar_gate_matches_split_material_draws(self):
+        source = (ROOT / "tools/run_web_smoke.mjs").read_text()
+        self.assertIn('boar RGB bristle coat and solid anatomy, two opaque stock BasicEffect draws',
+                      source)
+        self.assertIn('/boars [1-6]\\/6 visible, 2 draw/.test(log)', source)
+        self.assertNotIn('/boars [1-6]\\/6 visible, 1 draw/.test(log)', source)
+
     def test_goat_scope_requires_coat_population_images_and_live_context(self):
         self.assertIn("goats", gate.SCOPES)
         self.assertEqual(gate.browser_environment("chrome", "goats", Path("/evidence"))
