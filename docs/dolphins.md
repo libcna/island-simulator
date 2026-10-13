@@ -16,13 +16,15 @@ animation or sound recording.
 `DolphinRenderer` emits all visible animals into one dynamic `BasicEffect` batch. The close form
 has a tapered fusiform body, pale underside, short closed eight-facet beak below the melon,
 two-facet highlighted eyes, shaped swept pectoral fins, a rear-curved dorsal fin and broad
-horizontal flukes. A two-part mouth crease and two-facet blowhole retain cetacean head cues. The
+horizontal flukes. The dorsal, both pectorals and both flukes are thin closed volumes with separate
+faces and darker perimeter edges rather than coincident zero-thickness sheets. A two-part mouth
+crease and two-facet blowhole retain cetacean head cues. The
 body follows smoothed dive pitch and turn bank, while the tail stock and flukes oscillate laterally. Three
 restrained grey-blue palettes share the existing CPU depth tint and moving shallow-sun response.
 
-The fixed budgets are 558 vertices for a close animal and 15 vertices for a distant silhouette.
-Cull-none rendering keeps lit fins single-surface instead of emitting coincident reverse-winding
-copies. Four animals still produce at most one draw call. There
+The fixed budgets are 708 vertices for a close animal and 15 vertices for a distant silhouette.
+The five closed fins add 150 near vertices while retaining `CullNone`, the same buffer and the same
+single batch. Four animals still produce at most one draw call. There
 is no dolphin texture, separate shadow, collision proxy or audio voice.
 
 ## Verification
@@ -42,6 +44,19 @@ is no dolphin texture, separate shadow, collision proxy or audio voice.
   `build/browser-software/20261013T032653.774852Z-chrome-dolphins` retains the animal in two
   different-hash frames over 60 positive intervals with GL error zero, an intact context and an
   empty kernel delta.
+
+The current closed-fin native pass is
+`build-consumer/software-captures/20261013T112745.515773Z-dolphins`: 240 colour bins, 28.30
+luminance deviation, 149.09 spatial contrast and an empty kernel delta. The first
+`20261013T112616.939803Z-dolphins` tuning image retained an excessively dark fin treatment and was
+not accepted; the final pass uses the body grey-blue on broad faces and the darker tone only around
+their solid edges. Current Android execution remains pending.
+
+Focused Chrome/SwiftShader evidence `20261013T113206.342870Z-chrome-dolphins` passes and both
+inspected frames retain the animal in distinct pitch/tail poses. The PNG SHA-256 identities differ,
+all 60 intervals are finite, `glError` is zero, the context remains live and the kernel delta is
+empty. This qualifies current Web execution; Android, continuous interactive observation and
+hardware performance remain open.
 
 ## Known limitations
 

@@ -55,6 +55,29 @@ void Triangle(std::vector<VertexPositionColor> &out, const Vector3 &a,
   out.emplace_back(c, lit);
 }
 
+void Quad(std::vector<VertexPositionColor> &out, const Vector3 &a,
+          const Vector3 &b, const Vector3 &c, const Vector3 &d,
+          const Color &color) {
+  Triangle(out, a, b, c, color);
+  Triangle(out, a, c, d, color);
+}
+
+void ClosedQuad(std::vector<VertexPositionColor> &out, const Vector3 &a,
+                const Vector3 &b, const Vector3 &c, const Vector3 &d,
+                const Vector3 &halfThickness, const Color &face,
+                const Color &edge) {
+  const Vector3 ap = a + halfThickness, bp = b + halfThickness,
+                cp = c + halfThickness, dp = d + halfThickness;
+  const Vector3 am = a - halfThickness, bm = b - halfThickness,
+                cm = c - halfThickness, dm = d - halfThickness;
+  Quad(out, ap, bp, cp, dp, face);
+  Quad(out, am, dm, cm, bm, face);
+  Quad(out, ap, am, bm, bp, edge);
+  Quad(out, bp, bm, cm, cp, edge);
+  Quad(out, cp, cm, dm, dp, edge);
+  Quad(out, dp, dm, am, ap, edge);
+}
+
 Axes Pose(const DolphinState &dolphin) {
   const Vector3 flat(std::cos(dolphin.headingRadians), 0,
                      std::sin(dolphin.headingRadians));
@@ -141,21 +164,21 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     Triangle(out, rostrumBase[segment], rostrumTip[next], rostrumBase[next], color);
     Triangle(out, rostrumCap, rostrumTip[next], rostrumTip[segment], color);
   }
-  // Two facets produce a lower, swept-back falcate dorsal rather than a shark
-  // triangle.
+  // A thin closed swept-back dorsal retains the falcate profile without vanishing
+  // edge-on like the former coincident sheet.
   const auto dorsalFront = Point(centre, axes, 0, .205f, .18f, scale);
   const auto dorsalTip = Point(centre, axes, 0, .405f, -.10f, scale);
   const auto dorsalKnee = Point(centre, axes, 0, .285f, -.22f, scale);
   const auto dorsalRear = Point(centre, axes, 0, .15f, -.38f, scale);
-  Triangle(out, dorsalFront, dorsalTip, dorsalKnee, colors[1], true);
-  Triangle(out, dorsalFront, dorsalKnee, dorsalRear, colors[1], true);
+  ClosedQuad(out, dorsalFront, dorsalTip, dorsalKnee, dorsalRear,
+             axes.right * (.010f * scale), colors[0], colors[1]);
   for (float side : {-1.0f, 1.0f}) {
     const auto finFront = Point(centre, axes, side * .18f, -.04f, .35f, scale);
     const auto finTip = Point(centre, axes, side * .54f, -.14f, .02f, scale);
     const auto finElbow = Point(centre, axes, side * .38f, -.145f, -.10f, scale);
     const auto finRear = Point(centre, axes, side * .13f, -.11f, -.22f, scale);
-    Triangle(out, finFront, finTip, finElbow, colors[1], true);
-    Triangle(out, finFront, finElbow, finRear, colors[1], true);
+    ClosedQuad(out, finFront, finTip, finElbow, finRear,
+               axes.up * (.009f * scale), colors[0], colors[1]);
   }
   const float tail = dolphin.tailBeat * .12f;
   for (float side : {-1.0f, 1.0f}) {
@@ -166,8 +189,8 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
         Point(centre, axes, tail + side * .50f, .018f, -.91f, scale);
     const auto rear =
         Point(centre, axes, tail + side * .12f, -.012f, -1.05f, scale);
-    Triangle(out, root, leading, rear, colors[1], true);
-    Triangle(out, leading, outer, rear, colors[1], true);
+    ClosedQuad(out, root, leading, outer, rear,
+               axes.up * (.007f * scale), colors[0], colors[1]);
   }
   const Color eyeShine(126, 148, 151, 255);
   for (float side : {-1.0f, 1.0f}) {
@@ -251,7 +274,7 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
   std::cout << message << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(message);
   const char *detail =
-      "island-simulator: near dolphins use short closed eight-facet beaks, shaped lit fins, faceted eyes, mouth creases, and a two-facet blowhole";
+      "island-simulator: near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole";
   std::cout << detail << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(detail);
 }

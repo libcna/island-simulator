@@ -240,8 +240,8 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("dolphins", gate.SCOPES)
         self.assertIn('["dolphins", ["--viewpoint", "dolphins", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
-        marker = "near dolphins use short closed eight-facet beaks, shaped lit fins, faceted eyes, mouth creases, and a two-facet blowhole"
-        geometry = "dolphin near/far geometry 558/15 vertices, single-surface fins and CPU faceted daylight"
+        marker = "near dolphins use closed-volume fins and flukes, short beaks, faceted eyes, mouth creases, and a blowhole"
+        geometry = "dolphin near/far geometry 708/15 vertices, closed fins and CPU faceted daylight"
         def report():
             return {"passed": True, "views": [{"mode": "dolphins", "passed": True,
                 "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",

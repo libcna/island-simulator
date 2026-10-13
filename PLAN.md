@@ -439,7 +439,15 @@ docs/stream-course.md and docs/environment-field-design.md.
   Current native032529 and focused Chrome/SwiftShader032653 pass; Web retains a live dolphin in two
   different-hash frames over60positive intervals with GL0/context intact/kernel[]. Its closer QA
   camera follows subject translation without freezing pitch/bank/fluke/state motion. Current
-  Android remains pending. Fish then received an image-driven close-form pass: the 51-vertex
+  Android remains pending. A fourth pass replaces the coincident dorsal, paired pectoral and paired
+  fluke sheets with five thin closed volumes: separately lit faces, closed perimeter edges and
+  restrained edge thickness remain in the existing batch. Near/far geometry is708/15vertices;
+  four animals and one draw remain unchanged. Inspected native
+  `20261013T112745.515773Z-dolphins` passes240bins/std28.30/spatial149.09/kernel[]. Current Web and
+  Android qualification remain pending. Focused Chrome/SwiftShader
+  `20261013T113206.342870Z-chrome-dolphins` passes two inspected different-hash animated poses,
+  60finite intervals,GL0/context intact/kernel[]. Current Android qualification remains pending.
+  Fish then received an image-driven close-form pass: the 51-vertex
   diamond body first became
   a 276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
   bend, surface-fitted eyes/gills/mouth and better-rooted fins. A second pass uses seven stations,
@@ -1988,11 +1996,12 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Stingrays (shallow sandy water)
 - [~] Dolphins (offshore pod surfacing beyond the reef). Four original procedural agents now use
   bounded authoritative-water homes and cruise/surface/dive cycles with depth pitch, turn bank and
-  animated horizontal flukes. One culled dynamic batch uses 558/15 near/far vertices per visible
+  animated horizontal flukes. One culled dynamic batch uses 708/15 near/far vertices per visible
   animal: the close form has a short closed eight-facet beak below the melon, shaped lit pectoral
-  fins, faceted highlighted eyes, mouth/blowhole cues and no redundant reverse-winding fin copies.
+  fins, faceted highlighted eyes, mouth/blowhole cues and thin closed-volume dorsal, pectoral and
+  fluke surfaces rather than zero-thickness sheets.
   Deterministic 600-second CPU coverage, WorldReport integration, inspected native capture and a
-  focused live Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, further art
+  focused current closed-fin Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, further art
   polish, current Android execution and integrated performance measurement remain open; see
   `docs/dolphins.md`.
 - [ ] Octopuses (reef/rock shallows)

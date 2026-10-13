@@ -1446,7 +1446,7 @@ namespace island
                   << "island-simulator: dolphin near/far geometry "
                   << DolphinRenderer::MaximumNearVertexCount << '/'
                   << DolphinRenderer::MaximumFarVertexCount
-                  << " vertices, single-surface fins and CPU faceted daylight\n"
+                  << " vertices, closed fins and CPU faceted daylight\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"
                   << "island-simulator: aquatic wildlife uses depth tint and restrained moving "
