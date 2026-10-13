@@ -22,32 +22,36 @@ namespace {
 struct StreamGpuVertex {
     float position[3];
     float flowDistanceOpacity[4];
+    float lateral;
 };
 static_assert(std::is_trivially_copyable_v<StreamGpuVertex>);
-static_assert(std::is_standard_layout_v<StreamGpuVertex>&&sizeof(StreamGpuVertex)==28);
+static_assert(std::is_standard_layout_v<StreamGpuVertex>&&sizeof(StreamGpuVertex)==32);
 const VertexDeclaration& StreamDeclaration() {
     static const VertexDeclaration declaration{
         VertexElement(offsetof(StreamGpuVertex,position),VertexElementFormat::Vector3,
                       VertexElementUsage::Position,0),
         VertexElement(offsetof(StreamGpuVertex,flowDistanceOpacity),VertexElementFormat::Vector4,
-                      VertexElementUsage::TextureCoordinate,0)};
+                      VertexElementUsage::TextureCoordinate,0),
+        VertexElement(offsetof(StreamGpuVertex,lateral),VertexElementFormat::Single,
+                      VertexElementUsage::TextureCoordinate,1)};
     return declaration;
 }
 constexpr const char* vertex=R"(
 layout(location=0) in vec3 aPosition;
 layout(location=1) in vec4 aFlowDistanceOpacity;
+layout(location=2) in float aLateral;
 uniform mat4 uViewProjection;
-out vec3 world;out vec2 flow;out float courseDistance;out float opacity;
+out vec3 world;out vec2 flow;out float courseDistance;out float opacity;out float lateral;
 void main(){
     world=aPosition;flow=aFlowDistanceOpacity.xy;
-    courseDistance=aFlowDistanceOpacity.z;opacity=aFlowDistanceOpacity.w;
+    courseDistance=aFlowDistanceOpacity.z;opacity=aFlowDistanceOpacity.w;lateral=aLateral;
     gl_Position=uViewProjection*vec4(aPosition,1.0);
     // XNA projection uses [0,1] depth; desktop GL and GLES require [-1,1].
     gl_Position.z=2.0*gl_Position.z-gl_Position.w;
 }
 )";
 constexpr const char* fragment=R"(
-in vec3 world;in vec2 flow;in float courseDistance;in float opacity;
+in vec3 world;in vec2 flow;in float courseDistance;in float opacity;in float lateral;
 uniform float uTime;uniform vec3 uCamera;
 out vec4 fragColor;
 void main(){
@@ -64,10 +68,14 @@ void main(){
     float broad=.5+.5*sin(courseDistance*.57+sin(across*1.9-uTime*.12));
     float streakWave=.5+.5*sin(courseDistance*8.3-uTime*2.45+sin(across*5.2)*.45);
     float streak=smoothstep(.76,.98,streakWave)*(.45+.55*broad);
-    vec3 water=mix(vec3(.095,.245,.205),vec3(.36,.62,.65),fresnel);
+    float bankBand=smoothstep(.55,.75,abs(lateral))*(1.0-smoothstep(.91,.99,abs(lateral)));
+    float riffleCarrier=.5+.5*sin(courseDistance*1.17+sin(across*4.1)*.7);
+    float riffle=smoothstep(.78,.95,riffleCarrier)*(.5+.5*sin(courseDistance*12.4-uTime*3.0+across*7.0));
+    vec3 water=mix(vec3(.105,.285,.235),vec3(.42,.68,.72),fresnel);
     water*=mix(.91,1.055,broad);
     water+=vec3(.20,.28,.25)*streak*.24+vec3(.38,.38,.31)*glint*.38;
-    float alpha=opacity*(.39+fresnel*.42+streak*.055);
+    water+=vec3(.36,.43,.35)*(bankBand*(.15+.12*streak)+riffle*.11);
+    float alpha=opacity*(.47+fresnel*.46+streak*.065+bankBand*.14+riffle*.08);
     fragColor=vec4(water*alpha,alpha);
 }
 )";
@@ -88,7 +96,7 @@ StreamWaterRenderer::StreamWaterRenderer(GraphicsDevice& device,const IslandTerr
     Vector3 low(1000,1000,1000),high(-1000,-1000,-1000);
     for(const auto p:mesh.vertices) {
         const Vector3 position(p.x,p.y,p.z);low=Vector3::Min(low,position);high=Vector3::Max(high,position);
-        vertices.push_back({{p.x,p.y,p.z},{p.flowX,p.flowZ,p.distance,p.alpha}});
+        vertices.push_back({{p.x,p.y,p.z},{p.flowX,p.flowZ,p.distance,p.alpha},p.lateral});
     }
     bounds_=BoundingBox(low-Vector3(.05f,.05f,.05f),high+Vector3(.05f,.05f,.05f));
     count_=static_cast<int>(vertices.size());triangles_=static_cast<int>(mesh.indices.size()/3);
@@ -98,6 +106,7 @@ StreamWaterRenderer::StreamWaterRenderer(GraphicsDevice& device,const IslandTerr
     indices_->SetData(mesh.indices.data(),static_cast<int>(mesh.indices.size()));
     std::cout<<"island-simulator: stream water "<<count_<<" vertices, "<<triangles_
         <<" triangles, route-following downstream ripple and translucent current streaks\n";
+    std::cout<<"island-simulator: stream water uses bank-edge sheen and broken shallow riffles\n";
 }
 StreamWaterRenderer::~StreamWaterRenderer()=default;
 void StreamWaterRenderer::Draw(const Matrix& view,const Matrix& projection,const Vector3& camera,float seconds) {

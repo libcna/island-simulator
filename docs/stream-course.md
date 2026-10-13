@@ -1,5 +1,37 @@
 # Western stream course — live bed and first water pass
 
+## Readable shallow-water edges and riffles — 2026-10-13
+
+A fresh current-binary four-phase sequence `20261013T150001.158057Z-stream` was
+inspected before this pass. The bed, damp biome and downstream motion were present, but
+the intentionally restrained translucent surface read almost like a grey-green wet path
+from the ordinary camera. This pass improves water readability without widening the
+channel, adding foam, changing terrain/collision or introducing another draw.
+
+Each water vertex now carries its normalized -1..1 lateral coordinate in addition to
+local route tangent, cumulative course distance and opacity. The portable vertex grows
+from 28 to 32 bytes. The shader uses this coordinate for a narrow, tapered bank-edge
+sheen inside the existing alpha falloff. A second low-frequency mask breaks faster
+downstream wavelets into scattered shallow riffles; it never displaces geometry or
+crosses the surveyed bank. Fresnel colour and base transmission increase modestly so
+the water is identifiable while the wet bed remains visible. Geometry stays at 3,429
+vertices / 6,080 triangles in one frustum-culled transparent draw. The CPU stream survey
+now rejects nonfinite or out-of-range lateral coordinates.
+
+The resulting native sequence `20261013T150812.724753Z-stream` passes at 1280x720 with
+347 colour bins, 49.59 luminance deviation and 228.43 spatial contrast. All five base/
+phase images were inspected as a montage: the route now reads as continuous shallow
+water to the bay, and the broken highlights move between stages without becoming a
+solid white stripe. Its kernel delta contains no GPU fault. Stream survey plus Core
+tests pass.
+
+Current Chrome/SwiftShader evidence `20261013T151145.333849Z-chrome-stream` passes 60
+finite intervals with `glError=0`, an intact context, two distinct time-separated images
+and no new GPU kernel fault. Both images were inspected and retain the subtle moving
+riffles and exposed substrate. Android ARM64 assemble/lint also passes without launching
+the emulator. Richer physical bank relief, longer free traversal, subjective audio
+listening and Android runtime imagery remain open.
+
 ## Route-following translucent current — 2026-10-13
 
 The water surface no longer evaluates every ripple against one island-wide straight

@@ -22,6 +22,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         source = (ROOT / "tools/run_web_smoke.mjs").read_text()
         self.assertIn('focusedStreamCheck ? ["stream"]', source)
         self.assertIn("route-following downstream ripple and translucent current streaks", source)
+        self.assertIn("stream water uses bank-edge sheen and broken shallow riffles", source)
         self.assertIn('focusedFlightCheck || focusedStreamCheck || mode === "boars"', source)
         self.assertIn('["stream", ["--viewpoint", "stream", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
@@ -30,6 +31,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "screenshot":"before.png","afterSimulationScreenshot":"after.png",
             "result":{"error":"","exited":False,"output":
                 "route-following downstream ripple and translucent current streaks\n"
+                "stream water uses bank-edge sheen and broken shallow riffles\n"
                 "stream water first visible draw"}}]}
         self.assertEqual(gate.validate_stream_report(good),("before.png","after.png"))
         for bad in ({},dict(good,passed=False),

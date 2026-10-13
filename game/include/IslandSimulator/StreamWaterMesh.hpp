@@ -8,6 +8,7 @@ struct StreamWaterVertex {
     float flowX,flowZ;
     float distance;
     float alpha;
+    float lateral;
 };
 // Static shallow-water ribbon inside the actual carved bed. Ripple shading
 // animates without displacing geometry through the banks or changing collision.
@@ -41,7 +42,7 @@ struct StreamWaterMesh {
                 const float ends=std::min(std::clamp(static_cast<float>(row-12)/8,0.0f,1.0f),
                     std::clamp(static_cast<float>(last-row)/8,0.0f,1.0f));
                 const float opacity=.58f+.07f*std::sin(phase*.083f+lateral*1.7f);
-                vertices.push_back({px,y,pz,flowX,flowZ,distance,opacity*edge*ends});
+                vertices.push_back({px,y,pz,flowX,flowZ,distance,opacity*edge*ends,lateral});
             }
         }
         if(vertices.size()>=65536)throw std::runtime_error("Stream water index capacity");

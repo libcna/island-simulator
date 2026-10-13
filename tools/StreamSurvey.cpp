@@ -24,6 +24,7 @@ int main() {
         if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z)
             ||!std::isfinite(p.flowX)||!std::isfinite(p.flowZ)||!std::isfinite(p.distance)
             ||!std::isfinite(p.alpha)||p.alpha<0||p.alpha>.65f
+            ||!std::isfinite(p.lateral)||p.lateral<-1||p.lateral>1
             ||std::abs(std::hypot(p.flowX,p.flowZ)-1.0f)>.0001f
             ||p.flowX>-.8f||p.distance<0||p.distance>course.Station(course.Count()-1).distance
             ||!patch.Contains(p.x,p.z)||p.y<0)return 19;

@@ -51,6 +51,11 @@ sampling, smooth connected-shell lighting and a stone apron on the replacement t
 Native and Chrome/SwiftShader exterior/interior captures plus a native live keyboard
 entry/flight/exit test pass; natural-shape polish and Android qualification remain;
 see [cave status](docs/cave.md).
+A 101.879m carved western stream descends from the interior into the sheltered bay.
+Its shallow transparent surface follows local bends with downstream ripples, broken
+riffle highlights and tapered bank-edge sheen while retaining the visible wet bed.
+The shared moisture/drainage field drives damp soil, bank plants, fallen wood, mangroves
+and positional water sound; see [stream evidence](docs/stream-course.md).
 A raised timber hut stands in a reserved western-interior jungle clearing, safely inland
 and about57m from the stream. It has a layered palm-fibre roof, plank walls, framed windows
 and door, a railed three-step veranda, an enclosed slatted gable with a four-pane attic light,

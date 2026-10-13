@@ -826,7 +826,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   A focused live native walk then crosses from-3.391m on one bank through.342m nearest
   route distance to+2.834m on the other, stays in Walking mode and matches the shared
   nine-point rendered-bed support within4.8e-7m; before/after frames were inspected and
-  kernel delta is empty. Android runtime, longer free traversal, richer banks and final
+  kernel delta is empty. A readability pass adds a normalized lateral coordinate to the
+  portable vertex (28→32bytes), tapered in-water bank-edge sheen, and scattered shallow
+  riffle highlights while retaining the exposed bed,3429vertices/6080triangles/one draw
+  and unchanged terrain/collision. Native150812.724753Z five-image sequence PASS/
+  montage-inspected/no GPU fault; stream survey+Core PASS. Chrome/SwiftShader
+  151145.333849Z-chrome-stream PASS60intervals/GL0/context intact/two distinct inspected
+  images/no new GPU kernel fault. Android ARM64 assemble/lint PASS without emulator.
+  Android runtime, longer free traversal, richer banks and final
   visual/audio review remain, so the stream stays in progress. See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding

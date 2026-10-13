@@ -604,6 +604,8 @@ def main():
                         raise RuntimeError("missing live stream animation-stage image")
                 if "route-following downstream ripple and translucent current streaks" not in diagnostics:
                     raise RuntimeError("current stream flow material is missing")
+                if "stream water uses bank-edge sheen and broken shallow riffles" not in diagnostics:
+                    raise RuntimeError("current stream edge/riffle material is missing")
             if args.viewpoint in ("hut", "hut-material"):
                 for marker in ("hut raised veranda uses full-height outer posts, split rails, fascia, and three steps",
                                "hut enclosed slatted gable, framed attic light, and four knee-braced veranda supports",
