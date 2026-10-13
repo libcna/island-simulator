@@ -113,6 +113,21 @@ time-separated frames, GL error zero, live context and no new kernel fault. Linu
 core/asset tests, the 32 browser-harness tests, and Android ARM64 assemble/lint pass. No Android
 emulator, KVM or hardware GPU was used.
 
+## Missing-plank thickness — 2026-10-13
+
+Each of the four genuine beach-facing missing-plank bays now closes all four visible cut boundaries
+with an 11cm inward edge. Weathered fresh-break colour distinguishes the two transverse fracture
+faces; darker inner wood closes the upper and lower retained-board edges. These sixteen quads add
+32 triangles inside the existing buffer and draw, taking the landmark from 4,972 to 5,004 triangles
+without changing collision, debris or layout.
+
+Inspected native llvmpipe evidence `20261013T190835.072388Z-shipwreck` passes at 1280 by 720 with
+214 colour bins, luminance deviation 38.30, spatial contrast 160.11 and an empty kernel delta. The
+focused Chrome/SwiftShader result `20261013T191119.148542Z-chrome-shipwreck` passes 60 finite
+intervals, two distinct inspected time-separated images, GL error zero, a live context and no new
+kernel fault. Release and Debug asset validation, all 32 browser-runner tests, and Android ARM64
+assemble/lint pass; the emulator, KVM and hardware GPU were not used.
+
 The self-contained Linux archive built after the texture and fitting slices contains 14,752,032
 installed bytes and 7,880,492 compressed bytes, with SHA-256
 `0ce8ba429a69200952cbeceed15a3e295c73a730fb85ffa0410924cb15d6e0bf`. A temporary extraction

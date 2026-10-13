@@ -37,7 +37,8 @@ def validate_shipwreck_report(report):
         "shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections",
         "shipwreck beach broadside has true missing plank bays with exposed structural ribs",
         "shipwreck bow and stern use raked lower profiles with thick end timbers",
-        "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 4972 triangles",
+        "shipwreck missing plank bays expose eleven-centimetre inner edges",
+        "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5004 triangles",
         "shipwreck visible, 12 debris, 1 draw",
     )
     if (view.get("passed") is not True or view.get("glError") != 0

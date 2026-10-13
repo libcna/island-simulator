@@ -26,7 +26,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             "shipwreck hull uses asymmetric rising sheer, curved keel, and irregular splintered break sections",
             "shipwreck beach broadside has true missing plank bays with exposed structural ribs",
             "shipwreck bow and stern use raked lower profiles with thick end timbers",
-            "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 4972 triangles",
+            "shipwreck missing plank bays expose eleven-centimetre inner edges",
+            "shipwreck 20m broken hull, 12 debris pieces, one portable culled batch, 5004 triangles",
             "shipwreck visible, 12 debris, 1 draw",
         ))
         def report():
@@ -43,6 +44,8 @@ class BrowserSoftwareTests(unittest.TestCase):
             lambda value: value["views"][0].update(intervals=[16.7] * 59),
             lambda value: value["views"][0]["result"].update(output=markers.replace(
                 "shipwreck bow and stern use raked lower profiles with thick end timbers\n", "")),
+            lambda value: value["views"][0]["result"].update(output=markers.replace(
+                "shipwreck missing plank bays expose eleven-centimetre inner edges\n", "")),
             lambda value: value["views"][0]["result"].update(output=markers.replace(
                 "shipwreck visible, 12 debris, 1 draw", "shipwreck culled, 12 debris, 0 draw")),
         ):

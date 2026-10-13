@@ -1681,7 +1681,15 @@ Visual rework explicitly requested by the operator (2026-10-11):
   `20261013T185915.467977Z-chrome-shipwreck` passes 60 finite SwiftShader intervals, two distinct
   inspected frames, GL0, intact context and an empty kernel delta. Release/Debug core+asset tests,
   all 32 browser-runner tests and Android ARM64 assemble/lint pass without emulator/KVM use.
-  Further plank thickness/transom work, sand/water integration, a dedicated matched wide wreck
+  A fifth pass closes all four boundaries of every genuine missing-plank bay with an 11cm inward
+  edge: weathered fracture faces at the transverse cuts and dark inner wood above/below. Sixteen
+  quads add only 32 triangles in the existing buffer/draw, for 5,004 triangles total, with no
+  collision/layout/debris change. Inspected native `20261013T190835.072388Z-shipwreck` passes with
+  214 colour bins, 38.30 luminance deviation, 160.11 spatial contrast and an empty kernel delta.
+  Focused Chrome/SwiftShader `20261013T191119.148542Z-chrome-shipwreck` passes 60 finite intervals,
+  two distinct inspected frames, GL0, live context and an empty kernel delta. Release/Debug asset
+  validation, 32 browser-runner tests and ARM64 assemble/lint pass without emulator/KVM use.
+  Further transom/cabin and end-grain work, sand/water integration, a dedicated matched wide wreck
   comparison and Android visual qualification remain open; diagnostics alone do not close it.
 
 Wildlife backlog requested by the operator (all nonhostile ambient life; none may attack, block
@@ -6313,7 +6321,7 @@ Dependencies: stable terrain/shore queries and representative performance instru
 - [x] Give the shipwreck deterministic layout data, a portable culled renderer, fixed-sun material
   response, wet/submerged colour treatment, a dedicated first-person QA viewpoint, F1/F2 counts,
   tests for dimensions/depth/debris bounds/collision, and matched OpenGL 3.3, WebGL 2, and GLES 3
-  runtime evidence. The current 4,972-triangle one-draw batch is distance/frustum culled, provenance is
+  runtime evidence. The current 5,004-triangle one-draw batch is distance/frustum culled, provenance is
   manifest-gated, and native, Chrome, Firefox, and accelerated-Android captures were inspected.
 
 ### Ocean and shoreline

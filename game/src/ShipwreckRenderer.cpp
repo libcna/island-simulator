@@ -63,6 +63,8 @@ namespace island
             "island-simulator: shipwreck beach broadside has true missing plank bays with exposed structural ribs";
         constexpr std::string_view EndProfileDiagnostic =
             "island-simulator: shipwreck bow and stern use raked lower profiles with thick end timbers";
+        constexpr std::string_view PlankThicknessDiagnostic =
+            "island-simulator: shipwreck missing plank bays expose eleven-centimetre inner edges";
         constexpr int AgedWoodMaterial = 48;
         constexpr int InnerWoodMaterial = 80;
         constexpr int FreshBreakMaterial = 176;
@@ -563,6 +565,20 @@ void main()
                         const Vector3 highSecond=interpolate(first[band+1U],next[band+1U],upperCut);
                         AddQuad(vertices,first[band],lowFirst,highFirst,first[band+1U],color);
                         AddQuad(vertices,lowSecond,next[band],next[band+1U],highSecond,color);
+                        // The visible beach broadside is the negative-across shell, so
+                        // positive ship-right points into the hull. Close all four sides
+                        // of the missing bay with a modest real plank depth rather than
+                        // leaving the retained boards as infinitely thin cut-outs.
+                        const Vector3 inward = axes.right * 0.11f;
+                        const Color brokenEdge = ScaleColor(FreshBreak, 0.86f);
+                        AddQuad(vertices, lowFirst, lowFirst + inward,
+                                highFirst + inward, highFirst, brokenEdge);
+                        AddQuad(vertices, highSecond, highSecond + inward,
+                                lowSecond + inward, lowSecond, brokenEdge);
+                        AddQuad(vertices, lowSecond, lowSecond + inward,
+                                lowFirst + inward, lowFirst, InnerWood);
+                        AddQuad(vertices, highFirst, highFirst + inward,
+                                highSecond + inward, highSecond, InnerWood);
                         continue;
                     }
                     AddQuad(vertices, first[band], next[band], next[band + 1U],
@@ -982,6 +998,7 @@ void main()
         std::cout << HullShapeDiagnostic << '\n';
         std::cout << BroadsideDamageDiagnostic << '\n';
         std::cout << EndProfileDiagnostic << '\n';
+        std::cout << PlankThicknessDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(diagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(
             "island-simulator: shipwreck broken hull exposes ribs, partial deck, and snapped mast");
@@ -989,6 +1006,7 @@ void main()
         MirrorRuntimeDiagnosticToPlatformLog(HullShapeDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(BroadsideDamageDiagnostic);
         MirrorRuntimeDiagnosticToPlatformLog(EndProfileDiagnostic);
+        MirrorRuntimeDiagnosticToPlatformLog(PlankThicknessDiagnostic);
     }
 
     ShipwreckRenderer::~ShipwreckRenderer() = default;

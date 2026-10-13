@@ -154,8 +154,8 @@ shore field, samples terrain support for the heeled hull and twelve beachward de
 publishes only six conservative circular proxies for major structure. Small debris is intentionally
 non-solid. The renderer derives its complete broken hull, exposed frames, partial deck, cabin,
 snapped main mast, broken foremast, bowsprit, rigging, and debris from that immutable layout in one
-4,972-triangle static batch; it does not own an independent position or scale. A denser cross-
-section rounds the lower hull, true missing-plank broadside bays expose three darker structural
+5,004-triangle static batch; it does not own an independent position or scale. A denser cross-
+section rounds the lower hull, true missing-plank broadside bays expose 11cm closed inner edges and three darker structural
 ribs, and a keel, rudder, broken deck rails, plus two remaining dark side openings provide readable
 large-ship scale. The beach
 debris uses irregular splintered prism outlines and stable bidirectional angle variation instead

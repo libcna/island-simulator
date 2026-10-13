@@ -120,8 +120,8 @@ boat. Its exact 20 m hull is grounded and heeled in the water with a central bre
 partial deck, cabin, snapped mast, bowsprit, and rigging. Twelve planks and substantial fragments
 form a separate trail toward the sand. Six conservative hull proxies keep the player out of the
 major structure while the smaller debris remains non-solid and traversal-friendly. The complete
-4,972-triangle landmark uses a finer curved hull section, true missing-plank bays with visible inner
-ribs, a split broken keel and rudder, broken deck rails, raked lower bow/stern profiles, dark hull
+5,004-triangle landmark uses a finer curved hull section, true missing-plank bays with visible inner
+ribs and 11cm closed inner edges, a split broken keel and rudder, broken deck rails, raked lower bow/stern profiles, dark hull
 openings, and a splintered foremast stump. The debris
 trail varies its angle strongly in both directions instead of repeating the ship axis. One portable
 GLSL 330 / GLSL ES 300 material adds distance-faded

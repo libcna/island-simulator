@@ -1,5 +1,17 @@
 # island-simulator handoff
 
+## Current work — shipwreck missing-plank thickness inspected
+
+Goal remains active; continue the whole plan. All four genuine beach-facing missing-plank bays now
+have 11cm inward geometry around all four cut boundaries: weathered transverse fracture faces and
+darker upper/lower inner wood. Sixteen quads add 32 triangles inside the existing buffer and draw;
+the wreck is now 5,004 triangles with unchanged collision, layout and 12 debris pieces. Inspected
+native `20261013T190835.072388Z-shipwreck` PASS 214 bins/std38.30/spatial160.11/kernel[]. Focused
+Chrome/SwiftShader `20261013T191119.148542Z-chrome-shipwreck` PASS 60 intervals/two distinct
+inspected frames/GL0/context intact/kernel[]. Release+Debug asset validation, 32 browser-runner
+tests and ARM64 assemble/lint pass. No emulator/KVM or AMD GPU. Transom/cabin and beach/water
+integration remain; keep PLAN `[~]`. Max four compile cores.
+
 ## Current work — shipwreck raked bow/stern pass inspected
 
 Goal remains active; continue the whole plan and do not stop early. The wreck's lower bow/stern no
@@ -11,7 +23,7 @@ spatial161.09/kernel[]. Broad Web `20261013T183440.535268Z-chrome-coast` passed 
 but timed out in reef, so is not a suite pass. New focused Web
 `20261013T185915.467977Z-chrome-shipwreck` PASS 60 finite intervals/two distinct inspected frames/
 GL0/context intact/kernel[]. Release+Debug core/asset tests, 32 browser-runner tests and ARM64
-assemble/lint pass. No emulator/KVM or AMD GPU. Further plank thickness/transom and beach/water
+assemble/lint pass. No emulator/KVM or AMD GPU. Further transom/cabin and beach/water
 integration remain; keep PLAN `[~]`. Max four compile cores.
 
 ## Current work — dolphin silhouette and countershading pass inspected

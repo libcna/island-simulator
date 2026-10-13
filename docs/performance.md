@@ -1694,12 +1694,13 @@ guard for the complete scene, not isolated attribution to a position-only mesh c
 
 ### Shipwreck landmark baseline
 
-The current complete 20.0 m broken ship is one static batch containing 4,972 triangles. Its
+The current complete 20.0 m broken ship is one static batch containing 5,004 triangles. Its
 prepared 256-square weathered-wood texture and portable shader add board-local grain, broad weathering, restrained cracks, wet/submerged
 darkening, salt wear, and a bounded waterline sheen; prelit vertex colours provide the fallback.
 Sparse iron straps, rivets, hinges and rudder braces add 680 triangles. True missing-plank bays
 with unequal retained strakes and three exposed inner ribs add a net 344 triangles over the prior
-batch, bounded procedural rust and no draw call. The following timing measurements predate the
+batch; sixteen two-triangle inner-edge quads close their visible 11cm plank depth for another 32
+triangles and no draw call. Bounded procedural rust remains. The following timing measurements predate the
 file-backed wood, iron and current broadside-damage passes.
 The denser cross-section, localized missing boards, split broken keel, rudder, broken rails, hull
 openings, and broken foremast preserve one draw, frustum rejection, and the 310 m distance limit.
