@@ -56,7 +56,8 @@ Its shallow transparent surface follows local bends with downstream ripples, bro
 riffle highlights and tapered bank-edge sheen while retaining the visible wet bed. Shared
 low-frequency pools and pinches break up its longitudinal width without separating water,
 terrain, collision or habitat fields. A compact
-collision-authoritative cross-section now provides visibly incised, slope-shaded earthen banks.
+collision-authoritative cross-section now provides visibly incised, slope-shaded earthen banks,
+with sparse non-solid stones seated just beyond the carved bank blend.
 The shared moisture/drainage field drives damp soil, bank plants, fallen wood, mangroves
 and positional water sound; see [stream evidence](docs/stream-course.md).
 A raised timber hut stands in a reserved western-interior jungle clearing, safely inland

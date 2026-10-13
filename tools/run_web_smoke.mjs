@@ -791,6 +791,7 @@ try {
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
               && log.includes("stream water uses bank-edge sheen and broken shallow riffles")
               && log.includes("stream channel uses shared low-frequency pools and pinches")
+              && /stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank/.test(log)
               && log.includes("stream terrain uses a compact incised profile and slope-limited exposed bank strata")
               && log.includes("stream water first visible draw")))
             && (!focusedSnakeCheck || (snakeMotionFrames.length === 4

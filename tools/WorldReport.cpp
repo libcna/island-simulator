@@ -284,6 +284,7 @@ namespace
             hash.AddByte(rock.solid ? 1U : 0U);
             hash.AddByte(rock.offshore ? 1U : 0U);
             hash.AddByte(rock.clearingLandmark ? 1U : 0U);
+            hash.AddByte(rock.streamBankLandmark ? 1U : 0U);
         }
 
         hash.AddSize(world.props.FallenLogs().size());
@@ -1056,6 +1057,7 @@ namespace
                << "    \"forestFloorCompanions\": " << world.jungle.ForestGroundPlantCount() << ",\n"
                << "    \"rocks\": " << world.props.Rocks().size() << ",\n"
                << "    \"offshoreRocks\": " << CountOffshoreRocks(world) << ",\n"
+               << "    \"streamBankRocks\": " << world.props.StreamBankRockCount() << ",\n"
                << "    \"fallenLogs\": " << world.props.FallenLogs().size() << ",\n"
                << "    \"streamBankLogs\": " << world.props.StreamBankLogCount() << ",\n"
                << "    \"driftwood\": " << world.props.Driftwood().size() << ",\n"

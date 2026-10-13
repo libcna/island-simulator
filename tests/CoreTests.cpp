@@ -5317,6 +5317,7 @@ int main()
     std::size_t clearingLandmarkRockCount = 0U;
     std::size_t rockyShoreRockCount = 0U;
     std::size_t tidePoolRockCount = 0U;
+    std::size_t streamBankRockCount = 0U;
     for (std::size_t index = 0; index < props.Rocks().size(); ++index) {
         const island::RockPlacement& rock = props.Rocks()[index];
         const island::RockPlacement& repeated = repeatedProps.Rocks()[index];
@@ -5327,7 +5328,8 @@ int main()
                   && rock.scaleZ == repeated.scaleZ && rock.variant == repeated.variant
                   && rock.solid == repeated.solid && rock.offshore == repeated.offshore
                   && rock.clearingLandmark == repeated.clearingLandmark
-                  && rock.tidePoolLandmark == repeated.tidePoolLandmark,
+                  && rock.tidePoolLandmark == repeated.tidePoolLandmark
+                  && rock.streamBankLandmark == repeated.streamBankLandmark,
               "rock placement is bitwise deterministic for one seed");
         if (rock.offshore) {
             ++reefRockCount;
@@ -5348,6 +5350,16 @@ int main()
                 Check(!rock.solid && !rock.clearingLandmark
                         && sample.coastalRockiness>.50f,
                     "tide-pool accent rocks remain non-solid on rocky support");
+            } else if (rock.streamBankLandmark) {
+                ++streamBankRockCount;
+                const float across=std::abs(rock.z-island::StreamRoute::CentreZ(rock.x));
+                Check(!rock.solid&&!rock.clearingLandmark
+                        && across>island::StreamRoute::HalfWidth(rock.x)+.45f
+                        && across<island::StreamRoute::HalfWidth(rock.x)+2.4f,
+                    "stream stones remain non-solid and just beyond the carved bank");
+                Check(island::IslandEnvironmentField::SampleInland(
+                        rock.x,rock.z,sample.signedShoreDistance).moisture>.55f,
+                    "stream stones remain inside the damp bank microhabitat");
             } else if (rock.clearingLandmark) {
                 Check(sample.signedShoreDistance >= 30.0f,
                       "authored clearing rocks remain on deep interior ground");
@@ -5402,6 +5414,9 @@ int main()
         "exposed rocky-shore experience retains a visible procedural rock composition");
     Check(tidePoolRockCount==island::TidePoolLayout::Definitions.size()*2U,
         "each tide pool retains two lightweight rim-rock accents");
+    Check(streamBankRockCount==props.StreamBankRockCount()&&streamBankRockCount>=10U
+            &&streamBankRockCount<=island::NaturalPropLayout::StreamBankRockCandidateCount,
+        "stream retains a bounded deterministic non-solid bank-stone composition");
     std::size_t clearingLandmarkLogCount = 0U;
     std::size_t wetBankLogCount = 0U;
     bool eastClearingLogObserved = false;

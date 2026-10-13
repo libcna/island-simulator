@@ -862,7 +862,14 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   spatial249.45/kernel[] and the four phases were inspected; geometry stays3429/6080 water and
   7580/15050 bed. Chrome/SwiftShader172616.845838Z-chrome-stream PASS60intervals/two distinct
   inspected images/GL0/context intact/kernel[]. Current ARM64 assemble/lint PASS without emulator.
-  Android runtime, longer free traversal, embedded bank stones and final visual/audio
+  A bank-detail pass adds18 deterministic non-solid stones just beyond the shared carved-bank
+  blend, reusing existing rock variants/material/instances/culling/contact-shadow draw and adding
+  no texture, mesh, shader, obstacle or draw path. WorldReport exposes streamBankRocks=18 and
+  fingerprint301ea795731c0732. Native173931.739334Z-stream PASS350bins/std54.37/
+  spatial249.45/kernel[] and was inspected against the no-stone frame; the stones are embedded,
+  irregular and do not form a crossing. Chrome/SwiftShader174218.337615Z-chrome-stream PASS60
+  intervals/two distinct inspected images/GL0/context intact/kernel[]. Current ARM64 assemble/lint
+  again PASS without emulator. Android runtime, longer free traversal and final visual/audio
   review remain, so the stream stays in progress. See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding

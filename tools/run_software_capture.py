@@ -608,6 +608,8 @@ def main():
                     raise RuntimeError("current stream edge/riffle material is missing")
                 if "stream channel uses shared low-frequency pools and pinches" not in diagnostics:
                     raise RuntimeError("current irregular stream-width profile is missing")
+                if not re.search(r"stream-bank stones (?:1[0-8]), non-solid existing rock variants beyond the carved bank", diagnostics):
+                    raise RuntimeError("current stream-bank stone composition is missing")
                 if "stream terrain uses a compact incised profile and slope-limited exposed bank strata" not in diagnostics:
                     raise RuntimeError("current physical stream-bank terrain is missing")
             if args.viewpoint in ("hut", "hut-material"):

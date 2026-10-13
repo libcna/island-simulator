@@ -1313,6 +1313,9 @@ void main()
                   << " driftwood pieces, shared authored shoreline profile\n";
         std::cout << "island-simulator: stream-bank fallen logs "
                   << layout.StreamBankLogCount() << ", darker existing bark variant\n";
+        std::cout << "island-simulator: stream-bank stones "
+                  << layout.StreamBankRockCount()
+                  << ", non-solid existing rock variants beyond the carved bank\n";
         std::cout << "island-simulator: beach detail " << totalBeachDetailCount_
                   << " shell/pebble/wrack clusters, near-field culled\n";
         std::cout << "island-simulator: dry wrack keeps its dedicated beach-detail variant\n";

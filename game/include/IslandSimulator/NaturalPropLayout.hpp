@@ -26,6 +26,7 @@ namespace island
         bool offshore = false;
         bool clearingLandmark = false;
         bool tidePoolLandmark = false;
+        bool streamBankLandmark = false;
     };
 
     // Wood placement uses a local-X heading (cos, sin), unlike a model's Y-axis rotation.
@@ -112,6 +113,7 @@ namespace island
         static constexpr int ReefHabitatVariantCount = 4;
         static constexpr int ReefHabitatSiteCount = 640;
         static constexpr int AuthoredClearingRockCount = 5;
+        static constexpr int StreamBankRockCandidateCount = 18;
         static constexpr int AuthoredClearingLogCount = 2;
         static constexpr int StreamBankLogCandidateCount = 8;
         static constexpr int AuthoredCoveDriftwoodCount = 3;
@@ -140,6 +142,10 @@ namespace island
                           std::uint32_t seed = DefaultSeed);
 
         [[nodiscard]] const std::vector<RockPlacement>& Rocks() const noexcept { return rocks_; }
+        [[nodiscard]] std::size_t StreamBankRockCount() const noexcept
+        {
+            return streamBankRockCount_;
+        }
         [[nodiscard]] const std::vector<FallenLogPlacement>& FallenLogs() const noexcept
         {
             return fallenLogs_;
@@ -180,6 +186,7 @@ namespace island
         std::vector<FallenFrondPlacement> fallenFronds_;
         std::vector<ReefHabitatPlacement> reefHabitat_;
         std::vector<CircularObstacle> obstacles_;
+        std::size_t streamBankRockCount_ = 0;
         std::size_t streamBankLogCount_ = 0;
     };
 }

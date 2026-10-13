@@ -24,6 +24,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn("route-following downstream ripple and translucent current streaks", source)
         self.assertIn("stream water uses bank-edge sheen and broken shallow riffles", source)
         self.assertIn("stream channel uses shared low-frequency pools and pinches", source)
+        self.assertIn("stream-bank stones", source)
         self.assertIn("stream terrain uses a compact incised profile and slope-limited exposed bank strata", source)
         self.assertIn('focusedFlightCheck || focusedStreamCheck || mode === "boars"', source)
         self.assertIn('["stream", ["--viewpoint", "stream", "--debug-overlay"]]',
@@ -35,16 +36,20 @@ class BrowserSoftwareTests(unittest.TestCase):
                 "route-following downstream ripple and translucent current streaks\n"
                 "stream water uses bank-edge sheen and broken shallow riffles\n"
                 "stream channel uses shared low-frequency pools and pinches\n"
+                "stream-bank stones 14, non-solid existing rock variants beyond the carved bank\n"
                 "stream terrain uses a compact incised profile and slope-limited exposed bank strata\n"
                 "stream water first visible draw"}}]}
         self.assertEqual(gate.validate_stream_report(good),("before.png","after.png"))
         stale=json.loads(json.dumps(good))
         stale["views"][0]["result"]["output"]=stale["views"][0]["result"]["output"].replace(
             "stream channel uses shared low-frequency pools and pinches\n","")
+        no_stones=json.loads(json.dumps(good))
+        no_stones["views"][0]["result"]["output"]=no_stones["views"][0]["result"]["output"].replace(
+            "stream-bank stones 14, non-solid existing rock variants beyond the carved bank\n","")
         for bad in ({},dict(good,passed=False),
                     {**good,"views":[{**good["views"][0],"glError":1282}]},
                     {**good,"views":[{**good["views"][0],"afterSimulationScreenshot":"before.png"}]},
-                    stale):
+                    stale,no_stones):
             with self.assertRaises(RuntimeError):gate.validate_stream_report(bad)
 
     def test_flight_review_cpu_regressions_and_scope(self):

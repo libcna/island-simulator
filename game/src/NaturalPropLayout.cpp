@@ -2,6 +2,7 @@
 
 #include "IslandSimulator/IslandTerrain.hpp"
 #include "IslandSimulator/IslandEnvironmentField.hpp"
+#include "IslandSimulator/StreamBedPatch.hpp"
 #include "IslandSimulator/StreamRoute.hpp"
 #include "IslandSimulator/TidePoolLayout.hpp"
 #include "IslandSimulator/JungleLayout.hpp"
@@ -184,6 +185,48 @@ namespace island
                 rock.tidePoolLandmark=true;
                 rocks_.push_back(rock);
             }
+        }
+
+        // Small non-solid stones sit just beyond the collision-authoritative bank blend.
+        // Reusing the existing rock instances adds erosion cues without blocking a crossing,
+        // adding a texture, or creating a stream-only draw path.
+        for (int candidate = 0; candidate < StreamBankRockCandidateCount; ++candidate) {
+            const auto random = [&](const std::uint32_t channel) {
+                return UnitRandom(Hash(candidate, static_cast<std::int32_t>(channel),
+                    seed ^ (0x51f15e2dU + channel * 0x9e3779b9U)));
+            };
+            const float progress = (static_cast<float>(candidate) + .25f + .5f * random(0))
+                / static_cast<float>(StreamBankRockCandidateCount);
+            const float baseX = -76.0f - 74.0f * progress;
+            const float centreZ = StreamRoute::CentreZ(baseX);
+            const float tangentZ = StreamRoute::CentreZ(baseX - .5f)
+                - StreamRoute::CentreZ(baseX + .5f);
+            const float tangentLength = std::hypot(1.0f, tangentZ);
+            const float tangentX = -1.0f / tangentLength;
+            const float tangentZUnit = tangentZ / tangentLength;
+            const float side = candidate % 2 == 0 ? -1.0f : 1.0f;
+            const float bankDistance = StreamRoute::HalfWidth(baseX)
+                + StreamBedPatch::BankBlendWidth + .16f + .72f * random(1);
+            RockPlacement rock;
+            rock.x = baseX + side * bankDistance * tangentZUnit;
+            rock.z = centreZ - side * bankDistance * tangentX;
+            const auto support = terrain.Sample(rock.x, rock.z);
+            if (support.signedShoreDistance < 8.0f || support.height < .15f
+                || support.slopeRadians > .5759587f
+                || VegetationLayout::IsReservedRoute(rock.x, rock.z)
+                || NearTree(rock.x, rock.z, .78f, palms, jungle)) continue;
+            const float scale = .46f + .24f * random(2);
+            rock.y = support.height - .08f * scale;
+            rock.yawRadians = random(3) * 2.0f * std::numbers::pi_v<float>;
+            rock.scaleX = scale * (.90f + .27f * random(4));
+            rock.scaleY = scale * (.58f + .18f * random(5));
+            rock.scaleZ = scale * (.88f + .30f * random(6));
+            rock.variant = static_cast<std::uint8_t>(
+                Hash(candidate, 89, seed ^ 0x6d2b79f5U) % RockVariantCount);
+            rock.solid = false;
+            rock.streamBankLandmark = true;
+            rocks_.push_back(rock);
+            ++streamBankRockCount_;
         }
 
         for (int site = 0; site < ReefRockSiteCount; ++site) {

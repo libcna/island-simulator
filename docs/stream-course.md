@@ -1,5 +1,33 @@
 # Western stream course — live bed and first water pass
 
+## Embedded bank stones — 2026-10-13
+
+The ordinary eye-height stream view still exposed long smooth stretches beside the newly incised
+banks. Eighteen deterministic stones now sit irregularly along both sides of the 74 m middle and
+lower reach. Their offset follows the local route normal and the shared varying half-width, then
+starts beyond the replacement bed's 1.0 m bank blend. Terrain height, slope, shore distance, the
+reserved player route and nearby trees reject unsuitable candidates. Every accepted stone stays
+inside the moist bank microhabitat.
+
+This is deliberately a prop-layout pass rather than a stream-specific renderer. The stones reuse
+the existing three rock variants, material, instanced batches, culling and contact-shadow batch.
+They are non-solid, so a prominent foreground stone cannot unexpectedly block a narrow crossing;
+the collision grid remains at 805 static obstacles. The world gains exactly 18 rocks (184 to 202)
+and no texture, shader, mesh, vertex stream, wildlife update or draw path. WorldReport records the
+new `streamBankRocks` population and fingerprint `301ea795731c0732`.
+
+Release `IslandStreamCourseSurvey` and Core tests prove the bounded deterministic population,
+non-solid flag, local bank offset and moist habitat. Native llvmpipe evidence
+`20261013T173931.739334Z-stream` passes at 1280x720 with 350 colour bins, 54.37 luminance
+deviation, 249.45 spatial contrast and an empty kernel delta; the base frame was inspected against
+the preceding no-stone frame. The new stones are visibly seated in the wet shoulders, break up
+their smooth silhouette and do not form a regular crossing.
+
+Chrome/SwiftShader evidence `20261013T174218.337615Z-chrome-stream` passes 60 finite intervals,
+two inspected separated-time frames, `glError=0`, an intact context and no new kernel GPU fault.
+ARM64 debug packaging and lint pass without launching or modifying the emulator. Longer free
+traversal, Android runtime imagery and subjective positional stream-audio review remain open.
+
 ## Shared pools and pinches — 2026-10-13
 
 The incised eye-height view exposed one remaining construction cue: channel width increased almost
@@ -29,8 +57,9 @@ bay, while keeping exposed wet substrate and physical banks.
 
 Chrome/SwiftShader evidence `20261013T172616.845838Z-chrome-stream` passes two inspected distinct
 frames, 60 finite intervals, `glError=0`, a live context and an empty kernel delta. ARM64 debug
-packaging and lint pass without launching or changing the emulator. Embedded bank stones, longer
-free traversal, Android runtime imagery and subjective stream-audio review remain open.
+packaging and lint pass without launching or changing the emulator. This width-only stage's
+fingerprint was subsequently superseded by the bank-stone pass above. Longer free traversal,
+Android runtime imagery and subjective stream-audio review remain open.
 
 ## Incised physical banks — 2026-10-13
 
