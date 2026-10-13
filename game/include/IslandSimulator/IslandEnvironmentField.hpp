@@ -139,9 +139,7 @@ namespace island
             const float streamRange = Smooth(0.0f, 5.0f, along)
                 * (1.0f - Smooth(98.0f, 104.0f, along));
             const float streamAcross = std::abs(z - StreamRoute::CentreZ(x));
-            const float t = std::clamp(along / 98.0f, 0.0f, 1.0f);
-            const float shaped = t * t * (3.0f - 2.0f * t);
-            const float halfWidth = std::lerp(0.45f, 1.5f, shaped);
+            const float halfWidth = StreamRoute::HalfWidth(x);
             const float streamDrainage = streamRange
                 * (1.0f - Smooth(halfWidth + 0.35f, halfWidth + 8.0f, streamAcross));
             const float streamMoisture = streamRange
@@ -218,7 +216,10 @@ vec3 streamRouteGeometry(vec2 worldPosition) {
         *(1.55*sin(along*0.117)+0.62*sin(along*0.253+0.7));
     float streamAcross=abs(worldPosition.y-streamCentre);
     float t=clamp(along/98.0,0.0,1.0);float shaped=t*t*(3.0-2.0*t);
-    float halfWidth=mix(0.45,1.5,shaped);
+    float widthEnvelope=smoothstep(4.0,12.0,along)*(1.0-smoothstep(88.0,98.0,along));
+    float widthVariation=widthEnvelope*(0.16*sin(along*0.19+0.5)
+        +0.07*sin(along*0.43-1.1));
+    float halfWidth=mix(0.45,1.5,shaped)*(1.0+widthVariation);
     return vec3(streamRange,streamAcross,halfWidth);
 }
 vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField) {

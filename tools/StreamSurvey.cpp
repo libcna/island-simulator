@@ -105,24 +105,32 @@ int main() {
     std::cerr << "Replacement patch vertices=" << patch.Vertices().size() << " triangles="
         << patch.Indices().size()/3 << " deepest cut=" << deepestCut << '\n';
     float minimumMeander=0.0f,maximumMeander=0.0f;
+    float positiveWidthVariation=0.0f,negativeWidthVariation=0.0f;
     for(std::size_t i=0;i<course.Count();++i) {
         const auto& p=course.Station(i);
         const auto& q=repeat.Station(i);
         const float meander=p.z-(-55.0f-.23f*p.x);
         minimumMeander=std::min(minimumMeander,meander);
         maximumMeander=std::max(maximumMeander,meander);
+        const float t=std::clamp(island::StreamRoute::Along(p.x)
+            /island::StreamRoute::NominalLength,0.0f,1.0f);
+        const float baseline=std::lerp(.45f,1.5f,t*t*(3.0f-2.0f*t));
+        positiveWidthVariation=std::max(positiveWidthVariation,p.halfWidth-baseline);
+        negativeWidthVariation=std::min(negativeWidthVariation,p.halfWidth-baseline);
         if(p.x!=q.x||p.z!=q.z||p.water!=q.water||p.halfWidth!=q.halfWidth
-            ||!std::isfinite(p.water)||p.bed>=p.water||p.halfWidth<.45f||p.halfWidth>1.5f
+            ||!std::isfinite(p.water)||p.bed>=p.water||p.halfWidth<.45f||p.halfWidth>1.56f
             ||(i>0&&(p.water>course.Station(i-1).water||p.distance<=course.Station(i-1).distance)))
             return 2;
     }
     if(std::abs(course.Station(0).z-(-55.0f-.23f*course.Station(0).x))>.0001f
         ||std::abs(course.Station(course.Count()-1).z
             -(-55.0f-.23f*course.Station(course.Count()-1).x))>.0001f
-        ||minimumMeander> -1.8f||maximumMeander<1.2f)return 20;
+        ||minimumMeander> -1.8f||maximumMeander<1.2f
+        ||positiveWidthVariation<.16f||negativeWidthVariation>-.31f)return 20;
     if(course.Station(course.Count()-1).water!=0)return 3;
     std::cerr << "Sea-connected layout stations=" << course.Count() << " length="
         << course.Station(course.Count()-1).distance << " source water=" << course.Station(0).water
+        << " width variation=" << negativeWidthVariation << ".." << positiveWidthVariation
         << "; width0.9..3m; meander " << minimumMeander << ".." << maximumMeander
         << "m; replacement bed and water mesh checked\n";
     std::cout << "x,z,inland,analytic_height,rendered_height,water_candidate,bed_cut\n";

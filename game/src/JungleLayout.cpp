@@ -168,7 +168,10 @@ namespace island
             const float normalX = tangentZUnit;
             const float normalZ = -tangentX;
             const float side = candidate % 2 == 0 ? -1.0f : 1.0f;
-            const float bankDistance = 3.8f + 3.8f * random(1);
+            // Follow the real local channel profile: widened pools push stilt roots
+            // outward instead of silently losing trees to the drainage exclusion.
+            const float bankDistance = StreamRoute::HalfWidth(baseX)
+                + 2.6f + 3.8f * random(1);
             const float alongJitter = (random(2) - .5f) * 1.8f;
             CanopyPlacement tree;
             tree.x = baseX + alongJitter * tangentX + side * bankDistance * normalX;

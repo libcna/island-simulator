@@ -4490,6 +4490,25 @@ int main()
         .0001f, "stream meander preserves the authored source connection");
     Check(std::abs(streamZ-(-55.0f-.23f*streamX))>1.0f,
         "shared stream centreline has a material mid-course meander");
+    CheckNear(island::StreamRoute::HalfWidth(island::StreamRoute::SourceX), .45f,
+        .0001f, "stream source retains its narrow authored connection");
+    CheckNear(island::StreamRoute::HalfWidth(
+        island::StreamRoute::SourceX-island::StreamRoute::NominalLength), 1.5f,
+        .0001f, "stream mouth retains its broad authored connection");
+    float positiveWidthVariation=0.0f,negativeWidthVariation=0.0f;
+    for(int along=0;along<=98;++along) {
+        const float t=static_cast<float>(along)/island::StreamRoute::NominalLength;
+        const float shaped=t*t*(3.0f-2.0f*t);
+        const float baseline=std::lerp(.45f,1.5f,shaped);
+        const float width=island::StreamRoute::HalfWidth(
+            island::StreamRoute::SourceX-static_cast<float>(along));
+        Check(std::isfinite(width)&&width>=.45f&&width<=1.56f,
+            "stream pools and pinches stay inside the authored width budget");
+        positiveWidthVariation=std::max(positiveWidthVariation,width-baseline);
+        negativeWidthVariation=std::min(negativeWidthVariation,width-baseline);
+    }
+    Check(positiveWidthVariation>.16f&&negativeWidthVariation<-.31f,
+        "stream profile contains material low-frequency pools and pinches");
     const auto streamCentre=island::IslandEnvironmentField::SampleInland(
         streamX,streamZ,terrain.SignedShoreDistance(streamX,streamZ));
     const auto streamBank=island::IslandEnvironmentField::SampleInland(

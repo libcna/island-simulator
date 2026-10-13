@@ -854,8 +854,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   exposed-soil strata use the shared route function in the existing terrain shader, and the QA
   camera now reviews it at player eye height. Native160928.554419Z-stream PASS/inspected;
   Chrome/SwiftShader161228.307093Z-chrome-stream PASS60intervals/two distinct inspected images/
-  GL0/context intact/kernel[]. Current ARM64 assemble/lint PASS without emulator. Android
-  runtime, longer free traversal, longitudinal bank irregularity/stones and final visual/audio
+  GL0/context intact/kernel[]. A no-draw longitudinal pass adds two bounded low-frequency width
+  terms to the shared route: pools and pinches deviate -0.328..+0.174m from the previous monotonic
+  profile while retaining .45m source/1.50m mouth connections and a .45..1.555m measured bound.
+  Water, bed, collision and CPU/GLSL environment fields use the same width; mangrove setback now
+  follows it and retains15 trees. Native172213.838983Z-stream PASS345bins/std54.49/
+  spatial249.45/kernel[] and the four phases were inspected; geometry stays3429/6080 water and
+  7580/15050 bed. Chrome/SwiftShader172616.845838Z-chrome-stream PASS60intervals/two distinct
+  inspected images/GL0/context intact/kernel[]. Current ARM64 assemble/lint PASS without emulator.
+  Android runtime, longer free traversal, embedded bank stones and final visual/audio
   review remain, so the stream stays in progress. See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding

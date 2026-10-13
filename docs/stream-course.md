@@ -1,5 +1,37 @@
 # Western stream course — live bed and first water pass
 
+## Shared pools and pinches — 2026-10-13
+
+The incised eye-height view exposed one remaining construction cue: channel width increased almost
+monotonically from source to mouth even though the centreline meandered. `StreamRoute::HalfWidth`
+is now the single CPU source for a smooth base width plus two incommensurate low-frequency terms.
+Their influence fades at both ends, so the authored 0.45 m source and 1.50 m mouth connections are
+unchanged. Across one-metre stations the width stays within 0.45–1.555 m and differs from the old
+profile by -0.328–+0.174 m, producing readable pinches and small pools without high-frequency
+saw teeth.
+
+`StreamCourse`, the replacement bed, water mesh and collision support consume that same function.
+The inland moisture/drainage CPU field calls it directly, while its GLSL counterpart carries the
+identical equation for terrain material. Mangrove setback now includes local channel width, so
+wider lower pools move stilt roots outward rather than weakening drainage exclusion; the compact
+colony retains exactly 15 trees. The intentional placement response produces WorldReport
+fingerprint `ec24c4c7db7f26ad` with 270 canopy trees, 1,770 understory plants, 582 bushes, 3,009
+ground plants, 184 rocks and 33 fallen fronds.
+
+No water vertex, terrain vertex, index, draw or texture was added: water remains 3,429 vertices /
+6,080 triangles in one draw, and the adaptive bed remains 7,580 / 15,050 in its existing draw.
+`IslandStreamCourseSurvey` and Core tests now prove deterministic reconstruction, endpoint widths,
+the 0.45–1.56 m safety range and material positive/negative variation. Native llvmpipe evidence
+`20261013T172213.838983Z-stream` passes with 345 colour bins, 54.49 luminance deviation, 249.45
+spatial contrast and an empty kernel delta; the base plus four time-separated phases were
+inspected. The ordinary eye-height view shows a narrower middle reach opening again toward the
+bay, while keeping exposed wet substrate and physical banks.
+
+Chrome/SwiftShader evidence `20261013T172616.845838Z-chrome-stream` passes two inspected distinct
+frames, 60 finite intervals, `glError=0`, a live context and an empty kernel delta. ARM64 debug
+packaging and lint pass without launching or changing the emulator. Embedded bank stones, longer
+free traversal, Android runtime imagery and subjective stream-audio review remain open.
+
 ## Incised physical banks — 2026-10-13
 
 The previous ordinary view still let the lower course read as a translucent strip laid on

@@ -37,10 +37,8 @@ public:
         }
         if(count_<2 || terrain.SignedShoreDistance(stations_[count_-1].x,stations_[count_-1].z)>0)
             throw std::runtime_error("Stream course does not reach the sea");
-        const float length=stations_[count_-1].distance;
         for(std::size_t i=0;i<count_;++i) {
-            const float t=stations_[i].distance/length;
-            stations_[i].halfWidth=std::lerp(.45f,1.5f,t*t*(3-2*t));
+            stations_[i].halfWidth=StreamRoute::HalfWidth(stations_[i].x);
         }
     }
     [[nodiscard]] std::size_t Count() const noexcept {return count_;}
