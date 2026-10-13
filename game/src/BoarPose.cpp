@@ -8,17 +8,22 @@ namespace island
     BoarBodyProfile MakeBoarBodyProfile(float dip) noexcept
     {
         dip = std::isfinite(dip) ? std::clamp(dip, 0.0f, 0.15f) : 0.0f;
-        const std::array<BoarBodyRing,11> anchors{{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.64f, 0.22f, 0.25f},
-                 {-0.40f, 0.65f, 0.285f, 0.29f}, {-0.08f, 0.68f, 0.300f, 0.31f},
-                 {0.25f, 0.74f, 0.325f, 0.385f}, {0.47f, 0.68f - dip * 0.15f, 0.285f, 0.325f},
+        const std::array<BoarBodyRing,11> anchors{{{-0.72f, 0.64f, 0.025f, 0.05f}, {-0.60f, 0.65f, 0.22f, 0.24f},
+                 {-0.40f, 0.67f, 0.285f, 0.27f}, {-0.08f, 0.70f, 0.305f, 0.29f},
+                 // Lift the shoulder centre while preserving its dorsal height. This
+                 // creates a tucked lower chest and a readable boar shoulder mantle
+                 // instead of one uniformly deep barrel from rump to neck.
+                 {0.25f, 0.77f, 0.345f, 0.355f}, {0.47f, 0.71f - dip * 0.15f, 0.305f, 0.295f},
                  // Broad cheek transitions into a narrower nasal bridge instead of one
                  // straight wedge from the forehead to the nose. These authored stations
                  // retain rooting coefficients; the shared nasal shortening is applied below.
                  {0.62f, 0.62f - dip * 0.45f, 0.270f, 0.270f},
                  {0.78f, 0.545f - dip * 0.8f, 0.225f, 0.185f},
-                 {0.91f, 0.47f - dip, 0.155f, 0.120f},
-                 {1.04f, 0.425f - dip, 0.125f, 0.098f},
-                 {1.06f, 0.42f - dip, 0.005f, 0.005f}}};
+                 {0.91f, 0.48f - dip, 0.170f, 0.125f},
+                 {1.04f, 0.435f - dip, 0.125f, 0.092f},
+                 // The body loft terminates behind and inside the overlapping nose
+                 // pad. A near-point made the otherwise broad snout read like a rat.
+                 {1.06f, 0.43f - dip, 0.105f, 0.074f}}};
         BoarBodyProfile result{};
         // Nonuniform Hermite half-stations soften the shoulder/rump/head outline.
         // Clamp each component to its adjacent authored endpoints: no radius overshoot.

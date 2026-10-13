@@ -629,6 +629,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Chrome/SwiftShader050501.611529Z-chrome-boars PASS60 intervals/two distinct images/
   GL0/context intact/kernel[], both images inspected with the boar centred in side and
   near-front poses. Android and further joint/gait realism remain open.
+  Current-binary092653.081104Z eight-pose audit was technically clean but still exposed
+  a uniform barrel and pointed nasal termination. The continuous21-ring loft now lifts
+  and tucks the shoulder underside while widening its mantle; the final5mm point becomes
+  a105x74mm half-section sealed inside the existing nasal pad. The fitted mouth stays8mm
+  above the revised facets. Geometry count, coat/UVs, buffers and two draws are unchanged.
+  Matched llvmpipe093219.278072Z-boars PASS213bins/std18.68/spatial89.14/kernel[];
+  before/after stages0/1/2/7 inspected, with a blunter snout and clearer shoulder through
+  the turn. Focused Chrome/SwiftShader093719.934014Z-chrome-boars PASS60intervals/two
+  distinct images/GL0/context intact/kernel[] and both frames inspected. Joint/gait
+  continuity, subjective speaker listening and Android runtime remain open.
 - [ ] Correct the monkey's rat-like silhouette, explicitly including its thin rat-like
   tail. Rework head/body proportions and a fur-covered tail together, not just a colour
   change. Inspect actual island images and movement; previous fur/rig implementation

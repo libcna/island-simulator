@@ -37,6 +37,11 @@ int main()
             "boar shoulder lost its distinct rise over the rump");
         check(profile[12].radiusX>=.269f&&profile[14].radiusX>=.224f,
             "boar cheek and forehead lost their broad head silhouette");
+        check(profile[8].centreY>=.769f&&profile[8].radiusX>=.344f
+            &&profile[8].centreY-profile[8].radiusY>.41f,
+            "boar shoulder mantle lost its lifted, tucked silhouette");
+        check(profile.back().radiusX>=.10f&&profile.back().radiusY>=.07f,
+            "boar muzzle regressed to a pointed rodent-like tip");
         for(int index=0;index<BoarBristleCount;++index)for(bool juvenile:{false,true}) {
             const auto bristle=BuildBoarBristle(profile,index,juvenile,bob);
             for(auto p:{bristle.left,bristle.right})check(
@@ -51,7 +56,7 @@ int main()
         for(std::size_t i=0;i<mouth.size();++i) {
             const auto p=mouth[i],q=mouthMirror[i];
             check(p.x==-q.x&&p.y==q.y&&p.z==q.z,"mouth must mirror the head");
-            check(std::abs(p.x-BoarHeadSurfaceX(profile,p.y-bob,p.z)-0.002f)<1e-5f,
+            check(std::abs(p.x-BoarHeadSurfaceX(profile,p.y-bob,p.z)-0.008f)<1e-5f,
                 "mouth crease lost head contact");
             if(i%2==0) check(mouth[i+1].y>p.y,"mouth strip inverted");
             if(i>=2) check(p.z>mouth[i-2].z,"mouth strip folded backwards");

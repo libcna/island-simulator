@@ -355,6 +355,10 @@ namespace island
             "island-simulator: near boars use broad tapered upper legs with compact split hooves";
         std::cout << anatomyDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(anatomyDiagnostic);
+        constexpr const char* silhouetteDiagnostic =
+            "island-simulator: boars use a lifted shoulder mantle and broad sealed nasal disc";
+        std::cout << silhouetteDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(silhouetteDiagnostic);
         constexpr const char* contactDiagnostic =
             "island-simulator: boar soles fit rendered terrain independently with fixed-length limbs";
         std::cout << contactDiagnostic << '\n';

@@ -1,5 +1,31 @@
 # Boar coat material — live integration, visual refinement open
 
+## Lifted shoulder mantle and blunt nasal termination — 2026-10-13
+
+A renewed current-binary eight-pose audit `20261013T092653.081104Z-boars` passed its
+technical gates but still showed one nearly uniform furry barrel and a head narrowing to
+a rodent-like point. The continuous 21-ring body loft now narrows and lifts the rump and
+belly while widening the shoulder station. Its dorsal height remains stable, but its
+underside rises by about 60 mm at the shoulder, making the mantle and tucked chest readable
+without adding a separate intersecting primitive.
+
+The final muzzle ring no longer collapses to a 5 mm point. It retains a 105×74 mm half-
+section behind and inside the existing overlapping 114×90 mm nasal pad, producing a broad
+sealed snout from side and oblique angles. Cheek and pre-nasal stations are slightly fuller;
+the fitted mouth strip receives 8 mm of surface clearance so its interpolated faces remain
+visible above the broader faceted loft. Eyes, ears, tusks, fur source, UV window, poses,
+draws, buffers and 21-ring vertex count are unchanged.
+
+Release and Debug herd, coat and pose tests pass. The matched post-change llvmpipe sequence
+`20261013T093219.278072Z-boars` passes at 1280×720 with 213 colour bins, 18.68 luminance
+deviation, 89.14 spatial contrast and no kernel incident. Before/after stages 0, 1, 2 and 7
+were inspected together; the new silhouette keeps a blunt nose and more distinct shoulder
+through the forage-to-walk turn. Focused Chrome/SwiftShader
+`20261013T093719.934014Z-chrome-boars` passes 60 finite intervals, two distinct live frames,
+`glError=0`, an intact context and an empty final kernel delta. Both Web frames were
+inspected. Continuous joint/gait realism, subjective speaker listening and Android runtime
+remain open, so this is another bounded improvement rather than final appearance acceptance.
+
 ## Tapered upper limbs, compact hooves and tracking audit — 2026-10-13
 
 The close side view still exposed each leg as a narrow uniform tube attached to the

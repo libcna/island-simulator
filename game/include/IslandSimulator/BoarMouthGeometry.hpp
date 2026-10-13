@@ -21,7 +21,9 @@ inline std::array<BoarJoint,42> BuildBoarMouth(int side,float dip,float bob) {
         const float height=std::lerp(y[span],y[span+1],t)
             -dip*std::lerp(dipWeight[span],dipWeight[span+1],t)+(edge==0?-halfWidth:halfWidth);
         const float depth=BoarMuzzleZ(std::lerp(z[span],z[span+1],t));
-        result[i*2+edge]={static_cast<float>(side)*(BoarHeadSurfaceX(profile,height,depth)+0.002f),
+        // Keep the whole strip above the piecewise-faceted surface between sampled
+        // endpoints; the broader blunt nasal pad otherwise swallows the midpoints.
+        result[i*2+edge]={static_cast<float>(side)*(BoarHeadSurfaceX(profile,height,depth)+0.008f),
             height+bob,depth};
     }
     return result;
