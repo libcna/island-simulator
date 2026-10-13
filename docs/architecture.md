@@ -53,6 +53,9 @@ IslandTerrain ───────── authoritative terrain and shoreline qu
       ├── SharkPatrol ─────── occasional offshore patrol, dive cycle, and simulation tier
       │       │
       │       └── SharkRenderer ─ CPU body pose, near/far meshes, culling, one dynamic batch
+      ├── DolphinPod ──────── bounded offshore cruise/surface/dive pod and simulation tiers
+      │       │
+      │       └── DolphinRenderer ─ CPU body/fluke pose, near/far meshes, one dynamic batch
       ├── MonkeyTroop ─────── interior state machine, terrain constraints, and simulation tiers
       │       │
       │       └── MonkeyRenderer ─ generated rig/mesh/clips and portable CNA GPU skinning
@@ -1114,6 +1117,16 @@ reverse-winding copies; near/far geometry is 594/15 vertices. The batch renders 
 A translation-following close-review camera retains live patrol pose across slow audit frames.
 Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures match;
 the shark-inclusive arm64 GLES 3 APK builds but awaits stable-device runtime validation.
+
+`DolphinPod` adds four peaceful animals in bounded authoritative-water homes beyond the western
+reef. Cruise, surface and dive states supply depth pitch, turn bank and an animated tail beat while
+the shared activation policy reduces distant work. `DolphinRenderer` uses a 558-vertex near form
+with a short closed eight-facet beak below the melon, two-facet highlighted eyes, shaped pectoral
+fins, curved dorsal, mouth/blowhole cues and horizontal flukes; the far form is 15 vertices. Thin
+fins use two-sided facet lighting but remain single-surface under `CullNone`. All four animals share
+one dynamic `BasicEffect` draw. A translation-following close camera retains live pose across slow
+audit frames. Native OpenGL 3.3 and focused Chrome/SwiftShader WebGL 2 captures match; current
+Android execution and integrated performance remain open.
 
 Seven original procedural monkeys exercise CNA's actual skeletal-animation path without an
 external asset or license dependency. `MonkeyTroop` owns deterministic interior homes and a compact

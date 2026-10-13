@@ -234,6 +234,32 @@ class BrowserSoftwareTests(unittest.TestCase):
             invalid = report(); mutate(invalid)
             with self.assertRaises(RuntimeError): gate.validate_shark_report(invalid)
 
+    def test_dolphin_scope_requires_current_anatomy_two_frames_and_live_context(self):
+        self.assertIn("dolphins", gate.SCOPES)
+        self.assertIn('["dolphins", ["--viewpoint", "dolphins", "--debug-overlay"]]',
+                      (ROOT / "tools/web_smoke.html.in").read_text())
+        marker = "near dolphins use short closed eight-facet beaks, shaped lit fins, faceted eyes, mouth creases, and a two-facet blowhole"
+        geometry = "dolphin near/far geometry 558/15 vertices, single-surface fins and CPU faceted daylight"
+        def report():
+            return {"passed": True, "views": [{"mode": "dolphins", "passed": True,
+                "glError": 0, "contextLost": False, "renderer": "ANGLE SwiftShader",
+                "screenshot": "dolphins.png", "afterSimulationScreenshot": "dolphins-after.png",
+                "intervals": [16.7] * 60,
+                "result": {"output": marker + "\n" + geometry
+                    + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"}}]}
+        self.assertEqual(gate.validate_dolphin_report(report()),
+                         ("dolphins.png", "dolphins-after.png"))
+        for mutate in (
+            lambda value: value.update(passed=False),
+            lambda value: value["views"][0].update(glError=1282),
+            lambda value: value["views"][0].update(contextLost=True),
+            lambda value: value["views"][0].update(intervals=[16.7] * 59),
+            lambda value: value["views"][0]["result"].update(output=geometry + "\ndolphins 1/4 visible (near 1, far 0), 1 draw"),
+            lambda value: value["views"][0]["result"].update(output=marker + "\n" + geometry + "\ndolphins 0/4 visible (near 0, far 0), 0 draw"),
+        ):
+            invalid = report(); mutate(invalid)
+            with self.assertRaises(RuntimeError): gate.validate_dolphin_report(invalid)
+
     def test_snake_scope_requires_both_views_and_visible_population(self):
         self.assertIn("snakes", gate.SCOPES)
         environment = gate.browser_environment("chrome", "snakes", Path("/evidence"))

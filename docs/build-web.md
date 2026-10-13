@@ -716,6 +716,9 @@ positive intervals, SwiftShader, an intact context and GL error zero. The shark 
 the active offshore patrol, exact 594/15-vertex inventory, eight-station/ten-facet anatomy marker
 and the same lighting diagnostic. A focused `--scope shark` run additionally requires two
 different-hash separated-time frames, 60 positive intervals, SwiftShader, an intact context and GL
+error zero. A focused `--scope dolphins` run requires the 558/15-vertex inventory and current
+short-beak/faceted-eye/shaped-fin marker, a visible near member of the four-animal pod, two
+different-hash separated-time frames, 60 positive intervals, SwiftShader, an intact context and GL
 error zero. The monkey view must report a visible member of the
 seven-agent GPU-skinned troop. The shipwreck view requires the exact 20 m hull, twelve-piece debris
 trail, portable aged-wood/waterline shader, and one visible draw; the crab view requires a nonzero population from all thirty agents in

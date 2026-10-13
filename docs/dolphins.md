@@ -14,13 +14,15 @@ animation or sound recording.
 ## Form and rendering
 
 `DolphinRenderer` emits all visible animals into one dynamic `BasicEffect` batch. The close form
-has a tapered fusiform body, pale underside, narrow rostrum below the forehead, paired eyes,
-swept pectoral fins, a rear-curved dorsal fin and broad horizontal flukes. The body follows
-smoothed dive pitch and turn bank, while the tail stock and flukes oscillate laterally. Three
+has a tapered fusiform body, pale underside, short closed eight-facet beak below the melon,
+two-facet highlighted eyes, shaped swept pectoral fins, a rear-curved dorsal fin and broad
+horizontal flukes. A two-part mouth crease and two-facet blowhole retain cetacean head cues. The
+body follows smoothed dive pitch and turn bank, while the tail stock and flukes oscillate laterally. Three
 restrained grey-blue palettes share the existing CPU depth tint and moving shallow-sun response.
 
-The fixed budgets are 498 vertices for a close animal and 30 vertices for a distant silhouette,
-below the renderer capacities of 540/42. Four animals still produce at most one draw call. There
+The fixed budgets are 558 vertices for a close animal and 15 vertices for a distant silhouette.
+Cull-none rendering keeps lit fins single-surface instead of emitting coincident reverse-winding
+copies. Four animals still produce at most one draw call. There
 is no dolphin texture, separate shadow, collision proxy or audio voice.
 
 ## Verification
@@ -32,16 +34,20 @@ is no dolphin texture, separate shadow, collision proxy or audio voice.
 - The deterministic world report records the four states and home ranges, validates their
   habitat, and currently has fingerprint `049597fca36b232e`.
 - The contained llvmpipe/pixman capture
-  `build-consumer/software-captures/20261012T205513.019794Z-dolphins` passed image, runtime,
+  `build-consumer/software-captures/20261013T032529.689761Z-dolphins` passed image, runtime,
   OpenGL and kernel-delta checks. The inspected 1280x720 image contains one close dolphin in one
-  draw call. The fixed `--viewpoint dolphins` camera is available for repeat review.
+  draw call. The closer `--viewpoint dolphins` camera follows subject translation without freezing
+  pitch, bank, fluke beat or behaviour.
+- Inspected focused Chrome/SwiftShader evidence
+  `build/browser-software/20261013T032653.774852Z-chrome-dolphins` retains the animal in two
+  different-hash frames over 60 positive intervals with GL error zero, an intact context and an
+  empty kernel delta.
 
 ## Known limitations
 
-The first pass is intentionally compact for the 100-hour implementation target. The close animal
-is still visibly faceted; the fuller forehead, mouth crease, blowhole and fin curvature are economical cues
-rather than sculpted anatomy and need further art refinement.
+The close animal remains visibly faceted; its melon, mouth crease, blowhole and fin curvature are
+economical procedural cues rather than sculpted anatomy and can receive further art refinement.
 There is no breach, leap, wake, exhalation plume, social pod interaction or dolphin sound. Actual
-WebGL and Android runtime captures, continuous interactive observation, and measured integrated
-frame cost remain open. These limits keep both the explicit aquatic-animal visual-polish item and
-the dolphin backlog entry in progress rather than complete.
+Android execution, continuous interactive observation, and measured integrated frame cost remain
+open. These limits keep both the explicit aquatic-animal visual-polish item and the dolphin backlog
+entry in progress rather than complete.

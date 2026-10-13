@@ -88,6 +88,7 @@
       ["fish", ["--viewpoint", "fish", "--debug-overlay"]],
       ["turtles", ["--viewpoint", "turtles", "--debug-overlay"]],
       ["shark", ["--viewpoint", "shark", "--debug-overlay"]],
+      ["dolphins", ["--viewpoint", "dolphins", "--debug-overlay"]],
       ["monkeys", ["--viewpoint", "monkeys"]],
       ["goats", ["--viewpoint", "goats"]],
       ["spiders", ["--viewpoint", "spiders"]],

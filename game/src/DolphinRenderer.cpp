@@ -53,11 +53,6 @@ void Triangle(std::vector<VertexPositionColor> &out, const Vector3 &a,
   out.emplace_back(a, lit);
   out.emplace_back(b, lit);
   out.emplace_back(c, lit);
-  if (twoSided) {
-    out.emplace_back(c, lit);
-    out.emplace_back(b, lit);
-    out.emplace_back(a, lit);
-  }
 }
 
 Axes Pose(const DolphinState &dolphin) {
@@ -124,16 +119,28 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
       Triangle(out, rings[row][s], rings[row + 1][s], rings[row + 1][n], color);
       Triangle(out, rings[row][s], rings[row + 1][n], rings[row][n], color);
     }
-  // Long narrow rostrum beneath a rounded melon.
-  const auto tip = Point(centre, axes, 0, -.035f, 1.17f, scale);
-  const auto top = Point(centre, axes, 0, .055f, .90f, scale);
-  const auto bottom = Point(centre, axes, 0, -.085f, .90f, scale);
-  const auto left = Point(centre, axes, -.075f, -.025f, .90f, scale);
-  const auto right = Point(centre, axes, .075f, -.025f, .90f, scale);
-  Triangle(out, tip, top, left, colors[0]);
-  Triangle(out, tip, right, top, colors[0]);
-  Triangle(out, tip, left, bottom, colors[2]);
-  Triangle(out, tip, bottom, right, colors[2]);
+  // A short closed beak beneath the rounded melon avoids a fish-like needle profile.
+  constexpr int RostrumSegments = 8;
+  std::array<Vector3, RostrumSegments> rostrumBase{};
+  std::array<Vector3, RostrumSegments> rostrumTip{};
+  for (int segment = 0; segment < RostrumSegments; ++segment) {
+    const float angle = 2.0f * std::numbers::pi_v<float>
+        * static_cast<float>(segment) / static_cast<float>(RostrumSegments);
+    rostrumBase[segment] = Point(centre, axes, .102f * std::cos(angle),
+        -.040f + .066f * std::sin(angle), .90f, scale);
+    rostrumTip[segment] = Point(centre, axes, .052f * std::cos(angle),
+        -.043f + .044f * std::sin(angle), 1.075f, scale);
+  }
+  const auto rostrumCap = Point(centre, axes, 0, -.043f, 1.105f, scale);
+  for (int segment = 0; segment < RostrumSegments; ++segment) {
+    const int next = (segment + 1) % RostrumSegments;
+    const float angle = 2.0f * std::numbers::pi_v<float>
+        * (static_cast<float>(segment) + .5f) / static_cast<float>(RostrumSegments);
+    const Color color = std::sin(angle) < -.12f ? colors[2] : colors[0];
+    Triangle(out, rostrumBase[segment], rostrumTip[segment], rostrumTip[next], color);
+    Triangle(out, rostrumBase[segment], rostrumTip[next], rostrumBase[next], color);
+    Triangle(out, rostrumCap, rostrumTip[next], rostrumTip[segment], color);
+  }
   // Two facets produce a lower, swept-back falcate dorsal rather than a shark
   // triangle.
   const auto dorsalFront = Point(centre, axes, 0, .205f, .18f, scale);
@@ -142,11 +149,14 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
   const auto dorsalRear = Point(centre, axes, 0, .15f, -.38f, scale);
   Triangle(out, dorsalFront, dorsalTip, dorsalKnee, colors[1], true);
   Triangle(out, dorsalFront, dorsalKnee, dorsalRear, colors[1], true);
-  for (float side : {-1.0f, 1.0f})
-    Triangle(out, Point(centre, axes, side * .18f, -.04f, .35f, scale),
-             Point(centre, axes, side * .54f, -.14f, .02f, scale),
-             Point(centre, axes, side * .13f, -.11f, -.22f, scale), colors[1],
-             true);
+  for (float side : {-1.0f, 1.0f}) {
+    const auto finFront = Point(centre, axes, side * .18f, -.04f, .35f, scale);
+    const auto finTip = Point(centre, axes, side * .54f, -.14f, .02f, scale);
+    const auto finElbow = Point(centre, axes, side * .38f, -.145f, -.10f, scale);
+    const auto finRear = Point(centre, axes, side * .13f, -.11f, -.22f, scale);
+    Triangle(out, finFront, finTip, finElbow, colors[1], true);
+    Triangle(out, finFront, finElbow, finRear, colors[1], true);
+  }
   const float tail = dolphin.tailBeat * .12f;
   for (float side : {-1.0f, 1.0f}) {
     const auto root = Point(centre, axes, tail, 0, -.68f, scale);
@@ -159,21 +169,39 @@ void Near(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
     Triangle(out, root, leading, rear, colors[1], true);
     Triangle(out, leading, outer, rear, colors[1], true);
   }
-  for (float side : {-1.0f, 1.0f})
-    Triangle(out, Point(centre, axes, side * .205f, .065f, .62f, scale),
-             Point(centre, axes, side * .225f, .035f, .57f, scale),
-             Point(centre, axes, side * .213f, .092f, .55f, scale), colors[3]);
-  // A short dark mouth crease and dorsal blowhole complete the cetacean head
-  // cues.
-  for (float side : {-1.0f, 1.0f})
-    Triangle(out, Point(centre, axes, side * .078f, -.040f, .91f, scale),
-             Point(centre, axes, side * .025f, -.050f, 1.145f, scale),
-             Point(centre, axes, side * .080f, -.052f, .94f, scale), colors[3]);
-  Triangle(out, Point(centre, axes, -.030f, .177f, .68f, scale),
-           Point(centre, axes, .030f, .177f, .68f, scale),
-           Point(centre, axes, 0, .190f, .73f, scale), colors[3], true);
-  if (out.size() - start > DolphinRenderer::MaximumNearVertexCount)
-    throw std::runtime_error("Dolphin near mesh exceeds fixed budget");
+  const Color eyeShine(126, 148, 151, 255);
+  for (float side : {-1.0f, 1.0f}) {
+    const auto eyeTop = Point(centre, axes, side * .210f, .085f, .645f, scale);
+    const auto eyeFront = Point(centre, axes, side * .217f, .055f, .672f, scale);
+    const auto eyeBottom = Point(centre, axes, side * .220f, .025f, .642f, scale);
+    const auto eyeRear = Point(centre, axes, side * .216f, .055f, .610f, scale);
+    if (side > 0) {
+      Triangle(out, eyeTop, eyeBottom, eyeFront, colors[3]);
+      Triangle(out, eyeTop, eyeRear, eyeBottom, colors[3]);
+    } else {
+      Triangle(out, eyeTop, eyeFront, eyeBottom, colors[3]);
+      Triangle(out, eyeTop, eyeBottom, eyeRear, colors[3]);
+    }
+    Triangle(out, Point(centre, axes, side * .222f, .073f, .650f, scale),
+             Point(centre, axes, side * .223f, .060f, .660f, scale),
+             Point(centre, axes, side * .223f, .059f, .640f, scale), eyeShine);
+
+    const auto mouthFront = Point(centre, axes, side * .030f, -.078f, 1.075f, scale);
+    const auto mouthOuter = Point(centre, axes, side * .090f, -.078f, .905f, scale);
+    const auto mouthKnee = Point(centre, axes, side * .074f, -.088f, .970f, scale);
+    const auto mouthInner = Point(centre, axes, side * .026f, -.087f, 1.045f, scale);
+    Triangle(out, mouthFront, mouthOuter, mouthKnee, colors[3]);
+    Triangle(out, mouthFront, mouthKnee, mouthInner, colors[3]);
+  }
+  // A small two-facet dorsal blowhole completes the cetacean head cues.
+  const auto blowholeFront = Point(centre, axes, 0, .205f, .745f, scale);
+  const auto blowholeRight = Point(centre, axes, .032f, .195f, .700f, scale);
+  const auto blowholeRear = Point(centre, axes, 0, .205f, .665f, scale);
+  const auto blowholeLeft = Point(centre, axes, -.032f, .195f, .700f, scale);
+  Triangle(out, blowholeFront, blowholeRight, blowholeRear, colors[3], true);
+  Triangle(out, blowholeFront, blowholeRear, blowholeLeft, colors[3], true);
+  if (out.size() - start != DolphinRenderer::MaximumNearVertexCount)
+    throw std::runtime_error("Dolphin near mesh does not match fixed budget");
 }
 
 void Far(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
@@ -195,8 +223,8 @@ void Far(std::vector<VertexPositionColor> &out, const DolphinState &dolphin,
            Point(c, a, 0, 0, -1.0f, s), colors[1], true);
   Triangle(out, rear, Point(c, a, 0, 0, -1.0f, s),
            Point(c, a, .38f, .02f, -.92f, s), colors[1], true);
-  if (out.size() - start > DolphinRenderer::MaximumFarVertexCount)
-    throw std::runtime_error("Dolphin far mesh exceeds fixed budget");
+  if (out.size() - start != DolphinRenderer::MaximumFarVertexCount)
+    throw std::runtime_error("Dolphin far mesh does not match fixed budget");
 }
 } // namespace
 
@@ -222,6 +250,10 @@ DolphinRenderer::DolphinRenderer(GraphicsDevice &device,
       "fins and horizontal animated flukes";
   std::cout << message << '\n';
   MirrorRuntimeDiagnosticToPlatformLog(message);
+  const char *detail =
+      "island-simulator: near dolphins use short closed eight-facet beaks, shaped lit fins, faceted eyes, mouth creases, and a two-facet blowhole";
+  std::cout << detail << '\n';
+  MirrorRuntimeDiagnosticToPlatformLog(detail);
 }
 DolphinRenderer::~DolphinRenderer() = default;
 

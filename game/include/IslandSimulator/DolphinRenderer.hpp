@@ -19,8 +19,8 @@ namespace island {
 /** One portable dynamic batch for the offshore dolphin pod. */
 class DolphinRenderer final {
 public:
-  static constexpr int MaximumNearVertexCount = 540;
-  static constexpr int MaximumFarVertexCount = 42;
+  static constexpr int MaximumNearVertexCount = 558;
+  static constexpr int MaximumFarVertexCount = 15;
   explicit DolphinRenderer(
       Microsoft::Xna::Framework::Graphics::GraphicsDevice &,
       float maximumDistance = 580.0f);

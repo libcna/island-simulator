@@ -408,7 +408,15 @@ docs/stream-course.md and docs/environment-field-design.md.
   `IslandDolphinPodTests`, WorldReport fingerprint `049597fca36b232e`, and inspected contained
   llvmpipe evidence `20261012T205513.019794Z-dolphins` pass. A second image-driven pass rounded the
   forehead, lowered/swept the dorsal fin, broadened the horizontal flukes and added mouth/blowhole
-  cues. Fish then received an image-driven close-form pass: the 51-vertex diamond body first became
+  cues. A third pass replaces the remaining needle-like four-triangle rostrum with a short closed
+  eight-facet beak below the melon, shapes/lights both pectoral fins, adds two-facet highlighted
+  eyes, a two-part mouth crease and two-facet blowhole, and removes redundant reverse-winding fin
+  copies under `CullNone`. Near/far geometry is558/15vertices, four animals and one draw unchanged.
+  Current native032529 and focused Chrome/SwiftShader032653 pass; Web retains a live dolphin in two
+  different-hash frames over60positive intervals with GL0/context intact/kernel[]. Its closer QA
+  camera follows subject translation without freezing pitch/bank/fluke/state motion. Current
+  Android remains pending. Fish then received an image-driven close-form pass: the 51-vertex
+  diamond body first became
   a 276-vertex six-station/eight-facet loft with rounded head, caudal peduncle, progressive rear-body
   bend, surface-fitted eyes/gills/mouth and better-rooted fins. A second pass uses seven stations,
   ten body facets, a smoother forehead, shaped two-triangle pectoral fins, two-sided lit dorsal/tail
@@ -426,8 +434,8 @@ docs/stream-course.md and docs/environment-field-design.md.
   Chrome/SwiftShader031750 pass; Web retains the live patrol in two different-hash frames over
   60positive intervals with GL0/context intact/kernel[]. Its closer QA camera follows subject
   translation without freezing patrol pose. Current Android remains pending; see
-  `docs/shark-form.md`. These procedural forms remain visibly faceted; dolphin focused Web, current
-  Android and sustained performance review remain open. Turtle review retained the
+  `docs/shark-form.md`. These procedural forms remain visibly faceted; current Android and sustained
+  performance review remain open. Turtle review retained the
   existing detailed shell/paddle foundation but enlarged the
   four-ring head/beak, surface-fitted the eyes, added nostril/mouth cues and narrowed/lightened the
   cage-like scute seams for +12 near vertices. Inspected contained
@@ -1841,11 +1849,13 @@ progress or require player interaction; dangerous species keep their distance li
 - [ ] Stingrays (shallow sandy water)
 - [~] Dolphins (offshore pod surfacing beyond the reef). Four original procedural agents now use
   bounded authoritative-water homes and cruise/surface/dive cycles with depth pitch, turn bank and
-  animated horizontal flukes. One culled dynamic batch uses 498/30 near/far vertices per visible
-  animal. Deterministic 600-second CPU coverage, WorldReport integration and the inspected native
-  `dolphins` capture pass after one image-driven anatomy correction. Breaching/wakes/social motion,
-  further anatomy polish, portable runtime evidence
-  and integrated performance measurement remain open; see `docs/dolphins.md`.
+  animated horizontal flukes. One culled dynamic batch uses 558/15 near/far vertices per visible
+  animal: the close form has a short closed eight-facet beak below the melon, shaped lit pectoral
+  fins, faceted highlighted eyes, mouth/blowhole cues and no redundant reverse-winding fin copies.
+  Deterministic 600-second CPU coverage, WorldReport integration, inspected native capture and a
+  focused live Chrome/SwiftShader two-frame gate pass. Breaching/wakes/social motion, further art
+  polish, current Android execution and integrated performance measurement remain open; see
+  `docs/dolphins.md`.
 - [ ] Octopuses (reef/rock shallows)
 
 Human character backlog requested by the operator:

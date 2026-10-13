@@ -1018,6 +1018,14 @@ if(ISLAND_BUILD_GAME)
             LABELS display
             PASS_REGULAR_EXPRESSION
                 "shark near/far geometry 594/15 vertices, single-surface fins and CPU faceted daylight")
+        add_test(NAME IslandGameDolphinCapture
+            COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-dolphin-capture.ppm"
+                    --viewpoint dolphins)
+        set_tests_properties(IslandGameDolphinCapture PROPERTIES
+            TIMEOUT 30
+            LABELS display
+            PASS_REGULAR_EXPRESSION
+                "dolphin near/far geometry 558/15 vertices, single-surface fins and CPU faceted daylight")
         add_test(NAME IslandGameMonkeyCapture
             COMMAND island-simulator --capture "${CMAKE_BINARY_DIR}/island-monkey-capture.ppm"
                     --viewpoint monkeys)

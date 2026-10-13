@@ -799,6 +799,10 @@ def main():
             if args.viewpoint == "dolphins":
                 if "dolphins use fusiform bodies, rostrums, curved dorsal fins and horizontal animated flukes" not in diagnostics:
                     raise RuntimeError("current dolphin form is missing; check for a stale executable")
+                if "near dolphins use short closed eight-facet beaks, shaped lit fins, faceted eyes, mouth creases, and a two-facet blowhole" not in diagnostics:
+                    raise RuntimeError("current close dolphin anatomy is missing; check for a stale executable")
+                if "dolphin near/far geometry 558/15 vertices, single-surface fins and CPU faceted daylight" not in diagnostics:
+                    raise RuntimeError("current dolphin geometry inventory is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):
                     raise RuntimeError("dolphin capture did not submit a near detailed animal")
             if args.viewpoint == "crabs":

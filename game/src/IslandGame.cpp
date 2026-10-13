@@ -841,7 +841,7 @@ namespace island
             const Vector3 radial = Vector3::Normalize(Vector3(dolphin.x, 0.0f, dolphin.z));
             const Vector3 tangent(-radial.Z, 0.0f, radial.X);
             cameraPosition_ = Vector3(dolphin.x, dolphin.y, dolphin.z)
-                + radial * 7.0f + tangent * 2.0f + Vector3::Up * 3.2f;
+                + radial * 5.2f + tangent * 1.3f + Vector3::Up * 2.0f;
             const Vector3 toDolphin = Vector3(dolphin.x, dolphin.y, dolphin.z)
                 - cameraPosition_;
             yaw_ = std::atan2(toDolphin.X, toDolphin.Z);
@@ -1425,6 +1425,10 @@ namespace island
                   << "island-simulator: one occasional non-hostile offshore shark patrol\n"
                   << "island-simulator: dolphins " << dolphinPod_.Dolphins().size()
                   << " agents in a peaceful offshore cruise, surface, and dive pod\n"
+                  << "island-simulator: dolphin near/far geometry "
+                  << DolphinRenderer::MaximumNearVertexCount << '/'
+                  << DolphinRenderer::MaximumFarVertexCount
+                  << " vertices, single-surface fins and CPU faceted daylight\n"
                   << "island-simulator: aquatic wildlife uses depth pitch, banked turns, "
                      "forked tails, and near head detail\n"
                   << "island-simulator: aquatic wildlife uses depth tint and restrained moving "
@@ -1721,7 +1725,15 @@ namespace island
                                        subject.y - previousSharkSubject.y,
                                        subject.z - previousSharkSubject.z);
         }
+        const DolphinState previousDolphinSubject = dolphinPod_.Dolphins()[1U];
         dolphinPod_.Update(deltaSeconds,cameraPosition_.X,cameraPosition_.Y,cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::DolphinDetail) {
+            // Follow translation only: retain live pitch, bank, fluke beat and state motion.
+            const DolphinState& subject = dolphinPod_.Dolphins()[1U];
+            cameraPosition_ += Vector3(subject.x - previousDolphinSubject.x,
+                                       subject.y - previousDolphinSubject.y,
+                                       subject.z - previousDolphinSubject.z);
+        }
         Vector3 monkeyObserver = cameraPosition_;
         if (viewpoint_ == FixedViewpoint::MonkeyDetail) {
             const MonkeyState& subject = monkeyTroop_.Monkeys()[monkeyQaSubjectIndex_];

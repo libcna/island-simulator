@@ -295,7 +295,9 @@ peduncle, heterocercal tail, lit shaped paired fins, faceted eyes and five gill 
 [the image-driven shark form review](docs/shark-form.md).
 Four peaceful dolphins cruise beyond the western reef in bounded home ranges, alternate cruising,
 surfacing and diving, and use pitch, banking and animated horizontal flukes in one culled batch.
-The fixed `--viewpoint dolphins` camera exposes the current original procedural first pass; see
+Their 558-vertex close form adds a short closed beak beneath the melon, shaped lit fins, faceted
+eyes, mouth/blowhole cues and single-surface horizontal flukes. The fixed `--viewpoint dolphins`
+camera follows a live subject for review; see
 [the dolphin implementation and validation notes](docs/dolphins.md).
 Seven original procedural monkeys roam the interior using a compact, obstacle-aware state machine,
 three silhouette meshes, four material palettes, portable CNA GPU skeletal animation, and short
