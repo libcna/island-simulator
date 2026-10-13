@@ -743,7 +743,17 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   empty kernel deltas. A fresh live keyboard traversal reaches the back wall, roof, floor and
   exit without rock penetration, and the Chrome/SwiftShader WebGL2 fullscreen gate initializes
   the new shader without GL error or context loss. The outcrop remains visibly procedural;
-  Android, moving-view polish and performance remain.
+  Android, moving-view polish and performance remain. A subsequent entrance-silhouette pass
+  rejects both a conspicuous green terrain wall and mismatched pasted-on prop rocks, then keeps
+  the rendered and colliding solid unified: the asymmetric mouth has a narrower eroded lip that
+  grows into a broader, low-frequency irregular mantle. Rock volume is544.920m³. Inspected
+  llvmpipe captures `20261013T061242.381645Z-cave` and `20261013T061246.258725Z-cave-inside`
+  pass, and live traversal `software-cave/20261013T061331.542394Z` again completes back-wall,
+  roof, floor and exit stages with no rock penetration or kernel fault. The remaining exposed
+  mantle is still visibly procedural, so the item deliberately stays in progress. Current
+  Chrome/SwiftShader evidence `20261013T061512.375165Z-chrome-fullscreen` adds60 finite intervals,
+  zero GL error, intact context and empty kernel delta for the rebuilt mesh, but is not a cave-view
+  artistic acceptance. Android remains open.
 
 - [~] Add a realistic grounded helicopter near the centre of the island. It cannot
   fly, but the player must be able to enter both the pilot cockpit and rear cabin.

@@ -118,6 +118,7 @@ CaveRenderer::CaveRenderer(GraphicsDevice& device,const CaveLayout& cave):device
     vertices_->SetData(vertices.data(),count_);
     std::cout<<"island-simulator: cave rock "<<count_/3<<" triangles in one culled draw; 20m walkable interior\n";
     std::cout<<"island-simulator: cave compact asymmetric mouth uses normal-lit fractured stone and restrained moss\n";
+    std::cout<<"island-simulator: cave narrow eroded lip grows into an irregular closed rock mantle\n";
 }
 CaveRenderer::~CaveRenderer()=default;
 void CaveRenderer::Draw(const Matrix& view,const Matrix& projection) {

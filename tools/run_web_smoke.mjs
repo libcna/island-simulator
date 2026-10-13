@@ -958,6 +958,8 @@ try {
     && result.output?.includes(
       "island-simulator: terrain authored primary footpath material")
     && result.output?.includes(
+      "island-simulator: cave narrow eroded lip grows into an irregular closed rock mantle")
+    && result.output?.includes(
       "island-simulator: terrain footpath narrow irregular wear")
     && result.output?.includes(
       "island-simulator: terrain distinct authored east/west clearing materials")

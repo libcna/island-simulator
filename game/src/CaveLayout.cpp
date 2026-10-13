@@ -101,22 +101,35 @@ CaveLayout::CaveLayout(const IslandTerrain& terrain) {
             const float mouth=std::exp(-depth*.22f);
             const float height=3.45f+.25f*std::sin(depth*.37f+theta*3)
                 +.12f*std::sin(depth*1.3f+theta*7)
-                +.28f*mouth*std::sin(theta*4.4f+.2f)*arc;
+                +.62f*mouth*std::sin(theta*4.4f+.2f)*arc;
             const float innerWidth=Width(depth)
                 *(1+(.07f*std::sin(depth*.9f+theta*5+.4f)
-                    +.08f*mouth*std::sin(theta*3.1f+.9f))*arc);
+                    +.16f*mouth*std::sin(theta*3.1f+.9f))*arc);
             inner[row][slice]=World(Centre(depth)+innerWidth*w,Floor(depth)+height*arc,depth);
             // A compact rock mantle reads as a cave eroded into an outcrop.  The former
             // ~8 m crown put almost five metres of rock over a 3.5 m opening and looked
             // like a freestanding hangar from the authored exterior camera.
-            const float outerWidth=4.9f+.6f*std::sin(outerDepth*.38f+theta*2)
-                +.35f*std::sin(theta*5+outerDepth*.83f);
-            const float outerHeight=5.45f+.5f*std::sin(outerDepth*.41f+theta*3+.6f)
-                +.3f*std::sin(theta*7+outerDepth*.7f);
+            const float broadOuterWidth=4.72f+.76f*std::sin(outerDepth*.31f+theta*1.7f+.4f)
+                +.25f*std::sin(theta*5.0f+outerDepth*.73f)
+                +.18f*mouth*std::sin(theta*2.6f+.8f);
+            const float broadOuterHeight=5.38f+.64f*std::sin(outerDepth*.33f+theta*2.7f+.6f)
+                +.22f*std::sin(theta*6.0f+outerDepth*.61f)
+                +.18f*mouth*std::sin(theta*3.4f+.3f);
+            // A thin eroded lip at the opening grows into the broad rock mass a few
+            // metres inland.  Starting at full mantle width made the front read as a
+            // cut-off concrete tunnel even though the rest of the shell was irregular.
+            const float mouthWidth=innerWidth+1.38f
+                +.10f*std::sin(theta*3.2f+.4f)*arc;
+            const float mouthHeight=height+1.42f
+                +.13f*std::sin(theta*2.7f+.2f)*arc;
+            const float outerWidth=std::lerp(broadOuterWidth,mouthWidth,mouth);
+            const float outerHeight=std::lerp(broadOuterHeight,mouthHeight,mouth);
             // Broken projecting lip instead of a planar, manufactured arch face.
             const float rimDepth=outerDepth-(.75f+.55f*std::sin(theta*3+.4f))
                 *std::exp(-outerDepth*.4f);
-            outer[row][slice]=World(Centre(outerDepth)+outerWidth*w,
+            const float crownShift=.20f*std::sin(outerDepth*.27f+.5f)
+                +.15f*mouth*std::sin(theta*2.2f+.9f)*arc;
+            outer[row][slice]=World(Centre(outerDepth)+crownShift+outerWidth*w,
                 Floor(outerDepth)-.75f+outerHeight*arc,rimDepth);
         }
     }

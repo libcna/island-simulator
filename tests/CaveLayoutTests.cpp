@@ -92,14 +92,20 @@ int main() {
     std::array<int,5> parts{};
     double volume=0;
     float leftMouthTop=-INFINITY,rightMouthTop=-INFINITY;
+    float innerMouthExtent=0,outerMouthExtent=0,nearMantleExtent=0;
     for(const auto& triangle:cave.Triangles()) {
         for(const auto p:triangle.points) {
             Check(CaveSite::Reserves(p.x,p.z),"wildlife reserve does not contain the complete rock shell");
             const auto local=cave.Local(p);
             if(triangle.surface==CaveSurface::Entrance&&std::abs(local.z)<.0001f) {
+                innerMouthExtent=std::max(innerMouthExtent,std::abs(local.x));
                 if(local.x<-.1f)leftMouthTop=std::max(leftMouthTop,local.y);
                 if(local.x>.1f)rightMouthTop=std::max(rightMouthTop,local.y);
             }
+            if(triangle.surface==CaveSurface::Entrance&&local.z<-.1f)
+                outerMouthExtent=std::max(outerMouthExtent,std::abs(local.x));
+            if(triangle.surface==CaveSurface::Exterior&&local.z>3&&local.z<5)
+                nearMantleExtent=std::max(nearMantleExtent,std::abs(local.x));
         }
         ++parts[static_cast<int>(triangle.surface)];
         const auto a=triangle.points[0],b=triangle.points[1],c=triangle.points[2],n=triangle.normal;
@@ -126,6 +132,11 @@ int main() {
     Check(std::isfinite(leftMouthTop)&&std::isfinite(rightMouthTop)
           &&std::abs(leftMouthTop-rightMouthTop)>.03f,
           "cave mouth lost its entrance-local asymmetry");
+    Check(outerMouthExtent-innerMouthExtent>1.0f
+          &&outerMouthExtent-innerMouthExtent<2.0f,
+          "cave entrance no longer has a restrained eroded rock lip");
+    Check(nearMantleExtent>outerMouthExtent+.25f,
+          "cave lip no longer grows into its wider inland mantle");
     constexpr float radius=PlayerMotion::CapsuleRadius,height=1.9f;
     for(int step=-30;step<=195;++step) {
         const float depth=step*.1f;

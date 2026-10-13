@@ -138,3 +138,26 @@ landing and exit across88 non-solid samples. Chrome/SwiftShader WebGL2 run
 cave shader, zero GL error/context loss and an empty kernel delta; it is portability evidence,
 not a cave-view image. GLES3 runtime, moving exterior review, contact treatment and further
 erosion detail remain open.
+
+## Eroded entrance silhouette pass
+
+A further native visual audit rejected two experiments rather than retaining them. A taller
+terrain shoulder produced a conspicuous green heightfield wall, and eight ordinary prop rocks
+read as differently coloured pebbles pasted onto the portal. The retained change stays within
+the single closed cave solid: stronger entrance-local width/height variation makes the opening
+less symmetric, the outer mantle now undulates at broader non-repeating frequencies, and a
+restrained narrow lip grows into the wider rock mass several metres inland. The exact collision
+and rendered triangles therefore still agree. Measured rock volume is now544.920m³, inside the
+existing compact350–800m³ budget; the 1.9m capsule corridor remains unchanged.
+
+Inspected final-build llvmpipe evidence `20261013T061242.381645Z-cave` shows the revised exterior,
+while `20261013T061246.258725Z-cave-inside` verifies the asymmetric daylight opening from inside.
+The focused live keyboard run `software-cave/20261013T061331.542394Z` again reaches the back
+wall, blocks at the inner roof, lands on the replacement floor and exits without any solid-rock
+sample or kernel GPU fault. Chrome/SwiftShader evidence
+`20261013T061512.375165Z-chrome-fullscreen` supplies60 finite presentation intervals with zero
+GL error, an intact context and no kernel fault after constructing/drawing the revised closed
+mesh; it is portability evidence, not a cave-view visual acceptance. The outcrop remains
+intentionally marked in progress: its exposed
+mantle still reads more procedural than a naturally weathered headland and needs future contact
+and moving-view polish.
