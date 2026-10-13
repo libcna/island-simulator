@@ -15,6 +15,8 @@ struct StreamStation {
 class StreamCourse final {
 public:
     static constexpr std::size_t Capacity=161;
+    static constexpr float BankFreeboard=.36f;
+    static constexpr float BedDepth=.28f;
     explicit StreamCourse(const IslandTerrain& terrain) {
         float previousWater=100;
         float distance=0;
@@ -25,9 +27,9 @@ public:
                 x-stations_[i-1].x,z-stations_[i-1].z);
             distance+=stepLength;
             const float ground=terrain.Height(x,z);
-            const float water=std::max(0.0f,std::min(ground-.15f,
+            const float water=std::max(0.0f,std::min(ground-BankFreeboard,
                 i==0?previousWater:previousWater-.002f*stepLength));
-            const float bed=water-.25f;
+            const float bed=water-BedDepth;
             if(ground-bed>1.0f) throw std::runtime_error("Stream course requires excessive incision");
             stations_[count_++]={x,z,distance,ground,water,bed,0};
             previousWater=water;

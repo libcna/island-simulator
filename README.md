@@ -53,7 +53,8 @@ entry/flight/exit test pass; natural-shape polish and Android qualification rema
 see [cave status](docs/cave.md).
 A 101.879m carved western stream descends from the interior into the sheltered bay.
 Its shallow transparent surface follows local bends with downstream ripples, broken
-riffle highlights and tapered bank-edge sheen while retaining the visible wet bed.
+riffle highlights and tapered bank-edge sheen while retaining the visible wet bed. A compact
+collision-authoritative cross-section now provides visibly incised, slope-shaded earthen banks.
 The shared moisture/drainage field drives damp soil, bank plants, fallen wood, mangroves
 and positional water sound; see [stream evidence](docs/stream-course.md).
 A raised timber hut stands in a reserved western-interior jungle clearing, safely inland

@@ -71,6 +71,8 @@ namespace island
             "island-simulator: terrain substrate persists at distance with footprint-filtered noise";
         constexpr std::string_view SlopeLightDiagnostic =
             "island-simulator: terrain palette overrides preserve smooth slope daylight; opaque 28-byte vertices";
+        constexpr std::string_view StreamBankDiagnostic =
+            "island-simulator: stream terrain uses a compact incised profile and slope-limited exposed bank strata";
 
         const VertexDeclaration& TerrainDeclaration()
         {
@@ -614,6 +616,23 @@ void main()
     float streamStone = groundFleck(p, 0.72, vec2(19.1, -3.8), 0.68) * streamWet;
     color = mix(color, vec3(0.205, 0.220, 0.180) * vGroundLight, streamStone * 0.48);
 
+    // Reveal the actual incised bank faces with restrained exposed-soil strata. The mask
+    // follows the same route/width function as the CPU bed and is additionally limited by
+    // measured terrain slope, so it cannot become a flat painted stripe across the valley.
+    vec3 streamGeometry = streamRouteGeometry(p);
+    float bankInner = smoothstep(streamGeometry.z * 0.85,
+                                 streamGeometry.z + 0.02, streamGeometry.y);
+    float bankOuter = 1.0 - smoothstep(streamGeometry.z + 0.54,
+                                       streamGeometry.z + 1.00, streamGeometry.y);
+    float bankFace = streamGeometry.x * bankInner * bankOuter
+        * smoothstep(0.16, 0.38, slopeRadians);
+    bankFace *= clamp(0.64 + broad * 0.56 + medium * 0.24, 0.28, 1.0);
+    float bankStrata = 0.5 + 0.5 * sin(vWorld.y * 31.0 + broad * 3.1 + medium * 1.7);
+    vec3 exposedBank = mix(vec3(0.145, 0.108, 0.064), vec3(0.235, 0.174, 0.094),
+                           0.38 + bankStrata * 0.28) * vGroundLight;
+    exposedBank *= 1.0 + fine * 0.10;
+    color = mix(color, exposedBank, bankFace * 0.52);
+
     float wetHeight = vWorld.y + broad * 0.06 + medium * 0.025;
     float wetEdge = (1.0 - smoothstep(0.05, 0.42, wetHeight))
         * smoothstep(-0.12, 0.06, vWorld.y) * sand;
@@ -798,6 +817,8 @@ void main()
                     MirrorRuntimeDiagnosticToPlatformLog(SubstrateDistanceDiagnostic);
                     std::cout << SlopeLightDiagnostic << '\n';
                     MirrorRuntimeDiagnosticToPlatformLog(SlopeLightDiagnostic);
+                    std::cout << StreamBankDiagnostic << '\n';
+                    MirrorRuntimeDiagnosticToPlatformLog(StreamBankDiagnostic);
                 } else {
                     std::cerr << "island-simulator: terrain material fallback: "
                               << materialEffect_->GetCompileErrorEXT() << '\n';

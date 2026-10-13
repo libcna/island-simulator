@@ -306,6 +306,7 @@ def validate_stream_report(report):
         or len(set(frames))!=2
         or "route-following downstream ripple and translucent current streaks" not in log
         or "stream water uses bank-edge sheen and broken shallow riffles" not in log
+        or "stream terrain uses a compact incised profile and slope-limited exposed bank strata" not in log
         or "stream water first visible draw" not in log):
         raise RuntimeError("stream view lacks its live material, frames or clean graphics state")
     return frames

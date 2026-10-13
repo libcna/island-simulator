@@ -833,8 +833,16 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   montage-inspected/no GPU fault; stream survey+Core PASS. Chrome/SwiftShader
   151145.333849Z-chrome-stream PASS60intervals/GL0/context intact/two distinct inspected
   images/no new GPU kernel fault. Android ARM64 assemble/lint PASS without emulator.
-  Android runtime, longer free traversal, richer banks and final
-  visual/audio review remain, so the stream stays in progress. See `docs/stream-course.md`.
+  A physical-bank pass then lowers water36cm below original centre ground, retains28cm bed
+  depth and narrows the outer terrain blend from2m to1m. The adaptive replacement drops from
+  8696/17282 to7580vertices/15050triangles while maximum incision remains a bounded.67725m;
+  the visible ribbon retains at least.141482m measured bed clearance. Slope-limited, noise-broken
+  exposed-soil strata use the shared route function in the existing terrain shader, and the QA
+  camera now reviews it at player eye height. Native160928.554419Z-stream PASS/inspected;
+  Chrome/SwiftShader161228.307093Z-chrome-stream PASS60intervals/two distinct inspected images/
+  GL0/context intact/kernel[]. Current ARM64 assemble/lint PASS without emulator. Android
+  runtime, longer free traversal, longitudinal bank irregularity/stones and final visual/audio
+  review remain, so the stream stays in progress. See `docs/stream-course.md`.
 - [~] Add an accessible cave and adapt the island terrain around it. Choose a rocky
   hillside/headland, model a real entrance, interior floor/walls/ceiling and surrounding
   rock/terrain transition, with player clearance and no terrain sheet sealing the

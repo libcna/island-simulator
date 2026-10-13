@@ -23,6 +23,7 @@ class BrowserSoftwareTests(unittest.TestCase):
         self.assertIn('focusedStreamCheck ? ["stream"]', source)
         self.assertIn("route-following downstream ripple and translucent current streaks", source)
         self.assertIn("stream water uses bank-edge sheen and broken shallow riffles", source)
+        self.assertIn("stream terrain uses a compact incised profile and slope-limited exposed bank strata", source)
         self.assertIn('focusedFlightCheck || focusedStreamCheck || mode === "boars"', source)
         self.assertIn('["stream", ["--viewpoint", "stream", "--debug-overlay"]]',
                       (ROOT / "tools/web_smoke.html.in").read_text())
@@ -32,6 +33,7 @@ class BrowserSoftwareTests(unittest.TestCase):
             "result":{"error":"","exited":False,"output":
                 "route-following downstream ripple and translucent current streaks\n"
                 "stream water uses bank-edge sheen and broken shallow riffles\n"
+                "stream terrain uses a compact incised profile and slope-limited exposed bank strata\n"
                 "stream water first visible draw"}}]}
         self.assertEqual(gate.validate_stream_report(good),("before.png","after.png"))
         for bad in ({},dict(good,passed=False),

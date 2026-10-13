@@ -12,6 +12,7 @@ struct StreamBedVertex {float x,y,z;};
 class StreamBedPatch final {
 public:
     static constexpr int Subdivision=8;
+    static constexpr float BankBlendWidth=1.0f;
     StreamBedPatch(const StreamCourse& course,const RenderedTerrainSurface& original) {
         constexpr float spacing=2*TerrainMeshLayout::Extent/TerrainMeshLayout::QuadsPerAxis;
         const auto& a=course.Station(0);const auto& b=course.Station(course.Count()-1);
@@ -78,10 +79,15 @@ public:
                 const float shapeT=std::clamp(t,0.0f,1.0f);
                 const float width=std::lerp(routeA.halfWidth,routeB.halfWidth,shapeT);
                 const float water=std::lerp(routeA.water,routeB.water,shapeT);
-                if(across<width+2) {
+                const float bed=std::lerp(routeA.bed,routeB.bed,shapeT);
+                if(across<width+BankBlendWidth) {
                     const auto smooth=[](float v){v=std::clamp(v,0.0f,1.0f);return v*v*(3-2*v);};
-                    const float bowl=water-.25f*(1-std::min(1.0f,across*across/(width*width)));
-                    const float influence=(1-smooth((across-width)/2))*smooth(along/2)
+                    // A compact incised cross-section keeps useful depth under the visible
+                    // ribbon, then climbs through a short exposed bank instead of reading as
+                    // a broad wet colour painted onto otherwise flat ground.
+                    const float cross=std::min(1.0f,across/width);
+                    const float bowl=std::lerp(bed,water,std::pow(cross,2.4f));
+                    const float influence=(1-smooth((across-width)/BankBlendWidth))*smooth(along/2)
                         *(1-smooth((along-length)/4));
                     height=std::lerp(base,std::min(base,bowl),influence);
                 }

@@ -373,7 +373,9 @@ namespace island
             yaw_ = std::atan2(direction.X, direction.Z);
             pitch_ = std::atan2(direction.Y, std::hypot(direction.X, direction.Z));
         } else if (viewpoint_ == FixedViewpoint::StreamDetail) {
-            cameraPosition_=Vector3(-110,terrain_.Height(-110,-37)+3.5f,-37);
+            // Review the bank from the same eye height as ordinary walking; the former
+            // elevated overview hid the shallow but physical cross-section.
+            cameraPosition_=Vector3(-110,terrain_.Height(-110,-37)+PlayerMotion::EyeHeight,-37);
             const Vector3 target(-122,terrain_.Height(-122,-26.94f)-.18f,-26.94f);
             const auto direction=target-cameraPosition_;
             yaw_=std::atan2(direction.X,direction.Z);

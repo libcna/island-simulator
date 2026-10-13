@@ -788,6 +788,7 @@ try {
               && /resident 1\/1 visible, 2 draws, [1-9][0-9]* body triangles/.test(log)))
             && (!focusedStreamCheck || (log.includes("route-following downstream ripple and translucent current streaks")
               && log.includes("stream water uses bank-edge sheen and broken shallow riffles")
+              && log.includes("stream terrain uses a compact incised profile and slope-limited exposed bank strata")
               && log.includes("stream water first visible draw")))
             && (!focusedSnakeCheck || (snakeMotionFrames.length === 4
               && log.includes("snakes use a readable dorsal saddle and active forked-tongue flicks")

@@ -20,7 +20,8 @@ int main() {
     const island::StreamWaterMesh water(course,patch);
     if(water.vertices.empty()||water.vertices.size()>=65536||water.indices.empty()
         ||water.indices.size()%3!=0)return 18;
-    for(const auto p:water.vertices)
+    float minimumVisibleWaterDepth=std::numeric_limits<float>::max();
+    for(const auto p:water.vertices) {
         if(!std::isfinite(p.x)||!std::isfinite(p.y)||!std::isfinite(p.z)
             ||!std::isfinite(p.flowX)||!std::isfinite(p.flowZ)||!std::isfinite(p.distance)
             ||!std::isfinite(p.alpha)||p.alpha<0||p.alpha>.65f
@@ -28,6 +29,15 @@ int main() {
             ||std::abs(std::hypot(p.flowX,p.flowZ)-1.0f)>.0001f
             ||p.flowX>-.8f||p.distance<0||p.distance>course.Station(course.Count()-1).distance
             ||!patch.Contains(p.x,p.z)||p.y<0)return 19;
+        if(p.alpha>.2f&&p.distance>6.0f
+            &&p.distance<course.Station(course.Count()-1).distance-6.0f)
+            minimumVisibleWaterDepth=std::min(minimumVisibleWaterDepth,
+                p.y-patch.SampleHeight(p.x,p.z));
+    }
+    std::cerr<<"Stream water vertices="<<water.vertices.size()<<" triangles="<<water.indices.size()/3
+        <<" minimum visible depth="<<minimumVisibleWaterDepth<<'\n';
+    if(minimumVisibleWaterDepth<.13f||island::StreamCourse::BankFreeboard<.34f
+        ||island::StreamBedPatch::BankBlendWidth>1.1f)return 22;
     constexpr int waterAcrossCount=9;
     for(std::size_t row=1;row<water.vertices.size()/waterAcrossCount;++row)
         if(water.vertices[row*waterAcrossCount].distance
@@ -41,7 +51,6 @@ int main() {
             if(patch.SampleHeight(x,z)>y-.005f)return 17;
         }
     }
-    std::cerr<<"Stream water vertices="<<water.vertices.size()<<" triangles="<<water.indices.size()/3<<'\n';
     float deepestCut=0;
     for(std::size_t i=0;i<patch.Vertices().size();++i) {
         const auto p=patch.Vertices()[i];
@@ -125,12 +134,12 @@ int main() {
         const float z=island::StreamRoute::CentreZ(x);
         const float inland=terrain.SignedShoreDistance(x,z);
         const float ground=terrain.Height(x,z),rendered=surface->Sample(x,z).height;
-        // 15cm freeboard plus 25cm water; minimum 0.2% downstream fall.
+        // 36cm freeboard plus 28cm water; minimum 0.2% downstream fall.
         const float stepLength=step==0?0.0f:std::hypot(1.0f,
             z-island::StreamRoute::CentreZ(x+1.0f));
-        const float water=std::min(ground-.15f,
+        const float water=std::min(ground-island::StreamCourse::BankFreeboard,
             step==0?previousWater:previousWater-.002f*stepLength);
-        const float cut=ground-(water-.25f);
+        const float cut=ground-(water-island::StreamCourse::BedDepth);
         maximumCut=std::max(maximumCut,cut);
         maximumRise=std::max(maximumRise,ground-previousGround);
         std::cout << x << ',' << z << ',' << inland << ',' << ground << ',' << rendered

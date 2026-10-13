@@ -210,7 +210,7 @@ namespace island
 
         /** @brief GLSL counterpart used by terrain material consumers. */
         inline static constexpr const char* InlandShader = R"(
-vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField) {
+vec3 streamRouteGeometry(vec2 worldPosition) {
     float along=-worldPosition.x-65.0;
     float streamRange=smoothstep(0.0,5.0,along)*(1.0-smoothstep(98.0,104.0,along));
     float meanderEnvelope=smoothstep(0.0,9.0,along)*(1.0-smoothstep(86.0,98.0,along));
@@ -219,6 +219,13 @@ vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField)
     float streamAcross=abs(worldPosition.y-streamCentre);
     float t=clamp(along/98.0,0.0,1.0);float shaped=t*t*(3.0-2.0*t);
     float halfWidth=mix(0.45,1.5,shaped);
+    return vec3(streamRange,streamAcross,halfWidth);
+}
+vec3 inlandEnvironment(vec2 worldPosition,float shoreDistance,vec2 coastalField) {
+    vec3 streamGeometry=streamRouteGeometry(worldPosition);
+    float streamRange=streamGeometry.x;
+    float streamAcross=streamGeometry.y;
+    float halfWidth=streamGeometry.z;
     float streamDrainage=streamRange*(1.0-smoothstep(halfWidth+0.35,halfWidth+8.0,streamAcross));
     float streamMoisture=streamRange*(1.0-smoothstep(2.0,25.0,streamAcross));
     float southCentre=5.0+12.0*sin(worldPosition.y*0.018);

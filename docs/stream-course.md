@@ -1,5 +1,34 @@
 # Western stream course — live bed and first water pass
 
+## Incised physical banks — 2026-10-13
+
+The previous ordinary view still let the lower course read as a translucent strip laid on
+nearly flat ground. This bounded pass deepens only the existing collision-authoritative
+replacement patch. Water now lies 36 cm below the original centreline ground instead of 15 cm,
+the wet bed is 28 cm below that water, and the outer bank reaches unchanged terrain through a
+compact 1.0 m blend instead of 2.0 m. A shaped cross-section retains at least 14.1482 cm of real
+bed clearance below the visibly opaque part of the ribbon. Maximum measured incision is
+0.67725 m, below the existing 1 m construction guard.
+
+The narrower affected band reduces the adaptive replacement from 8,696 vertices / 17,282
+triangles to 7,580 vertices / 15,050 triangles. Terrain normals, daylight and `PlayerMotion`
+support are still derived from this same patch. The portable terrain shader reuses the shared
+GLSL route geometry function to reveal restrained soil strata only on genuinely sloping bank faces;
+moisture noise breaks the response so it does not become a parallel painted outline. No new
+texture, terrain draw, water draw or collision representation was added. The stream QA camera
+now uses normal player eye height instead of a 3.5 m overview, exposing the bank profile that a
+walker actually sees.
+
+`IslandStreamCourseSurvey` now rejects inadequate bank freeboard, an overly broad blend and less
+than 13 cm clearance beneath visible water away from source/outlet fades. Current native evidence
+`20261013T160928.554419Z-stream` passes at 1280x720 with 344 colour bins, 54.48 luminance
+deviation, 250.29 spatial contrast and an empty kernel-fault delta; all four separated-time
+images were inspected. Chrome/SwiftShader evidence
+`20261013T161228.307093Z-chrome-stream` passes 60 finite intervals, two distinct inspected
+images, GL error zero, an intact context and no new kernel GPU fault. ARM64 assemble/lint also
+passes without launching an emulator. More irregular longitudinal bank erosion, embedded stones,
+long free traversal, subjective audio review and Android runtime imagery remain open.
+
 ## Readable shallow-water edges and riffles — 2026-10-13
 
 A fresh current-binary four-phase sequence `20261013T150001.158057Z-stream` was
@@ -185,8 +214,9 @@ At the mouth the rendered surface is0.00824m, illustrating why analytic water
 placement alone is insufficient.
 
 `StreamCourse.hpp` records the route, cumulative distance, original ground,
-candidate water/bed heights and smoothly widening half-width0.45..1.5m.
-Upper water lies15cm below original ground, bed25cm below water. A minimum0.2%
+candidate water/bed heights and smoothly widening half-width0.45..1.5m. At that initial survey
+stage, upper water lay15cm below original ground and the bed25cm below water; the current
+incised-bank stage at the top of this document supersedes those dimensions. A minimum0.2%
 fall is imposed where needed, and the lower reach clamps to sea level, making
 the mouth a short tidal/backwater reach rather than water below the ocean.
 The unmodified west-corridor profile needs at most0.4m incision; construction
