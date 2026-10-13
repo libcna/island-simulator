@@ -10,7 +10,7 @@ sample `RenderedTerrainSurface`; the body is not allowed to float or use one gue
 height.
 
 The model is original project procedural geometry, not a downloaded asset. An opaque batch plus
-a depth-read translucent-glass batch contain 1,748 triangles: a multi-ring fuselage, sealed glazed nose,
+a depth-read translucent-glass batch contain 1,788 triangles: a multi-ring fuselage, sealed glazed nose,
 windshield mullion, tail boom and empennage, stationary main and tail rotors, terrain-following
 skids, four outward-open framed and glazed door panels, two threshold/ramp levels, a supported cabin floor, two pilot seats,
 paired cyclics, instrument lamps and a rear bench. Provenance is recorded in
@@ -114,6 +114,24 @@ empty-kernel-delta gates. Focused Chrome/SwiftShader evidence
 `build/browser-software/20261013T153637.307230Z-chrome-helicopter` passes both inspected views with
 60 finite intervals each, GL error zero, intact contexts and no new kernel GPU fault. The ARM64
 debug APK and Android lint also build successfully without starting an emulator.
+
+## Closed main-rotor blade pass
+
+The former main rotor used one infinitely thin quad per blade and therefore collapsed into a
+wire-like line from the exterior eye height. Each of the four stationary blades is now a closed
+tapered prism with separate upper/lower faces and visible leading, trailing, root and tip edges.
+The authored 5.65m radius and hub remain fixed; a restrained 68mm total depth and a small planform
+sweep make the parked rotor readable without implying motion or flight controls. Forty triangles
+raise the complete model from 1,748 to 1,788 triangles, still in the same two opaque/glass draws and
+with no collision, placement, traversal, texture or simulation change.
+
+Inspected native llvmpipe evidence `20261013T191917.508759Z-helicopter` passes at 1280 by 720 with
+304 colour bins, luminance deviation 55.11, spatial contrast 234.93 and an empty kernel delta. The
+focused Chrome/SwiftShader run `20261013T192258.296430Z-chrome-helicopter` passes exterior and
+interior views with 60 finite intervals each, GL error zero, intact contexts and no new kernel GPU
+fault; all four separated-time images have distinct hashes and were inspected.
+Release and Debug layout/asset tests, all 33 browser-runner tests and Android ARM64 assemble/lint
+pass without an emulator or KVM.
 
 Open work includes richer body anatomy and small mechanical detail, improved interior and
 exterior lighting, door animation, explicit sitting interaction, live free-walk visual review,

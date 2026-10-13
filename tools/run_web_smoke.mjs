@@ -757,6 +757,7 @@ try {
               && log.includes("hut palm fibre loaded Content/structures/hut-palm-fibre.png; 256x256, 9 mips, 349524 RGBA8 bytes")
               && log.includes(`hut 1 draw, ${mode === "hut" ? 7 : 6} contact patches`)))
             && (!focusedHelicopterCheck || (log.includes("helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane")
+              && log.includes("helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges")
               && log.includes("helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber")
               && log.includes("helicopter carries four outward-open framed door panels with glazing and handles")
               && /helicopter 2 draw/.test(log)))

@@ -82,7 +82,8 @@ and explicitly open visual, listening and portable work.
 A grounded original procedural utility helicopter now occupies a vegetation-cleared inland
 summit site. It cannot fly: both sides instead have open pilot and rear-cabin doors, stepped
 thresholds, a supported walkable floor, seats and cockpit controls. Four outward-open framed and
-glazed door panels make those entrances visually explicit without blocking them. Its skid contacts follow
+glazed door panels make those entrances visually explicit without blocking them. Four stationary
+main-rotor blades are closed tapered volumes rather than view-dependent flat sheets. Its skid contacts follow
 the rendered terrain while wildlife avoids the airframe. Use `--viewpoint helicopter` or
 `--viewpoint helicopter-inside`; [helicopter evidence](docs/helicopter.md) records the native
 first pass and remaining material, interaction and portable review work.

@@ -392,12 +392,24 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         const float angle=.18f+blade*std::numbers::pi_v<float>*.5f;
         const Vector3 radial(std::cos(angle),0,std::sin(angle));
         const Vector3 perpendicular(-radial.Z,0,radial.X);
-        const Vector3 inner=radial*.25f+Vector3(0,3.02f,-.12f);
-        const Vector3 outer=radial*HelicopterLayout::MainRotorRadius+Vector3(0,3.01f,-.12f);
-        const float half=.15f;
-        quad(inner-perpendicular*half,outer-perpendicular*(half*.70f),
-             outer+perpendicular*(half*.70f),inner+perpendicular*half,
-             blade%2?Color(48,51,48):Color(62,66,60));
+        const Vector3 centre(0,3.02f,-.12f);
+        const Vector3 inner=radial*.25f+centre;
+        const Vector3 outer=radial*HelicopterLayout::MainRotorRadius+centre
+            +perpendicular*.055f-Vector3(0,.012f,0);
+        const float rootHalf=.16f,tipHalf=.105f,halfDepth=.034f;
+        const Vector3 lift(0,halfDepth,0);
+        const std::array<Vector3,4> outline{{inner-perpendicular*rootHalf,
+            outer-perpendicular*tipHalf,outer+perpendicular*tipHalf,
+            inner+perpendicular*rootHalf}};
+        const Color upper=blade%2?Color(55,59,54):Color(69,74,67);
+        const Color lower=blade%2?Color(39,42,39):Color(47,51,46);
+        quad(outline[0]+lift,outline[1]+lift,outline[2]+lift,outline[3]+lift,upper);
+        quad(outline[3]-lift,outline[2]-lift,outline[1]-lift,outline[0]-lift,lower);
+        for(std::size_t edge=0;edge<outline.size();++edge) {
+            const std::size_t next=(edge+1U)%outline.size();
+            quad(outline[edge]-lift,outline[next]-lift,outline[next]+lift,
+                 outline[edge]+lift,edge==1U?Color(31,34,32):Color(43,47,43));
+        }
     }
     // Exhausts, navigation lights and a small belly lamp improve exterior scale cues.
     beam({-.36f,2.18f,-1.54f},{-.48f,2.25f,-1.98f},.15f,Color(55,55,52),Surface::Metal);
@@ -436,6 +448,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
     const std::string doors="island-simulator: helicopter carries four outward-open framed door panels with glazing and handles";
     std::cout<<doors<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doors);
+    const std::string rotor="island-simulator: helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges";
+    std::cout<<rotor<<'\n';MirrorRuntimeDiagnosticToPlatformLog(rotor);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

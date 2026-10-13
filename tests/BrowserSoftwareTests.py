@@ -17,6 +17,26 @@ from gpu_incident_qualification import contained_command
 
 
 class BrowserSoftwareTests(unittest.TestCase):
+    def test_helicopter_scope_requires_closed_rotor_blades_in_both_views(self):
+        markers = "\n".join((
+            "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
+            "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges",
+            "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
+            "helicopter carries four outward-open framed door panels with glazing and handles",
+            "helicopter 2 draw",
+        ))
+        def view(mode):
+            return {"mode": mode, "passed": True, "glError": 0, "contextLost": False,
+                "renderer": "ANGLE SwiftShader", "screenshot": mode + ".png",
+                "intervals": [16.7] * 60, "result": {"output": markers}}
+        report = {"passed": True, "views": [view("helicopter"), view("helicopter-inside")]}
+        self.assertEqual(gate.validate_helicopter_report(report),
+                         ["helicopter.png", "helicopter-inside.png"])
+        report["views"][1]["result"]["output"] = markers.replace(
+            "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges\n", "")
+        with self.assertRaises(RuntimeError):
+            gate.validate_helicopter_report(report)
+
     def test_shipwreck_scope_requires_current_end_profile_two_frames_and_live_context(self):
         self.assertIn("shipwreck", gate.SCOPES)
         markers = "\n".join((

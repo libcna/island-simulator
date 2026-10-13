@@ -972,7 +972,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   collision unchanged. Inspected native `20261013T153007.168360Z-helicopter` and
   `20261013T153247.865624Z-helicopter-inside` evidence passes, as does focused Chrome/SwiftShader
   `20261013T153637.307230Z-chrome-helicopter` with both views at 60 intervals, GL0, intact contexts
-  and kernel[]. ARM64 assemble/lint passes without an emulator. Richer anatomy/mechanics,
+  and kernel[]. ARM64 assemble/lint passes without an emulator. A sixth pass replaces each
+  wire-like single-quad main-rotor blade with a closed tapered 68mm-deep volume carrying separate
+  upper/lower and leading/trailing/root/tip faces. It adds40 triangles (1,788 total), no draw,
+  texture, collision or simulation change. Inspected native
+  `20261013T191917.508759Z-helicopter` passes304bins/std55.11/spatial234.93/kernel[]. Focused
+  Chrome/SwiftShader `20261013T192258.296430Z-chrome-helicopter` passes exterior+interior at
+  60 finite intervals each, GL0, intact contexts, four distinct images and kernel[]. Release/Debug
+  layout+asset tests, 33 browser-runner tests and ARM64 assemble/lint pass without emulator/KVM.
+  Richer anatomy/mechanics,
   interactions, free walking, Android runtime and performance review remain. See
   `docs/helicopter.md`.
 

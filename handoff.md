@@ -1,5 +1,17 @@
 # island-simulator handoff
 
+## Current work — helicopter closed main-rotor blades inspected
+
+Goal remains active; continue the whole plan. The four stationary 5.65m main-rotor blades no longer
+collapse into wire-like one-quad sheets: each is a closed tapered 68mm-deep volume with separate
+upper/lower and leading/trailing/root/tip faces. Cost is +40 triangles, 1,788 total, still two
+opaque/glass draws and no collision/traversal/texture/simulation change. Inspected native
+`20261013T191917.508759Z-helicopter` PASS 304 bins/std55.11/spatial234.93/kernel[]. Focused
+Chrome/SwiftShader `20261013T192258.296430Z-chrome-helicopter` PASS exterior+interior, 60 finite
+intervals each, GL0/contexts intact/four distinct images/kernel[]. Release+Debug layout/asset,
+33 browser-runner tests and ARM64 assemble/lint pass. No emulator/KVM or AMD GPU. Richer mechanics,
+lighting, sitting/free-walk and Android runtime remain; PLAN stays `[~]`. Max four compile cores.
+
 ## Current work — shipwreck missing-plank thickness inspected
 
 Goal remains active; continue the whole plan. All four genuine beach-facing missing-plank bays now

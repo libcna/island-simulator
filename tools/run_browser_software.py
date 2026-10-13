@@ -100,6 +100,7 @@ def validate_helicopter_report(report):
                        and math.isfinite(value) and value > 0 for value in intervals)
             or not isinstance(frame, str) or not frame.endswith(".png")
             or "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane" not in log
+            or "helicopter main rotor uses four closed tapered blades with visible leading, trailing, and tip edges" not in log
             or "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber" not in log
             or "helicopter carries four outward-open framed door panels with glazing and handles" not in log
             or not re.search(r"helicopter 2 draw", log)
