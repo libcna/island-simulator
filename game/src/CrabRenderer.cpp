@@ -2,6 +2,7 @@
 #include "IslandSimulator/CrabRenderer.hpp"
 
 #include "IslandSimulator/RuntimeDiagnostics.hpp"
+#include "IslandSimulator/WildlifeRenderLighting.hpp"
 
 #include <algorithm>
 #include <array>
@@ -33,13 +34,15 @@ namespace island
     namespace
     {
         constexpr float NearLodDistance = 38.0f;
-        constexpr int NearCrabVertexCount = 594;
+        constexpr int NearCrabVertexCount = 738;
         constexpr int FarCrabVertexCount = 12;
         constexpr int MaximumVerticesPerCrab = NearCrabVertexCount;
         constexpr int MaximumVertexCount = static_cast<int>(CrabColony::CrabCount)
             * MaximumVerticesPerCrab;
         constexpr std::string_view CrabDiagnostic =
             "island-simulator: beach crabs use rounded carapaces, volumetric jointed legs, eye stalks, and one culled batch";
+        constexpr std::string_view CrabDetailDiagnostic =
+            "island-simulator: near crabs use fixed-sun facets, tapered distal toes, and socketed eyes";
 
         struct CrabPalette
         {
@@ -70,9 +73,10 @@ namespace island
                          const Vector3& a, const Vector3& b, const Vector3& c,
                          const Color& color)
         {
-            vertices.emplace_back(a, color);
-            vertices.emplace_back(b, color);
-            vertices.emplace_back(c, color);
+            const Color lit = wildlife_render::FacetColor(a, b, c, color, true);
+            vertices.emplace_back(a, lit);
+            vertices.emplace_back(b, lit);
+            vertices.emplace_back(c, lit);
         }
 
         void AddDoubleSidedTriangle(std::vector<VertexPositionColor>& vertices,
@@ -199,10 +203,16 @@ namespace island
                     const Vector3 foot = LocalPoint(
                         centre, right, up, forward, side * 0.58f, -0.015f,
                         z + bend * 1.35f + stride * 1.55f, scale);
+                    const Vector3 toe = LocalPoint(
+                        centre, right, up, forward, side * 0.68f, -0.020f,
+                        z + bend * 1.55f + stride * 1.72f
+                            + (leg % 2 == 0 ? -0.018f : 0.018f), scale);
                     AppendCrossedSegment(vertices, root, knee, 0.018f * scale,
                                          palette.limb);
                     AppendCrossedSegment(vertices, knee, foot, 0.012f * scale,
                                          palette.joint);
+                    AppendCrossedSegment(vertices, foot, toe, 0.007f * scale,
+                                         palette.limb);
                 }
 
                 const float clawSpread = 0.025f + crab.clawPose * 0.035f;
@@ -242,7 +252,12 @@ namespace island
                 AppendCrossedSegment(vertices, eyeRoot, eyeCentre,
                                      0.012f * scale, palette.shellSide);
                 AppendOctahedron(vertices, eyeCentre, right, up, forward,
-                                 0.018f * scale, 0.018f * scale, 0.018f * scale,
+                                 0.024f * scale, 0.021f * scale, 0.022f * scale,
+                                 palette.shellHighlight, palette.shellSide);
+                const Vector3 pupilCentre = eyeCentre + forward * (0.014f * scale)
+                    + up * (0.006f * scale);
+                AppendOctahedron(vertices, pupilCentre, right, up, forward,
+                                 0.012f * scale, 0.012f * scale, 0.011f * scale,
                                  Color(38, 30, 24, 255), Color(20, 18, 17, 255));
             }
 
@@ -316,6 +331,8 @@ namespace island
         stagingVertices_.reserve(static_cast<std::size_t>(MaximumVertexCount));
         std::cout << CrabDiagnostic << '\n';
         MirrorRuntimeDiagnosticToPlatformLog(CrabDiagnostic);
+        std::cout << CrabDetailDiagnostic << '\n';
+        MirrorRuntimeDiagnosticToPlatformLog(CrabDetailDiagnostic);
     }
 
     CrabRenderer::~CrabRenderer() = default;

@@ -797,6 +797,11 @@ def main():
                     raise RuntimeError("current dolphin form is missing; check for a stale executable")
                 if not re.search(r"dolphins [1-4]/4 visible \(near [1-4], far [0-4]\), 1 draw", diagnostics):
                     raise RuntimeError("dolphin capture did not submit a near detailed animal")
+            if args.viewpoint == "crabs":
+                if "near crabs use fixed-sun facets, tapered distal toes, and socketed eyes" not in diagnostics:
+                    raise RuntimeError("current close crab detail is missing; check for a stale executable")
+                if not re.search(r"crabs [1-9][0-9]*/30 visible \(near [1-9][0-9]*, far [0-9]+\), 1 draw", diagnostics):
+                    raise RuntimeError("crab capture did not submit a near detailed colony")
             if args.viewpoint == "bush" and "bush QA target variant 0 at player-eye detail distance" not in diagnostics:
                 raise RuntimeError("bush camera did not select the intended shrub")
             if args.viewpoint == "ground-broadleaf" and "ground-broadleaf QA target variant 1 at player-eye detail distance" not in diagnostics:

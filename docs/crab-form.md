@@ -52,3 +52,34 @@ The animals remain deliberately low-poly and vertex-coloured. They do not yet ha
 filtered shell microtexture, self-shadowing, burrows or individually curled distal leg
 segments. WebGL 2, Android GLES 3, physical-device performance and interactive motion review
 remain open, so the broader aquatic-wildlife polish item remains in progress.
+
+## Fixed-sun facets, distal toes and socketed eyes (2026-10-13)
+
+Fresh baseline `20261013T024856.545338Z-crabs` confirmed that the rounded shell was recognizable,
+but its panels remained uniformly flat, the second leg segment ended as a hairline and each eye
+read as a black diamond on a stalk. All crab triangles now receive the shared portable CPU
+fixed-sun/sky-fill facet response used by other wildlife. Every walking leg gains a short,
+alternately splayed, tapered third segment from foot to toe. Each eye stalk ends in a shell-colour
+octahedral socket with a smaller dark globe projected slightly forward/up, instead of exposing the
+entire black octahedron.
+
+The eight toes add 96 vertices and the paired outer eye sockets add 48. Exact near geometry is now
+738 vertices / 246 triangles per crab; far geometry stays 12 / 4. Worst-case capacity is 22,140
+vertices or 354,240 bytes at 16 bytes per `VertexPositionColor`. Population, 38 m LOD threshold,
+behaviour, habitat, culling and the single dynamic draw are unchanged. Runtime still checks the
+exact per-agent near/far vertex counts.
+
+The first retained after-image `20261013T025101.002806Z-crabs` passed and was inspected against the
+baseline. Final current-camera native evidence `20261013T025356.261202Z-crabs` also passes: five
+near crabs in one draw, 191 colour bins, luminance deviation 30.38, spatial contrast 186.15 and an
+empty kernel delta. The image shows stronger shell volume, socketed eyes and visibly bent distal
+feet; thin planar claw fingers and low-poly surfaces remain.
+
+A new focused `crabs` browser scope requires the current detail marker, a nonzero near population
+from all 30 agents in exactly one draw, 60 finite intervals, two screenshot files, SwiftShader,
+zero GL error and an intact context. The QA camera follows only the third crab's translation so a
+slow software run retains its moving subject. Parent validation requires different hashes for the
+two images. Actual `20261013T025538.029727Z-chrome-crabs` passes; both frames were inspected and
+retain the moving colony, hashes differ, and the kernel delta is empty. This does not qualify
+continuous gait, hardware performance, current Android rendering, claw curvature or a filtered
+shell microtexture; those remain open, and the Android emulator/KVM was not touched.

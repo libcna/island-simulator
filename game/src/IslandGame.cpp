@@ -1642,7 +1642,14 @@ namespace island
         birdFlock_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         butterflyMeadow_.Update(
             deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        const CrabState previousCrabSubject = crabColony_.Crabs()[2U];
         crabColony_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
+        if (viewpoint_ == FixedViewpoint::CrabDetail) {
+            const CrabState& subject = crabColony_.Crabs()[2U];
+            cameraPosition_ += Vector3(subject.x - previousCrabSubject.x,
+                                       subject.y - previousCrabSubject.y,
+                                       subject.z - previousCrabSubject.z);
+        }
         const auto previousBoar=boarHerd_.Boars().front();
         boarHerd_.Update(deltaSeconds, cameraPosition_.X, cameraPosition_.Y, cameraPosition_.Z);
         if(boarCaptureClock) {

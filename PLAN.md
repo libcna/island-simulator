@@ -434,7 +434,12 @@ docs/stream-course.md and docs/environment-field-design.md.
   split claws, shortened eye stalks, mouthparts and lateral shell teeth. The 12-vertex far LOD,
   thirty-agent population and one batch remain unchanged. Inspected contained evidence
   `20261012T212449.173818Z-crabs` shows five near animals in one draw with empty kernel deltas;
-  see `docs/crab-form.md`. All five requested species now have a first native visual pass, but
+  a second pass applies fixed-sun facet lighting, adds a tapered third/toe segment to all eight
+  legs and replaces each black diamond eye with a coloured socket plus smaller dark globe. Near
+  geometry is738vertices/246triangles, at most354240bytes for all30, still one draw. Actual native
+  025356 and Chrome/SwiftShader025538 pass; Web retains the moving colony in two different-hash
+  frames over60intervals with GL0/context intact/kernel[]. Android current model remains pending.
+  See `docs/crab-form.md`. All five requested species now have a first native visual pass, but
   the umbrella item is intentionally not complete because they remain visibly procedural and
   Web/Android/performance review is open. See `docs/dolphins.md`.
 
