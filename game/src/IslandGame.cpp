@@ -1449,6 +1449,7 @@ namespace island
                   << "island-simulator: monkeys use a horizontal lofted trunk and distance-driven quadrupedal gait\n"
                   << "island-simulator: monkey tree routes reject isolated canopy and mangroves\n"
                   << "island-simulator: near monkeys use bone-following finger and toe silhouettes\n"
+                  << "island-simulator: near monkey tails keep a muscular furry base and twelve raised clumps through the prehensile hook\n"
                   << "island-simulator: calm monkeys use bounded skeletal head attention\n"
                   << "island-simulator: terrain-conforming contact shadows in one portable "
                      "near-field batch\n"

@@ -33,7 +33,10 @@ namespace island::MonkeyTailProfile
         // A strong furry base tapers progressively before the closed tip. The
         // near mesh adds sparse raised fur clumps, so this underlying skin need
         // not remain a uniform hose merely to preserve a furry silhouette.
-        const float radius=(.032f+.034f*(1-t))*std::sqrt(std::max(0.0f,1.0f-std::pow(t,12.0f)));
+        // A capuchin-like prehensile tail is muscular at the root and remains
+        // visibly fur-bearing through the hook.  Keep the terminal closure rapid
+        // so the larger profile does not end as a blunt open hose.
+        const float radius=(.040f+.050f*(1-t))*std::sqrt(std::max(0.0f,1.0f-std::pow(t,16.0f)));
         return {centre, tangent, radius, u2*(3-2*u),
                 segment, std::min(2, segment+1)};
     }

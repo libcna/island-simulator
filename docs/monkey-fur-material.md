@@ -1,5 +1,39 @@
 # Monkey fur material
 
+## Muscular prehensile-tail volume — 2026-10-13
+
+The preceding pass was directionally better but the 66 mm root and roughly 37 mm
+four-fifths radius still read as a long rat-like cord beside the much larger torso in
+the actual side image. The profile now starts at 90 mm, remains above 48 mm through
+80 percent and above 39 mm through 90 percent of its centreline, then closes rapidly
+without a blunt cap. The existing Hermite centreline, forward/upward terminal hook and
+three animated tail bones are unchanged.
+
+The near model now distributes twelve rather than eight raised fur clumps from the root
+through 83.6 percent of the tail. Their height is 22–27 mm and every root retains the
+same two-bone blend as the underlying skin, preventing gaps during motion. This adds only
+16 vertices / 12 triangles to the preceding near mesh: current near/far geometry is
+2,065/797 vertices and 3,136/1,208 triangles with the same atlas, draw count, bones and
+seven-agent population. Profile tests enforce monotonic taper, the new retained volume,
+closed tip, C1 centre/tangent continuity and normalized blend weights.
+
+Release and Debug skinning-shader, gait/profile and sole tests pass. Actual contained
+llvmpipe `20261013T051947.895356Z-monkey-tree` passes all nine deterministic states
+with an empty kernel delta; selected ground, reach and release poses were inspected and
+keep the fuller hook connected. The ordinary `20261013T052129.036707Z-monkeys` capture
+also passes, but a foreground trunk partly obscures the subject. An attempted opposite-
+side camera produced worse trunk/leaf occlusion and was reverted rather than retained.
+
+The first current Chrome/SwiftShader attempt
+`20261013T053301.870364Z-chrome-monkeys` exceeded its software-capture time limit after
+writing the initial and four intermediate images; it remains failed. An unchanged retry
+with a larger outer limit, `20261013T054045.083047Z-chrome-monkeys`, passes 60 finite
+intervals with `glError=0`, an intact context and empty final kernel delta. Start, four
+intermediate and end images were all inspected: the larger tail remains connected and
+voluminous through turns, although broad leaves obscure two intermediate poses. Limb/
+torso joints, continuous natural gait and current Android rendering remain open, so this
+is another bounded visual improvement rather than final realism acceptance.
+
 ## Short primate face and fur-broken hooked tail — 2026-10-13
 
 The renewed current-binary audit used the complete deterministic tree excursion

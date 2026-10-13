@@ -663,6 +663,18 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   Chrome/SwiftShader015419.973741Z-chrome-monkeys PASS60 intervals/glError0/context
   intact/kernel[], all6 images inspected. Manifold joints, front-face detail, continuous
   natural gait and Android current-model review remain; task stays unchecked.
+  Fifth follow-up directly increases prehensile-tail mass rather than changing colour:
+  radius now tapers from90mm and remains>48mm through80%/>39mm through90%, with a rapid
+  closed tip and12 larger two-bone fur clumps. Near/far geometry is2065/797vertices,
+  3136/1208triangles; same three tail bones, fur atlas, draws and seven-agent population.
+  Release+Debug3/3 focused tests pass. Actual nine-state llvmpipe
+  051947.895356Z-monkey-tree PASS/inspected/kernel[] clearly retains the muscular hook
+  through ground approach and tree reach; ordinary052129.036707Z-monkeys also PASS but
+  is partly tree-occluded and not overclaimed. A proposed opposite-side camera was
+  visually worse and reverted. First Web053301.870364Z attempt timed out after four pose
+  images and remains failed. Unchanged retry054045.083047Z-chrome-monkeys PASS60intervals/
+  GL0/context intact/kernel[]; start/four poses/end all inspected and show the thicker
+  tail connected through live turns. Torso/limb joints, continuous gait and Android remain.
 - [~] Move the hut substantially farther inland and rebuild its appearance toward the
   user's reference: raised timber house, front veranda/railing, broad pitched roof,
   exposed framing/braces, plank walls and framed door/windows in a jungle setting.

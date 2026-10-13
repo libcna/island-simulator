@@ -511,12 +511,12 @@ namespace island
                 else mesh.indices.insert(mesh.indices.end(), {a, b, c, a, c, d});
             }
             if (near) {
-                // Eight small three-sided clumps break the smooth hose outline without
+                // Twelve small three-sided clumps break the smooth hose outline without
                 // a second material or texture. They inherit the same two tail bones,
                 // so their roots cannot detach while the tail curls and sways.
                 constexpr float GoldenAngle=2.39996323f;
-                for(int tuft=0;tuft<8;++tuft) {
-                    const float t=.10f+.10f*tuft;
+                for(int tuft=0;tuft<12;++tuft) {
+                    const float t=.055f+.071f*tuft;
                     const auto section=MonkeyTailProfile::Sample(anchors,t);
                     const Vector3 axis=Vector3::Normalize(vector(section.tangent));
                     const Vector3 right=Vector3::Right;
@@ -527,7 +527,7 @@ namespace island
                     const Vector3 surface=vector(section.centre)+radial*section.radius;
                     const std::array<Vector3,4> points{{surface-axis*.015f-side*.005f,
                         surface+axis*.010f-side*.005f,surface+side*.007f,
-                        surface+radial*(.017f+.0020f*(tuft%3))-axis*.005f}};
+                        surface+radial*(.022f+.0025f*(tuft%3))-axis*.005f}};
                     const auto first=static_cast<std::uint16_t>(mesh.vertices.size());
                     for(std::size_t i=0;i<points.size();++i) {
                         AddVertex(mesh,points[i],radial,bones[section.firstBone],
