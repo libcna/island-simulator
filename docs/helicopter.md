@@ -10,9 +10,9 @@ sample `RenderedTerrainSurface`; the body is not allowed to float or use one gue
 height.
 
 The model is original project procedural geometry, not a downloaded asset. An opaque batch plus
-a depth-read translucent-glass batch contain 1,436 triangles: a multi-ring fuselage, sealed glazed nose,
+a depth-read translucent-glass batch contain 1,748 triangles: a multi-ring fuselage, sealed glazed nose,
 windshield mullion, tail boom and empennage, stationary main and tail rotors, terrain-following
-skids, four open doorways, two threshold/ramp levels, a supported cabin floor, two pilot seats,
+skids, four outward-open framed and glazed door panels, two threshold/ramp levels, a supported cabin floor, two pilot seats,
 paired cyclics, instrument lamps and a rear bench. Provenance is recorded in
 `ASSET_LICENSES.md` and `assets/manifest.json`.
 
@@ -95,6 +95,26 @@ metal. Chrome/SwiftShader `20261013T123738.786800Z-chrome-helicopter` passes ext
 views,60 finite intervals each, GL0, intact contexts and kernel[]; both Web images were inspected
 and show no atlas bleed through the glazing.
 
+## Visible open-door pass
+
+The fifth bounded pass replaces the four visually empty side openings with four actual doors held
+open outside the cabin: the pilot doors hinge forward and the rear doors hinge aft. Each door has
+an opaque lower skin, upper cap, translucent window, volumetric perimeter and belt frames, plus a
+small metal handle. They reuse the existing opaque and depth-read glass batches, so the complete
+model remains exactly two draws while rising from 1,436 to 1,748 triangles. The panels sit outside
+the four tested perpendicular approach corridors; collision, thresholds, walkable floor and all
+four controller entry routes are unchanged.
+
+Fresh inspected native evidence is
+`build-consumer/software-captures/20261013T153007.168360Z-helicopter` (303 colour bins,
+54.97 luminance deviation, 234.95 spatial contrast) and
+`build-consumer/software-captures/20261013T153247.865624Z-helicopter-inside` (256 colour bins,
+30.43 luminance deviation, 137.19 spatial contrast). Both pass the diagnostic, image-diversity and
+empty-kernel-delta gates. Focused Chrome/SwiftShader evidence
+`build/browser-software/20261013T153637.307230Z-chrome-helicopter` passes both inspected views with
+60 finite intervals each, GL error zero, intact contexts and no new kernel GPU fault. The ARM64
+debug APK and Android lint also build successfully without starting an emulator.
+
 Open work includes richer body anatomy and small mechanical detail, improved interior and
 exterior lighting, door animation, explicit sitting interaction, live free-walk visual review,
-physical performance measurement, and Android capture qualification.
+physical performance measurement, and Android runtime/capture qualification.

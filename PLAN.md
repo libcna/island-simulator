@@ -919,8 +919,15 @@ and simplified elongated cheek remain. No full-suite/Web/Android claim.
   `20261013T123312.897455Z-helicopter` exterior and
   `20261013T123336.026355Z-helicopter-inside` cabin pass with kernel[]; Chrome/SwiftShader
   `20261013T123738.786800Z-chrome-helicopter` passes both inspected views,60 intervals each,
-  GL0, intact contexts and kernel[]. Richer anatomy/mechanics, interactions, free walking,
-  Android and performance review remain. See `docs/helicopter.md`.
+  GL0, intact contexts and kernel[]. A fifth pass adds four visibly outward-open doors with lower
+  skins, translucent windows, volumetric frames and handles. They reuse the existing two batches,
+  raising the model only to 1,748 triangles while leaving all four tested entry corridors and
+  collision unchanged. Inspected native `20261013T153007.168360Z-helicopter` and
+  `20261013T153247.865624Z-helicopter-inside` evidence passes, as does focused Chrome/SwiftShader
+  `20261013T153637.307230Z-chrome-helicopter` with both views at 60 intervals, GL0, intact contexts
+  and kernel[]. ARM64 assemble/lint passes without an emulator. Richer anatomy/mechanics,
+  interactions, free walking, Android runtime and performance review remain. See
+  `docs/helicopter.md`.
 
 All six items remain incomplete or in progress. Stream/cave/helicopter locations should be coordinated with
 hut access and existing wildlife; do not remove vegetation or relocate animals blindly.

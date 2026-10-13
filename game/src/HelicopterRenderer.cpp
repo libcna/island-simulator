@@ -272,6 +272,30 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
         beam({side*.93f,2.15f,door.first},{side*.93f,2.15f,door.second},.075f,oliveLight);
     }
 
+    // Four visibly open doors explain the otherwise skeletal side openings. Pilot
+    // panels hinge forward and rear panels hinge aft, leaving the tested perpendicular
+    // entry corridors unobstructed. Glass shares the existing depth-read second draw.
+    const auto openDoor=[&](const float side,const float hingeZ,const float farZ) {
+        const Vector3 hingeLow(side*.99f,.49f,hingeZ),farLow(side*1.62f,.49f,farZ);
+        const auto point=[&](const float across,const float y) {
+            return Vector3::Lerp(hingeLow,farLow,across)+Vector3(0,y-.49f,0);
+        };
+        quad(point(0,.49f),point(1,.49f),point(1,.98f),point(0,.98f),olive);
+        quad(point(0,1.88f),point(1,1.88f),point(1,2.08f),point(0,2.08f),oliveLight);
+        quad(point(.12f,1.00f),point(.88f,1.00f),point(.88f,1.86f),point(.12f,1.86f),
+             glass,Surface::Glass);
+        beam(point(0,.49f),point(0,2.08f),.065f,oliveDark);
+        beam(point(1,.49f),point(1,2.08f),.065f,oliveDark);
+        beam(point(0,.49f),point(1,.49f),.065f,oliveDark);
+        beam(point(0,2.08f),point(1,2.08f),.065f,oliveDark);
+        beam(point(.10f,.99f),point(.90f,.99f),.052f,oliveDark);
+        beam(point(.70f,1.12f),point(.87f,1.12f),.034f,metal,Surface::Metal);
+    };
+    for(const float side:{-1.0f,1.0f}) {
+        openDoor(side,1.46f,2.35f);
+        openDoor(side,-1.68f,-2.55f);
+    }
+
     // Two pilot seats, rear bench, instrument panel and paired cyclic controls.
     for(const float x:{-.46f,.46f}) {
         box({x-.27f,.46f,.08f},{x+.27f,.76f,.66f},seat,Surface::Upholstery);
@@ -410,6 +434,8 @@ HelicopterRenderer::HelicopterRenderer(GraphicsDevice& device,const HelicopterPl
     std::cout<<detail<<'\n';MirrorRuntimeDiagnosticToPlatformLog(detail);
     const std::string material="island-simulator: helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber";
     std::cout<<material<<'\n';MirrorRuntimeDiagnosticToPlatformLog(material);
+    const std::string doors="island-simulator: helicopter carries four outward-open framed door panels with glazing and handles";
+    std::cout<<doors<<'\n';MirrorRuntimeDiagnosticToPlatformLog(doors);
 }
 
 HelicopterRenderer::~HelicopterRenderer()=default;

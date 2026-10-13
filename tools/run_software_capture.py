@@ -619,7 +619,8 @@ def main():
                 for marker in (camera_marker,
                                "grounded helicopter original procedural shell, open pilot/rear doors, interior and stationary rotors",
                                "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane",
-                               "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber"):
+                               "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber",
+                               "helicopter carries four outward-open framed door panels with glazing and handles"):
                     if marker not in diagnostics:
                         raise RuntimeError(f"helicopter integration diagnostic missing: {marker}")
                 if not re.search(r"helicopter 2 draw", diagnostics):

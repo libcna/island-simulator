@@ -69,6 +69,7 @@ def validate_helicopter_report(report):
             or not isinstance(frame, str) or not frame.endswith(".png")
             or "helicopter uses rounded twenty-sided cockpit glazing, an articulated eight-link rotor hub, tubular rising-tip skids, and a tapered tailplane" not in log
             or "helicopter uses a generated 128-square atlas for worn paint, brushed metal, woven seats, and fine rubber" not in log
+            or "helicopter carries four outward-open framed door panels with glazing and handles" not in log
             or not re.search(r"helicopter 2 draw", log)
             or re.search(r"fallback:|GL_INVALID_|gl-error |gl-debug .*severity=high", log, re.I)):
             raise RuntimeError("helicopter view lacks current glazing, bounded draws or clean graphics state")
